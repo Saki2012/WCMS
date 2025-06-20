@@ -1,0 +1,398 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\IT-013\\Desktop\\WCMS\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|c:\\users\\it-013\\desktop\\wcms\\features\\siteedit\\announcement\\announcementapiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|solutionrelative:features\\siteedit\\announcement\\announcementapiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|c:\\users\\it-013\\desktop\\wcms\\syscore\\ibizservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|solutionrelative:syscore\\ibizservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|c:\\users\\it-013\\desktop\\wcms\\features\\siteedit\\announcement\\announcementmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|solutionrelative:features\\siteedit\\announcement\\announcementmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|c:\\users\\it-013\\desktop\\wcms\\syscore\\basicrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|solutionrelative:syscore\\basicrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|c:\\users\\it-013\\desktop\\wcms\\syscore\\model\\syschangelog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|solutionrelative:syscore\\model\\syschangelog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|c:\\users\\it-013\\desktop\\wcms\\features\\siteedit\\announcement\\announcementcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|solutionrelative:features\\siteedit\\announcement\\announcementcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|c:\\users\\it-013\\desktop\\wcms\\syscore\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|solutionrelative:syscore\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|c:\\users\\it-013\\desktop\\wcms\\syscore\\accountlogin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|solutionrelative:syscore\\accountlogin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|c:\\users\\it-013\\desktop\\wcms\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|c:\\users\\it-013\\desktop\\wcms\\syscore\\model\\basicdatamodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|solutionrelative:syscore\\model\\basicdatamodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|c:\\users\\it-013\\desktop\\wcms\\syscore\\library\\libattribute.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|solutionrelative:syscore\\library\\libattribute.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|c:\\users\\it-013\\desktop\\wcms\\syscore\\enum\\sysenum.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|solutionrelative:syscore\\enum\\sysenum.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|c:\\users\\it-013\\desktop\\wcms\\controllers\\weatherforecastcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|solutionrelative:controllers\\weatherforecastcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|c:\\users\\it-013\\desktop\\wcms\\syscore\\enum\\sysparam.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|solutionrelative:syscore\\enum\\sysparam.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|c:\\users\\it-013\\desktop\\wcms\\syscore\\library\\libcompress.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|solutionrelative:syscore\\library\\libcompress.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|c:\\users\\it-013\\desktop\\wcms\\syscore\\model\\operatelogmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|solutionrelative:syscore\\model\\operatelogmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|c:\\users\\it-013\\desktop\\wcms\\syscore\\model\\fileinfomodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|solutionrelative:syscore\\model\\fileinfomodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|c:\\users\\it-013\\desktop\\wcms\\syscore\\model\\usermodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|solutionrelative:syscore\\model\\usermodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|c:\\users\\it-013\\desktop\\wcms\\syscore\\library\\libdata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|solutionrelative:syscore\\library\\libdata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|c:\\users\\it-013\\desktop\\wcms\\syscore\\model\\rolepermissionmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{76A25ACA-F4D1-4F26-AD40-F1A6219BC67B}|WCMS.csproj|solutionrelative:syscore\\model\\rolepermissionmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 80,
+          "SelectedChildIndex": 8,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "IBizService.cs",
+              "DocumentMoniker": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\IBizService.cs",
+              "RelativeDocumentMoniker": "SysCore\\IBizService.cs",
+              "ToolTip": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\IBizService.cs",
+              "RelativeToolTip": "SysCore\\IBizService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAcwBsAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T03:21:49.625Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\IT-013\\Desktop\\WCMS\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\IT-013\\Desktop\\WCMS\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAABIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T03:05:55.647Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AnnouncementModel.cs",
+              "DocumentMoniker": "C:\\Users\\IT-013\\Desktop\\WCMS\\Features\\SiteEdit\\Announcement\\AnnouncementModel.cs",
+              "RelativeDocumentMoniker": "Features\\SiteEdit\\Announcement\\AnnouncementModel.cs",
+              "ToolTip": "C:\\Users\\IT-013\\Desktop\\WCMS\\Features\\SiteEdit\\Announcement\\AnnouncementModel.cs",
+              "RelativeToolTip": "Features\\SiteEdit\\Announcement\\AnnouncementModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAABgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T02:45:12.361Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "AnnouncementController.cs",
+              "DocumentMoniker": "C:\\Users\\IT-013\\Desktop\\WCMS\\Features\\SiteEdit\\Announcement\\AnnouncementController.cs",
+              "RelativeDocumentMoniker": "Features\\SiteEdit\\Announcement\\AnnouncementController.cs",
+              "ToolTip": "C:\\Users\\IT-013\\Desktop\\WCMS\\Features\\SiteEdit\\Announcement\\AnnouncementController.cs",
+              "RelativeToolTip": "Features\\SiteEdit\\Announcement\\AnnouncementController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T02:26:50.934Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "BasicDataModel.cs",
+              "DocumentMoniker": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Model\\BasicDataModel.cs",
+              "RelativeDocumentMoniker": "SysCore\\Model\\BasicDataModel.cs",
+              "ToolTip": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Model\\BasicDataModel.cs",
+              "RelativeToolTip": "SysCore\\Model\\BasicDataModel.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAAowCoAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T01:47:18.35Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "SysCore\\ApplicationDbContext.cs",
+              "ToolTip": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\ApplicationDbContext.cs",
+              "RelativeToolTip": "SysCore\\ApplicationDbContext.cs",
+              "ViewState": "AgIAACQAAAAAAAAAAAAAACYAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T01:41:16.009Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "BasicRepository.cs",
+              "DocumentMoniker": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\BasicRepository.cs",
+              "RelativeDocumentMoniker": "SysCore\\BasicRepository.cs",
+              "ToolTip": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\BasicRepository.cs",
+              "RelativeToolTip": "SysCore\\BasicRepository.cs",
+              "ViewState": "AgIAAJcBAAAAAAAAAAAswLcBAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T01:18:48.598Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "SysChangeLog.cs",
+              "DocumentMoniker": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Model\\SysChangeLog.cs",
+              "RelativeDocumentMoniker": "SysCore\\Model\\SysChangeLog.cs",
+              "ToolTip": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Model\\SysChangeLog.cs",
+              "RelativeToolTip": "SysCore\\Model\\SysChangeLog.cs",
+              "ViewState": "AgIAAEwAAAAAAAAAAAAowFwAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T02:07:33.33Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AnnouncementAPIService.cs",
+              "DocumentMoniker": "C:\\Users\\IT-013\\Desktop\\WCMS\\Features\\SiteEdit\\Announcement\\AnnouncementAPIService.cs",
+              "RelativeDocumentMoniker": "Features\\SiteEdit\\Announcement\\AnnouncementAPIService.cs",
+              "ToolTip": "C:\\Users\\IT-013\\Desktop\\WCMS\\Features\\SiteEdit\\Announcement\\AnnouncementAPIService.cs",
+              "RelativeToolTip": "Features\\SiteEdit\\Announcement\\AnnouncementAPIService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T02:27:46.834Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "LibAttribute.cs",
+              "DocumentMoniker": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Library\\LibAttribute.cs",
+              "RelativeDocumentMoniker": "SysCore\\Library\\LibAttribute.cs",
+              "ToolTip": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Library\\LibAttribute.cs",
+              "RelativeToolTip": "SysCore\\Library\\LibAttribute.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAABRAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T01:13:29.621Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "AccountLogin.cs",
+              "DocumentMoniker": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\AccountLogin.cs",
+              "RelativeDocumentMoniker": "SysCore\\AccountLogin.cs",
+              "ToolTip": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\AccountLogin.cs",
+              "RelativeToolTip": "SysCore\\AccountLogin.cs",
+              "ViewState": "AgIAAEIAAAAAAAAAAAAowFIAAACPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T01:35:44.166Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "SysEnum.cs",
+              "DocumentMoniker": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Enum\\SysEnum.cs",
+              "RelativeDocumentMoniker": "SysCore\\Enum\\SysEnum.cs",
+              "ToolTip": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Enum\\SysEnum.cs",
+              "RelativeToolTip": "SysCore\\Enum\\SysEnum.cs",
+              "ViewState": "AgIAAFQAAAAAAAAAAAAcwGoAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T01:50:33.83Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "SysParam.cs",
+              "DocumentMoniker": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Enum\\SysParam.cs",
+              "RelativeDocumentMoniker": "SysCore\\Enum\\SysParam.cs",
+              "ToolTip": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Enum\\SysParam.cs",
+              "RelativeToolTip": "SysCore\\Enum\\SysParam.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB8AAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T02:13:10.741Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "LibCompress.cs",
+              "DocumentMoniker": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Library\\LibCompress.cs",
+              "RelativeDocumentMoniker": "SysCore\\Library\\LibCompress.cs",
+              "ToolTip": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Library\\LibCompress.cs",
+              "RelativeToolTip": "SysCore\\Library\\LibCompress.cs",
+              "ViewState": "AgIAAE4AAAAAAAAAAAAAAGkAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T02:08:17.624Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "WeatherForecastController.cs",
+              "DocumentMoniker": "C:\\Users\\IT-013\\Desktop\\WCMS\\Controllers\\WeatherForecastController.cs",
+              "RelativeDocumentMoniker": "Controllers\\WeatherForecastController.cs",
+              "ToolTip": "C:\\Users\\IT-013\\Desktop\\WCMS\\Controllers\\WeatherForecastController.cs",
+              "RelativeToolTip": "Controllers\\WeatherForecastController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T01:18:37.103Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "FileInfoModel.cs",
+              "DocumentMoniker": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Model\\FileInfoModel.cs",
+              "RelativeDocumentMoniker": "SysCore\\Model\\FileInfoModel.cs",
+              "ToolTip": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Model\\FileInfoModel.cs",
+              "RelativeToolTip": "SysCore\\Model\\FileInfoModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T01:35:36.414Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "LibData.cs",
+              "DocumentMoniker": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Library\\LibData.cs",
+              "RelativeDocumentMoniker": "SysCore\\Library\\LibData.cs",
+              "ToolTip": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Library\\LibData.cs",
+              "RelativeToolTip": "SysCore\\Library\\LibData.cs",
+              "ViewState": "AgIAABoAAAAAAAAAAAAcwCsAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T01:55:52.113Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "RolePermissionModel.cs",
+              "DocumentMoniker": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Model\\RolePermissionModel.cs",
+              "RelativeDocumentMoniker": "SysCore\\Model\\RolePermissionModel.cs",
+              "ToolTip": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Model\\RolePermissionModel.cs",
+              "RelativeToolTip": "SysCore\\Model\\RolePermissionModel.cs",
+              "ViewState": "AgIAADAAAAAAAAAAAAAowEAAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T01:48:47.292Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "UserModel.cs",
+              "DocumentMoniker": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Model\\UserModel.cs",
+              "RelativeDocumentMoniker": "SysCore\\Model\\UserModel.cs",
+              "ToolTip": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Model\\UserModel.cs",
+              "RelativeToolTip": "SysCore\\Model\\UserModel.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAMwAwAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T01:12:39.597Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "OperateLogModel.cs",
+              "DocumentMoniker": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Model\\OperateLogModel.cs",
+              "RelativeDocumentMoniker": "SysCore\\Model\\OperateLogModel.cs",
+              "ToolTip": "C:\\Users\\IT-013\\Desktop\\WCMS\\SysCore\\Model\\OperateLogModel.cs",
+              "RelativeToolTip": "SysCore\\Model\\OperateLogModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T01:12:56.006Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{40ea2e6b-2121-4bb8-a43e-c83c04b51041}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{e8b06f52-6d01-11d2-aa7d-00c04f990343}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e78e0cf7-2e4e-48a7-bf7f-a94d9330a3be}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

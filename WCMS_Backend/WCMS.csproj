@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GraphQL" Version="8.5.0" />
+    <PackageReference Include="JWT" Version="11.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Finance\" />
+    <Folder Include="Features\BizResx\" />
+    <Folder Include="Features\SiteEdit\Banner\" />
+    <Folder Include="Features\SiteEdit\FileArchive\" />
+    <Folder Include="Features\SiteEdit\Category\" />
+    <Folder Include="Features\SiteEdit\Tag\" />
+    <Folder Include="Features\SiteEdit\PCS_Sites\" />
+    <Folder Include="Features\SiteEdit\WebResource\" />
+    <Folder Include="Features\SiteEdit\PageManagement\" />
+    <Folder Include="Features\SiteEdit\Gallery\" />
+    <Folder Include="Features\SysSetting\SiteInfo\EnvConfig\" />
+    <Folder Include="Features\SysSetting\SiteInfo\SiteArch\" />
+    <Folder Include="Features\SysSetting\SiteInfo\SEO\" />
+    <Folder Include="Features\SysSetting\SiteInfo\SystemInfo\" />
+    <Folder Include="Features\SysSetting\UserAccount\User\" />
+    <Folder Include="Features\SysSetting\UserAccount\RolePermission\" />
+    <Folder Include="SpecFeatures\T1810\" />
+    <Folder Include="SpecFeatures\T1810\SiteEdit\Research\" />
+    <Folder Include="SpecFeatures\T1810\SiteEdit\USR\" />
+  </ItemGroup>
+
+</Project>
