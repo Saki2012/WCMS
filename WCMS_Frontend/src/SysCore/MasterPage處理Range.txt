@@ -1,0 +1,29 @@
+/*
+以下為主頁動態加載的東西:
+MasterPage:
+✅1. <asp:Literal ID="Li_Lang" runat="server" /> Menu的導覽區塊
+✅2. <asp:Literal ID="Menu1" runat="server" /> //右側主要Menu、Menu已完成
+3. <asp:ContentPlaceHolder ID="ContentPlaceContent" runat="server">  </asp:ContentPlaceHolder>
+✅4. <asp:Label ID="lbl_footer" runat="server"></asp:Label>
+✅5. <asp:Label ID="lbl_google_analysis" runat="server" Style="display: none;"></asp:Label>
+
+SubPage:
+1. <asp:Literal ID="Lit_Banner" runat="server" />
+2. <asp:Literal ID="Lit_bread" runat="server" />
+3. <asp:Panel ID="ContentSubMenu" runat="server" CssClass="ContentSubMenu">
+    <asp:PlaceHolder ID="PlaceHolder_SubMenu" runat="server"></asp:PlaceHolder>
+4. <asp:Panel ID="ContentThirdMenu" runat="server" CssClass="ContentThirdMenu">
+    <asp:PlaceHolder ID="PlaceHolder_ThirdMenu" runat="server"></asp:PlaceHolder>
+
+5. <asp:Panel ID="ContentConentA" runat="server" CssClass="ContentConentA">
+   <hr class="mt-1 mb-4" />
+   <asp:ContentPlaceHolder ID="ContentPlaceConentA" runat="server">
+   </asp:ContentPlaceHolder>
+   </asp:Panel>
+
+6. <asp:Panel ID="ContentConentB" runat="server" CssClass="ContentConentB">
+   <hr class="mt-1 mb-4" />
+   <asp:ContentPlaceHolder ID="ContentPlaceContentB" runat="server">
+   </asp:ContentPlaceHolder>
+   </asp:Panel>
+*/

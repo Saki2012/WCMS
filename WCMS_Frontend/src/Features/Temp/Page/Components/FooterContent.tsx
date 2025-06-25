@@ -1,0 +1,146 @@
+/*footer模塊*/
+
+export type NavItem = {
+  Title: string;
+  URL: string;
+};
+
+interface Props {
+  items: NavItem[];
+}
+
+export default function FooterComp({}: Props) {
+  return (
+    <footer className="footer_section">
+        <div className="footer-black">
+            {/* 從DB抓SiteFooter資料後直接渲染，本身會是HTML格式，故不用再次調整，另外有機會要來優化編輯器，或是就廢除設定功能了 */}
+            <section className="contact_section layout_padding3-top">
+                <div className="container-customize1">
+                    <div className="widgets-box">
+                        <div className="row mx-0">
+                            <div className="col-sm-3 col-12">
+                                <div className="row">
+                                    <div className="col-12">
+                                        <div className="footer-widget about-widget my-md-4 mb-3">
+                                            <img alt={"國立臺灣藝術大學_研究發展處 LOGO"} src={"/Legacy/Images/logo/logo_Footer_W_225x125.svg"}/>
+                                            </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-sm-5 col-12">
+                                <div className="row">
+                                    <div className="col-12">
+                                        <div className="footer-widget info-widget">
+                                            <div className="widget-content w-100">
+                                                <div className="row">
+                                                    <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12 p-0">
+                                                        <ul className="list">
+                                                            <li>
+                                                                <a href="/Front/About/About-Intro/Page.aspx?id=nczTcFIYBNg=" tabIndex={5} title="">關於本處</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="/Front/Division-Planning/Division-Planning-About/Page.aspx?id=4XxsUoWQkLo=" tabIndex={5} title="">研究企劃組</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="/Front/Division-Academic/Division-Academic-About/Page.aspx?id=UDOf%2B%2FVxP3k=" tabIndex={5} title="">學術發展組</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="https://iic.ntua.edu.tw/" tabIndex={5} target="_blank" title="">產學暨育成中心</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="/Front/TACP/TACP-About/TACP-About-Intro/Page.aspx?id=9qI7O7aHI9M=" tabIndex={5} title="">臺灣文化政策智庫中心</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="/Front/USR/USR-About/USR-About-Org/Page.aspx?id=NQdqv8ueiIc=" tabIndex={5} title="">大學社會責任實踐計畫推動辦公室</a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                    <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12 p-0">
+                                                        <ul className="list">
+                                                            <li>
+                                                                <a href="/Front/Allnews/All-announcement/News.aspx?id=i3kqobGUgUc=" tabIndex={5} title="">最新消息</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="/Front/Allnews/Project-solicitation/National-Science-Accounting/News.aspx?id=phLQr%2F7AFj8=" tabIndex={5} title="">計畫徵件</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="/Front/RelevantRegulations/DownloadsAll1/Archive.aspx?id=6CcudKwPdvA=" tabIndex={5} title="">相關法規</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="/Front/All-Downloads/DownloadsAllView/Archive.aspx?id=xGxSXldkym4=" tabIndex={5} title="">資料下載</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="javascript:void(0);" tabIndex={5} title="">研究發展處 Facebook</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="javascript:void(0);" tabIndex={5} title="">研究發展處 Youtube</a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-sm-4 col-12">
+                                <div className="row">
+                                    <div className="col-12">
+                                        <div className="footer-widget info-widget mb-md-4 mb-3">
+                                            <div className="widget-title-content">
+                                                <div className="TitleDivBox">
+                                                    <span className="widget-title">聯絡資訊</span>&nbsp;
+                                                </div>
+                                            </div>
+                                            <div className="widget-content">
+                                                <ul className="list">
+                                                    <li>總機 ：( 02 ) 2272-2181</li>
+                                                    <li>傳真 ：( 02 ) 2969-4830</li>
+                                                    <li>Mail ：<a href="mailto:rd@ntua.edu.tw">rd@ntua.edu.tw</a>
+                                                    </li>
+                                                    <li>地址 ：22058 新北市板橋區大觀路一段59號</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <section className="visitor_section">
+            <div className="container-customize1">
+                <div className="col-12">
+                    <div className="row mx-0">
+                        <div className="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                            <div className="info_contact">
+                                <div className="dbox">
+                                    <p>Copyright © 2024. 國立臺灣藝術大學_研究發展處 All rights reserved.</p>
+                                </div>
+                            </div>
+                        </div>
+                        return SiteInfo()
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section className="copyright_section">
+            <div className="container-customize1">
+                <div className="col-12">
+                    <div className="row mx-0">
+                        <div className="col-md-12">
+                            <div className="dbox-tb">
+                                <p>為提供更為穩定的瀏覽品質與使用體驗，建議更新瀏覽器 Microsoft Edge / Google Chrome / Mozilla Firefox 或相容 W3C 網頁標準之瀏覽器  ( 螢幕最佳瀏覽解析度為1920*1080 )</p>
+                                <p className="px-2">｜</p>
+                                <p><a href="http://www.it-easygo.com/Main.aspx" title="國際暢行科技有限公司(另開新視窗)" rel="noopener noreferrer" target="_blank" tabIndex={5}>Design by it-easygo.</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </section>
+    </footer>
+  );
+}
