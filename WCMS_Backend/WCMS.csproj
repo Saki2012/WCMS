@@ -7,32 +7,39 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="SpecFeatures\T1810\SiteEdit\Research\Research_Biz.cs" />
+    <Compile Remove="SpecFeatures\T1810\SiteEdit\USR\USR_Biz.cs" />
+    <Compile Remove="SysCore\AccountLogin.cs" />
+    <Compile Remove="SysCore\Library\RecComparison.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EFCore.BulkExtensions" Version="9.0.1" />
+    <PackageReference Include="EFCore.BulkExtensions.MySql" Version="8.1.3" />
     <PackageReference Include="GraphQL" Version="8.5.0" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.12.1" />
     <PackageReference Include="JWT" Version="11.0.0" />
+    <PackageReference Include="MessagePack" Version="3.1.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.6" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.1" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.6" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Features\Finance\" />
     <Folder Include="Features\BizResx\" />
-    <Folder Include="Features\SiteEdit\Banner\" />
-    <Folder Include="Features\SiteEdit\FileArchive\" />
-    <Folder Include="Features\SiteEdit\Category\" />
-    <Folder Include="Features\SiteEdit\Tag\" />
     <Folder Include="Features\SiteEdit\PCS_Sites\" />
-    <Folder Include="Features\SiteEdit\WebResource\" />
-    <Folder Include="Features\SiteEdit\PageManagement\" />
-    <Folder Include="Features\SiteEdit\Gallery\" />
     <Folder Include="Features\SysSetting\SiteInfo\EnvConfig\" />
     <Folder Include="Features\SysSetting\SiteInfo\SiteArch\" />
     <Folder Include="Features\SysSetting\SiteInfo\SEO\" />
     <Folder Include="Features\SysSetting\SiteInfo\SystemInfo\" />
     <Folder Include="Features\SysSetting\UserAccount\User\" />
     <Folder Include="Features\SysSetting\UserAccount\RolePermission\" />
-    <Folder Include="SpecFeatures\T1810\" />
-    <Folder Include="SpecFeatures\T1810\SiteEdit\Research\" />
-    <Folder Include="SpecFeatures\T1810\SiteEdit\USR\" />
   </ItemGroup>
 
 </Project>

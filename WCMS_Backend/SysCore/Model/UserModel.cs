@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Security.AccessControl;
 using WCMS.SysCore.Library;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.Model
 {
@@ -23,6 +24,9 @@ namespace WCMS.SysCore.Model
         /// 角色
         /// </summary>
         [LibDesc] public string RoleId { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         [LibDesc] public string Email { get; set; }
         /// <summary>
         /// 帳戶狀態

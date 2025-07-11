@@ -3,28 +3,26 @@ using Newtonsoft.Json;
 using static WCMS.SysCore.Enum.SysEnum;
 using System.Reflection;
 using WCMS.SysCore.Library;
+using System.ComponentModel.DataAnnotations;
 
 namespace WCMS.SysCore.Model
 {
     /// <summary>
-    /// 變更日誌系統
+    /// 資料變更日誌系統
     /// </summary>
     public class SysChangeLog
     {
-
         #region Property
-        private readonly List<DynamicReflection> ModelReflects;
         private readonly DataChangeLogSet ChangeLogSet = new DataChangeLogSet() { DataChangeLog = new DataChangeLog(), DataChangeLogDetail = new List<DataChangeLogDetail>() };
         private readonly DbSet<DataChangeLog> DataChangeLog;
         private readonly DbSet<DataChangeLogDetail> DataChangeLogDetail;
         #endregion
 
         #region Construct
-        public SysChangeLog(ApplicationDbContext dataAccess, List<DynamicReflection> modelReflects)
+        public SysChangeLog(ApplicationDbContext dataAccess)
         {
             DataChangeLog = dataAccess.DataChangeLog;
             DataChangeLogDetail = dataAccess.DataChangeLogDetail;
-            ModelReflects = modelReflects;
         }
         #endregion
 
@@ -66,7 +64,7 @@ namespace WCMS.SysCore.Model
             List<DataChangeLogDetail> lst = DataChangeLogDetail.Where(p => p.DataChangeId == Id) as List<DataChangeLogDetail>;
             foreach (var data in lst)
             {
-                result.Add(data.TableIndex, DecompressJsonVal(data.ChangeData));
+                //result.Add(data.TableIndex, DecompressJsonVal(data.ChangeData));
             }
             return result;
         }
@@ -109,7 +107,8 @@ namespace WCMS.SysCore.Model
         {
             Dictionary<string, object[]> changeFieldsDic = GetChangeDataDic(tbIdx, oldModel, newModel, rowState);
             string json = JsonConvert.SerializeObject(changeFieldsDic);
-            return CompressJsonVal(json);
+            //return CompressJsonVal(json);
+            return null;
         }
         /// <summary>
         /// 獲取變更資料
@@ -127,40 +126,82 @@ namespace WCMS.SysCore.Model
                 switch (rowState)
                 {
                     case RowState.Insert:
-                        result.Add(info.Name, new object[] { null, ModelReflects[tbIdx].GetValue(newModel, info.Name) });
+                        //result.Add(info.Name, new object[] { null, ModelReflects[tbIdx].GetValue(newModel, info.Name) });
                         break;
                     case RowState.Update:
-                        result.Add(info.Name, new object[] { ModelReflects[tbIdx].GetValue(oldModel, info.Name), ModelReflects[tbIdx].GetValue(newModel, info.Name) });
+                        //result.Add(info.Name, new object[] { ModelReflects[tbIdx].GetValue(oldModel, info.Name), ModelReflects[tbIdx].GetValue(newModel, info.Name) });
                         break;
                     case RowState.Delete:
-                        result.Add(info.Name, new object[] { ModelReflects[tbIdx].GetValue(oldModel, info.Name), null });
+                        //result.Add(info.Name, new object[] { ModelReflects[tbIdx].GetValue(oldModel, info.Name), null });
                         break;
                 }
             }
             return result;
         }
-        /// <summary>
-        /// 壓縮
-        /// </summary>
-        /// <param name="json"></param>
-        /// <returns></returns>
-        private byte[] CompressJsonVal(string json)
-        {
-            string compressString = LibCompress.GZipCompressString(json);
-            byte[] bytes = LibCompress.ConvertStringToBytes(compressString);
-            return LibCompress.Compress(bytes);
-        }
-        /// <summary>
-        /// 解壓縮
-        /// </summary>
-        /// <param name="compressJson"></param>
-        /// <returns></returns>
-        private string DecompressJsonVal(byte[] compressJson)
-        {
-            byte[] decompress = LibCompress.Decompress(compressJson);
-            string str = LibCompress.ConvertBytesToString(decompress);
-            return LibCompress.GZipDecompressString(str);
-        }
+        ///// <summary>
+        ///// 壓縮
+        ///// </summary>
+        ///// <param name="json"></param>
+        ///// <returns></returns>
+        //private byte[] CompressJsonVal(string json)
+        //{
+        //    string compressString = LibCompress.GZipCompressString(json);
+        //    byte[] bytes = LibCompress.ConvertStringToBytes(compressString);
+        //    return LibCompress.Compress(bytes);
+        //}
+        ///// <summary>
+        ///// 解壓縮
+        ///// </summary>
+        ///// <param name="compressJson"></param>
+        ///// <returns></returns>
+        //private string DecompressJsonVal(byte[] compressJson)
+        //{
+        //    byte[] decompress = LibCompress.Decompress(compressJson);
+        //    string str = LibCompress.ConvertBytesToString(decompress);
+        //    return LibCompress.GZipDecompressString(str);
+        //}
         #endregion
+    }
+
+    public class SysChangeModel
+    {
+        /// <summary>
+        /// 每個功能單的唯一Id
+        /// </summary>
+        [Key] public Guid InternalId { get; set; }
+        /// <summary>
+        /// 修改版本
+        /// </summary>
+        [Key] public int Version { get; set; }              
+        /// <summary>
+        /// 功能Id
+        /// </summary>
+        public string ProgId { get; set; }
+        /// <summary>
+        /// 變更方式(新增/修改/刪除)
+        /// </summary>
+        public string OperationType { get; set; }
+        /// <summary>
+        /// 該功能表單主鍵(不一定唯一，找InternalId為準)
+        /// </summary>
+        public string PrimaryKeyValue { get; set; }
+        /// <summary>
+        /// 修改前/刪除前完整的資料格式 (
+        /// 壓縮過的json格式
+        /// </summary>
+        public byte[] BeforeData { get; set; }// 壓縮 JSON
+        /// <summary>
+        /// 新增後/修改後完整的資料格式
+        /// 壓縮過的json格式
+        /// </summary>
+        public byte[] AfterData { get; set; }// 壓縮 JSON
+        /// <summary>
+        /// 修改人員
+        /// </summary>
+        public string ModifyUserId { get; set; }
+        /// <summary>
+        /// 修改時間
+        /// </summary>
+        public DateTime ModifyTime { get; set; }
     }
 }

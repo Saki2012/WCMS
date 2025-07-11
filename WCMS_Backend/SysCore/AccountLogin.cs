@@ -2,6 +2,8 @@
 using System.Security.AccessControl;
 using System.Security.Claims;
 using WCMS.SysCore.Model;
+using GraphQL;
+using WCMS.SysCore.Interface;
 
 namespace WCMS.SysCore
 {

@@ -11,643 +11,124 @@ using WCMS.SysCore.Library;
 using Microsoft.EntityFrameworkCore;
 using static WCMS.SysCore.Enum.SysEnum;
 using System.Threading.Tasks;
+using static GraphQL.Validation.Rules.OverlappingFieldsCanBeMerged;
+using System.Collections.Generic;
+using WCMS.SysCore.Enum;
+using EFCore.BulkExtensions;
+using WCMS.SysCore.Interface;
+using System.Linq.Dynamic.Core;
+using Microsoft.VisualBasic;
+using System.Linq.Expressions;
+using System.Buffers.Text;
+using GraphQL;
 
 namespace WCMS.SysCore
 {
-    public class BasicRepository<TSet>
+    public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRepository<TModel> where TModel : class
     {
         #region Property
         /// <summary>
         /// 
         /// </summary>
-        public UserModel User { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        protected bool IsSetRefModel { get; set; } = true;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string ProgId
-        {
-            get
-            {
-                return ResxManage.GetProgId(this);
-            }
-        }
-        #endregion
-
-        #region SystemProperty
-        /// <summary>
-        /// 
-        /// </summary>
-        protected readonly ApplicationDbContext DataAccess;
-        /// <summary>
-        /// 
-        /// </summary>
-        private SysMessageLog _message;
-        /// <summary>
-        /// 
-        /// </summary>
-        public SysMessageLog Message
-        {
-            get
-            {
-                if (null == _message)
-                {
-                    _message = new SysMessageLog(User);
-                }
-
-                return _message;
-            }
-            set => _message = value;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        private DataFlowNo dataFlowNo;
-        /// <summary>
-        /// 
-        /// </summary>
-        public DataFlowNo DataFlowNo
-        {
-            get
-            {
-                if (null == dataFlowNo)
-                {
-                    dataFlowNo = DataAccess.Find<DataFlowNo>(ProgId);
-                    if (null == dataFlowNo)
-                    {
-                        dataFlowNo = new DataFlowNo() { ProgId = ProgId, FlowDate = DateTime.Today, FlowNo = 0 };
-                        DataAccess.Add(dataFlowNo);
-                    }
-                }
-                else
-                {
-                    if (dataFlowNo.FlowDate != DateTime.Today)
-                    {
-                        dataFlowNo.FlowDate = DateTime.Today;
-                        dataFlowNo.FlowNo = 0;
-                    }
-                    if (DataAccess.Entry(dataFlowNo).State != EntityState.Added)
-                        DataAccess.Update(dataFlowNo);
-                }
-                return dataFlowNo;
-            }
-            set => dataFlowNo = null;
-        }
-        /// <summary>
-        /// 設置編碼規則
-        /// </summary>
-        protected Action<TSet> SetFlowNo { get; set; }
-        /// <summary>
-        /// 變更日誌系統
-        /// </summary>
-        private SysChangeLog SysChangeLog { get; }
-        #endregion
-
-        #region Construct
-        public BasicRepository(ApplicationDbContext dataAccess)
-        {
-            DataAccess = dataAccess;
-            foreach (var val in typeof(TSet).GetProperties())
-            {
-                Type[] args = val.PropertyType.GetGenericArguments();
-                if (args.Length == 0)
-                    ModelReflects.Add(new DynamicReflection(val.PropertyType));
-                else
-                    ModelReflects.Add(new DynamicReflection(args[0]));
-            }
-            SysChangeLog = new SysChangeLog(dataAccess, ModelReflects);
-        }
+        public ApplicationDbContext DataAccess { get; } = dataAccess;
         #endregion
 
         #region Public
         /// <summary>
-        /// 新增
+        /// 新增(非同步)
         /// </summary>
         /// <param name="set"></param>
         /// <returns></returns>
-        public virtual TSet Create(TSet set)
+        public async Task CreateAsync(object newData)
         {
-            try
+            if (newData is TModel single)
             {
-                SetFlowNo?.Invoke(set);
-                DoCreate(set);
-                AfterSetEntity(set, FuncAction.Create);
-                AfterUpdate(default, set, TransStatus.Increase);
-                SysChangeLog.SaveChangeLog();
+                await DataAccess.AddAsync(single);
             }
-            catch (Exception ex)
+            else if (newData is IEnumerable<TModel> list)
             {
-                Message.AddExceptionError(ex);
-                throw ex;
+                await DataAccess.AddRangeAsync(list);
             }
-            return set;
         }
         /// <summary>
-        /// (非同步)新增
+        /// 修改(非同步)
         /// </summary>
-        /// <param name="set"></param>
-        /// <returns></returns>
-        public virtual async Task<TSet> CreateAsync(TSet set)
-        {
-            try
-            {
-                SetFlowNo?.Invoke(set);
-                DoCreate(set);
-                AfterSetEntity(set, FuncAction.Create);
-                AfterUpdate(default, set, TransStatus.Increase);
-                SysChangeLog.SaveChangeLog();
-            }
-            catch (Exception ex)
-            {
-                Message.AddExceptionError(ex);
-                throw ex;
-            }
-            return set;
-        }
-
-        /// <summary>
-        /// 修改
-        /// </summary>
+        /// <param name="key"></param>
         /// <param name="inputSet"></param>
         /// <returns></returns>
-        public virtual TSet Update(object[] key, TSet inputSet)
+        public async Task UpdateAsync(TModel oldData, TModel newData)
         {
-            try
+            foreach(var fieldProp in PropertyAccessorCache.GetProperties(typeof(TModel))) 
             {
-                dynamic masterData = SetReflect.GetValue(inputSet, typeof(TSet).GetProperties()[0].Name);
-                if (masterData is BasicDataModel) SetModifyInfo(masterData);
-                TSet oldSet = QueryData(key);
-                DoUpdate(oldSet, inputSet);
-                AfterSetEntity(oldSet, FuncAction.Update);
-                AfterUpdate(oldSet, inputSet, TransStatus.Difference);
-                SysChangeLog.SaveChangeLog();
-                return oldSet;
-            }
-            catch (Exception ex)
-            {
-                Message.AddExceptionError(ex);
-                throw ex;
+                if (!fieldProp.CanWrite) continue;
+                var oldVal = PropertyAccessorCache.Get(oldData, fieldProp.Name);
+                var NewVal = PropertyAccessorCache.Get(newData, fieldProp.Name);
+                if (!Equals(oldVal,NewVal)) PropertyAccessorCache.Set(oldData, fieldProp.Name, NewVal);
             }
         }
         /// <summary>
-        /// 刪除
+        /// 刪除(非同步)
         /// </summary>
         /// <param name="key"></param>
-        public virtual void Delete(object[] key)
+        public async Task<bool> DeleteAsync(TModel oldData)
         {
-            try
-            {
-                TSet set = QueryData(key);
-                BeforeRemoveEntity(set);
-                dynamic master = SetReflect.GetValue(set, typeof(TSet).GetProperties()[0].Name);
-                DataAccess.Remove(master);
-                SysChangeLog.RemoveChangeLog(master.InternalId);
-                AfterRemoveEntity(set);
-                AfterUpdate(set, default, TransStatus.Invert);
-
-            }
-            catch (Exception ex)
-            {
-                Message.AddExceptionError(ex);
-                throw ex;
-            }
+            DataAccess.Remove(oldData);
+            return true;
         }
         /// <summary>
-        /// 查看表單
+        /// 查看表單(非同步)
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public virtual TSet QueryData(object[] key)
+        public async Task<TModel> QueryDataAsync(params object[] key)
         {
-            PropertyInfo[] setProperties = typeof(TSet).GetProperties();
-            TSet instance = Activator.CreateInstance<TSet>();
-            string pkCondition = string.Empty;
-            foreach (PropertyInfo setProperty in setProperties)
-            {
-                if (typeof(IEnumerable).IsAssignableFrom(setProperty.PropertyType))
-                {
-                    Type modelType = setProperty.PropertyType.GetGenericArguments()[0];
-                    IList list = SetReflect.GetValue(instance, setProperty.Name) as IList;
-                    dynamic dbSet = DataAccess.GetType().GetMethod(SysParam.DbSet).MakeGenericMethod(modelType).Invoke(DataAccess, null);
-                    IQueryable models = ((IQueryable)dbSet).Where(pkCondition, key);
-                    models = EagerLoading(models, modelType);
-                    dynamic local = DynamicQueryable.Where(Queryable.AsQueryable(dbSet.Local), pkCondition, key);
-                    foreach (dynamic model in models)
-                    {
-                        SetRefModel(model);
-                        list.Add(model);
-                    }
-                    foreach (dynamic model in local)
-                    {
-                        if (!list.Contains(model))
-                        {
-                            SetRefModel(model);
-                            list.Add(model);
-                        }
-                    }
-                }
-                else
-                {
-                    pkCondition = GetPKCondition(GetKeyPropertiesByModelType(setProperty.PropertyType));
-                    dynamic dbSet = DataAccess.GetType().GetMethod(SysParam.DbSet).MakeGenericMethod(setProperty.PropertyType).Invoke(DataAccess, null);
-                    IQueryable models = ((IQueryable)dbSet).Where(pkCondition, key);
-                    models = EagerLoading(models, setProperty.PropertyType);
-                    if (!models.Any()) return default;
-                    foreach (dynamic model in models)
-                    {
-                        SetRefModel(model);
-                        SetReflect.SetValue(instance, setProperty.Name, model);
-                    }
-                }
-            }
-            return instance;
+            return await DataAccess.Set<TModel>().FindAsync(key);
         }
         /// <summary>
-        /// 查詢明細
+        /// 查看表單清單(非同步)
         /// </summary>
         /// <returns></returns>
-        public virtual IList QueryList(string selectFields, string condition, int pageCt, int takeCt)
+        public async Task<IList<TModel>> QueryListAsync(LambdaExpression selectExpr, LambdaExpression whereExpr, int pageCt = 1, int takeCt = 10)
         {
-            Type masterType = typeof(TSet).GetProperties()[0].PropertyType;
-            object dbSet = DataAccess.GetType().GetMethod(SysParam.DbSet).MakeGenericMethod(masterType).Invoke(DataAccess, null);
-            IQueryable query = (IQueryable)dbSet;
-            if (!condition.IsNullOrEmpty()) query.Where(condition);
-            if (!selectFields.IsNullOrEmpty()) query = query.Select(selectFields);
-            return query.Skip((pageCt - 1) * takeCt).Take(takeCt).Cast<dynamic>().ToList();
+            IQueryable<TModel> query = DataAccess.Set<TModel>();
+            if (selectExpr.IsNullOrEmpty()) return null;
+            if (!whereExpr.IsNullOrEmpty()) query = query.Where(whereExpr);
+            if (takeCt > 0 && pageCt>0) query= query.Skip((pageCt - 1) * takeCt).Take(takeCt);
+            //if (selectExpr is Expression <Func<TModel, object>> expr)
+            return await query.Select((Expression<Func<TModel, object>>)selectExpr).Cast<TModel>().ToListAsync();
         }
         /// <summary>
-        /// 作廢
+        /// 自動產生流水號ID
         /// </summary>
-        public virtual TSet Invalid(object[] key, bool status)
+        /// <param name="dbSet"></param>
+        /// <param name="idSelector"></param>
+        /// <param name="prefix"></param>
+        /// <param name="format"></param>
+        /// <returns></returns>
+        public async Task<string> GenerateIdAsync(DbSet<TModel> dbSet, Expression<Func<TModel, string>> idSelector, string prefix = "", string format = "D3")
         {
-            TSet set = QueryData(key);
-            try
-            {
-                dynamic masterData = SetReflect.GetValue(set, typeof(TSet).GetProperties()[0].Name);
-                if (masterData is BasicDataModel)
-                {
-                    SetInvalidInfo(masterData, status);
-                    ((BasicDataModel)masterData).FormStatus = status ? FormStatus.Obsoleted : FormStatus.Saved;
-                }
-                AfterInvalid(set, status);
-                AfterUpdate(set, set, status ? TransStatus.Invert : TransStatus.Increase);
-            }
-            catch (Exception ex)
-            {
-                Message.AddExceptionError(ex);
-                throw ex;
-            }
-            return set;
-        }
-        /// <summary>
-        /// 執行更新
-        /// </summary>
-        /// <param name="action"></param>
-        public virtual void CommitData(FuncAction action)
-        {
-            try
-            {
-                if (Message.Errors.Count > 0) { return; }
-                DataAccess.BulkSaveChanges();
-                AfterSaveChanges(action);
-            }
-            catch (Exception ex)
-            {
-                Message.AddExceptionError(ex);
-                throw ex;
-            }
-            finally
-            {
-                ErrorRollbackEntities();
-            }
-        }
-        #endregion
+             string id = prefix + DateTime.Now.ToString("yyyyMMdd");
+            var compiledSelector = idSelector.Compile();
+            // 查出當天已存在的最大流水號
+            var maxIdToday = await dbSet.AsNoTracking().Where(e => compiledSelector(e).StartsWith(id)).OrderByDescending(e => compiledSelector(e)).Select(e => compiledSelector(e)).FirstOrDefaultAsync();
 
-        #region Protected
-        /// <summary>
-        /// 進Entity後
-        /// </summary>
-        /// <param name="set"></param>
-        protected virtual void AfterSetEntity(TSet set, FuncAction action) { }
-        /// <summary>
-        /// 移除Entity前
-        /// </summary>
-        /// <param name="set"></param>
-        protected virtual void BeforeRemoveEntity(TSet set) { }
-        /// <summary>
-        /// 移除Entity後
-        /// </summary>
-        /// <param name="set"></param>
-        protected virtual void AfterRemoveEntity(TSet set) { }
-        /// <summary>
-        /// 更新之後(供過帳使用)
-        /// </summary>
-        /// <param name="oldSet"></param>
-        /// <param name="newSet"></param>
-        /// <param name="status"></param>
-        protected virtual void AfterUpdate(TSet oldSet, TSet newSet, TransStatus status) { }
-        /// <summary>
-        /// 執行SaveChanges後
-        /// </summary>
-        /// <param name="set"></param>
-        protected virtual void AfterSaveChanges(FuncAction action) { }
-        /// <summary>
-        /// 審核後
-        /// </summary>
-        /// <param name="set"></param>
-        /// <param name="status"></param>
-        protected virtual void AfterApprove(TSet set, bool status) { }
-        /// <summary>
-        /// 作廢後
-        /// </summary>
-        /// <param name="set"></param>
-        /// <param name="status"></param>
-        protected virtual void AfterInvalid(TSet set, bool status) { }
-        /// <summary>
-        /// 結案後
-        /// </summary>
-        /// <param name="set"></param>
-        /// <param name="status"></param>
-        protected virtual void AfterEndCase(TSet set, bool status) { }
+            int nextSerial = 1;
+
+            if (!string.IsNullOrEmpty(maxIdToday) && maxIdToday.Length >= prefix.Length + 3)
+            {
+                string serialStr = maxIdToday.Substring(prefix.Length, 3);
+                if (int.TryParse(serialStr, out int currentSerial))
+                {
+                    nextSerial = currentSerial + 1;
+                }
+            }
+
+            return id + nextSerial.ToString(format);
+        }
         #endregion
 
         #region Private
-        /// <summary>
-        /// 處理新增動作
-        /// </summary>
-        /// <param name="set"></param>
-        private void DoCreate(TSet set)
-        {
-            int tbIdx = 0;
-            foreach (PropertyInfo props in typeof(TSet).GetProperties())
-            {
-                dynamic entity = SetReflect.GetValue(set, props.Name);
-                if (null == entity) { tbIdx++; continue; }
-                if (entity is IEnumerable<DetailRowState>)
-                {
-                    SetCreateRowState(entity);
-                    SetInsertRowId(entity);
-                    foreach (dynamic ety in entity)
-                    {
-                        DataAccess.Add(ety);
-                        SetRefModel(ety);
-                        SysChangeLog.SetChangeLogDetail(tbIdx, null, ety, RowState.Insert);
-                    }
-                }
-                else
-                {
-                    if (entity is BasicDataModel) SetCreateInfo(entity);
-                    DataAccess.Add(entity);
-                    //DataAccess.AddAsync(entity);
-                    SetRefModel(entity);
-                    SysChangeLog.SetChangeLog(ProgId, entity.InternalId, User.UserId);
-                    SysChangeLog.SetChangeLogDetail(tbIdx, null, entity, RowState.Insert);
-                }
-                tbIdx++;
-            }
-        }
 
-        /// <summary>
-        /// 處理新增動作
-        /// </summary>
-        /// <param name="set"></param>
-        private async Task DoCreateAsync(TSet set)
-        {
-            int tbIdx = 0;
-            foreach (PropertyInfo props in typeof(TSet).GetProperties())
-            {
-                dynamic entity = SetReflect.GetValue(set, props.Name);
-                if (null == entity) { tbIdx++; continue; }
-                if (entity is IEnumerable<DetailRowState>)
-                {
-                    SetCreateRowState(entity);
-                    SetInsertRowId(entity);
-                    foreach (dynamic ety in entity)
-                    {
-                        await DataAccess.AddAsync(ety);
-                        SetRefModel(ety);
-                        SysChangeLog.SetChangeLogDetail(tbIdx, null, ety, RowState.Insert);
-                    }
-                }
-                else
-                {
-                    if (entity is BasicDataModel) SetCreateInfo(entity);
-                    DataAccess.Add(entity);
-                    //DataAccess.AddAsync(entity);
-                    SetRefModel(entity);
-                    SysChangeLog.SetChangeLog(ProgId, entity.InternalId, User.UserId);
-                    SysChangeLog.SetChangeLogDetail(tbIdx, null, entity, RowState.Insert);
-                }
-                tbIdx++;
-            }
-        }
-
-
-        /// <summary>
-        /// 處理修改動作
-        /// </summary>
-        /// <param name="inputSet"></param>
-        private void DoUpdate(TSet oldSet, TSet inputSet)
-        {
-            for (int tbIdx = 0; tbIdx < typeof(TSet).GetProperties().Length; tbIdx++)
-            {
-                PropertyInfo prop = typeof(TSet).GetProperties()[tbIdx];
-                if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
-                {
-                    dynamic oldVal = SetReflect.GetValue(oldSet, prop.Name);
-                    dynamic inputVal = SetReflect.GetValue(inputSet, prop.Name);
-                    UpdateInputField(oldVal, inputVal, ModelReflects[tbIdx]);
-                }
-                else
-                {
-                    dynamic oldVal = SetReflect.GetValue(oldSet, prop.Name);
-                    dynamic inputVal = SetReflect.GetValue(inputSet, prop.Name);
-                    Type modelType = prop.PropertyType.GetGenericArguments()[0];
-                    string[] keyFields = GetKeyPropertiesByModelType(modelType).Select(p => p.Name).ToArray();
-
-                    foreach (dynamic inputRow in inputVal)
-                    {
-                        if (inputRow.RowState == RowState.Insert)
-                        {
-                            DataAccess.Add(inputRow);
-                            SetRefModel(inputRow);
-                            oldVal.Add(inputRow);
-                            SysChangeLog.SetChangeLogDetail(tbIdx, null, inputRow, RowState.Insert);
-                        }
-                    }
-                    RecComparison rc = new RecComparison(inputVal, oldVal, ModelReflects[tbIdx], ModelReflects[tbIdx], keyFields, keyFields);
-                    if (rc.Enable)
-                        while (!rc.IsEof)
-                        {
-                            rc.BackToBookMark();
-                            while (rc.Compare())
-                            {
-                                rc.SetBookMark();
-                                switch ((RowState)rc.CurrentRow.RowState)
-                                {
-                                    case RowState.Update:
-                                        {
-                                            UpdateInputField(rc.DetailRow, rc.CurrentRow, ModelReflects[tbIdx]);
-                                            SysChangeLog.SetChangeLogDetail(tbIdx, rc.DetailRow, rc.CurrentRow, RowState.Update);
-                                        }
-                                        break;
-                                    case RowState.Delete:
-                                        {
-                                            DataAccess.Remove(rc.DetailRow);
-                                            oldVal.Remove(rc.DetailRow);
-                                            SysChangeLog.SetChangeLogDetail(tbIdx, rc.DetailRow, null, RowState.Delete);
-                                        }
-                                        break;
-                                }
-                                rc.DetailMoveNext();
-                            }
-                            rc.MoveNext();
-                        }
-                }
-            }
-        }
-        /// <summary>
-        /// 設置新增時資料
-        /// </summary>
-        /// <param name="model"></param>
-        private void SetCreateInfo(BasicDataModel model)
-        {
-            DateTime now = DateTime.Now;
-            model.CreateUserId = User.UserId;
-            model.CreateTime = now;
-            model.ModifyUserId = User.UserId;
-            model.ModifyTime = now;
-            model.InternalId = Guid.NewGuid().ToString();
-        }
-        /// <summary>
-        /// 設置修改時使用者資料
-        /// </summary>
-        /// <param name="model"></param>
-        private void SetModifyInfo(BasicDataModel model)
-        {
-            DateTime now = DateTime.Now;
-            model.ModifyUserId = User.UserId;
-            model.ModifyTime = now;
-        }
-        /// <summary>
-        /// 讀取關聯表值
-        /// </summary>
-        /// <param name="_DB"></param>
-        /// <param name="model"></param>
-        /// <param name="fieldsProp"></param>
-        private void SetRefModel(object model)
-        {
-            //return;//todo:設置關聯欄位讀取
-            if (!IsSetRefModel) return;
-            if (null == model) return;
-            IEnumerable<ReferenceEntry> refs = DataAccess.Entry(model).References;
-            foreach (ReferenceEntry refE in refs)
-            {
-                if (!refE.IsLoaded) refE.Load();
-            }
-        }
-        /// <summary>
-        /// 獲取主鍵值條件
-        /// </summary>
-        /// <param name="keysInfo"></param>
-        /// <returns></returns>
-        private string GetPKCondition(PropertyInfo[] keysInfo)
-        {
-            string result = string.Empty;
-            int len = keysInfo.Length;
-            for (int i = 0; i < len; i++)
-                result = LibData.Merge(" And ", false, result, $"{keysInfo[i].Name}=@{i}");
-
-            return result;
-        }
-        /// <summary>
-        /// 獲取表主鍵值
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        private object[] GetKeyVals(object model, DynamicReflection modelReflects)
-        {
-            PropertyInfo[] props = GetKeyPropertiesByModelType(model.GetType());
-            List<object> result = new List<object>();
-            foreach (PropertyInfo prop in props)
-                result.Add(modelReflects.GetValue(model, prop.Name));
-            return result.ToArray();
-        }
-        /// <summary>
-        /// 獲取表的主鍵欄位
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        private PropertyInfo[] GetKeyPropertiesByModelType(Type modelType)
-        {
-            return modelType.GetProperties().Where(prop => prop.IsDefined(typeof(KeyAttribute))).ToArray();
-        }
-        /// <summary>
-        /// 異常時回滾變更的Entities
-        /// </summary>
-        private void ErrorRollbackEntities()
-        {
-            if (Message.Errors.Count > 0)
-            {
-                EntityEntry[] entitys = DataAccess.ChangeTracker.Entries().ToArray();
-                foreach (EntityEntry entity in entitys)
-                    entity.State = EntityState.Detached;
-                entitys = DataAccess.ChangeTracker.Entries().ToArray();
-                foreach (EntityEntry entity in entitys)
-                    entity.State = EntityState.Unchanged;
-            }
-        }
-        /// <summary>
-        /// 設定行項RowState
-        /// </summary>
-        /// <param name="entityList"></param>
-        private void SetCreateRowState(dynamic entityList)
-        {
-            foreach (var entity in entityList) entity.RowState = RowState.Insert;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entityList"></param>
-        private void SetInsertRowId(IList entityList)
-        {
-            if (!entityList.HasData() || null == entityList[0].GetType().GetProperty(SysParam.RowId)) return;
-            int rowId = 0;
-            List<int> c = entityList.AsQueryable().Where($"{nameof(DetailRowState.RowState)}!=@0", RowState.Insert).OrderBy($"{SysParam.RowId} Desc").Select(SysParam.RowId).Take(1).Cast<int>().ToList();
-            if (c.HasData()) rowId = c[0];
-            dynamic etyList = entityList.AsQueryable().Where($"{nameof(DetailRowState.RowState)}=@0", RowState.Insert);
-            foreach (dynamic entity in etyList)
-                entity.RowId = ++rowId;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="oldRow"></param>
-        /// <param name="newRow"></param>
-        private void UpdateInputField(dynamic oldRow, dynamic newRow, DynamicReflection modelRef)
-        {
-            PropertyInfo[] props = newRow.GetType().GetProperties();
-            var inputProps = props.Where(p => p.IsDefined(typeof(InputFieldAttribute))).ToArray();
-            foreach (var inputProp in inputProps)
-                modelRef.SetValue(oldRow, inputProp.Name, modelRef.GetValue(newRow, inputProp.Name));
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dbSet"></param>
-        /// <param name="modelType"></param>
-        private IQueryable EagerLoading(dynamic dbSet, Type modelType)
-        {
-            PropertyInfo[] props = modelType.GetProperties().Where(p => p.IsDefined(typeof(ForeignKeyAttribute))).ToArray();
-            foreach (PropertyInfo prop in props)
-            {
-                dbSet = EntityFrameworkQueryableExtensions.Include(dbSet, prop.Name);
-            }
-            return dbSet;
-        }
         #endregion
 
         #region IDisposable Support

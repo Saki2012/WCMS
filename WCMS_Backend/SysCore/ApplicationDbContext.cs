@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Security.AccessControl;
 using WCMS.SysCore.Model;
 using Microsoft.EntityFrameworkCore;
+using WCMS.SysCore.Enum;
 
 namespace WCMS.SysCore
 {
@@ -38,8 +39,9 @@ namespace WCMS.SysCore
         {
             base.OnModelCreating(builder);
             ModelDbSetting(builder);
+            ApplyCascadeDeleteRules(builder);
             builder.Entity<DataChangeLogDetail>().HasKey(p => new { p.DataChangeId, p.RowId });
-            builder.BuildIndexesFromAnnotations();//設置Index套件
+            //builder.BuildIndexesFromAnnotations();//設置Index套件
         }
         #endregion
 
@@ -50,9 +52,8 @@ namespace WCMS.SysCore
         /// <param name="builder"></param>
         private void ModelDbSetting(ModelBuilder builder)
         {
-            Type[] modelTypes = Assembly.Load("SKGPortalCore.Model").GetTypes().Where(p =>
-            p.BaseType == typeof(DetailRowState) || p.BaseType == typeof(MasterDataModel) || p.BaseType == typeof(BillDataModel) ||
-            p.Namespace.Contains("SKGPortalCore.Model.SystemTable")
+            Type[] modelTypes = Assembly.GetExecutingAssembly().GetTypes().Where(p =>
+            p.BaseType == typeof(DetailRowModel) || p.BaseType == typeof(MasterDataModel) || p.BaseType == typeof(BillDataModel)
             ).ToArray();
             foreach (Type type in modelTypes)
             {
@@ -61,6 +62,42 @@ namespace WCMS.SysCore
                 string[] keyPropName = type.GetProperties().Where(p => p.IsDefined(typeof(KeyAttribute))).Select(p => p.Name).ToArray();
                 if (keyPropName.Length != 0) builder.Entity(type).ToTable(tableName).HasKey(keyPropName);
                 else builder.Entity(type).ToTable(tableName);
+            }
+        }
+
+        /// <summary>
+        /// 自動對所有「主表 → 子表」的關聯套用 DeleteBehavior.Cascade
+        /// 可排除某些 Entity 類型不套用（例如：參考用的主資料表）
+        /// </summary>
+        /// <param name="modelBuilder">DbContext 的 ModelBuilder</param>
+        /// <param name="excludedEntities">可選，要排除的 Entity 類型（不會掃描與套用）</param>
+        public static void ApplyCascadeDeleteRules(ModelBuilder modelBuilder, params Type[] excludedEntities)
+        {
+            foreach (var entity in modelBuilder.Model.GetEntityTypes())
+            {
+                // 如果是排除的 Entity，就跳過
+                if (excludedEntities?.Contains(entity.ClrType) == true) continue;
+
+                foreach (var foreignKey in entity.GetForeignKeys())
+                {
+                    // 排除 Owned Type 與複雜依賴
+                    if (foreignKey.IsOwnership) continue;
+
+                    // 我們只要主→子，有雙向導航屬性的關係
+                    var hasPrincipalToDependent = foreignKey.PrincipalToDependent != null;
+                    var hasDependentToPrincipal = foreignKey.DependentToPrincipal != null;
+
+                    if (hasPrincipalToDependent && hasDependentToPrincipal)
+                    {
+                        // ✅ 設定連動刪除
+                        foreignKey.DeleteBehavior = DeleteBehavior.Cascade;
+                    }
+                    else
+                    {
+                        // 🟡 其他情況預設為 Restrict，避免意外刪除參考資料
+                        foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
+                    }
+                }
             }
         }
         #endregion
@@ -93,7 +130,7 @@ namespace WCMS.SysCore
         {
             if (config is null) config = Configuration;
             DbContextOptionsBuilder<ApplicationDbContext> builder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            builder.UseSqlServer(config.GetConnectionString(SysParam.SqlConnection), b => b.MigrationsAssembly(nameof(SKGPortalCore)));
+            builder.UseSqlServer(config.GetConnectionString(SysParam.SqlConnection), b => b.MigrationsAssembly(nameof(WCMS)));
             return builder.Options;
         }
         #endregion

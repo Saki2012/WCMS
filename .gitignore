@@ -1,2 +1,5 @@
-/WCMS_Frontend/public/Legacy
-/WCMS_Frontend/src/Style/Legacy
+WCMS_Frontend/public/Legacy/
+WCMS_Frontend/src/Style/Legacy/
+WCMS_Backend/.vs/
+WCMS_Backend/obj/
+WCMS_Backend/bin/

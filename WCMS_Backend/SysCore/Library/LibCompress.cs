@@ -1,4 +1,5 @@
-﻿using System.IO.Compression;
+﻿using MessagePack;
+using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
@@ -9,6 +10,38 @@ namespace WCMS.SysCore.Library
     /// </summary>
     public static class LibCompress
     {
+        /// <summary>
+        /// 壓縮Json格式資料
+        /// 之後再處理，流程為:
+        /// 縮短欄位名稱（Key Minify）
+        /// 移除縮排與空白（Minify JSON）
+        /// 轉成二進位格式（MessagePack / Protobuf）
+        /// 再 Gzip 壓縮（選擇性，針對大型資料）
+        /// 還有AES256加密，達到最佳完整資料儲存
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public static byte[] CompressJsonData(string json)
+        {
+            return null;
+        }
+        /// <summary>
+        /// 解壓Json格式資料
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        //public static string DeCompressJsonData(byte[] data)
+        //{
+        //    //var rawData = MessagePackSerializer.Serialize(versionData);
+        //    //using var output = new MemoryStream();
+        //    //using (var brotli = new BrotliStream(output, CompressionLevel.Optimal))
+        //    //{
+        //    //    brotli.Write(rawData, 0, rawData.Length);
+        //    //}
+        //    //return output.ToArray();
+        //}
+
+
         #region Public
         /// <summary>
         /// 將傳入的字串以GZip演算法壓縮後，傳回Base64編碼字串
@@ -78,29 +111,6 @@ namespace WCMS.SysCore.Library
             }
             compressedzipStream.Close();
             return outBuffer.ToArray();
-        }
-        /// <summary>
-        /// 將Bytes轉換成String
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        public static string ConvertBytesToString(byte[] bytes)
-        {
-            BinaryFormatter format = new BinaryFormatter();
-            MemoryStream memory = new MemoryStream(bytes);
-            return format.Deserialize(memory) as string;
-        }
-        /// <summary>
-        /// 將String轉換成Bytes
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        public static byte[] ConvertStringToBytes(string str)
-        {
-            BinaryFormatter binFormat = new BinaryFormatter();
-            MemoryStream mStream = new MemoryStream();
-            binFormat.Serialize(mStream, str);
-            return mStream.ToArray();
         }
         #endregion
     }

@@ -1,11 +1,12 @@
-﻿namespace WCMS.SysCore.Enum
+﻿using WCMS.SysCore.Model;
+
+namespace WCMS.SysCore.Enum
 {
     /// <summary>
     /// 固定參數
     /// </summary>
     public static class SysParam
     {
-        #region System
         /// <summary>
         /// 組態路徑
         /// </summary>
@@ -23,18 +24,28 @@
         /// </summary>
         public const string RedisConnection = "RedisConnection";
         /// <summary>
-        /// 系統操作
-        /// </summary>
-        public const string SysOperator = "SysOperator";
-        /// <summary>
-        /// 系統操作
-        /// </summary>
-        public const string SysOperatorName = "系統操作";
-        /// <summary>
         /// Log默認路徑
         /// </summary>
         public const string LogDefaultPath = @"./Log/";
-        #endregion
-
+        /// <summary>
+        /// 
+        /// </summary>
+        public const string DbSet = "Set";
+        /// <summary>
+        /// 
+        /// </summary>
+        public const string RowId = "RowId";
+        /// <summary>
+        /// 
+        /// </summary>
+        public const string Model = "Model";
+        /// <summary>
+        /// 
+        /// </summary>
+        public const string ServiceRoute = $"Service/[controller]";
+        /// <summary>
+        /// 系統操作
+        /// </summary>
+        public static readonly UserModel SysOperator = new() { UserId = "SysOperator", UserName = "系統操作" };
     }
 }

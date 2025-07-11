@@ -4,49 +4,79 @@ using System.ComponentModel.DataAnnotations;
 using WCMS.SysCore.Library;
 using static WCMS.SysCore.Enum.SysEnum;
 using System.Security.AccessControl;
+using Microsoft.EntityFrameworkCore;
 
 namespace WCMS.SysCore.Model
 {
     /// <summary>
+    /// 在看怎麼寫才行
+    /// </summary>
+    public interface ISet
+    {
+        public BasicDataModel Header { get; set; }
+        public BasicDataModel[]? Details { get; set; }
+    }
+
+    /// <summary>
     /// 基本資料欄位
     /// </summary>
+    [Index(nameof(InternalId), IsUnique = true)]
     public class BasicDataModel
     {
         /// <summary>
         /// 創建時間
         /// </summary>
         [LibDesc(nameof(CreateTime))]
-        public DateTime CreateTime { get; set; }
-        /// <summary>
-        /// 修改時間
-        /// </summary>
-        [LibDesc("修改時間")]
-        public DateTime ModifyTime { get; set; }
+        public DateTime? CreateTime { get; set; }
         /// <summary>
         /// 創建人ID
         /// </summary>
         [LibDesc("創建人ID")]
         public string CreateUserId { get; set; } = string.Empty;
         /// <summary>
+        /// 修改時間
+        /// </summary>
+        [LibDesc("修改時間")]
+        public DateTime? ModifyTime { get; set; }
+        /// <summary>
         /// 修改人ID
         /// </summary>
         [LibDesc("修改人ID")]
         public string ModifyUserId { get; set; } = string.Empty;
         /// <summary>
+        /// 單據狀態
+        /// </summary>
+        [LibDesc("單據狀態")] public FormStatus FormStatus { get; set; }
+        /// <summary>
+        /// 資料狀態
+        /// </summary>
+        [LibDesc("資料狀態")]
+        public DataStatus DataStatus { get; set; }
+        /// <summary>
+        /// 作廢時間
+        /// </summary>
+        [LibDesc("作廢時間")]
+        public DateTime? InvalidTime { get; set; }
+        /// <summary>
+        /// 作廢人ID
+        /// </summary>
+        [LibDesc("作廢人ID")]
+        public string InvalidUserId { get; set; } = string.Empty;
+        /// <summary>
         /// 系統內部唯一標識號
         /// </summary>
         [LibDesc("系統內部唯一標識號")] public string InternalId { get; set; }
+        /// <summary>
+        /// 主子站層級ID
+        /// </summary>
+        [LibDesc("主子站層級ID")] public string OrgLvId { get; set; } = string.Empty;
     }
     /// <summary>
     /// 主要資料
     /// </summary>
     public class MasterDataModel:BasicDataModel
     {
-        /// <summary>
-        /// 資料狀態
-        /// </summary>
-        [LibDesc("資料狀態")]
-        public DataStatus DataStatus { get; set; }
+
         /// <summary>
         /// 資料有效日期-起
         /// </summary>
@@ -68,7 +98,7 @@ namespace WCMS.SysCore.Model
     /// <summary>
     /// 明細行狀態
     /// </summary>
-    public class DetailRowState
+    public class DetailRowModel
     {
         [LibDesc, NotMapped] public RowState RowState { get; set; }
     }

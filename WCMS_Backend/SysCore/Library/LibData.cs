@@ -6,6 +6,7 @@ using System.Xml.Linq;
 using GraphQL.Types;
 using System.Collections.Generic;
 using System.Collections;
+using System.Text.Json;
 
 namespace WCMS.SysCore.Library
 {
@@ -347,10 +348,7 @@ namespace WCMS.SysCore.Library
         /// <returns></returns>
         public static byte[] ObjectToByteArray(this object obj)
         {
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-            using MemoryStream memoryStream = new MemoryStream();
-            binaryFormatter.Serialize(memoryStream, obj);
-            return memoryStream.ToArray();
+            return JsonSerializer.SerializeToUtf8Bytes(obj, obj.GetType());
         }
         /// <summary>
         /// 反序列化
@@ -360,12 +358,7 @@ namespace WCMS.SysCore.Library
         /// <returns></returns>
         public static T ByteArrayToObject<T>(this byte[] bytes)
         {
-            using MemoryStream memoryStream = new MemoryStream();
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-            memoryStream.Write(bytes, 0, bytes.Length);
-            memoryStream.Seek(0, SeekOrigin.Begin);
-            object obj = binaryFormatter.Deserialize(memoryStream);
-            return (T)obj;
+            return JsonSerializer.Deserialize<T>(bytes);
         }
         /// <summary>
         /// 將 Stream 轉成 byte[]
@@ -410,39 +403,117 @@ namespace WCMS.SysCore.Library
 
             return Expression.Lambda<Func<object[], T>>(exp, param).Compile();
         }
-    }
-    public static class GraphQLChangeType
-    {
-        public static Type ChangeGrcaphQLType(Type type)
+        /// <summary>
+        /// 檢查某一欄位是否有重複
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="details"></param>
+        /// <param name="keySelector"></param>
+        /// <returns></returns>
+        public static bool CheckItemUnique<T>(this List<T> details, Func<T, string> keySelector)
         {
-            switch (type)
+            if (details == null || details.Count == 0) return true;
+            if (details.Count > 10000)
             {
-                case Type stringType when stringType == typeof(string):
-                    return typeof(StringGraphType);
-                case Type byteType when byteType == typeof(byte):
-                case Type intType when intType == typeof(int):
-                case Type longType when longType == typeof(long):
-                    return typeof(IntGraphType);
-                case Type decimalType when decimalType == typeof(decimal):
-                    return typeof(DecimalGraphType);
-                case Type boolType when boolType == typeof(bool):
-                    return typeof(BooleanGraphType);
-                case Type dateTimeType when dateTimeType == typeof(DateTime):
-                    return typeof(DateTimeGraphType);
-                default:
-                    if (type.IsEnum) return typeof(BaseEnumerationGraphType<>).MakeGenericType(new[] { type });
-                    return type;
+                var seen = new HashSet<string>();
+                foreach (var item in details)
+                {
+                    var key = keySelector(item);
+                    if (string.IsNullOrEmpty(key)) continue;
+                    if (!seen.Add(key)) return false;
+                }
+                return true;
+            }
+            else { 
+                return details
+                    .Select(keySelector)
+                    .Where(k => !string.IsNullOrEmpty(k))
+                    .GroupBy(k => k)
+                    .All(g => g.Count() == 1);
             }
         }
-    }
-    public class BaseEnumerationGraphType<TEnum> : EnumerationGraphType where TEnum : Enum
-    {
-        public BaseEnumerationGraphType()
+        /// <summary>
+        /// 深度拷貝資料 (拷貝資料快照)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static T DeepClone<T>(this T obj)
         {
-            Name = typeof(TEnum).Name;
-            Description = ResxManage.GetDescription<TEnum>();
-            foreach (Enum val in Enum.GetValues(typeof(TEnum)))
-                AddValue(val.ToString(), ResxManage.GetDescription(val), val.GetValue());
+            var json = JsonSerializer.Serialize(obj);
+            return JsonSerializer.Deserialize<T>(json);
+        }
+        /// <summary>
+        /// 轉換Json元素成c#接受的型態
+        /// </summary>
+        /// <param name="jsonElement"></param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
+        public static object ConvertJsonElement(this JsonElement jsonElement)
+        {
+            switch (jsonElement.ValueKind)
+            {
+                case JsonValueKind.String:
+                    return jsonElement.GetString();
+                case JsonValueKind.Number:
+                    if (jsonElement.TryGetInt32(out int intVal)) return intVal;
+                    if (jsonElement.TryGetInt64(out long longVal)) return longVal;
+                    if (jsonElement.TryGetDouble(out double doubleVal)) return doubleVal;
+                    if (jsonElement.TryGetDecimal(out decimal decimalVal)) return decimalVal;
+                    return jsonElement;
+                case JsonValueKind.True:
+                case JsonValueKind.False:
+                    return jsonElement.GetBoolean();
+                case JsonValueKind.Null: return null;
+                default: return jsonElement;
+            }
+        }
+        /// <summary>
+        /// 轉換Json元素成c#接受的型態
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static object[] ConvertJsonElement(object[] key)
+        {
+            return key.Select(x =>
+            {
+                if (x is JsonElement jsonElement) return ConvertJsonElement(jsonElement);
+                return x; // 原樣回傳，如 string/int 等
+            }).ToArray();
         }
     }
+    //public static class GraphQLChangeType
+    //{
+    //    public static Type ChangeGrcaphQLType(Type type)
+    //    {
+    //        switch (type)
+    //        {
+    //            case Type stringType when stringType == typeof(string):
+    //                return typeof(StringGraphType);
+    //            case Type byteType when byteType == typeof(byte):
+    //            case Type intType when intType == typeof(int):
+    //            case Type longType when longType == typeof(long):
+    //                return typeof(IntGraphType);
+    //            case Type decimalType when decimalType == typeof(decimal):
+    //                return typeof(DecimalGraphType);
+    //            case Type boolType when boolType == typeof(bool):
+    //                return typeof(BooleanGraphType);
+    //            case Type dateTimeType when dateTimeType == typeof(DateTime):
+    //                return typeof(DateTimeGraphType);
+    //            default:
+    //                if (type.IsEnum) return typeof(BaseEnumerationGraphType<>).MakeGenericType(new[] { type });
+    //                return type;
+    //        }
+    //    }
+    //}
+    //public class BaseEnumerationGraphType<TEnum> : EnumerationGraphType where TEnum : Enum.SysEnum
+    //{
+    //    public BaseEnumerationGraphType()
+    //    {
+    //        Name = typeof(TEnum).Name;
+    //        Description = ResxManage.GetDescription<TEnum>();
+    //        foreach (Enum val in Enum.GetValues(typeof(TEnum)))
+    //            AddValue(val.ToString(), ResxManage.GetDescription(val), val.GetValue());
+    //    }
+    //}
 }

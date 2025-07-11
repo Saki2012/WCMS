@@ -12,21 +12,25 @@
 
 
 三、開發工具與環境:
-後端:
+**後端:**
 - .net core 8.0
     - Entity Framwork DTO (透過該方式實現在不同DB上運作)
 - Redis
-前端:
+
+**前端:**
 - Vite + React
 - Typescript
-UI_UX:
+
+**UI_UX:**
 - Bootstrap
 - Javascript
-中介:
+- css
+
+**中介:**
 - GraphQL (暫無)(中期)
-環境建置:
+
+**環境建置:**
 - Docker(後期視需求規劃)
-- 
 
 四、系統架構
         ┌──────────────────┐    
@@ -65,7 +69,7 @@ UI_UX:
 - Features
     - BizResx (WCMS功能多語系包)(前期)
     - Finance (金流)(中期)
-        - 
+
     - SiteEdit  (客戶自定義網頁設計)
         - Announcement (公告)
         - Banner (廣告輪播)
@@ -91,8 +95,64 @@ UI_UX:
 1. 所有顯示說明的文字，皆透過.resx做動態多語系處理
 2. 禁止在邏輯區寫固定的定義值，若需要仍要用宣告方式處理
 3. 務必區分出公開的API時機(Public)、業務流程(Protect)、以及實作過程(Private)
+4. 有寫到Try-catch時，除非真的異常結果需要無視後繼續往下走之外，一律throw給ErrorHandlingMiddleware處理
+5. 有關時區存儲一律寫UTC作為依據，以作為之後跨區需求
 
 前端程式架構
-- SysCore
-    - Components (動態渲染元控件)
-    - 
+- src
+    - SysCore
+        - Components (動態渲染元控件)
+            - Banner (橫幅)
+            - BannerSlider (橫幅跑馬燈)
+            - BreadCrumb (網頁導覽)
+            - Calendar (行事曆)
+            - Grid (資料表格)
+            - Header (網站Header，用來設計meta、script等)
+            - Marquee (跑馬燈)
+            - MediaList (圖文顯示列表)
+            - MenuList (菜單列表)
+            - NaviBar (導覽列(Menu上用))
+            - QuickNaviSlider (快速導覽)
+            - SearchBar (搜尋功能)
+            - SiteInfo (網站資訊)
+            - TabsList (清單分類列表)
+        - Theme (主題風格) - 中長期後開始處理
+            - 用來組裝每一個環節所用的css風格
+        - Utils (自家Library、非第三方包)
+
+    - Features
+        - Header (Header 模板)
+        - Page (頁面模板)
+        - Footer (Footer 模板)
+        - GoogleAnalysis (Google SEO相關)
+        - Menu (主Menu 模板)
+
+    - SpecFeatures
+        - 專案別名(e.x. 1810 台藝大研發處)
+    
+    - Style
+        - Legacy (舊的css)
+
+    - Assets
+        - 未來放專案需要的file/fonts/image
+    
+- public
+    - Legacy (底下擺放舊專案原本/file/fonts/image)
+        
+前端開發規範
+1. 在對應元件底下建立功能依序為
+    - XXX_Comp.tsx (渲染元件)
+        - 主格式為 const
+    - XXX_Data.ts (資料來源)
+        - 主格式為 interface
+    - XXX_Hook.ts (自定義操作行為)
+        - 主格式為 const
+        - function以 use作為開頭
+    - XXX_Clsx.ts (Css風格)
+    ...
+2. 前端打資料分兩種:API / Mock Data
+    - 在xxx_Data 需寫 getData、getMock，並判斷config是否啟用mock來決定平時來源資料為何
+3. CSS風格使用clsx來處理?(待研究)
+    - 控件風格和主題風格在Features那邊製作，
+4. 客製化的Router注入與移除
+    - 透過Interface的觀念繼承引用及在app.tsx注入
