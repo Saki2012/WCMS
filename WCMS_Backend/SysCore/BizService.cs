@@ -147,7 +147,7 @@ namespace WCMS.SysCore
         {
             return await DoQuerySetAsync(internalId);
         }
-        public async Task<IList> QueryListAsync(string[] selectFields, string condition, int pageCt, int takeCt)
+        public async Task<IList<TSet>> QueryListAsync(string[] selectFields, string condition, int pageCt, int takeCt)
         {
             return await DoQueryListAsync(selectFields, condition, pageCt, takeCt);
         }
@@ -289,8 +289,9 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        protected async Task<IList> DoQueryListAsync(string[] selectFields, string condition, int pageCt, int takeCt)
+        protected async Task<IList<TSet>> DoQueryListAsync(string[] selectFields, string condition, int pageCt, int takeCt)
         {
+            //未來可以做連同detail查詢的grid 待處理
             foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
             {
                 if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))

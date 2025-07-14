@@ -156,3 +156,5 @@
     - 控件風格和主題風格在Features那邊製作，
 4. 客製化的Router注入與移除
     - 透過Interface的觀念繼承引用及在app.tsx注入
+5. 前端的資料模型透過 npx openapi-typescript https://localhost:7030/swagger/v1/swagger.json -o src/types/api.d.ts來獲取
+6. 若是在前端的系統連結，透過Link to來達到SPA效果，避免不斷刷新造成效能及使用體驗低落

@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react'
 import type {NaviData} from '../../../../../../SysCore/Components/NaviBar/NaviBar_Data'
 import NaviBarComp from '../../../../../../SysCore/Components/NaviBar/NaviBar_Comp'
 import {Classic_BETheme} from "../../../../../../Features/Server/Layout/Theme/ITheme"
-import getNaviProvider from '../../../../../../Features/Server/Layout/Scaffold/Menu/NaviBar/NaviBar_Api'
+import NaviProvider from '../../../../../../Features/Server/Layout/Scaffold/Menu/NaviBar/NaviBar_Api'
 
 const NavibarMenu=()=>{
     const [items, setItems] = useState<NaviData[]>([])
     useEffect(() => {
-        getNaviProvider().getNaviBarList().then(setItems)
+        NaviProvider().getNaviBarList().then(setItems)
     }, [])
 
     return (

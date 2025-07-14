@@ -90,7 +90,7 @@ namespace WCMS.SysCore
         /// </summary>
         /// <returns></returns>
         [HttpPost(nameof(QueryList))]
-        public async Task<ActionResult<IEnumerable<IList>>> QueryList([FromBody] QueryListParam queryCondition)
+        public async Task<ActionResult<IList<TSet>>> QueryList([FromBody] QueryListParam queryCondition)
         {
             return Ok(await _service.QueryListAsync(queryCondition.fields, queryCondition.condition, queryCondition.pageCt, queryCondition.takeCt));
         }
@@ -143,6 +143,7 @@ namespace WCMS.SysCore
     public class ApiResponse<T>:IApiResponse<T>
     {
         public bool Success { get; set; }
+        public string MessageCode { get; set; }
         public string Message { get; set; }
         public T? Data { get; set; }
     }

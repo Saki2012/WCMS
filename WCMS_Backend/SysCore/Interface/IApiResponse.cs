@@ -57,7 +57,7 @@ namespace WCMS.SysCore.Interface
         /// 查詢清單
         /// </summary>
         /// <returns></returns>
-        public Task<ActionResult<IEnumerable<IList>>> QueryList([FromBody] QueryListParam queryCondition);
+        public Task<ActionResult<IList<TSet>>> QueryList([FromBody] QueryListParam queryCondition);
         /// <summary>
         /// 獲取功能的欄位模型顯示名稱
         /// </summary>

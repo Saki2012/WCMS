@@ -14,10 +14,9 @@ export class BackendRouteModule implements IRouteModule {
             path: "WebManagement/PageManage/AddNew",
             element: <PageFormComp />,
           },
-          // 如果還有 List
           {
             path: "WebManagement/PageManage/List",
-            element: <PageListComp />, // 如果有定義 PageListComp 就加
+            element: <PageListComp />,
           },
         ]
       }

@@ -67,7 +67,7 @@ namespace WCMS.SysCore.Interface
         /// <param name="pageCt"></param>
         /// <param name="takeCt"></param>
         /// <returns></returns>
-        public Task<IList> QueryListAsync(string[] selectFields, string condition, int pageCt, int takeCt);
+        public Task<IList<TSet>> QueryListAsync(string[] selectFields, string condition, int pageCt, int takeCt);
         #endregion
     }
 

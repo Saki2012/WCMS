@@ -12,7 +12,6 @@ namespace WCMS
     {
         public static void Main(string[] args)
         {
-
             //RunDBMigration(args);
             //return;
             var builder = WebApplication.CreateBuilder(args);
@@ -30,14 +29,7 @@ namespace WCMS
                 options.AddPolicy("AllowLocalhostWildcard", policy =>
                 { policy.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost" || new Uri(origin).Host == "127.0.0.1").AllowAnyHeader().AllowAnyMethod();});
             });
-
-
             var app = builder.Build();
-
-
-            
-
-
             app.UseMiddleware<ErrorHandlingMiddleware>();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -63,7 +55,6 @@ namespace WCMS
 
             Console.WriteLine("Context created.");
         }
-
 
         /// <summary>
         /// °ÊºA¥[¸üBizServices

@@ -4,6 +4,13 @@ import NavibarMenu from "../Layout/Scaffold/Menu/NaviBar/NaviBar_Comp"
 import BreadCrumb from "../Layout/Scaffold/Menu/BreadCrumb/BreadCrumb_Comp"
 import FooterComp from "../Layout/Scaffold/Footer/Footer_Comp"
 
+
+
+
+
+
+
+
 export const DashboardPage = () => {
     return (
         <>
@@ -25,8 +32,8 @@ export const DashboardPage = () => {
                       </div>
                   </div>
               </div>
-            </div>
             <Outlet /> {/* 中間會注入功能頁內容 */}
+            </div>
             <FooterComp></FooterComp>
           </div>
         </>

@@ -1,41 +1,79 @@
 import type { BreadCrumbData } from '../../../../../../SysCore/Components/BreadCrumb/BreadCrumb_Data';
 import {IApiProvider, IDataProvider} from '../../../../../../SysCore/Interface/IApiProvider'
+import { Link } from 'react-router-dom';
 
-abstract class IBaseBreadCrumbProvider extends IDataProvider<BreadCrumbData> {
+abstract class IBreadCrumbProvider extends IDataProvider<BreadCrumbData> {
+  //#region Public
   async getBreadCrumbList(): Promise<BreadCrumbData[]> {
-    const srcData = await this.fetchData();
-    const processedData = setDOMContent(srcData)
+    const srcData = await this.fetchList();
+    const processedData = this.setDOMContent(srcData)
     return processedData;
   }
+  //#endregion
+
+  //#region Private
+  protected setDOMContent = (data: BreadCrumbData[]): BreadCrumbData[] => {
+    data.forEach((item,idx)=>{
+      item.DOMContent=idx===data.length-1 ?<>{item.SrcData}</> :<Link to={item.Url}>{item.SrcData}</Link>
+    })
+  return data;
+}
+  //#endregion
 }
 
 /** 假資料-路徑導覽 */
-class MockBreadCrumbProvider extends IBaseBreadCrumbProvider {
-  protected async fetchData(): Promise<BreadCrumbData[]> {
-    return [
+class MockProvider extends IBreadCrumbProvider {
+  protected doCreateData(): Promise<BreadCrumbData> {
+      throw new Error('Method not implemented.');
+    }
+    protected doUpdateData(): Promise<BreadCrumbData> {
+      throw new Error('Method not implemented.');
+    }
+    protected doDelete(): Promise<BreadCrumbData> {
+      throw new Error('Method not implemented.');
+    }
+    protected doInvalid(): Promise<BreadCrumbData> {
+      throw new Error('Method not implemented.');
+    }
+    protected doFetchData(): Promise<BreadCrumbData> {
+      throw new Error('Method not implemented.');
+    }
+    protected doFetchList(): Promise<BreadCrumbData[]> {
+      return Promise.resolve([
       { SrcData:"首頁", Url:"/index", },
-      { SrcData:"網站功能", Url:"/WebManagement", },
-      { SrcData:"頁面", Url:"/PageManage", },
-      { SrcData:"頁面列表", Url:"/PageList", },
-    ];
-  }
+      { SrcData:"網站功能", Url:"/Server/WebManagement", },
+      { SrcData:"頁面", Url:"/Server/WebManagement/PageManage/List", },
+      { SrcData:"頁面列表", Url:"/Server/WebManagement/PageManage/List", },
+    ]);
+    }
 }
 
 /** api資料-路徑導覽 */
-class ApiBreadCrumbProvider extends IBaseBreadCrumbProvider {
-  protected async fetchData(): Promise<BreadCrumbData[]> {
-    const res = await fetch('/api/menu');
-    return await res.json();
-  }
+class APIProvider extends IBreadCrumbProvider {
+  protected doCreateData(): Promise<BreadCrumbData> {
+      throw new Error('Method not implemented.');
+    }
+    protected doUpdateData(): Promise<BreadCrumbData> {
+      throw new Error('Method not implemented.');
+    }
+    protected doDelete(): Promise<BreadCrumbData> {
+      throw new Error('Method not implemented.');
+    }
+    protected doInvalid(): Promise<BreadCrumbData> {
+      throw new Error('Method not implemented.');
+    }
+    protected doFetchData(): Promise<BreadCrumbData> {
+      throw new Error('Method not implemented.');
+    }
+    protected doFetchList(): Promise<BreadCrumbData[]> {
+      return Promise.resolve([
+      { SrcData:"首頁", Url:"/index", },
+      { SrcData:"網站功能", Url:"/Server/WebManagement", },
+      { SrcData:"頁面", Url:"/Server/WebManagement/PageManage/List", },
+      { SrcData:"頁面列表", Url:"/Server/WebManagement/PageManage/List", },
+    ]);
+    }
 }
 
-/** 賦予DOM資料 */
-const setDOMContent = (data: BreadCrumbData[]): BreadCrumbData[] => {
-  data.forEach((item,idx)=>{
-    item.DOMContent=idx===data.length-1 ?<>{item.SrcData}</> :<a href={item.Url}>{item.SrcData}</a>
-  })
-  return data;
-}
-
-const getBreadCrumbProvider = (): IBaseBreadCrumbProvider => IApiProvider<IBaseBreadCrumbProvider>(ApiBreadCrumbProvider, MockBreadCrumbProvider);
+const getBreadCrumbProvider = (): IBreadCrumbProvider => IApiProvider<IBreadCrumbProvider>(APIProvider, MockProvider);
 export default getBreadCrumbProvider
