@@ -10,7 +10,6 @@ type PageManagement = components["schemas"]["PageManagement"]
 abstract class IPageManagementProvider extends IDataProvider<PageManagementSet> {
     /** 獲取導覽資料 */
     public async createData(): Promise<PageManagementSet> {
-
         const raw = await super.createData();
         console.log("處理新資料",raw);
         return raw;

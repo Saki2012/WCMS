@@ -30,22 +30,22 @@ return (
                                         <div className="tab_ulbox">
                                             <ul className="nav nav-tabs p-0 STYL0 + animate__animated animate__slow wow bounceInUp" data-wow-delay="0.1s">
                                                 <li className="nav-item">
-                                                    <a className="nav-link i1 active" data-bs-toggle="tab" href="#tab-1" tabIndex={6} title="最新公告" onKeyUp={(e) => {"forcouse(e.currentTarget, e) 此處不明，是否為focus?"}}>最新公告</a>
+                                                    <a className="nav-link i1 active" data-bs-toggle="tab" href="#tab-1" tabIndex={6} title="最新公告" onKeyUp={() => {"forcouse(e.currentTarget, e) 此處不明，是否為focus?"}}>最新公告</a>
                                                 </li>
                                                 <li className="nav-item">
-                                                    <a className="nav-link i2" data-bs-toggle="tab" href="#tab-2" tabIndex={7} title="計畫徵件" onKeyUp={(e) => {"forcouse(e.currentTarget, e) 此處不明，是否為focus?"}}>計畫徵件</a>
+                                                    <a className="nav-link i2" data-bs-toggle="tab" href="#tab-2" tabIndex={7} title="計畫徵件" onKeyUp={() => {"forcouse(e.currentTarget, e) 此處不明，是否為focus?"}}>計畫徵件</a>
                                                 </li>
                                                 <li className="nav-item">
-                                                    <a className="nav-link i3" data-bs-toggle="tab" href="#tab-3" tabIndex={8} title="法規公告" onKeyUp={(e) => {"forcouse(e.currentTarget, e) 此處不明，是否為focus?"}}>法規公告</a>
+                                                    <a className="nav-link i3" data-bs-toggle="tab" href="#tab-3" tabIndex={8} title="法規公告" onKeyUp={() => {"forcouse(e.currentTarget, e) 此處不明，是否為focus?"}}>法規公告</a>
                                                 </li>
                                                 <li className="nav-item">
-                                                    <a className="nav-link i4" data-bs-toggle="tab" href="#tab-4" tabIndex={9} title="活動公告" onKeyUp={(e) => {"forcouse(e.currentTarget, e) 此處不明，是否為focus?"}}>活動公告</a>
+                                                    <a className="nav-link i4" data-bs-toggle="tab" href="#tab-4" tabIndex={9} title="活動公告" onKeyUp={() => {"forcouse(e.currentTarget, e) 此處不明，是否為focus?"}}>活動公告</a>
                                                 </li>
                                                 <li className="nav-item">
-                                                    <a className="nav-link i5" data-bs-toggle="tab" href="#tab-5" tabIndex={10} title="獲獎公告" onKeyUp={(e) => {"forcouse(e.currentTarget, e) 此處不明，是否為focus?"}}>獲獎公告</a>
+                                                    <a className="nav-link i5" data-bs-toggle="tab" href="#tab-5" tabIndex={10} title="獲獎公告" onKeyUp={() => {"forcouse(e.currentTarget, e) 此處不明，是否為focus?"}}>獲獎公告</a>
                                                 </li>
                                                 <li className="nav-item">
-                                                    <a className="nav-link i6" data-bs-toggle="tab" href="#tab-6" tabIndex={11} title="專題與媒體報導" onKeyUp={(e) => {"forcouse(e.currentTarget, e) 此處不明，是否為focus?"}}>專題與媒體報導</a>
+                                                    <a className="nav-link i6" data-bs-toggle="tab" href="#tab-6" tabIndex={11} title="專題與媒體報導" onKeyUp={() => {"forcouse(e.currentTarget, e) 此處不明，是否為focus?"}}>專題與媒體報導</a>
                                                 </li>
                                             </ul>
                                         </div>

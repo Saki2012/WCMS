@@ -8,7 +8,6 @@ const SidebarMenu=()=>{
     const [items, setItems] = useState<MenuItemData[]>([])
     useEffect(() => {
         SideMenuProvider().fetchList().then(setItems)
-        console.log('SidebarMenu render!');//測試是否有重新渲染的問題
     }, [])
 
     return (

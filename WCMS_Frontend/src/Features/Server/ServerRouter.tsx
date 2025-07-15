@@ -2,7 +2,8 @@ import type IRouteModule from "../../SysCore/Interface/IBaseRouter"
 import type { RouteObject } from "react-router-dom";
 import DashboardPage from "./Pages/DashboardPage"
 
-import {PageListComp, PageFormComp} from "./Layout/BizFunc/WebManagement/PageManagement/PageManagement_Comp"
+import { PageFormComp } from "./Layout/BizFunc/WebManagement/PageManagement/PageManagement_Form_Comp"
+import { PageListComp } from "./Layout/BizFunc/WebManagement/PageManagement/PageManagement_List_Comp"
 export class BackendRouteModule implements IRouteModule {
   getRoutes(): RouteObject[] {
     return [

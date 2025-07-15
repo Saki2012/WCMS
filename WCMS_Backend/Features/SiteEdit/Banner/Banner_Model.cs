@@ -4,11 +4,13 @@ using WCMS.SysCore.Model;
 
 namespace WCMS.Features.SiteEdit.Banner
 {
+    [LibDesc]
     public class BannerSet
     {
-        public Banner MasterData { get; set; }
-        public List<BannerDetail> Details { get; set; }
-        public List<BannerDetailInfo> DetailInfo { get; set; }
+        [LibDesc]
+        public Banner Banner { get; set; }
+        public List<BannerDetail> BannerDetail { get; set; }
+        public List<BannerDetailInfo> BannerDetailInfo { get; set; }
     }
 
     public class Banner: MasterDataModel
@@ -60,12 +62,12 @@ namespace WCMS.Features.SiteEdit.Banner
         /// <summary>
         /// 資料有效日期-起
         /// </summary>
-        [LibDesc("有效日期-起")]
+        [LibDesc]
         public DateTime Validate_Start { get; set; }
         /// <summary>
         /// 資料有效日期-迄
         /// </summary>
-        [LibDesc("有效日期-迄")]
+        [LibDesc]
         public DateTime Validate_End { get; set; }
         /// <summary>
         /// 網址開啟方式

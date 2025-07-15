@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Model;
 
 namespace WCMS.SysCore
 {
@@ -26,6 +28,8 @@ namespace WCMS.SysCore
         [HttpPost(nameof(Create))]
         public async Task<ActionResult> Create(TSet set)
         {
+            //var labels = I18nCache.GetLabels<TSet>();
+
             return Ok(await _service.CreateSetAsync(set));
         }
         /// <summary>

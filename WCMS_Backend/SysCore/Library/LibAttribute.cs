@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
+using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
 
@@ -12,39 +13,39 @@ namespace WCMS.SysCore.Library
     [AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = false)]
     public sealed class LibDescAttribute : DescriptionAttribute
     {
-        private readonly string _resourceKey;
         private readonly ResourceManager _resourceManager;
+        private string? _resourceKey;
 
-        public LibDescAttribute(string resourceKey="", Type resourceType=null) : base(resourceKey) // 預設值，如果無法取資源就用 key
+        public LibDescAttribute()
         {
-            return;
-            _resourceKey = resourceKey ?? throw new ArgumentNullException(nameof(resourceKey));
-            if (resourceType == null) throw new ArgumentNullException(nameof(resourceType));
-            var property = resourceType.GetProperty("ResourceManager", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
-            if (property == null) throw new ArgumentException("resourceType 必須有 ResourceManager 屬性", nameof(resourceType));
-            _resourceManager = (ResourceManager)property.GetValue(null, null);
+            // 可以改成從 DI 注入或集中設定資源路徑
+            _resourceManager = new ResourceManager("WCMS.SysCore.Resx.ModelDisplayName", Assembly.GetExecutingAssembly());
         }
+
+        public void SetResourceKey(string key) => _resourceKey = key;
 
         public override string Description
         {
             get
             {
-                return "";
-                string localized = _resourceManager.GetString(_resourceKey, CultureInfo.CurrentUICulture);
-                return localized ?? $"[{_resourceKey}]"; // 若找不到資源則返回 key
+                if (string.IsNullOrEmpty(_resourceKey)) return "";
+                var culture = CultureInfo.CurrentUICulture;
+                var localized = _resourceManager.GetString(_resourceKey, culture) ?? _resourceManager.GetString(_resourceKey, new CultureInfo("zh-TW"));
+                return localized ?? $"[{_resourceKey}]";
             }
         }
     }
+
+
+
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    public sealed class LibProgIdAttribute: Attribute
+    public sealed class LibProgIdAttribute(string progId = "") : Attribute
     {
-        private readonly string _progId;
-        public LibProgIdAttribute(string progId="") 
-        {
-            
-        
-        
-        }
+        private readonly string _progId = progId;
+
         public string Value { get; }
     }
+
+
+
 }

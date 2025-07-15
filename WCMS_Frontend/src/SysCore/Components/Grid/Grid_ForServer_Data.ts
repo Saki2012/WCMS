@@ -1,4 +1,3 @@
-import type {IGridView_Style} from '../../../SysCore/Components/Grid/Grid_Clsx'
 import type { ReactNode } from 'react';
 
 export interface ColumnConfig<T = any> {
@@ -20,7 +19,8 @@ export interface GridRow {
 }
 
 export interface GridProps {
-  style:IGridView_Style;
   columns: ColumnConfig[];
   rows: GridRow[];
+  CurrentPage:number;
+  TotalPage:number;
 }

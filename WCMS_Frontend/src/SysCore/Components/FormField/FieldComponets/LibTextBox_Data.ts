@@ -1,0 +1,13 @@
+
+export interface ILibTextBoxStyle{
+    
+    Labelstyle:string,
+    SelectStyle:string,
+    InputStyle:string,
+}
+
+export interface LibTextBoxProp{
+    Style:ILibTextBoxStyle,
+    ColumnDisplayName:string,
+    DefaultInputDisplay:string,
+}

@@ -123,6 +123,9 @@
   <data name="CreateUserId" xml:space="preserve">
     <value>創建人員ID</value>
   </data>
+  <data name="MasterData" xml:space="preserve">
+    <value>主要資料</value>
+  </data>
   <data name="UpdateTime" xml:space="preserve">
     <value>修改時間</value>
   </data>

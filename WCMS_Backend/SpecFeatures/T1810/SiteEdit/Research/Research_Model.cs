@@ -60,12 +60,12 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.Research
         /// <summary>
         /// 資料有效日期-起
         /// </summary>
-        [LibDesc("有效日期-起")]
+        [LibDesc]
         public DateTime Validate_Start { get; set; }
         /// <summary>
         /// 資料有效日期-迄
         /// </summary>
-        [LibDesc("有效日期-迄")]
+        [LibDesc]
         public DateTime Validate_End { get; set; }
         /// <summary>
         /// 網址開啟方式

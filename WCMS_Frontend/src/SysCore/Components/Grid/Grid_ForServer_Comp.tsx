@@ -1,15 +1,16 @@
-import type { GridProps } from "../../../SysCore/Components/Grid/Grid_ForServer_Data"
+import type { GridProps,GridRow,ColumnConfig } from "../../../SysCore/Components/Grid/Grid_ForServer_Data"
 import { useState } from "react";
 import { Paginator } from "../../../SysCore/Components/Paginator/Paginator_Comp"
+import type { IGridView_Style } from "./Grid_Clsx";
 
 
 /** 之後合併，先暫時分開處理 */
-const ColRender = ({gridData}:{gridData:GridProps}) =>{
+const ColRender = ({ columns, style }: { columns: ColumnConfig[]; style: IGridView_Style }) =>{
     return (
         <thead>
-            <tr className={gridData.style.ColumnStyle}>
-                {gridData.columns.filter(col => col.visible !== false).map((col) => (
-                    <th id={col.key.toString()} style={{ width: col.width || "auto" }}>
+            <tr className={style.ColumnStyle}>
+                {columns.filter(col => col.visible !== false).map((col) => (
+                    <th key={col.key} id={col.key.toString()} style={{ width: col.width || "auto" }}>
                     {col.title}
                     </th>
                 ))}
@@ -18,13 +19,13 @@ const ColRender = ({gridData}:{gridData:GridProps}) =>{
     )
 }
 
-const RowRender = ({gridData}:{gridData:GridProps}) =>{
+const RowRender = ({ rows, style }: { rows: GridRow[]; style: IGridView_Style }) =>{
     return (
         <tbody>
-            {gridData.rows.map((row,idx) => (
-                <tr className={(idx%2===1 ? gridData.style.Odd : gridData.style.Even)}>
+            {rows.map((row,idx) => (
+                <tr className={(idx%2===1 ? style.Odd : style.Even)}>
                     {row.cells.map((data)=> (
-                        <td headers={data.col.key} className={gridData.style.CellStyle} data-th={data.col.title}>{data.content}</td>
+                        <td headers={data.col.key} className={style.CellStyle} data-th={data.col.title}>{data.content}</td>
                     ))}
                 </tr>
             ))}
@@ -32,7 +33,7 @@ const RowRender = ({gridData}:{gridData:GridProps}) =>{
     )
 }
 
-export const Grid=({gridData}:{gridData:GridProps})=>{
+export const Grid=({ gridData, style }: { gridData: GridProps; style: IGridView_Style })=>{
     const [currentPage, setCurrentPage] = useState(1);
     const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -42,13 +43,14 @@ export const Grid=({gridData}:{gridData:GridProps})=>{
         <>
         <div className="row mx-0">
             <div className="RWD-TABLE-BOX">
-                <table className={gridData.style.TableStyle}>
-                    <ColRender gridData={gridData}></ColRender>
-                    <RowRender gridData={gridData}></RowRender>
+                <table className={style.TableStyle}>
+                    <ColRender columns={gridData.columns} style={style}></ColRender>
+                    <RowRender rows={gridData.rows} style={style}></RowRender>
                 </table>
             </div>
         </div>
-        <Paginator currentPage={1} totalPages={5} onPageChange={handlePageChange}  ></Paginator>
+        {!(gridData.CurrentPage === 1 && gridData.TotalPage === 1) && 
+            (<Paginator currentPage={gridData.CurrentPage} totalPages={gridData.TotalPage} onPageChange={handlePageChange} ></Paginator>)}
         </>
     );
 }

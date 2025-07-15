@@ -25,6 +25,7 @@ export default defineConfig(() => {
           external: [],          
         },
         assetsInclude: ['**/*.ttf', '**/*.woff', '**/*.woff2'], // TinyMCE 字型檔支援
+        // base:'/WCMS/',
       }
     )
   }

@@ -22,7 +22,7 @@ export const Toolbar_EditPage=(prop:ToolbarItemsProp)=>{
                 <div className="row mx-0">
                     <div className="col-sm-10 offset-sm-2 float-md-left float-sm-none">
                         {prop.Items.map((btn)=>(
-                            <Link className="mr-2 mb-2" to={btn.Url} type="button" role="button" target="_self" title={btn.Title}>
+                            <Link key={btn.Title} className="mr-2 mb-2" to={btn.Url} type="button" role="button" target="_self" title={btn.Title}>
                                 <button type="button" className="btn btn-custom btn-rounded btn-sm">{btn.Title}</button>
                             </Link>
                         ))}
