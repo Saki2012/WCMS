@@ -1,12 +1,12 @@
 import BannerSlider from '../../../../SysCore/Components/BannerSlider/BannerSlider'
 import IconCardMenu from '../../../../SysCore/Components/QuickNaviSlider/IconCardMenu'
 import CategoryTabs from '../../../../SysCore/Components/TabsList/CategoryTabs'
-import EventSession from './EventSession'
-import GallerySession from './GallerySession'
-import VideoSession from './VideoSession'
+import EventSession from '../../../../SpecFetures/1810/Client/MainPageComp/EventSession'
+import GallerySession from '../../../../SpecFetures/1810/Client/MainPageComp/GallerySession'
+import VideoSession from '../../../../SpecFetures/1810/Client/MainPageComp/VideoSession'
 
 
-const MainContent = () => {
+const HomePage = () => {
   return (
     <main id="fullpage" className="fullpage-wrapper">
         <div className="bg_area">
@@ -29,4 +29,4 @@ const MainContent = () => {
   );
 };
 
-export default MainContent;
+export default HomePage;

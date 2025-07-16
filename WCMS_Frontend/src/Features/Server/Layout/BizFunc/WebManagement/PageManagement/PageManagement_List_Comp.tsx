@@ -1,4 +1,3 @@
-
 import {Grid} from "../../../../../../SysCore/Components/Grid/Grid_ForServer_Comp"
 import {SearchComp} from "../../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
 import type{SearchBarProps} from "../../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
@@ -7,17 +6,7 @@ import {Toolbar} from "../../../../../../SysCore/Components/Toolbar/Toolbar_Comp
 import type {ToolbarProp} from "../../../../../../SysCore/Components/Toolbar/Toolbar_Data"
 import type {IBETheme} from "../../../../../../Features/Server/Layout/Theme/ITheme"
 import  {Classic_BETheme} from "../../../../../../Features/Server/Layout/Theme/ITheme"
-
 import { usePageListData } from "./PageManagement_Hook";
-
-
-
-
-
-
-
-
-
 
 const toolbarProp:ToolbarProp={
     Title:"新增頁面",
@@ -52,7 +41,7 @@ export const PageListComp = (prop:PageListProp,style:IBETheme) => {
                 <div className="col-sm-12">
                     <div className="card">
                         <div className="card-header">
-                            <h3><i className="fas fa-braille me-2"></i>{prop.title}xsxsxs</h3>
+                            <h3><i className="fas fa-braille me-2"></i>{prop.title}標題</h3>
                         </div>
                         {/* <ListBodyComp></ListBodyComp> */}
                         <div className="card-body">

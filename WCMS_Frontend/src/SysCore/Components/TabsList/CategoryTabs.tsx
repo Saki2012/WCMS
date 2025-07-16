@@ -4,7 +4,7 @@ import 'swiper/swiper-bundle.css';
 
 const CategoryTabs = () => {
 return (
-    <section className="Newsbox-section" style={{backgroundImage: "url(/Legacy/Images/bg/background-transparent-image_1920x600.png)"}}>
+    <section className="Newsbox-section" style={{backgroundImage: "url(/Legacy/Client/Images/bg/background-transparent-image_1920x600.png)"}}>
                     <div className="Mask-DivBox layout_padding2 bg-white">
                         <div className="customizeBox">
                             <div className="container-customize1">

@@ -27,6 +27,7 @@ const genericApi = {
   delete: <T>(module: string, data: T) => client.delete(`/${module}/Delete`, { data }),
   queryData: <T>(module: string, params?: T) => client.get(`/${module}/QueryData`, { params }),
   queryList: <T>(module: string, data: T) => client.post(`/${module}/QueryList`, data),
+  getModelDisplayName:(module: string) => client.get(`/${module}/GetModelDisplayName`),
 };
 
 
@@ -58,6 +59,11 @@ export class BaseApiService<T> {
 
   async queryList(params: any): Promise<T[]> {
     const res = await genericApi.queryList(this.module, params);
+    return this.parseResultArray(res.data);
+  }
+
+  async getModelDisplayName(): Promise<T[]> {
+    const res = await genericApi.getModelDisplayName(this.module);
     return this.parseResultArray(res.data);
   }
 

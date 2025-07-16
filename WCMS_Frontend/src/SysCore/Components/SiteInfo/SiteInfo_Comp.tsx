@@ -31,8 +31,8 @@ function SiteInfoComp({ displayNameMap, infoData }: { displayNameMap: FieldDispl
 export default function SiteInfo({items, displays}: Props) {
   return (
     <>
-      {items.map((item) => (
-        <SiteInfoComp displayNameMap={displays} infoData={item}/>
+      {items.map((item,idx) => (
+        <SiteInfoComp key={idx} displayNameMap={displays} infoData={item}/>
       ))}
     </>
   );

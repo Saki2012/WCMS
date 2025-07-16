@@ -30,8 +30,16 @@ namespace WCMS.SysCore.Library
             {
                 if (string.IsNullOrEmpty(_resourceKey)) return "";
                 var culture = CultureInfo.CurrentUICulture;
-                var localized = _resourceManager.GetString(_resourceKey, culture) ?? _resourceManager.GetString(_resourceKey, new CultureInfo("zh-TW"));
-                return localized ?? $"[{_resourceKey}]";
+                var localized = $"[{_resourceKey}]";
+                try
+                {
+                    localized = _resourceManager.GetString(_resourceKey, culture) ?? _resourceManager.GetString(_resourceKey, new CultureInfo("zh-TW"));
+                }
+                catch
+                {
+                    Console.WriteLine("Resx資料辨識異常");
+                }
+                return localized;
             }
         }
     }

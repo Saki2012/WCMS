@@ -4,7 +4,7 @@ import { Classic_SidebarMenu } from '../Scaffold/Menu/SideMenu/SideMenu_Clsx'
 import type { IBreadCrumbStyle } from '../Scaffold/Menu/BreadCrumb/BreadCrumb_Clsx'
 import { Classic_BreadCrumb } from '../Scaffold/Menu/BreadCrumb/BreadCrumb_Clsx'
 
-import type { INaviBarMenu_Style } from '../Scaffold/Menu/NaviBar/NaviBar_Clsx'
+import type { INaviBarStyle } from "../../../../SysCore/Components/NaviBar/NaviBar_Clsx"
 import { Classic_NaviBarMenu } from '../Scaffold/Menu/NaviBar/NaviBar_Clsx'
 
 import type {ILibTabsStyle,ILibDropListStyle,ILibTextBoxStyle,ILibTinyMCEStyle} from "../../../../SysCore/Components/FormField/LibFormField"
@@ -17,7 +17,7 @@ export interface IBETheme {
   //#region Componets
   SidebarMenu: ISidebarMenu_Style;
   BreadCrumb: IBreadCrumbStyle;
-  NavBarMenu:INaviBarMenu_Style;
+  NavBarMenu:INaviBarStyle;
 
   //#region Fields
   GridView:IGridView_Style

@@ -11,7 +11,7 @@ const LibDropList=(prop:LibDropListProp)=>{
                     {Object.entries(prop.Options).map(([key, label]) => {
                         if (key === "") { return ( <option selected>{label}</option> );} 
                         else { return ( <option key={key} value={key}>{label}</option> ); }
-                        })}
+                    })}
                 </select>
             </div>
         </>

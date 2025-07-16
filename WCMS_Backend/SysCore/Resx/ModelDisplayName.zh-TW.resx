@@ -117,14 +117,56 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="BannerSet" xml:space="preserve">
+    <value>廣告輪播</value>
+  </data>
+  <data name="CategoryId" xml:space="preserve">
+    <value>類別代碼</value>
+  </data>
+  <data name="CategoryName" xml:space="preserve">
+    <value>類別名稱</value>
+  </data>
+  <data name="Content" xml:space="preserve">
+    <value>內容</value>
+  </data>
   <data name="CreateTime" xml:space="preserve">
     <value>創建時間</value>
   </data>
   <data name="CreateUserId" xml:space="preserve">
     <value>創建人員ID</value>
   </data>
+  <data name="DataStatus" xml:space="preserve">
+    <value>資料狀態</value>
+  </data>
+  <data name="Lang" xml:space="preserve">
+    <value>語系</value>
+  </data>
   <data name="MasterData" xml:space="preserve">
     <value>主要資料</value>
+  </data>
+  <data name="ModifyTime" xml:space="preserve">
+    <value>修改時間</value>
+  </data>
+  <data name="ModifyUserId" xml:space="preserve">
+    <value>修改人代碼</value>
+  </data>
+  <data name="PageId" xml:space="preserve">
+    <value>頁面代碼</value>
+  </data>
+  <data name="PageManagement" xml:space="preserve">
+    <value>頁面</value>
+  </data>
+  <data name="PageManagementDetail" xml:space="preserve">
+    <value>頁面明細</value>
+  </data>
+  <data name="PageManagementSet" xml:space="preserve">
+    <value>頁面管理</value>
+  </data>
+  <data name="RowId" xml:space="preserve">
+    <value>行項代碼</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>標題</value>
   </data>
   <data name="UpdateTime" xml:space="preserve">
     <value>修改時間</value>
@@ -137,5 +179,8 @@
   </data>
   <data name="Validate_Start" xml:space="preserve">
     <value>有效日期-起</value>
+  </data>
+  <data name="ViewCount" xml:space="preserve">
+    <value>觀看次數</value>
   </data>
 </root>

@@ -23,9 +23,9 @@ const RowRender = ({ rows, style }: { rows: GridRow[]; style: IGridView_Style })
     return (
         <tbody>
             {rows.map((row,idx) => (
-                <tr className={(idx%2===1 ? style.Odd : style.Even)}>
-                    {row.cells.map((data)=> (
-                        <td headers={data.col.key} className={style.CellStyle} data-th={data.col.title}>{data.content}</td>
+                <tr key={idx} className={(idx%2===1 ? style.Odd : style.Even)}>
+                    {row.cells.map((data,idx)=> (
+                        <td key={idx} headers={data.col.key} className={style.CellStyle} data-th={data.col.title}>{data.content}</td>
                     ))}
                 </tr>
             ))}

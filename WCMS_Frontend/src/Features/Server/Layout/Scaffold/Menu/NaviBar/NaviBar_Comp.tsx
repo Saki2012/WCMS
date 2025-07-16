@@ -37,7 +37,7 @@ const NavibarMenu=()=>{
                             <i className="fas fa-grip-horizontal"></i>
                         </a>
                         <div className="Customize_collapse + collapse navbar-collapse" id="navbar_right">
-                        <NaviBarComp items={items} theme={Classic_BETheme.NavBarMenu}></NaviBarComp>
+                        <NaviBarComp items={items} style={Classic_BETheme.NavBarMenu}></NaviBarComp>
                         </div>                      
                     </nav>
                 </div>

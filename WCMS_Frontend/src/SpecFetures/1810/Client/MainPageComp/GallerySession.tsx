@@ -7,7 +7,7 @@ const GallerySession = () => {
     BaseCarousel({ selectorId: '#Gallery', itemCount: 3 });
 
     return (
-        <section className="Gallery-section owl-box" style={{backgroundImage: "url(/Legacy/Images/bg/background-transparent-image_1920x600.png)"}}>
+        <section className="Gallery-section owl-box" style={{backgroundImage: "url(/Legacy/Client/Images/bg/background-transparent-image_1920x600.png)"}}>
             <div className="Mask-DivBox layout_padding2">
                 <div className="customizeBox">
                     <div className="container-customize1">

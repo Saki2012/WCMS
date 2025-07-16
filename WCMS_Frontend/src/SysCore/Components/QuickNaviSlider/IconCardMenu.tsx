@@ -47,7 +47,7 @@ return (
                                                                 <div className="Icon-DIV">
                                                                     <div className="IMG-Content">
                                                                         <div className="IMG-icon">
-                                                                            <img src="/Legacy/Images/icon/icon_01_256x256.svg" className="d-block w-100" alt="..." />
+                                                                            <img src="/Legacy/Client/images/icon/icon_01_256x256.svg" className="d-block w-100" alt="..." />
                                                                         </div>
                                                                     </div>
                                                                     <div className="Title-Content">
@@ -67,7 +67,7 @@ return (
                                                                 <div className="Icon-DIV">
                                                                     <div className="IMG-Content">
                                                                         <div className="IMG-icon">
-                                                                            <img src="/Legacy/Images/icon/icon_02_256x256.svg" className="d-block w-100" alt="..." />
+                                                                            <img src="/Legacy/Client/images/icon/icon_02_256x256.svg" className="d-block w-100" alt="..." />
                                                                         </div>
                                                                     </div>
                                                                     <div className="Title-Content">
@@ -87,7 +87,7 @@ return (
                                                                 <div className="Icon-DIV">
                                                                     <div className="IMG-Content">
                                                                         <div className="IMG-icon">
-                                                                            <img src="/Legacy/Images/icon/icon_03_256x256.svg" className="d-block w-100" alt="..." />
+                                                                            <img src="/Legacy/Client/images/icon/icon_03_256x256.svg" className="d-block w-100" alt="..." />
                                                                         </div>
                                                                     </div>
                                                                     <div className="Title-Content">

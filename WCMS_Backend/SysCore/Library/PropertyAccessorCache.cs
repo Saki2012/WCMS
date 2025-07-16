@@ -25,6 +25,17 @@ namespace WCMS.SysCore.Library
             return ctor();
         }
 
+        public static T CreateInstance<T>()
+        {
+            var ctor = _constructorCache.GetOrAdd(typeof(T), t =>
+            {
+                var ctorInfo = t.GetConstructor(Type.EmptyTypes);
+                var newExpr = Expression.New(ctorInfo);
+                return Expression.Lambda<Func<object>>(newExpr).Compile();
+            });
+            return (T)ctor();
+        }
+
         public static object Get(object target, string propertyName)
         {
             var type = target.GetType();

@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react';
-import NaviBarComp from '../../../SysCore/Components/NaviBar/NaviBar_Comp'
-import mock_HeaderData from '../../../SysCore/Components/NaviBar/NaviBar_Data'
-import MenuListComp from '../../../SysCore/Components/MenuList/MenuList_Comp'
-// import mock_MenuListData from '../../../SysCore/Components/MenuList/MenuList_Data'
+import NaviBarComp from '../../../../../../SysCore/Components/NaviBar/NaviBar_Comp'
+import type { NaviData } from '../../../../../../SysCore/Components/NaviBar/NaviBar_Data'
+import { Link } from 'react-router-dom';
+import type { INaviBarStyle } from '../../../../../../SysCore/Components/NaviBar/NaviBar_Clsx';
+import { Classic_NaviBarMenu } from '../NaviBar/NaviBar_Clsx';
 
 declare global {
   interface Window {
@@ -10,30 +11,53 @@ declare global {
     googleTranslateElementInit: () => void;
   }
 }
-const MenuComp = () => {
+const MainMenu = () => {
   const translateRef = useRef<HTMLDivElement>(null);
-  const navItems = mock_HeaderData();
 //   const menuItems = mock_MenuListData()
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const script = document.createElement('script');
-    script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-    script.async = true;
-    document.body.appendChild(script);
+  const Mock_naviData:NaviData[]=[
+      {
+        Id:"",SrcData: "",Url: "",
+        DOMContent:<Link className="nav-link" to="/" target="_self" title="首頁">首頁</Link>
+      },
+      {
+        Id:"",SrcData: "",Url: "",
+        DOMContent:<Link className="nav-link" to="/" target="_self" title="台藝校首頁">台藝校首頁</Link>
+      },
+      {
+        Id:"",SrcData: "",Url: "",
+        DOMContent:<Link className="nav-link" to="/" target="_self" title="網站導覽">網站導覽</Link>
+      },
+      {
+        Id:"",SrcData: "",Url: "",
+        DOMContent:<Link className="nav-link" to="/" target="_self" title="English">English</Link>
+      },
+    ]
 
-    // 初始化方法
-    window.googleTranslateElementInit = () => {
-      if (translateRef.current) {
-        new window.google.translate.TranslateElement(
-          {
-            pageLanguage: 'zh-TW',
-          },
-          translateRef.current
-        );
-      }
-    };
-  }, []);
+  const MockNaviStyle:INaviBarStyle=Classic_NaviBarMenu
+
+
+  useEffect(() => {
+  if (typeof window === 'undefined') return;
+
+  const scriptId = 'google-translate-script';
+  const exist = document.getElementById(scriptId);
+  if (exist) return;
+
+  const script = document.createElement('script');
+  script.id = scriptId;
+  script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+  script.async = true;
+  document.body.appendChild(script);
+
+  window.googleTranslateElementInit = () => {
+    if (translateRef.current) {
+      new window.google.translate.TranslateElement({
+        pageLanguage: 'zh-TW',
+      }, translateRef.current);
+    }
+  };
+}, []);
 
   return (
     <div className="menulayer">
@@ -51,13 +75,13 @@ const MenuComp = () => {
         {/* // topBox上方選單 // */}
         <div className="topBox">
             <div className="navsBox">
-                <NaviBarComp items={navItems}></NaviBarComp>
+                <NaviBarComp items={Mock_naviData} style={MockNaviStyle} ></NaviBarComp>
             </div>
         </div>
         {/* // topBox上方選單 end // */}
         <div className="SearchBar">
             <div className="search_DivBox">
-                <input className="search_input" type="text" placeholder="Search" id="search-box" onKeyUp={(e) =>{"Search(event)"}} tabIndex={1} title="Search" />
+                <input className="search_input" type="text" placeholder="Search" id="search-box" onKeyUp={() =>{"Search(event)"}} tabIndex={1} title="Search" />
             </div>
         </div>
         {/* // menuBox // */}
@@ -106,7 +130,7 @@ const MenuComp = () => {
   );
 };
 
-export default MenuComp;
+export default MainMenu;
 
 
 

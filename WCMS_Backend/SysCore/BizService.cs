@@ -291,6 +291,8 @@ namespace WCMS.SysCore
         /// <returns></returns>
         protected async Task<IList<TSet>> DoQueryListAsync(string[] selectFields, string condition, int pageCt, int takeCt)
         {
+            List<TSet> r = new List<TSet>();
+            
             //未來可以做連同detail查詢的grid 待處理
             foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
             {
@@ -298,10 +300,17 @@ namespace WCMS.SysCore
                 {
                     var selectExpr = GetSelectFieldsExpr(prop.PropertyType, selectFields);
                     var whereExpr = GetConditionExpr(prop.PropertyType,condition);
-                    return await ((dynamic)RepoDict[prop.Name]).QueryListAsync(selectExpr, whereExpr, pageCt, takeCt);
+                    var datas = await ((dynamic)RepoDict[prop.Name]).QueryListAsync(selectExpr, whereExpr, pageCt, takeCt);
+
+                    foreach (var d in datas)
+                    {
+                        TSet result = PropertyAccessorCache.CreateInstance<TSet>();
+                        r.Add(result);
+                        PropertyAccessorCache.Set(result, prop.Name, d);
+                    }
                 }
             }
-            return null;
+            return r;
         }
         /// <summary>
         /// 

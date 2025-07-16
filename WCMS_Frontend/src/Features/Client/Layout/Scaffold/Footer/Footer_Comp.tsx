@@ -1,18 +1,14 @@
 /*footer模塊*/
-
-import SiteInfo from '../../../SysCore/Components/SiteInfo/SiteInfo_Comp'
-import mock_SiteInfoData from '../../../SysCore/Components/SiteInfo/SiteInfo_Data'
+import SiteInfo from "../../../../../SysCore/Components/SiteInfo/SiteInfo_Comp"
+import mock_SiteInfoData from '../../../../../SysCore/Components/SiteInfo/SiteInfo_Data'
 
 export type NavItem = {
   Title: string;
   URL: string;
 };
 
-interface Props {
-  items: NavItem[];
-}
 
-export default function FooterComp({}: Props) {
+const Footer=()=> {
   return (
     <footer className="footer_section">
         <div className="footer-black">
@@ -25,7 +21,7 @@ export default function FooterComp({}: Props) {
                                 <div className="row">
                                     <div className="col-12">
                                         <div className="footer-widget about-widget my-md-4 mb-3">
-                                            <img alt={"國立臺灣藝術大學_研究發展處 LOGO"} src={"/Legacy/Images/logo/logo_Footer_W_225x125.svg"}/>
+                                            <img alt={"國立臺灣藝術大學_研究發展處 LOGO"} src={"/Legacy/Client/images/logo/logo_Footer_W_225x125.svg"}/>
                                             </div>
                                     </div>
                                 </div>
@@ -148,3 +144,5 @@ export default function FooterComp({}: Props) {
     </footer>
   );
 }
+
+export default Footer;

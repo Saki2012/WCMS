@@ -1,5 +1,5 @@
 /** 清單 */
-import type { MenuItemData } from '../../../SysCore/Components/MenuList/MenuList_Data';
+import type { MenuItemData } from '../../../../../../SysCore/Components/MenuList/MenuList_Data';
 
 export default function mock_MenuListData(): MenuItemData[] {
   return [

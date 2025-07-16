@@ -4,6 +4,7 @@ import DashboardPage from "./Pages/DashboardPage"
 
 import { PageFormComp } from "./Layout/BizFunc/WebManagement/PageManagement/PageManagement_Form_Comp"
 import { PageListComp } from "./Layout/BizFunc/WebManagement/PageManagement/PageManagement_List_Comp"
+
 export class BackendRouteModule implements IRouteModule {
   getRoutes(): RouteObject[] {
     return [

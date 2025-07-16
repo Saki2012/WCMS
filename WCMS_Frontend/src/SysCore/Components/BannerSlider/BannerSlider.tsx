@@ -67,19 +67,19 @@ const BannerSlider = () => {
                     {/* <asp:Literal ID="Lit_Banner_PC" runat="server" /> 以下為測試資料 */}
                     <div className='carousel-inner'>
                         <div className='carousel-item active' data-bs-interval='5000' >
-                            <img src='/Legacy/File/Banner/A9-2E-A9-5C-8E-CF-E0-75-3D-50-5A-3B-CF-6F-78-C8.jpg' className='d-block w-100' alt='首頁Banner圖片' />
+                            <img src='/Legacy/Client/File/Banner/A9-2E-A9-5C-8E-CF-E0-75-3D-50-5A-3B-CF-6F-78-C8.jpg' className='d-block w-100' alt='首頁Banner圖片' />
                         </div>
                         <div className='carousel-item' data-bs-interval='5000' >
-                            <img src='/Legacy/File/Banner/6B-28-1E-A5-EC-12-E1-E4-73-8F-76-44-8E-97-4D-65.PNG' className='d-block w-100' alt='' />
+                            <img src='/Legacy/Client/File/Banner/6B-28-1E-A5-EC-12-E1-E4-73-8F-76-44-8E-97-4D-65.PNG' className='d-block w-100' alt='' />
                         </div>
                         <div className='carousel-item' data-bs-interval='5000' >
-                            <video className='d-block w-100' src='/Legacy/File/Banner/0E-67-17-2F-FF-BB-B6-0A-EC-A9-15-D8-6B-F3-88-6F.mp4' title='影片'  autoPlay muted loop style={{width: '100vw', height: 'auto'}}></video>
+                            <video className='d-block w-100' src='/Legacy/Client/File/Banner/0E-67-17-2F-FF-BB-B6-0A-EC-A9-15-D8-6B-F3-88-6F.mp4' title='影片'  autoPlay muted loop style={{width: '100vw', height: 'auto'}}></video>
                         </div>
                         <div className='carousel-item' data-bs-interval='5000' >
-                            <img src='/Legacy/File/Banner/1C-13-3E-9A-51-ED-8A-B6-0B-1C-1A-C3-3B-42-D7-B0.jpg' className='d-block w-100' alt='圖書館' />
+                            <img src='/Legacy/Client/File/Banner/1C-13-3E-9A-51-ED-8A-B6-0B-1C-1A-C3-3B-42-D7-B0.jpg' className='d-block w-100' alt='圖書館' />
                         </div>	
                         <div className='carousel-item' data-bs-interval='5000' >
-                            <img src='/Legacy/File/Banner/47-1F-F2-A3-C8-CC-55-AC-1B-DF-46-33-7B-10-CA-F0.jpg' className='d-block w-100' alt='有章博物館' />
+                            <img src='/Legacy/Client/File/Banner/47-1F-F2-A3-C8-CC-55-AC-1B-DF-46-33-7B-10-CA-F0.jpg' className='d-block w-100' alt='有章博物館' />
                         </div>
                     </div>
                     {/* 以上為測試資料 */}
@@ -115,19 +115,19 @@ const BannerSlider = () => {
                     {/* <asp:Literal ID="Lit_Banner_MB" runat="server" /> */}
                     <div className='carousel-inner'>
                         <div className='carousel-item active' data-bs-interval='5000' >
-                            <img src='/Legacy/File/Banner/A9-2E-A9-5C-8E-CF-E0-75-3D-50-5A-3B-CF-6F-78-C8.jpg' className='d-block w-100' alt='首頁Banner圖片' />
+                            <img src='/Legacy/Client/File/Banner/A9-2E-A9-5C-8E-CF-E0-75-3D-50-5A-3B-CF-6F-78-C8.jpg' className='d-block w-100' alt='首頁Banner圖片' />
                         </div>
                         <div className='carousel-item' data-bs-interval='5000' >
-                            <img src='/Legacy/File/Banner/6B-28-1E-A5-EC-12-E1-E4-73-8F-76-44-8E-97-4D-65.PNG' className='d-block w-100' alt='' />
+                            <img src='/Legacy/Client/File/Banner/6B-28-1E-A5-EC-12-E1-E4-73-8F-76-44-8E-97-4D-65.PNG' className='d-block w-100' alt='' />
                         </div>
                         <div className='carousel-item' data-bs-interval='5000' >
                             <video className='d-block w-100' src='/File/Banner/0E-67-17-2F-FF-BB-B6-0A-EC-A9-15-D8-6B-F3-88-6F.mp4' title='影片'  autoPlay muted loop style={{width: '100vw', height: 'auto'}}></video>
                         </div>
                         <div className='carousel-item' data-bs-interval='5000' >
-                            <img src='/Legacy/File/Banner/1C-13-3E-9A-51-ED-8A-B6-0B-1C-1A-C3-3B-42-D7-B0.jpg' className='d-block w-100' alt='圖書館' />
+                            <img src='/Legacy/Client/File/Banner/1C-13-3E-9A-51-ED-8A-B6-0B-1C-1A-C3-3B-42-D7-B0.jpg' className='d-block w-100' alt='圖書館' />
                         </div>	
                         <div className='carousel-item' data-bs-interval='5000' >
-                            <img src='/Legacy/File/Banner/47-1F-F2-A3-C8-CC-55-AC-1B-DF-46-33-7B-10-CA-F0.jpg' className='d-block w-100' alt='有章博物館' />
+                            <img src='/Legacy/Client/File/Banner/47-1F-F2-A3-C8-CC-55-AC-1B-DF-46-33-7B-10-CA-F0.jpg' className='d-block w-100' alt='有章博物館' />
                         </div>
                     </div>
                     {/* 以上為測試資料 */}

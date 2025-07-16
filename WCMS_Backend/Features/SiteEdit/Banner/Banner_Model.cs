@@ -7,10 +7,9 @@ namespace WCMS.Features.SiteEdit.Banner
     [LibDesc]
     public class BannerSet
     {
-        [LibDesc]
-        public Banner Banner { get; set; }
-        public List<BannerDetail> BannerDetail { get; set; }
-        public List<BannerDetailInfo> BannerDetailInfo { get; set; }
+        [LibDesc] public Banner Banner { get; set; }
+        [LibDesc] public List<BannerDetail> BannerDetail { get; set; }
+        [LibDesc] public List<BannerDetailInfo> BannerDetailInfo { get; set; }
     }
 
     public class Banner: MasterDataModel

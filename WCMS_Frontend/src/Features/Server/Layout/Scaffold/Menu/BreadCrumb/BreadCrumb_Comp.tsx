@@ -12,7 +12,7 @@ const BreadCrumb=()=>{
     }, [])
 
     return (
-        <BreadCrumbComp items={items} theme={Classic_BETheme.BreadCrumb}></BreadCrumbComp>
+        <BreadCrumbComp items={items} style={Classic_BETheme.BreadCrumb}></BreadCrumbComp>
     )
 }
 

@@ -5,59 +5,83 @@ import App from './App.tsx'
 import HeaderMetaComp from './SysCore/Components/HeaderMeta/HeaderMeta_Comp.tsx'
 import { BrowserRouter } from "react-router-dom";
 
-// const cssList = [
-// "/Legacy/Server/ContentBack/bootstrap-5.1.1/css/bootstrap.min.css",
-// "/Legacy/Server/ContentBack/bootstrap-5.1.1/css/docs.css",
-// "/Legacy/Server/fonts/tabler/tabler-icons.min.css",
-// "/Legacy/Server/fonts/feather/feather.css",
-// "/Legacy/Server/fonts/font-awesome-pro-5/css/all.css",
-// "/Legacy/Server/css/Header.css",
-// "/Legacy/Server/css/Sidebar-Menu.css",
-// "/Legacy/Server/css/Footer.css",
-// "/Legacy/Server/css/style_Admin_All.css",
-// "/Legacy/Server/css/style_class_kit.css",
-// "/Legacy/Server/css/style_background_color.css",
-// "/Legacy/Server/ContentBack/nestable/nestable.css",
-// "/Legacy/Server/ContentBack/table_rwd/table_rwd.css",
-// "/Legacy/Server/ContentBack/bootstrap-datepicker1.6.1/bootstrap-datepicker1.6.1.css",
-// "/Legacy/Server/ContentBack/login/login_NewDesige.css",
-// "/Legacy/Server/ContentBack/register/register_NewDesige.css",
-// "/Legacy/Server/ContentBack/animate/animate.css",
-// "/Legacy/Server/ContentBack/bg_dynamic/login-Particles.css",
-// "/Legacy/Server/ContentBack/chart_c3_0.7.20/css/c3.css",
-// "https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600&display=swap",
-// ]
+const CssList = [
 
-// cssList.forEach((href) => {
-//   const link = document.createElement('link')
-//   link.rel = 'stylesheet'
-//   link.href = href
-//   document.head.appendChild(link)
-// })
+// Server
+"/Legacy/Server/ContentBack/bootstrap-5.1.1/css/bootstrap.min.css",
+"/Legacy/Server/ContentBack/bootstrap-5.1.1/css/docs.css",
+"/Legacy/Server/fonts/tabler/tabler-icons.min.css",
+"/Legacy/Server/fonts/feather/feather.css",
+"/Legacy/Server/fonts/font-awesome-pro-5/css/all.css",
+"/Legacy/Server/css/Header.css",
+"/Legacy/Server/css/Sidebar-Menu.css",
+"/Legacy/Server/css/Footer.css",
+"/Legacy/Server/css/style_Admin_All.css",
+"/Legacy/Server/css/style_class_kit.css",
+"/Legacy/Server/css/style_background_color.css",
+"/Legacy/Server/ContentBack/nestable/nestable.css",
+"/Legacy/Server/ContentBack/table_rwd/table_rwd.css",
+"/Legacy/Server/ContentBack/bootstrap-datepicker1.6.1/bootstrap-datepicker1.6.1.css",
+"/Legacy/Server/ContentBack/login/login_NewDesige.css",
+"/Legacy/Server/ContentBack/register/register_NewDesige.css",
+"/Legacy/Server/ContentBack/animate/animate.css",
+"/Legacy/Server/ContentBack/bg_dynamic/login-Particles.css",
+"/Legacy/Server/ContentBack/chart_c3_0.7.20/css/c3.css",
+"https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600&display=swap",
 
-// const jsList = [
-// "/Legacy/Server/ContentBack/jquery-3.7.1/jquery-3.7.1.min.js",
-// "/Legacy/Server/ContentBack/jquery-3.7.1/bootstrap.js",
-// "/Legacy/Server/ContentBack/bootstrap-5.1.1/js/bootstrap.bundle.min.js",
-// "/Legacy/Server/fonts/feather/feather.min.js",
-// "/Legacy/Server/ContentBack/ckeditor_4.22.1_full/ckeditor/ckeditor.js",
-// "/Legacy/Server/js/simplebarv6.2.5.min.js",
-// "/Legacy/Server/js/Custompcoded.js",
-// "/Legacy/Server/ContentBack/nestable/jquery-1.12.4.min.js",
-// "/Legacy/Server/ContentBack/nestable/jquery.nestable.js",
-// "/Legacy/Server/ContentBack/bootstrap-datepicker1.6.1/bootstrap-datepicker1.6.1.min.js",
-// "/Legacy/Server/ContentBack/repeater/jquery-1.11.1.js",
-// "/Legacy/Server/ContentBack/repeater/jquery.repeater.js",
-// "/Legacy/Server/ContentBack/chart_c3_0.7.20/css/c3.min.js",
-// "/Legacy/Server/ContentBack/chart_c3_0.7.20/css/d3-5.8.2.min.js",
-// ]
+// Client
 
-// jsList.forEach((src) => {
-//   const script = document.createElement('script')
-//   script.src = src
-//   script.async = false // 確保依序執行（jQuery -> Bootstrap -> CKEditor）
-//   document.body.appendChild(script)
-// })
+"/Legacy/Client/Content/Front-content.css",
+"/Legacy/Client/Content/Front-index-content.css",
+"/Legacy/Client/Content/Front-subpage-content.css",
+"/Legacy/Client/Content/menu/custom-menu-subpage.css",
+"/Legacy/Client/Content/accesskey/custom_sr-only.css",
+"/Legacy/Client/Content/accesskey/custom_accesskey.css",
+"/Legacy/Client/Content/login/login.css",
+"/Legacy/Client/Content/visitor/visitor.css",
+"/Legacy/Client/Content/ContentConentA_table_rwd.css",
+"/Legacy/Client/Content/ekko-lightbox/ekko-lightbox.css",
+"/Legacy/Client/Content/venobox-master/dist/venobox.min.css",
+"/Legacy/Client/Content/print.css",
+"/Legacy/Client/Content/Sitemap/Sitemap.css",
+"/Legacy/Client/Content/owlcarousel_2/custom_owlcarousel_style.css",
+"/Legacy/Client/Content/owlcarousel_2/owl.carousel_v2.3.4.min.css",
+"/Legacy/Client/Content/swiper-11.1.14/swiper-bundle.min.css",
+"/Legacy/Client/Content/marquee/marquee-left-loop.css",
+"/Legacy/Client/Content/slide-bar/slide-bar.css",
+"/Legacy/Client/Content/wow/animate.css",
+]
+
+CssList.forEach((href) => {
+  const link = document.createElement('link')
+  link.rel = 'stylesheet'
+  link.href = href
+  document.head.appendChild(link)
+})
+
+const ServerjsList = [
+"/Legacy/Server/ContentBack/jquery-3.7.1/jquery-3.7.1.min.js",
+"/Legacy/Server/ContentBack/jquery-3.7.1/bootstrap.js",
+"/Legacy/Server/ContentBack/bootstrap-5.1.1/js/bootstrap.bundle.min.js",
+"/Legacy/Server/fonts/feather/feather.min.js",
+"/Legacy/Server/ContentBack/ckeditor_4.22.1_full/ckeditor/ckeditor.js",
+"/Legacy/Server/js/simplebarv6.2.5.min.js",
+"/Legacy/Server/js/Custompcoded.js",
+"/Legacy/Server/ContentBack/nestable/jquery-1.12.4.min.js",
+"/Legacy/Server/ContentBack/nestable/jquery.nestable.js",
+"/Legacy/Server/ContentBack/bootstrap-datepicker1.6.1/bootstrap-datepicker1.6.1.min.js",
+"/Legacy/Server/ContentBack/repeater/jquery-1.11.1.js",
+"/Legacy/Server/ContentBack/repeater/jquery.repeater.js",
+"/Legacy/Server/ContentBack/chart_c3_0.7.20/css/c3.min.js",
+"/Legacy/Server/ContentBack/chart_c3_0.7.20/css/d3-5.8.2.min.js",
+]
+
+ServerjsList.forEach((src) => {
+  const script = document.createElement('script')
+  script.src = src
+  script.async = false // 確保依序執行（jQuery -> Bootstrap -> CKEditor）
+  document.body.appendChild(script)
+})
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

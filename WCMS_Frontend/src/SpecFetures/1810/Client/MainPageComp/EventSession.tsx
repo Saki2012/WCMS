@@ -16,7 +16,7 @@ const EventSession = () => {
     const eventList = mock_EventDatas(); // 呼叫函式拿到 array
 
     return (
-        <section className="Event-section owl-box" style={{backgroundImage: "url(/Legacy/Images/bg/background-transparent-image_1920x600.png)"}} ref={eventRef}>
+        <section className="Event-section owl-box" style={{backgroundImage: "url(/Legacy/Client/Images/bg/background-transparent-image_1920x600.png)"}} ref={eventRef}>
             <div className="Mask-DivBox layout_padding2">
                 <div className="customizeBox">
                     <div className="container-customize1">

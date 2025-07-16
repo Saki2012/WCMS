@@ -1,59 +1,55 @@
 import { useEffect, useState } from "react";
 import PageManagementProvider from "./PageManagement_Api";
-import type { GridProps,GridRow,ColumnConfig } from "../../../../../../SysCore/Components/Grid/Grid_ForServer_Data"
+import type { GridProps,GridRow,ColumnConfig,RowCell } from "../../../../../../SysCore/Components/Grid/Grid_ForServer_Data"
+import  type { components } from "../../../../../../types/api";
+
+type PageManagementSet = components["schemas"]["PageManagement"]
 
 export const usePageListData = () => {
   const [rows, setRows] = useState<GridRow[]>([]);
+  const [columns, setColumns] = useState<ColumnConfig[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(2);
   const [isLoading, setIsLoading] = useState(false);
-
-  const columns:ColumnConfig[]=[
-          {
-            key:"CategoryId",                                        
-            title:"類別代碼",
-          },
-          // {
-          //   key:"Title",                                        
-          //   title:"類別代碼",
-          // },
-          {
-            key:"DataStatus",                                        
-            title:"狀態",
-          },
-          {
-            key:"ModifyUserId",                                        
-            title:"最後修改人",
-          },
-          {
-            key:"ModifyTime",                                        
-            title:"最後修改日期",
-          },]
-
-
+  
   const fetchData = async (page: number) => {
     setIsLoading(true);
     try {
-      const res = await PageManagementProvider().fetchList({ page });
-      const list = res ?? [];
+      //#region GetColumn
+      const resCol =await PageManagementProvider().getModelDisplayName();
+      const visibleKeys = ["CategoryId",'Title', 'DataStatus', 'ModifyUserId',"ModifyTime"];
+      // ✅ 取得 Columns 陣列（假設只取 Tables[0]）
+      const columnsRaw = resCol?.Tables?.[0]?.Columns ?? [];
+      // ✅ 轉換成 ColumnConfig[]
+      const columns: ColumnConfig[] = columnsRaw.filter(col => visibleKeys.includes(col.ColumnId)) // ✅ 只取需要的欄位
+        .map(col => ({ key: col.ColumnId, title: col.ColumnDisplayName}));
+      columns.push({
+        key:"__Adjust__",
+        title:"調整"
+      });
+      console.log(columns);
+      setColumns(columns);
+      //#endregion
       
-      const columnMap = Object.fromEntries(
-        columns.map((col) => [col.key, col])
-      );
+      //#region GetRows
+      const res = await PageManagementProvider().fetchList();
+      console.log(res);
+      const rawData = (res as any[]).map(x => x.PageManagement ?? {});
+      // 轉為 GridRow[]
+      const rows: GridRow[] = rawData.map(item => {
+        const cells: RowCell[] = columns.map(col => ({
+          col,
+          content: item[col.key] ?? ''
+        }));
+        return { cells };
+      });
+      
 
-      const mapped: GridRow[] = list.map((item) => ({
-        cells: [
-          { col: columnMap['CategoryId'], content: item.PageManagement.CategoryId },
-          { col: columnMap['DataStatus'], content: item.PageManagement.DataStatus },
-          { col: columnMap['ModifyUserId'], content: item.PageManagement.ModifyUserId },
-          { col: columnMap['ModifyTime'], content: item.PageManagement.ModifyTime },
-        ],
-      }));
-      setRows(mapped);
 
 
-      // setCurrentPage(res?.currentPage ?? 1);   // ✅ 更新 currentPage
-      // setTotalPages(res?.totalPages ?? 1);     // ✅ 更新 totalPages
+
+      setRows(rows);
+      //#endregion
 
     } catch (err) {
       console.error("資料載入失敗", err);

@@ -36,6 +36,9 @@ export abstract class IDataProvider<T> {
     const raw = await this.doFetchList(param);
     return raw;
   }
+  public async getModelDisplayName(): Promise<T[]>{
+    return await this.doGetModelDisplayName();
+  }
   //#endregion
 
   //#region Protected
@@ -45,5 +48,6 @@ export abstract class IDataProvider<T> {
   protected abstract doInvalid(param?: any): Promise<T>;
   protected abstract doFetchData(param?: any): Promise<T>;
   protected abstract doFetchList(param?: any): Promise<T[]>;
+  protected abstract doGetModelDisplayName(): Promise<T[]>;
   //#endregion
 }

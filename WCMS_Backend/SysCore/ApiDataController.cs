@@ -16,6 +16,16 @@ namespace WCMS.SysCore
     public abstract class ApiDataController<TSet>(IBizService<TSet> service) : ControllerBase, BaseDataController<TSet> where TSet : class
     {
         #region Property
+
+        private ModelDisplay<TSet>.ModelMetadata _modelDisplayName;
+
+        private ModelDisplay<TSet>.ModelMetadata ModelDescription 
+        {
+            get { 
+                if(_modelDisplayName==null) _modelDisplayName= new ModelDisplay<TSet>().Model;
+                return _modelDisplayName; }
+        }
+
         protected readonly IBizService<TSet> _service = service;
         #endregion
 
@@ -28,8 +38,6 @@ namespace WCMS.SysCore
         [HttpPost(nameof(Create))]
         public async Task<ActionResult> Create(TSet set)
         {
-            //var labels = I18nCache.GetLabels<TSet>();
-
             return Ok(await _service.CreateSetAsync(set));
         }
         /// <summary>
@@ -71,7 +79,6 @@ namespace WCMS.SysCore
         {
             return Ok(await _service.DeleteSetAsync(LibData.ConvertJsonElement(pk)));
         }
-
         /// <summary>
         /// 批次刪除
         /// </summary>
@@ -94,8 +101,16 @@ namespace WCMS.SysCore
         /// </summary>
         /// <returns></returns>
         [HttpPost(nameof(QueryList))]
-        public async Task<ActionResult<IList<TSet>>> QueryList([FromBody] QueryListParam queryCondition)
+        public async Task<ActionResult<IList<TSet>>> QueryList([FromBody] QueryListParam? queryCondition)
         {
+            queryCondition = new QueryListParam()
+            {
+                //測試
+                fields = ["CategoryId", "Title", "DataStatus", "ModifyUserId", "ModifyTime"],
+                condition = "",
+                pageCt=1,
+                takeCt=10,
+            };
             return Ok(await _service.QueryListAsync(queryCondition.fields, queryCondition.condition, queryCondition.pageCt, queryCondition.takeCt));
         }
         /// <summary>
@@ -105,8 +120,14 @@ namespace WCMS.SysCore
         [HttpGet(nameof(GetModelDisplayName))]
         public async Task<ActionResult> GetModelDisplayName()
         {
-            return Ok(await _service.CreateSetAsync(null));
+            var result = await Task.Run(() => ModelDescription);
+            return Ok(result);  
         }
+        #endregion
+
+
+        #region Private
+        
         #endregion
     }
     /// <summary>
@@ -159,4 +180,69 @@ namespace WCMS.SysCore
        public int pageCt { get; set; }
        public int takeCt { get; set; } 
     }
+
+    public class ModelDisplay<TSet>
+    {
+        #region Property
+        public ModelMetadata Model
+        { get {
+                var result = new ModelMetadata
+                {
+                    ModelId = typeof(TSet).Name,
+                    ModelDisplayName = I18nCache.GetLabel<TSet>(),
+                    Tables = []
+                };
+                foreach (var tbProp in PropertyAccessorCache.GetProperties(typeof(TSet)))
+                {
+                    var tb = new TableMetadata() { Columns = [] };
+                    result.Tables.Add(tb);
+                    tb.TableId = tbProp.Name;
+                    tb.TableDisplayName = I18nCache.GetLabel(tbProp);
+                    if (tbProp.PropertyType.IsGenericType && tbProp.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
+                    {
+                        var tbType = tbProp.PropertyType.GetGenericArguments().First();
+                        foreach (var colProp in PropertyAccessorCache.GetProperties(tbType))
+                        {
+                            tb.Columns.Add(new ColumnMetadata()
+                            {
+                                ColumnId = colProp.Name,
+                                ColumnDisplayName = I18nCache.GetLabel(colProp),
+                            });
+                        }
+                    }
+                    else
+                    {
+                        foreach (var colProp in PropertyAccessorCache.GetProperties(tbProp.PropertyType))
+                        {
+                            tb.Columns.Add(new ColumnMetadata()
+                            {
+                                ColumnId = colProp.Name,
+                                ColumnDisplayName = I18nCache.GetLabel(colProp),
+                            });
+                        }
+                    }
+                }
+                return result;
+            } 
+        }
+        public class ModelMetadata
+        {
+            public string ModelId { get; set; }
+            public string ModelDisplayName { get; set; }
+            public List<TableMetadata> Tables { get; set; } = [];
+        }
+        public class TableMetadata
+        {
+            public string TableId { get; set; }
+            public string TableDisplayName { get; set; }
+            public List<ColumnMetadata> Columns { get; set; } = [];
+        }
+        public class ColumnMetadata
+        {
+            public string ColumnId { get; set; }
+            public string ColumnDisplayName { get; set; }
+        }
+        #endregion
+    }
+
 }

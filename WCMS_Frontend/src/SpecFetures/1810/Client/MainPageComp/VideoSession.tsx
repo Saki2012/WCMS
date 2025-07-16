@@ -7,7 +7,7 @@ const VideoSession = () => {
     BaseCarousel({ selectorId: '#Video', itemCount: 3 });
 
     return (
-        <section className="Vedio-section owl-box" style={{backgroundImage: "url(/Legacy/Images/bg/background-image_video_2000x1500.jpg)"}}>
+        <section className="Vedio-section owl-box" style={{backgroundImage: "url(/Legacy/Client/Images/bg/background-image_video_2000x1500.jpg)"}}>
             <div className="Mask-DivBox layout_padding1">
                 <div className="customizeBox">
                     <div className="container">
