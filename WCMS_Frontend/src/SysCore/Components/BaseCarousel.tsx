@@ -1,3 +1,14 @@
+import type * as jquery from "jquery";
+declare global {
+  interface Window {
+    $: typeof jquery;
+    jQuery: typeof jquery;
+  }
+  interface JQuery {
+    owlCarousel: (options?: any) => JQuery;
+  }
+}
+
 interface OwlCarouselProps {
   selectorId: string;       // '#Event' or '#Gallery' or '#Video'
   itemCount: number;        // items: 2 or 3 or 4

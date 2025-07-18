@@ -72,7 +72,6 @@ export class BaseApiService<T> {
 
     const result = this.schema.safeParse(data);
     if (!result.success) {
-      console.error(`❌ Zod 解析失敗 @ ${this.module}`, result.error);
       throw new ZodError(result.error.issues);
     }
     return result.data;
@@ -83,7 +82,6 @@ export class BaseApiService<T> {
 
     const result = this.schema.array().safeParse(data);
     if (!result.success) {
-      console.error(`❌ Zod 陣列解析失敗 @ ${this.module}`, result.error);
       throw new ZodError(result.error.issues);
     }
     return result.data;

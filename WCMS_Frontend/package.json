@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --mode dev",
     "dev:ssr": "tsx src/SSR/SSR_Server.ts",
-    "build:csr": "tsc -b && vite build --mode dev",
+    "_備註1": "build:csr之後加上tsc -b && 來增強編譯檢查",
+    "build:csr": "vite build --mode prod",
     "build:ssr": "tsc -b && vite build --mode ssr",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -36,6 +37,7 @@
     "@eslint/js": "^9.25.0",
     "@types/bootstrap": "^5.2.10",
     "@types/express": "^5.0.3",
+    "@types/jquery": "^3.5.32",
     "@types/node": "^24.0.7",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",

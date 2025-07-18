@@ -75,46 +75,49 @@ class MockProvider extends ISideMenuProvider {
   }
   protected doFetchList(): Promise<MenuItemData[]> {
     return Promise.resolve([
-              { Id: "1", SrcData: "網站功能", Url: "/Server/WebManagement", SubItem: [] },
+              { Id: "1", SrcData: "網站功能", Url: "WebManagement", SubItem: [] },
               { Id: "Carousel", SrcData: "廣告輪播", Url: "/Server", SubItem: [
                 { Id: "2-1", SrcData: "列表", Url: "/Server", SubItem: [] },
                 { Id: "2-2", SrcData: "廣告設定", Url: "/Server", SubItem: [] }
               ]},
-              { Id: "Bullhorn", SrcData: "公告", Url: "/Server/Announcement", SubItem: [
-                { Id: "3-1", SrcData: "新增", Url: "/Server/Announcement/New", SubItem: [] },
-                { Id: "3-2", SrcData: "列表", Url: "/Server/Announcement/List", SubItem: [] },
-                { Id: "3-3", SrcData: "類別", Url: "/Server/Announcement/Category", SubItem: [] },
-                { Id: "3-4", SrcData: "標籤", Url: "/Server/Announcement/Tag", SubItem: [] }
+              { Id: "Bullhorn", SrcData: "公告", Url: "Announcement", SubItem: [
+                { Id: "3-1", SrcData: "新增", Url: "Announcement/New", SubItem: [] },
+                { Id: "3-2", SrcData: "列表", Url: "Announcement/List", SubItem: [] },
+                { Id: "3-3", SrcData: "類別", Url: "Announcement/Category", SubItem: [] },
+                { Id: "3-4", SrcData: "標籤", Url: "Announcement/Tag", SubItem: [] }
               ]},
-              { Id: "Page", SrcData: "頁面", Url: "/Server/PageManage", SubItem: [
-                { Id: "4-1", SrcData: "新增", Url: "/Server/WebManagement/PageManage/AddNew", SubItem: [] },
-                { Id: "4-2", SrcData: "頁面列表", Url: "/Server/WebManagement/PageManage/List", SubItem: [] },
-                { Id: "4-3", SrcData: "類別", Url: "/Server/PageManage/Category", SubItem: [] },
-                { Id: "4-4", SrcData: "標籤", Url: "/Server/PageManage/Tag", SubItem: [] }
+              { Id: "Page", SrcData: "頁面", Url: "PageManage", SubItem: [
+                { Id: "4-1", SrcData: "新增", Url: "WebManagement/PageManage/AddNew", SubItem: [] },
+                { Id: "4-2", SrcData: "頁面列表", Url: "WebManagement/PageManage/List", SubItem: [] },
+                { Id: "4-3", SrcData: "類別", Url: "PageManage/Category", SubItem: [] },
+                { Id: "4-4", SrcData: "標籤", Url: "PageManage/Tag", SubItem: [] }
               ]},
-              { Id: "Image", SrcData: "相簿", Url: "/Server/Gallery", SubItem: [
-                { Id: "5-1", SrcData: "新增", Url: "/Server/Gallery/New", SubItem: [] },
-                { Id: "5-2", SrcData: "列表", Url: "/Server/Gallery/List", SubItem: [] },
-                { Id: "5-3", SrcData: "類別", Url: "/Server/Gallery/Category", SubItem: [] },
-                { Id: "5-4", SrcData: "標籤", Url: "/Server/Gallery/Tag", SubItem: [] }
+              { Id: "Image", SrcData: "相簿", Url: "Gallery", SubItem: [
+                { Id: "5-1", SrcData: "新增", Url: "Gallery/New", SubItem: [] },
+                { Id: "5-2", SrcData: "列表", Url: "Gallery/List", SubItem: [] },
+                { Id: "5-3", SrcData: "類別", Url: "Gallery/Category", SubItem: [] },
+                { Id: "5-4", SrcData: "標籤", Url: "Gallery/Tag", SubItem: [] }
               ]},
-              { Id: "File", SrcData: "檔案室", Url: "/Server/FileManage", SubItem: [
-                { Id: "6-1", SrcData: "新增", Url: "/Server/FileManage/New", SubItem: [] },
-                { Id: "6-2", SrcData: "列表", Url: "/Server/FileManage/List", SubItem: [] },
-                { Id: "6-3", SrcData: "類別", Url: "/Server/FileManage/Category", SubItem: [] },
-                { Id: "6-4", SrcData: "標籤", Url: "/Server/FileManage/Tag", SubItem: [] }
+              { Id: "File", SrcData: "檔案室", Url: "FileManage", SubItem: [
+                { Id: "6-1", SrcData: "新增", Url: "FileManage/New", SubItem: [] },
+                { Id: "6-2", SrcData: "列表", Url: "FileManage/List", SubItem: [] },
+                { Id: "6-3", SrcData: "類別", Url: "FileManage/Category", SubItem: [] },
+                { Id: "6-4", SrcData: "標籤", Url: "FileManage/Tag", SubItem: [] }
               ]},
-              { Id: "Link", SrcData: "網路資源", Url: "/Server/WebResource", SubItem: [
-                { Id: "7-1", SrcData: "新增", Url: "/Server/WebResource/New", SubItem: [] },
-                { Id: "7-2", SrcData: "列表", Url: "/Server/WebResource/List", SubItem: [] },
-                { Id: "7-3", SrcData: "類別", Url: "/Server/WebResource/Category", SubItem: [] },
-                { Id: "7-4", SrcData: "標籤", Url: "/Server/WebResource/Tag", SubItem: [] }
+              { Id: "Link", SrcData: "網路資源", Url: "WebResource", SubItem: [
+                { Id: "7-1", SrcData: "新增", Url: "WebResource/New", SubItem: [] },
+                { Id: "7-2", SrcData: "列表", Url: "WebResource/List", SubItem: [] },
+                { Id: "7-3", SrcData: "類別", Url: "WebResource/Category", SubItem: [] },
+                { Id: "7-4", SrcData: "標籤", Url: "WebResource/Tag", SubItem: [] }
               ]},
-              { Id: "Survey", SrcData: "問卷留言", Url: "/Server/Survey", SubItem: [] },
-              { Id: "9", SrcData: "研討會", Url: "/Server/Conference", SubItem: [] },
-              { Id: "10", SrcData: "研究計畫", Url: "/Server/Project", SubItem: [] },
-              { Id: "11", SrcData: "USR計畫", Url: "/Server/USR", SubItem: [] }
+              { Id: "Survey", SrcData: "問卷留言", Url: "Survey", SubItem: [] },
+              { Id: "9", SrcData: "研討會", Url: "Conference", SubItem: [] },
+              { Id: "10", SrcData: "研究計畫", Url: "Project", SubItem: [] },
+              { Id: "11", SrcData: "USR計畫", Url: "USR", SubItem: [] }
             ]);
+  }
+  protected doGetModelDisplayName(): Promise<MenuItemData[]>{
+    throw new Error('Method not implemented.');
   }
 }
 class APIProvider extends ISideMenuProvider {
@@ -135,46 +138,49 @@ class APIProvider extends ISideMenuProvider {
   }
   protected doFetchList(): Promise<MenuItemData[]> {
     return Promise.resolve([
-              { Id: "1", SrcData: "網站功能", Url: "/Server/WebManagement", SubItem: [] },
+              { Id: "1", SrcData: "網站功能", Url: "WebManagement", SubItem: [] },
               { Id: "Carousel", SrcData: "廣告輪播", Url: "/Server", SubItem: [
-                { Id: "2-1", SrcData: "列表", Url: "/Server", SubItem: [] },
-                { Id: "2-2", SrcData: "廣告設定", Url: "/Server", SubItem: [] }
+                { Id: "2-1", SrcData: "列表", Url: "WebManagement/List", SubItem: [] },
+                { Id: "2-2", SrcData: "廣告設定", Url: "WebManagement/Setting", SubItem: [] }
               ]},
-              { Id: "Bullhorn", SrcData: "公告", Url: "/Server/Announcement", SubItem: [
-                { Id: "3-1", SrcData: "新增", Url: "/Server/Announcement/New", SubItem: [] },
-                { Id: "3-2", SrcData: "列表", Url: "/Server/Announcement/List", SubItem: [] },
-                { Id: "3-3", SrcData: "類別", Url: "/Server/Announcement/Category", SubItem: [] },
-                { Id: "3-4", SrcData: "標籤", Url: "/Server/Announcement/Tag", SubItem: [] }
+              { Id: "Bullhorn", SrcData: "公告", Url: "Announcement", SubItem: [
+                { Id: "3-1", SrcData: "新增", Url: "Announcement/New", SubItem: [] },
+                { Id: "3-2", SrcData: "列表", Url: "Announcement/List", SubItem: [] },
+                { Id: "3-3", SrcData: "類別", Url: "Announcement/Category", SubItem: [] },
+                { Id: "3-4", SrcData: "標籤", Url: "Announcement/Tag", SubItem: [] }
               ]},
-              { Id: "Page", SrcData: "頁面", Url: "/Server/PageManage", SubItem: [
-                { Id: "4-1", SrcData: "新增", Url: "/Server/WebManagement/PageManage/AddNew", SubItem: [] },
-                { Id: "4-2", SrcData: "頁面列表", Url: "/Server/WebManagement/PageManage/List", SubItem: [] },
-                { Id: "4-3", SrcData: "類別", Url: "/Server/PageManage/Category", SubItem: [] },
-                { Id: "4-4", SrcData: "標籤", Url: "/Server/PageManage/Tag", SubItem: [] }
+              { Id: "Page", SrcData: "頁面", Url: "PageManage", SubItem: [
+                { Id: "4-1", SrcData: "新增", Url: "WebManagement/PageManage/Form", SubItem: [] },
+                { Id: "4-2", SrcData: "頁面列表", Url: "WebManagement/PageManage/List", SubItem: [] },
+                { Id: "4-3", SrcData: "類別", Url: "PageManage/Category", SubItem: [] },
+                { Id: "4-4", SrcData: "標籤", Url: "PageManage/Tag", SubItem: [] }
               ]},
-              { Id: "Image", SrcData: "相簿", Url: "/Server/Gallery", SubItem: [
-                { Id: "5-1", SrcData: "新增", Url: "/Server/Gallery/New", SubItem: [] },
-                { Id: "5-2", SrcData: "列表", Url: "/Server/Gallery/List", SubItem: [] },
-                { Id: "5-3", SrcData: "類別", Url: "/Server/Gallery/Category", SubItem: [] },
-                { Id: "5-4", SrcData: "標籤", Url: "/Server/Gallery/Tag", SubItem: [] }
+              { Id: "Image", SrcData: "相簿", Url: "Gallery", SubItem: [
+                { Id: "5-1", SrcData: "新增", Url: "Gallery/New", SubItem: [] },
+                { Id: "5-2", SrcData: "列表", Url: "Gallery/List", SubItem: [] },
+                { Id: "5-3", SrcData: "類別", Url: "Gallery/Category", SubItem: [] },
+                { Id: "5-4", SrcData: "標籤", Url: "Gallery/Tag", SubItem: [] }
               ]},
-              { Id: "File", SrcData: "檔案室", Url: "/Server/FileManage", SubItem: [
-                { Id: "6-1", SrcData: "新增", Url: "/Server/FileManage/New", SubItem: [] },
-                { Id: "6-2", SrcData: "列表", Url: "/Server/FileManage/List", SubItem: [] },
-                { Id: "6-3", SrcData: "類別", Url: "/Server/FileManage/Category", SubItem: [] },
-                { Id: "6-4", SrcData: "標籤", Url: "/Server/FileManage/Tag", SubItem: [] }
+              { Id: "File", SrcData: "檔案室", Url: "FileManage", SubItem: [
+                { Id: "6-1", SrcData: "新增", Url: "FileManage/New", SubItem: [] },
+                { Id: "6-2", SrcData: "列表", Url: "FileManage/List", SubItem: [] },
+                { Id: "6-3", SrcData: "類別", Url: "FileManage/Category", SubItem: [] },
+                { Id: "6-4", SrcData: "標籤", Url: "FileManage/Tag", SubItem: [] }
               ]},
-              { Id: "Link", SrcData: "網路資源", Url: "/Server/WebResource", SubItem: [
-                { Id: "7-1", SrcData: "新增", Url: "/Server/WebResource/New", SubItem: [] },
-                { Id: "7-2", SrcData: "列表", Url: "/Server/WebResource/List", SubItem: [] },
-                { Id: "7-3", SrcData: "類別", Url: "/Server/WebResource/Category", SubItem: [] },
-                { Id: "7-4", SrcData: "標籤", Url: "/Server/WebResource/Tag", SubItem: [] }
+              { Id: "Link", SrcData: "網路資源", Url: "WebResource", SubItem: [
+                { Id: "7-1", SrcData: "新增", Url: "WebResource/New", SubItem: [] },
+                { Id: "7-2", SrcData: "列表", Url: "WebResource/List", SubItem: [] },
+                { Id: "7-3", SrcData: "類別", Url: "WebResource/Category", SubItem: [] },
+                { Id: "7-4", SrcData: "標籤", Url: "WebResource/Tag", SubItem: [] }
               ]},
-              { Id: "Survey", SrcData: "問卷留言", Url: "/Server/Survey", SubItem: [] },
-              { Id: "9", SrcData: "研討會", Url: "/Server/Conference", SubItem: [] },
-              { Id: "10", SrcData: "研究計畫", Url: "/Server/Project", SubItem: [] },
-              { Id: "11", SrcData: "USR計畫", Url: "/Server/USR", SubItem: [] }
+              { Id: "Survey", SrcData: "問卷留言", Url: "Survey", SubItem: [] },
+              { Id: "9", SrcData: "研討會", Url: "Conference", SubItem: [] },
+              { Id: "10", SrcData: "研究計畫", Url: "Project", SubItem: [] },
+              { Id: "11", SrcData: "USR計畫", Url: "USR", SubItem: [] }
             ]);
+  }
+  protected doGetModelDisplayName(): Promise<MenuItemData[]>{
+    throw new Error('Method not implemented.');
   }
 }
 const SideMenuProvider = (): ISideMenuProvider => IApiProvider<ISideMenuProvider>(APIProvider, MockProvider);

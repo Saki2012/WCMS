@@ -27,16 +27,17 @@ namespace WCMS
             builder.Services.AddCors(options =>
             {//CORS (跨來源資源共享) 錯誤處理，之後架設客戶網站時再設置白名單
                 options.AddPolicy("AllowLocalhostWildcard", policy =>
-                { policy.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost" || new Uri(origin).Host == "127.0.0.1").AllowAnyHeader().AllowAnyMethod();});
+                { policy.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost" || new Uri(origin).Host == "127.0.0.1" || new Uri(origin).Host == "wcms.it-easygoapp.com").
+                    AllowAnyHeader().AllowAnyMethod();});
             });
             var app = builder.Build();
             app.UseMiddleware<ErrorHandlingMiddleware>();
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
+            //if (app.Environment.IsDevelopment())
+            //{
                 app.UseSwagger();
                 app.UseSwaggerUI();
-            }
+            //}
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();

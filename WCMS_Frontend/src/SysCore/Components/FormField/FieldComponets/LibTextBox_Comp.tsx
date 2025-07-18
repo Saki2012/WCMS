@@ -8,7 +8,7 @@ const LibOptionBox=(prop:LibTextBoxProp)=>{
         <>
             <label htmlFor={inputId} className={prop.Style.Labelstyle}>{prop.ColumnDisplayName}</label>
             <div className={prop.Style.SelectStyle}>
-                <input id={inputId} type="text" className={prop.Style.InputStyle} placeholder={`${prop.DefaultInputDisplay}${prop.ColumnDisplayName} ...`}/>
+                <input id={inputId} type="text" className={prop.Style.InputStyle} placeholder={`${prop.DefaultInputDisplay}${prop.ColumnDisplayName} ...`} value={prop.InputValue}/>
             </div>
         </>
     );

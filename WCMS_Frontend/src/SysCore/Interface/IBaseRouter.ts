@@ -1,5 +1,5 @@
 import type { RouteObject } from "react-router-dom";
 
-export default interface IRouteModule {
+export interface IRouteModule {
   getRoutes(): RouteObject[];
 }

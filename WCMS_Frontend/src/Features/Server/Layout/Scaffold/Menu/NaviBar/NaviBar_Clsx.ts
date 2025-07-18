@@ -1,8 +1,0 @@
-import { clsx } from "clsx";
-import type {INaviBarStyle} from "../../../../../../SysCore/Components/NaviBar/NaviBar_Clsx"
-
-/** 經典樣式 */
-export const Classic_NaviBarMenu:INaviBarStyle = {
-    ul:clsx("navbar-nav", "me-auto", "mb-2", "mb-lg-0"),
-    li:clsx("nav-item")
-};

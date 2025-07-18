@@ -1,24 +1,25 @@
-import type IRouteModule from "../../SysCore/Interface/IBaseRouter"
+import type { IRouteModule } from "../../SysCore/Interface/IBaseRouter"
 import type { RouteObject } from "react-router-dom";
 import DashboardPage from "./Pages/DashboardPage"
 
 import { PageFormComp } from "./Layout/BizFunc/WebManagement/PageManagement/PageManagement_Form_Comp"
 import { PageListComp } from "./Layout/BizFunc/WebManagement/PageManagement/PageManagement_List_Comp"
+import { Classic_BETheme } from "./Layout/Theme/ClassicTheme_Clsx";
 
 export class BackendRouteModule implements IRouteModule {
   getRoutes(): RouteObject[] {
     return [
       {
         path: '/Server',
-        element: <DashboardPage />,
+        element: <DashboardPage theme={Classic_BETheme} />,
         children: [
           {
-            path: "WebManagement/PageManage/AddNew",
-            element: <PageFormComp />,
+            path: "WebManagement/PageManage/Form/:id?",
+            element: <PageFormComp theme={Classic_BETheme}/>,
           },
           {
             path: "WebManagement/PageManage/List",
-            element: <PageListComp />,
+            element: <PageListComp title="頁面列表" theme={Classic_BETheme}/>,
           },
         ]
       }

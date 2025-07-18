@@ -3,19 +3,13 @@ import SidebarMenu from "../Layout/Scaffold/Menu/SideMenu/SideMenu_Comp"
 import NavibarMenu from "../Layout/Scaffold/Menu/NaviBar/NaviBar_Comp"
 import BreadCrumb from "../Layout/Scaffold/Menu/BreadCrumb/BreadCrumb_Comp"
 import FooterComp from "../Layout/Scaffold/Footer/Footer_Comp"
+import type { IBETheme } from '../Layout/Theme/ITheme'
 
-
-
-
-
-
-
-
-export const DashboardPage = () => {
+export const DashboardPage = ({theme}:{theme:IBETheme}) => {
     return (
         <>
-          <SidebarMenu></SidebarMenu>
-          <NavibarMenu></NavibarMenu>
+          <SidebarMenu theme={theme}/>
+          <NavibarMenu theme={theme}/>
           <div className="pc-container">
             <div className="pc-content">
               <div className="page-header">
@@ -27,7 +21,7 @@ export const DashboardPage = () => {
                             </div>
                         </div>
                         <div className="col-md-12">
-                          <BreadCrumb></BreadCrumb>
+                          <BreadCrumb theme={theme}/>
                         </div>
                       </div>
                   </div>
@@ -39,5 +33,4 @@ export const DashboardPage = () => {
         </>
   );
 }
-
 export default DashboardPage

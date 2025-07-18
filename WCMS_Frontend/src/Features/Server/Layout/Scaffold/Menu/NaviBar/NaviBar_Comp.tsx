@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import type {NaviData} from '../../../../../../SysCore/Components/NaviBar/NaviBar_Data'
 import NaviBarComp from '../../../../../../SysCore/Components/NaviBar/NaviBar_Comp'
-import {Classic_BETheme} from "../../../../../../Features/Server/Layout/Theme/ITheme"
+import type { IBETheme } from '../../../Theme/ITheme'
 import NaviProvider from '../../../../../../Features/Server/Layout/Scaffold/Menu/NaviBar/NaviBar_Api'
 
-const NavibarMenu=()=>{
+const NavibarMenu=({theme}:{theme:IBETheme})=>{
     const [items, setItems] = useState<NaviData[]>([])
     useEffect(() => {
         NaviProvider().getNaviBarList().then(setItems)
@@ -37,7 +37,7 @@ const NavibarMenu=()=>{
                             <i className="fas fa-grip-horizontal"></i>
                         </a>
                         <div className="Customize_collapse + collapse navbar-collapse" id="navbar_right">
-                        <NaviBarComp items={items} style={Classic_BETheme.NavBarMenu}></NaviBarComp>
+                        <NaviBarComp items={items} style={theme.NavBarMenu}></NaviBarComp>
                         </div>                      
                     </nav>
                 </div>

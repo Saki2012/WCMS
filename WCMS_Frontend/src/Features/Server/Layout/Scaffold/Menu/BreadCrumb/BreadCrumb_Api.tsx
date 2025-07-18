@@ -46,6 +46,9 @@ class MockProvider extends IBreadCrumbProvider {
       { SrcData:"頁面列表", Url:"/Server/WebManagement/PageManage/List", },
     ]);
     }
+    protected doGetModelDisplayName(): Promise<[]>{
+    throw new Error('Method not implemented.');
+  }
 }
 
 /** api資料-路徑導覽 */
@@ -73,6 +76,9 @@ class APIProvider extends IBreadCrumbProvider {
       { SrcData:"頁面列表", Url:"/Server/WebManagement/PageManage/List", },
     ]);
     }
+    protected doGetModelDisplayName(): Promise<[]>{
+    throw new Error('Method not implemented.');
+  }
 }
 
 const getBreadCrumbProvider = (): IBreadCrumbProvider => IApiProvider<IBreadCrumbProvider>(APIProvider, MockProvider);

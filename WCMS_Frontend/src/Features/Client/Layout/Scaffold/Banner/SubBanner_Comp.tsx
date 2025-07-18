@@ -1,6 +1,6 @@
 const SubBannerComp=({title, srcImg}:{title:string; srcImg:string;}) => {
     return (
-        <div className='container-fluid-customize px-0'>
+        <div className='container-fluid-customize mt-32'>
             <div className='subpage_banner_wrapper' style={{backgroundImage: `url(${srcImg})`}}>
                 <div className="container-customize1">
                     <div className="banner-content">
@@ -10,6 +10,9 @@ const SubBannerComp=({title, srcImg}:{title:string; srcImg:string;}) => {
                                     <div className="Big-title"> {title} </div>
                                 </div>
                             </div>
+
+                            
+
                         </div>
                     </div>
                 </div>

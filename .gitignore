@@ -1,5 +1,6 @@
 WCMS_Frontend/public/Legacy/
-WCMS_Frontend/src/Style/Legacy/
+WCMS_Frontend/dist-ssr/
+WCMS_Frontend/dist-csr/
 WCMS_Backend/.vs/
 WCMS_Backend/obj/
 WCMS_Backend/bin/

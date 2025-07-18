@@ -1,8 +1,0 @@
-import { clsx } from 'clsx';
-import type { IBreadCrumbStyle } from '../../../../../../SysCore/Components/BreadCrumb/BreadCrumb_Clsx';
-
-/** 後台BreadCrumb樣式 */
-export const Classic_BreadCrumb:IBreadCrumbStyle = {
-    ul:clsx("breadcrumb", "mb-0"),
-    li:(isLast:boolean)=>clsx("breadcrumb-item", {"active":isLast}),
-}

@@ -27,7 +27,7 @@ const IconCardMenu = () => {
             el: '.swiper-pagination',
             clickable: false,
         },
-        draggable: true,
+        // draggable: true,
         });
     }}, []);
 return (

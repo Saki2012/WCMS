@@ -1,90 +1,56 @@
-import { Routes,Route } from "react-router-dom"
+import type { GridProps,GridRow,ColumnConfig } from "./Grid_Data"
+import { useState } from "react";
+import { Paginator } from "../Paginator/Paginator_Comp"
+import type { IGridView_Style } from "./Grid_Clsx";
+import type { IPaginator_Style } from "../Paginator/Paginator_Clsx";
 
-
-
-
-
-
-
-
-
-const ColRender = () =>{
+const ColRender = ({ columns, style }: { columns: ColumnConfig[]; style: IGridView_Style }) =>{
     return (
         <thead>
-                <tr className="tr-only-hide-titlebar">
-                <th style={{ whiteSpace: 'nowrap' }} >{"param: lbl_startdate"}</th>
-                <th>{"param: lbl_title"}</th>
-                <th style={{ whiteSpace: 'nowrap' }} >{"param: lbl_visitor_count"}</th>
-                </tr>
+            <tr className={style.ColumnStyle}>
+                {columns.filter(col => col.visible !== false).map((col) => (
+                    <th key={col.key} id={col.key.toString()} style={{ width: col.width || "auto" }}>
+                    {col.title}
+                    </th>
+                ))}
+            </tr>
         </thead>
     )
 }
 
-const RowRender = () =>{
+const RowRender = ({ rows, style }: { rows: GridRow[]; style: IGridView_Style }) =>{
     return (
         <tbody>
-            <tr>
-                <td className="table_td_vertical_align" data-th="{param: lbl_startdate}" style={{ whiteSpace: 'nowrap' }} >2025-06-26</td>
-                <td className="table_td_vertical_align" data-th="{param: lbl_title}">
-                    <a href="?Sn=101" tabIndex={1} title="公告一">公告一</a>
-                    <span  className="label label-danger">{"param: lbl_hot"}</span>
-                    <span  className="label label-success">{"param: lbl_top"}</span>
-                    <span  className="label label-warning">{"param: lbl_new"}</span>
-                </td>
-                <td className="table_td_vertical_align" data-th="{param: lbl_visitor_count}" style={{ whiteSpace: 'nowrap' }} >123</td>
-            </tr>
+            {rows.map((row,idx) => (
+                <tr key={idx} className={(idx%2===1 ? style.Odd : style.Even)}>
+                    {row.cells.map((data,idx)=> (
+                        <td key={idx} headers={data.col.key} className={style.CellStyle} data-th={data.col.title}>{data.content}</td>
+                    ))}
+                </tr>
+            ))}
         </tbody>
     )
 }
 
-const GridDetailRender = () => {
-    return (
-        <table className="table table-striped table-bordered table-hover table-rwd">
-            <ColRender></ColRender>
-            <RowRender></RowRender>
-        </table>
-    )
-}
-const PaginationRender = () =>{
-    return (
-        <ul className="pagination">
-            <li className="paginate_button">
-                <a href="/Front/Allnews/All-announcement/News.aspx?id=i3kqobGUgUc=&amp;page=1" title="第一頁">
-                    <i className="fa icon_stop-angle-left" aria-hidden="true">
-                        <span className="sr-only">第一頁</span>
-                    </i>
-                </a>
-            </li>
-            <li className="paginate_button disabled"><a href="#" title="上一頁">
-                    <i className="fa icon_angle-left" aria-hidden="true"><span className="sr-only">上一頁</span>
-                    </i>
-                </a></li>
-            <li className="paginate_button active"><a href="#">1</a></li>
-            <li className="paginate_button"><a href="/Front/Allnews/All-announcement/News.aspx?id=i3kqobGUgUc=&amp;page=2" title="2">2</a></li>
-            <li className="paginate_button"><a href="/Front/Allnews/All-announcement/News.aspx?id=i3kqobGUgUc=&amp;page=3" title="3">3</a></li>
-            <li className="paginate_button"><a href="/Front/Allnews/All-announcement/News.aspx?id=i3kqobGUgUc=&amp;page=4" title="4">4</a></li>
+export const Grid=({ gridData, style, pageStyle }: { gridData: GridProps; style: IGridView_Style; pageStyle:IPaginator_Style })=>{
+    const [_, setCurrentPage] = useState(1);
+    const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    null; // 重新查詢資料
+    };
 
-            <li className="paginate_button">
-                <a href="/Front/Allnews/All-announcement/News.aspx?id=i3kqobGUgUc=&amp;page=2" title="下一頁">
-                    <i className="fa icon_angle-right" aria-hidden="true">
-                        <span className="sr-only">下一頁</span>
-                    </i>
-                </a>
-            </li>
-            <li className="paginate_button"><a href="/Front/Allnews/All-announcement/News.aspx?id=i3kqobGUgUc=&amp;page=23" title="最後頁"><i className="fa icon_stop-angle-right" aria-hidden="true"><span className="sr-only">最後頁</span></i></a></li>
-        </ul>
-    )
-}
-
-const GridComp = () => {
-    return (
+    return(
         <>
-        <GridDetailRender></GridDetailRender>
-        <PaginationRender></PaginationRender>
+        <div className="row mx-0">
+            <div className="RWD-TABLE-BOX">
+                <table className={style.TableStyle}>
+                    <ColRender columns={gridData.columns} style={style}></ColRender>
+                    <RowRender rows={gridData.rows} style={style}></RowRender>
+                </table>
+            </div>
+        </div>
+        {!(gridData.CurrentPage === 1 && gridData.TotalPage === 1) && 
+            (<Paginator currentPage={gridData.CurrentPage} totalPages={gridData.TotalPage} onPageChange={handlePageChange} style={pageStyle} ></Paginator>)}
         </>
-    )
-
+    );
 }
-
-export default GridComp
-

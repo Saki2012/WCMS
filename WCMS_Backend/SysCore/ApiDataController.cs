@@ -94,6 +94,7 @@ namespace WCMS.SysCore
         [HttpGet($"{nameof(QueryData)}")]
         public async Task<ActionResult<TSet>> QueryData([FromQuery] string[] pk)
         {
+            pk = ["string"];//測試
             return Ok(await _service.QuerySetAsync(pk));
         }
         /// <summary>
@@ -106,7 +107,7 @@ namespace WCMS.SysCore
             queryCondition = new QueryListParam()
             {
                 //測試
-                fields = ["CategoryId", "Title", "DataStatus", "ModifyUserId", "ModifyTime"],
+                fields = ["CategoryId", "ModifyUserId", "ModifyTime"],
                 condition = "",
                 pageCt=1,
                 takeCt=10,

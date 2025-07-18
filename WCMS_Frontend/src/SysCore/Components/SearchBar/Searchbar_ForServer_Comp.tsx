@@ -15,7 +15,7 @@ const SearchHistoryList=()=>{
 }
 
 /** 搜尋條件 */
-const SearchCondition=(prop:SearchBarProps)=>{
+const SearchCondition=()=>{
     return (
         <div className="row mx-0">
             <div className="col form-group">
@@ -212,7 +212,7 @@ export const SearchComp=(prop:SearchBarProps)=>{
     return (
         <>
             <SearchBar {...prop}/>
-            <SearchCondition {...prop}/>
+            <SearchCondition />
         </>
     );
 }

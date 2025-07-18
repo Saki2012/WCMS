@@ -5,7 +5,6 @@
  * @returns 
  */
 export const IApiProvider = <T>(real: new () => T,mock: new () => T): T => {
-  console.log('VITE_USE_MOCK', import.meta.env.VITE_USE_MOCK)/**再繼續測試看看是否重複呼叫 */
   return import.meta.env.VITE_USE_MOCK === 'true' ? new mock() : new real();
 };
 
@@ -33,7 +32,7 @@ export abstract class IDataProvider<T> {
     return raw;
   }
   public async fetchList(param?: any): Promise<T[]>{
-    const raw = await this.doFetchList(param);
+    const raw = await this.doFetchList();
     return raw;
   }
   public async getModelDisplayName(): Promise<T[]>{

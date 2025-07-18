@@ -13,8 +13,6 @@ const Index = () => {
         <>
           <div id="Customsize" className={containerClass}>
             <Header/>
-            {/* 塞Content 可能就由Spec那邊添加了? */}
-            中間會注入功能頁內容
             <Outlet /> 
             <Footer/>
           </div>

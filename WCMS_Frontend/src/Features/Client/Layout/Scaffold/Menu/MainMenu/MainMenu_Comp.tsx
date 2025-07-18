@@ -2,8 +2,8 @@ import { useEffect, useRef } from 'react';
 import NaviBarComp from '../../../../../../SysCore/Components/NaviBar/NaviBar_Comp'
 import type { NaviData } from '../../../../../../SysCore/Components/NaviBar/NaviBar_Data'
 import { Link } from 'react-router-dom';
-import type { INaviBarStyle } from '../../../../../../SysCore/Components/NaviBar/NaviBar_Clsx';
-import { Classic_NaviBarMenu } from '../NaviBar/NaviBar_Clsx';
+import type { IFETheme } from '../../../Theme/ITheme';
+import { Classic_FETheme } from '../../../Theme/ClassicTheme_Clsx';
 
 declare global {
   interface Window {
@@ -33,8 +33,9 @@ const MainMenu = () => {
         DOMContent:<Link className="nav-link" to="/" target="_self" title="English">English</Link>
       },
     ]
+  
+  const fakeStyle:IFETheme=Classic_FETheme
 
-  const MockNaviStyle:INaviBarStyle=Classic_NaviBarMenu
 
 
   useEffect(() => {
@@ -75,7 +76,7 @@ const MainMenu = () => {
         {/* // topBox上方選單 // */}
         <div className="topBox">
             <div className="navsBox">
-                <NaviBarComp items={Mock_naviData} style={MockNaviStyle} ></NaviBarComp>
+                <NaviBarComp items={Mock_naviData} style={fakeStyle.NaviBarMenu} ></NaviBarComp>
             </div>
         </div>
         {/* // topBox上方選單 end // */}

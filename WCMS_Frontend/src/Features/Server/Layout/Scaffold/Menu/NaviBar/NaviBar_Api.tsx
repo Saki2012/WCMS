@@ -66,6 +66,9 @@ class MockProvider extends INaviProvider {
       { Id:"I", SrcData:"登出系統", Url:"/PageList", },
     ]);
   }
+  protected doGetModelDisplayName(): Promise<[]>{
+    throw new Error('Method not implemented.');
+  }
 }
 class APIProvider extends INaviProvider {
   protected doCreateData(): Promise<NaviData> {
@@ -95,6 +98,9 @@ class APIProvider extends INaviProvider {
       { Id:"H", SrcData:"系統設定", Url:"/PageList", },
       { Id:"I", SrcData:"登出系統", Url:"/PageList", },
     ]);
+  }
+  protected doGetModelDisplayName(): Promise<[]>{
+    throw new Error('Method not implemented.');
   }
 }
 const NaviProvider = (): INaviProvider => IApiProvider<INaviProvider>(APIProvider, MockProvider);
