@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --mode dev",
+    "dev:csr": "vite --mode dev",
     "dev:ssr": "tsx src/SSR/SSR_Server.ts",
     "_備註1": "build:csr之後加上tsc -b && 來增強編譯檢查",
     "build:csr": "vite build --mode prod",

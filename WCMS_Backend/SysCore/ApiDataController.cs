@@ -21,9 +21,11 @@ namespace WCMS.SysCore
 
         private ModelDisplay<TSet>.ModelMetadata ModelDescription 
         {
-            get { 
+            get 
+            { 
                 if(_modelDisplayName==null) _modelDisplayName= new ModelDisplay<TSet>().Model;
-                return _modelDisplayName; }
+                return _modelDisplayName; 
+            }
         }
 
         protected readonly IBizService<TSet> _service = service;
@@ -107,7 +109,7 @@ namespace WCMS.SysCore
             queryCondition = new QueryListParam()
             {
                 //測試
-                fields = ["CategoryId", "ModifyUserId", "ModifyTime"],
+                fields = ["CategoryId", "ModifyUserId", "ModifyTime","InternalId"],
                 condition = "",
                 pageCt=1,
                 takeCt=10,

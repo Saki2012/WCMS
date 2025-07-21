@@ -3,7 +3,6 @@ import  type { components } from "../../../../../../types/api";
 import {IApiProvider, IDataProvider} from '../../../../../../SysCore/Interface/IApiProvider'
 
 type PageManagementSet = components["schemas"]["PageManagementSet"]
-type PageManagement = components["schemas"]["PageManagement"]
 
 
 abstract class IPageManagementProvider extends IDataProvider<PageManagementSet> {
@@ -70,11 +69,9 @@ class APIProvider extends IPageManagementProvider {
     private readonly ModuleName="PageManagement"
     private readonly API= new BaseApiService<PageManagementSet>(this.ModuleName);
 
-    protected async doCreateData(): Promise<PageManagementSet> {
-        throw new Error('Method not implemented.');
-        // const res = await this.API.create({ PageId: "example" });
-        // console.log(res);
-        // return res.data;
+    protected async doCreateData(param:any): Promise<PageManagementSet> {
+        const res = await this.API.create(param);
+        return res.data;
     }
     protected async doUpdateData(): Promise<PageManagementSet> {
         throw new Error('Method not implemented.');

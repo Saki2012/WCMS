@@ -1,12 +1,14 @@
-﻿using static WCMS.SysCore.Enum.SysEnum;
-using WCMS.SysCore.Model;
-using Microsoft.EntityFrameworkCore;
-using WCMS.SysCore.Enum;
-using WCMS.SysCore.Library;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Collections;
-using WCMS.SysCore.Interface;
-using System.Linq.Expressions;
+using System.ComponentModel.DataAnnotations;
 using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
+using System.Reflection;
+using WCMS.SysCore.Enum;
+using WCMS.SysCore.Interface;
+using WCMS.SysCore.Library;
+using WCMS.SysCore.Model;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore
 {
@@ -25,9 +27,15 @@ namespace WCMS.SysCore
         /// 功能Id
         /// </summary>
         public string ProgId { get; }
-
+        /// <summary>
+        /// 流水編號前綴碼
+        /// </summary>
+        private string _Prifix = string.Empty;
+        /// <summary>
+        /// 流水編號前綴碼
+        /// </summary>
+        public string PrefixId { get { return _Prifix == string.Empty ? ProgId : _Prifix; } protected set { _Prifix = value; } }
         /* LibMessage包*/
-
         /// <summary>
         /// 變更日誌系統
         /// </summary>
@@ -53,7 +61,11 @@ namespace WCMS.SysCore
             try
             {
                 await BeginTransactionAsync();
-                //SetCreateInfo()
+
+                GetModelType(set, out BasicDataModel header, out Dictionary<string, IList> details);
+                SetCreateInfo(header);
+                AutoGenerateId(header, details);
+
                 BeforeUpdate(set, FuncAction.Create);
                 //如果有錯，這邊先回滾，減少後續執行的資源浪費
                 await DoCreateAsync(set);
@@ -368,20 +380,22 @@ namespace WCMS.SysCore
         /// 自動產生流水號ID
         /// 若Id已有值，就不做自動產生
         /// </summary>
-        private string AutoGenerateId(TSet set, string prefix = "")
+        private void AutoGenerateId(BasicDataModel header,Dictionary<string, IList> details)
         {
-            prefix = prefix.Equals(string.Empty) ? ProgId : prefix;
-            return prefix;
-            //string id;
+            var keyProp = PropertyAccessorCache.GetProperties(header.GetType()).Where(p => p.IsDefined(typeof(KeyAttribute), inherit: true)).LastOrDefault();
+            if (keyProp == null) return;
+            var idSelector = BuildIdSelectorLambda(header.GetType(),keyProp);
+            string id = PropertyAccessorCache.Get(header, keyProp.Name).ToString();
+            id = id != string.Empty ? id : ((dynamic)RepoDict[header.GetType().Name]).GenerateIdAsync(header, idSelector, PrefixId);
 
-            //if (set.header.id != string.Empty) id = set.header.id;
-            //else id = Repo.GenerateIdAsync(set, p => p.id, prefix);
-
-            //set.header.id = id;
-            //foreach(var item in set.detail)
-            //{
-            //    item.id = id; 
-            //}
+            PropertyAccessorCache.Set(header, keyProp.Name, id);
+            foreach(var detail in details)
+            {
+                foreach(var row in detail.Value)
+                {
+                    PropertyAccessorCache.Set(row, keyProp.Name, id);
+                }
+            }
         }
         /// <summary>
         /// 設置新增時資料
@@ -456,7 +470,7 @@ namespace WCMS.SysCore
         /// <typeparam name="TModel"></typeparam>
         /// <param name="condition"></param>
         /// <returns></returns>
-        public static LambdaExpression GetConditionExpr(Type modelType, string condition)
+        private LambdaExpression GetConditionExpr(Type modelType, string condition)
         {
             if (string.IsNullOrWhiteSpace(condition))
             {
@@ -473,6 +487,35 @@ namespace WCMS.SysCore
                 condition
             );
             return lambda;
+        }
+        /// <summary>
+        /// 獲取表頭明細模型
+        /// </summary>
+        /// <param name="set"></param>
+        /// <returns></returns>
+        private void GetModelType(TSet set,out BasicDataModel header,out Dictionary<string, IList> details)
+        {
+            header = null;
+            details = new Dictionary<string, IList>();
+            foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
+            {
+                if (typeof(BasicDataModel).IsAssignableFrom(prop.PropertyType))
+                {
+                    header = PropertyAccessorCache.Get(set, prop.Name) as BasicDataModel;
+                }
+                else
+                {
+                    details.Add(prop.Name, PropertyAccessorCache.Get(set, prop.Name) as IList);
+                }
+            }
+        }
+        private static LambdaExpression BuildIdSelectorLambda(Type modelType, PropertyInfo prop)
+        {
+            var param = Expression.Parameter(modelType, "p");
+            var propertyAccess = Expression.Property(param, prop.Name);
+            Expression body = propertyAccess.Type == typeof(string) ? (Expression)propertyAccess : Expression.Call(propertyAccess, "ToString", Type.EmptyTypes);
+            var delegateType = typeof(Func<,>).MakeGenericType(modelType, typeof(string));
+            return Expression.Lambda(delegateType, body, param);
         }
         #endregion
     }

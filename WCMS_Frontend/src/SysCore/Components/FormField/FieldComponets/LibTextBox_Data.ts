@@ -10,5 +10,6 @@ export interface LibTextBoxProp{
     Style:ILibTextBoxStyle,
     ColumnDisplayName:string,
     DefaultInputDisplay:string,
-    InputValue?:string
+    InputValue?:string|null|undefined,
+    OnChange: (value: string) => void
 }

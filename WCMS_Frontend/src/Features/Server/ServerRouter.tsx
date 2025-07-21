@@ -12,9 +12,9 @@ export class BackendRouteModule implements IRouteModule {
       {
         path: '/Server',
         element: <DashboardPage theme={Classic_BETheme} />,
-        children: [
+        children: [//之後再來想怎麼做到動態處理
           {
-            path: "WebManagement/PageManage/Form/:id?",
+            path: "WebManagement/PageManage/Form/:uid?",
             element: <PageFormComp theme={Classic_BETheme}/>,
           },
           {

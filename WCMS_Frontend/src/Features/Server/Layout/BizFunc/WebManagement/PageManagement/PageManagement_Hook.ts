@@ -19,7 +19,7 @@ export const useFetchPageListData = () => {
     try {
       //#region GetColumn
       const resCol =await PageManagementProvider().getModelDisplayName();
-      const visibleKeys = ["CategoryId",'Title', 'DataStatus', 'ModifyUserId',"ModifyTime"];
+      const visibleKeys = ["CategoryId", 'Title', 'DataStatus', 'ModifyUserId',"ModifyTime","InternalId"];
       // ✅ 取得 Columns 陣列（假設只取 Tables[0]）
       const columnsRaw = resCol?.Tables?.[0]?.Columns ?? [];
       // ✅ 轉換成 ColumnConfig[]
@@ -71,46 +71,3 @@ export const useGetPageFormData = (uid:string) =>{
   useEffect(() => { fetchData(uid) }, [uid]);
   return { data, isLoading, error };
 }
-
-/** 保存表單資料 */
-export const useCreatePageFormData = () => {
-  const [data, setData] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const createData = async (set: PageManagementSet) => {
-    setIsLoading(true);
-    try {
-      const data = await PageManagementProvider().createData(set);
-      setData(data);
-    } catch (err: any) {
-      setError(err.message ?? "資料載入失敗");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return { createData, data, isLoading, error,  };
-};
-
-export const useDeletePageForm = () => {
-  const [isSuccess, setResult] = useState<boolean | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const deleteData = async (uid: string) => {
-    setIsLoading(true);
-    try {
-      await PageManagementProvider().deleteData({ uid });
-      setResult(true);
-    } catch (err: any) {
-      setResult(false);
-      setError(err.message ?? "資料載入失敗");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return { deleteData, isSuccess, isLoading, error };
-};
-

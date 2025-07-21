@@ -111,9 +111,7 @@ namespace WCMS.SysCore
             var compiledSelector = idSelector.Compile();
             // 查出當天已存在的最大流水號
             var maxIdToday = await dbSet.AsNoTracking().Where(e => compiledSelector(e).StartsWith(id)).OrderByDescending(e => compiledSelector(e)).Select(e => compiledSelector(e)).FirstOrDefaultAsync();
-
             int nextSerial = 1;
-
             if (!string.IsNullOrEmpty(maxIdToday) && maxIdToday.Length >= prefix.Length + 3)
             {
                 string serialStr = maxIdToday.Substring(prefix.Length, 3);
@@ -122,7 +120,6 @@ namespace WCMS.SysCore
                     nextSerial = currentSerial + 1;
                 }
             }
-
             return id + nextSerial.ToString(format);
         }
         #endregion

@@ -2,16 +2,19 @@
 import { useId } from 'react';
 import type {LibTextBoxProp} from "./LibTextBox_Data"
 
-const LibOptionBox=(prop:LibTextBoxProp)=>{
+const LibTextBox=(prop:LibTextBoxProp)=>{
     const inputId = useId();
     return(
         <>
             <label htmlFor={inputId} className={prop.Style.Labelstyle}>{prop.ColumnDisplayName}</label>
             <div className={prop.Style.SelectStyle}>
-                <input id={inputId} type="text" className={prop.Style.InputStyle} placeholder={`${prop.DefaultInputDisplay}${prop.ColumnDisplayName} ...`} value={prop.InputValue}/>
+                <input id={inputId} type="text" className={prop.Style.InputStyle} 
+                    placeholder={`${prop.DefaultInputDisplay}${prop.ColumnDisplayName} ...`} value={prop.InputValue??""}
+                    onChange={(e)=>prop.OnChange(e.target.value)}
+                    />
             </div>
         </>
     );
 }
 
-export default LibOptionBox;
+export default LibTextBox;

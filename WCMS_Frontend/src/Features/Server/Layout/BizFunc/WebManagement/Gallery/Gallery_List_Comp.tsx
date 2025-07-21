@@ -3,14 +3,13 @@ import {SearchComp} from "../../../../../../SysCore/Components/SearchBar/Searchb
 import type{SearchBarProps} from "../../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
 import {DividerComp} from "../../../../../../SysCore/Components/Divider/Divider_Comp"
 import {List_Toolbar} from "../../../../../../SysCore/Components/Toolbar/Toolbar_Comp"
-import type {IBETheme} from "../../../../../../Features/Server/Layout/Theme/ITheme"
+import type {IBETheme} from "../../../Theme/ITheme"
 import { useFetchPageListData } from "./PageManagement_Hook";
 import type { GridProps,ColumnConfig,GridRow,RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data"
 import { useMemo } from "react"
 import { Link } from "react-router"
 import { useLocation } from 'react-router-dom';
-import { ListComp } from "../../../Scaffold/Content/List_Comp"
-import type { ListCompProp } from "../../../Scaffold/Content/Content_Data"
+
 
 const searchCompProp:SearchBarProps={
     title:"頁面搜尋",
@@ -21,17 +20,39 @@ const searchCompProp:SearchBarProps={
 /** 頁面清單
  * @returns 
  */
-export const PageListComp = ({title,theme}:{title:string;theme:IBETheme}) => {
-
+export const GalleryListComp = ({title,theme}:{title:string;theme:IBETheme}) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form/`);
     const { gridProps, isLoading } = useFetchPageListData();
     const adjustedGrid = useMemo(() => {return SetAdjustFunction(dirUrl, gridProps);}, [gridProps]);
-    // <List_Toolbar title="新增頁面" url="/Server/WebManagement/PageManage/Form"></List_Toolbar> 給Toolbar就完成
-    const prop:ListCompProp={ Title:"新增頁面", Theme:theme, LoadingList:[], ErrorList:[], Toolbar:[],GridData:adjustedGrid  }
-
-
     return (
-            <ListComp prop={prop}></ListComp>
+      <div className="Form-Main-Content">
+            <div className="row">
+                <div className="col-sm-12">
+                    <div className="card">
+                        <div className="card-header">
+                            <h3><i className="fas fa-braille me-2"></i>{title}</h3>
+                        </div>
+                        {/* <ListBodyComp></ListBodyComp> */}
+                        <div className="card-body">
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <div className="panel">
+                                        <div className="panel-body">
+                                            <div className="form"> 
+                                                <SearchComp {...searchCompProp}></SearchComp>
+                                                <DividerComp></DividerComp>
+                                                <List_Toolbar title="新增頁面" url="/Server/WebManagement/PageManage/Form"></List_Toolbar>
+                                                <Grid gridData={adjustedGrid} style={theme.GridView} pageStyle={theme.Paginator}></Grid>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 }
 
@@ -39,6 +60,7 @@ export const PageListComp = ({title,theme}:{title:string;theme:IBETheme}) => {
 const SetAdjustFunction=(dirUrl:string, gridProps: GridProps): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
     if (gridProps.rows.length===0) return gridProps;
+
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
     const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
     const newRows: GridRow[] = gridProps.rows.map(row => {

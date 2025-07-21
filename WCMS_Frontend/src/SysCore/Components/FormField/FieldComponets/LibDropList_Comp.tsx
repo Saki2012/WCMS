@@ -8,7 +8,7 @@ const LibDropList=({style,colDisplayName,options}:{ style:ILibDropListStyle, col
             <label htmlFor={inputId} className={style.Labelstyle}>{colDisplayName}</label>
             <div className={style.SelectStyle}>
                 <select id={inputId} className={style.OptionsStyle}>
-                    {Object.entries(options).map(([key, label]) => {
+                    {options && Object.entries(options).map(([key, label]) => {
                         if (key === "") { return ( <option selected>{label}</option> );} 
                         else { return ( <option key={key} value={key}>{label}</option> ); }
                     })}
