@@ -6,20 +6,23 @@ import PageManagementProvider from "./PageManagement_Api"
 import { FormComp } from "../../../Scaffold/Content/Form_Comp";
 import { useFormToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
 import { useParams } from "react-router";
+import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
+import { useGetPageFormData } from "./PageManagement_Hook";
 import { emptyData } from "./PageManagement_Data";
-
-
-
+import type { components } from "../../../../../../types/api";
+type PageManagementSet = components["schemas"]["PageManagementSet"]
 
 /** 頁面表單
  * @returns 
  */
 export const PageFormComp = ({theme}:{theme:IBETheme}) => {
-    const { uid } = useParams()
+    const { internalId } = useParams()
     const { result:categories, loading:categoryLoading, error:categoryErr} = useGetCategoryListByProgId("PageManagement","zh-TW")
-    const { formData, setFormData, isSuccess,isLoading, errors, toolbarActions } = useFormToolbarActions(PageManagementProvider(),emptyData)
 
-    const prop:FormCompProp={ Title:"新增頁面", Theme:theme, LoadingList:[categoryLoading], ErrorList:[categoryErr], Toolbar:toolbarActions }
+    const formD = useGetPageFormData(internalId as string);
+    const toolBar = useFormToolbarActions(PageManagementProvider(), formD.data as PageManagementSet)
+
+    const prop:FormCompProp={ Title:"新增頁面", Theme:theme, LoadingList:[categoryLoading], ErrorList:[categoryErr], Toolbar:toolBar.action }
     const LibTabsPropA:LibTabsProp={
         Style:theme.Tabs,
         item:{
@@ -37,8 +40,8 @@ export const PageFormComp = ({theme}:{theme:IBETheme}) => {
         Style:theme.TextBox,
         ColumnDisplayName:"中文標題",
         DefaultInputDisplay:"請輸入",
-        InputValue:formData.PageManagementDetail?.[0]?.Title,
-        OnChange:(val) => setFormData({ ...formData, PageManagementDetail: formData.PageManagementDetail?.map((item, idx) => idx === 0 ? { ...item, Title: val } : item) ?? []}),
+        InputValue:toolBar.formData?.PageManagementDetail?.[0]?.Title,
+        OnChange:(val) => toolBar.setFormData({ ...toolBar.formData, PageManagementDetail: toolBar.formData.PageManagementDetail?.map((item, idx) => idx === 0 ? { ...item, Title: val } : item) ?? []}),
     }
     const libTinyMCEProp:LibTinyMCEProp={
         Style:theme.TinyMCE,

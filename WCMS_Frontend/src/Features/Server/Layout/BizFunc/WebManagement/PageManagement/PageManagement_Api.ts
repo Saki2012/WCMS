@@ -1,64 +1,28 @@
 import { BaseApiService } from '../../../../../../SysCore/Utils/APIClient';
 import  type { components } from "../../../../../../types/api";
 import {IApiProvider, IDataProvider} from '../../../../../../SysCore/Interface/IApiProvider'
-
+import type { ApiResponse, QueryListCondition } from '../../../../../../SysCore/Interface/IApiProvider';
 type PageManagementSet = components["schemas"]["PageManagementSet"]
 
 
-abstract class IPageManagementProvider extends IDataProvider<PageManagementSet> {
-    /** 獲取導覽資料 */
-    public override async createData(set:PageManagementSet): Promise<PageManagementSet> {
-        const raw = await super.createData(set);
-        console.log("處理新資料",raw);
-        return raw;
-    }
-
-    public override async fetchList(param?: any):Promise<PageManagementSet[]>{
-        const raw = await super.fetchList(param);
-        this.SetDataStatusDOM(raw);
-        return raw;
-    }
-    //#region 
-    /** 設置DataStatus的顯示狀況(DOM) */
-    private SetDataStatusDOM(set: PageManagementSet[]) {
-        set.map((p, idx) => {
-            switch (p.PageManagement.DataStatus) { 
-            // 假設 p.value 是你要判斷的欄位
-            // case 0:
-            //     return <div key={idx} className="icon-small top-bg">置頂</div>;
-            // case 1:
-            //     return <div key={idx} className="icon-small new-bg">最新</div>;
-                /**
-                    <div class="all-state">
-                        <div class="CustomState">
-                            <div class="icon-small top-bg">置頂</div>
-                            <div class="icon-small hot-bg">熱門</div>
-                            <div class="icon-small new-bg">最新</div>
-                            <div class="icon-small hide-bg">隱藏</div>
-                        </div>
-                    </div>
-                 */
-            }
-        });
-    }
-}
+abstract class IPageManagementProvider extends IDataProvider<PageManagementSet> { }
 class MockProvider extends IPageManagementProvider {
-    protected doCreateData(): Promise<PageManagementSet> {
+    protected async doCreateData(set: PageManagementSet): Promise<ApiResponse<PageManagementSet>> {
         throw new Error('Method not implemented.');
     }
-    protected doUpdateData(): Promise<PageManagementSet> {
+    protected async doUpdateData(internaId:string,set:PageManagementSet): Promise<ApiResponse<PageManagementSet>> {
         throw new Error('Method not implemented.');
     }
-    protected doDelete(): Promise<PageManagementSet> {
+    protected async doDelete(internaId:string): Promise<ApiResponse<PageManagementSet>> {
         throw new Error('Method not implemented.');
     }
-    protected doInvalid(): Promise<PageManagementSet> {
+    protected async doInvalid(internaId:string,isInvalid:boolean): Promise<ApiResponse<PageManagementSet>> {
         throw new Error('Method not implemented.');
     }
-    protected doFetchData(): Promise<PageManagementSet> {
+    protected async doFetchData(internaId?: string): Promise<ApiResponse<PageManagementSet>> {
         throw new Error('Method not implemented.');
     }
-    protected doFetchList(): Promise<PageManagementSet[]> {
+    protected async doFetchList(condition?: QueryListCondition): Promise<ApiResponse<PageManagementSet>> {
         throw new Error('Method not implemented.');
     }
     protected doGetModelDisplayName(): Promise<PageManagementSet[]> {
@@ -69,40 +33,31 @@ class APIProvider extends IPageManagementProvider {
     private readonly ModuleName="PageManagement"
     private readonly API= new BaseApiService<PageManagementSet>(this.ModuleName);
 
-    protected async doCreateData(param:any): Promise<PageManagementSet> {
-        const res = await this.API.create(param);
+    protected async doCreateData(set: PageManagementSet): Promise<ApiResponse<PageManagementSet>> {
+        const res = await this.API.create(set);
         return res.data;
     }
-    protected async doUpdateData(): Promise<PageManagementSet> {
-        throw new Error('Method not implemented.');
-        // const res = await this.API.update({ pk: "example" });
-        // console.log(res);
-        // return res.data;
+    protected async doUpdateData(internaId:string,set:PageManagementSet): Promise<ApiResponse<PageManagementSet>> {
+        const res = await this.API.update(internaId,set);
+        return res.data;
     }
-    protected async doDelete(): Promise<PageManagementSet> {
-        throw new Error('Method not implemented.');
-        // const res = await this.API.delete({ pk: "example" });
-        // console.log(res);
-        // return res.data;
+    protected async doDelete(internaId:string): Promise<ApiResponse<PageManagementSet>> {
+        const res = await this.API.delete(internaId);
+        return res.data;
     }
-    protected async doInvalid(): Promise<PageManagementSet> {
-        throw new Error('Method not implemented.');
-        // const res = await this.API.delete({ pk: "example" });
-        // console.log(res);
-        // return res.data;
+    protected async doInvalid(internaId:string,isInvalid:boolean): Promise<ApiResponse<PageManagementSet>> {
+        const res = await this.API.invalid(internaId,isInvalid);
+        return res.data;
     }
-    protected async doFetchData(params:any): Promise<PageManagementSet> {
-        const res = await this.API.queryData(params);
-        return res;
+    protected async doFetchData(internaId: string): Promise<ApiResponse<PageManagementSet>> {
+        const res = await this.API.queryData(internaId);
+        return res.data;
     }
-    protected async doFetchList(params:any): Promise<PageManagementSet[]> {
-        const res = await this.API.queryList(params);
-        return res
+    protected async doFetchList(condition: QueryListCondition): Promise<ApiResponse<PageManagementSet>> {
+        const res = await this.API.queryList(condition);
+        return res.data
     }
     protected async doGetModelDisplayName(): Promise<PageManagementSet[]> {
-
-
-        
         const res = await this.API.getModelDisplayName();
         return res
     }

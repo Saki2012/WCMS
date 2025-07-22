@@ -26,39 +26,33 @@ namespace WCMS.SysCore.Interface
         /// </summary>
         /// <param name="set"></param>
         /// <returns></returns>
-        public Task<TSet> CreateSetAsync(TSet set);
+        public Task<IApiResponse<TSet>> CreateSetAsync(TSet set);
         /// <summary>
         /// 修改
         /// </summary>
         /// <param name="key"></param>
         /// <param name="set"></param>
         /// <returns></returns>
-        public Task<TSet> UpdateSetAsync(object[] key, TSet set);
+        public Task<IApiResponse<TSet>> UpdateSetAsync(string internalId, TSet set);
         /// <summary>
         /// 刪除
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public Task<bool> DeleteSetAsync(object[] key);
+        public Task<IApiResponse<TSet>> DeleteSetAsync(string internalId);
         /// <summary>
         /// 作廢
         /// </summary>
         /// <param name="key"></param>
         /// <param name="status"></param>
         /// <returns></returns>
-        public Task<TSet> InvalidSetAsync(object[] key, bool status);
+        public Task<IApiResponse<TSet>> InvalidSetAsync(string internalId, bool status);
         /// <summary>
         /// 查詢表單
         /// </summary>
-        /// <param name="key"></param>
+        /// <param name="InternalId">內部唯一標示號</param>
         /// <returns></returns>
-        public Task<TSet> QuerySetAsync(object[] key);
-        /// <summary>
-        /// 查詢表單
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public Task<TSet> QuerySetAsync(string InternalId);
+        public Task<IApiResponse<TSet>> QuerySetAsync(string internalId);
         /// <summary>
         /// 查詢清單
         /// </summary>
@@ -67,7 +61,7 @@ namespace WCMS.SysCore.Interface
         /// <param name="pageCt"></param>
         /// <param name="takeCt"></param>
         /// <returns></returns>
-        public Task<IList<TSet>> QueryListAsync(string[] selectFields, string condition, int pageCt, int takeCt);
+        public Task<IApiResponse<TSet>> QueryListAsync(string[] selectFields, string condition, int pageNumber, int pageSize);
         #endregion
     }
 

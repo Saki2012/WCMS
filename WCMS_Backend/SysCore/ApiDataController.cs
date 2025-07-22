@@ -13,7 +13,7 @@ namespace WCMS.SysCore
     /// 表單API入口
     /// </summary>
     /// <typeparam name="TSet"></typeparam>
-    public abstract class ApiDataController<TSet>(IBizService<TSet> service) : ControllerBase, BaseDataController<TSet> where TSet : class
+    public abstract class ApiDataController<TSet>(IBizService<TSet> service) : ControllerBase, IBaseDataController<TSet> where TSet : class
     {
         #region Property
 
@@ -38,7 +38,7 @@ namespace WCMS.SysCore
         /// <param name="set"></param>
         /// <returns></returns>
         [HttpPost(nameof(Create))]
-        public async Task<ActionResult> Create(TSet set)
+        public async Task<IActionResult> Create(TSet set)
         {
             return Ok(await _service.CreateSetAsync(set));
         }
@@ -49,9 +49,9 @@ namespace WCMS.SysCore
         /// <param name="set"></param>
         /// <returns></returns>
         [HttpPut(nameof(Update))]
-        public async Task<ActionResult> Update(ApiRequest<TSet> set)
+        public async Task<IActionResult> Update(ApiRequest<TSet> set)
         {
-            return Ok(await _service.UpdateSetAsync(LibData.ConvertJsonElement(set.PK),set.Set));
+            return Ok(await _service.UpdateSetAsync(set.UID,set.Set));
         }
         /// <summary>
         /// 作廢
@@ -60,9 +60,9 @@ namespace WCMS.SysCore
         /// <param name="isInvalid"></param>
         /// <returns></returns>
         [HttpPatch($"{nameof(Invalid)}/{{pk}}")]
-        public async Task<ActionResult> Invalid(object[] pk, bool isInvalid)
+        public async Task<IActionResult> Invalid(string uid, bool isInvalid)
         {
-            return Ok(await _service.InvalidSetAsync(LibData.ConvertJsonElement(pk), isInvalid));
+            return Ok(await _service.InvalidSetAsync(uid, isInvalid));
         }
         /// <summary>
         /// 批次作廢
@@ -70,16 +70,16 @@ namespace WCMS.SysCore
         /// <param name="pks"></param>
         /// <returns></returns>
         [HttpPatch(nameof(BatchInvalid))]
-        public async Task<ActionResult> BatchInvalid(object[][] pks, bool isInvalid) => throw new NotImplementedException();
+        public async Task<IActionResult> BatchInvalid(string[] uids, bool isInvalid) => throw new NotImplementedException();
         /// <summary>
         /// 刪除
         /// </summary>
         /// <param name="pk"></param>
         /// <returns></returns>
         [HttpDelete(nameof(Delete))]
-        public async Task<ActionResult> Delete(object[] pk)
+        public async Task<IActionResult> Delete(string uid)
         {
-            return Ok(await _service.DeleteSetAsync(LibData.ConvertJsonElement(pk)));
+            return Ok(await _service.DeleteSetAsync(uid));
         }
         /// <summary>
         /// 批次刪除
@@ -87,47 +87,44 @@ namespace WCMS.SysCore
         /// <param name="pks"></param>
         /// <returns></returns>
         [HttpDelete(nameof(BatchDelete))]
-        public Task<ActionResult> BatchDelete(object[][] pks) => throw new NotImplementedException();
+        public Task<IActionResult> BatchDelete(string[] uids) => throw new NotImplementedException();
         /// <summary>
         /// 查看表單
         /// </summary>
         /// <param name="pk"></param>
         /// <returns></returns>
         [HttpGet($"{nameof(QueryData)}")]
-        public async Task<ActionResult<TSet>> QueryData([FromQuery] string[] pk)
+        public async Task<IActionResult> QueryData([FromQuery] string internalId)
         {
-            pk = ["string"];//測試
-            return Ok(await _service.QuerySetAsync(pk));
+            return Ok(await _service.QuerySetAsync(internalId));
         }
         /// <summary>
         /// 查詢清單
         /// </summary>
         /// <returns></returns>
         [HttpPost(nameof(QueryList))]
-        public async Task<ActionResult<IList<TSet>>> QueryList([FromBody] QueryListParam? queryCondition)
+        public async Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition)
         {
             queryCondition = new QueryListParam()
             {
                 //測試
-                fields = ["CategoryId", "ModifyUserId", "ModifyTime","InternalId"],
-                condition = "",
-                pageCt=1,
-                takeCt=10,
+                Fields = [],
+                Condition = "InternalId = \"2ee4b7ab-250f-409a-9554-a325e4cd934e\"",
+                PageNumber=1,
+                PageSize=10,
             };
-            return Ok(await _service.QueryListAsync(queryCondition.fields, queryCondition.condition, queryCondition.pageCt, queryCondition.takeCt));
+            return Ok(await _service.QueryListAsync(queryCondition.Fields, queryCondition.Condition, queryCondition.PageNumber, queryCondition.PageSize));
         }
         /// <summary>
         /// 獲取功能的欄位顯示名稱
         /// </summary>
         /// <returns></returns>
         [HttpGet(nameof(GetModelDisplayName))]
-        public async Task<ActionResult> GetModelDisplayName()
+        public async Task<IActionResult> GetModelDisplayName()
         {
-            var result = await Task.Run(() => ModelDescription);
-            return Ok(result);  
+            return Ok(await Task.Run(() => ModelDescription));
         }
         #endregion
-
 
         #region Private
         
@@ -137,7 +134,7 @@ namespace WCMS.SysCore
     /// 報表API入口
     /// </summary>
     /// <typeparam name="TSet"></typeparam>
-    public abstract class ApiReportController<TSet>(IBizService<TSet> service) : ControllerBase, BaseReportController<TSet> where TSet : class
+    public abstract class ApiReportController<TSet>(IBizService<TSet> service) : ControllerBase, IBaseReportController<TSet> where TSet : class
     {
         #region Property
         protected readonly IBizService<TSet> _service = service;
@@ -149,7 +146,7 @@ namespace WCMS.SysCore
         /// </summary>
         /// <returns></returns>
         [HttpGet(nameof(GetModelDisplayName))]
-        public async Task<ActionResult> GetModelDisplayName()
+        public async Task<IActionResult> GetModelDisplayName()
         {
             return Ok(await _service.CreateSetAsync(null));
         }
@@ -160,30 +157,24 @@ namespace WCMS.SysCore
     /// <typeparam name="TSet"></typeparam>
     public class ApiRequest<TSet> : IApiRequest<TSet>
     {
-        public object[] PK { get; set; }
+        public string UID { get; set; }
         public TSet Set { get; set; }
     }
 
     /// <summary>
-    /// 
+    /// 查詢條件
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class ApiResponse<T>:IApiResponse<T>
-    {
-        public bool Success { get; set; }
-        public string MessageCode { get; set; }
-        public string Message { get; set; }
-        public T? Data { get; set; }
-    }
-
     public class QueryListParam
     {
-       public string[] fields { get; set; }
-       public string condition { get; set; }
-       public int pageCt { get; set; }
-       public int takeCt { get; set; } 
+        public string[] Fields { get; set; }
+        public string Condition { get; set; }
+        public int PageNumber { get; set; }
+        public int PageSize { get; set; }
     }
-
+    /// <summary>
+    /// 模型顯示名稱
+    /// </summary>
+    /// <typeparam name="TSet"></typeparam>
     public class ModelDisplay<TSet>
     {
         #region Property
@@ -247,5 +238,4 @@ namespace WCMS.SysCore
         }
         #endregion
     }
-
 }

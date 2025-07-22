@@ -14,7 +14,7 @@ export class BackendRouteModule implements IRouteModule {
         element: <DashboardPage theme={Classic_BETheme} />,
         children: [//之後再來想怎麼做到動態處理
           {
-            path: "WebManagement/PageManage/Form/:uid?",
+            path: "WebManagement/PageManage/Form/:internalId?",
             element: <PageFormComp theme={Classic_BETheme}/>,
           },
           {

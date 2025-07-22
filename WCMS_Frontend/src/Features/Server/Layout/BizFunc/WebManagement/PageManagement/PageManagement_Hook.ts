@@ -3,6 +3,7 @@ import PageManagementProvider from "./PageManagement_Api";
 import CategoryProvider from "../Category/Category_Api";
 import type { GridProps,GridRow,ColumnConfig,RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data"
 import  type { components } from "../../../../../../types/api";
+import { emptyData } from "./PageManagement_Data";
 
 type PageManagementSet = components["schemas"]["PageManagement"]
 
@@ -29,7 +30,7 @@ export const useFetchPageListData = () => {
       
       //#region GetRows
       const res = await PageManagementProvider().fetchList();
-      const rawData = (res as any[]).map(x => x.PageManagement ?? {});
+      const rawData = (res.Data as any[]).map(x => x.PageManagement ?? {});
       // 轉為 GridRow[]
       const rows: GridRow[] = rawData.map(item => {
         const cells: RowCell[] = columns.map(col => ({
@@ -53,21 +54,26 @@ export const useFetchPageListData = () => {
 };
 
 /** 讀取表單資料 */
-export const useGetPageFormData = (uid:string) =>{
-  const [data, setData] = useState<{}>();
+export const useGetPageFormData = (internalId:string) =>{
+  const [data, setData] = useState<PageManagementSet>();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const fetchData = async (uid: string) => {
+  const fetchData = async (internalId: string) => {
     setIsLoading(true);
     try {
-      const data = await PageManagementProvider().fetchData({uid});
-      setData(data)
+      if(internalId){
+        const data = await PageManagementProvider().fetchData({internalId});
+        setData(data.Data[0])
+      }
+      else{
+        setData(emptyData)
+      }
     } catch (err: any) {
       setError(err.message ?? "資料載入失敗");
     } finally {
       setIsLoading(false);
     }
   };
-  useEffect(() => { fetchData(uid) }, [uid]);
+  useEffect(() => { fetchData(internalId) }, [internalId]);
   return { data, isLoading, error };
 }

@@ -1,73 +1,71 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections;
-
+using WCMS.SysCore.Model;
 namespace WCMS.SysCore.Interface
 {
-
     /// <summary>
     /// 資料
     /// </summary>
-    public interface BaseDataController<TSet>
+    public interface IBaseDataController<TSet>
     {
         /// <summary>
         /// 新增
         /// </summary>
         /// <param name="set"></param>
         /// <returns></returns>
-        public Task<ActionResult> Create(TSet set);
+        public Task<IActionResult> Create(TSet set);
         /// <summary>
         /// 修改
         /// </summary>
         /// <param name="pk"></param>
         /// <param name="set"></param>
         /// <returns></returns>
-        public Task<ActionResult> Update(ApiRequest<TSet> set);
+        public Task<IActionResult> Update(ApiRequest<TSet> set);
         /// <summary>
         /// 作廢
         /// </summary>
         /// <param name="pk"></param>
         /// <param name="isInvalid"></param>
         /// <returns></returns>
-        public Task<ActionResult> Invalid(object[] pk, bool isInvalid);
+        public Task<IActionResult> Invalid(string internalId, bool isInvalid);
         /// <summary>
         /// 批次作廢
         /// </summary>
         /// <param name="pks"></param>
         /// <returns></returns>
-        public Task<ActionResult> BatchInvalid(object[][] pks, bool isInvalid);
+        public Task<IActionResult> BatchInvalid(string[] internalIds, bool isInvalid);
         /// <summary>
         /// 刪除
         /// </summary>
         /// <param name="pk"></param>
         /// <returns></returns>
-        public Task<ActionResult> Delete(object[] pk);
+        public Task<IActionResult> Delete(string internalIds);
         /// <summary>
         /// 批次刪除
         /// </summary>
         /// <param name="pks"></param>
         /// <returns></returns>
-        public Task<ActionResult> BatchDelete(object[][] pks);
+        public Task<IActionResult> BatchDelete(string[] internalIds);
         /// <summary>
         /// 查看表單
         /// </summary>
         /// <param name="pk"></param>
         /// <returns></returns>
-        public Task<ActionResult<TSet>> QueryData([FromQuery]string[] internalId);
+        public Task<IActionResult> QueryData([FromQuery]string internalId);
         /// <summary>
         /// 查詢清單
         /// </summary>
         /// <returns></returns>
-        public Task<ActionResult<IList<TSet>>> QueryList([FromBody] QueryListParam queryCondition);
+        public Task<IActionResult> QueryList([FromBody] QueryListParam queryCondition);
         /// <summary>
         /// 獲取功能的欄位模型顯示名稱
         /// </summary>
         /// <returns></returns>
-        public Task<ActionResult> GetModelDisplayName();
+        public Task<IActionResult> GetModelDisplayName();
     }
     /// <summary>
     /// 報表
     /// </summary>
-    public interface BaseReportController<TSet>
+    public interface IBaseReportController<TSet>
     {
         /// <summary>
         /// 查看報表
@@ -78,7 +76,7 @@ namespace WCMS.SysCore.Interface
         /// 獲取功能的欄位模型顯示名稱
         /// </summary>
         /// <returns></returns>
-        public Task<ActionResult> GetModelDisplayName();
+        public Task<IActionResult> GetModelDisplayName();
     }
     /// <summary>
     /// 
@@ -86,9 +84,9 @@ namespace WCMS.SysCore.Interface
     /// <typeparam name="T"></typeparam>
     public interface IApiResponse<T>
     {
-        public bool Success { get; set; }
-        public string Message { get; set; }
-        public T? Data { get; set; }
+        public bool IsSuccess { get; }
+        public IList<SysMessageModel> SysMessage { get; set; }
+        public IList<T>? Data { get; set; }
     }
     /// <summary>
     /// 
@@ -96,7 +94,7 @@ namespace WCMS.SysCore.Interface
     /// <typeparam name="TSet"></typeparam>
     public interface IApiRequest<TSet>
     {
-        public object[] PK { get; set; }
+        public string UID { get; set; }
         public TSet Set { get; set; }
     }
 }

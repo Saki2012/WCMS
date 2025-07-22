@@ -3,7 +3,7 @@ import { IDataProvider } from "../../Interface/IApiProvider"
 import type { ToolbarAction } from "./Toolbar_Data"
 import axios from "axios"
 
-export const useFormToolbarActions = <T>(apiProvider: IDataProvider<T>, initialData: T) => {
+export const useFormToolbarActions = <T>(apiProvider: IDataProvider<T>, initialData: T, internalId:string) => {
     const [formData, setFormData] = useState<T>(initialData)
     const [isSuccess, setResult] = useState<boolean | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -14,7 +14,7 @@ export const useFormToolbarActions = <T>(apiProvider: IDataProvider<T>, initialD
             setIsLoading(true)
             if(!formData.InternalId)
                 await apiProvider.createData(formData);
-                //重新導至Form/uid
+                //重新導至Form/internaId
             else
                 await apiProvider.updateData(formData);
             
@@ -37,7 +37,7 @@ export const useFormToolbarActions = <T>(apiProvider: IDataProvider<T>, initialD
     const handleDelete = async () => { 
         setIsLoading(true);
         try {
-            await apiProvider.deleteData({ uid });
+            await apiProvider.deleteData({ internalId });
             setResult(true);
         } 
         catch (err: any) {
@@ -69,13 +69,13 @@ export const useFormToolbarActions = <T>(apiProvider: IDataProvider<T>, initialD
 
     }
 
-    const toolbarActions: ToolbarAction[] = [
+    const action: ToolbarAction[] = [
         { Id: 'Save', Title: '儲存送出', Type: 'button', OnClick: handleSave },
         { Id: 'Cancel', Title: '取消返回', Type: 'button', OnClick: handleDelete},
         { Id: 'Preview', Title: '預覽畫面', Type: 'button', OnClick: handleReset },
     ]
-
-  return { formData, setFormData, isSuccess, isLoading, errors, toolbarActions }
+    
+  return { formData, setFormData, isSuccess, isLoading, errors, action }
 }
 
 

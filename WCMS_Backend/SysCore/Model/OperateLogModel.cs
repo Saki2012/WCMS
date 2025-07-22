@@ -10,7 +10,7 @@ namespace WCMS.SysCore.Model
     /// <summary>
     /// 操作日誌
     /// </summary>
-    public class OperateLogModel
+    [LibDesc] public class OperateLogModel
     {
         /// <summary>
         /// 序號
@@ -53,8 +53,7 @@ namespace WCMS.SysCore.Model
     /// <summary>
     /// 資料變更日誌
     /// </summary>
-    [LibDesc]
-    public class DataChangeLogSet
+    [LibDesc] public class DataChangeLogSet
     {
         /// <summary>
         /// 變更日誌
@@ -68,8 +67,7 @@ namespace WCMS.SysCore.Model
     /// <summary>
     /// 資料變更日誌
     /// </summary>
-    [LibDesc]
-    public class DataChangeLog
+    [LibDesc] public class DataChangeLog
     {
         /// <summary>
         /// 序號
@@ -95,8 +93,7 @@ namespace WCMS.SysCore.Model
     /// <summary>
     /// 資料變更日誌明細
     /// </summary>
-    [LibDesc]
-    public class DataChangeLogDetail
+    [LibDesc] public class DataChangeLogDetail
     {
         /// <summary>
         /// 變更日誌
@@ -123,6 +120,30 @@ namespace WCMS.SysCore.Model
         /// </summary>
         [LibDesc] public RowState RowState { get; set; }
     }
-
-
+    /// <summary>
+    /// 提示訊息包
+    /// </summary>
+    [LibDesc] public class SysMessageModel
+    {
+        /// <summary>
+        /// 訊息狀態
+        /// </summary>
+        public MessageStatus Status { get; set; }
+        /// <summary>
+        /// 訊息碼
+        /// </summary>
+        public string MessageCode { get; set; }
+        /// <summary>
+        /// 訊息內容(透過resx獲取實際訊息)
+        /// </summary>
+        public string Message { get; set; }
+        /// <summary>
+        /// 堆疊(待考慮作法)
+        /// </summary>
+        public string Stack { get; set; }
+        /// <summary>
+        /// 執行時完整資料來源
+        /// </summary>
+        public object? Data { get; set; }
+    }
 }

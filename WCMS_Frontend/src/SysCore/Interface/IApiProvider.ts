@@ -1,3 +1,5 @@
+import { number } from "zod";
+
 /** 資料注入方式，決定真資料或是假資料
  * 
  * @param real API打的資料
@@ -11,29 +13,23 @@ export const IApiProvider = <T>(real: new () => T,mock: new () => T): T => {
 /** 獲取資料抽象類 */
 export abstract class IDataProvider<T> {
   //#region Public
-  public async createData(param?: any): Promise<T> {
-    const raw = await this.doCreateData(param);
-    return raw;
+  public async createData(set?: T): Promise<ApiResponse<T>> {
+    return await this.doCreateData(set);
   }
-  public async updateData(param?: any):Promise<T>{
-    const raw = await this.doUpdateData(param);
-    return raw;
+  public async updateData(internaId:string, set:T):Promise<ApiResponse<T>>{
+    return await this.doUpdateData(internaId,set);
   }
-  public async deleteData(param?: any):Promise<T>{
-    const raw = await this.doDelete(param);
-    return raw;
+  public async deleteData(internaId:string):Promise<ApiResponse<T>>{
+    return await this.doDelete(internaId);
   }
-  public async invalidData(param?: any):Promise<T>{
-    const raw = await this.doInvalid(param);
-    return raw;
+  public async invalidData(internaId:string,isInvalid:boolean):Promise<ApiResponse<T>>{
+    return await this.doInvalid(internaId,isInvalid);
   }
-  public async fetchData(param?: any): Promise<T>{
-    const raw = await this.doFetchData(param);
-    return raw;
+  public async fetchData(param?: any): Promise<ApiResponse<T>>{
+    return await this.doFetchData(param);
   }
-  public async fetchList(param?: any): Promise<T[]>{
-    const raw = await this.doFetchList();
-    return raw;
+  public async fetchList(condition?: QueryListCondition): Promise<ApiResponse<T>>{
+    return await this.doFetchList(condition);
   }
   public async getModelDisplayName(): Promise<T[]>{
     return await this.doGetModelDisplayName();
@@ -41,12 +37,33 @@ export abstract class IDataProvider<T> {
   //#endregion
 
   //#region Protected
-  protected abstract doCreateData(param?: any): Promise<T>;
-  protected abstract doUpdateData(param?: any): Promise<T>;
-  protected abstract doDelete(param?: any): Promise<T>;
-  protected abstract doInvalid(param?: any): Promise<T>;
-  protected abstract doFetchData(param?: any): Promise<T>;
-  protected abstract doFetchList(param?: any): Promise<T[]>;
+  protected abstract doCreateData(set?: T): Promise<ApiResponse<T>>;
+  protected abstract doUpdateData(internaId:string,set:T): Promise<ApiResponse<T>>;
+  protected abstract doDelete(internaId:string): Promise<ApiResponse<T>>;
+  protected abstract doInvalid(internaId:string,isInvalid:boolean): Promise<ApiResponse<T>>;
+  protected abstract doFetchData(internaId?: string): Promise<ApiResponse<T>>;
+  protected abstract doFetchList(condition?: QueryListCondition): Promise<ApiResponse<T>>;
   protected abstract doGetModelDisplayName(): Promise<T[]>;
   //#endregion
+}
+
+
+/** 後端提供訊息包 */
+export interface SysMessageModel {
+  Status: number;
+  MessageCode: string;
+  Message: string;
+}
+/** API回傳資訊包 */
+export interface ApiResponse<T> {
+  IsSuccess: boolean;
+  SysMessage: SysMessageModel[];
+  Data: T[] | null;
+}
+/** API查詢條件 */
+export interface QueryListCondition {
+  Fields:string[];
+  Condition: string;
+  PageNumber: number;
+  PageSize:number;
 }

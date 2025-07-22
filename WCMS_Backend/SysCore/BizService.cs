@@ -15,6 +15,7 @@ namespace WCMS.SysCore
     public class BizService<TSet> : IBizService<TSet> where TSet : class
     {
         #region Property
+        protected ApiResponse<TSet> Response { get; } = new ApiResponse<TSet>();
         /// <summary>
         /// 
         /// </summary>
@@ -44,6 +45,24 @@ namespace WCMS.SysCore
         /// 
         /// </summary>
         private ApplicationDbContext DataAccess { get; }
+        /// <summary>
+        /// 回應結果
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public class ApiResponse<T> : IApiResponse<T>
+        {
+            public bool IsSuccess { get { foreach (var msg in SysMessage) if (msg.Status == MessageStatus.Error) return false; return true;} }
+            public IList<SysMessageModel> SysMessage { get; set; } = [];
+            public IList<T>? Data { get; set; } = [];
+            public void AddMessage(MessageStatus status, SysMessageCode code)
+            {
+                SysMessage.Add(new SysMessageModel { Status=status, MessageCode=code.ToString()});
+            }
+            public void ThrowIfFailed(string message= "業務邏輯錯誤")
+            {
+                if (!IsSuccess) throw new BusinessException(message);
+            }
+        }
         #endregion
 
         #region Construct
@@ -56,24 +75,24 @@ namespace WCMS.SysCore
         #endregion
 
         #region Public
-        public async Task<TSet> CreateSetAsync(TSet set)
+        public async Task<IApiResponse<TSet>> CreateSetAsync(TSet set)
         {
             try
             {
                 await BeginTransactionAsync();
-
                 GetModelType(set, out BasicDataModel header, out Dictionary<string, IList> details);
                 SetCreateInfo(header);
                 AutoGenerateId(header, details);
-
                 BeforeUpdate(set, FuncAction.Create);
-                //如果有錯，這邊先回滾，減少後續執行的資源浪費
+                Response.ThrowIfFailed();
                 await DoCreateAsync(set);
                 AfterUpdate(default, set, FuncAction.Create, TransStatus.Increase);
-                //如果有錯，這邊回滾，避免資料誤提交
+                Response.ThrowIfFailed();
                 await CommitDataAsync();
                 AfterSaveChanges(FuncAction.Create);
-                return set;
+                Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00002);
+                Response.Data.Add(set);
+                return Response;
             }
             catch
             {
@@ -81,22 +100,26 @@ namespace WCMS.SysCore
                 throw;
             }
         }
-        public async Task<TSet> UpdateSetAsync(object[] key, TSet newSet)
+        public async Task<IApiResponse<TSet>> UpdateSetAsync(string internalId, TSet newSet)
         {
             try
             {
                 await BeginTransactionAsync();
-                //SetModifyInfo(set);
+                GetModelType(newSet, out BasicDataModel header, out Dictionary<string, IList> details);
+                SetModifyInfo(header);
                 BeforeUpdate(newSet, FuncAction.Update);
-                //如果有錯，這邊先回滾，減少後續執行的資源浪費
-                TSet oldSet = await DoQuerySetAsync(key);
+                Response.ThrowIfFailed();
+                TSet oldSet = await DoQuerySetAsync(internalId);
                 TSet oldSet_Cache = oldSet.DeepClone();
                 await DoUpdateAsync(oldSet, newSet);
                 AfterUpdate(oldSet_Cache, oldSet, FuncAction.Update, TransStatus.Difference);//oldSet已經進入DataAccess，修改完會跟著修正至DB
-                //如果有錯，這邊回滾，避免資料誤提交
+                Response.ThrowIfFailed();
                 await CommitDataAsync();
                 AfterSaveChanges(FuncAction.Update);
-                return newSet;
+                Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00006);
+                Response.Data.Add(oldSet);
+                return Response;
+
             }
             catch
             {
@@ -104,22 +127,25 @@ namespace WCMS.SysCore
                 throw;
             }
         }
-        public async Task<bool> DeleteSetAsync(object[] key)
+        public async Task<IApiResponse<TSet>> DeleteSetAsync(string internalId)
         {
             try
             {
                 await BeginTransactionAsync();
-                //SetModifyInfo(set);
-                TSet oldSet = await DoQuerySetAsync(key);
+                CheckIsUsed();
+                TSet oldSet = await DoQuerySetAsync(internalId);
                 TSet oldSet_Cache = oldSet.DeepClone();
                 BeforeUpdate(oldSet, FuncAction.Delete);
-                //如果有錯，這邊先回滾，減少後續執行的資源浪費
+                Response.ThrowIfFailed();
                 await DoDeleteAsync(oldSet);
                 AfterUpdate(oldSet_Cache, oldSet, FuncAction.Delete, TransStatus.Difference);
-                //如果有錯，這邊回滾，避免資料誤提交
+                Response.ThrowIfFailed();
                 await CommitDataAsync();
                 AfterSaveChanges(FuncAction.Update);
-                return true;
+                Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00004);
+                Response.Data.Add(oldSet);
+                return Response;
+
             }
             catch
             {
@@ -127,23 +153,25 @@ namespace WCMS.SysCore
                 throw;
             }
         }
-        public async Task<TSet> InvalidSetAsync(object[] key, bool status)
+        public async Task<IApiResponse<TSet>> InvalidSetAsync(string internalId, bool status)
         {
             try
             {
                 await BeginTransactionAsync();
-                TSet oldSet = await DoQuerySetAsync(key);
+                TSet oldSet = await DoQuerySetAsync(internalId);
                 TSet oldSet_Cache = oldSet.DeepClone();
                 TSet newSet = oldSet.DeepClone();
-                await DoInvalidSetAsync(newSet, status);
+                DoInvalidSet(newSet, status);
                 BeforeUpdate(oldSet, FuncAction.Invalid);
-                //如果有錯，這邊先回滾，減少後續執行的資源浪費
+                Response.ThrowIfFailed();
                 await DoUpdateAsync(oldSet, newSet);
                 AfterUpdate(oldSet_Cache, oldSet, FuncAction.Invalid, TransStatus.Difference);//oldSet已經進入DataAccess，修改完會跟著修正至DB
-                //如果有錯，這邊回滾，避免資料誤提交
+                Response.ThrowIfFailed();
                 await CommitDataAsync();
                 AfterSaveChanges(FuncAction.Update);
-                return oldSet;
+                Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00008);
+                Response.Data.Add(oldSet);
+                return Response;
             }
             catch
             {
@@ -151,17 +179,33 @@ namespace WCMS.SysCore
                 throw;
             }
         }
-        public async Task<TSet> QuerySetAsync(object[] key)
+        public async Task<IApiResponse<TSet>> QuerySetAsync(string internalId)
         {
-            return await DoQuerySetAsync(key);
+            var data = await DoQuerySetAsync(internalId);
+            //Response.AddMessage(MessageStatus.Error, SysMessageCode.BECode00001);
+            Response.ThrowIfFailed();
+            Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00010);
+            Response.Data.Add(data);
+            return Response;
         }
-        public async Task<TSet> QuerySetAsync(string internalId)
+        public async Task<IApiResponse<TSet>> QueryListAsync(string[] selectFields, string condition, int pageNumber, int pageSize)
         {
-            return await DoQuerySetAsync(internalId);
-        }
-        public async Task<IList<TSet>> QueryListAsync(string[] selectFields, string condition, int pageCt, int takeCt)
-        {
-            return await DoQueryListAsync(selectFields, condition, pageCt, takeCt);
+            /* 暫時只提供查表頭 */
+            IList<TSet> result = [];
+            foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
+            {
+                if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && typeof(BasicDataModel).IsAssignableFrom(prop.PropertyType))
+                {
+                    TSet srcData = PropertyAccessorCache.CreateInstance(typeof(TSet)) as TSet;
+                    var data = (await DoQueryListAsync(prop, selectFields, condition, pageNumber, pageSize)).ToDynamicList().FirstOrDefault();
+                    PropertyAccessorCache.Set(srcData, prop.Name, data);
+                    result.Add(srcData);
+                }
+            }
+            Response.ThrowIfFailed();
+            Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00010);
+            Response.Data = result;
+            return Response;
         }
         /// <summary>
         /// 啟用交易控制(非同步)
@@ -237,33 +281,8 @@ namespace WCMS.SysCore
             {
                 var oldModel = PropertyAccessorCache.Get(oldSet, prop.Name);
                 if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
-                    await ((dynamic)RepoDict[prop.Name]).DeleteAsync((dynamic)oldModel); //若做好主子表刪除，應該是不用在往下做了
+                    await ((dynamic)RepoDict[prop.Name]).DeleteAsync((dynamic)oldModel);
             }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        protected async Task<TSet> DoQuerySetAsync(object[] key)
-        {
-            TSet result = PropertyAccessorCache.CreateInstance(typeof(TSet)) as TSet;
-            foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
-            {
-                dynamic model;
-                if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
-                { 
-                    model = await ((dynamic)RepoDict[prop.Name]).QueryDataAsync(key);
-                //else
-                //    model = await ((dynamic)RepoDict[prop.Name]).QueryDataDetailAsync(key);
-                PropertyAccessorCache.Set(result, prop.Name, model);
-                }
-                else
-                {
-                    PropertyAccessorCache.Set(result, prop.Name, PropertyAccessorCache.CreateInstance(prop.PropertyType));
-                }
-            }
-            return result;
         }
         /// <summary>
         /// 
@@ -272,28 +291,23 @@ namespace WCMS.SysCore
         /// <returns></returns>
         protected async Task<TSet> DoQuerySetAsync(string internalId)
         {
+            string condition = await GetPKConditionByInternalId(internalId);
+            if (condition == null) return default;
             TSet result = PropertyAccessorCache.CreateInstance(typeof(TSet)) as TSet;
-
-            //var header;
-            //foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
-            //{
-            //    if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
-            //    {
-            //        header = await ((dynamic)RepoDict[prop.Name]).QueryDataAsync(internalId);
-            //    }
-            //}
-
-
-
-            //foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
-            //{
-            //    dynamic model;
-            //    if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
-            //        model = await ((dynamic)RepoDict[prop.Name]).QueryDataAsync(key);
-            //    else
-            //        model = await ((dynamic)RepoDict[prop.Name]).QueryDataDetailAsync(key);
-            //    PropertyAccessorCache.Set(result, prop.Name, model);
-            //}
+            foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
+            {
+                if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && typeof(BasicDataModel).IsAssignableFrom(prop.PropertyType))
+                {
+                    var data = (await DoQueryListAsync(prop, [], condition, 0, 0)).ToDynamicList().FirstOrDefault();
+                    PropertyAccessorCache.Set(result, prop.Name, data);
+                }
+                else if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
+                {
+                    var detailType = prop.PropertyType.GetGenericArguments().First();
+                    var data = (await DoQueryListAsync(detailType, [], condition, 0, 0));
+                    PropertyAccessorCache.Set(result, prop.Name, data);
+                }
+            }
             return result;
         }
         /// <summary>
@@ -301,35 +315,23 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        protected async Task<IList<TSet>> DoQueryListAsync(string[] selectFields, string condition, int pageCt, int takeCt)
+        protected async Task<IList> DoQueryListAsync(PropertyInfo prop, string[] selectFields, string condition, int pageCt, int takeCt)
         {
-            List<TSet> r = new List<TSet>();
-            
-            //未來可以做連同detail查詢的grid 待處理
-            foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
-            {
-                if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
-                {
-                    var selectExpr = GetSelectFieldsExpr(prop.PropertyType, selectFields);
-                    var whereExpr = GetConditionExpr(prop.PropertyType,condition);
-                    var datas = await ((dynamic)RepoDict[prop.Name]).QueryListAsync(selectExpr, whereExpr, pageCt, takeCt);
-
-                    foreach (var d in datas)
-                    {
-                        TSet result = PropertyAccessorCache.CreateInstance<TSet>();
-                        r.Add(result);
-                        PropertyAccessorCache.Set(result, prop.Name, d);
-                    }
-                }
-            }
-            return r;
+            return await DoQueryListAsync(prop.PropertyType, selectFields, condition, pageCt, takeCt);
+        }
+        protected async Task<IList> DoQueryListAsync(Type type, string[] selectFields, string condition, int pageCt, int takeCt)
+        {
+            var selectExpr = GetSelectFieldsExpr(type, selectFields);
+            var whereExpr = GetConditionExpr(type, condition);
+            var data = await ((dynamic)RepoDict[type.Name]).QueryListAsync(selectExpr, whereExpr, pageCt, takeCt);
+            return data;
         }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        protected async Task DoInvalidSetAsync(TSet set, bool isInvalid)
+        protected void DoInvalidSet(TSet set, bool isInvalid)
         {
             foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
             {
@@ -457,7 +459,7 @@ namespace WCMS.SysCore
             if (!validProps.Any())
             {
                 // Identity 版本
-                return Expression.Lambda(param, param);
+                return null;
             }
             var bindings = validProps.Select(p => Expression.Bind(p, Expression.Property(param, p.Name)));
             var body = Expression.MemberInit(Expression.New(modelType), bindings);
@@ -496,7 +498,7 @@ namespace WCMS.SysCore
         private void GetModelType(TSet set,out BasicDataModel header,out Dictionary<string, IList> details)
         {
             header = null;
-            details = new Dictionary<string, IList>();
+            details = [];
             foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
             {
                 if (typeof(BasicDataModel).IsAssignableFrom(prop.PropertyType))
@@ -508,6 +510,36 @@ namespace WCMS.SysCore
                     details.Add(prop.Name, PropertyAccessorCache.Get(set, prop.Name) as IList);
                 }
             }
+        }
+        /// <summary>
+        /// 檢查資料是否被用
+        /// </summary>
+        private void CheckIsUsed()
+        {
+
+        }
+        /// <summary>
+        /// 根據內部唯一標示號找到主鍵條件
+        /// </summary>
+        /// <param name="internalId"></param>
+        /// <returns></returns>
+        private async Task<string> GetPKConditionByInternalId(string internalId)
+        {
+            foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
+            {
+                if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && typeof(BasicDataModel).IsAssignableFrom(prop.PropertyType))
+                {
+                    string resultCondition = string.Empty;
+                    var pkProps = PropertyAccessorCache.GetProperties(prop.PropertyType).Where(p => p.IsDefined(typeof(KeyAttribute), inherit: true)).ToArray();
+                    var condition = $"InternalId = \"{internalId}\"";
+                    var fieldNames = pkProps.Select(p => p.Name).ToArray();
+                    var headerData = (await DoQueryListAsync(prop, fieldNames, condition, 0, 0)).ToDynamicList().FirstOrDefault();
+                    foreach (var pk in pkProps)
+                        resultCondition = LibData.Merge(" And ", false, resultCondition, $"{pk.Name} = \"{PropertyAccessorCache.Get(headerData, pk.Name)}\"");
+                    return resultCondition;
+                }
+            }
+            return string.Empty;
         }
         private static LambdaExpression BuildIdSelectorLambda(Type modelType, PropertyInfo prop)
         {

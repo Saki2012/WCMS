@@ -88,14 +88,14 @@ namespace WCMS.SysCore
         /// 查看表單清單(非同步)
         /// </summary>
         /// <returns></returns>
-        public async Task<IList<TModel>> QueryListAsync(LambdaExpression selectExpr, LambdaExpression whereExpr, int pageCt = 1, int takeCt = 10)
+        public async Task<IList<TModel>> QueryListAsync(LambdaExpression selectExpr, LambdaExpression whereExpr, int pageCt = 0, int takeCt = 0)
         {
             IQueryable<TModel> query = DataAccess.Set<TModel>();
-            if (selectExpr.IsNullOrEmpty()) return null;
-            if (!whereExpr.IsNullOrEmpty()) query = query.Where(whereExpr);
+            if (whereExpr.IsNullOrEmpty()) return default;
+            query = query.Where(whereExpr);
             if (takeCt > 0 && pageCt>0) query= query.Skip((pageCt - 1) * takeCt).Take(takeCt);
-            //if (selectExpr is Expression <Func<TModel, object>> expr)
-            return await query.Select((Expression<Func<TModel, object>>)selectExpr).Cast<TModel>().ToListAsync();
+            if(selectExpr==null) return await query.Cast<TModel>().ToListAsync();
+            else return await query.Select((Expression<Func<TModel, object>>)selectExpr).Cast<TModel>().ToListAsync();
         }
         /// <summary>
         /// 自動產生流水號ID

@@ -194,8 +194,28 @@ namespace WCMS.SysCore.Enum
             public const string jaJP = "ja-JP"; // 日文（日本）
             public const string koKR = "ko-KR"; // 韓文（韓國）
         }
-
-
+        /// <summary>
+        /// 訊息狀態
+        /// </summary>
+        public enum MessageStatus : byte
+        {
+            /// <summary>
+            /// 執行成功
+            /// </summary>
+            Green,
+            /// <summary>
+            /// 訊息
+            /// </summary>
+            Info,
+            /// <summary>
+            /// 警告
+            /// </summary>
+            Warning,
+            /// <summary>
+            /// 錯誤
+            /// </summary>
+            Error,
+        }
 
 
     }
