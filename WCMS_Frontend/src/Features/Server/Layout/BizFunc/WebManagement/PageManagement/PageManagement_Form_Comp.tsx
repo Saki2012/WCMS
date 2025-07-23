@@ -8,7 +8,6 @@ import { useFormToolbarActions } from "../../../../../../SysCore/Components/Tool
 import { useParams } from "react-router";
 import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
 import { useGetPageFormData } from "./PageManagement_Hook";
-import { emptyData } from "./PageManagement_Data";
 import type { components } from "../../../../../../types/api";
 type PageManagementSet = components["schemas"]["PageManagementSet"]
 
@@ -17,12 +16,16 @@ type PageManagementSet = components["schemas"]["PageManagementSet"]
  */
 export const PageFormComp = ({theme}:{theme:IBETheme}) => {
     const { internalId } = useParams()
-    const { result:categories, loading:categoryLoading, error:categoryErr} = useGetCategoryListByProgId("PageManagement","zh-TW")
 
-    const formD = useGetPageFormData(internalId as string);
-    const toolBar = useFormToolbarActions(PageManagementProvider(), formD.data as PageManagementSet)
+    const useCategory = useGetCategoryListByProgId("PageManagement","zh-TW")
+    const usePageFormData = useGetPageFormData(internalId as string);
+    const useToolbar = useFormToolbarActions(PageManagementProvider(), usePageFormData.data as PageManagementSet,internalId as string)
 
-    const prop:FormCompProp={ Title:"新增頁面", Theme:theme, LoadingList:[categoryLoading], ErrorList:[categoryErr], Toolbar:toolBar.action }
+
+    const isLoading=[useCategory.isLoading]
+    const errors=[useCategory.error]
+
+    const prop:FormCompProp={ Title:"新增頁面", Theme:theme, LoadingList:isLoading, ErrorList:errors, Toolbar:useToolbar.action }
     const LibTabsPropA:LibTabsProp={
         Style:theme.Tabs,
         item:{
@@ -40,8 +43,8 @@ export const PageFormComp = ({theme}:{theme:IBETheme}) => {
         Style:theme.TextBox,
         ColumnDisplayName:"中文標題",
         DefaultInputDisplay:"請輸入",
-        InputValue:toolBar.formData?.PageManagementDetail?.[0]?.Title,
-        OnChange:(val) => toolBar.setFormData({ ...toolBar.formData, PageManagementDetail: toolBar.formData.PageManagementDetail?.map((item, idx) => idx === 0 ? { ...item, Title: val } : item) ?? []}),
+        InputValue:useToolbar.formData?.PageManagementDetail?.[0]?.Title,
+        OnChange:(val) => useToolbar.setFormData({ ...useToolbar.formData, PageManagementDetail: useToolbar.formData.PageManagementDetail?.map((item, idx) => idx === 0 ? { ...item, Title: val } : item) ?? []}),
     }
     const libTinyMCEProp:LibTinyMCEProp={
         Style:theme.TinyMCE,
@@ -61,7 +64,7 @@ export const PageFormComp = ({theme}:{theme:IBETheme}) => {
                                         <div className="row mx-0">
                                             <div className="col form-group">
                                                 <div className="row mx-0">
-                                                    <LibDropList style={theme.DropList} colDisplayName="類別選擇" options={categories} ></LibDropList>
+                                                    <LibDropList style={theme.DropList} colDisplayName="類別選擇" options={useCategory.data} ></LibDropList>
                                                 </div>
                                             </div>
                                         </div>

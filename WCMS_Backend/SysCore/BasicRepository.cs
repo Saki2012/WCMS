@@ -1,26 +1,27 @@
-﻿using WCMS.SysCore.Model;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Reflection;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Collections;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using WCMS.SysCore.Library;
-using Microsoft.EntityFrameworkCore;
-using static WCMS.SysCore.Enum.SysEnum;
-using System.Threading.Tasks;
-using static GraphQL.Validation.Rules.OverlappingFieldsCanBeMerged;
-using System.Collections.Generic;
-using WCMS.SysCore.Enum;
-using EFCore.BulkExtensions;
-using WCMS.SysCore.Interface;
-using System.Linq.Dynamic.Core;
-using Microsoft.VisualBasic;
-using System.Linq.Expressions;
-using System.Buffers.Text;
+﻿using EFCore.BulkExtensions;
 using GraphQL;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.VisualBasic;
+using System.Buffers.Text;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Reflection.Metadata;
+using System.Security.AccessControl;
+using System.Threading.Tasks;
+using WCMS.SysCore.Enum;
+using WCMS.SysCore.Interface;
+using WCMS.SysCore.Library;
+using WCMS.SysCore.Model;
+using static GraphQL.Validation.Rules.OverlappingFieldsCanBeMerged;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore
 {
@@ -91,12 +92,22 @@ namespace WCMS.SysCore
         public async Task<IList<TModel>> QueryListAsync(LambdaExpression selectExpr, LambdaExpression whereExpr, int pageCt = 0, int takeCt = 0)
         {
             IQueryable<TModel> query = DataAccess.Set<TModel>();
-            if (whereExpr.IsNullOrEmpty()) return default;
-            query = query.Where(whereExpr);
-            if (takeCt > 0 && pageCt>0) query= query.Skip((pageCt - 1) * takeCt).Take(takeCt);
-            if(selectExpr==null) return await query.Cast<TModel>().ToListAsync();
-            else return await query.Select((Expression<Func<TModel, object>>)selectExpr).Cast<TModel>().ToListAsync();
+            // ✅ Where 條件
+            if (!whereExpr.IsNullOrEmpty()) query = query.Where((Expression<Func<TModel, bool>>)whereExpr);
+            // ✅ 分頁
+            if (takeCt > 0 && pageCt > 0) query = query.Skip((pageCt - 1) * takeCt).Take(takeCt);
+            // ✅ 解析 navigation 路徑
+            var includes = new HashSet<string>();
+            if (selectExpr != null) includes.UnionWith(ExpressionIncludeHelper.ExtractIncludePaths(selectExpr));
+            // ✅ 執行 Include
+            foreach (var path in includes) query = query.Include(path);  // 支援多層如 A.B.C
+            // ✅ Select
+            var result = selectExpr == null? await query.Cast<TModel>().ToListAsync() : await query.Select((Expression<Func<TModel, TModel>>)selectExpr).Cast<TModel>().ToListAsync();
+            return result;
         }
+
+
+
         /// <summary>
         /// 自動產生流水號ID
         /// </summary>
@@ -105,20 +116,29 @@ namespace WCMS.SysCore
         /// <param name="prefix"></param>
         /// <param name="format"></param>
         /// <returns></returns>
-        public async Task<string> GenerateIdAsync(DbSet<TModel> dbSet, Expression<Func<TModel, string>> idSelector, string prefix = "", string format = "D3")
+        public async Task<string> GenerateIdAsync(LambdaExpression idSelector, string prefix = "", string format = "D3")
         {
-             string id = prefix + DateTime.Now.ToString("yyyyMMdd");
-            var compiledSelector = idSelector.Compile();
-            // 查出當天已存在的最大流水號
-            var maxIdToday = await dbSet.AsNoTracking().Where(e => compiledSelector(e).StartsWith(id)).OrderByDescending(e => compiledSelector(e)).Select(e => compiledSelector(e)).FirstOrDefaultAsync();
+            Expression<Func<TModel, string>> selector = idSelector as Expression<Func<TModel, string>>;
+            string id = prefix + DateTime.Now.ToString("yyyyMMdd");
+            var dbSet = DataAccess.Set<TModel>();
+            var startsWithExpr = BuildStartsWithExpression(selector, id);
+
+            //var addedEntities = DataAccess.ChangeTracker.Entries<TModel>().Where(e => e.State == EntityState.Added).Select(e => e.Entity).Cast<TModel>();
+            //var existedEntities = await dbSet.AsNoTracking().Where(startsWithExpr).Select(selector).ToListAsync();
+            //var localEntities = addedEntities.AsQueryable().Where(startsWithExpr.Compile()).Select(selector.Compile());
+            //var allIds = existedEntities.Concat(localEntities).ToList();
+
+            var addedEntities = DataAccess.ChangeTracker.Entries<TModel>().Where(e => e.State == EntityState.Added).Select(e => e.Entity).Cast<TModel>().ToList();
+            var existedEntities = await dbSet.AsNoTracking().Where(startsWithExpr).Select(selector).ToListAsync();
+            var localEntities = addedEntities.AsQueryable().Where(startsWithExpr.Compile()).Select(selector.Compile());
+            var allIds = existedEntities.Concat(localEntities).ToList();
+
+            var maxIdToday = allIds.OrderByDescending(x => x).FirstOrDefault();
             int nextSerial = 1;
-            if (!string.IsNullOrEmpty(maxIdToday) && maxIdToday.Length >= prefix.Length + 3)
+            if (!string.IsNullOrEmpty(maxIdToday) && maxIdToday.Length >= id.Length + 3)
             {
-                string serialStr = maxIdToday.Substring(prefix.Length, 3);
-                if (int.TryParse(serialStr, out int currentSerial))
-                {
-                    nextSerial = currentSerial + 1;
-                }
+                var serialStr = maxIdToday.Substring(id.Length, 3);
+                if (int.TryParse(serialStr, out var currentSerial)) nextSerial = currentSerial + 1;
             }
             return id + nextSerial.ToString(format);
         }
@@ -126,6 +146,111 @@ namespace WCMS.SysCore
 
         #region Private
 
+        private static Expression<Func<TModel, bool>> BuildStartsWithExpression(Expression<Func<TModel, string>> selector,string prefix)
+        {
+            var param = selector.Parameters[0];
+            var body = Expression.Call(selector.Body, typeof(string).GetMethod(nameof(string.StartsWith), new[] { typeof(string) })!, Expression.Constant(prefix) );
+            return Expression.Lambda<Func<TModel, bool>>(body, param);
+        }
+
+        private static class ExpressionIncludeHelper
+        {
+            public static IEnumerable<string> ExtractIncludePaths(LambdaExpression expression)
+            {
+                var visitor = new NavigationPathVisitor();
+                visitor.Visit(expression);
+                return visitor.Paths;
+            }
+
+            private class NavigationPathVisitor : ExpressionVisitor
+            {
+                private readonly Stack<string> _path = new();
+                private readonly HashSet<string> _paths = new();
+
+                public IEnumerable<string> Paths => _paths;
+
+                protected override Expression VisitMember(MemberExpression node)
+                {
+                    if (node.Expression is MemberExpression || node.Expression is ParameterExpression)
+                    {
+                        var path = BuildPath(node);
+                        if (path.Contains(".")) _paths.Add(path); // 主表欄位不加入
+                    }
+
+                    return base.VisitMember(node);
+                }
+
+                protected override Expression VisitUnary(UnaryExpression node)
+                {
+                    if (node.NodeType == ExpressionType.Convert)
+                    {
+                        Visit(node.Operand);  // 解開 Convert
+                    }
+                    return node;
+                }
+
+                protected override Expression VisitMemberInit(MemberInitExpression node)
+                {
+                    foreach (var binding in node.Bindings)
+                    {
+                        if (binding is MemberAssignment assignment)
+                        {
+                            Visit(assignment.Expression);
+                        }
+                    }
+                    return base.VisitMemberInit(node);
+                }
+
+                protected override Expression VisitLambda<T>(Expression<T> node)
+                {
+                    return Visit(node.Body);  // 一定要訪問 body，不然整棵都不會進來
+                }
+
+                private string BuildPath(MemberExpression node)
+                {
+                    var names = new Stack<string>();
+                    Expression current = node;
+                    while (current is MemberExpression m)
+                    {
+                        names.Push(m.Member.Name);
+                        current = m.Expression;
+                    }
+                    return string.Join(".", names);
+                }
+
+                protected override Expression VisitMethodCall(MethodCallExpression node)
+                {
+                    // 先訪問子節點
+                    if (node.Arguments != null)
+                    {
+                        foreach (var arg in node.Arguments)
+                            Visit(arg);
+                    }
+                    if (node.Object != null)
+                        Visit(node.Object);
+
+                    // ✅ 額外補：如果 method chain 是 CategoryDetail.AsQueryable().Select(...)
+                    if (node.Method.Name == "Select" && node.Arguments.Count == 2)
+                    {
+                        // 目標物件為 AsQueryable(CategoryDetail)
+                        var source = node.Arguments[0];
+                        if (source is MethodCallExpression asQueryableCall &&
+                            asQueryableCall.Method.Name == "AsQueryable" &&
+                            asQueryableCall.Arguments.Count == 1 &&
+                            asQueryableCall.Arguments[0] is MemberExpression navExpr)
+                        {
+                            var path = BuildPath(navExpr);
+                            if (!string.IsNullOrWhiteSpace(path))
+                            {
+                                _paths.Add(path); // ✅ 加入 navigation include path
+                            }
+                        }
+                    }
+
+                    return base.VisitMethodCall(node);
+                }
+            }
+        }
         #endregion
 
         #region IDisposable Support

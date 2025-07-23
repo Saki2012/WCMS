@@ -57,7 +57,7 @@ export const useFormToolbarActions = <T>(apiProvider: IDataProvider<T>, initialD
 
         try{
             setIsLoading(true)
-            await apiProvider.invalidData( formData.id )
+            await apiProvider.invalidData( formData )
             setIsLoading(false)
         }
         catch(err: any) {

@@ -13,12 +13,14 @@ import * as React from "react";
  * @returns 
  */
 export const PageListComp = ({title,theme}:{title:string;theme:IBETheme}) => {
-
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form/`);
-    const { gridProps, isLoading } = useFetchPageListData();
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, gridProps);}, [gridProps]);
-    // <List_Toolbar title="新增頁面" url="/Server/WebManagement/PageManage/Form"></List_Toolbar> 給Toolbar就完成
-    const prop:ListCompProp={ Title:title, Theme:theme, LoadingList:[], ErrorList:[], Toolbar:[],GridData:adjustedGrid }
+    const usePageList = useFetchPageListData();
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps);}, [usePageList.gridProps]);
+
+    const isLoading=[usePageList.isLoading];
+    const errors=[usePageList.error];
+
+    const prop:ListCompProp={ Title:title, Theme:theme, LoadingList:isLoading, ErrorList:errors, Toolbar:[],GridData:adjustedGrid }
 
 
     return (
@@ -58,7 +60,6 @@ const SetAdjustFunction=(dirUrl:string, gridProps: GridProps): GridProps => {
     });
     return { ...gridProps, columns: newColumns, rows: newRows };
 }
-
 /** 目前說只有公告/檔案室/網路資源/相簿會用到 */
 const GetDataStatusContent = (datastatus: number): React.ReactNode => {
   switch (datastatus) {

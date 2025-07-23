@@ -13,6 +13,8 @@ namespace WCMS.SysCore.Library
         private static readonly ConcurrentDictionary<Type, Dictionary<string, Func<object, object>>> _getterCache = new();
         private static readonly ConcurrentDictionary<Type, Dictionary<string, Action<object, object>>> _setterCache = new();
         private static readonly ConcurrentDictionary<Type, PropertyInfo[]> _propertyCache = new();
+        private static readonly ConcurrentDictionary<Type, Dictionary<string, PropertyInfo>> _propertyDictCache = new();
+
 
         public static object CreateInstance(Type type)
         {
@@ -41,6 +43,13 @@ namespace WCMS.SysCore.Library
             var type = target.GetType();
             var getters = _getterCache.GetOrAdd(type, BuildGetterMap);
             return getters.TryGetValue(propertyName, out var getter) ? getter(target) : throw new KeyNotFoundException($"Property {propertyName} not found.");
+        }
+
+
+        public static PropertyInfo? GetProperty(Type type, string name)
+        {
+            var dict = _propertyDictCache.GetOrAdd(type, t => t.GetProperties(BindingFlags.Public | BindingFlags.Instance).ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase));
+            return dict.TryGetValue(name, out var prop) ? prop : null;
         }
 
         public static PropertyInfo[] GetProperties(Type type)

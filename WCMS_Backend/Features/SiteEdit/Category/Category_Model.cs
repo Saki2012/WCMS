@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 
@@ -6,8 +7,8 @@ namespace WCMS.Features.SiteEdit.Category
 {
     public class CategoryDataSet
     {
-        public required Category Category { get; set; }
-        public required List<CategoryDetail> CategoryDetail { get; set; }
+        public Category Category { get; set; }
+        public List<CategoryDetail> CategoryDetail { get; set; }
     }
 
     public class Category : MasterDataModel
@@ -15,20 +16,18 @@ namespace WCMS.Features.SiteEdit.Category
         /// <summary>
         /// 類別ID
         /// </summary>
-        [LibDesc, Required, Key] public string CategoryId { get; set; }
+        [LibDesc, Key] public string CategoryId { get; set; }
         /// <summary>
         /// 對應功能模塊ID
         /// </summary>
         [LibDesc] public string ProgId { get; set; }
-
-        public virtual ICollection<CategoryDetail> CategoryDetail { get; set; }
     }
     public class CategoryDetail : DetailRowModel
     {
         /// <summary>
         /// 靜態客製頁面ID
         /// </summary>
-        [LibDesc, Required, Key] public string CategoryId { get; set; }
+        [LibDesc, Key] public string CategoryId { get; set; }
         /// <summary>
         /// 行主鍵
         /// </summary>

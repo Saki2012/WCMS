@@ -48,7 +48,8 @@ namespace WCMS.SysCore.Interface
         /// 自動產生流水號ID
         /// </summary>
         /// <returns></returns>
-        public Task<string> GenerateIdAsync(DbSet<TModel> dbSet, Expression<Func<TModel, string>> idSelector, string prefix, string format);
+        public Task<string> GenerateIdAsync(LambdaExpression idSelector, string prefix, string format);
+
         #endregion
     }
 

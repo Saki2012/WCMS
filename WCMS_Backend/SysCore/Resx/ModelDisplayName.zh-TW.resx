@@ -138,6 +138,9 @@
   <data name="DataStatus" xml:space="preserve">
     <value>資料狀態</value>
   </data>
+  <data name="IsIniData" xml:space="preserve">
+    <value>是否為初始化資料</value>
+  </data>
   <data name="Lang" xml:space="preserve">
     <value>語系</value>
   </data>

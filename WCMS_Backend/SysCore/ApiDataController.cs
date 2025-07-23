@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using WCMS.SysCore.Enum;
@@ -42,6 +43,30 @@ namespace WCMS.SysCore
         {
             return Ok(await _service.CreateSetAsync(set));
         }
+        [HttpPost(nameof(InitialCreateData))]
+        public async Task<IActionResult> InitialCreateData(TSet[] sets)
+        {
+            await _service.BeginTransactionAsync();
+            try
+            {
+                int i = 1;
+                foreach (var set in sets) 
+                {
+                    Debug.WriteLine($"執行第{i}筆資料");
+                    await _service.CreateSetAsync(set);
+                    Debug.WriteLine($"第{i}筆資料保存成功");
+                    i++;
+                }
+                await _service.CommitDataAsync();
+                return Ok();
+            }
+            catch(Exception ex)
+            {
+                await _service.RollbackTransactionAsync();
+                return BadRequest($"初始化失敗：{ex.Message}");
+            }
+        }
+
         /// <summary>
         /// 修改
         /// </summary>

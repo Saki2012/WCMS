@@ -43,17 +43,4 @@ namespace WCMS.SysCore.Library
             }
         }
     }
-
-
-
-    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    public sealed class LibProgIdAttribute(string progId = "") : Attribute
-    {
-        private readonly string _progId = progId;
-
-        public string Value { get; }
-    }
-
-
-
 }

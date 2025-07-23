@@ -70,6 +70,10 @@ namespace WCMS.SysCore.Model
         /// 主子站層級ID
         /// </summary>
         [LibDesc] public string OrgLvId { get; set; } = string.Empty;
+        /// <summary>
+        /// // 是否為初始化資料
+        /// </summary>
+        [LibDesc] public bool IsIniData { get; set; } = false; 
     }
     /// <summary>
     /// 主要資料

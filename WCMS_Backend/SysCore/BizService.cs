@@ -1,9 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
@@ -24,10 +29,16 @@ namespace WCMS.SysCore
         /// 
         /// </summary>
         protected Dictionary<string, object> RepoDict { get; } = [];
+
+        private string _ProgId = null;
+
         /// <summary>
         /// 功能Id
         /// </summary>
-        public string ProgId { get; }
+        public string ProgId { get {
+                if (_ProgId == null) _ProgId = GetType().GetCustomAttribute<ProgIdAttribute>(inherit: true)?.Value;
+                return _ProgId;
+            } }
         /// <summary>
         /// 流水編號前綴碼
         /// </summary>
@@ -79,16 +90,17 @@ namespace WCMS.SysCore
         {
             try
             {
-                await BeginTransactionAsync();
+                //await BeginTransactionAsync();
                 GetModelType(set, out BasicDataModel header, out Dictionary<string, IList> details);
                 SetCreateInfo(header);
-                AutoGenerateId(header, details);
+                await AutoGenerateId(header, details);
                 BeforeUpdate(set, FuncAction.Create);
                 Response.ThrowIfFailed();
                 await DoCreateAsync(set);
                 AfterUpdate(default, set, FuncAction.Create, TransStatus.Increase);
                 Response.ThrowIfFailed();
-                await CommitDataAsync();
+                //await CommitDataAsync();
+                await DataAccess.SaveChangesAsync();      //先寫看看
                 AfterSaveChanges(FuncAction.Create);
                 Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00002);
                 Response.Data.Add(set);
@@ -96,7 +108,7 @@ namespace WCMS.SysCore
             }
             catch
             {
-                await RollbackTransactionAsync();
+                //await RollbackTransactionAsync();
                 throw;
             }
         }
@@ -385,14 +397,13 @@ namespace WCMS.SysCore
         /// 自動產生流水號ID
         /// 若Id已有值，就不做自動產生
         /// </summary>
-        private void AutoGenerateId(BasicDataModel header,Dictionary<string, IList> details)
+        private async Task AutoGenerateId(BasicDataModel header,Dictionary<string, IList> details)
         {
             var keyProp = PropertyAccessorCache.GetProperties(header.GetType()).Where(p => p.IsDefined(typeof(KeyAttribute), inherit: true)).LastOrDefault();
             if (keyProp == null) return;
             var idSelector = BuildIdSelectorLambda(header.GetType(),keyProp);
             string id = PropertyAccessorCache.Get(header, keyProp.Name).ToString();
-            id = id != string.Empty ? id : ((dynamic)RepoDict[header.GetType().Name]).GenerateIdAsync(header, idSelector, PrefixId);
-
+            id = !string.IsNullOrEmpty(id) ? id : await ((Task<string>)((dynamic)RepoDict[header.GetType().Name]).GenerateIdAsync(idSelector, PrefixId));
             PropertyAccessorCache.Set(header, keyProp.Name, id);
             foreach(var detail in details)
             {
@@ -455,19 +466,50 @@ namespace WCMS.SysCore
         /// <returns></returns>
         private LambdaExpression GetSelectFieldsExpr(Type modelType, string[] selectFields)
         {
+            if (selectFields == null || selectFields.Length == 0) return null;
             var param = Expression.Parameter(modelType, "x");
-            // 過濾出 TModel 中的有效欄位
-            var validProps = PropertyAccessorCache.GetProperties(modelType).Where(p => selectFields.Contains(p.Name, StringComparer.OrdinalIgnoreCase)).ToList();
-            // 若欄位為空，可選擇回傳 Identity (x => x) 或拋出例外
-            if (!validProps.Any())
+            var groupMap = selectFields.Select(field => field.Split('.')).GroupBy(parts => parts[0]);
+            var bindings = new List<MemberBinding>();
+            foreach (var group in groupMap)
             {
-                // Identity 版本
-                return null;
+                var propName = group.Key;
+                var propInfo = PropertyAccessorCache.GetProperty(modelType, propName);
+                if (propInfo == null) continue;
+                // 單層屬性
+                if (group.All(parts => parts.Length == 1)) bindings.Add(Expression.Bind(propInfo, Expression.Property(param, propName)));
+                // 多層屬性 (巢狀物件或集合)
+                else
+                {
+                    var childFields = group.Where(p => p.Length > 1).Select(p => string.Join('.', p.Skip(1))).ToArray();
+                    var childType = propInfo.PropertyType;
+                    var isEnumerable = typeof(IEnumerable).IsAssignableFrom(childType) && childType != typeof(string);
+                    var itemType = isEnumerable ? childType.GenericTypeArguments.FirstOrDefault() ?? childType.GetElementType() : childType;
+                    var innerSelector = GetSelectFieldsExpr(itemType, childFields);
+                    if (innerSelector == null) continue;
+                    if (isEnumerable)
+                    {
+                        // x.ChildCollection.Select(...)
+                        var selectMethod = typeof(Queryable).GetMethods().First(m => m.Name == "Select" && m.GetParameters().Length == 2 && m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Expression<>)).MakeGenericMethod(itemType, ((LambdaExpression)innerSelector).ReturnType);
+                        var toListMethod = typeof(Enumerable).GetMethods().First(m => m.Name == "ToList" && m.GetParameters().Length == 1).MakeGenericMethod(((LambdaExpression)innerSelector).ReturnType);
+                        var collectionExpr = Expression.Property(param, propName);
+                        var asQueryableMethod = typeof(Queryable).GetMethods().First(m => m.Name == "AsQueryable" && m.IsGenericMethodDefinition).MakeGenericMethod(itemType);
+                        var queryableExpr = Expression.Call(asQueryableMethod, collectionExpr);
+                        var selectCall = Expression.Call(selectMethod, queryableExpr, innerSelector);
+                        var toListCall = Expression.Call(toListMethod, selectCall);
+                        bindings.Add(Expression.Bind(propInfo, toListCall));
+                    }
+                    else
+                    {
+                        var nestedExpr = Expression.Property(param, propName);
+                        var innerInit = Expression.Invoke(innerSelector, nestedExpr);
+                        bindings.Add(Expression.Bind(propInfo, innerInit));
+                    }
+                }
             }
-            var bindings = validProps.Select(p => Expression.Bind(p, Expression.Property(param, p.Name)));
+
             var body = Expression.MemberInit(Expression.New(modelType), bindings);
-            var convertedBody = Expression.Convert(body, typeof(object));
-            return Expression.Lambda(convertedBody, param);
+            var delegateType = typeof(Func<,>).MakeGenericType(modelType, modelType);
+            return Expression.Lambda(delegateType, body, param);
         }
         /// <summary>
         /// 獲取要搜尋的條件表達式
@@ -477,22 +519,88 @@ namespace WCMS.SysCore
         /// <returns></returns>
         private LambdaExpression GetConditionExpr(Type modelType, string condition)
         {
-            if (string.IsNullOrWhiteSpace(condition))
-            {
-                // x => true
-                var param = Expression.Parameter(modelType, "x");
-                return Expression.Lambda(Expression.Constant(true), param);
-            }
-            // 產生 Expression<Func<T, bool>>
-            var parsingConfig = new ParsingConfig { /* 可加嚴格型別檢查等 */ };
-            var lambda = DynamicExpressionParser.ParseLambda(
-                parsingConfig,
-                [Expression.Parameter(modelType, "x")],
-                typeof(bool),
-                condition
-            );
+            var param = Expression.Parameter(modelType, "x");
+            string normalized = NormalizeCondition(modelType, condition);
+            if (string.IsNullOrWhiteSpace(normalized)) return Expression.Lambda(Expression.Constant(true), param);
+            var config = new ParsingConfig{ ResolveTypesBySimpleName = true, AllowNewToEvaluateAnyType = true, UseParameterizedNamesInDynamicQuery = true };
+            var lambda = DynamicExpressionParser.ParseLambda(config, [param], typeof(bool), normalized);
             return lambda;
         }
+
+        private string NormalizeCondition(Type modelType, string rawCondition)
+        {
+            // 預處理：補齊空白讓正則能順利解析運算子
+            rawCondition = Regex.Replace(rawCondition, @"(?<=[^\s<>!=])=(?=[^=])", " == ");
+            rawCondition = Regex.Replace(rawCondition, @"(?<=[^\s])(?<op>==|!=|>=|<=|>|<)(?=[^\s])", " ${op} ");
+
+
+            var tokens = Regex.Split(rawCondition, @"\s+(and|or)\s+", RegexOptions.IgnoreCase);
+            var result = new List<string>();
+            for (int i = 0; i < tokens.Length; i += 2)
+            {
+                string clause = tokens[i].Trim();
+                string? connector = (i > 0 && i - 1 < tokens.Length) ? tokens[i - 1].Trim().ToLower() : null;
+                var match = Regex.Match(clause, @"^(?<fullPath>[\w.]+)\s*(?<op>=|==|!=|>=|<=|>|<|in|not in|like|is null|is not null)\s*(?<val>.+)?$", RegexOptions.IgnoreCase);
+                if (!match.Success) continue;
+                string fullPath = match.Groups["fullPath"].Value;
+                string op = match.Groups["op"].Value.ToLower();
+                string? val = match.Groups["val"].Success ? match.Groups["val"].Value.Trim().Trim('\'', '"') : null;
+
+                var parts = fullPath.Split('.');
+                if (parts.Length == 0) continue;
+
+                string? clauseStr = BuildNestedClause(modelType, parts, op, val);
+                if (string.IsNullOrEmpty(clauseStr)) continue;
+
+                if (!string.IsNullOrEmpty(connector) && result.Count > 0)
+                    result.Add(connector);
+
+                result.Add(clauseStr);
+            }
+
+            return string.Join(" ", result);
+        }
+
+        private string? BuildNestedClause(Type type, string[] pathParts, string op, string? val, int index = 0)
+        {
+            if (index >= pathParts.Length) return null;
+
+            string current = pathParts[index];
+            var prop = PropertyAccessorCache.GetProperty(type, current);
+            if (prop == null) return null;
+
+            Type nextType = prop.PropertyType;
+            bool isEnumerable = typeof(IEnumerable).IsAssignableFrom(nextType) && nextType != typeof(string);
+
+            if (isEnumerable)
+                nextType = nextType.IsGenericType ? nextType.GetGenericArguments()[0] : nextType.GetElementType();
+
+            if (index == pathParts.Length - 1)
+            {
+                // 最後一層：實際條件欄位
+                string fieldExpr = current;
+                string expr = op switch
+                {
+                    "is null" => $"{fieldExpr} == null",
+                    "is not null" => $"{fieldExpr} != null",
+                    "in" => $"@0.Contains({fieldExpr})",
+                    "not in" => $"!@0.Contains({fieldExpr})",
+                    "like" => $"{fieldExpr}.Contains(\"{val}\")",
+                    _ => $"{fieldExpr} {op} \"{val}\""
+                };
+                return expr;
+            }
+
+            // 還沒到底，繼續往下巢狀
+            string inner = BuildNestedClause(nextType, pathParts, op, val, index + 1);
+            if (string.IsNullOrEmpty(inner)) return null;
+
+            string thisLevel = current;
+            return isEnumerable
+                ? $"{thisLevel}.Any({inner})"
+                : $"{thisLevel}.{inner}";
+        }
+
         /// <summary>
         /// 獲取表頭明細模型
         /// </summary>

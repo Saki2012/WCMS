@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import PageManagementProvider from "./PageManagement_Api";
-import CategoryProvider from "../Category/Category_Api";
 import type { GridProps,GridRow,ColumnConfig,RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data"
 import  type { components } from "../../../../../../types/api";
 import { emptyData } from "./PageManagement_Data";
-
+import type { QueryListCondition } from "../../../../../../SysCore/Interface/IApiProvider";
 type PageManagementSet = components["schemas"]["PageManagement"]
 
 /** 讀取清單資料 */
@@ -29,7 +28,16 @@ export const useFetchPageListData = () => {
       //#endregion
       
       //#region GetRows
-      const res = await PageManagementProvider().fetchList();
+
+      const queryCondition:QueryListCondition={
+          Fields: ["CategoryId","CategoryDetail.Lang","CategoryDetail.Title"],
+          Condition: `ProgId = \"${progId}\" And CategoryDetail.Lang = \"zh-TW\"`,
+          PageNumber: 0,
+          PageSize: 0,
+        }
+
+
+      const res = await PageManagementProvider().fetchList(queryCondition);
       const rawData = (res.Data as any[]).map(x => x.PageManagement ?? {});
       // 轉為 GridRow[]
       const rows: GridRow[] = rawData.map(item => {

@@ -62,6 +62,21 @@ namespace WCMS.SysCore.Interface
         /// <param name="takeCt"></param>
         /// <returns></returns>
         public Task<IApiResponse<TSet>> QueryListAsync(string[] selectFields, string condition, int pageNumber, int pageSize);
+        /// <summary>
+        /// 啟用交易控制(非同步)
+        /// </summary>
+        /// <returns></returns>
+        public Task BeginTransactionAsync();
+        /// <summary>
+        /// 回滾交易控制(非同步)
+        /// </summary>
+        /// <returns></returns>
+        public Task RollbackTransactionAsync();
+        /// <summary>
+        /// 執行更新(非同步)
+        /// </summary>
+        /// <param name="action"></param>
+        public Task CommitDataAsync();
         #endregion
     }
 
