@@ -196,10 +196,13 @@ namespace WCMS.SysCore
             {
                 if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && typeof(BasicDataModel).IsAssignableFrom(prop.PropertyType))
                 {
-                    TSet srcData = PropertyAccessorCache.CreateInstance(typeof(TSet)) as TSet;
-                    var data = (await DoQueryListAsync(prop, selectFields, condition, pageNumber, pageSize)).ToDynamicList().FirstOrDefault();
-                    PropertyAccessorCache.Set(srcData, prop.Name, data);
-                    result.Add(srcData);
+                    var datas = (await DoQueryListAsync(prop, selectFields, condition, pageNumber, pageSize)).ToDynamicList();
+                    foreach(var data in datas) 
+                    { 
+                        TSet srcData = PropertyAccessorCache.CreateInstance(typeof(TSet)) as TSet;
+                        PropertyAccessorCache.Set(srcData, prop.Name, data);
+                        result.Add(srcData);
+                    }
                 }
             }
             Response.ThrowIfFailed();

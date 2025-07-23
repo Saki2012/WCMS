@@ -7,7 +7,7 @@ namespace WCMS.Features.SiteEdit.Category
     public class CategoryDataSet
     {
         public required Category Category { get; set; }
-        public required CategoryDetail CategoryDetail { get; set; }
+        public required List<CategoryDetail> CategoryDetail { get; set; }
     }
 
     public class Category : MasterDataModel
@@ -20,6 +20,8 @@ namespace WCMS.Features.SiteEdit.Category
         /// 對應功能模塊ID
         /// </summary>
         [LibDesc] public string ProgId { get; set; }
+
+        public virtual ICollection<CategoryDetail> CategoryDetail { get; set; }
     }
     public class CategoryDetail : DetailRowModel
     {

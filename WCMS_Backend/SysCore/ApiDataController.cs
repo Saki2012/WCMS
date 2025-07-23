@@ -105,14 +105,6 @@ namespace WCMS.SysCore
         [HttpPost(nameof(QueryList))]
         public async Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition)
         {
-            queryCondition = new QueryListParam()
-            {
-                //測試
-                Fields = [],
-                Condition = "InternalId = \"2ee4b7ab-250f-409a-9554-a325e4cd934e\"",
-                PageNumber=1,
-                PageSize=10,
-            };
             return Ok(await _service.QueryListAsync(queryCondition.Fields, queryCondition.Condition, queryCondition.PageNumber, queryCondition.PageSize));
         }
         /// <summary>
