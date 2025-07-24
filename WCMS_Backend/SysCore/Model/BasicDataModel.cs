@@ -65,7 +65,7 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 系統內部唯一標識號
         /// </summary>
-        [LibDesc] public string InternalId { get; set; }
+        [LibDesc] public string InternalId { get; set; } = string.Empty;
         /// <summary>
         /// 主子站層級ID
         /// </summary>
@@ -85,12 +85,12 @@ namespace WCMS.SysCore.Model
         /// 資料有效日期-起
         /// </summary>
         [LibDesc]
-        public DateTime Validate_Start { get; set; }
+        public DateTime? Validate_Start { get; set; }
         /// <summary>
         /// 資料有效日期-迄
         /// </summary>
         [LibDesc]
-        public DateTime Validate_End { get; set; }
+        public DateTime? Validate_End { get; set; }
     }
     /// <summary>
     /// 流水帳資料

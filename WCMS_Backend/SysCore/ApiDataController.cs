@@ -53,8 +53,10 @@ namespace WCMS.SysCore
                 foreach (var set in sets) 
                 {
                     Debug.WriteLine($"執行第{i}筆資料");
+                    Console.WriteLine($"執行第{i}筆資料");
                     await _service.CreateSetAsync(set);
                     Debug.WriteLine($"第{i}筆資料保存成功");
+                    Console.WriteLine($"第{i}筆資料保存成功");
                     i++;
                 }
                 await _service.CommitDataAsync();

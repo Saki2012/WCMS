@@ -42,6 +42,7 @@ namespace WCMS.SysCore
             ApplyCascadeDeleteRules(builder);
             builder.Entity<DataChangeLogDetail>().HasKey(p => new { p.DataChangeId, p.RowId });
             //builder.BuildIndexesFromAnnotations();//設置Index套件
+            SetDateTimeDBType(builder);
         }
         #endregion
 
@@ -53,7 +54,7 @@ namespace WCMS.SysCore
         private void ModelDbSetting(ModelBuilder builder)
         {
             Type[] modelTypes = Assembly.GetExecutingAssembly().GetTypes().Where(p =>
-            p.BaseType == typeof(DetailRowModel) || p.BaseType == typeof(MasterDataModel) || p.BaseType == typeof(BillDataModel)
+                p.BaseType == typeof(DetailRowModel) || p.BaseType == typeof(MasterDataModel) || p.BaseType == typeof(BillDataModel)
             ).ToArray();
             foreach (Type type in modelTypes)
             {
@@ -96,6 +97,24 @@ namespace WCMS.SysCore
                     {
                         // 🟡 其他情況預設為 Restrict，避免意外刪除參考資料
                         foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 設置 DateTime 欄位的資料庫類型為 datetime2(0) (yy/mm/dd hh:mm:ss)
+        /// </summary>
+        /// <param name="modelBuilder"></param>
+        public static void SetDateTimeDBType(ModelBuilder modelBuilder)
+        {
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetProperties())
+                {
+                    if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
+                    {
+                        property.SetColumnType("datetime2(0)");
                     }
                 }
             }

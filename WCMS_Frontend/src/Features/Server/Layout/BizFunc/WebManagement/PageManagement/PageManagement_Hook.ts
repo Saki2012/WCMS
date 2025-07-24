@@ -31,7 +31,7 @@ export const useFetchPageListData = () => {
 
       const queryCondition:QueryListCondition={
           Fields: ["CategoryId","CategoryDetail.Lang","CategoryDetail.Title"],
-          Condition: `ProgId = \"${progId}\" And CategoryDetail.Lang = \"zh-TW\"`,
+          Condition: `ProgId = \"Page\" And CategoryDetail.Lang = \"zh-TW\"`,
           PageNumber: 0,
           PageSize: 0,
         }

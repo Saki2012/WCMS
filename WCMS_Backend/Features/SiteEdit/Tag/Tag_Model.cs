@@ -6,28 +6,26 @@ namespace WCMS.Features.SiteEdit.Tag
 {
     public class TagSet
     {
-        public required TagData TagData { get; set; }
-        public required List<TagDetail> TagDetail { get; set; }
+        public TagData? TagData { get; set; }
+        public List<TagDetail>? TagDetail { get; set; }
     }
-
     public class TagData : MasterDataModel
     {
         /// <summary>
         /// 類別ID
         /// </summary>
-        [LibDesc,Key] public required string TagId { get; set; }
+        [LibDesc, Key] public string TagId { get; set; } = string.Empty;
         /// <summary>
         /// 對應功能模塊ID
         /// </summary>
         [LibDesc] public string ProgId { get; set; } = string.Empty;
-
     }
     public class TagDetail : DetailRowModel
     {
         /// <summary>
         /// 靜態客製頁面ID
         /// </summary>
-        [LibDesc, Key] public required string TagId { get; set; }
+        [LibDesc, Key] public string TagId { get; set; } = string.Empty;
         /// <summary>
         /// 行主鍵
         /// </summary>

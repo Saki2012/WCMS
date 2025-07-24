@@ -45,36 +45,40 @@ namespace WCMS.SysCore.Library
             return result;
         }
         /// <summary>
+        /// 重新排序組合資料
+        /// </summary>
+        /// <param name="val">源字串</param>
+        /// <param name="mergeStr">合併連接字 Ex:,</param>
+        /// <param name="hasEmpty">是否包含空字串</param>
+        /// <param name="isDesc">是否倒敘排列</param>
+        /// <param name="isRemoveDuplicates">是否去除重複資料</param>
+        /// <returns></returns>
+        public static string Remerge(this string val, string mergeStr, bool hasEmpty=false, bool isDesc = false, bool isRemoveDuplicates=false)
+        {
+            if (string.IsNullOrEmpty(val)) return string.Empty;
+            List<string> data = [.. val.Split(mergeStr, StringSplitOptions.None).Where(p => hasEmpty || !string.IsNullOrEmpty(p))];
+            if (isRemoveDuplicates)data = [.. data.Distinct()];
+            data.Sort();
+            if (isDesc) data.Reverse();
+            return Merge(mergeStr, hasEmpty, [.. data]);
+        }
+        /// <summary>
         /// 合併
         /// </summary>
         /// <param name="mergeStr">合併連接字 Ex:,</param>
-        /// <param name="mergeEmpty"></param>
-        /// <param name="strs"></param>
+        /// <param name="hasEmpty">是否包含空字串</param>
+        /// <param name="strs">組合字串組</param>
         /// <returns></returns>
         public static string Merge(string mergeStr, bool hasEmpty, params object[] strs)
         {
-            if (null == strs || strs.Length == 0) return string.Empty;
-            int len = strs.Length;
-            //StringBuilder results =new StringBuilder();
-            string result = strs[0].ToString(), s;
-            for (int i = 1; i < len; i++)
+            if (strs == null || strs.Length == 0) return string.Empty;
+            var parts = new List<string>();
+            foreach (var item in strs)
             {
-                //Q:Null Value And DbNull
-                s = strs[i] == null ? string.Empty : strs[i].ToString();
-                if (i == 1 && string.IsNullOrEmpty(result))
-                {
-                    result = s;
-                }
-                else if (hasEmpty || !string.IsNullOrEmpty(result) && !string.IsNullOrEmpty(s))
-                {
-                    result = $"{result}{mergeStr}{s}";
-                }
-                else if (!string.IsNullOrEmpty(s))
-                {
-                    result = s;
-                }
+                var str = item?.ToString() ?? string.Empty;
+                if (hasEmpty || !string.IsNullOrEmpty(str)) parts.Add(str);
             }
-            return result;
+            return string.Join(mergeStr, parts);
         }
         /// <summary>
         /// 字串是否為空

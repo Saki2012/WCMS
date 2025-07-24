@@ -10,17 +10,16 @@ namespace WCMS.Features.SiteEdit.Category
         public Category Category { get; set; }
         public List<CategoryDetail> CategoryDetail { get; set; }
     }
-
     public class Category : MasterDataModel
     {
         /// <summary>
         /// 類別ID
         /// </summary>
-        [LibDesc, Key] public string CategoryId { get; set; }
+        [LibDesc, Key] public string? CategoryId { get; set; }
         /// <summary>
         /// 對應功能模塊ID
         /// </summary>
-        [LibDesc] public string ProgId { get; set; }
+        [LibDesc] public string? ProgId { get; set; }
     }
     public class CategoryDetail : DetailRowModel
     {

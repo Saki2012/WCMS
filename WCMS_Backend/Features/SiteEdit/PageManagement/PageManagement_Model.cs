@@ -16,17 +16,17 @@ namespace WCMS.Features.SiteEdit.PageManagement
         /// <summary>
         /// 靜態客製頁面ID
         /// </summary>
-        [LibDesc,Key] public string PageId { get; set; }
+        [LibDesc,Key] public string? PageId { get; set; }
         /// <summary>
         /// 類別ID
         /// </summary>
-        [LibDesc] public string CategoryId { get; set; }
+        [LibDesc] public string? CategoryId { get; set; }
         /// <summary>
         /// 查看次數
         /// </summary>
-        [LibDesc] public int ViewCount { get; set; }
+        [LibDesc] public int? ViewCount { get; set; }
 
-        public virtual ICollection<PageManagementDetail> PageManagementDetail { get; set; }
+        public virtual ICollection<PageManagementDetail>? PageManagementDetail { get; set; }
 
     }
     public class PageManagementDetail:DetailRowModel
@@ -34,22 +34,22 @@ namespace WCMS.Features.SiteEdit.PageManagement
         /// <summary>
         /// 靜態客製頁面ID
         /// </summary>
-        [LibDesc, Key] public string PageId { get; set; }
+        [LibDesc, Key] public string? PageId { get; set; }
         /// <summary>
         /// 行主鍵
         /// </summary>
-        [LibDesc, Key] public int RowId { get; set; }
+        [LibDesc, Key] public int? RowId { get; set; }
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc] public string Lang { get;set; }
+        [LibDesc] public string? Lang { get;set; }
         /// <summary>
         /// 標題
         /// </summary>
-        public string Title { get; set; }
+        [LibDesc] public string? Title { get; set; }
         /// <summary>
         /// 內容
         /// </summary>
-        public string Content { get; set; }
+        [LibDesc] public string? Content { get; set; }
     }
 }

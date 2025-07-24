@@ -1,69 +1,82 @@
-
-using WCMS.SysCore.Interface;
-using WCMS.SysCore;
-using WCMS.Features.SiteEdit.PageManagement;
+ï»¿
+using Microsoft.AspNetCore.Razor.TagHelpers;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System.Data;
 using System.Reflection;
+using System.Text;
+using WCMS.Features.SiteEdit.PageManagement;
+using WCMS.Features.SiteEdit.Tag;
+using WCMS.SysCore;
+using WCMS.SysCore.Interface;
 using WCMS.SysCore.Middleware;
 
 namespace WCMS
 {
     public class MigrateOldData
     {
-        //public static void Main(string[] args)
-        //{
-        //    //RunDBMigration(args);
-        //    //return;
-        //    var builder = WebApplication.CreateBuilder(args);
-        //    builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection")));
-        //    // Add services to the container.
-        //    builder.Services.AddControllers().AddJsonOptions(opt => { opt.JsonSerializerOptions.PropertyNamingPolicy = null; });
-        //    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-        //    builder.Services.AddEndpointsApiExplorer();
-        //    builder.Services.AddSwaggerGen();
-        //    builder.Services.AddScoped(typeof(IBasicRepository<>), typeof(BasicRepository<>));
-        //    builder.Services.AddScoped<IRepositoryMapProvider, RepositoryMapProvider>();
-        //    RegisterBizServices(builder.Services);
-        //    builder.Services.AddCors(options =>
-        //    {//CORS (¸ó¨Ó·½¸ê·½¦@¨É) ¿ù»~³B²z¡A¤§«á¬[³]«È¤áºô¯¸®É¦A³]¸m¥Õ¦W³æ
-        //        options.AddPolicy("AllowLocalhostWildcard", policy =>
-        //        { policy.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost" || new Uri(origin).Host == "127.0.0.1").AllowAnyHeader().AllowAnyMethod(); });
-        //    });
-        //    var app = builder.Build();
-        //    app.UseMiddleware<ErrorHandlingMiddleware>();
-        //    // Configure the HTTP request pipeline.
-        //    if (app.Environment.IsDevelopment())
-        //    {
-        //        app.UseSwagger();
-        //        app.UseSwaggerUI();
-        //    }
-        //    app.UseHttpsRedirection();
-        //    app.UseAuthorization();
-        //    app.MapControllers();
-        //    app.UseCors("AllowLocalhostWildcard");
-        //    app.Run();
-        //}
+        public interface IDataMigrationService
+        {
+            Task RunAsync();
+        }
 
-        ///// <summary>
-        ///// ±Ò°ÊServer
-        ///// </summary>
-        //private static void StartServer()
-        //{
+        public class DataMigrationService : IDataMigrationService
+        {
+            private readonly IServiceProvider _provider;
+            private readonly HttpClient _httpClient;
 
-        //}
-        ///// <summary>
-        ///// Àò¨úÂÂ¸ê®Æ
-        ///// </summary>
-        //private static void GetOldData()
-        //{
+            public DataMigrationService(IHttpClientFactory httpClientFactory, IServiceProvider provider)
+            {
+                _httpClient = httpClientFactory.CreateClient("api");
+                _provider = provider;
+            }
 
-        //}
-        ///// <summary>
-        ///// ³z¹LAPI°õ¦æÂà´«
-        ///// </summary>
-        //private static void ExecuteMigrate()
-        //{
+            public async Task RunAsync()
+            {
+                var connStr = "Server=192.168.68.2;Database=WebDeveloper;User Id=WebDeveloper;Password=WebDeveloper;";
+                using var conn = new SqlConnection(connStr);
+                MigrateData_Tag(conn);
+            }
 
-        //}
+            private void MigrateData_Tag(SqlConnection conn)
+            {
+                List<TagSet> tagSets = [];
+                var data = new DataTable();
+                var sql = "SELECT * FROM Tag";
+                var adapter = new SqlDataAdapter(sql, conn);
+                adapter.Fill(data);
+                foreach (DataRow row in data.Rows)
+                {
+                    tagSets.Add(new TagSet
+                    {
+                        TagData = new TagData
+                        {
+                            TagId = row["sn"].ToString(),
+                            ProgId = row["Module"].ToString(),
+                            IsIniData = true
+                        },
+                        TagDetail = []
+                    });
+                }
+
+                sql = "SELECT * FROM Tag_Lang";
+                adapter = new SqlDataAdapter(sql, conn);
+                adapter.Fill(data);
+                foreach (DataRow row in data.Rows)
+                {
+                    string tagId = row["sn"].ToString();
+                    var dt = tagSets.FirstOrDefault(p=>p.TagData.TagId==tagId)?.TagDetail;
+                    dt.Add(new TagDetail
+                    {
+                        TagId = tagId,
+                        Lang = row["Lang"].ToString(),
+                        TagName = row["TagName"].ToString()
+                    });
+                }
+
+
+            }
+        }
     }
 }

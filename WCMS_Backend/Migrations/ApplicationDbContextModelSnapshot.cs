@@ -22,13 +22,16 @@ namespace WCMS.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.AnnouncementModel", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.Announcement", b =>
                 {
-                    b.Property<string>("CustomerCode")
+                    b.Property<string>("AnnouncementId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("Categories")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
                         .IsRequired()
@@ -45,14 +48,17 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("InvalidTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsIniData")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("ModifyTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
                         .IsRequired()
@@ -62,18 +68,81 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Validate_End")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("PicDescription")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Validate_Start")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("PictureId")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("CustomerCode");
+                    b.Property<string>("Statuses")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Tags")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("Validate_End")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<DateTime?>("Validate_Start")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<int?>("ViewCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("AnnouncementId");
 
                     b.HasIndex("InternalId")
                         .IsUnique();
 
                     b.ToTable("Announcement", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.AnnouncementDetail", b =>
+                {
+                    b.Property<string>("AnnouncementId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("RowId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Lang")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SubTitle")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("AnnouncementId", "RowId");
+
+                    b.ToTable("AnnouncementDetail", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.AnnouncementDetailFile", b =>
+                {
+                    b.Property<string>("AnnouncementId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ParentRowId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Row")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FileId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("AnnouncementId", "ParentRowId", "Row");
+
+                    b.ToTable("AnnouncementDetailFile", (string)null);
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Banner.Banner", b =>
@@ -86,7 +155,7 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
                         .IsRequired()
@@ -112,14 +181,17 @@ namespace WCMS.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<DateTime?>("InvalidTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsIniData")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("ModifyTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
                         .IsRequired()
@@ -132,11 +204,11 @@ namespace WCMS.Migrations
                     b.Property<short>("Speed")
                         .HasColumnType("smallint");
 
-                    b.Property<DateTime>("Validate_End")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Validate_End")
+                        .HasColumnType("datetime2(0)");
 
-                    b.Property<DateTime>("Validate_Start")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Validate_Start")
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<short>("Width")
                         .HasColumnType("smallint");
@@ -171,10 +243,10 @@ namespace WCMS.Migrations
                         .HasColumnType("tinyint");
 
                     b.Property<DateTime>("Validate_End")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<DateTime>("Validate_Start")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.HasKey("BannerId", "RowId");
 
@@ -215,7 +287,7 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
                         .IsRequired()
@@ -232,14 +304,17 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("InvalidTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsIniData")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("ModifyTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
                         .IsRequired()
@@ -250,14 +325,13 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProgId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Validate_End")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Validate_End")
+                        .HasColumnType("datetime2(0)");
 
-                    b.Property<DateTime>("Validate_Start")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Validate_Start")
+                        .HasColumnType("datetime2(0)");
 
                     b.HasKey("CategoryId");
 
@@ -298,7 +372,7 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
                         .IsRequired()
@@ -315,14 +389,17 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("InvalidTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsIniData")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("ModifyTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
                         .IsRequired()
@@ -339,11 +416,11 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Validate_End")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Validate_End")
+                        .HasColumnType("datetime2(0)");
 
-                    b.Property<DateTime>("Validate_Start")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Validate_Start")
+                        .HasColumnType("datetime2(0)");
 
                     b.HasKey("FileArchiveId");
 
@@ -412,7 +489,7 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
                         .IsRequired()
@@ -429,14 +506,17 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("InvalidTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsIniData")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("ModifyTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
                         .IsRequired()
@@ -456,11 +536,11 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Validate_End")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Validate_End")
+                        .HasColumnType("datetime2(0)");
 
-                    b.Property<DateTime>("Validate_Start")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Validate_Start")
+                        .HasColumnType("datetime2(0)");
 
                     b.HasKey("GalleryId");
 
@@ -548,11 +628,10 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CategoryId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
                         .IsRequired()
@@ -569,14 +648,17 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("InvalidTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsIniData")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("ModifyTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
                         .IsRequired()
@@ -586,7 +668,7 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ViewCount")
+                    b.Property<int?>("ViewCount")
                         .HasColumnType("int");
 
                     b.HasKey("PageId");
@@ -606,15 +688,12 @@ namespace WCMS.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Content")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Lang")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PageId", "RowId");
@@ -628,7 +707,7 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
                         .IsRequired()
@@ -645,14 +724,17 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("InvalidTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsIniData")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("ModifyTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
                         .IsRequired()
@@ -666,11 +748,11 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Validate_End")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Validate_End")
+                        .HasColumnType("datetime2(0)");
 
-                    b.Property<DateTime>("Validate_Start")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Validate_Start")
+                        .HasColumnType("datetime2(0)");
 
                     b.HasKey("TagId");
 
@@ -711,7 +793,7 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
                         .IsRequired()
@@ -728,14 +810,17 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("InvalidTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsIniData")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("ModifyTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
                         .IsRequired()
@@ -770,11 +855,11 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Validate_End")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Validate_End")
+                        .HasColumnType("datetime2(0)");
 
-                    b.Property<DateTime>("Validate_Start")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Validate_Start")
+                        .HasColumnType("datetime2(0)");
 
                     b.HasKey("WebResourceId");
 
@@ -819,7 +904,7 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
                         .IsRequired()
@@ -845,14 +930,17 @@ namespace WCMS.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<DateTime?>("InvalidTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsIniData")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("ModifyTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
                         .IsRequired()
@@ -865,11 +953,11 @@ namespace WCMS.Migrations
                     b.Property<short>("Speed")
                         .HasColumnType("smallint");
 
-                    b.Property<DateTime>("Validate_End")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Validate_End")
+                        .HasColumnType("datetime2(0)");
 
-                    b.Property<DateTime>("Validate_Start")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Validate_Start")
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<short>("Width")
                         .HasColumnType("smallint");
@@ -904,10 +992,10 @@ namespace WCMS.Migrations
                         .HasColumnType("tinyint");
 
                     b.Property<DateTime>("Validate_End")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<DateTime>("Validate_Start")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.HasKey("ResearchId");
 
@@ -924,7 +1012,7 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
                         .IsRequired()
@@ -950,14 +1038,17 @@ namespace WCMS.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<DateTime?>("InvalidTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsIniData")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("ModifyTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
                         .IsRequired()
@@ -970,11 +1061,11 @@ namespace WCMS.Migrations
                     b.Property<short>("Speed")
                         .HasColumnType("smallint");
 
-                    b.Property<DateTime>("Validate_End")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Validate_End")
+                        .HasColumnType("datetime2(0)");
 
-                    b.Property<DateTime>("Validate_Start")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Validate_Start")
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<short>("Width")
                         .HasColumnType("smallint");
@@ -1009,10 +1100,10 @@ namespace WCMS.Migrations
                         .HasColumnType("tinyint");
 
                     b.Property<DateTime>("Validate_End")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<DateTime>("Validate_Start")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.HasKey("USRId");
 
@@ -1028,7 +1119,7 @@ namespace WCMS.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("DataChangeId"));
 
                     b.Property<DateTime>("DataChangeTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InternalId")
                         .IsRequired()
@@ -1095,7 +1186,7 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("OperateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("PK")
                         .IsRequired()
@@ -1120,7 +1211,7 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
                         .IsRequired()
@@ -1140,7 +1231,7 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("InvalidTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
                         .IsRequired()
@@ -1149,8 +1240,11 @@ namespace WCMS.Migrations
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsIniData")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("ModifyTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
                         .IsRequired()
@@ -1164,11 +1258,11 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Validate_End")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Validate_End")
+                        .HasColumnType("datetime2(0)");
 
-                    b.Property<DateTime>("Validate_Start")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Validate_Start")
+                        .HasColumnType("datetime2(0)");
 
                     b.HasKey("RoleId");
 
@@ -1187,7 +1281,7 @@ namespace WCMS.Migrations
                         .HasColumnType("tinyint");
 
                     b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
                         .IsRequired()
@@ -1208,14 +1302,17 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("InvalidTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsIniData")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("ModifyTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
                         .IsRequired()
@@ -1233,11 +1330,11 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Validate_End")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Validate_End")
+                        .HasColumnType("datetime2(0)");
 
-                    b.Property<DateTime>("Validate_Start")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime?>("Validate_Start")
+                        .HasColumnType("datetime2(0)");
 
                     b.HasKey("UserId");
 
@@ -1245,6 +1342,15 @@ namespace WCMS.Migrations
                         .IsUnique();
 
                     b.ToTable("User", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.PageManagement.PageManagementDetail", b =>
+                {
+                    b.HasOne("WCMS.Features.SiteEdit.PageManagement.PageManagement", null)
+                        .WithMany("PageManagementDetail")
+                        .HasForeignKey("PageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("WCMS.SysCore.Model.DataChangeLogDetail", b =>
@@ -1256,6 +1362,11 @@ namespace WCMS.Migrations
                         .IsRequired();
 
                     b.Navigation("DataChangeLog");
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.PageManagement.PageManagement", b =>
+                {
+                    b.Navigation("PageManagementDetail");
                 });
 #pragma warning restore 612, 618
         }

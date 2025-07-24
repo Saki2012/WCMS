@@ -25,7 +25,7 @@ namespace WCMS.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.AnnouncementModel", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.Announcement", b =>
                 {
                     b.Property<string>("CustomerCode")
                         .HasColumnType("nvarchar(450)");

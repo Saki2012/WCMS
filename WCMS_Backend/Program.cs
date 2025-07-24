@@ -1,9 +1,11 @@
 
-using WCMS.SysCore.Interface;
-using WCMS.SysCore;
-using WCMS.Features.SiteEdit.PageManagement;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using System.Reflection;
+using WCMS.Features.SiteEdit.PageManagement;
+using WCMS.SysCore;
+using WCMS.SysCore.Interface;
 using WCMS.SysCore.Middleware;
 
 namespace WCMS
@@ -48,13 +50,22 @@ namespace WCMS
 
         private static void RunDBMigration(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
-
+            //先執行:dotnet ef migrations add MigrationName
+            //再執行:RunDBMigration 產生SQL
+            //最後執行:dotnet ef database update
+            var builder = WebApplication.CreateBuilder();
             var options = new DbContextOptionsBuilder<ApplicationDbContext>().UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection")).Options;
-            var ctx = new ApplicationDbContext(options);
-            ctx.Database.EnsureCreated(); // 讓它觸發 OnModelCreating
+            using var ctx = new ApplicationDbContext(options);
 
-            Console.WriteLine("Context created.");
+            // 產出 SQL
+            var migrator = ctx.Database.GetService<IMigrator>();
+            var sql = migrator.GenerateScript(
+                fromMigration: null, // 代表從頭開始
+                toMigration: null,   // 到目前最新的 migration
+                options: MigrationsSqlGenerationOptions.Idempotent);
+
+            File.WriteAllText("Migrations/Generated.sql", sql);
+            Console.WriteLine("Migration SQL script generated.");
         }
 
         /// <summary>
