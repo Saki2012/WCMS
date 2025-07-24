@@ -6,7 +6,7 @@ export interface ILibTextBoxStyle{
     InputStyle:string,
 }
 
-export interface LibTextBoxProp{
+export interface ILibTextBoxProp{
     Style:ILibTextBoxStyle,
     ColumnDisplayName:string,
     DefaultInputDisplay:string,

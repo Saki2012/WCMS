@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import CategoryProvider from "./Category_Api";
-import type { GridProps,GridRow,ColumnConfig,RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data"
 import  type { components } from "../../../../../../types/api";
 import type { QueryListCondition } from "../../../../../../SysCore/Interface/IApiProvider";
+type CategoryDataSet = components["schemas"]["CategoryDataSet"]
 type CategoryDetail = components["schemas"]["CategoryDetail"]
-
+import * as SchemaFields from "../../../../../../types/SchemaFields";
 
 /** 獲取類別清單 */
 export const useGetCategoryListByProgId = (progId:string, lang:string) => {
@@ -18,19 +18,28 @@ export const useGetCategoryListByProgId = (progId:string, lang:string) => {
         setLoading(true);
         /**以下功能晚一點修 */
         const queryCondition:QueryListCondition={
-          Fields: ["CategoryId","CategoryDetail.CategoryId","CategoryDetail.RowId","CategoryDetail.Lang","CategoryDetail.Title"],
-          Condition: `ProgId = \"${progId}\" And CategoryDetail.Lang = \"zh-TW\"`,
+          Fields: [SchemaFields.CategoryFields.CategoryId,
+                  `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
+                  `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`
+                ],
+          Condition: `${SchemaFields.CategoryFields.ProgId} = \"${progId}\" And ${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang} = \"zh-TW\"`,
           PageNumber: 0,
           PageSize: 0,
         }
         const res = await CategoryProvider().fetchList(queryCondition);
-
-        const result: Record<string, string> = res.data.Data?.reduce((acc, p) => {
-          const matchedDetail = (p.CategoryDetail).find((detail: CategoryDetail) => detail.Lang === lang);
-          acc[p.Category.CategoryId] = matchedDetail?.CategoryName ?? '';
-          return acc; }, {} as Record<string, string>);
-
-        setData(result); // or transform
+        if (!res.IsSuccess) {
+          const errorMsg = res.SysMessage?.map(msg =>`${msg.MessageCode}:${msg.Message}`).join(';') ?? "資料查詢失敗";
+          throw new Error(errorMsg);
+        }
+        const result: Record<string, string> =
+          (res.Data as CategoryDataSet[] ?? []).reduce((acc, p) => {
+            const categoryId = p.Category?.CategoryId;
+            if (!categoryId) return acc;
+            const matchedDetail = p.Category?.CategoryDetail?.find((detail: CategoryDetail) => detail.Lang === lang);
+            acc[categoryId] = matchedDetail?.CategoryName ?? '';
+            return acc;
+          }, {} as Record<string, string>);
+        setData(result);
 
       } catch (err: any) {
         setError(err.message ?? "資料錯誤");

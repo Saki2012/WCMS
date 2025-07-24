@@ -1,6 +1,7 @@
 import { BaseApiService } from '../../../../../../SysCore/Utils/APIClient';
 import  type { components } from "../../../../../../types/api";
 import {IApiProvider, IDataProvider} from '../../../../../../SysCore/Interface/IApiProvider'
+import type { ApiResponse, QueryListCondition } from '../../../../../../SysCore/Interface/IApiProvider';
 
 type CategorySet = components["schemas"]["CategoryDataSet"]
 type CategoryDetail = components["schemas"]["CategoryDetail"]
@@ -65,9 +66,9 @@ class APIProvider extends ICategoryProvider {
         const res = await this.API.queryData(params);
         return res;
     }
-    protected async doFetchList(params:any): Promise<CategorySet[]> {
-        const res = await this.API.queryList(params);
-        return res
+    protected async doFetchList(condition: QueryListCondition): Promise<ApiResponse<CategorySet>> {
+        const res = await this.API.queryList(condition);
+        return res.data
     }
     protected async doGetModelDisplayName(): Promise<CategorySet[]> {
         const res = await this.API.getModelDisplayName();

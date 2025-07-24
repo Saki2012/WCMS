@@ -3,7 +3,9 @@ export interface ILibTinyMCEStyle{
     SelectStyle:string,
 }
 
-export interface LibTinyMCEProp{
+export interface ILibTinyMCEProp{
     Style:ILibTinyMCEStyle,
     ColumnDisplayName:string,
+    InputValue?:string|null|undefined,
+    OnChange: (value: string) => void
 }

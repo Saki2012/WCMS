@@ -1,8 +1,8 @@
 
 import { useId } from 'react';
-import type {LibTextBoxProp} from "./LibTextBox_Data"
+import type {ILibTextBoxProp} from "./LibTextBox_Data"
 
-const LibTextBox=(prop:LibTextBoxProp)=>{
+const LibTextBox=(prop:ILibTextBoxProp)=>{
     const inputId = useId();
     return(
         <>

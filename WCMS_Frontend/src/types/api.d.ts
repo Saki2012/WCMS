@@ -22,9 +22,48 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["PageManagementSet"];
-                    "text/json": components["schemas"]["PageManagementSet"];
-                    "application/*+json": components["schemas"]["PageManagementSet"];
+                    "application/json": components["schemas"]["AnnouncementSet"];
+                    "text/json": components["schemas"]["AnnouncementSet"];
+                    "application/*+json": components["schemas"]["AnnouncementSet"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Announcement/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AnnouncementSet"][];
+                    "text/json": components["schemas"]["AnnouncementSet"][];
+                    "application/*+json": components["schemas"]["AnnouncementSet"][];
                 };
             };
             responses: {
@@ -60,9 +99,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["PageManagementSetApiRequest"];
-                    "text/json": components["schemas"]["PageManagementSetApiRequest"];
-                    "application/*+json": components["schemas"]["PageManagementSetApiRequest"];
+                    "application/json": components["schemas"]["AnnouncementSetApiRequest"];
+                    "text/json": components["schemas"]["AnnouncementSetApiRequest"];
+                    "application/*+json": components["schemas"]["AnnouncementSetApiRequest"];
                 };
             };
             responses: {
@@ -98,6 +137,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
+                    uid?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -106,13 +146,7 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown[];
-                    "text/json": unknown[];
-                    "application/*+json": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -149,9 +183,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": unknown[][];
-                    "text/json": unknown[][];
-                    "application/*+json": unknown[][];
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
                 };
             };
             responses: {
@@ -178,18 +212,14 @@ export interface paths {
         post?: never;
         delete: {
             parameters: {
-                query?: never;
+                query?: {
+                    uid?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown[];
-                    "text/json": unknown[];
-                    "application/*+json": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -224,9 +254,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": unknown[][];
-                    "text/json": unknown[][];
-                    "application/*+json": unknown[][];
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
                 };
             };
             responses: {
@@ -254,7 +284,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    pk?: string[];
+                    internalId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -267,11 +297,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": components["schemas"]["PageManagementSet"];
-                        "application/json": components["schemas"]["PageManagementSet"];
-                        "text/json": components["schemas"]["PageManagementSet"];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -312,11 +338,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": unknown[][];
-                        "application/json": unknown[][];
-                        "text/json": unknown[][];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -398,6 +420,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/Banner/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["BannerSet"][];
+                    "text/json": components["schemas"]["BannerSet"][];
+                    "application/*+json": components["schemas"]["BannerSet"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Banner/Update": {
         parameters: {
             query?: never;
@@ -453,6 +514,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
+                    uid?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -461,13 +523,7 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown[];
-                    "text/json": unknown[];
-                    "application/*+json": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -504,9 +560,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": unknown[][];
-                    "text/json": unknown[][];
-                    "application/*+json": unknown[][];
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
                 };
             };
             responses: {
@@ -533,18 +589,14 @@ export interface paths {
         post?: never;
         delete: {
             parameters: {
-                query?: never;
+                query?: {
+                    uid?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown[];
-                    "text/json": unknown[];
-                    "application/*+json": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -579,9 +631,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": unknown[][];
-                    "text/json": unknown[][];
-                    "application/*+json": unknown[][];
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
                 };
             };
             responses: {
@@ -609,7 +661,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    pk?: string[];
+                    internalId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -622,11 +674,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": components["schemas"]["BannerSet"];
-                        "application/json": components["schemas"]["BannerSet"];
-                        "text/json": components["schemas"]["BannerSet"];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -667,11 +715,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": unknown[][];
-                        "application/json": unknown[][];
-                        "text/json": unknown[][];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -753,6 +797,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/Category/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CategoryDataSet"][];
+                    "text/json": components["schemas"]["CategoryDataSet"][];
+                    "application/*+json": components["schemas"]["CategoryDataSet"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Category/Update": {
         parameters: {
             query?: never;
@@ -808,6 +891,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
+                    uid?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -816,13 +900,7 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown[];
-                    "text/json": unknown[];
-                    "application/*+json": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -859,9 +937,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": unknown[][];
-                    "text/json": unknown[][];
-                    "application/*+json": unknown[][];
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
                 };
             };
             responses: {
@@ -888,18 +966,14 @@ export interface paths {
         post?: never;
         delete: {
             parameters: {
-                query?: never;
+                query?: {
+                    uid?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown[];
-                    "text/json": unknown[];
-                    "application/*+json": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -934,9 +1008,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": unknown[][];
-                    "text/json": unknown[][];
-                    "application/*+json": unknown[][];
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
                 };
             };
             responses: {
@@ -964,7 +1038,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    pk?: string[];
+                    internalId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -977,11 +1051,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": components["schemas"]["CategoryDataSet"];
-                        "application/json": components["schemas"]["CategoryDataSet"];
-                        "text/json": components["schemas"]["CategoryDataSet"];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -1022,11 +1092,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": unknown[][];
-                        "application/json": unknown[][];
-                        "text/json": unknown[][];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -1108,6 +1174,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/FileArchive/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["FileArchiveSet"][];
+                    "text/json": components["schemas"]["FileArchiveSet"][];
+                    "application/*+json": components["schemas"]["FileArchiveSet"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/FileArchive/Update": {
         parameters: {
             query?: never;
@@ -1163,6 +1268,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
+                    uid?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -1171,13 +1277,7 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown[];
-                    "text/json": unknown[];
-                    "application/*+json": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -1214,9 +1314,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": unknown[][];
-                    "text/json": unknown[][];
-                    "application/*+json": unknown[][];
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
                 };
             };
             responses: {
@@ -1243,18 +1343,14 @@ export interface paths {
         post?: never;
         delete: {
             parameters: {
-                query?: never;
+                query?: {
+                    uid?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown[];
-                    "text/json": unknown[];
-                    "application/*+json": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -1289,9 +1385,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": unknown[][];
-                    "text/json": unknown[][];
-                    "application/*+json": unknown[][];
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
                 };
             };
             responses: {
@@ -1319,7 +1415,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    pk?: string[];
+                    internalId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -1332,11 +1428,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": components["schemas"]["FileArchiveSet"];
-                        "application/json": components["schemas"]["FileArchiveSet"];
-                        "text/json": components["schemas"]["FileArchiveSet"];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -1377,11 +1469,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": unknown[][];
-                        "application/json": unknown[][];
-                        "text/json": unknown[][];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -1463,6 +1551,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/Gallery/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["GallerySet"][];
+                    "text/json": components["schemas"]["GallerySet"][];
+                    "application/*+json": components["schemas"]["GallerySet"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Gallery/Update": {
         parameters: {
             query?: never;
@@ -1518,6 +1645,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
+                    uid?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -1526,13 +1654,7 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown[];
-                    "text/json": unknown[];
-                    "application/*+json": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -1569,9 +1691,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": unknown[][];
-                    "text/json": unknown[][];
-                    "application/*+json": unknown[][];
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
                 };
             };
             responses: {
@@ -1598,18 +1720,14 @@ export interface paths {
         post?: never;
         delete: {
             parameters: {
-                query?: never;
+                query?: {
+                    uid?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown[];
-                    "text/json": unknown[];
-                    "application/*+json": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -1644,9 +1762,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": unknown[][];
-                    "text/json": unknown[][];
-                    "application/*+json": unknown[][];
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
                 };
             };
             responses: {
@@ -1674,7 +1792,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    pk?: string[];
+                    internalId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -1687,11 +1805,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": components["schemas"]["GallerySet"];
-                        "application/json": components["schemas"]["GallerySet"];
-                        "text/json": components["schemas"]["GallerySet"];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -1732,11 +1846,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": unknown[][];
-                        "application/json": unknown[][];
-                        "text/json": unknown[][];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -1818,6 +1928,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/PageManagement/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["PageManagementSet"][];
+                    "text/json": components["schemas"]["PageManagementSet"][];
+                    "application/*+json": components["schemas"]["PageManagementSet"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/PageManagement/Update": {
         parameters: {
             query?: never;
@@ -1873,6 +2022,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
+                    uid?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -1881,13 +2031,7 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown[];
-                    "text/json": unknown[];
-                    "application/*+json": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -1924,9 +2068,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": unknown[][];
-                    "text/json": unknown[][];
-                    "application/*+json": unknown[][];
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
                 };
             };
             responses: {
@@ -1953,18 +2097,14 @@ export interface paths {
         post?: never;
         delete: {
             parameters: {
-                query?: never;
+                query?: {
+                    uid?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown[];
-                    "text/json": unknown[];
-                    "application/*+json": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -1999,9 +2139,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": unknown[][];
-                    "text/json": unknown[][];
-                    "application/*+json": unknown[][];
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
                 };
             };
             responses: {
@@ -2029,7 +2169,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    pk?: string[];
+                    internalId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -2042,11 +2182,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": components["schemas"]["PageManagementSet"];
-                        "application/json": components["schemas"]["PageManagementSet"];
-                        "text/json": components["schemas"]["PageManagementSet"];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -2087,11 +2223,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": unknown[][];
-                        "application/json": unknown[][];
-                        "text/json": unknown[][];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -2173,6 +2305,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/SpecResearch/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecResearchSet"][];
+                    "text/json": components["schemas"]["SpecResearchSet"][];
+                    "application/*+json": components["schemas"]["SpecResearchSet"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/SpecResearch/Update": {
         parameters: {
             query?: never;
@@ -2228,6 +2399,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
+                    uid?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -2236,13 +2408,7 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown[];
-                    "text/json": unknown[];
-                    "application/*+json": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -2279,9 +2445,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": unknown[][];
-                    "text/json": unknown[][];
-                    "application/*+json": unknown[][];
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
                 };
             };
             responses: {
@@ -2308,18 +2474,14 @@ export interface paths {
         post?: never;
         delete: {
             parameters: {
-                query?: never;
+                query?: {
+                    uid?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown[];
-                    "text/json": unknown[];
-                    "application/*+json": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -2354,9 +2516,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": unknown[][];
-                    "text/json": unknown[][];
-                    "application/*+json": unknown[][];
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
                 };
             };
             responses: {
@@ -2384,7 +2546,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    pk?: string[];
+                    internalId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -2397,11 +2559,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": components["schemas"]["SpecResearchSet"];
-                        "application/json": components["schemas"]["SpecResearchSet"];
-                        "text/json": components["schemas"]["SpecResearchSet"];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -2442,11 +2600,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": unknown[][];
-                        "application/json": unknown[][];
-                        "text/json": unknown[][];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -2528,6 +2682,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/SpecUSR/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecUSRSet"][];
+                    "text/json": components["schemas"]["SpecUSRSet"][];
+                    "application/*+json": components["schemas"]["SpecUSRSet"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/SpecUSR/Update": {
         parameters: {
             query?: never;
@@ -2583,6 +2776,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
+                    uid?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -2591,13 +2785,7 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown[];
-                    "text/json": unknown[];
-                    "application/*+json": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -2634,9 +2822,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": unknown[][];
-                    "text/json": unknown[][];
-                    "application/*+json": unknown[][];
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
                 };
             };
             responses: {
@@ -2663,18 +2851,14 @@ export interface paths {
         post?: never;
         delete: {
             parameters: {
-                query?: never;
+                query?: {
+                    uid?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown[];
-                    "text/json": unknown[];
-                    "application/*+json": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -2709,9 +2893,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": unknown[][];
-                    "text/json": unknown[][];
-                    "application/*+json": unknown[][];
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
                 };
             };
             responses: {
@@ -2739,7 +2923,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    pk?: string[];
+                    internalId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -2752,11 +2936,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": components["schemas"]["SpecUSRSet"];
-                        "application/json": components["schemas"]["SpecUSRSet"];
-                        "text/json": components["schemas"]["SpecUSRSet"];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -2797,11 +2977,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": unknown[][];
-                        "application/json": unknown[][];
-                        "text/json": unknown[][];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -2883,6 +3059,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/Tag/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["TagSet"][];
+                    "text/json": components["schemas"]["TagSet"][];
+                    "application/*+json": components["schemas"]["TagSet"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Tag/Update": {
         parameters: {
             query?: never;
@@ -2938,6 +3153,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
+                    uid?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -2946,13 +3162,7 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown[];
-                    "text/json": unknown[];
-                    "application/*+json": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -2989,9 +3199,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": unknown[][];
-                    "text/json": unknown[][];
-                    "application/*+json": unknown[][];
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
                 };
             };
             responses: {
@@ -3018,18 +3228,14 @@ export interface paths {
         post?: never;
         delete: {
             parameters: {
-                query?: never;
+                query?: {
+                    uid?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown[];
-                    "text/json": unknown[];
-                    "application/*+json": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -3064,9 +3270,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": unknown[][];
-                    "text/json": unknown[][];
-                    "application/*+json": unknown[][];
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
                 };
             };
             responses: {
@@ -3094,7 +3300,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    pk?: string[];
+                    internalId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -3107,11 +3313,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": components["schemas"]["TagSet"];
-                        "application/json": components["schemas"]["TagSet"];
-                        "text/json": components["schemas"]["TagSet"];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -3152,11 +3354,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": unknown[][];
-                        "application/json": unknown[][];
-                        "text/json": unknown[][];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -3238,6 +3436,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/WebResource/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["WebResourceSet"][];
+                    "text/json": components["schemas"]["WebResourceSet"][];
+                    "application/*+json": components["schemas"]["WebResourceSet"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/WebResource/Update": {
         parameters: {
             query?: never;
@@ -3293,6 +3530,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
+                    uid?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -3301,13 +3539,7 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown[];
-                    "text/json": unknown[];
-                    "application/*+json": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -3344,9 +3576,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": unknown[][];
-                    "text/json": unknown[][];
-                    "application/*+json": unknown[][];
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
                 };
             };
             responses: {
@@ -3373,18 +3605,14 @@ export interface paths {
         post?: never;
         delete: {
             parameters: {
-                query?: never;
+                query?: {
+                    uid?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown[];
-                    "text/json": unknown[];
-                    "application/*+json": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -3419,9 +3647,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": unknown[][];
-                    "text/json": unknown[][];
-                    "application/*+json": unknown[][];
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
                 };
             };
             responses: {
@@ -3449,7 +3677,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    pk?: string[];
+                    internalId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -3462,11 +3690,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": components["schemas"]["WebResourceSet"];
-                        "application/json": components["schemas"]["WebResourceSet"];
-                        "text/json": components["schemas"]["WebResourceSet"];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -3507,11 +3731,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": unknown[][];
-                        "application/json": unknown[][];
-                        "text/json": unknown[][];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -3558,6 +3778,63 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        Announcement: {
+            /** Format: date-time */
+            CreateTime?: string | null;
+            CreateUserId?: string | null;
+            /** Format: date-time */
+            ModifyTime?: string | null;
+            ModifyUserId?: string | null;
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            IsIniData?: boolean;
+            /** Format: date-time */
+            Validate_Start?: string | null;
+            /** Format: date-time */
+            Validate_End?: string | null;
+            AnnouncementId?: string | null;
+            Categories?: string | null;
+            Tags?: string | null;
+            Statuses?: string | null;
+            PictureId?: string | null;
+            PicDescription?: string | null;
+            /** Format: int32 */
+            ViewCount?: number | null;
+        };
+        AnnouncementDetail: {
+            RowState?: components["schemas"]["RowState"];
+            AnnouncementId?: string | null;
+            /** Format: int32 */
+            RowId?: number;
+            Lang?: string | null;
+            Title?: string | null;
+            SubTitle?: string | null;
+            Content?: string | null;
+            Url?: string | null;
+        };
+        AnnouncementDetailFile: {
+            RowState?: components["schemas"]["RowState"];
+            AnnouncementId?: string | null;
+            /** Format: int32 */
+            ParentRowId?: number;
+            /** Format: int32 */
+            Row?: number;
+            FileId?: string | null;
+        };
+        AnnouncementSet: {
+            Announcement?: components["schemas"]["Announcement"];
+            AnnouncementDetail?: components["schemas"]["AnnouncementDetail"][] | null;
+            AnnouncementDetailFile?: components["schemas"]["AnnouncementDetailFile"][] | null;
+        };
+        AnnouncementSetApiRequest: {
+            UID?: string | null;
+            Set?: components["schemas"]["AnnouncementSet"];
+        };
         Banner: {
             /** Format: date-time */
             CreateTime?: string | null;
@@ -3572,10 +3849,11 @@ export interface components {
             InvalidUserId?: string | null;
             InternalId?: string | null;
             OrgLvId?: string | null;
+            IsIniData?: boolean;
             /** Format: date-time */
-            Validate_Start?: string;
+            Validate_Start?: string | null;
             /** Format: date-time */
-            Validate_End?: string;
+            Validate_End?: string | null;
             BannerId?: string | null;
             CategoryId?: string | null;
             /** Format: int32 */
@@ -3618,12 +3896,12 @@ export interface components {
             Content?: string | null;
         };
         BannerSet: {
-            MasterData?: components["schemas"]["Banner"];
-            Details?: components["schemas"]["BannerDetail"][] | null;
-            DetailInfo?: components["schemas"]["BannerDetailInfo"][] | null;
+            Banner?: components["schemas"]["Banner"];
+            BannerDetail?: components["schemas"]["BannerDetail"][] | null;
+            BannerDetailInfo?: components["schemas"]["BannerDetailInfo"][] | null;
         };
         BannerSetApiRequest: {
-            PK?: unknown[] | null;
+            UID?: string | null;
             Set?: components["schemas"]["BannerSet"];
         };
         Category: {
@@ -3640,24 +3918,25 @@ export interface components {
             InvalidUserId?: string | null;
             InternalId?: string | null;
             OrgLvId?: string | null;
+            IsIniData?: boolean;
             /** Format: date-time */
-            Validate_Start?: string;
+            Validate_Start?: string | null;
             /** Format: date-time */
-            Validate_End?: string;
-            CategoryId: string;
+            Validate_End?: string | null;
+            CategoryId?: string | null;
             ProgId?: string | null;
         };
         CategoryDataSet: {
-            Category: components["schemas"]["Category"];
-            CategoryDetail: components["schemas"]["CategoryDetail"];
+            Category?: components["schemas"]["Category"];
+            CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
         };
         CategoryDataSetApiRequest: {
-            PK?: unknown[] | null;
+            UID?: string | null;
             Set?: components["schemas"]["CategoryDataSet"];
         };
         CategoryDetail: {
             RowState?: components["schemas"]["RowState"];
-            CategoryId: string;
+            CategoryId?: string | null;
             /** Format: int32 */
             RowId?: number;
             Lang?: string | null;
@@ -3682,13 +3961,13 @@ export interface components {
             InvalidUserId?: string | null;
             InternalId?: string | null;
             OrgLvId?: string | null;
+            IsIniData?: boolean;
             /** Format: date-time */
-            Validate_Start?: string;
+            Validate_Start?: string | null;
             /** Format: date-time */
-            Validate_End?: string;
+            Validate_End?: string | null;
             FileArchiveId: string;
-            /** Format: int32 */
-            Status?: number;
+            Status?: string | null;
             CategoriesId: string;
             TagsId: string;
         };
@@ -3716,7 +3995,7 @@ export interface components {
             FileArchiveDetail: components["schemas"]["FileArchiveDetail"][] | null;
         };
         FileArchiveSetApiRequest: {
-            PK?: unknown[] | null;
+            UID?: string | null;
             Set?: components["schemas"]["FileArchiveSet"];
         };
         /**
@@ -3738,10 +4017,11 @@ export interface components {
             InvalidUserId?: string | null;
             InternalId?: string | null;
             OrgLvId?: string | null;
+            IsIniData?: boolean;
             /** Format: date-time */
-            Validate_Start?: string;
+            Validate_Start?: string | null;
             /** Format: date-time */
-            Validate_End?: string;
+            Validate_End?: string | null;
             GalleryId: string;
             CategoriesId: string;
             TagsId: string;
@@ -3787,7 +4067,7 @@ export interface components {
             GalleryPhotosInfo: components["schemas"]["GalleryPhotosInfo"][] | null;
         };
         GallerySetApiRequest: {
-            PK?: unknown[] | null;
+            UID?: string | null;
             Set?: components["schemas"]["GallerySet"];
         };
         PageManagement: {
@@ -3804,16 +4084,18 @@ export interface components {
             InvalidUserId?: string | null;
             InternalId?: string | null;
             OrgLvId?: string | null;
+            IsIniData?: boolean;
             PageId?: string | null;
             CategoryId?: string | null;
             /** Format: int32 */
-            ViewCount?: number;
+            ViewCount?: number | null;
+            PageManagementDetail?: components["schemas"]["PageManagementDetail"][] | null;
         };
         PageManagementDetail: {
             RowState?: components["schemas"]["RowState"];
             PageId?: string | null;
             /** Format: int32 */
-            RowId?: number;
+            RowId?: number | null;
             Lang?: string | null;
             Title?: string | null;
             Content?: string | null;
@@ -3823,16 +4105,16 @@ export interface components {
             PageManagementDetail: components["schemas"]["PageManagementDetail"][] | null;
         };
         PageManagementSetApiRequest: {
-            PK?: unknown[] | null;
+            UID?: string | null;
             Set?: components["schemas"]["PageManagementSet"];
         };
         QueryListParam: {
-            fields?: string[] | null;
-            condition?: string | null;
+            Fields?: string[] | null;
+            Condition?: string | null;
             /** Format: int32 */
-            pageCt?: number;
+            PageNumber?: number;
             /** Format: int32 */
-            takeCt?: number;
+            PageSize?: number;
         };
         /**
          * Format: int32
@@ -3853,10 +4135,11 @@ export interface components {
             InvalidUserId?: string | null;
             InternalId?: string | null;
             OrgLvId?: string | null;
+            IsIniData?: boolean;
             /** Format: date-time */
-            Validate_Start?: string;
+            Validate_Start?: string | null;
             /** Format: date-time */
-            Validate_End?: string;
+            Validate_End?: string | null;
             ResearchId?: string | null;
             CategoryId?: string | null;
             /** Format: int32 */
@@ -3892,7 +4175,7 @@ export interface components {
             Details?: components["schemas"]["SpecResearchDetail"][] | null;
         };
         SpecResearchSetApiRequest: {
-            PK?: unknown[] | null;
+            UID?: string | null;
             Set?: components["schemas"]["SpecResearchSet"];
         };
         SpecUSR: {
@@ -3909,10 +4192,11 @@ export interface components {
             InvalidUserId?: string | null;
             InternalId?: string | null;
             OrgLvId?: string | null;
+            IsIniData?: boolean;
             /** Format: date-time */
-            Validate_Start?: string;
+            Validate_Start?: string | null;
             /** Format: date-time */
-            Validate_End?: string;
+            Validate_End?: string | null;
             USRId?: string | null;
             CategoryId?: string | null;
             /** Format: int32 */
@@ -3948,7 +4232,7 @@ export interface components {
             Details?: components["schemas"]["SpecUSRDetail"][] | null;
         };
         SpecUSRSetApiRequest: {
-            PK?: unknown[] | null;
+            UID?: string | null;
             Set?: components["schemas"]["SpecUSRSet"];
         };
         TagData: {
@@ -3965,27 +4249,28 @@ export interface components {
             InvalidUserId?: string | null;
             InternalId?: string | null;
             OrgLvId?: string | null;
+            IsIniData?: boolean;
             /** Format: date-time */
-            Validate_Start?: string;
+            Validate_Start?: string | null;
             /** Format: date-time */
-            Validate_End?: string;
-            TagId: string | null;
+            Validate_End?: string | null;
+            TagId?: string | null;
             ProgId?: string | null;
         };
         TagDetail: {
             RowState?: components["schemas"]["RowState"];
-            TagId: string | null;
+            TagId?: string | null;
             /** Format: int32 */
             RowId?: number;
             Lang?: string | null;
             TagName?: string | null;
         };
         TagSet: {
-            TagData: components["schemas"]["TagData"];
-            TagDetail: components["schemas"]["TagDetail"][] | null;
+            TagData?: components["schemas"]["TagData"];
+            TagDetail?: components["schemas"]["TagDetail"][] | null;
         };
         TagSetApiRequest: {
-            PK?: unknown[] | null;
+            UID?: string | null;
             Set?: components["schemas"]["TagSet"];
         };
         WebResource: {
@@ -4002,10 +4287,11 @@ export interface components {
             InvalidUserId?: string | null;
             InternalId?: string | null;
             OrgLvId?: string | null;
+            IsIniData?: boolean;
             /** Format: date-time */
-            Validate_Start?: string;
+            Validate_Start?: string | null;
             /** Format: date-time */
-            Validate_End?: string;
+            Validate_End?: string | null;
             WebResourceId: string;
             CategoriesId?: string | null;
             TagsId?: string | null;
@@ -4033,7 +4319,7 @@ export interface components {
             WebResourceInfo: components["schemas"]["WebResourceInfo"][] | null;
         };
         WebResourceSetApiRequest: {
-            PK?: unknown[] | null;
+            UID?: string | null;
             Set?: components["schemas"]["WebResourceSet"];
         };
     };

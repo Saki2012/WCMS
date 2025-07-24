@@ -1,5 +1,5 @@
-import {LibDropList, LibTabs, LibTextBox, LibTinyMCE, } from "../../../../../../SysCore/Components/FormField/LibFormField"
-import type { LibTabsProp, LibTextBoxProp,LibTinyMCEProp } from "../../../../../../SysCore/Components/FormField/LibFormField"
+import {LibDropList, LibTabs, LibTextBox, LibTinyMCE } from "../../../../../../SysCore/Components/FormField/LibFormField"
+import type { LibTabsProp, LibTextBoxProp, LibTinyMCEProp } from "../../../../../../SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "../../../Theme/ITheme";
 import { useGetCategoryListByProgId } from "../Category/Category_Hook"
 import PageManagementProvider from "./PageManagement_Api"
@@ -9,21 +9,24 @@ import { useParams } from "react-router";
 import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
 import { useGetPageFormData } from "./PageManagement_Hook";
 import type { components } from "../../../../../../types/api";
+import type { ILibDropListProp } from "../../../../../../SysCore/Components/FormField/FieldComponets/LibDropList_Data";
+import { emptyData } from "./PageManagement_Data";
 type PageManagementSet = components["schemas"]["PageManagementSet"]
-
+import { useEffect } from "react";
 /** 頁面表單
  * @returns 
  */
 export const PageFormComp = ({theme}:{theme:IBETheme}) => {
     const { internalId } = useParams()
-
-    const useCategory = useGetCategoryListByProgId("PageManagement","zh-TW")
+    const useCategory = useGetCategoryListByProgId("PageManagement","zh-tw")
     const usePageFormData = useGetPageFormData(internalId as string);
-    const useToolbar = useFormToolbarActions(PageManagementProvider(), usePageFormData.data as PageManagementSet,internalId as string)
+    const useToolbar = useFormToolbarActions(PageManagementProvider(), usePageFormData.data ?? emptyData as PageManagementSet,internalId as string)
 
+    const isLoading=[useCategory.isLoading,usePageFormData.isLoading]
+    const errors=[useCategory.error,usePageFormData.error]
 
-    const isLoading=[useCategory.isLoading]
-    const errors=[useCategory.error]
+    useEffect(() => {if (usePageFormData.data) {useToolbar.setFormData(usePageFormData.data);}}, [usePageFormData.data]);
+
 
     const prop:FormCompProp={ Title:"新增頁面", Theme:theme, LoadingList:isLoading, ErrorList:errors, Toolbar:useToolbar.action }
     const LibTabsPropA:LibTabsProp={
@@ -35,21 +38,22 @@ export const PageFormComp = ({theme}:{theme:IBETheme}) => {
     const LibTabsPropB:LibTabsProp={
         Style:theme.Tabs,
         item:{
-            "Chinese":"繁體中文",
-            "English":"English",
+            "zh-tw":"繁體中文",
+            "en":"English",
         }
     }
-    const libTextBoxProp:LibTextBoxProp={
-        Style:theme.TextBox,
-        ColumnDisplayName:"中文標題",
-        DefaultInputDisplay:"請輸入",
-        InputValue:useToolbar.formData?.PageManagementDetail?.[0]?.Title,
-        OnChange:(val) => useToolbar.setFormData({ ...useToolbar.formData, PageManagementDetail: useToolbar.formData.PageManagementDetail?.map((item, idx) => idx === 0 ? { ...item, Title: val } : item) ?? []}),
+
+    const libDropListProp:ILibDropListProp={
+        style:theme.DropList,
+        colDisplayName:"類別選擇",
+        options:useCategory.data,
+        InputValue:useToolbar.formData?.PageManagement?.CategoryId ?? '',
+        onChange:(val) => {useToolbar.setFormData({...useToolbar.formData,PageManagement: {...useToolbar.formData?.PageManagement,CategoryId: val}});}
     }
-    const libTinyMCEProp:LibTinyMCEProp={
-        Style:theme.TinyMCE,
-        ColumnDisplayName:"內容-編輯器",
-    }
+
+
+    
+
 
     return (
         <FormComp prop={prop}>
@@ -64,7 +68,7 @@ export const PageFormComp = ({theme}:{theme:IBETheme}) => {
                                         <div className="row mx-0">
                                             <div className="col form-group">
                                                 <div className="row mx-0">
-                                                    <LibDropList style={theme.DropList} colDisplayName="類別選擇" options={useCategory.data} ></LibDropList>
+                                                    <LibDropList {...libDropListProp}></LibDropList>
                                                 </div>
                                             </div>
                                         </div>
@@ -82,7 +86,6 @@ export const PageFormComp = ({theme}:{theme:IBETheme}) => {
                             <LibTabs {...LibTabsPropB}></LibTabs>
                             <div className="tab-content px-0" id="myTabContent_TWEN">
                                 <div className="tab-pane fade show active" role="tabpanel" id="Tab_TWEN1">
-
                                     <div className="form">
                                         <div className="row mx-0">
                                             <div className="col form-group">
@@ -99,7 +102,6 @@ export const PageFormComp = ({theme}:{theme:IBETheme}) => {
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
@@ -110,3 +112,49 @@ export const PageFormComp = ({theme}:{theme:IBETheme}) => {
     )
 }
 
+const DynamicRenderContentControl=({theme}:{theme:IBETheme})=>{
+
+
+    const libTextBoxProp:LibTextBoxProp={
+        Style:theme.TextBox,
+        ColumnDisplayName:"中文標題",
+        DefaultInputDisplay:"請輸入",
+        InputValue:useToolbar.formData?.PageManagementDetail?.[0]?.Title,
+        OnChange:(val) => useToolbar.setFormData({ ...useToolbar.formData, PageManagementDetail: useToolbar.formData.PageManagementDetail?.map((item, idx) => item.Lang === "zh-tw" ? { ...item, Title: val } : item) ?? []}),
+    }
+    const libTinyMCEProp:LibTinyMCEProp={
+        Style:theme.TinyMCE,
+        ColumnDisplayName:"內容-編輯器",
+        InputValue:useToolbar.formData?.PageManagementDetail?.[0]?.Content,
+        OnChange:(val)=>useToolbar.setFormData({...useToolbar.formData,
+            PageManagementDetail: useToolbar.formData.PageManagementDetail?.map((item, idx) =>
+            item.Lang === "zh-tw" ? { ...item, Content: val } : item
+            ) ?? [],
+        }),
+    }
+
+
+
+    return(
+        <>
+            <div className="tab-pane fade show active" role="tabpanel" id="Tab_TWEN1">
+                <div className="form">
+                    <div className="row mx-0">
+                        <div className="col form-group">
+                            <div className="row mx-0">
+                                <LibTextBox {...libTextBoxProp}/>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="row mx-0">
+                        <div className="col form-group">
+                            <div className="row mx-0">
+                                <LibTinyMCE {...libTinyMCEProp}></LibTinyMCE>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </>
+    )
+}

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.SiteEdit.Category;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
@@ -26,7 +27,7 @@ namespace WCMS.Features.SiteEdit.PageManagement
         /// </summary>
         [LibDesc] public int? ViewCount { get; set; }
 
-        public virtual ICollection<PageManagementDetail>? PageManagementDetail { get; set; }
+        [ForeignKey(nameof(PageId))] public virtual ICollection<PageManagementDetail>? PageManagementDetail { get; set; }
 
     }
     public class PageManagementDetail:DetailRowModel

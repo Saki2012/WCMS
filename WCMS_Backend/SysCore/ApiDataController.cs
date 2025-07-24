@@ -20,11 +20,11 @@ namespace WCMS.SysCore
 
         private ModelDisplay<TSet>.ModelMetadata _modelDisplayName;
 
-        private ModelDisplay<TSet>.ModelMetadata ModelDescription 
+        public ModelDisplay<TSet>.ModelMetadata ModelDescription 
         {
             get 
             { 
-                if(_modelDisplayName==null) _modelDisplayName= new ModelDisplay<TSet>().Model;
+                _modelDisplayName??= new ModelDisplay<TSet>().Model;
                 return _modelDisplayName; 
             }
         }
@@ -104,9 +104,9 @@ namespace WCMS.SysCore
         /// <param name="pk"></param>
         /// <returns></returns>
         [HttpDelete(nameof(Delete))]
-        public async Task<IActionResult> Delete(string uid)
+        public async Task<IActionResult> Delete(string internalId)
         {
-            return Ok(await _service.DeleteSetAsync(uid));
+            return Ok(await _service.DeleteSetAsync(internalId));
         }
         /// <summary>
         /// 批次刪除
@@ -139,6 +139,7 @@ namespace WCMS.SysCore
         /// </summary>
         /// <returns></returns>
         [HttpGet(nameof(GetModelDisplayName))]
+
         public async Task<IActionResult> GetModelDisplayName()
         {
             return Ok(await Task.Run(() => ModelDescription));

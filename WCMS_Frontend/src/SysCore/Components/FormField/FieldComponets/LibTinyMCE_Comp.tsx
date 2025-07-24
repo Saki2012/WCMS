@@ -3,17 +3,15 @@
 
 import { useId } from 'react';
 import { TinyMCE } from "../../TinyMCE/TinyMCE_Comp"
-import { useState } from "react";
-import type {LibTinyMCEProp} from "./LibTinyMCE_Data"
+import type {ILibTinyMCEProp} from "./LibTinyMCE_Data"
 
-const LibTinyMCE=(prop:LibTinyMCEProp)=>{
+const LibTinyMCE=(prop:ILibTinyMCEProp)=>{
     const inputId = useId();
-    const [content, setContent] = useState('');
     return(
         <>
             <label htmlFor={inputId} className={prop.Style.Labelstyle}>{prop.ColumnDisplayName}</label>
             <div className={prop.Style.SelectStyle}>
-                <TinyMCE Id={inputId} value={content} onChange={setContent} />
+                <TinyMCE Id={inputId} value={prop.InputValue as string} onChange={prop.OnChange} />
             </div>
         </>
     );

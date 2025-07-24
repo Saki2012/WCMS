@@ -20,6 +20,10 @@ namespace WCMS.Features.SiteEdit.Category
         /// 對應功能模塊ID
         /// </summary>
         [LibDesc] public string? ProgId { get; set; }
+        /// <summary>
+        /// 類別明細
+        /// </summary>
+        public virtual ICollection<CategoryDetail>? CategoryDetail { get; set; }
     }
     public class CategoryDetail : DetailRowModel
     {

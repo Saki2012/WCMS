@@ -409,8 +409,9 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TagsId")
                         .IsRequired()
@@ -1344,6 +1345,15 @@ namespace WCMS.Migrations
                     b.ToTable("User", (string)null);
                 });
 
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Category.CategoryDetail", b =>
+                {
+                    b.HasOne("WCMS.Features.SiteEdit.Category.Category", null)
+                        .WithMany("CategoryDetail")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("WCMS.Features.SiteEdit.PageManagement.PageManagementDetail", b =>
                 {
                     b.HasOne("WCMS.Features.SiteEdit.PageManagement.PageManagement", null)
@@ -1362,6 +1372,11 @@ namespace WCMS.Migrations
                         .IsRequired();
 
                     b.Navigation("DataChangeLog");
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Category.Category", b =>
+                {
+                    b.Navigation("CategoryDetail");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.PageManagement.PageManagement", b =>

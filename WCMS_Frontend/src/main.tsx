@@ -84,10 +84,12 @@ ServerjsList.forEach((src) => {
 })
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+  <>
+   {/* <StrictMode> */}
       {createPortal(<HeaderMetaComp />, document.head)}
       <BrowserRouter>
         <App/>
       </BrowserRouter>
-  </StrictMode>,
+    {/* </StrictMode>, */}
+  </>
 )

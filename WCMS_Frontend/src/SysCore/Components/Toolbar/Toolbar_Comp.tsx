@@ -6,12 +6,20 @@ export const List_Toolbar=({items}:{items:ToolbarAction[]})=>{
         <div className="row mx-0">
             <div className="px-0 mb-2">
                 
-                {items && items.map((btn, idx) => (
-                    <Link key={idx} to={btn.Url} target="_self" type="button" role="button" className="mr-2 mb-2" title={btn.Title}>
-                        <button type="button" className="btn btn-custom btn-rounded btn-sm">{btn.Title}</button>
+                {items && items.map((btn, idx) => {
+                if (btn.Type === 'link') { return (
+                    <Link key={idx} to={btn.Url as string} className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" title={btn.Title}>
+                        {btn.Title}
                     </Link>
-                ))}
-
+                    );
+                }
+                return (
+                    <button key={idx} type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" title={btn.Title} onClick={() => {
+                        if (!btn.Confirm || window.confirm(btn.Confirm)) { btn.OnClick?.();} }}>
+                            {btn.Title}
+                    </button>
+                );
+                })}
             </div>
         </div>
     );

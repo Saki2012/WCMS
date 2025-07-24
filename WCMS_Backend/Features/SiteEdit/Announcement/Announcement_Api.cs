@@ -7,7 +7,7 @@ using WCMS.SysCore.Interface;
 namespace WCMS.Features.SiteEdit.Announcement
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class AnnouncementController(IBizService<PageManagementSet> service) : ApiDataController<PageManagementSet>(service)
+    public class AnnouncementController(IBizService<AnnouncementSet> service) : ApiDataController<AnnouncementSet>(service)
     {
     }
 }

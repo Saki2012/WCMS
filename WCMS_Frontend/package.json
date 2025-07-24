@@ -29,6 +29,7 @@
     "react-router-dom": "^7.6.3",
     "swiper": "^11.2.8",
     "tinymce": "^7.9.1",
+    "ts-morph": "^26.0.0",
     "vite-plugin-css-modules": "^0.0.1",
     "vite-plugin-ssr": "^0.4.142",
     "zod": "^4.0.2"

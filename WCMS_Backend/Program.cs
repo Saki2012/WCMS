@@ -44,6 +44,11 @@ namespace WCMS
             app.UseAuthorization();
             app.MapControllers();
             app.UseCors("AllowLocalhostWildcard");
+
+
+#if DEBUG
+            //await OldDataImporter.RunAsync();
+#endif
             app.Run();
         }
 
