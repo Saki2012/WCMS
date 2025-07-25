@@ -73,12 +73,12 @@ namespace WCMS.SysCore
         /// 修改
         /// </summary>
         /// <param name="pk"></param>
-        /// <param name="set"></param>
+        /// <param name="data"></param>
         /// <returns></returns>
         [HttpPut(nameof(Update))]
-        public async Task<IActionResult> Update(ApiRequest<TSet> set)
+        public async Task<IActionResult> Update(ApiRequest<TSet> data)
         {
-            return Ok(await _service.UpdateSetAsync(set.UID,set.Set));
+            return Ok(await _service.UpdateSetAsync(data.InternalId, data.Data));
         }
         /// <summary>
         /// 作廢
@@ -135,11 +135,20 @@ namespace WCMS.SysCore
             return Ok(await _service.QueryListAsync(queryCondition.Fields, queryCondition.Condition, queryCondition.PageNumber, queryCondition.PageSize));
         }
         /// <summary>
+        /// 獲取清單總頁數
+        /// </summary>
+        /// <param name="queryCondition"></param>
+        /// <returns></returns>
+        [HttpPost(nameof(GetTotalPages))]
+        public async Task<IActionResult> GetTotalPages([FromBody] QueryListParam? queryCondition)
+        {
+            return Ok(await _service.QueryListTotalPages(queryCondition.Fields ,queryCondition.Condition, queryCondition.PageSize));
+        }
+        /// <summary>
         /// 獲取功能的欄位顯示名稱
         /// </summary>
         /// <returns></returns>
         [HttpGet(nameof(GetModelDisplayName))]
-
         public async Task<IActionResult> GetModelDisplayName()
         {
             return Ok(await Task.Run(() => ModelDescription));
@@ -177,10 +186,9 @@ namespace WCMS.SysCore
     /// <typeparam name="TSet"></typeparam>
     public class ApiRequest<TSet> : IApiRequest<TSet>
     {
-        public string UID { get; set; }
-        public TSet Set { get; set; }
+        public string InternalId { get; set; }
+        public TSet Data { get; set; }
     }
-
     /// <summary>
     /// 查詢條件
     /// </summary>

@@ -36,8 +36,8 @@ export const Grid=({ gridData, style, pageStyle }: { gridData: GridProps; style:
     const [_, setCurrentPage] = useState(1);
     const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    null; // 重新查詢資料
-    };
+    if (gridData.onPageChange) gridData.onPageChange(page);
+  };
 
     return(
         <>

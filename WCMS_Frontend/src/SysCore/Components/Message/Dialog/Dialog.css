@@ -1,0 +1,39 @@
+/* style.css */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10000;
+}
+.toast {
+  background: #333;
+  color: white;
+  padding: 12px 20px;
+  margin-top: 10px;
+  border-radius: 5px;
+  min-width: 200px;
+}
+.toast.success { background: #4caf50; }
+.toast.error { background: #f44336; }
+.toast.info { background: #2196f3; }
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10001;
+}
+.dialog {
+  background: white;
+  padding: 24px;
+  border-radius: 6px;
+  min-width: 300px;
+  text-align: center;
+}
+.dialog-buttons button {
+  margin: 10px;
+  padding: 6px 16px;
+}

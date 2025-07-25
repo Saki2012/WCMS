@@ -31,6 +31,11 @@ export abstract class IDataProvider<T> {
   public async fetchList(condition?: QueryListCondition): Promise<ApiResponse<T>>{
     return await this.doFetchList(condition);
   }
+
+  public async fetchListCount(condition?: QueryListCondition): Promise<ApiResponse<number>>{
+    return await this.doFetchListCount(condition);
+  }
+
   public async getModelDisplayName(): Promise<T[]>{
     return await this.doGetModelDisplayName();
   }
@@ -43,6 +48,7 @@ export abstract class IDataProvider<T> {
   protected abstract doInvalid(internaId:string,isInvalid:boolean): Promise<ApiResponse<T>>;
   protected abstract doFetchData(internaId?: string): Promise<ApiResponse<T>>;
   protected abstract doFetchList(condition?: QueryListCondition): Promise<ApiResponse<T>>;
+  protected abstract doFetchListCount(condition?: QueryListCondition): Promise<ApiResponse<number>>;
   protected abstract doGetModelDisplayName(): Promise<T[]>;
   //#endregion
 }

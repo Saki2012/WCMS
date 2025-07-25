@@ -17,6 +17,7 @@ export const useFormToolbarActions = <T>(apiProvider: IDataProvider<T>, initialD
             if(!internalId) await apiProvider.createData(formData);
             else await apiProvider.updateData(internalId,formData);
             setIsLoading(false)
+            setResult(true)
         }
         catch(err: any) {
             if (axios.isAxiosError(err)) {
@@ -25,7 +26,7 @@ export const useFormToolbarActions = <T>(apiProvider: IDataProvider<T>, initialD
             } else {
                 setError(err.message);
             }
-
+            setResult(false)
         }
         finally{
             setIsLoading(false);

@@ -21,11 +21,12 @@ client.interceptors.request.use((config) => {
 });
 const genericApi = {
   create: <T>(module: string, data: T) => client.post<ApiResponse<T>>(`/${module}/Create`, data),
-  update: <T>(module: string, internalId: string, data: T) => client.put<ApiResponse<T>>(`/${module}/Update`, { internalId, data }),
+  update: <T>(module: string, internalId: string, data: T) => client.put<ApiResponse<T>>(`/${module}/Update`, { InternalId:internalId, Data:data }),
   delete: <T>(module: string, internalId: string) => client.delete<ApiResponse<T>>(`/${module}/Delete`, { params:{ internalId } }),
   invalid: <T>(module: string, internalId: string, isInvalid: boolean) => client.delete<ApiResponse<T>>(`/${module}/Invalid`, { data: { internalId, isInvalid }}),
   queryData: <T>(module: string, internalId: string) => client.get<ApiResponse<T>>(`/${module}/QueryData`, { params: internalId  }),
   queryList: <T>(module: string, condition: QueryListCondition) => client.post<ApiResponse<T>>(`/${module}/QueryList`, condition), 
+  queryListCount:(module: string, condition: QueryListCondition) => client.post<ApiResponse<number>>(`/${module}/GetTotalPages`, condition), 
   getModelDisplayName: (module: string) => client.get(`/${module}/GetModelDisplayName`),
 };
 
@@ -59,6 +60,10 @@ export class BaseApiService<T> {
 
   async queryList(condition: QueryListCondition) {
     return await genericApi.queryList<T>(this.module, condition);
+  }
+
+  async queryCount(condition: QueryListCondition) {
+    return await genericApi.queryListCount(this.module, condition);
   }
 
   async getModelDisplayName(): Promise<T[]> {

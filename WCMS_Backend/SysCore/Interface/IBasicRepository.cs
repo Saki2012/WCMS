@@ -20,7 +20,7 @@ namespace WCMS.SysCore.Interface
         /// </summary>
         /// <param name="set"></param>
         /// <returns></returns>
-        public Task CreateAsync(object newData);
+        public Task CreateAsync(object newData, int rowId = 1);
         /// <summary>
         /// 修改(非同步)
         /// </summary>

@@ -94,7 +94,7 @@ namespace WCMS.SysCore.Interface
     /// <typeparam name="TSet"></typeparam>
     public interface IApiRequest<TSet>
     {
-        public string UID { get; set; }
-        public TSet Set { get; set; }
+        public string InternalId { get; set; }
+        public TSet Data { get; set; }
     }
 }

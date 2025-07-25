@@ -57,6 +57,12 @@ class APIProvider extends IPageManagementProvider {
         const res = await this.API.queryList(condition);
         return res.data
     }
+
+    protected async doFetchListCount(condition: QueryListCondition): Promise<ApiResponse<number>> {
+        const res = await this.API.queryCount(condition);
+        return res.data
+    }
+
     protected async doGetModelDisplayName(): Promise<PageManagementSet[]> {
         const res = await this.API.getModelDisplayName();
         return res

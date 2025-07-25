@@ -165,3 +165,12 @@
     - Component 不寫任何有關useEffect等相關時機
     - 一律由Hook撰寫useEffect等相關時機
     - 當需要額外處理一些DOM渲染，接收到Hook結果後，再從Components撰寫DOM渲染邏輯
+
+部屬流程:
+前端:
+    1. 執行 npm run build:csr   (#如果是ssr，改為build:ssr)
+    2. 會產生dist-csr資料夾，將底下的所有資料打包覆蓋至Server上的部屬環境資料夾
+
+後端:
+    1. 執行 dotnet publish -c Release -o ./publish
+    2. 會產生publish資料夾，將底下的所有資料打包覆蓋至Server上的部屬環境資料夾

@@ -23,7 +23,7 @@ export const Classic_NaviBarMenu:INaviBarStyle = {
 export const Classic_SidebarMenu:IMenu_Style = {
     isUl:true,
     ul:(lv:number) => clsx(lv==1? "pc-navbar" : "pc-submenu"),
-    ulStyle:{display:"block"},
+    // ulStyle:{display:"block"},
     li:(isFirst,hasMenu)=> clsx("pc-item", {"pc-hasmenu":hasMenu, "pc-caption":isFirst, "Left_line":isFirst,})
 };
 

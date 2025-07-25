@@ -1,10 +1,12 @@
 import MenuListComp from '../../../../../../SysCore/Components/MenuList/MenuList_Comp'
 import type { IBETheme } from '../../../Theme/ITheme'
 import { Link } from 'react-router-dom';
-import { useGetSideMenuItem } from './SlideMenu_Hook'
+import { useGetSideMenuItem,useSidebarMenuBehavior } from './SlideMenu_Hook'
+import { useState } from 'react';
 
 const SidebarMenu=({theme}:{theme:IBETheme})=>{
     const items = useGetSideMenuItem();
+    useSidebarMenuBehavior(items);
     return (
     <>
         <nav className="pc-sidebar open-trigger">
@@ -17,7 +19,20 @@ const SidebarMenu=({theme}:{theme:IBETheme})=>{
                     </h1>    
                 </div>
                 <div className="navbar-content open-trigger active">
-                    <MenuListComp items={items} Style={theme.SidebarMenu}/>
+                    <div className="simplebar-wrapper" style={{margin: "-10px 0px -50px;"}}>
+                        <div className="simplebar-height-auto-observer-wrapper">
+                            <div className="simplebar-height-auto-observer"></div>
+                        </div>
+                        <div className="simplebar-mask">
+                            <div className="simplebar-offset" style={{right: "0px;", bottom: "0px;"}}>
+                                <div className="simplebar-content-wrapper" tabIndex={0} role="region" aria-label="scrollable content" style={{height: "auto;", overflow: "hidden;"}}>
+                                    <div className="simplebar-content" style={{padding: "10px 0px 50px;"}}>
+                                        <MenuListComp items={items} Style={theme.SidebarMenu}/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </nav>

@@ -19,6 +19,8 @@ export const PageListComp = ({title,theme}:{title:string;theme:IBETheme}) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
     const usePageList = useFetchPageListData();
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps, usePageList.rawData);}, [usePageList.gridProps, usePageList.rawData]);
+
+
     const useToolbar = useListToolbarActions(dirUrl)
 
     const isLoading=[usePageList.isLoading];

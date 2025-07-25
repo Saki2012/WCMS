@@ -21,12 +21,9 @@ export const PageFormComp = ({theme}:{theme:IBETheme}) => {
     const useCategory = useGetCategoryListByProgId("PageManagement","zh-tw")
     const usePageFormData = useGetPageFormData(internalId as string);
     const useToolbar = useFormToolbarActions(PageManagementProvider(), usePageFormData.data ?? emptyData as PageManagementSet,internalId as string)
-
     const isLoading=[useCategory.isLoading,usePageFormData.isLoading]
     const errors=[useCategory.error,usePageFormData.error]
-
     useEffect(() => {if (usePageFormData.data) {useToolbar.setFormData(usePageFormData.data);}}, [usePageFormData.data]);
-
 
     const prop:FormCompProp={ Title:"新增頁面", Theme:theme, LoadingList:isLoading, ErrorList:errors, Toolbar:useToolbar.action }
     const LibTabsPropA:LibTabsProp={
@@ -42,7 +39,6 @@ export const PageFormComp = ({theme}:{theme:IBETheme}) => {
             "en":"English",
         }
     }
-
     const libDropListProp:ILibDropListProp={
         style:theme.DropList,
         colDisplayName:"類別選擇",
@@ -50,10 +46,6 @@ export const PageFormComp = ({theme}:{theme:IBETheme}) => {
         InputValue:useToolbar.formData?.PageManagement?.CategoryId ?? '',
         onChange:(val) => {useToolbar.setFormData({...useToolbar.formData,PageManagement: {...useToolbar.formData?.PageManagement,CategoryId: val}});}
     }
-
-
-    
-
 
     return (
         <FormComp prop={prop}>
@@ -85,24 +77,7 @@ export const PageFormComp = ({theme}:{theme:IBETheme}) => {
                         <div className="row mx-0">
                             <LibTabs {...LibTabsPropB}></LibTabs>
                             <div className="tab-content px-0" id="myTabContent_TWEN">
-                                <div className="tab-pane fade show active" role="tabpanel" id="Tab_TWEN1">
-                                    <div className="form">
-                                        <div className="row mx-0">
-                                            <div className="col form-group">
-                                                <div className="row mx-0">
-                                                    <LibTextBox {...libTextBoxProp}/>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="row mx-0">
-                                            <div className="col form-group">
-                                                <div className="row mx-0">
-                                                    <LibTinyMCE {...libTinyMCEProp}></LibTinyMCE>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <DynamicRenderContentControl theme={theme} libTabsProp={LibTabsPropB} useToolbar={useToolbar}/>
                             </div>
                         </div>
                     </div>
@@ -112,49 +87,72 @@ export const PageFormComp = ({theme}:{theme:IBETheme}) => {
     )
 }
 
-const DynamicRenderContentControl=({theme}:{theme:IBETheme})=>{
+const DynamicRenderContentControl = ({theme,libTabsProp,useToolbar,}: {theme: IBETheme;libTabsProp: LibTabsProp;useToolbar: ReturnType<typeof useFormToolbarActions<PageManagementSet>>;}) => {
+    const details = useToolbar.formData.PageManagementDetail ?? [];
+    const tabEntries = Object.entries(libTabsProp.item ?? []);
+    const getLangData = (lang: string) => details.find((d) => d.Lang === lang) ?? { Lang: lang, Title: "", Content: "" };
 
+  const updateLangData = (lang: string, key: "Title" | "Content", val: string) => {
+    const currentData = getLangData(lang);
+    const newItem = { ...currentData, [key]: val };
 
-    const libTextBoxProp:LibTextBoxProp={
-        Style:theme.TextBox,
-        ColumnDisplayName:"中文標題",
-        DefaultInputDisplay:"請輸入",
-        InputValue:useToolbar.formData?.PageManagementDetail?.[0]?.Title,
-        OnChange:(val) => useToolbar.setFormData({ ...useToolbar.formData, PageManagementDetail: useToolbar.formData.PageManagementDetail?.map((item, idx) => item.Lang === "zh-tw" ? { ...item, Title: val } : item) ?? []}),
-    }
-    const libTinyMCEProp:LibTinyMCEProp={
-        Style:theme.TinyMCE,
-        ColumnDisplayName:"內容-編輯器",
-        InputValue:useToolbar.formData?.PageManagementDetail?.[0]?.Content,
-        OnChange:(val)=>useToolbar.setFormData({...useToolbar.formData,
-            PageManagementDetail: useToolbar.formData.PageManagementDetail?.map((item, idx) =>
-            item.Lang === "zh-tw" ? { ...item, Content: val } : item
-            ) ?? [],
-        }),
-    }
+    // 是否兩個欄位都為空，則視為不儲存
+    const isEmpty = (newItem.Title?.trim() ?? "") === "" && (newItem.Content?.trim() ?? "") === "";
 
+    const nextDetails = isEmpty
+      ? details.filter((d) => d.Lang !== lang) // 移除
+      : details.some((d) => d.Lang === lang)
+        ? details.map((d) => (d.Lang === lang ? newItem : d)) // 更新
+        : [...details, newItem]; // 新增
 
+    useToolbar.setFormData({
+      ...useToolbar.formData,
+      PageManagementDetail: nextDetails,
+    });
+  };
 
-    return(
-        <>
-            <div className="tab-pane fade show active" role="tabpanel" id="Tab_TWEN1">
+  return (
+    <>
+        {tabEntries.map(([lang, label], idx) => {
+        const isActive = idx === 0;
+        const data = getLangData(lang);
+
+        const libTextBoxProp: LibTextBoxProp = {
+            Style: theme.TextBox,
+            ColumnDisplayName: `標題（${lang}）`,
+            DefaultInputDisplay: "請輸入",
+            InputValue: data.Title ?? "",
+            OnChange: (val) => updateLangData(lang, "Title", val),
+        };
+
+        const libTinyMCEProp: LibTinyMCEProp = {
+            Style: theme.TinyMCE,
+            ColumnDisplayName: `內容編輯器（${lang}）`,
+            InputValue: data.Content ?? "",
+            OnChange: (val) => updateLangData(lang, "Content", val),
+        };
+
+        return (
+            <div key={lang} className={`tab-pane fade ${isActive ? "show active" : ""}`} role="tabpanel" id={`Tab_TWEN_${lang}`}>
                 <div className="form">
                     <div className="row mx-0">
                         <div className="col form-group">
                             <div className="row mx-0">
-                                <LibTextBox {...libTextBoxProp}/>
+                            <LibTextBox {...libTextBoxProp} />
                             </div>
                         </div>
                     </div>
                     <div className="row mx-0">
                         <div className="col form-group">
                             <div className="row mx-0">
-                                <LibTinyMCE {...libTinyMCEProp}></LibTinyMCE>
+                            <LibTinyMCE {...libTinyMCEProp} />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </>
-    )
-}
+        );
+        })}
+    </>
+  );
+};

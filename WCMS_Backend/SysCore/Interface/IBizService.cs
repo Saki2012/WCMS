@@ -63,6 +63,15 @@ namespace WCMS.SysCore.Interface
         /// <returns></returns>
         public Task<IApiResponse<TSet>> QueryListAsync(string[] selectFields, string condition, int pageNumber, int pageSize);
         /// <summary>
+        /// 獲取清單總頁數
+        /// </summary>
+        /// <param name="condition"></param>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        public Task<IApiResponse<int>> QueryListTotalPages(string[] selectFields, string condition, int pageSize);
+
+        /// <summary>
         /// 啟用交易控制(非同步)
         /// </summary>
         /// <returns></returns>

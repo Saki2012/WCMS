@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Identity.Client;
 using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Dynamic.Core;
@@ -30,7 +31,7 @@ namespace WCMS.SysCore
         /// </summary>
         protected Dictionary<string, object> RepoDict { get; } = [];
 
-        private string _ProgId = null;
+        private string? _ProgId = null;
 
         /// <summary>
         /// 功能Id
@@ -157,7 +158,6 @@ namespace WCMS.SysCore
                 Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00004);
                 Response.Data.Add(oldSet);
                 return Response;
-
             }
             catch
             {
@@ -202,7 +202,6 @@ namespace WCMS.SysCore
         }
         public async Task<IApiResponse<TSet>> QueryListAsync(string[] selectFields, string condition, int pageNumber, int pageSize)
         {
-            /* 暫時只提供查表頭 */
             IList<TSet> result = [];
             foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
             {
@@ -221,6 +220,24 @@ namespace WCMS.SysCore
             Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00010);
             Response.Data = result;
             return Response;
+        }
+        public async Task<IApiResponse<int>> QueryListTotalPages(string[] selectFields, string condition, int pageSize)
+        {
+            ApiResponse<int> res = new();
+            int totalCount = 1;
+            foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
+            {
+                if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && typeof(BasicDataModel).IsAssignableFrom(prop.PropertyType))
+                {
+                    var count = await DoQueryListCountAsync(prop.PropertyType, selectFields, condition);
+                    totalCount = count;
+                }
+            }
+            int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            res.ThrowIfFailed();
+            res.AddMessage(MessageStatus.Green, SysMessageCode.BECode00010);
+            res.Data = [totalPages];
+            return res;
         }
         /// <summary>
         /// 啟用交易控制(非同步)
@@ -279,9 +296,42 @@ namespace WCMS.SysCore
 
                 if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
                     await ((dynamic)RepoDict[prop.Name]).UpdateAsync((dynamic)oldModel, (dynamic)newModel);
-                else
+                else if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && prop.PropertyType != typeof(string))
                 {
-                    //想一下怎麼處理增刪改的行項
+                    var repo = (dynamic)RepoDict[prop.Name];
+                    var detailProp = prop.PropertyType.GetGenericArguments().FirstOrDefault();
+                    var oldValue = PropertyAccessorCache.Get(oldSet, prop.Name) as IList;
+                    var newValue = PropertyAccessorCache.Get(newSet, prop.Name) as IList;
+
+                    var keyProps = PropertyAccessorCache.GetAttrProperties(detailProp, typeof(KeyAttribute));
+                    var nonKeyProps = PropertyAccessorCache.GetProperties(detailProp).Where(p => !keyProps.Select(p => p.Name).ToHashSet().Contains(p.Name)).ToList();
+
+                    var oldDict = oldValue.ToDynamicList().ToDictionary(item => string.Join("|", keyProps.Select(k => PropertyAccessorCache.Get(item, k.Name)?.ToString() ?? "null")));
+                    var newDict = newValue.ToDynamicList().ToDictionary(item => string.Join("|", keyProps.Select(k => PropertyAccessorCache.Get(item, k.Name)?.ToString() ?? "null")));
+
+                    // 更新（兩邊都有）
+                    foreach (var key in oldDict.Keys.Intersect(newDict.Keys))
+                    {
+                        if(nonKeyProps.Any(p =>{
+                            var oldVal = PropertyAccessorCache.Get(oldDict[key], p.Name);
+                            var newVal = PropertyAccessorCache.Get(newDict[key], p.Name);
+                            return !object.Equals(oldVal, newVal);}))
+                            await repo.UpdateAsync(oldDict[key], newDict[key]);
+                    }
+
+                    // 刪除（old 有，new 沒有）
+                    foreach (var key in oldDict.Keys.Except(newDict.Keys))
+                    {
+                        await repo.DeleteAsync(oldDict[key]);
+                    }
+
+                    //這邊要獲取最大int值，但是是為了應急處理，之後要改演算法
+                    var allItems = oldDict.Values.Concat(newDict.Values);
+                    int maxRowId = allItems.Select(item => PropertyAccessorCache.Get(item, "RowId")).OfType<int>().DefaultIfEmpty(1).Max()+1;
+                    foreach (var key in newDict.Keys.Except(oldDict.Keys))
+                    {
+                        await repo.CreateAsync(newDict[key],maxRowId);
+                    }
                 }
             }
         }
@@ -292,11 +342,17 @@ namespace WCMS.SysCore
         /// <returns></returns>
         protected async Task DoDeleteAsync(TSet oldSet)
         {
-            foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
+            var props = PropertyAccessorCache.GetProperties(typeof(TSet));
+            for(int i=props.Length-1; i>=0; i--)
             {
-                var oldModel = PropertyAccessorCache.Get(oldSet, prop.Name);
+                var prop = props[i];
+                dynamic oldModel = PropertyAccessorCache.Get(oldSet, prop.Name);
                 if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
-                    await ((dynamic)RepoDict[prop.Name]).DeleteAsync((dynamic)oldModel);
+                    await ((dynamic)RepoDict[prop.Name]).DeleteAsync(oldModel);
+                else
+                    foreach(var oldDt in oldModel)
+                        await ((dynamic)RepoDict[prop.Name]).DeleteAsync(oldDt);
+
             }
         }
         /// <summary>
@@ -339,6 +395,23 @@ namespace WCMS.SysCore
             var selectExpr = GetSelectFieldsExpr(type, selectFields);
             var whereExpr = GetConditionExpr(type, condition);
             var data = await ((dynamic)RepoDict[type.Name]).QueryListAsync(selectExpr, whereExpr, pageCt, takeCt);
+            return data;
+        }
+        /// <summary>
+        /// 查詢清單總筆數
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="selectFields"></param>
+        /// <param name="condition"></param>
+        /// <param name="pageCt"></param>
+        /// <param name="takeCt"></param>
+        /// <returns></returns>
+        protected async Task<int> DoQueryListCountAsync(Type type, string[] selectFields, string condition)
+        {
+
+            var selectExpr = GetSelectFieldsExpr(type, selectFields);
+            var whereExpr = GetConditionExpr(type, condition);
+            var data = await ((dynamic)RepoDict[type.Name]).QueryListCountAsync(selectExpr, whereExpr);
             return data;
         }
         /// <summary>

@@ -35,7 +35,9 @@ export const useFetchPageListData = () => {
       
       //#region GetRows
       const queryCondition:QueryListCondition={
-          Fields: [SchemaFields.PageManagementFields.CategoryId,
+          Fields: [
+                  SchemaFields.PageManagementFields.PageId,
+                  SchemaFields.PageManagementFields.CategoryId,
                   //缺Name
                   `${SchemaFields.PageManagementSetFields.PageManagementDetail}.${SchemaFields.PageManagementDetailFields.Lang}`,
                   `${SchemaFields.PageManagementSetFields.PageManagementDetail}.${SchemaFields.PageManagementDetailFields.Title}`,
@@ -48,12 +50,18 @@ export const useFetchPageListData = () => {
           PageNumber: page,
           PageSize: 10,
         }
+      
+      const totalCountRes = await PageManagementProvider().fetchListCount(queryCondition);
+      if(!totalCountRes.IsSuccess){
+        const errorMsg = totalCountRes.SysMessage?.map(msg =>`${msg.MessageCode}:${msg.Message}`).join(';') ?? "資料查詢失敗";
+        throw new Error(errorMsg);
+      }
+      setTotalPages(totalCountRes.Data?.[0]??1);
       const res = await PageManagementProvider().fetchList(queryCondition);
       if (!res.IsSuccess) {
         const errorMsg = res.SysMessage?.map(msg =>`${msg.MessageCode}:${msg.Message}`).join(';') ?? "資料查詢失敗";
         throw new Error(errorMsg);
       }
-
       const fullData = res.Data as PageManagementSet[];
       setRawData(fullData);
       const mainTable = fullData.map(x => x.PageManagement ?? {});
@@ -73,7 +81,7 @@ export const useFetchPageListData = () => {
     }
   };
   useEffect(() => { fetchData(currentPage) }, [currentPage]);
-  const gridProps: GridProps = { columns, rows, CurrentPage: currentPage, TotalPage: totalPages };
+  const gridProps: GridProps = { columns, rows, CurrentPage: currentPage, TotalPage: totalPages, onPageChange:(page)=>{setCurrentPage(page);} };
   return { rawData, gridProps, isLoading, error };
 };
 

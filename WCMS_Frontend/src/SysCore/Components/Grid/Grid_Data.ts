@@ -23,4 +23,5 @@ export interface GridProps {
   rows: GridRow[];
   CurrentPage:number;
   TotalPage:number;
+  onPageChange: (page: number) => void;
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System.Collections;
+using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -14,6 +15,7 @@ namespace WCMS.SysCore.Library
         private static readonly ConcurrentDictionary<Type, Dictionary<string, Action<object, object>>> _setterCache = new();
         private static readonly ConcurrentDictionary<Type, PropertyInfo[]> _propertyCache = new();
         private static readonly ConcurrentDictionary<Type, Dictionary<string, PropertyInfo>> _propertyDictCache = new();
+        private static readonly ConcurrentDictionary<Type, Func<IEnumerable, IList>> _castCache = new();
 
 
         public static object CreateInstance(Type type)
@@ -44,7 +46,21 @@ namespace WCMS.SysCore.Library
             var getters = _getterCache.GetOrAdd(type, BuildGetterMap);
             return getters.TryGetValue(propertyName, out var getter) ? getter(target) : throw new KeyNotFoundException($"Property {propertyName} not found.");
         }
+        public static IList CastToList(IEnumerable source, Type elementType)
+        {
+            var func = _castCache.GetOrAdd(elementType, t =>
+            {
+                var castMethod = typeof(Enumerable).GetMethod(nameof(Enumerable.Cast))!.MakeGenericMethod(t);
+                var toListMethod = typeof(Enumerable).GetMethod(nameof(Enumerable.ToList))!.MakeGenericMethod(t);
+                return input =>
+                {
+                    var casted = castMethod.Invoke(null, [input]);
+                    return (IList)toListMethod.Invoke(null, [casted]);
+                };
+            });
 
+            return func(source);
+        }
 
         public static PropertyInfo? GetProperty(Type type, string name)
         {
@@ -56,6 +72,16 @@ namespace WCMS.SysCore.Library
         {
             return _propertyCache.GetOrAdd(type, t => t.GetProperties());
         }
+        public static PropertyInfo[] GetProperties<T>()
+        {
+            return GetProperties(typeof(T));
+        }
+
+        public static PropertyInfo[] GetAttrProperties(Type type,Type attrType)
+        {
+            return [.. GetProperties(type).Where(p => Attribute.IsDefined(p, attrType, inherit: true))];
+        }
+
         public static void Set(object target, string propertyName, object value)
         {
             var type = target.GetType();

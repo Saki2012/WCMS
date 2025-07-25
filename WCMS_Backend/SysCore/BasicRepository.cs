@@ -3,6 +3,7 @@ using GraphQL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.VisualBasic;
+using NetTopologySuite.Operation.Valid;
 using System.Buffers.Text;
 using System.Collections;
 using System.Collections.Generic;
@@ -40,14 +41,23 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="set"></param>
         /// <returns></returns>
-        public async Task CreateAsync(object newData)
+        public async Task CreateAsync(object newData, int rowId = 1)
         {
+            
             if (newData is TModel single)
             {
                 await DataAccess.AddAsync(single);
             }
             else if (newData is IEnumerable<TModel> list)
             {
+                foreach(var p in newData as IList)
+                {
+                    if(p is DetailRowModel detailRowModel)
+                    {
+                        //這部分之後再來看怎麼調整
+                        ((dynamic)detailRowModel).RowId = rowId++;
+                    }
+                }
                 await DataAccess.AddRangeAsync(list);
             }
         }
@@ -59,12 +69,27 @@ namespace WCMS.SysCore
         /// <returns></returns>
         public async Task UpdateAsync(TModel oldData, TModel newData)
         {
-            foreach(var fieldProp in PropertyAccessorCache.GetProperties(typeof(TModel))) 
+            //foreach(var fieldProp in PropertyAccessorCache.GetProperties(typeof(TModel))) 
+            //{
+            //    if (!fieldProp.CanWrite) continue;
+            //    var oldVal = PropertyAccessorCache.Get(oldData, fieldProp.Name);
+            //    var NewVal = PropertyAccessorCache.Get(newData, fieldProp.Name);
+            //    if (!Equals(oldVal,NewVal)) PropertyAccessorCache.Set(oldData, fieldProp.Name, NewVal);
+            //}
+            var entry = DataAccess.Entry(oldData);
+            foreach (var fieldProp in PropertyAccessorCache.GetProperties(typeof(TModel)))
             {
                 if (!fieldProp.CanWrite) continue;
+                if (typeof(IEnumerable).IsAssignableFrom(fieldProp.PropertyType) && fieldProp.PropertyType != typeof(string)) continue;
+                if (fieldProp.GetCustomAttribute<KeyAttribute>() != null) continue;
+                if (fieldProp.GetCustomAttribute<NotMappedAttribute>() != null) continue;
                 var oldVal = PropertyAccessorCache.Get(oldData, fieldProp.Name);
-                var NewVal = PropertyAccessorCache.Get(newData, fieldProp.Name);
-                if (!Equals(oldVal,NewVal)) PropertyAccessorCache.Set(oldData, fieldProp.Name, NewVal);
+                var newVal = PropertyAccessorCache.Get(newData, fieldProp.Name);
+                if (!Equals(oldVal, newVal))
+                {
+                    PropertyAccessorCache.Set(oldData, fieldProp.Name, newVal);
+                    entry.Property(fieldProp.Name).IsModified = true;
+                }
             }
         }
         /// <summary>
@@ -73,6 +98,8 @@ namespace WCMS.SysCore
         /// <param name="key"></param>
         public async Task<bool> DeleteAsync(TModel oldData)
         {
+            var entry = DataAccess.Entry(oldData);
+            if (entry.State == EntityState.Detached) DataAccess.Attach(oldData);
             DataAccess.Remove(oldData);
             return true;
         }
@@ -106,6 +133,24 @@ namespace WCMS.SysCore
             return result;
         }
 
+        /// <summary>
+        /// 查看表單清單總數量(非同步)
+        /// </summary>
+        /// <returns></returns>
+        public async Task<int> QueryListCountAsync(LambdaExpression selectExpr, LambdaExpression whereExpr)
+        {
+            IQueryable<TModel> query = DataAccess.Set<TModel>();
+            // ✅ Where 條件
+            if (!whereExpr.IsNullOrEmpty()) query = query.Where((Expression<Func<TModel, bool>>)whereExpr);
+            // ✅ 解析 navigation 路徑
+            var includes = new HashSet<string>();
+            if (selectExpr != null) includes.UnionWith(ExpressionIncludeHelper.ExtractIncludePaths(selectExpr));
+            // ✅ 執行 Include
+            foreach (var path in includes) query = query.Include(path);  // 支援多層如 A.B.C
+            // ✅ Select
+            var result = selectExpr == null ? await query.Cast<TModel>().CountAsync() : await query.Select((Expression<Func<TModel, TModel>>)selectExpr).Cast<TModel>().CountAsync();
+            return result;
+        }
 
 
         /// <summary>

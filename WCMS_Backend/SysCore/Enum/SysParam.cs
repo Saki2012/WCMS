@@ -30,7 +30,7 @@ namespace WCMS.SysCore.Enum
         /// <summary>
         /// 
         /// </summary>
-        public const string DbSet = "Set";
+        public const string DbSet = "Data";
         /// <summary>
         /// 
         /// </summary>
