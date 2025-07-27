@@ -68,7 +68,6 @@ namespace WCMS.SysCore
                 return BadRequest($"初始化失敗：{ex.Message}");
             }
         }
-
         /// <summary>
         /// 修改
         /// </summary>
