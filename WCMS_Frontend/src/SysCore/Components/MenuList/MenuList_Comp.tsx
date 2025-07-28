@@ -1,37 +1,34 @@
 import type { MenuItemData } from './MenuList_Data'
 import type { IMenu_Style } from "./MenuList_Clsx"
-import { useSidebarMenuBehavior } from '../../../Features/Server/Layout/Scaffold/Menu/SideMenu/SlideMenu_Hook';
-/** 遞迴渲染Item
- * @param item 
- * @param Style 
- * @param lv 
- * @returns 
- */
-const RecursiveMenuItem = (item: MenuItemData, itemIdx:number, Style: IMenu_Style,lv: number = 1) => {
+
+const RecursiveMenuItem = (item: MenuItemData, key: string, Style: IMenu_Style, lv: number = 1, expandedKeys?: Set<string>, onToggleKey?: (key: string) => void, isFirst: boolean = false ) => {
   const hasSub = item.SubItem.length > 0;
-  const isFirst = itemIdx===0 && lv===1;
+  const isExpanded = !!expandedKeys?.has(key);
+
   return (
-    <li className={Style.li(isFirst, hasSub)} key={itemIdx}>
-      {item.DOMContent}
-      {hasSub &&
-      <ul className={Style.ul(lv+1)} style={Style.ulStyle}>
-        {item.SubItem.map((sub, idx) => RecursiveMenuItem(sub, idx, Style, lv + 1) )}
-      </ul>
-      }
+    <li className={Style.li(isFirst, hasSub, isExpanded)} key={key}>
+      <div onClick={() => { if (hasSub && onToggleKey) onToggleKey(key); }} style={{ cursor: hasSub ? 'pointer' : 'default' }}>
+        {item.DOMContent}
+      </div>
+      {hasSub && (
+        <ul className={Style.ul(lv + 1)}>
+          {item.SubItem.map((sub, idx) =>
+            RecursiveMenuItem(sub, `${key}-${idx}`, Style, lv + 1, expandedKeys, onToggleKey)
+          )}
+        </ul>
+      )}
     </li>
   );
 };
 
-/** Menu元件
- * @param param0 
- * @returns 
- */
-const MenuListComp = ({ items, Style }: {  items: MenuItemData[]; Style: IMenu_Style;}) => {
+const MenuListComp = ({items, Style, expandedKeys, onToggleKey}: { items: MenuItemData[]; Style: IMenu_Style; expandedKeys?: Set<string>; onToggleKey?: (key: string) => void;}) => {
   return (
-      <ul className={Style.ul(1)}>
-        {items.map((item, idx) => RecursiveMenuItem(item, idx, Style))}
-      </ul>
+    <ul className={Style.ul(1)}>
+      {items.map((item, idx) =>
+        RecursiveMenuItem(item, item.Id ?? `menu-${idx}`, Style, 1, expandedKeys, onToggleKey, idx === 0)
+      )}
+    </ul>
   );
 };
 
-export default MenuListComp
+export default MenuListComp;

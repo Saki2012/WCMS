@@ -14,40 +14,16 @@ export const useGetSideMenuItem = () => {
 };
 
 /** 設置左邊Menu欄位顯示動作與行為*/
-export const useSidebarMenuBehavior = (menus: MenuItemData[]) => {
-  const location = useLocation();
-  const [hoveredMenuId, setHoveredMenuId] = useState<string | null>(null);
-  const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set());
-  const [activePath, setActivePath] = useState<string>("");
+export const useSideMenuToggle = () => {
+  const [isOpen, setIsOpen] = useState(() => {
+    return localStorage.getItem("sideMenu-open") !== "false"; // 預設為展開
+  });
 
-  // 🔸 自動根據 URL 設定 active 與展開
   useEffect(() => {
-    const currentPath = location.pathname;
-    setActivePath(currentPath);
+    localStorage.setItem("sideMenu-open", String(isOpen));
+  }, [isOpen]);
 
-    // 自動展開包含當前 path 的 menu
-    const matched = menus.find(menu =>
-      menu.SubItem?.some(sub => currentPath.includes(sub.Url))
-    );
-    if (matched) {
-      setExpandedMenus(prev => new Set(prev).add(matched.Id));
-    }
-  }, [location.pathname, menus]);
+  const toggleSideMenu = () => setIsOpen(prev => !prev);
 
-  const onHoverMenu = (id: string) => setHoveredMenuId(id);
-  const onLeaveMenu = () => setHoveredMenuId(null);
-  const toggleMenu = (id: string) => {
-    setExpandedMenus(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) newSet.delete(id);
-      else newSet.add(id);
-      return newSet;
-    });
-  };
-
-  const isHovered = (id: string) => hoveredMenuId === id;
-  const isExpanded = (id: string) => expandedMenus.has(id);
-  const isActive = (path: string) => activePath.includes(path);
-
-  return { onHoverMenu, onLeaveMenu, toggleMenu, isHovered, isExpanded, isActive };
-};
+  return { isOpen, toggleSideMenu };
+}

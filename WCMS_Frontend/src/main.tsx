@@ -5,6 +5,7 @@ import App from './App.tsx'
 import HeaderMetaComp from './SysCore/Components/HeaderMeta/HeaderMeta_Comp.tsx'
 import { BrowserRouter } from "react-router-dom";
 
+
 const CssList = [
 
 // Server
@@ -88,7 +89,7 @@ createRoot(document.getElementById('root')!).render(
    {/* <StrictMode> */}
       {createPortal(<HeaderMetaComp />, document.head)}
       <BrowserRouter>
-        <App/>
+          <App/>
       </BrowserRouter>
     {/* </StrictMode>, */}
   </>

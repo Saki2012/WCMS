@@ -22,6 +22,8 @@ namespace WCMS.Features.SiteEdit.PageManagement
         /// 類別ID
         /// </summary>
         [LibDesc] public string? CategoryId { get; set; }
+
+        [ForeignKey(nameof(CategoryId))] public virtual Category.Category Category { get; set; }
         /// <summary>
         /// 查看次數
         /// </summary>

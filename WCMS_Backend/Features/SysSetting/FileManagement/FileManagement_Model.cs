@@ -9,7 +9,6 @@ using WCMS.Features.SiteEdit.PageManagement;
 
 namespace WCMS.Features.SysSetting.FileManagement
 {
-
     public class FileManagementSet
     {
         public FileManagementModel FileManagement { get; set; }

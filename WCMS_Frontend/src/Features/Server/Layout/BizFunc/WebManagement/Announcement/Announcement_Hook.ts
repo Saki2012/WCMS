@@ -1,31 +1,32 @@
 import { useEffect, useState } from "react";
-import PageManagementProvider from "./PageManagement_Api";
+import AnnouncementProvider from "./Announcement_Api";
 import type { GridProps,GridRow,ColumnConfig,RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data"
 import  type { components } from "../../../../../../types/api";
-import { emptyData } from "./PageManagement_Data";
 import type { QueryListCondition } from "../../../../../../SysCore/Interface/IApiProvider";
 import * as SchemaFields from "../../../../../../types/SchemaFields";
-type PageManagementSet = components["schemas"]["PageManagementSet"]
+type AnnouncementSet = components["schemas"]["AnnouncementSet"]
+
+
 /** 讀取清單資料 */
-export const useFetchPageListData = () => {
-  const [rawData, setRawData] = useState<PageManagementSet[]>([])
+export const useFetchAnnouncementListData = () => {
+  const [rawData, setRawData] = useState<AnnouncementSet[]>([])
   const [rows, setRows] = useState<GridRow[]>([]);
   const [columns, setColumns] = useState<ColumnConfig[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(2);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const fetchData = async (page: number) => {
     setIsLoading(true);
     setError(null);
     try {
       //#region GetColumn
-      const resCol =await PageManagementProvider().getModelDisplayName();
-      const visibleKeys = [SchemaFields.PageManagementFields.CategoryId,
-                            SchemaFields.PageManagementDetailFields.Title,
-                            SchemaFields.PageManagementFields.ModifyUserId,
-                            SchemaFields.PageManagementFields.ModifyTime,];
+      const resCol =await AnnouncementProvider().getModelDisplayName();
+      const visibleKeys = [ SchemaFields.AnnouncementFields.Categories,
+                            SchemaFields.AnnouncementFields.DataStatus,
+                            SchemaFields.AnnouncementDetailFields.Title,
+                            SchemaFields.AnnouncementFields.ModifyUserId,
+                            SchemaFields.AnnouncementFields.ModifyTime,];
       // ✅ 取得 Columns 陣列（假設只取 Tables[0]）
       const columnsRaw = resCol?.Tables?.[0]?.Columns ?? [];
       // ✅ 轉換成 ColumnConfig[]
@@ -36,13 +37,13 @@ export const useFetchPageListData = () => {
       //#region GetRows
       const queryCondition:QueryListCondition={
           Fields: [
-                  SchemaFields.PageManagementFields.PageId,
-                  SchemaFields.PageManagementFields.CategoryId,
+                  SchemaFields.AnnouncementFields.AnnouncementId,
+                  SchemaFields.AnnouncementFields.Categories,
                   // `Category.CategoryDetail.Lang`,
                   // `Category.CategoryDetail.CategoryName`,
                   //缺Name
-                  `${SchemaFields.PageManagementSetFields.PageManagementDetail}.${SchemaFields.PageManagementDetailFields.Lang}`,
-                  `${SchemaFields.PageManagementSetFields.PageManagementDetail}.${SchemaFields.PageManagementDetailFields.Title}`,
+                  `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
+                  `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
                   SchemaFields.PageManagementFields.ModifyUserId,
                   //缺Name
                   SchemaFields.PageManagementFields.ModifyTime,
@@ -53,20 +54,20 @@ export const useFetchPageListData = () => {
           PageSize: 10,
         }
       
-      const totalCountRes = await PageManagementProvider().fetchListCount(queryCondition);
+      const totalCountRes = await AnnouncementProvider().fetchListCount(queryCondition);
       if(!totalCountRes.IsSuccess){
         const errorMsg = totalCountRes.SysMessage?.map(msg =>`${msg.MessageCode}:${msg.Message}`).join(';') ?? "資料查詢失敗";
         throw new Error(errorMsg);
       }
       setTotalPages(totalCountRes.Data?.[0]??1);
-      const res = await PageManagementProvider().fetchList(queryCondition);
+      const res = await AnnouncementProvider().fetchList(queryCondition);
       if (!res.IsSuccess) {
         const errorMsg = res.SysMessage?.map(msg =>`${msg.MessageCode}:${msg.Message}`).join(';') ?? "資料查詢失敗";
         throw new Error(errorMsg);
       }
-      const fullData = res.Data as PageManagementSet[];
+      const fullData = res.Data as AnnouncementSet[];
       setRawData(fullData);
-      const mainTable = fullData.map(x => x.PageManagement ?? {});
+      const mainTable = fullData.map(x => x.Announcement ?? {});
       const gridRows: GridRow[] = mainTable.map(item => {
         const cells: RowCell[] = columns.map(col => ({
           col,
@@ -88,15 +89,15 @@ export const useFetchPageListData = () => {
 };
 
 /** 讀取表單資料 */
-export const useGetPageFormData = (internalId:string) =>{
-  const [data, setData] = useState<PageManagementSet>();
+export const useGetAnnouncementFormData = (internalId:string) =>{
+  const [data, setData] = useState<AnnouncementSet>();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fetchData = async (internalId: string) => {
     setIsLoading(true);
     try {
       if(internalId){
-        const res = await PageManagementProvider().fetchData({internalId});
+        const res = await AnnouncementProvider().fetchData({internalId});
         if (!res.IsSuccess) {
           const errorMsg = res.SysMessage?.map(msg =>`${msg.MessageCode}:${msg.Message}`).join(';') ?? "資料查詢失敗";
           throw new Error(errorMsg);
@@ -125,7 +126,7 @@ export const handleDelete = async (internalId: string) => {
   const confirmDelete = window.confirm("確定要刪除嗎？");
   if (!confirmDelete) return;
   try {
-    const res = await PageManagementProvider().deleteData(internalId);
+    const res = await AnnouncementProvider().deleteData(internalId);
     if (res.IsSuccess) {
       alert("刪除成功");
       window.location.reload(); // 或觸發重新 fetchData

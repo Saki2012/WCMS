@@ -2,26 +2,30 @@ import {LibDropList, LibTabs, LibTextBox, LibTinyMCE } from "../../../../../../S
 import type { LibTabsProp, LibTextBoxProp, LibTinyMCEProp } from "../../../../../../SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "../../../Theme/ITheme";
 import { useGetCategoryListByProgId } from "../Category/Category_Hook"
-import PageManagementProvider from "./PageManagement_Api"
+import AnnouncementProvider from "./Announcement_Api"
 import { FormComp } from "../../../Scaffold/Content/Form_Comp";
 import { useFormToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
 import { useParams } from "react-router";
 import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
-import { useGetPageFormData } from "./PageManagement_Hook";
+import { useGetAnnouncementFormData } from "./Announcement_Hook";
 import type { components } from "../../../../../../types/api";
 import type { ILibDropListProp } from "../../../../../../SysCore/Components/FormField/FieldComponets/LibDropList_Data";
-import { emptyData } from "./PageManagement_Data";
-type PageManagementSet = components["schemas"]["PageManagementSet"]
+type AnnouncementSet = components["schemas"]["AnnouncementSet"]
 import { useEffect } from "react";
 import { useMessage } from "../../../../../../SysCore/Components/Message/Dialog/Dialog_Comp";
 /** 頁面表單
  * @returns 
  */
-export const PageFormComp = ({theme}:{theme:IBETheme}) => {
+export const AnnouncementFormComp = ({theme}:{theme:IBETheme}) => {
     const { internalId } = useParams()
-    const useCategory = useGetCategoryListByProgId("PageManagement","zh-tw")
-    const usePageFormData = useGetPageFormData(internalId as string);
-    const useToolbar = useFormToolbarActions(PageManagementProvider(), usePageFormData.data ?? emptyData as PageManagementSet,internalId as string)
+    const useCategory = useGetCategoryListByProgId("Announcement","zh-tw")
+    const useTag = useGetCategoryListByProgId("Announcement","zh-tw")
+
+
+    const usePageFormData = useGetAnnouncementFormData(internalId as string);
+
+
+    const useToolbar = useFormToolbarActions(AnnouncementProvider(), usePageFormData.data ?? emptyData as AnnouncementSet, internalId as string)
     const isLoading=[useCategory.isLoading,usePageFormData.isLoading]
     const errors=[useCategory.error,usePageFormData.error]
     useEffect(() => {if (usePageFormData.data) {useToolbar.setFormData(usePageFormData.data);}}, [usePageFormData.data]);
@@ -31,6 +35,9 @@ export const PageFormComp = ({theme}:{theme:IBETheme}) => {
         Style:theme.Tabs,
         item:{
             "Basic":"基本",
+            "Status":"狀態",
+            "Tabs":"標籤",
+            "Pic":"圖片",
         }
     }
     const LibTabsPropB:LibTabsProp={
@@ -44,8 +51,8 @@ export const PageFormComp = ({theme}:{theme:IBETheme}) => {
         style:theme.DropList,
         colDisplayName:"類別選擇",
         options:useCategory.data,
-        InputValue:useToolbar.formData?.PageManagement?.CategoryId ?? '',
-        onChange:(val) => {useToolbar.setFormData({...useToolbar.formData,PageManagement: {...useToolbar.formData?.PageManagement,CategoryId: val}});}
+        InputValue:useToolbar.formData?.Announcement?.CategoryId ?? '',
+        onChange:(val) => {useToolbar.setFormData({...useToolbar.formData,PageManagement: {...useToolbar.formData?.Announcement,CategoryId: val}});}
     }
 
     return (
@@ -88,8 +95,8 @@ export const PageFormComp = ({theme}:{theme:IBETheme}) => {
     )
 }
 
-const DynamicRenderContentControl = ({theme,libTabsProp,useToolbar,}: {theme: IBETheme;libTabsProp: LibTabsProp;useToolbar: ReturnType<typeof useFormToolbarActions<PageManagementSet>>;}) => {
-    const details = useToolbar.formData.PageManagementDetail ?? [];
+const DynamicRenderContentControl = ({theme,libTabsProp,useToolbar,}: {theme: IBETheme;libTabsProp: LibTabsProp;useToolbar: ReturnType<typeof useFormToolbarActions<AnnouncementSet>>;}) => {
+    const details = useToolbar.formData.AnnouncementDetail ?? [];
     const tabEntries = Object.entries(libTabsProp.item ?? []);
     const getLangData = (lang: string) => details.find((d) => d.Lang === lang) ?? { Lang: lang, Title: "", Content: "" };
 
@@ -108,7 +115,7 @@ const DynamicRenderContentControl = ({theme,libTabsProp,useToolbar,}: {theme: IB
 
     useToolbar.setFormData({
       ...useToolbar.formData,
-      PageManagementDetail: nextDetails,
+      AnnouncementDetail: nextDetails,
     });
   };
 

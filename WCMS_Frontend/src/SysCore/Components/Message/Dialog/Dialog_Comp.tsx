@@ -1,5 +1,7 @@
 import { createContext, useContext, useState } from 'react';
 import type{ ReactNode } from 'react';
+import { createPortal } from 'react-dom'; // 👈 加這行
+import "./Dialog.css"
 
 type MessageType = 'info' | 'success' | 'error';
 
@@ -53,17 +55,19 @@ export const MessageProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <MessageContext.Provider value={{ showToast, showConfirm }}>
-      {children}
 
       {/* Toasts */}
-      <div className="toast-container">
-        {toasts.map(t => (
-          <div key={t.id} className={`toast ${t.type}`}>
-            {t.message}
-            {t.sticky && <button onClick={() => removeToast(t.id)}>×</button>}
-          </div>
-        ))}
-      </div>
+      {createPortal(
+        <div className="toast-container">
+          {toasts.map(t => (
+            <div key={t.id} className={`toast ${t.type}`}>
+              {t.message}
+              {t.sticky && <button onClick={() => removeToast(t.id)}>×</button>}
+            </div>
+          ))}
+        </div>,
+        document.body
+      )}
 
       {/* Confirm Dialog */}
       {confirm && (
@@ -77,6 +81,8 @@ export const MessageProvider = ({ children }: { children: ReactNode }) => {
           </div>
         </div>
       )}
+
+      {children}
     </MessageContext.Provider>
   );
 };

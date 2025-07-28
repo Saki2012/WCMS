@@ -1,4 +1,4 @@
-import { clsx } from 'clsx';
+import { clsx } from "clsx";
 import type{ ILibTabsStyle,ILibDropListStyle,ILibTextBoxStyle, ILibTinyMCEStyle } from "../../../../SysCore/Components/FormField/LibFormField"
 import type { IGridView_Style } from "../../../../SysCore/Components/Grid/Grid_Clsx";
 import type { IPaginator_Style } from "../../../../SysCore/Components/Paginator/Paginator_Clsx";
@@ -22,9 +22,8 @@ export const Classic_NaviBarMenu:INaviBarStyle = {
 /** 經典Menu樣式 */
 export const Classic_SidebarMenu:IMenu_Style = {
     isUl:true,
-    ul:(lv:number) => clsx(lv==1? "pc-navbar" : "pc-submenu"),
-    // ulStyle:{display:"block"},
-    li:(isFirst,hasMenu)=> clsx("pc-item", {"pc-hasmenu":hasMenu, "pc-caption":isFirst, "Left_line":isFirst,})
+    ul:(lv:number,isExpanded?:boolean) => clsx(lv==1? "pc-navbar" : "pc-submenu",{show:isExpanded,hide:!isExpanded}),
+    li: (isFirst, hasMenu, isExpanded = false) =>clsx("pc-item", {"pc-caption": isFirst,"Left_line": isFirst,"pc-hasmenu": hasMenu,"open-trigger": isExpanded})
 };
 
 /** 頁籤樣式 */
@@ -74,6 +73,12 @@ export const Classic_Paginator:IPaginator_Style = {
     NextPage:clsx("far", "fa-angle-right"),
     LastPage:clsx("far", "fa-arrow-to-right"),
 }
+/** 類別/標籤用的list表 */
+export const Classic_CategoryListTag:IMenu_Style={
+    isUl:true,
+    ul:() => clsx("list-group", "p-0"),
+    li:() => clsx("list-group-item")
+}
 
 
 /** 經典主題 */
@@ -83,6 +88,7 @@ export const Classic_BETheme : IBETheme = {
   BreadCrumb: Classic_BreadCrumb,
   NavBarMenu: Classic_NaviBarMenu,
   Paginator:Classic_Paginator,
+  CategoryTagList:Classic_CategoryListTag,
   //#region Fields
   GridView:Classic_GridView,
   DropList:Classic_LibDropList,

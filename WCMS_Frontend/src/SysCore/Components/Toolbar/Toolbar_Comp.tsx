@@ -1,6 +1,31 @@
 import { Link } from 'react-router-dom';
 import type { ToolbarAction } from './Toolbar_Data';
 
+
+export const FormList_Toolbar=({items}:{items:ToolbarAction[]})=>{
+    return (
+        <div className="row mx-0">
+            <div className="text-center mb-2">
+                {items && items.map((btn, idx) => {
+                if (btn.Type === 'link') { return (
+                    <Link key={idx} to={btn.Url as string} className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" title={btn.Title} target='_self'>
+                        {btn.Title}
+                    </Link>
+                    );
+                }
+                return (
+                    <button key={idx} type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" title={btn.Title} onClick={() => {
+                        if (!btn.Confirm || window.confirm(btn.Confirm)) { btn.OnClick?.();} }}>
+                            {btn.Title}
+                    </button>
+                );
+                })}
+            </div>
+        </div>
+    );
+}
+
+
 export const List_Toolbar=({items}:{items:ToolbarAction[]})=>{
     return (
         <div className="row mx-0">

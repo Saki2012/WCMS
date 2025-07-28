@@ -14,6 +14,8 @@ export interface IBETheme {
   GridView:IGridView_Style
   Paginator:IPaginator_Style
   
+  CategoryTagList:IMenu_Style;
+
   //#region Fields
   DropList:ILibDropListStyle
   Tabs:ILibTabsStyle;

@@ -15,7 +15,7 @@ namespace WCMS.SysCore.Middleware
         {
             try
             {
-                await _next(context); // 執行下個 middleware 或 controller
+                 await _next(context); // 執行下個 middleware 或 controller
             }
             catch (Exception ex)
             {

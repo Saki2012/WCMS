@@ -20,3 +20,13 @@ export interface ListCompProp{
     GridType?:string
     GridData:GridProps
 }
+
+/** 標籤/類別使用 */
+export interface FormListCompProp{
+    Title:string,
+    SubTitle:string,
+    Theme:IBETheme,
+    LoadingList:boolean[],
+    ErrorList:(string | null | undefined)[],
+    Toolbar:ToolbarAction[]
+}
