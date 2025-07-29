@@ -7,8 +7,8 @@ namespace WCMS.Features.SiteEdit.Category
 {
     public class CategoryDataSet
     {
-        public Category Category { get; set; }
-        public List<CategoryDetail> CategoryDetail { get; set; }
+        public Category Category { get; set; } = new();
+        public List<CategoryDetail> CategoryDetail { get; set; } = [];
     }
     public class Category : MasterDataModel
     {

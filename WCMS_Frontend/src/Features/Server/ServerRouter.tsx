@@ -10,6 +10,7 @@ import { AnnouncementListComp } from "./Layout/BizFunc/WebManagement/Announcemen
 import { Classic_BETheme } from "./Layout/Theme/ClassicTheme_Clsx";
 import { CategoryListComp } from "./Layout/BizFunc/WebManagement/Category/Category_List_Comp";
 import { TagListComp } from "./Layout/BizFunc/WebManagement/Tags/Tag_List_Comp";
+import { AnnouncementFormComp } from "./Layout/BizFunc/WebManagement/Announcement/Announcement_Form_Comp";
 export class BackendRouteModule implements IRouteModule {
   getRoutes(): RouteObject[] {
     return [
@@ -30,7 +31,7 @@ export class BackendRouteModule implements IRouteModule {
           //#region 公告
           {
             path: "WebManagement/Announcement/Form/:internalId?",
-            element: <PageFormComp theme={Classic_BETheme}/>,
+            element: <AnnouncementFormComp theme={Classic_BETheme}/>,
           },
           {
             path: "WebManagement/Announcement/List",

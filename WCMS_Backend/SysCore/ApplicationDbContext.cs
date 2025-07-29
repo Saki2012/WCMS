@@ -1,15 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Reflection.Emit;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Security.AccessControl;
-using WCMS.SysCore.Model;
-using Microsoft.EntityFrameworkCore;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.Model;
 
 namespace WCMS.SysCore
 {
-    public class ApplicationDbContext : DbContext
+    /// <summary>
+    /// 
+    /// </summary>
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
     {
         #region Property
         /// <summary>
@@ -24,14 +28,9 @@ namespace WCMS.SysCore
         /// 變更日誌明細
         /// </summary>
         public DbSet<DataChangeLogDetail> DataChangeLogDetail { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        //public DbSet<WorkDateModel> WorkDate { get; set; }
-        #endregion
 
+        #endregion
         #region Construct
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
         #endregion
 
         #region Protected
@@ -128,7 +127,12 @@ namespace WCMS.SysCore
         /// <summary>
         /// 
         /// </summary>
-        private static readonly IConfiguration Configuration = new ConfigurationBuilder().SetBasePath(SysParam.AppSettingsJsonPath).AddJsonFile(SysParam.AppSettingsJson).Build();
+        public static readonly IConfiguration Configuration = new ConfigurationBuilder().SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile(SysParam.AppSettingsJson, optional: false, reloadOnChange: true)
+            .AddJsonFile($"{SysParam.AppSettingsJson}.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true, reloadOnChange: true).Build();
+
+
+
         #endregion
         #region Public
         /// <summary>

@@ -208,7 +208,7 @@ export interface SearchBarProps {
   // 可以繼續新增其他需要的參數
 }
 
-export const SearchComp=(prop:SearchBarProps)=>{
+export const SearchComp=({prop}:{prop:SearchBarProps})=>{
     return (
         <>
             <SearchBar {...prop}/>

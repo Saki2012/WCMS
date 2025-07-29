@@ -56,7 +56,6 @@ namespace WCMS
         private static void RunDBMigration(string[] args)
         {
             //先執行:dotnet ef migrations add MigrationName
-            //再執行:RunDBMigration 產生SQL
             //最後執行:dotnet ef database update
             var builder = WebApplication.CreateBuilder();
             var options = new DbContextOptionsBuilder<ApplicationDbContext>().UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection")).Options;

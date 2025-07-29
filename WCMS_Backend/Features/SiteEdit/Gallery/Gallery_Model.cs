@@ -24,15 +24,15 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// <summary>
         /// 類別ID(多個)
         /// </summary>
-        [LibDesc, Required] public string CategoriesId { get; set; }
+        [LibDesc, Required] public string Categories { get; set; }
         /// <summary>
         /// 標籤ID(多個)
         /// </summary>
-        [LibDesc, Required] public string TagsId { get; set; }
+        [LibDesc, Required] public string Tags { get; set; }
         /// <summary>
         /// 狀態:置頂/熱門/隱藏
         /// </summary>
-        [LibDesc] public int Status { get; set; }
+        [LibDesc] public int Statuses { get; set; }
         /// <summary>
         /// 封面照 (透過功能從相簿裡的PicSrcId直接取得，保存時紀錄，供之後list查看時減少效能使用)
         /// </summary>

@@ -8,8 +8,8 @@ namespace WCMS.Features.SiteEdit.PageManagement
 {
     public class PageManagementSet
     {
-        public required PageManagement PageManagement { get; set; }
-        public required List<PageManagementDetail> PageManagementDetail { get; set; }
+        public PageManagement PageManagement { get; set; } = new();
+        public List<PageManagementDetail> PageManagementDetail { get; set; } = [];
     }
 
     public class PageManagement:BillDataModel
@@ -23,7 +23,7 @@ namespace WCMS.Features.SiteEdit.PageManagement
         /// </summary>
         [LibDesc] public string? CategoryId { get; set; }
 
-        [ForeignKey(nameof(CategoryId))] public virtual Category.Category Category { get; set; }
+        //[ForeignKey(nameof(CategoryId))] public virtual Category.Category Category { get; set; }
         /// <summary>
         /// 查看次數
         /// </summary>

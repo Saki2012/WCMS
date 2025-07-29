@@ -8,7 +8,7 @@ type TagSet = components["schemas"]["TagSet"]
 import * as SchemaFields from "../../../../../../types/SchemaFields";
 
 /** 獲取類別清單 */
-export const useGetCategoryListByProgId = (progId:string, lang:string, pageSize:number=0) => {
+export const useGetTagListByProgId = (progId:string, lang:string, pageSize:number=0) => {
   const [data, setData] = useState<Record<string,string>>({});
   const [srcData, setsrcData] = useState<TagSet[]>([]);
   const [isLoading, setLoading] = useState(false);

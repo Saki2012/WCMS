@@ -6,8 +6,8 @@ namespace WCMS.Features.SiteEdit.Tag
 {
     public class TagSet
     {
-        public TagData? TagData { get; set; }
-        public List<TagDetail>? TagDetail { get; set; }
+        public TagData TagData { get; set; } = new TagData();
+        public List<TagDetail> TagDetail { get; set; } = [];
     }
     public class TagData : MasterDataModel
     {

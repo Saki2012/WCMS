@@ -6,8 +6,8 @@ namespace WCMS.Features.SiteEdit.WebResource
 {
     public class WebResourceSet
     {
-        public required WebResource WebResource { get; set; }
-        public required List<WebResourceInfo> WebResourceInfo { get; set; }
+        public WebResource WebResource { get; set; } = new();
+        public List<WebResourceInfo> WebResourceInfo { get; set; } = [];
 
     }
     /// <summary>
@@ -22,35 +22,24 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// <summary>
         /// 類別ID(多個)
         /// </summary>
-        [LibDesc] public string CategoriesId { get; set; }
+        [LibDesc] public string Categories { get; set; }
         /// <summary>
         /// 標籤ID(多個)
         /// </summary>
-        [LibDesc] public string TagsId { get; set; }
+        [LibDesc] public string Tags { get; set; }
         /// <summary>
         /// 狀態:置頂/熱門/隱藏
         /// </summary>
-        [LibDesc] public int Status { get; set; }
+        [LibDesc] public string Statuses { get; set; }
         /// <summary>
-        /// 資源類型:1. 上傳圖片、2. 外網資源(圖片網址 or Youtube)
+        /// 圖片顯示
         /// </summary>
-        public byte SrcType { get; set; }
+        [LibDesc] public string PicId { get; set; }
         /// <summary>
-        /// 根據SrcType決定是FileInfo還是單純網址
+        /// 圖片顯示描述
         /// </summary>
-        public string SrcData { get; set; }
-        /// <summary>
-        /// 超連結
-        /// </summary>
-        public string ResUrl { get; set; }
-        /// <summary>
-        /// 超連結開啟方式
-        /// </summary>
-        public string Url_OpenType { get; set; }
-        /// <summary>
-        /// 排序
-        /// </summary>
-        public int Sort { get; set; }
+        [LibDesc] public string PicDescription { get; set; }
+
     }
     /// <summary>
     /// 網路資源資訊
@@ -77,5 +66,13 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// 內容
         /// </summary>
         public string Content { get; set; }
+        /// <summary>
+        /// 超連結
+        /// </summary>
+        public string ResUrl { get; set; }
+        /// <summary>
+        /// 超連結開啟方式
+        /// </summary>
+        public string Url_OpenType { get; set; }
     }
 }

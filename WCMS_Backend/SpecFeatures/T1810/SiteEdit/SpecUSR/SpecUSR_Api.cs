@@ -3,11 +3,13 @@ using WCMS.Features.SiteEdit.PageManagement;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore;
+using System.Runtime.InteropServices;
 
-namespace WCMS.SpecFeatures.T1810.SiteEdit.Research
+namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
 {
+    [ProgId("SpecUSR")]
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class SpecResearchController(IBizService<SpecResearchSet> service) : ApiDataController<SpecResearchSet>(service)
+    public class SpecUSRController(IBizService<SpecUSRSet> service) : ApiDataController<SpecUSRSet>(service)
     {
     }
 }

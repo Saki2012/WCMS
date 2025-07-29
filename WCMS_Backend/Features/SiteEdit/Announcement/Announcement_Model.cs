@@ -102,7 +102,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 行代碼
         /// </summary>
-        [LibDesc, Key] public int Row { get; set; }
+        [LibDesc, Key] public int RowId { get; set; }
         /// <summary>
         /// 檔案來源
         /// </summary>

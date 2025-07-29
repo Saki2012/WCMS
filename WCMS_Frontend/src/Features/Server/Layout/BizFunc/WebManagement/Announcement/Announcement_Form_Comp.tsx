@@ -1,7 +1,8 @@
-import {LibDropList, LibTabs, LibTextBox, LibTinyMCE } from "../../../../../../SysCore/Components/FormField/LibFormField"
+import {LibTabs, LibTextBox, LibTinyMCE } from "../../../../../../SysCore/Components/FormField/LibFormField"
 import type { LibTabsProp, LibTextBoxProp, LibTinyMCEProp } from "../../../../../../SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "../../../Theme/ITheme";
 import { useGetCategoryListByProgId } from "../Category/Category_Hook"
+import { useGetTagListByProgId } from "../Tags/Tag_Hook";
 import AnnouncementProvider from "./Announcement_Api"
 import { FormComp } from "../../../Scaffold/Content/Form_Comp";
 import { useFormToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
@@ -9,26 +10,22 @@ import { useParams } from "react-router";
 import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
 import { useGetAnnouncementFormData } from "./Announcement_Hook";
 import type { components } from "../../../../../../types/api";
-import type { ILibDropListProp } from "../../../../../../SysCore/Components/FormField/FieldComponets/LibDropList_Data";
 type AnnouncementSet = components["schemas"]["AnnouncementSet"]
 import { useEffect } from "react";
-import { useMessage } from "../../../../../../SysCore/Components/Message/Dialog/Dialog_Comp";
+import type { ILibCalendarProp, ILibCalendarStyle } from "../../../../../../SysCore/Components/FormField/FieldComponets/LibCalendar_Data";
+import type { ILibCheckBoxProp } from "../../../../../../SysCore/Components/FormField/FieldComponets/LibCheckBox_Data";
 /** 頁面表單
  * @returns 
  */
 export const AnnouncementFormComp = ({theme}:{theme:IBETheme}) => {
-    const { internalId } = useParams()
-    const useCategory = useGetCategoryListByProgId("Announcement","zh-tw")
-    const useTag = useGetCategoryListByProgId("Announcement","zh-tw")
-
-
-    const usePageFormData = useGetAnnouncementFormData(internalId as string);
-
-
-    const useToolbar = useFormToolbarActions(AnnouncementProvider(), usePageFormData.data ?? emptyData as AnnouncementSet, internalId as string)
-    const isLoading=[useCategory.isLoading,usePageFormData.isLoading]
-    const errors=[useCategory.error,usePageFormData.error]
-    useEffect(() => {if (usePageFormData.data) {useToolbar.setFormData(usePageFormData.data);}}, [usePageFormData.data]);
+    const { internalId } = useParams();
+    const useCategory = useGetCategoryListByProgId("Announcement","zh-tw");
+    const useTag = useGetTagListByProgId("Announcement","zh-tw");
+    const useAnnouncementFormData = useGetAnnouncementFormData(internalId as string);
+    const useToolbar = useFormToolbarActions(AnnouncementProvider(), useAnnouncementFormData.data as AnnouncementSet, internalId as string)
+    const isLoading=[useTag.isLoading,useCategory.isLoading,useAnnouncementFormData.isLoading]
+    const errors=[useTag.error,useCategory.error,useAnnouncementFormData.error]
+    useEffect(() => {if (useAnnouncementFormData.data) {useToolbar.setFormData(useAnnouncementFormData.data);}}, [useAnnouncementFormData.data]);
 
     const prop:FormCompProp={ Title:"新增頁面", Theme:theme, LoadingList:isLoading, ErrorList:errors, Toolbar:useToolbar.action }
     const LibTabsPropA:LibTabsProp={
@@ -47,12 +44,33 @@ export const AnnouncementFormComp = ({theme}:{theme:IBETheme}) => {
             "en":"English",
         }
     }
-    const libDropListProp:ILibDropListProp={
-        style:theme.DropList,
-        colDisplayName:"類別選擇",
-        options:useCategory.data,
-        InputValue:useToolbar.formData?.Announcement?.CategoryId ?? '',
-        onChange:(val) => {useToolbar.setFormData({...useToolbar.formData,PageManagement: {...useToolbar.formData?.Announcement,CategoryId: val}});}
+    
+    const categoryCheckProp:ILibCheckBoxProp={
+        style: ILibCalendarStyle,
+        colDisplayName: "類別勾選",
+        InputValue: "string",
+        Items:{
+            {
+                useCategory.data[0][""],
+
+            
+            }
+
+        }
+        onChange: (val: string) => void;
+    }
+
+    const startDateProp:ILibCalendarProp={
+        style: ""
+        colDisplayName: "開始時間",
+        InputValue:'',
+        onChange: (val: string) => void
+    }
+    const endDateProp:ILibCalendarProp={
+        style: ""
+        colDisplayName: "結束時間",
+        InputValue:'',
+        onChange: (val: string) => void
     }
 
     return (
@@ -68,7 +86,7 @@ export const AnnouncementFormComp = ({theme}:{theme:IBETheme}) => {
                                         <div className="row mx-0">
                                             <div className="col form-group">
                                                 <div className="row mx-0">
-                                                    <LibDropList {...libDropListProp}></LibDropList>
+                                                    {/* <LibDropList {...libDropListProp}></LibDropList> */}
                                                 </div>
                                             </div>
                                         </div>
@@ -96,11 +114,11 @@ export const AnnouncementFormComp = ({theme}:{theme:IBETheme}) => {
 }
 
 const DynamicRenderContentControl = ({theme,libTabsProp,useToolbar,}: {theme: IBETheme;libTabsProp: LibTabsProp;useToolbar: ReturnType<typeof useFormToolbarActions<AnnouncementSet>>;}) => {
-    const details = useToolbar.formData.AnnouncementDetail ?? [];
+    const details = useToolbar.formData?.AnnouncementDetail ?? [];
     const tabEntries = Object.entries(libTabsProp.item ?? []);
     const getLangData = (lang: string) => details.find((d) => d.Lang === lang) ?? { Lang: lang, Title: "", Content: "" };
 
-  const updateLangData = (lang: string, key: "Title" | "Content", val: string) => {
+    const updateLangData = (lang: string, key: "Title" | "Content", val: string) => {
     const currentData = getLangData(lang);
     const newItem = { ...currentData, [key]: val };
 

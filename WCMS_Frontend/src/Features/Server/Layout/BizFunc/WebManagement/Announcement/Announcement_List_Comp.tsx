@@ -22,7 +22,12 @@ export const AnnouncementListComp = ({title,theme}:{title:string;theme:IBETheme}
     const useToolbar = useListToolbarActions(dirUrl)
     const isLoading=[useAnnounceList.isLoading];
     const errors=[useAnnounceList.error];
-    const prop:ListCompProp={ Title:title, Theme:theme, LoadingList:isLoading, ErrorList:errors, Toolbar:useToolbar.toolbarActions,GridData:adjustedGrid }
+    const searchCompProp:SearchBarProps={
+            title:"公告搜尋",
+            subTitle:"搜尋公告 ...",
+            settingTitle: "搜尋設定",
+        }
+    const prop:ListCompProp={ Title:title, Theme:theme, LoadingList:isLoading, ErrorList:errors, Toolbar:useToolbar.toolbarActions,GridData:adjustedGrid, SearchBar:searchCompProp}
 
     return (
             <ListComp prop={prop}></ListComp>

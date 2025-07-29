@@ -12,7 +12,7 @@ export const useGetCategoryListByProgId = (progId:string, lang:string, pageSize:
   const [srcData, setsrcData] = useState<CategoryDataSet[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<any>(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
 
   const fetch = async (progId:string,lang:string,page:number) => {
     try {

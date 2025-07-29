@@ -489,9 +489,9 @@ namespace WCMS.SysCore
         {
             DateTime now = DateTime.Now;
             header.CreateUserId = OperateUser.UserId;
-            header.CreateTime = now;
+            if (header.CreateTime == null) header.CreateTime = now;
             header.ModifyUserId = OperateUser.UserId;
-            header.ModifyTime = now;
+            if (header.ModifyTime == null) header.ModifyTime = now;
             header.InternalId = Guid.NewGuid().ToString();
         }
         /// <summary>

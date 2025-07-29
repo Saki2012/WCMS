@@ -54,6 +54,7 @@ namespace WCMS.SysCore
                 {
                     if(p is DetailRowModel detailRowModel)
                     {
+                        if(((dynamic)detailRowModel).RowId == 0)
                         //這部分之後再來看怎麼調整
                         ((dynamic)detailRowModel).RowId = rowId++;
                     }

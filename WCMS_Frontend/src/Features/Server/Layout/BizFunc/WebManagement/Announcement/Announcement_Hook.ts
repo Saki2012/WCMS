@@ -4,8 +4,9 @@ import type { GridProps,GridRow,ColumnConfig,RowCell } from "../../../../../../S
 import  type { components } from "../../../../../../types/api";
 import type { QueryListCondition } from "../../../../../../SysCore/Interface/IApiProvider";
 import * as SchemaFields from "../../../../../../types/SchemaFields";
+import { BuildVisibleColumns } from "../../../../../../SysCore/Utils/buildVisibleColumns";
 type AnnouncementSet = components["schemas"]["AnnouncementSet"]
-
+import { emptyData } from "./Announcement_Data";
 
 /** 讀取清單資料 */
 export const useFetchAnnouncementListData = () => {
@@ -21,16 +22,15 @@ export const useFetchAnnouncementListData = () => {
     setError(null);
     try {
       //#region GetColumn
-      const resCol =await AnnouncementProvider().getModelDisplayName();
-      const visibleKeys = [ SchemaFields.AnnouncementFields.Categories,
-                            SchemaFields.AnnouncementFields.DataStatus,
-                            SchemaFields.AnnouncementDetailFields.Title,
-                            SchemaFields.AnnouncementFields.ModifyUserId,
-                            SchemaFields.AnnouncementFields.ModifyTime,];
-      // ✅ 取得 Columns 陣列（假設只取 Tables[0]）
-      const columnsRaw = resCol?.Tables?.[0]?.Columns ?? [];
+      const visibleKeys: [string, string][] = [
+                            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Categories],
+                            [SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Title],
+                            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.DataStatus],
+                            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyUserId],
+                            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyTime]
+                          ]
       // ✅ 轉換成 ColumnConfig[]
-      const columns: ColumnConfig[] = columnsRaw.filter(col => visibleKeys.includes(col.ColumnId)).map(col => ({ key: col.ColumnId, title: col.ColumnDisplayName}));
+      const columns = await BuildVisibleColumns(() => AnnouncementProvider().getModelDisplayName(), visibleKeys);
       setColumns(columns);
       //#endregion
       

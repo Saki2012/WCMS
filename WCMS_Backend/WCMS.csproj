@@ -7,8 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="SpecFeatures\T1810\SiteEdit\Research\Research_Biz.cs" />
-    <Compile Remove="SpecFeatures\T1810\SiteEdit\USR\USR_Biz.cs" />
     <Compile Remove="SysCore\AccountLogin.cs" />
     <Compile Remove="SysCore\Library\RecComparison.cs" />
   </ItemGroup>

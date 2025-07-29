@@ -6,11 +6,7 @@ import { Grid } from "../../../../../SysCore/Components/Grid/Grid_Comp";
 import type { SearchBarProps } from "../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
 import LoadingErrorHandler from "../../../../../SysCore/Components/LoadingErrorHandler";
 
-const searchCompProp:SearchBarProps={
-    title:"頁面搜尋",
-    subTitle:"搜尋頁面 ...",
-    settingTitle: "搜尋設定",
-}
+
 
 export const ListComp = ({prop}:{prop:ListCompProp;}) => {
     return (
@@ -27,7 +23,7 @@ export const ListComp = ({prop}:{prop:ListCompProp;}) => {
                                     <div className="panel">
                                         <div className="panel-body">
                                             <div className="form"> 
-                                                <SearchComp {...searchCompProp}></SearchComp>
+                                                <SearchComp prop={prop.SearchBar}></SearchComp>
                                                 <DividerComp></DividerComp>
                                                 {/* <Form_Toolbar items={prop.Toolbar}></Form_Toolbar> */}
                                                 <List_Toolbar items={prop.Toolbar} ></List_Toolbar>

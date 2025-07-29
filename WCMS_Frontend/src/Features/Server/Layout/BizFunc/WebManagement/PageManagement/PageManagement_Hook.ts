@@ -5,6 +5,7 @@ import  type { components } from "../../../../../../types/api";
 import { emptyData } from "./PageManagement_Data";
 import type { QueryListCondition } from "../../../../../../SysCore/Interface/IApiProvider";
 import * as SchemaFields from "../../../../../../types/SchemaFields";
+import { BuildVisibleColumns } from "../../../../../../SysCore/Utils/buildVisibleColumns";
 type PageManagementSet = components["schemas"]["PageManagementSet"]
 /** 讀取清單資料 */
 export const useFetchPageListData = () => {
@@ -12,7 +13,7 @@ export const useFetchPageListData = () => {
   const [rows, setRows] = useState<GridRow[]>([]);
   const [columns, setColumns] = useState<ColumnConfig[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(2);
+  const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,15 +22,14 @@ export const useFetchPageListData = () => {
     setError(null);
     try {
       //#region GetColumn
-      const resCol =await PageManagementProvider().getModelDisplayName();
-      const visibleKeys = [SchemaFields.PageManagementFields.CategoryId,
-                            SchemaFields.PageManagementDetailFields.Title,
-                            SchemaFields.PageManagementFields.ModifyUserId,
-                            SchemaFields.PageManagementFields.ModifyTime,];
-      // ✅ 取得 Columns 陣列（假設只取 Tables[0]）
-      const columnsRaw = resCol?.Tables?.[0]?.Columns ?? [];
+      const visibleKeys: [string, string][] = [
+                            [SchemaFields.PageManagementSetFields.PageManagement, SchemaFields.PageManagementFields.CategoryId],
+                            [SchemaFields.PageManagementSetFields.PageManagementDetail, SchemaFields.PageManagementDetailFields.Title],
+                            [SchemaFields.PageManagementSetFields.PageManagement, SchemaFields.PageManagementFields.ModifyUserId],
+                            [SchemaFields.PageManagementSetFields.PageManagement, SchemaFields.PageManagementFields.ModifyTime],
+                          ]
       // ✅ 轉換成 ColumnConfig[]
-      const columns: ColumnConfig[] = columnsRaw.filter(col => visibleKeys.includes(col.ColumnId)).map(col => ({ key: col.ColumnId, title: col.ColumnDisplayName}));
+      const columns = await BuildVisibleColumns(() => PageManagementProvider().getModelDisplayName(), visibleKeys);
       setColumns(columns);
       //#endregion
       
@@ -58,7 +58,7 @@ export const useFetchPageListData = () => {
         const errorMsg = totalCountRes.SysMessage?.map(msg =>`${msg.MessageCode}:${msg.Message}`).join(';') ?? "資料查詢失敗";
         throw new Error(errorMsg);
       }
-      setTotalPages(totalCountRes.Data?.[0]??1);
+      setTotalPages(totalCountRes.Data?.[0] ?? 1);
       const res = await PageManagementProvider().fetchList(queryCondition);
       if (!res.IsSuccess) {
         const errorMsg = res.SysMessage?.map(msg =>`${msg.MessageCode}:${msg.Message}`).join(';') ?? "資料查詢失敗";

@@ -34,6 +34,11 @@ namespace WCMS.Features.SysSetting.FileManagement
         /// </summary>
         [LibDesc] public string FileName { get; set; }
         /// <summary>
+        /// 檔案描述
+        /// (後續可透過帶出，其他表可修改對應的顯示說明)
+        /// </summary>
+        [LibDesc] public string FileDiscription { get; set; } = string.Empty;
+        /// <summary>
         /// 網際網路媒體型式
         /// </summary>
         [LibDesc] public string MimeType { get; set; }

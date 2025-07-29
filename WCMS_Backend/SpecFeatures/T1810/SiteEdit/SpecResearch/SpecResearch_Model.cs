@@ -2,15 +2,15 @@
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 
-namespace WCMS.SpecFeatures.T1810.SiteEdit.Research
+namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
 {
     public class SpecResearchSet
     {
-        public SpecResearch MasterData { get; set; }
-        public List<SpecResearchDetail> Details { get; set; }
+        public SpecResearchModel SpecResearch { get; set; } = new();
+        public List<SpecResearchDetailModel> SpecResearchDetail { get; set; } = [];
     }
 
-    public class SpecResearch : MasterDataModel
+    public class SpecResearchModel : MasterDataModel
     {
         /// <summary>
         /// 橫幅ID
@@ -21,29 +21,11 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.Research
         /// 類別ID
         /// </summary>
         public string CategoryId { get; set; }
-        /// <summary>
-        /// 轉換間隔
-        /// </summary>
-        public short Interval { get; set; }
-        /// <summary>
-        /// 轉換速度
-        /// </summary>
-        public short Speed { get; set; }
-        /// <summary>
-        /// 橫幅高度
-        /// </summary>
-        public short Height { get; set; }
-        /// <summary>
-        /// 橫幅寬度
-        /// </summary>
-        public short Width { get; set; }
-        /// <summary>
-        /// 橫幅效果
-        /// </summary>
-        public byte Effect { get; set; }
+        
+
     }
 
-    public class SpecResearchDetail : DetailRowModel
+    public class SpecResearchDetailModel : DetailRowModel
     {
         [Key]
         public string ResearchId { get;set; }

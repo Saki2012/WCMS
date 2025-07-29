@@ -15,6 +15,7 @@ export interface ListCompProp{
     Theme:IBETheme
     LoadingList:boolean[],
     ErrorList:(string | null | undefined)[],
+    SearchBar:SearchBarProps,
     Toolbar:ToolbarAction[]
     // SearchBar:SearchBarProps
     GridType?:string

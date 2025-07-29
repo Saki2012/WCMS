@@ -133,14 +133,14 @@ namespace WCMS.Migrations
                     b.Property<int>("ParentRowId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Row")
+                    b.Property<int>("RowId")
                         .HasColumnType("int");
 
                     b.Property<string>("FileId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("AnnouncementId", "ParentRowId", "Row");
+                    b.HasKey("AnnouncementId", "ParentRowId", "RowId");
 
                     b.ToTable("AnnouncementDetailFile", (string)null);
                 });
@@ -150,7 +150,7 @@ namespace WCMS.Migrations
                     b.Property<string>("BannerId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("CategoryId")
+                    b.Property<string>("BannerCategoryName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -164,8 +164,9 @@ namespace WCMS.Migrations
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
 
-                    b.Property<byte>("Effect")
-                        .HasColumnType("tinyint");
+                    b.Property<string>("Effect")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte>("FormStatus")
                         .HasColumnType("tinyint");
@@ -229,8 +230,9 @@ namespace WCMS.Migrations
                     b.Property<int>("RowId")
                         .HasColumnType("int");
 
-                    b.Property<byte>("FontColor")
-                        .HasColumnType("tinyint");
+                    b.Property<string>("FontColor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PicSrcId")
                         .IsRequired()
@@ -238,9 +240,6 @@ namespace WCMS.Migrations
 
                     b.Property<int>("Sort")
                         .HasColumnType("int");
-
-                    b.Property<byte>("URL_Open")
-                        .HasColumnType("tinyint");
 
                     b.Property<DateTime>("Validate_End")
                         .HasColumnType("datetime2(0)");
@@ -275,6 +274,9 @@ namespace WCMS.Migrations
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte>("URL_Open")
+                        .HasColumnType("tinyint");
 
                     b.HasKey("BannerId", "ParentRowId", "RowId");
 
@@ -481,7 +483,7 @@ namespace WCMS.Migrations
                     b.Property<string>("GalleryId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("CategoriesId")
+                    b.Property<string>("Categories")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -530,10 +532,10 @@ namespace WCMS.Migrations
                     b.Property<int>("Sort")
                         .HasColumnType("int");
 
-                    b.Property<int>("Status")
+                    b.Property<int>("Statuses")
                         .HasColumnType("int");
 
-                    b.Property<string>("TagsId")
+                    b.Property<string>("Tags")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -789,7 +791,7 @@ namespace WCMS.Migrations
                     b.Property<string>("WebResourceId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("CategoriesId")
+                    b.Property<string>("Categories")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -831,28 +833,19 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ResUrl")
+                    b.Property<string>("PicDescription")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Sort")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SrcData")
+                    b.Property<string>("PicId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<byte>("SrcType")
-                        .HasColumnType("tinyint");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TagsId")
+                    b.Property<string>("Statuses")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Url_OpenType")
+                    b.Property<string>("Tags")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -886,7 +879,15 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ResUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Url_OpenType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -895,83 +896,73 @@ namespace WCMS.Migrations
                     b.ToTable("WebResourceInfo", (string)null);
                 });
 
-            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.Research.SpecResearch", b =>
+            modelBuilder.Entity("WCMS.Features.SysSetting.FileManagement.FileInfoDownloadModel", b =>
                 {
-                    b.Property<string>("ResearchId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CategoryId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("datetime2(0)");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<byte>("DataStatus")
-                        .HasColumnType("tinyint");
-
-                    b.Property<byte>("Effect")
-                        .HasColumnType("tinyint");
-
-                    b.Property<byte>("FormStatus")
-                        .HasColumnType("tinyint");
-
-                    b.Property<short>("Height")
-                        .HasColumnType("smallint");
-
                     b.Property<string>("InternalId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<short>("Interval")
-                        .HasColumnType("smallint");
+                    b.Property<int>("RowId")
+                        .HasColumnType("int");
 
-                    b.Property<DateTime?>("InvalidTime")
-                        .HasColumnType("datetime2(0)");
-
-                    b.Property<string>("InvalidUserId")
+                    b.Property<string>("DownloadStatus")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsIniData")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ModifyTime")
+                    b.Property<DateTime>("DownloadTime")
                         .HasColumnType("datetime2(0)");
 
-                    b.Property<string>("ModifyUserId")
+                    b.Property<string>("DownloadUserIP")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("OrgLvId")
+                    b.Property<string>("RefererURL")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<short>("Speed")
-                        .HasColumnType("smallint");
+                    b.Property<string>("UserAgent")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("Validate_End")
-                        .HasColumnType("datetime2(0)");
+                    b.HasKey("InternalId", "RowId");
 
-                    b.Property<DateTime?>("Validate_Start")
-                        .HasColumnType("datetime2(0)");
-
-                    b.Property<short>("Width")
-                        .HasColumnType("smallint");
-
-                    b.HasKey("ResearchId");
-
-                    b.HasIndex("InternalId")
-                        .IsUnique();
-
-                    b.ToTable("SpecResearch", (string)null);
+                    b.ToTable("FileInfoDownload", (string)null);
                 });
 
-            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.Research.SpecResearchDetail", b =>
+            modelBuilder.Entity("WCMS.Features.SysSetting.FileManagement.FileInfoSyncModel", b =>
+                {
+                    b.Property<string>("InternalId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("RowId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CompletedTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("DestIP")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ExecuteTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("SrcIP")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SyncStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("InternalId", "RowId");
+
+                    b.ToTable("FileInfoSync", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch.SpecResearchDetailModel", b =>
                 {
                     b.Property<string>("ResearchId")
                         .HasColumnType("nvarchar(450)");
@@ -1003,7 +994,154 @@ namespace WCMS.Migrations
                     b.ToTable("SpecResearchDetail", (string)null);
                 });
 
-            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.USR.SpecUSR", b =>
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch.SpecResearchModel", b =>
+                {
+                    b.Property<string>("ResearchId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CategoryId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("CreateUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte>("DataStatus")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("FormStatus")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("InternalId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("InvalidTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("InvalidUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsIniData")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifyTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("ModifyUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrgLvId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("Validate_End")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<DateTime?>("Validate_Start")
+                        .HasColumnType("datetime2(0)");
+
+                    b.HasKey("ResearchId");
+
+                    b.HasIndex("InternalId")
+                        .IsUnique();
+
+                    b.ToTable("SpecResearch", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory.SpecCategoryDetailModel", b =>
+                {
+                    b.Property<string>("CategoryId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("RowId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CategoryName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Lang")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("CategoryId", "RowId");
+
+                    b.ToTable("SpecCategoryDetail", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory.SpecCategoryModel", b =>
+                {
+                    b.Property<string>("CategoryId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("CreateUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte>("DataStatus")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("FormStatus")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("InternalId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("InvalidTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("InvalidUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsIniData")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifyTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("ModifyUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrgLvId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProgId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShowColumnItems")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("Validate_End")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<DateTime?>("Validate_Start")
+                        .HasColumnType("datetime2(0)");
+
+                    b.HasKey("CategoryId");
+
+                    b.HasIndex("InternalId")
+                        .IsUnique();
+
+                    b.ToTable("SpecCategory", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRModel", b =>
                 {
                     b.Property<string>("USRId")
                         .HasColumnType("nvarchar(450)");
@@ -1076,10 +1214,10 @@ namespace WCMS.Migrations
                     b.HasIndex("InternalId")
                         .IsUnique();
 
-                    b.ToTable("SpecUSR", (string)null);
+                    b.ToTable("SpecUSRModel", (string)null);
                 });
 
-            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.USR.SpecUSRDetail", b =>
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRDetail", b =>
                 {
                     b.Property<string>("USRId")
                         .HasColumnType("nvarchar(450)");

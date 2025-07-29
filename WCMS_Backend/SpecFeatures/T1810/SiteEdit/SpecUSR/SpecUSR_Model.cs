@@ -2,15 +2,15 @@
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 
-namespace WCMS.SpecFeatures.T1810.SiteEdit.USR
+namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
 {
     public class SpecUSRSet
     {
-        public SpecUSR MasterData { get; set; }
-        public List<SpecUSRDetail> Details { get; set; }
+        public SpecUSRModel MasterData { get; set; } = new();
+        public List<SpecUSRDetail> Details { get; set; } = [];
     }
 
-    public class SpecUSR: MasterDataModel
+    public class SpecUSRModel: MasterDataModel
     {
         /// <summary>
         /// 橫幅ID

@@ -22,10 +22,14 @@ export const PageListComp = ({title,theme}:{title:string;theme:IBETheme}) => {
 
 
     const useToolbar = useListToolbarActions(dirUrl)
-
+    const searchCompProp:SearchBarProps={
+        title:"頁面搜尋",
+        subTitle:"搜尋頁面 ...",
+        settingTitle: "搜尋設定",
+    }
     const isLoading=[usePageList.isLoading];
     const errors=[usePageList.error];
-    const prop:ListCompProp={ Title:title, Theme:theme, LoadingList:isLoading, ErrorList:errors, Toolbar:useToolbar.toolbarActions,GridData:adjustedGrid }
+    const prop:ListCompProp={ Title:title, Theme:theme, LoadingList:isLoading, ErrorList:errors, Toolbar:useToolbar.toolbarActions,GridData:adjustedGrid,SearchBar:searchCompProp }
 
     return (
             <ListComp prop={prop}></ListComp>
