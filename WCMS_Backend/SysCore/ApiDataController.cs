@@ -134,10 +134,10 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="queryCondition"></param>
         /// <returns></returns>
-        [HttpPost(nameof(GetTotalPages))]
-        public async Task<IActionResult> GetTotalPages([FromBody] QueryListParam? queryCondition)
+        [HttpPost(nameof(GetTotalCounts))]
+        public async Task<IActionResult> GetTotalCounts([FromBody] QueryListParam? queryCondition)
         {
-            return Ok(await _service.QueryListTotalPages(queryCondition.Fields ,queryCondition.Condition, queryCondition.PageSize));
+            return Ok(await _service.QueryTotalCounts(queryCondition.Fields ,queryCondition.Condition));
         }
         /// <summary>
         /// 獲取功能的欄位顯示名稱

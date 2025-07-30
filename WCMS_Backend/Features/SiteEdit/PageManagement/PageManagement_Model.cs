@@ -29,8 +29,9 @@ namespace WCMS.Features.SiteEdit.PageManagement
         /// </summary>
         [LibDesc] public int? ViewCount { get; set; }
 
+        #region Detail關聯
         [ForeignKey(nameof(PageId))] public virtual ICollection<PageManagementDetail>? PageManagementDetail { get; set; }
-
+        #endregion
     }
     public class PageManagementDetail:DetailRowModel
     {

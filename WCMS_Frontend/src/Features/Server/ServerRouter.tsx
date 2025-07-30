@@ -11,149 +11,121 @@ import { Classic_BETheme } from "./Layout/Theme/ClassicTheme_Clsx";
 import { CategoryListComp } from "./Layout/BizFunc/WebManagement/Category/Category_List_Comp";
 import { TagListComp } from "./Layout/BizFunc/WebManagement/Tags/Tag_List_Comp";
 import { AnnouncementFormComp } from "./Layout/BizFunc/WebManagement/Announcement/Announcement_Form_Comp";
+import { Navigate } from "react-router-dom";
 export class BackendRouteModule implements IRouteModule {
   getRoutes(): RouteObject[] {
     return [
       {
         path: '/Server',
         element: <DashboardPage theme={Classic_BETheme} />,
-        children: [//之後再來想怎麼做到動態處理
-          //#region 廣告輪播
+        children: [
+          //#region 網站功能管理
           {
-            path: "WebManagement/BannerSlider/Form/:internalId?",
-            element: <PageFormComp theme={Classic_BETheme}/>,
-          },
-          {
-            path: "WebManagement/BannerSlider/List",
-            element: <PageListComp title="頁面列表" theme={Classic_BETheme}/>,
-          },
-          //#endregion
-          //#region 公告
-          {
-            path: "WebManagement/Announcement/Form/:internalId?",
-            element: <AnnouncementFormComp theme={Classic_BETheme}/>,
-          },
-          {
-            path: "WebManagement/Announcement/List",
-            element: <AnnouncementListComp title="公告列表" theme={Classic_BETheme}/>,
-          },
-          {
-            path: "WebManagement/Announcement/Category",
-            element: <CategoryListComp progId="Announcement" title="類別" theme={Classic_BETheme}/>,
-          },
-          {
-            path: "WebManagement/Announcement/Tag",
-            element: <TagListComp progId="Announcement" title="標籤" theme={Classic_BETheme}/>,
-          },
-          //#endregion
-          //#region 頁面
-          {
-            path: "WebManagement/PageManage/Form/:internalId?",
-            element: <PageFormComp theme={Classic_BETheme}/>,
-          },
-          {
-            path: "WebManagement/PageManage/List",
-            element: <PageListComp title="頁面列表" theme={Classic_BETheme}/>,
-          },
-          {
-            path: "WebManagement/PageManage/Category",
-            element: <CategoryListComp progId="PageManagement" title="類別" theme={Classic_BETheme}/>,
-          },
-          //#endregion
-          //#region 相簿
-          {
-            path: "WebManagement/Gallery/Form/:internalId?",
-            element: <PageFormComp theme={Classic_BETheme}/>,
-          },
-          {
-            path: "WebManagement/Gallery/List",
-            element: <PageListComp title="頁面列表" theme={Classic_BETheme}/>,
-          },
-          {
-            path: "WebManagement/Gallery/Category",
-            element: <CategoryListComp progId="Announcement" title="類別" theme={Classic_BETheme}/>,
-          },
-          {
-            path: "WebManagement/Gallery/Tag",
-            element: <TagListComp progId="Announcement" title="標籤" theme={Classic_BETheme}/>,
-          },
-          //#endregion
-          //#region 檔案室
-          {
-            path: "WebManagement/FileManage/Form/:internalId?",
-            element: <PageFormComp theme={Classic_BETheme}/>,
-          },
-          {
-            path: "WebManagement/FileManage/List",
-            element: <PageListComp title="頁面列表" theme={Classic_BETheme}/>,
-          },
-          {
-            path: "WebManagement/FileManage/Category",
-            element: <CategoryListComp progId="Announcement" title="類別" theme={Classic_BETheme}/>,
-          },
-          {
-            path: "WebManagement/FileManage/Tag",
-            element: <TagListComp progId="Announcement" title="標籤" theme={Classic_BETheme}/>,
-          },
-          //#endregion
-          //#region 網路資源
-          {
-            path: "WebManagement/WebResource/Form/:internalId?",
-            element: <PageFormComp theme={Classic_BETheme}/>,
-          },
-          {
-            path: "WebManagement/WebResource/List",
-            element: <PageListComp title="頁面列表" theme={Classic_BETheme}/>,
-          },
-          {
-            path: "WebManagement/WebResource/Category",
-            element: <CategoryListComp progId="Announcement" title="類別" theme={Classic_BETheme}/>,
-          },
-          {
-            path: "WebManagement/WebResource/Tag",
-            element: <TagListComp progId="Announcement" title="標籤" theme={Classic_BETheme}/>,
-          },
-          //#endregion
-          //#region 研究計劃
-          {
-            path: "ResearchProj/Form/:internalId?",
-            element: <PageFormComp theme={Classic_BETheme}/>,
-          },
-          {
-            path: "ResearchProj/List",
-            element: <PageListComp title="頁面列表" theme={Classic_BETheme}/>,
-          },
-          {
-            path: "ResearchProj/Category",
-            element: <CategoryListComp progId="Announcement" title="類別" theme={Classic_BETheme}/>,
-          },
-          {
-            path: "ResearchProj/Tag",
-            element: <TagListComp progId="Announcement" title="標籤" theme={Classic_BETheme}/>,
+            path: 'WebManagement',
+            children: [
+              { index: true, element: <Navigate to="Announcement/List" replace />,},
+              //#region 廣告輪播
+              {
+                path: 'BannerSlider',
+                children: [
+                  { index: true, element: <Navigate to="List" replace /> },
+                  { path: 'Form/:internalId?', element: <PageFormComp theme={Classic_BETheme} /> },
+                  { path: 'List', element: <PageListComp title="廣告輪播列表" theme={Classic_BETheme} /> },
+                ],
+              },
+              //#endregion
+              //#region 公告
+              {
+                path: 'Announcement',
+                children: [
+                  { index: true, element: <Navigate to="List" replace /> },
+                  { path: 'Form/:internalId?', element: <AnnouncementFormComp theme={Classic_BETheme} /> },
+                  { path: 'List', element: <AnnouncementListComp title="公告列表" theme={Classic_BETheme} /> },
+                  { path: 'Category', element: <CategoryListComp progId="Announcement" title="類別" theme={Classic_BETheme} /> },
+                  { path: 'Tag', element: <TagListComp progId="Announcement" title="標籤" theme={Classic_BETheme} /> },
+                ],
+              },
+              //#endregion
+              //#region 頁面
+              {
+                path: 'PageManage',
+                children: [
+                  { index: true, element: <Navigate to="List" replace /> },
+                  { path: 'Form/:internalId?', element: <PageFormComp theme={Classic_BETheme} /> },
+                  { path: 'List', element: <PageListComp title="頁面列表" theme={Classic_BETheme} /> },
+                  { path: 'Category', element: <CategoryListComp progId="PageManagement" title="類別" theme={Classic_BETheme} /> },
+                ],
+              },
+              //#endregion
+              //#region 相簿
+              {
+                path: 'Gallery',
+                children: [
+                  { index: true, element: <Navigate to="List" replace /> },
+                  { path: 'Form/:internalId?', element: <PageFormComp theme={Classic_BETheme} /> },
+                  { path: 'List', element: <PageListComp title="相簿列表" theme={Classic_BETheme} /> },
+                  { path: 'Category', element: <CategoryListComp progId="Gallery" title="類別" theme={Classic_BETheme} /> },
+                  { path: 'Tag', element: <TagListComp progId="Gallery" title="標籤" theme={Classic_BETheme} /> },
+                ],
+              },
+              //#endregion
+              //#region 檔案室
+              {
+                path: 'FileManage',
+                children: [
+                  { index: true, element: <Navigate to="List" replace /> },
+                  { path: 'Form/:internalId?', element: <PageFormComp theme={Classic_BETheme} /> },
+                  { path: 'List', element: <PageListComp title="檔案室列表" theme={Classic_BETheme} /> },
+                  { path: 'Category', element: <CategoryListComp progId="FileManage" title="類別" theme={Classic_BETheme} /> },
+                  { path: 'Tag', element: <TagListComp progId="FileManage" title="標籤" theme={Classic_BETheme} /> },
+                ],
+              },
+              //#endregion
+              //#region 網路資源
+              {
+                path: 'WebResource',
+                children: [
+                  { index: true, element: <Navigate to="List" replace /> },
+                  { path: 'Form/:internalId?', element: <PageFormComp theme={Classic_BETheme} /> },
+                  { path: 'List', element: <PageListComp title="網路資源列表" theme={Classic_BETheme} /> },
+                  { path: 'Category', element: <CategoryListComp progId="WebResource" title="類別" theme={Classic_BETheme} /> },
+                  { path: 'Tag', element: <TagListComp progId="WebResource" title="標籤" theme={Classic_BETheme} /> },
+                ],
+              },
+              //#endregion
+              //#region 研究計劃
+              {
+                path: 'ResearchProj',
+                children: [
+                  { index: true, element: <Navigate to="List" replace /> },
+                  { path: 'Form/:internalId?', element: <PageFormComp theme={Classic_BETheme} /> },
+                  { path: 'List', element: <PageListComp title="研究計劃列表" theme={Classic_BETheme} /> },
+                  { path: 'Category', element: <CategoryListComp progId="SpecResearch" title="類別" theme={Classic_BETheme} /> },
+                  { path: 'Tag', element: <TagListComp progId="SpecResearch" title="標籤" theme={Classic_BETheme} /> },
+                ],
+              },
+              //#endregion
+              //#region USR
+              {
+                path: 'USR',
+                children: [
+                  { index: true, element: <Navigate to="List" replace /> },
+                  { path: 'Form/:internalId?', element: <PageFormComp theme={Classic_BETheme} /> },
+                  { path: 'List', element: <PageListComp title="USR列表" theme={Classic_BETheme} /> },
+                  { path: 'Category', element: <CategoryListComp progId="SpecUSR" title="類別" theme={Classic_BETheme} /> },
+                  { path: 'Tag', element: <TagListComp progId="SpecUSR" title="標籤" theme={Classic_BETheme} /> },
+                ],
+              },
+              //#endregion
+            ],
           },
           //#endregion
-          //#region USR
           {
-            path: "USR/Form/:internalId?",
-            element: <PageFormComp theme={Classic_BETheme}/>,
-          },
-          {
-            path: "USR/List",
-            element: <PageListComp title="頁面列表" theme={Classic_BETheme}/>,
-          },
-          {
-            path: "USR/Category",
-            element: <CategoryListComp progId="Announcement" title="類別" theme={Classic_BETheme}/>,
-          },
-          {
-            path: "USR/Tag",
-            element: <TagListComp progId="Announcement" title="標籤" theme={Classic_BETheme}/>,
-          },
-          //#endregion
-        ]
-      }
+
+          }
+        ],
+      },
     ];
   }
+
 }
-
-

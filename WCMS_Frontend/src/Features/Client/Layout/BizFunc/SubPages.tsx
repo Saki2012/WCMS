@@ -48,7 +48,7 @@ const SubContent = ({style}:{style:IFETheme}) => {
         DOMContent: (<a className="" href="/FrontPointOfEntry.aspx?Sn=122" title="校外計畫">校外計畫</a>),
       },
     ],
-    DOMContent: (<Link className="a-focus" to="123" target="_self" title="計畫徵件">計畫徵件<i className="fa fa-angle-right arrow" aria-hidden="true"></i></Link>),
+    DOMContent: (<Link className="a-focus" to="List" target="_self" title="計畫徵件">計畫徵件<i className="fa fa-angle-right arrow" aria-hidden="true"></i></Link>),
   },
   {
     Id: "123",SrcData: "",Type: "url",Url: "/FrontPointOfEntry.aspx?Sn=123",URL_Open: "1",SubItem: [],

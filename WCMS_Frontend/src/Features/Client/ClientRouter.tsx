@@ -21,9 +21,13 @@ export class FrontendRouteModule implements IRouteModule {
             element: <SubPages style={Classic_FETheme} />,
             children:[
               {
-                path:"123",
-                element:<PageGridComp style={Classic_FETheme}></PageGridComp>
-              }
+                path:"List",
+                element:<PageGridComp theme={Classic_FETheme}></PageGridComp>
+              },
+              {
+                path:":internalId?",
+                element:<>rees</>
+              },
             ]
           },
         ],

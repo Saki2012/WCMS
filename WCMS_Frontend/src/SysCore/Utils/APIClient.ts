@@ -26,7 +26,7 @@ const genericApi = {
   invalid: <T>(module: string, internalId: string, isInvalid: boolean) => client.delete<ApiResponse<T>>(`/${module}/Invalid`, { data: { internalId, isInvalid }}),
   queryData: <T>(module: string, internalId: string) => client.get<ApiResponse<T>>(`/${module}/QueryData`, { params: internalId  }),
   queryList: <T>(module: string, condition: QueryListCondition) => client.post<ApiResponse<T>>(`/${module}/QueryList`, condition), 
-  queryListCount:(module: string, condition: QueryListCondition) => client.post<ApiResponse<number>>(`/${module}/GetTotalPages`, condition), 
+  queryListCount:(module: string, condition: QueryListCondition) => client.post<ApiResponse<number>>(`/${module}/GetTotalCounts`, condition), 
   getModelDisplayName: (module: string) => client.get(`/${module}/GetModelDisplayName`),
 };
 

@@ -13,7 +13,7 @@ export class SpecRouteModule implements IRouteModule {
     const frontendRoutes = new FrontendRouteModule().getRoutes();
     const backendRoutes = new BackendRouteModule().getRoutes();
     const customRoutes: RouteObject[] = [
-      // {
+        // {
         // path: '/Server',
         // element: <DashboardPage theme={Classic_BETheme} />,
         // children: [

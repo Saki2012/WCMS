@@ -21,6 +21,7 @@ export const AnnouncementFields = {
   PictureId: 'PictureId',
   PicDescription: 'PicDescription',
   ViewCount: 'ViewCount',
+  AnnouncementDetail: 'AnnouncementDetail',
 } as const;
 
 export type AnnouncementFieldKey = keyof typeof AnnouncementFields;
@@ -42,7 +43,7 @@ export const AnnouncementDetailFileFields = {
   RowState: 'RowState',
   AnnouncementId: 'AnnouncementId',
   ParentRowId: 'ParentRowId',
-  Row: 'Row',
+  RowId: 'RowId',
   FileId: 'FileId',
 } as const;
 
@@ -57,8 +58,8 @@ export const AnnouncementSetFields = {
 export type AnnouncementSetFieldKey = keyof typeof AnnouncementSetFields;
 
 export const AnnouncementSetApiRequestFields = {
-  UID: 'UID',
-  Set: 'Set',
+  InternalId: 'InternalId',
+  Data: 'Data',
 } as const;
 
 export type AnnouncementSetApiRequestFieldKey = keyof typeof AnnouncementSetApiRequestFields;
@@ -78,7 +79,7 @@ export const BannerFields = {
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
   BannerId: 'BannerId',
-  CategoryId: 'CategoryId',
+  BannerCategoryName: 'BannerCategoryName',
   Interval: 'Interval',
   Speed: 'Speed',
   Height: 'Height',
@@ -96,7 +97,6 @@ export const BannerDetailFields = {
   FontColor: 'FontColor',
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
-  URL_Open: 'URL_Open',
   Sort: 'Sort',
 } as const;
 
@@ -110,6 +110,7 @@ export const BannerDetailInfoFields = {
   Lang: 'Lang',
   Title: 'Title',
   Content: 'Content',
+  URL_Open: 'URL_Open',
 } as const;
 
 export type BannerDetailInfoFieldKey = keyof typeof BannerDetailInfoFields;
@@ -123,8 +124,8 @@ export const BannerSetFields = {
 export type BannerSetFieldKey = keyof typeof BannerSetFields;
 
 export const BannerSetApiRequestFields = {
-  UID: 'UID',
-  Set: 'Set',
+  InternalId: 'InternalId',
+  Data: 'Data',
 } as const;
 
 export type BannerSetApiRequestFieldKey = keyof typeof BannerSetApiRequestFields;
@@ -145,6 +146,7 @@ export const CategoryFields = {
   Validate_End: 'Validate_End',
   CategoryId: 'CategoryId',
   ProgId: 'ProgId',
+  CategoryDetail: 'CategoryDetail',
 } as const;
 
 export type CategoryFieldKey = keyof typeof CategoryFields;
@@ -157,8 +159,8 @@ export const CategoryDataSetFields = {
 export type CategoryDataSetFieldKey = keyof typeof CategoryDataSetFields;
 
 export const CategoryDataSetApiRequestFields = {
-  UID: 'UID',
-  Set: 'Set',
+  InternalId: 'InternalId',
+  Data: 'Data',
 } as const;
 
 export type CategoryDataSetApiRequestFieldKey = keyof typeof CategoryDataSetApiRequestFields;
@@ -236,11 +238,71 @@ export const FileArchiveSetFields = {
 export type FileArchiveSetFieldKey = keyof typeof FileArchiveSetFields;
 
 export const FileArchiveSetApiRequestFields = {
-  UID: 'UID',
-  Set: 'Set',
+  InternalId: 'InternalId',
+  Data: 'Data',
 } as const;
 
 export type FileArchiveSetApiRequestFieldKey = keyof typeof FileArchiveSetApiRequestFields;
+
+export const FileInfoDownloadModelFields = {
+  RowState: 'RowState',
+  InternalId: 'InternalId',
+  RowId: 'RowId',
+  DownloadUserIP: 'DownloadUserIP',
+  UserAgent: 'UserAgent',
+  RefererURL: 'RefererURL',
+  DownloadStatus: 'DownloadStatus',
+  DownloadTime: 'DownloadTime',
+} as const;
+
+export type FileInfoDownloadModelFieldKey = keyof typeof FileInfoDownloadModelFields;
+
+export const FileInfoSyncModelFields = {
+  RowState: 'RowState',
+  InternalId: 'InternalId',
+  RowId: 'RowId',
+  SyncStatus: 'SyncStatus',
+  SrcIP: 'SrcIP',
+  DestIP: 'DestIP',
+  ErrorMessage: 'ErrorMessage',
+  ExecuteTime: 'ExecuteTime',
+  CompletedTime: 'CompletedTime',
+} as const;
+
+export type FileInfoSyncModelFieldKey = keyof typeof FileInfoSyncModelFields;
+
+export const FileManagementModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  OrgLvId: 'OrgLvId',
+  IsIniData: 'IsIniData',
+  InternalId: 'InternalId',
+  Path: 'Path',
+  FileName: 'FileName',
+  FileDiscription: 'FileDiscription',
+  MimeType: 'MimeType',
+  FileSHA256: 'FileSHA256',
+  FileSize: 'FileSize',
+  ProgId: 'ProgId',
+  ImportLabel: 'ImportLabel',
+} as const;
+
+export type FileManagementModelFieldKey = keyof typeof FileManagementModelFields;
+
+export const FileManagementSetFields = {
+  FileManagement: 'FileManagement',
+  FileInfoDownload: 'FileInfoDownload',
+  FileInfoSyncModel: 'FileInfoSyncModel',
+} as const;
+
+export type FileManagementSetFieldKey = keyof typeof FileManagementSetFields;
+
+export const FileManagementSetApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type FileManagementSetApiRequestFieldKey = keyof typeof FileManagementSetApiRequestFields;
 
 export const FormStatusFields = {
   toString: 'toString',
@@ -268,9 +330,9 @@ export const GalleryFields = {
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
   GalleryId: 'GalleryId',
-  CategoriesId: 'CategoriesId',
-  TagsId: 'TagsId',
-  Status: 'Status',
+  Categories: 'Categories',
+  Tags: 'Tags',
+  Statuses: 'Statuses',
   CoverPicSrcId: 'CoverPicSrcId',
   Sort: 'Sort',
 } as const;
@@ -320,8 +382,8 @@ export const GallerySetFields = {
 export type GallerySetFieldKey = keyof typeof GallerySetFields;
 
 export const GallerySetApiRequestFields = {
-  UID: 'UID',
-  Set: 'Set',
+  InternalId: 'InternalId',
+  Data: 'Data',
 } as const;
 
 export type GallerySetApiRequestFieldKey = keyof typeof GallerySetApiRequestFields;
@@ -365,8 +427,8 @@ export const PageManagementSetFields = {
 export type PageManagementSetFieldKey = keyof typeof PageManagementSetFields;
 
 export const PageManagementSetApiRequestFields = {
-  UID: 'UID',
-  Set: 'Set',
+  InternalId: 'InternalId',
+  Data: 'Data',
 } as const;
 
 export type PageManagementSetApiRequestFieldKey = keyof typeof PageManagementSetApiRequestFields;
@@ -391,7 +453,17 @@ export const RowStateFields = {
 
 export type RowStateFieldKey = keyof typeof RowStateFields;
 
-export const SpecResearchFields = {
+export const SpecCategoryDetailModelFields = {
+  RowState: 'RowState',
+  CategoryId: 'CategoryId',
+  RowId: 'RowId',
+  Lang: 'Lang',
+  CategoryName: 'CategoryName',
+} as const;
+
+export type SpecCategoryDetailModelFieldKey = keyof typeof SpecCategoryDetailModelFields;
+
+export const SpecCategoryModelFields = {
   CreateTime: 'CreateTime',
   CreateUserId: 'CreateUserId',
   ModifyTime: 'ModifyTime',
@@ -405,18 +477,28 @@ export const SpecResearchFields = {
   IsIniData: 'IsIniData',
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
-  ResearchId: 'ResearchId',
   CategoryId: 'CategoryId',
-  Interval: 'Interval',
-  Speed: 'Speed',
-  Height: 'Height',
-  Width: 'Width',
-  Effect: 'Effect',
+  ProgId: 'ProgId',
+  ShowColumnItems: 'ShowColumnItems',
 } as const;
 
-export type SpecResearchFieldKey = keyof typeof SpecResearchFields;
+export type SpecCategoryModelFieldKey = keyof typeof SpecCategoryModelFields;
 
-export const SpecResearchDetailFields = {
+export const SpecCategorySetFields = {
+  SpecCategory: 'SpecCategory',
+  SpecCategoryDetail: 'SpecCategoryDetail',
+} as const;
+
+export type SpecCategorySetFieldKey = keyof typeof SpecCategorySetFields;
+
+export const SpecCategorySetApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SpecCategorySetApiRequestFieldKey = keyof typeof SpecCategorySetApiRequestFields;
+
+export const SpecResearchDetailModelFields = {
   RowState: 'RowState',
   ResearchId: 'ResearchId',
   RowId: 'RowId',
@@ -428,23 +510,9 @@ export const SpecResearchDetailFields = {
   Sort: 'Sort',
 } as const;
 
-export type SpecResearchDetailFieldKey = keyof typeof SpecResearchDetailFields;
+export type SpecResearchDetailModelFieldKey = keyof typeof SpecResearchDetailModelFields;
 
-export const SpecResearchSetFields = {
-  MasterData: 'MasterData',
-  Details: 'Details',
-} as const;
-
-export type SpecResearchSetFieldKey = keyof typeof SpecResearchSetFields;
-
-export const SpecResearchSetApiRequestFields = {
-  UID: 'UID',
-  Set: 'Set',
-} as const;
-
-export type SpecResearchSetApiRequestFieldKey = keyof typeof SpecResearchSetApiRequestFields;
-
-export const SpecUSRFields = {
+export const SpecResearchModelFields = {
   CreateTime: 'CreateTime',
   CreateUserId: 'CreateUserId',
   ModifyTime: 'ModifyTime',
@@ -458,16 +526,25 @@ export const SpecUSRFields = {
   IsIniData: 'IsIniData',
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
-  USRId: 'USRId',
+  ResearchId: 'ResearchId',
   CategoryId: 'CategoryId',
-  Interval: 'Interval',
-  Speed: 'Speed',
-  Height: 'Height',
-  Width: 'Width',
-  Effect: 'Effect',
 } as const;
 
-export type SpecUSRFieldKey = keyof typeof SpecUSRFields;
+export type SpecResearchModelFieldKey = keyof typeof SpecResearchModelFields;
+
+export const SpecResearchSetFields = {
+  SpecResearch: 'SpecResearch',
+  SpecResearchDetail: 'SpecResearchDetail',
+} as const;
+
+export type SpecResearchSetFieldKey = keyof typeof SpecResearchSetFields;
+
+export const SpecResearchSetApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SpecResearchSetApiRequestFieldKey = keyof typeof SpecResearchSetApiRequestFields;
 
 export const SpecUSRDetailFields = {
   RowState: 'RowState',
@@ -483,6 +560,31 @@ export const SpecUSRDetailFields = {
 
 export type SpecUSRDetailFieldKey = keyof typeof SpecUSRDetailFields;
 
+export const SpecUSRModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  IsIniData: 'IsIniData',
+  Validate_Start: 'Validate_Start',
+  Validate_End: 'Validate_End',
+  USRId: 'USRId',
+  CategoryId: 'CategoryId',
+  Interval: 'Interval',
+  Speed: 'Speed',
+  Height: 'Height',
+  Width: 'Width',
+  Effect: 'Effect',
+} as const;
+
+export type SpecUSRModelFieldKey = keyof typeof SpecUSRModelFields;
+
 export const SpecUSRSetFields = {
   MasterData: 'MasterData',
   Details: 'Details',
@@ -491,8 +593,8 @@ export const SpecUSRSetFields = {
 export type SpecUSRSetFieldKey = keyof typeof SpecUSRSetFields;
 
 export const SpecUSRSetApiRequestFields = {
-  UID: 'UID',
-  Set: 'Set',
+  InternalId: 'InternalId',
+  Data: 'Data',
 } as const;
 
 export type SpecUSRSetApiRequestFieldKey = keyof typeof SpecUSRSetApiRequestFields;
@@ -535,8 +637,8 @@ export const TagSetFields = {
 export type TagSetFieldKey = keyof typeof TagSetFields;
 
 export const TagSetApiRequestFields = {
-  UID: 'UID',
-  Set: 'Set',
+  InternalId: 'InternalId',
+  Data: 'Data',
 } as const;
 
 export type TagSetApiRequestFieldKey = keyof typeof TagSetApiRequestFields;
@@ -556,14 +658,11 @@ export const WebResourceFields = {
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
   WebResourceId: 'WebResourceId',
-  CategoriesId: 'CategoriesId',
-  TagsId: 'TagsId',
-  Status: 'Status',
-  SrcType: 'SrcType',
-  SrcData: 'SrcData',
-  ResUrl: 'ResUrl',
-  Url_OpenType: 'Url_OpenType',
-  Sort: 'Sort',
+  Categories: 'Categories',
+  Tags: 'Tags',
+  Statuses: 'Statuses',
+  PicId: 'PicId',
+  PicDescription: 'PicDescription',
 } as const;
 
 export type WebResourceFieldKey = keyof typeof WebResourceFields;
@@ -575,6 +674,8 @@ export const WebResourceInfoFields = {
   Lang: 'Lang',
   Title: 'Title',
   Content: 'Content',
+  ResUrl: 'ResUrl',
+  Url_OpenType: 'Url_OpenType',
 } as const;
 
 export type WebResourceInfoFieldKey = keyof typeof WebResourceInfoFields;
@@ -587,8 +688,8 @@ export const WebResourceSetFields = {
 export type WebResourceSetFieldKey = keyof typeof WebResourceSetFields;
 
 export const WebResourceSetApiRequestFields = {
-  UID: 'UID',
-  Set: 'Set',
+  InternalId: 'InternalId',
+  Data: 'Data',
 } as const;
 
 export type WebResourceSetApiRequestFieldKey = keyof typeof WebResourceSetApiRequestFields;

@@ -13,7 +13,6 @@ export interface IBETheme {
   NavBarMenu:INaviBarStyle;
   GridView:IGridView_Style
   Paginator:IPaginator_Style
-  
   CategoryTagList:IMenu_Style;
 
   //#region Fields

@@ -115,6 +115,7 @@ namespace WCMS.SysCore
                 await BeginTransactionAsync();
                 GetModelType(newSet, out BasicDataModel header, out Dictionary<string, IList> details);
                 SetModifyInfo(header);
+                await AutoGenerateId(header, details);
                 BeforeUpdate(newSet, FuncAction.Update);
                 Response.ThrowIfFailed();
                 TSet oldSet = await DoQuerySetAsync(internalId);
@@ -216,10 +217,10 @@ namespace WCMS.SysCore
             Response.Data = result;
             return Response;
         }
-        public async Task<IApiResponse<int>> QueryListTotalPages(string[] selectFields, string condition, int pageSize)
+        public async Task<IApiResponse<int>> QueryTotalCounts(string[] selectFields, string condition)
         {
             ApiResponse<int> res = new();
-            int totalCount = 1;
+            int totalCount = 0;
             foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
             {
                 if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && typeof(BasicDataModel).IsAssignableFrom(prop.PropertyType))
@@ -228,10 +229,9 @@ namespace WCMS.SysCore
                     totalCount = count;
                 }
             }
-            int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
             res.ThrowIfFailed();
             res.AddMessage(MessageStatus.Green, SysMessageCode.BECode00010);
-            res.Data = [totalPages];
+            res.Data = [totalCount];
             return res;
         }
         /// <summary>
@@ -288,7 +288,6 @@ namespace WCMS.SysCore
             {
                 var oldModel = PropertyAccessorCache.Get(oldSet, prop.Name);
                 var newModel = PropertyAccessorCache.Get(newSet, prop.Name);
-
                 if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
                     await ((dynamic)RepoDict[prop.Name]).UpdateAsync((dynamic)oldModel, (dynamic)newModel);
                 else if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && prop.PropertyType != typeof(string))
@@ -297,13 +296,10 @@ namespace WCMS.SysCore
                     var detailProp = prop.PropertyType.GetGenericArguments().FirstOrDefault();
                     var oldValue = PropertyAccessorCache.Get(oldSet, prop.Name) as IList;
                     var newValue = PropertyAccessorCache.Get(newSet, prop.Name) as IList;
-
                     var keyProps = PropertyAccessorCache.GetAttrProperties(detailProp, typeof(KeyAttribute));
                     var nonKeyProps = PropertyAccessorCache.GetProperties(detailProp).Where(p => !keyProps.Select(p => p.Name).ToHashSet().Contains(p.Name)).ToList();
-
                     var oldDict = oldValue.ToDynamicList().ToDictionary(item => string.Join("|", keyProps.Select(k => PropertyAccessorCache.Get(item, k.Name)?.ToString() ?? "null")));
                     var newDict = newValue.ToDynamicList().ToDictionary(item => string.Join("|", keyProps.Select(k => PropertyAccessorCache.Get(item, k.Name)?.ToString() ?? "null")));
-
                     // 更新（兩邊都有）
                     foreach (var key in oldDict.Keys.Intersect(newDict.Keys))
                     {
@@ -313,19 +309,19 @@ namespace WCMS.SysCore
                             return !object.Equals(oldVal, newVal);}))
                             await repo.UpdateAsync(oldDict[key], newDict[key]);
                     }
-
                     // 刪除（old 有，new 沒有）
                     foreach (var key in oldDict.Keys.Except(newDict.Keys))
                     {
                         await repo.DeleteAsync(oldDict[key]);
                     }
-
-                    //這邊要獲取最大int值，但是是為了應急處理，之後要改演算法
-                    var allItems = oldDict.Values.Concat(newDict.Values);
-                    int maxRowId = allItems.Select(item => PropertyAccessorCache.Get(item, "RowId")).OfType<int>().DefaultIfEmpty(1).Max()+1;
-                    foreach (var key in newDict.Keys.Except(oldDict.Keys))
+                    //新增新行項
+                    var newItems = PropertyAccessorCache.CreateInstance(prop.PropertyType) as IList;
+                    newDict.Keys.Except(oldDict.Keys).ToList().ForEach(key => newItems.Add(newDict[key]));
+                    if (newItems.Count > 0)
                     {
-                        await repo.CreateAsync(newDict[key],maxRowId);
+                        //這邊要獲取RowId的最大int值，但是是為了應急處理，之後要改演算法
+                        int maxRowId = oldDict.Values.Concat(newDict.Values).Select(item => PropertyAccessorCache.Get(item, "RowId")).OfType<int>().DefaultIfEmpty(1).Max() + 1;
+                        await repo.CreateAsync(newItems, maxRowId);
                     }
                 }
             }
@@ -403,7 +399,6 @@ namespace WCMS.SysCore
         /// <returns></returns>
         protected async Task<int> DoQueryListCountAsync(Type type, string[] selectFields, string condition)
         {
-
             var selectExpr = GetSelectFieldsExpr(type, selectFields);
             var whereExpr = GetConditionExpr(type, condition);
             var data = await ((dynamic)RepoDict[type.Name]).QueryListCountAsync(selectExpr, whereExpr);
@@ -470,7 +465,7 @@ namespace WCMS.SysCore
             var keyProp = PropertyAccessorCache.GetProperties(header.GetType()).Where(p => p.IsDefined(typeof(KeyAttribute), inherit: true)).LastOrDefault();
             if (keyProp == null) return;
             var idSelector = BuildIdSelectorLambda(header.GetType(),keyProp);
-            string id = PropertyAccessorCache.Get(header, keyProp.Name).ToString();
+            string id = PropertyAccessorCache.Get(header, keyProp.Name)?.ToString();
             id = !string.IsNullOrEmpty(id) ? id : await ((Task<string>)((dynamic)RepoDict[header.GetType().Name]).GenerateIdAsync(idSelector, PrefixId));
             PropertyAccessorCache.Set(header, keyProp.Name, id);
             foreach(var detail in details)

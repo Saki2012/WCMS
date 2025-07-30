@@ -18,6 +18,7 @@ export const useFormToolbarActions = <T>(apiProvider: IDataProvider<T>, initialD
             else await apiProvider.updateData(internalId,formData);
             setIsLoading(false)
             setResult(true)
+            handleCancelBack()
         }
         catch(err: any) {
             if (axios.isAxiosError(err)) {

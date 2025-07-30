@@ -4,6 +4,39 @@
  */
 
 export interface paths {
+    "/Service/Announcement/Migrate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Announcement/Create": {
         parameters: {
             query?: never;
@@ -213,7 +246,7 @@ export interface paths {
         delete: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -348,6 +381,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/Announcement/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Announcement/GetModelDisplayName": {
         parameters: {
             query?: never;
@@ -375,6 +447,39 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Banner/Migrate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -590,7 +695,7 @@ export interface paths {
         delete: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -725,6 +830,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/Banner/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Banner/GetModelDisplayName": {
         parameters: {
             query?: never;
@@ -752,6 +896,39 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Category/Migrate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -967,7 +1144,7 @@ export interface paths {
         delete: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -1064,6 +1241,45 @@ export interface paths {
         trace?: never;
     };
     "/Service/Category/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Category/GetTotalCounts": {
         parameters: {
             query?: never;
             header?: never;
@@ -1344,7 +1560,7 @@ export interface paths {
         delete: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -1479,7 +1695,578 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/FileArchive/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/FileArchive/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/FileManagement/UploadTemp": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "multipart/form-data": {
+                        /** Format: binary */
+                        file?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/FileManagement/Download/internalId": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/FileManagement/ImportInitialFiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: {
+                    label?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": unknown;
+                    "text/json": unknown;
+                    "application/*+json": unknown;
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/FileManagement/Create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["FileManagementSet"];
+                    "text/json": components["schemas"]["FileManagementSet"];
+                    "application/*+json": components["schemas"]["FileManagementSet"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/FileManagement/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["FileManagementSet"][];
+                    "text/json": components["schemas"]["FileManagementSet"][];
+                    "application/*+json": components["schemas"]["FileManagementSet"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/FileManagement/Update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["FileManagementSetApiRequest"];
+                    "text/json": components["schemas"]["FileManagementSetApiRequest"];
+                    "application/*+json": components["schemas"]["FileManagementSetApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/FileManagement/Invalid/{pk}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    uid?: string;
+                    isInvalid?: boolean;
+                };
+                header?: never;
+                path: {
+                    pk: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/FileManagement/BatchInvalid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    isInvalid?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/FileManagement/Delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/FileManagement/BatchDelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/FileManagement/QueryData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/FileManagement/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/FileManagement/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/FileManagement/GetModelDisplayName": {
         parameters: {
             query?: never;
             header?: never;
@@ -1721,7 +2508,7 @@ export interface paths {
         delete: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -1856,6 +2643,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/Gallery/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Gallery/GetModelDisplayName": {
         parameters: {
             query?: never;
@@ -1883,6 +2709,39 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/PageManagement/Migrate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -2098,7 +2957,7 @@ export interface paths {
         delete: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -2233,7 +3092,495 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/PageManagement/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/PageManagement/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecCategory/Migrate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecCategory/Create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecCategorySet"];
+                    "text/json": components["schemas"]["SpecCategorySet"];
+                    "application/*+json": components["schemas"]["SpecCategorySet"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecCategory/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecCategorySet"][];
+                    "text/json": components["schemas"]["SpecCategorySet"][];
+                    "application/*+json": components["schemas"]["SpecCategorySet"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecCategory/Update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecCategorySetApiRequest"];
+                    "text/json": components["schemas"]["SpecCategorySetApiRequest"];
+                    "application/*+json": components["schemas"]["SpecCategorySetApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecCategory/Invalid/{pk}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    uid?: string;
+                    isInvalid?: boolean;
+                };
+                header?: never;
+                path: {
+                    pk: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/SpecCategory/BatchInvalid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    isInvalid?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/SpecCategory/Delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecCategory/BatchDelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecCategory/QueryData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecCategory/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecCategory/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecCategory/GetModelDisplayName": {
         parameters: {
             query?: never;
             header?: never;
@@ -2475,7 +3822,7 @@ export interface paths {
         delete: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -2572,6 +3919,45 @@ export interface paths {
         trace?: never;
     };
     "/Service/SpecResearch/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecResearch/GetTotalCounts": {
         parameters: {
             query?: never;
             header?: never;
@@ -2852,7 +4238,7 @@ export interface paths {
         delete: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -2987,6 +4373,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/SpecUSR/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/SpecUSR/GetModelDisplayName": {
         parameters: {
             query?: never;
@@ -3014,6 +4439,39 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Tag/Migrate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -3229,7 +4687,7 @@ export interface paths {
         delete: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -3364,6 +4822,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/Tag/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Tag/GetModelDisplayName": {
         parameters: {
             query?: never;
@@ -3391,6 +4888,39 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/WebResource/Migrate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -3606,7 +5136,7 @@ export interface paths {
         delete: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -3741,6 +5271,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/WebResource/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/WebResource/GetModelDisplayName": {
         parameters: {
             query?: never;
@@ -3805,6 +5374,7 @@ export interface components {
             PicDescription?: string | null;
             /** Format: int32 */
             ViewCount?: number | null;
+            AnnouncementDetail?: components["schemas"]["AnnouncementDetail"][] | null;
         };
         AnnouncementDetail: {
             RowState?: components["schemas"]["RowState"];
@@ -3823,7 +5393,7 @@ export interface components {
             /** Format: int32 */
             ParentRowId?: number;
             /** Format: int32 */
-            Row?: number;
+            RowId?: number;
             FileId?: string | null;
         };
         AnnouncementSet: {
@@ -3832,8 +5402,8 @@ export interface components {
             AnnouncementDetailFile?: components["schemas"]["AnnouncementDetailFile"][] | null;
         };
         AnnouncementSetApiRequest: {
-            UID?: string | null;
-            Set?: components["schemas"]["AnnouncementSet"];
+            InternalId?: string | null;
+            Data?: components["schemas"]["AnnouncementSet"];
         };
         Banner: {
             /** Format: date-time */
@@ -3855,7 +5425,7 @@ export interface components {
             /** Format: date-time */
             Validate_End?: string | null;
             BannerId?: string | null;
-            CategoryId?: string | null;
+            BannerCategoryName?: string | null;
             /** Format: int32 */
             Interval?: number;
             /** Format: int32 */
@@ -3864,8 +5434,7 @@ export interface components {
             Height?: number;
             /** Format: int32 */
             Width?: number;
-            /** Format: int32 */
-            Effect?: number;
+            Effect?: string | null;
         };
         BannerDetail: {
             RowState?: components["schemas"]["RowState"];
@@ -3873,14 +5442,11 @@ export interface components {
             /** Format: int32 */
             RowId?: number;
             PicSrcId?: string | null;
-            /** Format: int32 */
-            FontColor?: number;
+            FontColor?: string | null;
             /** Format: date-time */
             Validate_Start?: string;
             /** Format: date-time */
             Validate_End?: string;
-            /** Format: int32 */
-            URL_Open?: number;
             /** Format: int32 */
             Sort?: number;
         };
@@ -3894,6 +5460,8 @@ export interface components {
             Lang?: string | null;
             Title?: string | null;
             Content?: string | null;
+            /** Format: int32 */
+            URL_Open?: number;
         };
         BannerSet: {
             Banner?: components["schemas"]["Banner"];
@@ -3901,8 +5469,8 @@ export interface components {
             BannerDetailInfo?: components["schemas"]["BannerDetailInfo"][] | null;
         };
         BannerSetApiRequest: {
-            UID?: string | null;
-            Set?: components["schemas"]["BannerSet"];
+            InternalId?: string | null;
+            Data?: components["schemas"]["BannerSet"];
         };
         Category: {
             /** Format: date-time */
@@ -3925,14 +5493,15 @@ export interface components {
             Validate_End?: string | null;
             CategoryId?: string | null;
             ProgId?: string | null;
+            CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
         };
         CategoryDataSet: {
             Category?: components["schemas"]["Category"];
             CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
         };
         CategoryDataSetApiRequest: {
-            UID?: string | null;
-            Set?: components["schemas"]["CategoryDataSet"];
+            InternalId?: string | null;
+            Data?: components["schemas"]["CategoryDataSet"];
         };
         CategoryDetail: {
             RowState?: components["schemas"]["RowState"];
@@ -3995,8 +5564,60 @@ export interface components {
             FileArchiveDetail: components["schemas"]["FileArchiveDetail"][] | null;
         };
         FileArchiveSetApiRequest: {
-            UID?: string | null;
-            Set?: components["schemas"]["FileArchiveSet"];
+            InternalId?: string | null;
+            Data?: components["schemas"]["FileArchiveSet"];
+        };
+        FileInfoDownloadModel: {
+            RowState?: components["schemas"]["RowState"];
+            InternalId?: string | null;
+            /** Format: int32 */
+            RowId?: number;
+            DownloadUserIP?: string | null;
+            UserAgent?: string | null;
+            RefererURL?: string | null;
+            DownloadStatus?: string | null;
+            /** Format: date-time */
+            DownloadTime?: string;
+        };
+        FileInfoSyncModel: {
+            RowState?: components["schemas"]["RowState"];
+            InternalId?: string | null;
+            /** Format: int32 */
+            RowId?: number;
+            SyncStatus?: string | null;
+            SrcIP?: string | null;
+            DestIP?: string | null;
+            ErrorMessage?: string | null;
+            /** Format: date-time */
+            ExecuteTime?: string;
+            /** Format: date-time */
+            CompletedTime?: string | null;
+        };
+        FileManagementModel: {
+            /** Format: date-time */
+            CreateTime?: string | null;
+            CreateUserId?: string | null;
+            OrgLvId?: string | null;
+            IsIniData?: boolean;
+            InternalId?: string | null;
+            Path?: string | null;
+            FileName?: string | null;
+            FileDiscription?: string | null;
+            MimeType?: string | null;
+            FileSHA256?: string | null;
+            /** Format: int64 */
+            FileSize?: number;
+            ProgId?: string | null;
+            ImportLabel?: string | null;
+        };
+        FileManagementSet: {
+            FileManagement?: components["schemas"]["FileManagementModel"];
+            FileInfoDownload?: components["schemas"]["FileInfoDownloadModel"][] | null;
+            FileInfoSyncModel?: components["schemas"]["FileInfoSyncModel"][] | null;
+        };
+        FileManagementSetApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["FileManagementSet"];
         };
         /**
          * Format: int32
@@ -4023,10 +5644,10 @@ export interface components {
             /** Format: date-time */
             Validate_End?: string | null;
             GalleryId: string;
-            CategoriesId: string;
-            TagsId: string;
+            Categories: string;
+            Tags: string;
             /** Format: int32 */
-            Status?: number;
+            Statuses?: number;
             CoverPicSrcId?: string | null;
             /** Format: int32 */
             Sort?: number;
@@ -4067,8 +5688,8 @@ export interface components {
             GalleryPhotosInfo: components["schemas"]["GalleryPhotosInfo"][] | null;
         };
         GallerySetApiRequest: {
-            UID?: string | null;
-            Set?: components["schemas"]["GallerySet"];
+            InternalId?: string | null;
+            Data?: components["schemas"]["GallerySet"];
         };
         PageManagement: {
             /** Format: date-time */
@@ -4101,12 +5722,12 @@ export interface components {
             Content?: string | null;
         };
         PageManagementSet: {
-            PageManagement: components["schemas"]["PageManagement"];
-            PageManagementDetail: components["schemas"]["PageManagementDetail"][] | null;
+            PageManagement?: components["schemas"]["PageManagement"];
+            PageManagementDetail?: components["schemas"]["PageManagementDetail"][] | null;
         };
         PageManagementSetApiRequest: {
-            UID?: string | null;
-            Set?: components["schemas"]["PageManagementSet"];
+            InternalId?: string | null;
+            Data?: components["schemas"]["PageManagementSet"];
         };
         QueryListParam: {
             Fields?: string[] | null;
@@ -4121,7 +5742,15 @@ export interface components {
          * @enum {integer}
          */
         RowState: 0 | 1 | 2 | 3;
-        SpecResearch: {
+        SpecCategoryDetailModel: {
+            RowState?: components["schemas"]["RowState"];
+            CategoryId?: string | null;
+            /** Format: int32 */
+            RowId?: number;
+            Lang?: string | null;
+            CategoryName?: string | null;
+        };
+        SpecCategoryModel: {
             /** Format: date-time */
             CreateTime?: string | null;
             CreateUserId?: string | null;
@@ -4140,20 +5769,19 @@ export interface components {
             Validate_Start?: string | null;
             /** Format: date-time */
             Validate_End?: string | null;
-            ResearchId?: string | null;
             CategoryId?: string | null;
-            /** Format: int32 */
-            Interval?: number;
-            /** Format: int32 */
-            Speed?: number;
-            /** Format: int32 */
-            Height?: number;
-            /** Format: int32 */
-            Width?: number;
-            /** Format: int32 */
-            Effect?: number;
+            ProgId?: string | null;
+            ShowColumnItems?: string | null;
         };
-        SpecResearchDetail: {
+        SpecCategorySet: {
+            SpecCategory?: components["schemas"]["SpecCategoryModel"];
+            SpecCategoryDetail?: components["schemas"]["SpecCategoryDetailModel"][] | null;
+        };
+        SpecCategorySetApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SpecCategorySet"];
+        };
+        SpecResearchDetailModel: {
             RowState?: components["schemas"]["RowState"];
             ResearchId?: string | null;
             /** Format: int32 */
@@ -4170,15 +5798,7 @@ export interface components {
             /** Format: int32 */
             Sort?: number;
         };
-        SpecResearchSet: {
-            MasterData?: components["schemas"]["SpecResearch"];
-            Details?: components["schemas"]["SpecResearchDetail"][] | null;
-        };
-        SpecResearchSetApiRequest: {
-            UID?: string | null;
-            Set?: components["schemas"]["SpecResearchSet"];
-        };
-        SpecUSR: {
+        SpecResearchModel: {
             /** Format: date-time */
             CreateTime?: string | null;
             CreateUserId?: string | null;
@@ -4197,18 +5817,16 @@ export interface components {
             Validate_Start?: string | null;
             /** Format: date-time */
             Validate_End?: string | null;
-            USRId?: string | null;
+            ResearchId?: string | null;
             CategoryId?: string | null;
-            /** Format: int32 */
-            Interval?: number;
-            /** Format: int32 */
-            Speed?: number;
-            /** Format: int32 */
-            Height?: number;
-            /** Format: int32 */
-            Width?: number;
-            /** Format: int32 */
-            Effect?: number;
+        };
+        SpecResearchSet: {
+            SpecResearch?: components["schemas"]["SpecResearchModel"];
+            SpecResearchDetail?: components["schemas"]["SpecResearchDetailModel"][] | null;
+        };
+        SpecResearchSetApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SpecResearchSet"];
         };
         SpecUSRDetail: {
             RowState?: components["schemas"]["RowState"];
@@ -4227,13 +5845,45 @@ export interface components {
             /** Format: int32 */
             Sort?: number;
         };
+        SpecUSRModel: {
+            /** Format: date-time */
+            CreateTime?: string | null;
+            CreateUserId?: string | null;
+            /** Format: date-time */
+            ModifyTime?: string | null;
+            ModifyUserId?: string | null;
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            IsIniData?: boolean;
+            /** Format: date-time */
+            Validate_Start?: string | null;
+            /** Format: date-time */
+            Validate_End?: string | null;
+            USRId?: string | null;
+            CategoryId?: string | null;
+            /** Format: int32 */
+            Interval?: number;
+            /** Format: int32 */
+            Speed?: number;
+            /** Format: int32 */
+            Height?: number;
+            /** Format: int32 */
+            Width?: number;
+            /** Format: int32 */
+            Effect?: number;
+        };
         SpecUSRSet: {
-            MasterData?: components["schemas"]["SpecUSR"];
+            MasterData?: components["schemas"]["SpecUSRModel"];
             Details?: components["schemas"]["SpecUSRDetail"][] | null;
         };
         SpecUSRSetApiRequest: {
-            UID?: string | null;
-            Set?: components["schemas"]["SpecUSRSet"];
+            InternalId?: string | null;
+            Data?: components["schemas"]["SpecUSRSet"];
         };
         TagData: {
             /** Format: date-time */
@@ -4270,8 +5920,8 @@ export interface components {
             TagDetail?: components["schemas"]["TagDetail"][] | null;
         };
         TagSetApiRequest: {
-            UID?: string | null;
-            Set?: components["schemas"]["TagSet"];
+            InternalId?: string | null;
+            Data?: components["schemas"]["TagSet"];
         };
         WebResource: {
             /** Format: date-time */
@@ -4293,17 +5943,11 @@ export interface components {
             /** Format: date-time */
             Validate_End?: string | null;
             WebResourceId: string;
-            CategoriesId?: string | null;
-            TagsId?: string | null;
-            /** Format: int32 */
-            Status?: number;
-            /** Format: int32 */
-            SrcType?: number;
-            SrcData?: string | null;
-            ResUrl?: string | null;
-            Url_OpenType?: string | null;
-            /** Format: int32 */
-            Sort?: number;
+            Categories?: string | null;
+            Tags?: string | null;
+            Statuses?: string | null;
+            PicId?: string | null;
+            PicDescription?: string | null;
         };
         WebResourceInfo: {
             RowState?: components["schemas"]["RowState"];
@@ -4313,14 +5957,16 @@ export interface components {
             Lang?: string | null;
             Title?: string | null;
             Content?: string | null;
+            ResUrl?: string | null;
+            Url_OpenType?: string | null;
         };
         WebResourceSet: {
-            WebResource: components["schemas"]["WebResource"];
-            WebResourceInfo: components["schemas"]["WebResourceInfo"][] | null;
+            WebResource?: components["schemas"]["WebResource"];
+            WebResourceInfo?: components["schemas"]["WebResourceInfo"][] | null;
         };
         WebResourceSetApiRequest: {
-            UID?: string | null;
-            Set?: components["schemas"]["WebResourceSet"];
+            InternalId?: string | null;
+            Data?: components["schemas"]["WebResourceSet"];
         };
     };
     responses: never;

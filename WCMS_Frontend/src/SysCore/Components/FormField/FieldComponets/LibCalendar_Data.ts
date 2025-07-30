@@ -5,9 +5,9 @@ export interface ILibCalendarStyle{
 }
 
 export interface ILibCalendarProp{
-  style: ILibCalendarStyle;
+  // style: ILibCalendarStyle;
   colDisplayName: string;
-  InputValue: string; 
-  onChange: (val: string) => void;
+  InputValue?: string; 
+  onChange?: (val: string) => void;
 };
 

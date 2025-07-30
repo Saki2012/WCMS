@@ -10,9 +10,6 @@ const SubBannerComp=({title, srcImg}:{title:string; srcImg:string;}) => {
                                     <div className="Big-title"> {title} </div>
                                 </div>
                             </div>
-
-                            
-
                         </div>
                     </div>
                 </div>

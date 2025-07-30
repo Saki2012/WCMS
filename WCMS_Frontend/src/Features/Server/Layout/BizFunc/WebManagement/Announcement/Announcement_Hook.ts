@@ -4,10 +4,10 @@ import type { GridProps,GridRow,ColumnConfig,RowCell } from "../../../../../../S
 import  type { components } from "../../../../../../types/api";
 import type { QueryListCondition } from "../../../../../../SysCore/Interface/IApiProvider";
 import * as SchemaFields from "../../../../../../types/SchemaFields";
-import { BuildVisibleColumns } from "../../../../../../SysCore/Utils/buildVisibleColumns";
+import { BuildVisibleColumns } from "../../../../../../SysCore/Utils/BuildVisibleColumns";
 type AnnouncementSet = components["schemas"]["AnnouncementSet"]
 import { emptyData } from "./Announcement_Data";
-
+import { FormatDate } from "../../../../../../SysCore/Utils/LibData";
 /** 讀取清單資料 */
 export const useFetchAnnouncementListData = () => {
   const [rawData, setRawData] = useState<AnnouncementSet[]>([])
@@ -59,7 +59,8 @@ export const useFetchAnnouncementListData = () => {
         const errorMsg = totalCountRes.SysMessage?.map(msg =>`${msg.MessageCode}:${msg.Message}`).join(';') ?? "資料查詢失敗";
         throw new Error(errorMsg);
       }
-      setTotalPages(totalCountRes.Data?.[0]??1);
+      const total = Math.ceil((totalCountRes.Data?.[0] ?? 0)/ queryCondition.PageSize);
+      setTotalPages(total);
       const res = await AnnouncementProvider().fetchList(queryCondition);
       if (!res.IsSuccess) {
         const errorMsg = res.SysMessage?.map(msg =>`${msg.MessageCode}:${msg.Message}`).join(';') ?? "資料查詢失敗";
@@ -69,12 +70,24 @@ export const useFetchAnnouncementListData = () => {
       setRawData(fullData);
       const mainTable = fullData.map(x => x.Announcement ?? {});
       const gridRows: GridRow[] = mainTable.map(item => {
-        const cells: RowCell[] = columns.map(col => ({
-          col,
-          content: (item as any)[col.key] ?? ''
-        }));
-        return { cells };
-      });
+              const cells: RowCell[] = columns.map(col => {
+              let content: any = "";
+              if (col.key === SchemaFields.AnnouncementDetailFields.Title ) {
+                content = item.AnnouncementDetail?.find((d: any) => d.Lang === "zh-tw")?.Title ?? "";
+              } else if(col.key===SchemaFields.AnnouncementFields.ModifyTime){
+                content= FormatDate((item as any)[col.key]);
+              }
+              else {
+                // 一般欄位直接取用
+                content = (item as any)[col.key] ?? "";
+              }
+              return {
+                col,
+                content,
+              };
+              });
+              return { cells };
+            });
       setRows(gridRows);
       //#endregion
     } catch (err: any) {

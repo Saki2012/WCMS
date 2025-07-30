@@ -1,10 +1,11 @@
-﻿using static WCMS.SysCore.Enum.SysEnum;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.AccessControl;
-using WCMS.SysCore.Model;
+using WCMS.Features.SiteEdit.PageManagement;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Model;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Announcement
 {
@@ -25,7 +26,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 公告代碼
         /// </summary>
-        [LibDesc, Key] public string AnnouncementId { get; set; }
+        [LibDesc, Key] public string? AnnouncementId { get; set; }
         /// <summary>
         /// 類別 (多個)
         /// </summary>
@@ -50,6 +51,10 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// 觀看次數
         /// </summary>
         [LibDesc] public int? ViewCount { get; set; } = 0;
+
+        #region Detail關聯
+        [ForeignKey(nameof(AnnouncementId))] public virtual ICollection<AnnouncementDetail>? AnnouncementDetail { get; set; }
+        #endregion
     }
     /// <summary>
     /// 公告明細
@@ -59,11 +64,11 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 公告代碼
         /// </summary>
-        [LibDesc, Key] public string AnnouncementId { get; set; }
+        [LibDesc, Key] public string? AnnouncementId { get; set; }
         /// <summary>
         /// 行代碼
         /// </summary>
-        [LibDesc, Key] public int RowId { get; set; }
+        [LibDesc, Key] public int? RowId { get; set; }
         /// <summary>
         /// 語系
         /// </summary>

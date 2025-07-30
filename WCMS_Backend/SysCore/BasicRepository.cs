@@ -43,20 +43,19 @@ namespace WCMS.SysCore
         /// <returns></returns>
         public async Task CreateAsync(object newData, int rowId = 1)
         {
-            
             if (newData is TModel single)
             {
                 await DataAccess.AddAsync(single);
             }
             else if (newData is IEnumerable<TModel> list)
             {
-                foreach(var p in newData as IList)
+                foreach (var p in list)
                 {
                     if(p is DetailRowModel detailRowModel)
                     {
-                        if(((dynamic)detailRowModel).RowId == 0)
                         //這部分之後再來看怎麼調整
-                        ((dynamic)detailRowModel).RowId = rowId++;
+                        if(((dynamic)detailRowModel).RowId == 0|| ((dynamic)detailRowModel).RowId == null)
+                            ((dynamic)detailRowModel).RowId = rowId++;
                     }
                 }
                 await DataAccess.AddRangeAsync(list);

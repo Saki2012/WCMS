@@ -69,7 +69,7 @@ namespace WCMS.SysCore.Interface
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public Task<IApiResponse<int>> QueryListTotalPages(string[] selectFields, string condition, int pageSize);
+        public Task<IApiResponse<int>> QueryTotalCounts(string[] selectFields, string condition);
 
         /// <summary>
         /// 啟用交易控制(非同步)

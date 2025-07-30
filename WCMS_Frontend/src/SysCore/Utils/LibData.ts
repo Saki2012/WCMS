@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 /** 動態根據輸入的內容得到是Enum的值或是Value*/
 export function EnumMap<T extends Record<string, string|number>>(map: T) {
   const reverseMap = Object.entries(map).reduce((acc, [key, value]) => {
@@ -14,3 +16,9 @@ export function EnumMap<T extends Record<string, string|number>>(map: T) {
 export type EnumGetValueFunc<T extends Record<string, string | number>> = (key: string | number,defaultValue?: T[keyof T]) => T[keyof T];
 // getKey 的函式型別
 export type EnumGetKeyFunc<T extends Record<string, string | number>> = (val: string) => keyof T | null;
+
+
+export const FormatDate = (value: string | null | undefined): string => {
+  if (!value) return "";
+  return dayjs(value).format("YYYY/MM/DD  HH:mm:ss");
+};
