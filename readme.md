@@ -169,8 +169,9 @@
 
 部屬流程:
 前端:
-    1. 執行 npm run build:csr   (#如果是ssr，改為build:ssr)
-    2. 會產生dist-csr資料夾，將底下的所有資料打包覆蓋至Server上的部屬環境資料夾
+    1. 執行 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass;
+    2. 執行 npm run build:csr   (#如果是ssr，改為build:ssr)
+    3. 會產生dist-csr資料夾，將底下的所有資料打包覆蓋至Server上的部屬環境資料夾
 
 後端:
     1. 執行 dotnet publish -c Release -o ./publish

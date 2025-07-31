@@ -1,18 +1,19 @@
-import type { IFETheme } from '../../Layout/Theme/ITheme';
-import type { GridProps } from '../../../../SysCore/Components/Grid/Grid_Data';
+/**公告清單 */
+import type { IFETheme } from '../../Theme/ITheme';
+import type { GridProps } from '../../../../../SysCore/Components/Grid/Grid_Data';
 import { useMemo } from 'react';
 import { useLocation } from 'react-router';
-import type { components } from '../../../../types/api';
+import type { components } from '../../../../../types/api';
 type AnnouncementSet = components["schemas"]["AnnouncementSet"]
 import { Link } from 'react-router';
-import type { GridRow } from '../../../../SysCore/Components/Grid/Grid_Data';
-import type { RowCell } from '../../../../SysCore/Components/Grid/Grid_Data';
-import AnnouncementProvider from '../../../Server/Layout/BizFunc/WebManagement/Announcement/Announcement_Api';
-import * as SchemaFields from "../../../../types/SchemaFields";
-import { useFetchGridListData } from './hook';
-import { FormatDate } from '../../../../SysCore/Utils/LibData';
+import type { GridRow } from '../../../../../SysCore/Components/Grid/Grid_Data';
+import type { RowCell } from '../../../../../SysCore/Components/Grid/Grid_Data';
+import AnnouncementProvider from '../../../../Server/Layout/BizFunc/WebManagement/Announcement/Announcement_Api';
+import * as SchemaFields from "../../../../../types/SchemaFields";
+import { useFetchGridListData } from '../../../../../SysCore/Utils/FetchGridListData';
+import { FormatDateTime } from '../../../../../SysCore/Utils/LibData';
 
-import { GridContentComp } from '../../Layout/Scaffold/Content/GridContent_Comp';
+import { GridViewContentComp } from '../../Scaffold/ContentViewMode/GridView/GridView/GridContent_Comp';
 
 
 const useAnnouncementList = () => {
@@ -49,7 +50,7 @@ const useAnnouncementList = () => {
         if (col.key === SchemaFields.AnnouncementDetailFields.Title) {
           content = data.AnnouncementDetail?.find(d => d.Lang === "zh-tw")?.Title ?? "";
         } else if (col.key === SchemaFields.AnnouncementFields.ModifyTime) {
-          content = FormatDate((data as any)[col.key]);
+          content = FormatDateTime((data as any)[col.key]);
         } else {
           content = (data as any)[col.key] ?? "";
         }
@@ -60,7 +61,7 @@ const useAnnouncementList = () => {
   });
 };
 
-export const PageGridComp =({theme}:{theme:IFETheme}) => {
+export const AnnouncementList =({theme}:{theme:IFETheme}) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
     const useAnnounceList = useAnnouncementList();
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData);}, [useAnnounceList.gridProps, useAnnounceList.rawData]);
@@ -68,7 +69,7 @@ export const PageGridComp =({theme}:{theme:IFETheme}) => {
     const errors=[useAnnounceList.error];
 
   return (
-        <GridContentComp GridData={adjustedGrid} Theme={theme} LoadingList={isLoading} ErrorList={errors} />
+        <GridViewContentComp GridData={adjustedGrid} Theme={theme} LoadingList={isLoading} ErrorList={errors} />
     );
 }
 

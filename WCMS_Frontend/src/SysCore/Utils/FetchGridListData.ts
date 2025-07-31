@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
-import type { QueryListCondition } from "../../../../SysCore/Interface/IApiProvider";
-import type { ApiResponse } from "../../../../SysCore/Interface/IApiProvider";
-import type { GridProps,GridRow,ColumnConfig } from "../../../../SysCore/Components/Grid/Grid_Data";
-import { BuildVisibleColumns } from "../../../../SysCore/Utils/BuildVisibleColumns";
+import type { QueryListCondition } from "../Interface/IApiProvider";
+import type { ApiResponse } from "../Interface/IApiProvider";
+import type { GridProps,GridRow,ColumnConfig } from "../Components/Grid/Grid_Data";
+import { BuildVisibleColumns } from "./BuildVisibleColumns";
 
 
 interface UseGridListOptions<T> {

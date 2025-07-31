@@ -7,7 +7,7 @@ import type { QueryListCondition } from "../../../../../../SysCore/Interface/IAp
 import * as SchemaFields from "../../../../../../types/SchemaFields";
 import { BuildVisibleColumns } from "../../../../../../SysCore/Utils/BuildVisibleColumns";
 type PageManagementSet = components["schemas"]["PageManagementSet"]
-import { FormatDate } from "../../../../../../SysCore/Utils/LibData";
+import { FormatDateTime } from "../../../../../../SysCore/Utils/LibData";
 /** 讀取清單資料 */
 export const useFetchPageListData = () => {
   const [rawData, setRawData] = useState<PageManagementSet[]>([])
@@ -77,7 +77,7 @@ export const useFetchPageListData = () => {
           // 專處理 PageManagementDetail.Title (lang: zh-tw)
           content = item.PageManagementDetail?.find((d: any) => d.Lang === "zh-tw")?.Title ?? "";
         } else if(col.key===SchemaFields.PageManagementFields.ModifyTime){
-          content= FormatDate((item as any)[col.key]);
+          content= FormatDateTime((item as any)[col.key]);
         }
         else {
           // 一般欄位直接取用

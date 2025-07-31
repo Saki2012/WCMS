@@ -1,0 +1,65 @@
+import { Grid } from "../../../../../../SysCore/Components/Grid/Grid_Comp";
+import LoadingErrorHandler from "../../../../../../SysCore/Components/LoadingErrorHandler";
+import SearchBarComp from "../../../../../../SysCore/Components/SearchBar/SearchBar_Comp";
+import type{ ContentCompProp } from "./FormView_Data";
+
+export const ContentComp = (prop:ContentCompProp) => {
+    return (
+        <>
+            <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList} >
+                <Content {...prop}></Content>
+            </LoadingErrorHandler>
+        </>
+    );
+}
+
+
+const Content=(prop:ContentCompProp)=>{
+  return (<>
+            <div className="page-header mb-3">
+              <h3>{prop.Title}</h3>
+              <i className="fa fa-calendar"></i>{` ${prop.StartDate.toString()}`}
+              {prop.Category && prop.Category.length > 0 && (
+                <><i className="fa fa-tags ml-3"></i>{` ${prop.Category.join('、')}`}</>
+              )}
+              {prop.Tag && prop.Tag.length > 0 && (
+                <><i className="fa fa-bookmark ml-3"></i>{` ${prop.Tag.join('、')}`}</>
+              )}
+            </div>
+            {prop.Content}
+            <hr/>
+            
+            {(prop.Href && prop.Href.length>0) || (prop.Files && prop.Files.length>0) &&
+              <ul className="list-group">
+                {prop.Href && prop.Href.length>0 && (
+                  <li>
+                    <a href={prop.Href} target="_blank" rel="noopener noreferrer" className="btn btn-default">
+                      <i className="fa fa-link"></i> https://yahoo.com/
+                    </a>
+                  </li>
+                )}
+                {prop.Files && prop.Files.length>0 && (
+                <li>
+                  <a href="" target="_blank" rel="noopener noreferrer" className="btn btn-default" tabIndex={1} title="螢幕擷取畫面 2023-12-04 141451.png(另開新視窗)">
+                    <i className="fa fa-paperclip"></i> 螢幕擷取畫面 2023-12-04 141451.png
+                  </a>
+                  <a href="" target="_blank" rel="noopener noreferrer" className="btn btn-default" tabIndex={1} title="螢幕擷取畫面 2023-12-20 111650.png(另開新視窗)">
+                    <i className="fa fa-paperclip"></i> 螢幕擷取畫面 2023-12-20 111650.png
+                  </a>
+                </li>
+                )}
+              </ul>}
+
+
+            <div className="row">
+              <div className="col-lg-8 col-md-8 col-sm-6 col-4"></div>
+              <div className="col-lg-2 col-md-2 col-sm-3 col-4 text-right">
+                <a id="ContentPlaceContent_ContentPlaceConentA_wuc1_btn_edit" className="btn btn-primary btn-custom-color" href="/Back/News/NewsAdd.aspx?action=edit&amp;Sn=249">編輯</a>
+              </div>
+              <div className="col-lg-2 col-md-2 col-sm-3 col-4 text-right">
+                <input type="submit" name="ctl00$ctl00$ContentPlaceContent$ContentPlaceConentA$wuc1$btn_goback" value="回上一頁" onclick="history.back(); return false;" id="ContentPlaceContent_ContentPlaceConentA_wuc1_btn_goback" className="btn btn-primary btn-custom-color" title="回上一頁"/>
+              </div>
+            </div>
+          </>
+        )
+  }

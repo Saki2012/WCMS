@@ -1,4 +1,4 @@
-//執行方式:npx tsx generate-fields.ts
+//執行方式:npx tsx ./src/types/generate-fields.ts
 import { Project } from 'ts-morph';
 import * as fs from 'fs';
 import * as path from 'path';

@@ -3,11 +3,10 @@ import { IDataProvider } from "../../Interface/IApiProvider"
 import type { ToolbarAction } from "./Toolbar_Data"
 import axios from "axios"
 import { useNavigate,useLocation } from "react-router"
-export const useFormToolbarActions = <T>(apiProvider: IDataProvider<T>, initialData: T, internalId:string) => {
+export const useFormToolbarActions = <T>(apiProvider: IDataProvider<T>, formData: T, internalId?: string | null, onSuccess?: () => void) => {
+
     const navigate = useNavigate();
     const location = useLocation();
-    const [formData, setFormData] = useState<T>(initialData)
-    const [isSuccess, setResult] = useState<boolean | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setError] = useState<string | null>(null);
     
@@ -16,8 +15,7 @@ export const useFormToolbarActions = <T>(apiProvider: IDataProvider<T>, initialD
             setIsLoading(true)
             if(!internalId) await apiProvider.createData(formData);
             else await apiProvider.updateData(internalId,formData);
-            setIsLoading(false)
-            setResult(true)
+            // onSuccess?.(); // ✅ 儲存成功後，可呼叫 refetch 等，暫時不執行，等做好可以顯示保存成功的說明才
             handleCancelBack()
         }
         catch(err: any) {
@@ -27,13 +25,11 @@ export const useFormToolbarActions = <T>(apiProvider: IDataProvider<T>, initialD
             } else {
                 setError(err.message);
             }
-            setResult(false)
         }
         finally{
             setIsLoading(false);
         }
     }
-
 
     const handleCancelBack = async () => {
         navigate(location.pathname.replace(/\/Form(\/[^\/]*)?$/, '/List'));
@@ -43,10 +39,8 @@ export const useFormToolbarActions = <T>(apiProvider: IDataProvider<T>, initialD
         setIsLoading(true);
         try {
             await apiProvider.deleteData(internalId);
-            setResult(true);
         } 
         catch (err: any) {
-            setResult(false);
             setError(err.message ?? "資料載入失敗");
         } 
         finally {
@@ -55,7 +49,6 @@ export const useFormToolbarActions = <T>(apiProvider: IDataProvider<T>, initialD
     }
 
     const handlePreview = () => {
-        setFormData(initialData)
     }
 
     const handleInvalid = async () => {
@@ -79,8 +72,7 @@ export const useFormToolbarActions = <T>(apiProvider: IDataProvider<T>, initialD
         { Id: 'Cancel', Title: '取消返回', Type: 'button', OnClick: handleCancelBack},
         // { Id: 'Preview', Title: '預覽畫面', Type: 'button', OnClick: handlePreview },
     ]
-    
-  return { formData, setFormData, isSuccess, isLoading, errors, action }
+  return { isLoading, errors, action }
 }
 
 export const useListToolbarActions = (dirUrl?: string) => {

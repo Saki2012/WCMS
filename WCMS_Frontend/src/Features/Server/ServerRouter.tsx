@@ -1,17 +1,15 @@
 import type { IRouteModule } from "../../SysCore/Interface/IBaseRouter"
 import type { RouteObject } from "react-router-dom";
 import DashboardPage from "./Pages/DashboardPage"
-
 import { PageFormComp } from "./Layout/BizFunc/WebManagement/PageManagement/PageManagement_Form_Comp"
 import { PageListComp } from "./Layout/BizFunc/WebManagement/PageManagement/PageManagement_List_Comp"
-
 import { AnnouncementListComp } from "./Layout/BizFunc/WebManagement/Announcement/Announcement_List_Comp";
-
 import { Classic_BETheme } from "./Layout/Theme/ClassicTheme_Clsx";
-import { CategoryListComp } from "./Layout/BizFunc/WebManagement/Category/Category_List_Comp";
+import { CategoryListComp } from "./Layout/BizFunc/WebManagement/Category/Category_ListForm_Comp";
 import { TagListComp } from "./Layout/BizFunc/WebManagement/Tags/Tag_List_Comp";
 import { AnnouncementFormComp } from "./Layout/BizFunc/WebManagement/Announcement/Announcement_Form_Comp";
 import { Navigate } from "react-router-dom";
+
 export class BackendRouteModule implements IRouteModule {
   getRoutes(): RouteObject[] {
     return [

@@ -8,16 +8,75 @@ import { ListComp } from "../../../Scaffold/Content/List_Comp"
 import type { ListCompProp } from "../../../Scaffold/Content/Content_Data"
 import * as React from "react";
 import  type { components } from "../../../../../../types/api";
-import { useFetchAnnouncementListData,handleDelete } from "./Announcement_Hook"
+import { handleDelete } from "./Announcement_Hook"
 type AnnouncementSet = components["schemas"]["AnnouncementSet"]
 
 import { useListToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
+import AnnouncementProvider from "./Announcement_Api"
+import { useFetchGridListData } from "../../../../../../SysCore/Utils/FetchGridListData"
+
+import * as SchemaFields from "../../../../../../types/SchemaFields";
+import { FormatDateTime } from "../../../../../../SysCore/Utils/LibData"
+
+
+
+const useAnnouncementList = () => {
+  const provider = AnnouncementProvider();
+  return useFetchGridListData<AnnouncementSet>({
+    getModelDisplayName: () => provider.getModelDisplayName(),
+    fetchList: (cond) => provider.fetchList(cond),
+    fetchListCount: (cond) => provider.fetchListCount(cond),
+    visibleKeys: [
+      [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Categories],
+      [SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Title],
+      [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.DataStatus],
+      [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyUserId],
+      [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyTime]
+    ],
+    buildQueryCondition: (page) => ({
+      Fields: [
+        SchemaFields.AnnouncementFields.AnnouncementId,
+        SchemaFields.AnnouncementFields.Categories,
+        `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
+        `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
+        SchemaFields.PageManagementFields.ModifyUserId,
+        SchemaFields.PageManagementFields.ModifyTime,
+        SchemaFields.PageManagementFields.InternalId
+      ],
+      Condition: "",
+      PageNumber: page,
+      PageSize: 10
+    }),
+    parseRow: (item, columns) => {
+      const data = item.Announcement ?? {};
+      const cells: RowCell[] = columns.map(col => {
+        let content = "";
+        if (col.key === SchemaFields.AnnouncementDetailFields.Title) {
+          content = data.AnnouncementDetail?.find(d => d.Lang === "zh-tw")?.Title ?? "";
+        } else if (col.key === SchemaFields.AnnouncementFields.ModifyTime) {
+          content = FormatDateTime((data as any)[col.key]);
+        } else {
+          content = (data as any)[col.key] ?? "";
+        }
+        return { col, content };
+      });
+      return { cells };
+    }
+  });
+};
+
+
+
 /** 公告列表
  * @returns 
  */
 export const AnnouncementListComp = ({title,theme}:{title:string;theme:IBETheme}) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
-    const useAnnounceList = useFetchAnnouncementListData();
+
+
+    const useAnnounceList = useAnnouncementList();
+
+
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData);}, [useAnnounceList.gridProps, useAnnounceList.rawData]);
     const useToolbar = useListToolbarActions(dirUrl)
     const isLoading=[useAnnounceList.isLoading];

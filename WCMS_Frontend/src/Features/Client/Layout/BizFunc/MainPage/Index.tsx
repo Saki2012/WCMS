@@ -1,5 +1,5 @@
-import Header from "../Layout/Scaffold/Header/Header_Comp"
-import Footer from "../Layout/Scaffold/Footer/Footer_Comp"
+import Header from "../../Scaffold/Header/Header_Comp"
+import Footer from "../../Scaffold/Footer/Footer_Comp"
 import { Outlet } from 'react-router-dom'
 import { useLocation } from 'react-router-dom';
 

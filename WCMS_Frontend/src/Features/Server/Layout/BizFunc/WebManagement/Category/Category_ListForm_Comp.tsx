@@ -11,15 +11,11 @@ import { useGetCategoryListByProgId } from "./Category_Hook";
 export const CategoryListComp = ({progId,title,theme}:{progId:string;title:string;theme:IBETheme}) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
     const useToolbar = useListToolbarActions(dirUrl)
-
-
     const useCategoryList = useGetCategoryListByProgId(progId,'zh-tw',10)
-
     const isLoading=[useCategoryList.isLoading];
     const errors=[useCategoryList.error];
     const prop:FormListCompProp={ Title:title,SubTitle:title, Theme:theme, LoadingList:isLoading, ErrorList:errors, Toolbar:useToolbar.toolbarActions }
-
-
+    
     return (
             <FormListComp prop={prop}></FormListComp>
     );

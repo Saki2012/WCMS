@@ -32,12 +32,16 @@
     <Folder Include="Features\Finance\" />
     <Folder Include="Features\BizResx\" />
     <Folder Include="Features\SiteEdit\PCS_Sites\" />
-    <Folder Include="Features\SysSetting\SiteInfo\EnvConfig\" />
-    <Folder Include="Features\SysSetting\SiteInfo\SiteArch\" />
-    <Folder Include="Features\SysSetting\SiteInfo\SEO\" />
-    <Folder Include="Features\SysSetting\SiteInfo\SystemInfo\" />
-    <Folder Include="Features\SysSetting\UserAccount\User\" />
-    <Folder Include="Features\SysSetting\UserAccount\RolePermission\" />
+    <Folder Include="Features\SystemSetting\SiteInfo\EnvConfig\" />
+    <Folder Include="Features\SystemSetting\SiteInfo\SiteArch\" />
+    <Folder Include="Features\SystemSetting\SiteInfo\SEO\" />
+    <Folder Include="Features\SystemSetting\SiteInfo\SystemInfo\" />
+    <Folder Include="Features\SystemSetting\UserAccount\User\" />
+    <Folder Include="Features\SystemSetting\UserAccount\RolePermission\" />
+    <Folder Include="Features\SystemSetting\DataChangeLog\" />
+    <Folder Include="Features\SystemSetting\AccountManage\" />
+    <Folder Include="Features\SystemSetting\RolePermission\" />
+    <Folder Include="Features\SystemSetting\OperateLog\" />
   </ItemGroup>
 
 </Project>

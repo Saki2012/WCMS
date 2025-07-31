@@ -1,10 +1,10 @@
 import { Outlet } from 'react-router-dom'
-import SubBannerComp from '../Scaffold/Banner/SubBanner_Comp'
-import BreadCrumbComp from '../../../../SysCore/Components/BreadCrumb/BreadCrumb_Comp'
-import MenuListComp from "../../../../SysCore/Components/MenuList/MenuList_Comp"
-import type{ BreadCrumbData } from "../../../../SysCore/Components/BreadCrumb/BreadCrumb_Data"
-import type{ MenuItemData } from "../../../../SysCore/Components/MenuList/MenuList_Data"
-import type { IFETheme } from '../Theme/ITheme'
+import SubBannerComp from '../../Scaffold/Banner/SubBanner_Comp'
+import BreadCrumbComp from '../../../../../SysCore/Components/BreadCrumb/BreadCrumb_Comp'
+import MenuListComp from "../../../../../SysCore/Components/MenuList/MenuList_Comp"
+import type{ BreadCrumbData } from "../../../../../SysCore/Components/BreadCrumb/BreadCrumb_Data"
+import type{ MenuItemData } from "../../../../../SysCore/Components/MenuList/MenuList_Data"
+import type { IFETheme } from '../../Theme/ITheme'
 
 import { Link } from 'react-router'
 import type { ReactNode } from 'react'

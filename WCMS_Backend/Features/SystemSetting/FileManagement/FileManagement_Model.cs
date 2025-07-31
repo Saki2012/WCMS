@@ -11,11 +11,10 @@ namespace WCMS.Features.SysSetting.FileManagement
 {
     public class FileManagementSet
     {
-        public FileManagementModel FileManagement { get; set; }
-        public List<FileInfoDownloadModel> FileInfoDownload { get; set; }
-        public List<FileInfoSyncModel> FileInfoSyncModel { get; set; }
+        public FileManagementModel FileManagement { get; set; } = new();
+        public List<FileInfoDownloadModel> FileInfoDownload { get; set; } = [];
+        public List<FileInfoSyncModel> FileInfoSyncModel { get; set; } = [];
     }
-
     /// <summary>
     /// 檔案管理
     /// </summary>
@@ -44,7 +43,7 @@ namespace WCMS.Features.SysSetting.FileManagement
         [LibDesc] public string MimeType { get; set; }
         /// <summary>
         /// 檔案SHA256值 
-        /// 用來檢查Server是否已有該檔案，若有就不用再次上傳)
+        /// 用來檢查Server是否已有該檔案，若有就不用再次上傳，但是要更新其他欄位
         /// </summary>
         [LibDesc] public string FileSHA256 { get; set; }
         /// <summary>
@@ -56,7 +55,8 @@ namespace WCMS.Features.SysSetting.FileManagement
         /// </summary>
         [LibDesc] public string ProgId { get; set; }
         /// <summary>
-        /// 匯入標籤
+        /// 匯入標籤(
+        /// (供初始化的，例如1810專案的檔案匯入，資料夾就為1810(ImportLabel名就為1810)，底下結構不變的紀錄至Path)
         /// </summary>
         [LibDesc] public string ImportLabel { get; set; }
         #region 不需要的欄位
@@ -117,6 +117,9 @@ namespace WCMS.Features.SysSetting.FileManagement
         [LibDesc, Key] public int RowId { get; set; }
         /// <summary>
         /// 同步狀態
+        /// Pending有幾種狀態:
+        /// 1. 前端上傳還沒保存時，先暫存
+        /// 2. 要更新到其他主機，尚未傳輸完成的
         /// </summary>
         public string SyncStatus { get; set; } = "Pending"; // Pending / Success / Failed
         /// <summary>
@@ -130,7 +133,7 @@ namespace WCMS.Features.SysSetting.FileManagement
         /// <summary>
         /// 錯誤訊息
         /// </summary>
-        public string? ErrorMessage { get; set; }                  // 若失敗則紀錄原因
+        public string? ErrorMessage { get; set; } // 若失敗則紀錄原因
         /// <summary>
         /// 執行時間
         /// </summary>

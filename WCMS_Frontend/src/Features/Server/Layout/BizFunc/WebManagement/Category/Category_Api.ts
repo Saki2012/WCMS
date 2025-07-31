@@ -8,22 +8,25 @@ abstract class ICategoryProvider extends IDataProvider<CategorySet> {
     
 }
 class MockProvider extends ICategoryProvider {
-    protected doCreateData(): Promise<CategorySet> {
+    protected async doCreateData(set:CategorySet): Promise<ApiResponse<CategorySet>> {
         throw new Error('Method not implemented.');
     }
-    protected doUpdateData(): Promise<CategorySet> {
+    protected async doUpdateData(internaId:string,set:CategorySet): Promise<ApiResponse<CategorySet>> {
         throw new Error('Method not implemented.');
     }
-    protected doDelete(): Promise<CategorySet> {
+    protected async doDelete(internaId:string): Promise<ApiResponse<CategorySet>> {
         throw new Error('Method not implemented.');
     }
-    protected doInvalid(): Promise<CategorySet> {
+    protected async doInvalid(internaId:string,isInvalid:boolean): Promise<ApiResponse<CategorySet>> {
         throw new Error('Method not implemented.');
     }
-    protected doFetchData(): Promise<CategorySet> {
+    protected async doFetchData(internaId: string): Promise<ApiResponse<CategorySet>> {
         throw new Error('Method not implemented.');
     }
-    protected doFetchList(): Promise<CategorySet[]> {
+    protected async doFetchList(condition: QueryListCondition): Promise<ApiResponse<CategorySet>> {
+        throw new Error('Method not implemented.');
+    }
+    protected async doFetchListCount(condition: QueryListCondition): Promise<ApiResponse<number>> {
         throw new Error('Method not implemented.');
     }
     protected doGetModelDisplayName(): Promise<CategorySet[]> {

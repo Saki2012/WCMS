@@ -1,9 +1,9 @@
-import BannerSlider from '../../../../SysCore/Components/BannerSlider/BannerSlider'
-import IconCardMenu from '../../../../SysCore/Components/QuickNaviSlider/IconCardMenu'
-import CategoryTabs from '../../../../SysCore/Components/TabsList/CategoryTabs'
-import EventSession from '../../../../SpecFetures/1810/Client/MainPageComp/EventSession'
-import GallerySession from '../../../../SpecFetures/1810/Client/MainPageComp/GallerySession'
-import VideoSession from '../../../../SpecFetures/1810/Client/MainPageComp/VideoSession'
+import BannerSlider from '../../../../../SysCore/Components/BannerSlider/BannerSlider'
+import IconCardMenu from '../../../../../SysCore/Components/QuickNaviSlider/IconCardMenu'
+import CategoryTabs from '../../../../../SysCore/Components/TabsList/CategoryTabs'
+import EventSession from '../../../../../SpecFetures/1810/Client/MainPageComp/EventSession'
+import GallerySession from '../../../../../SpecFetures/1810/Client/MainPageComp/GallerySession'
+import VideoSession from '../../../../../SpecFetures/1810/Client/MainPageComp/VideoSession'
 
 
 const HomePage = () => {

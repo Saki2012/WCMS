@@ -18,7 +18,12 @@ export type EnumGetValueFunc<T extends Record<string, string | number>> = (key: 
 export type EnumGetKeyFunc<T extends Record<string, string | number>> = (val: string) => keyof T | null;
 
 
-export const FormatDate = (value: string | null | undefined): string => {
+export const FormatDateTime = (value: string | null | undefined): string => {
   if (!value) return "";
   return dayjs(value).format("YYYY/MM/DD  HH:mm:ss");
+};
+
+export const FormatDate = (value: string | null | undefined): string => {
+  if (!value) return "";
+  return dayjs(value).format("YYYY/MM/DD");
 };
