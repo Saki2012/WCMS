@@ -10,6 +10,8 @@ import { TagListComp } from "./Layout/BizFunc/WebManagement/Tags/Tag_List_Comp";
 import { AnnouncementFormComp } from "./Layout/BizFunc/WebManagement/Announcement/Announcement_Form_Comp";
 import { Navigate } from "react-router-dom";
 
+import { BannerSliderFormComp } from "./Layout/BizFunc/WebManagement/BannerSlider/BannerSlider_Form_Comp";
+
 export class BackendRouteModule implements IRouteModule {
   getRoutes(): RouteObject[] {
     return [
@@ -27,7 +29,7 @@ export class BackendRouteModule implements IRouteModule {
                 path: 'BannerSlider',
                 children: [
                   { index: true, element: <Navigate to="List" replace /> },
-                  { path: 'Form/:internalId?', element: <PageFormComp theme={Classic_BETheme} /> },
+                  { path: 'Form/:internalId?', element: <BannerSliderFormComp theme={Classic_BETheme} /> },
                   { path: 'List', element: <PageListComp title="廣告輪播列表" theme={Classic_BETheme} /> },
                 ],
               },

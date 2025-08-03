@@ -24,6 +24,8 @@ namespace WCMS.Features.SysSetting.FileManagement
         public async Task<IActionResult> UploadTemp(IFormFile file)
         {
             //return Ok(await _service.UpdateSetAsync(internalId, set));
+            
+            ((FileManagementBiz)_service).UploadTemp(file);
             return Ok();
         }
         /// <summary>

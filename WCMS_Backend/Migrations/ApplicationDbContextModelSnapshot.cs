@@ -17,7 +17,7 @@ namespace WCMS.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.6")
+                .HasAnnotation("ProductVersion", "9.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -936,10 +936,15 @@ namespace WCMS.Migrations
                     b.Property<int>("RowId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("CompletedTime")
-                        .HasColumnType("datetime2(0)");
+                    b.Property<string>("DestFullPath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DestIP")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DestNode")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -949,11 +954,18 @@ namespace WCMS.Migrations
                     b.Property<DateTime>("ExecuteTime")
                         .HasColumnType("datetime2(0)");
 
+                    b.Property<byte>("FileStatus")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("SrcFullPath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("SrcIP")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SyncStatus")
+                    b.Property<string>("SrcNode")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

@@ -3,13 +3,14 @@ import type { LibTabsProp } from "../../../../../../SysCore/Components/FormField
 import type { IBETheme } from "../../../Theme/ITheme";
 import { useGetCategoryListByProgId } from "../Category/Category_Hook"
 import { useGetTagListByProgId } from "../Tags/Tag_Hook";
-import AnnouncementProvider from "./Announcement_Api"
+
+import BannerSliderProvider from "./BannerSlider_Api";
 import { FormComp } from "../../../Scaffold/Content/Form_Comp";
 import { useFormToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
 import { useParams } from "react-router";
 import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
 import type { components } from "../../../../../../types/api";
-type AnnouncementSet = components["schemas"]["AnnouncementSet"]
+type BannerSet = components["schemas"]["BannerSet"]
 import { useEffect } from "react";
 import TabContentComp from "../../../../../../SysCore/Components/TabContent/TabContent";
 import LibCheckBox from "../../../../../../SysCore/Components/FormField/FieldComponets/LibCheckBox_Comp";
@@ -17,73 +18,34 @@ import LibCalendar from "../../../../../../SysCore/Components/FormField/FieldCom
 import { useFetchFormData } from "../../../../../../SysCore/Utils/FetchFormData";
 
 
-const emptyData:AnnouncementSet={
-    Announcement:{},
-    AnnouncementDetail:[]
+const emptyData:BannerSet={
+    Banner:{},
+    BannerDetail:[],
+    BannerDetailInfo:[]
 }
-/** 頁面表單
- * @returns 
- */
-export const AnnouncementFormComp = ({theme}:{theme:IBETheme}) => {
+
+export const BannerSliderFormComp = ({theme}:{theme:IBETheme}) => {
     const { internalId } = useParams();
     const useCategory = useGetCategoryListByProgId("Announcement","zh-tw");
     const useTag = useGetTagListByProgId("Announcement","zh-tw");
-    const formData = useFetchFormData<AnnouncementSet>(AnnouncementProvider(),internalId,emptyData)
-    const useToolbar = useFormToolbarActions(AnnouncementProvider(), formData.data as AnnouncementSet, internalId ,() => formData.refetch())
+    const formData = useFetchFormData<BannerSet>(BannerSliderProvider(),internalId,emptyData)
+    const useToolbar = useFormToolbarActions(BannerSliderProvider(), formData.data as BannerSet, internalId ,() => formData.refetch())
     const isLoading=[useTag.isLoading,useCategory.isLoading,formData.isLoading]
     const errors=[useTag.error,useCategory.error,formData.error]
     
     useEffect(() => {if (formData.data) {formData.setFormData(formData.data);}}, [formData.data]);
 
-    const prop:FormCompProp={ Title:"新增公告", Theme:theme, LoadingList:isLoading, ErrorList:errors, Toolbar:useToolbar.action }
-    const LibTabsPropA:LibTabsProp={
-        Style:theme.Tabs,
-        item:{"Basic":"基本","Status":"狀態","Tags":"標籤","Pic":"圖片","Files":"附件",}
-    }
-    const LibTabsPropB:LibTabsProp={
-        Style:theme.Tabs,
-        item:{"zh-tw":"繁體中文","en":"English",}
-    }
+    const prop:FormCompProp={ Title:"設定輪播", Theme:theme, LoadingList:isLoading, ErrorList:errors, Toolbar:useToolbar.action }
 
-    const componentsA: Record<string, React.ReactNode[]> = {
-        Basic: [<LibCheckBox colDisplayName="類別" 
-                            options={Object.entries(useCategory.data ?? {}).map(([key, value]) => ({itemId: key,itemDisplayName: value,}))}
-                            value={formData.data?.Announcement?.Categories?.split(",") ?? []}
-                            onChange={(val) => {const joined = val.join(",");formData.setFormData((prev) => ({...prev,Announcement: {...prev?.Announcement,Categories: joined,},}));}
-                            }/>,
-                <LibCalendar colDisplayName={"開始時間"}/>,
-                <LibCalendar colDisplayName={"結束時間"}/>,
-                ],
-
-        Status: [<LibCheckBox colDisplayName="狀態啟用" 
-                            options={[ { itemId: "Top", itemDisplayName: "置頂" }, { itemId: "Hot", itemDisplayName: "熱門" },{ itemId: "Hide", itemDisplayName: "隱藏" } ]} 
-                            value={["user"]} onChange={(val) => console.log("選中的值:", val)}/>],
-
-        Tags: [<LibCheckBox colDisplayName="標籤" 
-                            options={[ { itemId: "admin", itemDisplayName: "置頂" }, { itemId: "user", itemDisplayName: "熱門" },{ itemId: "user", itemDisplayName: "隱藏" }, ]} 
-                            value={["user"]} onChange={(val) => console.log("選中的值:", val)}/>,
-                ],
-
-        // Pic: [  <LibPicturePreview ColumnDisplayName="圖片預覽"/>,
-        //         <LibFile ColumnDisplayName="公告圖片上傳"/>,
-        //         <LibTextBox ColumnDisplayName="公告圖片說明"/>,],
-
-        // Files: [<LibFileInput/>,],//動態增加或減少檔案
-    };
-
-
-    const componentsB: Record<string, React.ReactNode[]> = Object.entries(LibTabsPropB.item).reduce(
-        (acc, [lang, label]) => {
-            acc[lang] = generateLangFields(lang, label, theme, formData.data as AnnouncementSet,formData.setFormData);
-            return acc;
-        },
-        {} as Record<string, React.ReactNode[]>
-    );
 
     return (
         <FormComp prop={prop}>
-            <TabContentComp libTabsProp={LibTabsPropA} components={componentsA}></TabContentComp>
-            <TabContentComp libTabsProp={LibTabsPropB} components={componentsB}></TabContentComp>
+            <LibTextBox key={`${1}-Title`} Style={theme.TextBox} ColumnDisplayName={`橫幅名稱`} DefaultInputDisplay="請輸入" InputValue={formData.data?.Banner?.BannerId ?? ""} OnChange={(val) => (val)} />
+            <LibTextBox key={`${2}-Title`} Style={theme.TextBox} ColumnDisplayName={`轉換速度`} DefaultInputDisplay="請輸入" InputValue={formData.data?.Banner?.BannerId ?? ""} OnChange={(val) => (val)} />
+            <LibTextBox key={`${3}-Title`} Style={theme.TextBox} ColumnDisplayName={`橫幅寬度 ( W ) ( 像素 px )`} DefaultInputDisplay="請輸入" InputValue={formData.data?.Banner?.BannerId ?? ""} OnChange={(val) => (val)} />
+            <LibTextBox key={`${4}-Title`} Style={theme.TextBox} ColumnDisplayName={`轉換間隔`} DefaultInputDisplay="請輸入" InputValue={formData.data?.Banner?.BannerId ?? ""}OnChange={(val) => (val)} />
+            <LibTextBox key={`${5}-Title`} Style={theme.TextBox} ColumnDisplayName={`橫幅效果`} DefaultInputDisplay="請輸入" InputValue={formData.data?.Banner?.BannerId ?? ""}OnChange={(val) => (val)} />
+            <LibTextBox key={`${6}-Title`} Style={theme.TextBox} ColumnDisplayName={`橫幅高度 ( H ) ( 像素 px )`} DefaultInputDisplay="請輸入" InputValue={formData.data?.Banner?.BannerId ?? ""} OnChange={(val) => (val)} />
         </FormComp>
     )
 }

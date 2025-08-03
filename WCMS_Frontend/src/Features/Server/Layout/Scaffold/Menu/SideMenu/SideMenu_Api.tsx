@@ -141,7 +141,7 @@ class APIProvider extends ISideMenuProvider {
               { Id: "1", SrcData: "網站功能", Url: "WebManagement", SubItem: [] },
               { Id: "Carousel", SrcData: "廣告輪播", Url: "WebManagement/BannerSlider", SubItem: [
                 { Id: "2-1", SrcData: "列表", Url: "WebManagement/BannerSlider/List", SubItem: [] },
-                { Id: "2-2", SrcData: "廣告設定", Url: "WebManagement/BannerSlider/Setting", SubItem: [] }
+                { Id: "2-2", SrcData: "廣告設定", Url: "WebManagement/BannerSlider/Form", SubItem: [] }
               ]},
               { Id: "Bullhorn", SrcData: "公告", Url: "WebManagement/Announcement", SubItem: [
                 { Id: "3-1", SrcData: "新增", Url: "WebManagement/Announcement/Form", SubItem: [] },

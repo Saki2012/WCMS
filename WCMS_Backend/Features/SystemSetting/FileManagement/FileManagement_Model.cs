@@ -13,7 +13,7 @@ namespace WCMS.Features.SysSetting.FileManagement
     {
         public FileManagementModel FileManagement { get; set; } = new();
         public List<FileInfoDownloadModel> FileInfoDownload { get; set; } = [];
-        public List<FileInfoSyncModel> FileInfoSyncModel { get; set; } = [];
+        public List<FileInfoSyncModel> FileInfoSync { get; set; } = [];
     }
     /// <summary>
     /// 檔案管理
@@ -31,12 +31,16 @@ namespace WCMS.Features.SysSetting.FileManagement
         /// <summary>
         /// 檔案名稱
         /// </summary>
-        [LibDesc] public string FileName { get; set; }
+        [LibDesc,MaxLength(255)] public string FileName { get; set; }
+        /// <summary>
+        /// 副檔名
+        /// </summary>
+        [LibDesc,MaxLength(15)] public string FileExtension { get; set; }
         /// <summary>
         /// 檔案描述
         /// (後續可透過帶出，其他表可修改對應的顯示說明)
         /// </summary>
-        [LibDesc] public string FileDiscription { get; set; } = string.Empty;
+        [LibDesc] public string FileDescription { get; set; } = string.Empty;
         /// <summary>
         /// 網際網路媒體型式
         /// </summary>
@@ -58,7 +62,18 @@ namespace WCMS.Features.SysSetting.FileManagement
         /// 匯入標籤(
         /// (供初始化的，例如1810專案的檔案匯入，資料夾就為1810(ImportLabel名就為1810)，底下結構不變的紀錄至Path)
         /// </summary>
-        [LibDesc] public string ImportLabel { get; set; }
+        [LibDesc] public string ImportLabel { get; set; } = string.Empty;
+        /// <summary>
+        /// 檔案狀態
+        /// </summary>
+        [LibDesc] public FileStatus FileStatus { get; set; }
+        /// <summary>
+        /// 下載次數
+        /// </summary>
+        [LibDesc, NotMapped] public int DownloadCount{get { return this.FileInfoDownload.Count; }}
+
+        public virtual List<FileInfoDownloadModel> FileInfoDownload { get; set; } = [];
+        public virtual List<FileInfoSyncModel> FileInfoSync { get; set; } = [];
         #region 不需要的欄位
         [NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public new DateTime? ModifyTime { get; }
         [NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public new string ModifyUserId { get; }
@@ -117,19 +132,32 @@ namespace WCMS.Features.SysSetting.FileManagement
         [LibDesc, Key] public int RowId { get; set; }
         /// <summary>
         /// 同步狀態
-        /// Pending有幾種狀態:
-        /// 1. 前端上傳還沒保存時，先暫存
-        /// 2. 要更新到其他主機，尚未傳輸完成的
         /// </summary>
-        public string SyncStatus { get; set; } = "Pending"; // Pending / Success / Failed
+        public FileStatus FileStatus { get; set; }
         /// <summary>
         /// 來源IP
         /// </summary>
         public string SrcIP { get; set; }
         /// <summary>
+        /// 來源機器
+        /// </summary>
+        public string SrcNode { get; set; }
+        /// <summary>
+        /// 來源完整路徑
+        /// </summary>
+        public string SrcFullPath { get; set; }
+        /// <summary>
         /// 目的地IP
         /// </summary>
         public string DestIP{ get; set; }
+        /// <summary>
+        /// 目的地機器
+        /// </summary>
+        public string DestNode{ get; set; }
+        /// <summary>
+        /// 目的地完整路徑
+        /// </summary>
+        public string DestFullPath { get; set; }
         /// <summary>
         /// 錯誤訊息
         /// </summary>
@@ -138,9 +166,5 @@ namespace WCMS.Features.SysSetting.FileManagement
         /// 執行時間
         /// </summary>
         public DateTime ExecuteTime { get; set; } = DateTime.UtcNow;
-        /// <summary>
-        /// 完成時間
-        /// </summary>
-        public DateTime? CompletedTime { get; set; }
     }
 }
