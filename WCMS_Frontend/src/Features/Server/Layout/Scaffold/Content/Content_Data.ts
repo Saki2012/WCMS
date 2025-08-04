@@ -2,6 +2,7 @@ import type { IBETheme } from "../../Theme/ITheme"
 import type { ToolbarAction } from "../../../../../SysCore/Components/Toolbar/Toolbar_Data"
 import type { GridProps } from "../../../../../SysCore/Components/Grid/Grid_Data"
 import type { SearchBarProps } from "../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
+import type { ReactNode } from "react"
 export interface FormCompProp{
     Title:string
     Theme:IBETheme
@@ -29,5 +30,6 @@ export interface FormListCompProp{
     Theme:IBETheme,
     LoadingList:boolean[],
     ErrorList:(string | null | undefined)[],
-    Toolbar:ToolbarAction[]
+    InputControl:ReactNode[],
+    FormToolbar:ToolbarAction[]
 }

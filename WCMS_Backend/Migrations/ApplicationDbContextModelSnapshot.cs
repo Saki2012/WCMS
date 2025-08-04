@@ -30,6 +30,9 @@ namespace WCMS.Migrations
                     b.Property<string>("Categories")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<byte>("ContentStatus")
+                        .HasColumnType("tinyint");
+
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("datetime2(0)");
 
@@ -72,9 +75,6 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PictureId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Statuses")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Tags")
@@ -373,6 +373,9 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<byte>("ContentStatus")
+                        .HasColumnType("tinyint");
+
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("datetime2(0)");
 
@@ -408,10 +411,6 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OrgLvId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -487,6 +486,9 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<byte>("ContentStatus")
+                        .HasColumnType("tinyint");
+
                     b.Property<string>("CoverPicSrcId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -530,9 +532,6 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Sort")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Statuses")
                         .HasColumnType("int");
 
                     b.Property<string>("Tags")
@@ -795,6 +794,9 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<byte>("ContentStatus")
+                        .HasColumnType("tinyint");
+
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("datetime2(0)");
 
@@ -838,10 +840,6 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PicId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Statuses")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -1522,6 +1520,15 @@ namespace WCMS.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Tag.TagDetail", b =>
+                {
+                    b.HasOne("WCMS.Features.SiteEdit.Tag.TagData", null)
+                        .WithMany("TagDetail")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("WCMS.SysCore.Model.DataChangeLogDetail", b =>
                 {
                     b.HasOne("WCMS.SysCore.Model.DataChangeLog", "DataChangeLog")
@@ -1546,6 +1553,11 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.PageManagement.PageManagement", b =>
                 {
                     b.Navigation("PageManagementDetail");
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Tag.TagData", b =>
+                {
+                    b.Navigation("TagDetail");
                 });
 #pragma warning restore 612, 618
         }

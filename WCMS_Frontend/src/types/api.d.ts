@@ -1351,6 +1351,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/FileArchive/Migrate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/FileArchive/Create": {
         parameters: {
             query?: never;
@@ -2293,6 +2326,39 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Gallery/Migrate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -5369,7 +5435,7 @@ export interface components {
             AnnouncementId?: string | null;
             Categories?: string | null;
             Tags?: string | null;
-            Statuses?: string | null;
+            ContentStatus?: components["schemas"]["ContentStatus"];
             PictureId?: string | null;
             PicDescription?: string | null;
             /** Format: int32 */
@@ -5380,7 +5446,7 @@ export interface components {
             RowState?: components["schemas"]["RowState"];
             AnnouncementId?: string | null;
             /** Format: int32 */
-            RowId?: number;
+            RowId?: number | null;
             Lang?: string | null;
             Title?: string | null;
             SubTitle?: string | null;
@@ -5515,6 +5581,11 @@ export interface components {
          * Format: int32
          * @enum {integer}
          */
+        ContentStatus: 0 | 1 | 2 | 4;
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
         DataStatus: 0 | 1;
         FileArchive: {
             /** Format: date-time */
@@ -5536,7 +5607,7 @@ export interface components {
             /** Format: date-time */
             Validate_End?: string | null;
             FileArchiveId: string;
-            Status?: string | null;
+            ContentStatus?: components["schemas"]["ContentStatus"];
             CategoriesId: string;
             TagsId: string;
         };
@@ -5646,8 +5717,7 @@ export interface components {
             GalleryId: string;
             Categories: string;
             Tags: string;
-            /** Format: int32 */
-            Statuses?: number;
+            ContentStatus?: components["schemas"]["ContentStatus"];
             CoverPicSrcId?: string | null;
             /** Format: int32 */
             Sort?: number;
@@ -5906,6 +5976,7 @@ export interface components {
             Validate_End?: string | null;
             TagId?: string | null;
             ProgId?: string | null;
+            TagDetail?: components["schemas"]["TagDetail"][] | null;
         };
         TagDetail: {
             RowState?: components["schemas"]["RowState"];
@@ -5945,7 +6016,7 @@ export interface components {
             WebResourceId: string;
             Categories?: string | null;
             Tags?: string | null;
-            Statuses?: string | null;
+            ContentStatus?: components["schemas"]["ContentStatus"];
             PicId?: string | null;
             PicDescription?: string | null;
         };

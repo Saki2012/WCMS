@@ -4,137 +4,65 @@ import type { GridProps,GridRow,ColumnConfig,RowCell } from "../../../../../../S
 import  type { components } from "../../../../../../types/api";
 import type { QueryListCondition } from "../../../../../../SysCore/Interface/IApiProvider";
 import * as SchemaFields from "../../../../../../types/SchemaFields";
-import { BuildVisibleColumns } from "../../../../../../SysCore/Utils/BuildVisibleColumns";
 type AnnouncementSet = components["schemas"]["AnnouncementSet"]
-import { FormatDateTime } from "../../../../../../SysCore/Utils/LibData";
-/** 讀取清單資料 */
-// export const useFetchAnnouncementListData = () => {
-//   const [rawData, setRawData] = useState<AnnouncementSet[]>([])
-//   const [rows, setRows] = useState<GridRow[]>([]);
-//   const [columns, setColumns] = useState<ColumnConfig[]>([]);
-//   const [currentPage, setCurrentPage] = useState(1);
-//   const [totalPages, setTotalPages] = useState(2);
-//   const [isLoading, setIsLoading] = useState(false);
-//   const [error, setError] = useState<string | null>(null);
-//   const fetchData = async (page: number) => {
-//     setIsLoading(true);
-//     setError(null);
-//     try {
-//       //#region GetColumn
-//       const visibleKeys: [string, string][] = [
-//                             [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Categories],
-//                             [SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Title],
-//                             [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.DataStatus],
-//                             [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyUserId],
-//                             [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyTime]
-//                           ]
-//       // ✅ 轉換成 ColumnConfig[]
-//       const columns = await BuildVisibleColumns(() => AnnouncementProvider().getModelDisplayName(), visibleKeys);
-//       setColumns(columns);
-//       //#endregion
-      
-//       //#region GetRows
-//       const queryCondition:QueryListCondition={
-//           Fields: [
-//                   SchemaFields.AnnouncementFields.AnnouncementId,
-//                   SchemaFields.AnnouncementFields.Categories,
-//                   // `Category.CategoryDetail.Lang`,
-//                   // `Category.CategoryDetail.CategoryName`,
-//                   //缺Name
-//                   `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
-//                   `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
-//                   SchemaFields.PageManagementFields.ModifyUserId,
-//                   //缺Name
-//                   SchemaFields.PageManagementFields.ModifyTime,
-//                   SchemaFields.PageManagementFields.InternalId,
-//             ],
-//           Condition: ``,
-//           PageNumber: page,
-//           PageSize: 10,
-//         }
-      
-//       const totalCountRes = await AnnouncementProvider().fetchListCount(queryCondition);
-//       if(!totalCountRes.IsSuccess){
-//         const errorMsg = totalCountRes.SysMessage?.map(msg =>`${msg.MessageCode}:${msg.Message}`).join(';') ?? "資料查詢失敗";
-//         throw new Error(errorMsg);
-//       }
-//       const total = Math.ceil((totalCountRes.Data?.[0] ?? 0)/ queryCondition.PageSize);
-//       setTotalPages(total);
-//       const res = await AnnouncementProvider().fetchList(queryCondition);
-//       if (!res.IsSuccess) {
-//         const errorMsg = res.SysMessage?.map(msg =>`${msg.MessageCode}:${msg.Message}`).join(';') ?? "資料查詢失敗";
-//         throw new Error(errorMsg);
-//       }
-//       const fullData = res.Data as AnnouncementSet[];
-//       setRawData(fullData);
-//       const mainTable = fullData.map(x => x.Announcement ?? {});
-//       const gridRows: GridRow[] = mainTable.map(item => {
-//               const cells: RowCell[] = columns.map(col => {
-//               let content: any = "";
-//               if (col.key === SchemaFields.AnnouncementDetailFields.Title ) {
-//                 content = item.AnnouncementDetail?.find((d: any) => d.Lang === "zh-tw")?.Title ?? "";
-//               } else if(col.key===SchemaFields.AnnouncementFields.ModifyTime){
-//                 content= FormatDateTime((item as any)[col.key]);
-//               }
-//               else {
-//                 // 一般欄位直接取用
-//                 content = (item as any)[col.key] ?? "";
-//               }
-//               return {
-//                 col,
-//                 content,
-//               };
-//               });
-//               return { cells };
-//             });
-//       setRows(gridRows);
-//       //#endregion
-//     } catch (err: any) {
-//       setError(err.message ?? "資料載入失敗");
-//     } finally {
-//       setIsLoading(false);
-//     }
-//   };
-//   useEffect(() => { fetchData(currentPage) }, [currentPage]);
-//   const gridProps: GridProps = { columns, rows, CurrentPage: currentPage, TotalPage: totalPages, onPageChange:(page)=>{setCurrentPage(page);} };
-//   return { rawData, gridProps, isLoading, error };
-// };
+import { useFetchGridListData } from "../../../../../../SysCore/Utils/FetchGridListData"
+import { FormatDateTime } from "../../../../../../SysCore/Utils/LibData"
 
-/** 讀取表單資料 */
-// export const useGetAnnouncementFormData = (internalId:string) =>{
-//   const [data, setData] = useState<AnnouncementSet>();
-//   const [isLoading, setIsLoading] = useState(false);
-//   const [error, setError] = useState<string | null>(null);
-//   const fetchData = async (internalId: string) => {
-//     setIsLoading(true);
-//     try {
-//       if(internalId){
-//         const res = await AnnouncementProvider().fetchData({internalId});
-//         if (!res.IsSuccess) {
-//           const errorMsg = res.SysMessage?.map(msg =>`${msg.MessageCode}:${msg.Message}`).join(';') ?? "資料查詢失敗";
-//           throw new Error(errorMsg);
-//         }
-//         setData(res.Data?.[0])
-//       }
-//       else{
-//         setData(emptyData)
-//       }
-//     } catch (err: any) {
-//       setError(err.message ?? "資料載入失敗");
-//     } finally {
-//       setIsLoading(false);
-//     }
-//   };
-//   useEffect(() => { fetchData(internalId) }, [internalId]);
-//   return { data, isLoading, error };
-// }
+
+
+export const useAnnouncementList = () => {
+  const provider = AnnouncementProvider();
+  return useFetchGridListData<AnnouncementSet>({
+    getModelDisplayName: () => provider.getModelDisplayName(),
+    fetchList: (cond) => provider.fetchList(cond),
+    fetchListCount: (cond) => provider.fetchListCount(cond),
+    visibleKeys: [
+      [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Categories],
+      [SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Title],
+      [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ContentStatus],
+      [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyUserId],
+      [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyTime]
+    ],
+    buildQueryCondition: (page) => ({
+      Fields: [
+        SchemaFields.AnnouncementFields.AnnouncementId,
+        SchemaFields.AnnouncementFields.Categories,
+        SchemaFields.AnnouncementFields.ContentStatus,
+        `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
+        `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
+        SchemaFields.AnnouncementFields.ModifyUserId,
+        SchemaFields.AnnouncementFields.ModifyTime,
+        SchemaFields.AnnouncementFields.InternalId
+      ],
+      Condition: "",
+      PageNumber: page,
+      PageSize: 10
+    }),
+    parseRow: (item, columns) => {
+      const data = item.Announcement ?? {};
+      const cells: RowCell[] = columns.map(col => {
+        let content = "";
+        if (col.key === SchemaFields.AnnouncementDetailFields.Title) {
+          content = data.AnnouncementDetail?.find(d => d.Lang === "zh-tw")?.Title ?? "";
+        } else if (col.key === SchemaFields.AnnouncementFields.ModifyTime) {
+          content = FormatDateTime((data as any)[col.key]);
+        } else {
+          content = (data as any)[col.key] ?? "";
+        }
+        return { col, content };
+      });
+      return { cells };
+    }
+  });
+};
+
+
 
 export const handleDelete = async (internalId: string) => {
   if (!internalId) {
     alert("無效的資料");
     return;
   }
-
   const confirmDelete = window.confirm("確定要刪除嗎？");
   if (!confirmDelete) return;
   try {

@@ -1,4 +1,4 @@
-import { useId, useState } from 'react';
+import { useId } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { isSameDay } from "date-fns";
@@ -8,8 +8,6 @@ import type { ILibCalendarProp } from './LibCalendar_Data';
 
 const LibCalendar = (prop: ILibCalendarProp) => {
     const inputId = useId();
-    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-
     return (
         <>
             <label htmlFor={inputId} className="col-md-2 col-sm-12 float-md-left float-sm-none col-form-label">
@@ -22,14 +20,15 @@ const LibCalendar = (prop: ILibCalendarProp) => {
                     </span>
                     <DatePicker
                         id={inputId}
-                        selected={selectedDate}
+                        selected={prop.InputValue ? new Date(prop.InputValue) : null}
                         onChange={(date) => {
-                            setSelectedDate(date);
-                            prop.onChange?.(date); // optional callback
+                            const dateStr = date ? date.toISOString() : null;
+                            prop.onChange?.(dateStr);
                         }}
                         dateFormat="yyyy / MM / dd"
                         placeholderText="YYYY / MM / DD"
                         autoComplete="off"
+
                         className="start-date form-control dateicon"
                         calendarClassName="shadow-lg rounded-md border border-gray-300 p-2"
                         dayClassName={(date) => {

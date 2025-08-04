@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -7,6 +8,7 @@ using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using static WCMS.SysCore.Library.LibData;
 
 namespace WCMS.SysCore
 {
@@ -115,7 +117,7 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="pk"></param>
         /// <returns></returns>
-        [HttpGet($"{nameof(QueryData)}")]
+        [HttpGet(nameof(QueryData))]
         public async Task<IActionResult> QueryData([FromQuery] string internalId)
         {
             return Ok(await _service.QuerySetAsync(internalId));
@@ -175,6 +177,31 @@ namespace WCMS.SysCore
             return Ok(await _service.CreateSetAsync(null));
         }
     }
+
+    [ApiController, Route(SysParam.ServiceRoute)]
+    public class SystemAPIController: ControllerBase
+    {
+        /// <summary>
+        /// 獲取EnumOption
+        /// </summary>
+        /// <param name="enumName"></param>
+        /// <returns></returns>
+        [HttpGet(nameof(GetEnumOptions))]
+        public IActionResult GetEnumOptions([FromQuery,Required] string enumName)
+        {
+            try
+            {
+                var options = EnumHelper.GetEnumOptions(enumName);
+                return Ok(options);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+    }
+
+
     /// <summary>
     /// 
     /// </summary>

@@ -1,12 +1,15 @@
-﻿using System.Linq.Expressions;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text.RegularExpressions;
-using System.Text;
-using System.Xml.Linq;
-using GraphQL.Types;
-using System.Collections.Generic;
+﻿using GraphQL.Types;
 using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
+using WCMS.SysCore.Enum;
 
 namespace WCMS.SysCore.Library
 {
@@ -53,14 +56,28 @@ namespace WCMS.SysCore.Library
         /// <param name="isDesc">是否倒敘排列</param>
         /// <param name="isRemoveDuplicates">是否去除重複資料</param>
         /// <returns></returns>
-        public static string Remerge(this string val, string mergeStr, bool hasEmpty=false, bool isDesc = false, bool isRemoveDuplicates=false)
+        public static string Remerge(this string val, string mergeStr, bool hasEmpty = false, bool isDesc = false, bool isRemoveDuplicates = false, RemergeSortMode sortMode = RemergeSortMode.Auto)
         {
-            if (string.IsNullOrEmpty(val)) return string.Empty;
-            List<string> data = [.. val.Split(mergeStr, StringSplitOptions.None).Where(p => hasEmpty || !string.IsNullOrEmpty(p))];
-            if (isRemoveDuplicates)data = [.. data.Distinct()];
-            data.Sort();
+            if (string.IsNullOrWhiteSpace(val)) return string.Empty;
+            var data = val.Split(mergeStr, StringSplitOptions.None).Where(p => hasEmpty || !string.IsNullOrWhiteSpace(p)).ToList();
+            if (isRemoveDuplicates) data = [.. data.Distinct()];
+            RemergeSortMode finalMode = sortMode == RemergeSortMode.Auto ? DetectSortMode(data) : sortMode;
+            switch (finalMode)
+            {
+                case RemergeSortMode.Number:
+                    data = [.. data.OrderBy(p => int.TryParse(p, out var num) ? num : int.MaxValue)];
+                    break;
+                case RemergeSortMode.Natural:
+                    data = [.. data.OrderBy(p => Regex.Replace(p, @"\d+", match => match.Value.PadLeft(10, '0')))];
+                    break;
+                case RemergeSortMode.String:
+                    data = [.. data.OrderBy(p => p)];
+                    break;
+                case RemergeSortMode.None:
+                default: break;
+            }
             if (isDesc) data.Reverse();
-            return Merge(mergeStr, hasEmpty, [.. data]);
+            return Merge(mergeStr, hasEmpty, data.ToArray());
         }
         /// <summary>
         /// 合併
@@ -236,7 +253,6 @@ namespace WCMS.SysCore.Library
         {
             return Convert.ToByte(val);
         }
-
         /// <summary>
         /// 獲取月初日
         /// </summary>
@@ -485,6 +501,55 @@ namespace WCMS.SysCore.Library
                 return x; // 原樣回傳，如 string/int 等
             }).ToArray();
         }
+
+        public class EnumOption
+        {
+            public int Key { get; set; }
+            public string DisplayName { get; set; }
+        }
+
+        public static class EnumHelper
+        {
+            public static List<EnumOption> GetEnumOptions(string enumTypeName)
+            {
+                var enumType = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).FirstOrDefault(t => t.IsEnum && t.Name == enumTypeName);
+                if (enumType == null) throw new ArgumentException($"Enum type '{enumTypeName}' not found.");
+
+                return [.. System.Enum.GetValues(enumType)
+                    .Cast<System.Enum>()
+                    .Where(e => Convert.ToInt32(e) != 0) // 可視情況包含 None
+                    .Select(e => new EnumOption
+                    {
+                        Key = Convert.ToInt32(e),
+                        DisplayName = GetEnumDisplayName(e)
+                    })];
+            }
+
+            private static string GetEnumDisplayName(System.Enum value)
+            {
+                var field =  value.GetType().GetField(value.ToString());
+                var attr = field?.GetCustomAttribute<DescriptionAttribute>();
+                return attr?.Description ?? value.ToString();
+            }
+        }
+
+
+        #region private 
+        /// <summary>
+        /// 自動偵測排序模式
+        /// </summary>
+        /// <param name="items"></param>
+        /// <returns></returns>
+        private static RemergeSortMode DetectSortMode(List<string> items)
+        {
+            bool allNumber = items.All(x => int.TryParse(x, out _));
+            if (allNumber) return RemergeSortMode.Number;
+            bool hasDigit = items.Any(x => Regex.IsMatch(x, @"\d"));
+            bool hasAlpha = items.Any(x => Regex.IsMatch(x, @"[a-zA-Z]"));
+            if (hasDigit && hasAlpha) return RemergeSortMode.Natural;
+            return RemergeSortMode.String;
+        }
+        #endregion
     }
     //public static class GraphQLChangeType
     //{

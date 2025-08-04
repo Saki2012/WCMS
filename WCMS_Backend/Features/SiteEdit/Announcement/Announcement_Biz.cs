@@ -33,7 +33,6 @@ namespace WCMS.Features.SiteEdit.Announcement
         private static void DoRemergeData(Announcement header)
         {
             header.Categories = header.Categories.Remerge(",");
-            header.Statuses = header.Statuses.Remerge(",");
             header.Tags = header.Tags.Remerge(",");
         }
         #endregion

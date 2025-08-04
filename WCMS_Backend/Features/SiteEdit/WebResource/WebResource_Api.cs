@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using System.Data;
 using WCMS.Features.SiteEdit.Category;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.WebResource
 {
@@ -36,7 +38,7 @@ namespace WCMS.Features.SiteEdit.WebResource
                 result.Add(set);
                 set.WebResource.WebResourceId = row["Sn"].ToString();
                 set.WebResource.Categories = row["Category"].ToString();
-                set.WebResource.Statuses = row["Status"].ToString();
+                set.WebResource.ContentStatus = GetContentStatus(row["Status"].ToString());
                 set.WebResource.Tags = row["Tag"].ToString();
                 set.WebResource.PicId = row["Pic"].ToString();
                 set.WebResource.PicDescription = row["PicDescription"].ToString();
@@ -60,6 +62,27 @@ namespace WCMS.Features.SiteEdit.WebResource
                 }
             }
             return [.. result];
+        }
+
+        private static ContentStatus GetContentStatus(string status)
+        {
+            ContentStatus result = ContentStatus.None;
+            foreach(string s in status.Split(','))
+            {
+                switch (s.Trim().ToLower())
+                {
+                    case "hide":
+                        result|= ContentStatus.Hidden;
+                        break;
+                    case "hot":
+                        result |= ContentStatus.Hot;
+                        break;
+                    case "top":
+                        result |= ContentStatus.Top;
+                        break;  
+                }
+            }
+            return result;
         }
 #endif
     }

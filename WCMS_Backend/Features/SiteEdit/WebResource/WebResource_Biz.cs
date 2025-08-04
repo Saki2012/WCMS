@@ -30,7 +30,6 @@ namespace WCMS.Features.SiteEdit.WebResource
         private static void DoRemergeData(WebResource header)
         {
             header.Categories = header.Categories.Remerge(",");
-            header.Statuses = header.Statuses.Remerge(",");
             header.Tags = header.Tags.Remerge(",");
         }
         #endregion

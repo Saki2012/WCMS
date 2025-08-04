@@ -38,7 +38,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 狀態 (多個)
         /// </summary>
-        [LibDesc] public string? Statuses { get; set; } = string.Empty;
+        [LibDesc] public ContentStatus ContentStatus { get; set; }
         /// <summary>
         /// 圖片 (關聯檔案資料)
         /// </summary>

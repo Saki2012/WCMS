@@ -5,6 +5,7 @@ using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Announcement
 {
@@ -35,7 +36,7 @@ namespace WCMS.Features.SiteEdit.Announcement
                 set.Announcement.AnnouncementId = row["Sn"].ToString();
                 set.Announcement.Categories = row["Category"].ToString();
                 set.Announcement.Tags = row["Tag"].ToString();
-                set.Announcement.Statuses = row["Status"].ToString();
+                set.Announcement.ContentStatus = GetContentStatus(row["Status"].ToString());
                 set.Announcement.PictureId = row["Pic"].ToString();
                 set.Announcement.PicDescription = row["PicDescription"].ToString();
                 set.Announcement.CreateTime = Convert.ToDateTime(row["CreateTime"]);
@@ -81,6 +82,26 @@ namespace WCMS.Features.SiteEdit.Announcement
                 });
             }
             return [.. result];
+        }
+        private static ContentStatus GetContentStatus(string status)
+        {
+            ContentStatus result = ContentStatus.None;
+            foreach (string s in status.Split(','))
+            {
+                switch (s.Trim().ToLower())
+                {
+                    case "hide":
+                        result |= ContentStatus.Hidden;
+                        break;
+                    case "hot":
+                        result |= ContentStatus.Hot;
+                        break;
+                    case "top":
+                        result |= ContentStatus.Top;
+                        break;
+                }
+            }
+            return result;
         }
 #endif
     }

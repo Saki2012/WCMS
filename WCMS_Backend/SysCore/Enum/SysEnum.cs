@@ -217,6 +217,7 @@ namespace WCMS.SysCore.Enum
             Error,
         }
         /// <summary>
+<<<<<<< Updated upstream
         /// 檔案狀態
         /// </summary>
         public enum FileStatus : byte
@@ -300,6 +301,29 @@ namespace WCMS.SysCore.Enum
             public const string VIDEO_MP4 = "video/mp4";
             public const string VIDEO_QUICKTIME = "video/quicktime";
             #endregion
+=======
+        /// 內文項目狀態
+        /// 目前提供至 公告/檔案室/網路資源/相簿 功能用到
+        /// </summary>
+        [Flags] public enum ContentStatus:byte
+        {
+            /// <summary>
+            /// 無
+            /// </summary>
+            None = 0,
+            /// <summary>
+            /// 置頂
+            /// </summary>
+            Top = 1 << 0,
+            /// <summary>
+            /// 熱門
+            /// </summary>
+            Hot = 1 << 1,
+            /// <summary>
+            /// 隱藏
+            /// </summary>
+            Hidden = 1 << 2
+>>>>>>> Stashed changes
         }
     }
 }

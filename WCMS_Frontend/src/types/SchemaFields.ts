@@ -17,7 +17,7 @@ export const AnnouncementFields = {
   AnnouncementId: 'AnnouncementId',
   Categories: 'Categories',
   Tags: 'Tags',
-  Statuses: 'Statuses',
+  ContentStatus: 'ContentStatus',
   PictureId: 'PictureId',
   PicDescription: 'PicDescription',
   ViewCount: 'ViewCount',
@@ -175,6 +175,17 @@ export const CategoryDetailFields = {
 
 export type CategoryDetailFieldKey = keyof typeof CategoryDetailFields;
 
+export const ContentStatusFields = {
+  toString: 'toString',
+  toFixed: 'toFixed',
+  toExponential: 'toExponential',
+  toPrecision: 'toPrecision',
+  valueOf: 'valueOf',
+  toLocaleString: 'toLocaleString',
+} as const;
+
+export type ContentStatusFieldKey = keyof typeof ContentStatusFields;
+
 export const DataStatusFields = {
   toString: 'toString',
   toFixed: 'toFixed',
@@ -201,7 +212,7 @@ export const FileArchiveFields = {
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
   FileArchiveId: 'FileArchiveId',
-  Status: 'Status',
+  ContentStatus: 'ContentStatus',
   CategoriesId: 'CategoriesId',
   TagsId: 'TagsId',
 } as const;
@@ -332,7 +343,7 @@ export const GalleryFields = {
   GalleryId: 'GalleryId',
   Categories: 'Categories',
   Tags: 'Tags',
-  Statuses: 'Statuses',
+  ContentStatus: 'ContentStatus',
   CoverPicSrcId: 'CoverPicSrcId',
   Sort: 'Sort',
 } as const;
@@ -615,6 +626,7 @@ export const TagDataFields = {
   Validate_End: 'Validate_End',
   TagId: 'TagId',
   ProgId: 'ProgId',
+  TagDetail: 'TagDetail',
 } as const;
 
 export type TagDataFieldKey = keyof typeof TagDataFields;
@@ -660,7 +672,7 @@ export const WebResourceFields = {
   WebResourceId: 'WebResourceId',
   Categories: 'Categories',
   Tags: 'Tags',
-  Statuses: 'Statuses',
+  ContentStatus: 'ContentStatus',
   PicId: 'PicId',
   PicDescription: 'PicDescription',
 } as const;
@@ -693,5 +705,4 @@ export const WebResourceSetApiRequestFields = {
 } as const;
 
 export type WebResourceSetApiRequestFieldKey = keyof typeof WebResourceSetApiRequestFields;
-
 

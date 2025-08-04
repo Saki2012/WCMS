@@ -2,8 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import type { QueryListCondition } from "../Interface/IApiProvider";
 import type { ApiResponse } from "../Interface/IApiProvider";
 import type { GridProps,GridRow,ColumnConfig } from "../Components/Grid/Grid_Data";
-import { BuildVisibleColumns } from "./BuildVisibleColumns";
-
+import type { ModelDisplaySchema } from '../../types/IApiSchema';
 
 interface UseGridListOptions<T> {
   /** 取得 model display 名稱 */
@@ -79,3 +78,28 @@ export const useFetchGridListData = <T>(
 
   return { rawData, gridProps, isLoading, error };
 };
+
+
+/**
+ * 根據 Provider 的 getModelDisplayName 回傳欄位定義與 visibleKeys 產生對應欄位設定
+ * @param getModelDisplayFn - 傳入像 AnnouncementProvider().getModelDisplayName 的函式（要 return Promise<ApiResponse<ModelDisplaySchema>>）
+ * @param visibleKeys - 陣列格式: [[TableId, ColumnId], ...]
+ * @returns ColumnConfig[]
+ */
+const BuildVisibleColumns = async (getModelDisplayFn: () => Promise<ApiResponse<ModelDisplaySchema>>,visibleKeys: [string, string][]): Promise<ColumnConfig[]> => {
+  const resCol = await getModelDisplayFn();
+  if (!resCol?.Tables) return [];
+  const columns: ColumnConfig[] = visibleKeys
+    .map(([tableId, columnId]) => {
+      const table = resCol.Tables.find(t => t.TableId === tableId);
+      const column = table?.Columns.find(col => col.ColumnId === columnId);
+      if (!column) return null;
+      return {
+        key: column.ColumnId,
+        title: column.ColumnDisplayName,
+      };
+    })
+    .filter(Boolean) as ColumnConfig[];
+
+  return columns;
+}

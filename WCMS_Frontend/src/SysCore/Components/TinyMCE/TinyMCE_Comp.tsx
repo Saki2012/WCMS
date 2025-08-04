@@ -39,7 +39,7 @@ export const TinyMCE=({ Id, value, onChange }: TinyEditorProps) => {
           icons_url: '/tinymce/icons/default/icons.js',
 
           language: "zh_TW",
-          language_url: "https://cdn.jsdelivr.net/npm/tinymce-i18n/langs/zh_TW.js",
+          language_url: "/tinymce-i18n/langs5/zh_TW.js",
         }}
       />
       <p style={{color: 'rgba(0, 0, 0, 0.3)',textAlign: 'right',marginTop: '1rem',pointerEvents: 'none',userSelect: 'none',fontSize: '12px'}}>

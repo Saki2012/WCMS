@@ -24,7 +24,7 @@ const genericApi = {
   update: <T>(module: string, internalId: string, data: T) => client.put<ApiResponse<T>>(`/${module}/Update`, { InternalId:internalId, Data:data }),
   delete: <T>(module: string, internalId: string) => client.delete<ApiResponse<T>>(`/${module}/Delete`, { params:{ internalId } }),
   invalid: <T>(module: string, internalId: string, isInvalid: boolean) => client.delete<ApiResponse<T>>(`/${module}/Invalid`, { data: { internalId, isInvalid }}),
-  queryData: <T>(module: string, internalId: string) => client.get<ApiResponse<T>>(`/${module}/QueryData`, { params: internalId  }),
+  queryData: <T>(module: string, internalId: string) => client.get<ApiResponse<T>>(`/${module}/QueryData`, {params: { internalId: internalId }}),
   queryList: <T>(module: string, condition: QueryListCondition) => client.post<ApiResponse<T>>(`/${module}/QueryList`, condition), 
   queryListCount:(module: string, condition: QueryListCondition) => client.post<ApiResponse<number>>(`/${module}/GetTotalCounts`, condition), 
   getModelDisplayName: (module: string) => client.get(`/${module}/GetModelDisplayName`),
@@ -80,3 +80,17 @@ export class BaseApiService<T> {
     return result.data;
   }
 }
+
+class systemAPI {
+  private module: string;
+  constructor() {
+    this.module = "SystemAPI";
+  }
+  async getEnumOptions(enumName: string) {
+    return await client.get(`/${this.module}/GetEnumOptions`, {
+      params: { enumName }, // 傳入 query string 參數
+    });
+  }
+}
+
+export const SystemAPI = new systemAPI();

@@ -5,6 +5,8 @@ import TagProvider from "./Tag_Api";
 
 
 type TagSet = components["schemas"]["TagSet"]
+type TagDetail = components["schemas"]["TagDetail"]
+
 import * as SchemaFields from "../../../../../../types/SchemaFields";
 
 /** 獲取類別清單 */
@@ -21,9 +23,10 @@ export const useGetTagListByProgId = (progId:string, lang:string, pageSize:numbe
       setError(null);
       const queryCondition:QueryListCondition={
         Fields: [SchemaFields.TagDataFields.TagId,
-                `${SchemaFields.TagDetailFields.TagName}.${SchemaFields.TagDetailFields.Lang}`,
+                `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
+                `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
               ],
-        Condition: `${SchemaFields.TagDataFields.ProgId} = \"${progId}\" And ${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.Lang} = \"zh-TW\"`,
+        Condition: `${SchemaFields.TagDataFields.ProgId} = \"${progId}\" And ${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.Lang} = \"zh-tw\"`,
         PageNumber: page,
         PageSize: pageSize,
       }
@@ -34,10 +37,10 @@ export const useGetTagListByProgId = (progId:string, lang:string, pageSize:numbe
       }
       const result: Record<string, string> =
         (res.Data as TagSet[] ?? []).reduce((acc, p) => {
-          const categoryId = p.TagData?.TagId;
-          if (!categoryId) return acc;
-          // const matchedDetail = p.TagData?.CategoryDetail?.find((detail: CategoryDetail) => detail.Lang === lang);
-          // acc[categoryId] = matchedDetail?.CategoryName ?? '';
+          const tagId = p.TagData?.TagId;
+          if (!tagId) return acc;
+          const matchedDetail = p.TagData?.TagDetail?.find((detail: TagDetail) => detail.Lang === lang);
+          acc[tagId] = matchedDetail?.TagName ?? '';
           return acc;
         }, {} as Record<string, string>);
       setData(result);

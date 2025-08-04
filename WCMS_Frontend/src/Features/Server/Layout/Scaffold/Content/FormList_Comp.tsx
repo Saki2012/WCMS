@@ -6,6 +6,7 @@ import { Paginator } from "../../../../../SysCore/Components/Paginator/Paginator
 import { LibTextBox } from "../../../../../SysCore/Components/FormField/LibFormField";
 import { FormList_Toolbar } from "../../../../../SysCore/Components/Toolbar/Toolbar_Comp";
 import MenuListComp from "../../../../../SysCore/Components/MenuList/MenuList_Comp";
+
 /**類別/標籤使用 */
 export const FormListComp = ({prop}:{prop:FormListCompProp;}) => {
     return (
@@ -22,31 +23,21 @@ export const FormListComp = ({prop}:{prop:FormListCompProp;}) => {
                                     <div className="panel">
                                         <div className="panel-body">
                                             <div className="form"> 
-
-                                                <div className="row mx-0">
-		                                            <div className="col form-group">
-                                                        {/* 塞多語系欄位名稱 */}
-                                                        {/* <LibTextBox prop={prop.}></LibTextBox> */}
-                                                    </div>                         
-                                                </div>
-
-                                                <DividerComp></DividerComp>
-                                                
-                                                {/* <div className="row mx-0">
-                                                    <div className="text-center mb-2">                                            
-                                                        <a className="mr-2 mb-2" href="javascript:void(0" type="button" role="button" target="_self" title="清除取消">
-                                                            <button type="button" className="btn btn-custom btn-rounded btn-sm">清除取消</button>
-                                                        </a>
-                                                        <a className="mr-2 mb-2" href="javascript:void(0" type="button" role="button" target="_self" title="確認送出">
-                                                            <button type="button" className="btn btn-custom btn-rounded btn-sm">確認送出</button>
-                                                        </a>
-                                                    </div>
-                                                </div> */}
-                                                {/* <FormList_Toolbar></FormList_Toolbar> */}
-
-                                                <DividerComp></DividerComp>
-                                                <List_Toolbar items={prop.Toolbar} ></List_Toolbar>
                                                 <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList} >
+                                                    <div className="row mx-0">
+                                                        <div className="col form-group">
+
+                                                            {prop.InputControl.map((item, idx) => (
+                                                            <div key={idx} className="col-md-6 col-sm-12 float-md-left float-sm-none">
+                                                                <div className="row mx-0"> {item} </div>
+                                                            </div>
+                                                            ))}
+
+                                                        </div>                         
+                                                    </div>
+                                                    <DividerComp></DividerComp>
+                                                    <List_Toolbar items={prop.FormToolbar}></List_Toolbar>{/* Form_Toolbar */}
+                                                    <DividerComp></DividerComp>
                                                     <div className="row mx-0"> 
                                                         <div className="col-sm-12">
                                                             <div className="panel">
@@ -59,7 +50,9 @@ export const FormListComp = ({prop}:{prop:FormListCompProp;}) => {
                                                                             <div className="col-12">
                                                                                 <div className="list-group-wrapper">
 
+                                                                                    {/* <MenuListComp ></MenuListComp> */}
                                                                                     {/* <MenuListComp items={} Style={prop.Theme.CategoryTagList}></MenuListComp> */}
+                                                                                    {/* li 內容要有:1. label 2. 點下去可以直接連結到對應的internalId 3. 刪除按鈕 4. 頁籤*/}
                                                                                     <ul className="list-group p-0">
                                                                                         <li className="list-group-item">
 
@@ -85,7 +78,6 @@ export const FormListComp = ({prop}:{prop:FormListCompProp;}) => {
                                                                             </div>
                                                                         </div>
                                                                     </div> 
-                                                                    {/* <Paginator></Paginator> */}
                                                                 </div>
                                                             </div>
                                                         </div>

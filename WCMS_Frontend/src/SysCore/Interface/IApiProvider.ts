@@ -25,8 +25,8 @@ export abstract class IDataProvider<T> {
   public async invalidData(internaId:string,isInvalid:boolean):Promise<ApiResponse<T>>{
     return await this.doInvalid(internaId,isInvalid);
   }
-  public async fetchData(param?: any): Promise<ApiResponse<T>>{
-    return await this.doFetchData(param);
+  public async fetchData(internaId: string): Promise<ApiResponse<T>>{
+    return await this.doFetchData(internaId);
   }
   public async fetchList(condition?: QueryListCondition): Promise<ApiResponse<T>>{
     return await this.doFetchList(condition);

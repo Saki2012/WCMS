@@ -42,7 +42,7 @@ export const useFetchFormData = <T>(provider: IDataProvider<T>,internalId?: stri
     }
   }, [internalId, provider, emptyData]);
 
-  useEffect(() => {fetchData();}, [fetchData]);
+  useEffect(() => {fetchData();}, [internalId]);
 
   return {data, setFormData, isLoading, error, refetch: fetchData};
 };

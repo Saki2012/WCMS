@@ -27,12 +27,12 @@ const SidebarMenu=({theme}:{theme:IBETheme})=>{
                     <button onClick={toggleSideMenu} style={{ marginTop: "10px" }}/>
                 </div>
                 <div className="navbar-content open-trigger" data-simplebar="init">
-                    <div className="simplebar-wrapper" style={{margin: "-10px 0px -50px;"}}>
+                    <div className="simplebar-wrapper" style={{margin: "-10px 0px -50px"}}>
                         <div className="simplebar-height-auto-observer-wrapper">
                             <div className="simplebar-height-auto-observer"></div>
                         </div>
                         <div className="simplebar-mask">
-                            <div className="simplebar-offset" style={{right: "0px;", bottom: "0px;"}}>
+                            <div className="simplebar-offset" style={{right: "0px", bottom: "0px"}}>
                                 <div className="simplebar-content-wrapper" tabIndex={0} role="region" aria-label="scrollable content" style={{height: "auto", overflow: "hidden"}}>
                                     <div className="simplebar-content" style={{padding: "10px 0px 50px"}}>
                                         <MenuListComp items={items} Style={theme.SidebarMenu} expandedKeys={expandedKeys} onToggleKey={toggleKey}/>

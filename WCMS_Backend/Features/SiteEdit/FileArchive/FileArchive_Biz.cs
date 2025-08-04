@@ -31,7 +31,6 @@ namespace WCMS.Features.SiteEdit.FileArchive
         private static void DoRemergeData(FileArchive header)
         {
             header.CategoriesId = header.CategoriesId.Remerge(",");
-            header.Status = header.Status.Remerge(",");
             header.TagsId = header.TagsId.Remerge(",");
         }
         #endregion

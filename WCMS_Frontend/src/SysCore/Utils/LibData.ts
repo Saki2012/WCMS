@@ -27,3 +27,23 @@ export const FormatDate = (value: string | null | undefined): string => {
   if (!value) return "";
   return dayjs(value).format("YYYY/MM/DD");
 };
+
+
+/**
+ * 將位元遮罩(bitmask)轉換為 checkbox 可用的 string 陣列
+ * 
+ * @param bitmask - 整數值，代表目前狀態的加總（例如：7 代表 1+2+4）
+ * @param allKeys - 所有可能的位元值清單（例如：[1, 2, 4, 8]）
+ * @returns string[] - 適用於 checkbox 的選取值（如 ["1", "2", "4"]）
+ */
+export const parseBitmaskToStringArray = (bitmask: number, allKeys: number[]) =>
+  allKeys.filter(k => (bitmask & k) === k).map(String);                     
+
+/**
+ * 將 checkbox 傳回的 string 陣列轉換為加總後的 bitmask 整數
+ * 
+ * @param selected - 被選取的 checkbox 值（例如 ["1", "4"]）
+ * @returns number - 對應的位元總和（例如：1 + 4 = 5）
+ */
+export const sumStringArrayToBitmask = (selected: string[]) =>
+  selected.map(Number).reduce((acc, v) => acc | v, 0);         

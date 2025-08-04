@@ -1,6 +1,6 @@
 import type{SearchBarProps} from "../../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
 import type {IBETheme} from "../../../../../../Features/Server/Layout/Theme/ITheme"
-import { useFetchPageListData } from "./PageManagement_Hook";
+import { usePageManagementListData } from "./PageManagement_Hook";
 import type { GridProps,ColumnConfig,GridRow,RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data"
 import { useMemo } from "react"
 import { Link } from "react-router"
@@ -12,14 +12,21 @@ import  type { components } from "../../../../../../types/api";
 import { useListToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
 type PageManagementSet = components["schemas"]["PageManagementSet"]
 import { handleDelete } from "./PageManagement_Hook";
+
+
+
+
+
+
 /** 頁面清單
  * @returns 
  */
 export const PageListComp = ({title,theme}:{title:string;theme:IBETheme}) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
-    const usePageList = useFetchPageListData();
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps, usePageList.rawData);}, [usePageList.gridProps, usePageList.rawData]);
 
+    const usePageList = usePageManagementListData();
+
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps, usePageList.rawData);}, [usePageList.gridProps, usePageList.rawData]);
 
     const useToolbar = useListToolbarActions(dirUrl)
     const searchCompProp:SearchBarProps={

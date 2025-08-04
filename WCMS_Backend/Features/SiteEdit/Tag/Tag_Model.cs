@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.Features.SiteEdit.Category;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 
@@ -19,6 +21,10 @@ namespace WCMS.Features.SiteEdit.Tag
         /// 對應功能模塊ID
         /// </summary>
         [LibDesc] public string ProgId { get; set; } = string.Empty;
+        /// <summary>
+        /// 類別明細
+        /// </summary>
+        [ForeignKey(nameof(TagId)),LibDesc] public virtual ICollection<TagDetail>? TagDetail { get; set; }
     }
     public class TagDetail : DetailRowModel
     {

@@ -10,60 +10,10 @@ import * as React from "react";
 import  type { components } from "../../../../../../types/api";
 import { handleDelete } from "./Announcement_Hook"
 type AnnouncementSet = components["schemas"]["AnnouncementSet"]
-
 import { useListToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
-import AnnouncementProvider from "./Announcement_Api"
-import { useFetchGridListData } from "../../../../../../SysCore/Utils/FetchGridListData"
-
+import { useAnnouncementList } from "./Announcement_Hook"
 import * as SchemaFields from "../../../../../../types/SchemaFields";
-import { FormatDateTime } from "../../../../../../SysCore/Utils/LibData"
 
-
-
-const useAnnouncementList = () => {
-  const provider = AnnouncementProvider();
-  return useFetchGridListData<AnnouncementSet>({
-    getModelDisplayName: () => provider.getModelDisplayName(),
-    fetchList: (cond) => provider.fetchList(cond),
-    fetchListCount: (cond) => provider.fetchListCount(cond),
-    visibleKeys: [
-      [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Categories],
-      [SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Title],
-      [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.DataStatus],
-      [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyUserId],
-      [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyTime]
-    ],
-    buildQueryCondition: (page) => ({
-      Fields: [
-        SchemaFields.AnnouncementFields.AnnouncementId,
-        SchemaFields.AnnouncementFields.Categories,
-        `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
-        `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
-        SchemaFields.PageManagementFields.ModifyUserId,
-        SchemaFields.PageManagementFields.ModifyTime,
-        SchemaFields.PageManagementFields.InternalId
-      ],
-      Condition: "",
-      PageNumber: page,
-      PageSize: 10
-    }),
-    parseRow: (item, columns) => {
-      const data = item.Announcement ?? {};
-      const cells: RowCell[] = columns.map(col => {
-        let content = "";
-        if (col.key === SchemaFields.AnnouncementDetailFields.Title) {
-          content = data.AnnouncementDetail?.find(d => d.Lang === "zh-tw")?.Title ?? "";
-        } else if (col.key === SchemaFields.AnnouncementFields.ModifyTime) {
-          content = FormatDateTime((data as any)[col.key]);
-        } else {
-          content = (data as any)[col.key] ?? "";
-        }
-        return { col, content };
-      });
-      return { cells };
-    }
-  });
-};
 
 
 
@@ -73,9 +23,7 @@ const useAnnouncementList = () => {
 export const AnnouncementListComp = ({title,theme}:{title:string;theme:IBETheme}) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
 
-
     const useAnnounceList = useAnnouncementList();
-
 
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData);}, [useAnnounceList.gridProps, useAnnounceList.rawData]);
     const useToolbar = useListToolbarActions(dirUrl)
@@ -96,19 +44,16 @@ export const AnnouncementListComp = ({title,theme}:{title:string;theme:IBETheme}
 /** 動態添加每行的動作功能 */
 const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[]): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
-    // if (gridProps.rows.length === 0) return gridProps;
+    if (gridProps.rows.length === 0) return gridProps;
 
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
     const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
 
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
-        const statusCell = row.cells.find(cell => cell.col.key === "DataStatus");
-        if (statusCell && typeof statusCell.content === 'number') {
-            statusCell.content = GetDataStatusContent(statusCell.content);
-        }
+        const statusCell = row.cells.find(cell => cell.col.key === SchemaFields.AnnouncementFields.ContentStatus);
+        if (statusCell && typeof statusCell.content === 'number') {statusCell.content = GetDataStatusContent(statusCell.content);}
 
         const internalId = rawData?.[index]?.Announcement?.InternalId ?? "";
-
         const newCell: RowCell = {
             col: adjustCol,
             content: (
@@ -134,25 +79,10 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: Announ
 };
 
 /** 目前說只有公告/檔案室/網路資源/相簿會用到 */
-const GetDataStatusContent = (datastatus: number): React.ReactNode => {
-  switch (datastatus) {
-    case 0:
-        return <div className="CustomState">
-                    <div className="icon-small top-bg">置頂</div>
-                </div>;
-    case 1:
-        return  <div className="CustomState">
-                    <div className="icon-small hot-bg">熱門</div>
-                </div>;
-    case 2:
-      return    <div className="CustomState">
-                    <div className="icon-small new-bg">最新</div>
-                </div>;
-    case 3:
-        return  <div className="CustomState">
-                    <div className="icon-small hide-bg">隱藏</div>
-                </div>;
-    default:
-      return <span>未知狀態</span>;
-  }
+const GetDataStatusContent = (contentStatus: number): React.ReactNode => {
+const statusItems: React.ReactNode[] = [];
+if (contentStatus & 1) {statusItems.push(<div className="icon-small top-bg">置頂</div>);}
+if (contentStatus & 2) {statusItems.push(<div className="icon-small hot-bg">熱門</div>);}
+if (contentStatus & 4) {statusItems.push(<div className="icon-small hide-bg">隱藏</div>);}
+  return <div className="CustomState">{statusItems}</div>
 };

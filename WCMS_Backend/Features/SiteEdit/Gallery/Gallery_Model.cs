@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Gallery
 {
@@ -32,7 +33,7 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// <summary>
         /// 狀態:置頂/熱門/隱藏
         /// </summary>
-        [LibDesc] public int Statuses { get; set; }
+        [LibDesc] public ContentStatus ContentStatus { get; set; }
         /// <summary>
         /// 封面照 (透過功能從相簿裡的PicSrcId直接取得，保存時紀錄，供之後list查看時減少效能使用)
         /// </summary>

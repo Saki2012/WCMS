@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.FileArchive
 {
@@ -20,7 +21,7 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// <summary>
         /// 狀態:置頂/熱門/隱藏
         /// </summary>
-        [LibDesc] public string Status { get; set; }
+        [LibDesc] public ContentStatus ContentStatus { get; set; }
         /// <summary>
         /// 類別ID(多個)
         /// </summary>
