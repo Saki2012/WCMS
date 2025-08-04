@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using System.ComponentModel.DataAnnotations;
 using WCMS.SysCore.Model;
 using WCMS.Features.SiteEdit.PageManagement;
+using Microsoft.EntityFrameworkCore;
 
 namespace WCMS.Features.SysSetting.FileManagement
 {
@@ -18,12 +19,13 @@ namespace WCMS.Features.SysSetting.FileManagement
     /// <summary>
     /// 檔案管理
     /// </summary>
-    public class FileManagementModel: BasicDataModel
+    [Index(nameof(FileSHA256))]
+    public class FileManagementModel: MasterDataModel
     {
         /// <summary>
         /// 檔案識別碼
         /// </summary>
-        [LibDesc, Key]public new string InternalId { get; set; }
+        [LibDesc, Key] public new string InternalId { get; set; } = new Guid().ToString();
         /// <summary>
         /// 路徑
         /// </summary>
@@ -49,7 +51,7 @@ namespace WCMS.Features.SysSetting.FileManagement
         /// 檔案SHA256值 
         /// 用來檢查Server是否已有該檔案，若有就不用再次上傳，但是要更新其他欄位
         /// </summary>
-        [LibDesc] public string FileSHA256 { get; set; }
+        [LibDesc,MaxLength(64)] public string FileSHA256 { get; set; }
         /// <summary>
         /// 檔案大小
         /// </summary>

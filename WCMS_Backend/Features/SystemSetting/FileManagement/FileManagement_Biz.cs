@@ -1,6 +1,7 @@
 ﻿using GraphQL;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
 using Microsoft.OpenApi.Extensions;
 using MimeDetective;
 using MimeDetective.Engine;
@@ -32,13 +33,21 @@ namespace WCMS.Features.SysSetting.FileManagement
         public async void UploadTemp(IFormFile file)
         {
             string sha256 = GetFileSHA256(file);
-            FileManagementSet set = CreateNewFileInfo(file);
+            var (isNew, set) = await CheckSHA256Async(sha256,file);
+            if (isNew)
+            {
+                if (CheckFileLegal(file, set))
+                {
+                    DoStoreFileToSystem(file, set);
+                }
+            }
+            else
+            {
+                
+            }
             //if (!CheckSHA256(file,out set)) { }
 
-            if (CheckFileLegal(file, set))
-            {
-                DoStoreFileToSystem(file, set);
-            }
+            
         }
         /// <summary>
         /// 確定保存，移至正式區
@@ -118,7 +127,7 @@ namespace WCMS.Features.SysSetting.FileManagement
         private FileManagementSet CreateNewFileInfo(IFormFile file)
         {
             DateTime today = DateTime.UtcNow;
-            string internalId = new Guid().ToString();
+            string internalId = Guid.NewGuid().ToString();
             FileManagementSet set = new()
             {
                 FileManagement = new()
@@ -152,7 +161,7 @@ namespace WCMS.Features.SysSetting.FileManagement
         /// <param name="file"></param>
         /// <param name="set"></param>
         /// <returns></returns>
-        private bool CheckFileLegal(IFormFile file, FileManagementSet set)
+        private static bool CheckFileLegal(IFormFile file, FileManagementSet set)
         {
             if (file == null || file.Length == 0) return false;
             if (!CheckFileExtension(file, set)) return false;
@@ -173,28 +182,30 @@ namespace WCMS.Features.SysSetting.FileManagement
         /// 檢查Sha256是否存在在系統之中
         /// </summary>
         /// <param name="data"></param>
-        private bool CheckSHA256(string sha256,out FileManagementSet set) 
+        private async Task<(bool exists, FileManagementSet? set)> CheckSHA256Async(string sha256, IFormFile file)
         {
-            set = null;
-            //var exist = Task(this.DoQueryListAsync(typeof(FileManagementModel), [nameof(set.FileManagement.InternalId)],
-            //    $@"{nameof(set.FileManagement.FileSHA256)}={sha256} And FileStatus In (1,2)", 0, 0));//Pending或已存在
-            //if(exist.Count==0)
-            //{
+            var exist = await this.DoQueryListAsync(
+                typeof(FileManagementModel),
+                [nameof(FileManagementSet.FileManagement.InternalId), nameof(FileManagementSet.FileManagement.FileSHA256)],
+                @$"{nameof(FileManagementSet.FileManagement.FileSHA256)}='{sha256}' AND FileStatus In (1,2)", 0, 0
+            );
 
-            //    return true;
-            //}
-            //else
-            //{
-            //    set = Task(this.DoQuerySetAsync(((FileManagementModel)exist[0]).InternalId));
-            //    set.FileInfoSync.Add(new FileInfoSyncModel()
-            //    {
-            //        InternalId = exist[0].InternalId,
-            //        FileStatus = FileStatus.Skipped,
-                    
-            //    });
+            if (exist.Count == 0)
+            {
+                FileManagementSet set = CreateNewFileInfo(file);
+                return (true, set);
+            }
+            else
+            {
+                var set = await this.DoQuerySetAsync(((FileManagementModel)exist[0]).InternalId);
+                set.FileInfoSync.Add(new FileInfoSyncModel
+                {
+                    InternalId = (exist[0] as FileManagementModel).InternalId,
+                    FileStatus = FileStatus.Skipped
+                });
 
-                    return false;
-            //}
+                return (false, set);
+            }
         }
 
 

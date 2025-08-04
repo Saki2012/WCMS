@@ -49,25 +49,3 @@ export const BannerSliderFormComp = ({theme}:{theme:IBETheme}) => {
         </FormComp>
     )
 }
-
-const generateLangFields = ( lang: string, label: string, theme: IBETheme, 
-    formData:AnnouncementSet,  setFormData: React.Dispatch<React.SetStateAction<AnnouncementSet | null>>
-    ): React.ReactNode[] => 
-    {
-    const details = formData?.AnnouncementDetail ?? [];
-    const getLangData = (): AnnouncementSet["AnnouncementDetail"][number] => details.find(d => d.Lang === lang) ?? { Lang: lang, Title: "", SubTitle: "", Content: "", Url: "" };
-    const updateLangData = (key: "Title" | "SubTitle" | "Content" | "Url", val: string) => {
-        const currentData = getLangData();
-        const newItem = { ...currentData, [key]: val };
-        const isEmpty = (newItem.Title?.trim() ?? "") === "" && (newItem.Content?.trim() ?? "") === "";
-        const nextDetails = isEmpty ? details.filter((d) => d.Lang !== lang) : details.some((d) => d.Lang === lang) ? details.map((d) => (d.Lang === lang ? newItem : d)) : [...details, newItem];
-        setFormData({ ...formData, AnnouncementDetail: nextDetails });
-    };
-    const data = getLangData();
-  return [
-    <LibTextBox key={`${lang}-Title`} Style={theme.TextBox} ColumnDisplayName={`標題（${label}）`} DefaultInputDisplay="請輸入" InputValue={data.Title ?? ""} OnChange={(val) => updateLangData("Title", val)} />,
-    <LibTextBox key={`${lang}-SubTitle`} Style={theme.TextBox} ColumnDisplayName={`副標題（${label}）`} DefaultInputDisplay="請輸入" InputValue={data.SubTitle ?? ""} OnChange={(val) => updateLangData("SubTitle", val)} />,
-    <LibTinyMCE key={`${lang}-Content`} Style={theme.TinyMCE} ColumnDisplayName={`內容編輯器（${label}）`} InputValue={data.Content ?? ""} OnChange={(val) => updateLangData("Content", val)} />,
-    <LibTextBox key={`${lang}-Url`} Style={theme.TextBox} ColumnDisplayName={`網址（${label}）`} DefaultInputDisplay="請輸入" InputValue={data.Url ?? ""} OnChange={(val) => updateLangData("Url", val)} />,
-  ];
-};

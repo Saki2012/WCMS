@@ -9,7 +9,6 @@ import * as SchemaFields from "../../../../../../types/SchemaFields";
 /** 獲取類別清單 */
 export const useGetCategoryListByProgId = (progId:string, lang:string, pageSize:number=0) => {
   const [data, setData] = useState<Record<string,string>>({});
-  const [srcData, setsrcData] = useState<CategoryDataSet[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(0);
@@ -20,6 +19,7 @@ export const useGetCategoryListByProgId = (progId:string, lang:string, pageSize:
       setError(null);
       const queryCondition:QueryListCondition={
         Fields: [SchemaFields.CategoryFields.CategoryId,
+                 SchemaFields.CategoryFields.InternalId,
                 `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
                 `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`
               ],
@@ -34,10 +34,10 @@ export const useGetCategoryListByProgId = (progId:string, lang:string, pageSize:
       }
       const result: Record<string, string> =
         (res.Data as CategoryDataSet[] ?? []).reduce((acc, p) => {
-          const categoryId = p.Category?.CategoryId;
-          if (!categoryId) return acc;
+          const internalId = p.Category?.InternalId;
+          if (!internalId) return acc;
           const matchedDetail = p.Category?.CategoryDetail?.find((detail: CategoryDetail) => detail.Lang === lang);
-          acc[categoryId] = matchedDetail?.CategoryName ?? '';
+          acc[internalId] = matchedDetail?.CategoryName ?? '';
           return acc;
         }, {} as Record<string, string>);
       setData(result);

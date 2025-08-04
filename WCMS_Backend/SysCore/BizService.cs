@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Newtonsoft.Json.Linq;
+using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
@@ -583,36 +584,39 @@ namespace WCMS.SysCore
         private LambdaExpression GetConditionExpr(Type modelType, string condition)
         {
             var param = Expression.Parameter(modelType, "x");
-            string normalized = NormalizeCondition(modelType, condition);
+            string normalized = NormalizeCondition(modelType, condition, out object[] args);
             if (string.IsNullOrWhiteSpace(normalized)) return Expression.Lambda(Expression.Constant(true), param);
             var config = new ParsingConfig{ ResolveTypesBySimpleName = true, AllowNewToEvaluateAnyType = true, UseParameterizedNamesInDynamicQuery = true };
-            var lambda = DynamicExpressionParser.ParseLambda(config, [param], typeof(bool), normalized);
+            var lambda = DynamicExpressionParser.ParseLambda(config, new[] { param }, typeof(bool), normalized, args);
             return lambda;
         }
 
-        private string NormalizeCondition(Type modelType, string rawCondition)
+        private string NormalizeCondition(Type modelType, string rawCondition, out object[] args)
         {
-            // 預處理：補齊空白讓正則能順利解析運算子
+            List<object> argList = new();
+
+            // 預處理原始條件字串
             rawCondition = Regex.Replace(rawCondition, @"(?<=[^\s<>!=])=(?=[^=])", " == ");
             rawCondition = Regex.Replace(rawCondition, @"(?<=[^\s])(?<op>==|!=|>=|<=|>|<)(?=[^\s])", " ${op} ");
 
-
             var tokens = Regex.Split(rawCondition, @"\s+(and|or)\s+", RegexOptions.IgnoreCase);
             var result = new List<string>();
+
             for (int i = 0; i < tokens.Length; i += 2)
             {
                 string clause = tokens[i].Trim();
                 string? connector = (i > 0 && i - 1 < tokens.Length) ? tokens[i - 1].Trim().ToLower() : null;
                 var match = Regex.Match(clause, @"^(?<fullPath>[\w.]+)\s*(?<op>=|==|!=|>=|<=|>|<|in|not in|like|is null|is not null)\s*(?<val>.+)?$", RegexOptions.IgnoreCase);
                 if (!match.Success) continue;
+
                 string fullPath = match.Groups["fullPath"].Value;
                 string op = match.Groups["op"].Value.ToLower();
-                string? val = match.Groups["val"].Success ? match.Groups["val"].Value.Trim().Trim('\'', '"') : null;
+                string? val = match.Groups["val"].Success ? match.Groups["val"].Value.Trim('\'', '"') : null;
 
                 var parts = fullPath.Split('.');
                 if (parts.Length == 0) continue;
 
-                string? clauseStr = BuildNestedClause(modelType, parts, op, val);
+                string? clauseStr = BuildNestedClause(modelType, parts, op, val, ref argList);
                 if (string.IsNullOrEmpty(clauseStr)) continue;
 
                 if (!string.IsNullOrEmpty(connector) && result.Count > 0)
@@ -621,47 +625,58 @@ namespace WCMS.SysCore
                 result.Add(clauseStr);
             }
 
+            args = argList.ToArray(); // ← 回傳給外部
             return string.Join(" ", result);
         }
 
-        private string? BuildNestedClause(Type type, string[] pathParts, string op, string? val, int index = 0)
+        private string? BuildNestedClause(Type type, string[] pathParts, string op, string? val, ref List<object> args, int index = 0)
         {
             if (index >= pathParts.Length) return null;
-
             string current = pathParts[index];
             var prop = PropertyAccessorCache.GetProperty(type, current);
             if (prop == null) return null;
-
             Type nextType = prop.PropertyType;
             bool isEnumerable = typeof(IEnumerable).IsAssignableFrom(nextType) && nextType != typeof(string);
-
-            if (isEnumerable)
-                nextType = nextType.IsGenericType ? nextType.GetGenericArguments()[0] : nextType.GetElementType();
-
+            if (isEnumerable) nextType = nextType.IsGenericType ? nextType.GetGenericArguments()[0] : nextType.GetElementType();
             if (index == pathParts.Length - 1)
             {
-                // 最後一層：實際條件欄位
                 string fieldExpr = current;
-                string expr = op switch
+                string expr = null;
+                switch (op.ToLowerInvariant())
                 {
-                    "is null" => $"{fieldExpr} == null",
-                    "is not null" => $"{fieldExpr} != null",
-                    "in" => $"@0.Contains({fieldExpr})",
-                    "not in" => $"!@0.Contains({fieldExpr})",
-                    "like" => $"{fieldExpr}.Contains(\"{val}\")",
-                    _ => $"{fieldExpr} {op} \"{val}\""
-                };
+                    case "is null": expr = $"{fieldExpr} == null"; break;
+                    case "is not null": expr = $"{fieldExpr} != null"; break;
+                    case "in":
+                    case "not in":
+                        var cleaned = val?.Trim('(', ')') ?? "";
+
+                        var fieldProp = PropertyAccessorCache.GetProperty(type, fieldExpr).PropertyType;
+                        var targetType = Nullable.GetUnderlyingType(fieldProp) ?? fieldProp;
+                        var valuesArray = cleaned.Split(',').Select(v => v.Trim()).Where(v => !string.IsNullOrEmpty(v)).ToArray();
+                        dynamic convertedArray;
+                        if (targetType.IsEnum)
+                        {
+                            var enumArray = Array.ConvertAll(valuesArray, v => System.Enum.ToObject(targetType, int.Parse(v)));
+                            var typedEnumArray = Array.CreateInstance(targetType, enumArray.Length);
+                            enumArray.CopyTo(typedEnumArray, 0);
+                            convertedArray = typedEnumArray;
+                        }
+                        else convertedArray = valuesArray.Select(v => Convert.ChangeType(v, targetType)).ToArray();
+                        int paramIndex = args.Count;
+                        args.Add(convertedArray);
+                        if (op == "in") expr = $"@{paramIndex}.Contains({fieldExpr})";
+                        else expr = $"!@{paramIndex}.Contains({fieldExpr})";
+                        break;
+                    case "like": expr = $"{fieldExpr}.Contains(\"{val}\")"; break;
+                    default: expr = $"{fieldExpr} {op} \"{val}\""; break;
+                }
                 return expr;
             }
-
             // 還沒到底，繼續往下巢狀
-            string inner = BuildNestedClause(nextType, pathParts, op, val, index + 1);
+            string inner = BuildNestedClause(nextType, pathParts, op, val,ref args, index + 1);
             if (string.IsNullOrEmpty(inner)) return null;
-
             string thisLevel = current;
-            return isEnumerable
-                ? $"{thisLevel}.Any({inner})"
-                : $"{thisLevel}.{inner}";
+            return isEnumerable ? $"{thisLevel}.Any({inner})" : $"{thisLevel}.{inner}";
         }
 
         /// <summary>
@@ -708,8 +723,8 @@ namespace WCMS.SysCore
                     var condition = $"InternalId = \"{internalId}\"";
                     var fieldNames = pkProps.Select(p => p.Name).ToArray();
                     var headerData = (await DoQueryListAsync(prop, fieldNames, condition, 0, 0)).ToDynamicList().FirstOrDefault();
-                    foreach (var pk in pkProps)
-                        resultCondition = LibData.Merge(" And ", false, resultCondition, $"{pk.Name} = \"{PropertyAccessorCache.Get(headerData, pk.Name)}\"");
+                    if (headerData == null) return resultCondition;
+                    foreach (var pk in pkProps) resultCondition = LibData.Merge(" And ", false, resultCondition, $"{pk.Name} = \"{PropertyAccessorCache.Get(headerData, pk.Name)}\"");
                     return resultCondition;
                 }
             }

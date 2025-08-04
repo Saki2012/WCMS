@@ -12,7 +12,6 @@ import * as SchemaFields from "../../../../../../types/SchemaFields";
 /** 獲取類別清單 */
 export const useGetTagListByProgId = (progId:string, lang:string, pageSize:number=0) => {
   const [data, setData] = useState<Record<string,string>>({});
-  const [srcData, setsrcData] = useState<TagSet[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,6 +22,7 @@ export const useGetTagListByProgId = (progId:string, lang:string, pageSize:numbe
       setError(null);
       const queryCondition:QueryListCondition={
         Fields: [SchemaFields.TagDataFields.TagId,
+                 SchemaFields.TagDataFields.InternalId,
                 `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
                 `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
               ],
@@ -37,10 +37,10 @@ export const useGetTagListByProgId = (progId:string, lang:string, pageSize:numbe
       }
       const result: Record<string, string> =
         (res.Data as TagSet[] ?? []).reduce((acc, p) => {
-          const tagId = p.TagData?.TagId;
-          if (!tagId) return acc;
+          const internalId = p.TagData?.InternalId;
+          if (!internalId) return acc;
           const matchedDetail = p.TagData?.TagDetail?.find((detail: TagDetail) => detail.Lang === lang);
-          acc[tagId] = matchedDetail?.TagName ?? '';
+          acc[internalId] = matchedDetail?.TagName ?? '';
           return acc;
         }, {} as Record<string, string>);
       setData(result);

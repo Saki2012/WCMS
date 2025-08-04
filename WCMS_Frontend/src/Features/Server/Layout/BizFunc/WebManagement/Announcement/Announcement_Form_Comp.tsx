@@ -63,15 +63,10 @@ export const AnnouncementFormComp = ({theme}:{theme:IBETheme}) => {
                 ],
 
         Tags: [<LibCheckBox colDisplayName="標籤" 
-<<<<<<< Updated upstream
-                            options={[ { itemId: "admin", itemDisplayName: "置頂" }, { itemId: "user", itemDisplayName: "熱門" },{ itemId: "user", itemDisplayName: "隱藏" }, ]} 
-                            value={["user"]} onChange={(val) => console.log("選中的值:", val)}/>,
-=======
-                            options={Object.entries(useTag.data ?? {}).map(([key, value]) => ({itemId: key,itemDisplayName: value,}))}
-                            value={formData.data?.Announcement?.Tags?.split(",") ?? []}
-                            onChange={(val) => {const joined = val.join(",");formData.setFormData((prev) => ({...prev,Announcement: {...prev?.Announcement,Tags: joined,},}));}
-                            }/>,
->>>>>>> Stashed changes
+                             options={Object.entries(useTag.data ?? {}).map(([key, value]) => ({itemId: key,itemDisplayName: value,}))}
+                             value={formData.data?.Announcement?.Tags?.split(",") ?? []}
+                             onChange={(val) => {const joined = val.join(",");formData.setFormData((prev) => ({...prev,Announcement: {...prev?.Announcement,Tags: joined,},}));}}
+                            />,
                 ],
 
         // Pic: [  <LibPicturePreview ColumnDisplayName="圖片預覽"/>,

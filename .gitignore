@@ -7,3 +7,4 @@ WCMS_Backend/bin/
 WCMS_Frontend/WCMS_Frontend.zip
 WCMS_Backend/Migrations/
 WCMS_Backend/publish/
+*.zip

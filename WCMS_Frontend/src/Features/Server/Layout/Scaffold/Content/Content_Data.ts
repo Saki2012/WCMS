@@ -31,5 +31,6 @@ export interface FormListCompProp{
     LoadingList:boolean[],
     ErrorList:(string | null | undefined)[],
     InputControl:ReactNode[],
+    GridItems:ReactNode[],
     FormToolbar:ToolbarAction[]
 }

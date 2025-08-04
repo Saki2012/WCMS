@@ -217,7 +217,6 @@ namespace WCMS.SysCore.Enum
             Error,
         }
         /// <summary>
-<<<<<<< Updated upstream
         /// 檔案狀態
         /// </summary>
         public enum FileStatus : byte
@@ -226,7 +225,7 @@ namespace WCMS.SysCore.Enum
             Pending = 1,    // 預上傳完成，尚未正式儲存
             Success = 2,    // 已完成儲存與轉移（正式檔案）
             Deleted = 3,    // 標記已刪除（保留資料庫紀錄，可後續追溯）
-            InProgress=4,   // 傳輸中
+            InProgress = 4,   // 傳輸中
             Failed = 5,     // 傳輸失敗
             Skipped = 6,    // 來源目的地相同、已存在可跳過
             Canceled = 7,   // 取消上傳
@@ -301,11 +300,13 @@ namespace WCMS.SysCore.Enum
             public const string VIDEO_MP4 = "video/mp4";
             public const string VIDEO_QUICKTIME = "video/quicktime";
             #endregion
-=======
+            
+        }
         /// 內文項目狀態
         /// 目前提供至 公告/檔案室/網路資源/相簿 功能用到
         /// </summary>
-        [Flags] public enum ContentStatus:byte
+        [Flags]
+        public enum ContentStatus : byte
         {
             /// <summary>
             /// 無
@@ -323,7 +324,6 @@ namespace WCMS.SysCore.Enum
             /// 隱藏
             /// </summary>
             Hidden = 1 << 2
->>>>>>> Stashed changes
         }
     }
 }

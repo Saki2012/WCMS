@@ -28,7 +28,9 @@ namespace WCMS.SysCore
 
                     var repoType = typeof(IBasicRepository<>).MakeGenericType(modelType);
                     var repo = _provider.GetRequiredService(repoType); // Scoped安全使用
-                    dict[prop.Name] = repo;
+
+                    if(prop.PropertyType.IsGenericType) dict[prop.PropertyType.GetGenericArguments().FirstOrDefault().Name] = repo;
+                    else dict[prop.PropertyType.Name] = repo;
                 }
                 return dict;
             });
