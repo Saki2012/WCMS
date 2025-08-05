@@ -7,6 +7,7 @@ using WCMS.Features.SiteEdit.PageManagement;
 using WCMS.SysCore;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Middleware;
+using WCMS.SysCore.SystemFunc.FileManagement;
 
 namespace WCMS
 {
@@ -14,10 +15,9 @@ namespace WCMS
     {
         public static void Main(string[] args)
         {
-            //RunDBMigration(args);
-            //return;
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection")));
+            builder.Services.Configure<FilePathOptions>(builder.Configuration.GetSection("FilePaths"));
             // Add services to the container.
             builder.Services.AddControllers().AddJsonOptions(opt => { opt.JsonSerializerOptions.PropertyNamingPolicy = null; });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

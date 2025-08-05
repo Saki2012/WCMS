@@ -274,7 +274,12 @@ namespace WCMS.SysCore
             {
                 var value = PropertyAccessorCache.Get(set, prop.Name);
                 if (value == null) continue;
-                await ((dynamic)RepoDict[prop.Name]).CreateAsync((dynamic)value);
+                string repoDictPropName = string.Empty;
+                if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
+                    repoDictPropName = prop.PropertyType.Name;
+                else if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && prop.PropertyType != typeof(string))
+                    repoDictPropName = prop.PropertyType.GenericTypeArguments.FirstOrDefault().Name;
+                await ((dynamic)RepoDict[repoDictPropName]).CreateAsync((dynamic)value);
             }
         }
         /// <summary>
@@ -289,11 +294,16 @@ namespace WCMS.SysCore
             {
                 var oldModel = PropertyAccessorCache.Get(oldSet, prop.Name);
                 var newModel = PropertyAccessorCache.Get(newSet, prop.Name);
+                string repoDictPropName = string.Empty;
                 if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
-                    await ((dynamic)RepoDict[prop.Name]).UpdateAsync((dynamic)oldModel, (dynamic)newModel);
+                {
+                    repoDictPropName = prop.PropertyType.Name;
+                    await ((dynamic)RepoDict[repoDictPropName]).UpdateAsync((dynamic)oldModel, (dynamic)newModel);
+                }
                 else if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && prop.PropertyType != typeof(string))
                 {
-                    var repo = (dynamic)RepoDict[prop.Name];
+                    repoDictPropName = prop.PropertyType.GenericTypeArguments.FirstOrDefault().Name;
+                    var repo = (dynamic)RepoDict[repoDictPropName];
                     var detailProp = prop.PropertyType.GetGenericArguments().FirstOrDefault();
                     var oldValue = PropertyAccessorCache.Get(oldSet, prop.Name) as IList;
                     var newValue = PropertyAccessorCache.Get(newSet, prop.Name) as IList;
@@ -304,10 +314,12 @@ namespace WCMS.SysCore
                     // 更新（兩邊都有）
                     foreach (var key in oldDict.Keys.Intersect(newDict.Keys))
                     {
-                        if(nonKeyProps.Any(p =>{
+                        if (nonKeyProps.Any(p =>
+                        {
                             var oldVal = PropertyAccessorCache.Get(oldDict[key], p.Name);
                             var newVal = PropertyAccessorCache.Get(newDict[key], p.Name);
-                            return !object.Equals(oldVal, newVal);}))
+                            return !object.Equals(oldVal, newVal);
+                        }))
                             await repo.UpdateAsync(oldDict[key], newDict[key]);
                     }
                     // 刪除（old 有，new 沒有）
@@ -335,16 +347,21 @@ namespace WCMS.SysCore
         protected async Task DoDeleteAsync(TSet oldSet)
         {
             var props = PropertyAccessorCache.GetProperties(typeof(TSet));
-            for(int i=props.Length-1; i>=0; i--)
+            for (int i = props.Length - 1; i >= 0; i--)
             {
                 var prop = props[i];
                 dynamic oldModel = PropertyAccessorCache.Get(oldSet, prop.Name);
+                string repoDictPropName;
                 if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
-                    await ((dynamic)RepoDict[prop.Name]).DeleteAsync(oldModel);
+                {
+                    repoDictPropName = prop.PropertyType.Name;
+                    await ((dynamic)RepoDict[repoDictPropName]).DeleteAsync(oldModel);
+                }
                 else
-                    foreach(var oldDt in oldModel)
-                        await ((dynamic)RepoDict[prop.Name]).DeleteAsync(oldDt);
-
+                {
+                    repoDictPropName = prop.PropertyType.GenericTypeArguments.FirstOrDefault().Name;
+                    foreach (var oldDt in oldModel) await ((dynamic)RepoDict[repoDictPropName]).DeleteAsync(oldDt);
+                }
             }
         }
         /// <summary>
@@ -461,7 +478,7 @@ namespace WCMS.SysCore
         /// 自動產生流水號ID
         /// 若Id已有值，就不做自動產生
         /// </summary>
-        private async Task AutoGenerateId(BasicDataModel header,Dictionary<string, IList> details)
+        private async Task AutoGenerateId(BasicDataModel header, Dictionary<string, IList> details)
         {
             var keyProp = PropertyAccessorCache.GetProperties(header.GetType()).Where(p => p.IsDefined(typeof(KeyAttribute), inherit: true)).LastOrDefault();
             if (keyProp == null) return;
@@ -469,13 +486,7 @@ namespace WCMS.SysCore
             string id = PropertyAccessorCache.Get(header, keyProp.Name)?.ToString();
             id = !string.IsNullOrEmpty(id) ? id : await ((Task<string>)((dynamic)RepoDict[header.GetType().Name]).GenerateIdAsync(idSelector, PrefixId));
             PropertyAccessorCache.Set(header, keyProp.Name, id);
-            foreach(var detail in details)
-            {
-                foreach(var row in detail.Value)
-                {
-                    PropertyAccessorCache.Set(row, keyProp.Name, id);
-                }
-            }
+            foreach(var detail in details) foreach(var row in detail.Value) PropertyAccessorCache.Set(row, keyProp.Name, id);
         }
         /// <summary>
         /// 設置新增時資料

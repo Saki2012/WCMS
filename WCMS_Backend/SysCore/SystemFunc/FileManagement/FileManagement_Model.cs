@@ -8,8 +8,15 @@ using WCMS.SysCore.Model;
 using WCMS.Features.SiteEdit.PageManagement;
 using Microsoft.EntityFrameworkCore;
 
-namespace WCMS.Features.SysSetting.FileManagement
+namespace WCMS.SysCore.SystemFunc.FileManagement
 {
+    public class FilePathOptions
+    {
+        public string Root { get; set; }
+        public string Pending { get; set; }
+        public string Permanent { get; set; }
+        public string Import { get; set; }
+    }
     public class FileManagementSet
     {
         public FileManagementModel FileManagement { get; set; } = new();
@@ -46,7 +53,7 @@ namespace WCMS.Features.SysSetting.FileManagement
         /// <summary>
         /// 網際網路媒體型式
         /// </summary>
-        [LibDesc] public string MimeType { get; set; }
+        [LibDesc] public string MimeType { get; set; } = string.Empty;
         /// <summary>
         /// 檔案SHA256值 
         /// 用來檢查Server是否已有該檔案，若有就不用再次上傳，但是要更新其他欄位
@@ -72,13 +79,13 @@ namespace WCMS.Features.SysSetting.FileManagement
         /// <summary>
         /// 下載次數
         /// </summary>
-        [LibDesc, NotMapped] public int DownloadCount{get { return this.FileInfoDownload.Count; }}
-
-        public virtual List<FileInfoDownloadModel> FileInfoDownload { get; set; } = [];
-        public virtual List<FileInfoSyncModel> FileInfoSync { get; set; } = [];
+        [LibDesc, NotMapped] public int DownloadCount{get { return FileInfoDownload.Count; }}
+        /// <summary>
+        /// 
+        /// </summary>
+        [ForeignKey(nameof(InternalId))] public virtual List<FileInfoDownloadModel> FileInfoDownload { get; set; } = [];
+        [ForeignKey(nameof(InternalId))] public virtual List<FileInfoSyncModel> FileInfoSync { get; set; } = [];
         #region 不需要的欄位
-        [NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public new DateTime? ModifyTime { get; }
-        [NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public new string ModifyUserId { get; }
         [NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public new FormStatus FormStatus { get; }
         [NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public new DataStatus DataStatus { get; }
         [NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public new DateTime? InvalidTime { get; }
@@ -97,7 +104,7 @@ namespace WCMS.Features.SysSetting.FileManagement
         /// <summary>
         /// 行代碼
         /// </summary>
-        [LibDesc,Key] public int RowId { get; set; }
+        [LibDesc,Key] public int? RowId { get; set; }
         /// <summary>
         /// 下載者IP
         /// </summary>
@@ -131,39 +138,43 @@ namespace WCMS.Features.SysSetting.FileManagement
         /// <summary>
         /// 行代碼
         /// </summary>
-        [LibDesc, Key] public int RowId { get; set; }
+        [LibDesc, Key] public int? RowId { get; set; }
         /// <summary>
         /// 同步狀態
         /// </summary>
-        public FileStatus FileStatus { get; set; }
+        public FileStatus FileStatus { get; set; } = FileStatus.None;
         /// <summary>
         /// 來源IP
         /// </summary>
-        public string SrcIP { get; set; }
+        public string SrcIP { get; set; } = string.Empty;
         /// <summary>
         /// 來源機器
         /// </summary>
-        public string SrcNode { get; set; }
+        public string SrcNode { get; set; } = string.Empty;
         /// <summary>
         /// 來源完整路徑
         /// </summary>
-        public string SrcFullPath { get; set; }
+        public string SrcFullPath { get; set; } = string.Empty;
         /// <summary>
         /// 目的地IP
         /// </summary>
-        public string DestIP{ get; set; }
+        public string DestIP { get; set; } = string.Empty;
         /// <summary>
         /// 目的地機器
         /// </summary>
-        public string DestNode{ get; set; }
+        public string DestNode{ get; set; } = string.Empty;
         /// <summary>
         /// 目的地完整路徑
         /// </summary>
-        public string DestFullPath { get; set; }
+        public string DestFullPath { get; set; } = string.Empty;
+        /// <summary>
+        /// 錯誤訊息碼
+        /// </summary>
+        public string? ErrorCode { get; set; } = string.Empty;
         /// <summary>
         /// 錯誤訊息
         /// </summary>
-        public string? ErrorMessage { get; set; } // 若失敗則紀錄原因
+        public string? ErrorMessage { get; set; } = string.Empty;
         /// <summary>
         /// 執行時間
         /// </summary>

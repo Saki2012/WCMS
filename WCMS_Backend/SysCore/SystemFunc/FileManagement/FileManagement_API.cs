@@ -4,7 +4,7 @@ using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore;
 
-namespace WCMS.Features.SysSetting.FileManagement
+namespace WCMS.SysCore.SystemFunc.FileManagement
 {
     [ApiController, Route(SysParam.ServiceRoute)]
     public class FileManagementController(IBizService<FileManagementSet> service) : ApiDataController<FileManagementSet>(service)
@@ -23,11 +23,24 @@ namespace WCMS.Features.SysSetting.FileManagement
         [HttpPost(nameof(UploadTemp))]
         public async Task<IActionResult> UploadTemp(IFormFile file)
         {
-            //return Ok(await _service.UpdateSetAsync(internalId, set));
-            
-            ((FileManagementBiz)_service).UploadTemp(file);
+            await ((FileManagementBiz)_service).UploadTemp(file);
             return Ok();
         }
+
+        [HttpPost(nameof(MoveToPermanent))]
+        public async Task<IActionResult> MoveToPermanent(string[] internalIds)
+        {
+            await ((FileManagementBiz)_service).MoveToPermanent(internalIds);
+            return Ok();
+        }
+
+        [HttpPost(nameof(CancelUploadFiles))]
+        public async Task<IActionResult> CancelUploadFiles(string[] internalIds)
+        {
+            await ((FileManagementBiz)_service).CancelUploadFiles(internalIds);
+            return Ok();
+        }
+
         /// <summary>
         /// 下載檔案
         /// </summary>
@@ -52,11 +65,11 @@ namespace WCMS.Features.SysSetting.FileManagement
         /// <param name="label"></param>
         /// <param name="zipFile"></param>
         /// <returns></returns>
-        [HttpPost(nameof(ImportInitialFiles))] public async Task<IActionResult> ImportInitialFiles(string label, object zipFile)
+        [DisableRequestSizeLimit]
+        [RequestSizeLimit(1024L * 1024 * 1024)] // 1GB
+        [HttpPost(nameof(ImportInitialFiles))] public async Task<IActionResult> ImportInitialFiles(string label)
         {
-            /**/
-            FileManagementSet set = new FileManagementSet();
-            set.FileManagement.ImportLabel = label;
+            await ((FileManagementBiz)_service).ImportZip(label);
             return Ok();
         }
     }
