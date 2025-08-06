@@ -221,7 +221,7 @@ namespace WCMS.SysCore.Enum
         /// </summary>
         public enum FileStatus : byte
         {
-            None = 0,       // 尚未處理（理論上不應出現）
+            None = 0,       // 尚未處理（理論上不應出現，或是刪除失敗(找不到檔案時）)
             Pending = 1,    // 預上傳完成，尚未正式儲存
             Success = 2,    // 已完成儲存與轉移（正式檔案）
             Deleted = 3,    // 標記已刪除（保留資料庫紀錄，可後續追溯）

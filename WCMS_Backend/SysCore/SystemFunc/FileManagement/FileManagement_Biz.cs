@@ -1,18 +1,21 @@
 ﻿using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using MimeDetective;
 using MimeDetective.Storage;
 using SharpCompress.Archives;
+using System.IO;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using static MimeDetective.Definitions.DefaultDefinitions;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.SystemFunc.FileManagement
 {
-    public class FileManagementBiz(IRepositoryMapProvider repoMapProvider, IOptions<FilePathOptions> options) : BizService<FileManagementSet>(repoMapProvider), IBizService<FileManagementSet>
+    public class FileManagementBiz(IRepositoryMapProvider repoMapProvider, IOptions<FilePathOptions> options) : BizService<FileManageSet>(repoMapProvider), IBizService<FileManageSet>
     {
         #region Property
         private readonly FilePathOptions FilePath=options.Value;
@@ -25,15 +28,14 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <param name="file"></param>
         public async Task UploadTemp(IFormFile file)
         {
-            string sha256 = GetFileSHA256(file);
+            string sha256 = LibData.GetFileSHA256(file);
             var (isNew, set) = await CheckSHA256Async(sha256,file);
             if (CheckFileLegal(file, set))
             {
                 await DoStoreFileToSystem(file, set);
-                set.FileManagement.FileStatus = FileStatus.Pending;
+                set.FileManage.FileStatus = FileStatus.Pending;
             }
-            if (isNew) await CreateSetAsync(set);
-            else await UpdateSetAsync(set.FileManagement.InternalId, set);
+            await(isNew? CreateSetAsync(set) : UpdateSetAsync(set.FileManage.InternalId, set));
         }
         /// <summary>
         /// 確定保存，移至正式區
@@ -42,13 +44,13 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         public async Task MoveToPermanent(string[] internalIds)
         {
             if (internalIds.IsNullOrEmpty() || internalIds.Length == 0) return;
-            List<FileManagementSet> sets = [];
-            var list = await this.DoQueryListAsync(typeof(FileManagementModel),
-                [nameof(FileManagementModel.InternalId), nameof(FileManagementModel.FileName)],
-                $@"{nameof(FileManagementModel.InternalId)} in ({LibData.Merge(",", false, internalIds)}) And 
-                    {nameof(FileManagementModel.FileStatus)} = {FileStatus.Pending}" , 0, 0);
+            List<FileManageSet> sets = [];
+            var list = await this.DoQueryListAsync(typeof(FileManageModel),
+                [nameof(FileManageModel.InternalId), nameof(FileManageModel.FileName)],
+                $@"{nameof(FileManageModel.InternalId)} in ({LibData.Merge(",", false, internalIds)}) And 
+                    {nameof(FileManageModel.FileStatus)} = {FileStatus.Pending}" , 0, 0);
 
-            foreach (var item in list) sets.Add(await DoQuerySetAsync(((FileManagementModel)item).InternalId));
+            foreach (var item in list) sets.Add(await DoQuerySetAsync(((FileManageModel)item).InternalId));
             await MoveFileFromTempToFinal(sets);
         }
         /// <summary>
@@ -59,13 +61,13 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         public async Task CancelUploadFiles(string[] internalIds)
         {
             if (internalIds.IsNullOrEmpty() || internalIds.Length == 0) return;
-            List<FileManagementSet> sets = [];
-            var list = await this.DoQueryListAsync(typeof(FileManagementModel),
-                [nameof(FileManagementModel.InternalId), nameof(FileManagementModel.FileName)],
-                $@"{nameof(FileManagementModel.InternalId)} in ({LibData.Merge(",", false, internalIds)}) And 
-                    {nameof(FileManagementModel.FileStatus)} = {FileStatus.Pending}", 0, 0);
+            List<FileManageSet> sets = [];
+            var list = await this.DoQueryListAsync(typeof(FileManageModel),
+                [nameof(FileManageModel.InternalId), nameof(FileManageModel.FileName)],
+                $@"{nameof(FileManageModel.InternalId)} in ({LibData.Merge(",", false, internalIds)}) And 
+                    {nameof(FileManageModel.FileStatus)} = {FileStatus.Pending}", 0, 0);
 
-            foreach (var item in list) sets.Add(await DoQuerySetAsync(((FileManagementModel)item).InternalId));
+            foreach (var item in list) sets.Add(await DoQuerySetAsync(((FileManageModel)item).InternalId));
             await DeleteFromTemp(sets);
         }
         /// <summary>
@@ -77,7 +79,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             if (internalIds.Length == 0) return;
             else 
             {
-                List<FileManagementSet> sets = [];
+                List<FileManageSet> sets = [];
                 foreach(var internalId in internalIds)
                 {
                     var set = await DoQuerySetAsync(internalId);
@@ -88,10 +90,10 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 Dictionary<string,string> files = [];
                 foreach(var set in sets)
                 {
-                    set.FileInfoDownload.Add(new FileInfoDownloadModel());
+                    set.FileManage_DownloadInfo.Add(new FileManage_DownloadInfoModel());
 
-                    files.Add(Path.Combine(set.FileManagement.Path, set.FileManagement.InternalId),
-                        LibData.Merge(".", false, set.FileManagement.FileName, set.FileManagement.FileExtension));
+                    files.Add(Path.Combine(set.FileManage.Path, set.FileManage.InternalId),
+                        LibData.Merge(".", false, set.FileManage.FileName, set.FileManage.FileExtension));
                 }
                 if (files.Count == 1)
                 {
@@ -101,16 +103,17 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 {
                     //回傳zip
                 }
-                //更新FileInfoDownloadModel即可，用不著update更新所有資訊
             }
         }
-
+        /// <summary>
+        /// 匯入初始檔案
+        /// </summary>
+        /// <param name="label"></param>
+        /// <returns></returns>
         public async Task ImportZip(string label)
         {
             await Decompress(label);
         }
-
-
         /// <summary>
         /// 同步檔案至不同Service
         /// </summary>
@@ -126,17 +129,20 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// </summary>
         /// <param name="file"></param>
         /// <returns></returns>
-        private FileManagementSet CreateNewFileInfo(IFormFile file, string sha256)
+        private FileManageSet CreateNewFileInfo(IFormFile file, string sha256)
         {
             DateTime today = DateTime.UtcNow;
             string internalId = Guid.NewGuid().ToString();
-            FileManagementSet set = new()
+            using var stream = file.OpenReadStream();
+            FileManageSet set = new()
             {
-                FileManagement = new()
+                FileManage = new()
                 {
                     InternalId = internalId,
                     ProgId = "",
                     Path = LibData.Merge("/", false, FilePath.Root, FilePath.Pending, today.Year, today.Month, today.Day, ""),
+                    FileExtension = LibData.GetFileExtenstion(stream),
+                    MimeType = LibData.GetFileMimeType(stream),
                     FileName = Path.GetFileNameWithoutExtension(file.FileName),
                     FileDescription = file.FileName,
                     FileStatus = FileStatus.None,
@@ -152,47 +158,34 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <param name="file"></param>
         /// <param name="set"></param>
         /// <returns></returns>
-        private static bool CheckFileLegal(IFormFile file, FileManagementSet set)
+        private static bool CheckFileLegal(IFormFile file, FileManageSet set)
         {
             if (file == null || file.Length == 0) return false;
             if (CheckFileExist(set)) return false;
-            if (!CheckFileExtension(file, set)) return false;
-            if (!CheckFileSize(file, set)) return false;
+            if (!CheckFileExtension(set)) return false;
+            if (!CheckFileSize(set)) return false;
             return true;
-        }
-        /// <summary>
-        /// 獲取SHA256值
-        /// </summary>
-        /// <param name="file"></param>
-        /// <returns></returns>
-        private static string GetFileSHA256(IFormFile file)
-        {
-            using var ms = new MemoryStream();
-            file.CopyTo(ms);
-            var fileBytes = ms.ToArray();
-            var hashBytes = SHA256.HashData(fileBytes);
-            return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
         }
         /// <summary>
         /// 檢查Sha256是否存在在系統之中
         /// </summary>
         /// <param name="data"></param>
-        private async Task<(bool exists, FileManagementSet? set)> CheckSHA256Async(string sha256, IFormFile file)
+        private async Task<(bool exists, FileManageSet? set)> CheckSHA256Async(string sha256, IFormFile file)
         {
             var exist = await DoQueryListAsync(
-                typeof(FileManagementModel),
-                [nameof(FileManagementSet.FileManagement.InternalId), nameof(FileManagementSet.FileManagement.FileSHA256)],
-                @$"{nameof(FileManagementSet.FileManagement.FileSHA256)} = {sha256}", 0, 0
+                typeof(FileManageModel),
+                [nameof(FileManageSet.FileManage.InternalId), nameof(FileManageSet.FileManage.FileSHA256)],
+                @$"{nameof(FileManageSet.FileManage.FileSHA256)} = {sha256}", 0, 0
             );
-            FileManagementSet set = exist.Count == 0 ? CreateNewFileInfo(file, sha256) : await DoQuerySetAsync(((FileManagementModel)exist[0]).InternalId);
-            set.FileInfoSync.Add(new FileInfoSyncModel()
+            FileManageSet set = exist.Count == 0 ? CreateNewFileInfo(file, sha256) : await DoQuerySetAsync(((FileManageModel)exist[0]).InternalId);
+            set.FileManage_SyncInfo.Add(new FileManage_SyncInfoModel()
             {
-                InternalId = set.FileManagement.InternalId,
+                InternalId = set.FileManage.InternalId,
                 FileStatus = FileStatus.Pending,
                 SrcIP = "",
                 SrcNode = "Guest",
                 SrcFullPath = file.FileName,
-                DestIP = Dns.GetHostName().ToString(),
+                DestIP = LibData.LocalhostIp,
                 DestNode = Environment.MachineName,
                 DestFullPath = "",
             });
@@ -203,12 +196,12 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// </summary>
         /// <param name="file"></param>
         /// <param name="set"></param>
-        private static async Task DoStoreFileToSystem(IFormFile file, FileManagementSet set)
+        private static async Task DoStoreFileToSystem(IFormFile file, FileManageSet set)
         {
             if (file == null || file.Length == 0) return;
-            if (!Directory.Exists(set.FileManagement.Path))Directory.CreateDirectory(set.FileManagement.Path);
-            var fileName = $"{set.FileManagement.InternalId}.{set.FileManagement.FileExtension}";
-            var fullPath = Path.Combine(set.FileManagement.Path, fileName);
+            if (!Directory.Exists(set.FileManage.Path))Directory.CreateDirectory(set.FileManage.Path);
+            var fileName = $"{set.FileManage.InternalId}.{set.FileManage.FileExtension}";
+            var fullPath = Path.Combine(set.FileManage.Path, fileName);
             using var stream = new FileStream(fullPath, FileMode.Create);
             await file.CopyToAsync(stream);
         }
@@ -216,17 +209,17 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// 將檔案從暫存區移至正式區
         /// </summary>
         /// <param name="sets"></param>
-        private async Task MoveFileFromTempToFinal(List<FileManagementSet> sets)
+        private async Task MoveFileFromTempToFinal(List<FileManageSet> sets)
         {
             DateTime today = DateTime.UtcNow;
             string dstPath = LibData.Merge("/", false, FilePath.Root, FilePath.Permanent, today.Year, today.Month, today.Day, ProgId);
             if (!Directory.Exists(dstPath)) Directory.CreateDirectory(dstPath);
             foreach (var set in sets)
             {
-                if (set.FileManagement.FileStatus != FileStatus.Pending) continue;
-                var header = set.FileManagement;
-                var curSyncInfo = new FileInfoSyncModel() { InternalId = set.FileManagement.InternalId, FileStatus = FileStatus.Success };
-                set.FileInfoSync.Add(curSyncInfo);
+                if (set.FileManage.FileStatus != FileStatus.Pending) continue;
+                var header = set.FileManage;
+                var curSyncInfo = new FileManage_SyncInfoModel() { InternalId = set.FileManage.InternalId, FileStatus = FileStatus.Success };
+                set.FileManage_SyncInfo.Add(curSyncInfo);
                 string srcPath = header.Path;
                 string srcFullPath = LibData.Merge("/", false, header.Path, $"{header.InternalId}.{header.FileExtension}");
                 string dstFullPath = LibData.Merge("/", false, dstPath, $"{header.InternalId}.{header.FileExtension}");
@@ -235,10 +228,10 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 curSyncInfo.SrcFullPath = srcFullPath;
                 curSyncInfo.DestFullPath = dstFullPath;
                 curSyncInfo.FileStatus = FileStatus.Success;
-                curSyncInfo.SrcIP = "";
-                curSyncInfo.DestIP = "";
-                curSyncInfo.DestNode = Environment.MachineName;
+                curSyncInfo.SrcIP = LibData.LocalhostIp;
                 curSyncInfo.SrcNode = Environment.MachineName;
+                curSyncInfo.DestIP = LibData.LocalhostIp;
+                curSyncInfo.DestNode = Environment.MachineName;
                 if (File.Exists(srcFullPath)) File.Move(srcFullPath, dstFullPath);
                 else
                 {
@@ -251,17 +244,17 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             }
         }
         /// <summary>
-        /// 將檔案從暫存區移至正式區
+        /// 將檔案從暫存區刪除
         /// </summary>
         /// <param name="sets"></param>
-        private async Task DeleteFromTemp(List<FileManagementSet> sets)
+        private async Task DeleteFromTemp(List<FileManageSet> sets)
         {
             foreach (var set in sets)
             {
-                if (set.FileManagement.FileStatus != FileStatus.Pending) continue;
-                var header = set.FileManagement;
-                var curSyncInfo = new FileInfoSyncModel() { InternalId = set.FileManagement.InternalId, FileStatus = FileStatus.Canceled };
-                set.FileInfoSync.Add(curSyncInfo);
+                if (set.FileManage.FileStatus != FileStatus.Pending) continue;
+                var header = set.FileManage;
+                var curSyncInfo = new FileManage_SyncInfoModel() { InternalId = set.FileManage.InternalId, FileStatus = FileStatus.Canceled };
+                set.FileManage_SyncInfo.Add(curSyncInfo);
                 string srcPath = header.Path;
                 string srcFullPath = LibData.Merge("/", false, header.Path, $"{header.InternalId}.{header.FileExtension}");
                 string dstFullPath = string.Empty;
@@ -270,14 +263,14 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 curSyncInfo.SrcFullPath = srcFullPath;
                 curSyncInfo.DestFullPath = dstFullPath;
                 curSyncInfo.FileStatus = FileStatus.Success;
-                curSyncInfo.SrcIP = "";
-                curSyncInfo.DestIP = "";
-                curSyncInfo.DestNode = Environment.MachineName;
+                curSyncInfo.SrcIP = LibData.LocalhostIp;
                 curSyncInfo.SrcNode = Environment.MachineName;
+                curSyncInfo.DestIP = LibData.LocalhostIp;
+                curSyncInfo.DestNode = Environment.MachineName;
                 if (File.Exists(srcFullPath)) File.Delete(srcFullPath);
                 else
                 {
-                    header.FileStatus = FileStatus.Pending;
+                    header.FileStatus = FileStatus.None;
                     header.Path = srcPath;
                     curSyncInfo.FileStatus = FileStatus.Failed;
                     curSyncInfo.ErrorMessage = "找不到檔案可刪除。";
@@ -299,31 +292,23 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <param name="file"></param>
         /// <param name="set"></param>
         /// <returns></returns>
-        private static bool CheckFileExtension(IFormFile file, FileManagementSet set)
+        private static bool CheckFileExtension(FileManageSet set)
         {
-            using var stream = file.OpenReadStream();
-            var inspector = new ContentInspectorBuilder() { Definitions = MimeDetective.Definitions.DefaultDefinitions.All() }.Build();
-            FileType fileType = inspector.Inspect(stream).FirstOrDefault().Definition.File;
-            var header = set.FileManagement;
-            var syncInfo = set.FileInfoSync.LastOrDefault();
-            if (fileType != null)
+            var header = set.FileManage;
+            var syncInfo = set.FileManage_SyncInfo.LastOrDefault();
+            if (!CheckExtension(header.FileExtension))
             {
-                header.FileExtension = fileType.Extensions.FirstOrDefault().ToLowerInvariant();
-                header.MimeType = fileType.MimeType.ToLowerInvariant();
-                if (!CheckExtension(fileType))
-                {
-                    header.FileStatus = FileStatus.Failed;
-                    syncInfo.FileStatus = FileStatus.Failed;
-                    syncInfo.ErrorMessage = $"實際的網際網路媒體類型為【{fileType.MimeType.ToLowerInvariant()}】不允許上傳";
-                    return false;
-                }
-                if (!CheckMimeType(fileType))
-                {
-                    header.FileStatus = FileStatus.Failed;
-                    syncInfo.FileStatus = FileStatus.Failed;
-                    syncInfo.ErrorMessage = $"實際的網際網路媒體類型為【{fileType.MimeType.ToLowerInvariant()}】，不允許上傳";
-                    return false;
-                }
+                header.FileStatus = FileStatus.Failed;
+                syncInfo.FileStatus = FileStatus.Failed;
+                syncInfo.ErrorMessage = $"實際的網際網路媒體類型為【{header.FileExtension}】不允許上傳";
+                return false;
+            }
+            if (!CheckMimeType(header.MimeType))
+            {
+                header.FileStatus = FileStatus.Failed;
+                syncInfo.FileStatus = FileStatus.Failed;
+                syncInfo.ErrorMessage = $"實際的網際網路媒體類型為【{header.MimeType}】，不允許上傳";
+                return false;
             }
             return true;
         }
@@ -333,12 +318,12 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <param name="file"></param>
         /// <param name="set"></param>
         /// <returns></returns>
-        private static bool CheckFileSize(IFormFile file, FileManagementSet set)
+        private static bool CheckFileSize(FileManageSet set)
         {
             const long MaxFileSize = 20 * 1024 * 1024;
-            if (file.Length > MaxFileSize)
+            if (set.FileManage.FileSize > MaxFileSize)
             {
-                set.FileInfoSync.FirstOrDefault().ErrorMessage = "檔案大小超過 20MB，請重新上傳";
+                set.FileManage_SyncInfo.FirstOrDefault().ErrorMessage = "檔案大小超過 20MB，請重新上傳";
                 return false;
             }
             return true;
@@ -348,12 +333,12 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// </summary>
         /// <param name="set"></param>
         /// <returns></returns>
-        private static bool CheckFileExist(FileManagementSet set)
+        private static bool CheckFileExist(FileManageSet set)
         {
-            string fullPath = Path.Combine(set.FileManagement.Path, $"{set.FileManagement.InternalId}.{set.FileManagement.FileExtension}");
-            if (set.FileManagement.FileStatus.In(FileStatus.Pending, FileStatus.Success) || File.Exists(fullPath))
+            string fullPath = Path.Combine(set.FileManage.Path, $"{set.FileManage.InternalId}.{set.FileManage.FileExtension}");
+            if (set.FileManage.FileStatus.In(FileStatus.Pending, FileStatus.Success) || File.Exists(fullPath))
             {
-                set.FileInfoSync.LastOrDefault().FileStatus = FileStatus.Skipped;
+                set.FileManage_SyncInfo.LastOrDefault().FileStatus = FileStatus.Skipped;
                 return true;
             }
             return false;
@@ -363,20 +348,20 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// </summary>
         /// <param name="fileType"></param>
         /// <returns></returns>
-        private static bool CheckExtension(FileType fileType)
+        private static bool CheckExtension(string fileType)
         {
             string[] checkList = [FileExtensions.PDF,FileExtensions.TXT];
-            return checkList.Contains(fileType.Extensions.FirstOrDefault().ToLowerInvariant());
+            return checkList.Contains(fileType.ToLowerInvariant());
         }
         /// <summary>
         /// 檢查網際網路媒體類型是否合法
         /// </summary>
         /// <param name="mimeType"></param>
         /// <returns></returns>
-        private static bool CheckMimeType(FileType fileType)
+        private static bool CheckMimeType(string fileType)
         {
             string[] checkList = [MimeTypes.APPLICATION_PDF, MimeTypes.TEXT_PLAIN];
-            return checkList.Contains(fileType.MimeType.ToLowerInvariant());
+            return checkList.Contains(fileType.ToLowerInvariant());
         }
         /// <summary>
         /// 解壓縮檔案
@@ -390,55 +375,63 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             string rootPath = LibData.Merge("/", false, FilePath.Root, FilePath.Import);
             string extractToFolder = LibData.Merge("/", false, rootPath, label);
             using var archive = ArchiveFactory.Open(LibData.Merge("/", false, rootPath, $"{label}.zip"));
+            Dictionary<string, FileManageSet> setDic = [];//Key為Sha256
             foreach (var entry in archive.Entries.Where(e => !e.IsDirectory))
             {
-                var fullPath = Path.Combine(extractToFolder, entry.Key);
+                var fullPath = LibData.Merge("/", false, extractToFolder, entry.Key);
                 Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
                 using var entryStream = entry.OpenEntryStream();
-                using var outStream = File.Create(fullPath);
-                entryStream.CopyTo(outStream);
-                outStream.Close();
-
-                var fileInfo = new FileInfo(fullPath);
-                long fileSize = fileInfo.Length;
-                using var hashStream = File.OpenRead(fullPath);
-                using var sha256 = SHA256.Create();
-                var hashBytes = sha256.ComputeHash(hashStream);
-                string fileSha256 = BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
-
-                var internalId = Guid.NewGuid().ToString();
-                var set = new FileManagementSet()
+                using var memoryStream = new MemoryStream();
+                await entryStream.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+                string fileSha256 = LibData.GetFileSHA256(memoryStream);
+                FileStatus status = FileStatus.Skipped;
+                if (!setDic.TryGetValue(fileSha256, out FileManageSet? set))
                 {
-                    FileManagement = new FileManagementModel()
+                    string internalId = Guid.NewGuid().ToString();
+                    string ext = LibData.GetFileExtenstion(memoryStream);
+                    string mimeType = LibData.GetFileMimeType(memoryStream);
+                    string destPath = LibData.Merge("/", false, Path.GetDirectoryName(fullPath), $"{internalId}.{ext}");
+                    using var outStream = File.Create(destPath);
+                    memoryStream.Position = 0;
+                    await memoryStream.CopyToAsync(outStream);
+                    outStream.Close();
+                    status = FileStatus.Success;
+                    var fileInfo = new FileInfo(destPath);
+                    long fileSize = fileInfo.Length;
+                    set = new FileManageSet()
                     {
-                        InternalId = internalId,
-                        ProgId = "",
-                        Path = fullPath,
-                        FileName = Path.GetFileNameWithoutExtension(entry.Key),
-                        FileExtension = Path.GetExtension(entry.Key)?.TrimStart('.').ToLowerInvariant(),
-                        FileSHA256 = fileSha256,
-                        FileSize = fileSize,
-                        ImportLabel = label,
-                        FileStatus = FileStatus.Success,
-                        IsIniData = true,
-                    },
-                    FileInfoSync=
-                    [
-                        new FileInfoSyncModel()
+                        FileManage = new FileManageModel()
                         {
                             InternalId = internalId,
+                            Path = Path.GetDirectoryName(fullPath).Replace("\\", "/"),
+                            FileName = Path.GetFileNameWithoutExtension(entry.Key),
+                            FileExtension = ext,
+                            FileDescription = Path.GetFileNameWithoutExtension(entry.Key),
+                            ProgId = string.Empty,
+                            MimeType = mimeType,
+                            FileSHA256 = fileSha256,
+                            FileSize = fileSize,
+                            ImportLabel = label,
                             FileStatus = FileStatus.Success,
-                            SrcIP = Dns.GetHostName().ToString(),
-                            SrcNode = Environment.MachineName,
-                            SrcFullPath = extractToFolder,
-                            DestIP = Dns.GetHostName().ToString(),
-                            DestNode = Environment.MachineName,
-                            DestFullPath = fullPath,
-                        }
-                    ]
-                };
-                await this.CreateSetAsync(set);
+                            IsIniData = true,
+                        },
+                    };
+                    setDic.Add(fileSha256, set);
+                }
+                set.FileManage_SyncInfo.Add(new FileManage_SyncInfoModel()
+                {
+                    InternalId = set.FileManage.InternalId,
+                    FileStatus = status,
+                    SrcIP = LibData.LocalhostIp,
+                    SrcNode = Environment.MachineName,
+                    SrcFullPath = entry.Key,
+                    DestIP = LibData.LocalhostIp,
+                    DestNode = Environment.MachineName,
+                    DestFullPath = LibData.Merge("/", false, set.FileManage.Path, $"{set.FileManage.InternalId}.{set.FileManage.FileExtension}")
+                });
             }
+            foreach(var set in setDic.Values) await this.CreateSetAsync(set);
         }
 
         #endregion

@@ -1,15 +1,22 @@
 ﻿using GraphQL.Types;
+using MimeDetective;
+using MimeDetective.Storage;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq.Expressions;
+using System.Net;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.SystemFunc.FileManagement;
+using static MimeDetective.Definitions.DefaultDefinitions;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.Library
 {
@@ -502,6 +509,49 @@ namespace WCMS.SysCore.Library
             }).ToArray();
         }
 
+        /// <summary>
+        /// 獲取SHA256值
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        public static string GetFileSHA256(IFormFile file)
+        {
+            using var ms = new MemoryStream();
+            file.CopyTo(ms);
+            return GetFileSHA256(ms);
+        }
+
+        public static string GetFileSHA256(string filePath)
+        {
+            using var hashStream = File.OpenRead(filePath);
+            return GetFileSHA256(hashStream);
+        }
+
+        public static string GetFileSHA256(Stream stream)
+        {
+            var hashBytes = SHA256.HashData(stream);
+            return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+        }
+
+        public static string GetFileExtenstion(Stream stream)
+        {
+            stream.Position = 0;
+            var inspector = new ContentInspectorBuilder() { Definitions = All() }.Build();
+            FileType fileType = inspector.Inspect(stream).OrderByDescending(p=>p.Points).FirstOrDefault().Definition.File;
+            stream.Position = 0;
+            if (fileType != null) return fileType.Extensions.FirstOrDefault().ToLowerInvariant();
+            return string.Empty;
+        }
+        public static string GetFileMimeType(Stream stream)
+        {
+            stream.Position = 0;
+            var inspector = new ContentInspectorBuilder() { Definitions = All() }.Build();
+            FileType fileType = inspector.Inspect(stream).OrderByDescending(p => p.Points).FirstOrDefault().Definition.File;
+            stream.Position = 0;
+            if (fileType != null) return fileType.MimeType.ToLowerInvariant();
+            return string.Empty;
+        }
+
         public class EnumOption
         {
             public int Key { get; set; }
@@ -533,7 +583,19 @@ namespace WCMS.SysCore.Library
             }
         }
 
-
+        public static string LocalhostIp
+        {
+            get
+            {
+                if (_LocalhostIp.IsNullOrEmpty())
+                {
+                    IPHostEntry hostEntry = Dns.GetHostEntry(Dns.GetHostName());
+                    _LocalhostIp = hostEntry.AddressList.FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).ToString();
+                }
+                return _LocalhostIp;
+            }
+        }
+        private static string _LocalhostIp { get; set; } = string.Empty;
         #region private 
         /// <summary>
         /// 自動偵測排序模式
@@ -551,38 +613,5 @@ namespace WCMS.SysCore.Library
         }
         #endregion
     }
-    //public static class GraphQLChangeType
-    //{
-    //    public static Type ChangeGrcaphQLType(Type type)
-    //    {
-    //        switch (type)
-    //        {
-    //            case Type stringType when stringType == typeof(string):
-    //                return typeof(StringGraphType);
-    //            case Type byteType when byteType == typeof(byte):
-    //            case Type intType when intType == typeof(int):
-    //            case Type longType when longType == typeof(long):
-    //                return typeof(IntGraphType);
-    //            case Type decimalType when decimalType == typeof(decimal):
-    //                return typeof(DecimalGraphType);
-    //            case Type boolType when boolType == typeof(bool):
-    //                return typeof(BooleanGraphType);
-    //            case Type dateTimeType when dateTimeType == typeof(DateTime):
-    //                return typeof(DateTimeGraphType);
-    //            default:
-    //                if (type.IsEnum) return typeof(BaseEnumerationGraphType<>).MakeGenericType(new[] { type });
-    //                return type;
-    //        }
-    //    }
-    //}
-    //public class BaseEnumerationGraphType<TEnum> : EnumerationGraphType where TEnum : Enum.SysEnum
-    //{
-    //    public BaseEnumerationGraphType()
-    //    {
-    //        Name = typeof(TEnum).Name;
-    //        Description = ResxManage.GetDescription<TEnum>();
-    //        foreach (Enum val in Enum.GetValues(typeof(TEnum)))
-    //            AddValue(val.ToString(), ResxManage.GetDescription(val), val.GetValue());
-    //    }
-    //}
+    
 }

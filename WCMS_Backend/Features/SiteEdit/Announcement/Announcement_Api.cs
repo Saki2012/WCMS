@@ -1,26 +1,32 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Linq.Dynamic.Core;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Announcement
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class AnnouncementController(IBizService<AnnouncementSet> service) : ApiDataController<AnnouncementSet>(service)
+    public class AnnouncementController(IBizService<AnnouncementSet> service, IBizService<FileManageSet> fileService) : ApiDataController<AnnouncementSet>(service)
     {
+        #region property
+        private readonly FileManagementBiz _fileService = (FileManagementBiz)fileService;
+        #endregion
 
 #if DEBUG //轉移舊系統資料
         [HttpPost(nameof(Migrate))]
         public async Task<IActionResult> Migrate()
         {
-            AnnouncementSet[] datas = ConvertToApiModel();
+            AnnouncementSet[] datas = await ConvertToApiModel();
             return await InitialCreateData(datas);
         }
-        private static AnnouncementSet[] ConvertToApiModel()
+        private async Task<AnnouncementSet[]> ConvertToApiModel()
         {
             List<AnnouncementSet> result = [];
             Dictionary<string, string> sqls = new()
@@ -29,7 +35,19 @@ namespace WCMS.Features.SiteEdit.Announcement
                 { "AnnouncementDetail", "SELECT * FROM News_Lang" },
             };
             DataSet ds = MigrateOldData.GetOldData(sqls);
-            foreach(DataRow row in ds.Tables["Announcement"].Rows)
+
+
+            var importFileInternalIds = await _fileService.QueryListAsync([nameof(FileManageModel.InternalId)],$"{nameof(FileManageModel.ImportLabel)} = {"1810"}",0,0);
+
+            List<FileManageSet> fileSets=[];
+            
+            foreach(var id in importFileInternalIds.Data.Select(p => p.FileManage.InternalId).ToList().Distinct())
+            {
+                var data = await _fileService.QuerySetAsync(id);
+                fileSets.Add(data.Data.LastOrDefault());
+            }
+
+            foreach (DataRow row in ds.Tables["Announcement"].Rows)
             {
                 AnnouncementSet set = new() {};
                 result.Add(set);
@@ -37,16 +55,17 @@ namespace WCMS.Features.SiteEdit.Announcement
                 set.Announcement.Categories = row["Category"].ToString();
                 set.Announcement.Tags = row["Tag"].ToString();
                 set.Announcement.ContentStatus = GetContentStatus(row["Status"].ToString());
-                set.Announcement.PictureId = row["Pic"].ToString();
+
+                var s = GetPicureInternalId(row["Pic"].ToString(), fileSets);
+
+                set.Announcement.PictureId = s.FileManage.InternalId;
+
                 set.Announcement.PicDescription = row["PicDescription"].ToString();
                 set.Announcement.CreateTime = Convert.ToDateTime(row["CreateTime"]);
                 set.Announcement.ModifyTime = Convert.ToDateTime(row["UpdateTime"]);
                 set.Announcement.IsIniData = true;
                 int r = 0;
-                if (row["ViewCount"] != DBNull.Value)
-                {
-                    int.TryParse(row["ViewCount"].ToString(), out r);
-                }
+                if (row["ViewCount"] != DBNull.Value) _ = int.TryParse(row["ViewCount"].ToString(), out r);
                 set.Announcement.ViewCount = r;
                 set.Announcement.Validate_Start = Convert.ToDateTime(row["StartDate"]);
                 set.Announcement.Validate_End = Convert.ToDateTime(row["EndDate"]);
@@ -83,7 +102,7 @@ namespace WCMS.Features.SiteEdit.Announcement
             }
             return [.. result];
         }
-        private static ContentStatus GetContentStatus(string status)
+        private ContentStatus GetContentStatus(string status)
         {
             ContentStatus result = ContentStatus.None;
             foreach (string s in status.Split(','))
@@ -102,6 +121,11 @@ namespace WCMS.Features.SiteEdit.Announcement
                 }
             }
             return result;
+        }
+
+        private FileManageSet GetPicureInternalId(string srcPic, List<FileManageSet> fileSets)
+        {
+            return fileSets.Where(x => x.FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().EndsWith(srcPic.ToLower()))).FirstOrDefault();
         }
 #endif
     }

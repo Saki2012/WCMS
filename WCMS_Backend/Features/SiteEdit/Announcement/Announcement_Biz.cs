@@ -5,6 +5,7 @@ using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.SystemFunc.FileManagement;
 
 namespace WCMS.Features.SiteEdit.Announcement
 {

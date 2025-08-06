@@ -894,170 +894,6 @@ namespace WCMS.Migrations
                     b.ToTable("WebResourceInfo", (string)null);
                 });
 
-            modelBuilder.Entity("WCMS.Features.SysSetting.FileManagement.FileInfoDownloadModel", b =>
-                {
-                    b.Property<string>("InternalId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("RowId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("DownloadStatus")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DownloadTime")
-                        .HasColumnType("datetime2(0)");
-
-                    b.Property<string>("DownloadUserIP")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RefererURL")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserAgent")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("InternalId", "RowId");
-
-                    b.ToTable("FileInfoDownload", (string)null);
-                });
-
-            modelBuilder.Entity("WCMS.Features.SysSetting.FileManagement.FileInfoSyncModel", b =>
-                {
-                    b.Property<string>("InternalId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("RowId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("DestFullPath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DestIP")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DestNode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ErrorCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ErrorMessage")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("ExecuteTime")
-                        .HasColumnType("datetime2(0)");
-
-                    b.Property<byte>("FileStatus")
-                        .HasColumnType("tinyint");
-
-                    b.Property<string>("SrcFullPath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SrcIP")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SrcNode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("InternalId", "RowId");
-
-                    b.ToTable("FileInfoSync", (string)null);
-                });
-
-            modelBuilder.Entity("WCMS.Features.SysSetting.FileManagement.FileManagementModel", b =>
-                {
-                    b.Property<string>("InternalId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("datetime2(0)");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FileDescription")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FileExtension")
-                        .IsRequired()
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("FileSHA256")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
-
-                    b.Property<long>("FileSize")
-                        .HasColumnType("bigint");
-
-                    b.Property<byte>("FileStatus")
-                        .HasColumnType("tinyint");
-
-                    b.Property<string>("ImportLabel")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsIniData")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("MimeType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ModifyTime")
-                        .HasColumnType("datetime2(0)");
-
-                    b.Property<string>("ModifyUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OrgLvId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Path")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProgId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("Validate_End")
-                        .HasColumnType("datetime2(0)");
-
-                    b.Property<DateTime?>("Validate_Start")
-                        .HasColumnType("datetime2(0)");
-
-                    b.HasKey("InternalId");
-
-                    b.HasIndex("FileSHA256");
-
-                    b.HasIndex("InternalId")
-                        .IsUnique();
-
-                    b.ToTable("FileManagement", (string)null);
-                });
-
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory.SpecCategoryDetailModel", b =>
                 {
                     b.Property<string>("CategoryId")
@@ -1579,6 +1415,191 @@ namespace WCMS.Migrations
                     b.ToTable("User", (string)null);
                 });
 
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManage.FileManageModel", b =>
+                {
+                    b.Property<string>("InternalId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("CreateUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileDescription")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileExtension")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("FileSHA256")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<byte>("FileStatus")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("ImportLabel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsIniData")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MimeType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifyTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("ModifyUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrgLvId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProgId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("Validate_End")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<DateTime?>("Validate_Start")
+                        .HasColumnType("datetime2(0)");
+
+                    b.HasKey("InternalId");
+
+                    b.HasIndex("FileSHA256");
+
+                    b.HasIndex("InternalId")
+                        .IsUnique();
+
+                    b.ToTable("FileManage", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManage.FileManage_DownloadInfoModel", b =>
+                {
+                    b.Property<string>("InternalId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("RowId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DownloadStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DownloadTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("DownloadUserIP")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RefererURL")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserAgent")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("InternalId", "RowId");
+
+                    b.ToTable("FileManage_DownloadInfo", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManage.FileManage_ImportInfoModel", b =>
+                {
+                    b.Property<string>("InternalId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("RowId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImportLabel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImportSrcFullPath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("InternalId", "RowId");
+
+                    b.ToTable("FileManage_ImportInfo", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManage.FileManage_SyncInfoModel", b =>
+                {
+                    b.Property<string>("InternalId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("RowId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DestFullPath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DestIP")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DestNode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ErrorCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ExecuteTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<byte>("FileStatus")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("SrcFullPath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SrcIP")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SrcNode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("InternalId", "RowId");
+
+                    b.ToTable("FileManage_SyncInfo", (string)null);
+                });
+
             modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.AnnouncementDetail", b =>
                 {
                     b.HasOne("WCMS.Features.SiteEdit.Announcement.Announcement", null)
@@ -1615,24 +1636,6 @@ namespace WCMS.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("WCMS.Features.SysSetting.FileManagement.FileInfoDownloadModel", b =>
-                {
-                    b.HasOne("WCMS.Features.SysSetting.FileManagement.FileManagementModel", null)
-                        .WithMany("FileInfoDownload")
-                        .HasForeignKey("InternalId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("WCMS.Features.SysSetting.FileManagement.FileInfoSyncModel", b =>
-                {
-                    b.HasOne("WCMS.Features.SysSetting.FileManagement.FileManagementModel", null)
-                        .WithMany("FileInfoSync")
-                        .HasForeignKey("InternalId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("WCMS.SysCore.Model.DataChangeLogDetail", b =>
                 {
                     b.HasOne("WCMS.SysCore.Model.DataChangeLog", "DataChangeLog")
@@ -1642,6 +1645,33 @@ namespace WCMS.Migrations
                         .IsRequired();
 
                     b.Navigation("DataChangeLog");
+                });
+
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManage.FileManage_DownloadInfoModel", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.FileManage.FileManageModel", null)
+                        .WithMany("FileManage_DownloadInfo")
+                        .HasForeignKey("InternalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManage.FileManage_ImportInfoModel", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.FileManage.FileManageModel", null)
+                        .WithMany("File_ImportInfo")
+                        .HasForeignKey("InternalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManage.FileManage_SyncInfoModel", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.FileManage.FileManageModel", null)
+                        .WithMany("FileManage_SyncInfo")
+                        .HasForeignKey("InternalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.Announcement", b =>
@@ -1664,11 +1694,13 @@ namespace WCMS.Migrations
                     b.Navigation("TagDetail");
                 });
 
-            modelBuilder.Entity("WCMS.Features.SysSetting.FileManagement.FileManagementModel", b =>
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManage.FileManageModel", b =>
                 {
-                    b.Navigation("FileInfoDownload");
+                    b.Navigation("FileManage_DownloadInfo");
 
-                    b.Navigation("FileInfoSync");
+                    b.Navigation("File_ImportInfo");
+
+                    b.Navigation("FileManage_SyncInfo");
                 });
 #pragma warning restore 612, 618
         }

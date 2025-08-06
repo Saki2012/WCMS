@@ -17,17 +17,17 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         public string Permanent { get; set; }
         public string Import { get; set; }
     }
-    public class FileManagementSet
+    public class FileManageSet
     {
-        public FileManagementModel FileManagement { get; set; } = new();
-        public List<FileInfoDownloadModel> FileInfoDownload { get; set; } = [];
-        public List<FileInfoSyncModel> FileInfoSync { get; set; } = [];
+        public FileManageModel FileManage { get; set; } = new();
+        public List<FileManage_DownloadInfoModel> FileManage_DownloadInfo { get; set; } = [];
+        public List<FileManage_SyncInfoModel> FileManage_SyncInfo { get; set; } = [];
     }
     /// <summary>
     /// 檔案管理
     /// </summary>
     [Index(nameof(FileSHA256))]
-    public class FileManagementModel: MasterDataModel
+    public class FileManageModel : MasterDataModel
     {
         /// <summary>
         /// 檔案識別碼
@@ -40,11 +40,11 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 檔案名稱
         /// </summary>
-        [LibDesc,MaxLength(255)] public string FileName { get; set; }
+        [LibDesc, MaxLength(255)] public string FileName { get; set; }
         /// <summary>
         /// 副檔名
         /// </summary>
-        [LibDesc,MaxLength(15)] public string FileExtension { get; set; }
+        [LibDesc, MaxLength(15)] public string FileExtension { get; set; }
         /// <summary>
         /// 檔案描述
         /// (後續可透過帶出，其他表可修改對應的顯示說明)
@@ -58,7 +58,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// 檔案SHA256值 
         /// 用來檢查Server是否已有該檔案，若有就不用再次上傳，但是要更新其他欄位
         /// </summary>
-        [LibDesc,MaxLength(64)] public string FileSHA256 { get; set; }
+        [LibDesc, MaxLength(64)] public string FileSHA256 { get; set; }
         /// <summary>
         /// 檔案大小
         /// </summary>
@@ -79,12 +79,12 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 下載次數
         /// </summary>
-        [LibDesc, NotMapped] public int DownloadCount{get { return FileInfoDownload.Count; }}
+        [LibDesc, NotMapped] public int DownloadCount { get { return File_DownloadInfo.Count; } }
         /// <summary>
         /// 
         /// </summary>
-        [ForeignKey(nameof(InternalId))] public virtual List<FileInfoDownloadModel> FileInfoDownload { get; set; } = [];
-        [ForeignKey(nameof(InternalId))] public virtual List<FileInfoSyncModel> FileInfoSync { get; set; } = [];
+        [ForeignKey(nameof(InternalId))] public virtual List<FileManage_DownloadInfoModel> File_DownloadInfo { get; set; } = [];
+        [ForeignKey(nameof(InternalId))] public virtual List<FileManage_SyncInfoModel> File_SyncInfo { get; set; } = [];
         #region 不需要的欄位
         [NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public new FormStatus FormStatus { get; }
         [NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public new DataStatus DataStatus { get; }
@@ -95,16 +95,16 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
     /// <summary>
     /// 檔案被下載資訊
     /// </summary>
-    public class FileInfoDownloadModel : DetailRowModel
+    public class FileManage_DownloadInfoModel : DetailRowModel
     {
         /// <summary>
         /// 檔案識別碼
         /// </summary>
-        [LibDesc,Key] public string InternalId { get; set; }
+        [LibDesc, Key] public string InternalId { get; set; }
         /// <summary>
         /// 行代碼
         /// </summary>
-        [LibDesc,Key] public int? RowId { get; set; }
+        [LibDesc, Key] public int? RowId { get; set; }
         /// <summary>
         /// 下載者IP
         /// </summary>
@@ -120,7 +120,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 下載狀態 (成功/失敗)
         /// </summary>
-        [LibDesc] public string DownloadStatus { get;set;}
+        [LibDesc] public string DownloadStatus { get; set; }
         /// <summary>
         /// 下載時間
         /// </summary>
@@ -129,7 +129,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
     /// <summary>
     /// 檔案同步資訊
     /// </summary>
-    public class FileInfoSyncModel : DetailRowModel
+    public class FileManage_SyncInfoModel : DetailRowModel
     {
         /// <summary>
         /// 檔案識別碼
@@ -162,7 +162,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 目的地機器
         /// </summary>
-        public string DestNode{ get; set; } = string.Empty;
+        public string DestNode { get; set; } = string.Empty;
         /// <summary>
         /// 目的地完整路徑
         /// </summary>

@@ -7,16 +7,12 @@ using WCMS.SysCore;
 namespace WCMS.SysCore.SystemFunc.FileManagement
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class FileManagementController(IBizService<FileManagementSet> service) : ApiDataController<FileManagementSet>(service)
+    public class FileManagementController(IBizService<FileManageSet> service) : ApiDataController<FileManageSet>(service)
     {
-
         /*
             幾個待做的重要流程:
             1. 產生一個比對格式的資料:UID<->FullPath，避免db出狀況或是要直接機器查找時可以用
-            2. 副檔名白名單與MIME type檢查
-            3. 資料夾結構規劃
             4. 同步資料
-            5. 上傳檔案流程:先存至後端暫存區，確定後再移動至正式資料夾
          */
 
 
