@@ -7,9 +7,9 @@ namespace WCMS.Features.SiteEdit.FileArchive
 {
     public class FileArchiveSet
     {
-        public required FileArchive FileArchive { get; set; }
-        public required List<FileArchiveInfo> FileArchiveInfo { get; set; }
-        public required List<FileArchiveDetail> FileArchiveDetail { get; set; }
+        public FileArchive FileArchive { get; set; } = new FileArchive();
+        public List<FileArchiveInfo> FileArchiveInfo { get; set; } = [];
+        public List<FileArchiveDetail> FileArchiveDetail { get; set; } = [];
     }
 
     public class FileArchive : MasterDataModel
@@ -66,12 +66,12 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// </summary>
         [LibDesc, Key] public int RowId { get; set; }
         /// <summary>
+        /// 檔案來源
+        /// </summary>
+        [LibDesc] public string FileSrcId { get; set; }
+        /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
         [LibDesc] public string FileName { get; set; }
-        /// <summary>
-        /// 檔案來源
-        /// </summary>
-        public string FileSrcId { get; set; }
     }
 }

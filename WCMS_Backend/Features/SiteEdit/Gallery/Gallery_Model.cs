@@ -7,10 +7,10 @@ namespace WCMS.Features.SiteEdit.Gallery
 {
     public class GallerySet
     {
-        public required Gallery Gallery { get; set; }
-        public required List<GalleryInfo> GalleryInfo { get; set; }
-        public required List<GalleryPhotos> GalleryPhotos { get; set; }
-        public required List<GalleryPhotosInfo> GalleryPhotosInfo { get; set; }
+        public Gallery Gallery { get; set; } = new();
+        public List<GalleryInfo> GalleryInfo { get; set; } = [];
+        public List<GalleryPhotos> GalleryPhotos { get; set; } = [];
+        public List<GalleryPhotosInfo> GalleryPhotosInfo { get; set; } = [];
     }
 
     /// <summary>
@@ -90,10 +90,6 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// 相片排序
         /// </summary>
         public int Sort { get; set; }
-        /// <summary>
-        /// 是否為封面照(整個相簿只能有一個為True)
-        /// </summary>
-        public bool IsCovered { get; set; }
     }
     /// <summary>
     /// 相簿裡的相片資訊

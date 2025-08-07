@@ -9,6 +9,7 @@ using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
+using static WCMS.SysCore.Library.LibData;
 
 namespace WCMS.Features.SiteEdit.Announcement
 {
@@ -21,12 +22,12 @@ namespace WCMS.Features.SiteEdit.Announcement
 
 #if DEBUG //轉移舊系統資料
         [HttpPost(nameof(Migrate))]
-        public async Task<IActionResult> Migrate()
+        public async Task<IActionResult> Migrate(string importFileLabel = "1810")
         {
-            AnnouncementSet[] datas = await ConvertToApiModel();
+            AnnouncementSet[] datas = await ConvertToApiModel(importFileLabel);
             return await InitialCreateData(datas);
         }
-        private async Task<AnnouncementSet[]> ConvertToApiModel()
+        private async Task<AnnouncementSet[]> ConvertToApiModel(string importFileLabel)
         {
             List<AnnouncementSet> result = [];
             Dictionary<string, string> sqls = new()
@@ -36,16 +37,15 @@ namespace WCMS.Features.SiteEdit.Announcement
             };
             DataSet ds = MigrateOldData.GetOldData(sqls);
 
-
-            var importFileInternalIds = await _fileService.QueryListAsync([nameof(FileManageModel.InternalId)],$"{nameof(FileManageModel.ImportLabel)} = {"1810"}",0,0);
-
+            var importFileInternalIds = await _fileService.QueryListAsync([nameof(FileManageModel.InternalId)],$"{nameof(FileManageModel.ImportLabel)} = {importFileLabel}",0,0);
             List<FileManageSet> fileSets=[];
-            
             foreach(var id in importFileInternalIds.Data.Select(p => p.FileManage.InternalId).ToList().Distinct())
             {
                 var data = await _fileService.QuerySetAsync(id);
                 fileSets.Add(data.Data.LastOrDefault());
             }
+            var fileSrcIdDic = fileSets.SelectMany(s => s.FileManage_SyncInfo).GroupBy(d => d.SrcFullPath).ToDictionary(g => g.Key, g => g.First().InternalId);
+            List<FileManageSet> updateFileSets = [];
 
             foreach (DataRow row in ds.Tables["Announcement"].Rows)
             {
@@ -55,12 +55,17 @@ namespace WCMS.Features.SiteEdit.Announcement
                 set.Announcement.Categories = row["Category"].ToString();
                 set.Announcement.Tags = row["Tag"].ToString();
                 set.Announcement.ContentStatus = GetContentStatus(row["Status"].ToString());
-
-                var s = GetPicureInternalId(row["Pic"].ToString(), fileSets);
-
-                set.Announcement.PictureId = s.FileManage.InternalId;
-
-                set.Announcement.PicDescription = row["PicDescription"].ToString();
+                string picFileName = row["Pic"].ToString();
+                string picDescription = row["PicDescription"].ToString();
+                if (!picFileName.IsNullOrEmpty())
+                {
+                    FileManageSet fileInfo = GetSetByPicture(picFileName, fileSets);
+                    updateFileSets.Add(fileInfo);
+                    fileInfo.FileManage.FileName = picFileName;
+                    if (!picDescription.IsNullOrEmpty()) fileInfo.FileManage.FileDescription = picDescription;
+                    set.Announcement.PictureId = fileInfo.FileManage.InternalId;
+                }
+                set.Announcement.PicDescription = picDescription;
                 set.Announcement.CreateTime = Convert.ToDateTime(row["CreateTime"]);
                 set.Announcement.ModifyTime = Convert.ToDateTime(row["UpdateTime"]);
                 set.Announcement.IsIniData = true;
@@ -69,36 +74,51 @@ namespace WCMS.Features.SiteEdit.Announcement
                 set.Announcement.ViewCount = r;
                 set.Announcement.Validate_Start = Convert.ToDateTime(row["StartDate"]);
                 set.Announcement.Validate_End = Convert.ToDateTime(row["EndDate"]);
-                ds.Tables["AnnouncementDetail"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.Announcement.AnnouncementId).ToList().ForEach(detailRow =>
+                int rowId = 1;
+                ds.Tables["AnnouncementDetail"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.Announcement.AnnouncementId).ToList().ForEach(dRow =>
                 {
-                    if (!detailRow["Title"].IsNullOrEmpty() && !detailRow["Content"].IsNullOrEmpty())
+                    if (!dRow["Title"].IsNullOrEmpty() && !dRow["Content"].IsNullOrEmpty())
                     {
-                        int rowId = 1;
+                        string contentXml = HtmlInternalIdByFullPath.TransformHtml_ReplaceSrcWithDataInternalId(dRow["Content"].ToString(), fileSrcIdDic,out List<string> usedInternalIds);
+                        updateFileSets.AddRange(fileSets.Where(p => usedInternalIds.Contains(p.FileManage.InternalId)));
                         AnnouncementDetail detail = new()
                         {
                             AnnouncementId = set.Announcement.AnnouncementId,
-                            RowId = rowId++,
-                            Lang = detailRow["Lang"].ToString(),
-                            Title = detailRow["Title"].ToString(),
-                            Content = detailRow["Content"].ToString(),
-                            SubTitle = detailRow["SubTitle"].ToString(),
-                            Url = detailRow["URL"].ToString(),
+                            RowId = rowId,
+                            Lang = dRow["Lang"].ToString(),
+                            Title = dRow["Title"].ToString(),
+                            Content = contentXml,
+                            SubTitle = dRow["SubTitle"].ToString(),
+                            Url = dRow["URL"].ToString(),
                         };
                         set.AnnouncementDetail.Add(detail);
+                        for (int i = 1; i < 10; i++)
+                        {
+                            string subFileName = dRow[$"Filename{i}"].ToString();
+                            string subFileRName = dRow[$"File{i}"].ToString();
+                            if (!subFileName.IsNullOrEmpty() && !subFileRName.IsNullOrEmpty())
+                            {
+                                FileManageSet fileInfo = GetSetByPicture(subFileRName, fileSets);
+                                fileInfo.FileManage.FileName = subFileName;
+                                fileInfo.FileManage.FileDescription = subFileName;
+                                AnnouncementDetailFile detailFile = new()
+                                {
+                                    AnnouncementId = set.Announcement.AnnouncementId,
+                                    ParentRowId = rowId,
+                                    RowId = i,
+                                    FileId = fileInfo.FileManage.InternalId,
+                                };
+                                set.AnnouncementDetailFile.Add(detailFile);
+                            }
+                        }
+                        rowId++;
                     }
-                    //for(int i = 1; i < 10; i++)
-                    //{     在看怎麼轉寫檔案比較好
-                    //    if (!detailRow[$"Filename{i}"].ToString().IsNullOrEmpty() && !detailRow[$"File{i}"].ToString().IsNullOrEmpty())
-                    //    {
-                    //        AnnouncementDetailFile detailFile = new()
-                    //        {
-                    //            AnnouncementId = set.Announcement.AnnouncementId,
-                    //            ParentRowId = rowId,
-                    //            RowId = i,
-                    //        };
-                    //    }
-                    //}
                 });
+            }
+            foreach (var set in updateFileSets.Distinct()) 
+            {
+                set.FileManage.ProgId = this._service.ProgId;
+                await _fileService.UpdateSetAsync(set.FileManage.InternalId, set); 
             }
             return [.. result];
         }
@@ -123,9 +143,9 @@ namespace WCMS.Features.SiteEdit.Announcement
             return result;
         }
 
-        private FileManageSet GetPicureInternalId(string srcPic, List<FileManageSet> fileSets)
+        private FileManageSet GetSetByPicture(string srcPic, List<FileManageSet> fileSets)
         {
-            return fileSets.Where(x => x.FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().EndsWith(srcPic.ToLower()))).FirstOrDefault();
+            return fileSets.Where(x => x.FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Equals($@"File/News/{srcPic}".ToLowerInvariant()))).FirstOrDefault();
         }
 #endif
     }

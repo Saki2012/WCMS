@@ -93,7 +93,6 @@ namespace WCMS.Features.SiteEdit.Announcement
     /// <summary>
     /// 明細檔案關聯
     /// </summary>
-    /*(感覺可以直接做到主表就好)*/
     [LibDesc] public class AnnouncementDetailFile : DetailRowModel
     {
         /// <summary>

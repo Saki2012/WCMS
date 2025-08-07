@@ -1,4 +1,5 @@
-﻿using WCMS.Features.SiteEdit.Announcement;
+﻿using System.Runtime.InteropServices;
+using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
@@ -6,6 +7,7 @@ using WCMS.SysCore.Library;
 
 namespace WCMS.Features.SiteEdit.WebResource
 {
+    [ProgId("WebResource")]
     public class WebResourceBiz(IRepositoryMapProvider repo) : BizService<WebResourceSet>(repo), IBizService<WebResourceSet> 
     {
         #region Protected

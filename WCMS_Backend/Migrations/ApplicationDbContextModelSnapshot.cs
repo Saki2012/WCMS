@@ -585,9 +585,6 @@ namespace WCMS.Migrations
                     b.Property<int>("RowId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsCovered")
-                        .HasColumnType("bit");
-
                     b.Property<string>("PicSrcId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -1415,7 +1412,7 @@ namespace WCMS.Migrations
                     b.ToTable("User", (string)null);
                 });
 
-            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManage.FileManageModel", b =>
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManagement.FileManageModel", b =>
                 {
                     b.Property<string>("InternalId")
                         .HasColumnType("nvarchar(450)");
@@ -1498,7 +1495,7 @@ namespace WCMS.Migrations
                     b.ToTable("FileManage", (string)null);
                 });
 
-            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManage.FileManage_DownloadInfoModel", b =>
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManagement.FileManage_DownloadInfoModel", b =>
                 {
                     b.Property<string>("InternalId")
                         .HasColumnType("nvarchar(450)");
@@ -1530,28 +1527,7 @@ namespace WCMS.Migrations
                     b.ToTable("FileManage_DownloadInfo", (string)null);
                 });
 
-            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManage.FileManage_ImportInfoModel", b =>
-                {
-                    b.Property<string>("InternalId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("RowId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ImportLabel")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImportSrcFullPath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("InternalId", "RowId");
-
-                    b.ToTable("FileManage_ImportInfo", (string)null);
-                });
-
-            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManage.FileManage_SyncInfoModel", b =>
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManagement.FileManage_SyncInfoModel", b =>
                 {
                     b.Property<string>("InternalId")
                         .HasColumnType("nvarchar(450)");
@@ -1647,28 +1623,19 @@ namespace WCMS.Migrations
                     b.Navigation("DataChangeLog");
                 });
 
-            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManage.FileManage_DownloadInfoModel", b =>
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManagement.FileManage_DownloadInfoModel", b =>
                 {
-                    b.HasOne("WCMS.SysCore.SystemFunc.FileManage.FileManageModel", null)
-                        .WithMany("FileManage_DownloadInfo")
+                    b.HasOne("WCMS.SysCore.SystemFunc.FileManagement.FileManageModel", null)
+                        .WithMany("File_DownloadInfo")
                         .HasForeignKey("InternalId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManage.FileManage_ImportInfoModel", b =>
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManagement.FileManage_SyncInfoModel", b =>
                 {
-                    b.HasOne("WCMS.SysCore.SystemFunc.FileManage.FileManageModel", null)
-                        .WithMany("File_ImportInfo")
-                        .HasForeignKey("InternalId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManage.FileManage_SyncInfoModel", b =>
-                {
-                    b.HasOne("WCMS.SysCore.SystemFunc.FileManage.FileManageModel", null)
-                        .WithMany("FileManage_SyncInfo")
+                    b.HasOne("WCMS.SysCore.SystemFunc.FileManagement.FileManageModel", null)
+                        .WithMany("File_SyncInfo")
                         .HasForeignKey("InternalId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1694,13 +1661,11 @@ namespace WCMS.Migrations
                     b.Navigation("TagDetail");
                 });
 
-            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManage.FileManageModel", b =>
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManagement.FileManageModel", b =>
                 {
-                    b.Navigation("FileManage_DownloadInfo");
+                    b.Navigation("File_DownloadInfo");
 
-                    b.Navigation("File_ImportInfo");
-
-                    b.Navigation("FileManage_SyncInfo");
+                    b.Navigation("File_SyncInfo");
                 });
 #pragma warning restore 612, 618
         }

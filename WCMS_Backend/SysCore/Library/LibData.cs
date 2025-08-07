@@ -1,22 +1,18 @@
-﻿using GraphQL.Types;
+﻿using HtmlAgilityPack;
 using MimeDetective;
 using MimeDetective.Storage;
 using System.Collections;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
+using System.Xml;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.SystemFunc.FileManagement;
 using static MimeDetective.Definitions.DefaultDefinitions;
-using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.Library
 {
@@ -596,6 +592,91 @@ namespace WCMS.SysCore.Library
             }
         }
         private static string _LocalhostIp { get; set; } = string.Empty;
+        /// <summary>
+        /// 縮小格式化XML資料
+        /// </summary>
+        /// <param name="htmlOrXml"></param>
+        /// <returns></returns>
+        public static string MinifyXml(string htmlOrXml)
+        {
+            try
+            {
+                var doc = new HtmlDocument{ OptionWriteEmptyNodes = true, OptionAutoCloseOnEnd = true, OptionFixNestedTags = true };
+                doc.LoadHtml(htmlOrXml);
+                using var ms = new MemoryStream();
+                using var writer = new StreamWriter(ms, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+                doc.Save(writer);
+                writer.Flush();
+                ms.Position = 0;
+                using var reader = new StreamReader(ms, Encoding.UTF8);
+                string result = reader.ReadToEnd().Replace("\r", "").Replace("\n", "").Replace("\t", "").Trim();
+                result = Regex.Replace(result, @"<br\s*>", "<br />", RegexOptions.IgnoreCase);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"HTML/XML 處理錯誤: {ex.Message}");
+                return htmlOrXml;
+            }
+        }
+
+        public static class HtmlInternalIdByFullPath
+        {
+            private static readonly string[] Tags = { "img", "a", "video", "audio", "source", "embed", "iframe" };
+            private static readonly string[] Attrs = { "src", "href" };
+
+            public static string TransformHtml_ReplaceSrcWithDataInternalId(string html, Dictionary<string, string> fullPathToInternalId,out List<string> usedInternalIds)
+            {
+                var normalizedDict = fullPathToInternalId.ToDictionary(pair => NormalizePath(pair.Key),pair => pair.Value);
+                var doc = new HtmlDocument { OptionFixNestedTags = true, OptionAutoCloseOnEnd = true };
+                doc.LoadHtml(html);
+                usedInternalIds = [];
+                foreach (var tag in Tags)
+                {
+                    var nodes = doc.DocumentNode.SelectNodes($"//{tag}");
+                    if (nodes == null) continue;
+                    foreach (var node in nodes)
+                    {
+                        foreach (var attr in Attrs)
+                        {
+                            if (!node.Attributes.Contains(attr)) continue;
+
+                            string rawPath = node.GetAttributeValue(attr, "").Trim();
+                            if (!IsLocalFile(rawPath)) continue;
+
+                            string decoded = Uri.UnescapeDataString(rawPath);
+                            string normalized = NormalizePath(decoded); // 統一處理大小寫、開頭斜線
+
+                            if (normalizedDict.TryGetValue(normalized, out var internalId))
+                            {
+                                usedInternalIds.Add(internalId);
+                                node.SetAttributeValue("data-internalId", internalId);
+                                node.Attributes.Remove(attr); // ✅ 將 src/href 移除
+                            }
+                        }
+                    }
+                }
+                using var sw = new StringWriter();
+                doc.Save(sw);
+                return MinifyXml(sw.ToString());
+            }
+
+            private static bool IsLocalFile(string path)
+            {
+                if (string.IsNullOrWhiteSpace(path)) return false;
+                path = path.ToLowerInvariant();
+                return !(path.StartsWith("http://") || path.StartsWith("https://") ||
+                         path.StartsWith("mailto:") || path.StartsWith("tel:") ||
+                         path.StartsWith("javascript:"));
+            }
+
+            private static string NormalizePath(string path)
+            {
+                // 統一格式：不含開頭/，全部小寫
+                return path.TrimStart('/').Replace("\\", "/").ToLowerInvariant();
+            }
+        }
+
         #region private 
         /// <summary>
         /// 自動偵測排序模式

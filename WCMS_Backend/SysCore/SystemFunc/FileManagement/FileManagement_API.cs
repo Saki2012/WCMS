@@ -63,7 +63,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <returns></returns>
         [DisableRequestSizeLimit]
         [RequestSizeLimit(1024L * 1024 * 1024)] // 1GB
-        [HttpPost(nameof(ImportInitialFiles))] public async Task<IActionResult> ImportInitialFiles(string label)
+        [HttpPost(nameof(ImportInitialFiles))] public async Task<IActionResult> ImportInitialFiles(string label="1810")
         {
             await ((FileManagementBiz)_service).ImportZip(label);
             return Ok();
