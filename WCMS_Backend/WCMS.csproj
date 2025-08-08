@@ -4,6 +4,15 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+	<!-- 佈署精簡策略 -->
+    <SelfContained>false</SelfContained>            <!-- 用機器已裝的 .NET Runtime，體積最小 -->
+    <PublishSingleFile>true</PublishSingleFile>     <!-- 輸出單檔（選用） -->
+    <PublishTrimmed>true</PublishTrimmed>           <!-- 程式集修剪，API 專案通常相容 -->
+    <TrimMode>partial</TrimMode>
+    <PublishReadyToRun>true</PublishReadyToRun>     <!-- 預編譯，啟動更快（略增體積；可改 false） -->
+    <InvariantGlobalization>true</InvariantGlobalization> <!-- 若不需多文化比較可啟用以減少體積 -->
+    <DebugType>portable</DebugType> <!-- 讓 ZAP/弱掃友善：不產出開發偵錯資訊到輸出 -->
+	
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,6 +37,7 @@
     <PackageReference Include="Mime-Detective.Definitions.Condensed" Version="25.8.1" />
     <PackageReference Include="Mime-Detective.Definitions.Exhaustive" Version="25.8.1" />
     <PackageReference Include="SharpCompress" Version="0.40.0" />
+    <PackageReference Include="StackExchange.Redis" Version="2.8.58" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.7" />
   </ItemGroup>
