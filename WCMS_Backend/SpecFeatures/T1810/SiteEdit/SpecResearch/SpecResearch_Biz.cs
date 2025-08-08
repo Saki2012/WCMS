@@ -1,24 +1,25 @@
 ﻿using System.Runtime.InteropServices;
 using WCMS.Features.SiteEdit.Announcement;
+using WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 
-namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
+namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
 {
-    [ProgId("SpecUSR")]
-    public class SpecUSRBiz(IRepositoryMapProvider repo) : BizService<SpecUSRSet>(repo), IBizService<SpecUSRSet> 
-    {
+    [ProgId("SpecResearch")]
+    public class SpecResearchBiz(IRepositoryMapProvider repo) : BizService<SpecResearchSet>(repo), IBizService<SpecResearchSet> {
+
         #region Protected
-        protected override void BeforeUpdate(SpecUSRSet set, SysEnum.FuncAction act)
+        protected override void BeforeUpdate(SpecResearchSet set, SysEnum.FuncAction act)
         {
             base.BeforeUpdate(set, act);
             switch (act)
             {
                 case SysEnum.FuncAction.Create:
                 case SysEnum.FuncAction.Update:
-                    DoRemergeData(set.SpecUSR);
+                    DoRemergeData(set.SpecResearch);
                     break;
             }
         }
@@ -29,7 +30,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// 重新組合多筆資料(類別、狀態、標籤)
         /// </summary>
         /// <param name="header"></param>
-        private static void DoRemergeData(SpecUSRModel header)
+        private static void DoRemergeData(SpecResearchModel header)
         {
             header.Tags = header.Tags.Remerge(",");
         }

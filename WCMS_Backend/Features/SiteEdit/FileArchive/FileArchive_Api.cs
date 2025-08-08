@@ -55,6 +55,7 @@ namespace WCMS.Features.SiteEdit.FileArchive
                         CategoriesId = srcHeader["Category"].ToString(),
                         TagsId = srcHeader["Tag"].ToString(),
                         ContentStatus = GetContentStatus(srcHeader["Status"].ToString()),
+                        IsIniData = true,
                     }
                 };
 

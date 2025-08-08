@@ -54,6 +54,7 @@ namespace WCMS.Features.SiteEdit.WebResource
 
                 string picFileName = row["Pic"].ToString();
                 string picDescription = row["PicDescription"].ToString();
+                set.WebResource.PicId = picFileName;
                 if (!picFileName.IsNullOrEmpty())
                 {
                     FileManageSet fileInfo = GetSetByPicture(picFileName, fileSets);
@@ -64,7 +65,6 @@ namespace WCMS.Features.SiteEdit.WebResource
                     set.WebResource.PicId = fileInfo.FileManage.InternalId;
                     fileInfo.FileManage.FileDescription = picDescription;
                 }
-                //set.WebResource.PicId = fileInfo.FileManage.InternalId;
                 set.WebResource.PicDescription = picDescription;
                 set.WebResource.WebResourceId = row["Sn"].ToString();
                 set.WebResource.Categories = row["Category"].ToString();

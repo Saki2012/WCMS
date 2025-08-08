@@ -1,79 +1,66 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
 {
     public class SpecUSRSet
     {
-        public SpecUSRModel MasterData { get; set; } = new();
-        public List<SpecUSRDetail> Details { get; set; } = [];
+        public SpecUSRModel SpecUSR { get; set; } = new();
+        public List<SpecUSRDetail> SpecUSRDetail { get; set; } = [];
     }
 
     public class SpecUSRModel: MasterDataModel
     {
         /// <summary>
-        /// 橫幅ID
+        /// USR Id
         /// </summary>
-        [Key]
-        public string USRId { get; set; }
+        [Key] public string USRId { get; set; }
         /// <summary>
         /// 類別ID
         /// </summary>
         public string CategoryId { get; set; }
         /// <summary>
-        /// 轉換間隔
+        /// 狀態 (多個)
         /// </summary>
-        public short Interval { get; set; }
+        [LibDesc] public ContentStatus ContentStatus { get; set; }
         /// <summary>
-        /// 轉換速度
+        /// 標籤 (多個) 
         /// </summary>
-        public short Speed { get; set; }
+        [LibDesc] public string? Tags { get; set; } = string.Empty;
         /// <summary>
-        /// 橫幅高度
+        /// 圖片 (關聯檔案資料)
         /// </summary>
-        public short Height { get; set; }
+        [LibDesc] public string? PictureId { get; set; } = string.Empty;
         /// <summary>
-        /// 橫幅寬度
+        /// 圖片描述
         /// </summary>
-        public short Width { get; set; }
-        /// <summary>
-        /// 橫幅效果
-        /// </summary>
-        public byte Effect { get; set; }
+        [LibDesc] public string? PicDescription { get; set; } = string.Empty;
     }
 
     public class SpecUSRDetail:DetailRowModel
     {
-        [Key]
-        public string USRId { get;set; }
-
-        public int RowId { get; set; }
-        /// <summary>
-        /// 圖片來源取檔案關聯
-        /// </summary>
-        public string PicSrcId { get; set; }
-        /// <summary>
-        /// 字體顏色
-        /// </summary>
-        public byte FontColor { get; set; }
-        /// <summary>
-        /// 資料有效日期-起
-        /// </summary>
-        [LibDesc]
-        public DateTime Validate_Start { get; set; }
-        /// <summary>
-        /// 資料有效日期-迄
-        /// </summary>
-        [LibDesc]
-        public DateTime Validate_End { get; set; }
-        /// <summary>
-        /// 網址開啟方式
-        /// </summary>
-        public byte URL_Open { get; set; }
-        /// <summary>
-        /// 播放順序
-        /// </summary>
-        public ushort Sort { get; set; }
+        [LibDesc, Key] public string USRId { get;set; }
+        [LibDesc, Key] public int RowId { get; set; }
+        [Required, StringLength(5)] public string Lang { get; set; } = default!;
+        [StringLength(10)] public string? Year { get; set; }
+        [StringLength(10)] public string? AcademicYear { get; set; }
+        [StringLength(200)] public string? Courses { get; set; }
+        [StringLength(200)] public string? PracticeField { get; set; }
+        [StringLength(200)] public string? ProjectName { get; set; }
+        [StringLength(200)] public string? ExternalCooperationUnit { get; set; }
+        [StringLength(200)] public string? Department { get; set; }
+        [StringLength(200)] public string? DuringExecution { get; set; }
+        [StringLength(200)] public string? PlanAmount { get; set; }
+        public string? ExecutionStrategy { get; set; }
+        public string? ContentIntroduction { get; set; }
+        public string? ProjectConcept { get; set; }
+        public string? ProjectHighlights { get; set; }
+        [StringLength(200)] public string? ProjectLeader { get; set; }
+        [StringLength(200)] public string? Cohost1 { get; set; }
+        [StringLength(200)] public string? Cohost2 { get; set; }
+        [StringLength(200)] public string? Commissioned { get; set; }
+        public string? Remark { get; set; }
     }
 }

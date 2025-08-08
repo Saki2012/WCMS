@@ -61,6 +61,7 @@ namespace WCMS.Features.SiteEdit.Gallery
                         Categories = srcHeader["Category"].ToString(),
                         ContentStatus = GetContentStatus(srcHeader["Status"].ToString()),
                         Tags = srcHeader["Tag"].ToString(),
+                        IsIniData = true,
                     }
                 };
                 int galleryRowId = 1;
