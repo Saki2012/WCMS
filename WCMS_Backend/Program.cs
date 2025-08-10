@@ -212,8 +212,10 @@ namespace WCMS
                             return host == "localhost" || host == "127.0.0.1" || host == "wcms.it-easygoapp.com";
                         })
                         .WithHeaders("Content-Type", "Authorization", "X-CSRF-Token")
-                        .WithMethods("GET", "POST", "PUT", "DELETE","PATCH")
-                        .AllowCredentials();
+                        .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH")
+                        .WithOrigins("http://localhost:5173")
+                        .AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+                        ;
                     });
                 });
             }
@@ -247,6 +249,17 @@ namespace WCMS
 
                         options.Events = new JwtBearerEvents
                         {
+                            // ✅ 從 HttpOnly Cookie 讀取 access token（若沒有 Authorization 標頭）
+                            OnMessageReceived = ctx =>
+                            {
+                                if (string.IsNullOrEmpty(ctx.Token))
+                                {
+                                    if (ctx.Request.Cookies.TryGetValue("access", out var cookieToken))
+                                        ctx.Token = cookieToken;
+                                }
+                                return Task.CompletedTask;
+                            },
+
                             OnTokenValidated = async ctx =>
                             {
                                 var jti = ctx.Principal?.FindFirstValue(JwtRegisteredClaimNames.Jti);
@@ -254,9 +267,7 @@ namespace WCMS
                                 {
                                     var tokens = ctx.HttpContext.RequestServices.GetRequiredService<ITokenService>();
                                     if (await tokens.IsAccessBlacklistedAsync(jti))
-                                    {
                                         ctx.Fail("Token has been revoked");
-                                    }
                                 }
                             }
                         };

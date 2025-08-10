@@ -11,13 +11,19 @@ import { AnnouncementFormComp } from "./Layout/BizFunc/WebManagement/Announcemen
 import { Navigate } from "react-router-dom";
 
 import { BannerSliderFormComp } from "./Layout/BizFunc/WebManagement/BannerSlider/BannerSlider_Form_Comp";
+import LoginPage from "./Pages/LoginPage";
+import RequireAuth from "../../SysCore/Components/Auth/RequireAuth";
 
 export class BackendRouteModule implements IRouteModule {
   getRoutes(): RouteObject[] {
     return [
+      { path: '/Server/Login', element: <LoginPage /> },
       {
         path: '/Server',
-        element: <DashboardPage theme={Classic_BETheme} />,
+        element: 
+        <RequireAuth> 
+          <DashboardPage theme={Classic_BETheme} /> 
+        </RequireAuth>,
         children: [
           //#region 網站功能管理
           {

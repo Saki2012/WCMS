@@ -36,26 +36,53 @@ namespace WCMS.SysCore.SystemFunc.Auth
             // 2) 簽發 AccessToken
             var (accessToken, jti, accessExp) = _tokenSvc.IssueAccessToken(r.user);
 
-            // 3) 產生 Refresh 資料並寫入 HttpOnly Cookie
+            // 3) 產生 Refresh 資料並寫入 HttpOnly Cookie（同源 HTTPS）
             var (refreshToken, tokenId, refreshExp) = _tokenSvc.IssueRefreshToken(r.user);
             await _tokenSvc.StoreRefreshAsync(r.user.UserId, tokenId, refreshExp);
 
-            // Cookie 設定（HttpOnly、Secure、SameSite=None 給前後端分離）
+            // ✅ 同源 HTTPS（正式上線）：Secure=true；同源可用 Lax
+            var baseOpt = new CookieOptions
+            {
+                Path = "/",
+                Secure = true,
+                SameSite = SameSiteMode.Lax
+            };
 
-            // 只存 tokenId 與一個 CSRF 用 nonce；真正的 raw refreshToken 可不回前端使用
-            Response.Cookies.Append("rtid", tokenId, new CookieOptions { HttpOnly = true, Secure = true, SameSite = SameSiteMode.None, Expires = refreshExp });
+            // ⬅ Refresh Id（HttpOnly）：名稱統一用 rtid
+            Response.Cookies.Append("rtid", tokenId, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = baseOpt.Secure,
+                SameSite = baseOpt.SameSite,
+                Path = baseOpt.Path,
+                Expires = refreshExp
+            });
 
-            // CSRF 對策：發一個非 HttpOnly 的 token，前端帶在 Header: X-CSRF-Token
-            Response.Cookies.Append("XSRF-TOKEN", Guid.NewGuid().ToString("N"), new CookieOptions { HttpOnly = false, Secure = true, SameSite = SameSiteMode.None, Expires = refreshExp });
+            // ⬅ Anti-CSRF（非 HttpOnly）
+            Response.Cookies.Append("XSRF-TOKEN", Guid.NewGuid().ToString("N"), new CookieOptions
+            {
+                HttpOnly = false,
+                Secure = baseOpt.Secure,
+                SameSite = baseOpt.SameSite,
+                Path = baseOpt.Path,
+                Expires = refreshExp
+            });
 
+            // ✅ 額外：把 AccessToken 也發成 HttpOnly Cookie，讓 JwtBearer 能從 Cookie 讀到
+            Response.Cookies.Append("access", accessToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = baseOpt.Secure,
+                SameSite = baseOpt.SameSite,
+                Path = baseOpt.Path,
+                Expires = accessExp
+            });
             // 4) 回傳給前端
             var result = new User_DTO
             {
                 UserId = r.user.UserId,
                 UserName = r.user.UserName,
                 AccountStatus = r.user.AccountStatus,
-                AccessToken = accessToken,
-                ExpiresAt = accessExp,
             };
             return Ok(result);
         }
@@ -91,14 +118,39 @@ namespace WCMS.SysCore.SystemFunc.Auth
             await _tokenSvc.StoreRefreshAsync(user.UserId, newRtid, refreshExp);
             await _tokenSvc.RevokeRefreshAsync(user.UserId, oldRtid);
 
-            // 5) 寫回 cookies
-            var opts = new CookieOptions { HttpOnly = true, Secure = true, SameSite = SameSiteMode.None, Expires = refreshExp };
-            Response.Cookies.Append("rtid", newRtid, opts);
-            Response.Cookies.Append("XSRF-TOKEN", xsrfCookie!, new CookieOptions { HttpOnly = false, Secure = true, SameSite = SameSiteMode.None, Expires = refreshExp });
+            // 5) 寫回 cookies（同源 HTTPS）
+            var baseOpt = new CookieOptions { Path = "/", Secure = true, SameSite = SameSiteMode.Lax };
+
+            Response.Cookies.Append("rtid", newRtid, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Lax,
+                Path = "/",
+                Expires = refreshExp
+            });
+
+            Response.Cookies.Append("XSRF-TOKEN", xsrfCookie!, new CookieOptions
+            {
+                HttpOnly = false,
+                Secure = true,
+                SameSite = SameSiteMode.Lax,
+                Path = "/",
+                Expires = refreshExp
+            });
+
+            // ⬅ 同步刷新 access cookie
+            Response.Cookies.Append("access", access, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Lax,
+                Path = "/",
+                Expires = accessExp
+            });
 
             return Ok(new { AccessToken = access, ExpiresAt = accessExp });
         }
-
         /// <summary>
         /// 登出此裝置
         /// </summary>
@@ -116,12 +168,13 @@ namespace WCMS.SysCore.SystemFunc.Auth
                 await _tokenSvc.RevokeRefreshAsync(userId, rtid);
 
             // 清 cookie
-            Response.Cookies.Delete("rtid", new CookieOptions { Secure = true, SameSite = SameSiteMode.None });
-            Response.Cookies.Delete("XSRF-TOKEN", new CookieOptions { Secure = true, SameSite = SameSiteMode.None });
+            var delOpt = new CookieOptions { Path = "/", Secure = true, SameSite = SameSiteMode.Lax };
+            Response.Cookies.Delete("rtid", delOpt);
+            Response.Cookies.Delete("XSRF-TOKEN", delOpt);
+            Response.Cookies.Delete("access", delOpt);
 
             return Ok();
         }
-
         /// <summary>
         /// 取得目前登入者（驗證 JWT；失效就 401）
         /// </summary>
@@ -161,8 +214,6 @@ namespace WCMS.SysCore.SystemFunc.Auth
             /// 帳戶狀態
             /// </summary>
             [LibDesc] public AccountStatus AccountStatus { get; set; }
-            public string AccessToken { get; set; }
-            public DateTime ExpiresAt { get; set; }
         }
         #endregion
     }
