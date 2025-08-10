@@ -17,3 +17,6 @@ dotnet_diagnostic.CS8604.severity = silent
 
 # CS8601: 可能有 Null 參考指派。
 dotnet_diagnostic.CS8601.severity = silent
+
+# IDE0059: 指派了不必要的值
+dotnet_diagnostic.IDE0059.severity = silent

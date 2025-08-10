@@ -13,19 +13,14 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.SiteEdit.WebResource
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class WebResourceController(IBizService<WebResourceSet> service, IBizService<FileManageSet> fileService) : ApiDataController<WebResourceSet>(service)
+    public class WebResourceController : ApiDataController<WebResourceSet>
     {
-        #region property
-        private readonly FileManagementBiz _fileService = (FileManagementBiz)fileService;
-        #endregion
-
-
 #if DEBUG //轉移舊系統資料
         [HttpPost(nameof(Migrate))]
-        public async Task<IActionResult> Migrate(string importFileLabel="1810")
+        public async Task<IActionResult> Migrate(CancellationToken ct, string importFileLabel="1810")
         {
             WebResourceSet[] datas = await ConvertToApiModel(importFileLabel);
-            return await InitialCreateData(datas);
+            return await InitialCreateData(datas,ct);
         }
         private async Task<WebResourceSet[]> ConvertToApiModel(string importFileLabel)
         {
@@ -37,11 +32,11 @@ namespace WCMS.Features.SiteEdit.WebResource
             };
             DataSet ds = MigrateOldData.GetOldData(sqls);
 
-            var importFileInternalIds = await _fileService.QueryListAsync([nameof(FileManageModel.InternalId)], $"{nameof(FileManageModel.ImportLabel)} = {importFileLabel}", 0, 0);
+            var importFileInternalIds = await FileService.QueryListAsync([nameof(FileManageModel.InternalId)], $"{nameof(FileManageModel.ImportLabel)} = {importFileLabel}", 0, 0);
             List<FileManageSet> fileSets = [];
             foreach (var id in importFileInternalIds.Data.Select(p => p.FileManage.InternalId).ToList().Distinct())
             {
-                var data = await _fileService.QuerySetAsync(id);
+                var data = await FileService.QuerySetAsync(id);
                 fileSets.Add(data.Data.LastOrDefault());
             }
             var fileSrcIdDic = fileSets.SelectMany(s => s.FileManage_SyncInfo).GroupBy(d => d.SrcFullPath).ToDictionary(g => g.Key, g => g.First().InternalId);
@@ -59,7 +54,6 @@ namespace WCMS.Features.SiteEdit.WebResource
                 {
                     FileManageSet fileInfo = GetSetByPicture(picFileName, fileSets);
                     updateFileSets.Add(fileInfo);
-                    fileInfo.FileManage.ProgId = this._service.ProgId;
                     fileInfo.FileManage.FileName = picFileName;
                     if (!picDescription.IsNullOrEmpty()) fileInfo.FileManage.FileDescription = picDescription;
                     set.WebResource.PicId = fileInfo.FileManage.InternalId;
@@ -94,8 +88,8 @@ namespace WCMS.Features.SiteEdit.WebResource
             }
             foreach (var set in updateFileSets.Distinct())
             {
-                set.FileManage.ProgId = this._service.ProgId;
-                await _fileService.UpdateSetAsync(set.FileManage.InternalId, set);
+                set.FileManage.ProgId = this.Service.ProgId;
+                await FileService.UpdateSetAsync(set.FileManage.InternalId, set);
             }
             return [.. result];
         }

@@ -11,16 +11,14 @@ using WCMS.SysCore.Library;
 namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class SpecCategoryController(IBizService<SpecCategorySet> service) : ApiDataController<SpecCategorySet>(service)
+    public class SpecCategoryController : ApiDataController<SpecCategorySet>
     {
-
-
 #if DEBUG //轉移舊系統資料
         [HttpPost(nameof(Migrate))]
-        public async Task<IActionResult> Migrate()
+        public async Task<IActionResult> Migrate(CancellationToken ct)
         {
             List<SpecCategorySet> datas=[.. ConvertResCategoryModel(), .. ConvertUSRCategoryModel()];
-            return await InitialCreateData([.. datas]);
+            return await InitialCreateData([.. datas],ct);
         }
         private static SpecCategorySet[] ConvertResCategoryModel()
         {

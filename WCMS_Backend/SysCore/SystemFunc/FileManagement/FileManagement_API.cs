@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using WCMS.Features.SiteEdit.PageManagement;
+using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
-using WCMS.SysCore;
 
 namespace WCMS.SysCore.SystemFunc.FileManagement
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class FileManagementController(IBizService<FileManageSet> service) : ApiDataController<FileManageSet>(service)
+    public class FileManagementController : ApiDataController<FileManageSet>
     {
         /*
             幾個待做的重要流程:
@@ -15,25 +16,25 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             4. 同步資料
          */
 
-
         [HttpPost(nameof(UploadTemp))]
+        [RequestSizeLimit(200L * 1024 * 1024)] // 200 MB
         public async Task<IActionResult> UploadTemp(IFormFile file)
         {
-            await ((FileManagementBiz)_service).UploadTemp(file);
+            await ((FileManagementBiz)Service).UploadTemp(file);
             return Ok();
         }
 
         [HttpPost(nameof(MoveToPermanent))]
         public async Task<IActionResult> MoveToPermanent(string[] internalIds)
         {
-            await ((FileManagementBiz)_service).MoveToPermanent(internalIds);
+            await ((FileManagementBiz)Service).MoveToPermanent(internalIds);
             return Ok();
         }
 
         [HttpPost(nameof(CancelUploadFiles))]
         public async Task<IActionResult> CancelUploadFiles(string[] internalIds)
         {
-            await ((FileManagementBiz)_service).CancelUploadFiles(internalIds);
+            await ((FileManagementBiz)Service).CancelUploadFiles(internalIds);
             return Ok();
         }
 
@@ -62,10 +63,10 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <param name="zipFile"></param>
         /// <returns></returns>
         [DisableRequestSizeLimit]
-        [RequestSizeLimit(1024L * 1024 * 1024)] // 1GB
+        [RequestSizeLimit(1024L * 1024 * 1024 * 2)] // 2 GB
         [HttpPost(nameof(ImportInitialFiles))] public async Task<IActionResult> ImportInitialFiles(string label="1810")
         {
-            await ((FileManagementBiz)_service).ImportZip(label);
+            await ((FileManagementBiz)Service).ImportZip(label);
             return Ok();
         }
     }

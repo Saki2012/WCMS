@@ -12,50 +12,50 @@ namespace WCMS.SysCore.Interface
         /// </summary>
         /// <param name="set"></param>
         /// <returns></returns>
-        public Task<IActionResult> Create(TSet set);
+        public Task<IActionResult> Create(TSet set, CancellationToken ct);
         /// <summary>
         /// 修改
         /// </summary>
         /// <param name="pk"></param>
         /// <param name="set"></param>
         /// <returns></returns>
-        public Task<IActionResult> Update(ApiRequest<TSet> set);
+        public Task<IActionResult> Update(ApiRequest<TSet> set, CancellationToken ct);
         /// <summary>
         /// 作廢
         /// </summary>
         /// <param name="pk"></param>
         /// <param name="isInvalid"></param>
         /// <returns></returns>
-        public Task<IActionResult> Invalid(string internalId, bool isInvalid);
+        public Task<IActionResult> Invalid(string internalId, bool isInvalid, CancellationToken ct);
         /// <summary>
         /// 批次作廢
         /// </summary>
         /// <param name="pks"></param>
         /// <returns></returns>
-        public Task<IActionResult> BatchInvalid(string[] internalIds, bool isInvalid);
+        public Task<IActionResult> BatchInvalid(string[] internalIds, bool isInvalid, CancellationToken ct);
         /// <summary>
         /// 刪除
         /// </summary>
         /// <param name="pk"></param>
         /// <returns></returns>
-        public Task<IActionResult> Delete(string internalIds);
+        public Task<IActionResult> Delete(string internalIds, CancellationToken ct);
         /// <summary>
         /// 批次刪除
         /// </summary>
         /// <param name="pks"></param>
         /// <returns></returns>
-        public Task<IActionResult> BatchDelete(string[] internalIds);
+        public Task<IActionResult> BatchDelete(string[] internalIds, CancellationToken ct);
         /// <summary>
         /// 查看表單
         /// </summary>
         /// <param name="pk"></param>
         /// <returns></returns>
-        public Task<IActionResult> QueryData([FromQuery]string internalId);
+        public Task<IActionResult> QueryData([FromQuery]string internalId, CancellationToken ct);
         /// <summary>
         /// 查詢清單
         /// </summary>
         /// <returns></returns>
-        public Task<IActionResult> QueryList([FromBody] QueryListParam queryCondition);
+        public Task<IActionResult> QueryList([FromBody] QueryListParam queryCondition, CancellationToken ct);
         /// <summary>
         /// 獲取功能的欄位模型顯示名稱
         /// </summary>
@@ -71,7 +71,7 @@ namespace WCMS.SysCore.Interface
         /// 查看報表
         /// </summary>
         /// <returns></returns>
-        public Task<IActionResult> GetReport();
+        public Task<IActionResult> GetReport(CancellationToken ct);
         /// <summary>
         /// 獲取功能的欄位模型顯示名稱
         /// </summary>

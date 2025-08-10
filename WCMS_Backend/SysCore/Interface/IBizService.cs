@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using WCMS.SysCore.Model;
+using WCMS.SysCore.SystemFunc.UserRolePermission.User;
 
 namespace WCMS.SysCore.Interface
 {

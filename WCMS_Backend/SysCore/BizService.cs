@@ -10,6 +10,7 @@ using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using WCMS.SysCore.SystemFunc.UserRolePermission.User;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore
@@ -26,9 +27,10 @@ namespace WCMS.SysCore
         /// 
         /// </summary>
         protected Dictionary<string, object> RepoDict { get; } = [];
-
+        /// <summary>
+        /// 
+        /// </summary>
         private string? _ProgId = null;
-
         /// <summary>
         /// 功能Id
         /// </summary>

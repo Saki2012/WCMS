@@ -16,7 +16,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// <summary>
         /// USR Id
         /// </summary>
-        [Key] public string USRId { get; set; }
+        [LibDesc, Key] public string USRId { get; set; }
         /// <summary>
         /// 類別ID
         /// </summary>

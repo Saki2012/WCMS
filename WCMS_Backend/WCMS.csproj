@@ -10,7 +10,7 @@
     <PublishTrimmed>true</PublishTrimmed>           <!-- 程式集修剪，API 專案通常相容 -->
     <TrimMode>partial</TrimMode>
     <PublishReadyToRun>true</PublishReadyToRun>     <!-- 預編譯，啟動更快（略增體積；可改 false） -->
-    <InvariantGlobalization>true</InvariantGlobalization> <!-- 若不需多文化比較可啟用以減少體積 -->
+    <InvariantGlobalization>false</InvariantGlobalization> <!-- 若不需多文化比較可啟用以減少體積 -->
     <DebugType>portable</DebugType> <!-- 讓 ZAP/弱掃友善：不產出開發偵錯資訊到輸出 -->
 	
   </PropertyGroup>
@@ -27,6 +27,8 @@
     <PackageReference Include="HtmlAgilityPack" Version="1.12.2" />
     <PackageReference Include="JWT" Version="11.0.0" />
     <PackageReference Include="MessagePack" Version="3.1.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.19" />
+    <PackageReference Include="Microsoft.AspNetCore.OutputCaching.StackExchangeRedis" Version="8.0.19" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.8">
       <PrivateAssets>all</PrivateAssets>

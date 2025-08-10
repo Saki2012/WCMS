@@ -10,16 +10,16 @@ using WCMS.SysCore.Library;
 namespace WCMS.Features.SiteEdit.Category
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class CategoryController(IBizService<CategoryDataSet> service) : ApiDataController<CategoryDataSet>(service)
+    public class CategoryController : ApiDataController<CategoryDataSet>
     {
 
 
 #if DEBUG //轉移舊系統資料
         [HttpPost(nameof(Migrate))]
-        public async Task<IActionResult> Migrate()
+        public async Task<IActionResult> Migrate(CancellationToken ct)
         {
             CategoryDataSet[] datas = ConvertToApiModel();
-            return await InitialCreateData(datas);
+            return await InitialCreateData(datas, ct);
         }
         private static CategoryDataSet[] ConvertToApiModel()
         {

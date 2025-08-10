@@ -9,16 +9,14 @@ using WCMS.SysCore.Library;
 namespace WCMS.Features.SiteEdit.Tag
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class TagController(IBizService<TagSet> service) : ApiDataController<TagSet>(service)
+    public class TagController : ApiDataController<TagSet>
     {
-
-
 #if DEBUG //轉移舊系統資料
         [HttpPost(nameof(Migrate))]
-        public async Task<IActionResult> Migrate()
+        public async Task<IActionResult> Migrate(CancellationToken ct)
         {
             TagSet[] datas = ConvertToApiModel();
-            return await InitialCreateData(datas);
+            return await InitialCreateData(datas,ct);
         }
         private static TagSet[] ConvertToApiModel()
         {

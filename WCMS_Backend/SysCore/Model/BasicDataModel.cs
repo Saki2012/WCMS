@@ -9,15 +9,6 @@ using Microsoft.EntityFrameworkCore;
 namespace WCMS.SysCore.Model
 {
     /// <summary>
-    /// 在看怎麼寫才行
-    /// </summary>
-    public interface ISet
-    {
-        public BasicDataModel Header { get; set; }
-        public BasicDataModel[]? Details { get; set; }
-    }
-
-    /// <summary>
     /// 基本資料欄位
     /// </summary>
     [Index(nameof(InternalId), IsUnique = true)]
@@ -73,7 +64,11 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// // 是否為初始化資料
         /// </summary>
-        [LibDesc] public bool IsIniData { get; set; } = false; 
+        [LibDesc] public bool IsIniData { get; set; } = false;
+        /// <summary>
+        /// 資料版本-併發控制
+        /// </summary>
+        [LibDesc, Timestamp] public byte[] DataVersion { get; set; } = default!;
     }
     /// <summary>
     /// 主要資料

@@ -43,6 +43,12 @@ namespace WCMS.Migrations
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
 
+                    b.Property<byte[]>("DataVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
                     b.Property<byte>("FormStatus")
                         .HasColumnType("tinyint");
 
@@ -163,6 +169,12 @@ namespace WCMS.Migrations
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
+
+                    b.Property<byte[]>("DataVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.Property<string>("Effect")
                         .IsRequired()
@@ -298,6 +310,12 @@ namespace WCMS.Migrations
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
 
+                    b.Property<byte[]>("DataVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
                     b.Property<byte>("FormStatus")
                         .HasColumnType("tinyint");
 
@@ -385,6 +403,12 @@ namespace WCMS.Migrations
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
+
+                    b.Property<byte[]>("DataVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.Property<byte>("FormStatus")
                         .HasColumnType("tinyint");
@@ -502,6 +526,12 @@ namespace WCMS.Migrations
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
+
+                    b.Property<byte[]>("DataVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.Property<byte>("FormStatus")
                         .HasColumnType("tinyint");
@@ -639,6 +669,12 @@ namespace WCMS.Migrations
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
 
+                    b.Property<byte[]>("DataVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
                     b.Property<byte>("FormStatus")
                         .HasColumnType("tinyint");
 
@@ -714,6 +750,12 @@ namespace WCMS.Migrations
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
+
+                    b.Property<byte[]>("DataVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.Property<byte>("FormStatus")
                         .HasColumnType("tinyint");
@@ -803,6 +845,12 @@ namespace WCMS.Migrations
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
+
+                    b.Property<byte[]>("DataVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.Property<byte>("FormStatus")
                         .HasColumnType("tinyint");
@@ -927,6 +975,12 @@ namespace WCMS.Migrations
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
 
+                    b.Property<byte[]>("DataVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
                     b.Property<byte>("FormStatus")
                         .HasColumnType("tinyint");
 
@@ -982,29 +1036,112 @@ namespace WCMS.Migrations
                     b.Property<string>("ResearchId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<byte>("FontColor")
-                        .HasColumnType("tinyint");
-
-                    b.Property<string>("PicSrcId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("RowId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Sort")
-                        .HasColumnType("int");
+                    b.Property<string>("AcademicYear")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
-                    b.Property<byte>("URL_Open")
-                        .HasColumnType("tinyint");
+                    b.Property<string>("ApprovalNumber")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
-                    b.Property<DateTime>("Validate_End")
-                        .HasColumnType("datetime2(0)");
+                    b.Property<string>("ApprovedAmount")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
-                    b.Property<DateTime>("Validate_Start")
-                        .HasColumnType("datetime2(0)");
+                    b.Property<string>("ClassTime")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
-                    b.HasKey("ResearchId");
+                    b.Property<string>("Cohost1")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Cohost2")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("College")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Commissioned")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ContractPeriod")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("CooperatingUnits")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("CooperationProject")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Courses")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Department")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("DuringExecution")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("GraduationDegree")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Lang")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("PaperTitle")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("PlanAmount")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("PlanContent")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProjectLeader")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ProjectName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Remark")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Semester")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("TeachingStaffOfOurSchool")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Year")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("ResearchId", "RowId");
 
                     b.ToTable("SpecResearchDetail", (string)null);
                 });
@@ -1018,6 +1155,9 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<byte>("ContentStatus")
+                        .HasColumnType("tinyint");
+
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("datetime2(0)");
 
@@ -1027,6 +1167,12 @@ namespace WCMS.Migrations
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
+
+                    b.Property<byte[]>("DataVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.Property<byte>("FormStatus")
                         .HasColumnType("tinyint");
@@ -1054,6 +1200,9 @@ namespace WCMS.Migrations
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Tags")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("Validate_End")
@@ -1075,29 +1224,82 @@ namespace WCMS.Migrations
                     b.Property<string>("USRId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<byte>("FontColor")
-                        .HasColumnType("tinyint");
-
-                    b.Property<string>("PicSrcId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("RowId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Sort")
-                        .HasColumnType("int");
+                    b.Property<string>("AcademicYear")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
-                    b.Property<byte>("URL_Open")
-                        .HasColumnType("tinyint");
+                    b.Property<string>("Cohost1")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
-                    b.Property<DateTime>("Validate_End")
-                        .HasColumnType("datetime2(0)");
+                    b.Property<string>("Cohost2")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
-                    b.Property<DateTime>("Validate_Start")
-                        .HasColumnType("datetime2(0)");
+                    b.Property<string>("Commissioned")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
-                    b.HasKey("USRId");
+                    b.Property<string>("ContentIntroduction")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Courses")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Department")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("DuringExecution")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ExecutionStrategy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ExternalCooperationUnit")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Lang")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.Property<string>("PlanAmount")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("PracticeField")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ProjectConcept")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProjectHighlights")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProjectLeader")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ProjectName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Remark")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Year")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("USRId", "RowId");
 
                     b.ToTable("SpecUSRDetail", (string)null);
                 });
@@ -1111,6 +1313,9 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<byte>("ContentStatus")
+                        .HasColumnType("tinyint");
+
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("datetime2(0)");
 
@@ -1121,21 +1326,18 @@ namespace WCMS.Migrations
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
 
-                    b.Property<byte>("Effect")
-                        .HasColumnType("tinyint");
+                    b.Property<byte[]>("DataVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.Property<byte>("FormStatus")
                         .HasColumnType("tinyint");
 
-                    b.Property<short>("Height")
-                        .HasColumnType("smallint");
-
                     b.Property<string>("InternalId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<short>("Interval")
-                        .HasColumnType("smallint");
 
                     b.Property<DateTime?>("InvalidTime")
                         .HasColumnType("datetime2(0)");
@@ -1158,17 +1360,20 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<short>("Speed")
-                        .HasColumnType("smallint");
+                    b.Property<string>("PicDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PictureId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Tags")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("Validate_End")
                         .HasColumnType("datetime2(0)");
 
                     b.Property<DateTime?>("Validate_Start")
                         .HasColumnType("datetime2(0)");
-
-                    b.Property<short>("Width")
-                        .HasColumnType("smallint");
 
                     b.HasKey("USRId");
 
@@ -1273,145 +1478,6 @@ namespace WCMS.Migrations
                     b.ToTable("OperateLog");
                 });
 
-            modelBuilder.Entity("WCMS.SysCore.Model.RoleModel", b =>
-                {
-                    b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("datetime2(0)");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<byte>("DataStatus")
-                        .HasColumnType("tinyint");
-
-                    b.Property<byte>("EndType")
-                        .HasColumnType("tinyint");
-
-                    b.Property<byte>("FormStatus")
-                        .HasColumnType("tinyint");
-
-                    b.Property<string>("InternalId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime?>("InvalidTime")
-                        .HasColumnType("datetime2(0)");
-
-                    b.Property<string>("InvalidUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsAdmin")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsIniData")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ModifyTime")
-                        .HasColumnType("datetime2(0)");
-
-                    b.Property<string>("ModifyUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OrgLvId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RoleName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("Validate_End")
-                        .HasColumnType("datetime2(0)");
-
-                    b.Property<DateTime?>("Validate_Start")
-                        .HasColumnType("datetime2(0)");
-
-                    b.HasKey("RoleId");
-
-                    b.HasIndex("InternalId")
-                        .IsUnique();
-
-                    b.ToTable("Role", (string)null);
-                });
-
-            modelBuilder.Entity("WCMS.SysCore.Model.UserModel", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<byte>("AccountStatus")
-                        .HasColumnType("tinyint");
-
-                    b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("datetime2(0)");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<byte>("DataStatus")
-                        .HasColumnType("tinyint");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<byte>("FormStatus")
-                        .HasColumnType("tinyint");
-
-                    b.Property<string>("InternalId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime?>("InvalidTime")
-                        .HasColumnType("datetime2(0)");
-
-                    b.Property<string>("InvalidUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsIniData")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ModifyTime")
-                        .HasColumnType("datetime2(0)");
-
-                    b.Property<string>("ModifyUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OrgLvId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("Validate_End")
-                        .HasColumnType("datetime2(0)");
-
-                    b.Property<DateTime?>("Validate_Start")
-                        .HasColumnType("datetime2(0)");
-
-                    b.HasKey("UserId");
-
-                    b.HasIndex("InternalId")
-                        .IsUnique();
-
-                    b.ToTable("User", (string)null);
-                });
-
             modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManagement.FileManageModel", b =>
                 {
                     b.Property<string>("InternalId")
@@ -1423,6 +1489,12 @@ namespace WCMS.Migrations
                     b.Property<string>("CreateUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("DataVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.Property<string>("FileDescription")
                         .IsRequired()
@@ -1576,6 +1648,231 @@ namespace WCMS.Migrations
                     b.ToTable("FileManage_SyncInfo", (string)null);
                 });
 
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.UserRolePermission.Permission.PermissionModel", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("CreateUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte>("DataStatus")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte[]>("DataVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<byte>("FormStatus")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("InternalId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("InvalidTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("InvalidUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsIniData")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifyTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("ModifyUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrgLvId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("Validate_End")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<DateTime?>("Validate_Start")
+                        .HasColumnType("datetime2(0)");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("InternalId")
+                        .IsUnique();
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("Permission", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.UserRolePermission.Role.RoleModel", b =>
+                {
+                    b.Property<string>("RoleId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("CreateUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte>("DataStatus")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte[]>("DataVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<byte>("EndType")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("FormStatus")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("InternalId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("InvalidTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("InvalidUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsIniData")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifyTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("ModifyUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrgLvId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoleName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("Validate_End")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<DateTime?>("Validate_Start")
+                        .HasColumnType("datetime2(0)");
+
+                    b.HasKey("RoleId");
+
+                    b.HasIndex("InternalId")
+                        .IsUnique();
+
+                    b.ToTable("Role", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<byte>("AccountStatus")
+                        .HasColumnType("tinyint");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("CreateUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte>("DataStatus")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte[]>("DataVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte>("FormStatus")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("InternalId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("InvalidTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("InvalidUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsIniData")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifyTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("ModifyUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrgLvId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PasswordAlgoVer")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("PasswordSalt")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("Validate_End")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<DateTime?>("Validate_Start")
+                        .HasColumnType("datetime2(0)");
+
+                    b.HasKey("UserId");
+
+                    b.HasIndex("InternalId")
+                        .IsUnique();
+
+                    b.ToTable("User", (string)null);
+                });
+
             modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.AnnouncementDetail", b =>
                 {
                     b.HasOne("WCMS.Features.SiteEdit.Announcement.Announcement", null)
@@ -1641,6 +1938,25 @@ namespace WCMS.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.UserRolePermission.Permission.PermissionModel", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.Role.RoleModel", "Role")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "User")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.Announcement", b =>
                 {
                     b.Navigation("AnnouncementDetail");
@@ -1666,6 +1982,16 @@ namespace WCMS.Migrations
                     b.Navigation("File_DownloadInfo");
 
                     b.Navigation("File_SyncInfo");
+                });
+
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.UserRolePermission.Role.RoleModel", b =>
+                {
+                    b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", b =>
+                {
+                    b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618
         }

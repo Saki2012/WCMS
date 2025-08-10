@@ -1,28 +1,13 @@
-﻿using EFCore.BulkExtensions;
-using GraphQL;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.VisualBasic;
-using NetTopologySuite.Operation.Valid;
-using System.Buffers.Text;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Collections;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Metadata;
-using System.Security.AccessControl;
-using System.Threading.Tasks;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
-using static GraphQL.Validation.Rules.OverlappingFieldsCanBeMerged;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore
 {

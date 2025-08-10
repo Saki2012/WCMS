@@ -32,7 +32,6 @@ namespace WCMS.SysCore
         #endregion
         #region Construct
         #endregion
-
         #region Protected
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -44,7 +43,6 @@ namespace WCMS.SysCore
             SetDateTimeDBType(builder);
         }
         #endregion
-
         #region Private
         /// <summary>
         /// 模型與Database綁定設置

@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.OutputCaching;
 using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
@@ -8,32 +11,77 @@ using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Library.LibData;
 
 namespace WCMS.SysCore
 {
+
+    public abstract class ApiBaseController<TSet> : ControllerBase where TSet : class
+    {
+        #region Property
+        private IBizService<TSet>? _service;
+        protected IBizService<TSet> Service => _service ??= HttpContext.RequestServices.GetRequiredService<IBizService<TSet>>();
+        private IOutputCacheStore? _cacheStore;
+        protected IOutputCacheStore CacheStore => _cacheStore ??= HttpContext.RequestServices.GetRequiredService<IOutputCacheStore>();
+        private IOutputCacheFeature? _Ocf;
+        private IOutputCacheFeature? Ocf => _Ocf ??= HttpContext.Features.Get<IOutputCacheFeature>();
+        private IBizService<FileManageSet> _fileService;
+        protected FileManagementBiz FileService => (FileManagementBiz)(_fileService ??= HttpContext.RequestServices.GetRequiredService<IBizService<FileManageSet>>());
+        private ModelDisplay<TSet>.ModelMetadata _modelDisplayName;
+        protected ModelDisplay<TSet>.ModelMetadata ModelDescription
+        {
+            get
+            {
+                _modelDisplayName ??= new ModelDisplay<TSet>().Model;
+                return _modelDisplayName;
+            }
+        }
+        #endregion
+
+        #region Tag helpers
+        // 型別級（list/detail）tag
+        private static string ListTag => $"set:list:{typeof(TSet).Name}";
+        private static string DetailTag => $"set:detail:{typeof(TSet).Name}";
+        // 逐筆 tag：型別 + internalId
+        private static string DetailItemTag(string id) => $"set:detail:{typeof(TSet).Name}:{id}";
+        protected void AddListTags()
+        {
+            Ocf?.Context.Tags.Add("set:list");
+            Ocf?.Context.Tags.Add(ListTag);
+        }
+        protected void AddDetailTags(string id)
+        {
+            Ocf?.Context.Tags.Add("set:detail");
+            Ocf?.Context.Tags.Add(DetailTag);
+            Ocf?.Context.Tags.Add(DetailItemTag(id));
+        }
+        protected async Task EvictForSetAsync(CancellationToken ct, string? id = null)
+        {
+            await CacheStore.EvictByTagAsync(ListTag, ct);
+            await CacheStore.EvictByTagAsync("set:list", ct);
+            if (!string.IsNullOrWhiteSpace(id))
+                await CacheStore.EvictByTagAsync(DetailItemTag(id), ct);
+            await CacheStore.EvictByTagAsync(DetailTag, ct);
+            await CacheStore.EvictByTagAsync("set:detail", ct);
+        }
+        #endregion
+        /// <summary>
+        /// 獲取功能的欄位顯示名稱
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet(nameof(GetModelDisplayName)), OutputCache(PolicyName = "PermanentJson")]
+        public async Task<IActionResult> GetModelDisplayName()
+        {
+            return Ok(await Task.Run(() => ModelDescription));
+        }
+    }
     /// <summary>
     /// 表單API入口
     /// </summary>
     /// <typeparam name="TSet"></typeparam>
-    public abstract class ApiDataController<TSet>(IBizService<TSet> service) : ControllerBase, IBaseDataController<TSet> where TSet : class
+    public abstract class ApiDataController<TSet> : ApiBaseController<TSet>, IBaseDataController<TSet> where TSet : class
     {
-        #region Property
-
-        private ModelDisplay<TSet>.ModelMetadata _modelDisplayName;
-
-        public ModelDisplay<TSet>.ModelMetadata ModelDescription 
-        {
-            get 
-            { 
-                _modelDisplayName??= new ModelDisplay<TSet>().Model;
-                return _modelDisplayName; 
-            }
-        }
-
-        protected readonly IBizService<TSet> _service = service;
-        #endregion
-
         #region Public
         /// <summary>
         /// 新增
@@ -41,28 +89,30 @@ namespace WCMS.SysCore
         /// <param name="set"></param>
         /// <returns></returns>
         [HttpPost(nameof(Create))]
-        public async Task<IActionResult> Create(TSet set)
+        public virtual async Task<IActionResult> Create(TSet set, CancellationToken ct)
         {
-            return Ok(await _service.CreateSetAsync(set));
+            var result = await Service.CreateSetAsync(set);
+            await EvictForSetAsync(ct);
+            return Ok(result);
         }
         [HttpPost(nameof(InitialCreateData))]
-        public async Task<IActionResult> InitialCreateData(TSet[] sets)
+        public virtual async Task<IActionResult> InitialCreateData(TSet[] sets, CancellationToken ct)
         {
-            await _service.BeginTransactionAsync();
+            await Service.BeginTransactionAsync();
             try
             {
                 int i = 1;
                 foreach (var set in sets) 
                 {
-                    await _service.CreateSetAsync(set);
+                    await Service.CreateSetAsync(set);
                     i++;
                 }
-                await _service.CommitDataAsync();
+                await Service.CommitDataAsync();
                 return Ok();
             }
             catch(Exception ex)
             {
-                await _service.RollbackTransactionAsync();
+                await Service.RollbackTransactionAsync();
                 return BadRequest($"初始化失敗：{ex.Message}");
             }
         }
@@ -73,9 +123,11 @@ namespace WCMS.SysCore
         /// <param name="data"></param>
         /// <returns></returns>
         [HttpPut(nameof(Update))]
-        public async Task<IActionResult> Update(ApiRequest<TSet> data)
+        public virtual async Task<IActionResult> Update(ApiRequest<TSet> data, CancellationToken ct)
         {
-            return Ok(await _service.UpdateSetAsync(data.InternalId, data.Data));
+            var result = await Service.UpdateSetAsync(data.InternalId, data.Data);
+            await EvictForSetAsync(ct, data.InternalId);
+            return Ok(result);
         }
         /// <summary>
         /// 作廢
@@ -84,9 +136,11 @@ namespace WCMS.SysCore
         /// <param name="isInvalid"></param>
         /// <returns></returns>
         [HttpPatch($"{nameof(Invalid)}/{{pk}}")]
-        public async Task<IActionResult> Invalid(string uid, bool isInvalid)
+        public virtual async Task<IActionResult> Invalid(string internalId, bool isInvalid, CancellationToken ct)
         {
-            return Ok(await _service.InvalidSetAsync(uid, isInvalid));
+            var result = await Service.InvalidSetAsync(internalId, isInvalid);
+            await EvictForSetAsync(ct, internalId);
+            return Ok(result);
         }
         /// <summary>
         /// 批次作廢
@@ -94,16 +148,18 @@ namespace WCMS.SysCore
         /// <param name="pks"></param>
         /// <returns></returns>
         [HttpPatch(nameof(BatchInvalid))]
-        public async Task<IActionResult> BatchInvalid(string[] uids, bool isInvalid) => throw new NotImplementedException();
+        public virtual async Task<IActionResult> BatchInvalid(string[] internalIds, bool isInvalid, CancellationToken ct) => throw new NotImplementedException();
         /// <summary>
         /// 刪除
         /// </summary>
         /// <param name="pk"></param>
         /// <returns></returns>
         [HttpDelete(nameof(Delete))]
-        public async Task<IActionResult> Delete(string internalId)
+        public virtual async Task<IActionResult> Delete(string internalId, CancellationToken ct)
         {
-            return Ok(await _service.DeleteSetAsync(internalId));
+            var result = await Service.DeleteSetAsync(internalId);
+            await EvictForSetAsync(ct, internalId);
+            return Ok(result);
         }
         /// <summary>
         /// 批次刪除
@@ -111,44 +167,38 @@ namespace WCMS.SysCore
         /// <param name="pks"></param>
         /// <returns></returns>
         [HttpDelete(nameof(BatchDelete))]
-        public Task<IActionResult> BatchDelete(string[] uids) => throw new NotImplementedException();
+        public virtual Task<IActionResult> BatchDelete(string[] internalIds, CancellationToken ct) => throw new NotImplementedException();
         /// <summary>
         /// 查看表單
         /// </summary>
         /// <param name="pk"></param>
         /// <returns></returns>
-        [HttpGet(nameof(QueryData))]
-        public async Task<IActionResult> QueryData([FromQuery] string internalId)
+        [HttpGet(nameof(QueryData)), OutputCache(PolicyName = "DetailJson")]
+        public virtual async Task<IActionResult> QueryData([FromQuery] string internalId, CancellationToken ct)
         {
-            return Ok(await _service.QuerySetAsync(internalId));
+            AddDetailTags(internalId);
+            return Ok(await Service.QuerySetAsync(internalId));
         }
         /// <summary>
         /// 查詢清單
         /// </summary>
         /// <returns></returns>
-        [HttpPost(nameof(QueryList))]
-        public async Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition)
+        [HttpPost(nameof(QueryList)), OutputCache(PolicyName = "ListJson")]
+        public virtual async Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition, CancellationToken ct)
         {
-            return Ok(await _service.QueryListAsync(queryCondition.Fields, queryCondition.Condition, queryCondition.PageNumber, queryCondition.PageSize));
+            AddListTags();
+            return Ok(await Service.QueryListAsync(queryCondition.Fields, queryCondition.Condition, queryCondition.PageNumber, queryCondition.PageSize));
         }
         /// <summary>
         /// 獲取清單總頁數
         /// </summary>
         /// <param name="queryCondition"></param>
         /// <returns></returns>
-        [HttpPost(nameof(GetTotalCounts))]
-        public async Task<IActionResult> GetTotalCounts([FromBody] QueryListParam? queryCondition)
+        [HttpPost(nameof(GetTotalCounts)), OutputCache(PolicyName = "ListJson")]
+        public virtual async Task<IActionResult> GetTotalCounts([FromBody] QueryListParam? queryCondition, CancellationToken ct)
         {
-            return Ok(await _service.QueryTotalCounts(queryCondition.Fields ,queryCondition.Condition));
-        }
-        /// <summary>
-        /// 獲取功能的欄位顯示名稱
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet(nameof(GetModelDisplayName))]
-        public async Task<IActionResult> GetModelDisplayName()
-        {
-            return Ok(await Task.Run(() => ModelDescription));
+            AddListTags();
+            return Ok(await Service.QueryTotalCounts(queryCondition.Fields ,queryCondition.Condition));
         }
         #endregion
 
@@ -160,24 +210,16 @@ namespace WCMS.SysCore
     /// 報表API入口
     /// </summary>
     /// <typeparam name="TSet"></typeparam>
-    public abstract class ApiReportController<TSet>(IBizService<TSet> service) : ControllerBase, IBaseReportController<TSet> where TSet : class
+    public abstract class ApiReportController<TSet> : ApiBaseController<TSet>, IBaseReportController<TSet> where TSet : class
     {
-        #region Property
-        protected readonly IBizService<TSet> _service = service;
-        #endregion
+        #region Public
         [HttpPost(nameof(GetReport))]
-        public Task<IActionResult> GetReport() => throw new NotImplementedException();
-        /// <summary>
-        /// 獲取功能的欄位顯示名稱
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet(nameof(GetModelDisplayName))]
-        public async Task<IActionResult> GetModelDisplayName()
-        {
-            return Ok(await _service.CreateSetAsync(null));
-        }
+        public virtual Task<IActionResult> GetReport(CancellationToken ct) => throw new NotImplementedException();
+        #endregion
     }
-
+    /// <summary>
+    /// 系統功能API
+    /// </summary>
     [ApiController, Route(SysParam.ServiceRoute)]
     public class SystemAPIController: ControllerBase
     {
@@ -186,7 +228,7 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="enumName"></param>
         /// <returns></returns>
-        [HttpGet(nameof(GetEnumOptions))]
+        [HttpGet(nameof(GetEnumOptions)), OutputCache(PolicyName = "PermanentJson")]
         public IActionResult GetEnumOptions([FromQuery,Required] string enumName)
         {
             try
@@ -200,7 +242,6 @@ namespace WCMS.SysCore
             }
         }
     }
-
 
     /// <summary>
     /// 

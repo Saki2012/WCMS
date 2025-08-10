@@ -14,19 +14,15 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
 {
     [ProgId("SpecResearch")]
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class SpecResearchController(IBizService<SpecResearchSet> service, IBizService<FileManageSet> fileService) : ApiDataController<SpecResearchSet>(service)
+    public class SpecResearchController : ApiDataController<SpecResearchSet>
     {
-
-        #region property
-        private readonly FileManagementBiz _fileService = (FileManagementBiz)fileService;
-        #endregion
 
 #if DEBUG //轉移舊系統資料
         [HttpPost(nameof(Migrate))]
-        public async Task<IActionResult> Migrate()
+        public async Task<IActionResult> Migrate(CancellationToken ct)
         {
             SpecResearchSet[] datas = ConvertToApiModel();
-            return await InitialCreateData(datas);
+            return await InitialCreateData(datas,ct);
         }
         private static SpecResearchSet[] ConvertToApiModel()
         {

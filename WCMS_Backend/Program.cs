@@ -1,14 +1,26 @@
 ﻿
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.AspNetCore.OutputCaching.StackExchangeRedis;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
+using System.IdentityModel.Tokens.Jwt;
+using System.IO.Compression;
 using System.Reflection;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json.Serialization.Metadata;
 using WCMS.Features.SiteEdit.PageManagement;
 using WCMS.SysCore;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Middleware;
+using WCMS.SysCore.SystemFunc.Auth;
 using WCMS.SysCore.SystemFunc.FileManagement;
 
 namespace WCMS
@@ -34,8 +46,13 @@ namespace WCMS
             var app = builder.Build();
             // 全域錯誤攔截（你原本已有）
             app.UseMiddleware<ErrorHandlingMiddleware>();
+            app.UseOutputCache();
             // 反向 Proxy/負載平衡（IIS/Nginx/K8s）常見需求
-            app.UseForwardedHeaders(new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto });
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+                //KnownProxies = { System.Net.IPAddress.Parse("10.0.0.10") } // 你的反向代理 IP
+            });
             // 產線請確保有 HTTPS（若由前置 Proxy 終結 TLS，保留這行也 OK）
             app.UseHttpsRedirection();
             // 安全標頭（弱掃友好）
@@ -45,6 +62,15 @@ namespace WCMS
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+            }
+            else 
+            {
+                app.UseHsts();
+            }
+            using (var scope = app.Services.CreateScope())
+            {
+                var cacheStore = scope.ServiceProvider.GetRequiredService<IOutputCacheStore>();
+                cacheStore.EvictByTagAsync("perm", default).GetAwaiter().GetResult();
             }
             // CORS 放在 Auth 前
             app.UseCors(AppSetup.CorsPolicyName);
@@ -63,7 +89,6 @@ namespace WCMS
         {
             // CORS Policy 名稱統一放這裡
             public const string CorsPolicyName = "AllowLocalhostWildcard";
-
             #region Services
 
             /// <summary>
@@ -72,28 +97,102 @@ namespace WCMS
             /// <param name="builder"></param>
             public static void BasicSetting(WebApplicationBuilder builder)
             {
-                builder.WebHost.UseKestrel(o => o.AddServerHeader = false); // 移除 Server 標頭（弱掃友好）
-                builder.Services.AddResponseCompression();                   // 回應壓縮（可關閉或微調）
+                builder.WebHost.UseKestrel(o => o.AddServerHeader = false); 
+                builder.WebHost.ConfigureKestrel(o =>
+                {
+                    o.AddServerHeader = false; // 移除 Server 標頭（弱掃友好）
+                    o.Limits.MaxRequestHeadersTotalSize = 64 * 1024;      // 64KB headers
+                    o.Limits.RequestHeadersTimeout = TimeSpan.FromSeconds(15);
+                    // 視流量特性微調
+                    // o.Limits.MaxConcurrentConnections = 1000;
+                    // o.Limits.MaxRequestBodySize = 100 * 1024 * 1024;   // 若要全域限制上傳
+                });
+                builder.Services.AddResponseCompression(options =>
+                {
+                    options.EnableForHttps = true; // HTTPS 也壓縮（API 建議開）
+                    options.MimeTypes = ["application/json", "text/json"]; // 白名單
+                    options.Providers.Clear();
+                    options.Providers.Add<BrotliCompressionProvider>();
+                    options.Providers.Add<GzipCompressionProvider>();
+                });
+                // 速度優先（API 通常瓶頸在網路延遲與頻寬，Fastest 很夠用）
+                builder.Services.Configure<BrotliCompressionProviderOptions>(o => o.Level = CompressionLevel.Fastest);
+                builder.Services.Configure<GzipCompressionProviderOptions>(o => o.Level = CompressionLevel.Fastest);
             }
             /// <summary>
             /// 連線相關（SQL / Redis / 其他外部資源）
             /// </summary>
             public static void AddConnections(IServiceCollection services, IConfiguration cfg)
             {
-                services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(cfg.GetConnectionString("RedisConnection")));
-                services.AddDbContext<ApplicationDbContext>(opt => opt.UseSqlServer(cfg.GetConnectionString("SqlConnection")));
+                //暫時先不用Redis，等開始能架Docker包Linux後再來
+                //services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(cfg.GetConnectionString("RedisConnection")));
+
+                services.AddDbContextPool<ApplicationDbContext>(opt =>
+                {
+                    opt.UseSqlServer(cfg.GetConnectionString("SqlConnection"));
+                    opt.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking); // 讀取預設不追蹤
+                });
+
             }
             /// <summary>
             /// 核心服務/DI（Controller、Repository、Biz）
             /// </summary>
             public static void AddCoreServices(IServiceCollection services, IConfiguration cfg)
             {
-                services.AddControllers().AddJsonOptions(opt => { opt.JsonSerializerOptions.PropertyNamingPolicy = null; });
-                // Repository
+                services.AddControllers().AddJsonOptions(opt =>
+                {
+                    opt.JsonSerializerOptions.PropertyNamingPolicy = null;
+                    opt.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+                    opt.JsonSerializerOptions.WriteIndented = false;
+                });
+                services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(o =>
+                {
+                    if (o.SerializerOptions.TypeInfoResolver == null &&
+                        o.SerializerOptions.TypeInfoResolverChain.Count == 0)
+                    {
+                        o.SerializerOptions.TypeInfoResolverChain.Add(new DefaultJsonTypeInfoResolver());
+                    }
+                });
                 services.AddScoped(typeof(IBasicRepository<>), typeof(BasicRepository<>));
                 services.AddScoped<IRepositoryMapProvider, RepositoryMapProvider>();
                 services.Configure<FilePathOptions>(cfg.GetSection("FilePaths"));
                 RegisterBizServices(services);
+
+                // 暫時先不用Redis，等開始能架Docker包Linux後再來
+                //services.AddStackExchangeRedisOutputCache(o =>
+                //{
+                //    // 用你的連線字串；這會由擴充方法內部建立連線
+                //    o.Configuration = cfg.GetConnectionString("RedisConnection");
+                //    o.InstanceName = "oc:";   // Redis key 前綴，避免與其他功能衝突
+                //});
+
+                services.AddOutputCache(options =>
+                {
+                    const string LangHeader = "Accept-Language";
+
+                    // 清單快取
+                    options.AddPolicy("ListJson", b => b
+                        .Expire(TimeSpan.FromSeconds(60))
+                        .SetVaryByQuery("*")                    // 條件、分頁都影響快取
+                        .SetVaryByHeader(LangHeader)
+                        .Tag("set:list")                        // 共用 Tag
+                    );
+                    // 明細快取
+                    options.AddPolicy("DetailJson", b => b
+                        .Expire(TimeSpan.FromSeconds(60))
+                        .SetVaryByQuery("internalId")           // 按 QueryString 分片
+                        .SetVaryByHeader(LangHeader)
+                        .Tag("set:detail")                      // 共用 Tag
+                    );
+                    // 永久參數
+                    options.AddPolicy("PermanentJson", b => b
+                        .SetVaryByHeader(LangHeader)
+                        .Tag("perm"));
+                });
+
+
+                services.AddMemoryCache();
+                services.AddSingleton<ITokenService, TokenService>();
             }
             /// <summary>
             /// 安全性服務（CORS / Anti-forgery）
@@ -112,7 +211,9 @@ namespace WCMS
                             var host = new Uri(origin).Host;
                             return host == "localhost" || host == "127.0.0.1" || host == "wcms.it-easygoapp.com";
                         })
-                        .AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+                        .WithHeaders("Content-Type", "Authorization", "X-CSRF-Token")
+                        .WithMethods("GET", "POST", "PUT", "DELETE","PATCH")
+                        .AllowCredentials();
                     });
                 });
             }
@@ -143,6 +244,22 @@ namespace WCMS
                             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
                             ClockSkew = TimeSpan.FromMinutes(1) // 避免太寬鬆
                         };
+
+                        options.Events = new JwtBearerEvents
+                        {
+                            OnTokenValidated = async ctx =>
+                            {
+                                var jti = ctx.Principal?.FindFirstValue(JwtRegisteredClaimNames.Jti);
+                                if (!string.IsNullOrEmpty(jti))
+                                {
+                                    var tokens = ctx.HttpContext.RequestServices.GetRequiredService<ITokenService>();
+                                    if (await tokens.IsAccessBlacklistedAsync(jti))
+                                    {
+                                        ctx.Fail("Token has been revoked");
+                                    }
+                                }
+                            }
+                        };
                     });
             }
             
@@ -160,6 +277,8 @@ namespace WCMS
                         .Select(i => new { Service = i, Impl = t }));
 
                 foreach (var p in pairs) services.AddScoped(p.Service, p.Impl);
+                //添加登入服務
+                services.AddScoped<IAuthService, AuthBiz>();
             }
             /// <summary>
             /// Development-only服務（如 Swagger）
@@ -169,8 +288,38 @@ namespace WCMS
             {
                 if (builder.Environment.IsDevelopment())
                 {
+                    AppContext.SetSwitch("System.Text.Json.JsonSerializer.IsReflectionEnabledByDefault", true);
                     builder.Services.AddEndpointsApiExplorer();
-                    builder.Services.AddSwaggerGen();
+                    builder.Services.AddSwaggerGen(c =>
+                    {
+                        c.SwaggerDoc("v1", new OpenApiInfo { Title = "WCMS API", Version = "v1" });
+
+                        // 加上這段才會有 Authorize 按鈕
+                        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                        {
+                            Name = "Authorization",
+                            Type = SecuritySchemeType.ApiKey,
+                            Scheme = "Bearer",
+                            BearerFormat = "JWT",
+                            In = ParameterLocation.Header,
+                            Description = "請輸入: Bearer {你的AccessToken}"
+                        });
+
+                        c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                        {
+                            {
+                                new OpenApiSecurityScheme
+                                {
+                                    Reference = new OpenApiReference
+                                    {
+                                        Type = ReferenceType.SecurityScheme,
+                                        Id = "Bearer"
+                                    }
+                                },
+                                Array.Empty<string>()
+                            }
+                        });
+                    });
                 }
             }
             #endregion
@@ -187,8 +336,9 @@ namespace WCMS
                     ctx.Response.Headers.XFrameOptions = "DENY";
                     ctx.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
                     ctx.Response.Headers["Permissions-Policy"] = "geolocation=()";
-                    // 初期較保守的 CSP；若有第三方資源，再定點放寬
-                    ctx.Response.Headers.ContentSecurityPolicy = "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline'";
+                    ctx.Response.Headers.ContentSecurityPolicy = app.Environment.IsDevelopment()
+                    ? "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline'"
+                    : "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self'";
                     await next();
                 });
             }

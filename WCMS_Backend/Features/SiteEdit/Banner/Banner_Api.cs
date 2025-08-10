@@ -12,18 +12,15 @@ using WCMS.SysCore.SystemFunc.FileManagement;
 namespace WCMS.Features.SiteEdit.Banner
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class BannerController(IBizService<BannerSet> service, IBizService<FileManageSet> fileService) : ApiDataController<BannerSet>(service)
+    public class BannerController: ApiDataController<BannerSet>
     {
-        #region property
-        private readonly FileManagementBiz _fileService = (FileManagementBiz)fileService;
-        #endregion
 
 #if DEBUG //轉移舊系統資料
         [HttpPost(nameof(Migrate))]
-        public async Task<IActionResult> Migrate(string importFileLabel = "1810")
+        public async Task<IActionResult> Migrate(CancellationToken ct, string importFileLabel = "1810")
         {
             BannerSet[] datas = await ConvertToApiModel(importFileLabel);
-            return await InitialCreateData(datas);
+            return await InitialCreateData(datas, ct);
         }
         private async Task<BannerSet[]> ConvertToApiModel(string importFileLabel)
         {
@@ -36,11 +33,11 @@ namespace WCMS.Features.SiteEdit.Banner
             };
             DataSet ds = MigrateOldData.GetOldData(sqls);
 
-            var importFileInternalIds = await _fileService.QueryListAsync([nameof(FileManageModel.InternalId)], $"{nameof(FileManageModel.ImportLabel)} = {importFileLabel}", 0, 0);
+            var importFileInternalIds = await FileService.QueryListAsync([nameof(FileManageModel.InternalId)], $"{nameof(FileManageModel.ImportLabel)} = {importFileLabel}", 0, 0);
             List<FileManageSet> fileSets = [];
             foreach (var id in importFileInternalIds.Data.Select(p => p.FileManage.InternalId).ToList().Distinct())
             {
-                var data = await _fileService.QuerySetAsync(id);
+                var data = await FileService.QuerySetAsync(id);
                 fileSets.Add(data.Data.LastOrDefault());
             }
             var fileSrcIdDic = fileSets.SelectMany(s => s.FileManage_SyncInfo).GroupBy(d => d.SrcFullPath).ToDictionary(g => g.Key, g => g.First().InternalId);
@@ -66,7 +63,7 @@ namespace WCMS.Features.SiteEdit.Banner
                     {
                         FileManageSet fileInfo = GetSetByPicture(picFileName, fileSets);
                         updateFileSets.Add(fileInfo);
-                        fileInfo.FileManage.ProgId = this._service.ProgId;
+                        fileInfo.FileManage.ProgId = this.Service.ProgId;
                         picFileName = fileInfo.FileManage.InternalId;
                     }
 
@@ -105,8 +102,8 @@ namespace WCMS.Features.SiteEdit.Banner
             }
             foreach (var set in updateFileSets) 
             {
-                set.FileManage.ProgId = this._service.ProgId;
-                await _fileService.UpdateSetAsync(set.FileManage.InternalId, set); 
+                set.FileManage.ProgId = this.Service.ProgId;
+                await FileService.UpdateSetAsync(set.FileManage.InternalId, set); 
             }
             return [.. result];
         }
