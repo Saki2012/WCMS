@@ -11,13 +11,17 @@ import { AnnouncementFormComp } from "./Layout/BizFunc/WebManagement/Announcemen
 import { Navigate } from "react-router-dom";
 
 import { BannerSliderFormComp } from "./Layout/BizFunc/WebManagement/BannerSlider/BannerSlider_Form_Comp";
-import LoginPage from "./Pages/LoginPage";
+import LoginPage from "./Layout/BizFunc/Auth/LoginPage";
 import RequireAuth from "../../SysCore/Components/Auth/RequireAuth";
+import LogoutPage from "./Layout/BizFunc/Auth/LogoutPage";
+import RegisterPage from "./Layout/BizFunc/Auth/RegisterPage";
 
 export class BackendRouteModule implements IRouteModule {
   getRoutes(): RouteObject[] {
     return [
       { path: '/Server/Login', element: <LoginPage /> },
+      { path: '/Server/Logout', element:<LogoutPage/>},
+      { path: '/Server/Register', element:<RegisterPage/>},
       {
         path: '/Server',
         element: 

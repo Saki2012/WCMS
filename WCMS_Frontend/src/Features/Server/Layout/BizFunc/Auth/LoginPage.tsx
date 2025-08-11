@@ -1,7 +1,7 @@
 // Features/Server/Pages/LoginPage.tsx
 import { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { AuthAPI } from '../../../SysCore/Utils/authClient';
+import { AuthAPI } from '../../../../../SysCore/Utils/AuthClient';
 
 export default function LoginPage() {
   const [account, setAccount] = useState('');      // HTML 的 email 欄位 -> 後端 account
@@ -22,7 +22,11 @@ export default function LoginPage() {
     try {
       // 這裡會真的打到後端 /Service/Auth/Login
       await AuthAPI.login({ account, password });
-      const to = (loc as any).state?.from?.pathname ?? '/Server';
+
+      const locState = (loc as any).state;
+      const from = locState?.from?.pathname as string | undefined;
+      const isSafe = from && !from.startsWith('/Server/Logout') && !from.startsWith('/Server/Login');
+      const to = isSafe ? from : '/Server';
       nav(to, { replace: true });       // 只有成功才導頁
     } catch (ex: any) {
       const msg = ex?.response?.data?.message ?? '登入失敗，請檢查帳號或密碼';

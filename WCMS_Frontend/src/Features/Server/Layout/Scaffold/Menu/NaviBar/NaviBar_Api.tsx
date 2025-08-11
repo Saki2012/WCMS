@@ -63,7 +63,7 @@ class MockProvider extends INaviProvider {
       { Id:"F", SrcData:"網站功能", Url:"/PageList", },
       { Id:"G", SrcData:"帳號管理", Url:"/PageList", },
       { Id:"H", SrcData:"系統設定", Url:"/PageList", },
-      { Id:"I", SrcData:"登出系統", Url:"/PageList", },
+      { Id:"I", SrcData:"登出系統", Url:"/Server/Logout", },
     ]);
   }
   protected doGetModelDisplayName(): Promise<[]>{
@@ -96,7 +96,7 @@ class APIProvider extends INaviProvider {
       { Id:"F", SrcData:"網站功能", Url:"/PageList", },
       { Id:"G", SrcData:"帳號管理", Url:"/PageList", },
       { Id:"H", SrcData:"系統設定", Url:"/PageList", },
-      { Id:"I", SrcData:"登出系統", Url:"/PageList", },
+      { Id:"I", SrcData:"登出系統", Url:"/Server/Logout", },
     ]);
   }
   protected doGetModelDisplayName(): Promise<[]>{
