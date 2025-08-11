@@ -174,5 +174,5 @@
     3. 會產生dist-csr資料夾，將底下的所有資料打包覆蓋至Server上的部屬環境資料夾
 
 後端:
-    1. 執行 dotnet publish -c Release -o ./publish
+    1. 執行 dotnet publish WCMS.csproj -c Release -r win-x64 --no-self-contained -o Publish
     2. 會產生publish資料夾，將底下的所有資料打包覆蓋至Server上的部屬環境資料夾

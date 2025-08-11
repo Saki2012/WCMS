@@ -1,6 +1,4 @@
-import { Grid } from "../../../../../../SysCore/Components/Grid/Grid_Comp";
 import LoadingErrorHandler from "../../../../../../SysCore/Components/LoadingErrorHandler";
-import SearchBarComp from "../../../../../../SysCore/Components/SearchBar/SearchBar_Comp";
 import type{ ContentCompProp } from "./FormView_Data";
 
 export const ContentComp = (prop:ContentCompProp) => {

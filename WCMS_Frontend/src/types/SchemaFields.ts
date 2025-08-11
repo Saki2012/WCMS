@@ -1,5 +1,16 @@
 // ✅ 自動產生，請勿手動修改
 
+export const AccountStatusFields = {
+  toString: 'toString',
+  toFixed: 'toFixed',
+  toExponential: 'toExponential',
+  toPrecision: 'toPrecision',
+  valueOf: 'valueOf',
+  toLocaleString: 'toLocaleString',
+} as const;
+
+export type AccountStatusFieldKey = keyof typeof AccountStatusFields;
+
 export const AnnouncementFields = {
   CreateTime: 'CreateTime',
   CreateUserId: 'CreateUserId',
@@ -12,6 +23,7 @@ export const AnnouncementFields = {
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
   IsIniData: 'IsIniData',
+  DataVersion: 'DataVersion',
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
   AnnouncementId: 'AnnouncementId',
@@ -76,6 +88,7 @@ export const BannerFields = {
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
   IsIniData: 'IsIniData',
+  DataVersion: 'DataVersion',
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
   BannerId: 'BannerId',
@@ -142,6 +155,7 @@ export const CategoryFields = {
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
   IsIniData: 'IsIniData',
+  DataVersion: 'DataVersion',
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
   CategoryId: 'CategoryId',
@@ -186,6 +200,15 @@ export const ContentStatusFields = {
 
 export type ContentStatusFieldKey = keyof typeof ContentStatusFields;
 
+export const CreateUserDtoFields = {
+  UserId: 'UserId',
+  UserName: 'UserName',
+  Password: 'Password',
+  Email: 'Email',
+} as const;
+
+export type CreateUserDtoFieldKey = keyof typeof CreateUserDtoFields;
+
 export const DataStatusFields = {
   toString: 'toString',
   toFixed: 'toFixed',
@@ -196,6 +219,17 @@ export const DataStatusFields = {
 } as const;
 
 export type DataStatusFieldKey = keyof typeof DataStatusFields;
+
+export const EndTypeFields = {
+  toString: 'toString',
+  toFixed: 'toFixed',
+  toExponential: 'toExponential',
+  toPrecision: 'toPrecision',
+  valueOf: 'valueOf',
+  toLocaleString: 'toLocaleString',
+} as const;
+
+export type EndTypeFieldKey = keyof typeof EndTypeFields;
 
 export const FileArchiveFields = {
   CreateTime: 'CreateTime',
@@ -209,6 +243,7 @@ export const FileArchiveFields = {
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
   IsIniData: 'IsIniData',
+  DataVersion: 'DataVersion',
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
   FileArchiveId: 'FileArchiveId',
@@ -224,8 +259,8 @@ export const FileArchiveDetailFields = {
   FileArchiveId: 'FileArchiveId',
   ParentRowId: 'ParentRowId',
   RowId: 'RowId',
-  FileName: 'FileName',
   FileSrcId: 'FileSrcId',
+  FileName: 'FileName',
 } as const;
 
 export type FileArchiveDetailFieldKey = keyof typeof FileArchiveDetailFields;
@@ -255,7 +290,50 @@ export const FileArchiveSetApiRequestFields = {
 
 export type FileArchiveSetApiRequestFieldKey = keyof typeof FileArchiveSetApiRequestFields;
 
-export const FileInfoDownloadModelFields = {
+export const FileManageModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  OrgLvId: 'OrgLvId',
+  IsIniData: 'IsIniData',
+  DataVersion: 'DataVersion',
+  Validate_Start: 'Validate_Start',
+  Validate_End: 'Validate_End',
+  InternalId: 'InternalId',
+  Path: 'Path',
+  FileName: 'FileName',
+  FileExtension: 'FileExtension',
+  FileDescription: 'FileDescription',
+  MimeType: 'MimeType',
+  FileSHA256: 'FileSHA256',
+  FileSize: 'FileSize',
+  ProgId: 'ProgId',
+  ImportLabel: 'ImportLabel',
+  FileStatus: 'FileStatus',
+  DownloadCount: 'DownloadCount',
+  File_DownloadInfo: 'File_DownloadInfo',
+  File_SyncInfo: 'File_SyncInfo',
+} as const;
+
+export type FileManageModelFieldKey = keyof typeof FileManageModelFields;
+
+export const FileManageSetFields = {
+  FileManage: 'FileManage',
+  FileManage_DownloadInfo: 'FileManage_DownloadInfo',
+  FileManage_SyncInfo: 'FileManage_SyncInfo',
+} as const;
+
+export type FileManageSetFieldKey = keyof typeof FileManageSetFields;
+
+export const FileManageSetApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type FileManageSetApiRequestFieldKey = keyof typeof FileManageSetApiRequestFields;
+
+export const FileManage_DownloadInfoModelFields = {
   RowState: 'RowState',
   InternalId: 'InternalId',
   RowId: 'RowId',
@@ -266,54 +344,36 @@ export const FileInfoDownloadModelFields = {
   DownloadTime: 'DownloadTime',
 } as const;
 
-export type FileInfoDownloadModelFieldKey = keyof typeof FileInfoDownloadModelFields;
+export type FileManage_DownloadInfoModelFieldKey = keyof typeof FileManage_DownloadInfoModelFields;
 
-export const FileInfoSyncModelFields = {
+export const FileManage_SyncInfoModelFields = {
   RowState: 'RowState',
   InternalId: 'InternalId',
   RowId: 'RowId',
-  SyncStatus: 'SyncStatus',
+  FileStatus: 'FileStatus',
   SrcIP: 'SrcIP',
+  SrcNode: 'SrcNode',
+  SrcFullPath: 'SrcFullPath',
   DestIP: 'DestIP',
+  DestNode: 'DestNode',
+  DestFullPath: 'DestFullPath',
+  ErrorCode: 'ErrorCode',
   ErrorMessage: 'ErrorMessage',
   ExecuteTime: 'ExecuteTime',
-  CompletedTime: 'CompletedTime',
 } as const;
 
-export type FileInfoSyncModelFieldKey = keyof typeof FileInfoSyncModelFields;
+export type FileManage_SyncInfoModelFieldKey = keyof typeof FileManage_SyncInfoModelFields;
 
-export const FileManagementModelFields = {
-  CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
-  OrgLvId: 'OrgLvId',
-  IsIniData: 'IsIniData',
-  InternalId: 'InternalId',
-  Path: 'Path',
-  FileName: 'FileName',
-  FileDiscription: 'FileDiscription',
-  MimeType: 'MimeType',
-  FileSHA256: 'FileSHA256',
-  FileSize: 'FileSize',
-  ProgId: 'ProgId',
-  ImportLabel: 'ImportLabel',
+export const FileStatusFields = {
+  toString: 'toString',
+  toFixed: 'toFixed',
+  toExponential: 'toExponential',
+  toPrecision: 'toPrecision',
+  valueOf: 'valueOf',
+  toLocaleString: 'toLocaleString',
 } as const;
 
-export type FileManagementModelFieldKey = keyof typeof FileManagementModelFields;
-
-export const FileManagementSetFields = {
-  FileManagement: 'FileManagement',
-  FileInfoDownload: 'FileInfoDownload',
-  FileInfoSyncModel: 'FileInfoSyncModel',
-} as const;
-
-export type FileManagementSetFieldKey = keyof typeof FileManagementSetFields;
-
-export const FileManagementSetApiRequestFields = {
-  InternalId: 'InternalId',
-  Data: 'Data',
-} as const;
-
-export type FileManagementSetApiRequestFieldKey = keyof typeof FileManagementSetApiRequestFields;
+export type FileStatusFieldKey = keyof typeof FileStatusFields;
 
 export const FormStatusFields = {
   toString: 'toString',
@@ -338,6 +398,7 @@ export const GalleryFields = {
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
   IsIniData: 'IsIniData',
+  DataVersion: 'DataVersion',
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
   GalleryId: 'GalleryId',
@@ -367,7 +428,6 @@ export const GalleryPhotosFields = {
   RowId: 'RowId',
   PicSrcId: 'PicSrcId',
   Sort: 'Sort',
-  IsCovered: 'IsCovered',
 } as const;
 
 export type GalleryPhotosFieldKey = keyof typeof GalleryPhotosFields;
@@ -399,6 +459,13 @@ export const GallerySetApiRequestFields = {
 
 export type GallerySetApiRequestFieldKey = keyof typeof GallerySetApiRequestFields;
 
+export const LoginDtoFields = {
+  Account: 'Account',
+  Password: 'Password',
+} as const;
+
+export type LoginDtoFieldKey = keyof typeof LoginDtoFields;
+
 export const PageManagementFields = {
   CreateTime: 'CreateTime',
   CreateUserId: 'CreateUserId',
@@ -411,6 +478,7 @@ export const PageManagementFields = {
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
   IsIniData: 'IsIniData',
+  DataVersion: 'DataVersion',
   PageId: 'PageId',
   CategoryId: 'CategoryId',
   ViewCount: 'ViewCount',
@@ -444,6 +512,29 @@ export const PageManagementSetApiRequestFields = {
 
 export type PageManagementSetApiRequestFieldKey = keyof typeof PageManagementSetApiRequestFields;
 
+export const PermissionModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  IsIniData: 'IsIniData',
+  DataVersion: 'DataVersion',
+  Validate_Start: 'Validate_Start',
+  Validate_End: 'Validate_End',
+  UserId: 'UserId',
+  RoleId: 'RoleId',
+  User: 'User',
+  Role: 'Role',
+} as const;
+
+export type PermissionModelFieldKey = keyof typeof PermissionModelFields;
+
 export const QueryListParamFields = {
   Fields: 'Fields',
   Condition: 'Condition',
@@ -452,6 +543,30 @@ export const QueryListParamFields = {
 } as const;
 
 export type QueryListParamFieldKey = keyof typeof QueryListParamFields;
+
+export const RoleModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  IsIniData: 'IsIniData',
+  DataVersion: 'DataVersion',
+  Validate_Start: 'Validate_Start',
+  Validate_End: 'Validate_End',
+  RoleId: 'RoleId',
+  RoleName: 'RoleName',
+  EndType: 'EndType',
+  IsAdmin: 'IsAdmin',
+  UserRoles: 'UserRoles',
+} as const;
+
+export type RoleModelFieldKey = keyof typeof RoleModelFields;
 
 export const RowStateFields = {
   toString: 'toString',
@@ -486,6 +601,7 @@ export const SpecCategoryModelFields = {
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
   IsIniData: 'IsIniData',
+  DataVersion: 'DataVersion',
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
   CategoryId: 'CategoryId',
@@ -513,12 +629,32 @@ export const SpecResearchDetailModelFields = {
   RowState: 'RowState',
   ResearchId: 'ResearchId',
   RowId: 'RowId',
-  PicSrcId: 'PicSrcId',
-  FontColor: 'FontColor',
-  Validate_Start: 'Validate_Start',
-  Validate_End: 'Validate_End',
-  URL_Open: 'URL_Open',
-  Sort: 'Sort',
+  Lang: 'Lang',
+  Year: 'Year',
+  AcademicYear: 'AcademicYear',
+  Semester: 'Semester',
+  DuringExecution: 'DuringExecution',
+  ContractPeriod: 'ContractPeriod',
+  ClassTime: 'ClassTime',
+  ProjectLeader: 'ProjectLeader',
+  Name: 'Name',
+  TeachingStaffOfOurSchool: 'TeachingStaffOfOurSchool',
+  ApprovalNumber: 'ApprovalNumber',
+  ApprovedAmount: 'ApprovedAmount',
+  College: 'College',
+  Department: 'Department',
+  GraduationDegree: 'GraduationDegree',
+  CooperatingUnits: 'CooperatingUnits',
+  CooperationProject: 'CooperationProject',
+  Courses: 'Courses',
+  ProjectName: 'ProjectName',
+  PaperTitle: 'PaperTitle',
+  Remark: 'Remark',
+  Cohost1: 'Cohost1',
+  Cohost2: 'Cohost2',
+  Commissioned: 'Commissioned',
+  PlanAmount: 'PlanAmount',
+  PlanContent: 'PlanContent',
 } as const;
 
 export type SpecResearchDetailModelFieldKey = keyof typeof SpecResearchDetailModelFields;
@@ -535,10 +671,13 @@ export const SpecResearchModelFields = {
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
   IsIniData: 'IsIniData',
+  DataVersion: 'DataVersion',
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
   ResearchId: 'ResearchId',
   CategoryId: 'CategoryId',
+  ContentStatus: 'ContentStatus',
+  Tags: 'Tags',
 } as const;
 
 export type SpecResearchModelFieldKey = keyof typeof SpecResearchModelFields;
@@ -561,12 +700,25 @@ export const SpecUSRDetailFields = {
   RowState: 'RowState',
   USRId: 'USRId',
   RowId: 'RowId',
-  PicSrcId: 'PicSrcId',
-  FontColor: 'FontColor',
-  Validate_Start: 'Validate_Start',
-  Validate_End: 'Validate_End',
-  URL_Open: 'URL_Open',
-  Sort: 'Sort',
+  Lang: 'Lang',
+  Year: 'Year',
+  AcademicYear: 'AcademicYear',
+  Courses: 'Courses',
+  PracticeField: 'PracticeField',
+  ProjectName: 'ProjectName',
+  ExternalCooperationUnit: 'ExternalCooperationUnit',
+  Department: 'Department',
+  DuringExecution: 'DuringExecution',
+  PlanAmount: 'PlanAmount',
+  ExecutionStrategy: 'ExecutionStrategy',
+  ContentIntroduction: 'ContentIntroduction',
+  ProjectConcept: 'ProjectConcept',
+  ProjectHighlights: 'ProjectHighlights',
+  ProjectLeader: 'ProjectLeader',
+  Cohost1: 'Cohost1',
+  Cohost2: 'Cohost2',
+  Commissioned: 'Commissioned',
+  Remark: 'Remark',
 } as const;
 
 export type SpecUSRDetailFieldKey = keyof typeof SpecUSRDetailFields;
@@ -583,22 +735,22 @@ export const SpecUSRModelFields = {
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
   IsIniData: 'IsIniData',
+  DataVersion: 'DataVersion',
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
   USRId: 'USRId',
   CategoryId: 'CategoryId',
-  Interval: 'Interval',
-  Speed: 'Speed',
-  Height: 'Height',
-  Width: 'Width',
-  Effect: 'Effect',
+  ContentStatus: 'ContentStatus',
+  Tags: 'Tags',
+  PictureId: 'PictureId',
+  PicDescription: 'PicDescription',
 } as const;
 
 export type SpecUSRModelFieldKey = keyof typeof SpecUSRModelFields;
 
 export const SpecUSRSetFields = {
-  MasterData: 'MasterData',
-  Details: 'Details',
+  SpecUSR: 'SpecUSR',
+  SpecUSRDetail: 'SpecUSRDetail',
 } as const;
 
 export type SpecUSRSetFieldKey = keyof typeof SpecUSRSetFields;
@@ -622,6 +774,7 @@ export const TagDataFields = {
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
   IsIniData: 'IsIniData',
+  DataVersion: 'DataVersion',
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
   TagId: 'TagId',
@@ -655,6 +808,46 @@ export const TagSetApiRequestFields = {
 
 export type TagSetApiRequestFieldKey = keyof typeof TagSetApiRequestFields;
 
+export const UserModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  IsIniData: 'IsIniData',
+  DataVersion: 'DataVersion',
+  Validate_Start: 'Validate_Start',
+  Validate_End: 'Validate_End',
+  UserId: 'UserId',
+  UserName: 'UserName',
+  Email: 'Email',
+  PasswordHash: 'PasswordHash',
+  PasswordSalt: 'PasswordSalt',
+  PasswordAlgoVer: 'PasswordAlgoVer',
+  AccountStatus: 'AccountStatus',
+  UserRoles: 'UserRoles',
+} as const;
+
+export type UserModelFieldKey = keyof typeof UserModelFields;
+
+export const UserSetFields = {
+  User: 'User',
+} as const;
+
+export type UserSetFieldKey = keyof typeof UserSetFields;
+
+export const UserSetApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type UserSetApiRequestFieldKey = keyof typeof UserSetApiRequestFields;
+
 export const WebResourceFields = {
   CreateTime: 'CreateTime',
   CreateUserId: 'CreateUserId',
@@ -667,6 +860,7 @@ export const WebResourceFields = {
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
   IsIniData: 'IsIniData',
+  DataVersion: 'DataVersion',
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
   WebResourceId: 'WebResourceId',

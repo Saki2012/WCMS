@@ -1,20 +1,26 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.AspNetCore.Routing.Constraints;
+using Microsoft.Extensions.FileProviders;
+using System.Net;
 using WCMS.Features.SiteEdit.PageManagement;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
+using WCMS.SysCore.Library;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.SystemFunc.FileManagement
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class FileManagementController : ApiDataController<FileManageSet>
+    public class FileManagementController(IWebHostEnvironment env) : ApiDataController<FileManageSet>
     {
         /*
             幾個待做的重要流程:
             1. 產生一個比對格式的資料:UID<->FullPath，避免db出狀況或是要直接機器查找時可以用
             4. 同步資料
          */
+        private readonly IWebHostEnvironment Env = env;
 
         [HttpPost(nameof(UploadTemp))]
         [RequestSizeLimit(200L * 1024 * 1024)] // 200 MB
@@ -56,6 +62,43 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             return Ok();
 
         }
+
+        [HttpGet($@"{nameof(Preview)}/{{internalId}}")]
+        public async Task<IActionResult> Preview(string internalId, CancellationToken ct)
+        {
+            // 1) 取檔案資訊（你自己的資料表）
+            QueryListParam param = new()
+            {
+                Fields = [nameof(FileManageModel.InternalId), nameof(FileManageModel.FileSHA256),nameof(FileManageModel.Path),
+                    nameof(FileManageModel.FileExtension),nameof(FileManageModel.FileName),nameof(FileManageModel.MimeType),nameof(FileManageModel.ModifyTime)],
+                Condition = $"{nameof(FileManageModel.InternalId)} = {internalId}",
+                PageSize = 1,
+                PageNumber =1,
+            };
+            var fileQuery = await Service.QueryListAsync(param.Fields,param.Condition,param.PageNumber,param.PageSize);
+            var file = fileQuery.Data.FirstOrDefault().FileManage;
+            if (file is null) return NotFound();
+            // 1) 包成 DateTimeOffset（UTC）並去掉毫秒
+            DateTime utc = (DateTime)file.ModifyTime;
+            var lastModified = new DateTimeOffset(utc).AddTicks(-(utc.Ticks % TimeSpan.TicksPerSecond));
+            // 2) 不能是未來時間（保險）
+            if (lastModified > DateTimeOffset.UtcNow) lastModified = DateTimeOffset.UtcNow;
+            // 2) 轉為實體路徑（依你的儲存策略）
+            var physicalPath = $"{Env.ContentRootPath}/{file.Path}/{file.InternalId}.{file.FileExtension}";
+            
+            if (!System.IO.File.Exists(physicalPath)) return NotFound();
+            // 3) 設定快取與 ETag（若 internalId 不變，可設長快取）
+            var etag = $"W/\"{file.FileSHA256}\""; // weak etag
+            Response.Headers.ETag = etag;
+            Response.Headers.LastModified = lastModified.ToString("R");
+            Response.Headers.CacheControl = "public, max-age=31536000, immutable"; // 之後想短一點就改
+            // 4) inline 顯示而非下載（AA/SEO 友善；下載另外做 /Download）
+            Response.Headers.ContentDisposition = $"inline; filename*=UTF-8''{Uri.EscapeDataString(file.FileName ?? "file")}";
+            var contentType = string.IsNullOrWhiteSpace(file.MimeType) ? "application/octet-stream" : file.MimeType;
+            // 5) 串流回傳並允許 Range（影片/音訊可拖曳）
+            return PhysicalFile(physicalPath, contentType, enableRangeProcessing: true);
+        }
+
         /// <summary>
         /// 匯入初始檔案資料
         /// </summary>

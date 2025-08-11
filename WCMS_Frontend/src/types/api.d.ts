@@ -15,7 +15,9 @@ export interface paths {
         put?: never;
         post: {
             parameters: {
-                query?: never;
+                query?: {
+                    importFileLabel?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -170,7 +172,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -453,7 +455,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/Banner/Migrate": {
+    "/Service/Auth/Login": {
         parameters: {
             query?: never;
             header?: never;
@@ -465,6 +467,148 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["LoginDto"];
+                    "text/json": components["schemas"]["LoginDto"];
+                    "application/*+json": components["schemas"]["LoginDto"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Auth/Refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "X-CSRF-Token"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Auth/Logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Auth/Me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Banner/Migrate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: {
+                    importFileLabel?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -619,7 +763,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -1068,7 +1212,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -1362,7 +1506,9 @@ export interface paths {
         put?: never;
         post: {
             parameters: {
-                query?: never;
+                query?: {
+                    importFileLabel?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -1517,7 +1663,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -1840,6 +1986,84 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/FileManagement/MoveToPermanent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/FileManagement/CancelUploadFiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/FileManagement/Download/internalId": {
         parameters: {
             query?: never;
@@ -1893,13 +2117,7 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": unknown;
-                    "text/json": unknown;
-                    "application/*+json": unknown;
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -1934,9 +2152,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["FileManagementSet"];
-                    "text/json": components["schemas"]["FileManagementSet"];
-                    "application/*+json": components["schemas"]["FileManagementSet"];
+                    "application/json": components["schemas"]["FileManageSet"];
+                    "text/json": components["schemas"]["FileManageSet"];
+                    "application/*+json": components["schemas"]["FileManageSet"];
                 };
             };
             responses: {
@@ -1973,9 +2191,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["FileManagementSet"][];
-                    "text/json": components["schemas"]["FileManagementSet"][];
-                    "application/*+json": components["schemas"]["FileManagementSet"][];
+                    "application/json": components["schemas"]["FileManageSet"][];
+                    "text/json": components["schemas"]["FileManageSet"][];
+                    "application/*+json": components["schemas"]["FileManageSet"][];
                 };
             };
             responses: {
@@ -2011,9 +2229,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["FileManagementSetApiRequest"];
-                    "text/json": components["schemas"]["FileManagementSetApiRequest"];
-                    "application/*+json": components["schemas"]["FileManagementSetApiRequest"];
+                    "application/json": components["schemas"]["FileManageSetApiRequest"];
+                    "text/json": components["schemas"]["FileManageSetApiRequest"];
+                    "application/*+json": components["schemas"]["FileManageSetApiRequest"];
                 };
             };
             responses: {
@@ -2049,7 +2267,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -2343,7 +2561,9 @@ export interface paths {
         put?: never;
         post: {
             parameters: {
-                query?: never;
+                query?: {
+                    importFileLabel?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -2498,7 +2718,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -2792,7 +3012,9 @@ export interface paths {
         put?: never;
         post: {
             parameters: {
-                query?: never;
+                query?: {
+                    importFileLabel?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -2947,7 +3169,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -3396,7 +3618,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -3679,6 +3901,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/SpecResearch/Migrate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/SpecResearch/Create": {
         parameters: {
             query?: never;
@@ -3812,7 +4067,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -4095,6 +4350,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/SpecUSR/Migrate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: {
+                    importFileLabel?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/SpecUSR/Create": {
         parameters: {
             query?: never;
@@ -4228,7 +4518,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -4511,6 +4801,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/SystemAPI/GetEnumOptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query: {
+                    enumName: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Tag/Migrate": {
         parameters: {
             query?: never;
@@ -4677,7 +5002,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -4960,7 +5285,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/WebResource/Migrate": {
+    "/Service/User/Create": {
         parameters: {
             query?: never;
             header?: never;
@@ -4972,6 +5297,424 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CreateUserDto"];
+                    "text/json": components["schemas"]["CreateUserDto"];
+                    "application/*+json": components["schemas"]["CreateUserDto"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/User/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["UserSet"][];
+                    "text/json": components["schemas"]["UserSet"][];
+                    "application/*+json": components["schemas"]["UserSet"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/User/Update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["UserSetApiRequest"];
+                    "text/json": components["schemas"]["UserSetApiRequest"];
+                    "application/*+json": components["schemas"]["UserSetApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/User/Invalid/{pk}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
+                header?: never;
+                path: {
+                    pk: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/User/BatchInvalid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    isInvalid?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/User/Delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/User/BatchDelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/User/QueryData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/User/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/User/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/User/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/WebResource/Migrate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: {
+                    importFileLabel?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -5126,7 +5869,7 @@ export interface paths {
         patch: {
             parameters: {
                 query?: {
-                    uid?: string;
+                    internalId?: string;
                     isInvalid?: boolean;
                 };
                 header?: never;
@@ -5413,6 +6156,11 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
+        AccountStatus: 0 | 1 | 2 | 3 | 4;
         Announcement: {
             /** Format: date-time */
             CreateTime?: string | null;
@@ -5428,6 +6176,8 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
+            /** Format: byte */
+            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
@@ -5486,6 +6236,8 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
+            /** Format: byte */
+            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
@@ -5553,6 +6305,8 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
+            /** Format: byte */
+            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
@@ -5582,11 +6336,22 @@ export interface components {
          * @enum {integer}
          */
         ContentStatus: 0 | 1 | 2 | 4;
+        CreateUserDto: {
+            UserId?: string | null;
+            UserName?: string | null;
+            Password?: string | null;
+            Email?: string | null;
+        };
         /**
          * Format: int32
          * @enum {integer}
          */
         DataStatus: 0 | 1;
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
+        EndType: 0 | 1;
         FileArchive: {
             /** Format: date-time */
             CreateTime?: string | null;
@@ -5602,6 +6367,8 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
+            /** Format: byte */
+            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
@@ -5618,8 +6385,8 @@ export interface components {
             ParentRowId?: number;
             /** Format: int32 */
             RowId?: number;
-            FileName?: string | null;
             FileSrcId?: string | null;
+            FileName?: string | null;
         };
         FileArchiveInfo: {
             RowState?: components["schemas"]["RowState"];
@@ -5630,19 +6397,60 @@ export interface components {
             Title?: string | null;
         };
         FileArchiveSet: {
-            FileArchive: components["schemas"]["FileArchive"];
-            FileArchiveInfo: components["schemas"]["FileArchiveInfo"][] | null;
-            FileArchiveDetail: components["schemas"]["FileArchiveDetail"][] | null;
+            FileArchive?: components["schemas"]["FileArchive"];
+            FileArchiveInfo?: components["schemas"]["FileArchiveInfo"][] | null;
+            FileArchiveDetail?: components["schemas"]["FileArchiveDetail"][] | null;
         };
         FileArchiveSetApiRequest: {
             InternalId?: string | null;
             Data?: components["schemas"]["FileArchiveSet"];
         };
-        FileInfoDownloadModel: {
+        FileManageModel: {
+            /** Format: date-time */
+            CreateTime?: string | null;
+            CreateUserId?: string | null;
+            /** Format: date-time */
+            ModifyTime?: string | null;
+            ModifyUserId?: string | null;
+            OrgLvId?: string | null;
+            IsIniData?: boolean;
+            /** Format: byte */
+            DataVersion?: string | null;
+            /** Format: date-time */
+            Validate_Start?: string | null;
+            /** Format: date-time */
+            Validate_End?: string | null;
+            InternalId?: string | null;
+            Path?: string | null;
+            FileName?: string | null;
+            FileExtension?: string | null;
+            FileDescription?: string | null;
+            MimeType?: string | null;
+            FileSHA256?: string | null;
+            /** Format: int64 */
+            FileSize?: number;
+            ProgId?: string | null;
+            ImportLabel?: string | null;
+            FileStatus?: components["schemas"]["FileStatus"];
+            /** Format: int32 */
+            readonly DownloadCount?: number;
+            File_DownloadInfo?: components["schemas"]["FileManage_DownloadInfoModel"][] | null;
+            File_SyncInfo?: components["schemas"]["FileManage_SyncInfoModel"][] | null;
+        };
+        FileManageSet: {
+            FileManage?: components["schemas"]["FileManageModel"];
+            FileManage_DownloadInfo?: components["schemas"]["FileManage_DownloadInfoModel"][] | null;
+            FileManage_SyncInfo?: components["schemas"]["FileManage_SyncInfoModel"][] | null;
+        };
+        FileManageSetApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["FileManageSet"];
+        };
+        FileManage_DownloadInfoModel: {
             RowState?: components["schemas"]["RowState"];
             InternalId?: string | null;
             /** Format: int32 */
-            RowId?: number;
+            RowId?: number | null;
             DownloadUserIP?: string | null;
             UserAgent?: string | null;
             RefererURL?: string | null;
@@ -5650,46 +6458,28 @@ export interface components {
             /** Format: date-time */
             DownloadTime?: string;
         };
-        FileInfoSyncModel: {
+        FileManage_SyncInfoModel: {
             RowState?: components["schemas"]["RowState"];
             InternalId?: string | null;
             /** Format: int32 */
-            RowId?: number;
-            SyncStatus?: string | null;
+            RowId?: number | null;
+            FileStatus?: components["schemas"]["FileStatus"];
             SrcIP?: string | null;
+            SrcNode?: string | null;
+            SrcFullPath?: string | null;
             DestIP?: string | null;
+            DestNode?: string | null;
+            DestFullPath?: string | null;
+            ErrorCode?: string | null;
             ErrorMessage?: string | null;
             /** Format: date-time */
             ExecuteTime?: string;
-            /** Format: date-time */
-            CompletedTime?: string | null;
         };
-        FileManagementModel: {
-            /** Format: date-time */
-            CreateTime?: string | null;
-            CreateUserId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
-            InternalId?: string | null;
-            Path?: string | null;
-            FileName?: string | null;
-            FileDiscription?: string | null;
-            MimeType?: string | null;
-            FileSHA256?: string | null;
-            /** Format: int64 */
-            FileSize?: number;
-            ProgId?: string | null;
-            ImportLabel?: string | null;
-        };
-        FileManagementSet: {
-            FileManagement?: components["schemas"]["FileManagementModel"];
-            FileInfoDownload?: components["schemas"]["FileInfoDownloadModel"][] | null;
-            FileInfoSyncModel?: components["schemas"]["FileInfoSyncModel"][] | null;
-        };
-        FileManagementSetApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["FileManagementSet"];
-        };
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
+        FileStatus: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
         /**
          * Format: int32
          * @enum {integer}
@@ -5710,6 +6500,8 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
+            /** Format: byte */
+            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
@@ -5739,7 +6531,6 @@ export interface components {
             PicSrcId?: string | null;
             /** Format: int32 */
             Sort?: number;
-            IsCovered?: boolean;
         };
         GalleryPhotosInfo: {
             RowState?: components["schemas"]["RowState"];
@@ -5752,14 +6543,18 @@ export interface components {
             Title?: string | null;
         };
         GallerySet: {
-            Gallery: components["schemas"]["Gallery"];
-            GalleryInfo: components["schemas"]["GalleryInfo"][] | null;
-            GalleryPhotos: components["schemas"]["GalleryPhotos"][] | null;
-            GalleryPhotosInfo: components["schemas"]["GalleryPhotosInfo"][] | null;
+            Gallery?: components["schemas"]["Gallery"];
+            GalleryInfo?: components["schemas"]["GalleryInfo"][] | null;
+            GalleryPhotos?: components["schemas"]["GalleryPhotos"][] | null;
+            GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo"][] | null;
         };
         GallerySetApiRequest: {
             InternalId?: string | null;
             Data?: components["schemas"]["GallerySet"];
+        };
+        LoginDto: {
+            Account?: string | null;
+            Password?: string | null;
         };
         PageManagement: {
             /** Format: date-time */
@@ -5776,6 +6571,8 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
+            /** Format: byte */
+            DataVersion?: string | null;
             PageId?: string | null;
             CategoryId?: string | null;
             /** Format: int32 */
@@ -5799,6 +6596,32 @@ export interface components {
             InternalId?: string | null;
             Data?: components["schemas"]["PageManagementSet"];
         };
+        PermissionModel: {
+            /** Format: date-time */
+            CreateTime?: string | null;
+            CreateUserId?: string | null;
+            /** Format: date-time */
+            ModifyTime?: string | null;
+            ModifyUserId?: string | null;
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            IsIniData?: boolean;
+            /** Format: byte */
+            DataVersion?: string | null;
+            /** Format: date-time */
+            Validate_Start?: string | null;
+            /** Format: date-time */
+            Validate_End?: string | null;
+            UserId?: string | null;
+            RoleId?: string | null;
+            User?: components["schemas"]["UserModel"];
+            Role?: components["schemas"]["RoleModel"];
+        };
         QueryListParam: {
             Fields?: string[] | null;
             Condition?: string | null;
@@ -5806,6 +6629,33 @@ export interface components {
             PageNumber?: number;
             /** Format: int32 */
             PageSize?: number;
+        };
+        RoleModel: {
+            /** Format: date-time */
+            CreateTime?: string | null;
+            CreateUserId?: string | null;
+            /** Format: date-time */
+            ModifyTime?: string | null;
+            ModifyUserId?: string | null;
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            IsIniData?: boolean;
+            /** Format: byte */
+            DataVersion?: string | null;
+            /** Format: date-time */
+            Validate_Start?: string | null;
+            /** Format: date-time */
+            Validate_End?: string | null;
+            RoleId?: string | null;
+            RoleName?: string | null;
+            EndType?: components["schemas"]["EndType"];
+            IsAdmin?: boolean;
+            UserRoles?: components["schemas"]["PermissionModel"][] | null;
         };
         /**
          * Format: int32
@@ -5835,6 +6685,8 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
+            /** Format: byte */
+            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
@@ -5856,17 +6708,32 @@ export interface components {
             ResearchId?: string | null;
             /** Format: int32 */
             RowId?: number;
-            PicSrcId?: string | null;
-            /** Format: int32 */
-            FontColor?: number;
-            /** Format: date-time */
-            Validate_Start?: string;
-            /** Format: date-time */
-            Validate_End?: string;
-            /** Format: int32 */
-            URL_Open?: number;
-            /** Format: int32 */
-            Sort?: number;
+            Lang?: string | null;
+            Year?: string | null;
+            AcademicYear?: string | null;
+            Semester?: string | null;
+            DuringExecution?: string | null;
+            ContractPeriod?: string | null;
+            ClassTime?: string | null;
+            ProjectLeader?: string | null;
+            Name?: string | null;
+            TeachingStaffOfOurSchool?: string | null;
+            ApprovalNumber?: string | null;
+            ApprovedAmount?: string | null;
+            College?: string | null;
+            Department?: string | null;
+            GraduationDegree?: string | null;
+            CooperatingUnits?: string | null;
+            CooperationProject?: string | null;
+            Courses?: string | null;
+            ProjectName?: string | null;
+            PaperTitle?: string | null;
+            Remark?: string | null;
+            Cohost1?: string | null;
+            Cohost2?: string | null;
+            Commissioned?: string | null;
+            PlanAmount?: string | null;
+            PlanContent?: string | null;
         };
         SpecResearchModel: {
             /** Format: date-time */
@@ -5883,12 +6750,16 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
+            /** Format: byte */
+            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
             Validate_End?: string | null;
             ResearchId?: string | null;
             CategoryId?: string | null;
+            ContentStatus?: components["schemas"]["ContentStatus"];
+            Tags?: string | null;
         };
         SpecResearchSet: {
             SpecResearch?: components["schemas"]["SpecResearchModel"];
@@ -5903,17 +6774,25 @@ export interface components {
             USRId?: string | null;
             /** Format: int32 */
             RowId?: number;
-            PicSrcId?: string | null;
-            /** Format: int32 */
-            FontColor?: number;
-            /** Format: date-time */
-            Validate_Start?: string;
-            /** Format: date-time */
-            Validate_End?: string;
-            /** Format: int32 */
-            URL_Open?: number;
-            /** Format: int32 */
-            Sort?: number;
+            Lang: string;
+            Year?: string | null;
+            AcademicYear?: string | null;
+            Courses?: string | null;
+            PracticeField?: string | null;
+            ProjectName?: string | null;
+            ExternalCooperationUnit?: string | null;
+            Department?: string | null;
+            DuringExecution?: string | null;
+            PlanAmount?: string | null;
+            ExecutionStrategy?: string | null;
+            ContentIntroduction?: string | null;
+            ProjectConcept?: string | null;
+            ProjectHighlights?: string | null;
+            ProjectLeader?: string | null;
+            Cohost1?: string | null;
+            Cohost2?: string | null;
+            Commissioned?: string | null;
+            Remark?: string | null;
         };
         SpecUSRModel: {
             /** Format: date-time */
@@ -5930,26 +6809,22 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
+            /** Format: byte */
+            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
             Validate_End?: string | null;
             USRId?: string | null;
             CategoryId?: string | null;
-            /** Format: int32 */
-            Interval?: number;
-            /** Format: int32 */
-            Speed?: number;
-            /** Format: int32 */
-            Height?: number;
-            /** Format: int32 */
-            Width?: number;
-            /** Format: int32 */
-            Effect?: number;
+            ContentStatus?: components["schemas"]["ContentStatus"];
+            Tags?: string | null;
+            PictureId?: string | null;
+            PicDescription?: string | null;
         };
         SpecUSRSet: {
-            MasterData?: components["schemas"]["SpecUSRModel"];
-            Details?: components["schemas"]["SpecUSRDetail"][] | null;
+            SpecUSR?: components["schemas"]["SpecUSRModel"];
+            SpecUSRDetail?: components["schemas"]["SpecUSRDetail"][] | null;
         };
         SpecUSRSetApiRequest: {
             InternalId?: string | null;
@@ -5970,6 +6845,8 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
+            /** Format: byte */
+            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
@@ -5994,6 +6871,46 @@ export interface components {
             InternalId?: string | null;
             Data?: components["schemas"]["TagSet"];
         };
+        UserModel: {
+            /** Format: date-time */
+            CreateTime?: string | null;
+            CreateUserId?: string | null;
+            /** Format: date-time */
+            ModifyTime?: string | null;
+            ModifyUserId?: string | null;
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            IsIniData?: boolean;
+            /** Format: byte */
+            DataVersion?: string | null;
+            /** Format: date-time */
+            Validate_Start?: string | null;
+            /** Format: date-time */
+            Validate_End?: string | null;
+            UserId?: string | null;
+            UserName?: string | null;
+            Email?: string | null;
+            /** Format: byte */
+            PasswordHash?: string | null;
+            /** Format: byte */
+            PasswordSalt?: string | null;
+            /** Format: int32 */
+            PasswordAlgoVer?: number;
+            AccountStatus?: components["schemas"]["AccountStatus"];
+            UserRoles?: components["schemas"]["PermissionModel"][] | null;
+        };
+        UserSet: {
+            User?: components["schemas"]["UserModel"];
+        };
+        UserSetApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["UserSet"];
+        };
         WebResource: {
             /** Format: date-time */
             CreateTime?: string | null;
@@ -6009,6 +6926,8 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
+            /** Format: byte */
+            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */

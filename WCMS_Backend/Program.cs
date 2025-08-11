@@ -40,6 +40,7 @@ namespace WCMS
             AppSetup.AddSecurityServices(builder.Services, builder.Configuration);
             // ⑤ 認證/授權（JWT）– 請在 appsettings 的 Jwt 節調整
             AppSetup.AddJwtAuthentication(builder.Services, builder.Configuration);
+            AppSetup.AddAppCookie(builder.Services);
             // 開發期 Swagger（產線預設關）
             AppSetup.AddDebugServices(builder);
 
@@ -51,7 +52,7 @@ namespace WCMS
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-                //KnownProxies = { System.Net.IPAddress.Parse("10.0.0.10") } // 你的反向代理 IP
+                //KnownProxies = { System.Net.IPAddress.Loopback }
             });
             // 產線請確保有 HTTPS（若由前置 Proxy 終結 TLS，保留這行也 OK）
             app.UseHttpsRedirection();
@@ -72,6 +73,8 @@ namespace WCMS
                 var cacheStore = scope.ServiceProvider.GetRequiredService<IOutputCacheStore>();
                 cacheStore.EvictByTagAsync("perm", default).GetAwaiter().GetResult();
             }
+
+            app.UseCookiePolicy(new CookiePolicyOptions {MinimumSameSitePolicy = SameSiteMode.None,Secure = CookieSecurePolicy.Always});
             // CORS 放在 Auth 前
             app.UseCors(AppSetup.CorsPolicyName);
             app.UseResponseCompression();
@@ -209,11 +212,11 @@ namespace WCMS
                         policy.SetIsOriginAllowed(origin =>
                         {
                             var host = new Uri(origin).Host;
-                            return host == "localhost" || host == "127.0.0.1" || host == "wcms.it-easygoapp.com";
+                            return host == "localhost" || host == "127.0.0.1" || host == "wcms.it-easygoapp.com" || host == "wcms_service.it-easygoapp.com";
                         })
                         .WithHeaders("Content-Type", "Authorization", "X-CSRF-Token")
                         .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH")
-                        .WithOrigins("http://localhost:5173")
+                        .WithOrigins("http://localhost:5173", "https://localhost:5173", "http://localhost:5174", "https://localhost:5174")
                         .AllowAnyHeader().AllowAnyMethod().AllowCredentials();
                         ;
                     });
@@ -273,7 +276,20 @@ namespace WCMS
                         };
                     });
             }
-            
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="services"></param>
+            public static void AddAppCookie(IServiceCollection services)
+            {
+                services.ConfigureApplicationCookie(opt =>
+                {
+                    opt.Cookie.SameSite = SameSiteMode.None;  // 代理 + HTTPS
+                    opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                    //opt.Cookie.Domain = "wcms.it-easygoapp.com"; // 同網域可省略，但建議固定
+                });
+            }
+
             /// <summary>
             /// 反射註冊 BizService
             /// </summary>
@@ -350,6 +366,18 @@ namespace WCMS
                     ctx.Response.Headers.ContentSecurityPolicy = app.Environment.IsDevelopment()
                     ? "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline'"
                     : "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self'";
+
+                    if (app.Environment.IsProduction())
+                    {
+                        var host = ctx.Request.Host.Host;
+                        if (!string.Equals(host, "wcms.it-easygoapp.com", StringComparison.OrdinalIgnoreCase)
+                            && !string.Equals(host, "wcms_service.it-easygoapp.com", StringComparison.OrdinalIgnoreCase))
+                        {
+                            ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+                            return;
+                        }
+                    }
+
                     await next();
                 });
             }

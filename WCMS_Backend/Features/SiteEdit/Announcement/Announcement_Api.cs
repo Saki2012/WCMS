@@ -96,6 +96,7 @@ namespace WCMS.Features.SiteEdit.Announcement
                             if (!subFileName.IsNullOrEmpty() && !subFileRName.IsNullOrEmpty())
                             {
                                 FileManageSet fileInfo = GetSetByPicture(subFileRName, fileSets);
+                                updateFileSets.Add(fileInfo);
                                 fileInfo.FileManage.FileName = subFileName;
                                 fileInfo.FileManage.FileDescription = subFileName;
                                 AnnouncementDetailFile detailFile = new()
