@@ -62,7 +62,7 @@ export const MessageProvider = ({ children }: { children: ReactNode }) => {
           {toasts.map(t => (
             <div key={t.id} className={`toast ${t.type}`}>
               {t.message}
-              {t.sticky && <button onClick={() => removeToast(t.id)}>×</button>}
+              {t.sticky && <button type='button' onClick={() => removeToast(t.id)}>×</button>}
             </div>
           ))}
         </div>,
@@ -75,8 +75,8 @@ export const MessageProvider = ({ children }: { children: ReactNode }) => {
           <div className="dialog">
             <p>{confirm.message}</p>
             <div className="dialog-buttons">
-              <button onClick={() => { confirm.onConfirm(); setConfirm(null); }}>確認</button>
-              <button onClick={() => { confirm.onCancel?.(); setConfirm(null); }}>取消</button>
+              <button type='button' onClick={() => { confirm.onConfirm(); setConfirm(null); }}>確認</button>
+              <button type='button' onClick={() => { confirm.onCancel?.(); setConfirm(null); }}>取消</button>
             </div>
           </div>
         </div>

@@ -12,6 +12,7 @@ using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO.Compression;
+using System.Net;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
@@ -43,6 +44,8 @@ namespace WCMS
             AppSetup.AddAppCookie(builder.Services);
             // 開發期 Swagger（產線預設關）
             AppSetup.AddDebugServices(builder);
+            ///啟動時自動建立資料夾
+            builder.Services.AddHostedService<EnsureStorageFoldersHostedService>();
 
             var app = builder.Build();
             // 全域錯誤攔截（你原本已有）
@@ -53,6 +56,8 @@ namespace WCMS
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
                 //KnownProxies = { System.Net.IPAddress.Loopback }
+                //KnownNetworks = { },
+                //KnownProxies = { }
             });
             // 產線請確保有 HTTPS（若由前置 Proxy 終結 TLS，保留這行也 OK）
             app.UseHttpsRedirection();
@@ -66,6 +71,16 @@ namespace WCMS
             }
             else 
             {
+                app.UseWhen(ctx =>
+                {
+                    var ip = ctx.Connection.RemoteIpAddress;
+                    return ip is not null && IPAddress.IsLoopback(ip);
+                },
+                branch =>
+                {
+                    branch.UseSwagger();
+                    branch.UseSwaggerUI();
+                });
                 app.UseHsts();
             }
             using (var scope = app.Services.CreateScope())
@@ -100,6 +115,7 @@ namespace WCMS
             /// <param name="builder"></param>
             public static void BasicSetting(WebApplicationBuilder builder)
             {
+                builder.WebHost.UseIIS();
                 builder.WebHost.UseKestrel(o => o.AddServerHeader = false); 
                 builder.WebHost.ConfigureKestrel(o =>
                 {
@@ -209,17 +225,20 @@ namespace WCMS
                 {
                     options.AddPolicy(CorsPolicyName, policy =>
                     {
-                        policy.SetIsOriginAllowed(origin =>
-                        {
-                            var host = new Uri(origin).Host;
-                            return host == "localhost" || host == "127.0.0.1" || host == "wcms.it-easygoapp.com" || host == "wcms_service.it-easygoapp.com";
-                        })
+                        policy
                         .WithHeaders("Content-Type", "Authorization", "X-CSRF-Token")
                         .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH")
-                        .WithOrigins("http://localhost:5173", "https://localhost:5173", "http://localhost:5174", "https://localhost:5174")
-                        .AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+                        .WithOrigins("http://localhost:5623", "https://localhost:5623", "http://localhost:5173", "https://localhost:5173", "http://localhost:5174", "https://localhost:5174")
+                        .AllowCredentials();
                         ;
                     });
+                });
+
+                services.AddHsts(o =>
+                {
+                    o.Preload = false;
+                    o.IncludeSubDomains = false;
+                    o.MaxAge = TimeSpan.FromDays(30); // 先短期，避免鎖死
                 });
             }
             /// <summary>
@@ -313,8 +332,8 @@ namespace WCMS
             /// <param name="builder"></param>
             public static void AddDebugServices(WebApplicationBuilder builder)
             {
-                if (builder.Environment.IsDevelopment())
-                {
+                //if (builder.Environment.IsDevelopment())
+                //{
                     AppContext.SetSwitch("System.Text.Json.JsonSerializer.IsReflectionEnabledByDefault", true);
                     builder.Services.AddEndpointsApiExplorer();
                     builder.Services.AddSwaggerGen(c =>
@@ -347,7 +366,7 @@ namespace WCMS
                             }
                         });
                     });
-                }
+                //}
             }
             #endregion
 
@@ -365,13 +384,17 @@ namespace WCMS
                     ctx.Response.Headers["Permissions-Policy"] = "geolocation=()";
                     ctx.Response.Headers.ContentSecurityPolicy = app.Environment.IsDevelopment()
                     ? "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline'"
-                    : "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self'";
+                    : "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline'";
 
                     if (app.Environment.IsProduction())
                     {
+                        // ⬇️ 新增：本機請求直接放行（避免 403）
+                        var ip = ctx.Connection.RemoteIpAddress;
+                        var isLoopback = ip is not null && IPAddress.IsLoopback(ip);
                         var host = ctx.Request.Host.Host;
-                        if (!string.Equals(host, "wcms.it-easygoapp.com", StringComparison.OrdinalIgnoreCase)
-                            && !string.Equals(host, "wcms_service.it-easygoapp.com", StringComparison.OrdinalIgnoreCase))
+                        var allowed = new[] { "localhost", "127.0.0.1", "server2-new", "wcms.it-easygoapp.com", "wcms_service.it-easygoapp.com" };
+
+                        if (!IPAddress.IsLoopback(ctx.Connection.RemoteIpAddress) && !allowed.Contains(host, StringComparer.OrdinalIgnoreCase))
                         {
                             ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
                             return;

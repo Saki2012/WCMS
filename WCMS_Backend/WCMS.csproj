@@ -2,12 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+	<!-- 明確指定 InProcess，給 IIS 用 -->
+	<AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 	<!-- 佈署精簡策略 -->
     <SelfContained>false</SelfContained>            <!-- 用機器已裝的 .NET Runtime，體積最小 -->
-    <PublishSingleFile>true</PublishSingleFile>     <!-- 輸出單檔（選用） -->
-    <PublishTrimmed>true</PublishTrimmed>           <!-- 程式集修剪，API 專案通常相容 -->
+    <PublishSingleFile>false</PublishSingleFile>     <!-- 輸出單檔（選用） -->
+    <PublishTrimmed>false</PublishTrimmed>           <!-- 程式集修剪，API 專案通常相容 -->
     <TrimMode>partial</TrimMode>
     <PublishReadyToRun>true</PublishReadyToRun>     <!-- 預編譯，啟動更快（略增體積；可改 false） -->
 	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
@@ -63,5 +65,4 @@
     <Folder Include="Features\SystemSetting\OperateLog\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
-
 </Project>

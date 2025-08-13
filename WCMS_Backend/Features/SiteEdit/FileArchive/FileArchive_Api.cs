@@ -14,8 +14,8 @@ namespace WCMS.Features.SiteEdit.FileArchive
     public class FileArchiveController : ApiDataController<FileArchiveSet>
     {
 
-#if DEBUG //轉移舊系統資料
-        [HttpPost(nameof(Migrate))]
+        #region Migration Old Data
+        [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct, string importFileLabel = "1810")
         {
             FileArchiveSet[] datas = await ConvertToApiModel(importFileLabel);
@@ -121,11 +121,10 @@ namespace WCMS.Features.SiteEdit.FileArchive
             }
             return result;
         }
-
-        private FileManageSet GetSetByPicture(string srcPic, List<FileManageSet> fileSets)
+        private static FileManageSet GetSetByPicture(string srcPic, List<FileManageSet> fileSets)
         {
             return fileSets.Where(x => x.FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Equals($@"File/Archive/{srcPic}".ToLowerInvariant()))).FirstOrDefault();
         }
-#endif
+        #endregion
     }
 }

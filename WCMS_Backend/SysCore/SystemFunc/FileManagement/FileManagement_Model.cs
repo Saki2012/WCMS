@@ -180,4 +180,30 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// </summary>
         public DateTime ExecuteTime { get; set; } = DateTime.UtcNow;
     }
+    /// <summary>
+    /// 檔案被用表 (之後再來做邏輯，先開表)
+    /// </summary>
+    public class FileManage_UsedModel
+    {
+        /// <summary>
+        /// 檔案識別碼
+        /// </summary>
+        [LibDesc, Key] public string InternalId { get; set; }
+        /// <summary>
+        /// 行代碼
+        /// </summary>
+        [LibDesc, Key] public int? RowId { get; set; }
+        /// <summary>
+        /// 使用的功能表名
+        /// </summary>
+        [LibDesc] public string TableName { get; set; }
+        /// <summary>
+        /// 使用的功能欄位名稱
+        /// </summary>
+        [LibDesc] public string ColumnName{ get; set; }
+        /// <summary>
+        /// 對應資料主鍵
+        /// </summary>
+        public string CompositeKey { get; set; }
+    }
 }

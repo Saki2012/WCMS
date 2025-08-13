@@ -2,10 +2,9 @@ import axios from 'axios';
 import type { AxiosInstance } from 'axios';
 
 export const API_BASE: string = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:7030';
-export const SERVICE_BASE: string = `${API_BASE}/Service`;
 
 export const serviceClient: AxiosInstance = axios.create({
-  baseURL: SERVICE_BASE,
+  baseURL: '/Service',
   withCredentials: true, // 同源 cookie
   headers: { 'Content-Type': 'application/json' },
 });

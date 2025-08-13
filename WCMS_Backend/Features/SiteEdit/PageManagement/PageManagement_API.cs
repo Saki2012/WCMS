@@ -15,8 +15,8 @@ namespace WCMS.Features.SiteEdit.PageManagement
     {
 
 
-#if DEBUG //轉移舊系統資料
-        [HttpPost(nameof(Migrate))]
+        #region Migration Old Data
+        [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct, string importFileLabel = "1810")
         {
             PageManagementSet[] datas = await ConvertToApiModel(importFileLabel);
@@ -77,6 +77,6 @@ namespace WCMS.Features.SiteEdit.PageManagement
             }
             return [.. result];
         }
-#endif
+        #endregion
     }
 }

@@ -15,8 +15,8 @@ namespace WCMS.Features.SiteEdit.Banner
     public class BannerController: ApiDataController<BannerSet>
     {
 
-#if DEBUG //轉移舊系統資料
-        [HttpPost(nameof(Migrate))]
+        #region Migration Old Data
+        [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct, string importFileLabel = "1810")
         {
             BannerSet[] datas = await ConvertToApiModel(importFileLabel);
@@ -107,11 +107,10 @@ namespace WCMS.Features.SiteEdit.Banner
             }
             return [.. result];
         }
-
         private FileManageSet GetSetByPicture(string srcPic, List<FileManageSet> fileSets)
         {
             return fileSets.Where(x => x.FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Equals($@"File/Banner/{srcPic}".ToLowerInvariant()))).FirstOrDefault();
         }
-#endif
+        #endregion
     }
 }

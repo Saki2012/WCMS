@@ -14,56 +14,73 @@ const THROTTLE_MS = 300_000;
 let lastCheckAt = 0;
 let lastOK = false;
 
+type Status = 'checking' | 'ok' | 'unauth';
+type Props = { children: ReactNode };
+
 export function resetAuthProbe() {
   lastOK = false;
   lastCheckAt = 0;
 }
 
-export default function RequireAuth({ children }: { children: ReactNode }) {
-  const [status, setStatus] = useState<'checking' | 'ok' | 'unauth'>('checking');
+export default function RequireAuth({ children }: Props) {
   const loc = useLocation();
-  const mounted = useRef(true);
+  const [status, setStatus] = useState<Status>('checking');
+  const inFlight = useRef<Promise<void> | null>(null);          // 同步去重，避免多次同時打 /Me
+  const lastVisibleAtRef = useRef<number>(0);                   // Alt+Tab 去重用
 
-  // 核心檢查函式
-  const checkAuth = async (opts?: { force?: boolean }) => {
-    const force = !!opts?.force;
+  // 靜默檢查 soft=true：不切到「驗證中…」，僅在失敗時導回登入
+  const checkAuth = async (opts: { force?: boolean; soft?: boolean } = {}) => {
+    const { force = false, soft = false } = opts;
     const now = Date.now();
 
-    // 節流條件：非強制、且上一次是 OK、且在節流時間內 → 直接沿用 OK
+    // 節流：同來源 300s 內且上次 OK 就不重打（除非 force）
     if (!force && lastOK && now - lastCheckAt < THROTTLE_MS) {
       setStatus('ok');
       return;
     }
 
-    setStatus('checking');
-    try {
-      await AuthAPI.me();      // 401 會由攔截器自動 refresh，再重送 /Me
-      lastOK = true;
-      lastCheckAt = now;
-      if (mounted.current) setStatus('ok');
-    } catch {
-      lastOK = false;
-      lastCheckAt = now;
-      if (mounted.current) setStatus('unauth');
+    // 非靜默才顯示「驗證中…」
+    if (!soft && status !== 'checking') setStatus('checking');
+
+    // 去重：避免同時多次呼叫
+    if (inFlight.current) {
+      await inFlight.current;
+      return;
     }
+
+    const run = (async () => {
+      try {
+        await AuthAPI.me();      // 401 會由攔截器自動 refresh，再重送 /Me
+        lastOK = true;
+        lastCheckAt = Date.now();
+        setStatus('ok');
+      } catch {
+        lastOK = false;
+        lastCheckAt = Date.now();
+        setStatus('unauth');
+      }
+    })();
+
+    inFlight.current = run;
+    await run;
+    inFlight.current = null;
   };
 
-  // A) 路由切換：節流檢查
   useEffect(() => {
-    mounted.current = true;
-    checkAuth({ force: false });
-    return () => { mounted.current = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loc.pathname]);
+    // 初次進入：一般檢查
+    checkAuth({ force: true }).catch(() => {});
 
-  // B) 頁籤從背景回來/視窗獲得焦點：強制檢查（忽略節流）
-  useEffect(() => {
     const onVisible = () => {
-      if (document.visibilityState === 'visible') checkAuth({ force: true });
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
+      lastVisibleAtRef.current = Date.now();
+      checkAuth({ force: true, soft: true }); // 靜默檢查
     };
-    const onFocus = () => checkAuth({ force: true });
+    const onFocus = () => {
+      // Alt+Tab 常見順序：先 visibilitychange → 再 focus；400ms 內視為同一次
+      if (Date.now() - lastVisibleAtRef.current < 400) return;
+      checkAuth({ force: true, soft: true }); // 靜默檢查
+    };
 
-    // SSR 安全檢查
     if (typeof window !== 'undefined' && typeof document !== 'undefined') {
       document.addEventListener('visibilitychange', onVisible);
       window.addEventListener('focus', onFocus);

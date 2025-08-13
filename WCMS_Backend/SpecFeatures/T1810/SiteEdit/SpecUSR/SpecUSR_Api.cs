@@ -16,8 +16,10 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
     [ApiController, Route(SysParam.ServiceRoute)]
     public class SpecUSRController : ApiDataController<SpecUSRSet>
     {
-#if DEBUG //轉移舊系統資料
-        [HttpPost(nameof(Migrate))]
+
+
+        #region Migration Old Data
+        [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct,string importFileLabel = "1810")
         {
             SpecUSRSet[] datas = await ConvertToApiModel(importFileLabel);
@@ -132,6 +134,6 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         {
             return fileSets.Where(x => x.FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Equals($@"File/USRProject/{srcPic}".ToLowerInvariant()))).FirstOrDefault();
         }
-#endif
+        #endregion
     }
 }

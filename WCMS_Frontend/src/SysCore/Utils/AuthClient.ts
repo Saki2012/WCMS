@@ -2,11 +2,8 @@ import axios from 'axios';
 import type{ AxiosRequestConfig } from 'axios';
 type AnyConfig = import('axios').InternalAxiosRequestConfig & { _retry?: boolean };
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:7030';
-const AUTH_BASE = `${API_BASE}/Service/Auth`;
-
 export const authClient = axios.create({
-  baseURL: AUTH_BASE,
+  baseURL: '/Service/Auth',
   withCredentials: true,              // Cookie 流程（HttpOnly）
   headers: { 'Content-Type': 'application/json' },
 });

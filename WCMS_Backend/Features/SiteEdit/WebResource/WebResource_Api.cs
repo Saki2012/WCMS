@@ -15,8 +15,8 @@ namespace WCMS.Features.SiteEdit.WebResource
     [ApiController, Route(SysParam.ServiceRoute)]
     public class WebResourceController : ApiDataController<WebResourceSet>
     {
-#if DEBUG //轉移舊系統資料
-        [HttpPost(nameof(Migrate))]
+        #region Migration Old Data
+        [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct, string importFileLabel="1810")
         {
             WebResourceSet[] datas = await ConvertToApiModel(importFileLabel);
@@ -93,7 +93,6 @@ namespace WCMS.Features.SiteEdit.WebResource
             }
             return [.. result];
         }
-
         private static ContentStatus GetContentStatus(string status)
         {
             ContentStatus result = ContentStatus.None;
@@ -118,6 +117,6 @@ namespace WCMS.Features.SiteEdit.WebResource
         {
             return fileSets.Where(x => x.FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Equals($@"File/WebResource/{srcPic}".ToLowerInvariant()))).FirstOrDefault();
         }
-#endif
+        #endregion
     }
 }

@@ -3,7 +3,6 @@ using System.Data;
 
 namespace WCMS.SysCore.Library
 {
-#if DEBUG
     public static class MigrateOldData
     {
         public static DataSet GetOldData(Dictionary<string, string> sqls)
@@ -37,7 +36,4 @@ namespace WCMS.SysCore.Library
             };
         }
     }
-
-    
-#endif
 }

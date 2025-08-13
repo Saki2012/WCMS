@@ -18,8 +18,8 @@ namespace WCMS.Features.SiteEdit.Gallery
     public class GalleryController : ApiDataController<GallerySet>
     {
 
-#if DEBUG //轉移舊系統資料，以後不再用就刪除或移動到其他專案備用
-        [HttpPost(nameof(Migrate))]
+        #region Migration Old Data
+        [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct, string importFileLabel = "1810")
         {
             GallerySet[] datas = await ConvertToApiModel(importFileLabel);
@@ -147,10 +147,10 @@ namespace WCMS.Features.SiteEdit.Gallery
             }
             return result;
         }
-        private FileManageSet GetSetByPicture(string srcPic, List<FileManageSet> fileSets)
+        private static FileManageSet GetSetByPicture(string srcPic, List<FileManageSet> fileSets)
         {
             return fileSets.Where(x => x.FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Contains($@"{srcPic}".ToLowerInvariant()))).FirstOrDefault();
         }
-#endif
+        #endregion
     }
 }

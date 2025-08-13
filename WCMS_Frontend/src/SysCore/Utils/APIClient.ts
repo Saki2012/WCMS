@@ -3,10 +3,8 @@ import * as qs from 'qs';
 import { ZodError } from 'zod';
 import type { ZodType } from 'zod'
 import type { QueryListCondition,ApiResponse } from '../Interface/IApiProvider';
-const backendServer = import.meta.env.VITE_API_BASE_URL || 'http://localhost:7030';
 
 const client = axios.create({
-  // baseURL: `${backendServer}/Service`,
   baseURL: `/Service`,
   headers: {
     'Content-Type': 'application/json',

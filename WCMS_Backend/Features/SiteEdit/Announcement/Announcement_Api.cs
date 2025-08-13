@@ -17,8 +17,9 @@ namespace WCMS.Features.SiteEdit.Announcement
     public class AnnouncementController : ApiDataController<AnnouncementSet>
     {
 
-#if DEBUG //轉移舊系統資料
-        [HttpPost(nameof(Migrate))]
+
+        #region Migration Old Data
+        [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct, string importFileLabel = "1810")
         {
             AnnouncementSet[] datas = await ConvertToApiModel(importFileLabel);
@@ -140,11 +141,10 @@ namespace WCMS.Features.SiteEdit.Announcement
             }
             return result;
         }
-
         private FileManageSet GetSetByPicture(string srcPic, List<FileManageSet> fileSets)
         {
             return fileSets.Where(x => x.FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Equals($@"File/News/{srcPic}".ToLowerInvariant()))).FirstOrDefault();
         }
-#endif
+        #endregion
     }
 }

@@ -13,8 +13,9 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
     [ApiController, Route(SysParam.ServiceRoute)]
     public class SpecCategoryController : ApiDataController<SpecCategorySet>
     {
-#if DEBUG //轉移舊系統資料
-        [HttpPost(nameof(Migrate))]
+
+        #region Migration Old Data
+        [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct)
         {
             List<SpecCategorySet> datas=[.. ConvertResCategoryModel(), .. ConvertUSRCategoryModel()];
@@ -101,6 +102,6 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
             }
             return result.Remerge(",");
         }
-#endif
+        #endregion
     }
 }

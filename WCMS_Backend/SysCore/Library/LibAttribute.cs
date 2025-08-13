@@ -1,5 +1,8 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using System.ComponentModel;
 using System.Globalization;
+using System.Net;
 using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
@@ -41,6 +44,23 @@ namespace WCMS.SysCore.Library
                 }
                 return localized;
             }
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method)]
+    public sealed class LocalhostOnlyAttribute : Attribute, IActionFilter
+    {
+        public void OnActionExecuting(ActionExecutingContext context)
+        {
+            var remoteIp = context.HttpContext.Connection.RemoteIpAddress;
+            if (!IPAddress.IsLoopback(remoteIp))
+            {
+                context.Result = new ForbidResult(); // 403 禁止存取
+            }
+        }
+        public void OnActionExecuted(ActionExecutedContext context)
+        {
+            // 不需要做事
         }
     }
 }

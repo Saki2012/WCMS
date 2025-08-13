@@ -14,8 +14,8 @@ namespace WCMS.Features.SiteEdit.Category
     {
 
 
-#if DEBUG //轉移舊系統資料
-        [HttpPost(nameof(Migrate))]
+        #region Migration Old Data
+        [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct)
         {
             CategoryDataSet[] datas = ConvertToApiModel();
@@ -52,6 +52,6 @@ namespace WCMS.Features.SiteEdit.Category
             }
             return [.. result];
         }
-#endif
+        #endregion
     }
 }

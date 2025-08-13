@@ -27,8 +27,8 @@ export class BackendRouteModule implements IRouteModule {
         element: 
         <RequireAuth> 
           <DashboardPage theme={Classic_BETheme} /> 
-        </RequireAuth>,
-        children: [
+        </RequireAuth>
+        ,children: [
           //#region 網站功能管理
           {
             path: 'WebManagement',

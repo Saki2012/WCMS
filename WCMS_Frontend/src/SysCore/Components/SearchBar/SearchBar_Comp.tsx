@@ -14,7 +14,7 @@ const SearchBarComp =() => {
                 </div>  
 
                 <div className="col-sm-2 col-12 text-center mt-0 mb-2 p-0">
-                    <button type="submit" id="btn_search" className="btn-search-custom btn-custom-color" onClick={()=>''}>
+                    <button type="button" id="btn_search" className="btn-search-custom btn-custom-color" onClick={()=>''}>
                     搜尋
                     </button>
                 </div>

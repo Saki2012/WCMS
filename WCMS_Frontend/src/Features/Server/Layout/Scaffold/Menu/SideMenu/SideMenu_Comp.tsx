@@ -24,7 +24,7 @@ const SidebarMenu=({theme}:{theme:IBETheme})=>{
                             <img src="/Legacy/Server/images/logo/logo_PC_210x63.svg" className="img-fluid logo-lg" alt="logo"/>
                         </Link>
                     </h1>    
-                    <button onClick={toggleSideMenu} style={{ marginTop: "10px" }}/>
+                    <button type='button' onClick={toggleSideMenu} style={{ marginTop: "10px" }}/>
                 </div>
                 <div className="navbar-content open-trigger" data-simplebar="init">
                     <div className="simplebar-wrapper" style={{margin: "-10px 0px -50px"}}>

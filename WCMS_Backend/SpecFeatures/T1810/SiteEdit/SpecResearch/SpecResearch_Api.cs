@@ -17,8 +17,8 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
     public class SpecResearchController : ApiDataController<SpecResearchSet>
     {
 
-#if DEBUG //轉移舊系統資料
-        [HttpPost(nameof(Migrate))]
+        #region Migration Old Data
+        [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct)
         {
             SpecResearchSet[] datas = ConvertToApiModel();
@@ -103,6 +103,6 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
             }
             return result;
         }
-#endif
+        #endregion
     }
 }

@@ -11,8 +11,8 @@ namespace WCMS.Features.SiteEdit.Tag
     [ApiController, Route(SysParam.ServiceRoute)]
     public class TagController : ApiDataController<TagSet>
     {
-#if DEBUG //轉移舊系統資料
-        [HttpPost(nameof(Migrate))]
+        #region Migration Old Data
+        [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct)
         {
             TagSet[] datas = ConvertToApiModel();
@@ -49,6 +49,6 @@ namespace WCMS.Features.SiteEdit.Tag
             }
             return [.. result];
         }
-#endif
+        #endregion
     }
 }
