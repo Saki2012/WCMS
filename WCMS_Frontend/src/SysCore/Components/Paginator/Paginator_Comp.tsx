@@ -11,7 +11,7 @@ export const Paginator = ({ currentPage, totalPages, onPageChange, style }: Pagi
     const visiblePages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
     return (
         <div className="row mx-0 px-0">
-            <nav className="d-flex justify-content-center align-content-center w-100 px-0" aria-label="Page navigation">
+            <nav className="d-flex align-content-center w-100 px-0" aria-label="Page navigation">
                 <ul className={style.ul}>
                     <li className={style.li}>
                         {/* 在確認Link如何優化 */}

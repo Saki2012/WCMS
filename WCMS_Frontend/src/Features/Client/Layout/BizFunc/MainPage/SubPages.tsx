@@ -97,7 +97,7 @@ const SubContent = ({style}:{style:IFETheme}) => {
               {/* 主內容區塊 */}
               <div className="col-lg-10 col-md-12 col-sm-12 col-12" id="div_ThirdMenu">
                 <div className='col-sm-12 col-12 px-0 page-righttopmenu'></div>
-                <div className='col-sm-12 col-12 px-0'>
+                <div id="ContentPlaceContent_ContentConentA" className='col-sm-12 col-12 px-0'>
                   <hr className="mt-1 mb-4"></hr>
                   <Outlet />
                   </div>
