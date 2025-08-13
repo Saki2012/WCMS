@@ -5,6 +5,12 @@ cd /d %~dp0
 REM 啟動開發伺服器（背景執行）
 start "" cmd /k "npm run dev:csr"
 
+dotnet dev-certs https --check
+IF %ERRORLEVEL% NEQ 0 (
+    echo Installing and trusting dev cert...
+    dotnet dev-certs https --trust
+)
+
 REM 等待幾秒鐘讓伺服器啟動（可視狀況調整秒數）
 timeout /t 3 >nul
 
