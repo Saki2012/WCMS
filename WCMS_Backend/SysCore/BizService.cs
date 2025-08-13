@@ -18,7 +18,6 @@ namespace WCMS.SysCore
     public class BizService<TSet> : IBizService<TSet> where TSet : class
     {
         #region Property
-        protected ApiResponse<TSet> Response { get; } = new ApiResponse<TSet>();
         /// <summary>
         /// 
         /// </summary>
@@ -55,24 +54,7 @@ namespace WCMS.SysCore
         /// 
         /// </summary>
         private ApplicationDbContext DataAccess { get; }
-        /// <summary>
-        /// 回應結果
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        public class ApiResponse<T> : IApiResponse<T>
-        {
-            public bool IsSuccess { get { foreach (var msg in SysMessage) if (msg.Status == MessageStatus.Error) return false; return true;} }
-            public IList<SysMessageModel> SysMessage { get; set; } = [];
-            public IList<T>? Data { get; set; } = [];
-            public void AddMessage(MessageStatus status, SysMessageCode code)
-            {
-                SysMessage.Add(new SysMessageModel { Status=status, MessageCode=code.ToString()});
-            }
-            public void ThrowIfFailed(string message= "業務邏輯錯誤")
-            {
-                if (!IsSuccess) throw new BusinessException(message);
-            }
-        }
+        
         #endregion
 
         #region Construct
@@ -85,7 +67,7 @@ namespace WCMS.SysCore
         #endregion
 
         #region Public
-        public async Task<IApiResponse<TSet>> CreateSetAsync(TSet set)
+        public async Task<TSet> CreateSetAsync(TSet set)
         {
             try
             {
@@ -94,16 +76,16 @@ namespace WCMS.SysCore
                 SetCreateInfo(header);
                 await AutoGenerateId(header, details);
                 BeforeUpdate(set, FuncAction.Create);
-                Response.ThrowIfFailed();
+                //Response.ThrowIfFailed();
                 await DoCreateAsync(set);
                 AfterUpdate(default, set, FuncAction.Create, TransStatus.Increase);
-                Response.ThrowIfFailed();
+                //Response.ThrowIfFailed();
                 //await CommitDataAsync();
                 await DataAccess.SaveChangesAsync();      //先寫看看
                 AfterSaveChanges(FuncAction.Create);
-                Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00002);
-                Response.Data.Add(set);
-                return Response;
+                //Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00002);
+                //Response.Data.Add(set);
+                return set;
             }
             catch
             {
@@ -111,7 +93,7 @@ namespace WCMS.SysCore
                 throw;
             }
         }
-        public async Task<IApiResponse<TSet>> UpdateSetAsync(string internalId, TSet newSet)
+        public async Task<TSet> UpdateSetAsync(string internalId, TSet newSet)
         {
             try
             {
@@ -120,18 +102,17 @@ namespace WCMS.SysCore
                 SetModifyInfo(header);
                 await AutoGenerateId(header, details);
                 BeforeUpdate(newSet, FuncAction.Update);
-                Response.ThrowIfFailed();
+                //Response.ThrowIfFailed();
                 TSet oldSet = await DoQuerySetAsync(internalId);
                 TSet oldSet_Cache = oldSet.DeepClone();
                 await DoUpdateAsync(oldSet, newSet);
                 AfterUpdate(oldSet_Cache, oldSet, FuncAction.Update, TransStatus.Difference);//oldSet已經進入DataAccess，修改完會跟著修正至DB
-                Response.ThrowIfFailed();
+                //Response.ThrowIfFailed();
                 await CommitDataAsync();
                 AfterSaveChanges(FuncAction.Update);
-                Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00006);
-                Response.Data.Add(oldSet);
-                return Response;
-
+                //Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00006);
+                //Response.Data.Add(oldSet);
+                return oldSet;
             }
             catch
             {
@@ -139,7 +120,7 @@ namespace WCMS.SysCore
                 throw;
             }
         }
-        public async Task<IApiResponse<TSet>> DeleteSetAsync(string internalId)
+        public async Task<TSet> DeleteSetAsync(string internalId)
         {
             try
             {
@@ -148,15 +129,15 @@ namespace WCMS.SysCore
                 TSet oldSet = await DoQuerySetAsync(internalId);
                 TSet oldSet_Cache = oldSet.DeepClone();
                 BeforeUpdate(oldSet, FuncAction.Delete);
-                Response.ThrowIfFailed();
+                //Response.ThrowIfFailed();
                 await DoDeleteAsync(oldSet);
                 AfterUpdate(oldSet_Cache, oldSet, FuncAction.Delete, TransStatus.Difference);
-                Response.ThrowIfFailed();
+                //Response.ThrowIfFailed();
                 await CommitDataAsync();
                 AfterSaveChanges(FuncAction.Update);
-                Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00004);
-                Response.Data.Add(oldSet);
-                return Response;
+                //Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00004);
+                //Response.Data.Add(oldSet);
+                return oldSet;
             }
             catch
             {
@@ -164,7 +145,7 @@ namespace WCMS.SysCore
                 throw;
             }
         }
-        public async Task<IApiResponse<TSet>> InvalidSetAsync(string internalId, bool status)
+        public async Task<TSet> InvalidSetAsync(string internalId, bool status)
         {
             try
             {
@@ -174,15 +155,15 @@ namespace WCMS.SysCore
                 TSet newSet = oldSet.DeepClone();
                 DoInvalidSet(newSet, status);
                 BeforeUpdate(oldSet, FuncAction.Invalid);
-                Response.ThrowIfFailed();
+                //Response.ThrowIfFailed();
                 await DoUpdateAsync(oldSet, newSet);
                 AfterUpdate(oldSet_Cache, oldSet, FuncAction.Invalid, TransStatus.Difference);//oldSet已經進入DataAccess，修改完會跟著修正至DB
-                Response.ThrowIfFailed();
+                //Response.ThrowIfFailed();
                 await CommitDataAsync();
                 AfterSaveChanges(FuncAction.Update);
-                Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00008);
-                Response.Data.Add(oldSet);
-                return Response;
+                //Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00008);
+                //Response.Data.Add(oldSet);
+                return oldSet;
             }
             catch
             {
@@ -190,16 +171,16 @@ namespace WCMS.SysCore
                 throw;
             }
         }
-        public async Task<IApiResponse<TSet>> QuerySetAsync(string internalId)
+        public async Task<TSet> QuerySetAsync(string internalId)
         {
             var data = await DoQuerySetAsync(internalId);
             //Response.AddMessage(MessageStatus.Error, SysMessageCode.BECode00001);
-            Response.ThrowIfFailed();
-            Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00010);
-            Response.Data.Add(data);
-            return Response;
+            //Response.ThrowIfFailed();
+            //Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00010);
+            //Response.Data.Add(data);
+            return data;
         }
-        public async Task<IApiResponse<TSet>> QueryListAsync(string[] selectFields, string condition, int pageNumber, int pageSize)
+        public async Task<IList<TSet>> QueryListAsync(string[] selectFields, string condition, int pageNumber, int pageSize)
         {
             IList<TSet> result = [];
             foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
@@ -215,14 +196,13 @@ namespace WCMS.SysCore
                     }
                 }
             }
-            Response.ThrowIfFailed();
-            Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00010);
-            Response.Data = result;
-            return Response;
+            //Response.ThrowIfFailed();
+            //Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00010);
+            //Response.Data = result;
+            return result;
         }
-        public async Task<IApiResponse<int>> QueryTotalCounts(string[] selectFields, string condition)
+        public async Task<int> QueryTotalCounts(string[] selectFields, string condition)
         {
-            ApiResponse<int> res = new();
             int totalCount = 0;
             foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
             {
@@ -232,10 +212,7 @@ namespace WCMS.SysCore
                     totalCount = count;
                 }
             }
-            res.ThrowIfFailed();
-            res.AddMessage(MessageStatus.Green, SysMessageCode.BECode00010);
-            res.Data = [totalCount];
-            return res;
+            return totalCount;
         }
         /// <summary>
         /// 啟用交易控制(非同步)

@@ -1,22 +1,16 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
-using System.Collections;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
+using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Library.LibData;
 
 namespace WCMS.SysCore
 {
-
     public abstract class ApiBaseController<TSet> : ControllerBase where TSet : class
     {
         #region Property
@@ -88,15 +82,17 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="set"></param>
         /// <returns></returns>
-        [HttpPost(nameof(Create))]
-        public virtual async Task<IActionResult> Create(TSet set, CancellationToken ct)
+        [HttpPost(nameof(Create))] public virtual async Task<IActionResult> Create(TSet set, CancellationToken ct)
         {
             var result = await Service.CreateSetAsync(set);
             await EvictForSetAsync(ct);
-            return Ok(result);
+            var response = new ApiResponse<TSet>()
+            {
+                Data = [result],
+            };
+            return Ok(response);
         }
-        [HttpPost(nameof(InitialCreateData))]
-        public virtual async Task<IActionResult> InitialCreateData(TSet[] sets, CancellationToken ct)
+        [HttpPost(nameof(InitialCreateData))] public virtual async Task<IActionResult> InitialCreateData(TSet[] sets, CancellationToken ct)
         {
             await Service.BeginTransactionAsync();
             try
@@ -122,12 +118,15 @@ namespace WCMS.SysCore
         /// <param name="pk"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        [HttpPut(nameof(Update))]
-        public virtual async Task<IActionResult> Update(ApiRequest<TSet> data, CancellationToken ct)
+        [HttpPut(nameof(Update))] public virtual async Task<IActionResult> Update(IApiRequest<TSet> data, CancellationToken ct)
         {
             var result = await Service.UpdateSetAsync(data.InternalId, data.Data);
             await EvictForSetAsync(ct, data.InternalId);
-            return Ok(result);
+            var response = new ApiResponse<TSet>()
+            {
+                Data = [result],
+            };
+            return Ok(response);
         }
         /// <summary>
         /// 作廢
@@ -135,70 +134,80 @@ namespace WCMS.SysCore
         /// <param name="pk"></param>
         /// <param name="isInvalid"></param>
         /// <returns></returns>
-        [HttpPatch($"{nameof(Invalid)}/{{pk}}")]
-        public virtual async Task<IActionResult> Invalid(string internalId, bool isInvalid, CancellationToken ct)
+        [HttpPatch($"{nameof(Invalid)}/{{pk}}")] public virtual async Task<IActionResult> Invalid(string internalId, bool isInvalid, CancellationToken ct)
         {
             var result = await Service.InvalidSetAsync(internalId, isInvalid);
             await EvictForSetAsync(ct, internalId);
-            return Ok(result);
+            var response = new ApiResponse<TSet>()
+            {
+                Data = [result],
+            };
+            return Ok(response);
         }
         /// <summary>
         /// 批次作廢
         /// </summary>
         /// <param name="pks"></param>
         /// <returns></returns>
-        [HttpPatch(nameof(BatchInvalid))]
-        public virtual async Task<IActionResult> BatchInvalid(string[] internalIds, bool isInvalid, CancellationToken ct) => throw new NotImplementedException();
+        [HttpPatch(nameof(BatchInvalid))] public virtual async Task<IActionResult> BatchInvalid(string[] internalIds, bool isInvalid, CancellationToken ct) => throw new NotImplementedException();
         /// <summary>
         /// 刪除
         /// </summary>
         /// <param name="pk"></param>
         /// <returns></returns>
-        [HttpDelete(nameof(Delete))]
-        public virtual async Task<IActionResult> Delete(string internalId, CancellationToken ct)
+        [HttpDelete(nameof(Delete))] public virtual async Task<IActionResult> Delete(string internalId, CancellationToken ct)
         {
             var result = await Service.DeleteSetAsync(internalId);
             await EvictForSetAsync(ct, internalId);
-            return Ok(result);
+            var response = new ApiResponse<TSet>()
+            {
+                Data = [result],
+            };
+            return Ok(response);
         }
         /// <summary>
         /// 批次刪除
         /// </summary>
         /// <param name="pks"></param>
         /// <returns></returns>
-        [HttpDelete(nameof(BatchDelete))]
-        public virtual Task<IActionResult> BatchDelete(string[] internalIds, CancellationToken ct) => throw new NotImplementedException();
+        [HttpDelete(nameof(BatchDelete))] public virtual Task<IActionResult> BatchDelete(string[] internalIds, CancellationToken ct) => throw new NotImplementedException();
         /// <summary>
         /// 查看表單
         /// </summary>
         /// <param name="pk"></param>
         /// <returns></returns>
-        [HttpGet(nameof(QueryData)), OutputCache(PolicyName = "DetailJson")]
-        public virtual async Task<IActionResult> QueryData([FromQuery] string internalId, CancellationToken ct)
+        [HttpGet(nameof(QueryData)), OutputCache(PolicyName = "DetailJson")] public virtual async Task<IActionResult> QueryData([FromQuery] string internalId, CancellationToken ct)
         {
             AddDetailTags(internalId);
-            return Ok(await Service.QuerySetAsync(internalId));
+            var result = await Service.QuerySetAsync(internalId);
+            var response = new ApiResponse<TSet>()
+            {
+                Data = [result],
+            };
+            return Ok(response);
         }
         /// <summary>
         /// 查詢清單
         /// </summary>
         /// <returns></returns>
-        [HttpPost(nameof(QueryList)), OutputCache(PolicyName = "ListJson")]
-        public virtual async Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition, CancellationToken ct)
+        [HttpPost(nameof(QueryList)), OutputCache(PolicyName = "ListJson")] public virtual async Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition, CancellationToken ct)
         {
             AddListTags();
-            return Ok(await Service.QueryListAsync(queryCondition.Fields, queryCondition.Condition, queryCondition.PageNumber, queryCondition.PageSize));
+            var result = await Service.QueryListAsync(queryCondition.Fields, queryCondition.Condition, queryCondition.PageNumber, queryCondition.PageSize);
+            var response = new ApiResponse<TSet>() { Data = result, };
+            return Ok(response);
         }
         /// <summary>
         /// 獲取清單總頁數
         /// </summary>
         /// <param name="queryCondition"></param>
         /// <returns></returns>
-        [HttpPost(nameof(GetTotalCounts)), OutputCache(PolicyName = "ListJson")]
-        public virtual async Task<IActionResult> GetTotalCounts([FromBody] QueryListParam? queryCondition, CancellationToken ct)
+        [HttpPost(nameof(GetTotalCounts)), OutputCache(PolicyName = "ListJson")] public virtual async Task<IActionResult> GetTotalCounts([FromBody] QueryListParam? queryCondition, CancellationToken ct)
         {
             AddListTags();
-            return Ok(await Service.QueryTotalCounts(queryCondition.Fields ,queryCondition.Condition));
+            var result = await Service.QueryTotalCounts(queryCondition.Fields, queryCondition.Condition);
+            var response = new ApiResponse<int>() { Data = [result] };
+            return Ok(response);
         }
         #endregion
 
@@ -242,7 +251,24 @@ namespace WCMS.SysCore
             }
         }
     }
-
+    /// <summary>
+    /// 回應結果
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class ApiResponse<T> : IApiResponse<T>
+    {
+        public bool IsSuccess { get { foreach (var msg in SysMessage) if (msg.Status == MessageStatus.Error) return false; return true; } }
+        public IList<SysMessageModel> SysMessage { get; set; } = [];
+        public IList<T>? Data { get; set; } = [];
+        public void AddMessage(MessageStatus status, SysMessageCode code)
+        {
+            SysMessage.Add(new SysMessageModel { Status = status, MessageCode = code.ToString() });
+        }
+        public void ThrowIfFailed(string message = "業務邏輯錯誤")
+        {
+            if (!IsSuccess) throw new BusinessException(message);
+        }
+    }
     /// <summary>
     /// 
     /// </summary>
@@ -250,12 +276,12 @@ namespace WCMS.SysCore
     public class ApiRequest<TSet> : IApiRequest<TSet>
     {
         public string InternalId { get; set; }
-        public TSet Data { get; set; }
+        public TSet? Data { get; set; }
     }
     /// <summary>
     /// 查詢條件
     /// </summary>
-    public class QueryListParam
+    public class QueryListParam: IQueryListParam
     {
         public string[] Fields { get; set; }
         public string Condition { get; set; }

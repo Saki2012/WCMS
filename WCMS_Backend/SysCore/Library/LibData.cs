@@ -514,12 +514,14 @@ namespace WCMS.SysCore.Library
         {
             using var ms = new MemoryStream();
             file.CopyTo(ms);
+            ms.Position = 0;
             return GetFileSHA256(ms);
         }
 
         public static string GetFileSHA256(string filePath)
         {
             using var hashStream = File.OpenRead(filePath);
+            hashStream.Position = 0;
             return GetFileSHA256(hashStream);
         }
 

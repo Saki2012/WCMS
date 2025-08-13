@@ -34,10 +34,10 @@ namespace WCMS.Features.SiteEdit.FileArchive
 
             var importFileInternalIds = await FileService.QueryListAsync([nameof(FileManageModel.InternalId)], $"{nameof(FileManageModel.ImportLabel)} = {importFileLabel}", 0, 0);
             List<FileManageSet> fileSets = [];
-            foreach (var id in importFileInternalIds.Data.Select(p => p.FileManage.InternalId).ToList().Distinct())
+            foreach (var id in importFileInternalIds.Select(p => p.FileManage.InternalId).ToList().Distinct())
             {
                 var data = await FileService.QuerySetAsync(id);
-                fileSets.Add(data.Data.LastOrDefault());
+                fileSets.Add(data);
             }
             var fileSrcIdDic = fileSets.SelectMany(s => s.FileManage_SyncInfo).GroupBy(d => d.SrcFullPath).ToDictionary(g => g.Key, g => g.First().InternalId);
             List<FileManageSet> updateFileSets = [];

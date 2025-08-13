@@ -25,19 +25,22 @@ export const useTinyMCE = (p: TinyMceHookOptions) => {
   const copiedStyleRef = useRef<CopiedInlineStyle>(null);
 
   const uploadAndReturn = async (file: File) => {
-    const api = p.uploadFileApi ?? '/Service/File/UploadTemp';
+    const api = p.uploadFileApi ?? '/Service/FileManagement/UploadTemp';
     const fd = new FormData();
     fd.append('file', file);
     const res = await fetch(api, { method: 'POST', body: fd });
     if (!res.ok) throw new Error('Upload failed');
     // 後端請回傳 { internalId: "xxx", name: "filename.ext" }
     const json = await res.json();
-    if (!json?.internalId) throw new Error('No internalId');
-    return json as { internalId: string; name?: string };
+    if(!json.IsSuccess){ throw new Error('No internalId');}
+    return {
+    internalId: json.Data[0],
+    name: file.name
+  } as { internalId: string; name: string };
   };
 
   const toUrl = (id: string, kind: 'file' | 'image') =>
-    (p.makeFileUrl?.(id, { kind })) ?? `/Service/File/Preview/${id}`;
+    (p.makeFileUrl?.(id, { kind })) ?? `/Service/FileManagement/Preview/${id}`;
 
   const pickLocalFile = (cb: (file: File) => void) => {
     const input = document.createElement('input');

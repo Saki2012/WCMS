@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using WCMS.SysCore.Model;
 namespace WCMS.SysCore.Interface
 {
@@ -19,7 +20,7 @@ namespace WCMS.SysCore.Interface
         /// <param name="pk"></param>
         /// <param name="set"></param>
         /// <returns></returns>
-        public Task<IActionResult> Update(ApiRequest<TSet> set, CancellationToken ct);
+        public Task<IActionResult> Update(IApiRequest<TSet> set, CancellationToken ct);
         /// <summary>
         /// 作廢
         /// </summary>
@@ -57,6 +58,13 @@ namespace WCMS.SysCore.Interface
         /// <returns></returns>
         public Task<IActionResult> QueryList([FromBody] QueryListParam queryCondition, CancellationToken ct);
         /// <summary>
+        /// 查詢清單總數
+        /// </summary>
+        /// <param name="queryCondition"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        public Task<IActionResult> GetTotalCounts([FromBody] QueryListParam? queryCondition, CancellationToken ct);
+        /// <summary>
         /// 獲取功能的欄位模型顯示名稱
         /// </summary>
         /// <returns></returns>
@@ -79,7 +87,7 @@ namespace WCMS.SysCore.Interface
         public Task<IActionResult> GetModelDisplayName();
     }
     /// <summary>
-    /// 
+    /// 回傳結果
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public interface IApiResponse<T>
@@ -89,12 +97,22 @@ namespace WCMS.SysCore.Interface
         public IList<T>? Data { get; set; }
     }
     /// <summary>
-    /// 
+    /// 更新資料請求
     /// </summary>
     /// <typeparam name="TSet"></typeparam>
     public interface IApiRequest<TSet>
     {
         public string InternalId { get; set; }
-        public TSet Data { get; set; }
+        public TSet? Data { get; set; }
+    }
+    /// <summary>
+    /// 查詢條件請求
+    /// </summary>
+    public interface IQueryListParam
+    {
+        public string[] Fields { get; set; }
+        public string Condition { get; set; }
+        public int PageNumber { get; set; }
+        public int PageSize { get; set; }
     }
 }

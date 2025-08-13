@@ -1,16 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using MimeDetective;
-using MimeDetective.Storage;
 using SharpCompress.Archives;
-using System.IO;
-using System.Net;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
-using static MimeDetective.Definitions.DefaultDefinitions;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.SystemFunc.FileManagement
@@ -26,7 +18,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// 暫時上傳，放至暫存區
         /// </summary>
         /// <param name="file"></param>
-        public async Task UploadTemp(IFormFile file)
+        public async Task<string> UploadTemp(IFormFile file)
         {
             string sha256 = LibData.GetFileSHA256(file);
             var (isNew, set) = await CheckSHA256Async(sha256,file);
@@ -36,6 +28,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 set.FileManage.FileStatus = FileStatus.Pending;
             }
             await(isNew? CreateSetAsync(set) : UpdateSetAsync(set.FileManage.InternalId, set));
+            return set.FileManage.InternalId;
         }
         /// <summary>
         /// 確定保存，移至正式區
@@ -350,7 +343,39 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <returns></returns>
         private static bool CheckExtension(string fileType)
         {
-            string[] checkList = [FileExtensions.PDF,FileExtensions.TXT];
+            string[] checkList = [
+                #region 文字檔案
+                FileExtensions.PDF,
+                FileExtensions.DOCX,
+                FileExtensions.XLSX,
+                FileExtensions.PPTX,
+                FileExtensions.TXT,
+                FileExtensions.CSV,
+                #endregion
+                #region 圖片
+                FileExtensions.JPG,
+                FileExtensions.JPEG,
+                FileExtensions.PNG,
+                FileExtensions.GIF,
+                FileExtensions.BMP,
+                FileExtensions.WEBP,
+                FileExtensions.SVG ,
+                #endregion
+                #region 壓縮檔案
+                FileExtensions.ZIP,
+                FileExtensions.RAR,
+                FileExtensions._7Z ,
+                #endregion
+                #region 影音
+                FileExtensions.MP3,
+                FileExtensions.WAV,
+                FileExtensions.MP4,
+                FileExtensions.MOV,
+                FileExtensions.MKV,
+                #endregion
+            ];
+
+
             return checkList.Contains(fileType.ToLowerInvariant());
         }
         /// <summary>
@@ -360,7 +385,29 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <returns></returns>
         private static bool CheckMimeType(string fileType)
         {
-            string[] checkList = [MimeTypes.APPLICATION_PDF, MimeTypes.TEXT_PLAIN];
+            string[] checkList = [
+                MimeTypes.APPLICATION_PDF,
+                MimeTypes.APPLICATION_MSWORD,
+                MimeTypes.APPLICATION_VND_OPENXML_WORD ,
+                MimeTypes.APPLICATION_VND_EXCEL         ,
+                MimeTypes.APPLICATION_VND_OPENXML_EXCEL ,
+                MimeTypes.APPLICATION_VND_POWERPOINT ,
+                MimeTypes.APPLICATION_VND_OPENXML_POWERPOINT ,
+                MimeTypes.TEXT_PLAIN ,
+                MimeTypes.TEXT_CSV ,
+                MimeTypes.IMAGE_JPEG,
+                MimeTypes.IMAGE_PNG ,
+                MimeTypes.IMAGE_GIF ,
+                MimeTypes.IMAGE_BMP ,
+                MimeTypes.IMAGE_WEBP ,
+                MimeTypes.IMAGE_SVG_XML,
+                MimeTypes.APPLICATION_ZIP,
+                MimeTypes.APPLICATION_VND_RAR ,
+                MimeTypes.APPLICATION_X_7Z_COMPRESSED ,
+                MimeTypes.AUDIO_MPEG,
+                MimeTypes.AUDIO_WAV,
+                MimeTypes.VIDEO_MP4,
+                MimeTypes.VIDEO_QUICKTIME];
             return checkList.Contains(fileType.ToLowerInvariant());
         }
         /// <summary>

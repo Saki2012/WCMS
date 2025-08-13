@@ -1,14 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.AspNetCore.Routing.Constraints;
-using Microsoft.Extensions.FileProviders;
-using System.Net;
-using WCMS.Features.SiteEdit.PageManagement;
-using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
-using WCMS.SysCore.Library;
-using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.SystemFunc.FileManagement
 {
@@ -26,22 +18,25 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         [RequestSizeLimit(200L * 1024 * 1024)] // 200 MB
         public async Task<IActionResult> UploadTemp(IFormFile file)
         {
-            await ((FileManagementBiz)Service).UploadTemp(file);
-            return Ok();
+            var internalId = await ((FileManagementBiz)Service).UploadTemp(file);
+            var response = new ApiResponse<string>() { Data = [internalId] };
+            return Ok(response);
         }
 
         [HttpPost(nameof(MoveToPermanent))]
         public async Task<IActionResult> MoveToPermanent(string[] internalIds)
         {
             await ((FileManagementBiz)Service).MoveToPermanent(internalIds);
-            return Ok();
+            var response = new ApiResponse<string>() { Data = internalIds };
+            return Ok(response);
         }
 
         [HttpPost(nameof(CancelUploadFiles))]
         public async Task<IActionResult> CancelUploadFiles(string[] internalIds)
         {
             await ((FileManagementBiz)Service).CancelUploadFiles(internalIds);
-            return Ok();
+            var response = new ApiResponse<string>() { Data = internalIds };
+            return Ok(response);
         }
 
         /// <summary>
@@ -76,7 +71,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 PageNumber =1,
             };
             var fileQuery = await Service.QueryListAsync(param.Fields,param.Condition,param.PageNumber,param.PageSize);
-            var file = fileQuery.Data.FirstOrDefault().FileManage;
+            var file = fileQuery.FirstOrDefault().FileManage;
             if (file is null) return NotFound();
             // 1) 包成 DateTimeOffset（UTC）並去掉毫秒
             DateTime utc = (DateTime)file.ModifyTime;

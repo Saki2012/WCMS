@@ -20,3 +20,6 @@ dotnet_diagnostic.CS8601.severity = silent
 
 # IDE0059: 指派了不必要的值
 dotnet_diagnostic.IDE0059.severity = silent
+
+# CS8629: 可為 Null 的實值型別可為 Null。
+dotnet_diagnostic.CS8629.severity = silent
