@@ -1,6 +1,6 @@
 // src/components/TinyMCE_Comp.tsx
 import { Editor } from '@tinymce/tinymce-react';
-import { useTinyMCE,useTinyMceInternalImage,useTinyBlurShield  } from './TinyMCE_Hook';
+import { useTinyMCE,useTinyMceInternalImage } from './TinyMCE_Hook';
 import { useMemo } from 'react';
 
 type Props = {
@@ -49,13 +49,11 @@ const TinyMCE_Comp = ({ args }: Props) => {
     const init = useMemo(() => {
       const existingInit = tiny.init as any;
       const originalSetup: ((editor: any) => void) | undefined = existingInit?.setup;
-      const { setup } = useTinyBlurShield();
 
       return {
         ...existingInit,
         // 只做前後串接：先跑原本的 setup（如果有），再跑我們的 image.setup
         setup: (editor: any) => {
-          setup(editor)
           
           if (typeof originalSetup === 'function') originalSetup(editor);
           image.setup(editor);

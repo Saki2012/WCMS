@@ -37,10 +37,10 @@ export const useGetTagListByProgId = (progId:string, lang:string, pageSize:numbe
       }
       const result: Record<string, string> =
         (res.Data as TagSet[] ?? []).reduce((acc, p) => {
-          const internalId = p.TagData?.InternalId;
-          if (!internalId) return acc;
+          const tagId = p.TagData?.TagId;
+          if (!tagId) return acc;
           const matchedDetail = p.TagData?.TagDetail?.find((detail: TagDetail) => detail.Lang === lang);
-          acc[internalId] = matchedDetail?.TagName ?? '';
+          acc[tagId] = matchedDetail?.TagName ?? '';
           return acc;
         }, {} as Record<string, string>);
       setData(result);

@@ -20,7 +20,7 @@ namespace WCMS.SysCore.Interface
         /// <param name="pk"></param>
         /// <param name="set"></param>
         /// <returns></returns>
-        public Task<IActionResult> Update(IApiRequest<TSet> set, CancellationToken ct);
+        public Task<IActionResult> Update(ApiRequest<TSet> set, CancellationToken ct);
         /// <summary>
         /// 作廢
         /// </summary>

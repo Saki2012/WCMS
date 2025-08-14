@@ -34,10 +34,10 @@ export const useGetCategoryListByProgId = (progId:string, lang:string, pageSize:
       }
       const result: Record<string, string> =
         (res.Data as CategoryDataSet[] ?? []).reduce((acc, p) => {
-          const internalId = p.Category?.InternalId;
-          if (!internalId) return acc;
+          const categoryId = p.Category?.CategoryId;
+          if (!categoryId) return acc;
           const matchedDetail = p.Category?.CategoryDetail?.find((detail: CategoryDetail) => detail.Lang === lang);
-          acc[internalId] = matchedDetail?.CategoryName ?? '';
+          acc[categoryId] = matchedDetail?.CategoryName ?? '';
           return acc;
         }, {} as Record<string, string>);
       setData(result);

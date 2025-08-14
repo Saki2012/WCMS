@@ -24,6 +24,18 @@ namespace WCMS.Features.SiteEdit.Announcement
                     break;
             }
         }
+
+        protected override void AfterUpdate(AnnouncementSet? oldSet, AnnouncementSet? newSet, SysEnum.FuncAction act, SysEnum.TransStatus status)
+        {
+            base.AfterUpdate(oldSet, newSet, act, status);
+            switch (act)
+            {
+                case SysEnum.FuncAction.Create:
+                case SysEnum.FuncAction.Update:
+                    //DoRemergeData(set);
+                    break;
+            }
+        }
         #endregion
 
         #region Private
@@ -36,6 +48,7 @@ namespace WCMS.Features.SiteEdit.Announcement
             header.Categories = header.Categories.Remerge(",");
             header.Tags = header.Tags.Remerge(",");
         }
+
         #endregion
     }
 }

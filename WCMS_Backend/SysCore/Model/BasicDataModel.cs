@@ -1,10 +1,9 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using WCMS.SysCore.Library;
 using static WCMS.SysCore.Enum.SysEnum;
-using System.Security.AccessControl;
-using Microsoft.EntityFrameworkCore;
 
 namespace WCMS.SysCore.Model
 {
@@ -68,14 +67,13 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 資料版本-併發控制
         /// </summary>
-        [LibDesc, Timestamp] public byte[] DataVersion { get; set; } = default!;
+        [LibDesc, Timestamp, JsonIgnore] public byte[]? DataVersion { get; set; } = default!;
     }
     /// <summary>
     /// 主要資料
     /// </summary>
     public class MasterDataModel:BasicDataModel
     {
-
         /// <summary>
         /// 資料有效日期-起
         /// </summary>
