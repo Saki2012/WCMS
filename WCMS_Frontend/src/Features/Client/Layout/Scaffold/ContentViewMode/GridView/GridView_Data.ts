@@ -1,7 +1,6 @@
 import type { IFETheme } from "../../../Theme/ITheme"
 import type { GridProps } from "../../../../../../SysCore/Components/Grid/Grid_Data"
 import type { ReactNode } from "react"
-import type { FileInfo } from "../../../../../../SysCore/Components/File/fetchFileMeta"
 
 export interface ListCompProp{
     // Title:string
@@ -25,5 +24,5 @@ export interface ContentCompProp{
   Tag?:string[]
   Content?:ReactNode
   Href?:string
-  Files?:FileInfo[]
+  Files?:any[]
 }

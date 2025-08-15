@@ -57,7 +57,7 @@ export const MessageProvider = ({ children }: { children: ReactNode }) => {
     <MessageContext.Provider value={{ showToast, showConfirm }}>
 
       {/* Toasts */}
-      {createPortal(
+      {/* {createPortal(
         <div className="toast-container">
           {toasts.map(t => (
             <div key={t.id} className={`toast ${t.type}`}>
@@ -67,7 +67,7 @@ export const MessageProvider = ({ children }: { children: ReactNode }) => {
           ))}
         </div>,
         document.body
-      )}
+      )} */}
 
       {/* Confirm Dialog */}
       {confirm && (

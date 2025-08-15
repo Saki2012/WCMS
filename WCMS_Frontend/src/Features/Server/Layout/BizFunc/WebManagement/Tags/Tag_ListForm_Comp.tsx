@@ -11,6 +11,7 @@ import TagProvider from "./Tag_Api";
 import { LibTextBox } from "../../../../../../SysCore/Components/FormField/LibFormField";
 import { Link } from "react-router-dom";
 type TagSet = components["schemas"]["TagSet"]
+type TagDetail = components["schemas"]["TagDetail"]
 const emptyData:TagSet={
     TagData:{},
     TagDetail:[]
@@ -71,12 +72,13 @@ const generateLangFields = ( lang: string, label: string, theme: IBETheme,
     formData:TagSet,  setFormData: React.Dispatch<React.SetStateAction<TagSet | null>>
     ): React.ReactNode[] => 
     {
-    const details = formData?.TagDetail ?? [];
-    const getLangData = (): TagSet["TagDetail"][number] => details.find(d => d.Lang === lang) ?? { Lang: lang, Title: "", SubTitle: "", Content: "", Url: "" };
+    const details: TagDetail[] = (formData?.TagDetail ?? []) as TagDetail[];
+    const getLangData = (): TagDetail => details.find(d => d.Lang === lang) ?? ({ Lang: lang, Title: "", SubTitle: "", Content: "", Url: "" } as TagDetail);
+
     const updateLangData = (key: "Title" | "SubTitle" | "Content" | "Url", val: string) => {
         const currentData = getLangData();
         const newItem = { ...currentData, [key]: val };
-        const isEmpty = (newItem.Title?.trim() ?? "") === "" && (newItem.Content?.trim() ?? "") === "";
+        const isEmpty = (newItem.TagName?.trim() ?? "") === "";
         const nextDetails = isEmpty ? details.filter((d) => d.Lang !== lang) : details.some((d) => d.Lang === lang) ? details.map((d) => (d.Lang === lang ? newItem : d)) : [...details, newItem];
         setFormData({ ...formData, TagDetail: nextDetails });
     };

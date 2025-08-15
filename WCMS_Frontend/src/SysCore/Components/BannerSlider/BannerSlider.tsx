@@ -1,62 +1,62 @@
 /* Banner */
 import { useEffect, useRef } from 'react';
-import {Carousel} from 'bootstrap'
+// import {Carousel} from 'bootstrap'
 import 'swiper/swiper-bundle.css';
 
 const BannerSlider = () => {
   const bannerRef = useRef<HTMLElement>(null);
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
+//   useEffect(() => {
+//     if (typeof window === 'undefined') return;
 
 
 
     
-    // ✅ Bootstrap Carousel
-    if (bannerRef.current) {
-        const myCarousel = bannerRef.current.querySelector('#carousel-Controls');
-        const myCarousel2 = bannerRef.current.querySelector('#carousel-Controls_MB');
+//     // ✅ Bootstrap Carousel
+//     if (bannerRef.current) {
+//         const myCarousel = bannerRef.current.querySelector('#carousel-Controls');
+//         const myCarousel2 = bannerRef.current.querySelector('#carousel-Controls_MB');
   
-        if (myCarousel) {
-          new Carousel(myCarousel, {
-            interval: 5000,
-            pause: false,
-            ride: 'carousel',
-            touch: true,
-            wrap: true,
-            keyboard: true,
-          });
-        }
+//         if (myCarousel) {
+//           new Carousel(myCarousel, {
+//             interval: 5000,
+//             pause: false,
+//             ride: 'carousel',
+//             touch: true,
+//             wrap: true,
+//             keyboard: true,
+//           });
+//         }
   
-        if (myCarousel2) {
-          new Carousel(myCarousel2, {
-            interval: 5000,
-            pause: false,
-            ride: 'carousel',
-            touch: true,
-            wrap: true,
-            keyboard: true,
-          });
-        }
+//         if (myCarousel2) {
+//           new Carousel(myCarousel2, {
+//             interval: 5000,
+//             pause: false,
+//             ride: 'carousel',
+//             touch: true,
+//             wrap: true,
+//             keyboard: true,
+//           });
+//         }
   
-        // ✅ jQuery 控制播放暫停
-        // 確保 jQuery ($) 已經被載入
-        if (typeof window.$ === 'function') {
-          window.$(() => {
-            window.$('#cycleCarousel').click(() => {
-              window.$('#carousel-Controls').carousel('cycle');
-            });
-            window.$('#pauseCarousel').click(() => {
-              window.$('#carousel-Controls').carousel('pause');
-            });
-            window.$('#cycleCarousel_MB').click(() => {
-              window.$('#carousel-Controls').carousel('cycle');
-            });
-            window.$('#pauseCarousel_MB').click(() => {
-              window.$('#carousel-Controls').carousel('pause');
-            });
-          });
-        }
-    }}, []);
+//         // ✅ jQuery 控制播放暫停
+//         // 確保 jQuery ($) 已經被載入
+//         if (typeof window.$ === 'function') {
+//           window.$(() => {
+//             window.$('#cycleCarousel').click(() => {
+//               window.$('#carousel-Controls').carousel('cycle');
+//             });
+//             window.$('#pauseCarousel').click(() => {
+//               window.$('#carousel-Controls').carousel('pause');
+//             });
+//             window.$('#cycleCarousel_MB').click(() => {
+//               window.$('#carousel-Controls').carousel('cycle');
+//             });
+//             window.$('#pauseCarousel_MB').click(() => {
+//               window.$('#carousel-Controls').carousel('pause');
+//             });
+//           });
+//         }
+//     }}, []);
     return (
         <section className="carousel_slide_section" ref={bannerRef}>
             <div className="sidebar">
@@ -73,7 +73,7 @@ const BannerSlider = () => {
                             <img src='/Legacy/Client/File/Banner/6B-28-1E-A5-EC-12-E1-E4-73-8F-76-44-8E-97-4D-65.PNG' className='d-block w-100' alt='' />
                         </div>
                         <div className='carousel-item' data-bs-interval='5000' >
-                            <video className='d-block w-100' src='/Legacy/Client/File/Banner/0E-67-17-2F-FF-BB-B6-0A-EC-A9-15-D8-6B-F3-88-6F.mp4' title='影片'  autoPlay muted loop style={{width: '100vw', height: 'auto'}}></video>
+                            {/* <video className='d-block w-100' src='/Legacy/Client/File/Banner/0E-67-17-2F-FF-BB-B6-0A-EC-A9-15-D8-6B-F3-88-6F.mp4' title='影片'  autoPlay muted loop style={{width: '100vw', height: 'auto'}}></video> */}
                         </div>
                         <div className='carousel-item' data-bs-interval='5000' >
                             <img src='/Legacy/Client/File/Banner/1C-13-3E-9A-51-ED-8A-B6-0B-1C-1A-C3-3B-42-D7-B0.jpg' className='d-block w-100' alt='圖書館' />
@@ -121,7 +121,7 @@ const BannerSlider = () => {
                             <img src='/Legacy/Client/File/Banner/6B-28-1E-A5-EC-12-E1-E4-73-8F-76-44-8E-97-4D-65.PNG' className='d-block w-100' alt='' />
                         </div>
                         <div className='carousel-item' data-bs-interval='5000' >
-                            <video className='d-block w-100' src='/File/Banner/0E-67-17-2F-FF-BB-B6-0A-EC-A9-15-D8-6B-F3-88-6F.mp4' title='影片'  autoPlay muted loop style={{width: '100vw', height: 'auto'}}></video>
+                            {/* <video className='d-block w-100' src='/File/Banner/0E-67-17-2F-FF-BB-B6-0A-EC-A9-15-D8-6B-F3-88-6F.mp4' title='影片'  autoPlay muted loop style={{width: '100vw', height: 'auto'}}></video> */}
                         </div>
                         <div className='carousel-item' data-bs-interval='5000' >
                             <img src='/Legacy/Client/File/Banner/1C-13-3E-9A-51-ED-8A-B6-0B-1C-1A-C3-3B-42-D7-B0.jpg' className='d-block w-100' alt='圖書館' />

@@ -1,5 +1,6 @@
 import LoadingErrorHandler from "../../../../../../SysCore/Components/LoadingErrorHandler";
 import type{ ContentCompProp } from "./FormView_Data";
+import { useNavigate } from 'react-router-dom';
 
 export const ContentComp = (prop:ContentCompProp) => {
     return (
@@ -13,6 +14,11 @@ export const ContentComp = (prop:ContentCompProp) => {
 
 
 const Content=(prop:ContentCompProp)=>{
+  const navigate = useNavigate();
+  const handleBack: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.preventDefault();         // 取代 return false
+    navigate(-1);              // 回到上一頁
+  };
   return (<>
             <div className="page-header mb-3">
               <h3>{prop.Title}</h3>
@@ -55,7 +61,7 @@ const Content=(prop:ContentCompProp)=>{
                 <a id="ContentPlaceContent_ContentPlaceConentA_wuc1_btn_edit" className="btn btn-primary btn-custom-color" href="/Back/News/NewsAdd.aspx?action=edit&amp;Sn=249">編輯</a>
               </div>
               <div className="col-lg-2 col-md-2 col-sm-3 col-4 text-right">
-                <input type="submit" name="ctl00$ctl00$ContentPlaceContent$ContentPlaceConentA$wuc1$btn_goback" value="回上一頁" onclick="history.back(); return false;" id="ContentPlaceContent_ContentPlaceConentA_wuc1_btn_goback" className="btn btn-primary btn-custom-color" title="回上一頁"/>
+                <button type="button" name="ctl00$ctl00$ContentPlaceContent$ContentPlaceConentA$wuc1$btn_goback" value="回上一頁" onClick={handleBack} id="ContentPlaceContent_ContentPlaceConentA_wuc1_btn_goback" className="btn btn-primary btn-custom-color" title="回上一頁"/>
               </div>
             </div>
           </>

@@ -22,7 +22,7 @@ export default defineConfig(({mode}) => {
         plugins: isSSR ? [react(), ssr(), basicSsl()] : [react(), basicSsl()],
         // plugins: isSSR ? [react(), ssr()] : [react()],
         build: {
-          ssr: isSSR ? 'src/SSR/SSR_Server.ts' : false,
+          ssr: isSSR ? 'src/SSR/Entry-Server.tsx' : false,
           outDir: isSSR ? 'dist-ssr' : 'dist-csr',
         },
         resolve: {

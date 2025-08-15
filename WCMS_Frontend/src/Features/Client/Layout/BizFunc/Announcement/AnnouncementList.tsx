@@ -2,10 +2,9 @@
 import type { IFETheme } from '../../Theme/ITheme';
 import type { GridProps } from '../../../../../SysCore/Components/Grid/Grid_Data';
 import { useMemo } from 'react';
-import { useLocation } from 'react-router';
 import type { components } from '../../../../../types/api';
 type AnnouncementSet = components["schemas"]["AnnouncementSet"]
-import { Link } from 'react-router';
+import { Link,useLocation } from 'react-router-dom';
 import type { GridRow } from '../../../../../SysCore/Components/Grid/Grid_Data';
 import type { RowCell } from '../../../../../SysCore/Components/Grid/Grid_Data';
 import AnnouncementProvider from '../../../../Server/Layout/BizFunc/WebManagement/Announcement/Announcement_Api';

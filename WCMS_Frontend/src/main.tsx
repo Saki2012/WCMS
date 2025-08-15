@@ -7,7 +7,6 @@ import { BrowserRouter } from "react-router-dom";
 
 
 const CssList = [
-
 // Server
 "/Legacy/Server/ContentBack/bootstrap-5.1.1/css/bootstrap.min.css",
 "/Legacy/Server/ContentBack/bootstrap-5.1.1/css/docs.css",
@@ -86,11 +85,11 @@ ServerjsList.forEach((src) => {
 
 createRoot(document.getElementById('root')!).render(
   <>
-   {/* <StrictMode> */}
+   <StrictMode>
       {createPortal(<HeaderMetaComp />, document.head)}
       <BrowserRouter>
           <App/>
       </BrowserRouter>
-    {/* </StrictMode>, */}
+    </StrictMode>,
   </>
 )

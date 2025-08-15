@@ -4,7 +4,6 @@ import type { GridProps } from "../../../../../../SysCore/Components/Grid/Grid_D
 import type { SearchBarProps } from "../../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
 import { expr } from "jquery"
 import type { ReactNode } from "react"
-import type { FileInfo } from "../../../../../../SysCore/Components/File/fetchFileMeta"
 
 
 export interface ContentCompProp{
@@ -17,6 +16,6 @@ export interface ContentCompProp{
   Tag?:string[]
   Content?:ReactNode
   Href?:string
-  Files?:FileInfo[]
+  Files?:any[]
 }
 

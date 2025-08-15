@@ -10,7 +10,7 @@ IF %ERRORLEVEL% NEQ 0 (
     echo Installing and trusting dev cert...
     dotnet dev-certs https --trust
 )
-
+    
 REM 等待幾秒鐘讓伺服器啟動（可視狀況調整秒數）
 timeout /t 3 >nul
 

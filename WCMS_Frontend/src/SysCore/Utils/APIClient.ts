@@ -1,11 +1,23 @@
 import axios from 'axios';
 import * as qs from 'qs';
-import { ZodError } from 'zod';
-import type { ZodType } from 'zod'
 import type { QueryListCondition,ApiResponse } from '../Interface/IApiProvider';
+import type { ModelDisplaySchema } from '../../types/IApiSchema';
+
+const isServer = typeof window === 'undefined';
+const API_BASE = isServer ? (process.env.VITE_API_BASE ?? '') : ''; // SSR 用絕對位址，CSR 留空交給 proxy
+// 只要不是絕對 URL，就強制掛上 /Service 前綴
+const withService = (p: string) => {
+  if (!p) return '/Service';
+  if (/^https?:\/\//i.test(p)) return p;               // 絕對 URL 直接放行
+  if (p.startsWith('/Service')) return p;
+  return p.startsWith('/') ? `/Service${p}` : `/Service/${p}`;
+};
+
+
 
 const client = axios.create({
-  baseURL: `/Service`,
+  baseURL: API_BASE || '',
+  withCredentials: !isServer,        // CSR 讓瀏覽器帶 cookie；SSR 由你手動轉送
   headers: {
     'Content-Type': 'application/json',
   },
@@ -15,6 +27,8 @@ const client = axios.create({
   },
 });
 client.interceptors.request.use((config) => {
+  const u = config.url ?? '';
+  config.url = withService(u);
   console.log('[API CALL]', config.method?.toUpperCase(), config.url, config.params);
   return config;
 });
@@ -24,17 +38,15 @@ const genericApi = {
   delete: <T>(module: string, internalId: string) => client.delete<ApiResponse<T>>(`/${module}/Delete`, { params:{ internalId } }),
   invalid: <T>(module: string, internalId: string, isInvalid: boolean) => client.delete<ApiResponse<T>>(`/${module}/Invalid`, { data: { internalId, isInvalid }}),
   queryData: <T>(module: string, internalId: string) => client.get<ApiResponse<T>>(`/${module}/QueryData`, {params: { internalId: internalId }}),
-  queryList: <T>(module: string, condition: QueryListCondition) => client.post<ApiResponse<T>>(`/${module}/QueryList`, condition), 
+  queryList: <T>(module: string, condition: QueryListCondition) => client.post<ApiResponse<T[]>>(`/${module}/QueryList`, condition), 
   queryListCount:(module: string, condition: QueryListCondition) => client.post<ApiResponse<number>>(`/${module}/GetTotalCounts`, condition), 
   getModelDisplayName: (module: string) => client.get(`/${module}/GetModelDisplayName`),
 };
 
 export class BaseApiService<T> {
   private module: string;
-  private schema?: ZodType<T>;
-  constructor(module: string, schema?: ZodType<T>) {
+  constructor(module: string) {
     this.module = module;
-    this.schema = schema;
   }
 
   async create(data: T) {
@@ -65,19 +77,11 @@ export class BaseApiService<T> {
     return await genericApi.queryListCount(this.module, condition);
   }
 
-  async getModelDisplayName(): Promise<T[]> {
+  async getModelDisplayName(): Promise<ModelDisplaySchema> {
     const res = await genericApi.getModelDisplayName(this.module);
-    return this.parseResultArray(res.data);
+    return res.data;
   }
 
-  private parseResultArray(data: unknown): T[] {
-    if (!this.schema) return data as T[];
-    const result = this.schema.array().safeParse(data);
-    if (!result.success) {
-      throw new ZodError(result.error.issues);
-    }
-    return result.data;
-  }
 }
 
 class systemAPI {

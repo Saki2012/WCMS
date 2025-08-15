@@ -6,10 +6,11 @@ import { useGetTagListByProgId } from "../Tags/Tag_Hook";
 import AnnouncementProvider from "./Announcement_Api"
 import { FormComp } from "../../../Scaffold/Content/Form_Comp";
 import { useFormToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
 import type { components } from "../../../../../../types/api";
 type AnnouncementSet = components["schemas"]["AnnouncementSet"]
+type AnnouncementDetail = components["schemas"]["AnnouncementDetail"]
 import TabContentComp from "../../../../../../SysCore/Components/TabContent/TabContent";
 import LibCheckBox from "../../../../../../SysCore/Components/FormField/FieldComponets/LibCheckBox_Comp";
 import LibCalendar from "../../../../../../SysCore/Components/FormField/FieldComponets/LibCalendar_Comp";
@@ -29,7 +30,7 @@ export const AnnouncementFormComp = ({theme}:{theme:IBETheme}) => {
     const useCategory = useGetCategoryListByProgId("Announcement","zh-tw");
     const useTag = useGetTagListByProgId("Announcement","zh-tw");
     const formData = useFetchFormData<AnnouncementSet>(AnnouncementProvider(), internalId, emptyData)
-    const useToolbar = useFormToolbarActions(AnnouncementProvider(), formData.data as AnnouncementSet, internalId ,() => formData.refetch())
+    const useToolbar = useFormToolbarActions(AnnouncementProvider(), formData.data as AnnouncementSet, internalId as string ,() => formData.refetch())
     const useContentStatus = useFetchEnumOptions("ContentStatus")
     const isLoading=[useTag.isLoading,useCategory.isLoading,formData.isLoading,useContentStatus.isLoading]
     const errors=[useTag.error,useCategory.error,formData.error,useContentStatus.error]
@@ -58,7 +59,7 @@ export const AnnouncementFormComp = ({theme}:{theme:IBETheme}) => {
         Status: [<LibCheckBox colDisplayName="狀態啟用"
                               options={(useContentStatus.data ?? []).map(item => ({itemId: String(item.Key),itemDisplayName: item.DisplayName,}))}
                               value={parseBitmaskToStringArray(formData.data?.Announcement?.ContentStatus ?? 0, useContentStatus.data?.map(d => d.Key) ?? [])}
-                              onChange={(val) => {const sum = sumStringArrayToBitmask(val);formData.setFormData((prev) => ({...prev,Announcement: {...prev?.Announcement??{},ContentStatus: sum,},}));}}
+                              onChange={(val) => {const sum = sumStringArrayToBitmask(val);formData.setFormData((prev) => ({...prev,Announcement: {...prev?.Announcement??{},ContentStatus: sum as any,},}));}}
                             />
                 ],
 
@@ -101,7 +102,7 @@ const generateLangFields = ( lang: string, label: string, theme: IBETheme,
     ): React.ReactNode[] => 
     {
     const details = formData?.AnnouncementDetail ?? [];
-    const getLangData = (): AnnouncementSet["AnnouncementDetail"][number] => details.find(d => d.Lang === lang) ?? { Lang: lang, Title: "", SubTitle: "", Content: "", Url: "" };
+    const getLangData = (): AnnouncementDetail => details.find(d => d.Lang === lang) ?? { Lang: lang, Title: "", SubTitle: "", Content: "", Url: "" };
     const updateLangData = (key: "Title" | "SubTitle" | "Content" | "Url", val: string) => {
         const currentData = getLangData();
         const newItem = { ...currentData, [key]: val };

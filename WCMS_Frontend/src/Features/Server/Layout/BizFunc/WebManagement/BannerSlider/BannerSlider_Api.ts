@@ -2,32 +2,37 @@ import { BaseApiService } from '../../../../../../SysCore/Utils/APIClient';
 import  type { components } from "../../../../../../types/api";
 import {IApiProvider, IDataProvider} from '../../../../../../SysCore/Interface/IApiProvider'
 import type { ApiResponse, QueryListCondition } from '../../../../../../SysCore/Interface/IApiProvider';
+import type { ModelDisplaySchema } from '../../../../../../types/IApiSchema';
 type BannerSliderSet = components["schemas"]["BannerSet"]
 
 
 abstract class IBannerSliderProvider extends IDataProvider<BannerSliderSet> { }
 class MockProvider extends IBannerSliderProvider {
-    protected async doCreateData(set: BannerSliderSet): Promise<ApiResponse<BannerSliderSet>> {
+    protected doCreateData(set?: { Banner?: components['schemas']['Banner']; BannerDetail?: components['schemas']['BannerDetail'][] | null; BannerDetailInfo?: components['schemas']['BannerDetailInfo'][] | null; } | undefined): Promise<ApiResponse<{ Banner?: components['schemas']['Banner']; BannerDetail?: components['schemas']['BannerDetail'][] | null; BannerDetailInfo?: components['schemas']['BannerDetailInfo'][] | null; }>> {
         throw new Error('Method not implemented.');
     }
-    protected async doUpdateData(internaId:string,set:BannerSliderSet): Promise<ApiResponse<BannerSliderSet>> {
+    protected doUpdateData(internaId: string, set: { Banner?: components['schemas']['Banner']; BannerDetail?: components['schemas']['BannerDetail'][] | null; BannerDetailInfo?: components['schemas']['BannerDetailInfo'][] | null; }): Promise<ApiResponse<{ Banner?: components['schemas']['Banner']; BannerDetail?: components['schemas']['BannerDetail'][] | null; BannerDetailInfo?: components['schemas']['BannerDetailInfo'][] | null; }>> {
         throw new Error('Method not implemented.');
     }
-    protected async doDelete(internaId:string): Promise<ApiResponse<BannerSliderSet>> {
+    protected doDelete(internaId: string): Promise<ApiResponse<{ Banner?: components['schemas']['Banner']; BannerDetail?: components['schemas']['BannerDetail'][] | null; BannerDetailInfo?: components['schemas']['BannerDetailInfo'][] | null; }>> {
         throw new Error('Method not implemented.');
     }
-    protected async doInvalid(internaId:string,isInvalid:boolean): Promise<ApiResponse<BannerSliderSet>> {
+    protected doInvalid(internaId: string, isInvalid: boolean): Promise<ApiResponse<{ Banner?: components['schemas']['Banner']; BannerDetail?: components['schemas']['BannerDetail'][] | null; BannerDetailInfo?: components['schemas']['BannerDetailInfo'][] | null; }>> {
         throw new Error('Method not implemented.');
     }
-    protected async doFetchData(internaId?: string): Promise<ApiResponse<BannerSliderSet>> {
+    protected doFetchData(internaId?: string): Promise<ApiResponse<{ Banner?: components['schemas']['Banner']; BannerDetail?: components['schemas']['BannerDetail'][] | null; BannerDetailInfo?: components['schemas']['BannerDetailInfo'][] | null; }>> {
         throw new Error('Method not implemented.');
     }
-    protected async doFetchList(condition?: QueryListCondition): Promise<ApiResponse<BannerSliderSet>> {
+    protected doFetchList(condition?: QueryListCondition): Promise<ApiResponse<{ Banner?: components['schemas']['Banner']; BannerDetail?: components['schemas']['BannerDetail'][] | null; BannerDetailInfo?: components['schemas']['BannerDetailInfo'][] | null; }[]>> {
         throw new Error('Method not implemented.');
     }
-    protected doGetModelDisplayName(): Promise<BannerSliderSet[]> {
+    protected doFetchListCount(condition?: QueryListCondition): Promise<ApiResponse<number>> {
         throw new Error('Method not implemented.');
     }
+    protected doGetModelDisplayName(): Promise<ModelDisplaySchema> {
+        throw new Error('Method not implemented.');
+    }
+  
 }
 class APIProvider extends IBannerSliderProvider {
     private readonly ModuleName="Announcement"
@@ -53,7 +58,7 @@ class APIProvider extends IBannerSliderProvider {
         const res = await this.API.queryData(internaId);
         return res.data;
     }
-    protected async doFetchList(condition: QueryListCondition): Promise<ApiResponse<BannerSliderSet>> {
+    protected async doFetchList(condition: QueryListCondition): Promise<ApiResponse<BannerSliderSet[]>> {
         const res = await this.API.queryList(condition);
         return res.data
     }
@@ -61,7 +66,7 @@ class APIProvider extends IBannerSliderProvider {
         const res = await this.API.queryCount(condition);
         return res.data
     }
-    protected async doGetModelDisplayName(): Promise<BannerSliderSet[]> {
+    protected async doGetModelDisplayName(): Promise<ModelDisplaySchema> {
         const res = await this.API.getModelDisplayName();
         return res
     }

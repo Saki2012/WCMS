@@ -11,6 +11,7 @@ import { useFetchFormData } from "../../../../../../SysCore/Utils/FetchFormData"
 import { LibTextBox } from "../../../../../../SysCore/Components/FormField/LibFormField";
 import { Link } from "react-router-dom";
 type CategoryDataSet = components["schemas"]["CategoryDataSet"]
+type CategoryDetail = components["schemas"]["CategoryDetail"]
 const emptyData:CategoryDataSet={
     Category:{},
     CategoryDetail:[]
@@ -74,11 +75,11 @@ const generateLangFields = ( lang: string, label: string, theme: IBETheme,
     ): React.ReactNode[] => 
     {
     const details = formData?.CategoryDetail ?? [];
-    const getLangData = (): CategoryDataSet["CategoryDetail"][number] => details.find(d => d.Lang === lang) ?? { Lang: lang, Title: "", SubTitle: "", Content: "", Url: "" };
+    const getLangData = (): CategoryDetail => details.find(d => d.Lang === lang) ?? { Lang: lang, CategoryName:"" };
     const updateLangData = (key: "Title" | "SubTitle" | "Content" | "Url", val: string) => {
         const currentData = getLangData();
         const newItem = { ...currentData, [key]: val };
-        const isEmpty = (newItem.Title?.trim() ?? "") === "" && (newItem.Content?.trim() ?? "") === "";
+        const isEmpty = (newItem.CategoryName?.trim() ?? "") === "";
         const nextDetails = isEmpty ? details.filter((d) => d.Lang !== lang) : details.some((d) => d.Lang === lang) ? details.map((d) => (d.Lang === lang ? newItem : d)) : [...details, newItem];
         setFormData({ ...formData, CategoryDetail: nextDetails });
     };

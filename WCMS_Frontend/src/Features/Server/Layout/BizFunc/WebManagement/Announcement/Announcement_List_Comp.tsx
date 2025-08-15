@@ -2,8 +2,7 @@ import type{SearchBarProps} from "../../../../../../SysCore/Components/SearchBar
 import type {IBETheme} from "../../../../../../Features/Server/Layout/Theme/ITheme"
 import type { GridProps,ColumnConfig,GridRow,RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data"
 import { useMemo } from "react"
-import { Link } from "react-router"
-import { useLocation } from 'react-router-dom';
+import { useLocation,Link } from 'react-router-dom';
 import { ListComp } from "../../../Scaffold/Content/List_Comp"
 import type { ListCompProp } from "../../../Scaffold/Content/Content_Data"
 import * as React from "react";

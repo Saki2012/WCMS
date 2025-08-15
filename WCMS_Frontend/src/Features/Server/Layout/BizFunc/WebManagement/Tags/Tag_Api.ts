@@ -2,35 +2,39 @@ import { BaseApiService } from '../../../../../../SysCore/Utils/APIClient';
 import  type { components } from "../../../../../../types/api";
 import {IApiProvider, IDataProvider} from '../../../../../../SysCore/Interface/IApiProvider'
 import type { ApiResponse, QueryListCondition } from '../../../../../../SysCore/Interface/IApiProvider';
+import type { ModelDisplaySchema } from '../../../../../../types/IApiSchema';
 type TagSet = components["schemas"]["TagSet"]
 
-abstract class ICategoryProvider extends IDataProvider<TagSet> {
+abstract class ITagProvider extends IDataProvider<TagSet> {
     
 }
-class MockProvider extends ICategoryProvider {
-    protected doCreateData(): Promise<TagSet> {
+class MockProvider extends ITagProvider {
+    protected doCreateData(set?: { TagData?: components['schemas']['TagData']; TagDetail?: components['schemas']['TagDetail'][] | null; } | undefined): Promise<ApiResponse<{ TagData?: components['schemas']['TagData']; TagDetail?: components['schemas']['TagDetail'][] | null; }>> {
         throw new Error('Method not implemented.');
     }
-    protected doUpdateData(): Promise<TagSet> {
+    protected doUpdateData(internaId: string, set: { TagData?: components['schemas']['TagData']; TagDetail?: components['schemas']['TagDetail'][] | null; }): Promise<ApiResponse<{ TagData?: components['schemas']['TagData']; TagDetail?: components['schemas']['TagDetail'][] | null; }>> {
         throw new Error('Method not implemented.');
     }
-    protected doDelete(): Promise<TagSet> {
+    protected doDelete(internaId: string): Promise<ApiResponse<{ TagData?: components['schemas']['TagData']; TagDetail?: components['schemas']['TagDetail'][] | null; }>> {
         throw new Error('Method not implemented.');
     }
-    protected doInvalid(): Promise<TagSet> {
+    protected doInvalid(internaId: string, isInvalid: boolean): Promise<ApiResponse<{ TagData?: components['schemas']['TagData']; TagDetail?: components['schemas']['TagDetail'][] | null; }>> {
         throw new Error('Method not implemented.');
     }
-    protected doFetchData(): Promise<TagSet> {
+    protected doFetchData(internaId?: string): Promise<ApiResponse<{ TagData?: components['schemas']['TagData']; TagDetail?: components['schemas']['TagDetail'][] | null; }>> {
         throw new Error('Method not implemented.');
     }
-    protected doFetchList(): Promise<TagSet[]> {
+    protected doFetchList(condition?: QueryListCondition): Promise<ApiResponse<{ TagData?: components['schemas']['TagData']; TagDetail?: components['schemas']['TagDetail'][] | null; }[]>> {
         throw new Error('Method not implemented.');
     }
-    protected doGetModelDisplayName(): Promise<TagSet[]> {
+    protected doFetchListCount(condition?: QueryListCondition): Promise<ApiResponse<number>> {
+        throw new Error('Method not implemented.');
+    }
+    protected doGetModelDisplayName(): Promise<ModelDisplaySchema> {
         throw new Error('Method not implemented.');
     }
 }
-class APIProvider extends ICategoryProvider {
+class APIProvider extends ITagProvider {
     private readonly ModuleName="Tag"
     private readonly API= new BaseApiService<TagSet>(this.ModuleName);
 
@@ -54,7 +58,7 @@ class APIProvider extends ICategoryProvider {
         const res = await this.API.queryData(internaId);
         return res.data;
     }
-    protected async doFetchList(condition: QueryListCondition): Promise<ApiResponse<TagSet>> {
+    protected async doFetchList(condition: QueryListCondition): Promise<ApiResponse<TagSet[]>> {
         const res = await this.API.queryList(condition);
         return res.data
     }
@@ -62,10 +66,10 @@ class APIProvider extends ICategoryProvider {
         const res = await this.API.queryCount(condition)
         return res.data
     }
-    protected async doGetModelDisplayName(): Promise<TagSet[]> {
+    protected async doGetModelDisplayName(): Promise<ModelDisplaySchema> {
         const res = await this.API.getModelDisplayName();
         return res
     }
 }
-const TagProvider = (): ICategoryProvider => IApiProvider<ICategoryProvider>(APIProvider, MockProvider);
+const TagProvider = (): ITagProvider => IApiProvider<ITagProvider>(APIProvider, MockProvider);
 export default TagProvider

@@ -4,12 +4,10 @@ import type{SearchBarProps} from "../../../../../../SysCore/Components/SearchBar
 import {DividerComp} from "../../../../../../SysCore/Components/Divider/Divider_Comp"
 import {List_Toolbar} from "../../../../../../SysCore/Components/Toolbar/Toolbar_Comp"
 import type {IBETheme} from "../../../Theme/ITheme"
-import { useFetchPageListData } from "./PageManagement_Hook";
 import type { GridProps,ColumnConfig,GridRow,RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data"
 import { useMemo } from "react"
-import { Link } from "react-router"
-import { useLocation } from 'react-router-dom';
-
+import { useLocation,Link } from 'react-router-dom';
+import { useGalleryListData } from "./Gallery_Hook"
 
 const searchCompProp:SearchBarProps={
     title:"頁面搜尋",
@@ -22,8 +20,19 @@ const searchCompProp:SearchBarProps={
  */
 export const GalleryListComp = ({title,theme}:{title:string;theme:IBETheme}) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form/`);
-    const { gridProps, isLoading } = useFetchPageListData();
-    const adjustedGrid = useMemo(() => {return SetAdjustFunction(dirUrl, gridProps);}, [gridProps]);
+    const useGalleryList = useGalleryListData();
+    const adjustedGrid = useMemo(() => {return SetAdjustFunction(dirUrl, useGalleryList.gridProps);}, [useGalleryList.gridProps]);
+
+    const searchCompProp:SearchBarProps={
+            title:"頁面搜尋",
+            subTitle:"搜尋頁面 ...",
+            settingTitle: "搜尋設定",
+        }
+    const isLoading=[useGalleryList.isLoading];
+    const errors=[useGalleryList.error];
+
+    
+
     return (
       <div className="Form-Main-Content">
             <div className="row">
@@ -39,9 +48,9 @@ export const GalleryListComp = ({title,theme}:{title:string;theme:IBETheme}) => 
                                     <div className="panel">
                                         <div className="panel-body">
                                             <div className="form"> 
-                                                <SearchComp {...searchCompProp}></SearchComp>
+                                                {/* <SearchComp {...searchCompProp}></SearchComp> */}
                                                 <DividerComp></DividerComp>
-                                                <List_Toolbar title="新增頁面" url="/Server/WebManagement/PageManage/Form"></List_Toolbar>
+                                                {/* <List_Toolbar Title="新增頁面" url="/Server/WebManagement/PageManage/Form"></List_Toolbar> */}
                                                 <Grid gridData={adjustedGrid} style={theme.GridView} pageStyle={theme.Paginator}></Grid>
                                             </div>
                                         </div>
