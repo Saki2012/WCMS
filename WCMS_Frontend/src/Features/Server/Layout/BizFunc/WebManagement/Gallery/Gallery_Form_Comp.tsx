@@ -1,15 +1,12 @@
-import {LibDropList, LibTabs, LibTextBox, LibTinyMCE, } from "../../../../../../SysCore/Components/FormField/LibFormField"
+import {LibCheckBox, LibTextBox ,LibCalendar,LibTinyMCE } from "../../../../../../SysCore/Components/FormField/LibFormField"
 import type { LibTabsProp, LibTextBoxProp,LibTinyMCEProp } from "../../../../../../SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "../../../Theme/ITheme";
 import { useGetCategoryListByProgId } from "../Category/Category_Hook"
-import PageManagementProvider from "./PageManagement_Api"
 import { FormComp } from "../../../Scaffold/Content/Form_Comp";
-import type { FormCompProp } from "../../../Scaffold/Content/Form_Comp";
 import { useFormToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
 import { useParams } from "react-router";
-import { emptyData } from "./PageManagement_Data";
-
-
+import TabContentComp from "../../../../../../SysCore/Components/TabContent/TabContent";
+import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
 
 
 /** 相簿表單
@@ -17,15 +14,30 @@ import { emptyData } from "./PageManagement_Data";
  */
 export const GalleryFormComp = ({theme}:{theme:IBETheme}) => {
     const { uid } = useParams()
-    const { result:categories, loading:categoryLoading, error:categoryErr} = useGetCategoryListByProgId("PageManagement","zh-TW")
-    const { formData, setFormData, isSuccess,isLoading, errors, toolbarActions } = useFormToolbarActions(PageManagementProvider(),emptyData)
 
-    const prop:FormCompProp={ Title:"新增頁面", Theme:theme, LoadingList:[categoryLoading], ErrorList:[categoryErr], Toolbar:toolbarActions }
+    const isLoading:boolean[]=[]
+    const errors:(string | null | undefined)[]=[]
+    const prop:FormCompProp={ Title:"新增相簿", Theme:theme, LoadingList:isLoading, ErrorList:errors, }
     const LibTabsPropA:LibTabsProp={
         Style:theme.Tabs,
         item:{
             "Basic":"基本",
+            "Status":"狀態",
+            "Tags":"標籤",
         }
+    }
+    const componentsA: Record<string, React.ReactNode[]> = {
+        Basic: [
+            <LibCheckBox colDisplayName="類別"></LibCheckBox>,
+            <LibTextBox Style={theme.TextBox} ColumnDisplayName="排序編號" DefaultInputDisplay="請輸入" ></LibTextBox>,
+            <LibCalendar colDisplayName="上架日期"></LibCalendar>
+        ],
+        Status: [
+            <LibCheckBox colDisplayName="狀態"></LibCheckBox>
+        ],
+        Tags: [
+            <LibCheckBox colDisplayName="標籤"></LibCheckBox>
+        ]
     }
     const LibTabsPropB:LibTabsProp={
         Style:theme.Tabs,
@@ -34,22 +46,27 @@ export const GalleryFormComp = ({theme}:{theme:IBETheme}) => {
             "English":"English",
         }
     }
-    const libTextBoxProp:LibTextBoxProp={
-        Style:theme.TextBox,
-        ColumnDisplayName:"中文標題",
-        DefaultInputDisplay:"請輸入",
-        InputValue:formData.PageManagementDetail?.[0]?.Title,
-        OnChange:(val) => setFormData({ ...formData, PageManagementDetail: formData.PageManagementDetail?.map((item, idx) => idx === 0 ? { ...item, Title: val } : item) ?? []}),
-    }
-    const libTinyMCEProp:LibTinyMCEProp={
-        Style:theme.TinyMCE,
-        ColumnDisplayName:"內容-編輯器",
-    }
-
+    const componentsB: Record<string, React.ReactNode[]> = Object.entries(LibTabsPropB.item).reduce(
+        (acc, [lang, label]) => {
+            acc[lang] = generateLangFields(lang, label, theme);
+            return acc;
+        },
+        {} as Record<string, React.ReactNode[]>
+    );
+    
     return (
         <FormComp prop={prop}>
-            <></>
+            <TabContentComp libTabsProp={LibTabsPropA} components={componentsA}></TabContentComp>
+            <TabContentComp libTabsProp={LibTabsPropB} components={componentsB}></TabContentComp>
         </FormComp>
     )
 }
+
+const generateLangFields = ( lang: string, label: string, theme: IBETheme): React.ReactNode[] =>     
+    {
+    return [
+    <LibTextBox key={`${lang}-Title`} Style={theme.TextBox} ColumnDisplayName={`標題（${label}）`} DefaultInputDisplay="請輸入"/>,
+    <LibTinyMCE key={`${lang}-Content`} Style={theme.TinyMCE} ColumnDisplayName={`內容編輯器（${label}）`}/>
+    ];
+};
 

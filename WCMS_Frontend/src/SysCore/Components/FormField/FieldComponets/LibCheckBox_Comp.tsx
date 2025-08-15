@@ -4,14 +4,14 @@ import type {ILibCheckBoxProp} from "./LibCheckBox_Data"
 
 const LibCheckBox = (prop: ILibCheckBoxProp) => {
   const inputId = useId();
-  const uidList = useMemo(() => {return prop.options.map(opt => `checkbox-${opt.itemId}`);}, [prop.options]);
+  const uidList = useMemo(() => {return prop.options?.map(opt => `checkbox-${opt.itemId}`);}, [prop.options]);
 
   return (
     <>
       <label htmlFor={inputId} className="col-md-2 col-sm-12 float-md-left float-sm-none col-form-label">{prop.colDisplayName}</label>
       <div className="col-md-10 col-sm-12 float-md-left float-sm-none">
-        {prop.options.map((item, idx) => {
-          const uid = uidList[idx];
+        {prop.options?.map((item, idx) => {
+          const uid = uidList?.[idx];
           const isChecked = prop.value.includes(item.itemId);
           return (
             <div key={uid} className="col-sm-3 col-6 float-left p-0">

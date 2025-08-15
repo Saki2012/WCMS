@@ -8,7 +8,7 @@ export interface FormCompProp{
     Theme:IBETheme
     LoadingList:boolean[],
     ErrorList:(string | null | undefined)[],
-    Toolbar:ToolbarAction[]
+    Toolbar?:ToolbarAction[]
 }
 
 export interface ListCompProp{
