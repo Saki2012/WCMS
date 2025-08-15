@@ -583,7 +583,7 @@ namespace WCMS.SysCore
 
         private string NormalizeCondition(Type modelType, string rawCondition, out object[] args)
         {
-            List<object> argList = new();
+            List<object> argList = [];
 
             // 預處理原始條件字串
             rawCondition = Regex.Replace(rawCondition, @"(?<=[^\s<>!=])=(?=[^=])", " == ");

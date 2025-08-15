@@ -1,6 +1,7 @@
 // src/hooks/TinyMCE_Hook.ts
-import { useRef, useMemo, useEffect } from 'react';
+import { useRef, useMemo, useCallback } from 'react';
 import type { Editor as TinyMCEEditor } from 'tinymce';
+import { useContentTransform } from './useContentTransform';
 
 export interface TinyMceHookOptions {
   id: string;
@@ -16,6 +17,7 @@ export interface TinyMceHookOptions {
   languageUrl?: string;     // 例如 "/tinymce-i18n/langs5/zh_TW.js"
   language?: string;        // "zh_TW"
   baseUrl?: string;         // "/tinymce"
+  initExtras?: Record<string, any>;
 }
 
 type CopiedInlineStyle = string | null;
@@ -23,6 +25,22 @@ type CopiedInlineStyle = string | null;
 export const useTinyMCE = (p: TinyMceHookOptions) => {
   const editorRef = useRef<TinyMCEEditor | null>(null);
   const copiedStyleRef = useRef<CopiedInlineStyle>(null);
+
+
+  // 1) 掛上內容轉換（prefix 可自訂；不給就用預設）
+  const { toDb, toEditor } = useContentTransform({
+    previewPrefix: '/Service/FileManagement/Preview/',
+    attrName: 'data-internalid',
+  });
+  const value = useMemo(() => toEditor(p.value ?? ''), [p.value, toEditor]);
+  const onChange = useCallback(
+    (editorHtml: string) => {
+      const dbHtml = toDb(editorHtml);
+      p.onChange?.(dbHtml);
+    },
+    [p.onChange, toDb]
+  );
+
 
   const uploadAndReturn = async (file: File) => {
     const api = p.uploadFileApi ?? '/Service/FileManagement/UploadTemp';
@@ -93,6 +111,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) => {
       license_key: 'gpl',
       height: 450,
       menubar: false,
+      convert_urls: false,
       plugins: [
         'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
         'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
@@ -172,6 +191,19 @@ export const useTinyMCE = (p: TinyMceHookOptions) => {
       // ★04 自訂 IFrame 插入
       setup: (editor: TinyMCEEditor) => {
         editorRef.current = editor;
+
+        if (p.initExtras && typeof p.initExtras.setup === 'function') {
+          p.initExtras.setup(editor);
+        }
+
+        // DB → 編輯器：BeforeSetContent 時把 data-internalid 改回 src
+        editor.on('BeforeSetContent', (e: any) => {
+          if (typeof e.content === 'string') e.content = toEditor(e.content);
+        });
+        // 編輯器 → DB：GetContent 時把 src 改回 data-internalid（僅程式取用）
+        editor.on('GetContent', (e: any) => {
+          if (typeof e.content === 'string') e.content = toDb(e.content);
+        });
 
         // insertiframe 按鈕
         editor.ui.registry.addButton('insertiframe', {
@@ -304,15 +336,19 @@ export const useTinyMCE = (p: TinyMceHookOptions) => {
           });
         });
       },
-    };
+      ...(p.initExtras ?? {}),
+    } as const;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [p.id, p.language, p.languageUrl, p.baseUrl, p.uploadFileApi, p.makeFileUrl]);
+  }, [p.id, p.language, p.languageUrl, p.baseUrl, p.uploadFileApi, p.makeFileUrl, p.initExtras,toDb, toEditor]);
 
+  
   return {
     editorRef,
     init: editorInit,
     value: p.value,
     onChange: p.onChange,
+    uploadAndReturn,
+    toUrl,
   };
 };
 
@@ -368,6 +404,7 @@ export const useTinyMceInternalImage = (
     doTransformForDb(html, enforceAlt);
 
   const setup = (editor: any) => {
+    
     editor.on('BeforeSetContent', (e: any) => {
       if (typeof e.content === 'string' && e.content.includes('<img')) {
         e.content = transformForEditor(e.content);
@@ -381,46 +418,4 @@ export const useTinyMceInternalImage = (
   };
 
   return { setup, transformForEditor, transformForDb } as const;
-};
-
-export const useTinyBlurShield = () => {
-  const editorRef = useRef<any>(null);
-  const ignoreUntil = useRef<number>(0);
-
-  const setup = (ed: any) => {
-    editorRef.current = ed;
-
-    ed.on('focus', () => {
-      // 進編輯器時清理忽略期（可選）
-      ignoreUntil.current = 0;
-    });
-
-    ed.on('blur', (e: any) => {
-      // 若正處於忽略期，視為假性 blur，不處理
-      if (Date.now() < ignoreUntil.current) return;
-      // 這裡放你真正需要做的事情（ex: 同步內容、驗證…）
-      // onEditorBlur?.(ed.getContent());
-    });
-  };
-
-  useEffect(() => {
-    const onFocusIn = (ev: FocusEvent) => {
-      const ed = editorRef.current;
-      if (!ed) return;
-
-      const container: HTMLElement | null = ed.getContainer?.() ?? null;
-      const target = ev.target as HTMLElement | null;
-
-      // 若新焦點不在編輯器容器內 → 手動 fire blur，並開啟忽略期以防抖
-      if (container && target && !container.contains(target)) {
-        ignoreUntil.current = Date.now() + 250; // 防抖時間可微調
-        ed.fire('blur'); // 官方支援的事件觸發
-      }
-    };
-
-    document.addEventListener('focusin', onFocusIn, true);
-    return () => document.removeEventListener('focusin', onFocusIn, true);
-  }, []);
-
-  return { setup };
 };

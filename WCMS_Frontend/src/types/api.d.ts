@@ -2099,6 +2099,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/FileManagement/Preview/{internalId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    internalId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/FileManagement/ImportInitialFiles": {
         parameters: {
             query?: never;
@@ -6176,8 +6211,6 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
-            /** Format: byte */
-            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
@@ -6236,8 +6269,6 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
-            /** Format: byte */
-            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
@@ -6305,8 +6336,6 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
-            /** Format: byte */
-            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
@@ -6367,8 +6396,6 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
-            /** Format: byte */
-            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
@@ -6414,8 +6441,6 @@ export interface components {
             ModifyUserId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
-            /** Format: byte */
-            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
@@ -6500,8 +6525,6 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
-            /** Format: byte */
-            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
@@ -6571,8 +6594,6 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
-            /** Format: byte */
-            DataVersion?: string | null;
             PageId?: string | null;
             CategoryId?: string | null;
             /** Format: int32 */
@@ -6611,8 +6632,6 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
-            /** Format: byte */
-            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
@@ -6645,8 +6664,6 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
-            /** Format: byte */
-            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
@@ -6685,8 +6702,6 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
-            /** Format: byte */
-            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
@@ -6750,8 +6765,6 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
-            /** Format: byte */
-            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
@@ -6809,8 +6822,6 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
-            /** Format: byte */
-            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
@@ -6845,8 +6856,6 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
-            /** Format: byte */
-            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
@@ -6886,8 +6895,6 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
-            /** Format: byte */
-            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
@@ -6926,8 +6933,6 @@ export interface components {
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
-            /** Format: byte */
-            DataVersion?: string | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */

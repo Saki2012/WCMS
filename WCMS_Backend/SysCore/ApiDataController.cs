@@ -118,7 +118,7 @@ namespace WCMS.SysCore
         /// <param name="pk"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        [HttpPut(nameof(Update))] public virtual async Task<IActionResult> Update(IApiRequest<TSet> data, CancellationToken ct)
+        [HttpPut(nameof(Update))] public virtual async Task<IActionResult> Update(ApiRequest<TSet> data, CancellationToken ct)
         {
             var result = await Service.UpdateSetAsync(data.InternalId, data.Data);
             await EvictForSetAsync(ct, data.InternalId);
