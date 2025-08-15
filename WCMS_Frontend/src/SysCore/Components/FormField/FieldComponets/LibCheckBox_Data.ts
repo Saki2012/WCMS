@@ -12,8 +12,8 @@ export interface ILibCheckItemProp {
 export interface ILibCheckBoxProp {
   style?: ILibCheckBoxStyle;             // 樣式，可選
   colDisplayName: string;                // 左側顯示欄位名稱
-  options: ILibCheckItemProp[];          // 選項清單
-  value: string[];                       // 當前選中的 value 陣列（通常是 string[]）
-  onChange: (val: string[]) => void;     // 勾選變更時的 callback
+  options?: ILibCheckItemProp[];          // 選項清單
+  value?: string[];                       // 當前選中的 value 陣列（通常是 string[]）
+  onChange?: (val: string[]) => void;     // 勾選變更時的 callback
 }
 

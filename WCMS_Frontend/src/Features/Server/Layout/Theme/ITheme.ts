@@ -20,5 +20,6 @@ export interface IBETheme {
   Tabs:ILibTabsStyle;
   TextBox:ILibTextBoxStyle
   TinyMCE:ILibTinyMCEStyle
+
 }
 

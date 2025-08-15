@@ -15,6 +15,7 @@ import LoginPage from "./Layout/BizFunc/Auth/LoginPage";
 import RequireAuth from "../../SysCore/Components/Auth/RequireAuth";
 import LogoutPage from "./Layout/BizFunc/Auth/LogoutPage";
 import RegisterPage from "./Layout/BizFunc/Auth/RegisterPage";
+import { GalleryFormComp } from "./Layout/BizFunc/WebManagement/Gallery/Gallery_Form_Comp";
 
 export class BackendRouteModule implements IRouteModule {
   getRoutes(): RouteObject[] {
@@ -72,7 +73,7 @@ export class BackendRouteModule implements IRouteModule {
                 path: 'Gallery',
                 children: [
                   { index: true, element: <Navigate to="List" replace /> },
-                  { path: 'Form/:internalId?', element: <PageFormComp theme={Classic_BETheme} /> },
+                  { path: 'Form/:internalId?', element: <GalleryFormComp theme={Classic_BETheme} /> },
                   { path: 'List', element: <PageListComp title="相簿列表" theme={Classic_BETheme} /> },
                   { path: 'Category/:internalId?', element: <CategoryListFormComp progId="Gallery" title="類別" theme={Classic_BETheme} /> },
                   { path: 'Tag/:internalId?', element: <TagListFormComp progId="Gallery" title="標籤" theme={Classic_BETheme} /> },
