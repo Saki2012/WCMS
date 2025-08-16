@@ -166,7 +166,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                 var level = item.Level;
 
                 // 防呆：不允許層級跳太多（例如 0 -> 2）
-                if (level > 0)
+                if (level > 1)
                 {
                     var needParentLevel = level - 1;
                     if (lastAtLevel.Count <= needParentLevel || lastAtLevel[needParentLevel] == null)
