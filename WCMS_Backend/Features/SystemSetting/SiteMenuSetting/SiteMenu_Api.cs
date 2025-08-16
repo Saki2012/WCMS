@@ -81,7 +81,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                     var item = new SiteMenu_Item();
                     set.SiteMenu_Item.Add(item);
                     item.SiteIndex = set.SiteMenu_Index.SiteIndex;
-                    item.ItemRowId = rowId++;
+                    item.RowId = rowId++;
                     item.ItemSiteUrl = r["Menu_ID"].ToString();
 
                     //item.ParentRowId=""☆重點處理完，Menu資料問題就解決了
@@ -98,7 +98,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                         set.SiteMenu_Item_Title.Add(new SiteMenu_Item_Title()
                         {
                             SiteIndex = set.SiteMenu_Index.SiteIndex,
-                            RowId = item.ItemRowId,
+                            RowId = item.RowId,
                             Lang = rl["Lang"].ToString(),
                             Title = rl["Title"].ToString()
                         });
@@ -111,7 +111,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                                 var item_url = new SiteMenu_Item_Url()
                                 {
                                     SiteIndex = set.SiteMenu_Index.SiteIndex,
-                                    ItemRowId = item.ItemRowId,
+                                    RowId = item.RowId,
                                 };
                                 set.SiteMenu_Item_Url.Add(item_url);
                                 foreach (DataRow rl in menuLang.Select($"Sn={sn}"))
@@ -138,7 +138,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                                 set.SiteMenu_Item_Module.Add(new SiteMenu_Item_Module()
                                 {
                                     SiteIndex = set.SiteMenu_Index.SiteIndex,
-                                    ItemRowId = item.ItemRowId,
+                                    RowId = item.RowId,
                                     BannerId = r["Banner"].ToString(),
                                     ModuleProgId = SetProgId(r["ContentA_Module"].ToString()),
                                     ModuleOptions = SetModuleOptions(r["ContentA_Module"].ToString(),r)
@@ -155,7 +155,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
             var ordered = srcItems
                 .OrderBy(x => x.Level)        // 粗粒度：層級由淺到深
                 .ThenBy(x => x.DisplayOrder)  // 同層以 DisplayOrder 排
-                .ThenBy(x => x.ItemRowId)     // 穩定排序
+                .ThenBy(x => x.RowId)     // 穩定排序
                 .ToList();
 
             // 2) 用一個動態陣列記錄「各層最近見到的節點」
@@ -171,7 +171,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                     var needParentLevel = level - 1;
                     if (lastAtLevel.Count <= needParentLevel || lastAtLevel[needParentLevel] == null)
                         throw new InvalidOperationException(
-                            $"層級跳躍或排序不正確：ItemRowId={item.ItemRowId}, Level={item.Level}");
+                            $"層級跳躍或排序不正確：ItemRowId={item.RowId}, Level={item.Level}");
                 }
 
                 // 2-1) 指定 ParentRowId
@@ -181,7 +181,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                 }
                 else
                 {
-                    item.ParentRowId = lastAtLevel[level - 1]!.ItemRowId;
+                    item.ParentRowId = lastAtLevel[level - 1]!.RowId;
                 }
 
                 // 2-2) 將目前節點登記為該層的「最近見到」
