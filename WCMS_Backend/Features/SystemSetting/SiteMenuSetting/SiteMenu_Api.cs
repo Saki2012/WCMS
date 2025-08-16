@@ -1,6 +1,316 @@
-﻿namespace WCMS.Features.SystemSetting.SiteMenuSetting
+﻿using Microsoft.AspNetCore.Mvc;
+using NetTopologySuite.Index.KdTree;
+using Newtonsoft.Json;
+using System.Data;
+using WCMS.Features.SiteEdit.Banner;
+using WCMS.Features.SiteEdit.PageManagement;
+using WCMS.SpecFeatures.T1810.SystemSetting;
+using WCMS.SysCore;
+using WCMS.SysCore.Enum;
+using WCMS.SysCore.Library;
+using WCMS.SysCore.SystemFunc.FileManagement;
+using static WCMS.SysCore.Enum.SysEnum;
+
+namespace WCMS.Features.SystemSetting.SiteMenuSetting
 {
-    public class SiteMenu_Api
+    [ApiController, Route(SysParam.ServiceRoute)]
+    public class SiteMenu_Api : ApiDataController<SiteMenuSet>
     {
+
+
+        #region Migration Old Data
+        [HttpPost(nameof(Migrate)), LocalhostOnly]
+        public async Task<IActionResult> Migrate(CancellationToken ct)
+        {
+            SiteMenuSet set = await ConvertToApiModel();
+            return await InitialCreateData([set], ct);
+        }
+        private async Task<SiteMenuSet> ConvertToApiModel()
+        {
+            SiteMenuSet set = new();
+            set.SiteMenu_Index.IsIniData = true;
+            Dictionary<string, string> sqls = new()
+            {
+                { "SiteInfo", "Select * From SiteInfo" },
+                { "SiteInfo_Lang", "Select * From SiteInfo_Lang" },
+                { "Menu","Select * From Menu" },
+                { "Menu_Lang","Select * From Menu_Lang" },
+            };
+            DataSet ds = MigrateOldData.GetOldData(sqls);
+            SetSiteIndex(set, ds.Tables["SiteInfo"], ds.Tables["SiteInfo_Lang"]);
+            SetSideMenu(set, ds.Tables["Menu"], ds.Tables["Menu_Lang"]);
+            SetParentId(set.SiteMenu_Item);
+            return set;
+        }
+        private void SetSiteIndex(SiteMenuSet set, DataTable dsInfo, DataTable dsInfoLang)
+        {
+            set.SiteMenu_Index = new SiteMenu_IndexModel();
+            DataRow siteinfoRow = dsInfo.Select().FirstOrDefault();
+            set.SiteMenu_Index.GoogleAnalytics = siteinfoRow["GoogleAnalysis"].ToString();
+            foreach(DataRow r in dsInfoLang.Rows) 
+            {
+                string lang = r["Lang"].ToString();
+                var siteInfo = set.SiteMenu_IndexInfo.FirstOrDefault(p => p.Lang == lang);
+                if (siteInfo == null)
+                {
+                    siteInfo = new SiteMenu_IndexInfoModel() { Lang = lang };
+                    set.SiteMenu_IndexInfo.Add(siteInfo);
+                }
+                siteInfo.SideIndex = set.SiteMenu_Index.SideIndex;
+                siteInfo.Title = r["SiteTitle"].ToString();
+                siteInfo.SideHeader = r["SideHeader"].ToString();
+                siteInfo.SideFooter = r["SideFooter"].ToString();
+
+                if (lang.Equals("zh-tw", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    siteInfo.Description = siteinfoRow["SiteDescription"].ToString();
+                    siteInfo.Keyword = siteinfoRow["SiteKeyword"].ToString();
+                }
+            }
+        }
+        private void SetSideMenu(SiteMenuSet set, DataTable menu,DataTable menuLang)
+        {
+            int rowId = 1;
+            foreach(DataRow r in menu.Select().Skip(1))
+            {
+                string sn = r["Sn"].ToString();
+                if (r["Type"].ToString().In("url", "module"))
+                {
+                    var item = new SiteMenu_Item();
+                    set.SiteMenu_Item.Add(item);
+                    item.SideIndex = set.SiteMenu_Index.SideIndex;
+                    item.ItemRowId = rowId++;
+                    item.ItemSiteUrl = r["Menu_ID"].ToString();
+
+                    //item.ParentRowId=""☆重點處理完，Menu資料問題就解決了
+
+                    string menuLv = r["MenuLevel"].ToString();
+                    item.Level = menuLv.Split(',').Length.ToByte();
+                    item.DisplayOrder = menuLv.Split(',').LastOrDefault().ToByte();
+
+
+                    foreach (DataRow rl in menuLang.Select($"Sn={sn}"))
+                    {
+                        item.WindowTarget = rl["URL_Open"].ToByte() == 1 ? WindowTarget.Self : WindowTarget.Blank;
+                        item.IsShowOnMenu = Convert.ToBoolean(rl["MenuDisplay"]);
+                        set.SiteMenu_Item_Title.Add(new SiteMenu_Item_Title()
+                        {
+                            SideIndex = set.SiteMenu_Index.SideIndex,
+                            RowId = item.ItemRowId,
+                            Lang = rl["Lang"].ToString(),
+                            Title = rl["Title"].ToString()
+                        });
+                    }
+                    switch (r["Type"].ToString())
+                    {
+                        case "url":
+                            {
+                                item.ItemType = MenuUrlType.Url;
+                                var item_url = new SiteMenu_Item_Url()
+                                {
+                                    SideIndex = set.SiteMenu_Index.SideIndex,
+                                    ItemRowId = item.ItemRowId,
+                                };
+                                set.SiteMenu_Item_Url.Add(item_url);
+                                foreach (DataRow rl in menuLang.Select($"Sn={sn}"))
+                                {
+                                    item_url.RedirectType = rl["URL"].ToString().StartsWith("/Front") ? MenuUrlType.Module : MenuUrlType.Url;
+                                    item_url.RedirectUrl = rl["URL"].ToString();
+                                }
+                                break;
+                            }
+                        case "module":
+                            {
+                                item.ItemType = MenuUrlType.Module;
+                                set.SiteMenu_Item_Module.Add(new SiteMenu_Item_Module()
+                                {
+                                    SideIndex = set.SiteMenu_Index.SideIndex,
+                                    ItemRowId = item.ItemRowId,
+                                    BannerId = r["Banner"].ToString(),
+                                    ModuleProgId = SetProgId(r["ContentA_Module"].ToString()),
+                                    ModuleOptions = SetModuleOptions(r["ContentA_Module"].ToString(),r)
+                                });
+                                break;
+                            }
+                    }
+                }
+            }
+        }
+        private void SetParentId(List<SiteMenu_Item> srcItems)
+        {
+            // 1) 排序，確保父在前、子在後（pre-order 需求）：
+            var ordered = srcItems
+                .OrderBy(x => x.Level)        // 粗粒度：層級由淺到深
+                .ThenBy(x => x.DisplayOrder)  // 同層以 DisplayOrder 排
+                .ThenBy(x => x.ItemRowId)     // 穩定排序
+                .ToList();
+
+            // 2) 用一個動態陣列記錄「各層最近見到的節點」
+            var lastAtLevel = new List<SiteMenu_Item?>();
+
+            foreach (var item in ordered)
+            {
+                var level = item.Level;
+
+                // 防呆：不允許層級跳太多（例如 0 -> 2）
+                if (level > 0)
+                {
+                    var needParentLevel = level - 1;
+                    if (lastAtLevel.Count <= needParentLevel || lastAtLevel[needParentLevel] == null)
+                        throw new InvalidOperationException(
+                            $"層級跳躍或排序不正確：ItemRowId={item.ItemRowId}, Level={item.Level}");
+                }
+
+                // 2-1) 指定 ParentRowId
+                if (level == 1)
+                {
+                    item.ParentRowId = null;
+                }
+                else
+                {
+                    item.ParentRowId = lastAtLevel[level - 1]!.ItemRowId;
+                }
+
+                // 2-2) 將目前節點登記為該層的「最近見到」
+                if (lastAtLevel.Count <= level)
+                {
+                    // 補到可以放當前 level
+                    while (lastAtLevel.Count <= level) lastAtLevel.Add(null);
+                }
+                lastAtLevel[level] = item;
+
+                // 2-3) 清掉更深層（避免之後誤用到別支的舊值）
+                for (int deeper = level + 1; deeper < lastAtLevel.Count; deeper++)
+                    lastAtLevel[deeper] = null;
+            }
+        }
+        private static string SetProgId(string srcModule)
+        {
+            return srcModule switch
+            {
+                "page" => "PageManagement",
+                "gallery" => "Gallery",
+                "news" => "Announcement",
+                "archive" => "FileArchive",
+                "webresource" => "WebResource",
+                "ResearchProject" => "SpecResearch",
+                "USRProject" => "SpecUSR",
+                _ => srcModule,
+            };
+        }
+        private static string SetModuleOptions(string srcModule,DataRow r)
+        {
+            switch (srcModule)
+            {
+                case "page": 
+                    {
+                        var option = new ModuleOptions.PageManagement()
+                        {
+                            PageId = r["ContentA_Page"].ToString()
+                        };
+                        return JsonConvert.SerializeObject(option, Formatting.None);
+                    }
+                case "gallery":
+                    {
+                        var option = new ModuleOptions.Gallery()
+                        {
+                            Category = r["ContentA_Category"].ToString().Remerge(","),
+                            Tag = r["ContentA_Tag"].ToString().Remerge(",")
+                        };
+                        switch (r["ContentA_Template"].ToString())
+                        {
+                            case "gallery_template1":
+                                option.Style = ModuleDisplayStyle.List;
+                                break;
+                            case "gallery_template2":
+                                option.Style = ModuleDisplayStyle.Waterfall;
+                                break;
+                        }
+                        return JsonConvert.SerializeObject(option, Formatting.None);
+                    }
+                case "news":
+                    {
+                        var option = new ModuleOptions.Announcement()
+                        {
+                            Category = r["ContentA_Category"].ToString().Remerge(","),
+                            Tag = r["ContentA_Tag"].ToString().Remerge(",")
+                        };
+                        switch (r["ContentA_Template"].ToString())
+                        {
+                            case "news_template1":
+                                option.Style = ModuleDisplayStyle.List;
+                                break;
+                            case "news_template2":
+                                option.Style = ModuleDisplayStyle.PictureList;
+                                break;
+                            case "news_template3":
+                                option.Style = ModuleDisplayStyle.QAList;
+                                break;
+                        }
+                        return JsonConvert.SerializeObject(option, Formatting.None);
+                    }
+                case "archive":
+                    {
+                        var option = new ModuleOptions.FileArchive()
+                        {
+                            Category = r["ContentA_Category"].ToString().Remerge(","),
+                            Tag = r["ContentA_Tag"].ToString().Remerge(",")
+                        };
+                        switch (r["ContentA_Template"].ToString())
+                        {
+                            case "archive_template1":
+                                option.Style = ModuleDisplayStyle.List;
+                                break;
+                            case "archive_template2":
+                                option.Style = ModuleDisplayStyle.Expand_Category;
+                                break;
+                            case "archive_template3":
+                                option.Style = ModuleDisplayStyle.Expand_Tag;
+                                break;
+                        }
+                        return JsonConvert.SerializeObject(option, Formatting.None);
+                    }
+                case "webresource":
+                    {
+                        var option = new ModuleOptions.WebResource()
+                        {
+                            Category = r["ContentA_Category"].ToString().Remerge(","),
+                            Tag = r["ContentA_Tag"].ToString().Remerge(",")
+                        };
+                        switch (r["ContentA_Template"].ToString())
+                        {
+                            case "webresource_template1":
+                                option.Style = ModuleDisplayStyle.List;
+                                break;
+                            case "webresource_template2":
+                                option.Style = ModuleDisplayStyle.PictureList;
+                                break;
+                            case "webresource_template3":
+                                option.Style = ModuleDisplayStyle.Youtube;
+                                break;
+                        }
+                        return JsonConvert.SerializeObject(option, Formatting.None);
+                    }
+                case "ResearchProject":
+                    {
+                        var option = new SpecModuleOptions.SpecResearch()
+                        {
+                            Category = r["ContentA_Category"].ToString(),
+                            Tag = r["ContentA_Tag"].ToString().Remerge(",")
+                        };
+                        return JsonConvert.SerializeObject(option, Formatting.None);
+                    }
+                case "USRProject":
+                    {
+                        var option = new ModuleOptions.PageManagement()
+                        {
+                            PageId = r["ContentA_Page"].ToString()
+                        };
+                        return JsonConvert.SerializeObject(option, Formatting.None);
+                    }
+                default: return srcModule;
+            };
+        }
+        #endregion
     }
 }

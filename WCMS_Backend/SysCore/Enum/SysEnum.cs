@@ -325,5 +325,72 @@ namespace WCMS.SysCore.Enum
             /// </summary>
             Hidden = 1 << 2
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        public enum MenuUrlType : byte
+        {
+            /// <summary>
+            /// 
+            /// </summary>
+            None=0,
+            /// <summary>
+            /// 超連結
+            /// </summary>
+            Url=1,
+            /// <summary>
+            /// 模型功能
+            /// </summary>
+            Module=2,
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public enum WindowTarget : byte
+        {
+            Self = 0,   // _self (當前頁面)
+            Blank = 1,  // _blank (新開分頁/視窗)
+            //Parent = 2, // _parent (父層框架)
+            //Top = 3,    // _top (最上層框架)
+            //Named = 4   // 自訂視窗名稱
+        }
+        /// <summary>
+        /// 模型功能顯示方式
+        /// </summary>
+        public enum ModuleDisplayStyle : byte
+        {
+            /// <summary>
+            /// 無
+            /// </summary>
+            None=0,
+            /// <summary>
+            /// 清單列表式
+            /// </summary>
+            List=1,
+            /// <summary>
+            /// 圖文式
+            /// </summary>
+            PictureList=2,
+            /// <summary>
+            /// QA列表式
+            /// </summary>
+            QAList=3,
+            /// <summary>
+            /// 瀑布式
+            /// </summary>
+            Waterfall=4,
+            /// <summary>
+            /// 展開式(類別)
+            /// </summary>
+            Expand_Category=5,
+            /// <summary>
+            /// 展開式(標籤)
+            /// </summary>
+            Expand_Tag=6,
+            /// <summary>
+            /// Youtube
+            /// </summary>
+            Youtube=7
+        }
     }
 }

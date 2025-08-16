@@ -85,6 +85,17 @@ namespace WCMS.SysCore.Library
         /// <summary>
         /// 合併
         /// </summary>
+        /// <param name="mergeStr"></param>
+        /// <param name="hasEmpty"></param>
+        /// <param name="strs"></param>
+        /// <returns></returns>
+        public static string Merge(char mergeStr, bool hasEmpty, params object[] strs)
+        {
+            return Merge(mergeStr.ToString(), hasEmpty, strs);
+        }
+        /// <summary>
+        /// 合併
+        /// </summary>
         /// <param name="mergeStr">合併連接字 Ex:,</param>
         /// <param name="hasEmpty">是否包含空字串</param>
         /// <param name="strs">組合字串組</param>
