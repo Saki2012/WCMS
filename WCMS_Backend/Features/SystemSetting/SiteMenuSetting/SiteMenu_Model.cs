@@ -45,7 +45,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
         /// <summary>
         /// 首頁代碼
         /// </summary>
-        [Key] public string ? SideIndex { get; set; }
+        [Key] public string ? SiteIndex { get; set; }
         /// <summary>
         /// Goole分析碼
         /// </summary>
@@ -63,7 +63,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
         /// <summary>
         /// 首頁代碼
         /// </summary>
-        [Key] public string? SideIndex { get; set; }
+        [Key] public string? SiteIndex { get; set; }
         /// <summary>
         /// 
         /// </summary>
@@ -83,11 +83,11 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
         /// <summary>
         /// Header
         /// </summary>
-        public string? SideHeader { get; set; }
+        public string? SiteHeader { get; set; }
         /// <summary>
         /// Footer
         /// </summary>
-        public string? SideFooter { get; set; }
+        public string? SiteFooter { get; set; }
         /// <summary>
         /// 網站關鍵字
         /// </summary>
@@ -96,19 +96,19 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
     /// <summary>
     /// 
     /// </summary>
-    [Index(nameof(SideIndex), nameof(FullUrl), IsUnique = true, Name = "UX_SiteMenu_Item_NaturalKey")]
+    [Index(nameof(SiteIndex), nameof(FullUrl), IsUnique = true, Name = "UX_SiteMenu_Item_NaturalKey")]
     public class SiteMenu_Item:DetailRowModel
     {
         /// <summary>
-        /// 主站Url，最主要的會是Empty，新的子站則是https://xxx.com/{SideIndex}
+        /// 主站Url，最主要的會是Empty，新的子站則是https://xxx.com/{SiteIndex}
         /// </summary>
-        [Key] public string? SideIndex { get; set; }
+        [Key] public string? SiteIndex { get; set; }
         /// <summary>
         /// url主鍵
         /// </summary>
         [Key]public int? ItemRowId { get; set; }
         /// <summary>
-        /// 上層url外鍵(一定會跟著SideIndex一起)
+        /// 上層url外鍵(一定會跟著SiteIndex一起)
         /// </summary>
         public int? ParentRowId { get; set; }
         /// <summary>
@@ -145,7 +145,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
     /// </summary>
     public class SiteMenu_Item_Title : DetailRowModel
     {
-        [Key] public string? SideIndex { get; set; }
+        [Key] public string? SiteIndex { get; set; }
         [Key] public int? ItemRowId { get; set; }
         [Key] public int? RowId { get; set; }
         public string Lang { get; set; }
@@ -156,7 +156,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
     /// </summary>
     public class SiteMenu_Item_Url : DetailRowModel
     {
-        [Key] public string? SideIndex { get; set; }
+        [Key] public string? SiteIndex { get; set; }
         [Key] public int? ItemRowId { get; set; }
         public MenuUrlType RedirectType { get; set; } //0:無, 1:外部,2:內部模型功能(直接轉FullUrl、但是是用下拉的看Title/Url)
         public string? RedirectUrl { get; set; }
@@ -166,7 +166,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
     /// </summary>
     public class SiteMenu_Item_Module : DetailRowModel
     {
-        [Key] public string? SideIndex { get; set; }
+        [Key] public string? SiteIndex { get; set; }
         [Key] public int? ItemRowId { get; set; }
         public string? BannerId { get; set; }
         public string? ModuleProgId { get; set; } //功能代碼

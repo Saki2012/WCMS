@@ -56,10 +56,10 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                     siteInfo = new SiteMenu_IndexInfoModel() { Lang = lang };
                     set.SiteMenu_IndexInfo.Add(siteInfo);
                 }
-                siteInfo.SideIndex = set.SiteMenu_Index.SideIndex;
+                siteInfo.SiteIndex = set.SiteMenu_Index.SiteIndex;
                 siteInfo.Title = r["SiteTitle"].ToString();
-                siteInfo.SideHeader = r["SideHeader"].ToString();
-                siteInfo.SideFooter = r["SideFooter"].ToString();
+                siteInfo.SiteHeader = r["SiteHeader"].ToString();
+                siteInfo.SiteFooter = r["SiteFooter"].ToString();
 
                 if (lang.Equals("zh-tw", StringComparison.InvariantCultureIgnoreCase))
                 {
@@ -78,7 +78,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                 {
                     var item = new SiteMenu_Item();
                     set.SiteMenu_Item.Add(item);
-                    item.SideIndex = set.SiteMenu_Index.SideIndex;
+                    item.SiteIndex = set.SiteMenu_Index.SiteIndex;
                     item.ItemRowId = rowId++;
                     item.ItemSiteUrl = r["Menu_ID"].ToString();
 
@@ -95,7 +95,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                         item.IsShowOnMenu = Convert.ToBoolean(rl["MenuDisplay"]);
                         set.SiteMenu_Item_Title.Add(new SiteMenu_Item_Title()
                         {
-                            SideIndex = set.SiteMenu_Index.SideIndex,
+                            SiteIndex = set.SiteMenu_Index.SiteIndex,
                             RowId = item.ItemRowId,
                             Lang = rl["Lang"].ToString(),
                             Title = rl["Title"].ToString()
@@ -108,7 +108,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                                 item.ItemType = MenuUrlType.Url;
                                 var item_url = new SiteMenu_Item_Url()
                                 {
-                                    SideIndex = set.SiteMenu_Index.SideIndex,
+                                    SiteIndex = set.SiteMenu_Index.SiteIndex,
                                     ItemRowId = item.ItemRowId,
                                 };
                                 set.SiteMenu_Item_Url.Add(item_url);
@@ -124,7 +124,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                                 item.ItemType = MenuUrlType.Module;
                                 set.SiteMenu_Item_Module.Add(new SiteMenu_Item_Module()
                                 {
-                                    SideIndex = set.SiteMenu_Index.SideIndex,
+                                    SiteIndex = set.SiteMenu_Index.SiteIndex,
                                     ItemRowId = item.ItemRowId,
                                     BannerId = r["Banner"].ToString(),
                                     ModuleProgId = SetProgId(r["ContentA_Module"].ToString()),

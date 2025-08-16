@@ -46,7 +46,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
         }
         private void SetFullUrl(SiteMenu_Item item)
         {
-            string parentFullUrl = GetParentFullUrl(item.SideIndex, item.ParentRowId);
+            string parentFullUrl = GetParentFullUrl(item.SiteIndex, item.ParentRowId);
             item.FullUrl = LibData.Merge('/', false, parentFullUrl, item.ItemSiteUrl);
         }
         private string GetParentFullUrl(string sideIndex, int? parentRowId)
