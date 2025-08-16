@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NetTopologySuite.Index.KdTree;
 using Newtonsoft.Json;
+using System;
 using System.Data;
+using System.Text.RegularExpressions;
 using WCMS.Features.SiteEdit.Banner;
 using WCMS.Features.SiteEdit.PageManagement;
 using WCMS.SpecFeatures.T1810.SystemSetting;
@@ -114,8 +116,19 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                                 set.SiteMenu_Item_Url.Add(item_url);
                                 foreach (DataRow rl in menuLang.Select($"Sn={sn}"))
                                 {
-                                    item_url.RedirectType = rl["URL"].ToString().StartsWith("/Front") ? MenuUrlType.Module : MenuUrlType.Url;
-                                    item_url.RedirectUrl = rl["URL"].ToString();
+                                    string url = rl["URL"].ToString();
+
+                                    if (url.StartsWith("/Front"))
+                                    {
+                                        item_url.RedirectType = MenuUrlType.Module ;
+                                        var noFront = Regex.Replace(url, @"^/Front(?=/)", string.Empty, RegexOptions.IgnoreCase);
+                                        item_url.RedirectUrl = Regex.Replace(noFront, @"/[^/]*\.(?:aspx|html)(?:\?.*)?$", string.Empty, RegexOptions.IgnoreCase).TrimEnd('/');
+                                    }
+                                    else
+                                    {
+                                        item_url.RedirectType = MenuUrlType.Url;
+                                        item_url.RedirectUrl = url;
+                                    }
                                 }
                                 break;
                             }
