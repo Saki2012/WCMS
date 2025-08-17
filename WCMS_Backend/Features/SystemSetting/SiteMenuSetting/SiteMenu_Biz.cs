@@ -11,7 +11,9 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
     [ProgId("SiteMenu")]
     public class SiteMenuBiz(IRepositoryMapProvider repo) : BizService<SiteMenuSet>(repo), IBizService<SiteMenuSet>
     {
-
+        #region Property
+        protected override bool IsAutoGenerateId { get; set; } = false;
+        #endregion
         #region Protected
         protected override void BeforeUpdate(SiteMenuSet set, FuncAction act)
         {
