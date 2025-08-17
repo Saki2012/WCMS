@@ -41,7 +41,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
             DataSet ds = MigrateOldData.GetOldData(sqls);
             SetSiteIndex(set, ds.Tables["SiteInfo"], ds.Tables["SiteInfo_Lang"]);
             SetSideMenu(set, ds.Tables["Menu"], ds.Tables["Menu_Lang"]);
-            SetParentId(set.SiteMenu_Item);
+            SetParentId(set.SiteMenu_Item, ds.Tables["Menu"]);
             return set;
         }
         private void SetSiteIndex(SiteMenuSet set, DataTable dsInfo, DataTable dsInfoLang)
@@ -148,51 +148,19 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                 }
             }
         }
-        private void SetParentId(List<SiteMenu_Item> srcItems)
+        private void SetParentId(List<SiteMenu_Item> srcItems, DataTable menu)
         {
-            // 1) 先排序：父在前、子在後
-            var ordered = srcItems
-                .OrderBy(x => x.DisplayOrder)  // 這個必須是全域的前序索引
-                .ThenBy(x => x.Level)          // 只是打平同值時的 tie-breaker
-                .ThenBy(x => x.RowId)
-                .ToList();
+            Dictionary<string, string> dic = [];
+            foreach (DataRow r in menu.Rows) dic.Add(r["Menu_ID"].ToString(), r["MenuLevel"].ToString());
 
-            // 記錄各層(以0為根層索引)最近見到的節點
-            var lastAtLevel = new List<SiteMenu_Item?>();
-
-            foreach (var item in ordered)
+            foreach (var item in srcItems) 
             {
-                var level = item.Level;
-
-                // 防呆：層級必須 >= 1
-                if (level < 1)
-                    throw new InvalidOperationException($"層級不得小於 1：ItemRowId={item.RowId}, Level={item.Level}");
-
-                int idx = level - 1; // 把 Level=1 對應到 idx=0
-
-                // 若不是根層，必須已經看過上一層的節點
-                if (idx > 0)
-                {
-                    int parentIdx = idx - 1;
-                    if (parentIdx >= lastAtLevel.Count || lastAtLevel[parentIdx] == null)
-                        throw new InvalidOperationException(
-                            $"層級跳躍或排序不正確：ItemRowId={item.RowId}, Level={item.Level}");
-                }
-
-                // 指定 ParentRowId
-                if (idx == 0)
-                    item.ParentRowId = null; // 根層
-                else
-                    item.ParentRowId = lastAtLevel[idx - 1]!.RowId;
-
-                // 確保容量後，登記本層「最近見到」的節點
-                while (lastAtLevel.Count <= idx) lastAtLevel.Add(null);
-                lastAtLevel[idx] = item;
-
-                // 清掉更深層，避免誤用先前別支的值
-                for (int deeper = idx + 1; deeper < lastAtLevel.Count; deeper++)
-                    lastAtLevel[deeper] = null;
+                string parent = null;
+                var parts = dic[item.ItemSiteUrl].Split(',');
+                if (parts.Length > 1) parent = string.Join(",", parts.Take(parts.Length - 1));
+                item.ParentRowId = srcItems.Find(p => p.ItemSiteUrl ==  dic.FirstOrDefault(p=>p.Value==parent).Key).RowId;
             }
+
         }
         private static string SetProgId(string srcModule)
         {
