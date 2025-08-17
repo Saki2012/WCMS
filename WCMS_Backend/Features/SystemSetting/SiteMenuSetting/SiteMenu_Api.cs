@@ -98,7 +98,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                         set.SiteMenu_Item_Title.Add(new SiteMenu_Item_Title()
                         {
                             SiteIndex = set.SiteMenu_Index.SiteIndex,
-                            RowId = item.RowId,
+                            ItemRowId = item.RowId,
                             Lang = rl["Lang"].ToString(),
                             Title = rl["Title"].ToString()
                         });
