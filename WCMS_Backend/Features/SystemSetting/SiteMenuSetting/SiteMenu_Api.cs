@@ -42,6 +42,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
             SetSiteIndex(set, ds.Tables["SiteInfo"], ds.Tables["SiteInfo_Lang"]);
             SetSideMenu(set, ds.Tables["Menu"], ds.Tables["Menu_Lang"]);
             SetParentId(set.SiteMenu_Item, ds.Tables["Menu"]);
+            SetFullUrl(set.SiteMenu_Item);
             return set;
         }
         private void SetSiteIndex(SiteMenuSet set, DataTable dsInfo, DataTable dsInfoLang)
@@ -89,7 +90,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                     item.Level = menuLv.Split(',').Length.ToByte();
                     item.DisplayOrder = menuLv.Split(',').LastOrDefault().ToByte();
 
-
+                    int titleRowId = 1;
                     foreach (DataRow rl in menuLang.Select($"Sn={sn}"))
                     {
                         item.WindowTarget = rl["URL_Open"].ToByte() == 1 ? WindowTarget.Self : WindowTarget.Blank;
@@ -98,6 +99,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                         {
                             SiteIndex = set.SiteMenu_Index.SiteIndex,
                             ItemRowId = item.RowId,
+                            RowId = titleRowId++,
                             Lang = rl["Lang"].ToString(),
                             Title = rl["Title"].ToString()
                         });
@@ -110,7 +112,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                                 var item_url = new SiteMenu_Item_Url()
                                 {
                                     SiteIndex = set.SiteMenu_Index.SiteIndex,
-                                    RowId = item.RowId,
+                                    ItemRowId = item.RowId,
                                 };
                                 set.SiteMenu_Item_Url.Add(item_url);
                                 foreach (DataRow rl in menuLang.Select($"Sn={sn}"))
@@ -137,7 +139,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                                 set.SiteMenu_Item_Module.Add(new SiteMenu_Item_Module()
                                 {
                                     SiteIndex = set.SiteMenu_Index.SiteIndex,
-                                    RowId = item.RowId,
+                                    ItemRowId = item.RowId,
                                     BannerId = r["Banner"].ToString(),
                                     ModuleProgId = SetProgId(r["ContentA_Module"].ToString()),
                                     ModuleOptions = SetModuleOptions(r["ContentA_Module"].ToString(),r)
@@ -158,9 +160,26 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                 string parent = null;
                 var parts = dic[item.ItemSiteUrl].Split(',');
                 if (parts.Length > 1) parent = string.Join(",", parts.Take(parts.Length - 1));
+                if (parent.IsNullOrEmpty()) continue;
                 item.ParentRowId = srcItems.Find(p => p.ItemSiteUrl ==  dic.FirstOrDefault(p=>p.Value==parent).Key).RowId;
             }
 
+        }
+
+        private void SetFullUrl(List<SiteMenu_Item> srcItems)
+        {
+            var items = srcItems.OrderBy(p => p.Level).ThenBy(p => p.DisplayOrder);
+            foreach(var item in items)
+            {
+                if (item.ParentRowId == null)
+                    item.FullUrl ="/" + LibData.Merge("/", false, item.SiteIndex, item.ItemSiteUrl);
+                else
+                {
+                    string pFullUrl = items.FirstOrDefault(p => (p.SiteIndex == item.SiteIndex && p.RowId == item.ParentRowId)).FullUrl;
+                    if (!pFullUrl.StartsWith('/')) pFullUrl = "/" + pFullUrl;
+                    item.FullUrl = LibData.Merge("/", false, pFullUrl, item.ItemSiteUrl);
+                }
+            }
         }
         private static string SetProgId(string srcModule)
         {
@@ -280,9 +299,10 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                     }
                 case "USRProject":
                     {
-                        var option = new ModuleOptions.PageManagement()
+                        var option = new SpecModuleOptions.SpecResearch()
                         {
-                            PageId = r["ContentA_Page"].ToString()
+                            Category = r["ContentA_Category"].ToString(),
+                            Tag = r["ContentA_Tag"].ToString().Remerge(",")
                         };
                         return JsonConvert.SerializeObject(option, Formatting.None);
                     }

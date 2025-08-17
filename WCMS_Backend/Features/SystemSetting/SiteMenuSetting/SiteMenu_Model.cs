@@ -1,6 +1,7 @@
 ﻿using MessagePack.Resolvers;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
@@ -157,7 +158,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
     public class SiteMenu_Item_Url : DetailRowModel
     {
         [Key] public string? SiteIndex { get; set; }
-        [Key] public int? RowId { get; set; }
+        [Key] public int? ItemRowId { get; set; }
         public MenuUrlType RedirectType { get; set; } //0:無, 1:外部,2:內部模型功能(直接轉FullUrl、但是是用下拉的看Title/Url)
         public string? RedirectUrl { get; set; }
     }
@@ -167,7 +168,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
     public class SiteMenu_Item_Module : DetailRowModel
     {
         [Key] public string? SiteIndex { get; set; }
-        [Key] public int? RowId { get; set; }
+        [Key] public int? ItemRowId { get; set; }
         public string? BannerId { get; set; }
         public string? ModuleProgId { get; set; } //功能代碼
         public string? ModuleOptions { get; set; }//動態參數，存Json格式
