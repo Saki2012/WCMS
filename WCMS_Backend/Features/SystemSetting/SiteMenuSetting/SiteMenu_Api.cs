@@ -48,6 +48,9 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
         {
             set.SiteMenu_Index = new SiteMenu_IndexModel();
             DataRow siteinfoRow = dsInfo.Select().FirstOrDefault();
+
+            set.SiteMenu_Index.SiteIndex = siteinfoRow["SiteID"].ToString();
+
             set.SiteMenu_Index.GoogleAnalytics = siteinfoRow["GoogleAnalysis"].ToString();
             foreach(DataRow r in dsInfoLang.Rows) 
             {
@@ -62,12 +65,8 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                 siteInfo.Title = r["SiteTitle"].ToString();
                 siteInfo.SiteHeader = r["SiteHeader"].ToString();
                 siteInfo.SiteFooter = r["SiteFooter"].ToString();
-
-                if (lang.Equals("zh-tw", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    siteInfo.Description = siteinfoRow["SiteDescription"].ToString();
-                    siteInfo.Keyword = siteinfoRow["SiteKeyword"].ToString();
-                }
+                siteInfo.Description = siteinfoRow["SiteDescription"].ToString();
+                siteInfo.Keyword = siteinfoRow["SiteKeyword"].ToString();
             }
         }
         private void SetSideMenu(SiteMenuSet set, DataTable menu,DataTable menuLang)
@@ -151,49 +150,47 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
         }
         private void SetParentId(List<SiteMenu_Item> srcItems)
         {
-            // 1) 排序，確保父在前、子在後（pre-order 需求）：
+            // 1) 先排序：父在前、子在後
             var ordered = srcItems
-                .OrderBy(x => x.Level)        // 粗粒度：層級由淺到深
-                .ThenBy(x => x.DisplayOrder)  // 同層以 DisplayOrder 排
-                .ThenBy(x => x.RowId)     // 穩定排序
+                .OrderBy(x => x.DisplayOrder)  // 這個必須是全域的前序索引
+                .ThenBy(x => x.Level)          // 只是打平同值時的 tie-breaker
+                .ThenBy(x => x.RowId)
                 .ToList();
 
-            // 2) 用一個動態陣列記錄「各層最近見到的節點」
+            // 記錄各層(以0為根層索引)最近見到的節點
             var lastAtLevel = new List<SiteMenu_Item?>();
 
             foreach (var item in ordered)
             {
                 var level = item.Level;
 
-                // 防呆：不允許層級跳太多（例如 0 -> 2）
-                if (level > 1)
+                // 防呆：層級必須 >= 1
+                if (level < 1)
+                    throw new InvalidOperationException($"層級不得小於 1：ItemRowId={item.RowId}, Level={item.Level}");
+
+                int idx = level - 1; // 把 Level=1 對應到 idx=0
+
+                // 若不是根層，必須已經看過上一層的節點
+                if (idx > 0)
                 {
-                    var needParentLevel = level - 1;
-                    if (lastAtLevel.Count <= needParentLevel || lastAtLevel[needParentLevel] == null)
+                    int parentIdx = idx - 1;
+                    if (parentIdx >= lastAtLevel.Count || lastAtLevel[parentIdx] == null)
                         throw new InvalidOperationException(
                             $"層級跳躍或排序不正確：ItemRowId={item.RowId}, Level={item.Level}");
                 }
 
-                // 2-1) 指定 ParentRowId
-                if (level == 1)
-                {
-                    item.ParentRowId = null;
-                }
+                // 指定 ParentRowId
+                if (idx == 0)
+                    item.ParentRowId = null; // 根層
                 else
-                {
-                    item.ParentRowId = lastAtLevel[level - 1]!.RowId;
-                }
+                    item.ParentRowId = lastAtLevel[idx - 1]!.RowId;
 
-                // 2-2) 將目前節點登記為該層的「最近見到」
-                if (lastAtLevel.Count <= level)
-                {
-                    // 補到可以放當前 level
-                    while (lastAtLevel.Count <= level) lastAtLevel.Add(null);
-                }
-                lastAtLevel[level] = item;
+                // 確保容量後，登記本層「最近見到」的節點
+                while (lastAtLevel.Count <= idx) lastAtLevel.Add(null);
+                lastAtLevel[idx] = item;
 
-                // 2-3) 清掉更深層（避免之後誤用到別支的舊值）
-                for (int deeper = level + 1; deeper < lastAtLevel.Count; deeper++)
+                // 清掉更深層，避免誤用先前別支的值
+                for (int deeper = idx + 1; deeper < lastAtLevel.Count; deeper++)
                     lastAtLevel[deeper] = null;
             }
         }

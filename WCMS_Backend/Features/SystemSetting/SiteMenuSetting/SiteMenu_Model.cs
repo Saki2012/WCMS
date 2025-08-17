@@ -19,7 +19,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
         /// <summary>
         /// 首頁資訊
         /// </summary>
-        public List<SiteMenu_IndexInfoModel> SiteMenu_IndexInfo = [];
+        public List<SiteMenu_IndexInfoModel> SiteMenu_IndexInfo { get; set; } = [];
         /// <summary>
         /// 連結項目
         /// </summary>

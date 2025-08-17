@@ -39,8 +39,12 @@ namespace WCMS.SysCore
                     if(p is DetailRowModel detailRowModel)
                     {
                         //這部分之後再來看怎麼調整
-                        if(((dynamic)detailRowModel).RowId == 0|| ((dynamic)detailRowModel).RowId == null)
-                            ((dynamic)detailRowModel).RowId = rowId++;
+                        var rowIdProp = PropertyAccessorCache.Get(detailRowModel, "RowId");
+                        if (rowIdProp != null) 
+                        {
+                            if (((dynamic)detailRowModel).RowId == 0 || ((dynamic)detailRowModel).RowId == null)
+                                ((dynamic)detailRowModel).RowId = rowId++;
+                        }
                     }
                 }
                 await DataAccess.AddRangeAsync(list);

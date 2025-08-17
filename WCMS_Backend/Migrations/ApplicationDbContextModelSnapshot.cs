@@ -45,7 +45,6 @@ namespace WCMS.Migrations
 
                     b.Property<byte[]>("DataVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
@@ -172,7 +171,6 @@ namespace WCMS.Migrations
 
                     b.Property<byte[]>("DataVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
@@ -312,7 +310,6 @@ namespace WCMS.Migrations
 
                     b.Property<byte[]>("DataVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
@@ -406,7 +403,6 @@ namespace WCMS.Migrations
 
                     b.Property<byte[]>("DataVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
@@ -529,7 +525,6 @@ namespace WCMS.Migrations
 
                     b.Property<byte[]>("DataVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
@@ -671,7 +666,6 @@ namespace WCMS.Migrations
 
                     b.Property<byte[]>("DataVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
@@ -753,7 +747,6 @@ namespace WCMS.Migrations
 
                     b.Property<byte[]>("DataVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
@@ -848,7 +841,6 @@ namespace WCMS.Migrations
 
                     b.Property<byte[]>("DataVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
@@ -939,6 +931,215 @@ namespace WCMS.Migrations
                     b.ToTable("WebResourceInfo", (string)null);
                 });
 
+            modelBuilder.Entity("WCMS.Features.SystemSetting.SiteMenuSetting.SiteMenu_IndexInfoModel", b =>
+                {
+                    b.Property<string>("SiteIndex")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("RowId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Keyword")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Lang")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SiteFooter")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SiteHeader")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("SiteIndex", "RowId");
+
+                    b.ToTable("SiteMenu_IndexInfo", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.Features.SystemSetting.SiteMenuSetting.SiteMenu_IndexModel", b =>
+                {
+                    b.Property<string>("SiteIndex")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("CreateUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte>("DataStatus")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte[]>("DataVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<bool>("Enable")
+                        .HasColumnType("bit");
+
+                    b.Property<byte>("FormStatus")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("GoogleAnalytics")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("InternalId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("InvalidTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("InvalidUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsIniData")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifyTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<string>("ModifyUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrgLvId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("Validate_End")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<DateTime?>("Validate_Start")
+                        .HasColumnType("datetime2(0)");
+
+                    b.HasKey("SiteIndex");
+
+                    b.HasIndex("InternalId")
+                        .IsUnique();
+
+                    b.ToTable("SiteMenu_Index", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.Features.SystemSetting.SiteMenuSetting.SiteMenu_Item", b =>
+                {
+                    b.Property<string>("SiteIndex")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("RowId")
+                        .HasColumnType("int");
+
+                    b.Property<byte>("DisplayOrder")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("FullUrl")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsShowOnMenu")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ItemSiteUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte>("ItemType")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("Level")
+                        .HasColumnType("tinyint");
+
+                    b.Property<int?>("ParentRowId")
+                        .HasColumnType("int");
+
+                    b.Property<byte>("WindowTarget")
+                        .HasColumnType("tinyint");
+
+                    b.HasKey("SiteIndex", "RowId");
+
+                    b.HasIndex(new[] { "SiteIndex", "FullUrl" }, "UX_SiteMenu_Item_NaturalKey")
+                        .IsUnique()
+                        .HasFilter("[FullUrl] IS NOT NULL");
+
+                    b.ToTable("SiteMenu_Item", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.Features.SystemSetting.SiteMenuSetting.SiteMenu_Item_Module", b =>
+                {
+                    b.Property<string>("SiteIndex")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("RowId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("BannerId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModuleOptions")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModuleProgId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("SiteIndex", "RowId");
+
+                    b.ToTable("SiteMenu_Item_Module", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.Features.SystemSetting.SiteMenuSetting.SiteMenu_Item_Title", b =>
+                {
+                    b.Property<string>("SiteIndex")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ItemRowId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RowId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Lang")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("SiteIndex", "ItemRowId", "RowId");
+
+                    b.ToTable("SiteMenu_Item_Title", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.Features.SystemSetting.SiteMenuSetting.SiteMenu_Item_Url", b =>
+                {
+                    b.Property<string>("SiteIndex")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("RowId")
+                        .HasColumnType("int");
+
+                    b.Property<byte>("RedirectType")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("RedirectUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("SiteIndex", "RowId");
+
+                    b.ToTable("SiteMenu_Item_Url", (string)null);
+                });
+
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory.SpecCategoryDetailModel", b =>
                 {
                     b.Property<string>("CategoryId")
@@ -977,7 +1178,6 @@ namespace WCMS.Migrations
 
                     b.Property<byte[]>("DataVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
@@ -1170,7 +1370,6 @@ namespace WCMS.Migrations
 
                     b.Property<byte[]>("DataVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
@@ -1328,7 +1527,6 @@ namespace WCMS.Migrations
 
                     b.Property<byte[]>("DataVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
@@ -1492,7 +1690,6 @@ namespace WCMS.Migrations
 
                     b.Property<byte[]>("DataVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
@@ -1668,7 +1865,6 @@ namespace WCMS.Migrations
 
                     b.Property<byte[]>("DataVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
@@ -1733,7 +1929,6 @@ namespace WCMS.Migrations
 
                     b.Property<byte[]>("DataVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
@@ -1809,7 +2004,6 @@ namespace WCMS.Migrations
 
                     b.Property<byte[]>("DataVersion")
                         .IsConcurrencyToken()
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
