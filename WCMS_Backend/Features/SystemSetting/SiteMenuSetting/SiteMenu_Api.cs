@@ -299,9 +299,10 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                     }
                 case "USRProject":
                     {
-                        var option = new ModuleOptions.PageManagement()
+                        var option = new SpecModuleOptions.SpecResearch()
                         {
-                            PageId = r["ContentA_Page"].ToString()
+                            Category = r["ContentA_Category"].ToString(),
+                            Tag = r["ContentA_Tag"].ToString().Remerge(",")
                         };
                         return JsonConvert.SerializeObject(option, Formatting.None);
                     }

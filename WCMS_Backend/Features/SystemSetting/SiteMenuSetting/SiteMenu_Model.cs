@@ -1,6 +1,7 @@
 ﻿using MessagePack.Resolvers;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
