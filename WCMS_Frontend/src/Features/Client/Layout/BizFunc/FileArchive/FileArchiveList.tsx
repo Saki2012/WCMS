@@ -11,10 +11,9 @@ import { useFetchGridListData } from "../../../../../SysCore/Utils/FetchGridList
 import { FormatDateTime } from "../../../../../SysCore/Utils/LibData";
 import * as SchemaFields from "../../../../../types/SchemaFields";
 import AnnouncementProvider from "../../../../Server/Layout/BizFunc/WebManagement/Announcement/Announcement_Api";
-
 import { GridViewContentComp } from "../../Scaffold/ContentViewMode/GridView/GridView/GridContent_Comp";
 
-const useAnnouncementList = () =>
+const useFileArchive = () =>
 {
     const provider = AnnouncementProvider();
     return useFetchGridListData<AnnouncementSet>({
@@ -64,8 +63,14 @@ const useAnnouncementList = () =>
         },
     });
 };
-
-export const AnnouncementList = ({ theme }: { theme: IFETheme; }) =>
+interface FileArchiveProps
+{
+    categoryId: string;//類別(多個)
+    tagId: string;//標籤(多個)
+    listStyle:Number,//1:列表、5:展開(類別)、6:展開(標籤)
+    theme: IFETheme;
+}
+export const FileArchiveList = ({ categoryId, tagId, listStyle, theme }: PageContentProps) =>
 {
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
     const useAnnounceList = useAnnouncementList();

@@ -9,8 +9,11 @@
     "_備註1": "build:csr之後加上tsc -b && 來增強編譯檢查",
     "build:csr": "vite build --mode prod",
     "build:ssr": "tsc -b && vite build --mode ssr",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+
+    "lint": "biome lint .",
+    "check": "biome check . && dprint check",
+    "format": "dprint fmt"
   },
   "dependencies": {
     "@apollo/client": "^3.13.8",
@@ -45,6 +48,7 @@
     "zod": "^4.0.2"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.2.0",
     "@eslint/js": "^9.25.0",
     "@types/bootstrap": "^5.2.10",
     "@types/dompurify": "^3.0.5",
@@ -56,6 +60,7 @@
     "@types/react-helmet": "^6.1.11",
     "@vitejs/plugin-basic-ssl": "^2.1.0",
     "@vitejs/plugin-react": "^4.5.2",
+    "dprint": "^0.50.1",
     "eslint": "^9.29.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react-hooks": "^5.2.0",
@@ -68,6 +73,6 @@
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.30.1",
     "vite": "^6.3.5",
-    "vite-node": "^3.2.4"
+    "vite-node": "3.2.4"
   }
 }

@@ -79,7 +79,7 @@ const ServerjsList = [
 ServerjsList.forEach((src) => {
   const script = document.createElement('script')
   script.src = src
-  script.async = false // 確保依序執行（jQuery -> Bootstrap -> CKEditor）
+  script.async = false // 確保依序執行（jQuery -> Bootstrap）
   document.body.appendChild(script)
 })
 
