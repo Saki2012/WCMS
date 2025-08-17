@@ -38,8 +38,7 @@ namespace WCMS.SysCore
                 {
                     if(p is DetailRowModel detailRowModel)
                     {
-                        //這部分之後再來看怎麼調整
-                        var rowIdProp = PropertyAccessorCache.Get(detailRowModel, "RowId");
+                        var rowIdProp = PropertyAccessorCache.GetProperty(p.GetType(), "RowId");
                         if (rowIdProp != null) 
                         {
                             if (((dynamic)detailRowModel).RowId == 0 || ((dynamic)detailRowModel).RowId == null)

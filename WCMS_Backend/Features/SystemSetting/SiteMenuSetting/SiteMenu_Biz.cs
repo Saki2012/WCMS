@@ -14,6 +14,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
         #region Property
         protected override bool IsAutoGenerateId { get; set; } = false;
         #endregion
+
         #region Protected
         protected override void BeforeUpdate(SiteMenuSet set, FuncAction act)
         {
@@ -22,7 +23,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
             {
                 case FuncAction.Create:
                 case FuncAction.Update:
-                    SetData(set);
+                    //SetData(set);
                     break;
             }
         }
