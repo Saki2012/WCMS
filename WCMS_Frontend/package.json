@@ -4,13 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev:csr": "vite --mode dev",
-    "dev:ssr": "vite-node src/SSR/dev-server.ts",
-    "_備註1": "build:csr之後加上tsc -b && 來增強編譯檢查",
-    "build:csr": "vite build --mode prod",
-    "build:ssr": "tsc -b && vite build --mode ssr",
+    "dev": "vite-node src/SSR/SSR-Server.ts",
+    "_備註1": "build之後加上tsc -b && 來增強編譯檢查",
+    "build": "tsc -b && vite build --mode ssr",
     "preview": "vite preview",
-
     "lint": "biome lint .",
     "check": "biome check . && dprint check",
     "format": "dprint fmt"
@@ -36,6 +33,7 @@
     "react-datepicker": "^8.4.0",
     "react-dom": "^19.1.0",
     "react-helmet": "^6.1.0",
+    "react-helmet-async": "^2.0.5",
     "react-router": "^6.30.1",
     "react-router-dom": "^6.30.1",
     "swiper": "^11.2.8",
@@ -51,6 +49,7 @@
     "@biomejs/biome": "^2.2.0",
     "@eslint/js": "^9.25.0",
     "@types/bootstrap": "^5.2.10",
+    "@types/compression": "^1.8.1",
     "@types/dompurify": "^3.0.5",
     "@types/express": "^5.0.3",
     "@types/jquery": "^3.5.32",

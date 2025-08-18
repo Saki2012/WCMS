@@ -1,9 +1,7 @@
 import {LibCheckBox, LibTextBox ,LibCalendar,LibTinyMCE } from "../../../../../../SysCore/Components/FormField/LibFormField"
-import type { LibTabsProp, LibTextBoxProp,LibTinyMCEProp } from "../../../../../../SysCore/Components/FormField/LibFormField"
+import type { LibTabsProp } from "../../../../../../SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "../../../Theme/ITheme";
-import { useGetCategoryListByProgId } from "../Category/Category_Hook"
 import { FormComp } from "../../../Scaffold/Content/Form_Comp";
-import { useFormToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
 import { useParams } from "react-router";
 import TabContentComp from "../../../../../../SysCore/Components/TabContent/TabContent";
 import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";

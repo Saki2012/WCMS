@@ -2,10 +2,10 @@
   "editor.defaultFormatter": "dprint.dprint",
   "editor.formatOnSave": true,
   "[typescript]": {
-    "editor.defaultFormatter": "dprint.dprint"
+    "editor.defaultFormatter": "gplane.dprint2"
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": "gplane.dprint2"
+    "editor.defaultFormatter": "vscode.typescript-language-features"
   },
   "[javascript]": {
     "editor.defaultFormatter": "dprint.dprint"

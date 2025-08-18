@@ -1,41 +1,20 @@
-// import { BackendRouteModule } from "./Features/Server/ServerRouter"; // 可切換為 DefaultRouteModule
-// import { FrontendRouteModule } from "./Features/Client/ClientRouter"; // 可切換為 DefaultRouteModule
-import { RouterProvider } from "react-router-dom";
-import { SpecRouteModule } from "./SpecFetures/1810/SpecRouter"; // 可切換為 DefaultRouteModule
+import { Outlet } from "react-router-dom";
 import { MessageProvider } from "./SysCore/Components/Message/Dialog/Dialog_Comp";
-import type { IRouteModule } from "./SysCore/Interface/IBaseRouter";
-// import { useEffect,useState } from "react";
-import { makeBrowserRouter } from "./SysCore/Utils/Routes";
+import { HeaderMetaComp } from "./SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 
-export default function App()
-{
-    const module: IRouteModule = new SpecRouteModule(); // 注入點
-    const cookieLang = document.cookie.split("; ").find(row => row.startsWith("wcms.lang="))?.split("=")[1];
-    const router = makeBrowserRouter({ cookieLang, module });
+type AppProps = { router: any };  // 簡化 typing，避免交叉型別拉扯
 
-    // const element = useRoutes(routes.getRoutes());
-
+export const App: React.FC<AppProps> = () => {
     return (
         <MessageProvider>
-            {/* {element} */}
-            <RouterProvider router={router} />
+            <HeaderMetaComp
+                title={"國立臺灣藝術大學_研究發展處"}
+                description={"國立臺灣藝術大學_研究發展處 / 國立臺灣藝術大學_研究發展處 / 國立臺灣藝術大學_研究發展處"}
+                keywords={"國立臺灣藝術大學_研究發展處"}
+            />
+            {/* <RouterProvider router={router} /> */}
+            <Outlet />
         </MessageProvider>
     );
 }
-
-// export default function App() {
-
-//   useEffect(() => {
-//     fetch('/api/RouteConfig')
-//       .then(res => res.json())
-//       .then(data => {
-//         const transformed = convertToRoutes(data);
-//         setRoutes(transformed);
-//       });
-//   }, []);
-
-//   if (!routes) return <div>Loading...</div>;
-
-//   const element = useRoutes(routes);
-//   return <>{element}</>;
-// }
+export default App;
