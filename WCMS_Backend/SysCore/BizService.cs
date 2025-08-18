@@ -45,6 +45,10 @@ namespace WCMS.SysCore
         /// 流水編號前綴碼
         /// </summary>
         public string PrefixId { get { return _Prifix == string.Empty ? ProgId : _Prifix; } protected set { _Prifix = value; } }
+        /// <summary>
+        /// 是否自動創建主鍵
+        /// </summary>
+        protected virtual bool IsAutoGenerateId { get; set; } = true;
         /* LibMessage包*/
         /// <summary>
         /// 變更日誌系統
@@ -459,6 +463,7 @@ namespace WCMS.SysCore
         /// </summary>
         private async Task AutoGenerateId(BasicDataModel header, Dictionary<string, IList> details)
         {
+            if (!IsAutoGenerateId) return;
             var keyProp = PropertyAccessorCache.GetProperties(header.GetType()).Where(p => p.IsDefined(typeof(KeyAttribute), inherit: true)).LastOrDefault();
             if (keyProp == null) return;
             var idSelector = BuildIdSelectorLambda(header.GetType(),keyProp);

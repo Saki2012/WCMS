@@ -7,8 +7,14 @@ import NaviProvider from '../../../../../../Features/Server/Layout/Scaffold/Menu
 const NavibarMenu=({theme}:{theme:IBETheme})=>{
     const [items, setItems] = useState<NaviData[]>([])
     useEffect(() => {
-        NaviProvider().getNaviBarList().then(setItems)
-    }, [])
+    let cancelled = false;
+    (async () => {
+        const resp = await NaviProvider().fetchList();
+        const list = resp.Data ?? [];
+        if (!cancelled) setItems(list);
+    })().catch(console.error);
+    return () => { cancelled = true; };
+    }, []);
 
     return (
         <header className="pc-header">

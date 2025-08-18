@@ -1,5 +1,5 @@
 import type { PaginatorProps } from "../../../SysCore/Components/Paginator/Paginator_Data.ts"
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 export const Paginator = ({ currentPage, totalPages, onPageChange, style }: PaginatorProps) => {
     // const pages = Array.from({ length: totalPages }, (_, i) => i + 1);

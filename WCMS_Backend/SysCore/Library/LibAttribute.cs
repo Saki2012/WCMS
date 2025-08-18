@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Net;
 using System.Reflection;
@@ -61,6 +62,23 @@ namespace WCMS.SysCore.Library
         public void OnActionExecuted(ActionExecutedContext context)
         {
             // 不需要做事
+        }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    public class AllowedEnumAttribute(params object[] allowed) : ValidationAttribute
+    {
+        private readonly object[] _allowed = allowed;
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            if (value == null) return ValidationResult.Success;
+            if (!_allowed.Contains(value))
+            {
+                return new ValidationResult($"欄位 {validationContext.MemberName} 只能是: {string.Join(", ", _allowed)}");
+            }
+            return ValidationResult.Success;
         }
     }
 }

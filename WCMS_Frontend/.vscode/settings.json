@@ -1,0 +1,16 @@
+{
+  "editor.defaultFormatter": "dprint.dprint",
+  "editor.formatOnSave": true,
+  "[typescript]": {
+    "editor.defaultFormatter": "gplane.dprint2"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "dprint.dprint"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "dprint.dprint"
+  }
+}

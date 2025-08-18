@@ -1,4 +1,5 @@
-import { number } from "zod";
+import type { ModelDisplaySchema } from "../../types/IApiSchema";
+
 
 /** 資料注入方式，決定真資料或是假資料
  * 
@@ -28,7 +29,7 @@ export abstract class IDataProvider<T> {
   public async fetchData(internaId: string): Promise<ApiResponse<T>>{
     return await this.doFetchData(internaId);
   }
-  public async fetchList(condition?: QueryListCondition): Promise<ApiResponse<T>>{
+  public async fetchList(condition?: QueryListCondition): Promise<ApiResponse<T[]>>{
     return await this.doFetchList(condition);
   }
 
@@ -36,7 +37,7 @@ export abstract class IDataProvider<T> {
     return await this.doFetchListCount(condition);
   }
 
-  public async getModelDisplayName(): Promise<T[]>{
+  public async getModelDisplayName(): Promise<ModelDisplaySchema>{
     return await this.doGetModelDisplayName();
   }
   //#endregion
@@ -47,9 +48,9 @@ export abstract class IDataProvider<T> {
   protected abstract doDelete(internaId:string): Promise<ApiResponse<T>>;
   protected abstract doInvalid(internaId:string,isInvalid:boolean): Promise<ApiResponse<T>>;
   protected abstract doFetchData(internaId?: string): Promise<ApiResponse<T>>;
-  protected abstract doFetchList(condition?: QueryListCondition): Promise<ApiResponse<T>>;
+  protected abstract doFetchList(condition?: QueryListCondition): Promise<ApiResponse<T[]>>;
   protected abstract doFetchListCount(condition?: QueryListCondition): Promise<ApiResponse<number>>;
-  protected abstract doGetModelDisplayName(): Promise<T[]>;
+  protected abstract doGetModelDisplayName(): Promise<ModelDisplaySchema>;
   //#endregion
 }
 
@@ -64,8 +65,9 @@ export interface SysMessageModel {
 export interface ApiResponse<T> {
   IsSuccess: boolean;
   SysMessage: SysMessageModel[];
-  Data: T[] | null;
+  Data: T | null;
 }
+
 /** API查詢條件 */
 export interface QueryListCondition {
   Fields:string[];

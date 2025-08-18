@@ -1,7 +1,7 @@
 import { Grid } from "../../../../../../../SysCore/Components/Grid/Grid_Comp";
 import LoadingErrorHandler from "../../../../../../../SysCore/Components/LoadingErrorHandler";
 import SearchBarComp from "../../../../../../../SysCore/Components/SearchBar/SearchBar_Comp";
-import type{ ListCompProp } from "../../FormView/FormView_Data";
+import type { ListCompProp } from "../GridView_Data";
 
 export const GridViewContentComp = (prop:ListCompProp) => {
     return (

@@ -3,8 +3,7 @@ import type {IBETheme} from "../../../../../../Features/Server/Layout/Theme/IThe
 import { usePageManagementListData } from "./PageManagement_Hook";
 import type { GridProps,ColumnConfig,GridRow,RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data"
 import { useMemo } from "react"
-import { Link } from "react-router"
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link} from 'react-router-dom';
 import { ListComp } from "../../../Scaffold/Content/List_Comp"
 import type { ListCompProp } from "../../../Scaffold/Content/Content_Data"
 import * as React from "react";
@@ -13,19 +12,12 @@ import { useListToolbarActions } from "../../../../../../SysCore/Components/Tool
 type PageManagementSet = components["schemas"]["PageManagementSet"]
 import { handleDelete } from "./PageManagement_Hook";
 
-
-
-
-
-
 /** 頁面清單
  * @returns 
  */
 export const PageListComp = ({title,theme}:{title:string;theme:IBETheme}) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
-
     const usePageList = usePageManagementListData();
-
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps, usePageList.rawData);}, [usePageList.gridProps, usePageList.rawData]);
 
     const useToolbar = useListToolbarActions(dirUrl)

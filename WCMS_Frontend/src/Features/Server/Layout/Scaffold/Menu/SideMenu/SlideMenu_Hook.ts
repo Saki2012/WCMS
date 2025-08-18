@@ -8,7 +8,13 @@ import { useLocation } from 'react-router-dom';
 export const useGetSideMenuItem = () => {
   const [items, setItems] = useState<MenuItemData[]>([]);
   useEffect(() => {
-    SideMenuProvider().fetchList().then(setItems);
+  let cancelled = false;
+  (async () => {
+    const resp = await SideMenuProvider().fetchList();
+    const list = resp.Data ?? [];
+    if (!cancelled) setItems(list);
+  })().catch(console.error);
+  return () => { cancelled = true; };
   }, []);
   return items;
 };

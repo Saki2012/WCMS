@@ -2,30 +2,34 @@ import { BaseApiService } from '../../../../../../SysCore/Utils/APIClient';
 import  type { components } from "../../../../../../types/api";
 import {IApiProvider, IDataProvider} from '../../../../../../SysCore/Interface/IApiProvider'
 import type { ApiResponse, QueryListCondition } from '../../../../../../SysCore/Interface/IApiProvider';
+import type { ModelDisplaySchema } from '../../../../../../types/IApiSchema';
 type PageManagementSet = components["schemas"]["PageManagementSet"]
 
 
 abstract class IPageManagementProvider extends IDataProvider<PageManagementSet> { }
 class MockProvider extends IPageManagementProvider {
-    protected async doCreateData(set: PageManagementSet): Promise<ApiResponse<PageManagementSet>> {
+    protected doCreateData(set?: { PageManagement?: components['schemas']['PageManagement']; PageManagementDetail?: components['schemas']['PageManagementDetail'][] | null; } | undefined): Promise<ApiResponse<{ PageManagement?: components['schemas']['PageManagement']; PageManagementDetail?: components['schemas']['PageManagementDetail'][] | null; }>> {
         throw new Error('Method not implemented.');
     }
-    protected async doUpdateData(internaId:string,set:PageManagementSet): Promise<ApiResponse<PageManagementSet>> {
+    protected doUpdateData(internaId: string, set: { PageManagement?: components['schemas']['PageManagement']; PageManagementDetail?: components['schemas']['PageManagementDetail'][] | null; }): Promise<ApiResponse<{ PageManagement?: components['schemas']['PageManagement']; PageManagementDetail?: components['schemas']['PageManagementDetail'][] | null; }>> {
         throw new Error('Method not implemented.');
     }
-    protected async doDelete(internaId:string): Promise<ApiResponse<PageManagementSet>> {
+    protected doDelete(internaId: string): Promise<ApiResponse<{ PageManagement?: components['schemas']['PageManagement']; PageManagementDetail?: components['schemas']['PageManagementDetail'][] | null; }>> {
         throw new Error('Method not implemented.');
     }
-    protected async doInvalid(internaId:string,isInvalid:boolean): Promise<ApiResponse<PageManagementSet>> {
+    protected doInvalid(internaId: string, isInvalid: boolean): Promise<ApiResponse<{ PageManagement?: components['schemas']['PageManagement']; PageManagementDetail?: components['schemas']['PageManagementDetail'][] | null; }>> {
         throw new Error('Method not implemented.');
     }
-    protected async doFetchData(internaId?: string): Promise<ApiResponse<PageManagementSet>> {
+    protected doFetchData(internaId?: string): Promise<ApiResponse<{ PageManagement?: components['schemas']['PageManagement']; PageManagementDetail?: components['schemas']['PageManagementDetail'][] | null; }>> {
         throw new Error('Method not implemented.');
     }
-    protected async doFetchList(condition?: QueryListCondition): Promise<ApiResponse<PageManagementSet>> {
+    protected doFetchList(condition?: QueryListCondition): Promise<ApiResponse<{ PageManagement?: components['schemas']['PageManagement']; PageManagementDetail?: components['schemas']['PageManagementDetail'][] | null; }[]>> {
         throw new Error('Method not implemented.');
     }
-    protected doGetModelDisplayName(): Promise<PageManagementSet[]> {
+    protected doFetchListCount(condition?: QueryListCondition): Promise<ApiResponse<number>> {
+        throw new Error('Method not implemented.');
+    }
+    protected doGetModelDisplayName(): Promise<ModelDisplaySchema> {
         throw new Error('Method not implemented.');
     }
 }
@@ -53,7 +57,7 @@ class APIProvider extends IPageManagementProvider {
         const res = await this.API.queryData(internaId);
         return res.data;
     }
-    protected async doFetchList(condition: QueryListCondition): Promise<ApiResponse<PageManagementSet>> {
+    protected async doFetchList(condition: QueryListCondition): Promise<ApiResponse<PageManagementSet[]>> {
         const res = await this.API.queryList(condition);
         return res.data
     }
@@ -61,7 +65,7 @@ class APIProvider extends IPageManagementProvider {
         const res = await this.API.queryCount(condition);
         return res.data
     }
-    protected async doGetModelDisplayName(): Promise<PageManagementSet[]> {
+    protected async doGetModelDisplayName(): Promise<ModelDisplaySchema> {
         const res = await this.API.getModelDisplayName();
         return res
     }

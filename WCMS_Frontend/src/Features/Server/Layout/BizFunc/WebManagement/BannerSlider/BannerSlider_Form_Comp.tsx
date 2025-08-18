@@ -1,20 +1,15 @@
-import {LibTextBox, LibTinyMCE } from "../../../../../../SysCore/Components/FormField/LibFormField"
-import type { LibTabsProp } from "../../../../../../SysCore/Components/FormField/LibFormField"
+import {LibTextBox } from "../../../../../../SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "../../../Theme/ITheme";
 import { useGetCategoryListByProgId } from "../Category/Category_Hook"
 import { useGetTagListByProgId } from "../Tags/Tag_Hook";
-
 import BannerSliderProvider from "./BannerSlider_Api";
 import { FormComp } from "../../../Scaffold/Content/Form_Comp";
 import { useFormToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
 import type { components } from "../../../../../../types/api";
 type BannerSet = components["schemas"]["BannerSet"]
 import { useEffect } from "react";
-import TabContentComp from "../../../../../../SysCore/Components/TabContent/TabContent";
-import LibCheckBox from "../../../../../../SysCore/Components/FormField/FieldComponets/LibCheckBox_Comp";
-import LibCalendar from "../../../../../../SysCore/Components/FormField/FieldComponets/LibCalendar_Comp";
 import { useFetchFormData } from "../../../../../../SysCore/Utils/FetchFormData";
 
 
@@ -29,7 +24,7 @@ export const BannerSliderFormComp = ({theme}:{theme:IBETheme}) => {
     const useCategory = useGetCategoryListByProgId("Announcement","zh-tw");
     const useTag = useGetTagListByProgId("Announcement","zh-tw");
     const formData = useFetchFormData<BannerSet>(BannerSliderProvider(),internalId,emptyData)
-    const useToolbar = useFormToolbarActions(BannerSliderProvider(), formData.data as BannerSet, internalId ,() => formData.refetch())
+    const useToolbar = useFormToolbarActions(BannerSliderProvider(), formData.data as BannerSet, internalId as string,() => formData.refetch())
     const isLoading=[useTag.isLoading,useCategory.isLoading,formData.isLoading]
     const errors=[useTag.error,useCategory.error,formData.error]
     

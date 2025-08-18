@@ -1,14 +1,15 @@
 import type { IFETheme } from '../../Theme/ITheme';
 import type { components } from '../../../../../types/api';
 type AnnouncementSet = components["schemas"]["AnnouncementSet"]
-import { data, useParams } from 'react-router';
+import { useParams } from 'react-router-dom';
 import { ContentComp } from '../../Scaffold/ContentViewMode/FormView/FormView_Comp';
 import { FormatDate } from '../../../../../SysCore/Utils/LibData';
 import parse from 'html-react-parser';
-import createDOMPurify from 'dompurify';
+import DOMPurify from 'isomorphic-dompurify'
 import AnnouncementProvider from '../../../../Server/Layout/BizFunc/WebManagement/Announcement/Announcement_Api';
 import { useFetchFormData } from '../../../../../SysCore/Utils/FetchFormData';
 import { useResolveInternalIds } from '../../../../../SysCore/Components/File/useResolveInternalIds';
+import { useMemo } from 'react';
 
 
 const emptyData:AnnouncementSet={
@@ -24,11 +25,11 @@ export const PageContentComp =({theme}:{theme:IFETheme}) => {
     const title = useAnnouncementFormData.data?.AnnouncementDetail?.[0]?.Title ?? "";
     const startDate =FormatDate(useAnnouncementFormData.data?.Announcement?.Validate_Start)
 
-    const DOMPurify = createDOMPurify(window); // 綁定瀏覽器 DOM
+    
     const rawContent = useAnnouncementFormData.data?.AnnouncementDetail?.[0]?.Content ?? '';
     const parseContent = useResolveInternalIds(typeof rawContent === "string" ? rawContent : "",{ locale: "zh-TW" });
 
-    const safeHtml = typeof parseContent.html === 'string' ? DOMPurify.sanitize(parseContent.html) : '';
+    const safeHtml = useMemo(() => DOMPurify.sanitize(rawContent ?? ''),[rawContent])
     const content = safeHtml ? parse(safeHtml) : null;
     const href=useAnnouncementFormData.data?.AnnouncementDetail?.[0]?.Url
     // const categories = [useAnnouncementFormData.data.Announcement.Categories]

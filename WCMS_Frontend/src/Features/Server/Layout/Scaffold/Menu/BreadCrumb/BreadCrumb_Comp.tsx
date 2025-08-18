@@ -8,8 +8,14 @@ import getBreadCrumbProvider from '../../../../../../Features/Server/Layout/Scaf
 const BreadCrumb=({theme}:{theme:IBETheme})=>{
     const [items, setItems] = useState<BreadCrumbData[]>([])
     useEffect(() => {
-        getBreadCrumbProvider().getBreadCrumbList().then(setItems)
-    }, [])
+    let cancelled = false;
+    (async () => {
+        const resp = await getBreadCrumbProvider().fetchList();
+        const list = resp.Data ?? [];
+        if (!cancelled) setItems(list);
+    })().catch(console.error);
+    return () => { cancelled = true; };
+    }, []);
 
     return (
         <BreadCrumbComp items={items} style={theme.BreadCrumb}></BreadCrumbComp>

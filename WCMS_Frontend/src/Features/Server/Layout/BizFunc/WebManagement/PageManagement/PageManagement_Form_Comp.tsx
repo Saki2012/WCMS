@@ -5,13 +5,14 @@ import { useGetCategoryListByProgId } from "../Category/Category_Hook"
 import PageManagementProvider from "./PageManagement_Api"
 import { FormComp } from "../../../Scaffold/Content/Form_Comp";
 import { useFormToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
 
 import { useFetchFormData } from "../../../../../../SysCore/Utils/FetchFormData";
 
 import type { components } from "../../../../../../types/api";
 type PageManagementSet = components["schemas"]["PageManagementSet"]
+type PageManagementDetail = components["schemas"]["PageManagementDetail"]
 import { useEffect } from "react";
 import TabContentComp from "../../../../../../SysCore/Components/TabContent/TabContent";
 
@@ -29,7 +30,7 @@ export const PageFormComp = ({theme}:{theme:IBETheme}) => {
     const useCategory = useGetCategoryListByProgId("PageManagement","zh-tw")
     const formData = useFetchFormData<PageManagementSet>(PageManagementProvider(), internalId ,emptyData);
 
-    const useToolbar = useFormToolbarActions(PageManagementProvider(), formData.data as PageManagementSet,internalId,()=>formData.refetch())
+    const useToolbar = useFormToolbarActions(PageManagementProvider(), formData.data as PageManagementSet,internalId as string,()=>formData.refetch())
 
     // const useToolbar = useFormToolbarActions(AnnouncementProvider(), formData.data as AnnouncementSet, internalId ,() => formData.refetch())
 
@@ -84,10 +85,9 @@ export const PageFormComp = ({theme}:{theme:IBETheme}) => {
 const generateLangFields = ( lang: string, label: string, theme: IBETheme, 
     formData:PageManagementSet,  setFormData: React.Dispatch<React.SetStateAction<PageManagementSet | null>>
     ): React.ReactNode[] =>     
-    
     {
-    const details = formData?.PageManagementDetail ?? [];
-    const getLangData = (): PageManagementSet["PageManagementDetail"][number] => details.find(d => d.Lang === lang) ?? { Lang: lang, Title: "", SubTitle: "", Content: "", Url: "" };
+    const details:PageManagementDetail[] = (formData?.PageManagementDetail ?? []) as PageManagementDetail[];
+    const getLangData = (): PageManagementDetail => details.find(d => d.Lang === lang) ?? { Lang: lang, Title: "", Content: ""};
     const updateLangData = (key: "Title" | "SubTitle" | "Content" | "Url", val: string) => {
         const currentData = getLangData();
         const newItem = { ...currentData, [key]: val };

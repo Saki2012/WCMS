@@ -1,38 +1,20 @@
+import { Outlet } from "react-router-dom";
+import { MessageProvider } from "./SysCore/Components/Message/Dialog/Dialog_Comp";
+import { HeaderMetaComp } from "./SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 
-// import { BackendRouteModule } from "./Features/Server/ServerRouter"; // 可切換為 DefaultRouteModule
-// import { FrontendRouteModule } from "./Features/Client/ClientRouter"; // 可切換為 DefaultRouteModule
-import { SpecRouteModule } from "./SpecFetures/1810/SpecRouter"; // 可切換為 DefaultRouteModule
-import { useRoutes } from "react-router-dom";
-import type {IRouteModule} from "./SysCore/Interface/IBaseRouter";
-import { MessageProvider } from './SysCore/Components/Message/Dialog/Dialog_Comp';
-// import { useEffect,useState } from "react";
+type AppProps = { router: any };  // 簡化 typing，避免交叉型別拉扯
 
-
-export default function App() {
-  const routes:IRouteModule = new SpecRouteModule(); // 注入點
-  const element = useRoutes(routes.getRoutes());
-
-  return (
-      <MessageProvider>
-        {element}
-      </MessageProvider>
-  );
+export const App: React.FC<AppProps> = () => {
+    return (
+        <MessageProvider>
+            <HeaderMetaComp
+                title={"國立臺灣藝術大學_研究發展處"}
+                description={"國立臺灣藝術大學_研究發展處 / 國立臺灣藝術大學_研究發展處 / 國立臺灣藝術大學_研究發展處"}
+                keywords={"國立臺灣藝術大學_研究發展處"}
+            />
+            {/* <RouterProvider router={router} /> */}
+            <Outlet />
+        </MessageProvider>
+    );
 }
-
-
-// export default function App() {
-
-//   useEffect(() => {
-//     fetch('/api/RouteConfig')
-//       .then(res => res.json())
-//       .then(data => {
-//         const transformed = convertToRoutes(data);
-//         setRoutes(transformed);
-//       });
-//   }, []);
-
-//   if (!routes) return <div>Loading...</div>;
-
-//   const element = useRoutes(routes);
-//   return <>{element}</>;
-// }
+export default App;

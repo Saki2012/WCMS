@@ -1,0 +1,27 @@
+{
+    // 使用 IntelliSense 以得知可用的屬性。
+    // 暫留以檢視現有屬性的描述。
+    // 如需詳細資訊，請瀏覽: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch Chrome against localhost",
+            "url": "http://localhost:8080",
+            "webRoot": "${workspaceFolder}"
+        }
+    ],
+    "editor.defaultFormatter": "dprint.dprint",
+    "editor.formatOnSave": true,
+    "[typescript]": { "editor.defaultFormatter": "dprint.dprint" },
+    "[typescriptreact]": { "editor.defaultFormatter": "dprint.dprint" },
+    "[javascript]": { "editor.defaultFormatter": "dprint.dprint" },
+    "[javascriptreact]": { "editor.defaultFormatter": "dprint.dprint" },
+    // 讓 Biome 負責匯入排序（非必需，想交給 dprint 也行）
+    "editor.codeActionsOnSave": {
+      "source.organizeImports.biome": "explicit"
+    },
+    // 若裝了 Prettier：關閉以免衝突
+    "prettier.enable": false
+}

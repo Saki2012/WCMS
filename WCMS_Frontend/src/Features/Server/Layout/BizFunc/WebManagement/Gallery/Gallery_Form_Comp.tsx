@@ -1,9 +1,7 @@
-import {LibCheckBox, LibTextBox ,LibCalendar,LibTinyMCE,LibPicturePreview,LibPicture,LibModal, LibFile, LibCheckBoxSingle } from "../../../../../../SysCore/Components/FormField/LibFormField"
-import type { ILibCheckItemSingleProp, LibTabsProp, LibTextBoxProp,LibTinyMCEProp } from "../../../../../../SysCore/Components/FormField/LibFormField"
+import { LibCheckBox, LibTextBox, LibCalendar, LibTinyMCE, LibPicturePreview, LibPicture, LibModal, LibFile, LibCheckBoxSingle } from "../../../../../../SysCore/Components/FormField/LibFormField"
+import type { ILibCheckItemSingleProp, LibTabsProp, LibTextBoxProp, LibTinyMCEProp } from "../../../../../../SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "../../../Theme/ITheme";
-import { useGetCategoryListByProgId } from "../Category/Category_Hook"
 import { FormComp } from "../../../Scaffold/Content/Form_Comp";
-import { useFormToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
 import { useParams } from "react-router";
 import TabContentComp from "../../../../../../SysCore/Components/TabContent/TabContent";
 import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
@@ -15,21 +13,21 @@ import * as React from "react";
 /** 相簿表單
  * @returns 
  */
-export const GalleryFormComp = ({title,theme}:{title:string;theme:IBETheme}) => {
+export const GalleryFormComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
     const { uid } = useParams();
 
     // const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
-    const isLoading:boolean[]=[]
-    const errors:(string | null | undefined)[]=[]
-    const prop:FormCompProp={ Title:"新增相簿", Theme:theme, LoadingList:isLoading, ErrorList:errors, }
+    const isLoading: boolean[] = []
+    const errors: (string | null | undefined)[] = []
+    const prop: FormCompProp = { Title: "新增相簿", Theme: theme, LoadingList: isLoading, ErrorList: errors, }
 
-    
-    const LibTabsPropA:LibTabsProp={
-        Style:theme.Tabs,
-        item:{
-            "Basic":"基本",
-            "Status":"狀態",
-            "Tags":"標籤",
+
+    const LibTabsPropA: LibTabsProp = {
+        Style: theme.Tabs,
+        item: {
+            "Basic": "基本",
+            "Status": "狀態",
+            "Tags": "標籤",
         }
     }
     const componentsA: Record<string, React.ReactNode[]> = {
@@ -45,11 +43,11 @@ export const GalleryFormComp = ({title,theme}:{title:string;theme:IBETheme}) => 
             <LibCheckBox colDisplayName="標籤"></LibCheckBox>
         ]
     }
-    const LibTabsPropB:LibTabsProp={
-        Style:theme.Tabs,
-        item:{
-            "Chinese":"繁體中文",
-            "English":"English",
+    const LibTabsPropB: LibTabsProp = {
+        Style: theme.Tabs,
+        item: {
+            "Chinese": "繁體中文",
+            "English": "English",
         }
     }
     const componentsB: Record<string, React.ReactNode[]> = Object.entries(LibTabsPropB.item).reduce(
@@ -60,24 +58,24 @@ export const GalleryFormComp = ({title,theme}:{title:string;theme:IBETheme}) => 
         {} as Record<string, React.ReactNode[]>
     );
 
-    const LibTabsPropW:LibTabsProp={
-        Style:theme.Tabs,
-        item:{
-            "Album":"相簿",
-            "Photo":"相片",
+    const LibTabsPropW: LibTabsProp = {
+        Style: theme.Tabs,
+        item: {
+            "Album": "相簿",
+            "Photo": "相片",
         }
     }
 
-// JSX 中使用
-    const c:ILibCheckItemSingleProp[]=[{itemId:"1",itemDisplayName:"選擇封面"}]
-    const str:string[]=["value"]
+    // JSX 中使用
+    const c: ILibCheckItemSingleProp[] = [{ itemId: "1", itemDisplayName: "選擇封面" }]
+    const str: string[] = ["value"]
     const componentsW: Record<string, React.ReactNode[]> = {
         Album: [
             <TabContentComp libTabsProp={LibTabsPropA} components={componentsA}></TabContentComp>,
             <TabContentComp libTabsProp={LibTabsPropB} components={componentsB}></TabContentComp>
         ],
         Photo: [
-            <LibModal prop={{ ModalName: "上傳圖片" , BtnName1: "關閉", BtnName2: "儲存並上傳" }}>
+            <LibModal prop={{ ModalName: "上傳圖片", BtnName1: "關閉", BtnName2: "儲存並上傳" }}>
                 <div className="row">
                     {/* 選擇上傳的圖片(多選) */}
                     <div className="col-12">
@@ -93,48 +91,48 @@ export const GalleryFormComp = ({title,theme}:{title:string;theme:IBETheme}) => 
                             {/* 圖片 */}
                             <div className="col-12">
                                 {/* 需代入選擇上傳的圖片 */}
-                                <LibPicturePreview ColumnDisplayName={`圖片名稱`} PicSrc={`https://picsum.photos/seed/picsum/200/200`} PicDescription={`圖片描述`}/>
+                                <LibPicturePreview ColumnDisplayName={`圖片名稱`} PicSrc={`https://picsum.photos/seed/picsum/200/200`} PicDescription={`圖片描述`} />
                             </div>
                         </div>
                     </div>
                 </div>
             </LibModal>,
-            
+
             <LibPicture
                 key={"idx"}
                 prop={{
-                ColumnDisplayName: "測試",
-                PicSrc: "https://picsum.photos/seed/picsum/500/500",
-                PicDescription: "文字"
+                    ColumnDisplayName: "測試",
+                    PicSrc: "https://picsum.photos/seed/picsum/500/500",
+                    PicDescription: "文字"
                 }}
             >
                 <div className="row">
-                <div className="col-6">
-                    <LibCheckBoxSingle value={str} options={c} checkboxStyle="radio"/>
-                </div>
-                <div className="col-6">
-                    <LibCheckBoxSingle value={str} options={c} checkboxStyle="checkbox"/>
-                </div>
+                    <div className="col-6">
+                        <LibCheckBoxSingle value={str} options={c} checkboxStyle="radio" />
+                    </div>
+                    <div className="col-6">
+                        <LibCheckBoxSingle value={str} options={c} checkboxStyle="checkbox" />
+                    </div>
                 </div>
                 <LibTextBox
-                Style={theme.TextBox2}
-                ColumnDisplayName={"繁體中文"}
-                DefaultInputDisplay={"請輸入"}
+                    Style={theme.TextBox2}
+                    ColumnDisplayName={"繁體中文"}
+                    DefaultInputDisplay={"請輸入"}
                 />
                 <LibTextBox
-                Style={theme.TextBox2}
-                ColumnDisplayName={"English"}
-                DefaultInputDisplay={"請輸入"}
+                    Style={theme.TextBox2}
+                    ColumnDisplayName={"English"}
+                    DefaultInputDisplay={"請輸入"}
                 />
                 <LibTextBox
-                Style={theme.TextBox2}
-                ColumnDisplayName={"排序編號"}
-                DefaultInputDisplay={"請輸入"}
+                    Style={theme.TextBox2}
+                    ColumnDisplayName={"排序編號"}
+                    DefaultInputDisplay={"請輸入"}
                 />
             </LibPicture>
         ],
     }
-    
+
     return (
         <FormComp prop={prop}>
             <TabContentComp libTabsProp={LibTabsPropW} components={componentsW}></TabContentComp>
@@ -142,11 +140,10 @@ export const GalleryFormComp = ({title,theme}:{title:string;theme:IBETheme}) => 
     )
 }
 
-const generateLangFields = ( lang: string, label: string, theme: IBETheme): React.ReactNode[] =>     
-    {
+const generateLangFields = (lang: string, label: string, theme: IBETheme): React.ReactNode[] => {
     return [
-    <LibTextBox key={`${lang}-Title`} Style={theme.TextBox} ColumnDisplayName={`標題（${label}）`} DefaultInputDisplay="請輸入"/>,
-    <LibTinyMCE key={`${lang}-Content`} Style={theme.TinyMCE} ColumnDisplayName={`內容編輯器（${label}）`}/>
+        <LibTextBox key={`${lang}-Title`} Style={theme.TextBox} ColumnDisplayName={`標題（${label}）`} DefaultInputDisplay="請輸入" />,
+        <LibTinyMCE key={`${lang}-Content`} Style={theme.TinyMCE} ColumnDisplayName={`內容編輯器（${label}）`} />
     ];
 };
 

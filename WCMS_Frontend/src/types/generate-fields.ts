@@ -1,5 +1,5 @@
 //執行方式:npx tsx ./src/types/generate-fields.ts
-import { Project } from 'ts-morph';
+import { Project, InterfaceDeclaration, TypeAliasDeclaration,} from 'ts-morph';
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
@@ -15,7 +15,10 @@ const project = new Project();
 const sourceFile = project.addSourceFileAtPath(apiPath);
 
 // 嘗試取得 interface 或 type components
-let componentsType = sourceFile.getInterface('components');
+let componentsType:
+  | InterfaceDeclaration
+  | TypeAliasDeclaration
+  | undefined = sourceFile.getInterface('components');
 if (!componentsType) {
   componentsType = sourceFile.getTypeAlias('components');
 }

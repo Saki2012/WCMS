@@ -1,14 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
 import type { QueryListCondition } from "../Interface/IApiProvider";
-import type { ApiResponse } from "../Interface/IApiProvider";
+import type { ApiResponse, } from "../Interface/IApiProvider";
 import type { GridProps,GridRow,ColumnConfig } from "../Components/Grid/Grid_Data";
-import type { ModelDisplaySchema } from '../../types/IApiSchema';
-
+import type { ModelDisplaySchema } from "../../types/IApiSchema";
 interface UseGridListOptions<T> {
   /** 取得 model display 名稱 */
-  getModelDisplayName: () => Promise<Record<string, string>>;
+  getModelDisplayName: () => Promise<ModelDisplaySchema>;
   /** 取得資料筆數 */
-  fetchListCount: (condition: QueryListCondition) => Promise<ApiResponse<number[]>>;
+  fetchListCount: (condition: QueryListCondition) => Promise<ApiResponse<number>>;
   /** 取得清單資料 */
   fetchList: (condition: QueryListCondition) => Promise<ApiResponse<T[]>>;
   /** 欄位對應關係 */
@@ -22,7 +21,7 @@ interface UseGridListOptions<T> {
 export const useFetchGridListData = <T>(
   options: UseGridListOptions<T>
 ) => {
-  const [rawData, setRawData] = useState<T[]>([]);
+  const [rawData, setRawData] = useState<T[]>([] as T[]);
   const [rows, setRows] = useState<GridRow[]>([]);
   const [columns, setColumns] = useState<ColumnConfig[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -44,7 +43,11 @@ export const useFetchGridListData = <T>(
         const msg = countRes.SysMessage?.map(x => `${x.MessageCode}:${x.Message}`).join(";") ?? "查詢筆數失敗";
         throw new Error(msg);
       }
-      const total = Math.ceil((countRes.Data?.[0] ?? 0) / condition.PageSize);
+
+      const rawCount = Array.isArray(countRes.Data) && Array.isArray(countRes.Data[0]) ? countRes.Data[0][0] : 0;
+      const count = Number(rawCount) || 0;          // 確保是 number
+      const pageSize = Number(condition.PageSize) || 1; // 避免除以 0/NaN
+      const total = Math.ceil(count / pageSize);
       setTotalPages(total);
 
       const listRes = await options.fetchList(condition);
@@ -52,9 +55,9 @@ export const useFetchGridListData = <T>(
         const msg = listRes.SysMessage?.map(x => `${x.MessageCode}:${x.Message}`).join(";") ?? "資料查詢失敗";
         throw new Error(msg);
       }
-
-      const fullData = listRes.Data ?? [];
-      setRawData(fullData);
+      const payload = listRes.Data ?? [];        
+      const fullData = (payload as T[][]).flat();
+      setRawData(fullData);                      
       const parsedRows = fullData.map(item => options.parseRow(item, cols));
       setRows(parsedRows);
     } catch (err: any) {
@@ -86,20 +89,18 @@ export const useFetchGridListData = <T>(
  * @param visibleKeys - 陣列格式: [[TableId, ColumnId], ...]
  * @returns ColumnConfig[]
  */
-const BuildVisibleColumns = async (getModelDisplayFn: () => Promise<ApiResponse<ModelDisplaySchema>>,visibleKeys: [string, string][]): Promise<ColumnConfig[]> => {
-  const resCol = await getModelDisplayFn();
-  if (!resCol?.Tables) return [];
-  const columns: ColumnConfig[] = visibleKeys
+const BuildVisibleColumns = async (getModelDisplayFn: () => Promise<ModelDisplaySchema>,visibleKeys: ReadonlyArray<readonly [string, string]>): Promise<ColumnConfig[]> => {
+  const schema = await getModelDisplayFn();
+  if (!schema?.Tables?.length) return [];
+
+  const columns = visibleKeys
     .map(([tableId, columnId]) => {
-      const table = resCol.Tables.find(t => t.TableId === tableId);
-      const column = table?.Columns.find(col => col.ColumnId === columnId);
-      if (!column) return null;
-      return {
-        key: column.ColumnId,
-        title: column.ColumnDisplayName,
-      };
+      const table = schema.Tables.find(t => t.TableId === tableId);
+      const col = table?.Columns.find(c => c.ColumnId === columnId);
+      if (!col) return null;
+      return { key: col.ColumnId, title: col.ColumnDisplayName } as ColumnConfig;
     })
-    .filter(Boolean) as ColumnConfig[];
+    .filter((x): x is ColumnConfig => !!x);
 
   return columns;
 }

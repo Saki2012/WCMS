@@ -22,7 +22,7 @@ const LibCalendar = (prop: ILibCalendarProp) => {
                         id={inputId}
                         selected={prop.InputValue ? new Date(prop.InputValue) : null}
                         onChange={(date) => {
-                            const dateStr = date ? date.toISOString() : null;
+                            const dateStr = date ? date.toISOString() : "";
                             prop.onChange?.(dateStr);
                         }}
                         dateFormat="yyyy / MM / dd"
