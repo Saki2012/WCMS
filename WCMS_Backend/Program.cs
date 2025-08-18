@@ -50,7 +50,6 @@ namespace WCMS
             var app = builder.Build();
             // 全域錯誤攔截（你原本已有）
             app.UseMiddleware<ErrorHandlingMiddleware>();
-            app.UseOutputCache();
             // 反向 Proxy/負載平衡（IIS/Nginx/K8s）常見需求
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
@@ -92,6 +91,7 @@ namespace WCMS
             app.UseCookiePolicy(new CookiePolicyOptions {MinimumSameSitePolicy = SameSiteMode.None,Secure = CookieSecurePolicy.Always});
             // CORS 放在 Auth 前
             app.UseCors(AppSetup.CorsPolicyName);
+            app.UseOutputCache();
             app.UseResponseCompression();
             app.UseAuthentication();
             app.UseAuthorization();
@@ -226,9 +226,9 @@ namespace WCMS
                     options.AddPolicy(CorsPolicyName, policy =>
                     {
                         policy
-                        .WithHeaders("Content-Type", "Authorization", "X-CSRF-Token")
+                        .WithHeaders("Content-Type", "X-XSRF-TOKEN", "X-CSRF-Token", "Authorization", "X-Requested-With", "Access-Control-Allow-Origin")
                         .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH")
-                        .WithOrigins("http://localhost:5623", "https://localhost:5623", "http://localhost:5173", "https://localhost:5173", "http://localhost:5174", "https://localhost:5174")
+                        .WithOrigins("http://localhost:5623", "https://localhost:5623", "http://localhost:5174", "https://localhost:5174", "http://127.0.0.1:5174", "https://127.0.0.1:5174")
                         .AllowCredentials();
                         ;
                     });

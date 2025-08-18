@@ -1,29 +1,25 @@
-import { defineConfig,loadEnv } from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import ssr from 'vite-plugin-ssr/plugin';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import path from 'path';
 
-export default defineConfig(({mode}) => {
-      const env = loadEnv(mode, process.cwd())
-      const isSSR = env.VITE_RENDER_MODE === 'ssr'
-      return ({
+export default defineConfig({
         server: {
           https: true,
           host: 'localhost',
-          port: isSSR? 5174 : 5173,
+          port: 5174,
           proxy: {
             '/Service': {
-              target: env.VITE_API_BASE_URL,
+              target: 'https://localhost:7030',
               changeOrigin: true,
-              secure: false // 本地自簽憑證要加這行
+              secure: false
             }}
         },
-        plugins: isSSR ? [react(), ssr(), basicSsl()] : [react(), basicSsl()],
-        // plugins: isSSR ? [react(), ssr()] : [react()],
+        plugins: [react(), ssr(), basicSsl()],
         build: {
-          ssr: isSSR ? 'src/SSR/Entry-Server.tsx' : false,
-          outDir: isSSR ? 'dist-ssr' : 'dist-csr',
+          ssr: 'src/SSR/Entry-Server.tsx',
+          outDir: 'dist-ssr',
         },
         resolve: {
           alias: {
@@ -37,6 +33,4 @@ export default defineConfig(({mode}) => {
         assetsInclude: ['**/*.ttf', '**/*.woff', '**/*.woff2'], // TinyMCE 字型檔支援
         base:'/',
       }
-    )
-  }
-)
+  )

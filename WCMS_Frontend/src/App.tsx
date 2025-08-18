@@ -2,9 +2,8 @@ import { Outlet } from "react-router-dom";
 import { MessageProvider } from "./SysCore/Components/Message/Dialog/Dialog_Comp";
 import { HeaderMetaComp } from "./SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 
-type AppProps = { router: any };  // 簡化 typing，避免交叉型別拉扯
 
-export const App: React.FC<AppProps> = () => {
+export const App: React.FC = () => {
     return (
         <MessageProvider>
             <HeaderMetaComp

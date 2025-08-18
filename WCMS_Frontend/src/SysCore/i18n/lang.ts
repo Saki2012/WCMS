@@ -1,7 +1,18 @@
-export const SupportedLangs = ["zh-tw", "zh-cn", "en"] as const;
-export type Lang = typeof SupportedLangs[number];
+// src/SysCore/i18n/lang.ts
+export type Lang = "zh-tw" | "zh-cn" | "en";
 export const DefaultLang: Lang = "zh-tw";
 
-export const isSupportedLang = (s?: string): s is Lang => !!s && SupportedLangs.includes(s.toLowerCase() as Lang);
+const alias: Record<string, Lang> = {
+    "zh-tw": "zh-tw",
+    "zh-hant": "zh-tw",
+    "zh-cn": "zh-cn",
+    "zh-hans": "zh-cn",
+    "en": "en",
+    "en-us": "en",
+    "en-gb": "en",
+};
 
-export const normalizeLang = (s: string,): Lang => (isSupportedLang(s.toLowerCase()) ? (s.toLowerCase() as Lang) : DefaultLang);
+export const normalizeLang = (x?: string | null): Lang => alias[(x ?? "").toLowerCase()] ?? DefaultLang;
+
+export const isSupportedLang = (x?: string | null): x is Lang =>
+    ["zh-tw", "zh-cn", "en"].includes((x ?? "").toLowerCase());

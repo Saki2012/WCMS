@@ -9,14 +9,14 @@ const Index = () => {
   const isSubPage = currentPath !== '/';
   const containerClass = isSubPage ? 'subpage_body_bg' : 'body_bg';
 
-    return (
-        <>
-          <div id="Customsize" className={containerClass}>
-            <Header/>
-            <Outlet /> 
-            <Footer/>
-          </div>
-        </>
+  return (
+    <>
+      <div id="Customsize" className={containerClass}>
+        <Header />
+        <Outlet />
+        <Footer />
+      </div>
+    </>
   );
 }
 

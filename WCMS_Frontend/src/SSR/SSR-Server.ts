@@ -1,187 +1,248 @@
-// src/SSR/SSR-Server.ts
-// 角色：通用 SSR 伺服器（開發/正式皆可用）
-// 重點：1) Vite middlewares 一定先掛；2) 在 SSR catch-all 前「放行」資源；3) /Service 代理；4) 注入 SSR HTML
-
+// ---- SSR-Server.ts（只用 const；Dev/Prod 各自包成一個 const） ----
 import compression from "compression";
 import express, { type NextFunction, type Request, type Response } from "express";
-import type { ClientRequest, IncomingMessage } from "http";
-import { createProxyMiddleware } from "http-proxy-middleware";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import serveStatic from "serve-static";
+import { LEGACY_CSS, LEGACY_JS } from "./LegacySrc";
+// import { createProxyMiddleware } from "http-proxy-middleware"; // 需要就打開
 
-// 你專案內部：讓 SSR 期間 axios 能把本次請求 Cookie 帶出去
-import { __setSsrCookie } from "../SysCore/Utils/APIClient";
-
-const API_ORIGIN = process.env.VITE_API_BASE_URL || "https://localhost:7030";
-const PORT = Number(process.env.PORT || 5174);
+// 基本參數
+const PORT = Number(process.env.PORT ?? 5174);
 const isProd = process.env.NODE_ENV === "production";
-const root = process.cwd();
-const r = (...p: string[]) => path.resolve(root, ...p);
 
-async function createApp()
+// 需排除進 SSR 的固定前綴（你的 public 內資料夾）
+const STATIC_PREFIXES = ["/Legacy/", "/tinymce", "/tinymce-i18n", "/.well-known/", "/@vite", "/vite"] as const;
+
+// 判斷「這個請求是否該進 SSR」
+const shouldSSR = (req: Request): boolean =>
 {
-    const app = express();
+    if (req.method !== "GET") return false;
+    if (/\.[a-zA-Z0-9]+$/.test(req.path)) return false; // 有副檔名 => 靜態資源
+    if (STATIC_PREFIXES.some((p) => req.path.startsWith(p))) return false; // 固定前綴 => 靜態/其他中介
+    const accept = String(req.headers.accept || "");
+    if (!accept.includes("text/html")) return false; // 只處理要 HTML 的請求
+    return true;
+};
 
-    // 建議壓縮在最前面
-    app.use(compression());
+// 把 SSR_Render 的結果統一成可注入模板的 payload
+const toPayload = (result: any) =>
+{
+    if (!result) return { appHtml: "", headTags: "", initialState: undefined };
+    if (result.kind === "html") return result;
+    return {
+        appHtml: result.appHtml ?? "",
+        headTags: result.headTags ?? "",
+        initialState: result.initialState,
+    };
+};
 
-    // -------- 靜態資源（與 legacy）--------
-    // 這些路由不影響 /src 與 /@vite 的處理（因為等下會先掛 Vite middlewares）
-    app.use("/favicon.ico", serveStatic(r("public/favicon.ico"), { fallthrough: true }));
-    app.use("/legacy", serveStatic(r("public/legacy"), { index: false, fallthrough: true }));
+// Dev：Vite 中介 + public 靜態 + SSR（transformIndexHtml + ssrLoadModule）
+const setupDevSSR = async (app: express.Express) =>
+{
+    const vite = await (await import("vite")).createServer({
+        server: { middlewareMode: true },
+        appType: "custom",
+    });
+    app.use(vite.middlewares);
 
-    // -------- 代理 /Service 到後端 --------
+    // public/ 靜態（確保 /Legacy、/tinymce… 不被 SSR 攔到）
     app.use(
-        "/Service",
-        createProxyMiddleware({
-            target: API_ORIGIN,
-            changeOrigin: true,
-            secure: false,
-            xfwd: true,
-            ws: false,
-            cookieDomainRewrite: "", // 保留原網域
-            on: {
-                proxyReq: (proxyReq: ClientRequest, req: IncomingMessage) =>
-                {
-                    // 轉送 Accept-Language 與 Cookie
-                    const lang = (req.headers["accept-language"] as string) || "";
-                    if (lang) proxyReq.setHeader("Accept-Language", lang);
-                    const cookie = req.headers["cookie"];
-                    if (cookie) proxyReq.setHeader("Cookie", cookie);
-                },
-                proxyRes: (_proxyRes: IncomingMessage) =>
-                {
-                    // 可選：在此過濾 /Service 回來的 Set-Cookie 等
-                },
-            },
+        serveStatic(path.resolve(process.cwd(), "public"), {
+            index: false,
+            maxAge: 0,
+            fallthrough: true,
         }),
     );
 
-    // -------- Vite 中介（dev only）--------
-    let transformIndexHtml: ((url: string, html: string) => Promise<string>) | null = null;
-    let devRender: ((url: string, acceptLang?: string) => Promise<{ appHtml: string; headTags?: string; }>) | null =
-        null;
-    if (!isProd)
+    // SSR catch-all（只有 shouldSSR 才進來）
+    const devSSRMiddleware = async (req: Request, res: Response, next: NextFunction) =>
     {
-        const { createServer: createViteServer } = await import("vite");
-        const vite = await createViteServer({
-            root,
-            server: { middlewareMode: true },
-            appType: "custom",
-        });
-        // ★ 一定要先掛 Vite middlewares
-        app.use(vite.middlewares);
-
-        transformIndexHtml = (url, html) => vite.transformIndexHtml(url, html);
-        // 讓 dev SSR 可直接載入 TSX 模組
-        devRender = async (url: string, acceptLang?: string) =>
-        {
-            const mod = await vite.ssrLoadModule("/src/SSR/Entry-Server.tsx");
-            // 你的 Entry-Server.export function render(url, acceptLang?)
-            const { render } = mod as {
-                render: (url: string, acceptLang?: string) => Promise<{ appHtml: string; headTags?: string; }>;
-            };
-            return render(url, acceptLang);
-        };
-    } else
-    {
-        // prod 靜態：/dist/client
-        app.use(
-            "/assets",
-            serveStatic(r("dist/client/assets"), {
-                maxAge: "1y",
-                immutable: true,
-                fallthrough: true,
-            }),
-        );
-    }
-
-    // -------- SSR catch-all（最後掛）--------
-    app.use(async (req: Request, res: Response, next: NextFunction) =>
-    {
-        const url = req.originalUrl || req.url || "/";
-
-        // ★ 放行資源給 Vite/靜態，不做 SSR
-        if (
-            url.startsWith("/src/")
-            || url.startsWith("/@vite")
-            || url.startsWith("/node_modules/")
-            || /\.(tsx?|jsx?|css|map|json|svg|png|jpe?g|gif|webp|ico|woff2?)$/i.test(url)
-        )
-        {
-            return next();
-        }
-
+        if (!shouldSSR(req)) return next();
         try
         {
-            const acceptLang = (req.headers["accept-language"] as string) || undefined;
-            const cookie = req.headers["cookie"];
-            // 讓 SSR 階段的 axios 帶上本次 Cookie
-            __setSsrCookie(cookie || "");
+            const url = req.originalUrl || req.url || "/";
 
-            // 讀模板（dev 用 index.html；prod 用 dist/client/index.html）
-            const templatePath = isProd ? r("dist/client/index.html") : r("index.html");
+            // 讀模板並讓 Vite 注入 HMR/資產
+            let template = await fs.readFile(path.resolve(process.cwd(), "index.html"), "utf-8");
+            template = await vite.transformIndexHtml(url, template);
+
+            // 載入 server entry 並執行
+            const mod = await vite.ssrLoadModule("/src/SSR/Entry-Server.tsx");
+            const { SSR_Render } = mod as { SSR_Render: (u: string, h?: Record<string, string>) => Promise<any>; };
+
+            const result = await SSR_Render(url, {
+                "accept-language": String(req.headers["accept-language"] || ""),
+                cookie: String(req.headers.cookie || ""),
+            });
+
+            // 處理 loader redirect / error（React Router 會回 Response）
+            if (result?.kind === "response" || result instanceof Response)
+            {
+                const r: Response | globalThis.Response = result.response ?? result;
+                const status = r.status as number;
+                if (status >= 300 && status < 400)
+                {
+                    const loc = r.headers.get("Location") || "/";
+                    return res.redirect(status, loc);
+                }
+                const body = await (r as any).text?.().catch(() => "")!;
+                return res.status((r as any).status || 500).send(body || "SSR Error");
+            }
+
+            const { appHtml, headTags, initialState } = toPayload(result);
+
+            const legacyCss = LEGACY_CSS
+                .map((href: any) => `<link rel="stylesheet" href="${href}" />`)
+                .join("");
+
+            const legacyJs = LEGACY_JS
+                .map((src: any) => `<script src="${src}" defer></script>`)
+                .join("");
+
+            const html = template
+                .replace("<!--Legacy-Css-->", legacyCss ?? "")
+                .replace("<!--Legacy-Js-->", legacyJs ?? "")
+                .replace("<!--app-head-->", headTags ?? "")
+                .replace("<!--app-html-->", appHtml ?? "")
+                .replace(
+                    "<!--initial-state-->",
+                    initialState
+                        ? `<script>window.__INITIAL_STATE__=${
+                            JSON.stringify(initialState).replace(/</g, "\\u003c")
+                        }</script>`
+                        : "",
+                );
+
+            res.status(200).set("Content-Type", "text/html").end(html);
+        } catch (e)
+        {
+            vite.ssrFixStacktrace?.(e as Error);
+            next(e);
+        }
+    };
+
+    app.use(devSSRMiddleware);
+};
+
+// Prod：整個 dist/client 做靜態根 + SSR（讀 dist/client/index.html + 伺服端 bundle）
+const setupProdSSR = async (app: express.Express) =>
+{
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+    // dist/client（含 public 複製過來的內容）整個當靜態根
+    app.use(
+        serveStatic(path.resolve(__dirname, "../../dist/client"), {
+            index: false,
+            maxAge: "1y",
+            immutable: true,
+            fallthrough: true,
+        }),
+    );
+
+    // 你若已經另外掛 /assets 也無妨；這裡保留可更細緻快取
+    app.use(
+        "/assets",
+        serveStatic(path.resolve(__dirname, "../../dist/client/assets"), {
+            index: false,
+            maxAge: "1y",
+            immutable: true,
+            fallthrough: true,
+        }),
+    );
+
+    // SSR catch-all（只有 shouldSSR 才進來）
+    const prodSSRMiddleware = async (req: Request, res: Response, next: NextFunction) =>
+    {
+        if (!shouldSSR(req)) return next();
+        try
+        {
+            const url = req.originalUrl || req.url || "/";
+
+            // 載入 server bundle（若你的匯出名稱不同，改這行）
+            const entry = await import("../../dist/server/entry-server.js").catch(() => ({} as any));
+            const SSR_Render = (entry as any).SSR_Render ?? (entry as any).render ?? null;
+
+            if (!SSR_Render)
+            {
+                return res.status(500).send("SSR bundle not found or has no export SSR_Render/render");
+            }
+
+            const result = await SSR_Render(url, {
+                "accept-language": String(req.headers["accept-language"] || ""),
+                cookie: String(req.headers.cookie || ""),
+            });
+
+            // 處理 loader redirect / error
+            if (result?.kind === "response" || result instanceof Response)
+            {
+                const r: Response | globalThis.Response = result.response ?? result;
+                const status = r.status as number;
+                if (status >= 300 && status < 400)
+                {
+                    const loc = r.headers.get("Location") || "/";
+                    return res.redirect(status, loc);
+                }
+                const body = await (r as any).text?.().catch(() => "")!;
+                return res.status((r as any).status || 500).send(body || "SSR Error");
+            }
+
+            // 讀 dist 的 index.html 當模板
+            const templatePath = path.resolve(__dirname, "../../dist/client/index.html");
             let template = await fs.readFile(templatePath, "utf-8");
 
-            // dev：交給 Vite 注入 HMR 等
-            if (transformIndexHtml)
-            {
-                template = await transformIndexHtml(url, template);
-            }
+            const { appHtml, headTags, initialState } = toPayload(result);
 
-            // 呼叫 SSR render
-            let appHtml = "";
-            let headTags = "";
-            if (!isProd && devRender)
-            {
-                const { appHtml: html, headTags: head } = await devRender(url, acceptLang);
-                appHtml = html;
-                headTags = head || "";
-            } else
-            {
-                // prod：動態載入 dist/server/entry-server.js
-                // 你的 build 應該把 Entry-Server 打到 dist/server/entry-server.js
-                const serverEntry = await import(r("dist/server/entry-server.js"));
-                const { appHtml: html, headTags: head } = await serverEntry.render(url, acceptLang);
-                appHtml = html;
-                headTags = head || "";
-            }
-
-            // 注入到模板
             const html = template
-                .replace("<!--app-head-->", headTags)
-                .replace("<!--app-html-->", appHtml);
+                .replace("<!--app-head-->", headTags ?? "")
+                .replace("<!--app-html-->", appHtml ?? "")
+                .replace(
+                    "<!--initial-state-->",
+                    initialState
+                        ? `<script>window.__INITIAL_STATE__=${
+                            JSON.stringify(initialState).replace(/</g, "\\u003c")
+                        }</script>`
+                        : "",
+                );
 
-            res.status(200).setHeader("Content-Type", "text/html").end(html);
-        } catch (err)
+            res.status(200).set("Content-Type", "text/html").end(html);
+        } catch (e)
         {
-            // dev 友善 stack
-            if (!isProd)
-            {
-                const { createServer: createViteServer } = await import("vite");
-                // NOTE: 如果要用 ssrFixStacktrace 需要現場 vite 實例；簡化處理直接印錯
-                // 你也可以把上面的 vite 實例提升作用域來呼叫 ssrFixStacktrace(err as Error)
-            }
-            console.error(err);
-            next(err);
+            next(e);
         }
-    });
+    };
 
-    // 錯誤處理
-    app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) =>
+    app.use(prodSSRMiddleware);
+};
+
+// ---- 啟動（可保持你原本的 API 代理、其他中介件順序） ----
+const start = async () =>
+{
+    const app = express();
+    app.use(compression());
+
+    // 例：API 代理（需要就打開）
+    // app.use("/Service", createProxyMiddleware({ target: process.env.API_ORIGIN ?? "https://localhost:7030", changeOrigin: true, secure: false, logLevel: "warn" }));
+
+    if (!isProd)
+    {
+        await setupDevSSR(app);
+    } else
+    {
+        await setupProdSSR(app);
+    }
+
+    app.use((err: any, _req: Request, res: Response, _next: NextFunction) =>
     {
         console.error("[SSR] Error:", err);
         res.status(500).send("SSR Render Error");
     });
 
-    return app;
-}
-
-createApp().then((app) =>
-{
     app.listen(PORT, () =>
     {
-        console.log(`[SSR] server started at http://127.0.0.1:${PORT}  (API: ${API_ORIGIN})`);
+        console.log(`[SSR] server started at http://127.0.0.1:${PORT}`);
     });
-});
+};
+
+start();

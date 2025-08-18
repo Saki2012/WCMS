@@ -2,7 +2,7 @@ import { LibCheckBox, LibTextBox, LibCalendar, LibTinyMCE, LibPicturePreview, Li
 import type { ILibCheckItemSingleProp, LibTabsProp, LibTextBoxProp, LibTinyMCEProp } from "../../../../../../SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "../../../Theme/ITheme";
 import { FormComp } from "../../../Scaffold/Content/Form_Comp";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import TabContentComp from "../../../../../../SysCore/Components/TabContent/TabContent";
 import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
 import { useId } from 'react';

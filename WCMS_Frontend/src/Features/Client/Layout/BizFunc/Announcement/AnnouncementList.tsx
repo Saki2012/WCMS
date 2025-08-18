@@ -4,6 +4,7 @@ import type { GridProps } from "../../../../../SysCore/Components/Grid/Grid_Data
 import type { components } from "../../../../../types/api";
 import type { IFETheme } from "../../Theme/ITheme";
 type AnnouncementSet = components["schemas"]["AnnouncementSet"];
+type AnnouncementDetail = components["schemas"]["AnnouncementDetail"];
 import { Link, useLocation } from "react-router-dom";
 import type { GridRow } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import type { RowCell } from "../../../../../SysCore/Components/Grid/Grid_Data";
@@ -14,8 +15,7 @@ import AnnouncementProvider from "../../../../Server/Layout/BizFunc/WebManagemen
 
 import { GridViewContentComp } from "../../Scaffold/ContentViewMode/GridView/GridView/GridContent_Comp";
 
-const useAnnouncementList = () =>
-{
+const useAnnouncementList = () => {
     const provider = AnnouncementProvider();
     return useFetchGridListData<AnnouncementSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
@@ -42,20 +42,15 @@ const useAnnouncementList = () =>
             PageNumber: page,
             PageSize: 10,
         }),
-        parseRow: (item, columns) =>
-        {
+        parseRow: (item, columns) => {
             const data = item.Announcement ?? {};
-            const cells: RowCell[] = columns.map(col =>
-            {
+            const cells: RowCell[] = columns.map(col => {
                 let content = "";
-                if (col.key === SchemaFields.AnnouncementDetailFields.Title)
-                {
+                if (col.key === SchemaFields.AnnouncementDetailFields.Title) {
                     content = data.AnnouncementDetail?.find(d => d.Lang === "zh-tw")?.Title ?? "";
-                } else if (col.key === SchemaFields.AnnouncementFields.ModifyTime)
-                {
+                } else if (col.key === SchemaFields.AnnouncementFields.ModifyTime) {
                     content = FormatDateTime((data as any)[col.key]);
-                } else
-                {
+                } else {
                     content = (data as any)[col.key] ?? "";
                 }
                 return { col, content };
@@ -65,12 +60,10 @@ const useAnnouncementList = () =>
     });
 };
 
-export const AnnouncementList = ({ theme }: { theme: IFETheme; }) =>
-{
+export const AnnouncementList = ({ theme }: { theme: IFETheme; }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
     const useAnnounceList = useAnnouncementList();
-    const adjustedGrid = useMemo(() =>
-    {
+    const adjustedGrid = useMemo(() => {
         return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData);
     }, [useAnnounceList.gridProps, useAnnounceList.rawData]);
     const isLoading = [useAnnounceList.isLoading];
@@ -79,15 +72,12 @@ export const AnnouncementList = ({ theme }: { theme: IFETheme; }) =>
     return <GridViewContentComp GridData={adjustedGrid} Theme={theme} LoadingList={isLoading} ErrorList={errors} />;
 };
 
-const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[]): GridProps =>
-{
-    const newRows: GridRow[] = gridProps.rows.map((row, index) =>
-    {
+const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[]): GridProps => {
+    const newRows: GridRow[] = gridProps.rows.map((row, index) => {
         const internalId = rawData?.[index]?.Announcement?.InternalId ?? "";
         const title = rawData?.[index]?.Announcement?.AnnouncementDetail?.Title ?? "";
         const titleId = `title-${internalId}`;
-        const newCells = row.cells.map((cell) =>
-        {
+        const newCells = row.cells.map((cell) => {
             const isTitle = cell.col.key === SchemaFields.AnnouncementDetailFields.Title;
             return {
                 ...cell,

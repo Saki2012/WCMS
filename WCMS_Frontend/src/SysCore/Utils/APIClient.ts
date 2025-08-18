@@ -3,7 +3,7 @@ import type { ModelDisplaySchema } from "../../types/IApiSchema";
 import type { ApiResponse, QueryListCondition } from "../Interface/IApiProvider";
 
 const isServer = typeof window === "undefined";
-const API_BASE = isServer ? (process.env.VITE_API_BASE || "") : ""; // SSR 用絕對位址，CSR 留空交給 proxy
+
 interface IApiOptions
 {
     useAbsolute?: boolean;
@@ -18,13 +18,12 @@ export const __setSsrCookie = (cookie?: string) =>
 
 export const createApiClient = (opts?: IApiOptions): AxiosInstance =>
 {
-    const baseURL = (isServer || opts?.useAbsolute) ? `${API_BASE}/Service` : `/Service`;
     const headers: Record<string, string> = {};
     if (isServer && (opts?.cookie || SSR_COOKIE))
     {
         headers["cookie"] = opts?.cookie ?? SSR_COOKIE;
     }
-    const client = axios.create({ baseURL, withCredentials: true, headers });
+    const client = axios.create({ baseURL: import.meta.env.VITE_API_BASE_URL, withCredentials: true, headers });
     return client;
 };
 
