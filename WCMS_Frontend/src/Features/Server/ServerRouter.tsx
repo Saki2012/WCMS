@@ -16,6 +16,10 @@ import RequireAuth from "../../SysCore/Components/Auth/RequireAuth";
 import LogoutPage from "./Layout/BizFunc/Auth/LogoutPage";
 import RegisterPage from "./Layout/BizFunc/Auth/RegisterPage";
 import { GalleryFormComp } from "./Layout/BizFunc/WebManagement/Gallery/Gallery_Form_Comp";
+import { FileManageListComp } from "./Layout/BizFunc/WebManagement/FileManage/FileManage_List_Comp";
+import { FileManageFormComp } from "./Layout/BizFunc/WebManagement/FileManage/FileManage_Form_Comp";
+import { WebResourceListComp } from "./Layout/BizFunc/WebManagement/WebResource/WebResource_List_Comp";
+import { WebResourceFormComp } from "./Layout/BizFunc/WebManagement/WebResource/WebResource_Form_Comp";
 
 export class BackendRouteModule implements IRouteModule {
   getRoutes(): RouteObject[] {
@@ -85,8 +89,8 @@ export class BackendRouteModule implements IRouteModule {
                 path: 'FileManage',
                 children: [
                   { index: true, element: <Navigate to="List" replace /> },
-                  { path: 'Form/:internalId?', element: <PageFormComp theme={Classic_BETheme} /> },
-                  { path: 'List', element: <PageListComp title="檔案室列表" theme={Classic_BETheme} /> },
+                  { path: 'Form/:internalId?', element: <FileManageFormComp theme={Classic_BETheme} /> },
+                  { path: 'List', element: <FileManageListComp title="檔案室列表" theme={Classic_BETheme} /> },
                   { path: 'Category/:internalId?', element: <CategoryListFormComp progId="FileManage" title="類別" theme={Classic_BETheme} /> },
                   { path: 'Tag/:internalId?', element: <TagListFormComp progId="FileManage" title="標籤" theme={Classic_BETheme} /> },
                 ],
@@ -97,7 +101,7 @@ export class BackendRouteModule implements IRouteModule {
                 path: 'WebResource',
                 children: [
                   { index: true, element: <Navigate to="List" replace /> },
-                  { path: 'Form/:internalId?', element: <PageFormComp theme={Classic_BETheme} /> },
+                  { path: 'Form/:internalId?', element: <WebResourceFormComp theme={Classic_BETheme} /> },
                   { path: 'List', element: <PageListComp title="網路資源列表" theme={Classic_BETheme} /> },
                   { path: 'Category/:internalId?', element: <CategoryListFormComp progId="WebResource" title="類別" theme={Classic_BETheme} /> },
                   { path: 'Tag/:internalId?', element: <TagListFormComp progId="WebResource" title="標籤" theme={Classic_BETheme} /> },

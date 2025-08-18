@@ -6,6 +6,7 @@ export interface ILibFileInputStyle{
 }
 
 export interface ILibFileInputProp{
-    // Style:ILibFileStyle,
+    Style:ILibFileInputStyle,
     ColumnDisplayName:string,
+    DefaultInputDisplay:string,
 }

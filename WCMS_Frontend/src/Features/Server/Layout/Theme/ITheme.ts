@@ -1,7 +1,7 @@
 import type { IMenu_Style } from "../../../../SysCore/Components/MenuList/MenuList_Clsx"
 import type { IBreadCrumbStyle } from "../../../../SysCore/Components/BreadCrumb/BreadCrumb_Clsx"
 import type { INaviBarStyle } from "../../../../SysCore/Components/NaviBar/NaviBar_Clsx"
-import type { ILibTabsStyle, ILibDropListStyle, ILibTextBoxStyle, ILibTinyMCEStyle } from "../../../../SysCore/Components/FormField/LibFormField"
+import type { ILibTabsStyle, ILibDropListStyle, ILibTextBoxStyle, ILibTextBoxStyle2, ILibTinyMCEStyle, ILibFileStyle, ILibFileInputStyle} from "../../../../SysCore/Components/FormField/LibFormField"
 import type { IGridView_Style } from "../../../../SysCore/Components/Grid/Grid_Clsx";
 import type { IPaginator_Style } from "../../../../SysCore/Components/Paginator/Paginator_Clsx";
 
@@ -19,7 +19,10 @@ export interface IBETheme {
   DropList:ILibDropListStyle
   Tabs:ILibTabsStyle;
   TextBox:ILibTextBoxStyle
+  TextBox2:ILibTextBoxStyle2
   TinyMCE:ILibTinyMCEStyle
+  File:ILibFileStyle
+  FileInput:ILibFileInputStyle
 
 }
 

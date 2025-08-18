@@ -5,9 +5,9 @@ const LibFile=(prop:ILibFileProp)=>{
     const inputId = useId();
     return(
         <>                                                                            
-            <label htmlFor={inputId} className="col-md-2 col-sm-12 float-md-left float-sm-none col-form-label">{prop.ColumnDisplayName}</label>
-            <div className="col-md-10 col-sm-12 float-md-left float-sm-none">
-                <input type="file" className="form-control" id={inputId}/>
+            <label htmlFor={inputId} className={prop.Style.Labelstyle}>{prop.ColumnDisplayName}</label>
+            <div className={prop.Style.SelectStyle}>
+                <input type="file" className={prop.Style.InputStyle} id={inputId} multiple={prop.Multiple} />
             </div>
         </>
     );

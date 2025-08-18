@@ -1,6 +1,11 @@
 
 export interface ILibTextBoxStyle{
-    
+    Labelstyle:string,
+    SelectStyle:string,
+    InputStyle:string,
+}
+
+export interface ILibTextBoxStyle2{
     Labelstyle:string,
     SelectStyle:string,
     InputStyle:string,

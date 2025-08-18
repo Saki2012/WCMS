@@ -6,6 +6,7 @@ export interface ILibFileStyle{
 }
 
 export interface ILibFileProp{
-    // Style:ILibFileStyle,
+    Style:ILibFileStyle,
     ColumnDisplayName:string,
+    Multiple:boolean
 }
