@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet";
 
-interface IHeaderMetaProps {
+export interface IHeaderMetaProps {
   /* 每頁動態（必填/建議填） */
   title?: string;
   description?: string;

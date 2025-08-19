@@ -1,12 +1,13 @@
 import { useEffect, useMemo } from "react";
-import { createRoot, hydrateRoot } from "react-dom/client";
+import { hydrateRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
-import App from "../App.tsx";
 import type { IRouteModule } from "../SysCore/Interface/IBaseRouter.ts";
 import { createClientRouter } from "../SysCore/Utils/Routes.tsx";
 import { SpecRouteModule } from "../SpecFetures/1810/SpecRouter.tsx";
 import { RouterProvider } from "react-router-dom";
 import { LEGACY_JS, LEGACY_CSS } from "./LegacySrc.ts";
+import { MessageProvider } from "../SysCore/Components/Message/Dialog/Dialog_Comp.tsx";
+import { HeaderMetaComp } from "../SysCore/Components/HeaderMeta/HeaderMeta_Comp.tsx";
 
 
 
@@ -107,11 +108,16 @@ const useActiveLang = (opts?: UseLangOpts): SupportedLang => {
 /** ---- Bootstrap 元件（不直接在入口檔做邏輯，便於維護與測試） ---------- */
 const ClientBootstrap: React.FC<{ router: any }> = ({ router }) => {
   return (
-    <>測試:這是CSR
+    <MessageProvider>
       <HelmetProvider>
+        <HeaderMetaComp
+          title={"國立臺灣藝術大學_研究發展處"}
+          description={"國立臺灣藝術大學_研究發展處 / 國立臺灣藝術大學_研究發展處 / 國立臺灣藝術大學_研究發展處"}
+          keywords={"國立臺灣藝術大學_研究發展處"}
+        />
         <RouterProvider router={router} />
       </HelmetProvider>
-    </>
+    </MessageProvider>
   );
 };
 
