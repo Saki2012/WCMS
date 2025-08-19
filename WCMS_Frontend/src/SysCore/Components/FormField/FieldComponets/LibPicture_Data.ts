@@ -8,8 +8,8 @@ export interface ILibPictureStyle{
 
 export interface ILibPictureProp{
     // Style:ILibPictureStyle,
-    ColumnDisplayName:string,
+    ColumnDisplayName?:string,
     PicSrc:string,
     PicDescription:string,
-    children?: ReactNode;
+    children?: ReactNode
 }

@@ -100,11 +100,10 @@ export const GalleryFormComp = ({ theme }: { theme: IBETheme }) => {
 
             <LibPicture
                 key={"idx"}
-                prop={{
-                    ColumnDisplayName: "測試",
-                    PicSrc: "https://picsum.photos/seed/picsum/500/500",
-                    PicDescription: "文字"
-                }}
+                parentClass="col-xl-3 col-md-4 col-12"
+                ColumnDisplayName="測試"
+                PicSrc="https://picsum.photos/seed/picsum/500/500"
+                PicDescription="文字"
             >
                 <div className="row">
                     <div className="col-6">
@@ -129,7 +128,131 @@ export const GalleryFormComp = ({ theme }: { theme: IBETheme }) => {
                     ColumnDisplayName={"排序編號"}
                     DefaultInputDisplay={"請輸入"}
                 />
-            </LibPicture>
+            </LibPicture>,
+            <LibPicture
+                key={"idx"}
+                parentClass="col-xl-3 col-md-4 col-12"
+                ColumnDisplayName="測試"
+                PicSrc="https://picsum.photos/seed/picsum/500/500"
+                PicDescription="文字"
+            >
+                <div className="row">
+                    <div className="col-6">
+                        <LibCheckBoxSingle value={str} options={c} checkboxStyle="radio" />
+                    </div>
+                    <div className="col-6">
+                        <LibCheckBoxSingle value={str} options={c} checkboxStyle="checkbox" />
+                    </div>
+                </div>
+                <LibTextBox
+                    Style={theme.TextBox2}
+                    ColumnDisplayName={"繁體中文"}
+                    DefaultInputDisplay={"請輸入"}
+                />
+                <LibTextBox
+                    Style={theme.TextBox2}
+                    ColumnDisplayName={"English"}
+                    DefaultInputDisplay={"請輸入"}
+                />
+                <LibTextBox
+                    Style={theme.TextBox2}
+                    ColumnDisplayName={"排序編號"}
+                    DefaultInputDisplay={"請輸入"}
+                />
+            </LibPicture>,
+            <LibPicture
+                key={"idx"}
+                parentClass="col-xl-3 col-md-4 col-12"
+                ColumnDisplayName="測試"
+                PicSrc="https://picsum.photos/seed/picsum/500/500"
+                PicDescription="文字"
+            >
+                <div className="row">
+                    <div className="col-6">
+                        <LibCheckBoxSingle value={str} options={c} checkboxStyle="radio" />
+                    </div>
+                    <div className="col-6">
+                        <LibCheckBoxSingle value={str} options={c} checkboxStyle="checkbox" />
+                    </div>
+                </div>
+                <LibTextBox
+                    Style={theme.TextBox2}
+                    ColumnDisplayName={"繁體中文"}
+                    DefaultInputDisplay={"請輸入"}
+                />
+                <LibTextBox
+                    Style={theme.TextBox2}
+                    ColumnDisplayName={"English"}
+                    DefaultInputDisplay={"請輸入"}
+                />
+                <LibTextBox
+                    Style={theme.TextBox2}
+                    ColumnDisplayName={"排序編號"}
+                    DefaultInputDisplay={"請輸入"}
+                />
+            </LibPicture>,
+            <LibPicture
+                key={"idx"}
+                parentClass="col-xl-3 col-md-4 col-12"
+                ColumnDisplayName="測試"
+                PicSrc="https://picsum.photos/seed/picsum/500/500"
+                PicDescription="文字"
+            >
+                <div className="row">
+                    <div className="col-6">
+                        <LibCheckBoxSingle value={str} options={c} checkboxStyle="radio" />
+                    </div>
+                    <div className="col-6">
+                        <LibCheckBoxSingle value={str} options={c} checkboxStyle="checkbox" />
+                    </div>
+                </div>
+                <LibTextBox
+                    Style={theme.TextBox2}
+                    ColumnDisplayName={"繁體中文"}
+                    DefaultInputDisplay={"請輸入"}
+                />
+                <LibTextBox
+                    Style={theme.TextBox2}
+                    ColumnDisplayName={"English"}
+                    DefaultInputDisplay={"請輸入"}
+                />
+                <LibTextBox
+                    Style={theme.TextBox2}
+                    ColumnDisplayName={"排序編號"}
+                    DefaultInputDisplay={"請輸入"}
+                />
+            </LibPicture>,
+            <LibPicture
+                key={"idx"}
+                parentClass="col-xl-3 col-md-4 col-12"
+                ColumnDisplayName="測試"
+                PicSrc="https://picsum.photos/seed/picsum/500/500"
+                PicDescription="文字"
+            >
+                <div className="row">
+                    <div className="col-6">
+                        <LibCheckBoxSingle value={str} options={c} checkboxStyle="radio" />
+                    </div>
+                    <div className="col-6">
+                        <LibCheckBoxSingle value={str} options={c} checkboxStyle="checkbox" />
+                    </div>
+                </div>
+                <LibTextBox
+                    Style={theme.TextBox2}
+                    ColumnDisplayName={"繁體中文"}
+                    DefaultInputDisplay={"請輸入"}
+                />
+                <LibTextBox
+                    Style={theme.TextBox2}
+                    ColumnDisplayName={"English"}
+                    DefaultInputDisplay={"請輸入"}
+                />
+                <LibTextBox
+                    Style={theme.TextBox2}
+                    ColumnDisplayName={"排序編號"}
+                    DefaultInputDisplay={"請輸入"}
+                />
+            </LibPicture>,
         ],
     }
 

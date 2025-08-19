@@ -1,17 +1,21 @@
 
 import { useId } from 'react';
-import type {ILibTextBoxProp} from "./LibTextBox_Data"
+import type { ILibTextBoxProp } from "./LibTextBox_Data"
 
-const LibTextBox=(prop:ILibTextBoxProp)=>{
+interface LibTextBoxWithParentClassProp extends ILibTextBoxProp {
+    parentClass?: string; // 新增
+}
+
+const LibTextBox = (prop: LibTextBoxWithParentClassProp) => {
     const inputId = useId();
-    return(
+    return (
         <>
             <label htmlFor={inputId} className={prop.Style.Labelstyle}>{prop.ColumnDisplayName}</label>
             <div className={prop.Style.SelectStyle}>
-                <input id={inputId} type="text" className={prop.Style.InputStyle} 
-                    placeholder={`${prop.DefaultInputDisplay}${prop.ColumnDisplayName} ...`} value={prop.InputValue??""}
-                    onChange={(e)=>prop.OnChange?.(e.target.value)}
-                    />
+                <input id={inputId} type="text" className={prop.Style.InputStyle}
+                    placeholder={`${prop.DefaultInputDisplay}${prop.ColumnDisplayName} ...`} value={prop.InputValue ?? ""}
+                    onChange={(e) => prop.OnChange?.(e.target.value)}
+                />
             </div>
         </>
     );

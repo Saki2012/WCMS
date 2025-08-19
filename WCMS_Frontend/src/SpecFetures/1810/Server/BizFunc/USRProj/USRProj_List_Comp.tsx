@@ -12,7 +12,7 @@ import { useListToolbarActions } from "../../../../../SysCore/Components/Toolbar
 import { useUSRProjList } from "./USRProj_Hook"
 type SpecUSRSet = components["schemas"]["SpecUSRSet"]
 
-/** 檔案室清單
+/** USR計畫清單
  * @returns 
  */
 export const USRProjListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
@@ -24,8 +24,8 @@ export const USRProjListComp = ({ title, theme }: { title: string; theme: IBEThe
 
     const useToolbar = useListToolbarActions(dirUrl)
     const searchCompProp: SearchBarProps = {
-        title: "檔案室搜尋",
-        subTitle: "搜尋檔案室 ...",
+        title: "USR計畫搜尋",
+        subTitle: "搜尋USR計畫 ...",
         settingTitle: "搜尋設定",
     }
     const isLoading: boolean[] = [];
@@ -63,7 +63,7 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: SpecUS
                         </button>
                     </Link>
                     <a id="trash" className="icon" onClick={() => handleDelete(internalId)} data-bs-toggle="modal" data-bs-target="#All_Delete">
-                        <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title="刪除檔案室">
+                        <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title="刪除USR計畫">
                             <i className="far fa-trash-alt"></i>
                         </button>
                     </a>

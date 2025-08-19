@@ -13,7 +13,7 @@ import { useListToolbarActions } from "../../../../../SysCore/Components/Toolbar
 import { useSpecResearchList } from "./ResearchProj_Hook"
 
 
-/** 檔案室清單
+/** 研究計畫清單
  * @returns 
  */
 export const ResearchProjListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
@@ -25,8 +25,8 @@ export const ResearchProjListComp = ({ title, theme }: { title: string; theme: I
 
     const useToolbar = useListToolbarActions(dirUrl)
     const searchCompProp: SearchBarProps = {
-        title: "檔案室搜尋",
-        subTitle: "搜尋檔案室 ...",
+        title: "研究計畫搜尋",
+        subTitle: "搜尋研究計畫...",
         settingTitle: "搜尋設定",
     }
     const isLoading: boolean[] = [];
@@ -64,7 +64,7 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: SpecRe
                         </button>
                     </Link>
                     <a id="trash" className="icon" onClick={() => handleDelete(internalId)} data-bs-toggle="modal" data-bs-target="#All_Delete">
-                        <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title="刪除檔案室">
+                        <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title="刪除研究計畫">
                             <i className="far fa-trash-alt"></i>
                         </button>
                     </a>

@@ -21,5 +21,5 @@ export interface ILibTextBoxProp{
     ColumnDisplayName:string,
     DefaultInputDisplay:string,
     InputValue?:string|null|undefined,
-    OnChange?: (value: string) => void
+    OnChange?: (value: string) => void,
 }

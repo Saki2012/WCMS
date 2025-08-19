@@ -15,7 +15,7 @@ import { usePageManagementListData } from "../PageManagement/PageManagement_Hook
 type PageManagementSet = components["schemas"]["PageManagementSet"]
 import { handleDelete } from "../PageManagement/PageManagement_Hook";
 
-/** 檔案室清單
+/** 網路資源清單
  * @returns 
  */
 export const WebResourceListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
@@ -27,8 +27,8 @@ export const WebResourceListComp = ({ title, theme }: { title: string; theme: IB
 
     const useToolbar = useListToolbarActions(dirUrl)
     const searchCompProp: SearchBarProps = {
-        title: "檔案室搜尋",
-        subTitle: "搜尋檔案室 ...",
+        title: "網路資源搜尋",
+        subTitle: "搜尋網路資源 ...",
         settingTitle: "搜尋設定",
     }
     const isLoading = [usePageList.isLoading];
@@ -66,7 +66,7 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: PageMa
                         </button>
                     </Link>
                     <a id="trash" className="icon" onClick={() => handleDelete(internalId)} data-bs-toggle="modal" data-bs-target="#All_Delete">
-                        <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title="刪除檔案室">
+                        <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title="刪除網路資源">
                             <i className="far fa-trash-alt"></i>
                         </button>
                     </a>

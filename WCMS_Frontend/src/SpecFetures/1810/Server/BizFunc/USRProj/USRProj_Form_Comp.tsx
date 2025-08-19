@@ -16,7 +16,7 @@ export const USRProjFormComp = ({ theme }: { theme: IBETheme }) => {
 
     const isLoading: boolean[] = []
     const errors: (string | null | undefined)[] = []
-    const prop: FormCompProp = { Title: "新增研究計畫", Theme: theme, LoadingList: isLoading, ErrorList: errors, }
+    const prop: FormCompProp = { Title: "新增USR計畫", Theme: theme, LoadingList: isLoading, ErrorList: errors, }
     const LibTabsPropA: LibTabsProp = {
         Style: theme.Tabs,
         item: {
@@ -67,10 +67,24 @@ export const USRProjFormComp = ({ theme }: { theme: IBETheme }) => {
 
 const generateLangFields = (lang: string, label: string, theme: IBETheme): React.ReactNode[] => {
     return [
-        <LibTextBox key={`${lang}-Title`} Style={theme.TextBox} ColumnDisplayName={`標題（${label}）`} DefaultInputDisplay="請輸入" />,
-        <LibTextArea key={`${lang}-Content`} Style={theme.TextArea} ColumnDisplayName={`內容（${label}）`} DefaultInputDisplay="請輸入" />,
-        <LibTextBox key={`${lang}-Url`} Style={theme.TextBox} ColumnDisplayName={`網址（${label}）`} DefaultInputDisplay="請輸入" />,
-        <LibDropList key={`${lang}-Target`} Style={theme.DropList} ColumnDisplayName={`開啟方式（${label}）`} />
+        <LibTextBox parentClass="col-md-6 col-12" key={`${lang}-Year`} Style={theme.TextBox2} ColumnDisplayName={`年度（${label}）`} DefaultInputDisplay="請輸入" />,
+        <LibTextBox parentClass="col-md-6 col-12" key={`${lang}-AcademicYear`} Style={theme.TextBox2} ColumnDisplayName={`學年度（${label}）`} DefaultInputDisplay="請輸入" />,
+        <LibTextBox key={`${lang}-Courses`} Style={theme.TextBox} ColumnDisplayName={`活動/課程名稱（${label}）`} DefaultInputDisplay="請輸入" />,
+        <LibTextBox key={`${lang}-PracticeField`} Style={theme.TextBox} ColumnDisplayName={`實踐場域（${label}）`} DefaultInputDisplay="請輸入" />,
+        <LibTextBox key={`${lang}-ProjectName`} Style={theme.TextBox} ColumnDisplayName={`計畫名稱（${label}）`} DefaultInputDisplay="請輸入" />,
+        <LibTextBox parentClass="col-md-6 col-12" key={`${lang}-ExternalCooperationUnit`} Style={theme.TextBox2} ColumnDisplayName={`外部合作單位（${label}）`} DefaultInputDisplay="請輸入" />,
+        <LibTextBox parentClass="col-md-6 col-12" key={`${lang}-CooperationDepartment`} Style={theme.TextBox2} ColumnDisplayName={`本校合作系所/單位（${label}）`} DefaultInputDisplay="請輸入" />,
+        <LibTextBox parentClass="col-md-6 col-12" key={`${lang}-DuringExecution`} Style={theme.TextBox2} ColumnDisplayName={`執行期間（${label}）`} DefaultInputDisplay="請輸入" />,
+        <LibTextBox parentClass="col-md-6 col-12" key={`${lang}-PlanAmount`} Style={theme.TextBox2} ColumnDisplayName={`計畫金額（${label}）`} DefaultInputDisplay="請輸入" />,
+        <LibTextArea key={`${lang}-ExecutionStrategy`} Style={theme.TextArea} ColumnDisplayName={`執行策略（${label}）`} DefaultInputDisplay="請輸入" />,
+        <LibTextArea key={`${lang}-PlanContent`} Style={theme.TextArea} ColumnDisplayName={`計畫內容簡介（${label}）`} DefaultInputDisplay="請輸入" />,
+        <LibTextArea key={`${lang}-ProjectConcept`} Style={theme.TextArea} ColumnDisplayName={`計畫理念（${label}）`} DefaultInputDisplay="請輸入" />,
+        <LibTextArea key={`${lang}-ProjectHighlights`} Style={theme.TextArea} ColumnDisplayName={`計畫亮點（${label}）`} DefaultInputDisplay="請輸入" />,
+        <LibTextBox key={`${lang}-ProjectLeader`} Style={theme.TextBox} ColumnDisplayName={`計畫主持人（${label}）`} DefaultInputDisplay="請輸入" />,
+        <LibTextBox parentClass="col-md-6 col-12" key={`${lang}-Cohost1`} Style={theme.TextBox2} ColumnDisplayName={`共同主持人（${label}）`} DefaultInputDisplay="請輸入" />,
+        <LibTextBox parentClass="col-md-6 col-12" key={`${lang}-Cohost2`} Style={theme.TextBox2} ColumnDisplayName={`協同主持人（${label}）`} DefaultInputDisplay="請輸入" />,
+        <LibTextBox key={`${lang}-Commissioned`} Style={theme.TextBox} ColumnDisplayName={`委辦/補助單位（${label}）`} DefaultInputDisplay="請輸入" />,
+        <LibTextArea key={`${lang}-Remark`} Style={theme.TextArea} ColumnDisplayName={`備註（${label}）`} DefaultInputDisplay="請輸入" />,
     ];
 };
 
