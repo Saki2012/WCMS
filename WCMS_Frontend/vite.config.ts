@@ -6,7 +6,7 @@ import path from 'path';
 
 export default defineConfig({
         server: {
-          https: true,
+          // https: true,
           host: 'localhost',
           port: 5174,
           proxy: {

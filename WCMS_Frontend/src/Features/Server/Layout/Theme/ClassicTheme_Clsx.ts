@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import type{ ILibTabsStyle,ILibDropListStyle,ILibTextBoxStyle, ILibTinyMCEStyle, ILibFileStyle, ILibFileInputStyle } from "../../../../SysCore/Components/FormField/LibFormField"
+import type{ ILibTabsStyle,ILibDropListStyle,ILibTextBoxStyle,ILibTextBoxStyle2,ILibTextBoxStyle3,ILibTextAreaStyle,ILibTextAreaStyle2, ILibTinyMCEStyle, ILibFileStyle, ILibFileInputStyle } from "../../../../SysCore/Components/FormField/LibFormField"
 import type { IGridView_Style } from "../../../../SysCore/Components/Grid/Grid_Clsx";
 import type { IPaginator_Style } from "../../../../SysCore/Components/Paginator/Paginator_Clsx";
 import type { IMenu_Style } from "../../../../SysCore/Components/MenuList/MenuList_Clsx"
@@ -52,8 +52,27 @@ export const Classic_LibTextBox2:ILibTextBoxStyle2 ={
     SelectStyle:clsx("col-md-8", "col-sm-12", "float-md-left", "float-sm-none"),
     InputStyle:clsx("form-control"),
 }
+/** 文字輸入框樣式2 */
+export const Classic_LibTextBox3:ILibTextBoxStyle3 ={
+    Labelstyle:clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label"),
+    SelectStyle:clsx("col-md-4", "col-sm-12", "float-md-left", "float-sm-none"),
+    InputStyle:clsx("form-control"),
+}
 
-/** 文字輸入框樣式 */
+/** 多行文字輸入框樣式 */
+export const Classic_LibTextArea:ILibTextAreaStyle ={
+    Labelstyle:clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label"),
+    SelectStyle:clsx("col-md-10", "col-sm-12", "float-md-left", "float-sm-none"),
+    InputStyle:clsx("custom-form-control-height-lg", "form-control"),
+}
+/** 多行文字輸入框樣式2 */
+export const Classic_LibTextArea2:ILibTextAreaStyle2 ={
+    Labelstyle:clsx("col-md-4", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label"),
+    SelectStyle:clsx("col-md-8", "col-sm-12", "float-md-left", "float-sm-none"),
+    InputStyle:clsx("custom-form-control-height-lg", "form-control"),
+}
+
+/** TinyMCE輸入框樣式 */
 export const Classic_LibTinyMCE:ILibTinyMCEStyle ={
     Labelstyle:clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label"),
     SelectStyle:clsx("col-md-10", "col-sm-12", "float-md-left", "float-sm-none"),
@@ -115,6 +134,9 @@ export const Classic_BETheme : IBETheme = {
   Tabs:Classic_LibTabs,
   TextBox:Classic_LibTextBox,
   TextBox2:Classic_LibTextBox2,
+  TextBox3:Classic_LibTextBox3,
+  TextArea:Classic_LibTextArea,
+  TextArea2:Classic_LibTextArea2,
   TinyMCE:Classic_LibTinyMCE,
   File:Classic_LibFile,
   FileInput:Classic_LibFileInput,

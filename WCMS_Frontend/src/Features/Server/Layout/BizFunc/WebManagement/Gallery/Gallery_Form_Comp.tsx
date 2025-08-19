@@ -13,7 +13,7 @@ import * as React from "react";
 /** 相簿表單
  * @returns 
  */
-export const GalleryFormComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
+export const GalleryFormComp = ({ theme }: { theme: IBETheme }) => {
     const { uid } = useParams();
 
     // const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);

@@ -20,7 +20,7 @@ export interface ListCompProp{
     Toolbar:ToolbarAction[]
     // SearchBar:SearchBarProps
     GridType?:string
-    GridData:GridProps
+    GridData?:GridProps
 }
 
 /** 標籤/類別使用 */

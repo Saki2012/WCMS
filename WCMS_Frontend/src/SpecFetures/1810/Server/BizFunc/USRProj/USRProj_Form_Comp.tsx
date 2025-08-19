@@ -1,24 +1,22 @@
-import { LibCheckBox, LibTextBox, LibTextArea, LibFileInput, LibFile, LibTinyMCE, LibDropList } from "../../../../../../SysCore/Components/FormField/LibFormField"
-import type { LibTabsProp, LibTextBoxProp, LibTinyMCEProp } from "../../../../../../SysCore/Components/FormField/LibFormField"
-import { DividerComp } from "../../../../../../SysCore/Components/Divider/Divider_Comp";
-import type { IBETheme } from "../../../Theme/ITheme";
-import { useGetCategoryListByProgId } from "../Category/Category_Hook"
-import { FormComp } from "../../../Scaffold/Content/Form_Comp";
-import { useFormToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
+import { LibCheckBox, LibTextBox, LibTextArea, LibFileInput, LibFile, LibTinyMCE, LibDropList } from "../../../../../SysCore/Components/FormField/LibFormField";
+
+import type { LibTabsProp, LibTextBoxProp, LibTinyMCEProp } from "../../../../../SysCore/Components/FormField/LibFormField";
+import type { IBETheme } from "../../../../../Features/Server/Layout/Theme/ITheme";
+import { FormComp } from "../../../../../Features/Server/Layout/Scaffold/Content/Form_Comp";
 import { useParams } from "react-router-dom";
-import TabContentComp from "../../../../../../SysCore/Components/TabContent/TabContent";
-import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
+import TabContentComp from "../../../../../SysCore/Components/TabContent/TabContent";
+import type { FormCompProp } from "../../../../../Features/Server/Layout/Scaffold/Content/Content_Data";
 
 
 /** 網路資源表單
  * @returns 
  */
-export const WebResourceFormComp = ({ theme }: { theme: IBETheme }) => {
+export const USRProjFormComp = ({ theme }: { theme: IBETheme }) => {
     const { uid } = useParams()
 
     const isLoading: boolean[] = []
     const errors: (string | null | undefined)[] = []
-    const prop: FormCompProp = { Title: "新增網路資源", Theme: theme, LoadingList: isLoading, ErrorList: errors, }
+    const prop: FormCompProp = { Title: "新增研究計畫", Theme: theme, LoadingList: isLoading, ErrorList: errors, }
     const LibTabsPropA: LibTabsProp = {
         Style: theme.Tabs,
         item: {
@@ -30,7 +28,7 @@ export const WebResourceFormComp = ({ theme }: { theme: IBETheme }) => {
     }
     const componentsA: Record<string, React.ReactNode[]> = {
         Basic: [
-            <LibCheckBox colDisplayName="類別"></LibCheckBox>,
+            <LibDropList Style={theme.DropList} ColumnDisplayName="類別" />,
             <LibTextBox Style={theme.TextBox} ColumnDisplayName="排序編號" DefaultInputDisplay="請輸入" ></LibTextBox>,
         ],
         Status: [

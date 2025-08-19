@@ -1,23 +1,18 @@
 
-export interface ILibTextBoxStyle{
+export interface ILibTextAreaStyle{
     Labelstyle:string,
     SelectStyle:string,
     InputStyle:string,
 }
 
-export interface ILibTextBoxStyle2{
-    Labelstyle:string,
-    SelectStyle:string,
-    InputStyle:string,
-}
-export interface ILibTextBoxStyle3{
+export interface ILibTextAreaStyle2{
     Labelstyle:string,
     SelectStyle:string,
     InputStyle:string,
 }
 
-export interface ILibTextBoxProp{
-    Style:ILibTextBoxStyle,
+export interface ILibTextAreaProp{
+    Style:ILibTextAreaStyle,
     ColumnDisplayName:string,
     DefaultInputDisplay:string,
     InputValue?:string|null|undefined,

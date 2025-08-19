@@ -5,11 +5,11 @@ export interface ILibDropListStyle{
 }
 
 export interface ILibDropListProp{
-  style: ILibDropListStyle;
-  colDisplayName: string;
-  options: Record<string, string>;
-  InputValue: string; 
-  onChange: (val: string) => void;
+  Style: ILibDropListStyle;
+  ColumnDisplayName: string;
+  Options?: Record<string, string>;
+  InputValue?: string; 
+  onChange?: (val: string) => void;
 };
 
 

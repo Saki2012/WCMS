@@ -16,29 +16,34 @@ import RequireAuth from "../../SysCore/Components/Auth/RequireAuth";
 import LogoutPage from "./Layout/BizFunc/Auth/LogoutPage";
 import RegisterPage from "./Layout/BizFunc/Auth/RegisterPage";
 import { GalleryFormComp } from "./Layout/BizFunc/WebManagement/Gallery/Gallery_Form_Comp";
+import { GalleryListComp } from "./Layout/BizFunc/WebManagement/Gallery/Gallery_List_Comp";
 import { FileManageListComp } from "./Layout/BizFunc/WebManagement/FileManage/FileManage_List_Comp";
 import { FileManageFormComp } from "./Layout/BizFunc/WebManagement/FileManage/FileManage_Form_Comp";
 import { WebResourceListComp } from "./Layout/BizFunc/WebManagement/WebResource/WebResource_List_Comp";
 import { WebResourceFormComp } from "./Layout/BizFunc/WebManagement/WebResource/WebResource_Form_Comp";
+import { ResearchProjFormComp } from "../../SpecFetures/1810/Server/BizFunc/ResearchProj/ResearchProj_Form_Comp";
+import { ResearchProjListComp } from "../../SpecFetures/1810/Server/BizFunc/ResearchProj/ResearchProj_List_Comp";
+import { USRProjFormComp } from "../../SpecFetures/1810/Server/BizFunc/USRProj/USRProj_Form_Comp";
+import { USRProjListComp } from "../../SpecFetures/1810/Server/BizFunc/USRProj/USRProj_List_Comp";
 
 export class BackendRouteModule implements IRouteModule {
   getRoutes(): RouteObject[] {
     return [
       { path: '/Server/Login', element: <LoginPage /> },
-      { path: '/Server/Logout', element:<LogoutPage/>},
-      { path: '/Server/Register', element:<RegisterPage/>},
+      { path: '/Server/Logout', element: <LogoutPage /> },
+      { path: '/Server/Register', element: <RegisterPage /> },
       {
         path: '/Server',
-        element: 
-        <RequireAuth> 
-          <DashboardPage theme={Classic_BETheme} /> 
-        </RequireAuth>
-        ,children: [
+        element:
+          <RequireAuth>
+            <DashboardPage theme={Classic_BETheme} />
+          </RequireAuth>
+        , children: [
           //#region 網站功能管理
           {
             path: 'WebManagement',
             children: [
-              { index: true, element: <Navigate to="Announcement/List" replace />,},
+              { index: true, element: <Navigate to="Announcement/List" replace />, },
               //#region 廣告輪播
               {
                 path: 'BannerSlider',
@@ -78,7 +83,7 @@ export class BackendRouteModule implements IRouteModule {
                 children: [
                   { index: true, element: <Navigate to="List" replace /> },
                   { path: 'Form/:internalId?', element: <GalleryFormComp theme={Classic_BETheme} /> },
-                  { path: 'List', element: <PageListComp title="相簿列表" theme={Classic_BETheme} /> },
+                  { path: 'List', element: <GalleryListComp title="相簿列表" theme={Classic_BETheme} /> },
                   { path: 'Category/:internalId?', element: <CategoryListFormComp progId="Gallery" title="類別" theme={Classic_BETheme} /> },
                   { path: 'Tag/:internalId?', element: <TagListFormComp progId="Gallery" title="標籤" theme={Classic_BETheme} /> },
                 ],
@@ -102,7 +107,7 @@ export class BackendRouteModule implements IRouteModule {
                 children: [
                   { index: true, element: <Navigate to="List" replace /> },
                   { path: 'Form/:internalId?', element: <WebResourceFormComp theme={Classic_BETheme} /> },
-                  { path: 'List', element: <PageListComp title="網路資源列表" theme={Classic_BETheme} /> },
+                  { path: 'List', element: <WebResourceListComp title="網路資源列表" theme={Classic_BETheme} /> },
                   { path: 'Category/:internalId?', element: <CategoryListFormComp progId="WebResource" title="類別" theme={Classic_BETheme} /> },
                   { path: 'Tag/:internalId?', element: <TagListFormComp progId="WebResource" title="標籤" theme={Classic_BETheme} /> },
                 ],
@@ -113,8 +118,8 @@ export class BackendRouteModule implements IRouteModule {
                 path: 'ResearchProj',
                 children: [
                   { index: true, element: <Navigate to="List" replace /> },
-                  { path: 'Form/:internalId?', element: <PageFormComp theme={Classic_BETheme} /> },
-                  { path: 'List', element: <PageListComp title="研究計劃列表" theme={Classic_BETheme} /> },
+                  { path: 'Form/:internalId?', element: <ResearchProjFormComp theme={Classic_BETheme} /> },
+                  { path: 'List', element: <ResearchProjListComp title="研究計劃列表" theme={Classic_BETheme} /> },
                   { path: 'Category/:internalId?', element: <CategoryListFormComp progId="SpecResearch" title="類別" theme={Classic_BETheme} /> },
                   { path: 'Tag/:internalId?', element: <TagListFormComp progId="SpecResearch" title="標籤" theme={Classic_BETheme} /> },
                 ],
@@ -125,8 +130,8 @@ export class BackendRouteModule implements IRouteModule {
                 path: 'USR',
                 children: [
                   { index: true, element: <Navigate to="List" replace /> },
-                  { path: 'Form/:internalId?', element: <PageFormComp theme={Classic_BETheme} /> },
-                  { path: 'List', element: <PageListComp title="USR列表" theme={Classic_BETheme} /> },
+                  { path: 'Form/:internalId?', element: <USRProjFormComp theme={Classic_BETheme} /> },
+                  { path: 'List', element: <USRProjListComp title="USR列表" theme={Classic_BETheme} /> },
                   { path: 'Category/:internalId?', element: <CategoryListFormComp progId="SpecUSR" title="類別" theme={Classic_BETheme} /> },
                   { path: 'Tag/:internalId?', element: <TagListFormComp progId="SpecUSR" title="標籤" theme={Classic_BETheme} /> },
                 ],
