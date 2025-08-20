@@ -1,4 +1,4 @@
-import { LibCheckBox, LibTextBox, LibTextArea, LibFileInput, LibFile, LibTinyMCE, LibDropList } from "../../../../../../SysCore/Components/FormField/LibFormField"
+import { LibCheckBox, LibTextBox, LibTextArea, LibFileInput, LibFile, LibTinyMCE, LibDropList, LibPicture } from "../../../../../../SysCore/Components/FormField/LibFormField"
 import type { LibTabsProp, LibTextBoxProp, LibTinyMCEProp } from "../../../../../../SysCore/Components/FormField/LibFormField"
 import { DividerComp } from "../../../../../../SysCore/Components/Divider/Divider_Comp";
 import type { IBETheme } from "../../../Theme/ITheme";
@@ -8,6 +8,7 @@ import { useFormToolbarActions } from "../../../../../../SysCore/Components/Tool
 import { useParams } from "react-router-dom";
 import TabContentComp from "../../../../../../SysCore/Components/TabContent/TabContent";
 import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
+import { useState } from "react";
 
 
 /** 網路資源表單
@@ -19,6 +20,23 @@ export const WebResourceFormComp = ({ theme }: { theme: IBETheme }) => {
     const isLoading: boolean[] = []
     const errors: (string | null | undefined)[] = []
     const prop: FormCompProp = { Title: "新增網路資源", Theme: theme, LoadingList: isLoading, ErrorList: errors, }
+
+    // state
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string>("");
+
+    // 當 LibFile onChange 回傳 File[]
+    const handleFileChange = (files: File[]) => {
+        if (files && files.length > 0) {
+            const file = files[0];   // 只取第一個
+            setSelectedFile(file);
+            setPreviewUrl(URL.createObjectURL(file));
+        } else {
+            setSelectedFile(null);
+            setPreviewUrl("");
+        }
+    };
+
     const LibTabsPropA: LibTabsProp = {
         Style: theme.Tabs,
         item: {
@@ -40,8 +58,15 @@ export const WebResourceFormComp = ({ theme }: { theme: IBETheme }) => {
             <LibCheckBox colDisplayName="標籤"></LibCheckBox>
         ],
         Img: [
-            <LibFile Style={theme.File} ColumnDisplayName={`選擇圖片`} Multiple={false}></LibFile>,
-            <LibTextBox key={`Title`} Style={theme.TextBox} ColumnDisplayName={`圖片說明`} DefaultInputDisplay="請輸入" />
+            <LibFile Style={theme.File} ColumnDisplayName={`選擇圖片`} Multiple={false} parentClass="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" onChange={handleFileChange}>
+                <LibPicture
+                    key="preview"
+                    ColumnDisplayName={selectedFile?.name ?? ""}
+                    PicSrc={previewUrl || "https://dummyimage.com/1920x550/555/fff.png"}
+                    PicDescription={`選中的圖片 ${selectedFile?.name ?? ""}`}
+                />
+            </LibFile>,
+            <LibTextBox key={`Title`} Style={theme.TextBox} ColumnDisplayName={`圖片說明`} DefaultInputDisplay="請輸入" />,
         ]
     }
     const LibTabsPropB: LibTabsProp = {

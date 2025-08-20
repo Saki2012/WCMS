@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 
 export interface ILibFileStyle{
     Labelstyle:string,
@@ -8,5 +9,7 @@ export interface ILibFileStyle{
 export interface ILibFileProp{
     Style:ILibFileStyle,
     ColumnDisplayName:string,
-    Multiple:boolean
+    Multiple:boolean,
+    onChange?: (files: File[]) => void,
+    children?: ReactNode;
 }

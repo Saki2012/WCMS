@@ -1,4 +1,4 @@
-import {LibTextBox, LibTinyMCE } from "../../../../../../SysCore/Components/FormField/LibFormField"
+import {LibTextBox, LibTinyMCE, LibPicturePreview, LibFile, LibPicture, LibFileInput } from "../../../../../../SysCore/Components/FormField/LibFormField"
 import type { LibTabsProp } from "../../../../../../SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "../../../Theme/ITheme";
 import { useGetCategoryListByProgId } from "../Category/Category_Hook"
@@ -17,6 +17,7 @@ import LibCalendar from "../../../../../../SysCore/Components/FormField/FieldCom
 import { useFetchFormData } from "../../../../../../SysCore/Utils/FetchFormData";
 import { useFetchEnumOptions } from "../../../../../../SysCore/Utils/SystemAPI_Hook";
 import { parseBitmaskToStringArray,sumStringArrayToBitmask } from "../../../../../../SysCore/Utils/LibData";
+import { useState } from "react";
 
 const emptyData:AnnouncementSet={
     Announcement:{},
@@ -39,6 +40,22 @@ export const AnnouncementFormComp = ({theme}:{theme:IBETheme}) => {
         Style:theme.Tabs,
         item:{"Basic":"基本","Status":"狀態","Tags":"標籤","Pic":"圖片","Files":"附件",}
     }
+
+    // state
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string>("");
+
+    // 當 LibFile onChange 回傳 File[]
+    const handleFileChange = (files: File[]) => {
+        if (files && files.length > 0) {
+            const file = files[0];   // 只取第一個
+            setSelectedFile(file);
+            setPreviewUrl(URL.createObjectURL(file));
+        } else {
+            setSelectedFile(null);
+            setPreviewUrl("");
+        }
+    };
 
     const componentsA: Record<string, React.ReactNode[]> = {
         Basic: [<LibCheckBox colDisplayName="類別" 
@@ -70,11 +87,19 @@ export const AnnouncementFormComp = ({theme}:{theme:IBETheme}) => {
                             />,
                 ],
 
-        // Pic: [  <LibPicturePreview ColumnDisplayName="圖片預覽"/>,
-        //         <LibFile ColumnDisplayName="公告圖片上傳"/>,
-        //         <LibTextBox ColumnDisplayName="公告圖片說明"/>,],
+        Pic: [  <LibFile Style={theme.File} ColumnDisplayName={`選擇圖片`} Multiple={false} parentClass="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" onChange={handleFileChange}>
+                    <LibPicture
+                            key="preview"
+                            ColumnDisplayName={selectedFile?.name ?? ""}
+                            PicSrc={previewUrl || "https://dummyimage.com/1920x550/555/fff.png"}
+                            PicDescription={`選中的圖片 ${selectedFile?.name ?? ""}`}
+                        />
+                </LibFile>,
+                <LibTextBox key={`Title`} Style={theme.TextBox} ColumnDisplayName={`公告圖片說明`} DefaultInputDisplay="請輸入" />,
+            ],
+                
 
-        // Files: [<LibFileInput/>,],//動態增加或減少檔案
+        Files: [<LibFileInput Style={theme.FileInput} ColumnDisplayName={`檔案名稱`}DefaultInputDisplay="請輸入"></LibFileInput>],//動態增加或減少檔案
     };
 
     const LibTabsPropB:LibTabsProp={

@@ -2,7 +2,7 @@ import { useId, useRef } from "react";
 import type {LibModalProp} from "./LibModal_Data"
 import { clsx } from "clsx";
 
-const LibModal = ({prop,children}:{prop:LibModalProp;children:React.ReactNode})=>{
+const LibModal = ({children,...prop}:LibModalProp)=>{
     const uid = useId();
     const modalRef = useRef<HTMLDivElement>(null);
 

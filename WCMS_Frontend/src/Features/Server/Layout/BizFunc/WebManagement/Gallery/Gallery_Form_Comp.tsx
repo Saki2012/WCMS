@@ -5,8 +5,7 @@ import { FormComp } from "../../../Scaffold/Content/Form_Comp";
 import { useParams } from "react-router-dom";
 import TabContentComp from "../../../../../../SysCore/Components/TabContent/TabContent";
 import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
-import { useId } from 'react';
-
+import { useState } from 'react';
 import * as React from "react";
 
 
@@ -67,34 +66,60 @@ export const GalleryFormComp = ({ theme }: { theme: IBETheme }) => {
     }
 
     // JSX 中使用
-    const c: ILibCheckItemSingleProp[] = [{ itemId: "1", itemDisplayName: "選擇封面" }]
-    const str: string[] = ["value"]
+    const c: ILibCheckItemSingleProp[] = [{ itemId: "1", itemDisplayName: "選擇封面" }];
+    const str: string[] = ["value"];
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+    // 當 LibFile 選擇檔案時的回呼
+    const handleFileChange = (files: File[]) => {
+        setSelectedFiles(files);
+    };
     const componentsW: Record<string, React.ReactNode[]> = {
         Album: [
             <TabContentComp libTabsProp={LibTabsPropA} components={componentsA}></TabContentComp>,
             <TabContentComp libTabsProp={LibTabsPropB} components={componentsB}></TabContentComp>
         ],
         Photo: [
-            <LibModal prop={{ ModalName: "上傳圖片", BtnName1: "關閉", BtnName2: "儲存並上傳" }}>
-                <div className="row">
-                    {/* 選擇上傳的圖片(多選) */}
+            <LibModal ModalName="上傳圖片" BtnName1="關閉" BtnName2= "儲存並上傳">
+                <div className="row mx-0">
+                    {/* 選擇欲上傳的圖片(多選) */}
                     <div className="col-12">
-                        <LibFile Style={theme.File} ColumnDisplayName={`選擇圖片(多選)`} Multiple={true}></LibFile>
-                    </div>
-                    {/* 預覽剛剛上傳的圖片 */}
-                    <div className="col-12">
-                        <div className="mt-4">
-                            {/* 標頭 */}
-                            <div className="col-12 float-md-left float-sm-none col-form-label bg-secondary mb-1">
-                                {`預覽上傳圖片`}
-                            </div>
-                            {/* 圖片 */}
-                            <div className="col-12">
-                                {/* 需代入選擇上傳的圖片 */}
-                                <LibPicturePreview ColumnDisplayName={`圖片名稱`} PicSrc={`https://picsum.photos/seed/picsum/200/200`} PicDescription={`圖片描述`} />
-                            </div>
+                        <div className="row">
+                            <LibFile Style={theme.File} ColumnDisplayName={`選擇圖片(多選)`} Multiple={true} onChange={(files) => handleFileChange(files)}>
+                            </LibFile>
                         </div>
                     </div>
+                    {/* 顯示「預覽圖片」標題 + 預覽圖片 */}
+                    {selectedFiles.length > 0 && (
+                        <div className="col-12">
+                            <div className="row mt-3 mx-0">
+                                <div className="col-12 float-md-left float-sm-none col-form-label bg-secondary mb-1">
+                                    預覽圖片
+                                </div>
+                                {selectedFiles.map((file, index) => {
+                                    const url = URL.createObjectURL(file); // 將 file 轉成可用的 URL
+                                    return (
+                                        <div className="col-12 border-bottom">
+                                            <div className="d-flex align-items-center">
+                                                {/* <div className="all-btn me-2">
+                                                    <a id="trash" className="icon" href="javascript:void(0);" title="" data-bs-toggle="modal" data-bs-target="#All_Delete">
+                                                        <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" title="" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="刪除輪播">
+                                                            <i className="far fa-trash-alt"></i>
+                                                        </button>
+                                                    </a>
+                                                </div> */}
+                                                <LibPicturePreview
+                                                    key={index}
+                                                    ColumnDisplayName={file.name}
+                                                    PicSrc={url}
+                                                    PicDescription={`選中的圖片 ${file.name}`}
+                                                />
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </LibModal>,
 
@@ -102,15 +127,21 @@ export const GalleryFormComp = ({ theme }: { theme: IBETheme }) => {
                 key={"idx"}
                 parentClass="col-xl-3 col-md-4 col-12"
                 ColumnDisplayName="測試"
-                PicSrc="https://picsum.photos/seed/picsum/500/500"
+                PicSrc="https://images.pexels.com/photos/32734920/pexels-photo-32734920.jpeg"
                 PicDescription="文字"
             >
                 <div className="row">
                     <div className="col-6">
                         <LibCheckBoxSingle value={str} options={c} checkboxStyle="radio" />
                     </div>
-                    <div className="col-6">
-                        <LibCheckBoxSingle value={str} options={c} checkboxStyle="checkbox" />
+                    <div className="col-6 d-flex justify-content-end">
+                        <div className="all-btn">
+                            <a id="trash" className="icon" href="javascript:void(0);" title="" data-bs-toggle="modal" data-bs-target="#All_Delete">
+                                <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" title="" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="刪除輪播">
+                                    <i className="far fa-trash-alt"></i>
+                                </button>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 <LibTextBox
@@ -128,131 +159,7 @@ export const GalleryFormComp = ({ theme }: { theme: IBETheme }) => {
                     ColumnDisplayName={"排序編號"}
                     DefaultInputDisplay={"請輸入"}
                 />
-            </LibPicture>,
-            <LibPicture
-                key={"idx"}
-                parentClass="col-xl-3 col-md-4 col-12"
-                ColumnDisplayName="測試"
-                PicSrc="https://picsum.photos/seed/picsum/500/500"
-                PicDescription="文字"
-            >
-                <div className="row">
-                    <div className="col-6">
-                        <LibCheckBoxSingle value={str} options={c} checkboxStyle="radio" />
-                    </div>
-                    <div className="col-6">
-                        <LibCheckBoxSingle value={str} options={c} checkboxStyle="checkbox" />
-                    </div>
-                </div>
-                <LibTextBox
-                    Style={theme.TextBox2}
-                    ColumnDisplayName={"繁體中文"}
-                    DefaultInputDisplay={"請輸入"}
-                />
-                <LibTextBox
-                    Style={theme.TextBox2}
-                    ColumnDisplayName={"English"}
-                    DefaultInputDisplay={"請輸入"}
-                />
-                <LibTextBox
-                    Style={theme.TextBox2}
-                    ColumnDisplayName={"排序編號"}
-                    DefaultInputDisplay={"請輸入"}
-                />
-            </LibPicture>,
-            <LibPicture
-                key={"idx"}
-                parentClass="col-xl-3 col-md-4 col-12"
-                ColumnDisplayName="測試"
-                PicSrc="https://picsum.photos/seed/picsum/500/500"
-                PicDescription="文字"
-            >
-                <div className="row">
-                    <div className="col-6">
-                        <LibCheckBoxSingle value={str} options={c} checkboxStyle="radio" />
-                    </div>
-                    <div className="col-6">
-                        <LibCheckBoxSingle value={str} options={c} checkboxStyle="checkbox" />
-                    </div>
-                </div>
-                <LibTextBox
-                    Style={theme.TextBox2}
-                    ColumnDisplayName={"繁體中文"}
-                    DefaultInputDisplay={"請輸入"}
-                />
-                <LibTextBox
-                    Style={theme.TextBox2}
-                    ColumnDisplayName={"English"}
-                    DefaultInputDisplay={"請輸入"}
-                />
-                <LibTextBox
-                    Style={theme.TextBox2}
-                    ColumnDisplayName={"排序編號"}
-                    DefaultInputDisplay={"請輸入"}
-                />
-            </LibPicture>,
-            <LibPicture
-                key={"idx"}
-                parentClass="col-xl-3 col-md-4 col-12"
-                ColumnDisplayName="測試"
-                PicSrc="https://picsum.photos/seed/picsum/500/500"
-                PicDescription="文字"
-            >
-                <div className="row">
-                    <div className="col-6">
-                        <LibCheckBoxSingle value={str} options={c} checkboxStyle="radio" />
-                    </div>
-                    <div className="col-6">
-                        <LibCheckBoxSingle value={str} options={c} checkboxStyle="checkbox" />
-                    </div>
-                </div>
-                <LibTextBox
-                    Style={theme.TextBox2}
-                    ColumnDisplayName={"繁體中文"}
-                    DefaultInputDisplay={"請輸入"}
-                />
-                <LibTextBox
-                    Style={theme.TextBox2}
-                    ColumnDisplayName={"English"}
-                    DefaultInputDisplay={"請輸入"}
-                />
-                <LibTextBox
-                    Style={theme.TextBox2}
-                    ColumnDisplayName={"排序編號"}
-                    DefaultInputDisplay={"請輸入"}
-                />
-            </LibPicture>,
-            <LibPicture
-                key={"idx"}
-                parentClass="col-xl-3 col-md-4 col-12"
-                ColumnDisplayName="測試"
-                PicSrc="https://picsum.photos/seed/picsum/500/500"
-                PicDescription="文字"
-            >
-                <div className="row">
-                    <div className="col-6">
-                        <LibCheckBoxSingle value={str} options={c} checkboxStyle="radio" />
-                    </div>
-                    <div className="col-6">
-                        <LibCheckBoxSingle value={str} options={c} checkboxStyle="checkbox" />
-                    </div>
-                </div>
-                <LibTextBox
-                    Style={theme.TextBox2}
-                    ColumnDisplayName={"繁體中文"}
-                    DefaultInputDisplay={"請輸入"}
-                />
-                <LibTextBox
-                    Style={theme.TextBox2}
-                    ColumnDisplayName={"English"}
-                    DefaultInputDisplay={"請輸入"}
-                />
-                <LibTextBox
-                    Style={theme.TextBox2}
-                    ColumnDisplayName={"排序編號"}
-                    DefaultInputDisplay={"請輸入"}
-                />
-            </LibPicture>,
+            </LibPicture>
         ],
     }
 

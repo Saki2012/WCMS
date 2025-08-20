@@ -48,7 +48,7 @@ export const PageFormComp = ({theme}:{theme:IBETheme}) => {
     }
 
     const componentsA: Record<string, React.ReactNode[]> = {
-        Basic: [ <LibDropList   style={theme.DropList} colDisplayName="類別選擇" options={useCategory.data} 
+        Basic: [ <LibDropList   Style={theme.DropList} ColumnDisplayName="類別選擇" Options={useCategory.data} 
                                 InputValue={formData.data?.PageManagement?.CategoryId ?? ''}
                                 onChange={(val) => {formData.setFormData({
                                                         ...formData.data,

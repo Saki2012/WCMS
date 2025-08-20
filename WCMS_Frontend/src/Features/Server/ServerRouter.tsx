@@ -11,6 +11,7 @@ import { AnnouncementFormComp } from "./Layout/BizFunc/WebManagement/Announcemen
 import { Navigate } from "react-router-dom";
 
 import { BannerSliderFormComp } from "./Layout/BizFunc/WebManagement/BannerSlider/BannerSlider_Form_Comp";
+import { BannerSliderListComp } from "./Layout/BizFunc/WebManagement/BannerSlider/BannerSlider_List_Comp";
 import LoginPage from "./Layout/BizFunc/Auth/LoginPage";
 import RequireAuth from "../../SysCore/Components/Auth/RequireAuth";
 import LogoutPage from "./Layout/BizFunc/Auth/LogoutPage";
@@ -50,7 +51,7 @@ export class BackendRouteModule implements IRouteModule {
                 children: [
                   { index: true, element: <Navigate to="List" replace /> },
                   { path: 'Form/:internalId?', element: <BannerSliderFormComp theme={Classic_BETheme} /> },
-                  { path: 'List', element: <PageListComp title="廣告輪播列表" theme={Classic_BETheme} /> },
+                  { path: 'List', element: <BannerSliderListComp title="廣告輪播列表" theme={Classic_BETheme} /> },
                 ],
               },
               //#endregion

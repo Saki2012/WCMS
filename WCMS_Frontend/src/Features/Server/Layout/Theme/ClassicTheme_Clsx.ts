@@ -35,60 +35,60 @@ export const Classic_LibTabs:ILibTabsStyle = {
 
 /** 下拉選單樣式 */
 export const Classic_LibDropList:ILibDropListStyle ={
-    Labelstyle:clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label"),
-    SelectStyle:clsx("col-md-10", "col-sm-12", "float-md-left", "float-sm-none"),
+    Labelstyle:clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label", "mb-1"),
+    SelectStyle:clsx("col-md-10", "col-sm-12", "float-md-left", "float-sm-none", "mb-1"),
     OptionsStyle:clsx("form-select"),
 }
 
 /** 文字輸入框樣式 */
 export const Classic_LibTextBox:ILibTextBoxStyle ={
-    Labelstyle:clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label"),
-    SelectStyle:clsx("col-md-10", "col-sm-12", "float-md-left", "float-sm-none"),
+    Labelstyle:clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label", "mb-1"),
+    SelectStyle:clsx("col-md-10", "col-sm-12", "float-md-left", "float-sm-none", "mb-1"),
     InputStyle:clsx("form-control"),
 }
 /** 文字輸入框樣式2 */
 export const Classic_LibTextBox2:ILibTextBoxStyle2 ={
-    Labelstyle:clsx("col-md-4", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label"),
-    SelectStyle:clsx("col-md-8", "col-sm-12", "float-md-left", "float-sm-none"),
+    Labelstyle:clsx("col-md-4", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label", "mb-1"),
+    SelectStyle:clsx("col-md-8", "col-sm-12", "float-md-left", "float-sm-none", "mb-1"),
     InputStyle:clsx("form-control"),
 }
 /** 文字輸入框樣式2 */
 export const Classic_LibTextBox3:ILibTextBoxStyle3 ={
-    Labelstyle:clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label"),
-    SelectStyle:clsx("col-md-4", "col-sm-12", "float-md-left", "float-sm-none"),
+    Labelstyle:clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label", "mb-1"),
+    SelectStyle:clsx("col-md-4", "col-sm-12", "float-md-left", "float-sm-none", "mb-1"),
     InputStyle:clsx("form-control"),
 }
 
 /** 多行文字輸入框樣式 */
 export const Classic_LibTextArea:ILibTextAreaStyle ={
-    Labelstyle:clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label"),
-    SelectStyle:clsx("col-md-10", "col-sm-12", "float-md-left", "float-sm-none"),
+    Labelstyle:clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label", "mb-1"),
+    SelectStyle:clsx("col-md-10", "col-sm-12", "float-md-left", "float-sm-none", "mb-1"),
     InputStyle:clsx("custom-form-control-height-lg", "form-control"),
 }
 /** 多行文字輸入框樣式2 */
 export const Classic_LibTextArea2:ILibTextAreaStyle2 ={
-    Labelstyle:clsx("col-md-4", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label"),
-    SelectStyle:clsx("col-md-8", "col-sm-12", "float-md-left", "float-sm-none"),
+    Labelstyle:clsx("col-md-4", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label", "mb-1"),
+    SelectStyle:clsx("col-md-8", "col-sm-12", "float-md-left", "float-sm-none", "mb-1"),
     InputStyle:clsx("custom-form-control-height-lg", "form-control"),
 }
 
 /** TinyMCE輸入框樣式 */
 export const Classic_LibTinyMCE:ILibTinyMCEStyle ={
-    Labelstyle:clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label"),
-    SelectStyle:clsx("col-md-10", "col-sm-12", "float-md-left", "float-sm-none"),
+    Labelstyle:clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label", "mb-1"),
+    SelectStyle:clsx("col-md-10", "col-sm-12", "float-md-left", "float-sm-none", "mb-1"),
 }
 
 /** 檔案樣式 */
 export const Classic_LibFile:ILibFileStyle ={
-    Labelstyle:clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label"),
-    SelectStyle:clsx("col-md-10", "col-sm-12", "float-md-left", "float-sm-none"),
+    Labelstyle:clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label", "mb-1"),
+    SelectStyle:clsx("col-md-10", "col-sm-12", "float-md-left", "float-sm-none", "mb-1"),
     InputStyle:clsx("form-control"),
 }
 
 /** 檔案文字輸入樣式 */
 export const Classic_LibFileInput:ILibFileInputStyle ={
-    Labelstyle:clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label"),
-    SelectStyle:clsx("col-md-10", "col-sm-12", "float-md-left", "float-sm-none"),
+    Labelstyle:clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label", "mb-1"),
+    SelectStyle:clsx("col-md-10", "col-sm-12", "float-md-left", "float-sm-none", "mb-1"),
     InputStyle:clsx("form-control"),
 }
 
