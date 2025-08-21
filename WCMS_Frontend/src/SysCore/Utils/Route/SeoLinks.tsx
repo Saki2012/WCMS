@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Lang } from '../i18n/lang';
+import type { Lang } from '../../i18n/lang';
 const SUPPORTED_LANGS: Lang[] = ["zh-tw", "zh-cn", "en"];
 
 interface Props { resolvedLang: string; pathname: string }

@@ -1,26 +1,28 @@
 import type { IRouteModule } from "../SysCore/Interface/IBaseRouter";
 import { SpecRouteModule } from "../SpecFetures/1810/SpecRouter";
-import { createServerRouter } from "../SysCore/Utils/Routes";
+import { createServerRouter } from "../SysCore/Utils/Route/Routes";
 import { renderToString } from "react-dom/server";
 import * as HelmetAsync from "react-helmet-async";
-import { createStaticHandler, StaticRouterProvider, type StaticHandlerContext } from "react-router-dom/server";
-import type { Lang } from "../SysCore/i18n/lang";
+import { StaticRouterProvider } from "react-router-dom/server";
 import { MessageProvider } from "../SysCore/Components/Message/Dialog/Dialog_Comp";
 import { HeaderMetaComp } from "../SysCore/Components/HeaderMeta/HeaderMeta_Comp";
+import type { Lang } from "../SysCore/i18n/lang";
 
 const HelmetProvider = (HelmetAsync as any).HelmetProvider ?? (HelmetAsync as any).default?.HelmetProvider ??
   // 萬一還是取不到，就用 no-op provider 避免 SSR 直接當掉
   (({ children }: any) => <>{children}</>);
 
-type RenderResult = { appHtml: string; headTags: string };
+type RenderResult = { appHtml: string; headTags: string, initialState: string };
 
-export const SSR_Render = async (url: string, lang: Lang): Promise<RenderResult> => {
-  const module: IRouteModule = new SpecRouteModule();
-  const handler = createStaticHandler(module.getRoutes());
-  const request = new Request("http://localhost" + url, { method: "GET" });
-  const context = (await handler.query(request)) as StaticHandlerContext;
+export const SSR_Render = async (url: string, headers: Record<string, string> = {}): Promise<RenderResult> => {
 
-  const router = createServerRouter({ lang: lang, module }, context);
+  const boot = {
+    module: new SpecRouteModule() as IRouteModule,
+    lang: headers["accept-language"] ?? "",
+    cookieLang: headers["cookie"] ?? "",
+  };
+  const request = new Request("http://localhost" + url, { method: "GET", headers });
+  const { router, context } = await createServerRouter(boot as any, request);
 
   const helmetContext: any = {};
 
@@ -41,7 +43,7 @@ export const SSR_Render = async (url: string, lang: Lang): Promise<RenderResult>
     helmetContext.helmet?.title?.toString() ?? "",
     helmetContext.helmet?.meta?.toString() ?? "",
   ].join("");
-  return { appHtml, headTags };
+  return { appHtml, headTags, initialState: boot.lang };
 };
 
 export const render = SSR_Render;

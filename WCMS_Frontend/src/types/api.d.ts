@@ -3487,6 +3487,455 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/SiteMenu_Api/Migrate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SiteMenu_Api/Create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SiteMenuSet"];
+                    "text/json": components["schemas"]["SiteMenuSet"];
+                    "application/*+json": components["schemas"]["SiteMenuSet"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SiteMenu_Api/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SiteMenuSet"][];
+                    "text/json": components["schemas"]["SiteMenuSet"][];
+                    "application/*+json": components["schemas"]["SiteMenuSet"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SiteMenu_Api/Update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SiteMenuSetApiRequest"];
+                    "text/json": components["schemas"]["SiteMenuSetApiRequest"];
+                    "application/*+json": components["schemas"]["SiteMenuSetApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SiteMenu_Api/Invalid/{pk}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
+                header?: never;
+                path: {
+                    pk: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/SiteMenu_Api/BatchInvalid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    isInvalid?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/SiteMenu_Api/Delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SiteMenu_Api/BatchDelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SiteMenu_Api/QueryData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SiteMenu_Api/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SiteMenu_Api/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SiteMenu_Api/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/SpecCategory/Migrate": {
         parameters: {
             query?: never;
@@ -6579,6 +7028,11 @@ export interface components {
             Account?: string | null;
             Password?: string | null;
         };
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
+        MenuUrlType: 0 | 1 | 2;
         PageManagement: {
             /** Format: date-time */
             CreateTime?: string | null;
@@ -6679,6 +7133,97 @@ export interface components {
          * @enum {integer}
          */
         RowState: 0 | 1 | 2 | 3;
+        SiteMenuSet: {
+            SiteMenu_Index?: components["schemas"]["SiteMenu_IndexModel"];
+            SiteMenu_IndexInfo?: components["schemas"]["SiteMenu_IndexInfoModel"][] | null;
+            SiteMenu_Item?: components["schemas"]["SiteMenu_Item"][] | null;
+            SiteMenu_Item_Title?: components["schemas"]["SiteMenu_Item_Title"][] | null;
+            SiteMenu_Item_Url?: components["schemas"]["SiteMenu_Item_Url"][] | null;
+            SiteMenu_Item_Module?: components["schemas"]["SiteMenu_Item_Module"][] | null;
+        };
+        SiteMenuSetApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SiteMenuSet"];
+        };
+        SiteMenu_IndexInfoModel: {
+            RowState?: components["schemas"]["RowState"];
+            SiteIndex?: string | null;
+            /** Format: int32 */
+            RowId?: number | null;
+            Lang?: string | null;
+            Title?: string | null;
+            Description?: string | null;
+            SiteHeader?: string | null;
+            SiteFooter?: string | null;
+            Keyword?: string | null;
+        };
+        SiteMenu_IndexModel: {
+            /** Format: date-time */
+            CreateTime?: string | null;
+            CreateUserId?: string | null;
+            /** Format: date-time */
+            ModifyTime?: string | null;
+            ModifyUserId?: string | null;
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            IsIniData?: boolean;
+            /** Format: date-time */
+            Validate_Start?: string | null;
+            /** Format: date-time */
+            Validate_End?: string | null;
+            SiteIndex?: string | null;
+            GoogleAnalytics?: string | null;
+            Enable?: boolean;
+        };
+        SiteMenu_Item: {
+            RowState?: components["schemas"]["RowState"];
+            SiteIndex?: string | null;
+            /** Format: int32 */
+            RowId?: number | null;
+            /** Format: int32 */
+            ParentRowId?: number | null;
+            ItemSiteUrl?: string | null;
+            FullUrl?: string | null;
+            /** Format: int32 */
+            Level?: number;
+            /** Format: int32 */
+            DisplayOrder?: number;
+            ItemType?: components["schemas"]["MenuUrlType"];
+            WindowTarget?: components["schemas"]["WindowTarget"];
+            IsShowOnMenu?: boolean;
+        };
+        SiteMenu_Item_Module: {
+            RowState?: components["schemas"]["RowState"];
+            SiteIndex?: string | null;
+            /** Format: int32 */
+            ItemRowId?: number | null;
+            BannerId?: string | null;
+            ModuleProgId?: string | null;
+            ModuleOptions?: string | null;
+        };
+        SiteMenu_Item_Title: {
+            RowState?: components["schemas"]["RowState"];
+            SiteIndex?: string | null;
+            /** Format: int32 */
+            ItemRowId?: number | null;
+            /** Format: int32 */
+            RowId?: number | null;
+            Lang?: string | null;
+            Title?: string | null;
+        };
+        SiteMenu_Item_Url: {
+            RowState?: components["schemas"]["RowState"];
+            SiteIndex?: string | null;
+            /** Format: int32 */
+            ItemRowId?: number | null;
+            RedirectType?: components["schemas"]["MenuUrlType"];
+            RedirectUrl?: string | null;
+        };
         SpecCategoryDetailModel: {
             RowState?: components["schemas"]["RowState"];
             CategoryId?: string | null;
@@ -6963,6 +7508,11 @@ export interface components {
             InternalId?: string | null;
             Data?: components["schemas"]["WebResourceSet"];
         };
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
+        WindowTarget: 0 | 1;
     };
     responses: never;
     parameters: never;

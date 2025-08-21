@@ -16,7 +16,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.SystemSetting.SiteMenuSetting
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class SiteMenu_Api : ApiDataController<SiteMenuSet>
+    public class SiteMenuController : ApiDataController<SiteMenuSet>
     {
 
 

@@ -1,34 +1,31 @@
+import { useFetchFormData } from "../../../../../SysCore/Utils/API/FetchFormData";
 import type { components } from "../../../../../types/api";
-import type { IFETheme } from "../../Theme/ITheme";
-type AnnouncementSet = components["schemas"]["AnnouncementSet"];
-import { useParams } from "react-router-dom";
-import { useFetchFormData } from "../../../../../SysCore/Utils/FetchFormData";
+import PageManagementProvider from "../../../../Server/Layout/BizFunc/WebManagement/PageManagement/PageManagement_Api";
+type PageManagementSet = components["schemas"]["PageManagementSet"];
+import type { INormNode } from "../../../Site-Routing";
+import React from "react";
 import { ContentComp } from "../../Scaffold/ContentViewMode/FormView/FormView_Comp";
+import type { IFETheme } from "../../Theme/ITheme";
 
-interface PageContentProps
-{
+export interface IPageManagementOptions { pageId?: string }
+export interface IPageManagementProps {
     lang: string;
-    pageId: string;
-    theme: IFETheme;
+    theme?: IFETheme;
+    node: INormNode;
+    siteIndex: string;
+    options?: IPageManagementOptions;
 }
-export const PageContentComp = ({ lang, pageId, theme }: PageContentProps) =>
-{
-    const { internalId } = useParams();
-    const formData = useFetchFormData(lang, pageId);
-    // const useAnnouncementFormData = useGetAnnouncementFormData(internalId as string);
-    // const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData);}, [useAnnounceList.gridProps, useAnnounceList.rawData]);
-    // const isLoading=[useAnnouncementFormData.isLoading];
-    // const errors=[useAnnouncementFormData.error];
-    // const title = useAnnouncementFormData.data?.AnnouncementDetail[0]?.Title
+
+export const PageManagementComp: React.FC<IPageManagementProps> = (props) => {
+    const pageData = useFetchFormData(PageManagementProvider(), props.options?.pageId);
+    const detail = pageData.data?.PageManagementDetail?.find(d => (d.Lang ?? "").toLowerCase() === props.lang.toLowerCase())
+    const isLoading = [pageData.isLoading];
+    const errors = [pageData.error]
+
     return (
-        <>
-            <div className="page-header mb-3">
-                <h3>{title}</h3>
-                <div className="dotted_line"></div>
-            </div>
-            <Content />
-            <br />
-            <br />
-        </>
+        <ContentComp Theme={props.theme} LoadingList={isLoading} ErrorList={errors}
+            Title={detail?.Title ?? ""}
+            Content={detail?.Content}
+        />
     );
 };

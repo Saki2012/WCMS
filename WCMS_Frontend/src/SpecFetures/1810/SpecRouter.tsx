@@ -1,37 +1,14 @@
 // SpecFeatures/1810/Router.ts
 import type { IRouteModule } from "../../SysCore/Interface/IBaseRouter";
-import { FrontendRouteModule } from "../../Features/Client/ClientRouter";
+import { loadClientChildren } from "../../Features/Client/ClientRouter";
 import { BackendRouteModule } from "../../Features/Server/ServerRouter";
 import type { RouteObject } from "react-router-dom";
 
 export class SpecRouteModule implements IRouteModule {
-  getRoutes(): RouteObject[] {
-    const frontendRoutes = new FrontendRouteModule().getRoutes();
+  async getRoutes(): Promise<RouteObject[]> {
+    const frontendRoutes = await loadClientChildren();
     const backendRoutes = new BackendRouteModule().getRoutes();
-    const customRoutes: RouteObject[] = [
-      // {
-      // path: '/Server',
-      // element: <DashboardPage theme={Classic_BETheme} />,
-      // children: [
-      //   {
-      //     path: "ResearchProj/Form/:internalId?",
-      //     element: <></>,
-      //   },
-      //   {
-      //     path: "ResearchProj/List",
-      //     element: <></>,
-      //   },
-      //   {
-      //     path: "ResearchProj/Category",
-      //     element: <></>,
-      //   },
-      //   {
-      //     path:"ResearchProj/Tag",
-      //     element: <></>,
-      //   }
-      // ]
-      // }
-    ];
+    const customRoutes: RouteObject[] = [];
     return [...frontendRoutes, ...backendRoutes, ...customRoutes];
   }
 }

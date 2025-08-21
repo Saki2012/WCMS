@@ -3,11 +3,11 @@ import type { components } from '../../../../../types/api';
 type AnnouncementSet = components["schemas"]["AnnouncementSet"]
 import { useParams } from 'react-router-dom';
 import { ContentComp } from '../../Scaffold/ContentViewMode/FormView/FormView_Comp';
-import { FormatDate } from '../../../../../SysCore/Utils/LibData';
+import { FormatDate } from '../../../../../SysCore/Utils/Library/LibData';
 import parse from 'html-react-parser';
 import DOMPurify from 'isomorphic-dompurify'
 import AnnouncementProvider from '../../../../Server/Layout/BizFunc/WebManagement/Announcement/Announcement_Api';
-import { useFetchFormData } from '../../../../../SysCore/Utils/FetchFormData';
+import { useFetchFormData } from '../../../../../SysCore/Utils/API/FetchFormData';
 import { useResolveInternalIds } from '../../../../../SysCore/Components/File/useResolveInternalIds';
 import { useMemo } from 'react';
 

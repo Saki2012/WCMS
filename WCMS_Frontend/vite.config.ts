@@ -5,6 +5,7 @@ import basicSsl from '@vitejs/plugin-basic-ssl';
 import path from 'path';
 
 export default defineConfig({
+        base:'/',
         server: {
           // https: true,
           host: 'localhost',
@@ -20,17 +21,13 @@ export default defineConfig({
         build: {
           ssr: 'src/SSR/Entry-Server.tsx',
           outDir: 'dist-ssr',
+          assetsInlineLimit: 0,
         },
-        resolve: {
-          alias: {
-            '/src': path.resolve(__dirname, './src'),
-          }
-        },
+        resolve: { alias: { '/src': path.resolve(__dirname, './src'),}},
         ssr: {
           noExternal: ['swiper'],
           external: [],          
         },
         assetsInclude: ['**/*.ttf', '**/*.woff', '**/*.woff2'], // TinyMCE 字型檔支援
-        base:'/',
       }
   )

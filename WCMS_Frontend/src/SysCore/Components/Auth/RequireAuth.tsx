@@ -1,7 +1,7 @@
-import { useEffect, useState, useRef} from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
-import { AuthAPI } from '../../Utils/AuthClient';
+import { AuthAPI } from '../../Utils/API/AuthClient';
 /**
  * 輕量節流策略：
  * - 預設 300s 內同來源的路由切換不重打 /Me（除非是第一次或上次結果是 unauth）
@@ -68,7 +68,7 @@ export default function RequireAuth({ children }: Props) {
 
   useEffect(() => {
     // 初次進入：一般檢查
-    checkAuth({ force: true }).catch(() => {});
+    checkAuth({ force: true }).catch(() => { });
 
     const onVisible = () => {
       if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;

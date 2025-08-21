@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { AuthAPI } from '../../../../../SysCore/Utils/AuthClient';
+import { AuthAPI } from '../../../../../SysCore/Utils/API/AuthClient';
 import { resetAuthProbe } from '../../../../../SysCore/Components/Auth/RequireAuth';
 
 export default function LogoutPage() {

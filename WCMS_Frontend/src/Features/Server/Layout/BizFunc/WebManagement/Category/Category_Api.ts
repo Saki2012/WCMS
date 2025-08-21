@@ -1,76 +1,155 @@
-import { BaseApiService } from '../../../../../../SysCore/Utils/APIClient';
-import  type { components } from "../../../../../../types/api";
-import {IApiProvider, IDataProvider} from '../../../../../../SysCore/Interface/IApiProvider'
-import type { ApiResponse, QueryListCondition } from '../../../../../../SysCore/Interface/IApiProvider';
-import type { ModelDisplaySchema } from '../../../../../../types/IApiSchema';
-type CategorySet = components["schemas"]["CategoryDataSet"]
+import { IApiProvider, IDataProvider } from "../../../../../../SysCore/Interface/IApiProvider";
+import type { ApiResponse, QueryListCondition } from "../../../../../../SysCore/Interface/IApiProvider";
+import { BaseApiService } from "../../../../../../SysCore/Utils/API/APIClient";
+import type { components } from "../../../../../../types/api";
+import type { ModelDisplaySchema } from "../../../../../../types/IApiSchema";
+type CategorySet = components["schemas"]["CategoryDataSet"];
 
-abstract class ICategoryProvider extends IDataProvider<CategorySet> {
-    
+abstract class ICategoryProvider extends IDataProvider<CategorySet>
+{
 }
-class MockProvider extends ICategoryProvider {
-    protected doCreateData(set?: { Category?: components['schemas']['Category']; CategoryDetail?: components['schemas']['CategoryDetail'][] | null; } | undefined): Promise<ApiResponse<{ Category?: components['schemas']['Category']; CategoryDetail?: components['schemas']['CategoryDetail'][] | null; }>> {
-        throw new Error('Method not implemented.');
+class MockProvider extends ICategoryProvider
+{
+    protected doCreateData(
+        set?: {
+            Category?: components["schemas"]["Category"];
+            CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
+        } | undefined,
+    ): Promise<
+        ApiResponse<
+            {
+                Category?: components["schemas"]["Category"];
+                CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
+            }
+        >
+    >
+    {
+        throw new Error("Method not implemented.");
     }
-    protected doUpdateData(internaId: string, set: { Category?: components['schemas']['Category']; CategoryDetail?: components['schemas']['CategoryDetail'][] | null; }): Promise<ApiResponse<{ Category?: components['schemas']['Category']; CategoryDetail?: components['schemas']['CategoryDetail'][] | null; }>> {
-        throw new Error('Method not implemented.');
+    protected doUpdateData(
+        internaId: string,
+        set: {
+            Category?: components["schemas"]["Category"];
+            CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
+        },
+    ): Promise<
+        ApiResponse<
+            {
+                Category?: components["schemas"]["Category"];
+                CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
+            }
+        >
+    >
+    {
+        throw new Error("Method not implemented.");
     }
-    protected doDelete(internaId: string): Promise<ApiResponse<{ Category?: components['schemas']['Category']; CategoryDetail?: components['schemas']['CategoryDetail'][] | null; }>> {
-        throw new Error('Method not implemented.');
+    protected doDelete(
+        internaId: string,
+    ): Promise<
+        ApiResponse<
+            {
+                Category?: components["schemas"]["Category"];
+                CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
+            }
+        >
+    >
+    {
+        throw new Error("Method not implemented.");
     }
-    protected doInvalid(internaId: string, isInvalid: boolean): Promise<ApiResponse<{ Category?: components['schemas']['Category']; CategoryDetail?: components['schemas']['CategoryDetail'][] | null; }>> {
-        throw new Error('Method not implemented.');
+    protected doInvalid(
+        internaId: string,
+        isInvalid: boolean,
+    ): Promise<
+        ApiResponse<
+            {
+                Category?: components["schemas"]["Category"];
+                CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
+            }
+        >
+    >
+    {
+        throw new Error("Method not implemented.");
     }
-    protected doFetchData(internaId?: string): Promise<ApiResponse<{ Category?: components['schemas']['Category']; CategoryDetail?: components['schemas']['CategoryDetail'][] | null; }>> {
-        throw new Error('Method not implemented.');
+    protected doFetchData(
+        internaId?: string,
+    ): Promise<
+        ApiResponse<
+            {
+                Category?: components["schemas"]["Category"];
+                CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
+            }
+        >
+    >
+    {
+        throw new Error("Method not implemented.");
     }
-    protected doFetchList(condition?: QueryListCondition): Promise<ApiResponse<{ Category?: components['schemas']['Category']; CategoryDetail?: components['schemas']['CategoryDetail'][] | null; }[]>> {
-        throw new Error('Method not implemented.');
+    protected doFetchList(
+        condition?: QueryListCondition,
+    ): Promise<
+        ApiResponse<
+            {
+                Category?: components["schemas"]["Category"];
+                CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
+            }[]
+        >
+    >
+    {
+        throw new Error("Method not implemented.");
     }
-    protected doFetchListCount(condition?: QueryListCondition): Promise<ApiResponse<number>> {
-        throw new Error('Method not implemented.');
+    protected doFetchListCount(condition?: QueryListCondition): Promise<ApiResponse<number>>
+    {
+        throw new Error("Method not implemented.");
     }
-    protected doGetModelDisplayName(): Promise<ModelDisplaySchema> {
-        throw new Error('Method not implemented.');
+    protected doGetModelDisplayName(): Promise<ModelDisplaySchema>
+    {
+        throw new Error("Method not implemented.");
     }
-
 }
-class APIProvider extends ICategoryProvider {
-    private readonly ModuleName="Category"
-    private readonly API= new BaseApiService<CategorySet>(this.ModuleName);
+class APIProvider extends ICategoryProvider
+{
+    private readonly ModuleName = "Category";
+    private readonly API = new BaseApiService<CategorySet>(this.ModuleName);
 
-    protected async doCreateData(set:CategorySet): Promise<ApiResponse<CategorySet>> {
+    protected async doCreateData(set: CategorySet): Promise<ApiResponse<CategorySet>>
+    {
         const res = await this.API.create(set);
         return res.data;
     }
-    protected async doUpdateData(internaId:string,set:CategorySet): Promise<ApiResponse<CategorySet>> {
-        const res = await this.API.update(internaId,set);
+    protected async doUpdateData(internaId: string, set: CategorySet): Promise<ApiResponse<CategorySet>>
+    {
+        const res = await this.API.update(internaId, set);
         return res.data;
     }
-    protected async doDelete(internaId:string): Promise<ApiResponse<CategorySet>> {
+    protected async doDelete(internaId: string): Promise<ApiResponse<CategorySet>>
+    {
         const res = await this.API.delete(internaId);
         return res.data;
     }
-    protected async doInvalid(internaId:string,isInvalid:boolean): Promise<ApiResponse<CategorySet>> {
-        const res = await this.API.invalid(internaId,isInvalid);
+    protected async doInvalid(internaId: string, isInvalid: boolean): Promise<ApiResponse<CategorySet>>
+    {
+        const res = await this.API.invalid(internaId, isInvalid);
         return res.data;
     }
-    protected async doFetchData(internaId: string): Promise<ApiResponse<CategorySet>> {
+    protected async doFetchData(internaId: string): Promise<ApiResponse<CategorySet>>
+    {
         const res = await this.API.queryData(internaId);
         return res.data;
     }
-    protected async doFetchList(condition: QueryListCondition): Promise<ApiResponse<CategorySet[]>> {
+    protected async doFetchList(condition: QueryListCondition): Promise<ApiResponse<CategorySet[]>>
+    {
         const res = await this.API.queryList(condition);
-        return res.data
+        return res.data;
     }
-    protected async doFetchListCount(condition: QueryListCondition): Promise<ApiResponse<number>> {
-        const res = await this.API.queryCount(condition)
-        return res.data
+    protected async doFetchListCount(condition: QueryListCondition): Promise<ApiResponse<number>>
+    {
+        const res = await this.API.queryCount(condition);
+        return res.data;
     }
-    protected async doGetModelDisplayName(): Promise<ModelDisplaySchema> {
+    protected async doGetModelDisplayName(): Promise<ModelDisplaySchema>
+    {
         const res = await this.API.getModelDisplayName();
-        return res
+        return res;
     }
 }
 const CategoryProvider = (): ICategoryProvider => IApiProvider<ICategoryProvider>(APIProvider, MockProvider);
-export default CategoryProvider
+export default CategoryProvider;

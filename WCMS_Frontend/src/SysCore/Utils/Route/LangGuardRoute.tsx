@@ -1,9 +1,10 @@
 // src/SysCore/Utils/LangGuardRoute.tsx
 import React from "react";
-import { Navigate, Outlet, useLocation, useParams } from "react-router-dom";
-import { DefaultLang, isSupportedLang, normalizeLang } from "../i18n/lang";
-import { LangProvider } from "../i18n/LangContext";
+import { Outlet, useLocation, useParams } from "react-router-dom";
+import { DefaultLang, isSupportedLang, normalizeLang } from "../../i18n/lang";
+import { LangProvider } from "../../i18n/LangContext";
 import { SeoLinks } from "./SeoLinks";
+import { AutoRedirect } from "./AutoRedirect";
 
 export const LangGuard: React.FC<{ ssrAcceptLang?: string; cookieLang?: string }> = (props) => {
     const { lang: langFromUrl } = useParams();          // 只有在 /:lang 分支才會有值
@@ -17,7 +18,7 @@ export const LangGuard: React.FC<{ ssrAcceptLang?: string; cookieLang?: string }
         const normalized = normalizeLang(langFromUrl);
         if (!isSupportedLang(normalized) || normalized !== langFromUrl) {
             const rest = location.pathname.replace(/^\/[^/]+/, "");
-            return <Navigate to={`/${normalized}${rest}${location.search}${location.hash}`} replace />;
+            return <AutoRedirect to={`/${normalized}${rest}${location.search}${location.hash}`} replace />;
         }
     }
 

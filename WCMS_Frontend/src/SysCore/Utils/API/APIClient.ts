@@ -1,13 +1,17 @@
-import axios, { type AxiosInstance } from "axios";
-import type { ModelDisplaySchema } from "../../types/IApiSchema";
-import type { ApiResponse, QueryListCondition } from "../Interface/IApiProvider";
+import axios, { type AxiosInstance, type AxiosRequestConfig } from "axios";
+import https from "node:https";
+import type { ModelDisplaySchema } from "../../../types/IApiSchema";
+import type { ApiResponse, QueryListCondition } from "../../Interface/IApiProvider";
 
 const isServer = typeof window === "undefined";
+const isDev = import.meta.env.NODE_ENV !== "production";
+let browserApiSingleton: AxiosInstance | null = null;
 
-interface IApiOptions
+/** 建立 API Client 的可選參數（僅 SSR 需要 serverOrigin） */
+export interface ApiClientOptions
 {
-    useAbsolute?: boolean;
-    cookie?: string; // 只在 SSR 需要
+    serverOrigin?: string; /** 只在 SSR 傳入：例如 `${req.protocol}://${req.get("host")}` */
+    config?: AxiosRequestConfig; /** 額外的 axios 設定（選用） */
 }
 // --- SSR Cookie 透傳（每請求設定/清除；由 dev-server 呼叫）---
 let SSR_COOKIE = "";
@@ -16,34 +20,50 @@ export const __setSsrCookie = (cookie?: string) =>
     SSR_COOKIE = cookie ?? "";
 };
 
-export const createApiClient = (opts?: IApiOptions): AxiosInstance =>
+export const createApiClient = (options?: ApiClientOptions): AxiosInstance =>
 {
-    const headers: Record<string, string> = {};
-    if (isServer && (opts?.cookie || SSR_COOKIE))
+    const SERVICE_PREFIX = "/Service";
+    if (!isServer)
     {
-        headers["cookie"] = opts?.cookie ?? SSR_COOKIE;
+        if (!browserApiSingleton)
+        {
+            browserApiSingleton = axios.create({
+                baseURL: SERVICE_PREFIX, // ★ CSR 用相對路徑，避免 node:https 進瀏覽器
+                withCredentials: true,
+                ...(options?.config ?? {}),
+            });
+        }
+        return browserApiSingleton;
     }
-    const client = axios.create({ baseURL: import.meta.env.VITE_API_BASE_URL, withCredentials: true, headers });
-    return client;
+
+    const origin: string = options?.serverOrigin ?? process.env.VITE_API_BASE_URL ?? "https://localhost:7030";
+
+    const serverApi: AxiosInstance = axios.create({
+        baseURL: `${origin}${SERVICE_PREFIX}`, // ★ 讓 `/Service` 指向本機 SSR-Server，再由它 proxy 到 7030
+        withCredentials: true,
+        ...(options?.config ?? {}),
+    });
+
+    return serverApi;
 };
 
 export const client = createApiClient();
 
 const genericApi = {
-    create: <T>(module: string, data: T) => client.post<ApiResponse<T>>(`/${module}/Create`, data),
+    create: <T>(module: string, data: T) => client.post<ApiResponse<T>>(`${module}/Create`, data),
     update: <T>(module: string, internalId: string, data: T) =>
-        client.put<ApiResponse<T>>(`/${module}/Update`, { InternalId: internalId, Data: data }),
+        client.put<ApiResponse<T>>(`${module}/Update`, { InternalId: internalId, Data: data }),
     delete: <T>(module: string, internalId: string) =>
-        client.delete<ApiResponse<T>>(`/${module}/Delete`, { params: { internalId } }),
+        client.delete<ApiResponse<T>>(`${module}/Delete`, { params: { internalId } }),
     invalid: <T>(module: string, internalId: string, isInvalid: boolean) =>
-        client.delete<ApiResponse<T>>(`/${module}/Invalid`, { data: { internalId, isInvalid } }),
+        client.delete<ApiResponse<T>>(`${module}/Invalid`, { data: { internalId, isInvalid } }),
     queryData: <T>(module: string, internalId: string) =>
-        client.get<ApiResponse<T>>(`/${module}/QueryData`, { params: { internalId: internalId } }),
+        client.get<ApiResponse<T>>(`${module}/QueryData`, { params: { internalId: internalId } }),
     queryList: <T>(module: string, condition: QueryListCondition) =>
-        client.post<ApiResponse<T[]>>(`/${module}/QueryList`, condition),
+        client.post<ApiResponse<T[]>>(`${module}/QueryList`, condition),
     queryListCount: (module: string, condition: QueryListCondition) =>
-        client.post<ApiResponse<number>>(`/${module}/GetTotalCounts`, condition),
-    getModelDisplayName: (module: string) => client.get(`/${module}/GetModelDisplayName`),
+        client.post<ApiResponse<number>>(`${module}/GetTotalCounts`, condition),
+    getModelDisplayName: (module: string) => client.get(`${module}/GetModelDisplayName`),
 };
 
 export class BaseApiService<T>

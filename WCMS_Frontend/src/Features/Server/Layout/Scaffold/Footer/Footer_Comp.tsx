@@ -1,4 +1,4 @@
-import {SysCurrentDate} from '../../../../../SysCore/Utils/GetServerInfo'
+import { SysCurrentDate } from '../../../../../SysCore/Utils/SystemInfo/GetServerInfo'
 
 const FooterComp = () => {
     const date = SysCurrentDate();
@@ -17,7 +17,7 @@ const FooterComp = () => {
                 </div>
             </div>
         </footer>
-  );
+    );
 }
 
 export default FooterComp

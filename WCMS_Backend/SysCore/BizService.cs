@@ -355,7 +355,7 @@ namespace WCMS.SysCore
         protected async Task<TSet> DoQuerySetAsync(string internalId)
         {
             string condition = await GetPKConditionByInternalId(internalId);
-            if (condition == null) return default;
+            if (condition.IsNullOrEmpty()) return default;
             TSet result = PropertyAccessorCache.CreateInstance(typeof(TSet)) as TSet;
             foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
             {

@@ -1,10 +1,11 @@
 // src/SysCore/Utils/Routes.tsx
-import { createBrowserRouter, type RouteObject, Navigate } from "react-router-dom";
-import { createStaticRouter, type StaticHandlerContext } from "react-router-dom/server";
-import type { IRouteModule } from "../Interface/IBaseRouter";
+import { createBrowserRouter, type RouteObject } from "react-router-dom";
+import { createStaticHandler, createStaticRouter, type StaticHandlerContext } from "react-router-dom/server";
+import type { IRouteModule } from "../../Interface/IBaseRouter";
 import { LangGuard } from "./LangGuardRoute";
 import { langGuardLoader } from "./langGuardLoader";
-import type { Lang } from "../i18n/lang";
+import type { Lang } from "../../i18n/lang";
+import { AutoRedirect } from "./AutoRedirect";
 
 // 把模組的絕對子路徑轉相對；"/" 改成 index:true
 const normalizeChildren = (routes: RouteObject[]): RouteObject[] =>
@@ -47,29 +48,30 @@ interface Boot {
     module: IRouteModule;
 }
 
-export const buildRoutes = (boot: Boot): RouteObject[] => {
-    const children = normalizeChildren(boot.module.getRoutes());
-    const resolvedLang = (boot.lang ?? boot.cookieLang ?? "zh-tw") as Lang;
+export const buildRoutes = async (boot: Boot): Promise<RouteObject[]> => {
+    const routes = await boot.module.getRoutes();   // 等待 Promise
+    const children = normalizeChildren(routes);
+
 
     return [
         // /:lang 家族（只做語系正規化）
         {
             path: "/:lang",
             loader: langGuardLoader,
-            element: <LangGuard resolvedLang={resolvedLang} />,      // 元件內只用 useLoaderData 取 resolvedLang；不再 useNavigate 導頁
+            element: <LangGuard ssrAcceptLang={boot.lang} cookieLang={boot.cookieLang} />,      // 元件內只用 useLoaderData 取 resolvedLang；不再 useNavigate 導頁
             children: [
                 ...children,
-                { path: "*", element: <Navigate to="." replace /> },
+                { path: "*", element: <AutoRedirect to="." replace /> },
             ],
         },
         // 根 "/" 家族（不 redirect，只注入語系）
         {
             path: "/",
             loader: langGuardLoader,
-            element: <LangGuard resolvedLang={resolvedLang} />,
+            element: <LangGuard ssrAcceptLang={boot.lang} cookieLang={boot.cookieLang} />,
             children: [
                 ...children,
-                { path: "*", element: <Navigate to="." replace /> },
+                { path: "*", element: <AutoRedirect to="." replace /> },
             ],
         },
     ];
@@ -86,14 +88,22 @@ const assertNoIndexWithChildren = (routes: RouteObject[], parent = "") => {
     }
 };
 
-export const createClientRouter = (boot: Boot) => {
-    const routes = buildRoutes(boot);
+export const createClientRouter = async (boot: Boot) => {
+    const routes = await buildRoutes(boot);
     assertNoIndexWithChildren(routes);
-    return createBrowserRouter(buildRoutes(boot));
+    return createBrowserRouter(routes);
 }
 
-export const createServerRouter = (boot: Boot, context: StaticHandlerContext) => {
-    const routes = buildRoutes(boot);
+export const createServerRouter = async (boot: Boot, request: Request) => {
+    // 1) 先產生 routes
+    const routes = await buildRoutes(boot);
     assertNoIndexWithChildren(routes);
-    return createStaticRouter(buildRoutes(boot), context);
-}
+    // 2) 用 routes 建 handler，並跑一次 query 拿到 context
+    const handler = createStaticHandler(routes);
+    const context = await handler.query(request) as StaticHandlerContext;
+
+    // 3) ★ 用 handler.dataRoutes 建 router（不是原始 routes）
+    const router = createStaticRouter(handler.dataRoutes, context);
+
+    return { router, context }; // 讓呼叫端渲染 <StaticRouterProvider />
+};

@@ -60,7 +60,8 @@ const Content = (prop: ContentCompProp) => {
             ))}
           </>
         )}
-      </ul>}
+      </ul>
+    }
 
 
     <div className="row">

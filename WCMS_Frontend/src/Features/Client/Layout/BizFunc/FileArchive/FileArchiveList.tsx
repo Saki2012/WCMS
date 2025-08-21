@@ -7,14 +7,13 @@ type AnnouncementSet = components["schemas"]["AnnouncementSet"];
 import { Link, useLocation } from "react-router-dom";
 import type { GridRow } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import type { RowCell } from "../../../../../SysCore/Components/Grid/Grid_Data";
-import { useFetchGridListData } from "../../../../../SysCore/Utils/FetchGridListData";
-import { FormatDateTime } from "../../../../../SysCore/Utils/LibData";
+import { useFetchGridListData } from "../../../../../SysCore/Utils/API/FetchGridListData";
+import { FormatDateTime } from "../../../../../SysCore/Utils/Library/LibData";
 import * as SchemaFields from "../../../../../types/SchemaFields";
 import AnnouncementProvider from "../../../../Server/Layout/BizFunc/WebManagement/Announcement/Announcement_Api";
 import { GridViewContentComp } from "../../Scaffold/ContentViewMode/GridView/GridView/GridContent_Comp";
 
-const useFileArchive = () =>
-{
+const useFileArchive = () => {
     const provider = AnnouncementProvider();
     return useFetchGridListData<AnnouncementSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
@@ -41,20 +40,15 @@ const useFileArchive = () =>
             PageNumber: page,
             PageSize: 10,
         }),
-        parseRow: (item, columns) =>
-        {
+        parseRow: (item, columns) => {
             const data = item.Announcement ?? {};
-            const cells: RowCell[] = columns.map(col =>
-            {
+            const cells: RowCell[] = columns.map(col => {
                 let content = "";
-                if (col.key === SchemaFields.AnnouncementDetailFields.Title)
-                {
+                if (col.key === SchemaFields.AnnouncementDetailFields.Title) {
                     content = data.AnnouncementDetail?.find(d => d.Lang === "zh-tw")?.Title ?? "";
-                } else if (col.key === SchemaFields.AnnouncementFields.ModifyTime)
-                {
+                } else if (col.key === SchemaFields.AnnouncementFields.ModifyTime) {
                     content = FormatDateTime((data as any)[col.key]);
-                } else
-                {
+                } else {
                     content = (data as any)[col.key] ?? "";
                 }
                 return { col, content };
@@ -63,19 +57,16 @@ const useFileArchive = () =>
         },
     });
 };
-interface FileArchiveProps
-{
+interface FileArchiveProps {
     categoryId: string;//類別(多個)
     tagId: string;//標籤(多個)
-    listStyle:Number,//1:列表、5:展開(類別)、6:展開(標籤)
+    listStyle: Number,//1:列表、5:展開(類別)、6:展開(標籤)
     theme: IFETheme;
 }
-export const FileArchiveList = ({ categoryId, tagId, listStyle, theme }: PageContentProps) =>
-{
+export const FileArchiveList = ({ categoryId, tagId, listStyle, theme }: PageContentProps) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
     const useAnnounceList = useAnnouncementList();
-    const adjustedGrid = useMemo(() =>
-    {
+    const adjustedGrid = useMemo(() => {
         return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData);
     }, [useAnnounceList.gridProps, useAnnounceList.rawData]);
     const isLoading = [useAnnounceList.isLoading];
@@ -84,15 +75,12 @@ export const FileArchiveList = ({ categoryId, tagId, listStyle, theme }: PageCon
     return <GridViewContentComp GridData={adjustedGrid} Theme={theme} LoadingList={isLoading} ErrorList={errors} />;
 };
 
-const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[]): GridProps =>
-{
-    const newRows: GridRow[] = gridProps.rows.map((row, index) =>
-    {
+const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[]): GridProps => {
+    const newRows: GridRow[] = gridProps.rows.map((row, index) => {
         const internalId = rawData?.[index]?.Announcement?.InternalId ?? "";
         const title = rawData?.[index]?.Announcement?.AnnouncementDetail?.Title ?? "";
         const titleId = `title-${internalId}`;
-        const newCells = row.cells.map((cell) =>
-        {
+        const newCells = row.cells.map((cell) => {
             const isTitle = cell.col.key === SchemaFields.AnnouncementDetailFields.Title;
             return {
                 ...cell,

@@ -1,4 +1,4 @@
-import { LibDropList, LibTextBox, LibFile, LibPicturePreview, LibPicture, LibCalendar,LibTextArea} from "../../../../../../SysCore/Components/FormField/LibFormField"
+import { LibDropList, LibTextBox, LibFile, LibPicture, LibCalendar, LibTextArea } from "../../../../../../SysCore/Components/FormField/LibFormField"
 import type { LibTabsProp } from "../../../../../../SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "../../../Theme/ITheme";
 import { useGetCategoryListByProgId } from "../Category/Category_Hook"
@@ -11,9 +11,8 @@ import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
 import type { components } from "../../../../../../types/api";
 type BannerSet = components["schemas"]["BannerSet"]
 import { useEffect, useState } from "react";
-import { useFetchFormData } from "../../../../../../SysCore/Utils/FetchFormData";
 import TabContentComp from "../../../../../../SysCore/Components/TabContent/TabContent";
-
+import { useFetchFormData } from "../../../../../../SysCore/Utils/API/FetchFormData";
 
 const emptyData: BannerSet = {
     Banner: {},
@@ -72,7 +71,7 @@ export const BannerSliderFormComp = ({ theme }: { theme: IBETheme }) => {
             setPreviewUrl("");
         }
     };
-    
+
 
     const LibTabsPropA: LibTabsProp = {
         Style: theme.Tabs,
@@ -119,30 +118,30 @@ export const BannerSliderFormComp = ({ theme }: { theme: IBETheme }) => {
 
     return (
         <>
-        <FormComp prop={prop}>
-            {Object.entries(components).map(([lang, nodes]) => (
-                <div key={lang} className="form-group">
-                    <div className="row">
-                        {nodes}
+            <FormComp prop={prop}>
+                {Object.entries(components).map(([lang, nodes]) => (
+                    <div key={lang} className="form-group">
+                        <div className="row">
+                            {nodes}
+                        </div>
                     </div>
-                </div>
-            ))}
-        </FormComp>
-        <FormComp prop={prop}>
-            <TabContentComp libTabsProp={LibTabsPropA} components={componentsA}></TabContentComp>
-            <TabContentComp libTabsProp={LibTabsPropB} components={componentsB}></TabContentComp>
-        </FormComp>
+                ))}
+            </FormComp>
+            <FormComp prop={prop}>
+                <TabContentComp libTabsProp={LibTabsPropA} components={componentsA}></TabContentComp>
+                <TabContentComp libTabsProp={LibTabsPropB} components={componentsB}></TabContentComp>
+            </FormComp>
         </>
     )
 }
 
 
-const generateLangFields = (lang: string, label: string, theme: IBETheme, formData:any): React.ReactNode[] => {
+const generateLangFields = (lang: string, label: string, theme: IBETheme, formData: any): React.ReactNode[] => {
     // 先放標題
     const fields: React.ReactNode[] = [
-        <LibTextBox key={`${lang}-Title`} Style={theme.TextBox} ColumnDisplayName={`標題（${label}）`} DefaultInputDisplay="請輸入"/>,
+        <LibTextBox key={`${lang}-Title`} Style={theme.TextBox} ColumnDisplayName={`標題（${label}）`} DefaultInputDisplay="請輸入" />,
         <LibTextArea key={`${lang}-Content`} Style={theme.TextArea} ColumnDisplayName={`內容（${label}）`} DefaultInputDisplay="請輸入" />,
-        <LibTextBox key={`${lang}-Url`} Style={theme.TextBox} ColumnDisplayName={`網址（${label}）`} DefaultInputDisplay="請輸入"/>,
+        <LibTextBox key={`${lang}-Url`} Style={theme.TextBox} ColumnDisplayName={`網址（${label}）`} DefaultInputDisplay="請輸入" />,
         <LibDropList key={`${5}-Title`} Style={theme.DropList} ColumnDisplayName={`開啟方式`} InputValue={formData.data?.Banner?.BannerId ?? ""} onChange={(val) => (val)}></LibDropList>,
     ];
 

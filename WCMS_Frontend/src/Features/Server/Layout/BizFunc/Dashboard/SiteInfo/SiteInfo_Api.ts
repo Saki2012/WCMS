@@ -3,37 +3,37 @@ import type { ApiResponse, QueryListCondition } from "../../../../../../SysCore/
 import { BaseApiService } from "../../../../../../SysCore/Utils/API/APIClient";
 import type { components } from "../../../../../../types/api";
 import type { ModelDisplaySchema } from "../../../../../../types/IApiSchema";
-type AnnouncementSet = components["schemas"]["AnnouncementSet"];
+type SiteMenuSet = components["schemas"]["SiteMenuSet"];
 
-abstract class IAnnouncementProvider extends IDataProvider<AnnouncementSet>
+abstract class ISiteMenuSetProvider extends IDataProvider<SiteMenuSet>
 {}
-class MockProvider extends IAnnouncementProvider
+class MockProvider extends ISiteMenuSetProvider
 {
     protected doFetchListCount(condition?: QueryListCondition): Promise<ApiResponse<number>>
     {
         throw new Error("Method not implemented.");
     }
-    protected async doCreateData(set: AnnouncementSet): Promise<ApiResponse<AnnouncementSet>>
+    protected async doCreateData(set: SiteMenuSet): Promise<ApiResponse<SiteMenuSet>>
     {
         throw new Error("Method not implemented.");
     }
-    protected async doUpdateData(internaId: string, set: AnnouncementSet): Promise<ApiResponse<AnnouncementSet>>
+    protected async doUpdateData(internaId: string, set: SiteMenuSet): Promise<ApiResponse<SiteMenuSet>>
     {
         throw new Error("Method not implemented.");
     }
-    protected async doDelete(internaId: string): Promise<ApiResponse<AnnouncementSet>>
+    protected async doDelete(internaId: string): Promise<ApiResponse<SiteMenuSet>>
     {
         throw new Error("Method not implemented.");
     }
-    protected async doInvalid(internaId: string, isInvalid: boolean): Promise<ApiResponse<AnnouncementSet>>
+    protected async doInvalid(internaId: string, isInvalid: boolean): Promise<ApiResponse<SiteMenuSet>>
     {
         throw new Error("Method not implemented.");
     }
-    protected async doFetchData(internaId?: string): Promise<ApiResponse<AnnouncementSet>>
+    protected async doFetchData(internaId?: string): Promise<ApiResponse<SiteMenuSet>>
     {
         throw new Error("Method not implemented.");
     }
-    protected async doFetchList(condition: QueryListCondition): Promise<ApiResponse<AnnouncementSet[]>>
+    protected async doFetchList(condition: QueryListCondition): Promise<ApiResponse<SiteMenuSet[]>>
     {
         throw new Error("Method not implemented.");
     }
@@ -42,37 +42,37 @@ class MockProvider extends IAnnouncementProvider
         throw new Error("Method not implemented.");
     }
 }
-class APIProvider extends IAnnouncementProvider
+class APIProvider extends ISiteMenuSetProvider
 {
-    private readonly ModuleName = "Announcement";
-    private readonly API = new BaseApiService<AnnouncementSet>(this.ModuleName);
+    private readonly ModuleName = "SiteMenu";
+    private readonly API = new BaseApiService<SiteMenuSet>(this.ModuleName);
 
-    protected async doCreateData(set: AnnouncementSet): Promise<ApiResponse<AnnouncementSet>>
+    protected async doCreateData(set: SiteMenuSet): Promise<ApiResponse<SiteMenuSet>>
     {
         const res = await this.API.create(set);
         return res.data;
     }
-    protected async doUpdateData(internaId: string, set: AnnouncementSet): Promise<ApiResponse<AnnouncementSet>>
+    protected async doUpdateData(internaId: string, set: SiteMenuSet): Promise<ApiResponse<SiteMenuSet>>
     {
         const res = await this.API.update(internaId, set);
         return res.data;
     }
-    protected async doDelete(internaId: string): Promise<ApiResponse<AnnouncementSet>>
+    protected async doDelete(internaId: string): Promise<ApiResponse<SiteMenuSet>>
     {
         const res = await this.API.delete(internaId);
         return res.data;
     }
-    protected async doInvalid(internaId: string, isInvalid: boolean): Promise<ApiResponse<AnnouncementSet>>
+    protected async doInvalid(internaId: string, isInvalid: boolean): Promise<ApiResponse<SiteMenuSet>>
     {
         const res = await this.API.invalid(internaId, isInvalid);
         return res.data;
     }
-    protected async doFetchData(internaId: string): Promise<ApiResponse<AnnouncementSet>>
+    protected async doFetchData(internaId: string): Promise<ApiResponse<SiteMenuSet>>
     {
         const res = await this.API.queryData(internaId);
         return res.data;
     }
-    protected async doFetchList(condition: QueryListCondition): Promise<ApiResponse<AnnouncementSet[]>>
+    protected async doFetchList(condition: QueryListCondition): Promise<ApiResponse<SiteMenuSet[]>>
     {
         const res = await this.API.queryList(condition);
         return res.data;
@@ -88,6 +88,5 @@ class APIProvider extends IAnnouncementProvider
         return res;
     }
 }
-const AnnouncementProvider = (): IAnnouncementProvider =>
-    IApiProvider<IAnnouncementProvider>(APIProvider, MockProvider);
-export default AnnouncementProvider;
+const SiteMenuSetProvider = (): ISiteMenuSetProvider => IApiProvider<ISiteMenuSetProvider>(APIProvider, MockProvider);
+export default SiteMenuSetProvider;

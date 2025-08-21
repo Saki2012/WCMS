@@ -1,17 +1,18 @@
 // ---- SSR-Server.ts（只用 const；Dev/Prod 各自包成一個 const） ----
 import compression from "compression";
 import express, { type NextFunction, type Request, type Response } from "express";
+import { createProxyMiddleware } from "http-proxy-middleware"; // 需要就打開
 import fs from "node:fs/promises";
+import https from "node:https";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import serveStatic from "serve-static";
 import { LEGACY_CSS, LEGACY_JS } from "./LegacySrc";
-// import { createProxyMiddleware } from "http-proxy-middleware"; // 需要就打開
 
 // 基本參數
-const PORT = Number(process.env.PORT ?? 5174);
-const isProd = process.env.NODE_ENV === "production";
-
+const PORT = Number(import.meta.env.PORT ?? 5174);
+const isProd = import.meta.env.NODE_ENV === "production";
+if (!isProd) process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 // 需排除進 SSR 的固定前綴（你的 public 內資料夾）
 const STATIC_PREFIXES = ["/Legacy/", "/tinymce", "/tinymce-i18n", "/.well-known/", "/@vite", "/vite"] as const;
 
@@ -222,9 +223,17 @@ const start = async () =>
     const app = express();
     app.use(compression());
 
-    // 例：API 代理（需要就打開）
-    // app.use("/Service", createProxyMiddleware({ target: process.env.API_ORIGIN ?? "https://localhost:7030", changeOrigin: true, secure: false, logLevel: "warn" }));
+    const insecureAgent = new https.Agent({ rejectUnauthorized: false }); // ★ 忽略自簽
+    const serviceProxyOptions = {
+        target: "https://localhost:7030",
+        changeOrigin: true,
+        secure: false, // 自簽憑證 (dev)
+        agent: insecureAgent,
+        logLevel: "silent",
+    } as const;
 
+    // 例：API 代理（需要就打開）
+    app.use("/Service", createProxyMiddleware(serviceProxyOptions));
     if (!isProd)
     {
         await setupDevSSR(app);

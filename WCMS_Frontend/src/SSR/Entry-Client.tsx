@@ -2,13 +2,12 @@ import { useEffect, useMemo } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import type { IRouteModule } from "../SysCore/Interface/IBaseRouter.ts";
-import { createClientRouter } from "../SysCore/Utils/Routes.tsx";
+import { createClientRouter } from "../SysCore/Utils/Route/Routes.tsx";
 import { SpecRouteModule } from "../SpecFetures/1810/SpecRouter.tsx";
 import { RouterProvider } from "react-router-dom";
 import { LEGACY_JS, LEGACY_CSS } from "./LegacySrc.ts";
 import { MessageProvider } from "../SysCore/Components/Message/Dialog/Dialog_Comp.tsx";
 import { HeaderMetaComp } from "../SysCore/Components/HeaderMeta/HeaderMeta_Comp.tsx";
-
 
 
 LEGACY_CSS.forEach((href) => {
@@ -124,16 +123,12 @@ const ClientBootstrap: React.FC<{ router: any }> = ({ router }) => {
 /** ---- 啟動（SSR hydration 或純 CSR） ---------------------------------- */
 const bootLang = (typeof window !== "undefined" && (window as any).__INITIAL_STATE__?.lang) || "zh-tw";
 const module: IRouteModule = new SpecRouteModule();
-const router = createClientRouter({ lang: bootLang, module });
+const router = await createClientRouter({ lang: bootLang, module });
 const container = document.getElementById("root")! as HTMLElement;
 const rootNode = <ClientBootstrap router={router} />;
 
 const CSR_Render = () => {
-  // if (container.hasChildNodes()) {
   hydrateRoot(container, rootNode);
-  // } else {
-  //   createRoot(container).render(rootNode);
-  //   }
 };
 
 CSR_Render();

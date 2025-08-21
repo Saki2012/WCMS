@@ -1,7 +1,7 @@
 // Features/Server/Pages/LoginPage.tsx
 import { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { AuthAPI } from '../../../../../SysCore/Utils/AuthClient';
+import { AuthAPI } from '../../../../../SysCore/Utils/API/AuthClient';
 
 export default function LoginPage() {
   const [account, setAccount] = useState('');      // HTML 的 email 欄位 -> 後端 account
@@ -136,7 +136,7 @@ export default function LoginPage() {
                                 aria-label={showPwd ? '隱藏密碼' : '顯示密碼'}
                                 aria-pressed={showPwd}
                                 onClick={() => setShowPwd(v => !v)}
-                                style={{ right: 3,}}
+                                style={{ right: 3, }}
                               >
                                 <span className="material-symbols-outlined">{showPwd ? 'visibility' : 'visibility_off'}</span>
                               </button>
@@ -207,20 +207,20 @@ export default function LoginPage() {
           </div>
         </section>
       </div>
-    
-    {submitting && (
+
+      {submitting && (
         <div aria-live="polite" role="status"
-            style={{
-                position:'fixed', inset:0, background:'rgba(0,0,0,0.25)',
-                display:'flex', alignItems:'center', justifyContent:'center', zIndex: 9999
-            }}>
-            <div className="loading" style={{
-            padding:'12px 16px', background:'#fff', borderRadius:8, boxShadow:'0 2px 10px rgba(0,0,0,0.2)'
-            }}>
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.25)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
+          }}>
+          <div className="loading" style={{
+            padding: '12px 16px', background: '#fff', borderRadius: 8, boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
+          }}>
             正在登入，請稍候…
-            </div>
+          </div>
         </div>
-        )}
+      )}
     </main>
   );
 }

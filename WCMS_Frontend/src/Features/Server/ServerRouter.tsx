@@ -8,8 +8,6 @@ import { Classic_BETheme } from "./Layout/Theme/ClassicTheme_Clsx";
 import { CategoryListFormComp } from "./Layout/BizFunc/WebManagement/Category/Category_ListForm_Comp";
 import { TagListFormComp } from "./Layout/BizFunc/WebManagement/Tags/Tag_ListForm_Comp";
 import { AnnouncementFormComp } from "./Layout/BizFunc/WebManagement/Announcement/Announcement_Form_Comp";
-import { Navigate } from "react-router-dom";
-
 import { BannerSliderFormComp } from "./Layout/BizFunc/WebManagement/BannerSlider/BannerSlider_Form_Comp";
 import { BannerSliderListComp } from "./Layout/BizFunc/WebManagement/BannerSlider/BannerSlider_List_Comp";
 import LoginPage from "./Layout/BizFunc/Auth/LoginPage";
@@ -26,6 +24,7 @@ import { ResearchProjFormComp } from "../../SpecFetures/1810/Server/BizFunc/Rese
 import { ResearchProjListComp } from "../../SpecFetures/1810/Server/BizFunc/ResearchProj/ResearchProj_List_Comp";
 import { USRProjFormComp } from "../../SpecFetures/1810/Server/BizFunc/USRProj/USRProj_Form_Comp";
 import { USRProjListComp } from "../../SpecFetures/1810/Server/BizFunc/USRProj/USRProj_List_Comp";
+import { AutoRedirect } from "../../SysCore/Utils/Route/AutoRedirect";
 
 export class BackendRouteModule implements IRouteModule {
   getRoutes(): RouteObject[] {
@@ -44,12 +43,12 @@ export class BackendRouteModule implements IRouteModule {
           {
             path: 'WebManagement',
             children: [
-              { index: true, element: <Navigate to="Announcement/List" replace />, },
+              { index: true, element: <AutoRedirect to="Announcement/List" replace />, },
               //#region 廣告輪播
               {
                 path: 'BannerSlider',
                 children: [
-                  { index: true, element: <Navigate to="List" replace /> },
+                  { index: true, element: <AutoRedirect to="List" replace /> },
                   { path: 'Form/:internalId?', element: <BannerSliderFormComp theme={Classic_BETheme} /> },
                   { path: 'List', element: <BannerSliderListComp title="廣告輪播列表" theme={Classic_BETheme} /> },
                 ],
@@ -59,7 +58,7 @@ export class BackendRouteModule implements IRouteModule {
               {
                 path: 'Announcement',
                 children: [
-                  { index: true, element: <Navigate to="List" replace /> },
+                  { index: true, element: <AutoRedirect to="List" replace /> },
                   { path: 'Form/:internalId?', element: <AnnouncementFormComp theme={Classic_BETheme} /> },
                   { path: 'List', element: <AnnouncementListComp title="公告列表" theme={Classic_BETheme} /> },
                   { path: 'Category/:internalId?', element: <CategoryListFormComp progId="Announcement" title="類別" theme={Classic_BETheme} /> },
@@ -71,7 +70,7 @@ export class BackendRouteModule implements IRouteModule {
               {
                 path: 'PageManage',
                 children: [
-                  { index: true, element: <Navigate to="List" replace /> },
+                  { index: true, element: <AutoRedirect to="List" replace /> },
                   { path: 'Form/:internalId?', element: <PageFormComp theme={Classic_BETheme} /> },
                   { path: 'List', element: <PageListComp title="頁面列表" theme={Classic_BETheme} /> },
                   { path: 'Category/:internalId?', element: <CategoryListFormComp progId="PageManagement" title="類別" theme={Classic_BETheme} /> },
@@ -82,7 +81,7 @@ export class BackendRouteModule implements IRouteModule {
               {
                 path: 'Gallery',
                 children: [
-                  { index: true, element: <Navigate to="List" replace /> },
+                  { index: true, element: <AutoRedirect to="List" replace /> },
                   { path: 'Form/:internalId?', element: <GalleryFormComp theme={Classic_BETheme} /> },
                   { path: 'List', element: <GalleryListComp title="相簿列表" theme={Classic_BETheme} /> },
                   { path: 'Category/:internalId?', element: <CategoryListFormComp progId="Gallery" title="類別" theme={Classic_BETheme} /> },
@@ -94,7 +93,7 @@ export class BackendRouteModule implements IRouteModule {
               {
                 path: 'FileManage',
                 children: [
-                  { index: true, element: <Navigate to="List" replace /> },
+                  { index: true, element: <AutoRedirect to="List" replace /> },
                   { path: 'Form/:internalId?', element: <FileManageFormComp theme={Classic_BETheme} /> },
                   { path: 'List', element: <FileManageListComp title="檔案室列表" theme={Classic_BETheme} /> },
                   { path: 'Category/:internalId?', element: <CategoryListFormComp progId="FileManage" title="類別" theme={Classic_BETheme} /> },
@@ -106,7 +105,7 @@ export class BackendRouteModule implements IRouteModule {
               {
                 path: 'WebResource',
                 children: [
-                  { index: true, element: <Navigate to="List" replace /> },
+                  { index: true, element: <AutoRedirect to="List" replace /> },
                   { path: 'Form/:internalId?', element: <WebResourceFormComp theme={Classic_BETheme} /> },
                   { path: 'List', element: <WebResourceListComp title="網路資源列表" theme={Classic_BETheme} /> },
                   { path: 'Category/:internalId?', element: <CategoryListFormComp progId="WebResource" title="類別" theme={Classic_BETheme} /> },
@@ -118,7 +117,7 @@ export class BackendRouteModule implements IRouteModule {
               {
                 path: 'ResearchProj',
                 children: [
-                  { index: true, element: <Navigate to="List" replace /> },
+                  { index: true, element: <AutoRedirect to="List" replace /> },
                   { path: 'Form/:internalId?', element: <ResearchProjFormComp theme={Classic_BETheme} /> },
                   { path: 'List', element: <ResearchProjListComp title="研究計劃列表" theme={Classic_BETheme} /> },
                   { path: 'Category/:internalId?', element: <CategoryListFormComp progId="SpecResearch" title="類別" theme={Classic_BETheme} /> },
@@ -130,7 +129,7 @@ export class BackendRouteModule implements IRouteModule {
               {
                 path: 'USR',
                 children: [
-                  { index: true, element: <Navigate to="List" replace /> },
+                  { index: true, element: <AutoRedirect to="List" replace /> },
                   { path: 'Form/:internalId?', element: <USRProjFormComp theme={Classic_BETheme} /> },
                   { path: 'List', element: <USRProjListComp title="USR列表" theme={Classic_BETheme} /> },
                   { path: 'Category/:internalId?', element: <CategoryListFormComp progId="SpecUSR" title="類別" theme={Classic_BETheme} /> },

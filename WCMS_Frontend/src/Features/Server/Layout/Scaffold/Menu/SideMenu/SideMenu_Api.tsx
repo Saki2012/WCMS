@@ -1,8 +1,8 @@
 import type { MenuItemData } from '../../../../../../SysCore/Components/MenuList/MenuList_Data';
 import { IApiProvider, IDataProvider } from '../../../../../../SysCore/Interface/IApiProvider'
 import { BaseCssIcon1 } from "../../../../../../SysCore/Constants/icon/Base"
-import { EnumMap } from "../../../../../../SysCore/Utils/LibData"
-import type { EnumGetValueFunc } from "../../../../../../SysCore/Utils/LibData"
+import { EnumMap } from "../../../../../../SysCore/Utils/Library/LibData"
+import type { EnumGetValueFunc } from "../../../../../../SysCore/Utils/Library/LibData"
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import type { QueryListCondition, ApiResponse } from '../../../../../../SysCore/Interface/IApiProvider';

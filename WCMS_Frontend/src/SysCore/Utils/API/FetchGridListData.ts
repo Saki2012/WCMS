@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import type { ModelDisplaySchema } from "../../types/IApiSchema";
-import type { ColumnConfig, GridProps, GridRow } from "../Components/Grid/Grid_Data";
-import type { QueryListCondition } from "../Interface/IApiProvider";
-import type { ApiResponse } from "../Interface/IApiProvider";
+import type { ModelDisplaySchema } from "../../../types/IApiSchema";
+import type { ColumnConfig, GridProps, GridRow } from "../../Components/Grid/Grid_Data";
+import type { QueryListCondition } from "../../Interface/IApiProvider";
+import type { ApiResponse } from "../../Interface/IApiProvider";
 interface UseGridListOptions<T>
 {
     /** 取得 model display 名稱 */
@@ -16,7 +16,7 @@ interface UseGridListOptions<T>
     /** 查詢條件 */
     buildQueryCondition: (page: number) => QueryListCondition;
     /** 如何解析 row 資料 */
-    parseRow: (item: T, columns: ColumnConfig[]) => GridRow;
+    parseRow?: (item: T, columns: ColumnConfig[]) => GridRow;
 }
 
 export const useFetchGridListData = <T>(

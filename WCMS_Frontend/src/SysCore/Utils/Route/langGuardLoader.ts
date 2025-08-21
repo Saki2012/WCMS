@@ -1,6 +1,6 @@
 // src/SysCore/Utils/langGuardLoader.ts
 import { type LoaderFunctionArgs, redirect } from "react-router-dom";
-import { DefaultLang, isSupportedLang, type Lang, normalizeLang } from "../i18n/lang";
+import { DefaultLang, isSupportedLang, type Lang, normalizeLang } from "../../i18n/lang";
 
 const pickFromCookie = (cookie?: string | null) => cookie?.match(/(?:^|;\s*)lang=([^;]+)/)?.[1];
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { UserAPI } from '../../../../../SysCore/Utils/UserAPI';
-import { AuthAPI } from '../../../../../SysCore/Utils/AuthClient';
+import { UserAPI } from '../../../../../SysCore/Utils/API/UserAPI';
+import { AuthAPI } from '../../../../../SysCore/Utils/API/AuthClient';
 
 
 
@@ -57,8 +57,8 @@ export const RegisterPage: React.FC = () => {
 
   const onChange =
     (key: keyof IRegisterForm) =>
-    (e: React.ChangeEvent<HTMLInputElement>) =>
-      setForm((s) => ({ ...s, [key]: e.target.value }));
+      (e: React.ChangeEvent<HTMLInputElement>) =>
+        setForm((s) => ({ ...s, [key]: e.target.value }));
 
   useEffect(() => {
     // 有 #particles-js 才會啟動背景；確保 legacy 腳本有載到
@@ -67,38 +67,38 @@ export const RegisterPage: React.FC = () => {
 
 
   const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
-  e.preventDefault();
-  if (!canSubmit) return;
-  setErr(null);
+    e.preventDefault();
+    if (!canSubmit) return;
+    setErr(null);
 
-  if (pwdMismatch) {
-    setErr('密碼與再次輸入密碼不一致');
-    return;
-  }
+    if (pwdMismatch) {
+      setErr('密碼與再次輸入密碼不一致');
+      return;
+    }
 
-  try {
-    setSubmitting(true);
+    try {
+      setSubmitting(true);
 
-    // 1) 送註冊：/Service/User/Create
-    await UserAPI.create({
-      UserId: form.account.trim(),
-      UserName: form.userName.trim(),
-      Email: form.email.trim(),
-      Password: form.password,
-    });
+      // 1) 送註冊：/Service/User/Create
+      await UserAPI.create({
+        UserId: form.account.trim(),
+        UserName: form.userName.trim(),
+        Email: form.email.trim(),
+        Password: form.password,
+      });
 
-    // 2) 註冊成功 → 直接用帳密自動登入（/Service/Auth/Login）
-    await AuthAPI.login({ account: form.account.trim(), password: form.password });
+      // 2) 註冊成功 → 直接用帳密自動登入（/Service/Auth/Login）
+      await AuthAPI.login({ account: form.account.trim(), password: form.password });
 
-    // 3) 登入成功 → 導向回想去的頁面或後台首頁
-    const to: string = (loc.state as any)?.from?.pathname ?? '/Server';
-    nav(to, { replace: true });
-  } catch (ex: any) {
-    setErr(ex?.response?.data ?? '註冊或自動登入失敗，請稍後再試');
-  } finally {
-    setSubmitting(false);
-  }
-};
+      // 3) 登入成功 → 導向回想去的頁面或後台首頁
+      const to: string = (loc.state as any)?.from?.pathname ?? '/Server';
+      nav(to, { replace: true });
+    } catch (ex: any) {
+      setErr(ex?.response?.data ?? '註冊或自動登入失敗，請稍後再試');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="template-layout">
@@ -325,7 +325,7 @@ export const RegisterPage: React.FC = () => {
             </div>
             <div className="col-12 d-flex justify-content-sm-center justify-content-start px-3">
               <p className="mb-2">
-                Copyright &copy; 2024 - 後台管理系統　|　design by <a href="#">it-easygo.</a>　|　
+                Copyright &copy; 2024 - 後台管理系統　|　design by <a href="#">it-easygo.</a>　|
                 <Link to="/Server/Login">管理者登入</Link>
               </p>
             </div>

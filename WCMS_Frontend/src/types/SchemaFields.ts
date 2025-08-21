@@ -460,6 +460,17 @@ export const LoginDtoFields = {
 
 export type LoginDtoFieldKey = keyof typeof LoginDtoFields;
 
+export const MenuUrlTypeFields = {
+  toString: 'toString',
+  toFixed: 'toFixed',
+  toExponential: 'toExponential',
+  toPrecision: 'toPrecision',
+  valueOf: 'valueOf',
+  toLocaleString: 'toLocaleString',
+} as const;
+
+export type MenuUrlTypeFieldKey = keyof typeof MenuUrlTypeFields;
+
 export const PageManagementFields = {
   CreateTime: 'CreateTime',
   CreateUserId: 'CreateUserId',
@@ -569,6 +580,107 @@ export const RowStateFields = {
 } as const;
 
 export type RowStateFieldKey = keyof typeof RowStateFields;
+
+export const SiteMenuSetFields = {
+  SiteMenu_Index: 'SiteMenu_Index',
+  SiteMenu_IndexInfo: 'SiteMenu_IndexInfo',
+  SiteMenu_Item: 'SiteMenu_Item',
+  SiteMenu_Item_Title: 'SiteMenu_Item_Title',
+  SiteMenu_Item_Url: 'SiteMenu_Item_Url',
+  SiteMenu_Item_Module: 'SiteMenu_Item_Module',
+} as const;
+
+export type SiteMenuSetFieldKey = keyof typeof SiteMenuSetFields;
+
+export const SiteMenuSetApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SiteMenuSetApiRequestFieldKey = keyof typeof SiteMenuSetApiRequestFields;
+
+export const SiteMenu_IndexInfoModelFields = {
+  RowState: 'RowState',
+  SiteIndex: 'SiteIndex',
+  RowId: 'RowId',
+  Lang: 'Lang',
+  Title: 'Title',
+  Description: 'Description',
+  SiteHeader: 'SiteHeader',
+  SiteFooter: 'SiteFooter',
+  Keyword: 'Keyword',
+} as const;
+
+export type SiteMenu_IndexInfoModelFieldKey = keyof typeof SiteMenu_IndexInfoModelFields;
+
+export const SiteMenu_IndexModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  IsIniData: 'IsIniData',
+  Validate_Start: 'Validate_Start',
+  Validate_End: 'Validate_End',
+  SiteIndex: 'SiteIndex',
+  GoogleAnalytics: 'GoogleAnalytics',
+  Enable: 'Enable',
+} as const;
+
+export type SiteMenu_IndexModelFieldKey = keyof typeof SiteMenu_IndexModelFields;
+
+export const SiteMenu_ItemFields = {
+  RowState: 'RowState',
+  SiteIndex: 'SiteIndex',
+  RowId: 'RowId',
+  ParentRowId: 'ParentRowId',
+  ItemSiteUrl: 'ItemSiteUrl',
+  FullUrl: 'FullUrl',
+  Level: 'Level',
+  DisplayOrder: 'DisplayOrder',
+  ItemType: 'ItemType',
+  WindowTarget: 'WindowTarget',
+  IsShowOnMenu: 'IsShowOnMenu',
+} as const;
+
+export type SiteMenu_ItemFieldKey = keyof typeof SiteMenu_ItemFields;
+
+export const SiteMenu_Item_ModuleFields = {
+  RowState: 'RowState',
+  SiteIndex: 'SiteIndex',
+  ItemRowId: 'ItemRowId',
+  BannerId: 'BannerId',
+  ModuleProgId: 'ModuleProgId',
+  ModuleOptions: 'ModuleOptions',
+} as const;
+
+export type SiteMenu_Item_ModuleFieldKey = keyof typeof SiteMenu_Item_ModuleFields;
+
+export const SiteMenu_Item_TitleFields = {
+  RowState: 'RowState',
+  SiteIndex: 'SiteIndex',
+  ItemRowId: 'ItemRowId',
+  RowId: 'RowId',
+  Lang: 'Lang',
+  Title: 'Title',
+} as const;
+
+export type SiteMenu_Item_TitleFieldKey = keyof typeof SiteMenu_Item_TitleFields;
+
+export const SiteMenu_Item_UrlFields = {
+  RowState: 'RowState',
+  SiteIndex: 'SiteIndex',
+  ItemRowId: 'ItemRowId',
+  RedirectType: 'RedirectType',
+  RedirectUrl: 'RedirectUrl',
+} as const;
+
+export type SiteMenu_Item_UrlFieldKey = keyof typeof SiteMenu_Item_UrlFields;
 
 export const SpecCategoryDetailModelFields = {
   RowState: 'RowState',
@@ -884,4 +996,15 @@ export const WebResourceSetApiRequestFields = {
 } as const;
 
 export type WebResourceSetApiRequestFieldKey = keyof typeof WebResourceSetApiRequestFields;
+
+export const WindowTargetFields = {
+  toString: 'toString',
+  toFixed: 'toFixed',
+  toExponential: 'toExponential',
+  toPrecision: 'toPrecision',
+  valueOf: 'valueOf',
+  toLocaleString: 'toLocaleString',
+} as const;
+
+export type WindowTargetFieldKey = keyof typeof WindowTargetFields;
 
