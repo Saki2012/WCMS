@@ -22,7 +22,7 @@ const Content = (prop: ContentCompProp) => {
   return (<>
     <div className="page-header mb-3">
       <h3>{prop.Title}</h3>
-      <i className="fa fa-calendar"></i>{` ${prop.StartDate.toString()}`}
+      <i className="fa fa-calendar"></i>{` ${prop.StartDate?.toString()}`}
       {prop.Category && prop.Category.length > 0 && (
         <><i className="fa fa-tags ml-3"></i>{` ${prop.Category.join('、')}`}</>
       )}

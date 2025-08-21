@@ -16,14 +16,14 @@ import LogoutPage from "./Layout/BizFunc/Auth/LogoutPage";
 import RegisterPage from "./Layout/BizFunc/Auth/RegisterPage";
 import { GalleryFormComp } from "./Layout/BizFunc/WebManagement/Gallery/Gallery_Form_Comp";
 import { GalleryListComp } from "./Layout/BizFunc/WebManagement/Gallery/Gallery_List_Comp";
-import { FileManageListComp } from "./Layout/BizFunc/WebManagement/FileManage/FileManage_List_Comp";
-import { FileManageFormComp } from "./Layout/BizFunc/WebManagement/FileManage/FileManage_Form_Comp";
+import { FileArchiveListComp } from "./Layout/BizFunc/WebManagement/FileArchive/FileArchive_List_Comp";
+import { FileArchiveFormComp } from "./Layout/BizFunc/WebManagement/FileArchive/FileArchive_Form_Comp";
 import { WebResourceListComp } from "./Layout/BizFunc/WebManagement/WebResource/WebResource_List_Comp";
 import { WebResourceFormComp } from "./Layout/BizFunc/WebManagement/WebResource/WebResource_Form_Comp";
-import { ResearchProjFormComp } from "../../SpecFetures/1810/Server/BizFunc/ResearchProj/ResearchProj_Form_Comp";
-import { ResearchProjListComp } from "../../SpecFetures/1810/Server/BizFunc/ResearchProj/ResearchProj_List_Comp";
-import { USRProjFormComp } from "../../SpecFetures/1810/Server/BizFunc/USRProj/USRProj_Form_Comp";
-import { USRProjListComp } from "../../SpecFetures/1810/Server/BizFunc/USRProj/USRProj_List_Comp";
+import { ResearchProjFormComp } from "../../SpecFetures/1810/Server/BizFunc/SpecResearch/SpecResearch_Form_Comp";
+import { ResearchProjListComp } from "../../SpecFetures/1810/Server/BizFunc/SpecResearch/SpecResearch_List_Comp";
+import { USRProjFormComp } from "../../SpecFetures/1810/Server/BizFunc/SpecUSR/SpecUSR_Form_Comp";
+import { USRProjListComp } from "../../SpecFetures/1810/Server/BizFunc/SpecUSR/SpecUSR_List_Comp";
 import { AutoRedirect } from "../../SysCore/Utils/Route/AutoRedirect";
 
 export class BackendRouteModule implements IRouteModule {
@@ -94,8 +94,8 @@ export class BackendRouteModule implements IRouteModule {
                 path: 'FileManage',
                 children: [
                   { index: true, element: <AutoRedirect to="List" replace /> },
-                  { path: 'Form/:internalId?', element: <FileManageFormComp theme={Classic_BETheme} /> },
-                  { path: 'List', element: <FileManageListComp title="檔案室列表" theme={Classic_BETheme} /> },
+                  { path: 'Form/:internalId?', element: <FileArchiveFormComp theme={Classic_BETheme} /> },
+                  { path: 'List', element: <FileArchiveListComp title="檔案室列表" theme={Classic_BETheme} /> },
                   { path: 'Category/:internalId?', element: <CategoryListFormComp progId="FileManage" title="類別" theme={Classic_BETheme} /> },
                   { path: 'Tag/:internalId?', element: <TagListFormComp progId="FileManage" title="標籤" theme={Classic_BETheme} /> },
                 ],

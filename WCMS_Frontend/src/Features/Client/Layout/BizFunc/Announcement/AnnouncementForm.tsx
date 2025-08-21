@@ -10,13 +10,17 @@ import AnnouncementProvider from '../../../../Server/Layout/BizFunc/WebManagemen
 import { useFetchFormData } from '../../../../../SysCore/Utils/API/FetchFormData';
 import { useResolveInternalIds } from '../../../../../SysCore/Components/File/useResolveInternalIds';
 import { useMemo } from 'react';
+import type { Lang } from '../../../../../SysCore/i18n/lang';
 
 
 const emptyData: AnnouncementSet = {
     Announcement: {},
     AnnouncementDetail: []
 }
-export const PageContentComp = ({ theme }: { theme: IFETheme }) => {
+
+interface IAnnouncementListProps { Theme: IFETheme; Lang: string | Lang }
+
+export const AnnouncementFormComp = (props: IAnnouncementListProps) => {
     const { internalId } = useParams()
     const useAnnouncementFormData = useFetchFormData<AnnouncementSet>(AnnouncementProvider(), internalId, emptyData)
     // const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData);}, [useAnnounceList.gridProps, useAnnounceList.rawData]);
@@ -26,7 +30,7 @@ export const PageContentComp = ({ theme }: { theme: IFETheme }) => {
     const startDate = FormatDate(useAnnouncementFormData.data?.Announcement?.Validate_Start)
 
     const rawContent = useAnnouncementFormData.data?.AnnouncementDetail?.[0]?.Content ?? '';
-    const parseContent = useResolveInternalIds(rawContent, { locale: "zh-TW" });
+    const parseContent = useResolveInternalIds(rawContent, { locale: props.Lang });
 
     const safeHtml = useMemo(() => DOMPurify.sanitize(parseContent.html ?? ''), [parseContent.html])
     const content = safeHtml ? parse(safeHtml) : null;
@@ -37,7 +41,7 @@ export const PageContentComp = ({ theme }: { theme: IFETheme }) => {
     const errors = [useAnnouncementFormData.error];
 
     return (
-        <ContentComp Theme={theme} LoadingList={isLoading} ErrorList={errors}
+        <ContentComp Theme={props.Theme} LoadingList={isLoading} ErrorList={errors}
             Title={title} StartDate={startDate}
             // Category={categories} Tag={tags}
             Content={content} Href={href}

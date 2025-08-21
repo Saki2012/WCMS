@@ -1,38 +1,36 @@
-import type { SearchBarProps } from "../../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
-import type { IBETheme } from "../../../../../../Features/Server/Layout/Theme/ITheme"
-import type { GridProps, ColumnConfig, GridRow, RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data"
+import type { SearchBarProps } from "../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
+import type { IBETheme } from "../../../../../Features/Server/Layout/Theme/ITheme"
+import type { GridProps, ColumnConfig, GridRow, RowCell } from "../../../../../SysCore/Components/Grid/Grid_Data"
 import { useMemo } from "react"
 import { Link } from "react-router-dom"
 import { useLocation } from 'react-router-dom';
-import { ListComp } from "../../../Scaffold/Content/List_Comp"
-import type { ListCompProp } from "../../../Scaffold/Content/Content_Data"
+import { ListComp } from "../../../../../Features/Server/Layout/Scaffold/Content/List_Comp"
+import type { ListCompProp } from "../../../../../Features/Server/Layout/Scaffold/Content/Content_Data"
 import * as React from "react";
-import type { components } from "../../../../../../types/api";
-import { useListToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
+import type { components } from "../../../../../types/api"
+type SpecResearchSet = components["schemas"]["SpecResearchSet"]
+import { useListToolbarActions } from "../../../../../SysCore/Components/Toolbar/Toolbar_Hook"
+import { useSpecResearchList } from "./SpecResearch_Hook"
 
-// 借用Page資料
-import { usePageManagementListData } from "../PageManagement/PageManagement_Hook";
-type PageManagementSet = components["schemas"]["PageManagementSet"]
-import { handleDelete } from "../PageManagement/PageManagement_Hook";
 
-/** 檔案室清單
+/** 研究計畫清單
  * @returns 
  */
-export const FileManageListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
+export const ResearchProjListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
 
-    const usePageList = usePageManagementListData();
+    const usePageList = useSpecResearchList();
 
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps, usePageList.rawData); }, [usePageList.gridProps, usePageList.rawData]);
 
     const useToolbar = useListToolbarActions(dirUrl)
     const searchCompProp: SearchBarProps = {
-        title: "檔案室搜尋",
-        subTitle: "搜尋檔案室 ...",
+        title: "研究計畫搜尋",
+        subTitle: "搜尋研究計畫...",
         settingTitle: "搜尋設定",
     }
-    const isLoading = [usePageList.isLoading];
-    const errors = [usePageList.error];
+    const isLoading: boolean[] = [];
+    const errors: string[] = [];
     const prop: ListCompProp = { Title: title, Theme: theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.toolbarActions, GridData: adjustedGrid, SearchBar: searchCompProp }
 
     return (
@@ -41,7 +39,7 @@ export const FileManageListComp = ({ title, theme }: { title: string; theme: IBE
 }
 
 /** 動態添加每行的動作功能 */
-const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: PageManagementSet[]): GridProps => {
+const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: SpecResearchSet[]): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
 
@@ -54,7 +52,7 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: PageMa
             statusCell.content = GetDataStatusContent(statusCell.content);
         }
 
-        const internalId = rawData?.[index]?.PageManagement?.InternalId ?? "";
+        const internalId = rawData?.[index]?.SpecResearch?.InternalId ?? "";
 
         const newCell: RowCell = {
             col: adjustCol,
@@ -66,7 +64,7 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: PageMa
                         </button>
                     </Link>
                     <a id="trash" className="icon" onClick={() => handleDelete(internalId)} data-bs-toggle="modal" data-bs-target="#All_Delete">
-                        <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title="刪除檔案室">
+                        <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title="刪除研究計畫">
                             <i className="far fa-trash-alt"></i>
                         </button>
                     </a>

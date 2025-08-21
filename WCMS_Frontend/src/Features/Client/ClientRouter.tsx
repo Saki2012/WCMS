@@ -4,7 +4,7 @@ import type { components } from "../../types/api";
 type SiteMenuSet = components["schemas"]["SiteMenuSet"]
 import SiteMenuSetProvider from "../Server/Layout/BizFunc/Dashboard/SiteInfo/SiteInfo_Api";
 import * as SchemaFields from "../../types/SchemaFields";
-import { configureModuleRegistry, createRoutesFromSite, normalizeSite, type INormSite, type ModuleEntry, type ModuleRegistry } from "./Site-Routing";
+import { configureModuleRegistry, createRoutesFromSite, normalizeSite, type INormSite, type ModuleEntry } from "./Site-Routing";
 import type { QueryListCondition } from "../../SysCore/Interface/IApiProvider";
 export const CLIENT_ROOT_ID = "client-root";
 
@@ -41,63 +41,68 @@ export class FrontendRouteModule implements IRouteModule {
   }
 }
 
-import { PageManagementComp } from "./Layout/BizFunc/PageManagement/PageManagementForm";
+import { PageManagementFormComp } from "./Layout/BizFunc/PageManagement/PageManagementForm";
 import type { IPageManagementOptions } from "./Layout/BizFunc/PageManagement/PageManagementForm";
 import SubContent from "./Layout/BizFunc/MainPage/SubPages";
 import { AutoRedirect } from "../../SysCore/Utils/Route/AutoRedirect";
 import { Classic_FETheme } from "./Layout/Theme/ClassicTheme_Clsx";
 import { AnnouncementList, type IAnnouncementListOptions } from "./Layout/BizFunc/Announcement/AnnouncementList";
+import { AnnouncementFormComp } from "./Layout/BizFunc/Announcement/AnnouncementForm";
+import { FileArchiveList, type IFileArchiveOptions } from "./Layout/BizFunc/FileArchive/FileArchiveList";
+import { GalleryListComp, type IGalleryListOptions } from "./Layout/BizFunc/Gallery/GalleryList";
+import { GalleryFormComp } from "./Layout/BizFunc/Gallery/GalleryForm";
+import { WebResourceListComp, type IWebResourceListOptions } from "./Layout/BizFunc/WebResource/WebResourceList";
 
 
 const clientEntries: Record<string, ModuleEntry> = {
-  // 單一頁：progId = "PageManagement"
   PageManagement: {
-    kind: "element",
-    render: (opts, lang) => (
-      <>測試:PageManagement{ }</>
-      // <PageManagementComp lang={lang} options={opts as IPageManagementOptions} />
+    kind: "routes",
+    element: (opts, lang) => (
+      <SubContent Style={Classic_FETheme} Title={"123"}></SubContent>
     ),
+    children: (opts, lang) => [
+      { index: true, element: <PageManagementFormComp lang={lang} options={opts as IPageManagementOptions} /> },
+    ],
   },
-  // 含子路由：progId = "Announcement"
   Announcement: {
     kind: "routes",
     element: (opts, lang) => (
       <SubContent Style={Classic_FETheme} Title={"123"}></SubContent>
-    ),      // 父層要含 <Outlet/>
+    ),
     children: (opts, lang) => [
       { index: true, element: <AutoRedirect to="List" replace /> },
       { path: "List", element: <AnnouncementList Theme={Classic_FETheme} Lang={lang} Options={opts as IAnnouncementListOptions} /> },
-      { path: ":internalId", element: <>測試:AnnId</> },
+      { path: ":internalId", element: <AnnouncementFormComp Theme={Classic_FETheme} Lang={lang} /> },
     ],
   },
   FileArchive: {
-    kind: "element",
-    render: (opts, lang) => (
-      <>測試:PageManagement</>
-      // <PageManagementComp lang={lang} options={opts as IPageManagementOptions} />
+    kind: "routes",
+    element: (opts, lang) => (
+      <SubContent Style={Classic_FETheme} Title={"123"}></SubContent>
     ),
+    children: (opts, lang) => [
+      { index: true, element: <FileArchiveList Theme={Classic_FETheme} Lang={lang} Options={opts as IFileArchiveOptions} /> },
+    ],
   },
   Gallery: {
     kind: "routes",
     element: (opts, lang) => (
-      // <SubContent style={Classic_FETheme} />
-      <>測試:SubContent
-        <Outlet />
-      </>
-    ),      // 父層要含 <Outlet/>
+      <SubContent Style={Classic_FETheme} Title={"123"}></SubContent>
+    ),
     children: (opts, lang) => [
       { index: true, element: <AutoRedirect to="List" replace /> },
-      // { path: "List", element: <AnnouncementListComp /> },
-      { path: "List", element: <>測試:AnnList</> },
-      // { path: ":internalId", element: <AnnouncementFormComp /> },
+      { path: "List", element: <GalleryListComp Theme={Classic_FETheme} Lang={lang} Options={opts as IGalleryListOptions} /> },
+      { path: ":internalId", element: <GalleryFormComp Theme={Classic_FETheme} Lang={lang} /> },
     ],
   },
   WebResource: {
-    kind: "element",
-    render: (opts, lang) => (
-      <>測試:PageManagement</>
-      // <PageManagementComp lang={lang} options={opts as IPageManagementOptions} />
+    kind: "routes",
+    element: (opts, lang) => (
+      <SubContent Style={Classic_FETheme} Title={"123"}></SubContent>
     ),
+    children: (opts, lang) => [
+      { index: true, element: <WebResourceListComp Theme={Classic_FETheme} Lang={lang} Options={opts as IWebResourceListOptions} /> },
+    ],
   },
 };
 

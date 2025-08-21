@@ -11,7 +11,7 @@ export interface ContentCompProp
     LoadingList: boolean[];
     ErrorList: (string | null | undefined)[];
     Title: string;
-    StartDate: string;
+    StartDate?: string;
     Category?: string[];
     Tag?: string[];
     Content?: ReactNode;

@@ -1,15 +1,15 @@
 import type { RowCell } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import type { components } from "../../../../../types/api";
 import * as SchemaFields from "../../../../../types/SchemaFields";
-import SpecResearch_Provider from "./ResearchProj_Api";
-type SpecResearchSet = components["schemas"]["SpecResearchSet"];
+import SpecUSRProvider from "./SpecUSR_Api";
+type SpecUSRSet = components["schemas"]["SpecUSRSet"];
 import { useFetchGridListData } from "../../../../../SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "../../../../../SysCore/Utils/Library/LibData";
 
-export const useSpecResearchList = () =>
+export const useUSRProjList = () =>
 {
-    const provider = SpecResearch_Provider();
-    return useFetchGridListData<SpecResearchSet>({
+    const provider = SpecUSRProvider();
+    return useFetchGridListData<SpecUSRSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
         fetchListCount: (cond) => provider.fetchListCount(cond),
@@ -37,7 +37,7 @@ export const useSpecResearchList = () =>
         }),
         parseRow: (item, columns) =>
         {
-            const data = item.SpecResearch ?? {};
+            const data = item.SpecUSR ?? {};
             const cells: RowCell[] = columns.map(col =>
             {
                 let content = "";

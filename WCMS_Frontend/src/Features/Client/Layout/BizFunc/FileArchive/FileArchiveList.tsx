@@ -3,19 +3,25 @@ import { useMemo } from "react";
 import type { GridProps } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import type { components } from "../../../../../types/api";
 import type { IFETheme } from "../../Theme/ITheme";
-type AnnouncementSet = components["schemas"]["AnnouncementSet"];
+type FileArchiveSet = components["schemas"]["FileArchiveSet"];
 import { Link, useLocation } from "react-router-dom";
 import type { GridRow } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import type { RowCell } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import { useFetchGridListData } from "../../../../../SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "../../../../../SysCore/Utils/Library/LibData";
 import * as SchemaFields from "../../../../../types/SchemaFields";
-import AnnouncementProvider from "../../../../Server/Layout/BizFunc/WebManagement/Announcement/Announcement_Api";
 import { GridViewContentComp } from "../../Scaffold/ContentViewMode/GridView/GridView/GridContent_Comp";
+import type { Lang } from "../../../../../SysCore/i18n/lang";
+import FileArchiveProvider from "../../../../Server/Layout/BizFunc/WebManagement/FileArchive/FileArchive_Api";
+import { Merge } from "../../../../../SysCore/Utils/Library/LibMergeData";
 
-const useFileArchive = () => {
-    const provider = AnnouncementProvider();
-    return useFetchGridListData<AnnouncementSet>({
+const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string) => {
+    var condition: string = "";
+    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.CategoriesId} In ('${categoryIds}')`)
+    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.TagsId} In ('${tagIds}')`)
+
+    const provider = FileArchiveProvider();
+    return useFetchGridListData<FileArchiveSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
         fetchListCount: (cond) => provider.fetchListCount(cond),
@@ -36,16 +42,16 @@ const useFileArchive = () => {
                 SchemaFields.PageManagementFields.ModifyTime,
                 SchemaFields.PageManagementFields.InternalId,
             ],
-            Condition: "",
+            Condition: condition,
             PageNumber: page,
             PageSize: 10,
         }),
         parseRow: (item, columns) => {
-            const data = item.Announcement ?? {};
+            const data = item.FileArchive ?? {};
             const cells: RowCell[] = columns.map(col => {
                 let content = "";
                 if (col.key === SchemaFields.AnnouncementDetailFields.Title) {
-                    content = data.AnnouncementDetail?.find(d => d.Lang === "zh-tw")?.Title ?? "";
+                    // content = data.AnnouncementDeta?.find(d => d.Lang === "zh-tw")?.Title ?? "";
                 } else if (col.key === SchemaFields.AnnouncementFields.ModifyTime) {
                     content = FormatDateTime((data as any)[col.key]);
                 } else {
@@ -57,28 +63,24 @@ const useFileArchive = () => {
         },
     });
 };
-interface FileArchiveProps {
-    categoryId: string;//類別(多個)
-    tagId: string;//標籤(多個)
-    listStyle: Number,//1:列表、5:展開(類別)、6:展開(標籤)
-    theme: IFETheme;
-}
-export const FileArchiveList = ({ categoryId, tagId, listStyle, theme }: PageContentProps) => {
+
+export interface IFileArchiveOptions { Category: string; Tag: string; Style: number; }
+interface FileArchiveProps { Theme: IFETheme; Lang: string | Lang; Options: IFileArchiveOptions; }
+export const FileArchiveList = (props: FileArchiveProps) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
-    const useAnnounceList = useAnnouncementList();
+    const useAnnounceList = useFileArchive(props.Lang, props.Options.Category, props.Options.Tag);
     const adjustedGrid = useMemo(() => {
         return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData);
     }, [useAnnounceList.gridProps, useAnnounceList.rawData]);
     const isLoading = [useAnnounceList.isLoading];
     const errors = [useAnnounceList.error];
-
-    return <GridViewContentComp GridData={adjustedGrid} Theme={theme} LoadingList={isLoading} ErrorList={errors} />;
+    return <GridViewContentComp GridData={adjustedGrid} Theme={props.Theme} LoadingList={isLoading} ErrorList={errors} />;
 };
 
-const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[]): GridProps => {
+const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: FileArchiveSet[]): GridProps => {
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
-        const internalId = rawData?.[index]?.Announcement?.InternalId ?? "";
-        const title = rawData?.[index]?.Announcement?.AnnouncementDetail?.Title ?? "";
+        const internalId = rawData?.[index]?.FileArchive?.InternalId ?? "";
+        // const title = rawData?.[index]?.FileArchive?.FileArchiveId?.Title ?? "";
         const titleId = `title-${internalId}`;
         const newCells = row.cells.map((cell) => {
             const isTitle = cell.col.key === SchemaFields.AnnouncementDetailFields.Title;
@@ -89,7 +91,7 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: Announ
                         to={`${dirUrl}/${internalId}`}
                         className="link-cell"
                         id={isTitle ? titleId : undefined}
-                        aria-label={isTitle ? `前往 ${title} 的詳細頁面` : undefined}
+                        aria-label={isTitle ? `前往 ${"title"} 的詳細頁面` : undefined}
                         aria-labelledby={isTitle ? undefined : titleId}
                     >
                         <span aria-hidden={!isTitle}>

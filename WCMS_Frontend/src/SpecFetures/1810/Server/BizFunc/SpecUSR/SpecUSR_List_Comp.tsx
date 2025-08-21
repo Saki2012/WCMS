@@ -9,7 +9,7 @@ import type { ListCompProp } from "../../../../../Features/Server/Layout/Scaffol
 import * as React from "react";
 import type { components } from "../../../../../types/api"
 import { useListToolbarActions } from "../../../../../SysCore/Components/Toolbar/Toolbar_Hook"
-import { useUSRProjList } from "./USRProj_Hook"
+import { useUSRProjList } from "./SpecUSR_Hook"
 type SpecUSRSet = components["schemas"]["SpecUSRSet"]
 
 /** USR計畫清單

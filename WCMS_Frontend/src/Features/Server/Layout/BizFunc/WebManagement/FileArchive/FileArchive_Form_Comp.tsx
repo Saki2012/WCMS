@@ -13,7 +13,7 @@ import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
 /** 檔案室表單
  * @returns 
  */
-export const FileManageFormComp = ({ theme }: { theme: IBETheme }) => {
+export const FileArchiveFormComp = ({ theme }: { theme: IBETheme }) => {
     const { uid } = useParams()
 
     const isLoading: boolean[] = []

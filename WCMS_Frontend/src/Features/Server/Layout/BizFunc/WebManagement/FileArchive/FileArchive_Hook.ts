@@ -1,15 +1,17 @@
-import type { RowCell } from "../../../../../SysCore/Components/Grid/Grid_Data";
-import type { components } from "../../../../../types/api";
-import * as SchemaFields from "../../../../../types/SchemaFields";
-import SpecUSR_Provider from "./USRProj_Api";
-type SpecUSRSet = components["schemas"]["SpecUSRSet"];
-import { useFetchGridListData } from "../../../../../SysCore/Utils/API/FetchGridListData";
-import { FormatDateTime } from "../../../../../SysCore/Utils/Library/LibData";
+import { useEffect, useState } from "react";
+import type { ColumnConfig, GridProps, GridRow, RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data";
+import type { QueryListCondition } from "../../../../../../SysCore/Interface/IApiProvider";
+import type { components } from "../../../../../../types/api";
+import * as SchemaFields from "../../../../../../types/SchemaFields";
+import FileArchiveProvider from "./FileArchive_Api";
+type FileArchiveSet = components["schemas"]["FileArchiveSet"];
+import { useFetchGridListData } from "../../../../../../SysCore/Utils/API/FetchGridListData";
+import { FormatDateTime } from "../../../../../../SysCore/Utils/Library/LibData";
 
-export const useUSRProjList = () =>
+export const useFileArchiveList = () =>
 {
-    const provider = SpecUSR_Provider();
-    return useFetchGridListData<SpecUSRSet>({
+    const provider = FileArchiveProvider();
+    return useFetchGridListData<FileArchiveSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
         fetchListCount: (cond) => provider.fetchListCount(cond),
@@ -37,13 +39,13 @@ export const useUSRProjList = () =>
         }),
         parseRow: (item, columns) =>
         {
-            const data = item.SpecUSR ?? {};
+            const data = item.FileArchive ?? {};
             const cells: RowCell[] = columns.map(col =>
             {
                 let content = "";
                 if (col.key === SchemaFields.AnnouncementDetailFields.Title)
                 {
-                    //   content = data.CreateTime?.find(d => d.Lang === "zh-tw")?.Title ?? "";
+                    // content = data.AnnouncementDetail?.find(d => d.Lang === "zh-tw")?.Title ?? "";
                 } else if (col.key === SchemaFields.AnnouncementFields.ModifyTime)
                 {
                     content = FormatDateTime((data as any)[col.key]);
@@ -56,4 +58,30 @@ export const useUSRProjList = () =>
             return { cells };
         },
     });
+};
+
+export const handleDelete = async (internalId: string) =>
+{
+    if (!internalId)
+    {
+        alert("無效的資料");
+        return;
+    }
+    const confirmDelete = window.confirm("確定要刪除嗎？");
+    if (!confirmDelete) return;
+    try
+    {
+        const res = await FileArchiveProvider().deleteData(internalId);
+        if (res.IsSuccess)
+        {
+            alert("刪除成功");
+            window.location.reload(); // 或觸發重新 fetchData
+        } else
+        {
+            alert(res.SysMessage?.map(m => `${m.MessageCode}:${m.Message}`)?.join("\n") ?? "刪除失敗");
+        }
+    } catch (err)
+    {
+        alert(`刪除發生錯誤: ${(err as any)?.message}`);
+    }
 };
