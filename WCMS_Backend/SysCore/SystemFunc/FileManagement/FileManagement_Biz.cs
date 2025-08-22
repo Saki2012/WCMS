@@ -27,7 +27,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 await DoStoreFileToSystem(file, set);
                 set.FileManage.FileStatus = FileStatus.Pending;
             }
-            await(isNew? CreateSetAsync(set) : UpdateSetAsync(set.FileManage.InternalId, set));
+            await(isNew? BizCreateSetAsync(set) : BizUpdateSetAsync(set.FileManage.InternalId, set));
             return set.FileManage.InternalId;
         }
         /// <summary>
@@ -233,7 +233,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                     curSyncInfo.FileStatus = FileStatus.Failed;
                     curSyncInfo.ErrorMessage = "找不到檔案可移動。";
                 }
-                await this.UpdateSetAsync(header.InternalId, set);
+                await this.BizUpdateSetAsync(header.InternalId, set);
             }
         }
         /// <summary>
@@ -268,7 +268,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                     curSyncInfo.FileStatus = FileStatus.Failed;
                     curSyncInfo.ErrorMessage = "找不到檔案可刪除。";
                 }
-                await this.UpdateSetAsync(header.InternalId, set);
+                await this.BizUpdateSetAsync(header.InternalId, set);
             }
         }
         /// <summary>
@@ -478,7 +478,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                     DestFullPath = LibData.Merge("/", false, set.FileManage.Path, $"{set.FileManage.InternalId}.{set.FileManage.FileExtension}")
                 });
             }
-            foreach(var set in setDic.Values) await this.CreateSetAsync(set);
+            foreach(var set in setDic.Values) await this.BizCreateSetAsync(set);
         }
 
         #endregion

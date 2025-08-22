@@ -27,33 +27,33 @@ namespace WCMS.SysCore.Interface
         /// </summary>
         /// <param name="set"></param>
         /// <returns></returns>
-        public Task<TSet> CreateSetAsync(TSet set);
+        public Task<TSet> BizCreateSetAsync(TSet set);
         /// <summary>
         /// 修改
         /// </summary>
         /// <param name="key"></param>
         /// <param name="set"></param>
         /// <returns></returns>
-        public Task<TSet> UpdateSetAsync(string internalId, TSet set);
+        public Task<TSet> BizUpdateSetAsync(string internalId, TSet set);
         /// <summary>
         /// 刪除
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public Task<TSet> DeleteSetAsync(string internalId);
+        public Task<TSet> BizDeleteSetAsync(string internalId);
         /// <summary>
         /// 作廢
         /// </summary>
         /// <param name="key"></param>
         /// <param name="status"></param>
         /// <returns></returns>
-        public Task<TSet> InvalidSetAsync(string internalId, bool status);
+        public Task<TSet> BizInvalidSetAsync(string internalId, bool status);
         /// <summary>
         /// 查詢表單
         /// </summary>
         /// <param name="InternalId">內部唯一標示號</param>
         /// <returns></returns>
-        public Task<TSet> QuerySetAsync(string internalId);
+        public Task<TSet> BizQuerySetAsync(string internalId);
         /// <summary>
         /// 查詢清單
         /// </summary>
@@ -62,7 +62,7 @@ namespace WCMS.SysCore.Interface
         /// <param name="pageCt"></param>
         /// <param name="takeCt"></param>
         /// <returns></returns>
-        public Task<IList<TSet>> QueryListAsync(string[] selectFields, string condition, int pageNumber, int pageSize);
+        public Task<IList<TSet>> BizQueryListAsync(string[] selectFields, string condition, int pageNumber, int pageSize);
         /// <summary>
         /// 獲取清單總頁數
         /// </summary>
@@ -70,7 +70,7 @@ namespace WCMS.SysCore.Interface
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public Task<int> QueryTotalCounts(string[] selectFields, string condition);
+        public Task<int> BizQueryTotalCounts(string[] selectFields, string condition);
 
         /// <summary>
         /// 啟用交易控制(非同步)

@@ -71,7 +71,7 @@ namespace WCMS.SysCore
         #endregion
 
         #region Public
-        public async Task<TSet> CreateSetAsync(TSet set)
+        public async Task<TSet> BizCreateSetAsync(TSet set)
         {
             try
             {
@@ -97,7 +97,7 @@ namespace WCMS.SysCore
                 throw;
             }
         }
-        public async Task<TSet> UpdateSetAsync(string internalId, TSet newSet)
+        public async Task<TSet> BizUpdateSetAsync(string internalId, TSet newSet)
         {
             try
             {
@@ -124,7 +124,7 @@ namespace WCMS.SysCore
                 throw;
             }
         }
-        public async Task<TSet> DeleteSetAsync(string internalId)
+        public async Task<TSet> BizDeleteSetAsync(string internalId)
         {
             try
             {
@@ -149,7 +149,7 @@ namespace WCMS.SysCore
                 throw;
             }
         }
-        public async Task<TSet> InvalidSetAsync(string internalId, bool status)
+        public async Task<TSet> BizInvalidSetAsync(string internalId, bool status)
         {
             try
             {
@@ -175,7 +175,7 @@ namespace WCMS.SysCore
                 throw;
             }
         }
-        public async Task<TSet> QuerySetAsync(string internalId)
+        public async Task<TSet> BizQuerySetAsync(string internalId)
         {
             var data = await DoQuerySetAsync(internalId);
             //Response.AddMessage(MessageStatus.Error, SysMessageCode.BECode00001);
@@ -184,7 +184,7 @@ namespace WCMS.SysCore
             //Response.Data.Add(data);
             return data;
         }
-        public async Task<IList<TSet>> QueryListAsync(string[] selectFields, string condition, int pageNumber, int pageSize)
+        public async Task<IList<TSet>> BizQueryListAsync(string[] selectFields, string condition, int pageNumber, int pageSize)
         {
             IList<TSet> result = [];
             foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
@@ -205,7 +205,7 @@ namespace WCMS.SysCore
             //Response.Data = result;
             return result;
         }
-        public async Task<int> QueryTotalCounts(string[] selectFields, string condition)
+        public async Task<int> BizQueryTotalCounts(string[] selectFields, string condition)
         {
             int totalCount = 0;
             foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))

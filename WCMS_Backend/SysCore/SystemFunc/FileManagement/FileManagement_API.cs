@@ -77,7 +77,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 PageSize = 1,
                 PageNumber =1,
             };
-            var fileQuery = await Service.QueryListAsync(param.Fields,param.Condition,param.PageNumber,param.PageSize);
+            var fileQuery = await Service.BizQueryListAsync(param.Fields,param.Condition,param.PageNumber,param.PageSize);
             var file = fileQuery.FirstOrDefault().FileManage;
             if (file is null) return NotFound();
             // 1) 包成 DateTimeOffset（UTC）並去掉毫秒

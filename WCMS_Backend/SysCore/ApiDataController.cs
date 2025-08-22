@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.OutputCaching;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using WCMS.Features.SiteEdit.Tag;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
@@ -86,8 +87,8 @@ namespace WCMS.SysCore
         /// <returns></returns>
         [HttpPost(nameof(Create))] public virtual async Task<IActionResult> Create(TSet_DTO set, CancellationToken ct)
         {
-            TSet entity = DTOHelper.MapSet<TSet, TSet_DTO>(set);
-            var result = await Service.CreateSetAsync(entity);
+            TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(set);
+            var result = await Service.BizCreateSetAsync(entity);
             await EvictForSetAsync(ct);
             var response = new ApiResponse<TSet>()
             {
@@ -103,9 +104,9 @@ namespace WCMS.SysCore
                 int i = 1;
                 foreach (var set in sets) 
                 {
-                    TSet entity = DTOHelper.MapSet<TSet, TSet_DTO>(set);
+                    TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(set);
                     PropertyAccessorCache.Set(entity, nameof(BasicDataModel.IsIniData),true);
-                    await Service.CreateSetAsync(entity);
+                    await Service.BizCreateSetAsync(entity);
                     i++;
                 }
                 await Service.CommitDataAsync();
@@ -125,8 +126,8 @@ namespace WCMS.SysCore
         /// <returns></returns>
         [HttpPut(nameof(Update))] public virtual async Task<IActionResult> Update(ApiRequest<TSet_DTO> data, CancellationToken ct)
         {
-            TSet entity = DTOHelper.MapSet<TSet, TSet_DTO>(data.Data);
-            var result = await Service.UpdateSetAsync(data.InternalId, entity);
+            TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(data.Data);
+            var result = await Service.BizUpdateSetAsync(data.InternalId, entity);
             await EvictForSetAsync(ct, data.InternalId);
             var response = new ApiResponse<TSet>()
             {
@@ -142,12 +143,10 @@ namespace WCMS.SysCore
         /// <returns></returns>
         [HttpPatch($"{nameof(Invalid)}/{{pk}}")] public virtual async Task<IActionResult> Invalid(string internalId, bool isInvalid, CancellationToken ct)
         {
-            var result = await Service.InvalidSetAsync(internalId, isInvalid);
+            var invalidResult = await Service.BizInvalidSetAsync(internalId, isInvalid);
+            var result = DTOHelper.MapToDTO<TSet,TSet_DTO>(invalidResult);
             await EvictForSetAsync(ct, internalId);
-            var response = new ApiResponse<TSet>()
-            {
-                Data = [result],
-            };
+            var response = new ApiResponse<TSet_DTO>(){ Data = [result], };
             return Ok(response);
         }
         /// <summary>
@@ -163,12 +162,10 @@ namespace WCMS.SysCore
         /// <returns></returns>
         [HttpDelete(nameof(Delete))] public virtual async Task<IActionResult> Delete(string internalId, CancellationToken ct)
         {
-            var result = await Service.DeleteSetAsync(internalId);
+            var deleteResult = await Service.BizDeleteSetAsync(internalId);
+            var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(deleteResult);
             await EvictForSetAsync(ct, internalId);
-            var response = new ApiResponse<TSet>()
-            {
-                Data = [result],
-            };
+            var response = new ApiResponse<TSet_DTO>() { Data = [result] };
             return Ok(response);
         }
         /// <summary>
@@ -185,11 +182,9 @@ namespace WCMS.SysCore
         [HttpGet(nameof(QueryData)), OutputCache(PolicyName = "DetailJson")] public virtual async Task<IActionResult> QueryData([FromQuery] string internalId, CancellationToken ct)
         {
             AddDetailTags(internalId);
-            var result = await Service.QuerySetAsync(internalId);
-            var response = new ApiResponse<TSet>()
-            {
-                Data = [result],
-            };
+            var queryResult = await Service.BizQuerySetAsync(internalId);
+            var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(queryResult);
+            var response = new ApiResponse<TSet_DTO>() { Data = [result] };
             return Ok(response);
         }
         /// <summary>
@@ -198,9 +193,12 @@ namespace WCMS.SysCore
         /// <returns></returns>
         [HttpPost(nameof(QueryList)), OutputCache(PolicyName = "ListJson")] public virtual async Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition, CancellationToken ct)
         {
+            if(!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
             AddListTags();
-            var result = await Service.QueryListAsync(queryCondition.Fields, queryCondition.Condition, queryCondition.PageNumber, queryCondition.PageSize);
-            var response = new ApiResponse<TSet_DTO>() { Data = result, };
+            var queryResult = await Service.BizQueryListAsync(queryCondition.Fields, queryCondition.Condition, queryCondition.PageNumber, queryCondition.PageSize);
+            List<TSet_DTO> result = [];
+            foreach(var item in queryResult) result.Add(DTOHelper.MapToDTO<TSet,TSet_DTO>(item));
+            var response = new ApiResponse<TSet_DTO>() { Data = result };
             return Ok(response);
         }
         /// <summary>
@@ -210,8 +208,9 @@ namespace WCMS.SysCore
         /// <returns></returns>
         [HttpPost(nameof(GetTotalCounts)), OutputCache(PolicyName = "ListJson")] public virtual async Task<IActionResult> GetTotalCounts([FromBody] QueryListParam? queryCondition, CancellationToken ct)
         {
+            if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
             AddListTags();
-            var result = await Service.QueryTotalCounts(queryCondition.Fields, queryCondition.Condition);
+            var result = await Service.BizQueryTotalCounts(queryCondition.Fields, queryCondition.Condition);
             var response = new ApiResponse<int>() { Data = [result] };
             return Ok(response);
         }

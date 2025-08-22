@@ -42,7 +42,7 @@ namespace WCMS.SysCore.SystemFunc.UserRolePermission.User
                     AccountStatus = AccountStatus.Enable
                 }
             };
-            var result = await Service.CreateSetAsync(newUserSet);
+            var result = await Service.BizCreateSetAsync(newUserSet);
             await EvictForSetAsync(ct);
             return Ok(result);
         }

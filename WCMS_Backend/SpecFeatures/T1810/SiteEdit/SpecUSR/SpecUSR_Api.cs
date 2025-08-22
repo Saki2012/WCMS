@@ -37,11 +37,11 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
             };
             DataSet ds = MigrateOldData.GetOldData(sqls);
 
-            var importFileInternalIds = await FileService.QueryListAsync([nameof(FileManageModel.InternalId)], $"{nameof(FileManageModel.ImportLabel)} = {importFileLabel}", 0, 0);
+            var importFileInternalIds = await FileService.BizQueryListAsync([nameof(FileManageModel.InternalId)], $"{nameof(FileManageModel.ImportLabel)} = {importFileLabel}", 0, 0);
             List<FileManageSet> fileSets = [];
             foreach (var id in importFileInternalIds.Select(p => p.FileManage.InternalId).ToList().Distinct())
             {
-                var data = await FileService.QuerySetAsync(id);
+                var data = await FileService.BizQuerySetAsync(id);
                 fileSets.Add(data);
             }
             var fileSrcIdDic = fileSets.SelectMany(s => s.FileManage_SyncInfo).GroupBy(d => d.SrcFullPath).ToDictionary(g => g.Key, g => g.First().InternalId);
@@ -108,7 +108,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
             foreach (var set in updateFileSets.Distinct())
             {
                 set.FileManage.ProgId = this.Service.ProgId;
-                await FileService.UpdateSetAsync(set.FileManage.InternalId, set);
+                await FileService.BizUpdateSetAsync(set.FileManage.InternalId, set);
             }
             return [.. result];
         }

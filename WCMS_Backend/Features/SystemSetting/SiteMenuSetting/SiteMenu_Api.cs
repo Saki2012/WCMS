@@ -200,7 +200,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                 case "page": 
                     {
                         string pageId = r["ContentA_Page"].ToString();
-                        var data = await PageManagementService.QueryListAsync([nameof(PageManagement.InternalId)], $"{nameof(PageManagement.PageId)} = {pageId}", 0, 0);
+                        var data = await PageManagementService.BizQueryListAsync([nameof(PageManagement.InternalId)], $"{nameof(PageManagement.PageId)} = {pageId}", 0, 0);
                         var option = new ModuleOptions.PageManagement()
                         {
                             PageId = data.FirstOrDefault().PageManagement.InternalId

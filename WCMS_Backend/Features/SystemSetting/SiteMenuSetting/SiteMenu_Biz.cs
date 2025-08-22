@@ -54,7 +54,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
         }
         private string GetParentFullUrl(string sideIndex, int? parentRowId)
         {
-            //this.QueryListAsync([])
+            //this.BizQueryListAsync([])
             return string.Empty;
         }
 
