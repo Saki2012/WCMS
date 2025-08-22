@@ -10,7 +10,6 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
         public SpecResearchModel SpecResearch { get; set; } = new();
         public List<SpecResearchDetailModel> SpecResearchDetail { get; set; } = [];
     }
-
     public class SpecResearchModel : MasterDataModel
     {
         /// <summary>
@@ -31,7 +30,6 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
         /// </summary>
         [LibDesc] public string? Tags { get; set; } = string.Empty;
     }
-
     public class SpecResearchDetailModel : DetailRowModel
     {
         [LibDesc, Key] public string ResearchId { get;set; }

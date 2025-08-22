@@ -6,21 +6,21 @@ namespace WCMS.SysCore.Interface
     /// <summary>
     /// 資料
     /// </summary>
-    public interface IBaseDataController<TSet>
+    public interface IBaseDataController<TSet,TSet_DTO>
     {
         /// <summary>
         /// 新增
         /// </summary>
         /// <param name="set"></param>
         /// <returns></returns>
-        public Task<IActionResult> Create(TSet set, CancellationToken ct);
+        public Task<IActionResult> Create(TSet_DTO set, CancellationToken ct);
         /// <summary>
         /// 修改
         /// </summary>
         /// <param name="pk"></param>
         /// <param name="set"></param>
         /// <returns></returns>
-        public Task<IActionResult> Update(ApiRequest<TSet> set, CancellationToken ct);
+        public Task<IActionResult> Update(ApiRequest<TSet_DTO> set, CancellationToken ct);
         /// <summary>
         /// 作廢
         /// </summary>
@@ -73,7 +73,7 @@ namespace WCMS.SysCore.Interface
     /// <summary>
     /// 報表
     /// </summary>
-    public interface IBaseReportController<TSet>
+    public interface IBaseReportController<TSet,TSet_DTO>
     {
         /// <summary>
         /// 查看報表
@@ -100,10 +100,10 @@ namespace WCMS.SysCore.Interface
     /// 更新資料請求
     /// </summary>
     /// <typeparam name="TSet"></typeparam>
-    public interface IApiRequest<TSet>
+    public interface IApiRequest<TSet_DTO>
     {
         public string InternalId { get; set; }
-        public TSet? Data { get; set; }
+        public TSet_DTO? Data { get; set; }
     }
     /// <summary>
     /// 查詢條件請求

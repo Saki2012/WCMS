@@ -14,7 +14,7 @@ import { SpecResearch_Form_Comp } from "./Client/SpecResearch/SpecResearch_Form"
 
 export class SpecRouteModule implements IRouteModule {
   async getRoutes(): Promise<RouteObject[]> {
-    installSpecClientEntries();
+    // installSpecClientEntries();
     const frontendRoutes = await loadClientChildren();
     const backendRoutes = new BackendRouteModule().getRoutes();
     const customRoutes: RouteObject[] = [];
@@ -51,6 +51,6 @@ const specClientEntries: Record<string, ModuleEntry> = {
 let installed = false;
 export const installSpecClientEntries = (): void => {
   if (installed) return;
-  configureModuleRegistry((base) => ({ ...base, ...specClientEntries, }));
+  configureModuleRegistry(() => ({ ...specClientEntries, }));
   installed = true;
 };

@@ -223,13 +223,14 @@ const start = async () =>
     const app = express();
     app.use(compression());
 
-    const insecureAgent = new https.Agent({ rejectUnauthorized: false }); // ★ 忽略自簽
     const serviceProxyOptions = {
         target: "https://localhost:7030",
         changeOrigin: true,
         secure: false, // 自簽憑證 (dev)
-        agent: insecureAgent,
-        logLevel: "silent",
+        // xfwd: true,
+        agent: new https.Agent({ rejectUnauthorized: false }),
+        logLevel: "debug",
+        // pathRewrite: { "^/Service": "" }, // ★ 把 /Service 移除後再轉發給後端
     } as const;
 
     // 例：API 代理（需要就打開）

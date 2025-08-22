@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Linq.Dynamic.Core;
 using System.Runtime.CompilerServices;
@@ -7,6 +8,7 @@ using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Library.LibData;
@@ -14,20 +16,18 @@ using static WCMS.SysCore.Library.LibData;
 namespace WCMS.Features.SiteEdit.Announcement
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class AnnouncementController : ApiDataController<AnnouncementSet>
+    public class AnnouncementController : ApiDataController<AnnouncementSet,AnnouncementSet_DTO>
     {
-
-
         #region Migration Old Data
         [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct, string importFileLabel = "1810")
         {
-            AnnouncementSet[] datas = await ConvertToApiModel(importFileLabel);
+            AnnouncementSet_DTO[] datas = await ConvertToApiModel(importFileLabel);
             return await InitialCreateData(datas,ct);
         }
-        private async Task<AnnouncementSet[]> ConvertToApiModel(string importFileLabel)
+        private async Task<AnnouncementSet_DTO[]> ConvertToApiModel(string importFileLabel)
         {
-            List<AnnouncementSet> result = [];
+            List<AnnouncementSet_DTO> result = [];
             Dictionary<string, string> sqls = new()
             {
                 { "Announcement", "SELECT * FROM News" },
@@ -47,7 +47,7 @@ namespace WCMS.Features.SiteEdit.Announcement
 
             foreach (DataRow row in ds.Tables["Announcement"].Rows)
             {
-                AnnouncementSet set = new() {};
+                AnnouncementSet_DTO set = new() {};
                 result.Add(set);
                 set.Announcement.AnnouncementId = row["Sn"].ToString();
                 set.Announcement.Categories = row["Category"].ToString();
@@ -64,9 +64,6 @@ namespace WCMS.Features.SiteEdit.Announcement
                     set.Announcement.PictureId = fileInfo.FileManage.InternalId;
                 }
                 set.Announcement.PicDescription = picDescription;
-                set.Announcement.CreateTime = Convert.ToDateTime(row["CreateTime"]);
-                set.Announcement.ModifyTime = Convert.ToDateTime(row["UpdateTime"]);
-                set.Announcement.IsIniData = true;
                 int r = 0;
                 if (row["ViewCount"] != DBNull.Value) _ = int.TryParse(row["ViewCount"].ToString(), out r);
                 set.Announcement.ViewCount = r;
@@ -79,7 +76,7 @@ namespace WCMS.Features.SiteEdit.Announcement
                     {
                         string contentXml = HtmlInternalIdByFullPath.TransformHtml_ReplaceSrcWithDataInternalId(dRow["Content"].ToString(), fileSrcIdDic,out List<string> usedInternalIds);
                         updateFileSets.AddRange(fileSets.Where(p => usedInternalIds.Contains(p.FileManage.InternalId)));
-                        AnnouncementDetail detail = new()
+                        AnnouncementDetail_DTO detail = new()
                         {
                             AnnouncementId = set.Announcement.AnnouncementId,
                             RowId = rowId,
@@ -100,7 +97,7 @@ namespace WCMS.Features.SiteEdit.Announcement
                                 updateFileSets.Add(fileInfo);
                                 fileInfo.FileManage.FileName = subFileName;
                                 fileInfo.FileManage.FileDescription = subFileName;
-                                AnnouncementDetailFile detailFile = new()
+                                AnnouncementDetailFile_DTO detailFile = new()
                                 {
                                     AnnouncementId = set.Announcement.AnnouncementId,
                                     ParentRowId = rowId,
@@ -147,4 +144,125 @@ namespace WCMS.Features.SiteEdit.Announcement
         }
         #endregion
     }
+
+    /// <summary>
+    /// 公告功能
+    /// </summary>
+    [LibDesc]
+    public class AnnouncementSet_DTO
+    {
+        [LibDesc] public Announcement_DTO Announcement { get; set; } = new();
+        [LibDesc] public List<AnnouncementDetail_DTO> AnnouncementDetail { get; set; } = [];
+        [LibDesc] public List<AnnouncementDetailFile_DTO> AnnouncementDetailFile { get; set; } = [];
+    }
+    /// <summary>
+    /// 公告主表
+    /// </summary>
+    [LibDesc]
+    public class Announcement_DTO
+    {
+        /// <summary>
+        /// 公告代碼
+        /// </summary>
+        [LibDesc] public string? AnnouncementId { get; set; }
+        /// <summary>
+        /// 類別 (多個)
+        /// </summary>
+        [LibDesc] public string? Categories { get; set; } = string.Empty;
+        /// <summary>
+        /// 標籤 (多個) 
+        /// </summary>
+        [LibDesc] public string? Tags { get; set; } = string.Empty;
+        /// <summary>
+        /// 狀態 (多個)
+        /// </summary>
+        [LibDesc] public ContentStatus ContentStatus { get; set; }
+        /// <summary>
+        /// 圖片 (關聯檔案資料)
+        /// </summary>
+        [LibDesc] public string? PictureId { get; set; } = string.Empty;
+        /// <summary>
+        /// 圖片描述
+        /// </summary>
+        [LibDesc] public string? PicDescription { get; set; } = string.Empty;
+        /// <summary>
+        /// 觀看次數
+        /// </summary>
+        [LibDesc] public int? ViewCount { get; set; } = 0;
+
+        /// <summary>
+        /// 資料有效日期-起
+        /// </summary>
+        [LibDesc]
+        public DateTime? Validate_Start { get; set; }
+        /// <summary>
+        /// 資料有效日期-迄
+        /// </summary>
+        [LibDesc]
+        public DateTime? Validate_End { get; set; }
+
+        #region Detail關聯
+        [ForeignKey(nameof(AnnouncementId))] public virtual ICollection<AnnouncementDetail>? AnnouncementDetail { get; set; }
+        #endregion
+    }
+    /// <summary>
+    /// 公告明細
+    /// </summary>
+    [LibDesc]
+    public class AnnouncementDetail_DTO
+    {
+        /// <summary>
+        /// 公告代碼
+        /// </summary>
+        [LibDesc] public string? AnnouncementId { get; set; }
+        /// <summary>
+        /// 行代碼
+        /// </summary>
+        [LibDesc] public int? RowId { get; set; }
+        /// <summary>
+        /// 語系
+        /// </summary>
+        [LibDesc] public string? Lang { get; set; }
+        /// <summary>
+        /// 標題
+        /// </summary>
+        [LibDesc] public string? Title { get; set; }
+        /// <summary>
+        /// 副標題
+        /// </summary>
+        [LibDesc] public string? SubTitle { get; set; }
+        /// <summary>
+        /// 內文
+        /// </summary>
+        [LibDesc] public string? Content { get; set; }
+        /// <summary>
+        /// 網址
+        /// </summary>
+        [LibDesc] public string? Url { get; set; }
+    }
+    /// <summary>
+    /// 明細檔案關聯
+    /// </summary>
+    [LibDesc]
+    public class AnnouncementDetailFile_DTO
+    {
+        /// <summary>
+        /// 公告代碼
+        /// </summary>
+        [LibDesc] public string AnnouncementId { get; set; }
+        /// <summary>
+        /// 父行代碼 - (AnnouncementDetail)
+        /// </summary>
+        [LibDesc] public int ParentRowId { get; set; }
+        /// <summary>
+        /// 行代碼
+        /// </summary>
+        [LibDesc] public int RowId { get; set; }
+        /// <summary>
+        /// 檔案來源
+        /// </summary>
+        [LibDesc] public string FileId { get; set; }
+    }
+
 }
+

@@ -16,6 +16,7 @@ using System.Net;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using WCMS.Features.SiteEdit.PageManagement;
 using WCMS.SysCore;
@@ -53,13 +54,13 @@ namespace WCMS
             // 反向 Proxy/負載平衡（IIS/Nginx/K8s）常見需求
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
-                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost,
                 //KnownProxies = { System.Net.IPAddress.Loopback }
                 //KnownNetworks = { },
                 //KnownProxies = { }
             });
             // 產線請確保有 HTTPS（若由前置 Proxy 終結 TLS，保留這行也 OK）
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             // 安全標頭（弱掃友好）
             AppSetup.UseSecurityHeaders(app);
             // Swagger 僅開發期
@@ -163,6 +164,7 @@ namespace WCMS
                     opt.JsonSerializerOptions.PropertyNamingPolicy = null;
                     opt.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
                     opt.JsonSerializerOptions.WriteIndented = false;
+                    opt.JsonSerializerOptions.UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow;
                 });
                 services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(o =>
                 {

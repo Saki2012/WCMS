@@ -44,7 +44,7 @@ export const useFetchFormData = <T>(
                 const msg = res.SysMessage?.map(m => `${m.MessageCode}:${m.Message}`).join("；") ?? "查詢失敗";
                 throw new Error(msg);
             }
-            setFormData(res.Data?.[0] ?? null);
+            setFormData((res.Data as T[])?.[0] ?? null);
         } catch (err: any)
         {
             setError(err.message ?? "資料讀取失敗");

@@ -162,7 +162,6 @@ import { useLang } from "../../SysCore/i18n/LangContext";
 import { AutoRedirect } from "../../SysCore/Utils/Route/AutoRedirect";
 import HomePage from "./Layout/BizFunc/MainPage/HomePage";
 import Index from "./Layout/BizFunc/MainPage/Index";
-import { console } from "inspector";
 
 // 2) 模組元件：用 useLang() 把 lang 傳給對應的模組 component
 const ModuleElement: React.FC<{ node: INormNode; site: INormSite }> = ({ node, site }) => {

@@ -1,29 +1,31 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.FileArchive
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class FileArchiveController : ApiDataController<FileArchiveSet>
+    public class FileArchiveController : ApiDataController<FileArchiveSet, FileArchiveSet_DTO>
     {
 
         #region Migration Old Data
         [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct, string importFileLabel = "1810")
         {
-            FileArchiveSet[] datas = await ConvertToApiModel(importFileLabel);
+            FileArchiveSet_DTO[] datas = await ConvertToApiModel(importFileLabel);
             return await InitialCreateData(datas, ct);
         }
-        private async Task<FileArchiveSet[]> ConvertToApiModel(string importFileLabel)
+        private async Task<FileArchiveSet_DTO[]> ConvertToApiModel(string importFileLabel)
         {
-            List<FileArchiveSet> result = [];
+            List<FileArchiveSet_DTO> result = [];
 
             Dictionary<string, string> sqls = new()
             {
@@ -44,15 +46,14 @@ namespace WCMS.Features.SiteEdit.FileArchive
 
             foreach (DataRow srcHeader in ds.Tables["Archive"].Rows)
             {
-                FileArchiveSet set = new()
+                FileArchiveSet_DTO set = new()
                 {
-                    FileArchive = new FileArchive()
+                    FileArchive = new FileArchive_DTO()
                     {
                         FileArchiveId = srcHeader["Sn"].ToString(),
                         CategoriesId = srcHeader["Category"].ToString(),
                         TagsId = srcHeader["Tag"].ToString(),
                         ContentStatus = GetContentStatus(srcHeader["Status"].ToString()),
-                        IsIniData = true,
                     }
                 };
 
@@ -61,7 +62,7 @@ namespace WCMS.Features.SiteEdit.FileArchive
                 {
                     if (!dRow["Title"].IsNullOrEmpty())
                     {
-                        set.FileArchiveInfo.Add(new FileArchiveInfo()
+                        set.FileArchiveInfo.Add(new FileArchiveInfo_DTO()
                         {
                             FileArchiveId = set.FileArchive.FileArchiveId,
                             RowId = rowId,
@@ -79,7 +80,7 @@ namespace WCMS.Features.SiteEdit.FileArchive
                                 updateFileSets.Add(fileSet);
                                 fileSet.FileManage.FileName = subFileName;
                                 fileSet.FileManage.FileDescription = subFileName;
-                                set.FileArchiveDetail.Add(new FileArchiveDetail()
+                                set.FileArchiveDetail.Add(new FileArchiveDetail_DTO()
                                 {
                                     FileArchiveId = set.FileArchive.FileArchiveId,
                                     ParentRowId = rowId,
@@ -126,5 +127,74 @@ namespace WCMS.Features.SiteEdit.FileArchive
             return fileSets.Where(x => x.FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Equals($@"File/Archive/{srcPic}".ToLowerInvariant()))).FirstOrDefault();
         }
         #endregion
+    }
+
+    public class FileArchiveSet_DTO
+    {
+        public FileArchive_DTO FileArchive { get; set; } = new ();
+        public List<FileArchiveInfo_DTO> FileArchiveInfo { get; set; } = [];
+        public List<FileArchiveDetail_DTO> FileArchiveDetail { get; set; } = [];
+    }
+    public class FileArchive_DTO
+    {
+        /// <summary>
+        /// 檔案分類ID
+        /// </summary>
+        [LibDesc, Required, Key] public string FileArchiveId { get; set; }
+        /// <summary>
+        /// 狀態:置頂/熱門/隱藏
+        /// </summary>
+        [LibDesc] public ContentStatus ContentStatus { get; set; }
+        /// <summary>
+        /// 類別ID(多個)
+        /// </summary>
+        [LibDesc, Required] public string CategoriesId { get; set; }
+        /// <summary>
+        /// 標籤ID(多個)
+        /// </summary>
+        [LibDesc, Required] public string TagsId { get; set; }
+    }
+    public class FileArchiveInfo_DTO
+    {
+        /// <summary>
+        /// 檔案分類ID
+        /// </summary>
+        [LibDesc, Required, Key] public string FileArchiveId { get; set; }
+        /// <summary>
+        /// 行主鍵
+        /// </summary>
+        [LibDesc, Key] public int RowId { get; set; }
+        /// <summary>
+        /// 語系 SysEnum.Lang
+        /// </summary>
+        [LibDesc] public string Lang { get; set; }
+        /// <summary>
+        /// 標題
+        /// </summary>
+        public string Title { get; set; }
+    }
+    /* 不確定這張表該關聯Header還是Info，待討論 */
+    public class FileArchiveDetail_DTO
+    {
+        /// <summary>
+        /// 靜態客製頁面ID
+        /// </summary>
+        [LibDesc, Required, Key] public string FileArchiveId { get; set; }
+        /// <summary>
+        /// 父行主鍵 (FileArchiveInfo)
+        /// </summary>
+        [LibDesc, Key] public int ParentRowId { get; set; }
+        /// <summary>
+        /// 行主鍵
+        /// </summary>
+        [LibDesc, Key] public int RowId { get; set; }
+        /// <summary>
+        /// 檔案來源
+        /// </summary>
+        [LibDesc] public string FileSrcId { get; set; }
+        /// <summary>
+        /// 語系 SysEnum.Lang
+        /// </summary>
+        [LibDesc] public string FileName { get; set; }
     }
 }

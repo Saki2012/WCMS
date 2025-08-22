@@ -17,7 +17,7 @@ export default defineConfig({
               secure: false
             }}
         },
-        plugins: [react(), ssr(), basicSsl()],
+        // plugins: [react(), ssr(), basicSsl()],
         build: {
           ssr: 'src/SSR/Entry-Server.tsx',
           outDir: 'dist-ssr',

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Runtime.InteropServices;
 using WCMS.Features.SiteEdit.PageManagement;
@@ -7,6 +8,7 @@ using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 
@@ -14,19 +16,19 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
 {
     [ProgId("SpecResearch")]
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class SpecResearchController : ApiDataController<SpecResearchSet>
+    public class SpecResearchController : ApiDataController<SpecResearchSet,SpecResearchSet_DTO>
     {
 
         #region Migration Old Data
         [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct)
         {
-            SpecResearchSet[] datas = ConvertToApiModel();
+            SpecResearchSet_DTO[] datas = ConvertToApiModel();
             return await InitialCreateData(datas,ct);
         }
-        private static SpecResearchSet[] ConvertToApiModel()
+        private static SpecResearchSet_DTO[] ConvertToApiModel()
         {
-            List<SpecResearchSet> result = [];
+            List<SpecResearchSet_DTO> result = [];
             Dictionary<string, string> sqls = new()
             {
                 { "ResearchProject", "SELECT * FROM ResearchProject" },
@@ -35,19 +37,16 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
             DataSet ds = MigrateOldData.GetOldData(sqls);
             foreach (DataRow row in ds.Tables["ResearchProject"].Rows)
             {
-                SpecResearchSet set = new() { };
+                SpecResearchSet_DTO set = new() { };
                 result.Add(set);
                 set.SpecResearch.ResearchId = row["Sn"].ToString();
                 set.SpecResearch.CategoryId = $"Res_{row["Category"]}";
                 set.SpecResearch.ContentStatus = GetContentStatus(row["Status"].ToString());
                 set.SpecResearch.Tags = row["Tag"].ToString();
-                set.SpecResearch.CreateTime = Convert.ToDateTime(row["CreateTime"]);
-                set.SpecResearch.ModifyTime = Convert.ToDateTime(row["UpdateTime"]);
-                set.SpecResearch.IsIniData = true;
                 int rowId = 1;
                 ds.Tables["ResearchProject_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.SpecResearch.ResearchId).ToList().ForEach(dRow =>
                 {
-                    SpecResearchDetailModel detail = new()
+                    SpecResearchDetailModel_DTO detail = new()
                     {
                         ResearchId = set.SpecResearch.ResearchId,
                         RowId = rowId++,
@@ -104,5 +103,62 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
             return result;
         }
         #endregion
+    }
+
+    public class SpecResearchSet_DTO
+    {
+        public SpecResearchModel_DTO SpecResearch { get; set; } = new();
+        public List<SpecResearchDetailModel_DTO> SpecResearchDetail { get; set; } = [];
+    }
+    public class SpecResearchModel_DTO
+    {
+        /// <summary>
+        /// 橫幅ID
+        /// </summary>
+        [Key]
+        public string ResearchId { get; set; }
+        /// <summary>
+        /// 類別ID
+        /// </summary>
+        public string CategoryId { get; set; }
+        /// <summary>
+        /// 狀態 (多個)
+        /// </summary>
+        [LibDesc] public ContentStatus ContentStatus { get; set; }
+        /// <summary>
+        /// 標籤 (多個) 
+        /// </summary>
+        [LibDesc] public string? Tags { get; set; } = string.Empty;
+    }
+    public class SpecResearchDetailModel_DTO
+    {
+        [LibDesc, Key] public string ResearchId { get; set; }
+        [LibDesc, Key] public int RowId { get; set; }
+        [StringLength(5)] public string Lang { get; set; } = default!;
+        [StringLength(10)] public string? Year { get; set; }
+        [StringLength(10)] public string? AcademicYear { get; set; }
+        [StringLength(10)] public string? Semester { get; set; }
+        [StringLength(200)] public string? DuringExecution { get; set; }
+        [StringLength(200)] public string? ContractPeriod { get; set; }
+        [StringLength(200)] public string? ClassTime { get; set; }
+        [StringLength(200)] public string? ProjectLeader { get; set; }
+        [StringLength(200)] public string? Name { get; set; }
+        [StringLength(200)] public string? TeachingStaffOfOurSchool { get; set; }
+        [StringLength(200)] public string? ApprovalNumber { get; set; }
+        [StringLength(200)] public string? ApprovedAmount { get; set; }
+        [StringLength(200)] public string? College { get; set; }
+        [StringLength(200)] public string? Department { get; set; }
+        [StringLength(200)] public string? GraduationDegree { get; set; }
+        [StringLength(200)] public string? CooperatingUnits { get; set; }
+        [StringLength(200)] public string? CooperationProject { get; set; }
+        [StringLength(200)] public string? Courses { get; set; }
+        public string? ProjectName { get; set; }
+        [StringLength(200)] public string? PaperTitle { get; set; }
+        public string? Remark { get; set; }
+        [StringLength(200)] public string? Cohost1 { get; set; }
+        [StringLength(200)] public string? Cohost2 { get; set; }
+        [StringLength(200)] public string? Commissioned { get; set; }
+        [StringLength(200)] public string? PlanAmount { get; set; }
+        public string? PlanContent { get; set; }
     }
 }

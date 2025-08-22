@@ -33,11 +33,12 @@ export const createApiClient = (options?: ApiClientOptions): AxiosInstance =>
                 ...(options?.config ?? {}),
             });
         }
+        console.log(options);
         return browserApiSingleton;
     }
 
     const origin: string = options?.serverOrigin ?? process.env.VITE_API_BASE_URL ?? "https://localhost:7030";
-
+    console.log(`${origin}${SERVICE_PREFIX}`);
     const serverApi: AxiosInstance = axios.create({
         baseURL: `${origin}${SERVICE_PREFIX}`, // ★ 讓 `/Service` 指向本機 SSR-Server，再由它 proxy 到 7030
         withCredentials: true,

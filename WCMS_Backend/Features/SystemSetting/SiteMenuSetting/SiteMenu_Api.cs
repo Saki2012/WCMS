@@ -1,36 +1,35 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NetTopologySuite.Index.KdTree;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using System;
 using System.Data;
 using System.Text.RegularExpressions;
-using WCMS.Features.SiteEdit.Banner;
 using WCMS.Features.SiteEdit.PageManagement;
 using WCMS.SpecFeatures.T1810.SystemSetting;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.SystemFunc.FileManagement;
+using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SystemSetting.SiteMenuSetting
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class SiteMenuController : ApiDataController<SiteMenuSet>
+    public class SiteMenuController : ApiDataController<SiteMenuSet, SiteMenuSet_DTO>
     {
-
+        private IBizService<PageManagementSet> _PageManagementService;
+        private PageManagementBiz PageManagementService => (PageManagementBiz)(_PageManagementService ??= HttpContext.RequestServices.GetRequiredService<IBizService<PageManagementSet>>());
 
         #region Migration Old Data
         [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct)
         {
-            SiteMenuSet set = await ConvertToApiModel();
+            SiteMenuSet_DTO set = await ConvertToApiModel();
             return await InitialCreateData([set], ct);
         }
-        private async Task<SiteMenuSet> ConvertToApiModel()
+        private async Task<SiteMenuSet_DTO> ConvertToApiModel()
         {
-            SiteMenuSet set = new();
-            set.SiteMenu_Index.IsIniData = true;
+            SiteMenuSet_DTO set = new();
             Dictionary<string, string> sqls = new()
             {
                 { "SiteInfo", "Select * From SiteInfo" },
@@ -40,14 +39,14 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
             };
             DataSet ds = MigrateOldData.GetOldData(sqls);
             SetSiteIndex(set, ds.Tables["SiteInfo"], ds.Tables["SiteInfo_Lang"]);
-            SetSideMenu(set, ds.Tables["Menu"], ds.Tables["Menu_Lang"]);
+            await SetSideMenu(set, ds.Tables["Menu"], ds.Tables["Menu_Lang"]);
             SetParentId(set.SiteMenu_Item, ds.Tables["Menu"]);
             SetFullUrl(set.SiteMenu_Item);
             return set;
         }
-        private void SetSiteIndex(SiteMenuSet set, DataTable dsInfo, DataTable dsInfoLang)
+        private void SetSiteIndex(SiteMenuSet_DTO set, DataTable dsInfo, DataTable dsInfoLang)
         {
-            set.SiteMenu_Index = new SiteMenu_IndexModel();
+            set.SiteMenu_Index = new SiteMenu_Index_DTO();
             DataRow siteinfoRow = dsInfo.Select().FirstOrDefault();
 
             set.SiteMenu_Index.SiteIndex = siteinfoRow["SiteID"].ToString();
@@ -59,7 +58,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                 var siteInfo = set.SiteMenu_IndexInfo.FirstOrDefault(p => p.Lang == lang);
                 if (siteInfo == null)
                 {
-                    siteInfo = new SiteMenu_IndexInfoModel() { Lang = lang };
+                    siteInfo = new SiteMenu_IndexInfo_DTO() { Lang = lang };
                     set.SiteMenu_IndexInfo.Add(siteInfo);
                 }
                 siteInfo.SiteIndex = set.SiteMenu_Index.SiteIndex;
@@ -70,7 +69,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                 siteInfo.Keyword = siteinfoRow["SiteKeyword"].ToString();
             }
         }
-        private void SetSideMenu(SiteMenuSet set, DataTable menu,DataTable menuLang)
+        private async Task SetSideMenu(SiteMenuSet_DTO set, DataTable menu,DataTable menuLang)
         {
             int rowId = 1;
             foreach(DataRow r in menu.Select().Skip(1))
@@ -78,7 +77,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                 string sn = r["Sn"].ToString();
                 if (r["Type"].ToString().In("url", "module"))
                 {
-                    var item = new SiteMenu_Item();
+                    var item = new SiteMenu_Item_DTO();
                     set.SiteMenu_Item.Add(item);
                     item.SiteIndex = set.SiteMenu_Index.SiteIndex;
                     item.RowId = rowId++;
@@ -95,7 +94,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                     {
                         item.WindowTarget = rl["URL_Open"].ToByte() == 1 ? WindowTarget.Self : WindowTarget.Blank;
                         item.IsShowOnMenu = Convert.ToBoolean(rl["MenuDisplay"]);
-                        set.SiteMenu_Item_Title.Add(new SiteMenu_Item_Title()
+                        set.SiteMenu_Item_Title.Add(new SiteMenu_Item_Title_DTO()
                         {
                             SiteIndex = set.SiteMenu_Index.SiteIndex,
                             ItemRowId = item.RowId,
@@ -109,7 +108,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                         case "url":
                             {
                                 item.ItemType = MenuUrlType.Url;
-                                var item_url = new SiteMenu_Item_Url()
+                                var item_url = new SiteMenu_Item_Url_DTO()
                                 {
                                     SiteIndex = set.SiteMenu_Index.SiteIndex,
                                     ItemRowId = item.RowId,
@@ -136,13 +135,13 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                         case "module":
                             {
                                 item.ItemType = MenuUrlType.Module;
-                                set.SiteMenu_Item_Module.Add(new SiteMenu_Item_Module()
+                                set.SiteMenu_Item_Module.Add(new SiteMenu_Item_Module_DTO()
                                 {
                                     SiteIndex = set.SiteMenu_Index.SiteIndex,
                                     ItemRowId = item.RowId,
                                     BannerId = r["Banner"].ToString(),
                                     ModuleProgId = SetProgId(r["ContentA_Module"].ToString()),
-                                    ModuleOptions = SetModuleOptions(r["ContentA_Module"].ToString(),r)
+                                    ModuleOptions = await SetModuleOptions(r["ContentA_Module"].ToString(),r)
                                 });
                                 break;
                             }
@@ -150,7 +149,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                 }
             }
         }
-        private void SetParentId(List<SiteMenu_Item> srcItems, DataTable menu)
+        private void SetParentId(List<SiteMenu_Item_DTO> srcItems, DataTable menu)
         {
             Dictionary<string, string> dic = [];
             foreach (DataRow r in menu.Rows) dic.Add(r["Menu_ID"].ToString(), r["MenuLevel"].ToString());
@@ -165,8 +164,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
             }
 
         }
-
-        private void SetFullUrl(List<SiteMenu_Item> srcItems)
+        private void SetFullUrl(List<SiteMenu_Item_DTO> srcItems)
         {
             var items = srcItems.OrderBy(p => p.Level).ThenBy(p => p.DisplayOrder);
             foreach(var item in items)
@@ -195,15 +193,17 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                 _ => srcModule,
             };
         }
-        private static string SetModuleOptions(string srcModule,DataRow r)
+        private async Task<string> SetModuleOptions(string srcModule,DataRow r)
         {
             switch (srcModule)
             {
                 case "page": 
                     {
+                        string pageId = r["ContentA_Page"].ToString();
+                        var data = await PageManagementService.QueryListAsync([nameof(PageManagement.InternalId)], $"{nameof(PageManagement.PageId)} = {pageId}", 0, 0);
                         var option = new ModuleOptions.PageManagement()
                         {
-                            PageId = r["ContentA_Page"].ToString()
+                            PageId = data.FirstOrDefault().PageManagement.InternalId
                         };
                         return JsonConvert.SerializeObject(option, Formatting.None);
                     }
@@ -292,7 +292,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                     {
                         var option = new SpecModuleOptions.SpecResearch()
                         {
-                            Category = r["ContentA_Category"].ToString(),
+                            Category = $"Res_{r["ContentA_Category"]}",
                             Tag = r["ContentA_Tag"].ToString().Remerge(",")
                         };
                         return JsonConvert.SerializeObject(option, Formatting.None);
@@ -301,7 +301,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                     {
                         var option = new SpecModuleOptions.SpecResearch()
                         {
-                            Category = r["ContentA_Category"].ToString(),
+                            Category = $"USR_{r["ContentA_Category"]}",
                             Tag = r["ContentA_Tag"].ToString().Remerge(",")
                         };
                         return JsonConvert.SerializeObject(option, Formatting.None);
@@ -310,5 +310,173 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
             };
         }
         #endregion
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public class SiteMenuSet_DTO
+    {
+        /// <summary>
+        /// 首頁
+        /// </summary>
+        public SiteMenu_Index_DTO SiteMenu_Index { get; set; } = new();
+        /// <summary>
+        /// 首頁資訊
+        /// </summary>
+        public List<SiteMenu_IndexInfo_DTO> SiteMenu_IndexInfo { get; set; } = [];
+        /// <summary>
+        /// 連結項目
+        /// </summary>
+        public List<SiteMenu_Item_DTO> SiteMenu_Item { get; set; } = [];
+        /// <summary>
+        /// 連結標題(多國語言)
+        /// </summary>
+        public List<SiteMenu_Item_Title_DTO> SiteMenu_Item_Title { get; set; } = [];
+        /// <summary>
+        /// 超連結
+        /// </summary>
+        public List<SiteMenu_Item_Url_DTO> SiteMenu_Item_Url { get; set; } = [];
+        /// <summary>
+        /// 功能模組
+        /// </summary>
+        public List<SiteMenu_Item_Module_DTO> SiteMenu_Item_Module { get; set; } = [];
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public class SiteMenu_Index_DTO
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public string InternalId { get; set; }
+        /// <summary>
+        /// 首頁代碼
+        /// </summary>
+        public string? SiteIndex { get; set; }
+        /// <summary>
+        /// Goole分析碼
+        /// </summary>
+        public string GoogleAnalytics { get; set; }
+        /// <summary>
+        /// 是否啟用站台
+        /// </summary>
+        public bool Enable { get; set; } = true;
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public class SiteMenu_IndexInfo_DTO
+    {
+        /// <summary>
+        /// 首頁代碼
+        /// </summary>
+        public string? SiteIndex { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public int? RowId { get; set; }
+        /// <summary>
+        /// 語系
+        /// </summary>
+        public string? Lang { get; set; }
+        /// <summary>
+        /// 網站標題
+        /// </summary>
+        public string Title { get; set; }
+        /// <summary>
+        /// 網站描述
+        /// </summary>
+        public string Description { get; set; }
+        /// <summary>
+        /// Header
+        /// </summary>
+        public string? SiteHeader { get; set; }
+        /// <summary>
+        /// Footer
+        /// </summary>
+        public string? SiteFooter { get; set; }
+        /// <summary>
+        /// 網站關鍵字
+        /// </summary>
+        public string Keyword { get; set; }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public class SiteMenu_Item_DTO
+    {
+        /// <summary>
+        /// 主站Url，最主要的會是Empty，新的子站則是https://xxx.com/{SiteIndex}
+        /// </summary>
+        public string? SiteIndex { get; set; }
+        /// <summary>
+        /// url主鍵
+        /// </summary>
+        public int? RowId { get; set; }
+        /// <summary>
+        /// 上層url外鍵(一定會跟著SiteIndex一起)
+        /// </summary>
+        public int? ParentRowId { get; set; }
+        /// <summary>
+        /// 當前頁面Url E.x.:AllNews
+        /// </summary>
+        public string? ItemSiteUrl { get; set; }
+        /// <summary>
+        /// 完整的Url，整個系統唯一值，後端賦值處理
+        /// </summary>
+        public string? FullUrl { get; set; }
+        /// <summary>
+        /// 層級
+        /// </summary>
+        public byte Level { get; set; }
+        /// <summary>
+        /// 順序(Key:同Parent底下做排序)
+        /// </summary>
+        public byte DisplayOrder { get; set; }
+        /// <summary>
+        /// 屬於function或是url連結?
+        /// </summary>
+        public MenuUrlType ItemType { get; set; } //Url Or Func
+        /// <summary>
+        /// 開啟分頁方式
+        /// </summary>
+        public WindowTarget WindowTarget { get; set; }
+        /// <summary>
+        /// 是否顯示在清單上
+        /// </summary>
+        public bool IsShowOnMenu { get; set; }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public class SiteMenu_Item_Title_DTO
+    {
+        public string? SiteIndex { get; set; }
+        public int? ItemRowId { get; set; }
+        public int? RowId { get; set; }
+        public string Lang { get; set; }
+        public string Title { get; set; }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public class SiteMenu_Item_Url_DTO
+    {
+        public string? SiteIndex { get; set; }
+        public int? ItemRowId { get; set; }
+        public MenuUrlType RedirectType { get; set; } //0:無, 1:外部,2:內部模型功能(直接轉FullUrl、但是是用下拉的看Title/Url)
+        public string? RedirectUrl { get; set; }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public class SiteMenu_Item_Module_DTO
+    {
+        public string? SiteIndex { get; set; }
+        public int? ItemRowId { get; set; }
+        public string? BannerId { get; set; }
+        public string? ModuleProgId { get; set; } //功能代碼
+        public string? ModuleOptions { get; set; }//動態參數，存Json格式
     }
 }

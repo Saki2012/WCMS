@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.IO;
 using WCMS.Features.SiteEdit.Category;
@@ -7,24 +8,25 @@ using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.WebResource
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class WebResourceController : ApiDataController<WebResourceSet>
+    public class WebResourceController : ApiDataController<WebResourceSet, WebResourceSet_DTO>
     {
         #region Migration Old Data
         [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct, string importFileLabel="1810")
         {
-            WebResourceSet[] datas = await ConvertToApiModel(importFileLabel);
+            WebResourceSet_DTO[] datas = await ConvertToApiModel(importFileLabel);
             return await InitialCreateData(datas,ct);
         }
-        private async Task<WebResourceSet[]> ConvertToApiModel(string importFileLabel)
+        private async Task<WebResourceSet_DTO[]> ConvertToApiModel(string importFileLabel)
         {
-            List<WebResourceSet> result = [];
+            List<WebResourceSet_DTO> result = [];
             Dictionary<string, string> sqls = new()
             {
                 { "WebResource", "Select * From WebResource" },
@@ -44,7 +46,7 @@ namespace WCMS.Features.SiteEdit.WebResource
 
             foreach (DataRow row in ds.Tables["WebResource"].Rows)
             {
-                WebResourceSet set = new() { };
+                WebResourceSet_DTO set = new() { };
                 result.Add(set);
 
                 string picFileName = row["Pic"].ToString();
@@ -64,15 +66,12 @@ namespace WCMS.Features.SiteEdit.WebResource
                 set.WebResource.Categories = row["Category"].ToString();
                 set.WebResource.ContentStatus = GetContentStatus(row["Status"].ToString());
                 set.WebResource.Tags = row["Tag"].ToString();
-                set.WebResource.CreateTime = Convert.ToDateTime(row["CreateTime"]);
-                set.WebResource.ModifyTime = Convert.ToDateTime(row["UpdateTime"]);
-                set.WebResource.IsIniData = true;
                 int rowId = 1;
                 foreach (var dRow in ds.Tables["WebResource_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.WebResource.WebResourceId).ToList())
                 {
                     if (!dRow["Title"].ToString().IsNullOrEmpty()) 
                     { 
-                        WebResourceInfo detail = new()
+                        WebResourceInfo_DTO detail = new()
                         {
                             WebResourceId = set.WebResource.WebResourceId,
                             RowId = rowId++,
@@ -118,5 +117,77 @@ namespace WCMS.Features.SiteEdit.WebResource
             return fileSets.Where(x => x.FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Equals($@"File/WebResource/{srcPic}".ToLowerInvariant()))).FirstOrDefault();
         }
         #endregion
+    }
+
+    public class WebResourceSet_DTO
+    {
+        public WebResource_DTO WebResource { get; set; } = new();
+        public List<WebResourceInfo_DTO> WebResourceInfo { get; set; } = [];
+
+    }
+    /// <summary>
+    /// 網路資源
+    /// </summary>
+    public class WebResource_DTO
+    {
+        /// <summary>
+        /// 檔案分類ID
+        /// </summary>
+        [LibDesc] public string WebResourceId { get; set; }
+        /// <summary>
+        /// 類別ID(多個)
+        /// </summary>
+        [LibDesc] public string Categories { get; set; }
+        /// <summary>
+        /// 標籤ID(多個)
+        /// </summary>
+        [LibDesc] public string Tags { get; set; }
+        /// <summary>
+        /// 狀態:置頂/熱門/隱藏
+        /// </summary>
+        [LibDesc] public ContentStatus ContentStatus { get; set; }
+        /// <summary>
+        /// 圖片顯示
+        /// </summary>
+        [LibDesc] public string PicId { get; set; }
+        /// <summary>
+        /// 圖片顯示描述
+        /// </summary>
+        [LibDesc] public string PicDescription { get; set; }
+
+    }
+    /// <summary>
+    /// 網路資源資訊
+    /// </summary>
+    public class WebResourceInfo_DTO
+    {
+        /// <summary>
+        /// 檔案分類ID
+        /// </summary>
+        [LibDesc] public string WebResourceId { get; set; }
+        /// <summary>
+        /// 行主鍵
+        /// </summary>
+        [LibDesc] public int RowId { get; set; }
+        /// <summary>
+        /// 語系 SysEnum.Lang
+        /// </summary>
+        [LibDesc] public string Lang { get; set; }
+        /// <summary>
+        /// 標題
+        /// </summary>
+        public string Title { get; set; }
+        /// <summary>
+        /// 內容
+        /// </summary>
+        public string Content { get; set; }
+        /// <summary>
+        /// 超連結
+        /// </summary>
+        public string ResUrl { get; set; }
+        /// <summary>
+        /// 超連結開啟方式
+        /// </summary>
+        public string Url_OpenType { get; set; }
     }
 }

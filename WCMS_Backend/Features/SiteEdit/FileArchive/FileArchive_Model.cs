@@ -11,7 +11,6 @@ namespace WCMS.Features.SiteEdit.FileArchive
         public List<FileArchiveInfo> FileArchiveInfo { get; set; } = [];
         public List<FileArchiveDetail> FileArchiveDetail { get; set; } = [];
     }
-
     public class FileArchive : MasterDataModel
     {
         /// <summary>

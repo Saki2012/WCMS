@@ -17,18 +17,21 @@ interface UseGridListOptions<T>
     buildQueryCondition: (page: number) => QueryListCondition;
     /** 如何解析 row 資料 */
     parseRow?: (item: T, columns: ColumnConfig[]) => GridRow;
+    initialData?: T[]; // ✅ SSR 預先帶進來的資料
+    deps?: any[]; // ✅ 依賴，變化時會重新 fetch
+    enabled?: boolean; // ✅ 控制是否要打 API
 }
 
 export const useFetchGridListData = <T>(
-    options: UseGridListOptions<T>,
+    props: UseGridListOptions<T>,
 ) =>
 {
-    const [rawData, setRawData] = useState<T[]>([] as T[]);
+    const [rawData, setRawData] = useState<T[]>(props.initialData ?? []);
     const [rows, setRows] = useState<GridRow[]>([]);
     const [columns, setColumns] = useState<ColumnConfig[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(!props.initialData);
     const [error, setError] = useState<string | null>(null);
 
     const fetchData = async (page: number) =>
@@ -38,11 +41,11 @@ export const useFetchGridListData = <T>(
         try
         {
             // 取得欄位名稱與顯示設定
-            const cols = await BuildVisibleColumns(options.getModelDisplayName, options.visibleKeys);
+            const cols = await BuildVisibleColumns(props.getModelDisplayName, props.visibleKeys);
             setColumns(cols);
 
-            const condition = options.buildQueryCondition(page);
-            const countRes = await options.fetchListCount(condition);
+            const condition = props.buildQueryCondition(page);
+            const countRes = await props.fetchListCount(condition);
             if (!countRes.IsSuccess)
             {
                 const msg = countRes.SysMessage?.map(x => `${x.MessageCode}:${x.Message}`).join(";") ?? "查詢筆數失敗";
@@ -55,7 +58,7 @@ export const useFetchGridListData = <T>(
             const total = Math.ceil(count / pageSize);
             setTotalPages(total);
 
-            const listRes = await options.fetchList(condition);
+            const listRes = await props.fetchList(condition);
             if (!listRes.IsSuccess)
             {
                 const msg = listRes.SysMessage?.map(x => `${x.MessageCode}:${x.Message}`).join(";") ?? "資料查詢失敗";
@@ -64,7 +67,7 @@ export const useFetchGridListData = <T>(
             const payload = listRes.Data ?? [];
             const fullData = (payload as T[][]).flat();
             setRawData(fullData);
-            const parsedRows = fullData.map(item => options.parseRow(item, cols));
+            const parsedRows = fullData.map(item => props.parseRow ? props.parseRow(item, cols) : item) as GridRow[];
             setRows(parsedRows);
         } catch (err: any)
         {
@@ -77,8 +80,9 @@ export const useFetchGridListData = <T>(
 
     useEffect(() =>
     {
+        if (!props.enabled || props.initialData) return;
         fetchData(currentPage);
-    }, [currentPage]);
+    }, [currentPage, props.enabled, ...props.deps ?? []]);
 
     const gridProps: GridProps = useMemo(() => ({
         columns,

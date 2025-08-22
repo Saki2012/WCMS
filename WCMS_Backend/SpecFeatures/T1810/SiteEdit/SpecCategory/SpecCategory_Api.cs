@@ -7,23 +7,24 @@ using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Model;
 
 namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class SpecCategoryController : ApiDataController<SpecCategorySet>
+    public class SpecCategoryController : ApiDataController<SpecCategorySet,SpecCategorySet_DTO>
     {
 
         #region Migration Old Data
         [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct)
         {
-            List<SpecCategorySet> datas=[.. ConvertResCategoryModel(), .. ConvertUSRCategoryModel()];
+            List<SpecCategorySet_DTO> datas=[.. ConvertResCategoryModel(), .. ConvertUSRCategoryModel()];
             return await InitialCreateData([.. datas],ct);
         }
-        private static SpecCategorySet[] ConvertResCategoryModel()
+        private static SpecCategorySet_DTO[] ConvertResCategoryModel()
         {
-            List<SpecCategorySet> result = [];
+            List<SpecCategorySet_DTO> result = [];
             Dictionary<string, string> sqls = new()
             {
                 { "ResearchProjectCategory", "Select * From ResearchProjectCategory" },
@@ -33,17 +34,16 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
             DataSet ds = MigrateOldData.GetOldData(sqls);
             foreach (DataRow row in ds.Tables["ResearchProjectCategory"].Rows)
             {
-                SpecCategorySet set = new() { };
+                SpecCategorySet_DTO set = new() { };
                 result.Add(set);
                 string id = $"Res_{row["Sn"]}";
                 set.SpecCategory.CategoryId =id;
                 set.SpecCategory.ProgId = "SpecResearch";
                 set.SpecCategory.ShowColumnItems = GetShowColumnItems(row["ShowItems"].ToString(), ds.Tables["ResearchProjectItem"]);
-                set.SpecCategory.IsIniData = true;
                 int rowId = 1;
                 foreach (var dRow in ds.Tables["ResearchProjectCategory_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == row["Sn"].ToString()).ToList())
                 {
-                    SpecCategoryDetailModel detail = new()
+                    SpecCategoryDetailModel_DTO detail = new()
                     {
                         CategoryId = id,
                         RowId = rowId++,
@@ -55,9 +55,9 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
             }
             return [.. result];
         }
-        private static SpecCategorySet[] ConvertUSRCategoryModel()
+        private static SpecCategorySet_DTO[] ConvertUSRCategoryModel()
         {
-            List<SpecCategorySet> result = [];
+            List<SpecCategorySet_DTO> result = [];
             Dictionary<string, string> sqls = new()
             {
                 { "USRProjectCategory", "Select * From USRProjectCategory" },
@@ -67,17 +67,16 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
             DataSet ds = MigrateOldData.GetOldData(sqls);
             foreach (DataRow row in ds.Tables["USRProjectCategory"].Rows)
             {
-                SpecCategorySet set = new() { };
+                SpecCategorySet_DTO set = new() { };
                 result.Add(set);
                 string id = $"USR_{row["Sn"]}";
                 set.SpecCategory.CategoryId = id;
                 set.SpecCategory.ProgId = "SpecUSRModel";
                 set.SpecCategory.ShowColumnItems = GetShowColumnItems(row["ShowItems"].ToString(), ds.Tables["USRProjectItem"]);
-                set.SpecCategory.IsIniData = true;
                 int rowId = 1;
                 foreach (var dRow in ds.Tables["USRProjectCategory_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == row["Sn"].ToString()).ToList())
                 {
-                    SpecCategoryDetailModel detail = new()
+                    SpecCategoryDetailModel_DTO detail = new()
                     {
                         CategoryId = id,
                         RowId = rowId++,
@@ -104,4 +103,35 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
         }
         #endregion
     }
+
+    public class SpecCategorySet_DTO
+    {
+        public SpecCategoryModel_DTO SpecCategory { get; set; } = new();
+        public List<SpecCategoryDetailModel_DTO> SpecCategoryDetail { get; set; } = [];
+    }
+
+    public class SpecCategoryModel_DTO
+    {
+        [LibDesc] public string CategoryId { get; set; }
+        /// <summary>
+        /// 功能Id
+        /// </summary>
+        public string ProgId { get; set; }
+        /// <summary>
+        /// 顯示欄位
+        /// </summary>
+        public string ShowColumnItems { get; set; }
+    }
+
+    public class SpecCategoryDetailModel_DTO
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        [LibDesc] public string CategoryId { get; set; }
+        [LibDesc] public int RowId { get; set; }
+        [LibDesc] public string Lang { get; set; }
+        [LibDesc] public string CategoryName { get; set; }
+    }
+
 }

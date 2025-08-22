@@ -11,7 +11,6 @@ namespace WCMS.Features.SiteEdit.PageManagement
         public PageManagement PageManagement { get; set; } = new();
         public List<PageManagementDetail> PageManagementDetail { get; set; } = [];
     }
-
     public class PageManagement:BillDataModel
     {
         /// <summary>

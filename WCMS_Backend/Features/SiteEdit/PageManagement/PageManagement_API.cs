@@ -1,17 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using WCMS.Features.SiteEdit.Category;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Library.LibData;
 
 namespace WCMS.Features.SiteEdit.PageManagement
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class PageManagementController : ApiDataController<PageManagementSet>
+    public class PageManagementController : ApiDataController<PageManagementSet, PageManagementSet_DTO>
     {
 
 
@@ -19,12 +21,12 @@ namespace WCMS.Features.SiteEdit.PageManagement
         [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct, string importFileLabel = "1810")
         {
-            PageManagementSet[] datas = await ConvertToApiModel(importFileLabel);
+            PageManagementSet_DTO[] datas = await ConvertToApiModel(importFileLabel);
             return await InitialCreateData(datas,ct);
         }
-        private async Task<PageManagementSet[]> ConvertToApiModel(string importFileLabel)
+        private async Task<PageManagementSet_DTO[]> ConvertToApiModel(string importFileLabel)
         {
-            List<PageManagementSet> result = [];
+            List<PageManagementSet_DTO> result = [];
             Dictionary<string, string> sqls = new()
             {
                 { "Page", "Select * From Page" },
@@ -45,21 +47,18 @@ namespace WCMS.Features.SiteEdit.PageManagement
 
             foreach (DataRow row in ds.Tables["Page"].Rows)
             {
-                PageManagementSet set = new();
+                PageManagementSet_DTO set = new();
                 result.Add(set);
                 set.PageManagement.PageId = row["Sn"].ToString();
                 set.PageManagement.CategoryId = row["Category"].ToString();
                 set.PageManagement.ViewCount = row["ViewCount"].ToInt32();
-                set.PageManagement.CreateTime = Convert.ToDateTime(row["CreateTime"]);
-                set.PageManagement.ModifyTime = Convert.ToDateTime(row["UpdateTime"]);
-                set.PageManagement.IsIniData = true;
                 int rowId = 1;
                 foreach (var dRow in ds.Tables["Page_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.PageManagement.PageId).ToList())
                 {
                     if (dRow["Title"].IsNullOrEmpty()) continue;
                     string contentXml = HtmlInternalIdByFullPath.TransformHtml_ReplaceSrcWithDataInternalId(dRow["Content"].ToString(), fileSrcIdDic,out List<string> usedInternalIds);
                     updateFileSets.AddRange(fileSets.Where(p=> usedInternalIds.Contains(p.FileManage.InternalId)));
-                    PageManagementDetail detail = new()
+                    PageManagementDetail_DTO detail = new()
                     {
                         PageId = set.PageManagement.PageId,
                         RowId = rowId++,
@@ -78,5 +77,48 @@ namespace WCMS.Features.SiteEdit.PageManagement
             return [.. result];
         }
         #endregion
+    }
+    public class PageManagementSet_DTO
+    {
+        public PageManagement_DTO PageManagement { get; set; } = new();
+        public List<PageManagementDetail_DTO> PageManagementDetail { get; set; } = [];
+    }
+    public class PageManagement_DTO
+    {
+        /// <summary>
+        /// 靜態客製頁面ID
+        /// </summary>
+        [LibDesc] public string? PageId { get; set; }
+        /// <summary>
+        /// 類別ID
+        /// </summary>
+        [LibDesc] public string? CategoryId { get; set; }
+        /// <summary>
+        /// 查看次數
+        /// </summary>
+        [LibDesc] public int? ViewCount { get; set; }
+    }
+    public class PageManagementDetail_DTO
+    {
+        /// <summary>
+        /// 靜態客製頁面ID
+        /// </summary>
+        [LibDesc] public string? PageId { get; set; }
+        /// <summary>
+        /// 行主鍵
+        /// </summary>
+        [LibDesc] public int? RowId { get; set; }
+        /// <summary>
+        /// 語系 SysEnum.Lang
+        /// </summary>
+        [LibDesc] public string? Lang { get; set; }
+        /// <summary>
+        /// 標題
+        /// </summary>
+        [LibDesc] public string? Title { get; set; }
+        /// <summary>
+        /// 內容
+        /// </summary>
+        [LibDesc] public string? Content { get; set; }
     }
 }

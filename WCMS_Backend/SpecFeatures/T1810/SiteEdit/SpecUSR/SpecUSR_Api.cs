@@ -1,5 +1,6 @@
 ﻿using GraphQL;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Runtime.InteropServices;
 using WCMS.Features.SiteEdit.Announcement;
@@ -7,6 +8,7 @@ using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 
@@ -14,7 +16,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
 {
     [ProgId("SpecUSR")]
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class SpecUSRController : ApiDataController<SpecUSRSet>
+    public class SpecUSRController : ApiDataController<SpecUSRSet, SpecUSRSet_DTO>
     {
 
 
@@ -22,12 +24,12 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct,string importFileLabel = "1810")
         {
-            SpecUSRSet[] datas = await ConvertToApiModel(importFileLabel);
+            SpecUSRSet_DTO[] datas = await ConvertToApiModel(importFileLabel);
             return await InitialCreateData(datas, ct);
         }
-        private async Task<SpecUSRSet[]> ConvertToApiModel(string importFileLabel)
+        private async Task<SpecUSRSet_DTO[]> ConvertToApiModel(string importFileLabel)
         {
-            List<SpecUSRSet> result = [];
+            List<SpecUSRSet_DTO> result = [];
             Dictionary<string, string> sqls = new()
             {
                 { "USRProject", "SELECT * FROM USRProject" },
@@ -47,7 +49,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
 
             foreach (DataRow row in ds.Tables["USRProject"].Rows)
             {
-                SpecUSRSet set = new() { };
+                SpecUSRSet_DTO set = new() { };
                 result.Add(set);
                 set.SpecUSR.USRId = row["Sn"].ToString();
                 set.SpecUSR.CategoryId = $"USR_{row["Category"]}";
@@ -135,5 +137,64 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
             return fileSets.Where(x => x.FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Equals($@"File/USRProject/{srcPic}".ToLowerInvariant()))).FirstOrDefault();
         }
         #endregion
+    }
+
+    public class SpecUSRSet_DTO
+    {
+        public SpecUSRModel SpecUSR { get; set; } = new();
+        public List<SpecUSRDetail> SpecUSRDetail { get; set; } = [];
+    }
+
+    public class SpecUSRModel_DTO
+    {
+        /// <summary>
+        /// USR Id
+        /// </summary>
+        [LibDesc, Key] public string USRId { get; set; }
+        /// <summary>
+        /// 類別ID
+        /// </summary>
+        public string CategoryId { get; set; }
+        /// <summary>
+        /// 狀態 (多個)
+        /// </summary>
+        [LibDesc] public ContentStatus ContentStatus { get; set; }
+        /// <summary>
+        /// 標籤 (多個) 
+        /// </summary>
+        [LibDesc] public string? Tags { get; set; } = string.Empty;
+        /// <summary>
+        /// 圖片 (關聯檔案資料)
+        /// </summary>
+        [LibDesc] public string? PictureId { get; set; } = string.Empty;
+        /// <summary>
+        /// 圖片描述
+        /// </summary>
+        [LibDesc] public string? PicDescription { get; set; } = string.Empty;
+    }
+
+    public class SpecUSRDetail_DTO
+    {
+        [LibDesc, Key] public string USRId { get; set; }
+        [LibDesc, Key] public int RowId { get; set; }
+        [Required, StringLength(5)] public string Lang { get; set; } = default!;
+        [StringLength(10)] public string? Year { get; set; }
+        [StringLength(10)] public string? AcademicYear { get; set; }
+        [StringLength(200)] public string? Courses { get; set; }
+        [StringLength(200)] public string? PracticeField { get; set; }
+        [StringLength(200)] public string? ProjectName { get; set; }
+        [StringLength(200)] public string? ExternalCooperationUnit { get; set; }
+        [StringLength(200)] public string? Department { get; set; }
+        [StringLength(200)] public string? DuringExecution { get; set; }
+        [StringLength(200)] public string? PlanAmount { get; set; }
+        public string? ExecutionStrategy { get; set; }
+        public string? ContentIntroduction { get; set; }
+        public string? ProjectConcept { get; set; }
+        public string? ProjectHighlights { get; set; }
+        [StringLength(200)] public string? ProjectLeader { get; set; }
+        [StringLength(200)] public string? Cohost1 { get; set; }
+        [StringLength(200)] public string? Cohost2 { get; set; }
+        [StringLength(200)] public string? Commissioned { get; set; }
+        public string? Remark { get; set; }
     }
 }

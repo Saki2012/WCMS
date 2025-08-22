@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
@@ -8,10 +9,11 @@ using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Library.LibData;
+using static WCMS.SysCore.SystemFunc.Auth.AuthController;
 
 namespace WCMS.SysCore
 {
-    public abstract class ApiBaseController<TSet> : ControllerBase where TSet : class
+    public abstract class ApiBaseController<TSet, TSet_DTO> : ControllerBase where TSet : class
     {
         #region Property
         private IBizService<TSet>? _service;
@@ -22,12 +24,12 @@ namespace WCMS.SysCore
         private IOutputCacheFeature? Ocf => _Ocf ??= HttpContext.Features.Get<IOutputCacheFeature>();
         private IBizService<FileManageSet> _fileService;
         protected FileManagementBiz FileService => (FileManagementBiz)(_fileService ??= HttpContext.RequestServices.GetRequiredService<IBizService<FileManageSet>>());
-        private ModelDisplay<TSet>.ModelMetadata _modelDisplayName;
-        protected ModelDisplay<TSet>.ModelMetadata ModelDescription
+        private ModelDisplay<TSet_DTO>.ModelMetadata _modelDisplayName;
+        protected ModelDisplay<TSet_DTO>.ModelMetadata ModelDescription
         {
             get
             {
-                _modelDisplayName ??= new ModelDisplay<TSet>().Model;
+                _modelDisplayName ??= new ModelDisplay<TSet_DTO>().Model;
                 return _modelDisplayName;
             }
         }
@@ -74,7 +76,7 @@ namespace WCMS.SysCore
     /// 表單API入口
     /// </summary>
     /// <typeparam name="TSet"></typeparam>
-    public abstract class ApiDataController<TSet> : ApiBaseController<TSet>, IBaseDataController<TSet> where TSet : class
+    public abstract class ApiDataController<TSet, TSet_DTO> : ApiBaseController<TSet, TSet_DTO>, IBaseDataController<TSet, TSet_DTO> where TSet : class where TSet_DTO : class
     {
         #region Public
         /// <summary>
@@ -82,9 +84,10 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="set"></param>
         /// <returns></returns>
-        [HttpPost(nameof(Create))] public virtual async Task<IActionResult> Create(TSet set, CancellationToken ct)
+        [HttpPost(nameof(Create))] public virtual async Task<IActionResult> Create(TSet_DTO set, CancellationToken ct)
         {
-            var result = await Service.CreateSetAsync(set);
+            TSet entity = DTOHelper.MapSet<TSet, TSet_DTO>(set);
+            var result = await Service.CreateSetAsync(entity);
             await EvictForSetAsync(ct);
             var response = new ApiResponse<TSet>()
             {
@@ -92,7 +95,7 @@ namespace WCMS.SysCore
             };
             return Ok(response);
         }
-        [HttpPost(nameof(InitialCreateData))] public virtual async Task<IActionResult> InitialCreateData(TSet[] sets, CancellationToken ct)
+        [HttpPost(nameof(InitialCreateData))] public virtual async Task<IActionResult> InitialCreateData(TSet_DTO[] sets, CancellationToken ct)
         {
             await Service.BeginTransactionAsync();
             try
@@ -100,7 +103,9 @@ namespace WCMS.SysCore
                 int i = 1;
                 foreach (var set in sets) 
                 {
-                    await Service.CreateSetAsync(set);
+                    TSet entity = DTOHelper.MapSet<TSet, TSet_DTO>(set);
+                    PropertyAccessorCache.Set(entity, nameof(BasicDataModel.IsIniData),true);
+                    await Service.CreateSetAsync(entity);
                     i++;
                 }
                 await Service.CommitDataAsync();
@@ -118,9 +123,10 @@ namespace WCMS.SysCore
         /// <param name="pk"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        [HttpPut(nameof(Update))] public virtual async Task<IActionResult> Update(ApiRequest<TSet> data, CancellationToken ct)
+        [HttpPut(nameof(Update))] public virtual async Task<IActionResult> Update(ApiRequest<TSet_DTO> data, CancellationToken ct)
         {
-            var result = await Service.UpdateSetAsync(data.InternalId, data.Data);
+            TSet entity = DTOHelper.MapSet<TSet, TSet_DTO>(data.Data);
+            var result = await Service.UpdateSetAsync(data.InternalId, entity);
             await EvictForSetAsync(ct, data.InternalId);
             var response = new ApiResponse<TSet>()
             {
@@ -194,7 +200,7 @@ namespace WCMS.SysCore
         {
             AddListTags();
             var result = await Service.QueryListAsync(queryCondition.Fields, queryCondition.Condition, queryCondition.PageNumber, queryCondition.PageSize);
-            var response = new ApiResponse<TSet>() { Data = result, };
+            var response = new ApiResponse<TSet_DTO>() { Data = result, };
             return Ok(response);
         }
         /// <summary>
@@ -219,7 +225,7 @@ namespace WCMS.SysCore
     /// 報表API入口
     /// </summary>
     /// <typeparam name="TSet"></typeparam>
-    public abstract class ApiReportController<TSet> : ApiBaseController<TSet>, IBaseReportController<TSet> where TSet : class
+    public abstract class ApiReportController<TSet, TSet_DTO> : ApiBaseController<TSet, TSet_DTO>, IBaseReportController<TSet, TSet_DTO> where TSet : class
     {
         #region Public
         [HttpPost(nameof(GetReport))]
@@ -356,3 +362,5 @@ namespace WCMS.SysCore
         #endregion
     }
 }
+
+
