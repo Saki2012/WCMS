@@ -116,7 +116,7 @@ namespace WCMS.Features.SiteEdit.Banner
 
     public class BannerSet_DTO
     {
-        [LibDesc] public Banner_DTO Banner { get; set; } = new Banner_DTO();
+        [LibDesc] public Banner_DTO Banner { get; set; } = new();
         [LibDesc] public List<BannerDetail_DTO> BannerDetail { get; set; } = [];
         [LibDesc] public List<BannerDetailInfo_DTO> BannerDetailInfo { get; set; } = [];
     }

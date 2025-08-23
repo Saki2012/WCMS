@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using System.Text.Json.Serialization;
 using WCMS.Features.SiteEdit.Banner;
 using WCMS.Features.SiteEdit.PageManagement;
 using WCMS.SysCore;
@@ -35,11 +36,10 @@ namespace WCMS.Features.SiteEdit.Category
                 result.Add(set);
                 set.Category.CategoryId = row["Sn"].ToString();
                 set.Category.ProgId = MigrateOldData.ChangeProgId(row["Module"].ToString());
-                set.Category.IsIniData = true;
                 int rowId = 1;
                 foreach (var dRow in ds.Tables["Category_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.Category.CategoryId).ToList())
                 {
-                    CategoryDetail detail = new()
+                    CategoryDetail_DTO detail = new()
                     {
                         CategoryId = set.Category.CategoryId,
                         RowId = rowId++,
@@ -56,8 +56,8 @@ namespace WCMS.Features.SiteEdit.Category
 
     public class CategoryDataSet_DTO
     {
-        public Category Category { get; set; } = new();
-        public List<CategoryDetail> CategoryDetail { get; set; } = [];
+        public Category_DTO Category { get; set; } = new();
+        public List<CategoryDetail_DTO> CategoryDetail { get; set; } = [];
     }
     public class Category_DTO
     {
@@ -72,7 +72,7 @@ namespace WCMS.Features.SiteEdit.Category
         /// <summary>
         /// 類別明細
         /// </summary>
-        public virtual ICollection<CategoryDetail>? CategoryDetail { get; set; }
+        [JsonIgnore] public virtual ICollection<CategoryDetail_DTO>? CategoryDetail { get; set; }
     }
     public class CategoryDetail_DTO
     {

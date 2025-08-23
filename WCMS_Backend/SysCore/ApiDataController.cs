@@ -88,12 +88,10 @@ namespace WCMS.SysCore
         [HttpPost(nameof(Create))] public virtual async Task<IActionResult> Create(TSet_DTO set, CancellationToken ct)
         {
             TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(set);
-            var result = await Service.BizCreateSetAsync(entity);
+            var createResult = await Service.BizCreateSetAsync(entity);
             await EvictForSetAsync(ct);
-            var response = new ApiResponse<TSet>()
-            {
-                Data = [result],
-            };
+            TSet_DTO result = DTOHelper.MapToDTO<TSet, TSet_DTO>(createResult);
+            var response = new ApiResponse<TSet_DTO>() { Data = [result] };
             return Ok(response);
         }
         [HttpPost(nameof(InitialCreateData))] public virtual async Task<IActionResult> InitialCreateData(TSet_DTO[] sets, CancellationToken ct)
@@ -127,12 +125,10 @@ namespace WCMS.SysCore
         [HttpPut(nameof(Update))] public virtual async Task<IActionResult> Update(ApiRequest<TSet_DTO> data, CancellationToken ct)
         {
             TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(data.Data);
-            var result = await Service.BizUpdateSetAsync(data.InternalId, entity);
+            var updateResult = await Service.BizUpdateSetAsync(data.InternalId, entity);
             await EvictForSetAsync(ct, data.InternalId);
-            var response = new ApiResponse<TSet>()
-            {
-                Data = [result],
-            };
+            TSet_DTO result = DTOHelper.MapToDTO<TSet, TSet_DTO>(updateResult);
+            var response = new ApiResponse<TSet_DTO>() { Data = [result] };
             return Ok(response);
         }
         /// <summary>
