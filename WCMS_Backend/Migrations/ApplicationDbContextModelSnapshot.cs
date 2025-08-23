@@ -1080,7 +1080,7 @@ namespace WCMS.Migrations
                     b.Property<string>("SiteIndex")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("RowId")
+                    b.Property<int>("ItemRowId")
                         .HasColumnType("int");
 
                     b.Property<string>("BannerId")
@@ -1092,7 +1092,7 @@ namespace WCMS.Migrations
                     b.Property<string>("ModuleProgId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("SiteIndex", "RowId");
+                    b.HasKey("SiteIndex", "ItemRowId");
 
                     b.ToTable("SiteMenu_Item_Module", (string)null);
                 });
@@ -1126,7 +1126,7 @@ namespace WCMS.Migrations
                     b.Property<string>("SiteIndex")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("RowId")
+                    b.Property<int>("ItemRowId")
                         .HasColumnType("int");
 
                     b.Property<byte>("RedirectType")
@@ -1135,7 +1135,7 @@ namespace WCMS.Migrations
                     b.Property<string>("RedirectUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("SiteIndex", "RowId");
+                    b.HasKey("SiteIndex", "ItemRowId");
 
                     b.ToTable("SiteMenu_Item_Url", (string)null);
                 });

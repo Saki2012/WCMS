@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Linq.Dynamic.Core;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
@@ -202,7 +203,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         public DateTime? Validate_End { get; set; }
 
         #region Detail關聯
-        [ForeignKey(nameof(AnnouncementId))] public virtual ICollection<AnnouncementDetail>? AnnouncementDetail { get; set; }
+        [JsonIgnore] public virtual ICollection<AnnouncementDetail_DTO>? AnnouncementDetail { get; set; }
         #endregion
     }
     /// <summary>

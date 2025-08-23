@@ -690,6 +690,13 @@ namespace WCMS.SysCore.Library
             }
         }
 
+        public static bool IsListPropertyType(this PropertyInfo prop)
+        {
+            Type type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>)) return true;
+            if (type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type)) return true;
+            return false;
+        }
         #region private 
         /// <summary>
         /// 自動偵測排序模式

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Collections;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -187,22 +188,23 @@ namespace WCMS.SysCore
         public async Task<IList<TSet>> BizQueryListAsync(string[] selectFields, string condition, int pageNumber, int pageSize)
         {
             IList<TSet> result = [];
-            foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
+            var props = PropertyAccessorCache.GetProperties<TSet>();
+            var headerProp = props.FirstOrDefault(p => !p.PropertyType.IsGenericType);
+            var datas = (await DoQueryListAsync(headerProp, selectFields, condition, pageNumber, pageSize)).ToDynamicList();
+            foreach (var data in datas)
             {
-                if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && typeof(BasicDataModel).IsAssignableFrom(prop.PropertyType))
+                TSet srcData = PropertyAccessorCache.CreateInstance<TSet>();
+                PropertyAccessorCache.Set(srcData, headerProp.Name, data);
+                PropertyInfo[] dataProps = PropertyAccessorCache.GetProperties(data.GetType());
+                foreach(PropertyInfo prop in dataProps.Where(p => p.IsListPropertyType()))
                 {
-                    var datas = (await DoQueryListAsync(prop, selectFields, condition, pageNumber, pageSize)).ToDynamicList();
-                    foreach(var data in datas) 
-                    { 
-                        TSet srcData = PropertyAccessorCache.CreateInstance(typeof(TSet)) as TSet;
-                        PropertyAccessorCache.Set(srcData, prop.Name, data);
-                        result.Add(srcData);
-                    }
+                    if (!PropertyAccessorCache.GetProperties<TSet>().Select(p => p.Name).Contains(prop.Name)) continue;
+                    var dstData = PropertyAccessorCache.Get(data, prop.Name);
+                    PropertyAccessorCache.Set(srcData, prop.Name, dstData);
                 }
+
+                result.Add(srcData);
             }
-            //Response.ThrowIfFailed();
-            //Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00010);
-            //Response.Data = result;
             return result;
         }
         public async Task<int> BizQueryTotalCounts(string[] selectFields, string condition)

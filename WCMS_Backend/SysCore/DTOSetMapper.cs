@@ -1,7 +1,7 @@
-﻿using System.Collections;
+﻿using SharpCompress.Readers.Arc;
+using System.Collections;
 using System.Reflection;
 using WCMS.SysCore.Library;
-
 namespace WCMS.SysCore
 {
 
@@ -28,13 +28,20 @@ namespace WCMS.SysCore
             TSet set = PropertyAccessorCache.CreateInstance<TSet>();
             foreach(var prop in PropertyAccessorCache.GetProperties<TSetDto>())
             {
-                if (!prop.PropertyType.IsGenericType)
+                if (!prop.IsListPropertyType())
                 {
-
+                    var srcHeader = PropertyAccessorCache.Get(srcDTO, prop.Name);
+                    var dstHeader = PropertyAccessorCache.Get(set, prop.Name);
+                    var dtoProps = PropertyAccessorCache.GetProperties(prop.PropertyType);
+                    MapToHeader(srcHeader, dstHeader, dtoProps);
                 }
                 else
                 {
-
+                    var srcDetails = PropertyAccessorCache.Get(srcDTO, prop.Name) as IList;
+                    if (srcDetails == null) continue;
+                    var dstDetails = PropertyAccessorCache.Get(set, prop.Name) as IList;
+                    var dtoProps = PropertyAccessorCache.GetProperties(srcDetails.GetType().GenericTypeArguments.FirstOrDefault());
+                    MapToDetail(srcDetails, dstDetails, dtoProps);
                 }
             }
             return set;
@@ -45,33 +52,20 @@ namespace WCMS.SysCore
             TSetDto set = PropertyAccessorCache.CreateInstance<TSetDto>();
             foreach (var prop in PropertyAccessorCache.GetProperties<TSetDto>())
             {
-                if (!prop.PropertyType.IsGenericType)
+                if (!prop.IsListPropertyType())
                 {
-                    var srcheader = PropertyAccessorCache.Get(srcSet, prop.Name);
-                    var dstheader = PropertyAccessorCache.Get(set, prop.Name);
-                    foreach(var fieldProp in PropertyAccessorCache.GetProperties(dstheader.GetType()))
-                    {
-                        var field = PropertyAccessorCache.Get(srcheader, fieldProp.Name);
-                        if (field != null)
-                        {
-                            PropertyAccessorCache.Set(dstheader, fieldProp.Name, field);
-                        }
-                    }
+                    var srcHeader = PropertyAccessorCache.Get(srcSet, prop.Name);
+                    var dstHeader = PropertyAccessorCache.Get(set, prop.Name);
+                    var dtoProps = PropertyAccessorCache.GetProperties(prop.PropertyType);
+                    MapToHeader(srcHeader, dstHeader, dtoProps);
                 }
                 else
                 {
                     var srcDetails = PropertyAccessorCache.Get(srcSet, prop.Name) as IList;
+                    if (srcDetails == null) continue;
                     var dstDetails = PropertyAccessorCache.Get(set, prop.Name) as IList;
-
-                    foreach(var srcDetail in srcDetails)
-                    {
-
-
-
-                        //dstDetails.Add();
-                    }
-
-
+                    var dtoProps = PropertyAccessorCache.GetProperties(dstDetails.GetType().GenericTypeArguments.FirstOrDefault());
+                    MapToDetail(srcDetails, dstDetails, dtoProps);
                 }
             }
             return set;
@@ -84,18 +78,68 @@ namespace WCMS.SysCore
         }
 
         #region Private
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="srcHeader"></param>
+        /// <param name="dstHeader"></param>
+        /// <param name="dtoProps"></param>
+        private static void MapToHeader(dynamic srcHeader,dynamic dstHeader, PropertyInfo[] dtoProps)
+        {
+            foreach (var fieldProp in dtoProps)
+            {
+                if (fieldProp.IsListPropertyType()) continue;
+                var field = PropertyAccessorCache.Get(srcHeader, fieldProp.Name);
+                if (field != null) PropertyAccessorCache.Set(dstHeader, fieldProp.Name, field);
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="srcDetails"></param>
+        /// <param name="dstDetails"></param>
+        /// <param name="dstType"></param>
+        /// <param name="dtoProps"></param>
+        private static void MapToDetail(IList srcDetails,IList dstDetails,PropertyInfo[] dtoProps)
+        {
+            var dstType = dstDetails.GetType().GetGenericArguments().FirstOrDefault();
+            foreach (var srcData in srcDetails)
+            {
+                var dstData = PropertyAccessorCache.CreateInstance(dstType);
+                dstDetails.Add(dstData);
+                foreach(var fieldProp in dtoProps)
+                {
+                    if (fieldProp.IsListPropertyType()) continue;
+                    var field = PropertyAccessorCache.Get(srcData, fieldProp.Name);
+                    if (field != null) PropertyAccessorCache.Set(dstData, fieldProp.Name, field);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 獲取DTO的各欄位名稱
+        /// </summary>
+        /// <typeparam name="TSetDTO"></typeparam>
+        /// <returns></returns>
         private static Dictionary<string,List<string>> GetDTOFields<TSetDTO>()
         {
             Dictionary<string, List<string>> dictFields = [];
             foreach(var prop in PropertyAccessorCache.GetProperties<TSetDTO>())
             {
                 string tableName= prop.Name;
-                PropertyInfo[] propsInfo = !prop.PropertyType.IsGenericType ? PropertyAccessorCache.GetProperties(prop.PropertyType) : PropertyAccessorCache.GetProperties(prop.PropertyType.GetGenericArguments().FirstOrDefault());
+                PropertyInfo[] propsInfo = !prop.IsListPropertyType() ? PropertyAccessorCache.GetProperties(prop.PropertyType) : PropertyAccessorCache.GetProperties(prop.PropertyType.GetGenericArguments().FirstOrDefault());
                 dictFields.Add(tableName, []);
                 foreach (var fieldProp in propsInfo) dictFields[tableName].Add(fieldProp.Name);
             }
             return dictFields;
         }
+        /// <summary>
+        /// 檢查Select欄位
+        /// </summary>
+        /// <typeparam name="TSetDTO"></typeparam>
+        /// <param name="dictFields"></param>
+        /// <param name="fields"></param>
+        /// <returns></returns>
         private static bool CheckFields<TSetDTO>(Dictionary<string, List<string>> dictFields, string[] fields)
         {
             foreach(var field in fields)
@@ -113,6 +157,13 @@ namespace WCMS.SysCore
             }
             return true;
         }
+        /// <summary>
+        /// 檢查Where條件
+        /// </summary>
+        /// <typeparam name="TSetDTO"></typeparam>
+        /// <param name="dictFields"></param>
+        /// <param name="condition"></param>
+        /// <returns></returns>
         private static bool CheckCondition<TSetDTO>(Dictionary<string, List<string>> dictFields,string condition)
         {
             return true;
