@@ -81,4 +81,10 @@ namespace WCMS.SysCore.Library
             return ValidationResult.Success;
         }
     }
+
+    /// <summary>
+    /// DTO 物件專用，標示此欄位為唯讀，API 不允許修改
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property)]
+    public sealed class DTOReadOnlyAttribute : Attribute { }
 }

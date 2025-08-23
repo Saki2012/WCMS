@@ -1,6 +1,6 @@
 import type { IFETheme } from '../../Theme/ITheme';
 import type { components } from '../../../../../types/api';
-type GallerySet = components["schemas"]["GallerySet"]
+type GallerySet = components["schemas"]["GallerySet_DTO"]
 import { useParams } from 'react-router-dom';
 import { ContentComp } from '../../Scaffold/ContentViewMode/FormView/FormView_Comp';
 import { FormatDate } from '../../../../../SysCore/Utils/Library/LibData';

@@ -115,7 +115,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             return Ok();
         }
     }
-    public class FileManageSet_DTO
+    public class FileManageSet_DTO:ITSet_DTO
     {
         public FileManageModel_DTO FileManage { get; set; } = new();
         public List<FileManage_DownloadInfoModel_DTO> FileManage_DownloadInfo { get; set; } = [];
@@ -124,12 +124,8 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
     /// <summary>
     /// 檔案管理
     /// </summary>
-    public class FileManageModel_DTO
+    public class FileManageModel_DTO:DTOBasicDataModel
     {
-        /// <summary>
-        /// 檔案識別碼
-        /// </summary>
-        [LibDesc, Key] public new string InternalId { get; set; } = new Guid().ToString();
         /// <summary>
         /// 路徑
         /// </summary>

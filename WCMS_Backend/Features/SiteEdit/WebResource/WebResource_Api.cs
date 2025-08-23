@@ -119,7 +119,7 @@ namespace WCMS.Features.SiteEdit.WebResource
         #endregion
     }
 
-    public class WebResourceSet_DTO
+    public class WebResourceSet_DTO : ITSet_DTO
     {
         public WebResource_DTO WebResource { get; set; } = new();
         public List<WebResourceInfo_DTO> WebResourceInfo { get; set; } = [];
@@ -127,7 +127,7 @@ namespace WCMS.Features.SiteEdit.WebResource
     /// <summary>
     /// 網路資源
     /// </summary>
-    public class WebResource_DTO
+    public class WebResource_DTO: DTOBasicDataModel
     {
         /// <summary>
         /// 檔案分類ID

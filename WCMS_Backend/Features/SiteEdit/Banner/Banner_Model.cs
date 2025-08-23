@@ -5,7 +5,7 @@ using WCMS.SysCore.Model;
 namespace WCMS.Features.SiteEdit.Banner
 {
     [LibDesc]
-    public class BannerSet
+    public class BannerSet:ITSet
     {
         [LibDesc] public Banner Banner { get; set; } = new Banner();
         [LibDesc] public List<BannerDetail> BannerDetail { get; set; } = [];

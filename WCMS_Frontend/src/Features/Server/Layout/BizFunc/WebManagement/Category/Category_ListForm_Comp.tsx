@@ -10,8 +10,8 @@ import CategoryProvider from "./Category_Api";
 import { useFetchFormData } from "../../../../../../SysCore/Utils/API/FetchFormData";
 import { LibTextBox } from "../../../../../../SysCore/Components/FormField/LibFormField";
 import { Link } from "react-router-dom";
-type CategoryDataSet = components["schemas"]["CategoryDataSet"]
-type CategoryDetail = components["schemas"]["CategoryDetail"]
+type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
+type CategoryDetail = components["schemas"]["CategoryDetail_DTO"]
 const emptyData: CategoryDataSet = {
     Category: {},
     CategoryDetail: []

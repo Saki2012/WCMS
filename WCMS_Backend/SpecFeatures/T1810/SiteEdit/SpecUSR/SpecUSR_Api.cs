@@ -135,13 +135,13 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         #endregion
     }
 
-    public class SpecUSRSet_DTO
+    public class SpecUSRSet_DTO:ITSet_DTO
     {
         public SpecUSRModel_DTO SpecUSR { get; set; } = new();
         public List<SpecUSRDetail_DTO> SpecUSRDetail { get; set; } = [];
     }
 
-    public class SpecUSRModel_DTO
+    public class SpecUSRModel_DTO:DTOBasicDataModel
     {
         /// <summary>
         /// USR Id

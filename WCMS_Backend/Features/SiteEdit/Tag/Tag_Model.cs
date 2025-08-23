@@ -6,7 +6,7 @@ using WCMS.SysCore.Model;
 
 namespace WCMS.Features.SiteEdit.Tag
 {
-    public class TagSet
+    public class TagSet:ITSet
     {
         public TagData TagData { get; set; } = new TagData();
         public List<TagDetail> TagDetail { get; set; } = [];

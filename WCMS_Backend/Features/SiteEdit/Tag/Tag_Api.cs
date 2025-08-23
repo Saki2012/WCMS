@@ -52,12 +52,12 @@ namespace WCMS.Features.SiteEdit.Tag
         }
         #endregion
     }
-    public class TagSet_DTO
+    public class TagSet_DTO : ITSet_DTO
     {
         public TagData_DTO TagData { get; set; } = new();
         public List<TagDetail_DTO> TagDetail { get; set; } = [];
     }
-    public class TagData_DTO
+    public class TagData_DTO : DTOBasicDataModel
     {
         /// <summary>
         /// 類別ID

@@ -14,7 +14,7 @@ using static WCMS.SysCore.SystemFunc.Auth.AuthController;
 
 namespace WCMS.SysCore
 {
-    public abstract class ApiBaseController<TSet, TSet_DTO> : ControllerBase where TSet : class
+    public abstract class ApiBaseController<TSet, TSet_DTO> : ControllerBase where TSet : ITSet where TSet_DTO : ITSet_DTO
     {
         #region Property
         private IBizService<TSet>? _service;
@@ -77,7 +77,7 @@ namespace WCMS.SysCore
     /// 表單API入口
     /// </summary>
     /// <typeparam name="TSet"></typeparam>
-    public abstract class ApiDataController<TSet, TSet_DTO> : ApiBaseController<TSet, TSet_DTO>, IBaseDataController<TSet, TSet_DTO> where TSet : class where TSet_DTO : class
+    public abstract class ApiDataController<TSet, TSet_DTO> : ApiBaseController<TSet, TSet_DTO>, IBaseDataController<TSet, TSet_DTO> where TSet : ITSet where TSet_DTO : ITSet_DTO
     {
         #region Public
         /// <summary>
@@ -220,7 +220,7 @@ namespace WCMS.SysCore
     /// 報表API入口
     /// </summary>
     /// <typeparam name="TSet"></typeparam>
-    public abstract class ApiReportController<TSet, TSet_DTO> : ApiBaseController<TSet, TSet_DTO>, IBaseReportController<TSet, TSet_DTO> where TSet : class
+    public abstract class ApiReportController<TSet, TSet_DTO> : ApiBaseController<TSet, TSet_DTO>, IBaseReportController<TSet, TSet_DTO> where TSet : ITSet where TSet_DTO : ITSet_DTO
     {
         #region Public
         [HttpPost(nameof(GetReport))]
@@ -293,27 +293,26 @@ namespace WCMS.SysCore
     /// 模型顯示名稱
     /// </summary>
     /// <typeparam name="TSet"></typeparam>
-    public class ModelDisplay<TSet>
+    public class ModelDisplay<TSet_DTO>
     {
         #region Property
         public ModelMetadata Model
         { get {
                 var result = new ModelMetadata
                 {
-                    ModelId = typeof(TSet).Name,
-                    ModelDisplayName = I18nCache.GetLabel<TSet>(),
+                    ModelId = typeof(TSet_DTO).Name,
+                    ModelDisplayName = I18nCache.GetLabel<TSet_DTO>(),
                     Tables = []
                 };
-                foreach (var tbProp in PropertyAccessorCache.GetProperties(typeof(TSet)))
+                foreach (var tbProp in PropertyAccessorCache.GetProperties(typeof(TSet_DTO)))
                 {
                     var tb = new TableMetadata() { Columns = [] };
                     result.Tables.Add(tb);
                     tb.TableId = tbProp.Name;
                     tb.TableDisplayName = I18nCache.GetLabel(tbProp);
-                    if (tbProp.PropertyType.IsGenericType && tbProp.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
+                    if (!tbProp.IsListPropertyType())
                     {
-                        var tbType = tbProp.PropertyType.GetGenericArguments().First();
-                        foreach (var colProp in PropertyAccessorCache.GetProperties(tbType))
+                        foreach (var colProp in PropertyAccessorCache.GetProperties(tbProp.PropertyType))
                         {
                             tb.Columns.Add(new ColumnMetadata()
                             {
@@ -324,7 +323,8 @@ namespace WCMS.SysCore
                     }
                     else
                     {
-                        foreach (var colProp in PropertyAccessorCache.GetProperties(tbProp.PropertyType))
+                        var tbType = tbProp.PropertyType.GetGenericArguments().FirstOrDefault();
+                        foreach (var colProp in PropertyAccessorCache.GetProperties(tbType))
                         {
                             tb.Columns.Add(new ColumnMetadata()
                             {
@@ -357,5 +357,3 @@ namespace WCMS.SysCore
         #endregion
     }
 }
-
-

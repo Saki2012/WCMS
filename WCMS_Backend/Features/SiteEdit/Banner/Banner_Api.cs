@@ -114,13 +114,13 @@ namespace WCMS.Features.SiteEdit.Banner
         #endregion
     }
 
-    public class BannerSet_DTO
+    public class BannerSet_DTO: ITSet_DTO
     {
         [LibDesc] public Banner_DTO Banner { get; set; } = new();
         [LibDesc] public List<BannerDetail_DTO> BannerDetail { get; set; } = [];
         [LibDesc] public List<BannerDetailInfo_DTO> BannerDetailInfo { get; set; } = [];
     }
-    public class Banner_DTO
+    public class Banner_DTO : DTOBasicDataModel
     {
         /// <summary>
         /// 橫幅ID

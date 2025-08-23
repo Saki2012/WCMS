@@ -78,12 +78,12 @@ namespace WCMS.Features.SiteEdit.PageManagement
         }
         #endregion
     }
-    public class PageManagementSet_DTO
+    public class PageManagementSet_DTO :ITSet_DTO
     {
         public PageManagement_DTO PageManagement { get; set; } = new();
         public List<PageManagementDetail_DTO> PageManagementDetail { get; set; } = [];
     }
-    public class PageManagement_DTO
+    public class PageManagement_DTO : DTOBasicDataModel
     {
         /// <summary>
         /// 靜態客製頁面ID

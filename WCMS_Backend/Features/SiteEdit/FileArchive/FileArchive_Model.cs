@@ -5,7 +5,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.FileArchive
 {
-    public class FileArchiveSet
+    public class FileArchiveSet:ITSet
     {
         public FileArchive FileArchive { get; set; } = new FileArchive();
         public List<FileArchiveInfo> FileArchiveInfo { get; set; } = [];

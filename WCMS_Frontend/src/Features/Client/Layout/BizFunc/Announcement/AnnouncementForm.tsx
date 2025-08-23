@@ -1,8 +1,8 @@
 import type { IFETheme } from '../../Theme/ITheme';
 import type { components } from '../../../../../types/api';
-type AnnouncementSet = components["schemas"]["AnnouncementSet"]
-type CategoryDataSet = components["schemas"]["CategoryDataSet"]
-type TagSet = components["schemas"]["TagSet"]
+type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
+type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
+type TagSet = components["schemas"]["TagSet_DTO"]
 import * as SchemaFields from "../../../../../types/SchemaFields";
 import { useParams } from 'react-router-dom';
 import { ContentComp } from '../../Scaffold/ContentViewMode/FormView/FormView_Comp';
@@ -12,12 +12,11 @@ import DOMPurify from 'isomorphic-dompurify'
 import AnnouncementProvider from '../../../../Server/Layout/BizFunc/WebManagement/Announcement/Announcement_Api';
 import { useFetchFormData } from '../../../../../SysCore/Utils/API/FetchFormData';
 import { useResolveInternalIds } from '../../../../../SysCore/Components/File/useResolveInternalIds';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { Lang } from '../../../../../SysCore/i18n/lang';
 import { useFetchGridListData } from '../../../../../SysCore/Utils/API/FetchGridListData';
 import CategoryProvider from '../../../../Server/Layout/BizFunc/WebManagement/Category/Category_Api';
 import TagProvider from '../../../../Server/Layout/BizFunc/WebManagement/Tags/Tag_Api';
-import { promise } from 'zod';
 
 
 const buildInList = (csv?: string) =>

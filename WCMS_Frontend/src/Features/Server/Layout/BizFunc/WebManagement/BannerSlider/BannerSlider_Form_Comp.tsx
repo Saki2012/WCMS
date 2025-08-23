@@ -9,7 +9,7 @@ import { useFormToolbarActions } from "../../../../../../SysCore/Components/Tool
 import { useParams } from "react-router-dom";
 import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
 import type { components } from "../../../../../../types/api";
-type BannerSet = components["schemas"]["BannerSet"]
+type BannerSet = components["schemas"]["BannerSet_DTO"]
 import { useEffect, useState } from "react";
 import TabContentComp from "../../../../../../SysCore/Components/TabContent/TabContent";
 import { useFetchFormData } from "../../../../../../SysCore/Utils/API/FetchFormData";

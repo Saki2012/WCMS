@@ -150,7 +150,7 @@ namespace WCMS.Features.SiteEdit.Announcement
     /// 公告功能
     /// </summary>
     [LibDesc]
-    public class AnnouncementSet_DTO
+    public class AnnouncementSet_DTO:ITSet_DTO
     {
         [LibDesc] public Announcement_DTO Announcement { get; set; } = new();
         [LibDesc] public List<AnnouncementDetail_DTO> AnnouncementDetail { get; set; } = [];
@@ -160,7 +160,7 @@ namespace WCMS.Features.SiteEdit.Announcement
     /// 公告主表
     /// </summary>
     [LibDesc]
-    public class Announcement_DTO
+    public class Announcement_DTO: DTOBasicDataModel
     {
         /// <summary>
         /// 公告代碼

@@ -1,11 +1,11 @@
 // src/Features/Client/routing/site-routing.tsx
 import * as React from "react";
 import type { components } from "../../types/api";
-type SiteMenuSet = components["schemas"]["SiteMenuSet"]
-type SiteMenu_Item = components["schemas"]["SiteMenu_Item"]
-type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title"]
-type SiteMenu_Item_Module = components["schemas"]["SiteMenu_Item_Module"]
-type SiteMenu_Item_Url = components["schemas"]["SiteMenu_Item_Url"]
+type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"]
+type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"]
+type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title_DTO"]
+type SiteMenu_Item_Module = components["schemas"]["SiteMenu_Item_Module_DTO"]
+type SiteMenu_Item_Url = components["schemas"]["SiteMenu_Item_Url_DTO"]
 
 // import { PageManagementComp } from "@/Features/Client/BizFunc/PageManagement/PageManagementComp"; // 第2步再接
 

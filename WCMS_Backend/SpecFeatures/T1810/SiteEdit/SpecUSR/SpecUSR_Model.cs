@@ -5,7 +5,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
 {
-    public class SpecUSRSet
+    public class SpecUSRSet: ITSet
     {
         public SpecUSRModel SpecUSR { get; set; } = new();
         public List<SpecUSRDetail> SpecUSRDetail { get; set; } = [];

@@ -5,7 +5,7 @@ using WCMS.SysCore.Model;
 
 namespace WCMS.Features.SiteEdit.Category
 {
-    public class CategoryDataSet
+    public class CategoryDataSet:ITSet
     {
         public Category Category { get; set; } = new();
         public List<CategoryDetail> CategoryDetail { get; set; } = [];

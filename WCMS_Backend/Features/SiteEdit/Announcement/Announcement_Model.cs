@@ -12,7 +12,7 @@ namespace WCMS.Features.SiteEdit.Announcement
     /// <summary>
     /// 公告功能
     /// </summary>
-    [LibDesc] public class AnnouncementSet
+    [LibDesc] public class AnnouncementSet:ITSet
     {
         [LibDesc] public Announcement Announcement { get; set; } = new Announcement();
         [LibDesc] public List<AnnouncementDetail> AnnouncementDetail { get; set; } = [];

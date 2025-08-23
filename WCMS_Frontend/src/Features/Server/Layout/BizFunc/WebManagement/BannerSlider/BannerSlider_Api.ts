@@ -3,7 +3,7 @@ import type { ApiResponse, QueryListCondition } from "../../../../../../SysCore/
 import { BaseApiService } from "../../../../../../SysCore/Utils/API/APIClient";
 import type { components } from "../../../../../../types/api";
 import type { ModelDisplaySchema } from "../../../../../../types/IApiSchema";
-type BannerSliderSet = components["schemas"]["BannerSet"];
+type BannerSliderSet = components["schemas"]["BannerSet_DTO"];
 
 abstract class IBannerSliderProvider extends IDataProvider<BannerSliderSet>
 {}
@@ -11,16 +11,16 @@ class MockProvider extends IBannerSliderProvider
 {
     protected doCreateData(
         set?: {
-            Banner?: components["schemas"]["Banner"];
-            BannerDetail?: components["schemas"]["BannerDetail"][] | null;
-            BannerDetailInfo?: components["schemas"]["BannerDetailInfo"][] | null;
+            Banner?: components["schemas"]["Banner_DTO"];
+            BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
+            BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
         } | undefined,
     ): Promise<
         ApiResponse<
             {
-                Banner?: components["schemas"]["Banner"];
-                BannerDetail?: components["schemas"]["BannerDetail"][] | null;
-                BannerDetailInfo?: components["schemas"]["BannerDetailInfo"][] | null;
+                Banner?: components["schemas"]["Banner_DTO"];
+                BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
+                BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
             }
         >
     >
@@ -30,16 +30,16 @@ class MockProvider extends IBannerSliderProvider
     protected doUpdateData(
         internaId: string,
         set: {
-            Banner?: components["schemas"]["Banner"];
-            BannerDetail?: components["schemas"]["BannerDetail"][] | null;
-            BannerDetailInfo?: components["schemas"]["BannerDetailInfo"][] | null;
+            Banner?: components["schemas"]["Banner_DTO"];
+            BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
+            BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
         },
     ): Promise<
         ApiResponse<
             {
-                Banner?: components["schemas"]["Banner"];
-                BannerDetail?: components["schemas"]["BannerDetail"][] | null;
-                BannerDetailInfo?: components["schemas"]["BannerDetailInfo"][] | null;
+                Banner?: components["schemas"]["Banner_DTO"];
+                BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
+                BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
             }
         >
     >
@@ -51,9 +51,9 @@ class MockProvider extends IBannerSliderProvider
     ): Promise<
         ApiResponse<
             {
-                Banner?: components["schemas"]["Banner"];
-                BannerDetail?: components["schemas"]["BannerDetail"][] | null;
-                BannerDetailInfo?: components["schemas"]["BannerDetailInfo"][] | null;
+                Banner?: components["schemas"]["Banner_DTO"];
+                BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
+                BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
             }
         >
     >
@@ -66,9 +66,9 @@ class MockProvider extends IBannerSliderProvider
     ): Promise<
         ApiResponse<
             {
-                Banner?: components["schemas"]["Banner"];
-                BannerDetail?: components["schemas"]["BannerDetail"][] | null;
-                BannerDetailInfo?: components["schemas"]["BannerDetailInfo"][] | null;
+                Banner?: components["schemas"]["Banner_DTO"];
+                BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
+                BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
             }
         >
     >
@@ -80,9 +80,9 @@ class MockProvider extends IBannerSliderProvider
     ): Promise<
         ApiResponse<
             {
-                Banner?: components["schemas"]["Banner"];
-                BannerDetail?: components["schemas"]["BannerDetail"][] | null;
-                BannerDetailInfo?: components["schemas"]["BannerDetailInfo"][] | null;
+                Banner?: components["schemas"]["Banner_DTO"];
+                BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
+                BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
             }
         >
     >
@@ -94,9 +94,9 @@ class MockProvider extends IBannerSliderProvider
     ): Promise<
         ApiResponse<
             {
-                Banner?: components["schemas"]["Banner"];
-                BannerDetail?: components["schemas"]["BannerDetail"][] | null;
-                BannerDetailInfo?: components["schemas"]["BannerDetailInfo"][] | null;
+                Banner?: components["schemas"]["Banner_DTO"];
+                BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
+                BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
             }[]
         >
     >
@@ -114,7 +114,7 @@ class MockProvider extends IBannerSliderProvider
 }
 class APIProvider extends IBannerSliderProvider
 {
-    private readonly ModuleName = "Announcement";
+    private readonly ModuleName = "Banner";
     private readonly API = new BaseApiService<BannerSliderSet>(this.ModuleName);
 
     protected async doCreateData(set: BannerSliderSet): Promise<ApiResponse<BannerSliderSet>>

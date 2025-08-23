@@ -10,8 +10,8 @@ import { useFetchFormData } from "../../../../../../SysCore/Utils/API/FetchFormD
 import TagProvider from "./Tag_Api";
 import { LibTextBox } from "../../../../../../SysCore/Components/FormField/LibFormField";
 import { Link } from "react-router-dom";
-type TagSet = components["schemas"]["TagSet"]
-type TagDetail = components["schemas"]["TagDetail"]
+type TagSet = components["schemas"]["TagSet_DTO"]
+type TagDetail = components["schemas"]["TagDetail_DTO"]
 const emptyData: TagSet = {
     TagData: {},
     TagDetail: []

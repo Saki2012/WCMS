@@ -3,16 +3,13 @@ import { useMemo } from "react";
 import type { GridProps } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import type { components } from "../../../../../types/api";
 import type { IFETheme } from "../../Theme/ITheme";
-type AnnouncementSet = components["schemas"]["AnnouncementSet"];
-type AnnouncementDetail = components["schemas"]["AnnouncementDetail"];
+type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 import { Link, useLocation } from "react-router-dom";
 import type { GridRow } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import type { RowCell } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import { useFetchGridListData } from "../../../../../SysCore/Utils/API/FetchGridListData";
-import { FormatDateTime } from "../../../../../SysCore/Utils/Library/LibData";
 import * as SchemaFields from "../../../../../types/SchemaFields";
 import AnnouncementProvider from "../../../../Server/Layout/BizFunc/WebManagement/Announcement/Announcement_Api";
-
 import { GridViewContentComp } from "../../Scaffold/ContentViewMode/GridView/GridView/GridContent_Comp";
 import { Merge } from "../../../../../SysCore/Utils/Library/LibMergeData";
 import type { Lang } from "../../../../../SysCore/i18n/lang";
@@ -29,9 +26,6 @@ const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string) 
         visibleKeys: [
             [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Categories],
             [SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Title],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.DataStatus],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyUserId],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyTime],
         ],
         buildQueryCondition: (page) => ({
             Fields: [
@@ -39,9 +33,6 @@ const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string) 
                 SchemaFields.AnnouncementFields.Categories,
                 `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
                 `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
-                SchemaFields.PageManagementFields.ModifyUserId,
-                SchemaFields.PageManagementFields.ModifyTime,
-                SchemaFields.PageManagementFields.InternalId,
             ],
             Condition: condition,
             PageNumber: page,
@@ -52,10 +43,9 @@ const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string) 
             const cells: RowCell[] = columns.map(col => {
                 let content = "";
                 if (col.key === SchemaFields.AnnouncementDetailFields.Title) {
-                    content = data.AnnouncementDetail?.find(d => d.Lang === lang)?.Title ?? "";
-                } else if (col.key === SchemaFields.AnnouncementFields.ModifyTime) {
-                    content = FormatDateTime((data as any)[col.key]);
-                } else {
+                    content = item.AnnouncementDetail?.find(d => d.Lang === lang)?.Title ?? "";
+                }
+                else {
                     content = (data as any)[col.key] ?? "";
                 }
                 return { col, content };

@@ -314,7 +314,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
     /// <summary>
     /// 
     /// </summary>
-    public class SiteMenuSet_DTO
+    public class SiteMenuSet_DTO : ITSet_DTO
     {
         /// <summary>
         /// 首頁
@@ -344,12 +344,8 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
     /// <summary>
     /// 
     /// </summary>
-    public class SiteMenu_Index_DTO
+    public class SiteMenu_Index_DTO: DTOBasicDataModel
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public string InternalId { get; set; }
         /// <summary>
         /// 首頁代碼
         /// </summary>

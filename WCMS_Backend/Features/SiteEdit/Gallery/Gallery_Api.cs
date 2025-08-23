@@ -156,7 +156,7 @@ namespace WCMS.Features.SiteEdit.Gallery
     }
 
 
-    public class GallerySet_DTO
+    public class GallerySet_DTO :ITSet_DTO
     {
         public Gallery_DTO Gallery { get; set; } = new();
         public List<GalleryInfo_DTO> GalleryInfo { get; set; } = [];
@@ -167,7 +167,7 @@ namespace WCMS.Features.SiteEdit.Gallery
     /// <summary>
     /// 相簿
     /// </summary>
-    public class Gallery_DTO
+    public class Gallery_DTO : DTOBasicDataModel
     {
         /// <summary>
         /// 檔案分類ID

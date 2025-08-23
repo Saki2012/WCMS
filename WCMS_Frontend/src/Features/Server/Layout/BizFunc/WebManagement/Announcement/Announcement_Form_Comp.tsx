@@ -9,8 +9,8 @@ import { useFormToolbarActions } from "../../../../../../SysCore/Components/Tool
 import { useParams } from "react-router-dom";
 import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
 import type { components } from "../../../../../../types/api";
-type AnnouncementSet = components["schemas"]["AnnouncementSet"]
-type AnnouncementDetail = components["schemas"]["AnnouncementDetail"]
+type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
+type AnnouncementDetail = components["schemas"]["AnnouncementDetail_DTO"]
 import TabContentComp from "../../../../../../SysCore/Components/TabContent/TabContent";
 import LibCheckBox from "../../../../../../SysCore/Components/FormField/FieldComponets/LibCheckBox_Comp";
 import LibCalendar from "../../../../../../SysCore/Components/FormField/FieldComponets/LibCalendar_Comp";

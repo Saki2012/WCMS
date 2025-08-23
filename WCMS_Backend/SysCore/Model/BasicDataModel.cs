@@ -7,6 +7,8 @@ using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.Model
 {
+    public interface ITSet { }
+
     /// <summary>
     /// 基本資料欄位
     /// </summary>
@@ -91,7 +93,6 @@ namespace WCMS.SysCore.Model
     public class BillDataModel : BasicDataModel
     {
     }
-
     /// <summary>
     /// 明細行狀態
     /// </summary>

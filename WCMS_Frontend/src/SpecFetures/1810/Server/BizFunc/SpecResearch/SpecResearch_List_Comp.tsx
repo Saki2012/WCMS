@@ -8,7 +8,7 @@ import { ListComp } from "../../../../../Features/Server/Layout/Scaffold/Content
 import type { ListCompProp } from "../../../../../Features/Server/Layout/Scaffold/Content/Content_Data"
 import * as React from "react";
 import type { components } from "../../../../../types/api"
-type SpecResearchSet = components["schemas"]["SpecResearchSet"]
+type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"]
 import { useListToolbarActions } from "../../../../../SysCore/Components/Toolbar/Toolbar_Hook"
 import { useSpecResearchList } from "./SpecResearch_Hook"
 

@@ -3,7 +3,7 @@ import type { ApiResponse, QueryListCondition } from "../../../../../SysCore/Int
 import { BaseApiService } from "../../../../../SysCore/Utils/API/APIClient";
 import type { components } from "../../../../../types/api";
 import type { ModelDisplaySchema } from "../../../../../types/IApiSchema";
-type SpecResearchSet = components["schemas"]["SpecResearchSet"];
+type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"];
 
 abstract class ISpecResearchProvider extends IDataProvider<SpecResearchSet>
 {}

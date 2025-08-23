@@ -3,7 +3,7 @@ import type { ApiResponse, QueryListCondition } from "../../../../../../SysCore/
 import { BaseApiService } from "../../../../../../SysCore/Utils/API/APIClient";
 import type { components } from "../../../../../../types/api";
 import type { ModelDisplaySchema } from "../../../../../../types/IApiSchema";
-type GallerySet = components["schemas"]["GallerySet"];
+type GallerySet = components["schemas"]["GallerySet_DTO"];
 
 abstract class IGalleryProvider extends IDataProvider<GallerySet>
 {}
@@ -11,18 +11,18 @@ class MockProvider extends IGalleryProvider
 {
     protected doCreateData(
         set?: {
-            Gallery?: components["schemas"]["Gallery"];
-            GalleryInfo?: components["schemas"]["GalleryInfo"][] | null;
-            GalleryPhotos?: components["schemas"]["GalleryPhotos"][] | null;
-            GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo"][] | null;
+            Gallery?: components["schemas"]["Gallery_DTO"];
+            GalleryInfo?: components["schemas"]["GalleryInfo_DTO"][] | null;
+            GalleryPhotos?: components["schemas"]["GalleryPhotos_DTO"][] | null;
+            GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo_DTO"][] | null;
         } | undefined,
     ): Promise<
         ApiResponse<
             {
-                Gallery?: components["schemas"]["Gallery"];
-                GalleryInfo?: components["schemas"]["GalleryInfo"][] | null;
-                GalleryPhotos?: components["schemas"]["GalleryPhotos"][] | null;
-                GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo"][] | null;
+                Gallery?: components["schemas"]["Gallery_DTO"];
+                GalleryInfo?: components["schemas"]["GalleryInfo_DTO"][] | null;
+                GalleryPhotos?: components["schemas"]["GalleryPhotos_DTO"][] | null;
+                GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo_DTO"][] | null;
             }
         >
     >
@@ -32,18 +32,18 @@ class MockProvider extends IGalleryProvider
     protected doUpdateData(
         internaId: string,
         set: {
-            Gallery?: components["schemas"]["Gallery"];
-            GalleryInfo?: components["schemas"]["GalleryInfo"][] | null;
-            GalleryPhotos?: components["schemas"]["GalleryPhotos"][] | null;
-            GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo"][] | null;
+            Gallery?: components["schemas"]["Gallery_DTO"];
+            GalleryInfo?: components["schemas"]["GalleryInfo_DTO"][] | null;
+            GalleryPhotos?: components["schemas"]["GalleryPhotos_DTO"][] | null;
+            GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo_DTO"][] | null;
         },
     ): Promise<
         ApiResponse<
             {
-                Gallery?: components["schemas"]["Gallery"];
-                GalleryInfo?: components["schemas"]["GalleryInfo"][] | null;
-                GalleryPhotos?: components["schemas"]["GalleryPhotos"][] | null;
-                GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo"][] | null;
+                Gallery?: components["schemas"]["Gallery_DTO"];
+                GalleryInfo?: components["schemas"]["GalleryInfo_DTO"][] | null;
+                GalleryPhotos?: components["schemas"]["GalleryPhotos_DTO"][] | null;
+                GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo_DTO"][] | null;
             }
         >
     >
@@ -55,10 +55,10 @@ class MockProvider extends IGalleryProvider
     ): Promise<
         ApiResponse<
             {
-                Gallery?: components["schemas"]["Gallery"];
-                GalleryInfo?: components["schemas"]["GalleryInfo"][] | null;
-                GalleryPhotos?: components["schemas"]["GalleryPhotos"][] | null;
-                GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo"][] | null;
+                Gallery?: components["schemas"]["Gallery_DTO"];
+                GalleryInfo?: components["schemas"]["GalleryInfo_DTO"][] | null;
+                GalleryPhotos?: components["schemas"]["GalleryPhotos_DTO"][] | null;
+                GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo_DTO"][] | null;
             }
         >
     >
@@ -71,10 +71,10 @@ class MockProvider extends IGalleryProvider
     ): Promise<
         ApiResponse<
             {
-                Gallery?: components["schemas"]["Gallery"];
-                GalleryInfo?: components["schemas"]["GalleryInfo"][] | null;
-                GalleryPhotos?: components["schemas"]["GalleryPhotos"][] | null;
-                GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo"][] | null;
+                Gallery?: components["schemas"]["Gallery_DTO"];
+                GalleryInfo?: components["schemas"]["GalleryInfo_DTO"][] | null;
+                GalleryPhotos?: components["schemas"]["GalleryPhotos_DTO"][] | null;
+                GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo_DTO"][] | null;
             }
         >
     >
@@ -86,10 +86,10 @@ class MockProvider extends IGalleryProvider
     ): Promise<
         ApiResponse<
             {
-                Gallery?: components["schemas"]["Gallery"];
-                GalleryInfo?: components["schemas"]["GalleryInfo"][] | null;
-                GalleryPhotos?: components["schemas"]["GalleryPhotos"][] | null;
-                GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo"][] | null;
+                Gallery?: components["schemas"]["Gallery_DTO"];
+                GalleryInfo?: components["schemas"]["GalleryInfo_DTO"][] | null;
+                GalleryPhotos?: components["schemas"]["GalleryPhotos_DTO"][] | null;
+                GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo_DTO"][] | null;
             }
         >
     >
@@ -101,10 +101,10 @@ class MockProvider extends IGalleryProvider
     ): Promise<
         ApiResponse<
             {
-                Gallery?: components["schemas"]["Gallery"];
-                GalleryInfo?: components["schemas"]["GalleryInfo"][] | null;
-                GalleryPhotos?: components["schemas"]["GalleryPhotos"][] | null;
-                GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo"][] | null;
+                Gallery?: components["schemas"]["Gallery_DTO"];
+                GalleryInfo?: components["schemas"]["GalleryInfo_DTO"][] | null;
+                GalleryPhotos?: components["schemas"]["GalleryPhotos_DTO"][] | null;
+                GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo_DTO"][] | null;
             }[]
         >
     >

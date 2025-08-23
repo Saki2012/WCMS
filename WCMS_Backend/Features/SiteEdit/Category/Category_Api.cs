@@ -54,12 +54,12 @@ namespace WCMS.Features.SiteEdit.Category
         #endregion
     }
 
-    public class CategoryDataSet_DTO
+    public class CategoryDataSet_DTO :ITSet_DTO
     {
         public Category_DTO Category { get; set; } = new();
         public List<CategoryDetail_DTO> CategoryDetail { get; set; } = [];
     }
-    public class Category_DTO
+    public class Category_DTO : DTOBasicDataModel
     {
         /// <summary>
         /// 類別ID

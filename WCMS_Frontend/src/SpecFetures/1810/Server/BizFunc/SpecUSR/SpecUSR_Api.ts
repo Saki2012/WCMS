@@ -3,7 +3,7 @@ import type { ApiResponse, QueryListCondition } from "../../../../../SysCore/Int
 import { BaseApiService } from "../../../../../SysCore/Utils/API/APIClient";
 import type { components } from "../../../../../types/api";
 import type { ModelDisplaySchema } from "../../../../../types/IApiSchema";
-type SpecUSRSet = components["schemas"]["SpecUSRSet"];
+type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
 
 abstract class ISpecUSRProvider extends IDataProvider<SpecUSRSet>
 {}

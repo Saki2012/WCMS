@@ -2,7 +2,7 @@ import type { RowCell } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import type { components } from "../../../../../types/api";
 import * as SchemaFields from "../../../../../types/SchemaFields";
 import SpecResearchProvider from "./SpecResearch_Api";
-type SpecResearchSet = components["schemas"]["SpecResearchSet"];
+type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"];
 import { useFetchGridListData } from "../../../../../SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "../../../../../SysCore/Utils/Library/LibData";
 

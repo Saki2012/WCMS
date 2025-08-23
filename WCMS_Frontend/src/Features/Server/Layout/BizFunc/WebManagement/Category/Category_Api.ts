@@ -3,7 +3,7 @@ import type { ApiResponse, QueryListCondition } from "../../../../../../SysCore/
 import { BaseApiService } from "../../../../../../SysCore/Utils/API/APIClient";
 import type { components } from "../../../../../../types/api";
 import type { ModelDisplaySchema } from "../../../../../../types/IApiSchema";
-type CategorySet = components["schemas"]["CategoryDataSet"];
+type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 
 abstract class ICategoryProvider extends IDataProvider<CategorySet>
 {
@@ -12,14 +12,14 @@ class MockProvider extends ICategoryProvider
 {
     protected doCreateData(
         set?: {
-            Category?: components["schemas"]["Category"];
-            CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
+            Category?: components["schemas"]["Category_DTO"];
+            CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
         } | undefined,
     ): Promise<
         ApiResponse<
             {
-                Category?: components["schemas"]["Category"];
-                CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
+                Category?: components["schemas"]["Category_DTO"];
+                CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
             }
         >
     >
@@ -29,14 +29,14 @@ class MockProvider extends ICategoryProvider
     protected doUpdateData(
         internaId: string,
         set: {
-            Category?: components["schemas"]["Category"];
-            CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
+            Category?: components["schemas"]["Category_DTO"];
+            CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
         },
     ): Promise<
         ApiResponse<
             {
-                Category?: components["schemas"]["Category"];
-                CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
+                Category?: components["schemas"]["Category_DTO"];
+                CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
             }
         >
     >
@@ -48,8 +48,8 @@ class MockProvider extends ICategoryProvider
     ): Promise<
         ApiResponse<
             {
-                Category?: components["schemas"]["Category"];
-                CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
+                Category?: components["schemas"]["Category_DTO"];
+                CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
             }
         >
     >
@@ -62,8 +62,8 @@ class MockProvider extends ICategoryProvider
     ): Promise<
         ApiResponse<
             {
-                Category?: components["schemas"]["Category"];
-                CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
+                Category?: components["schemas"]["Category_DTO"];
+                CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
             }
         >
     >
@@ -75,8 +75,8 @@ class MockProvider extends ICategoryProvider
     ): Promise<
         ApiResponse<
             {
-                Category?: components["schemas"]["Category"];
-                CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
+                Category?: components["schemas"]["Category_DTO"];
+                CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
             }
         >
     >
@@ -88,8 +88,8 @@ class MockProvider extends ICategoryProvider
     ): Promise<
         ApiResponse<
             {
-                Category?: components["schemas"]["Category"];
-                CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
+                Category?: components["schemas"]["Category_DTO"];
+                CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
             }[]
         >
     >

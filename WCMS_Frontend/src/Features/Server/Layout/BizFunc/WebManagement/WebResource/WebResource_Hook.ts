@@ -4,7 +4,7 @@ import type { QueryListCondition } from "../../../../../../SysCore/Interface/IAp
 import type { components } from "../../../../../../types/api";
 import * as SchemaFields from "../../../../../../types/SchemaFields";
 import WebResourceProvider from "./WebResource_Api";
-type WebResourceSet = components["schemas"]["WebResourceSet"];
+type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 import { useFetchGridListData } from "../../../../../../SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "../../../../../../SysCore/Utils/Library/LibData";
 

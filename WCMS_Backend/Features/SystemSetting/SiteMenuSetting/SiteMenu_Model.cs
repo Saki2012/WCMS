@@ -11,7 +11,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
     /// <summary>
     /// 
     /// </summary>
-    public class SiteMenuSet
+    public class SiteMenuSet:ITSet
     {
         /// <summary>
         /// 首頁

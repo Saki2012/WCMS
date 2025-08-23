@@ -2,7 +2,7 @@ import type { RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Dat
 import type { components } from "../../../../../../types/api";
 import * as SchemaFields from "../../../../../../types/SchemaFields";
 import PageManagementProvider from "./PageManagement_Api";
-type PageManagementSet = components["schemas"]["PageManagementSet"];
+type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
 import { useFetchGridListData } from "../../../../../../SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "../../../../../../SysCore/Utils/Library/LibData";
 
@@ -46,7 +46,7 @@ export const usePageManagementListData = () =>
                 if (col.key === SchemaFields.PageManagementDetailFields.Title)
                 {
                     // 專處理 PageManagementDetail.Title (lang: zh-tw)
-                    content = data.PageManagementDetail?.find((d: any) => d.Lang === "zh-tw")?.Title ?? "";
+                    content = item.PageManagementDetail?.find((d: any) => d.Lang === "zh-tw")?.Title ?? "";
                 } else if (col.key === SchemaFields.PageManagementFields.ModifyTime)
                 {
                     content = FormatDateTime((data as any)[col.key]);

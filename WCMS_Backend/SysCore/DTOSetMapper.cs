@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Reflection;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Model;
 namespace WCMS.SysCore
 {
 
@@ -23,7 +24,7 @@ namespace WCMS.SysCore
 
     public static class DTOHelper
     {
-        public static TSet MapToSet<TSet, TSetDto>(TSetDto srcDTO) where TSet : class where TSetDto : class
+        public static TSet MapToSet<TSet, TSetDto>(TSetDto srcDTO) where TSet : ITSet where TSetDto : ITSet_DTO
         {
             TSet set = PropertyAccessorCache.CreateInstance<TSet>();
             foreach(var prop in PropertyAccessorCache.GetProperties<TSetDto>())
@@ -33,7 +34,7 @@ namespace WCMS.SysCore
                     var srcHeader = PropertyAccessorCache.Get(srcDTO, prop.Name);
                     var dstHeader = PropertyAccessorCache.Get(set, prop.Name);
                     var dtoProps = PropertyAccessorCache.GetProperties(prop.PropertyType);
-                    MapToHeader(srcHeader, dstHeader, dtoProps);
+                    MapToHeader(srcHeader, dstHeader, dtoProps,true);
                 }
                 else
                 {
@@ -41,13 +42,13 @@ namespace WCMS.SysCore
                     if (srcDetails == null) continue;
                     var dstDetails = PropertyAccessorCache.Get(set, prop.Name) as IList;
                     var dtoProps = PropertyAccessorCache.GetProperties(srcDetails.GetType().GenericTypeArguments.FirstOrDefault());
-                    MapToDetail(srcDetails, dstDetails, dtoProps);
+                    MapToDetail(srcDetails, dstDetails, dtoProps,true);
                 }
             }
             return set;
         }
 
-        public static TSetDto MapToDTO<TSet, TSetDto>(TSet srcSet) where TSet : class where TSetDto : class
+        public static TSetDto MapToDTO<TSet, TSetDto>(TSet srcSet) where TSet : ITSet where TSetDto : ITSet_DTO
         {
             TSetDto set = PropertyAccessorCache.CreateInstance<TSetDto>();
             foreach (var prop in PropertyAccessorCache.GetProperties<TSetDto>())
@@ -57,7 +58,7 @@ namespace WCMS.SysCore
                     var srcHeader = PropertyAccessorCache.Get(srcSet, prop.Name);
                     var dstHeader = PropertyAccessorCache.Get(set, prop.Name);
                     var dtoProps = PropertyAccessorCache.GetProperties(prop.PropertyType);
-                    MapToHeader(srcHeader, dstHeader, dtoProps);
+                    MapToHeader(srcHeader, dstHeader, dtoProps,false);
                 }
                 else
                 {
@@ -65,7 +66,7 @@ namespace WCMS.SysCore
                     if (srcDetails == null) continue;
                     var dstDetails = PropertyAccessorCache.Get(set, prop.Name) as IList;
                     var dtoProps = PropertyAccessorCache.GetProperties(dstDetails.GetType().GenericTypeArguments.FirstOrDefault());
-                    MapToDetail(srcDetails, dstDetails, dtoProps);
+                    MapToDetail(srcDetails, dstDetails, dtoProps,false);
                 }
             }
             return set;
@@ -84,11 +85,12 @@ namespace WCMS.SysCore
         /// <param name="srcHeader"></param>
         /// <param name="dstHeader"></param>
         /// <param name="dtoProps"></param>
-        private static void MapToHeader(dynamic srcHeader,dynamic dstHeader, PropertyInfo[] dtoProps)
+        private static void MapToHeader(dynamic srcHeader,dynamic dstHeader, PropertyInfo[] dtoProps,bool isReadOnly)
         {
             foreach (var fieldProp in dtoProps)
             {
                 if (fieldProp.IsListPropertyType()) continue;
+                if (isReadOnly&&PropertyAccessorCache.TryGetAttribute<DTOReadOnlyAttribute>(fieldProp,out _)) continue;
                 var field = PropertyAccessorCache.Get(srcHeader, fieldProp.Name);
                 if (field != null) PropertyAccessorCache.Set(dstHeader, fieldProp.Name, field);
             }
@@ -100,7 +102,7 @@ namespace WCMS.SysCore
         /// <param name="dstDetails"></param>
         /// <param name="dstType"></param>
         /// <param name="dtoProps"></param>
-        private static void MapToDetail(IList srcDetails,IList dstDetails,PropertyInfo[] dtoProps)
+        private static void MapToDetail(IList srcDetails,IList dstDetails,PropertyInfo[] dtoProps,bool isReadOnly)
         {
             var dstType = dstDetails.GetType().GetGenericArguments().FirstOrDefault();
             foreach (var srcData in srcDetails)
@@ -110,6 +112,7 @@ namespace WCMS.SysCore
                 foreach(var fieldProp in dtoProps)
                 {
                     if (fieldProp.IsListPropertyType()) continue;
+                    if (isReadOnly&&PropertyAccessorCache.TryGetAttribute<DTOReadOnlyAttribute>(fieldProp, out _)) continue;
                     var field = PropertyAccessorCache.Get(srcData, fieldProp.Name);
                     if (field != null) PropertyAccessorCache.Set(dstData, fieldProp.Name, field);
                 }

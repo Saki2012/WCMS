@@ -4,7 +4,7 @@ using WCMS.SysCore.Model;
 
 namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
 {
-    public class SpecCategorySet
+    public class SpecCategorySet:ITSet
     {
         public SpecCategoryModel SpecCategory { get; set; } = new();
         public List<SpecCategoryDetailModel> SpecCategoryDetail { get; set; } = [];

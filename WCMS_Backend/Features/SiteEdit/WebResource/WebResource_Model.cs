@@ -5,7 +5,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.WebResource
 {
-    public class WebResourceSet
+    public class WebResourceSet : ITSet
     {
         public WebResource WebResource { get; set; } = new();
         public List<WebResourceInfo> WebResourceInfo { get; set; } = [];

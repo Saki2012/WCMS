@@ -4,7 +4,7 @@ import type { QueryListCondition } from "../../../../../../SysCore/Interface/IAp
 import type { components } from "../../../../../../types/api";
 import * as SchemaFields from "../../../../../../types/SchemaFields";
 import FileArchiveProvider from "./FileArchive_Api";
-type FileArchiveSet = components["schemas"]["FileArchiveSet"];
+type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
 import { useFetchGridListData } from "../../../../../../SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "../../../../../../SysCore/Utils/Library/LibData";
 

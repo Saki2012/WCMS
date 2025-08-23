@@ -129,13 +129,13 @@ namespace WCMS.Features.SiteEdit.FileArchive
         #endregion
     }
 
-    public class FileArchiveSet_DTO
+    public class FileArchiveSet_DTO :ITSet_DTO
     {
         public FileArchive_DTO FileArchive { get; set; } = new ();
         public List<FileArchiveInfo_DTO> FileArchiveInfo { get; set; } = [];
         public List<FileArchiveDetail_DTO> FileArchiveDetail { get; set; } = [];
     }
-    public class FileArchive_DTO
+    public class FileArchive_DTO : DTOBasicDataModel
     {
         /// <summary>
         /// 檔案分類ID

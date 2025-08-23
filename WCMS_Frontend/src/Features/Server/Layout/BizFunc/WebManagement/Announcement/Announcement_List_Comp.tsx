@@ -1,14 +1,14 @@
-import type{SearchBarProps} from "../../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
-import type {IBETheme} from "../../../../../../Features/Server/Layout/Theme/ITheme"
-import type { GridProps,ColumnConfig,GridRow,RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data"
+import type { SearchBarProps } from "../../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
+import type { IBETheme } from "../../../../../../Features/Server/Layout/Theme/ITheme"
+import type { GridProps, ColumnConfig, GridRow, RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data"
 import { useMemo } from "react"
-import { useLocation,Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { ListComp } from "../../../Scaffold/Content/List_Comp"
 import type { ListCompProp } from "../../../Scaffold/Content/Content_Data"
 import * as React from "react";
-import  type { components } from "../../../../../../types/api";
+import type { components } from "../../../../../../types/api";
 import { handleDelete } from "./Announcement_Hook"
-type AnnouncementSet = components["schemas"]["AnnouncementSet"]
+type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 import { useListToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
 import { useAnnouncementList } from "./Announcement_Hook"
 import * as SchemaFields from "../../../../../../types/SchemaFields";
@@ -19,24 +19,24 @@ import * as SchemaFields from "../../../../../../types/SchemaFields";
 /** 公告列表
  * @returns 
  */
-export const AnnouncementListComp = ({title,theme}:{title:string;theme:IBETheme}) => {
+export const AnnouncementListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
 
     const useAnnounceList = useAnnouncementList();
 
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData);}, [useAnnounceList.gridProps, useAnnounceList.rawData]);
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData]);
     const useToolbar = useListToolbarActions(dirUrl)
-    const isLoading=[useAnnounceList.isLoading];
-    const errors=[useAnnounceList.error];
-    const searchCompProp:SearchBarProps={
-            title:"公告搜尋",
-            subTitle:"搜尋公告 ...",
-            settingTitle: "搜尋設定",
-        }
-    const prop:ListCompProp={ Title:title, Theme:theme, LoadingList:isLoading, ErrorList:errors, Toolbar:useToolbar.toolbarActions,GridData:adjustedGrid, SearchBar:searchCompProp}
+    const isLoading = [useAnnounceList.isLoading];
+    const errors = [useAnnounceList.error];
+    const searchCompProp: SearchBarProps = {
+        title: "公告搜尋",
+        subTitle: "搜尋公告 ...",
+        settingTitle: "搜尋設定",
+    }
+    const prop: ListCompProp = { Title: title, Theme: theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.toolbarActions, GridData: adjustedGrid, SearchBar: searchCompProp }
 
     return (
-            <ListComp prop={prop}></ListComp>
+        <ListComp prop={prop}></ListComp>
     );
 }
 
@@ -50,7 +50,7 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: Announ
 
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
         const statusCell = row.cells.find(cell => cell.col.key === SchemaFields.AnnouncementFields.ContentStatus);
-        if (statusCell && typeof statusCell.content === 'number') {statusCell.content = GetDataStatusContent(statusCell.content);}
+        if (statusCell && typeof statusCell.content === 'number') { statusCell.content = GetDataStatusContent(statusCell.content); }
 
         const internalId = rawData?.[index]?.Announcement?.InternalId ?? "";
         const newCell: RowCell = {
@@ -79,9 +79,9 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: Announ
 
 /** 目前說只有公告/檔案室/網路資源/相簿會用到 */
 const GetDataStatusContent = (contentStatus: number): React.ReactNode => {
-const statusItems: React.ReactNode[] = [];
-if (contentStatus & 1) {statusItems.push(<div className="icon-small top-bg">置頂</div>);}
-if (contentStatus & 2) {statusItems.push(<div className="icon-small hot-bg">熱門</div>);}
-if (contentStatus & 4) {statusItems.push(<div className="icon-small hide-bg">隱藏</div>);}
-  return <div className="CustomState">{statusItems}</div>
+    const statusItems: React.ReactNode[] = [];
+    if (contentStatus & 1) { statusItems.push(<div className="icon-small top-bg">置頂</div>); }
+    if (contentStatus & 2) { statusItems.push(<div className="icon-small hot-bg">熱門</div>); }
+    if (contentStatus & 4) { statusItems.push(<div className="icon-small hide-bg">隱藏</div>); }
+    return <div className="CustomState">{statusItems}</div>
 };

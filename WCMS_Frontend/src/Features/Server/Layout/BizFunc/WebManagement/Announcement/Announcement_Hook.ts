@@ -4,7 +4,7 @@ import type { QueryListCondition } from "../../../../../../SysCore/Interface/IAp
 import type { components } from "../../../../../../types/api";
 import * as SchemaFields from "../../../../../../types/SchemaFields";
 import AnnouncementProvider from "./Announcement_Api";
-type AnnouncementSet = components["schemas"]["AnnouncementSet"];
+type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 import { useFetchGridListData } from "../../../../../../SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "../../../../../../SysCore/Utils/Library/LibData";
 
@@ -45,7 +45,7 @@ export const useAnnouncementList = () =>
                 let content = "";
                 if (col.key === SchemaFields.AnnouncementDetailFields.Title)
                 {
-                    content = data.AnnouncementDetail?.find(d => d.Lang === "zh-tw")?.Title ?? "";
+                    content = item.AnnouncementDetail?.find(d => d.Lang === "zh-tw")?.Title ?? "";
                 } else if (col.key === SchemaFields.AnnouncementFields.ModifyTime)
                 {
                     content = FormatDateTime((data as any)[col.key]);

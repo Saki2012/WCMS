@@ -1,7 +1,7 @@
 import { useFetchFormData } from "../../../../../SysCore/Utils/API/FetchFormData";
 import type { components } from "../../../../../types/api";
 import PageManagementProvider from "../../../../Server/Layout/BizFunc/WebManagement/PageManagement/PageManagement_Api";
-type PageManagementSet = components["schemas"]["PageManagementSet"];
+type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
 import React, { useMemo } from "react";
 import { ContentComp } from "../../Scaffold/ContentViewMode/FormView/FormView_Comp";
 import type { IFETheme } from "../../Theme/ITheme";

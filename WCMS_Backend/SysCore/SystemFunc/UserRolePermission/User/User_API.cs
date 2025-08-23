@@ -69,12 +69,12 @@ namespace WCMS.SysCore.SystemFunc.UserRolePermission.User
 
 
     [LibDesc]
-    public class UserSet_DTO
+    public class UserSet_DTO:ITSet_DTO
     {
         public UserModel User { get; set; } = new();
     }
     [LibDesc]
-    public class UserModel_DTO
+    public class UserModel_DTO: DTOBasicDataModel
     {
         /// <summary>
         /// 使用者編號

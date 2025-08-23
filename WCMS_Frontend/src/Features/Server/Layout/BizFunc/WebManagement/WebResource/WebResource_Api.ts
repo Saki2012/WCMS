@@ -3,7 +3,7 @@ import type { ApiResponse, QueryListCondition } from "../../../../../../SysCore/
 import { BaseApiService } from "../../../../../../SysCore/Utils/API/APIClient";
 import type { components } from "../../../../../../types/api";
 import type { ModelDisplaySchema } from "../../../../../../types/IApiSchema";
-type WebResourceSet = components["schemas"]["WebResourceSet"];
+type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 
 abstract class IWebResourceProvider extends IDataProvider<WebResourceSet>
 {}

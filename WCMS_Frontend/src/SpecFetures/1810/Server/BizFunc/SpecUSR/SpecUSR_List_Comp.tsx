@@ -10,7 +10,7 @@ import * as React from "react";
 import type { components } from "../../../../../types/api"
 import { useListToolbarActions } from "../../../../../SysCore/Components/Toolbar/Toolbar_Hook"
 import { useUSRProjList } from "./SpecUSR_Hook"
-type SpecUSRSet = components["schemas"]["SpecUSRSet"]
+type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"]
 
 /** USR計畫清單
  * @returns 

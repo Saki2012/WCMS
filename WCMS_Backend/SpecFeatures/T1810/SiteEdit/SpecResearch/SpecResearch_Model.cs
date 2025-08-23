@@ -5,7 +5,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
 {
-    public class SpecResearchSet
+    public class SpecResearchSet:ITSet
     {
         public SpecResearchModel SpecResearch { get; set; } = new();
         public List<SpecResearchDetailModel> SpecResearchDetail { get; set; } = [];

@@ -3,7 +3,7 @@ import type { ApiResponse, QueryListCondition } from "../../../../../../SysCore/
 import { BaseApiService } from "../../../../../../SysCore/Utils/API/APIClient";
 import type { components } from "../../../../../../types/api";
 import type { ModelDisplaySchema } from "../../../../../../types/IApiSchema";
-type PageManagementSet = components["schemas"]["PageManagementSet"];
+type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
 
 abstract class IPageManagementProvider extends IDataProvider<PageManagementSet>
 {}
@@ -11,14 +11,14 @@ class MockProvider extends IPageManagementProvider
 {
     protected doCreateData(
         set?: {
-            PageManagement?: components["schemas"]["PageManagement"];
-            PageManagementDetail?: components["schemas"]["PageManagementDetail"][] | null;
+            PageManagement?: components["schemas"]["PageManagement_DTO"];
+            PageManagementDetail?: components["schemas"]["PageManagementDetail_DTO"][] | null;
         } | undefined,
     ): Promise<
         ApiResponse<
             {
-                PageManagement?: components["schemas"]["PageManagement"];
-                PageManagementDetail?: components["schemas"]["PageManagementDetail"][] | null;
+                PageManagement?: components["schemas"]["PageManagement_DTO"];
+                PageManagementDetail?: components["schemas"]["PageManagementDetail_DTO"][] | null;
             }
         >
     >
@@ -28,14 +28,14 @@ class MockProvider extends IPageManagementProvider
     protected doUpdateData(
         internaId: string,
         set: {
-            PageManagement?: components["schemas"]["PageManagement"];
-            PageManagementDetail?: components["schemas"]["PageManagementDetail"][] | null;
+            PageManagement?: components["schemas"]["PageManagement_DTO"];
+            PageManagementDetail?: components["schemas"]["PageManagementDetail_DTO"][] | null;
         },
     ): Promise<
         ApiResponse<
             {
-                PageManagement?: components["schemas"]["PageManagement"];
-                PageManagementDetail?: components["schemas"]["PageManagementDetail"][] | null;
+                PageManagement?: components["schemas"]["PageManagement_DTO"];
+                PageManagementDetail?: components["schemas"]["PageManagementDetail_DTO"][] | null;
             }
         >
     >
@@ -47,8 +47,8 @@ class MockProvider extends IPageManagementProvider
     ): Promise<
         ApiResponse<
             {
-                PageManagement?: components["schemas"]["PageManagement"];
-                PageManagementDetail?: components["schemas"]["PageManagementDetail"][] | null;
+                PageManagement?: components["schemas"]["PageManagement_DTO"];
+                PageManagementDetail?: components["schemas"]["PageManagementDetail_DTO"][] | null;
             }
         >
     >
@@ -61,8 +61,8 @@ class MockProvider extends IPageManagementProvider
     ): Promise<
         ApiResponse<
             {
-                PageManagement?: components["schemas"]["PageManagement"];
-                PageManagementDetail?: components["schemas"]["PageManagementDetail"][] | null;
+                PageManagement?: components["schemas"]["PageManagement_DTO"];
+                PageManagementDetail?: components["schemas"]["PageManagementDetail_DTO"][] | null;
             }
         >
     >
@@ -74,8 +74,8 @@ class MockProvider extends IPageManagementProvider
     ): Promise<
         ApiResponse<
             {
-                PageManagement?: components["schemas"]["PageManagement"];
-                PageManagementDetail?: components["schemas"]["PageManagementDetail"][] | null;
+                PageManagement?: components["schemas"]["PageManagement_DTO"];
+                PageManagementDetail?: components["schemas"]["PageManagementDetail_DTO"][] | null;
             }
         >
     >
@@ -87,8 +87,8 @@ class MockProvider extends IPageManagementProvider
     ): Promise<
         ApiResponse<
             {
-                PageManagement?: components["schemas"]["PageManagement"];
-                PageManagementDetail?: components["schemas"]["PageManagementDetail"][] | null;
+                PageManagement?: components["schemas"]["PageManagement_DTO"];
+                PageManagementDetail?: components["schemas"]["PageManagementDetail_DTO"][] | null;
             }[]
         >
     >

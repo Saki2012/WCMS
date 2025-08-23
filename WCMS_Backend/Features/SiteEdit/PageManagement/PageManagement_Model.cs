@@ -6,7 +6,7 @@ using WCMS.SysCore.Model;
 
 namespace WCMS.Features.SiteEdit.PageManagement
 {
-    public class PageManagementSet
+    public class PageManagementSet:ITSet
     {
         public PageManagement PageManagement { get; set; } = new();
         public List<PageManagementDetail> PageManagementDetail { get; set; } = [];

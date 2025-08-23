@@ -2,7 +2,7 @@ import type { RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Dat
 import type { components } from "../../../../../../types/api";
 import * as SchemaFields from "../../../../../../types/SchemaFields";
 import GalleryProvider from "./Gallery_Api";
-type GallerySet = components["schemas"]["GallerySet"];
+type GallerySet = components["schemas"]["GallerySet_DTO"];
 import { useFetchGridListData } from "../../../../../../SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "../../../../../../SysCore/Utils/Library/LibData";
 

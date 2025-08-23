@@ -2,7 +2,7 @@
 import { useMemo } from "react";
 import type { components } from "../../../../types/api";
 import type { IFETheme } from "../../../../Features/Client/Layout/Theme/ITheme";
-type SpecUSRSet = components["schemas"]["SpecUSRSet"];
+type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
 import { Link, useLocation } from "react-router-dom";
 import type { Lang } from "../../../../SysCore/i18n/lang";
 import { Merge } from "../../../../SysCore/Utils/Library/LibMergeData";

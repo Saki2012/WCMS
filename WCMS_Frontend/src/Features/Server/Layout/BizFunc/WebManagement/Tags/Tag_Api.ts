@@ -3,7 +3,7 @@ import type { ApiResponse, QueryListCondition } from "../../../../../../SysCore/
 import { BaseApiService } from "../../../../../../SysCore/Utils/API/APIClient";
 import type { components } from "../../../../../../types/api";
 import type { ModelDisplaySchema } from "../../../../../../types/IApiSchema";
-type TagSet = components["schemas"]["TagSet"];
+type TagSet = components["schemas"]["TagSet_DTO"];
 
 abstract class ITagProvider extends IDataProvider<TagSet>
 {
@@ -12,11 +12,17 @@ class MockProvider extends ITagProvider
 {
     protected doCreateData(
         set?:
-            | { TagData?: components["schemas"]["TagData"]; TagDetail?: components["schemas"]["TagDetail"][] | null; }
+            | {
+                TagData?: components["schemas"]["TagData_DTO"];
+                TagDetail?: components["schemas"]["TagDetail_DTO"][] | null;
+            }
             | undefined,
     ): Promise<
         ApiResponse<
-            { TagData?: components["schemas"]["TagData"]; TagDetail?: components["schemas"]["TagDetail"][] | null; }
+            {
+                TagData?: components["schemas"]["TagData_DTO"];
+                TagDetail?: components["schemas"]["TagDetail_DTO"][] | null;
+            }
         >
     >
     {
@@ -24,10 +30,16 @@ class MockProvider extends ITagProvider
     }
     protected doUpdateData(
         internaId: string,
-        set: { TagData?: components["schemas"]["TagData"]; TagDetail?: components["schemas"]["TagDetail"][] | null; },
+        set: {
+            TagData?: components["schemas"]["TagData_DTO"];
+            TagDetail?: components["schemas"]["TagDetail_DTO"][] | null;
+        },
     ): Promise<
         ApiResponse<
-            { TagData?: components["schemas"]["TagData"]; TagDetail?: components["schemas"]["TagDetail"][] | null; }
+            {
+                TagData?: components["schemas"]["TagData_DTO"];
+                TagDetail?: components["schemas"]["TagDetail_DTO"][] | null;
+            }
         >
     >
     {
@@ -37,7 +49,10 @@ class MockProvider extends ITagProvider
         internaId: string,
     ): Promise<
         ApiResponse<
-            { TagData?: components["schemas"]["TagData"]; TagDetail?: components["schemas"]["TagDetail"][] | null; }
+            {
+                TagData?: components["schemas"]["TagData_DTO"];
+                TagDetail?: components["schemas"]["TagDetail_DTO"][] | null;
+            }
         >
     >
     {
@@ -48,7 +63,10 @@ class MockProvider extends ITagProvider
         isInvalid: boolean,
     ): Promise<
         ApiResponse<
-            { TagData?: components["schemas"]["TagData"]; TagDetail?: components["schemas"]["TagDetail"][] | null; }
+            {
+                TagData?: components["schemas"]["TagData_DTO"];
+                TagDetail?: components["schemas"]["TagDetail_DTO"][] | null;
+            }
         >
     >
     {
@@ -58,7 +76,10 @@ class MockProvider extends ITagProvider
         internaId?: string,
     ): Promise<
         ApiResponse<
-            { TagData?: components["schemas"]["TagData"]; TagDetail?: components["schemas"]["TagDetail"][] | null; }
+            {
+                TagData?: components["schemas"]["TagData_DTO"];
+                TagDetail?: components["schemas"]["TagDetail_DTO"][] | null;
+            }
         >
     >
     {
@@ -68,7 +89,10 @@ class MockProvider extends ITagProvider
         condition?: QueryListCondition,
     ): Promise<
         ApiResponse<
-            { TagData?: components["schemas"]["TagData"]; TagDetail?: components["schemas"]["TagDetail"][] | null; }[]
+            {
+                TagData?: components["schemas"]["TagData_DTO"];
+                TagDetail?: components["schemas"]["TagDetail_DTO"][] | null;
+            }[]
         >
     >
     {

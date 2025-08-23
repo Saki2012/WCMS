@@ -104,13 +104,13 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
         #endregion
     }
 
-    public class SpecCategorySet_DTO
+    public class SpecCategorySet_DTO:ITSet_DTO
     {
         public SpecCategoryModel_DTO SpecCategory { get; set; } = new();
         public List<SpecCategoryDetailModel_DTO> SpecCategoryDetail { get; set; } = [];
     }
 
-    public class SpecCategoryModel_DTO
+    public class SpecCategoryModel_DTO: DTOBasicDataModel
     {
         [LibDesc] public string CategoryId { get; set; }
         /// <summary>

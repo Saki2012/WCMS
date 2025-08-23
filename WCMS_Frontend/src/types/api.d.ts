@@ -57,9 +57,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["AnnouncementSet"];
-                    "text/json": components["schemas"]["AnnouncementSet"];
-                    "application/*+json": components["schemas"]["AnnouncementSet"];
+                    "application/json": components["schemas"]["AnnouncementSet_DTO"];
+                    "text/json": components["schemas"]["AnnouncementSet_DTO"];
+                    "application/*+json": components["schemas"]["AnnouncementSet_DTO"];
                 };
             };
             responses: {
@@ -96,9 +96,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["AnnouncementSet"][];
-                    "text/json": components["schemas"]["AnnouncementSet"][];
-                    "application/*+json": components["schemas"]["AnnouncementSet"][];
+                    "application/json": components["schemas"]["AnnouncementSet_DTO"][];
+                    "text/json": components["schemas"]["AnnouncementSet_DTO"][];
+                    "application/*+json": components["schemas"]["AnnouncementSet_DTO"][];
                 };
             };
             responses: {
@@ -134,9 +134,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["AnnouncementSetApiRequest"];
-                    "text/json": components["schemas"]["AnnouncementSetApiRequest"];
-                    "application/*+json": components["schemas"]["AnnouncementSetApiRequest"];
+                    "application/json": components["schemas"]["AnnouncementSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["AnnouncementSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["AnnouncementSet_DTOApiRequest"];
                 };
             };
             responses: {
@@ -648,9 +648,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["BannerSet"];
-                    "text/json": components["schemas"]["BannerSet"];
-                    "application/*+json": components["schemas"]["BannerSet"];
+                    "application/json": components["schemas"]["BannerSet_DTO"];
+                    "text/json": components["schemas"]["BannerSet_DTO"];
+                    "application/*+json": components["schemas"]["BannerSet_DTO"];
                 };
             };
             responses: {
@@ -687,9 +687,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["BannerSet"][];
-                    "text/json": components["schemas"]["BannerSet"][];
-                    "application/*+json": components["schemas"]["BannerSet"][];
+                    "application/json": components["schemas"]["BannerSet_DTO"][];
+                    "text/json": components["schemas"]["BannerSet_DTO"][];
+                    "application/*+json": components["schemas"]["BannerSet_DTO"][];
                 };
             };
             responses: {
@@ -725,9 +725,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["BannerSetApiRequest"];
-                    "text/json": components["schemas"]["BannerSetApiRequest"];
-                    "application/*+json": components["schemas"]["BannerSetApiRequest"];
+                    "application/json": components["schemas"]["BannerSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["BannerSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["BannerSet_DTOApiRequest"];
                 };
             };
             responses: {
@@ -1097,9 +1097,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["CategoryDataSet"];
-                    "text/json": components["schemas"]["CategoryDataSet"];
-                    "application/*+json": components["schemas"]["CategoryDataSet"];
+                    "application/json": components["schemas"]["CategoryDataSet_DTO"];
+                    "text/json": components["schemas"]["CategoryDataSet_DTO"];
+                    "application/*+json": components["schemas"]["CategoryDataSet_DTO"];
                 };
             };
             responses: {
@@ -1136,9 +1136,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["CategoryDataSet"][];
-                    "text/json": components["schemas"]["CategoryDataSet"][];
-                    "application/*+json": components["schemas"]["CategoryDataSet"][];
+                    "application/json": components["schemas"]["CategoryDataSet_DTO"][];
+                    "text/json": components["schemas"]["CategoryDataSet_DTO"][];
+                    "application/*+json": components["schemas"]["CategoryDataSet_DTO"][];
                 };
             };
             responses: {
@@ -1174,9 +1174,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["CategoryDataSetApiRequest"];
-                    "text/json": components["schemas"]["CategoryDataSetApiRequest"];
-                    "application/*+json": components["schemas"]["CategoryDataSetApiRequest"];
+                    "application/json": components["schemas"]["CategoryDataSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["CategoryDataSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["CategoryDataSet_DTOApiRequest"];
                 };
             };
             responses: {
@@ -1548,9 +1548,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["FileArchiveSet"];
-                    "text/json": components["schemas"]["FileArchiveSet"];
-                    "application/*+json": components["schemas"]["FileArchiveSet"];
+                    "application/json": components["schemas"]["FileArchiveSet_DTO"];
+                    "text/json": components["schemas"]["FileArchiveSet_DTO"];
+                    "application/*+json": components["schemas"]["FileArchiveSet_DTO"];
                 };
             };
             responses: {
@@ -1587,9 +1587,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["FileArchiveSet"][];
-                    "text/json": components["schemas"]["FileArchiveSet"][];
-                    "application/*+json": components["schemas"]["FileArchiveSet"][];
+                    "application/json": components["schemas"]["FileArchiveSet_DTO"][];
+                    "text/json": components["schemas"]["FileArchiveSet_DTO"][];
+                    "application/*+json": components["schemas"]["FileArchiveSet_DTO"][];
                 };
             };
             responses: {
@@ -1625,9 +1625,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["FileArchiveSetApiRequest"];
-                    "text/json": components["schemas"]["FileArchiveSetApiRequest"];
-                    "application/*+json": components["schemas"]["FileArchiveSetApiRequest"];
+                    "application/json": components["schemas"]["FileArchiveSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["FileArchiveSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["FileArchiveSet_DTOApiRequest"];
                 };
             };
             responses: {
@@ -2187,9 +2187,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["FileManageSet"];
-                    "text/json": components["schemas"]["FileManageSet"];
-                    "application/*+json": components["schemas"]["FileManageSet"];
+                    "application/json": components["schemas"]["FileManageSet_DTO"];
+                    "text/json": components["schemas"]["FileManageSet_DTO"];
+                    "application/*+json": components["schemas"]["FileManageSet_DTO"];
                 };
             };
             responses: {
@@ -2226,9 +2226,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["FileManageSet"][];
-                    "text/json": components["schemas"]["FileManageSet"][];
-                    "application/*+json": components["schemas"]["FileManageSet"][];
+                    "application/json": components["schemas"]["FileManageSet_DTO"][];
+                    "text/json": components["schemas"]["FileManageSet_DTO"][];
+                    "application/*+json": components["schemas"]["FileManageSet_DTO"][];
                 };
             };
             responses: {
@@ -2264,9 +2264,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["FileManageSetApiRequest"];
-                    "text/json": components["schemas"]["FileManageSetApiRequest"];
-                    "application/*+json": components["schemas"]["FileManageSetApiRequest"];
+                    "application/json": components["schemas"]["FileManageSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["FileManageSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["FileManageSet_DTOApiRequest"];
                 };
             };
             responses: {
@@ -2638,9 +2638,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["GallerySet"];
-                    "text/json": components["schemas"]["GallerySet"];
-                    "application/*+json": components["schemas"]["GallerySet"];
+                    "application/json": components["schemas"]["GallerySet_DTO"];
+                    "text/json": components["schemas"]["GallerySet_DTO"];
+                    "application/*+json": components["schemas"]["GallerySet_DTO"];
                 };
             };
             responses: {
@@ -2677,9 +2677,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["GallerySet"][];
-                    "text/json": components["schemas"]["GallerySet"][];
-                    "application/*+json": components["schemas"]["GallerySet"][];
+                    "application/json": components["schemas"]["GallerySet_DTO"][];
+                    "text/json": components["schemas"]["GallerySet_DTO"][];
+                    "application/*+json": components["schemas"]["GallerySet_DTO"][];
                 };
             };
             responses: {
@@ -2715,9 +2715,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["GallerySetApiRequest"];
-                    "text/json": components["schemas"]["GallerySetApiRequest"];
-                    "application/*+json": components["schemas"]["GallerySetApiRequest"];
+                    "application/json": components["schemas"]["GallerySet_DTOApiRequest"];
+                    "text/json": components["schemas"]["GallerySet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["GallerySet_DTOApiRequest"];
                 };
             };
             responses: {
@@ -3089,9 +3089,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["PageManagementSet"];
-                    "text/json": components["schemas"]["PageManagementSet"];
-                    "application/*+json": components["schemas"]["PageManagementSet"];
+                    "application/json": components["schemas"]["PageManagementSet_DTO"];
+                    "text/json": components["schemas"]["PageManagementSet_DTO"];
+                    "application/*+json": components["schemas"]["PageManagementSet_DTO"];
                 };
             };
             responses: {
@@ -3128,9 +3128,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["PageManagementSet"][];
-                    "text/json": components["schemas"]["PageManagementSet"][];
-                    "application/*+json": components["schemas"]["PageManagementSet"][];
+                    "application/json": components["schemas"]["PageManagementSet_DTO"][];
+                    "text/json": components["schemas"]["PageManagementSet_DTO"][];
+                    "application/*+json": components["schemas"]["PageManagementSet_DTO"][];
                 };
             };
             responses: {
@@ -3166,9 +3166,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["PageManagementSetApiRequest"];
-                    "text/json": components["schemas"]["PageManagementSetApiRequest"];
-                    "application/*+json": components["schemas"]["PageManagementSetApiRequest"];
+                    "application/json": components["schemas"]["PageManagementSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["PageManagementSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["PageManagementSet_DTOApiRequest"];
                 };
             };
             responses: {
@@ -3487,7 +3487,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SiteMenu_Api/Migrate": {
+    "/Service/SiteMenu/Migrate": {
         parameters: {
             query?: never;
             header?: never;
@@ -3520,7 +3520,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SiteMenu_Api/Create": {
+    "/Service/SiteMenu/Create": {
         parameters: {
             query?: never;
             header?: never;
@@ -3538,9 +3538,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SiteMenuSet"];
-                    "text/json": components["schemas"]["SiteMenuSet"];
-                    "application/*+json": components["schemas"]["SiteMenuSet"];
+                    "application/json": components["schemas"]["SiteMenuSet_DTO"];
+                    "text/json": components["schemas"]["SiteMenuSet_DTO"];
+                    "application/*+json": components["schemas"]["SiteMenuSet_DTO"];
                 };
             };
             responses: {
@@ -3559,7 +3559,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SiteMenu_Api/InitialCreateData": {
+    "/Service/SiteMenu/InitialCreateData": {
         parameters: {
             query?: never;
             header?: never;
@@ -3577,9 +3577,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SiteMenuSet"][];
-                    "text/json": components["schemas"]["SiteMenuSet"][];
-                    "application/*+json": components["schemas"]["SiteMenuSet"][];
+                    "application/json": components["schemas"]["SiteMenuSet_DTO"][];
+                    "text/json": components["schemas"]["SiteMenuSet_DTO"][];
+                    "application/*+json": components["schemas"]["SiteMenuSet_DTO"][];
                 };
             };
             responses: {
@@ -3598,7 +3598,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SiteMenu_Api/Update": {
+    "/Service/SiteMenu/Update": {
         parameters: {
             query?: never;
             header?: never;
@@ -3615,9 +3615,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SiteMenuSetApiRequest"];
-                    "text/json": components["schemas"]["SiteMenuSetApiRequest"];
-                    "application/*+json": components["schemas"]["SiteMenuSetApiRequest"];
+                    "application/json": components["schemas"]["SiteMenuSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["SiteMenuSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["SiteMenuSet_DTOApiRequest"];
                 };
             };
             responses: {
@@ -3637,7 +3637,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SiteMenu_Api/Invalid/{pk}": {
+    "/Service/SiteMenu/Invalid/{pk}": {
         parameters: {
             query?: never;
             header?: never;
@@ -3675,7 +3675,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/Service/SiteMenu_Api/BatchInvalid": {
+    "/Service/SiteMenu/BatchInvalid": {
         parameters: {
             query?: never;
             header?: never;
@@ -3716,7 +3716,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/Service/SiteMenu_Api/Delete": {
+    "/Service/SiteMenu/Delete": {
         parameters: {
             query?: never;
             header?: never;
@@ -3751,7 +3751,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SiteMenu_Api/BatchDelete": {
+    "/Service/SiteMenu/BatchDelete": {
         parameters: {
             query?: never;
             header?: never;
@@ -3790,7 +3790,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SiteMenu_Api/QueryData": {
+    "/Service/SiteMenu/QueryData": {
         parameters: {
             query?: never;
             header?: never;
@@ -3825,7 +3825,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SiteMenu_Api/QueryList": {
+    "/Service/SiteMenu/QueryList": {
         parameters: {
             query?: never;
             header?: never;
@@ -3864,7 +3864,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SiteMenu_Api/GetTotalCounts": {
+    "/Service/SiteMenu/GetTotalCounts": {
         parameters: {
             query?: never;
             header?: never;
@@ -3903,7 +3903,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SiteMenu_Api/GetModelDisplayName": {
+    "/Service/SiteMenu/GetModelDisplayName": {
         parameters: {
             query?: never;
             header?: never;
@@ -3987,9 +3987,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SpecCategorySet"];
-                    "text/json": components["schemas"]["SpecCategorySet"];
-                    "application/*+json": components["schemas"]["SpecCategorySet"];
+                    "application/json": components["schemas"]["SpecCategorySet_DTO"];
+                    "text/json": components["schemas"]["SpecCategorySet_DTO"];
+                    "application/*+json": components["schemas"]["SpecCategorySet_DTO"];
                 };
             };
             responses: {
@@ -4026,9 +4026,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SpecCategorySet"][];
-                    "text/json": components["schemas"]["SpecCategorySet"][];
-                    "application/*+json": components["schemas"]["SpecCategorySet"][];
+                    "application/json": components["schemas"]["SpecCategorySet_DTO"][];
+                    "text/json": components["schemas"]["SpecCategorySet_DTO"][];
+                    "application/*+json": components["schemas"]["SpecCategorySet_DTO"][];
                 };
             };
             responses: {
@@ -4064,9 +4064,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SpecCategorySetApiRequest"];
-                    "text/json": components["schemas"]["SpecCategorySetApiRequest"];
-                    "application/*+json": components["schemas"]["SpecCategorySetApiRequest"];
+                    "application/json": components["schemas"]["SpecCategorySet_DTOApiRequest"];
+                    "text/json": components["schemas"]["SpecCategorySet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["SpecCategorySet_DTOApiRequest"];
                 };
             };
             responses: {
@@ -4436,9 +4436,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SpecResearchSet"];
-                    "text/json": components["schemas"]["SpecResearchSet"];
-                    "application/*+json": components["schemas"]["SpecResearchSet"];
+                    "application/json": components["schemas"]["SpecResearchSet_DTO"];
+                    "text/json": components["schemas"]["SpecResearchSet_DTO"];
+                    "application/*+json": components["schemas"]["SpecResearchSet_DTO"];
                 };
             };
             responses: {
@@ -4475,9 +4475,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SpecResearchSet"][];
-                    "text/json": components["schemas"]["SpecResearchSet"][];
-                    "application/*+json": components["schemas"]["SpecResearchSet"][];
+                    "application/json": components["schemas"]["SpecResearchSet_DTO"][];
+                    "text/json": components["schemas"]["SpecResearchSet_DTO"][];
+                    "application/*+json": components["schemas"]["SpecResearchSet_DTO"][];
                 };
             };
             responses: {
@@ -4513,9 +4513,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SpecResearchSetApiRequest"];
-                    "text/json": components["schemas"]["SpecResearchSetApiRequest"];
-                    "application/*+json": components["schemas"]["SpecResearchSetApiRequest"];
+                    "application/json": components["schemas"]["SpecResearchSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["SpecResearchSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["SpecResearchSet_DTOApiRequest"];
                 };
             };
             responses: {
@@ -4887,9 +4887,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SpecUSRSet"];
-                    "text/json": components["schemas"]["SpecUSRSet"];
-                    "application/*+json": components["schemas"]["SpecUSRSet"];
+                    "application/json": components["schemas"]["SpecUSRSet_DTO"];
+                    "text/json": components["schemas"]["SpecUSRSet_DTO"];
+                    "application/*+json": components["schemas"]["SpecUSRSet_DTO"];
                 };
             };
             responses: {
@@ -4926,9 +4926,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SpecUSRSet"][];
-                    "text/json": components["schemas"]["SpecUSRSet"][];
-                    "application/*+json": components["schemas"]["SpecUSRSet"][];
+                    "application/json": components["schemas"]["SpecUSRSet_DTO"][];
+                    "text/json": components["schemas"]["SpecUSRSet_DTO"][];
+                    "application/*+json": components["schemas"]["SpecUSRSet_DTO"][];
                 };
             };
             responses: {
@@ -4964,9 +4964,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SpecUSRSetApiRequest"];
-                    "text/json": components["schemas"]["SpecUSRSetApiRequest"];
-                    "application/*+json": components["schemas"]["SpecUSRSetApiRequest"];
+                    "application/json": components["schemas"]["SpecUSRSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["SpecUSRSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["SpecUSRSet_DTOApiRequest"];
                 };
             };
             responses: {
@@ -5371,9 +5371,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["TagSet"];
-                    "text/json": components["schemas"]["TagSet"];
-                    "application/*+json": components["schemas"]["TagSet"];
+                    "application/json": components["schemas"]["TagSet_DTO"];
+                    "text/json": components["schemas"]["TagSet_DTO"];
+                    "application/*+json": components["schemas"]["TagSet_DTO"];
                 };
             };
             responses: {
@@ -5410,9 +5410,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["TagSet"][];
-                    "text/json": components["schemas"]["TagSet"][];
-                    "application/*+json": components["schemas"]["TagSet"][];
+                    "application/json": components["schemas"]["TagSet_DTO"][];
+                    "text/json": components["schemas"]["TagSet_DTO"][];
+                    "application/*+json": components["schemas"]["TagSet_DTO"][];
                 };
             };
             responses: {
@@ -5448,9 +5448,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["TagSetApiRequest"];
-                    "text/json": components["schemas"]["TagSetApiRequest"];
-                    "application/*+json": components["schemas"]["TagSetApiRequest"];
+                    "application/json": components["schemas"]["TagSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["TagSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["TagSet_DTOApiRequest"];
                 };
             };
             responses: {
@@ -5826,9 +5826,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["UserSet"][];
-                    "text/json": components["schemas"]["UserSet"][];
-                    "application/*+json": components["schemas"]["UserSet"][];
+                    "application/json": components["schemas"]["UserSet_DTO"][];
+                    "text/json": components["schemas"]["UserSet_DTO"][];
+                    "application/*+json": components["schemas"]["UserSet_DTO"][];
                 };
             };
             responses: {
@@ -5864,9 +5864,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["UserSetApiRequest"];
-                    "text/json": components["schemas"]["UserSetApiRequest"];
-                    "application/*+json": components["schemas"]["UserSetApiRequest"];
+                    "application/json": components["schemas"]["UserSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["UserSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["UserSet_DTOApiRequest"];
                 };
             };
             responses: {
@@ -6238,9 +6238,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["WebResourceSet"];
-                    "text/json": components["schemas"]["WebResourceSet"];
-                    "application/*+json": components["schemas"]["WebResourceSet"];
+                    "application/json": components["schemas"]["WebResourceSet_DTO"];
+                    "text/json": components["schemas"]["WebResourceSet_DTO"];
+                    "application/*+json": components["schemas"]["WebResourceSet_DTO"];
                 };
             };
             responses: {
@@ -6277,9 +6277,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["WebResourceSet"][];
-                    "text/json": components["schemas"]["WebResourceSet"][];
-                    "application/*+json": components["schemas"]["WebResourceSet"][];
+                    "application/json": components["schemas"]["WebResourceSet_DTO"][];
+                    "text/json": components["schemas"]["WebResourceSet_DTO"][];
+                    "application/*+json": components["schemas"]["WebResourceSet_DTO"][];
                 };
             };
             responses: {
@@ -6315,9 +6315,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["WebResourceSetApiRequest"];
-                    "text/json": components["schemas"]["WebResourceSetApiRequest"];
-                    "application/*+json": components["schemas"]["WebResourceSetApiRequest"];
+                    "application/json": components["schemas"]["WebResourceSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["WebResourceSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["WebResourceSet_DTOApiRequest"];
                 };
             };
             responses: {
@@ -6645,37 +6645,15 @@ export interface components {
          * @enum {integer}
          */
         AccountStatus: 0 | 1 | 2 | 3 | 4;
-        Announcement: {
-            /** Format: date-time */
-            CreateTime?: string | null;
-            CreateUserId?: string | null;
-            /** Format: date-time */
-            ModifyTime?: string | null;
-            ModifyUserId?: string | null;
-            FormStatus?: components["schemas"]["FormStatus"];
-            DataStatus?: components["schemas"]["DataStatus"];
-            /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
-            /** Format: date-time */
-            Validate_Start?: string | null;
-            /** Format: date-time */
-            Validate_End?: string | null;
+        AnnouncementDetailFile_DTO: {
             AnnouncementId?: string | null;
-            Categories?: string | null;
-            Tags?: string | null;
-            ContentStatus?: components["schemas"]["ContentStatus"];
-            PictureId?: string | null;
-            PicDescription?: string | null;
             /** Format: int32 */
-            ViewCount?: number | null;
-            AnnouncementDetail?: components["schemas"]["AnnouncementDetail"][] | null;
+            ParentRowId?: number;
+            /** Format: int32 */
+            RowId?: number;
+            FileId?: string | null;
         };
-        AnnouncementDetail: {
-            RowState?: components["schemas"]["RowState"];
+        AnnouncementDetail_DTO: {
             AnnouncementId?: string | null;
             /** Format: int32 */
             RowId?: number | null;
@@ -6685,25 +6663,16 @@ export interface components {
             Content?: string | null;
             Url?: string | null;
         };
-        AnnouncementDetailFile: {
-            RowState?: components["schemas"]["RowState"];
-            AnnouncementId?: string | null;
-            /** Format: int32 */
-            ParentRowId?: number;
-            /** Format: int32 */
-            RowId?: number;
-            FileId?: string | null;
+        AnnouncementSet_DTO: {
+            Announcement?: components["schemas"]["Announcement_DTO"];
+            AnnouncementDetail?: components["schemas"]["AnnouncementDetail_DTO"][] | null;
+            AnnouncementDetailFile?: components["schemas"]["AnnouncementDetailFile_DTO"][] | null;
         };
-        AnnouncementSet: {
-            Announcement?: components["schemas"]["Announcement"];
-            AnnouncementDetail?: components["schemas"]["AnnouncementDetail"][] | null;
-            AnnouncementDetailFile?: components["schemas"]["AnnouncementDetailFile"][] | null;
-        };
-        AnnouncementSetApiRequest: {
+        AnnouncementSet_DTOApiRequest: {
             InternalId?: string | null;
-            Data?: components["schemas"]["AnnouncementSet"];
+            Data?: components["schemas"]["AnnouncementSet_DTO"];
         };
-        Banner: {
+        Announcement_DTO: {
             /** Format: date-time */
             CreateTime?: string | null;
             CreateUserId?: string | null;
@@ -6716,26 +6685,32 @@ export interface components {
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
             InternalId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
+            AnnouncementId?: string | null;
+            Categories?: string | null;
+            Tags?: string | null;
+            ContentStatus?: components["schemas"]["ContentStatus"];
+            PictureId?: string | null;
+            PicDescription?: string | null;
+            /** Format: int32 */
+            ViewCount?: number | null;
             /** Format: date-time */
             Validate_Start?: string | null;
             /** Format: date-time */
             Validate_End?: string | null;
-            BannerId?: string | null;
-            BannerCategoryName?: string | null;
-            /** Format: int32 */
-            Interval?: number;
-            /** Format: int32 */
-            Speed?: number;
-            /** Format: int32 */
-            Height?: number;
-            /** Format: int32 */
-            Width?: number;
-            Effect?: string | null;
         };
-        BannerDetail: {
-            RowState?: components["schemas"]["RowState"];
+        BannerDetailInfo_DTO: {
+            BannerId?: string | null;
+            /** Format: int32 */
+            ParentRowId?: number;
+            /** Format: int32 */
+            RowId?: number;
+            Lang?: string | null;
+            Title?: string | null;
+            Content?: string | null;
+            /** Format: int32 */
+            URL_Open?: number;
+        };
+        BannerDetail_DTO: {
             BannerId?: string | null;
             /** Format: int32 */
             RowId?: number;
@@ -6748,29 +6723,16 @@ export interface components {
             /** Format: int32 */
             Sort?: number;
         };
-        BannerDetailInfo: {
-            RowState?: components["schemas"]["RowState"];
-            BannerId?: string | null;
-            /** Format: int32 */
-            ParentRowId?: number;
-            /** Format: int32 */
-            RowId?: number;
-            Lang?: string | null;
-            Title?: string | null;
-            Content?: string | null;
-            /** Format: int32 */
-            URL_Open?: number;
+        BannerSet_DTO: {
+            Banner?: components["schemas"]["Banner_DTO"];
+            BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
+            BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
         };
-        BannerSet: {
-            Banner?: components["schemas"]["Banner"];
-            BannerDetail?: components["schemas"]["BannerDetail"][] | null;
-            BannerDetailInfo?: components["schemas"]["BannerDetailInfo"][] | null;
-        };
-        BannerSetApiRequest: {
+        BannerSet_DTOApiRequest: {
             InternalId?: string | null;
-            Data?: components["schemas"]["BannerSet"];
+            Data?: components["schemas"]["BannerSet_DTO"];
         };
-        Category: {
+        Banner_DTO: {
             /** Format: date-time */
             CreateTime?: string | null;
             CreateUserId?: string | null;
@@ -6783,31 +6745,48 @@ export interface components {
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
             InternalId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
-            /** Format: date-time */
-            Validate_Start?: string | null;
-            /** Format: date-time */
-            Validate_End?: string | null;
-            CategoryId?: string | null;
-            ProgId?: string | null;
-            CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
+            BannerId?: string | null;
+            BannerCategoryName?: string | null;
+            /** Format: int32 */
+            Interval?: number;
+            /** Format: int32 */
+            Speed?: number;
+            /** Format: int32 */
+            Height?: number;
+            /** Format: int32 */
+            Width?: number;
+            Effect?: string | null;
         };
-        CategoryDataSet: {
-            Category?: components["schemas"]["Category"];
-            CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
+        CategoryDataSet_DTO: {
+            Category?: components["schemas"]["Category_DTO"];
+            CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
         };
-        CategoryDataSetApiRequest: {
+        CategoryDataSet_DTOApiRequest: {
             InternalId?: string | null;
-            Data?: components["schemas"]["CategoryDataSet"];
+            Data?: components["schemas"]["CategoryDataSet_DTO"];
         };
-        CategoryDetail: {
-            RowState?: components["schemas"]["RowState"];
+        CategoryDetail_DTO: {
             CategoryId?: string | null;
             /** Format: int32 */
             RowId?: number;
             Lang?: string | null;
             CategoryName?: string | null;
+        };
+        Category_DTO: {
+            /** Format: date-time */
+            CreateTime?: string | null;
+            CreateUserId?: string | null;
+            /** Format: date-time */
+            ModifyTime?: string | null;
+            ModifyUserId?: string | null;
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            InternalId?: string | null;
+            CategoryId?: string | null;
+            ProgId?: string | null;
         };
         /**
          * Format: int32
@@ -6830,7 +6809,32 @@ export interface components {
          * @enum {integer}
          */
         EndType: 0 | 1;
-        FileArchive: {
+        FileArchiveDetail_DTO: {
+            FileArchiveId: string;
+            /** Format: int32 */
+            ParentRowId?: number;
+            /** Format: int32 */
+            RowId?: number;
+            FileSrcId?: string | null;
+            FileName?: string | null;
+        };
+        FileArchiveInfo_DTO: {
+            FileArchiveId: string;
+            /** Format: int32 */
+            RowId?: number;
+            Lang?: string | null;
+            Title?: string | null;
+        };
+        FileArchiveSet_DTO: {
+            FileArchive?: components["schemas"]["FileArchive_DTO"];
+            FileArchiveInfo?: components["schemas"]["FileArchiveInfo_DTO"][] | null;
+            FileArchiveDetail?: components["schemas"]["FileArchiveDetail_DTO"][] | null;
+        };
+        FileArchiveSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["FileArchiveSet_DTO"];
+        };
+        FileArchive_DTO: {
             /** Format: date-time */
             CreateTime?: string | null;
             CreateUserId?: string | null;
@@ -6843,57 +6847,23 @@ export interface components {
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
             InternalId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
-            /** Format: date-time */
-            Validate_Start?: string | null;
-            /** Format: date-time */
-            Validate_End?: string | null;
             FileArchiveId: string;
             ContentStatus?: components["schemas"]["ContentStatus"];
             CategoriesId: string;
             TagsId: string;
         };
-        FileArchiveDetail: {
-            RowState?: components["schemas"]["RowState"];
-            FileArchiveId: string;
-            /** Format: int32 */
-            ParentRowId?: number;
-            /** Format: int32 */
-            RowId?: number;
-            FileSrcId?: string | null;
-            FileName?: string | null;
-        };
-        FileArchiveInfo: {
-            RowState?: components["schemas"]["RowState"];
-            FileArchiveId: string;
-            /** Format: int32 */
-            RowId?: number;
-            Lang?: string | null;
-            Title?: string | null;
-        };
-        FileArchiveSet: {
-            FileArchive?: components["schemas"]["FileArchive"];
-            FileArchiveInfo?: components["schemas"]["FileArchiveInfo"][] | null;
-            FileArchiveDetail?: components["schemas"]["FileArchiveDetail"][] | null;
-        };
-        FileArchiveSetApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["FileArchiveSet"];
-        };
-        FileManageModel: {
+        FileManageModel_DTO: {
             /** Format: date-time */
             CreateTime?: string | null;
             CreateUserId?: string | null;
             /** Format: date-time */
             ModifyTime?: string | null;
             ModifyUserId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
-            Validate_Start?: string | null;
-            /** Format: date-time */
-            Validate_End?: string | null;
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
             InternalId?: string | null;
             Path?: string | null;
             FileName?: string | null;
@@ -6908,20 +6878,17 @@ export interface components {
             FileStatus?: components["schemas"]["FileStatus"];
             /** Format: int32 */
             readonly DownloadCount?: number;
-            File_DownloadInfo?: components["schemas"]["FileManage_DownloadInfoModel"][] | null;
-            File_SyncInfo?: components["schemas"]["FileManage_SyncInfoModel"][] | null;
         };
-        FileManageSet: {
-            FileManage?: components["schemas"]["FileManageModel"];
-            FileManage_DownloadInfo?: components["schemas"]["FileManage_DownloadInfoModel"][] | null;
-            FileManage_SyncInfo?: components["schemas"]["FileManage_SyncInfoModel"][] | null;
+        FileManageSet_DTO: {
+            FileManage?: components["schemas"]["FileManageModel_DTO"];
+            FileManage_DownloadInfo?: components["schemas"]["FileManage_DownloadInfoModel_DTO"][] | null;
+            FileManage_SyncInfo?: components["schemas"]["FileManage_SyncInfoModel_DTO"][] | null;
         };
-        FileManageSetApiRequest: {
+        FileManageSet_DTOApiRequest: {
             InternalId?: string | null;
-            Data?: components["schemas"]["FileManageSet"];
+            Data?: components["schemas"]["FileManageSet_DTO"];
         };
-        FileManage_DownloadInfoModel: {
-            RowState?: components["schemas"]["RowState"];
+        FileManage_DownloadInfoModel_DTO: {
             InternalId?: string | null;
             /** Format: int32 */
             RowId?: number | null;
@@ -6932,8 +6899,7 @@ export interface components {
             /** Format: date-time */
             DownloadTime?: string;
         };
-        FileManage_SyncInfoModel: {
-            RowState?: components["schemas"]["RowState"];
+        FileManage_SyncInfoModel_DTO: {
             InternalId?: string | null;
             /** Format: int32 */
             RowId?: number | null;
@@ -6959,7 +6925,42 @@ export interface components {
          * @enum {integer}
          */
         FormStatus: 0 | 1 | 2 | 3;
-        Gallery: {
+        GalleryInfo_DTO: {
+            GalleryId: string;
+            /** Format: int32 */
+            RowId?: number;
+            Lang?: string | null;
+            Title?: string | null;
+            Content?: string | null;
+        };
+        GalleryPhotosInfo_DTO: {
+            GalleryId: string;
+            /** Format: int32 */
+            ParentRowId?: number;
+            /** Format: int32 */
+            RowId?: number;
+            Lang?: string | null;
+            Title?: string | null;
+        };
+        GalleryPhotos_DTO: {
+            GalleryId: string;
+            /** Format: int32 */
+            RowId?: number;
+            PicSrcId?: string | null;
+            /** Format: int32 */
+            Sort?: number;
+        };
+        GallerySet_DTO: {
+            Gallery?: components["schemas"]["Gallery_DTO"];
+            GalleryInfo?: components["schemas"]["GalleryInfo_DTO"][] | null;
+            GalleryPhotos?: components["schemas"]["GalleryPhotos_DTO"][] | null;
+            GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo_DTO"][] | null;
+        };
+        GallerySet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["GallerySet_DTO"];
+        };
+        Gallery_DTO: {
             /** Format: date-time */
             CreateTime?: string | null;
             CreateUserId?: string | null;
@@ -6972,12 +6973,6 @@ export interface components {
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
             InternalId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
-            /** Format: date-time */
-            Validate_Start?: string | null;
-            /** Format: date-time */
-            Validate_End?: string | null;
             GalleryId: string;
             Categories: string;
             Tags: string;
@@ -6985,44 +6980,6 @@ export interface components {
             CoverPicSrcId?: string | null;
             /** Format: int32 */
             Sort?: number;
-        };
-        GalleryInfo: {
-            RowState?: components["schemas"]["RowState"];
-            GalleryId: string;
-            /** Format: int32 */
-            RowId?: number;
-            Lang?: string | null;
-            Title?: string | null;
-            Content?: string | null;
-        };
-        GalleryPhotos: {
-            RowState?: components["schemas"]["RowState"];
-            GalleryId: string;
-            /** Format: int32 */
-            RowId?: number;
-            PicSrcId?: string | null;
-            /** Format: int32 */
-            Sort?: number;
-        };
-        GalleryPhotosInfo: {
-            RowState?: components["schemas"]["RowState"];
-            GalleryId: string;
-            /** Format: int32 */
-            ParentRowId?: number;
-            /** Format: int32 */
-            RowId?: number;
-            Lang?: string | null;
-            Title?: string | null;
-        };
-        GallerySet: {
-            Gallery?: components["schemas"]["Gallery"];
-            GalleryInfo?: components["schemas"]["GalleryInfo"][] | null;
-            GalleryPhotos?: components["schemas"]["GalleryPhotos"][] | null;
-            GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo"][] | null;
-        };
-        GallerySetApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["GallerySet"];
         };
         LoginDto: {
             Account?: string | null;
@@ -7033,7 +6990,23 @@ export interface components {
          * @enum {integer}
          */
         MenuUrlType: 0 | 1 | 2;
-        PageManagement: {
+        PageManagementDetail_DTO: {
+            PageId?: string | null;
+            /** Format: int32 */
+            RowId?: number | null;
+            Lang?: string | null;
+            Title?: string | null;
+            Content?: string | null;
+        };
+        PageManagementSet_DTO: {
+            PageManagement?: components["schemas"]["PageManagement_DTO"];
+            PageManagementDetail?: components["schemas"]["PageManagementDetail_DTO"][] | null;
+        };
+        PageManagementSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["PageManagementSet_DTO"];
+        };
+        PageManagement_DTO: {
             /** Format: date-time */
             CreateTime?: string | null;
             CreateUserId?: string | null;
@@ -7046,30 +7019,10 @@ export interface components {
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
             InternalId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
             PageId?: string | null;
             CategoryId?: string | null;
             /** Format: int32 */
             ViewCount?: number | null;
-            PageManagementDetail?: components["schemas"]["PageManagementDetail"][] | null;
-        };
-        PageManagementDetail: {
-            RowState?: components["schemas"]["RowState"];
-            PageId?: string | null;
-            /** Format: int32 */
-            RowId?: number | null;
-            Lang?: string | null;
-            Title?: string | null;
-            Content?: string | null;
-        };
-        PageManagementSet: {
-            PageManagement?: components["schemas"]["PageManagement"];
-            PageManagementDetail?: components["schemas"]["PageManagementDetail"][] | null;
-        };
-        PageManagementSetApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["PageManagementSet"];
         };
         PermissionModel: {
             /** Format: date-time */
@@ -7128,25 +7081,19 @@ export interface components {
             IsAdmin?: boolean;
             UserRoles?: components["schemas"]["PermissionModel"][] | null;
         };
-        /**
-         * Format: int32
-         * @enum {integer}
-         */
-        RowState: 0 | 1 | 2 | 3;
-        SiteMenuSet: {
-            SiteMenu_Index?: components["schemas"]["SiteMenu_IndexModel"];
-            SiteMenu_IndexInfo?: components["schemas"]["SiteMenu_IndexInfoModel"][] | null;
-            SiteMenu_Item?: components["schemas"]["SiteMenu_Item"][] | null;
-            SiteMenu_Item_Title?: components["schemas"]["SiteMenu_Item_Title"][] | null;
-            SiteMenu_Item_Url?: components["schemas"]["SiteMenu_Item_Url"][] | null;
-            SiteMenu_Item_Module?: components["schemas"]["SiteMenu_Item_Module"][] | null;
+        SiteMenuSet_DTO: {
+            SiteMenu_Index?: components["schemas"]["SiteMenu_Index_DTO"];
+            SiteMenu_IndexInfo?: components["schemas"]["SiteMenu_IndexInfo_DTO"][] | null;
+            SiteMenu_Item?: components["schemas"]["SiteMenu_Item_DTO"][] | null;
+            SiteMenu_Item_Title?: components["schemas"]["SiteMenu_Item_Title_DTO"][] | null;
+            SiteMenu_Item_Url?: components["schemas"]["SiteMenu_Item_Url_DTO"][] | null;
+            SiteMenu_Item_Module?: components["schemas"]["SiteMenu_Item_Module_DTO"][] | null;
         };
-        SiteMenuSetApiRequest: {
+        SiteMenuSet_DTOApiRequest: {
             InternalId?: string | null;
-            Data?: components["schemas"]["SiteMenuSet"];
+            Data?: components["schemas"]["SiteMenuSet_DTO"];
         };
-        SiteMenu_IndexInfoModel: {
-            RowState?: components["schemas"]["RowState"];
+        SiteMenu_IndexInfo_DTO: {
             SiteIndex?: string | null;
             /** Format: int32 */
             RowId?: number | null;
@@ -7157,7 +7104,7 @@ export interface components {
             SiteFooter?: string | null;
             Keyword?: string | null;
         };
-        SiteMenu_IndexModel: {
+        SiteMenu_Index_DTO: {
             /** Format: date-time */
             CreateTime?: string | null;
             CreateUserId?: string | null;
@@ -7170,18 +7117,11 @@ export interface components {
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
             InternalId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
-            /** Format: date-time */
-            Validate_Start?: string | null;
-            /** Format: date-time */
-            Validate_End?: string | null;
             SiteIndex?: string | null;
             GoogleAnalytics?: string | null;
             Enable?: boolean;
         };
-        SiteMenu_Item: {
-            RowState?: components["schemas"]["RowState"];
+        SiteMenu_Item_DTO: {
             SiteIndex?: string | null;
             /** Format: int32 */
             RowId?: number | null;
@@ -7197,8 +7137,7 @@ export interface components {
             WindowTarget?: components["schemas"]["WindowTarget"];
             IsShowOnMenu?: boolean;
         };
-        SiteMenu_Item_Module: {
-            RowState?: components["schemas"]["RowState"];
+        SiteMenu_Item_Module_DTO: {
             SiteIndex?: string | null;
             /** Format: int32 */
             ItemRowId?: number | null;
@@ -7206,8 +7145,7 @@ export interface components {
             ModuleProgId?: string | null;
             ModuleOptions?: string | null;
         };
-        SiteMenu_Item_Title: {
-            RowState?: components["schemas"]["RowState"];
+        SiteMenu_Item_Title_DTO: {
             SiteIndex?: string | null;
             /** Format: int32 */
             ItemRowId?: number | null;
@@ -7216,23 +7154,21 @@ export interface components {
             Lang?: string | null;
             Title?: string | null;
         };
-        SiteMenu_Item_Url: {
-            RowState?: components["schemas"]["RowState"];
+        SiteMenu_Item_Url_DTO: {
             SiteIndex?: string | null;
             /** Format: int32 */
             ItemRowId?: number | null;
             RedirectType?: components["schemas"]["MenuUrlType"];
             RedirectUrl?: string | null;
         };
-        SpecCategoryDetailModel: {
-            RowState?: components["schemas"]["RowState"];
+        SpecCategoryDetailModel_DTO: {
             CategoryId?: string | null;
             /** Format: int32 */
             RowId?: number;
             Lang?: string | null;
             CategoryName?: string | null;
         };
-        SpecCategoryModel: {
+        SpecCategoryModel_DTO: {
             /** Format: date-time */
             CreateTime?: string | null;
             CreateUserId?: string | null;
@@ -7245,26 +7181,19 @@ export interface components {
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
             InternalId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
-            /** Format: date-time */
-            Validate_Start?: string | null;
-            /** Format: date-time */
-            Validate_End?: string | null;
             CategoryId?: string | null;
             ProgId?: string | null;
             ShowColumnItems?: string | null;
         };
-        SpecCategorySet: {
-            SpecCategory?: components["schemas"]["SpecCategoryModel"];
-            SpecCategoryDetail?: components["schemas"]["SpecCategoryDetailModel"][] | null;
+        SpecCategorySet_DTO: {
+            SpecCategory?: components["schemas"]["SpecCategoryModel_DTO"];
+            SpecCategoryDetail?: components["schemas"]["SpecCategoryDetailModel_DTO"][] | null;
         };
-        SpecCategorySetApiRequest: {
+        SpecCategorySet_DTOApiRequest: {
             InternalId?: string | null;
-            Data?: components["schemas"]["SpecCategorySet"];
+            Data?: components["schemas"]["SpecCategorySet_DTO"];
         };
-        SpecResearchDetailModel: {
-            RowState?: components["schemas"]["RowState"];
+        SpecResearchDetailModel_DTO: {
             ResearchId?: string | null;
             /** Format: int32 */
             RowId?: number;
@@ -7295,7 +7224,7 @@ export interface components {
             PlanAmount?: string | null;
             PlanContent?: string | null;
         };
-        SpecResearchModel: {
+        SpecResearchModel_DTO: {
             /** Format: date-time */
             CreateTime?: string | null;
             CreateUserId?: string | null;
@@ -7308,27 +7237,20 @@ export interface components {
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
             InternalId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
-            /** Format: date-time */
-            Validate_Start?: string | null;
-            /** Format: date-time */
-            Validate_End?: string | null;
             ResearchId?: string | null;
             CategoryId?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
             Tags?: string | null;
         };
-        SpecResearchSet: {
-            SpecResearch?: components["schemas"]["SpecResearchModel"];
-            SpecResearchDetail?: components["schemas"]["SpecResearchDetailModel"][] | null;
+        SpecResearchSet_DTO: {
+            SpecResearch?: components["schemas"]["SpecResearchModel_DTO"];
+            SpecResearchDetail?: components["schemas"]["SpecResearchDetailModel_DTO"][] | null;
         };
-        SpecResearchSetApiRequest: {
+        SpecResearchSet_DTOApiRequest: {
             InternalId?: string | null;
-            Data?: components["schemas"]["SpecResearchSet"];
+            Data?: components["schemas"]["SpecResearchSet_DTO"];
         };
-        SpecUSRDetail: {
-            RowState?: components["schemas"]["RowState"];
+        SpecUSRDetail_DTO: {
             USRId?: string | null;
             /** Format: int32 */
             RowId?: number;
@@ -7352,7 +7274,7 @@ export interface components {
             Commissioned?: string | null;
             Remark?: string | null;
         };
-        SpecUSRModel: {
+        SpecUSRModel_DTO: {
             /** Format: date-time */
             CreateTime?: string | null;
             CreateUserId?: string | null;
@@ -7365,12 +7287,6 @@ export interface components {
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
             InternalId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
-            /** Format: date-time */
-            Validate_Start?: string | null;
-            /** Format: date-time */
-            Validate_End?: string | null;
             USRId?: string | null;
             CategoryId?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
@@ -7378,15 +7294,15 @@ export interface components {
             PictureId?: string | null;
             PicDescription?: string | null;
         };
-        SpecUSRSet: {
-            SpecUSR?: components["schemas"]["SpecUSRModel"];
-            SpecUSRDetail?: components["schemas"]["SpecUSRDetail"][] | null;
+        SpecUSRSet_DTO: {
+            SpecUSR?: components["schemas"]["SpecUSRModel_DTO"];
+            SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"][] | null;
         };
-        SpecUSRSetApiRequest: {
+        SpecUSRSet_DTOApiRequest: {
             InternalId?: string | null;
-            Data?: components["schemas"]["SpecUSRSet"];
+            Data?: components["schemas"]["SpecUSRSet_DTO"];
         };
-        TagData: {
+        TagData_DTO: {
             /** Format: date-time */
             CreateTime?: string | null;
             CreateUserId?: string | null;
@@ -7399,31 +7315,23 @@ export interface components {
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
             InternalId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
-            /** Format: date-time */
-            Validate_Start?: string | null;
-            /** Format: date-time */
-            Validate_End?: string | null;
             TagId?: string | null;
             ProgId?: string | null;
-            TagDetail?: components["schemas"]["TagDetail"][] | null;
         };
-        TagDetail: {
-            RowState?: components["schemas"]["RowState"];
+        TagDetail_DTO: {
             TagId?: string | null;
             /** Format: int32 */
             RowId?: number;
             Lang?: string | null;
             TagName?: string | null;
         };
-        TagSet: {
-            TagData?: components["schemas"]["TagData"];
-            TagDetail?: components["schemas"]["TagDetail"][] | null;
+        TagSet_DTO: {
+            TagData?: components["schemas"]["TagData_DTO"];
+            TagDetail?: components["schemas"]["TagDetail_DTO"][] | null;
         };
-        TagSetApiRequest: {
+        TagSet_DTOApiRequest: {
             InternalId?: string | null;
-            Data?: components["schemas"]["TagSet"];
+            Data?: components["schemas"]["TagSet_DTO"];
         };
         UserModel: {
             /** Format: date-time */
@@ -7456,14 +7364,32 @@ export interface components {
             AccountStatus?: components["schemas"]["AccountStatus"];
             UserRoles?: components["schemas"]["PermissionModel"][] | null;
         };
-        UserSet: {
+        UserSet_DTO: {
             User?: components["schemas"]["UserModel"];
         };
-        UserSetApiRequest: {
+        UserSet_DTOApiRequest: {
             InternalId?: string | null;
-            Data?: components["schemas"]["UserSet"];
+            Data?: components["schemas"]["UserSet_DTO"];
         };
-        WebResource: {
+        WebResourceInfo_DTO: {
+            WebResourceId?: string | null;
+            /** Format: int32 */
+            RowId?: number;
+            Lang?: string | null;
+            Title?: string | null;
+            Content?: string | null;
+            ResUrl?: string | null;
+            Url_OpenType?: string | null;
+        };
+        WebResourceSet_DTO: {
+            WebResource?: components["schemas"]["WebResource_DTO"];
+            WebResourceInfo?: components["schemas"]["WebResourceInfo_DTO"][] | null;
+        };
+        WebResourceSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["WebResourceSet_DTO"];
+        };
+        WebResource_DTO: {
             /** Format: date-time */
             CreateTime?: string | null;
             CreateUserId?: string | null;
@@ -7476,37 +7402,12 @@ export interface components {
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
             InternalId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
-            /** Format: date-time */
-            Validate_Start?: string | null;
-            /** Format: date-time */
-            Validate_End?: string | null;
-            WebResourceId: string;
+            WebResourceId?: string | null;
             Categories?: string | null;
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
             PicId?: string | null;
             PicDescription?: string | null;
-        };
-        WebResourceInfo: {
-            RowState?: components["schemas"]["RowState"];
-            WebResourceId: string;
-            /** Format: int32 */
-            RowId?: number;
-            Lang?: string | null;
-            Title?: string | null;
-            Content?: string | null;
-            ResUrl?: string | null;
-            Url_OpenType?: string | null;
-        };
-        WebResourceSet: {
-            WebResource?: components["schemas"]["WebResource"];
-            WebResourceInfo?: components["schemas"]["WebResourceInfo"][] | null;
-        };
-        WebResourceSetApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["WebResourceSet"];
         };
         /**
          * Format: int32

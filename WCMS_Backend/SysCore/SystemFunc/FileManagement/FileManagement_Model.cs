@@ -17,7 +17,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         public string Permanent { get; set; }
         public string Import { get; set; }
     }
-    public class FileManageSet
+    public class FileManageSet:ITSet
     {
         public FileManageModel FileManage { get; set; } = new();
         public List<FileManage_DownloadInfoModel> FileManage_DownloadInfo { get; set; } = [];

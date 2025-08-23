@@ -104,12 +104,12 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
         #endregion
     }
 
-    public class SpecResearchSet_DTO
+    public class SpecResearchSet_DTO:ITSet_DTO
     {
         public SpecResearchModel_DTO SpecResearch { get; set; } = new();
         public List<SpecResearchDetailModel_DTO> SpecResearchDetail { get; set; } = [];
     }
-    public class SpecResearchModel_DTO
+    public class SpecResearchModel_DTO: DTOBasicDataModel
     {
         /// <summary>
         /// 橫幅ID

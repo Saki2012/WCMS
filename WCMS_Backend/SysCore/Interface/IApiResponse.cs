@@ -6,7 +6,7 @@ namespace WCMS.SysCore.Interface
     /// <summary>
     /// 資料
     /// </summary>
-    public interface IBaseDataController<TSet,TSet_DTO>
+    public interface IBaseDataController<TSet,TSet_DTO>where TSet : ITSet where TSet_DTO : ITSet_DTO
     {
         /// <summary>
         /// 新增

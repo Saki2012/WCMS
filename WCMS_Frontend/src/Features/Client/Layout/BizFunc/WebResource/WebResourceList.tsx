@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import type { GridProps } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import type { components } from "../../../../../types/api";
 import type { IFETheme } from "../../Theme/ITheme";
-type WebResourceSet = components["schemas"]["WebResourceSet"];
+type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 import { Link, useLocation } from "react-router-dom";
 import type { GridRow } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import type { RowCell } from "../../../../../SysCore/Components/Grid/Grid_Data";

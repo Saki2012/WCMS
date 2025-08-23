@@ -5,7 +5,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Gallery
 {
-    public class GallerySet
+    public class GallerySet:ITSet
     {
         public Gallery Gallery { get; set; } = new();
         public List<GalleryInfo> GalleryInfo { get; set; } = [];

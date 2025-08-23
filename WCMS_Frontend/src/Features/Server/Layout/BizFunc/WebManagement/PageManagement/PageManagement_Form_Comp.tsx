@@ -11,8 +11,8 @@ import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
 import { useFetchFormData } from "../../../../../../SysCore/Utils/API/FetchFormData";
 
 import type { components } from "../../../../../../types/api";
-type PageManagementSet = components["schemas"]["PageManagementSet"]
-type PageManagementDetail = components["schemas"]["PageManagementDetail"]
+type PageManagementSet = components["schemas"]["PageManagementSet_DTO"]
+type PageManagementDetail = components["schemas"]["PageManagementDetail_DTO"]
 import { useEffect } from "react";
 import TabContentComp from "../../../../../../SysCore/Components/TabContent/TabContent";
 

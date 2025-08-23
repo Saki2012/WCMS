@@ -6,7 +6,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.SystemFunc.UserRolePermission.User
 {
-    [LibDesc] public class UserSet
+    [LibDesc] public class UserSet:ITSet
     {
         public UserModel User { get; set; } = new();
     }

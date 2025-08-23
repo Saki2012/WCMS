@@ -3,7 +3,7 @@ import type { ApiResponse, QueryListCondition } from "../../../../../../SysCore/
 import { BaseApiService } from "../../../../../../SysCore/Utils/API/APIClient";
 import type { components } from "../../../../../../types/api";
 import type { ModelDisplaySchema } from "../../../../../../types/IApiSchema";
-type SiteMenuSet = components["schemas"]["SiteMenuSet"];
+type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
 
 abstract class ISiteMenuSetProvider extends IDataProvider<SiteMenuSet>
 {}

@@ -3,7 +3,7 @@ import type { ApiResponse, QueryListCondition } from "../../../../../../SysCore/
 import { BaseApiService } from "../../../../../../SysCore/Utils/API/APIClient";
 import type { components } from "../../../../../../types/api";
 import type { ModelDisplaySchema } from "../../../../../../types/IApiSchema";
-type FileArchiveSet = components["schemas"]["FileArchiveSet"];
+type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
 
 abstract class IFileArchiveProvider extends IDataProvider<FileArchiveSet>
 {}

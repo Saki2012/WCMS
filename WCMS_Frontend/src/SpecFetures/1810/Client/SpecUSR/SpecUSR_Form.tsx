@@ -1,6 +1,6 @@
 import type { IFETheme } from '../../../../Features/Client/Layout/Theme/ITheme';
 import type { components } from '../../../../types/api';
-type SpecUSRSet = components["schemas"]["SpecUSRSet"]
+type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"]
 import { useParams } from 'react-router-dom';
 import parse from 'html-react-parser';
 import DOMPurify from 'isomorphic-dompurify'

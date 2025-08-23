@@ -12,7 +12,7 @@ import { useListToolbarActions } from "../../../../../../SysCore/Components/Tool
 
 // 借用Page資料
 import { usePageManagementListData } from "../PageManagement/PageManagement_Hook";
-type PageManagementSet = components["schemas"]["PageManagementSet"]
+type PageManagementSet = components["schemas"]["PageManagementSet_DTO"]
 import { handleDelete } from "../PageManagement/PageManagement_Hook";
 
 /** 廣告輪播清單
