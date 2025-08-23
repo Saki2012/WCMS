@@ -71,14 +71,10 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
                 }
                 set.SpecUSR.PictureId= picFileName;
                 set.SpecUSR.PicDescription = picDescription;
-                set.SpecUSR.CreateTime = Convert.ToDateTime(row["CreateTime"]);
-                set.SpecUSR.ModifyTime = Convert.ToDateTime(row["UpdateTime"]);
-                set.SpecUSR.IsIniData = true;
-                
                 int rowId = 1;
                 ds.Tables["USRProject_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.SpecUSR.USRId).ToList().ForEach(dRow =>
                 {
-                    SpecUSRDetail detail = new()
+                    SpecUSRDetail_DTO detail = new()
                     {
                         USRId = set.SpecUSR.USRId,
                         RowId = rowId++,
@@ -141,8 +137,8 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
 
     public class SpecUSRSet_DTO
     {
-        public SpecUSRModel SpecUSR { get; set; } = new();
-        public List<SpecUSRDetail> SpecUSRDetail { get; set; } = [];
+        public SpecUSRModel_DTO SpecUSR { get; set; } = new();
+        public List<SpecUSRDetail_DTO> SpecUSRDetail { get; set; } = [];
     }
 
     public class SpecUSRModel_DTO

@@ -18,7 +18,6 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
     [ApiController, Route(SysParam.ServiceRoute)]
     public class SpecResearchController : ApiDataController<SpecResearchSet,SpecResearchSet_DTO>
     {
-
         #region Migration Old Data
         [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct)

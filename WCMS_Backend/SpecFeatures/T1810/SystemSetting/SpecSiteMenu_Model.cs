@@ -5,9 +5,9 @@ namespace WCMS.SpecFeatures.T1810.SystemSetting
     public class SpecModuleOptions: ModuleOptions
     {
         /// <summary>
-        /// 研究計畫參數
+        /// 研究計畫參數 (給Site Menu的動態參數使用)
         /// </summary>
-        public class SpecResearch
+        public class SpecResearchOptions
         {
             /// <summary>
             /// 類別

@@ -290,7 +290,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                     }
                 case "ResearchProject":
                     {
-                        var option = new SpecModuleOptions.SpecResearch()
+                        var option = new SpecModuleOptions.SpecResearchOptions()
                         {
                             Category = $"Res_{r["ContentA_Category"]}",
                             Tag = r["ContentA_Tag"].ToString().Remerge(",")
@@ -299,7 +299,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                     }
                 case "USRProject":
                     {
-                        var option = new SpecModuleOptions.SpecResearch()
+                        var option = new SpecModuleOptions.SpecResearchOptions()
                         {
                             Category = $"USR_{r["ContentA_Category"]}",
                             Tag = r["ContentA_Tag"].ToString().Remerge(",")
