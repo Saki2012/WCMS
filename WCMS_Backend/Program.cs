@@ -383,10 +383,10 @@ namespace WCMS
                     ctx.Response.Headers.XContentTypeOptions = "nosniff";
                     ctx.Response.Headers.XFrameOptions = "DENY";
                     ctx.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
-                    ctx.Response.Headers["Permissions-Policy"] = "geolocation=()";
+                    ctx.Response.Headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=(), fullscreen=(self)";
                     ctx.Response.Headers.ContentSecurityPolicy = app.Environment.IsDevelopment()
                     ? "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline'"
-                    : "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline'";
+                    : "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self'";
 
                     if (app.Environment.IsProduction())
                     {
