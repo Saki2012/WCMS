@@ -1,10 +1,10 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import ssr from 'vite-plugin-ssr/plugin';
-import basicSsl from '@vitejs/plugin-basic-ssl';
 import path from 'path';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+   const isSSR = mode === 'ssr';
+
+  return {
         base:'/',
         server: {
           // https: true,
@@ -18,9 +18,14 @@ export default defineConfig({
             }}
         },
         // plugins: [react(), ssr(), basicSsl()],
-        build: {
+        build: isSSR
+      ? {
           ssr: 'src/SSR/Entry-Server.tsx',
           outDir: 'dist-ssr',
+          assetsInlineLimit: 0,
+        }
+      : {
+          outDir: 'dist',
           assetsInlineLimit: 0,
         },
         resolve: { alias: { '/src': path.resolve(__dirname, './src'),}},
@@ -30,4 +35,5 @@ export default defineConfig({
         },
         assetsInclude: ['**/*.ttf', '**/*.woff', '**/*.woff2'], // TinyMCE 字型檔支援
       }
+    }
   )
