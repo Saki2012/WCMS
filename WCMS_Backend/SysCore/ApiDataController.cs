@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.OutputCaching;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using System.Reflection;
 using WCMS.Features.SiteEdit.Tag;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
@@ -103,7 +104,9 @@ namespace WCMS.SysCore
                 foreach (var set in sets) 
                 {
                     TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(set);
-                    PropertyAccessorCache.Set(entity, nameof(BasicDataModel.IsIniData),true);
+                    PropertyInfo headerProp = PropertyAccessorCache.GetProperties<TSet>().Where(p => !p.IsListPropertyType()).FirstOrDefault();
+                    var header = PropertyAccessorCache.Get(entity, headerProp.Name);
+                    PropertyAccessorCache.Set(header, nameof(BasicDataModel.IsIniData),true);
                     await Service.BizCreateSetAsync(entity);
                     i++;
                 }

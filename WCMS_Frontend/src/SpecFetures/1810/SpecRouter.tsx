@@ -3,7 +3,7 @@ import type { IRouteModule } from "../../SysCore/Interface/IBaseRouter";
 import { clientEntries, loadClientChildren } from "../../Features/Client/ClientRouter";
 import { BackendRouteModule } from "../../Features/Server/ServerRouter";
 import type { RouteObject } from "react-router-dom";
-import { configureModuleRegistry, type ModuleEntry } from "../../Features/Client/Site-Routing";
+import { configureModuleRegistry, type INormNode, type INormSite, type ModuleEntry } from "../../Features/Client/Site-Routing";
 import SubContent from "../../Features/Client/Layout/BizFunc/MainPage/SubPages";
 import { Classic_FETheme } from "../../Features/Client/Layout/Theme/ClassicTheme_Clsx";
 import { SpecUSRListComp, type ISpecUSRListOptions } from "./Client/SpecUSR/SpecUSR_List";
@@ -26,8 +26,8 @@ export class SpecRouteModule implements IRouteModule {
 export const specClientEntries: Record<string, ModuleEntry> = {
   SpecUSR: {
     kind: "routes",
-    element: (_opts: unknown, _lang: string) => (
-      <SubContent Style={Classic_FETheme} Title={"123"} />
+    element: (lang: string, site: INormSite, node: INormNode) => (
+      <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
     ),
     children: (opts: unknown, lang: string) => [
       { index: true, element: <AutoRedirect to="List" replace /> },
@@ -37,8 +37,8 @@ export const specClientEntries: Record<string, ModuleEntry> = {
   },
   SpecResearch: {
     kind: "routes",
-    element: (_opts: unknown, _lang: string) => (
-      <SubContent Style={Classic_FETheme} Title={"123"} />
+    element: (lang: string, site: INormSite, node: INormNode) => (
+      <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
     ),
     children: (opts: unknown, lang: string) => [
       { index: true, element: <AutoRedirect to="List" replace /> },

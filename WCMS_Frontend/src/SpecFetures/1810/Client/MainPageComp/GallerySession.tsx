@@ -1,6 +1,7 @@
 /* Banner */
 import 'swiper/swiper-bundle.css';
 import { BaseCarousel } from '../../../../SysCore/Components/BaseCarousel'
+import { Link } from 'react-router-dom';
 
 const GallerySession = () => {
 
@@ -47,7 +48,7 @@ const GallerySession = () => {
                                     </div>
                                     <div className="btn_Div justify-content-end px-2">
                                         <div className="customize_btn my-3">
-                                            <a href="/Front/EventHighlights/event-album/Gallery.aspx?id=mY8LdII%2F3f4=" className="Btn_s1" tabIndex={13} title="更多活動花絮">VIEW ALL<span className="ml-2">+</span></a>
+                                            <Link to="/EventHighlights/event-album" className="Btn_s1" tabIndex={13} title="更多活動花絮">VIEW ALL<span className="ml-2">+</span></Link>
                                         </div>
                                     </div>
                                 </div>

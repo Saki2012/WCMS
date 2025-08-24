@@ -1,6 +1,7 @@
 /* Banner */
 import 'swiper/swiper-bundle.css';
 import { BaseCarousel } from '../../../../SysCore/Components/BaseCarousel'
+import { Link } from 'react-router-dom';
 
 const VideoSession = () => {
 
@@ -32,7 +33,7 @@ const VideoSession = () => {
                                     </div>
                                     <div className="btn_Div justify-content-end px-2">
                                         <div className="customize_btn my-3">
-                                            <a href="/Front/EventHighlights/Event-video/WebResource.aspx?id=V2GibEubNrg=" className="Btn_s1" tabIndex={14} title="更多影音">VIEW ALL<span className="ml-2">+</span></a>
+                                            <Link to="/EventHighlights/Event-video" className="Btn_s1" tabIndex={14} title="更多影音">VIEW ALL<span className="ml-2">+</span></Link>
                                         </div>
                                     </div>
                                 </div>

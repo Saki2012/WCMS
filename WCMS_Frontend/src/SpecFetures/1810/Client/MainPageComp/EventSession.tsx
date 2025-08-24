@@ -3,6 +3,7 @@ import { BaseCarousel } from '../../../../SysCore/Components/BaseCarousel'
 // import {fetchUserData, getMockUser} from './FetchEvent'
 import { useEffect, useRef } from 'react';
 import { mock_EventDatas } from './Event_Data'
+import { Link } from 'react-router-dom';
 
 
 
@@ -88,7 +89,7 @@ const EventSession = () => {
                                     </div>
                                     <div className="btn_Div justify-content-end px-2">
                                         <div className="customize_btn my-3">
-                                            <a href="/Front/Allnews/Intramural-activities/In-school-activities/News.aspx?id=eDkgsr5WXo4=" className="Btn_s2" tabIndex={12} title="更多活動資訊">VIEW ALL<span className="ml-2">+</span></a>
+                                            <Link to="/Allnews/Intramural-activities/In-school-activities" className="Btn_s2" tabIndex={12} title="更多活動資訊">VIEW ALL<span className="ml-2">+</span></Link>
                                         </div>
                                     </div>
                                 </div>

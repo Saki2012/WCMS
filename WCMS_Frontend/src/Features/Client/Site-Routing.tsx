@@ -14,11 +14,19 @@ type SiteMenu_Item_Url = components["schemas"]["SiteMenu_Item_Url_DTO"]
 type NodeType = "redirect-external" | "redirect-internal" | "module";
 export interface INormNode {
     id: number;
+    title: string;
     path: string;                      // 只放當層片段（來自 ItemSiteUrl）
     type: NodeType;
     redirectTo?: string;               // redirect-* 用
     module?: { progId: string; options?: unknown }; // module 用
     children: INormNode[];
+
+    isShowOnMenu: boolean;
+    parentId?: number | null;
+    rootId?: number;
+    level?: number;
+    absSegments?: string[];   // 片段字串：用來快速組 URL
+    absIds?: number[];        // 沿途節點 id：做比對/權限
 }
 
 export interface INormSite {
@@ -79,8 +87,10 @@ export const normalizeSite = (siteMenu: SiteMenuSet): INormSite => {
             const id = it.ItemRowId ?? 0;
             const node: INormNode = {
                 id,
+                title: it.Title ?? "",
                 path: trimSlash(it.ItemSiteUrl ?? ""),
                 type: "module",
+                isShowOnMenu: it.IsShowOnMenu ?? true,
                 children: [],
             };
 
@@ -115,8 +125,29 @@ export const normalizeSite = (siteMenu: SiteMenuSet): INormSite => {
             const id = it.ItemRowId ?? 0;
             const parent = it.ParentRowId;
             const n = nodeMap.get(id)!;
+            n.parentId = parent;
             if (parent == null) roots.push(n);
             else nodeMap.get(parent)?.children.push(n);
+        }
+
+        const fillMeta = (node: INormNode, parent: INormNode | null, rootId: number, parentSegs: string[], parentIds: number[]) => {
+            node.level = (parent?.level ?? -1) + 1;
+            node.rootId = rootId;
+            node.absSegments = node.path ? [...parentSegs, node.path] : [...parentSegs];
+            node.absIds = [...parentIds, node.id];
+            for (const c of node.children) {
+                fillMeta(c, node, rootId, node.absSegments, node.absIds);
+            }
+        };
+        for (const r of roots) {
+            r.parentId = null;
+            r.level = 0;
+            r.rootId = r.id;
+            r.absSegments = r.path ? [r.path] : [];
+            r.absIds = [r.id];
+            for (const c of r.children) {
+                fillMeta(c, r, r.id, r.absSegments, r.absIds);
+            }
         }
         treeByLang[lang] = roots;
     }
@@ -135,15 +166,7 @@ const normalizeInternal = (s: string) => {
     return cleaned.replace(/\/{2,}/g, "/");
 };
 
-/* ---------- 4) 模組註冊：把 ModuleProgId → 對應畫面 ---------- */
-// 先放空，下一步帶你接真實元件（避免在路由建置期 import 太多）:
-export interface IModuleCtx<TOpts = unknown> {
-    lang: string;
-    site: INormSite;
-    node: INormNode;
-    options?: TOpts;
-}
-export type ModuleFactory = (opts: unknown, lang: string) => React.ReactElement;
+export type ModuleFactory = (lang: string, site: INormSite, node: INormNode) => React.ReactElement;
 export type ModuleRoutesFactory = (opts: unknown, lang: string) => RouteObject[];
 export type ModuleEntry =
     | { kind: "element"; render: ModuleFactory }
@@ -161,7 +184,7 @@ import { Outlet, type RouteObject } from "react-router-dom";
 import { useLang } from "../../SysCore/i18n/LangContext";
 import { AutoRedirect } from "../../SysCore/Utils/Route/AutoRedirect";
 import HomePage from "./Layout/BizFunc/MainPage/HomePage";
-import Index from "./Layout/BizFunc/MainPage/Index";
+import { Index } from "./Layout/BizFunc/MainPage/Index";
 
 // 2) 模組元件：用 useLang() 把 lang 傳給對應的模組 component
 const ModuleElement: React.FC<{ node: INormNode; site: INormSite }> = ({ node, site }) => {
@@ -172,15 +195,16 @@ const ModuleElement: React.FC<{ node: INormNode; site: INormSite }> = ({ node, s
     const entry = getModuleRegistry()[node.module.progId];
     if (!entry) return <div>Unknown module: {node.module.progId}</div>;
     // 這個元件只需回傳「父層 element」；子路由在 toRoute 裡處理
-    const el = entry.kind === "element"
-        ? entry.render(node.module.options, lang)
-        : entry.element(node.module.options, lang);
+
+    const el = entry.kind === "element" ? entry.render(lang, site, node) : entry.element(lang, site, node);
     return el;
 };
 
 export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
     const skeletonRoots = site.treeByLang["zh-tw"] ?? Object.values(site.treeByLang)[0] ?? [];
-    const defaultLang = (Object.keys(site.indexInfoByLang)[0] ?? "zh-tw").toLowerCase();
+    // const defaultLang = (Object.keys(site.indexInfoByLang)[0] ?? "zh-tw").toLowerCase();
+    const defaultLang = "zh-tw";
+
     const toRoute = (n: INormNode): RouteObject => {
         // 先把菜單樹的 children 算好（第二層/第三層都會遞迴進來）
         const menuChildren = n.children.map(toRoute);
@@ -241,8 +265,7 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
         const element = <ModuleElement node={n} site={site} />;
 
         // routes 型模組的自帶 children；element 型為空
-        const modChildren: RouteObject[] =
-            entry.kind === "routes" ? entry.children(n.module.options, defaultLang) : [];
+        const modChildren: RouteObject[] = entry.kind === "routes" ? entry.children(n.module.options, defaultLang) : [];
 
         const children = [...modChildren, ...menuChildren];
 
@@ -258,7 +281,7 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
     return [
         {
             path: "/" + site.siteIndex,
-            element: <Index />,
+            element: <Index lang={defaultLang} site={site} />,
             children:
                 [
                     { index: true, element: <HomePage /> },

@@ -4,7 +4,7 @@ import type { components } from "../../types/api";
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"]
 import SiteMenuSetProvider from "../Server/Layout/BizFunc/Dashboard/SiteInfo/SiteInfo_Api";
 import * as SchemaFields from "../../types/SchemaFields";
-import { configureModuleRegistry, createRoutesFromSite, normalizeSite, type INormSite, type ModuleEntry } from "./Site-Routing";
+import { configureModuleRegistry, createRoutesFromSite, normalizeSite, type INormNode, type INormSite, type ModuleEntry } from "./Site-Routing";
 import type { QueryListCondition } from "../../SysCore/Interface/IApiProvider";
 export const CLIENT_ROOT_ID = "client-root";
 
@@ -54,12 +54,11 @@ import { GalleryFormComp } from "./Layout/BizFunc/Gallery/GalleryForm";
 import { WebResourceListComp, type IWebResourceListOptions } from "./Layout/BizFunc/WebResource/WebResourceList";
 import { specClientEntries } from "../../SpecFetures/1810/SpecRouter";
 
-
 export const clientEntries: Record<string, ModuleEntry> = {
   PageManagement: {
     kind: "routes",
-    element: (opts, lang) => (
-      <SubContent Style={Classic_FETheme} Title={"123"}></SubContent>
+    element: (lang: string, site: INormSite, node: INormNode) => (
+      <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
     ),
     children: (opts, lang) => [
       { index: true, element: <PageManagementFormComp lang={lang} options={opts as IPageManagementOptions} /> },
@@ -67,8 +66,8 @@ export const clientEntries: Record<string, ModuleEntry> = {
   },
   Announcement: {
     kind: "routes",
-    element: (opts, lang) => (
-      <SubContent Style={Classic_FETheme} Title={"123"}></SubContent>
+    element: (lang: string, site: INormSite, node: INormNode) => (
+      <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
     ),
     children: (opts, lang) => [
       { index: true, element: <AutoRedirect to="List" replace /> },
@@ -78,8 +77,8 @@ export const clientEntries: Record<string, ModuleEntry> = {
   },
   FileArchive: {
     kind: "routes",
-    element: (opts, lang) => (
-      <SubContent Style={Classic_FETheme} Title={"123"}></SubContent>
+    element: (lang: string, site: INormSite, node: INormNode) => (
+      <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
     ),
     children: (opts, lang) => [
       { index: true, element: <FileArchiveList Theme={Classic_FETheme} Lang={lang} Options={opts as IFileArchiveOptions} /> },
@@ -87,8 +86,8 @@ export const clientEntries: Record<string, ModuleEntry> = {
   },
   Gallery: {
     kind: "routes",
-    element: (opts, lang) => (
-      <SubContent Style={Classic_FETheme} Title={"123"}></SubContent>
+    element: (lang: string, site: INormSite, node: INormNode) => (
+      <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
     ),
     children: (opts, lang) => [
       { index: true, element: <AutoRedirect to="List" replace /> },
@@ -98,8 +97,8 @@ export const clientEntries: Record<string, ModuleEntry> = {
   },
   WebResource: {
     kind: "routes",
-    element: (opts, lang) => (
-      <SubContent Style={Classic_FETheme} Title={"123"}></SubContent>
+    element: (lang: string, site: INormSite, node: INormNode) => (
+      <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
     ),
     children: (opts, lang) => [
       { index: true, element: <WebResourceListComp Theme={Classic_FETheme} Lang={lang} Options={opts as IWebResourceListOptions} /> },

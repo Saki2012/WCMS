@@ -1,18 +1,19 @@
 
 /*Header模塊*/
-import MainMenu from "../Menu/MainMenu/MainMenu_Comp"
+import type { INormSite } from "../../../Site-Routing";
+import { MainMenu } from "../Menu/MainMenu/MainMenu_Comp"
 import { mock_HeaderData } from './Header_Data'
 import { useHeaderBehaviorRef } from './Header_Hook';
 import { useRef } from 'react'
 
-const Header=()=> {
+export const Header = ({ lang, site }: { lang: string; site: INormSite }) => {
     const data = mock_HeaderData();
     const headerRef = useRef<HTMLElement>(null);
     useHeaderBehaviorRef(headerRef);
     return (
         <>
             <noscript>
-                <div style={{color:'red'}}>{"您的瀏覽器不支援 JavaScript，請開啟 Javascript 功能。"}</div>
+                <div style={{ color: 'red' }}>{"您的瀏覽器不支援 JavaScript，請開啟 Javascript 功能。"}</div>
             </noscript>
             <a href="#content" id="gotocenter" title="跳到頁面主要內容區" tabIndex={1} className="sr-only sr-only-focusable">跳到頁面主要內容區</a>
 
@@ -33,7 +34,7 @@ const Header=()=> {
                                         </h1>
                                     </div>
                                 </div>
-                                <MainMenu></MainMenu>
+                                <MainMenu lang={lang} site={site}></MainMenu>
                                 <div className="overlayer"></div>
                                 <div className="rightBox">
                                     <button className="main" type="button">
@@ -49,5 +50,3 @@ const Header=()=> {
         </>
     );
 }
-    
-export default Header;
