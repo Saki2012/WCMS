@@ -56,7 +56,8 @@ const useGetCategories = (lang: string, categoryIds: string) => {
 };
 
 const useGetTags = (lang: string, tagIds: string) => {
-    var condition: string = `${SchemaFields.TagDataFields.TagId} In ('${tagIds}') And ${SchemaFields.TagDetailFields.Lang} = ${lang}`;
+    const inList = buildInList(tagIds);
+    var condition: string = `${SchemaFields.TagDataFields.TagId} In (${inList}) And ${SchemaFields.TagDetailFields.Lang} = ${lang}`;
     const provider = TagProvider();
     return useFetchGridListData<TagSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
@@ -88,40 +89,30 @@ const emptyData: AnnouncementSet = {
     AnnouncementDetail: []
 }
 
-interface IAnnouncementListProps { Theme: IFETheme; Lang: string | Lang }
+interface IAnnouncementFormProps { Theme: IFETheme; Lang: string | Lang }
 
-export const AnnouncementFormComp = (props: IAnnouncementListProps) => {
+export const AnnouncementFormComp = (props: IAnnouncementFormProps) => {
     const { internalId } = useParams()
     const useAnnouncementFormData = useFetchFormData<AnnouncementSet>(AnnouncementProvider(), internalId, emptyData)
-    // const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData);}, [useAnnounceList.gridProps, useAnnounceList.rawData]);
-
     const title = useAnnouncementFormData.data?.AnnouncementDetail?.[0]?.Title ?? "";
     const href = useAnnouncementFormData.data?.AnnouncementDetail?.[0]?.Url as string
     const startDate = FormatDate(useAnnouncementFormData.data?.Announcement?.Validate_Start)
-
     const rawContent = useAnnouncementFormData.data?.AnnouncementDetail?.[0]?.Content ?? '';
     const parseContent = useResolveInternalIds(rawContent, { locale: props.Lang });
-
     const safeHtml = useMemo(() => DOMPurify.sanitize(parseContent.html ?? ''), [parseContent.html])
     const content = safeHtml ? parse(safeHtml) : null;
-
     const srcCategories = useAnnouncementFormData.data?.Announcement?.Categories ?? "";
-    const srcTags = useAnnouncementFormData.data?.Announcement?.Categories ?? "";
-
+    const srcTags = useAnnouncementFormData.data?.Announcement?.Tags ?? "";
     const useCategories = useGetCategories(props.Lang as string, srcCategories);
     const useTags = useGetTags(props.Lang as string, srcTags);
-
-
     const isLoading = [useAnnouncementFormData.isLoading, parseContent.loading, useCategories.isLoading, useTags.isLoading];
     const errors = [useAnnouncementFormData.error, useCategories.error, useTags.error];
-
-    const categories = useCategories.rawData;
-    const tags = useTags.rawData;
-    // debugger
+    const categories = (useCategories.rawData ?? []).flatMap(item => (item.CategoryDetail ?? []).filter(detail => detail.Lang === props.Lang).map(detail => detail.CategoryName)) as string[];
+    const tags = (useTags.rawData ?? []).flatMap(item => (item.TagDetail ?? []).filter(detail => detail.Lang === props.Lang).map(detail => detail.TagName)) as string[];
     return (
         <ContentComp Theme={props.Theme} LoadingList={isLoading} ErrorList={errors}
             Title={title} StartDate={startDate}
-            // Category={useCategories} Tag={}
+            Category={categories} Tag={tags}
             Content={content} Href={href}
         />
     );

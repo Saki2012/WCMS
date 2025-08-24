@@ -1,11 +1,10 @@
 /* Banner */
-import { useEffect, useRef } from "react";
+// import { useRef } from "react";
 // import {Carousel} from 'bootstrap'
 import "swiper/swiper-bundle.css";
 
-const BannerSlider = () =>
-{
-    const bannerRef = useRef<HTMLElement>(null);
+const BannerSlider = () => {
+    // const bannerRef = useRef<HTMLElement>(null);
     //   useEffect(() => {
     //     if (typeof window === 'undefined') return;
 
@@ -56,7 +55,8 @@ const BannerSlider = () =>
     //         }
     //     }}, []);
     return (
-        <section className="carousel_slide_section" ref={bannerRef}>
+        // <section className="carousel_slide_section" ref={bannerRef}>
+        <section className="carousel_slide_section">
             <div className="sidebar">
                 <div className="scroll_Down">
                     <a href="#content" className="eng_font">SCROLL</a>
@@ -111,7 +111,7 @@ const BannerSlider = () =>
                         <div className="carousel_btn-icon-prev">
                             <a
                                 className="carousel-control-prev"
-                                href="javascript:void(0);"
+                                href="#"
                                 data-bs-target="#carousel-Controls"
                                 role="button"
                                 data-bs-slide="prev"
@@ -125,7 +125,7 @@ const BannerSlider = () =>
                         <div className="carousel_btn-icon-next">
                             <a
                                 className="carousel-control-next"
-                                href="javascript:void(0);"
+                                href="#"
                                 data-bs-target="#carousel-Controls"
                                 role="button"
                                 data-bs-slide="next"
@@ -139,9 +139,8 @@ const BannerSlider = () =>
                         <div id="cycleCarousel" className="control-start">
                             <a
                                 type="button"
-                                href="javascript:void(0);"
+                                href="#" onClick={(e) => { e.preventDefault(); }}
                                 data-bs-target="#carousel-Controls"
-                                onClick={(e) => e.preventDefault()}
                                 title="播放"
                                 tabIndex={1}
                             >
@@ -152,9 +151,8 @@ const BannerSlider = () =>
                         <div id="pauseCarousel" className="control-pause">
                             <a
                                 type="button"
-                                href="javascript:void(0);"
+                                href="#" onClick={(e) => { e.preventDefault(); }}
                                 data-bs-target="#carousel-Controls"
-                                onClick={(e) => e.preventDefault()}
                                 title="暫停"
                                 tabIndex={1}
                             >

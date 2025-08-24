@@ -52,9 +52,10 @@ import { FileArchiveList, type IFileArchiveOptions } from "./Layout/BizFunc/File
 import { GalleryListComp, type IGalleryListOptions } from "./Layout/BizFunc/Gallery/GalleryList";
 import { GalleryFormComp } from "./Layout/BizFunc/Gallery/GalleryForm";
 import { WebResourceListComp, type IWebResourceListOptions } from "./Layout/BizFunc/WebResource/WebResourceList";
+import { specClientEntries } from "../../SpecFetures/1810/SpecRouter";
 
 
-const clientEntries: Record<string, ModuleEntry> = {
+export const clientEntries: Record<string, ModuleEntry> = {
   PageManagement: {
     kind: "routes",
     element: (opts, lang) => (
@@ -113,9 +114,8 @@ export const ensureClientRegistryInstalled = () => {
   configureModuleRegistry(base => ({
     ...base,          // 先帶入核心
     ...clientEntries, // 追加/覆寫（同 key 會覆蓋核心）
+    ...specClientEntries //暫時寫上，之後看如何用繼承處理
   }));
-
-
   registryInstalled = true;
 };
 

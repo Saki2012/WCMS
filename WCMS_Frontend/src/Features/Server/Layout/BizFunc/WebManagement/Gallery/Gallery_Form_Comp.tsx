@@ -79,7 +79,7 @@ export const GalleryFormComp = ({ theme }: { theme: IBETheme }) => {
             <TabContentComp libTabsProp={LibTabsPropB} components={componentsB}></TabContentComp>
         ],
         Photo: [
-            <LibModal ModalName="上傳圖片" BtnName1="關閉" BtnName2= "儲存並上傳">
+            <LibModal ModalName="上傳圖片" BtnName1="關閉" BtnName2="儲存並上傳">
                 <div className="row mx-0">
                     {/* 選擇欲上傳的圖片(多選) */}
                     <div className="col-12">
@@ -101,7 +101,7 @@ export const GalleryFormComp = ({ theme }: { theme: IBETheme }) => {
                                         <div className="col-12 border-bottom">
                                             <div className="d-flex align-items-center">
                                                 {/* <div className="all-btn me-2">
-                                                    <a id="trash" className="icon" href="javascript:void(0);" title="" data-bs-toggle="modal" data-bs-target="#All_Delete">
+                                                    <a id="trash" className="icon" href="#" OnClick={(e) => { e.preventDefault();}} title="" data-bs-toggle="modal" data-bs-target="#All_Delete">
                                                         <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" title="" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="刪除輪播">
                                                             <i className="far fa-trash-alt"></i>
                                                         </button>
@@ -136,7 +136,7 @@ export const GalleryFormComp = ({ theme }: { theme: IBETheme }) => {
                     </div>
                     <div className="col-6 d-flex justify-content-end">
                         <div className="all-btn">
-                            <a id="trash" className="icon" href="javascript:void(0);" title="" data-bs-toggle="modal" data-bs-target="#All_Delete">
+                            <a id="trash" className="icon" href="#" onClick={(e) => { e.preventDefault(); }} title="" data-bs-toggle="modal" data-bs-target="#All_Delete">
                                 <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" title="" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="刪除輪播">
                                     <i className="far fa-trash-alt"></i>
                                 </button>

@@ -1,6 +1,6 @@
 // SpecFeatures/1810/Router.ts
 import type { IRouteModule } from "../../SysCore/Interface/IBaseRouter";
-import { loadClientChildren } from "../../Features/Client/ClientRouter";
+import { clientEntries, loadClientChildren } from "../../Features/Client/ClientRouter";
 import { BackendRouteModule } from "../../Features/Server/ServerRouter";
 import type { RouteObject } from "react-router-dom";
 import { configureModuleRegistry, type ModuleEntry } from "../../Features/Client/Site-Routing";
@@ -12,9 +12,10 @@ import { AutoRedirect } from "../../SysCore/Utils/Route/AutoRedirect";
 import { SpecUSRFormComp } from "./Client/SpecUSR/SpecUSR_Form";
 import { SpecResearch_Form_Comp } from "./Client/SpecResearch/SpecResearch_Form";
 
+
+
 export class SpecRouteModule implements IRouteModule {
   async getRoutes(): Promise<RouteObject[]> {
-    // installSpecClientEntries();
     const frontendRoutes = await loadClientChildren();
     const backendRoutes = new BackendRouteModule().getRoutes();
     const customRoutes: RouteObject[] = [];
@@ -22,7 +23,7 @@ export class SpecRouteModule implements IRouteModule {
   }
 }
 
-const specClientEntries: Record<string, ModuleEntry> = {
+export const specClientEntries: Record<string, ModuleEntry> = {
   SpecUSR: {
     kind: "routes",
     element: (_opts: unknown, _lang: string) => (
@@ -45,12 +46,4 @@ const specClientEntries: Record<string, ModuleEntry> = {
       { path: ":internalId", element: <SpecResearch_Form_Comp Theme={Classic_FETheme} Lang={lang} /> },
     ],
   },
-};
-
-/** 僅安裝一次，避免 HMR 重複註冊 */
-let installed = false;
-export const installSpecClientEntries = (): void => {
-  if (installed) return;
-  configureModuleRegistry(() => ({ ...specClientEntries, }));
-  installed = true;
 };

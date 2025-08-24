@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { hydrateRoot } from "react-dom/client";
+import { createRoot, hydrateRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import type { IRouteModule } from "../SysCore/Interface/IBaseRouter.ts";
 import { createClientRouter } from "../SysCore/Utils/Route/Routes.tsx";
@@ -126,9 +126,17 @@ const module: IRouteModule = new SpecRouteModule();
 const router = await createClientRouter({ lang: bootLang, module });
 const container = document.getElementById("root")! as HTMLElement;
 const rootNode = <ClientBootstrap router={router} />;
+container.innerHTML = "";
 
 const CSR_Render = () => {
-  hydrateRoot(container, rootNode);
+  if (container.hasChildNodes()) {
+    console.log("Exec HydrateRoot")
+    hydrateRoot(container, rootNode);
+  }
+  else {
+    console.log("Exec CreateRoot")
+    createRoot(container).render(rootNode);
+  }
 };
 
 CSR_Render();

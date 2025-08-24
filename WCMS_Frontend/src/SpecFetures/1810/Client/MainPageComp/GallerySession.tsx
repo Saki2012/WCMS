@@ -1,13 +1,13 @@
 /* Banner */
 import 'swiper/swiper-bundle.css';
-import {BaseCarousel} from '../../../../SysCore/Components/BaseCarousel'
+import { BaseCarousel } from '../../../../SysCore/Components/BaseCarousel'
 
 const GallerySession = () => {
 
     BaseCarousel({ selectorId: '#Gallery', itemCount: 3 });
 
     return (
-        <section className="Gallery-section owl-box" style={{backgroundImage: "url(/Legacy/Client/Images/bg/background-transparent-image_1920x600.png)"}}>
+        <section className="Gallery-section owl-box" style={{ backgroundImage: "url(/Legacy/Client/Images/bg/background-transparent-image_1920x600.png)" }}>
             <div className="Mask-DivBox layout_padding2">
                 <div className="customizeBox">
                     <div className="container-customize1">
@@ -30,16 +30,16 @@ const GallerySession = () => {
                             <div className="col-12 + p-0">
                                 <div className="content-box + animate__animated animate__slow wow animate__zoomIn" data-wow-delay="0.15s">
                                     <div id="Gallery" className="owl-carousel owl-theme px-2">
-                                            {/* <asp:Literal ID="Li_Album" runat="server" /> */}
+                                        {/* <asp:Literal ID="Li_Album" runat="server" /> */}
                                     </div>
                                     {/*// Banner 控制 暫停 / 播放 按鈕 START // */}
                                     <div className="control-box">
-                                        <a id="Gallery_start" href="javascript:void(0);" className="play" tabIndex={13} title="播放">
+                                        <a id="Gallery_start" href="#" onClick={(e) => { e.preventDefault(); }} className="play" tabIndex={13} title="播放">
                                             <div className="control_start">
                                                 <span className="control-start-icon"><span className="d-none">播放</span></span>
                                             </div>
                                         </a>
-                                        <a id="Gallery_pause" href="javascript:void(0);" className="stop" tabIndex={13} title="暫停">
+                                        <a id="Gallery_pause" href="#" onClick={(e) => { e.preventDefault(); }} className="stop" tabIndex={13} title="暫停">
                                             <div className="control_pause">
                                                 <span className="control-pause-icon"><span className="d-none">暫停</span></span>
                                             </div>

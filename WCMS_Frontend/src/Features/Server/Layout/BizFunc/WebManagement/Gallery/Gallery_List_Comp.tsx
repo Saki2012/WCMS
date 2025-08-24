@@ -83,7 +83,7 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps): GridProps => {
                             <i className="far fa-edit"></i>
                         </button>
                     </Link>
-                    <a id="trash" className="icon" href="javascript:void(0);" title="" data-bs-toggle="modal" data-bs-target="#All_Delete">
+                    <a id="trash" className="icon" href="#" onClick={(e) => { e.preventDefault(); }} title="" data-bs-toggle="modal" data-bs-target="#All_Delete">
                         <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" title="" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="刪除輪播">
                             <i className="far fa-trash-alt"></i>
                         </button>
