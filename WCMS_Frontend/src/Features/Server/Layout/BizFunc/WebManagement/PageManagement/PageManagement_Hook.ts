@@ -62,6 +62,8 @@ export const usePageManagementListData = () =>
             });
             return { cells };
         },
+        enabled: true,
+        deps: [],
     });
 };
 

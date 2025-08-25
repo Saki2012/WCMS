@@ -26,6 +26,7 @@ export default defineConfig(({ mode }) => {
         }
       : {
           outDir: 'dist',
+          target: 'es2022',
           assetsInlineLimit: 0,
         },
         resolve: { alias: { '/src': path.resolve(__dirname, './src'),}},

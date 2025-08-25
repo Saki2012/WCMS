@@ -61,6 +61,8 @@ const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
             });
             return { cells };
         },
+        enabled: true,
+        deps: [],
     });
 };
 

@@ -54,6 +54,6 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 系統內部唯一標識號
         /// </summary>
-        [LibDesc, DTOReadOnly] public string InternalId { get; set; }
+        [LibDesc] public string InternalId { get; set; }
     }
 }

@@ -121,15 +121,15 @@ const ClientBootstrap: React.FC<{ router: any }> = ({ router }) => {
 };
 
 /** ---- 啟動（SSR hydration 或純 CSR） ---------------------------------- */
+const bootLang = (typeof window !== "undefined" && (window as any).__INITIAL_STATE__?.lang) || "zh-tw";
+const module: IRouteModule = new SpecRouteModule();
+const router = await createClientRouter({ lang: bootLang, module });
+const container = document.getElementById("root")! as HTMLElement;
+const rootNode = <ClientBootstrap router={router} />;
+container.innerHTML = "";
 
+const CSR_Render = () => {
 
-const CSR_Render = async () => {
-  const bootLang = (typeof window !== "undefined" && (window as any).__INITIAL_STATE__?.lang) || "zh-tw";
-  const module: IRouteModule = new SpecRouteModule();
-  const router = await createClientRouter({ lang: bootLang, module });
-  const container = document.getElementById("root")! as HTMLElement;
-  const rootNode = <ClientBootstrap router={router} />;
-  container.innerHTML = "";
 
   if (container.hasChildNodes()) {
     console.log("Exec HydrateRoot")
@@ -141,4 +141,4 @@ const CSR_Render = async () => {
   }
 };
 
-await CSR_Render();
+CSR_Render();

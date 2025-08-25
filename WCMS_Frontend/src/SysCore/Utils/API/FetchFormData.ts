@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { IDataProvider } from "../../Interface/IApiProvider";
 
-interface UseFetchFormDataResult<T>
+export interface UseFetchFormDataResult<T>
 {
     data: T | null;
     setFormData: React.Dispatch<React.SetStateAction<T | null>>;

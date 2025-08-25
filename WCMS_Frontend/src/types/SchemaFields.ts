@@ -77,6 +77,7 @@ export const BannerDetailInfoFields = {
   Lang: 'Lang',
   Title: 'Title',
   Content: 'Content',
+  URL: 'URL',
   URL_Open: 'URL_Open',
 } as const;
 

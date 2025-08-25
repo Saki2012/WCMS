@@ -6707,6 +6707,7 @@ export interface components {
             Lang?: string | null;
             Title?: string | null;
             Content?: string | null;
+            URL?: string | null;
             /** Format: int32 */
             URL_Open?: number;
         };

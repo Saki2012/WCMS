@@ -49,5 +49,7 @@ export const useGalleryListData = () =>
             });
             return { cells };
         },
+        enabled: true,
+        deps: [],
     });
 };

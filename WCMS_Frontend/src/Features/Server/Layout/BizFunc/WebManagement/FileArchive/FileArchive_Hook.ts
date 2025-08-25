@@ -57,6 +57,8 @@ export const useFileArchiveList = () =>
             });
             return { cells };
         },
+        enabled: true,
+        deps: [],
     });
 };
 

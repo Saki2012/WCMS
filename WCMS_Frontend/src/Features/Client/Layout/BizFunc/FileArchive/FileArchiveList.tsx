@@ -61,6 +61,8 @@ const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string
             });
             return { cells };
         },
+        enabled: true,
+        deps: [],
     });
 };
 

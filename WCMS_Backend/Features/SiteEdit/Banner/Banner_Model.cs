@@ -99,6 +99,8 @@ namespace WCMS.Features.SiteEdit.Banner
         /// 
         /// </summary>
         [LibDesc] public string Content { get; set; }
+
+        [LibDesc] public string URL { get; set; }
         /// <summary>
         /// 網址開啟方式
         /// </summary>

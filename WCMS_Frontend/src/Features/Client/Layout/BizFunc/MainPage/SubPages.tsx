@@ -8,6 +8,7 @@ import type { IFETheme } from '../../Theme/ITheme'
 import type { ReactNode } from 'react'
 import type { INormNode, INormSite } from '../../../Site-Routing'
 import type { Lang } from '../../../../../SysCore/i18n/lang'
+import { useNavigate } from "react-router-dom";
 
 
 interface ISubPagesProps {
@@ -68,8 +69,10 @@ const SubContent = (props: ISubPagesProps) => {
   const title: string = props.node.title;
   const breadCrumbData: BreadCrumbData[] = GetBreadCrumbData(props.Lang, props.site, props.node);
   const menuData: MenuItemData[] = GetMenuData(props.Lang, props.site, props.node);
+  const navigate = useNavigate(); // 🔑 先宣告
+  const handleBack = (e: React.MouseEvent<HTMLAnchorElement>) => { e.preventDefault(); navigate(-1); };
   const back: ReactNode = <div className="pos-relative d-inline-block ml-auto">
-    <a href="#" >
+    <a href="#" onClick={handleBack}>
       <div className="pos-relative d-inline-block">
         <div className="return-box"><i className="fa fa-reply" aria-hidden="true" style={{ fontSize: "112.5%", marginRight: "10px" }}></i>返回上一層</div>
       </div>

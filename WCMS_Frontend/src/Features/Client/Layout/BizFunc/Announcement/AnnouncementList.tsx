@@ -13,45 +13,63 @@ import AnnouncementProvider from "../../../../Server/Layout/BizFunc/WebManagemen
 import { GridViewContentComp } from "../../Scaffold/ContentViewMode/GridView/GridView/GridContent_Comp";
 import { Merge } from "../../../../../SysCore/Utils/Library/LibMergeData";
 import type { Lang } from "../../../../../SysCore/i18n/lang";
+import { Classic_LibTextBox3 } from "../../../../Server/Layout/Theme/ClassicTheme_Clsx";
+import { FormatDate } from "../../../../../SysCore/Utils/Library/LibData";
 
 const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string) => {
     var condition: string = "";
-    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Categories} In ('${categoryIds}')`)
-    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} In ('${tagIds}')`)
+    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Categories} In (${categoryIds})`)
+    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} In (${tagIds})`)
     const provider = AnnouncementProvider();
     return useFetchGridListData<AnnouncementSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
         fetchListCount: (cond) => provider.fetchListCount(cond),
         visibleKeys: [
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Categories],
+            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Validate_Start],
             [SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Title],
+            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ViewCount],
         ],
         buildQueryCondition: (page) => ({
             Fields: [
                 SchemaFields.AnnouncementFields.AnnouncementId,
+                SchemaFields.AnnouncementFields.InternalId,
                 SchemaFields.AnnouncementFields.Categories,
+                SchemaFields.AnnouncementFields.Validate_Start,
                 `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
                 `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
+                SchemaFields.AnnouncementFields.ViewCount,
             ],
             Condition: condition,
             PageNumber: page,
             PageSize: 10,
         }),
         parseRow: (item, columns) => {
-            const data = item.Announcement ?? {};
             const cells: RowCell[] = columns.map(col => {
                 let content = "";
-                if (col.key === SchemaFields.AnnouncementDetailFields.Title) {
-                    content = item.AnnouncementDetail?.find(d => d.Lang === lang)?.Title ?? "";
-                }
-                else {
-                    content = (data as any)[col.key] ?? "";
+                switch (col.key) {
+                    case SchemaFields.AnnouncementDetailFields.Title:
+                        {
+                            content = item.AnnouncementDetail?.find(d => d.Lang === lang)?.Title ?? "";
+                            break;
+                        }
+                    case SchemaFields.AnnouncementFields.Validate_Start:
+                        {
+                            content = FormatDate(item.Announcement?.Validate_Start) ?? ""
+                            break;
+                        }
+                    default:
+                        {
+                            content = (item.Announcement as any)[col.key] ?? "";
+                            break;
+                        }
                 }
                 return { col, content };
             });
             return { cells };
         },
+        enabled: true,
+        deps: [],
     });
 };
 

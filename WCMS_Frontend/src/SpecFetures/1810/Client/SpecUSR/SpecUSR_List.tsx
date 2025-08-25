@@ -59,6 +59,8 @@ const useSpecUSRList = (lang: string, categoryIds: string, tagIds: string) => {
             });
             return { cells };
         },
+        enabled: true,
+        deps: [],
     });
 };
 

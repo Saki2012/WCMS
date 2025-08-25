@@ -18,13 +18,11 @@ interface UseGridListOptions<T>
     /** 如何解析 row 資料 */
     parseRow?: (item: T, columns: ColumnConfig[]) => GridRow;
     initialData?: T[]; // ✅ SSR 預先帶進來的資料
-    deps?: any[]; // ✅ 依賴，變化時會重新 fetch
+    deps?: React.DependencyList; // ✅ 依賴，變化時會重新 fetch
     enabled?: boolean; // ✅ 控制是否要打 API
 }
 
-export const useFetchGridListData = <T>(
-    props: UseGridListOptions<T>,
-) =>
+export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
 {
     const [rawData, setRawData] = useState<T[]>(props.initialData ?? []);
     const [rows, setRows] = useState<GridRow[]>([]);

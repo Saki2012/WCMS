@@ -142,6 +142,7 @@ namespace WCMS.SysCore
         /// <returns></returns>
         [HttpPatch($"{nameof(Invalid)}/{{pk}}")] public virtual async Task<IActionResult> Invalid(string internalId, bool isInvalid, CancellationToken ct)
         {
+            if (!Guid.TryParse(internalId, out var guid)){ return BadRequest("Invalid internalId format."); }
             var invalidResult = await Service.BizInvalidSetAsync(internalId, isInvalid);
             var result = DTOHelper.MapToDTO<TSet,TSet_DTO>(invalidResult);
             await EvictForSetAsync(ct, internalId);
@@ -161,6 +162,7 @@ namespace WCMS.SysCore
         /// <returns></returns>
         [HttpDelete(nameof(Delete))] public virtual async Task<IActionResult> Delete(string internalId, CancellationToken ct)
         {
+            if (!Guid.TryParse(internalId, out var guid)) { return BadRequest("Invalid internalId format."); }
             var deleteResult = await Service.BizDeleteSetAsync(internalId);
             var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(deleteResult);
             await EvictForSetAsync(ct, internalId);
@@ -180,6 +182,7 @@ namespace WCMS.SysCore
         /// <returns></returns>
         [HttpGet(nameof(QueryData)), OutputCache(PolicyName = "DetailJson")] public virtual async Task<IActionResult> QueryData([FromQuery] string internalId, CancellationToken ct)
         {
+            if (!Guid.TryParse(internalId, out var guid)) { return BadRequest("Invalid internalId format."); }
             AddDetailTags(internalId);
             var queryResult = await Service.BizQuerySetAsync(internalId);
             var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(queryResult);

@@ -55,5 +55,7 @@ export const useUSRProjList = () =>
             });
             return { cells };
         },
+        enabled: true,
+        deps: [],
     });
 };

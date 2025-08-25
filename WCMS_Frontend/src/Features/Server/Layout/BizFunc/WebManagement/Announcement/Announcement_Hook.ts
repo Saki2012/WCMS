@@ -57,6 +57,8 @@ export const useAnnouncementList = () =>
             });
             return { cells };
         },
+        enabled: true,
+        deps: [],
     });
 };
 

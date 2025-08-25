@@ -55,5 +55,7 @@ export const useSpecResearchList = () =>
             });
             return { cells };
         },
+        enabled: true,
+        deps: [],
     });
 };

@@ -57,6 +57,8 @@ export const useWebResourceList = () =>
             });
             return { cells };
         },
+        enabled: true,
+        deps: [],
     });
 };
 
