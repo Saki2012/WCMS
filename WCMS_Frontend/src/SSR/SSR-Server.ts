@@ -101,7 +101,7 @@ const setupDevSSR = async (app: express.Express) =>
             const legacyJs = LEGACY_JS
                 .map((src: any) => `<script src="${src}" defer></script>`)
                 .join("");
-
+            const nonce = crypto.randomUUID().toString();
             const html = template
                 .replace("<!--Legacy-Css-->", legacyCss ?? "")
                 .replace("<!--Legacy-Js-->", legacyJs ?? "")
@@ -110,13 +110,13 @@ const setupDevSSR = async (app: express.Express) =>
                 .replace(
                     "<!--initial-state-->",
                     initialState
-                        ? `<script>window.__INITIAL_STATE__=${
+                        ? `<script nonce="${nonce}>window.__INITIAL_STATE__=${
                             JSON.stringify(initialState).replace(/</g, "\\u003c")
                         }</script>`
                         : "",
                 );
 
-            res.status(200).set("Content-Type", "text/html").end(html);
+            res.status(200).set("Content-Type", "text/html").set("Content-Security-Policy", `script-src 'self' 'nonce-${nonce}'`).end(html);
         } catch (e)
         {
             vite.ssrFixStacktrace?.(e as Error);
@@ -194,20 +194,20 @@ const setupProdSSR = async (app: express.Express) =>
             let template = await fs.readFile(templatePath, "utf-8");
 
             const { appHtml, headTags, initialState } = toPayload(result);
-
+            const nonce = crypto.randomUUID().toString();
             const html = template
                 .replace("<!--app-head-->", headTags ?? "")
                 .replace("<!--app-html-->", appHtml ?? "")
                 .replace(
                     "<!--initial-state-->",
                     initialState
-                        ? `<script>window.__INITIAL_STATE__=${
+                        ? `<script  nonce="${nonce}>window.__INITIAL_STATE__=${
                             JSON.stringify(initialState).replace(/</g, "\\u003c")
                         }</script>`
                         : "",
                 );
 
-            res.status(200).set("Content-Type", "text/html").end(html);
+            res.status(200).set("Content-Type", "text/html").set("Content-Security-Policy", `script-src 'self' 'nonce-${nonce}'`).end(html);
         } catch (e)
         {
             next(e);
