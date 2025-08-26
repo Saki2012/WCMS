@@ -1,6 +1,4 @@
-import { useEffect, useState } from "react";
-import type { ColumnConfig, GridProps, GridRow, RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data";
-import type { QueryListCondition } from "../../../../../../SysCore/Interface/IApiProvider";
+import type { RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data";
 import type { components } from "../../../../../../types/api";
 import * as SchemaFields from "../../../../../../types/SchemaFields";
 import FileArchiveProvider from "./FileArchive_Api";
@@ -16,22 +14,22 @@ export const useFileArchiveList = () =>
         fetchList: (cond) => provider.fetchList(cond),
         fetchListCount: (cond) => provider.fetchListCount(cond),
         visibleKeys: [
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Categories],
-            [SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Title],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ContentStatus],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyUserId],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyTime],
+            [SchemaFields.FileArchiveSetFields.FileArchive, SchemaFields.FileArchiveFields.CategoriesId],
+            [SchemaFields.FileArchiveSetFields.FileArchive, SchemaFields.FileArchiveFields.ContentStatus],
+            [SchemaFields.FileArchiveSetFields.FileArchiveInfo, SchemaFields.FileArchiveInfoFields.Title],
+            [SchemaFields.FileArchiveSetFields.FileArchive, SchemaFields.FileArchiveFields.ModifyUserId],
+            [SchemaFields.FileArchiveSetFields.FileArchive, SchemaFields.FileArchiveFields.ModifyTime],
         ],
         buildQueryCondition: (page) => ({
             Fields: [
-                SchemaFields.AnnouncementFields.AnnouncementId,
-                SchemaFields.AnnouncementFields.Categories,
-                SchemaFields.AnnouncementFields.ContentStatus,
-                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
-                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
-                SchemaFields.AnnouncementFields.ModifyUserId,
-                SchemaFields.AnnouncementFields.ModifyTime,
-                SchemaFields.AnnouncementFields.InternalId,
+                SchemaFields.FileArchiveFields.InternalId,
+                SchemaFields.FileArchiveFields.FileArchiveId,
+                SchemaFields.FileArchiveFields.CategoriesId,
+                SchemaFields.FileArchiveFields.ContentStatus,
+                `${SchemaFields.FileArchiveSetFields.FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.Lang}`,
+                `${SchemaFields.FileArchiveSetFields.FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.Title}`,
+                SchemaFields.FileArchiveFields.ModifyUserId,
+                SchemaFields.FileArchiveFields.ModifyTime,
             ],
             Condition: "",
             PageNumber: page,
@@ -39,19 +37,26 @@ export const useFileArchiveList = () =>
         }),
         parseRow: (item, columns) =>
         {
-            const data = item.FileArchive ?? {};
             const cells: RowCell[] = columns.map(col =>
             {
                 let content = "";
-                if (col.key === SchemaFields.AnnouncementDetailFields.Title)
+                switch (col.key)
                 {
-                    // content = data.AnnouncementDetail?.find(d => d.Lang === "zh-tw")?.Title ?? "";
-                } else if (col.key === SchemaFields.AnnouncementFields.ModifyTime)
-                {
-                    content = FormatDateTime((data as any)[col.key]);
-                } else
-                {
-                    content = (data as any)[col.key] ?? "";
+                    case SchemaFields.FileArchiveInfoFields.Title:
+                    {
+                        content = item.FileArchiveInfo?.find(d => d.Lang === "zh-tw")?.Title ?? "";
+                        break;
+                    }
+                    case SchemaFields.FileArchiveFields.ModifyTime:
+                    {
+                        content = FormatDateTime(item.FileArchive?.ModifyTime);
+                        break;
+                    }
+                    default:
+                    {
+                        content = (item.FileArchive as any)[col.key] ?? "";
+                        break;
+                    }
                 }
                 return { col, content };
             });

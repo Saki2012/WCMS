@@ -1,9 +1,9 @@
-﻿namespace WCMS.SysCore
-{
-    using Microsoft.Extensions.Hosting;
-    using Microsoft.Extensions.Options;
-    using WCMS.SysCore.SystemFunc.FileManagement;
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using WCMS.SysCore.AppSettingsOptions;
 
+namespace WCMS.SysCore
+{
     public sealed class EnsureStorageFoldersHostedService(IOptions<FilePathOptions> opt, IWebHostEnvironment env) : IHostedService
     {
         public Task StartAsync(CancellationToken cancellationToken)

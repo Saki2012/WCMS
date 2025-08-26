@@ -2089,6 +2089,24 @@ namespace WCMS.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("WCMS.Features.SiteEdit.FileArchive.FileArchiveDetail", b =>
+                {
+                    b.HasOne("WCMS.Features.SiteEdit.FileArchive.FileArchive", null)
+                        .WithMany("FileArchiveDetail")
+                        .HasForeignKey("FileArchiveId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.FileArchive.FileArchiveInfo", b =>
+                {
+                    b.HasOne("WCMS.Features.SiteEdit.FileArchive.FileArchive", null)
+                        .WithMany("FileArchiveInfo")
+                        .HasForeignKey("FileArchiveId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("WCMS.Features.SiteEdit.PageManagement.PageManagementDetail", b =>
                 {
                     b.HasOne("WCMS.Features.SiteEdit.PageManagement.PageManagement", null)
@@ -2163,6 +2181,13 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.Category.Category", b =>
                 {
                     b.Navigation("CategoryDetail");
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.FileArchive.FileArchive", b =>
+                {
+                    b.Navigation("FileArchiveDetail");
+
+                    b.Navigation("FileArchiveInfo");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.PageManagement.PageManagement", b =>

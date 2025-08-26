@@ -10,13 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WCMS.SysCore.SystemFunc.FileManagement
 {
-    public class FilePathOptions
-    {
-        public string Root { get; set; }
-        public string Pending { get; set; }
-        public string Permanent { get; set; }
-        public string Import { get; set; }
-    }
+
     public class FileManageSet:ITSet
     {
         public FileManageModel FileManage { get; set; } = new();

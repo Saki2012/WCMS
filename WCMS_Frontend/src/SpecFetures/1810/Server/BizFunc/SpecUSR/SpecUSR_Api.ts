@@ -44,7 +44,7 @@ class MockProvider extends ISpecUSRProvider
 }
 class APIProvider extends ISpecUSRProvider
 {
-    private readonly ModuleName = "Announcement";
+    private readonly ModuleName = "SpecUSR";
     private readonly API = new BaseApiService<SpecUSRSet>(this.ModuleName);
 
     protected async doCreateData(set: SpecUSRSet): Promise<ApiResponse<SpecUSRSet>>

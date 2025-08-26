@@ -73,16 +73,13 @@ const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string) 
     });
 };
 
-
 export interface IAnnouncementListOptions { Category?: string; Tag?: string; Style: number; }
 interface IAnnouncementListProps { Theme: IFETheme; Lang: string | Lang; Options?: IAnnouncementListOptions; }
 
 export const AnnouncementList = (props: IAnnouncementListProps) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
     const useAnnounceList = useAnnouncementList(props.Lang, props.Options?.Category ?? "", props.Options?.Tag ?? "");
-    const adjustedGrid = useMemo(() => {
-        return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData);
-    }, [useAnnounceList.gridProps, useAnnounceList.rawData]);
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData]);
     const isLoading = [useAnnounceList.isLoading];
     const errors = [useAnnounceList.error];
     return <GridViewContentComp GridData={adjustedGrid} Theme={props.Theme} LoadingList={isLoading} ErrorList={errors} />;

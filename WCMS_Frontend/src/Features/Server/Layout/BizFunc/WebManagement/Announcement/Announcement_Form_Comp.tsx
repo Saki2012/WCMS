@@ -31,9 +31,9 @@ export const AnnouncementFormComp = ({ theme }: { theme: IBETheme }) => {
     const { internalId } = useParams();
     const useCategory = useGetCategoryListByProgId("Announcement", "zh-tw");
     const useTag = useGetTagListByProgId("Announcement", "zh-tw");
+    const useContentStatus = useFetchEnumOptions("ContentStatus")
     const formData = useFetchFormData<AnnouncementSet>(AnnouncementProvider(), internalId, emptyData)
     const useToolbar = useFormToolbarActions(AnnouncementProvider(), formData.data as AnnouncementSet, internalId as string, () => formData.refetch())
-    const useContentStatus = useFetchEnumOptions("ContentStatus")
     const isLoading = [useTag.isLoading, useCategory.isLoading, formData.isLoading, useContentStatus.isLoading]
     const errors = [useTag.error, useCategory.error, formData.error, useContentStatus.error]
     const prop: FormCompProp = { Title: "新增公告", Theme: theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }

@@ -1,29 +1,25 @@
 ﻿
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.AspNetCore.OutputCaching.StackExchangeRedis;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO.Compression;
 using System.Net;
-using System.Reflection;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
-using WCMS.Features.SiteEdit.PageManagement;
 using WCMS.SysCore;
+using WCMS.SysCore.AppSettingsOptions;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Middleware;
 using WCMS.SysCore.SystemFunc.Auth;
-using WCMS.SysCore.SystemFunc.FileManagement;
 
 namespace WCMS
 {
@@ -38,15 +34,17 @@ namespace WCMS
             AppSetup.AddConnections(builder.Services, builder.Configuration);
             // ③ 核心服務（DI/Repository/檔案路徑等）
             AppSetup.AddCoreServices(builder.Services, builder.Configuration);
+            AppSetup.AddAppSettingsOptions(builder.Services, builder.Configuration);
             // ④ 安全性（CORS/安全標頭/Anti-forgery）
             AppSetup.AddSecurityServices(builder.Services, builder.Configuration);
             // ⑤ 認證/授權（JWT）– 請在 appsettings 的 Jwt 節調整
             AppSetup.AddJwtAuthentication(builder.Services, builder.Configuration);
             AppSetup.AddAppCookie(builder.Services);
+            AppSetup.APIBehavior(builder.Services);
             // 開發期 Swagger（產線預設關）
             AppSetup.AddDebugServices(builder);
             ///啟動時自動建立資料夾
-            builder.Services.AddHostedService<EnsureStorageFoldersHostedService>();
+            //builder.Services.AddHostedService<EnsureStorageFoldersHostedService>();
 
             var app = builder.Build();
             // 全域錯誤攔截（你原本已有）
@@ -62,7 +60,8 @@ namespace WCMS
             // 產線請確保有 HTTPS（若由前置 Proxy 終結 TLS，保留這行也 OK）
             //app.UseHttpsRedirection();
             // 安全標頭（弱掃友好）
-            AppSetup.UseSecurityHeaders(app);
+            AppSetup.UseSecurityHeaders(app, builder.Configuration);
+            //AppSetup.UseSecurityCSRF(app, builder.Configuration);
             // Swagger 僅開發期
             if (app.Environment.IsDevelopment())
             {
@@ -94,6 +93,7 @@ namespace WCMS
             app.UseCors(AppSetup.CorsPolicyName);
             app.UseOutputCache();
             app.UseResponseCompression();
+
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
@@ -176,7 +176,6 @@ namespace WCMS
                 });
                 services.AddScoped(typeof(IBasicRepository<>), typeof(BasicRepository<>));
                 services.AddScoped<IRepositoryMapProvider, RepositoryMapProvider>();
-                services.Configure<FilePathOptions>(cfg.GetSection("FilePaths"));
                 RegisterBizServices(services);
 
                 // 暫時先不用Redis，等開始能架Docker包Linux後再來
@@ -220,7 +219,12 @@ namespace WCMS
             /// </summary>
             public static void AddSecurityServices(IServiceCollection services, IConfiguration cfg)
             {
-                services.AddAntiforgery(); // 若 /auth/refresh 使用 Cookie，建議搭配 CSRF 驗證
+                services.AddAntiforgery(o =>
+                {
+                    o.Cookie.Name = "xsrf";          // HttpOnly = false 預設，給前端可讀
+                    o.HeaderName = "X-XSRF-TOKEN";   // 前端送在這個 header
+                });
+                var whitelist = cfg.GetSection("Whitelist:Frontend").Get<string[]>();
 
                 // CORS：只允許本機與你的網域。要再加網域請到 appsettings 或改這裡。
                 services.AddCors(options =>
@@ -228,9 +232,9 @@ namespace WCMS
                     options.AddPolicy(CorsPolicyName, policy =>
                     {
                         policy
+                        .WithOrigins(whitelist!)
                         .WithHeaders("Content-Type", "X-XSRF-TOKEN", "X-CSRF-Token", "Authorization", "X-Requested-With", "Access-Control-Allow-Origin")
                         .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH")
-                        .WithOrigins("http://localhost:5623", "https://localhost:5623", "http://localhost:5174", "https://localhost:5174", "http://127.0.0.1:5174", "https://127.0.0.1:5174")
                         .AllowCredentials();
                         ;
                     });
@@ -370,14 +374,46 @@ namespace WCMS
                     });
                 //}
             }
+
+            public static void APIBehavior(IServiceCollection services)
+            {
+                services.Configure<ApiBehaviorOptions>(opt =>
+                {
+                    opt.InvalidModelStateResponseFactory = context =>
+                    {
+                        // 只回必要訊息，避免把欄位結構或堆疊訊息洩漏出去
+                        var errors = context.ModelState
+                            .Where(kvp => kvp.Value?.Errors.Count > 0)
+                            .ToDictionary(
+                                kvp => kvp.Key,
+                                kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                            );
+
+                        return new BadRequestObjectResult(new
+                        {
+                            message = "輸入格式不正確",
+                            errors
+                        });
+                    };
+                });
+            }
+
+            public static void AddAppSettingsOptions(IServiceCollection services, IConfiguration cfg)
+            {
+                services.Configure<FilePathOptions>(cfg.GetSection("FilePaths"));
+                services.Configure<WhitelistOptions>(cfg.GetSection("Whitelist"));
+            }
             #endregion
 
             #region App
             /// <summary>
             /// 安全標頭（弱掃友好）– 若有 CSP 衝突，再放寬
             /// </summary>
-            public static void UseSecurityHeaders(WebApplication app)
+            public static void UseSecurityHeaders(WebApplication app,IConfiguration cfg)
             {
+
+                var whitelist = cfg.GetSection("Whitelist:Backend").Get<string[]>();
+
                 app.Use(async (ctx, next) =>
                 {
                     ctx.Response.Headers.XContentTypeOptions = "nosniff";
@@ -394,11 +430,76 @@ namespace WCMS
                         var ip = ctx.Connection.RemoteIpAddress;
                         var isLoopback = ip is not null && IPAddress.IsLoopback(ip);
                         var host = ctx.Request.Host.Host;
-                        var allowed = new[] { "localhost", "127.0.0.1", "server2-new", "wcms.it-easygoapp.com", "wcms_service.it-easygoapp.com" };
+                        var allowed = whitelist;
 
                         if (!IPAddress.IsLoopback(ctx.Connection.RemoteIpAddress) && !allowed.Contains(host, StringComparer.OrdinalIgnoreCase))
                         {
                             ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+                            return;
+                        }
+                    }
+
+                    await next();
+                });
+            }
+
+            public static void UseSecurityCSRF(WebApplication app, IConfiguration cfg)
+            {
+                var whitelist = cfg.GetSection("Whitelist:Frontend").Get<string[]>();
+
+                app.Use(async (ctx, next) =>
+                {
+                    var path = ctx.Request.Path.Value ?? "";
+                    var method = ctx.Request.Method;
+                    bool isApi = path.StartsWith("/Service/", StringComparison.OrdinalIgnoreCase);
+                    bool isUnsafe = !HttpMethods.IsGet(method) && !HttpMethods.IsHead(method) && !HttpMethods.IsOptions(method);
+                    bool hasOurCookie = ctx.Request.Cookies.ContainsKey("access"); // 你用 Cookie 存 JWT
+
+                    // 1) 在 GET 時發 token（同時把 request token 種成前端可讀 cookie）
+                    if (HttpMethods.IsGet(method) && isApi)
+                    {
+                        var af = ctx.RequestServices.GetRequiredService<IAntiforgery>();
+                        var tokens = af.GetAndStoreTokens(ctx); // 會種伺服器用的 xsrf cookie
+
+                        if (!string.IsNullOrEmpty(tokens.RequestToken))
+                        {
+                            ctx.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken, new CookieOptions
+                            {
+                                HttpOnly = false,                      // 前端要讀來塞 header
+                                Secure = true,
+                                SameSite = SameSiteMode.None,          // 與後端不同網域需要 None
+                                Path = "/"
+                            });
+                        }
+                    }
+
+                    // 2) 只有「會改資料」且「走受保護 API」時才驗證 CSRF
+                    if (isApi && isUnsafe && hasOurCookie)
+                    {
+                        // 先做 Origin/Referer 白名單
+                        var allowed = whitelist ?? [];
+                        var origin = ctx.Request.Headers.Origin.FirstOrDefault();
+                        var referer = ctx.Request.Headers.Referer.FirstOrDefault();
+
+                        bool passOrigin = !string.IsNullOrEmpty(origin) && allowed.Any(h => origin.Contains(h, StringComparison.OrdinalIgnoreCase));
+                        bool passReferer = !string.IsNullOrEmpty(referer) && allowed.Any(h => referer.Contains(h, StringComparison.OrdinalIgnoreCase));
+                        if (!passOrigin && !passReferer)
+                        {
+                            ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+                            await ctx.Response.WriteAsJsonAsync(new { success = false, message = "Invalid Origin/Referer." });
+                            return;
+                        }
+
+                        // 驗證 XSRF（需要 xsrf cookie + X-XSRF-TOKEN header ）
+                        try
+                        {
+                            var af = ctx.RequestServices.GetRequiredService<IAntiforgery>();
+                            await af.ValidateRequestAsync(ctx);
+                        }
+                        catch
+                        {
+                            ctx.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            await ctx.Response.WriteAsJsonAsync(new { success = false, message = "Invalid XSRF token." });
                             return;
                         }
                     }

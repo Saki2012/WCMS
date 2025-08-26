@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SharpCompress.Archives;
+using System.Reflection;
+using WCMS.SysCore.AppSettingsOptions;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using static WCMS.SysCore.Enum.SysEnum;
@@ -67,35 +69,17 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// 下載檔案
         /// </summary>
         /// <param name="internalIds"></param>
-        public async Task DownloadFile(string[] internalIds)
+        public async Task<IList<FileManageModel>> GetDownloadFileInfo(string[] internalIds)
         {
-            if (internalIds.Length == 0) return;
+            if (internalIds.Length == 0) return [];
             else 
             {
                 List<FileManageSet> sets = [];
-                foreach(var internalId in internalIds)
-                {
-                    var set = await DoQuerySetAsync(internalId);
-                    if(set!=null) sets.Add(set);
-                }
-                if (sets.Count == 0) return;
-
-                Dictionary<string,string> files = [];
-                foreach(var set in sets)
-                {
-                    set.FileManage_DownloadInfo.Add(new FileManage_DownloadInfoModel());
-
-                    files.Add(Path.Combine(set.FileManage.Path, set.FileManage.InternalId),
-                        LibData.Merge(".", false, set.FileManage.FileName, set.FileManage.FileExtension));
-                }
-                if (files.Count == 1)
-                {
-                    //回傳資料
-                }
-                else
-                {
-                    //回傳zip
-                }
+                string[] selectFields = [nameof(FileManageModel.InternalId), nameof(FileManageModel.Path), nameof(FileManageModel.FileExtension), nameof(FileManageModel.FileName), nameof(FileManageModel.MimeType)];
+                string condition;
+                if (internalIds.Length == 1) condition = $"{nameof(FileManageModel.InternalId)} = {internalIds[0]}";
+                else condition = $"{nameof(FileManageModel.InternalId)} In {LibData.Merge(',', false, internalIds)}";
+                return await DoQueryListAsync(typeof(FileManageModel), selectFields, condition, 0, 0) as IList<FileManageModel>;
             }
         }
         /// <summary>

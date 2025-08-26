@@ -9,11 +9,9 @@ import type { ListCompProp } from "../../../Scaffold/Content/Content_Data"
 import * as React from "react";
 import type { components } from "../../../../../../types/api";
 import { useListToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
-
-// 借用Page資料
-import { usePageManagementListData } from "../PageManagement/PageManagement_Hook";
-type PageManagementSet = components["schemas"]["PageManagementSet_DTO"]
-import { handleDelete } from "../PageManagement/PageManagement_Hook";
+import { handleDelete, useFileArchiveList } from "./FileArchive_Hook"
+import * as SchemaFields from "../../../../../../types/SchemaFields";
+type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"]
 
 /** 檔案室清單
  * @returns 
@@ -21,7 +19,7 @@ import { handleDelete } from "../PageManagement/PageManagement_Hook";
 export const FileArchiveListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
 
-    const usePageList = usePageManagementListData();
+    const usePageList = useFileArchiveList();
 
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps, usePageList.rawData); }, [usePageList.gridProps, usePageList.rawData]);
 
@@ -41,7 +39,7 @@ export const FileArchiveListComp = ({ title, theme }: { title: string; theme: IB
 }
 
 /** 動態添加每行的動作功能 */
-const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: PageManagementSet[]): GridProps => {
+const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: FileArchiveSet[]): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
 
@@ -49,12 +47,12 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: PageMa
     const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
 
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
-        const statusCell = row.cells.find(cell => cell.col.key === "DataStatus");
+        const statusCell = row.cells.find(cell => cell.col.key === SchemaFields.FileArchiveFields.ContentStatus);
         if (statusCell && typeof statusCell.content === 'number') {
-            statusCell.content = GetDataStatusContent(statusCell.content);
+            statusCell.content = GetContentStatus(statusCell.content);
         }
 
-        const internalId = rawData?.[index]?.PageManagement?.InternalId ?? "";
+        const internalId = rawData?.[index]?.FileArchive?.InternalId ?? "";
 
         const newCell: RowCell = {
             col: adjustCol,
@@ -80,26 +78,11 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: PageMa
     return { ...gridProps, columns: newColumns, rows: newRows };
 };
 
-/** 目前說只有公告/檔案室/網路資源/相簿會用到 */
-const GetDataStatusContent = (datastatus: number): React.ReactNode => {
-    switch (datastatus) {
-        case 0:
-            return <div className="CustomState">
-                <div className="icon-small top-bg">置頂</div>
-            </div>;
-        case 1:
-            return <div className="CustomState">
-                <div className="icon-small hot-bg">熱門</div>
-            </div>;
-        case 2:
-            return <div className="CustomState">
-                <div className="icon-small new-bg">最新</div>
-            </div>;
-        case 3:
-            return <div className="CustomState">
-                <div className="icon-small hide-bg">隱藏</div>
-            </div>;
-        default:
-            return <span>未知狀態</span>;
-    }
+
+const GetContentStatus = (contentStatus: number): React.ReactNode => {
+    const statusItems: React.ReactNode[] = [];
+    if (contentStatus & 1) { statusItems.push(<div className="icon-small top-bg">置頂</div>); }
+    if (contentStatus & 2) { statusItems.push(<div className="icon-small hot-bg">熱門</div>); }
+    if (contentStatus & 4) { statusItems.push(<div className="icon-small hide-bg">隱藏</div>); }
+    return <div className="CustomState">{statusItems}</div>
 };

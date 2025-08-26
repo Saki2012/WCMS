@@ -116,7 +116,10 @@ const setupDevSSR = async (app: express.Express) =>
                         : "",
                 );
 
-            res.status(200).set("Content-Type", "text/html").set("Content-Security-Policy", `script-src 'self' 'nonce-${nonce}'`).end(html);
+            res.status(200).set("Content-Type", "text/html").set(
+                "Content-Security-Policy",
+                `script-src 'self' 'nonce-${nonce}'`,
+            ).end(html);
         } catch (e)
         {
             vite.ssrFixStacktrace?.(e as Error);
@@ -207,7 +210,10 @@ const setupProdSSR = async (app: express.Express) =>
                         : "",
                 );
 
-            res.status(200).set("Content-Type", "text/html").set("Content-Security-Policy", `script-src 'self' 'nonce-${nonce}'`).end(html);
+            res.status(200).set("Content-Type", "text/html").set(
+                "Content-Security-Policy",
+                `script-src 'self' 'nonce-${nonce}'`,
+            ).end(html);
         } catch (e)
         {
             next(e);

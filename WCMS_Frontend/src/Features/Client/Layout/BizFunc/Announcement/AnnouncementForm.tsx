@@ -83,7 +83,6 @@ const useGetTags = (lang: string, tagIds: string) => {
     });
 };
 
-
 const emptyData: AnnouncementSet = {
     Announcement: {},
     AnnouncementDetail: []

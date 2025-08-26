@@ -14,8 +14,31 @@ import { useFetchFormData, type UseFetchFormDataResult } from "../../../../../..
 
 const emptyData: BannerSet = {
     Banner: {},
-    BannerDetail: [],
-    BannerDetailInfo: []
+    BannerDetail: [
+        {
+            RowId: 1,
+            Validate_Start: "",
+            Validate_End: "",
+        }
+    ],
+    BannerDetailInfo: [
+        {
+            ParentRowId: 1,
+            Lang: "zh-tw",
+            Title: "",
+            Content: "",
+            URL: "",
+            URL_Open: 1,
+        },
+        {
+            ParentRowId: 1,
+            Lang: "en",
+            Title: "",
+            Content: "",
+            URL: "",
+            URL_Open: 1,
+        }
+    ]
 }
 
 export const BannerSliderFormComp = ({ theme }: { theme: IBETheme }) => {
@@ -161,24 +184,7 @@ const GetBannerDetailComp = (theme: IBETheme, formData: UseFetchFormDataResult<B
                     />
                 </LibFile>,
 
-                <div key={`hint-${detailRowId}`} role="note" aria-label="建議圖片尺寸" className="col-12">
-                    最佳尺寸：1920px X 550px
-                </div>,
-
-                <LibCalendar
-                    key={`vs-${detailRowId}`}
-                    colDisplayName="新增日期"
-                    InputValue={d.Validate_Start ?? ""}
-                    onChange={(val) => {
-                        formData.setFormData(prev => {
-                            const next = { ...(prev ?? {}) } as BannerSet;
-                            next.BannerDetail = (next.BannerDetail ?? []).map(x =>
-                                (x.RowId ?? -1) === detailRowId ? { ...x, Validate_Start: val } : x
-                            );
-                            return next;
-                        });
-                    }}
-                />,
+                <div key={`hint-${detailRowId}`} role="note" aria-label="建議圖片尺寸" className="col-12">最佳尺寸：1920px X 550px</div>,
 
                 <LibCalendar
                     key={`pub-${detailRowId}`}
@@ -305,14 +311,14 @@ const generateLangFields = (lang: string, label: string, theme: IBETheme, formDa
             ColumnDisplayName={`網址（${label}）`}
             DefaultInputDisplay="請輸入"
             InputValue={url}
-            OnChange={(val) => updateInfo({ Url: String(val) })}
+            OnChange={(val) => updateInfo({ URL: String(val) })}
         />,
         <LibDropList
             key={`${lang}-OpenTarget`}
             Style={theme.DropList}
             ColumnDisplayName="開啟方式"
             InputValue={openTarget}
-            onChange={(val) => updateInfo({ OpenTarget: String(val) })}
+            onChange={(val) => updateInfo({ URL_Open: String(val) })}
         />
     ];
     return fields;

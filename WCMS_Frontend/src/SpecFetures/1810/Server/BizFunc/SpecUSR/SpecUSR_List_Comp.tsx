@@ -6,11 +6,11 @@ import { Link } from "react-router-dom"
 import { useLocation } from 'react-router-dom';
 import { ListComp } from "../../../../../Features/Server/Layout/Scaffold/Content/List_Comp"
 import type { ListCompProp } from "../../../../../Features/Server/Layout/Scaffold/Content/Content_Data"
-import * as React from "react";
 import type { components } from "../../../../../types/api"
 import { useListToolbarActions } from "../../../../../SysCore/Components/Toolbar/Toolbar_Hook"
-import { useUSRProjList } from "./SpecUSR_Hook"
+import { useSpecUSRProjList } from "./SpecUSR_Hook"
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"]
+import * as SchemaFields from "../../../../../types/SchemaFields";
 
 /** USR計畫清單
  * @returns 
@@ -18,7 +18,7 @@ type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"]
 export const USRProjListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
 
-    const usePageList = useUSRProjList();
+    const usePageList = useSpecUSRProjList();
 
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps, usePageList.rawData); }, [usePageList.gridProps, usePageList.rawData]);
 
@@ -46,10 +46,9 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: SpecUS
     const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
 
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
-        const statusCell = row.cells.find(cell => cell.col.key === "DataStatus");
-        // if (statusCell && typeof statusCell.content === 'number') {
-        //     statusCell.content = GetDataStatusContent(statusCell.content);
-        // }
+        const statusCell = row.cells.find(cell => cell.col.key === SchemaFields.SpecUSRModelFields.ContentStatus);
+        if (statusCell && typeof statusCell.content === 'number') { statusCell.content = GetDataStatusContent(statusCell.content); }
+
 
         const internalId = rawData?.[index]?.SpecUSR?.InternalId ?? "";
 
@@ -75,4 +74,14 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: SpecUS
     });
 
     return { ...gridProps, columns: newColumns, rows: newRows };
+};
+
+
+/** 目前說只有公告/檔案室/網路資源/相簿會用到 */
+const GetDataStatusContent = (contentStatus: number): React.ReactNode => {
+    const statusItems: React.ReactNode[] = [];
+    if (contentStatus & 1) { statusItems.push(<div className="icon-small top-bg">置頂</div>); }
+    if (contentStatus & 2) { statusItems.push(<div className="icon-small hot-bg">熱門</div>); }
+    if (contentStatus & 4) { statusItems.push(<div className="icon-small hide-bg">隱藏</div>); }
+    return <div className="CustomState">{statusItems}</div>
 };

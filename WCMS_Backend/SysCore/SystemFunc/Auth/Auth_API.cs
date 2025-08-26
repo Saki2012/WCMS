@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
@@ -196,7 +197,12 @@ namespace WCMS.SysCore.SystemFunc.Auth
         #region DTO
         public sealed class LoginDto
         {
+            [Required] 
+            [StringLength(50, MinimumLength = 3, ErrorMessage = "account 長度需介於 3~50。")] 
+            [RegularExpression(@"^[A-Za-z0-9._\-@]+$", ErrorMessage = "account 僅允許英數、. _ - @。")]
             public string Account { get; set; } = "";
+            [Required]
+            [StringLength(64, MinimumLength = 3,ErrorMessage = "password 長度需介於 3~64。")]
             public string Password { get; set; } = "";
         }
 

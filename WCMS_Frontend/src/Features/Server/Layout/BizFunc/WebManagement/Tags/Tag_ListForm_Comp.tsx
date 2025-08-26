@@ -4,7 +4,7 @@ import { FormListComp } from "../../../Scaffold/Content/FormList_Comp";
 import type { FormListCompProp } from "../../../Scaffold/Content/Content_Data"
 import { useListToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
 import { useParams } from "react-router-dom";
-import { useGetTagListByProgId } from "./Tag_Hook";
+import { useCategoryListData } from "./Tag_Hook";
 import type { components } from "../../../../../../types/api";
 import { useFetchFormData } from "../../../../../../SysCore/Utils/API/FetchFormData";
 import TagProvider from "./Tag_Api";
@@ -22,7 +22,7 @@ const emptyData: TagSet = {
 export const TagListFormComp = ({ progId, title, theme }: { progId: string; title: string; theme: IBETheme }) => {
     const { internalId } = useParams();
     const dirUrl = useLocation().pathname.replace(/\/Tag$/, `/Tag`);
-    const useTagList = useGetTagListByProgId(progId, 'zh-tw')
+    const useTagList = useCategoryListData(progId, 'zh-tw')
     const formData = useFetchFormData<TagSet>(TagProvider(), internalId, emptyData)
     const useToolbar = useListToolbarActions(dirUrl)
 
@@ -39,8 +39,8 @@ export const TagListFormComp = ({ progId, title, theme }: { progId: string; titl
         {} as Record<string, React.ReactNode[]>
     );
 
-    const gridItems: React.ReactNode[] = Object.entries(useTagList.data).flatMap(
-        ([internalId, displayName]) => TagListItem(internalId, displayName)
+    const gridItems: React.ReactNode[] = useTagList.rawData.map(
+        (item) => TagListItem(item.TagData?.InternalId ?? "", item.TagDetail?.find(i => i.Lang === 'zh-tw')?.TagName ?? "")
     );
 
     const isLoading = [useTagList.isLoading, formData.isLoading];
@@ -73,7 +73,6 @@ const generateLangFields = (lang: string, label: string, theme: IBETheme,
 ): React.ReactNode[] => {
     const details: TagDetail[] = (formData?.TagDetail ?? []) as TagDetail[];
     const getLangData = (): TagDetail => details.find(d => d.Lang === lang) ?? ({ Lang: lang, Title: "", SubTitle: "", Content: "", Url: "" } as TagDetail);
-
     const updateLangData = (key: "Title" | "SubTitle" | "Content" | "Url", val: string) => {
         const currentData = getLangData();
         const newItem = { ...currentData, [key]: val };

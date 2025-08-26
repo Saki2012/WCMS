@@ -6,7 +6,7 @@ type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
 import { useFetchGridListData } from "../../../../../SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "../../../../../SysCore/Utils/Library/LibData";
 
-export const useUSRProjList = () =>
+export const useSpecUSRProjList = () =>
 {
     const provider = SpecUSRProvider();
     return useFetchGridListData<SpecUSRSet>({
@@ -14,22 +14,30 @@ export const useUSRProjList = () =>
         fetchList: (cond) => provider.fetchList(cond),
         fetchListCount: (cond) => provider.fetchListCount(cond),
         visibleKeys: [
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Categories],
-            [SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Title],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ContentStatus],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyUserId],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyTime],
+            [SchemaFields.SpecUSRSetFields.SpecUSR, SchemaFields.SpecUSRModelFields.CategoryId],
+            [SchemaFields.SpecUSRSetFields.SpecUSR, SchemaFields.SpecUSRModelFields.Tags],
+            [SchemaFields.SpecUSRSetFields.SpecUSR, SchemaFields.SpecUSRModelFields.ContentStatus],
+
+            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Year],
+            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.AcademicYear],
+            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ProjectName],
+            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ProjectConcept],
+
+            [SchemaFields.SpecUSRSetFields.SpecUSR, SchemaFields.SpecUSRModelFields.ModifyUserId],
+            [SchemaFields.SpecUSRSetFields.SpecUSR, SchemaFields.SpecUSRModelFields.ModifyTime],
         ],
         buildQueryCondition: (page) => ({
             Fields: [
-                SchemaFields.AnnouncementFields.AnnouncementId,
-                SchemaFields.AnnouncementFields.Categories,
-                SchemaFields.AnnouncementFields.ContentStatus,
-                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
-                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
-                SchemaFields.AnnouncementFields.ModifyUserId,
-                SchemaFields.AnnouncementFields.ModifyTime,
-                SchemaFields.AnnouncementFields.InternalId,
+                SchemaFields.SpecUSRModelFields.CategoryId,
+                SchemaFields.SpecUSRModelFields.Tags,
+                SchemaFields.SpecUSRModelFields.ContentStatus,
+                `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Year}`,
+                `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.AcademicYear}`,
+                `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ProjectName}`,
+                `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ProjectConcept}`,
+                SchemaFields.SpecUSRModelFields.ModifyUserId,
+                SchemaFields.SpecUSRModelFields.ModifyTime,
+                SchemaFields.SpecUSRModelFields.InternalId,
             ],
             Condition: "",
             PageNumber: page,
@@ -41,15 +49,39 @@ export const useUSRProjList = () =>
             const cells: RowCell[] = columns.map(col =>
             {
                 let content = "";
-                if (col.key === SchemaFields.AnnouncementDetailFields.Title)
+
+                switch (col.key)
                 {
-                    //   content = data.CreateTime?.find(d => d.Lang === "zh-tw")?.Title ?? "";
-                } else if (col.key === SchemaFields.AnnouncementFields.ModifyTime)
-                {
-                    content = FormatDateTime((data as any)[col.key]);
-                } else
-                {
-                    content = (data as any)[col.key] ?? "";
+                    case SchemaFields.SpecUSRDetailFields.Year:
+                    {
+                        content = item.SpecUSRDetail?.find(p => p.Lang === "zh-tw")?.Year ?? "";
+                        break;
+                    }
+                    case SchemaFields.SpecUSRDetailFields.AcademicYear:
+                    {
+                        content = item.SpecUSRDetail?.find(p => p.Lang === "zh-tw")?.AcademicYear ?? "";
+                        break;
+                    }
+                    case SchemaFields.SpecUSRDetailFields.ProjectName:
+                    {
+                        content = item.SpecUSRDetail?.find(p => p.Lang === "zh-tw")?.ProjectName ?? "";
+                        break;
+                    }
+                    case SchemaFields.SpecUSRDetailFields.ProjectConcept:
+                    {
+                        content = item.SpecUSRDetail?.find(p => p.Lang === "zh-tw")?.ProjectConcept ?? "";
+                        break;
+                    }
+                    case SchemaFields.SpecUSRModelFields.ModifyTime:
+                    {
+                        content = FormatDateTime((data as any)[col.key]);
+                        break;
+                    }
+                    default:
+                    {
+                        content = (data as any)[col.key] ?? "";
+                        break;
+                    }
                 }
                 return { col, content };
             });

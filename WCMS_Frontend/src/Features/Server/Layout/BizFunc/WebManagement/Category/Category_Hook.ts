@@ -4,6 +4,9 @@ import type { components } from "../../../../../../types/api";
 import CategoryProvider from "./Category_Api";
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
 type CategoryDetail = components["schemas"]["CategoryDetail_DTO"];
+import type { RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data";
+import { useFetchGridListData } from "../../../../../../SysCore/Utils/API/FetchGridListData";
+import { FormatDateTime } from "../../../../../../SysCore/Utils/Library/LibData";
 import * as SchemaFields from "../../../../../../types/SchemaFields";
 
 /** 獲取類別清單 */
@@ -23,7 +26,6 @@ export const useGetCategoryListByProgId = (progId: string, lang: string, pageSiz
             const queryCondition: QueryListCondition = {
                 Fields: [
                     SchemaFields.CategoryFields.CategoryId,
-                    SchemaFields.CategoryFields.InternalId,
                     `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
                     `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
                 ],
@@ -62,4 +64,61 @@ export const useGetCategoryListByProgId = (progId: string, lang: string, pageSiz
     }, [currentPage, progId, lang]);
 
     return { data, isLoading, error };
+};
+
+export const useCategoryListData = (progId: string, lang: string) =>
+{
+    const provider = CategoryProvider();
+    return useFetchGridListData<CategoryDataSet>({
+        getModelDisplayName: () => provider.getModelDisplayName(),
+        fetchList: (cond) => provider.fetchList(cond),
+        fetchListCount: (cond) => provider.fetchListCount(cond),
+        visibleKeys: [
+            [SchemaFields.CategoryDataSetFields.CategoryDetail, SchemaFields.CategoryDetailFields.CategoryName],
+            [SchemaFields.CategoryDataSetFields.Category, SchemaFields.CategoryFields.ModifyTime],
+            [SchemaFields.CategoryDataSetFields.Category, SchemaFields.CategoryFields.ModifyUserId],
+        ],
+        buildQueryCondition: () => ({
+            Fields: [
+                SchemaFields.CategoryFields.InternalId,
+                SchemaFields.CategoryFields.CategoryId,
+                SchemaFields.CategoryFields.ModifyTime,
+                SchemaFields.CategoryFields.ModifyUserId,
+                `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
+                `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
+            ],
+            Condition: `${SchemaFields.CategoryFields.ProgId} = ${progId}`,
+            PageNumber: 0,
+            PageSize: 0,
+        }),
+        parseRow: (item, columns) =>
+        {
+            const cells: RowCell[] = columns.map(col =>
+            {
+                let content = "";
+                switch (col.key)
+                {
+                    case SchemaFields.CategoryDetailFields.CategoryName:
+                    {
+                        content = item.CategoryDetail?.find(i => i.Lang === lang)?.CategoryName ?? "";
+                        break;
+                    }
+                    case SchemaFields.BannerFields.ModifyTime:
+                    {
+                        content = FormatDateTime(item.Category?.ModifyTime) ?? "";
+                        break;
+                    }
+                    default:
+                    {
+                        content = (item.Category as any)[col.key] ?? "";
+                        break;
+                    }
+                }
+                return { col, content };
+            });
+            return { cells };
+        },
+        enabled: true,
+        deps: [],
+    });
 };

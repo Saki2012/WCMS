@@ -1,6 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using static WCMS.Features.SystemSetting.SiteMenuSetting.ModuleOptions;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.FileArchive
@@ -29,6 +32,11 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// 標籤ID(多個)
         /// </summary>
         [LibDesc, Required] public string TagsId { get; set; }
+
+        #region 關聯
+        public virtual ICollection<FileArchiveInfo>? FileArchiveInfo { get; set; }
+        public virtual ICollection<FileArchiveDetail>? FileArchiveDetail { get; set; }
+        #endregion
     }
     public class FileArchiveInfo : DetailRowModel
     {
@@ -48,8 +56,9 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// 標題
         /// </summary>
         public string Title { get; set; }
+        #region 關聯
+        #endregion
     }
-    /* 不確定這張表該關聯Header還是Info，待討論 */
     public class FileArchiveDetail : DetailRowModel
     {
         /// <summary>

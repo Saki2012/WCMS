@@ -6,6 +6,9 @@ import TagProvider from "./Tag_Api";
 type TagSet = components["schemas"]["TagSet_DTO"];
 type TagDetail = components["schemas"]["TagDetail_DTO"];
 
+import type { RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data";
+import { useFetchGridListData } from "../../../../../../SysCore/Utils/API/FetchGridListData";
+import { FormatDateTime } from "../../../../../../SysCore/Utils/Library/LibData";
 import * as SchemaFields from "../../../../../../types/SchemaFields";
 
 /** 獲取類別清單 */
@@ -64,4 +67,61 @@ export const useGetTagListByProgId = (progId: string, lang: string, pageSize: nu
     }, [currentPage, progId, lang]);
 
     return { data, isLoading, error };
+};
+
+export const useCategoryListData = (progId: string, lang: string) =>
+{
+    const provider = TagProvider();
+    return useFetchGridListData<TagSet>({
+        getModelDisplayName: () => provider.getModelDisplayName(),
+        fetchList: (cond) => provider.fetchList(cond),
+        fetchListCount: (cond) => provider.fetchListCount(cond),
+        visibleKeys: [
+            [SchemaFields.TagSetFields.TagDetail, SchemaFields.TagDetailFields.TagName],
+            [SchemaFields.TagSetFields.TagData, SchemaFields.TagDataFields.ModifyTime],
+            [SchemaFields.TagSetFields.TagData, SchemaFields.TagDataFields.ModifyUserId],
+        ],
+        buildQueryCondition: () => ({
+            Fields: [
+                SchemaFields.TagDataFields.InternalId,
+                SchemaFields.TagDataFields.TagId,
+                SchemaFields.TagDataFields.ModifyTime,
+                SchemaFields.TagDataFields.ModifyUserId,
+                `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
+                `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
+            ],
+            Condition: `${SchemaFields.TagDataFields.ProgId} = ${progId}`,
+            PageNumber: 0,
+            PageSize: 0,
+        }),
+        parseRow: (item, columns) =>
+        {
+            const cells: RowCell[] = columns.map(col =>
+            {
+                let content = "";
+                switch (col.key)
+                {
+                    case SchemaFields.TagDetailFields.TagName:
+                    {
+                        content = item.TagDetail?.find(i => i.Lang === lang)?.TagName ?? "";
+                        break;
+                    }
+                    case SchemaFields.TagDataFields.ModifyTime:
+                    {
+                        content = FormatDateTime(item.TagData?.ModifyTime) ?? "";
+                        break;
+                    }
+                    default:
+                    {
+                        content = (item.TagData as any)[col.key] ?? "";
+                        break;
+                    }
+                }
+                return { col, content };
+            });
+            return { cells };
+        },
+        enabled: true,
+        deps: [],
+    });
 };

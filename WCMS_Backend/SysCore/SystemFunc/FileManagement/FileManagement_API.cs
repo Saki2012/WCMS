@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.IO.Compression;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
@@ -14,6 +15,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
     [ApiController, Route(SysParam.ServiceRoute)]
     public class FileManagementController(IWebHostEnvironment env) : ApiDataController<FileManageSet,FileManageSet_DTO>
     {
+
         /*
             幾個待做的重要流程:
             1. 產生一個比對格式的資料:UID<->FullPath，避免db出狀況或是要直接機器查找時可以用
@@ -51,17 +53,46 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// </summary>
         /// <param name="internalId"></param>
         /// <returns></returns>
-        [HttpGet($"{nameof(Download)}/internalId")] public async Task<IActionResult> Download(string internalId)
+        [HttpGet($"{nameof(Download)}/{{internalId}}")] public async Task<IActionResult> Download(string internalId)
         {
-            //var info = await _fileService.GetFileInfoAsync(internalId);
-            //if (info == null || info.IsDeleted) return NotFound();
+            var result = await ((FileManagementBiz)Service).GetDownloadFileInfo([internalId]);
+            if (result.Count == 0) return NotFound();
 
-            //var path = Path.Combine(_uploadRoot, info.Path);
-            //if (!System.IO.File.Exists(path)) return NotFound();
+            else if (result.Count == 1) { 
+                string path = $"/{result[0].Path}/{result[0].InternalId}.{result[0].FileExtension}";
+                    return PhysicalFile(path, result[0].MimeType);
+            }
+            else
+            {
+                Response.ContentType = "application/zip";
+                var zipFileName = $"download_{DateTime.UtcNow:yyyyMMddHHmmss}.zip";
+                Response.Headers.ContentDisposition = $"attachment; filename={zipFileName}";
 
-            //var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-            //return File(stream, info.MimeType, info.FileName);
-            return Ok();
+                await using var zipStream = Response.BodyWriter.AsStream(true);
+                using var zip = new ZipArchive(zipStream, ZipArchiveMode.Create, leaveOpen: false);
+
+                foreach (var file in result)
+                {
+                    string path = Path.Combine(file.Path,$"{file.InternalId}.{file.FileExtension}");
+                    if (!System.IO.File.Exists(path)) continue;
+
+                    // 壓縮包內的檔名（顯示用）
+                    var entryName = string.IsNullOrWhiteSpace(file.FileName)
+                        ? $"{file.InternalId}.{file.FileExtension}"
+                        : file.FileName;
+
+                    var entry = zip.CreateEntry(entryName, CompressionLevel.Fastest);
+
+                    await using var entryStream = entry.Open();
+                    await using var fs = System.IO.File.OpenRead(path);
+                    await fs.CopyToAsync(entryStream, HttpContext.RequestAborted);
+                }
+
+                return new EmptyResult(); // 因為 Response 已經寫完了
+            }
+
+
+
 
         }
 
@@ -115,6 +146,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             return Ok();
         }
     }
+
     public class FileManageSet_DTO:ITSet_DTO
     {
         public FileManageModel_DTO FileManage { get; set; } = new();

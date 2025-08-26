@@ -5,10 +5,11 @@ import type { components } from "../../../../../../types/api";
 import * as SchemaFields from "../../../../../../types/SchemaFields";
 import WebResourceProvider from "./WebResource_Api";
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
+import Swiper from "swiper";
 import { useFetchGridListData } from "../../../../../../SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "../../../../../../SysCore/Utils/Library/LibData";
 
-export const useWebResourceList = () =>
+export const useWebResourceListData = () =>
 {
     const provider = WebResourceProvider();
     return useFetchGridListData<WebResourceSet>({
@@ -17,18 +18,19 @@ export const useWebResourceList = () =>
         fetchListCount: (cond) => provider.fetchListCount(cond),
         visibleKeys: [
             [SchemaFields.WebResourceSetFields.WebResource, SchemaFields.WebResourceFields.Categories],
-            // [SchemaFields.WebResourceSetFields.WebResourceDetail, SchemaFields.WebResourceDetailFields.Title],
             [SchemaFields.WebResourceSetFields.WebResource, SchemaFields.WebResourceFields.ContentStatus],
+            [SchemaFields.WebResourceSetFields.WebResourceInfo, SchemaFields.WebResourceInfoFields.Title],
             [SchemaFields.WebResourceSetFields.WebResource, SchemaFields.WebResourceFields.ModifyUserId],
             [SchemaFields.WebResourceSetFields.WebResource, SchemaFields.WebResourceFields.ModifyTime],
         ],
         buildQueryCondition: (page) => ({
             Fields: [
+                SchemaFields.WebResourceFields.InternalId,
                 SchemaFields.WebResourceFields.WebResourceId,
                 SchemaFields.WebResourceFields.Categories,
                 SchemaFields.WebResourceFields.ContentStatus,
-                // `${SchemaFields.WebResourceSetFields.WebResourceDetail}.${SchemaFields.WebResourceDetailFields.Lang}`,
-                // `${SchemaFields.WebResourceSetFields.WebResourceDetail}.${SchemaFields.WebResourceDetailFields.Title}`,
+                `${SchemaFields.WebResourceSetFields.WebResourceInfo}.${SchemaFields.WebResourceInfoFields.Lang}`,
+                `${SchemaFields.WebResourceSetFields.WebResourceInfo}.${SchemaFields.WebResourceInfoFields.Title}`,
                 SchemaFields.WebResourceFields.ModifyUserId,
                 SchemaFields.WebResourceFields.ModifyTime,
                 SchemaFields.WebResourceFields.InternalId,
@@ -43,15 +45,24 @@ export const useWebResourceList = () =>
             const cells: RowCell[] = columns.map(col =>
             {
                 let content = "";
-                if (col.key === SchemaFields.WebResourceInfoFields.Title)
+
+                switch (col.key)
                 {
-                    // content = data.WebResourceDetail?.find(d => d.Lang === "zh-tw")?.Title ?? "";
-                } else if (col.key === SchemaFields.WebResourceFields.ModifyTime)
-                {
-                    content = FormatDateTime((data as any)[col.key]);
-                } else
-                {
-                    content = (data as any)[col.key] ?? "";
+                    case SchemaFields.WebResourceInfoFields.Title:
+                    {
+                        content = item.WebResourceInfo?.find(d => d.Lang === "zh-tw")?.Title ?? "";
+                        break;
+                    }
+                    case SchemaFields.WebResourceFields.ModifyTime:
+                    {
+                        content = FormatDateTime(item.WebResource?.ModifyTime);
+                        break;
+                    }
+                    default:
+                    {
+                        content = (data as any)[col.key] ?? "";
+                        break;
+                    }
                 }
                 return { col, content };
             });

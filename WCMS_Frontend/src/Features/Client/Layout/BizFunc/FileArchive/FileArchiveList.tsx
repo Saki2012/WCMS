@@ -1,14 +1,14 @@
 /**公告清單 */
 import { useMemo } from "react";
-import type { GridProps } from "../../../../../SysCore/Components/Grid/Grid_Data";
+import type { ColumnConfig, GridProps } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import type { components } from "../../../../../types/api";
 import type { IFETheme } from "../../Theme/ITheme";
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
+type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"];
 import { Link, useLocation } from "react-router-dom";
 import type { GridRow } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import type { RowCell } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import { useFetchGridListData } from "../../../../../SysCore/Utils/API/FetchGridListData";
-import { FormatDateTime } from "../../../../../SysCore/Utils/Library/LibData";
 import * as SchemaFields from "../../../../../types/SchemaFields";
 import { GridViewContentComp } from "../../Scaffold/ContentViewMode/GridView/GridView/GridContent_Comp";
 import type { Lang } from "../../../../../SysCore/i18n/lang";
@@ -17,8 +17,8 @@ import { Merge } from "../../../../../SysCore/Utils/Library/LibMergeData";
 
 const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string) => {
     var condition: string = "";
-    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.CategoriesId} In ('${categoryIds}')`)
-    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.TagsId} In ('${tagIds}')`)
+    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.CategoriesId} In (${categoryIds})`)
+    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.TagsId} In (${tagIds})`)
 
     const provider = FileArchiveProvider();
     return useFetchGridListData<FileArchiveSet>({
@@ -26,36 +26,38 @@ const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string
         fetchList: (cond) => provider.fetchList(cond),
         fetchListCount: (cond) => provider.fetchListCount(cond),
         visibleKeys: [
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Categories],
-            [SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Title],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.DataStatus],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyUserId],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyTime],
+            [SchemaFields.FileArchiveSetFields.FileArchive, SchemaFields.FileArchiveFields.TagsId],
+            [SchemaFields.FileArchiveSetFields.FileArchiveInfo, SchemaFields.FileArchiveInfoFields.Title],
         ],
         buildQueryCondition: (page) => ({
             Fields: [
-                SchemaFields.AnnouncementFields.AnnouncementId,
-                SchemaFields.AnnouncementFields.Categories,
-                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
-                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
-                SchemaFields.PageManagementFields.ModifyUserId,
-                SchemaFields.PageManagementFields.ModifyTime,
-                SchemaFields.PageManagementFields.InternalId,
+                SchemaFields.FileArchiveFields.InternalId,
+                SchemaFields.FileArchiveFields.FileArchiveId,
+                SchemaFields.FileArchiveFields.TagsId,
+                `${SchemaFields.FileArchiveSetFields.FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.FileArchiveId}`,
+                `${SchemaFields.FileArchiveSetFields.FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.RowId}`,
+                `${SchemaFields.FileArchiveSetFields.FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.Lang}`,
+                `${SchemaFields.FileArchiveSetFields.FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.Title}`,
+                `${SchemaFields.FileArchiveSetFields.FileArchiveDetail}.${SchemaFields.FileArchiveDetailFields.FileArchiveId}`,
+                `${SchemaFields.FileArchiveSetFields.FileArchiveDetail}.${SchemaFields.FileArchiveDetailFields.ParentRowId}`,
+                `${SchemaFields.FileArchiveSetFields.FileArchiveDetail}.${SchemaFields.FileArchiveDetailFields.FileSrcId}`,
+                `${SchemaFields.FileArchiveSetFields.FileArchiveDetail}.${SchemaFields.FileArchiveDetailFields.FileName}`,
             ],
             Condition: condition,
             PageNumber: page,
             PageSize: 10,
         }),
         parseRow: (item, columns) => {
-            const data = item.FileArchive ?? {};
             const cells: RowCell[] = columns.map(col => {
                 let content = "";
-                if (col.key === SchemaFields.AnnouncementDetailFields.Title) {
-                    // content = data.AnnouncementDeta?.find(d => d.Lang === "zh-tw")?.Title ?? "";
-                } else if (col.key === SchemaFields.AnnouncementFields.ModifyTime) {
-                    content = FormatDateTime((data as any)[col.key]);
-                } else {
-                    content = (data as any)[col.key] ?? "";
+
+                switch (col.key) {
+                    case SchemaFields.FileArchiveInfoFields.Title:
+                        {
+                            content = item.FileArchiveInfo?.find(p => p.Lang === lang)?.Title ?? "";
+                            break;
+                        }
+
                 }
                 return { col, content };
             });
@@ -68,43 +70,57 @@ const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string
 
 export interface IFileArchiveOptions { Category: string; Tag: string; Style: number; }
 interface FileArchiveProps { Theme: IFETheme; Lang: string | Lang; Options: IFileArchiveOptions; }
+
 export const FileArchiveList = (props: FileArchiveProps) => {
-    const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
-    const useAnnounceList = useFileArchive(props.Lang, props.Options.Category, props.Options.Tag);
-    const adjustedGrid = useMemo(() => {
-        return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData);
-    }, [useAnnounceList.gridProps, useAnnounceList.rawData]);
-    const isLoading = [useAnnounceList.isLoading];
-    const errors = [useAnnounceList.error];
+    const useFileArchiveList = useFileArchive(props.Lang, props.Options.Category, props.Options.Tag);
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(props.Lang, useFileArchiveList.gridProps, useFileArchiveList.rawData); }, [useFileArchiveList.gridProps, useFileArchiveList.rawData]);
+    const isLoading = [useFileArchiveList.isLoading];
+    const errors = [useFileArchiveList.error];
     return <GridViewContentComp GridData={adjustedGrid} Theme={props.Theme} LoadingList={isLoading} ErrorList={errors} />;
 };
 
-const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: FileArchiveSet[]): GridProps => {
+const SetAdjustFunction = (lang: string, gridProps: GridProps, rawData: FileArchiveSet[]): GridProps => {
+    const downloadColName = '__Download__'
+    if (gridProps.columns.some(col => col.key === downloadColName)) return gridProps;
+    if (gridProps.rows.length === 0) return gridProps;
+
+    const downloadCol: ColumnConfig = { key: downloadColName, title: '下載' };
+    const newColumns: ColumnConfig[] = [...gridProps.columns, downloadCol];
+
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
-        const internalId = rawData?.[index]?.FileArchive?.InternalId ?? "";
-        // const title = rawData?.[index]?.FileArchive?.FileArchiveId?.Title ?? "";
-        const titleId = `title-${internalId}`;
-        const newCells = row.cells.map((cell) => {
-            const isTitle = cell.col.key === SchemaFields.AnnouncementDetailFields.Title;
-            return {
-                ...cell,
-                content: (
-                    <Link
-                        to={`${dirUrl}/${internalId}`}
-                        className="link-cell"
-                        id={isTitle ? titleId : undefined}
-                        aria-label={isTitle ? `前往 ${"title"} 的詳細頁面` : undefined}
-                        aria-labelledby={isTitle ? undefined : titleId}
-                    >
-                        <span aria-hidden={!isTitle}>
-                            {cell.content}
-                        </span>
-                    </Link>
-                ),
-            };
+
+        const fileInfoRowId = rawData?.[index].FileArchiveInfo?.find(p => p.Lang === lang)?.RowId
+        const fileRows = rawData?.[index].FileArchiveDetail?.filter(p => p.ParentRowId === fileInfoRowId) as FileArchiveDetail[]
+        let downloadFileContent = <></>;
+        fileRows.map((item) => {
+            downloadFileContent = <>{downloadFileContent}{SetDownloadIcon(item.FileSrcId ?? "", "docx", item.FileName ?? "")}</>
         });
-        return { ...row, cells: newCells };
+        const newCell: RowCell = {
+            col: downloadCol,
+            content: downloadFileContent,
+        };
+
+        return { ...row, cells: [...row.cells, newCell] };
     });
 
-    return { ...gridProps, rows: newRows };
+    return { ...gridProps, columns: newColumns, rows: newRows };
 };
+
+const SetDownloadIcon = (fileInternalId: string, fileExtName: string, fileTitle: string) => {
+    let div = <>{fileExtName.toUpperCase()}</>;
+    switch (fileExtName) {
+        case "docx": {
+            div = <div className="word">{div}</div>
+            break;
+        }
+        case "pdf": {
+            div = <div className="pdf">{div}</div>
+            break;
+        }
+        default: {
+            div = <div className="word">{div}</div>
+            break;
+        }
+    }
+    return (<a href={`/Service/FileManagement/Download/${fileInternalId}`} target="_blank" rel="noopener noreferrer" className="btn btn-default" title={`${fileTitle}(另開視窗)`} > {div}</ a>)
+}

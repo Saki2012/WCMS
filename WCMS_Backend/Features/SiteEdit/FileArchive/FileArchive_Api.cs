@@ -153,6 +153,10 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// 標籤ID(多個)
         /// </summary>
         [LibDesc, Required] public string TagsId { get; set; }
+
+        #region 關聯
+        public virtual List<FileArchiveInfo_DTO> FileArchiveInfo { get; set; } = [];
+        #endregion
     }
     public class FileArchiveInfo_DTO
     {
@@ -172,6 +176,7 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// 標題
         /// </summary>
         public string Title { get; set; }
+        public virtual List<FileArchiveDetail_DTO> FileArchiveDetail { get; set; } = [];
     }
     /* 不確定這張表該關聯Header還是Info，待討論 */
     public class FileArchiveDetail_DTO
