@@ -1,4 +1,5 @@
 ﻿
+using Azure.Core;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -8,7 +9,9 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using NetTopologySuite.Index.HPRtree;
 using StackExchange.Redis;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO.Compression;
 using System.Net;
@@ -61,7 +64,7 @@ namespace WCMS
             //app.UseHttpsRedirection();
             // 安全標頭（弱掃友好）
             AppSetup.UseSecurityHeaders(app, builder.Configuration);
-            //AppSetup.UseSecurityCSRF(app, builder.Configuration);
+            AppSetup.UseSecurityCSRF(app, builder.Configuration);
             // Swagger 僅開發期
             if (app.Environment.IsDevelopment())
             {
@@ -446,6 +449,7 @@ namespace WCMS
             public static void UseSecurityCSRF(WebApplication app, IConfiguration cfg)
             {
                 var whitelist = cfg.GetSection("Whitelist:Frontend").Get<string[]>();
+                var Backlist = cfg.GetSection("Whitelist:Backend").Get<string[]>();
 
                 app.Use(async (ctx, next) =>
                 {
@@ -483,6 +487,39 @@ namespace WCMS
 
                         bool passOrigin = !string.IsNullOrEmpty(origin) && allowed.Any(h => origin.Contains(h, StringComparison.OrdinalIgnoreCase));
                         bool passReferer = !string.IsNullOrEmpty(referer) && allowed.Any(h => referer.Contains(h, StringComparison.OrdinalIgnoreCase));
+
+                        //弱掃，偽造跨網站的要求的解決方法
+                        //1、試試將Request回來的網址做個ping，也就是看看存在否
+                        //2、如果存在，就再拿來與我們的localhost相關的字串比對
+                        //其實，用第二種方法就可以了
+                        
+                        Uri MyUri = new Uri(referer);
+                        if (passOrigin)
+                        {
+                            passOrigin = false; //再改回false來接判斷
+                            foreach (string Item in Backlist)
+                            {
+                                if (MyUri.OriginalString.Equals(Item, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    passOrigin = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (passReferer)
+                        {
+                            passReferer = false; //再改回false來接判斷
+                            foreach (string Item in Backlist)
+                            {
+                                if (MyUri.Host.Equals(Item, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    passReferer = true;
+                                    break;
+                                }
+                            }
+                        }
+
                         if (!passOrigin && !passReferer)
                         {
                             ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
