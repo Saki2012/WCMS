@@ -2,11 +2,13 @@
 using Azure.Core;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NetTopologySuite.Index.HPRtree;
@@ -91,7 +93,10 @@ namespace WCMS
                 cacheStore.EvictByTagAsync("perm", default).GetAwaiter().GetResult();
             }
 
-            app.UseCookiePolicy(new CookiePolicyOptions {MinimumSameSitePolicy = SameSiteMode.None,Secure = CookieSecurePolicy.Always});
+            app.UseCookiePolicy(new CookiePolicyOptions {
+                MinimumSameSitePolicy = SameSiteMode.Strict,
+                HttpOnly = HttpOnlyPolicy.Always,
+                Secure = CookieSecurePolicy.Always});
             // CORS 放在 Auth 前
             app.UseCors(AppSetup.CorsPolicyName);
             app.UseOutputCache();
@@ -424,8 +429,8 @@ namespace WCMS
                     ctx.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
                     ctx.Response.Headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=(), fullscreen=(self)";
                     ctx.Response.Headers.ContentSecurityPolicy = app.Environment.IsDevelopment()
-                    ? "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline'"
-                    : "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self'";
+                    ? "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'"
+                    : "default-src 'self'; img-src 'self' data:; style-src 'self'";
 
                     if (app.Environment.IsProduction())
                     {
