@@ -16,7 +16,7 @@ export default function LoginPage() {
 
 
   const ACCOUNT_MIN = 3;
-  const ACCOUNT_MAX = 30;
+  const ACCOUNT_MAX = 20;
   // 若帳號是 email 就改用  type="email"  不要 pattern
   const ACCOUNT_PATTERN = /^[A-Za-z0-9._-]+$/; // 依規格調整
   const PWD_MIN = 3;
