@@ -233,8 +233,10 @@ namespace WCMS
             {
                 services.AddAntiforgery(o =>
                 {
-                    o.Cookie.Name = "xsrf";          // HttpOnly = false 預設，給前端可讀
+                    o.Cookie.Name = "XSRF-TOKEN"; o.Cookie.HttpOnly = true;
                     o.HeaderName = "X-XSRF-TOKEN";   // 前端送在這個 header
+                    o.Cookie.SecurePolicy = CookieSecurePolicy.Always; // ✅ 強制 Secure
+                    o.Cookie.SameSite = SameSiteMode.Strict;
                 });
                 var whitelist = cfg.GetSection("Whitelist:Frontend").Get<string[]>();
 
