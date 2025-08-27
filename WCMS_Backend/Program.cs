@@ -515,7 +515,7 @@ namespace WCMS
                         if (passReferer)
                         {
                             passReferer = false; //再改回false來接判斷
-                            foreach (string Item in Backlist)
+                            foreach (string Item in whitelist)
                             {
                                 if (MyUri.Host.Equals(Item, StringComparison.OrdinalIgnoreCase))
                                 {
