@@ -1,7 +1,9 @@
 ﻿
+using Azure;
 using Azure.Core;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Components.RenderTree;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
@@ -73,7 +75,7 @@ namespace WCMS
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-            else 
+            else
             {
                 app.UseWhen(ctx =>
                 {
@@ -93,10 +95,12 @@ namespace WCMS
                 cacheStore.EvictByTagAsync("perm", default).GetAwaiter().GetResult();
             }
 
-            app.UseCookiePolicy(new CookiePolicyOptions {
+            app.UseCookiePolicy(new CookiePolicyOptions
+            {
                 MinimumSameSitePolicy = SameSiteMode.Strict,
                 HttpOnly = HttpOnlyPolicy.Always,
-                Secure = CookieSecurePolicy.Always});
+                Secure = CookieSecurePolicy.Always
+            });
             // CORS 放在 Auth 前
             app.UseCors(AppSetup.CorsPolicyName);
             app.UseOutputCache();
@@ -125,7 +129,7 @@ namespace WCMS
             public static void BasicSetting(WebApplicationBuilder builder)
             {
                 builder.WebHost.UseIIS();
-                builder.WebHost.UseKestrel(o => o.AddServerHeader = false); 
+                builder.WebHost.UseKestrel(o => o.AddServerHeader = false);
                 builder.WebHost.ConfigureKestrel(o =>
                 {
                     o.AddServerHeader = false; // 移除 Server 標頭（弱掃友好）
@@ -317,7 +321,7 @@ namespace WCMS
             {
                 services.ConfigureApplicationCookie(opt =>
                 {
-                    opt.Cookie.SameSite = SameSiteMode.None;  // 代理 + HTTPS
+                    opt.Cookie.SameSite = SameSiteMode.Strict;  // 代理 + HTTPS
                     opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                     //opt.Cookie.Domain = "wcms.it-easygoapp.com"; // 同網域可省略，但建議固定
                 });
@@ -348,25 +352,25 @@ namespace WCMS
             {
                 //if (builder.Environment.IsDevelopment())
                 //{
-                    AppContext.SetSwitch("System.Text.Json.JsonSerializer.IsReflectionEnabledByDefault", true);
-                    builder.Services.AddEndpointsApiExplorer();
-                    builder.Services.AddSwaggerGen(c =>
+                AppContext.SetSwitch("System.Text.Json.JsonSerializer.IsReflectionEnabledByDefault", true);
+                builder.Services.AddEndpointsApiExplorer();
+                builder.Services.AddSwaggerGen(c =>
+                {
+                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "WCMS API", Version = "v1" });
+
+                    // 加上這段才會有 Authorize 按鈕
+                    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                     {
-                        c.SwaggerDoc("v1", new OpenApiInfo { Title = "WCMS API", Version = "v1" });
+                        Name = "Authorization",
+                        Type = SecuritySchemeType.ApiKey,
+                        Scheme = "Bearer",
+                        BearerFormat = "JWT",
+                        In = ParameterLocation.Header,
+                        Description = "請輸入: Bearer {你的AccessToken}"
+                    });
 
-                        // 加上這段才會有 Authorize 按鈕
-                        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                        {
-                            Name = "Authorization",
-                            Type = SecuritySchemeType.ApiKey,
-                            Scheme = "Bearer",
-                            BearerFormat = "JWT",
-                            In = ParameterLocation.Header,
-                            Description = "請輸入: Bearer {你的AccessToken}"
-                        });
-
-                        c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                        {
+                    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                    {
                             {
                                 new OpenApiSecurityScheme
                                 {
@@ -378,8 +382,8 @@ namespace WCMS
                                 },
                                 Array.Empty<string>()
                             }
-                        });
                     });
+                });
                 //}
             }
 
@@ -417,7 +421,7 @@ namespace WCMS
             /// <summary>
             /// 安全標頭（弱掃友好）– 若有 CSP 衝突，再放寬
             /// </summary>
-            public static void UseSecurityHeaders(WebApplication app,IConfiguration cfg)
+            public static void UseSecurityHeaders(WebApplication app, IConfiguration cfg)
             {
 
                 var whitelist = cfg.GetSection("Whitelist:Backend").Get<string[]>();
@@ -465,65 +469,77 @@ namespace WCMS
                     bool hasOurCookie = ctx.Request.Cookies.ContainsKey("access"); // 你用 Cookie 存 JWT
 
                     // 1) 在 GET 時發 token（同時把 request token 種成前端可讀 cookie）
-                    if (HttpMethods.IsGet(method) && isApi)
-                    {
-                        var af = ctx.RequestServices.GetRequiredService<IAntiforgery>();
-                        var tokens = af.GetAndStoreTokens(ctx); // 會種伺服器用的 xsrf cookie
+                    //if (HttpMethods.IsGet(method) && isApi)
+                    //{
+                    //    var af = ctx.RequestServices.GetRequiredService<IAntiforgery>();
+                    //    var tokens = af.GetAndStoreTokens(ctx); // 會種伺服器用的 xsrf cookie
 
-                        if (!string.IsNullOrEmpty(tokens.RequestToken))
+                    //    if (!string.IsNullOrEmpty(tokens.RequestToken))
+                    //    {
+                    //        ctx.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken, new CookieOptions
+                    //        {
+                    //            HttpOnly = false,                      // 前端要讀來塞 header
+                    //            Secure = true,
+                    //            SameSite = SameSiteMode.Strict,          // 與後端不同網域需要 None
+                    //            Path = "/"
+                    //        });
+                    //    }
+                    //}
+
+                    var af = ctx.RequestServices.GetRequiredService<IAntiforgery>();
+                    var tokens = af.GetAndStoreTokens(ctx); // 會種伺服器用的 xsrf cookie
+                    var allowed = whitelist ?? [];
+                    var origin = ctx.Request.Headers.Origin.FirstOrDefault();
+                    var referer = ctx.Request.Headers.Referer.FirstOrDefault();
+
+                    if (!string.IsNullOrEmpty(tokens.RequestToken))
+                    {
+                        ctx.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken, new CookieOptions
                         {
-                            ctx.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken, new CookieOptions
-                            {
-                                HttpOnly = false,                      // 前端要讀來塞 header
-                                Secure = true,
-                                SameSite = SameSiteMode.None,          // 與後端不同網域需要 None
-                                Path = "/"
-                            });
+                            HttpOnly = false,                      // 前端要讀來塞 header
+                            Secure = true,
+                            SameSite = SameSiteMode.Strict,          // 與後端不同網域需要 None
+                            Path = "/"
+                        });
+                    }
+                    //==================================弱掃，偽造跨網站的要求的解決方法===================================
+                    Uri MyUri = new Uri(referer);
+                    int counting = 0;
+                    foreach (string Item in Backlist)
+                    {
+                        if (MyUri.OriginalString.Equals(Item, StringComparison.OrdinalIgnoreCase))
+                        {
+                            counting++;
                         }
                     }
+
+                    counting = 0;
+                    foreach (string Item in whitelist)
+                    {
+                        if (MyUri.Host.Equals(Item, StringComparison.OrdinalIgnoreCase))
+                        {
+                            counting++;
+                        }
+                    }
+
+                    if (counting == 0)
+                    {
+                        ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        await ctx.Response.WriteAsJsonAsync(new { success = false, message = "Invalid Origin/Referer." });
+                        return;
+                    }
+                    //========================================================================================================
 
                     // 2) 只有「會改資料」且「走受保護 API」時才驗證 CSRF
                     if (isApi && isUnsafe && hasOurCookie)
                     {
                         // 先做 Origin/Referer 白名單
-                        var allowed = whitelist ?? [];
-                        var origin = ctx.Request.Headers.Origin.FirstOrDefault();
-                        var referer = ctx.Request.Headers.Referer.FirstOrDefault();
+                        //var allowed = whitelist ?? [];
+                        //var origin = ctx.Request.Headers.Origin.FirstOrDefault();
+                        //var referer = ctx.Request.Headers.Referer.FirstOrDefault();
 
                         bool passOrigin = !string.IsNullOrEmpty(origin) && allowed.Any(h => origin.Contains(h, StringComparison.OrdinalIgnoreCase));
                         bool passReferer = !string.IsNullOrEmpty(referer) && allowed.Any(h => referer.Contains(h, StringComparison.OrdinalIgnoreCase));
-
-                        //弱掃，偽造跨網站的要求的解決方法
-                        //1、試試將Request回來的網址做個ping，也就是看看存在否
-                        //2、如果存在，就再拿來與我們的localhost相關的字串比對
-                        //其實，用第二種方法就可以了
-                        
-                        Uri MyUri = new Uri(referer);
-                        if (passOrigin)
-                        {
-                            passOrigin = false; //再改回false來接判斷
-                            foreach (string Item in Backlist)
-                            {
-                                if (MyUri.OriginalString.Equals(Item, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    passOrigin = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (passReferer)
-                        {
-                            passReferer = false; //再改回false來接判斷
-                            foreach (string Item in whitelist)
-                            {
-                                if (MyUri.Host.Equals(Item, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    passReferer = true;
-                                    break;
-                                }
-                            }
-                        }
 
                         if (!passOrigin && !passReferer)
                         {
@@ -535,7 +551,8 @@ namespace WCMS
                         // 驗證 XSRF（需要 xsrf cookie + X-XSRF-TOKEN header ）
                         try
                         {
-                            var af = ctx.RequestServices.GetRequiredService<IAntiforgery>();
+                            //var af = ctx.RequestServices.GetRequiredService<IAntiforgery>();
+                            af = ctx.RequestServices.GetRequiredService<IAntiforgery>();
                             await af.ValidateRequestAsync(ctx);
                         }
                         catch

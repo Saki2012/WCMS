@@ -30,6 +30,10 @@ namespace WCMS.SysCore.SystemFunc.Auth
         {
             if (string.IsNullOrWhiteSpace(req?.Account) || string.IsNullOrWhiteSpace(req?.Password)) return BadRequest("帳密不可為空");
             if (req.Account.Length > 20) return BadRequest("帳號長度不可超過20");
+            
+            int intAccountValidagte = 0;
+            if(int.TryParse(req.Account, out intAccountValidagte)) return BadRequest("帳號不可輸入全數字形態");
+
 
             // 1) 登入帳號
             var r = await _authBiz.SignInAsync(req.Account, req.Password);

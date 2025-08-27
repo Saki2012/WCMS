@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Components.RenderTree;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
@@ -195,7 +196,7 @@ namespace WCMS.SysCore
         /// <returns></returns>
         [HttpPost(nameof(QueryList)), OutputCache(PolicyName = "ListJson")] public virtual async Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition, CancellationToken ct)
         {
-            if(!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
+            if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
             AddListTags();
             var queryResult = await Service.BizQueryListAsync(queryCondition.Fields, queryCondition.Condition, queryCondition.PageNumber, queryCondition.PageSize);
             List<TSet_DTO> result = [];
