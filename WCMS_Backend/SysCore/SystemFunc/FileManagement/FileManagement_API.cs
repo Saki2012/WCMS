@@ -57,43 +57,31 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         {
             var result = await ((FileManagementBiz)Service).GetDownloadFileInfo([internalId]);
             if (result.Count == 0) return NotFound();
-
-            else if (result.Count == 1) { 
-                string path = $"/{result[0].Path}/{result[0].InternalId}.{result[0].FileExtension}";
-                    return PhysicalFile(path, result[0].MimeType);
+            else if (result.Count == 1) 
+            {
+                string path = Path.Combine(Env.ContentRootPath,result[0].Path,$"{result[0].InternalId}.{result[0].FileExtension}");
+                return PhysicalFile(path, result[0].MimeType, fileDownloadName: $"{result[0].FileName}.{result[0].FileExtension}");
             }
             else
             {
                 Response.ContentType = "application/zip";
                 var zipFileName = $"download_{DateTime.UtcNow:yyyyMMddHHmmss}.zip";
-                Response.Headers.ContentDisposition = $"attachment; filename={zipFileName}";
+                Response.Headers.ContentDisposition = $"attachment; filename*=UTF-8''{Uri.EscapeDataString(zipFileName)}";
 
                 await using var zipStream = Response.BodyWriter.AsStream(true);
                 using var zip = new ZipArchive(zipStream, ZipArchiveMode.Create, leaveOpen: false);
-
                 foreach (var file in result)
                 {
-                    string path = Path.Combine(file.Path,$"{file.InternalId}.{file.FileExtension}");
+                    string path = Path.Combine(Env.ContentRootPath, file.Path,$"{file.InternalId}.{file.FileExtension}");
                     if (!System.IO.File.Exists(path)) continue;
-
-                    // 壓縮包內的檔名（顯示用）
-                    var entryName = string.IsNullOrWhiteSpace(file.FileName)
-                        ? $"{file.InternalId}.{file.FileExtension}"
-                        : file.FileName;
-
+                    var entryName = string.IsNullOrWhiteSpace(file.FileName)? $"{file.InternalId}.{file.FileExtension}": file.FileName;
                     var entry = zip.CreateEntry(entryName, CompressionLevel.Fastest);
-
                     await using var entryStream = entry.Open();
                     await using var fs = System.IO.File.OpenRead(path);
                     await fs.CopyToAsync(entryStream, HttpContext.RequestAborted);
                 }
-
-                return new EmptyResult(); // 因為 Response 已經寫完了
+                return new EmptyResult();
             }
-
-
-
-
         }
 
         [HttpGet($@"{nameof(Preview)}/{{internalId}}")]

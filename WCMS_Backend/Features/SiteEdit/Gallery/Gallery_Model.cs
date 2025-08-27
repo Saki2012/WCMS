@@ -42,6 +42,9 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// 相簿排序
         /// </summary>
         public int Sort { get; set; }
+
+        public List<GalleryInfo> GalleryInfo { get; set; } = [];
+        public List<GalleryPhotos> GalleryPhotos { get; set; } = [];
     }
     /// <summary>
     /// 相簿資訊
@@ -90,6 +93,8 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// 相片排序
         /// </summary>
         public int Sort { get; set; }
+
+        public List<GalleryPhotosInfo> GalleryPhotosInfo { get; set; } = [];
     }
     /// <summary>
     /// 相簿裡的相片資訊

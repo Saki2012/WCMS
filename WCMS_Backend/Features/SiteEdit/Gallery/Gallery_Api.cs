@@ -193,6 +193,9 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// 相簿排序
         /// </summary>
         public int Sort { get; set; }
+
+        public List<GalleryInfo_DTO> GalleryInfo { get; set; } = [];
+        public List<GalleryPhotos_DTO> GalleryPhotos { get; set; } = [];
     }
     /// <summary>
     /// 相簿資訊
@@ -241,6 +244,8 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// 相片排序
         /// </summary>
         public int Sort { get; set; }
+
+        public List<GalleryPhotosInfo_DTO> GalleryPhotosInfo { get; set; } = [];
     }
     /// <summary>
     /// 相簿裡的相片資訊

@@ -13,7 +13,6 @@ import AnnouncementProvider from "../../../../Server/Layout/BizFunc/WebManagemen
 import { GridViewContentComp } from "../../Scaffold/ContentViewMode/GridView/GridView/GridContent_Comp";
 import { Merge } from "../../../../../SysCore/Utils/Library/LibMergeData";
 import type { Lang } from "../../../../../SysCore/i18n/lang";
-import { Classic_LibTextBox3 } from "../../../../Server/Layout/Theme/ClassicTheme_Clsx";
 import { FormatDate } from "../../../../../SysCore/Utils/Library/LibData";
 
 const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string) => {

@@ -29,6 +29,7 @@ namespace WCMS.SysCore.SystemFunc.Auth
         [HttpPost(nameof(Login)), AllowAnonymous] public async Task<IActionResult> Login([FromBody] LoginDto req)
         {
             if (string.IsNullOrWhiteSpace(req?.Account) || string.IsNullOrWhiteSpace(req?.Password)) return BadRequest("帳密不可為空");
+            if (req.Account.Length > 20) return BadRequest("帳號長度不可超過20");
 
             // 1) 登入帳號
             var r = await _authBiz.SignInAsync(req.Account, req.Password);
@@ -198,7 +199,7 @@ namespace WCMS.SysCore.SystemFunc.Auth
         public sealed class LoginDto
         {
             [Required] 
-            [StringLength(50, MinimumLength = 3, ErrorMessage = "account 長度需介於 3~50。")] 
+            [StringLength(20, MinimumLength = 3, ErrorMessage = "account 長度需介於 3~20。")] 
             [RegularExpression(@"^[A-Za-z0-9._\-@]+$", ErrorMessage = "account 僅允許英數、. _ - @。")]
             public string Account { get; set; } = "";
             [Required]

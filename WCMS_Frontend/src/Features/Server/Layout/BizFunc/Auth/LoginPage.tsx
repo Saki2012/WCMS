@@ -14,12 +14,35 @@ export default function LoginPage() {
   const nav = useNavigate();
   const loc = useLocation() as any;
 
+
+  const ACCOUNT_MIN = 3;
+  const ACCOUNT_MAX = 30;
+  // 若帳號是 email 就改用  type="email"  不要 pattern
+  const ACCOUNT_PATTERN = /^[A-Za-z0-9._-]+$/; // 依規格調整
+  const PWD_MIN = 3;
+  const PWD_MAX = 64;
+
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();                 // 防止直接導航
     if (submitting) return;             // 避免重複送出
     setErr(null);
     setSubmitting(true);
     try {
+
+      // 前端最終防線（避免被繞過）
+      if (
+        account.length < ACCOUNT_MIN ||
+        account.length > ACCOUNT_MAX ||
+        !ACCOUNT_PATTERN.test(account)
+      ) {
+        setErr(`帳號需為 ${ACCOUNT_MIN}–${ACCOUNT_MAX} 碼，僅可含英數與 . _ -`);
+        return;
+      }
+      if (password.length < PWD_MIN || password.length > PWD_MAX) {
+        setErr(`密碼需為 ${PWD_MIN}–${PWD_MAX} 碼`);
+        return;
+      }
       // 這裡會真的打到後端 /Service/Auth/Login
       await AuthAPI.login({ account, password });
 

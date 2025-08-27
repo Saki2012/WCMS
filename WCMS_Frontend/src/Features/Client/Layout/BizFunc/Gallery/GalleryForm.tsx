@@ -1,6 +1,8 @@
 import type { IFETheme } from '../../Theme/ITheme';
 import type { components } from '../../../../../types/api';
 type GallerySet = components["schemas"]["GallerySet_DTO"]
+type GalleryPhotos = components["schemas"]["GalleryPhotos_DTO"]
+type GalleryPhotoInfo = components["schemas"]["GalleryPhotosInfo_DTO"]
 import { useParams } from 'react-router-dom';
 import { ContentComp } from '../../Scaffold/ContentViewMode/FormView/FormView_Comp';
 import { FormatDate } from '../../../../../SysCore/Utils/Library/LibData';
@@ -11,11 +13,9 @@ import { useFetchFormData } from '../../../../../SysCore/Utils/API/FetchFormData
 import { useResolveInternalIds } from '../../../../../SysCore/Components/File/useResolveInternalIds';
 import { useMemo } from 'react';
 import type { Lang } from '../../../../../SysCore/i18n/lang';
+import { GalleryFormViewComp, type GalleryFormViewProps, type PhotoInfos } from '../../Scaffold/ContentViewMode/GalleryView/GalleryFormView';
 
-const emptyData: GallerySet = {
-    // Gallery: {},
-    GalleryInfo: []
-}
+const emptyData: GallerySet = {}
 
 
 interface IGalleryFormProps { Theme: IFETheme; Lang: string | Lang }
@@ -23,30 +23,24 @@ interface IGalleryFormProps { Theme: IFETheme; Lang: string | Lang }
 export const GalleryFormComp = (props: IGalleryFormProps) => {
     const { internalId } = useParams()
     const useGalleryFormData = useFetchFormData<GallerySet>(GalleryProvider(), internalId, emptyData)
-    // const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData);}, [useAnnounceList.gridProps, useAnnounceList.rawData]);
 
-    // const title = useGalleryFormData.data?.GalleryDetail?.[0]?.Title ?? "";
-    // const href = useGalleryFormData.data?.GalleryDetail?.[0]?.Url as string
-    // const startDate = FormatDate(useGalleryFormData.data?.Gallery?.Validate_Start)
+    const isLoading = [useGalleryFormData.isLoading];
+    const errors = [useGalleryFormData.error];
 
-    // const rawContent = useGalleryFormData.data?.GalleryDetail?.[0]?.Content ?? '';
-    // const parseContent = useResolveInternalIds(rawContent, { locale: props.Lang });
+    const title = useGalleryFormData.data?.GalleryInfo?.find(p => p.Lang === props.Lang)?.Title ?? "";
 
-    // const safeHtml = useMemo(() => DOMPurify.sanitize(parseContent.html ?? ''), [parseContent.html])
-    // const content = safeHtml ? parse(safeHtml) : null;
-    // // const categories = [useGalleryFormData.data.Gallery.Categories]
-    // // const tags = [useGalleryFormData.data.Gallery?.Tags]
-
-    // const isLoading = [useGalleryFormData.isLoading, parseContent.loading];
-    // const errors = [useGalleryFormData.error];
-
-    return (
-        <></>
-        // <ContentComp Theme={props.Theme} LoadingList={isLoading} ErrorList={errors}
-        //     Title={title} StartDate={startDate}
-        //     // Category={categories} Tag={tags}
-        //     Content={content} Href={href}
-        // />
-    );
+    const rawContent = useGalleryFormData.data?.GalleryInfo?.find(p => p.Lang === props.Lang)?.Content ?? "";
+    const parseContent = useResolveInternalIds(rawContent, { locale: props.Lang });
+    const safeHtml = useMemo(() => DOMPurify.sanitize(parseContent.html ?? ''), [parseContent.html])
+    const content = safeHtml ? parse(safeHtml) : null;
+    const photoInfo = GetPhotoInfos(props.Lang, useGalleryFormData.data?.GalleryPhotos ?? [], useGalleryFormData.data?.GalleryPhotosInfo ?? [])
+    return (<GalleryFormViewComp Title={title} CategoryName="" Content={content} photoInfoProps={photoInfo} LoadingList={isLoading} ErrorList={errors} />);
 }
 
+const GetPhotoInfos = (lang: string, photos: GalleryPhotos[], photoInfo: GalleryPhotoInfo[]): PhotoInfos[] => {
+    const result: PhotoInfos[] = []
+    photos.map((item) => {
+        result.push({ pictureInternalId: item.PicSrcId ?? "" })
+    })
+    return result;
+}
