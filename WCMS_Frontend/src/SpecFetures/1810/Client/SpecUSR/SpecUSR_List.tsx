@@ -3,107 +3,170 @@ import { useMemo } from "react";
 import type { components } from "../../../../types/api";
 import type { IFETheme } from "../../../../Features/Client/Layout/Theme/ITheme";
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
+type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
 import { Link, useLocation } from "react-router-dom";
 import type { Lang } from "../../../../SysCore/i18n/lang";
 import { Merge } from "../../../../SysCore/Utils/Library/LibMergeData";
 import * as SchemaFields from "../../../../types/SchemaFields"
 import SpecUSRProvider from "../../Server/BizFunc/SpecUSR/SpecUSR_Api";
 import { useFetchGridListData } from "../../../../SysCore/Utils/API/FetchGridListData";
-import type { GridProps, GridRow, RowCell } from "../../../../SysCore/Components/Grid/Grid_Data";
+import type { ColumnConfig, GridProps, GridRow, RowCell } from "../../../../SysCore/Components/Grid/Grid_Data";
 import { GridViewContentComp } from "../../../../Features/Client/Layout/Scaffold/ContentViewMode/GridView/GridView/GridContent_Comp";
+import LoadingErrorHandler from "../../../../SysCore/Components/LoadingErrorHandler";
+import { Paginator } from "../../../../SysCore/Components/Paginator/Paginator_Comp";
+import SpecCategoryProvider from "../../Server/BizFunc/SpecCategory/SpecCategory_Api";
 
 
-const useSpecUSRList = (lang: string, categoryIds: string, tagIds: string) => {
-
+const useSpecUSRList = (categoryId: string, tagIds: string) => {
     var condition: string = "";
-    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Categories} In ('${categoryIds}')`)
-    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} In ('${tagIds}')`)
+    condition = `${SchemaFields.SpecUSRModelFields.CategoryId} = ${categoryId}`;
+    // if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} In (${tagIds})`)
     const provider = SpecUSRProvider();
     return useFetchGridListData<SpecUSRSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
         fetchListCount: (cond) => provider.fetchListCount(cond),
         visibleKeys: [
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Categories],
-            [SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Title],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.DataStatus],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyUserId],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyTime],
+            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Year],
+            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ExternalCooperationUnit],
+            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Department],
+            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.PlanAmount],
+            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.DuringExecution],
+            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ProjectLeader],
+            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Cohost1],
+            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Cohost2],
+            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Commissioned],
         ],
         buildQueryCondition: (page) => ({
             Fields: [
-                SchemaFields.AnnouncementFields.AnnouncementId,
-                SchemaFields.AnnouncementFields.Categories,
-                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
-                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
-                SchemaFields.PageManagementFields.ModifyUserId,
-                SchemaFields.PageManagementFields.ModifyTime,
-                SchemaFields.PageManagementFields.InternalId,
+                SchemaFields.SpecUSRModelFields.InternalId,
+                SchemaFields.SpecUSRModelFields.USRId,
+                SchemaFields.SpecUSRModelFields.PictureId,
+                SchemaFields.SpecUSRModelFields.PicDescription,
+                `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Lang}`,
+                `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Year}`,
+                `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ProjectName}`,
+                `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ExternalCooperationUnit}`,
+                `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Department}`,
+                `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.PlanAmount}`,
+                `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.DuringExecution}`,
+                `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ProjectLeader}`,
+                `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Cohost1}`,
+                `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Cohost2}`,
+                `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Commissioned}`,
+                `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ProjectConcept}`,
             ],
             Condition: condition,
             PageNumber: page,
             PageSize: 10,
         }),
-        parseRow: (item, columns) => {
-            const data = item.SpecUSR ?? {};
-            const cells: RowCell[] = columns.map(col => {
-                let content = "";
-                if (col.key === SchemaFields.AnnouncementDetailFields.Title) {
-                    // content = data.AnnouncementDetail?.find(d => d.Lang === lang)?.Title ?? "";
-                } else if (col.key === SchemaFields.AnnouncementFields.ModifyTime) {
-                    // content = FormatDateTime((data as any)[col.key]);
-                } else {
-                    content = (data as any)[col.key] ?? "";
-                }
-                return { col, content };
-            });
-            return { cells };
-        },
         enabled: true,
         deps: [],
     });
 };
 
+export const useGetShowColumnItems = (categoryId: string) => {
+    const provider = SpecCategoryProvider();
+    return useFetchGridListData<SpecCategorySet>({
+        getModelDisplayName: () => provider.getModelDisplayName(),
+        fetchList: (cond) => provider.fetchList(cond),
+        fetchListCount: (cond) => provider.fetchListCount(cond),
+        visibleKeys: [],
+        buildQueryCondition: () => ({
+            Fields: [
+                SchemaFields.SpecCategoryModelFields.InternalId,
+                SchemaFields.SpecCategoryModelFields.CategoryId,
+                SchemaFields.SpecCategoryModelFields.ProgId,
+                SchemaFields.SpecCategoryModelFields.ShowColumnItems,
+            ],
+            Condition: `${SchemaFields.SpecCategoryModelFields.CategoryId} = ${categoryId}`,
+            PageNumber: 0,
+            PageSize: 0,
+        }),
+        enabled: true,
+        deps: [],
+    });
+}
 
 export interface ISpecUSRListOptions { Category?: string; Tag?: string; }
 interface ISpecUSRListProps { Theme: IFETheme; Lang: string | Lang; Options?: ISpecUSRListOptions; }
 
 export const SpecUSRListComp = (props: ISpecUSRListProps) => {
-    const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
-    const useAnnounceList = useSpecUSRList(props.Lang, props.Options?.Category ?? "", props.Options?.Tag ?? "");
-    const adjustedGrid = useMemo(() => {
-        return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData);
-    }, [useAnnounceList.gridProps, useAnnounceList.rawData]);
-    const isLoading = [useAnnounceList.isLoading];
-    const errors = [useAnnounceList.error];
-    return <GridViewContentComp GridData={adjustedGrid} Theme={props.Theme} LoadingList={isLoading} ErrorList={errors} />;
+    const useSpecUsrList = useSpecUSRList(props.Options?.Category ?? "", props.Options?.Tag ?? "");
+    const useGetShowColumns = useGetShowColumnItems(props.Options?.Category ?? "");
+    const showColumns = useGetShowColumns.rawData?.[0]?.SpecCategory?.ShowColumnItems?.split(',') as string[]
+
+    const isLoading = [useSpecUsrList.isLoading, useGetShowColumns.isLoading];
+    const errors = [useSpecUsrList.error, useGetShowColumns.error];
+    return (
+        <>
+            <LoadingErrorHandler loadingList={isLoading} errorList={errors} >
+                <SpecUSRList lang={props.Lang} rawData={useSpecUsrList.rawData} showColumnItems={showColumns} showColTitle={useSpecUsrList.gridProps.columns}></SpecUSRList>
+            </LoadingErrorHandler>
+        </>
+
+    );
 };
 
-const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: SpecUSRSet[]): GridProps => {
-    const newRows: GridRow[] = gridProps.rows.map((row, index) => {
-        const internalId = rawData?.[index]?.SpecUSR?.InternalId ?? "";
-        // const title = rawData?.[index]?.Announcement?.AnnouncementDetail?.Title ?? "";
-        const titleId = `title-${internalId}`;
-        const newCells = row.cells.map((cell) => {
-            const isTitle = cell.col.key === SchemaFields.AnnouncementDetailFields.Title;
-            return {
-                ...cell,
-                content: (
-                    <Link
-                        to={`${dirUrl}/${internalId}`}
-                        className="link-cell"
-                        id={isTitle ? titleId : undefined}
-                        // aria-label={isTitle ? `前往 ${title} 的詳細頁面` : undefined}
-                        aria-labelledby={isTitle ? undefined : titleId}
-                    >
-                        <span aria-hidden={!isTitle}>
-                            {cell.content}
-                        </span>
-                    </Link>
-                ),
-            };
-        });
-        return { ...row, cells: newCells };
-    });
-    return { ...gridProps, rows: newRows };
-};
+
+const SpecUSRList = ({ lang, rawData, showColumnItems, showColTitle }: { lang: string; rawData: SpecUSRSet[]; showColumnItems: string[]; showColTitle: ColumnConfig[] }) => {
+    const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
+    const cols = ["Year", "ExternalCooperationUnit", "Department", "PlanAmount", "DuringExecution", "ProjectLeader", "Cohost1", "Cohost2", "Commissioned"]
+    return (
+        <>
+            <div id="ContentPlaceContent_ContentConentA" className="col-sm-12 col-12 px-0">
+                <hr className="mt-1 mb-4" />
+                <div className="articles_itemBoxs_2">
+
+                    {rawData.map((item) => {
+                        const pageLink = `${dirUrl}/${item.SpecUSR?.InternalId}`;
+                        const detail = item.SpecUSRDetail?.find(p => p.Lang.toLocaleLowerCase() === lang.toLocaleLowerCase());
+                        return (
+                            <div className="articles_item col-12">
+                                <article className="cardbox">
+                                    <div className="card_content_2">
+                                        <div className="leftBox">
+                                            <figure className="card_figure">
+                                                <Link to={pageLink} className="card_image_link">
+                                                    <picture> <img className="card_image" src={`/Service/FileManagement/Preview/${item.SpecUSR?.PictureId}`} alt={item.SpecUSR?.PicDescription ?? ""} /> </picture>
+                                                </Link>
+                                            </figure>
+                                        </div>
+                                        <div className="rightBox ml-xl-5 ml-lg-5 ml-0">
+                                            <div className="card_titleDiv"> <Link to={pageLink} className="card_title">{detail?.ProjectName}</Link> </div>
+                                            <div className="card_catDiv">
+                                                <div className="card_cat">
+
+                                                    {/* const colTitle = useSpecUsrList.gridProps.columns.find(p => p.key === "Year")?.title; */}
+                                                    {cols.map((col) => {
+                                                        const title = showColTitle.find(p => p.key === col)?.title ?? ""
+                                                        const data = detail ? (detail as Record<string, any>)[col] ?? "" : "";
+                                                        return (showColumnItems.includes(col) &&
+                                                            <div className="card_cat_link w-100">
+                                                                <span className="s-line">▍</span>
+                                                                <span className="s-tle">{title}：{data}</span>
+                                                            </div>)
+                                                    })}
+                                                </div>
+                                            </div>
+                                            <div className="card_PDiv">
+                                                <p className="p_txt">{detail?.ProjectConcept}</p>
+                                            </div>
+                                            <div className="col-12 text-right p-0">
+                                                <div className="customize_btn mt-2"> <Link to={pageLink} className="Btn_s1" tabIndex={1} title="E">VIEW ALL<span className="ml-2">+</span></Link></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+
+                        )
+                    })}
+
+                </div>
+                {/* <Paginator></Paginator> */}
+            </div>
+        </>
+    )
+
+}

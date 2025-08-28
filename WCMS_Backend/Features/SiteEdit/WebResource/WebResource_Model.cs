@@ -41,6 +41,8 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// </summary>
         [LibDesc] public string PicDescription { get; set; }
 
+        public List<WebResourceInfo> WebResourceInfo { get; set; } = [];
+
     }
     /// <summary>
     /// 網路資源資訊

@@ -20,6 +20,7 @@ namespace WCMS.Features.SiteEdit.Announcement
     public class AnnouncementController : ApiDataController<AnnouncementSet,AnnouncementSet_DTO>
     {
         #region Migration Old Data
+
         [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct, string importFileLabel = "1810")
         {

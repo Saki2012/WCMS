@@ -127,10 +127,7 @@ namespace WCMS.SysCore
         /// </summary>
         public static readonly IConfiguration Configuration = new ConfigurationBuilder().SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile(SysParam.AppSettingsJson, optional: false, reloadOnChange: true)
-            .AddJsonFile($"{SysParam.AppSettingsJson}.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true, reloadOnChange: true).Build();
-
-
-
+            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "production"}.json", optional: true, reloadOnChange: true).Build();
         #endregion
         #region Public
         /// <summary>

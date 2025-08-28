@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import LoadingErrorHandler from "../../../../../../SysCore/Components/LoadingErrorHandler";
 import { Paginator } from "../../../../../../SysCore/Components/Paginator/Paginator_Comp";
 import type { PaginatorProps } from "../../../../../../SysCore/Components/Paginator/Paginator_Data";
+import { SubPageTitle } from "../../Header/SubPageTitle_Comp";
 
 export interface GridViewContentProps {
     Title: string,
@@ -15,19 +16,12 @@ export const GalleryViewComp = (prop: GridViewContentProps) => {
     return (
         <>
             <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList} >
-                <TitleBar title={prop.Title} />
+                <SubPageTitle title={prop.Title} />
                 <MainContent props={prop.MainContentProps} />
                 {/* <Paginator {...prop.PaginatorProp}></Paginator> */}
             </LoadingErrorHandler>
         </>
     );
-}
-
-const TitleBar = ({ title }: { title: string }) => {
-    return <>
-        <div className="row"><div className="page-header"><h3>{title}</h3></div></div>
-        <hr className="hr-Css" />
-    </>
 }
 
 export interface MainGridContentProp {

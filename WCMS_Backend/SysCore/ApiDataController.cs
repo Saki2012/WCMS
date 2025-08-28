@@ -181,7 +181,8 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="pk"></param>
         /// <returns></returns>
-        [HttpGet(nameof(QueryData)), OutputCache(PolicyName = "DetailJson")] public virtual async Task<IActionResult> QueryData([FromQuery] string internalId, CancellationToken ct)
+        [HttpGet(nameof(QueryData)), OutputCache(PolicyName = "DetailJson"), AllowAnonymous, IgnoreAntiforgeryToken]
+        public virtual async Task<IActionResult> QueryData([FromQuery] string internalId, CancellationToken ct)
         {
             if (!Guid.TryParse(internalId, out var guid)) { return BadRequest("Invalid internalId format."); }
             AddDetailTags(internalId);
@@ -194,7 +195,7 @@ namespace WCMS.SysCore
         /// 查詢清單
         /// </summary>
         /// <returns></returns>
-        [HttpPost(nameof(QueryList)), OutputCache(PolicyName = "ListJson")] public virtual async Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition, CancellationToken ct)
+        [HttpPost(nameof(QueryList)), OutputCache(PolicyName = "ListJson"), AllowAnonymous, IgnoreAntiforgeryToken] public virtual async Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition, CancellationToken ct)
         {
             if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
             AddListTags();
@@ -209,7 +210,7 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="queryCondition"></param>
         /// <returns></returns>
-        [HttpPost(nameof(GetTotalCounts)), OutputCache(PolicyName = "ListJson")] public virtual async Task<IActionResult> GetTotalCounts([FromBody] QueryListParam? queryCondition, CancellationToken ct)
+        [HttpPost(nameof(GetTotalCounts)), OutputCache(PolicyName = "ListJson"), AllowAnonymous, IgnoreAntiforgeryToken] public virtual async Task<IActionResult> GetTotalCounts([FromBody] QueryListParam? queryCondition, CancellationToken ct)
         {
             if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
             AddListTags();
@@ -230,7 +231,7 @@ namespace WCMS.SysCore
     public abstract class ApiReportController<TSet, TSet_DTO> : ApiBaseController<TSet, TSet_DTO>, IBaseReportController<TSet, TSet_DTO> where TSet : ITSet where TSet_DTO : ITSet_DTO
     {
         #region Public
-        [HttpPost(nameof(GetReport))]
+        [HttpPost(nameof(GetReport)), AllowAnonymous, IgnoreAntiforgeryToken]
         public virtual Task<IActionResult> GetReport(CancellationToken ct) => throw new NotImplementedException();
         #endregion
     }

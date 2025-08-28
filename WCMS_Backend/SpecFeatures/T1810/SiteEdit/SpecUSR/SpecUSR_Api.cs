@@ -18,8 +18,6 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
     [ApiController, Route(SysParam.ServiceRoute)]
     public class SpecUSRController : ApiDataController<SpecUSRSet, SpecUSRSet_DTO>
     {
-
-
         #region Migration Old Data
         [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct,string importFileLabel = "1810")
@@ -167,6 +165,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// 圖片描述
         /// </summary>
         [LibDesc] public string? PicDescription { get; set; } = string.Empty;
+        public List<SpecUSRDetail_DTO> SpecUSRDetail { get; set; } = [];
     }
 
     public class SpecUSRDetail_DTO

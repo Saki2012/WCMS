@@ -153,6 +153,8 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// 圖片顯示描述
         /// </summary>
         [LibDesc] public string PicDescription { get; set; }
+
+        public List<WebResourceInfo_DTO> WebResourceInfo { get; set; } = [];
     }
     /// <summary>
     /// 網路資源資訊

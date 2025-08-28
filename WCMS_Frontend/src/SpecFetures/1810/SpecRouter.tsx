@@ -1,17 +1,15 @@
 // SpecFeatures/1810/Router.ts
 import type { IRouteModule } from "../../SysCore/Interface/IBaseRouter";
-import { clientEntries, loadClientChildren } from "../../Features/Client/ClientRouter";
+import { loadClientChildren } from "../../Features/Client/ClientRouter";
 import { BackendRouteModule } from "../../Features/Server/ServerRouter";
 import type { RouteObject } from "react-router-dom";
-import { configureModuleRegistry, type INormNode, type INormSite, type ModuleEntry } from "../../Features/Client/Site-Routing";
+import { type INormNode, type INormSite, type ModuleEntry } from "../../Features/Client/Site-Routing";
 import SubContent from "../../Features/Client/Layout/BizFunc/MainPage/SubPages";
 import { Classic_FETheme } from "../../Features/Client/Layout/Theme/ClassicTheme_Clsx";
 import { SpecUSRListComp, type ISpecUSRListOptions } from "./Client/SpecUSR/SpecUSR_List";
 import { SpecResearchListComp, type ISpecResearchListOptions } from "./Client/SpecResearch/SpecResearch_List";
 import { AutoRedirect } from "../../SysCore/Utils/Route/AutoRedirect";
 import { SpecUSRFormComp } from "./Client/SpecUSR/SpecUSR_Form";
-import { SpecResearch_Form_Comp } from "./Client/SpecResearch/SpecResearch_Form";
-
 
 
 export class SpecRouteModule implements IRouteModule {
@@ -41,9 +39,7 @@ export const specClientEntries: Record<string, ModuleEntry> = {
       <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
     ),
     children: (opts: unknown, lang: string) => [
-      { index: true, element: <AutoRedirect to="List" replace /> },
-      { path: "List", element: <SpecResearchListComp Theme={Classic_FETheme} Lang={lang} Options={opts as ISpecResearchListOptions} /> },
-      { path: ":internalId", element: <SpecResearch_Form_Comp Theme={Classic_FETheme} Lang={lang} /> },
+      { index: true, element: <SpecResearchListComp Theme={Classic_FETheme} Lang={lang} Options={opts as ISpecResearchListOptions} /> },
     ],
   },
 };

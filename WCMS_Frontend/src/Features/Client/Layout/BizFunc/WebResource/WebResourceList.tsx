@@ -10,17 +10,17 @@ import type { RowCell } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import { useFetchGridListData } from "../../../../../SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "../../../../../SysCore/Utils/Library/LibData";
 import * as SchemaFields from "../../../../../types/SchemaFields";
-
 import { GridViewContentComp } from "../../Scaffold/ContentViewMode/GridView/GridView/GridContent_Comp";
 import { Merge } from "../../../../../SysCore/Utils/Library/LibMergeData";
 import type { Lang } from "../../../../../SysCore/i18n/lang";
 import WebResourceProvider from "../../../../Server/Layout/BizFunc/WebManagement/WebResource/WebResource_Api";
+import LoadingErrorHandler from "../../../../../SysCore/Components/LoadingErrorHandler";
+import { SubPageTitle } from "../../Scaffold/Header/SubPageTitle_Comp";
 
-const useWebResourceList = (lang: string, categoryIds: string, tagIds: string) => {
-
+const useWebResourceList = (categoryIds: string, tagIds: string) => {
     var condition: string = "";
-    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Categories} In ('${categoryIds}')`)
-    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} In ('${tagIds}')`)
+    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Categories} In (${categoryIds})`)
+    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} In (${tagIds})`)
     const provider = WebResourceProvider();
     return useFetchGridListData<WebResourceSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
@@ -33,35 +33,19 @@ const useWebResourceList = (lang: string, categoryIds: string, tagIds: string) =
             [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyUserId],
             [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyTime],
         ],
-        buildQueryCondition: (page) => ({
+        buildQueryCondition: () => ({
             Fields: [
-                SchemaFields.AnnouncementFields.AnnouncementId,
-                SchemaFields.AnnouncementFields.Categories,
-                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
-                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
-                SchemaFields.PageManagementFields.ModifyUserId,
-                SchemaFields.PageManagementFields.ModifyTime,
-                SchemaFields.PageManagementFields.InternalId,
+                SchemaFields.WebResourceFields.InternalId,
+                SchemaFields.WebResourceFields.WebResourceId,
+                `${SchemaFields.WebResourceSetFields.WebResourceInfo}.${SchemaFields.WebResourceInfoFields.Lang}`,
+                `${SchemaFields.WebResourceSetFields.WebResourceInfo}.${SchemaFields.WebResourceInfoFields.Title}`,
+                `${SchemaFields.WebResourceSetFields.WebResourceInfo}.${SchemaFields.WebResourceInfoFields.Content}`,
+                `${SchemaFields.WebResourceSetFields.WebResourceInfo}.${SchemaFields.WebResourceInfoFields.ResUrl}`,
             ],
             Condition: condition,
-            PageNumber: page,
-            PageSize: 10,
+            PageNumber: 0,
+            PageSize: 0,
         }),
-        parseRow: (item, columns) => {
-            const data = item.WebResource ?? {};
-            const cells: RowCell[] = columns.map(col => {
-                let content = "";
-                if (col.key === SchemaFields.AnnouncementDetailFields.Title) {
-                    // content = data.AnnouncementDetail?.find(d => d.Lang === lang)?.Title ?? "";
-                } else if (col.key === SchemaFields.AnnouncementFields.ModifyTime) {
-                    content = FormatDateTime((data as any)[col.key]);
-                } else {
-                    content = (data as any)[col.key] ?? "";
-                }
-                return { col, content };
-            });
-            return { cells };
-        },
         enabled: true,
         deps: [],
     });
@@ -72,41 +56,40 @@ export interface IWebResourceListOptions { Category?: string; Tag?: string; Styl
 interface IWebResourceListProps { Theme: IFETheme; Lang: string | Lang; Options?: IWebResourceListOptions; }
 
 export const WebResourceListComp = (props: IWebResourceListProps) => {
-    const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
-    const useAnnounceList = useWebResourceList(props.Lang, props.Options?.Category ?? "", props.Options?.Tag ?? "");
-    const adjustedGrid = useMemo(() => {
-        return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData);
-    }, [useAnnounceList.gridProps, useAnnounceList.rawData]);
-    const isLoading = [useAnnounceList.isLoading];
-    const errors = [useAnnounceList.error];
-    return <GridViewContentComp GridData={adjustedGrid} Theme={props.Theme} LoadingList={isLoading} ErrorList={errors} />;
+    const useWebResList = useWebResourceList(props.Options?.Category ?? "", props.Options?.Tag ?? "");
+    const isLoading = [useWebResList.isLoading];
+    const errors = [useWebResList.error];
+    return (
+        <>
+            <LoadingErrorHandler loadingList={isLoading} errorList={errors} >
+                <SubPageTitle title={""} />
+                <YoutubeContent lang={props.Lang} datas={useWebResList.rawData ?? []} />
+                {/* <Paginator {...prop.PaginatorProp}></Paginator> */}
+            </LoadingErrorHandler>
+        </>);
 };
 
-const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: WebResourceSet[]): GridProps => {
-    const newRows: GridRow[] = gridProps.rows.map((row, index) => {
-        const internalId = rawData?.[index]?.WebResource?.InternalId ?? "";
-        // const title = rawData?.[index]?.Announcement?.AnnouncementDetail?.Title ?? "";
-        const titleId = `title-${internalId}`;
-        const newCells = row.cells.map((cell) => {
-            const isTitle = cell.col.key === SchemaFields.AnnouncementDetailFields.Title;
-            return {
-                ...cell,
-                content: (
-                    <Link
-                        to={`${dirUrl}/${internalId}`}
-                        className="link-cell"
-                        id={isTitle ? titleId : undefined}
-                        // aria-label={isTitle ? `前往 ${title} 的詳細頁面` : undefined}
-                        aria-labelledby={isTitle ? undefined : titleId}
-                    >
-                        <span aria-hidden={!isTitle}>
-                            {cell.content}
-                        </span>
-                    </Link>
-                ),
-            };
-        });
-        return { ...row, cells: newCells };
-    });
-    return { ...gridProps, rows: newRows };
-};
+const YoutubeContent = ({ lang, datas }: { lang: string, datas: WebResourceSet[] }) => {
+    return (<>
+        <div className="row margin_0">
+            {datas.map((item) => {
+                const detail = item.WebResourceInfo?.find(p => p.Lang === lang)
+                return (
+                    <div className="col-lg-4 col-md-6 col-sm-6 col-12 photo_standardbox">
+                        <a className="venobox vbox-item" data-autoplay="true" data-vbtype="video" href={detail?.ResUrl ?? ""} title={`${detail?.Title ?? ""} (另開新視窗)`} target="_blank" rel="noopener noreferrer">
+                            <div className="img-box">
+                                <iframe width="100%" height="275" src={detail?.ResUrl ?? ""}
+                                    title={detail?.Title ?? ""} style={{ border: 'none' }}
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen></iframe>
+                            </div>
+                            <figcaption>
+                                <h3 className="title mt-0 mb-0">{detail?.Title ?? ""}</h3>
+                            </figcaption>
+                        </a>
+                    </div>
+                )
+            })}
+        </div>
+    </>)
+}

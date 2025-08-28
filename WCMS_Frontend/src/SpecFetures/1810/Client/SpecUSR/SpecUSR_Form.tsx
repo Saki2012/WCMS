@@ -10,8 +10,7 @@ import SpecUSRProvider from '../../Server/BizFunc/SpecUSR/SpecUSR_Api';
 import { useFetchFormData } from '../../../../SysCore/Utils/API/FetchFormData';
 
 
-const emptyData: SpecUSRSet = {
-}
+const emptyData: SpecUSRSet = {}
 
 interface ISpecUSRFormProps { Theme: IFETheme; Lang: string | Lang }
 
