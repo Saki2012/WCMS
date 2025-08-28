@@ -434,9 +434,29 @@ namespace WCMS
                     ctx.Response.Headers.XFrameOptions = "DENY";
                     ctx.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
                     ctx.Response.Headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=(), fullscreen=(self)";
-                    ctx.Response.Headers.ContentSecurityPolicy = app.Environment.IsDevelopment()
-                    ? "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'"
-                    : "default-src 'self'; img-src 'self' data:; style-src 'self'";
+
+                    // 若整站全 HTTPS，建議一併加 HSTS（測試好再開 subdomains）
+                    ctx.Response.Headers["Strict-Transport-Security"] = "max-age=31536000";
+
+                    if (ctx.Request.Path.StartsWithSegments("/Service"))
+                    {
+                        // API：超嚴 CSP（不影響 JSON/檔案傳輸）
+                        ctx.Response.Headers["Content-Security-Policy"] =
+                        "default-src 'none'; script-src 'none'; connect-src 'self'; img-src 'none'; " +
+                        "style-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; " +
+                        "frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'";
+                    }
+                    else
+                    {
+                        // 非 API（真的有 HTML 才需要）
+                        // 先保留你現有策略，之後有需要再做 nonce 化
+                        ctx.Response.Headers["Content-Security-Policy"] =
+                            "default-src 'self'; img-src 'self' data:; style-src 'self'";
+                    }
+
+                    //ctx.Response.Headers.ContentSecurityPolicy = app.Environment.IsDevelopment()
+                    //? "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'"
+                    //: "default-src 'self'; img-src 'self' data:; style-src 'self'";
 
                     if (app.Environment.IsProduction())
                     {
