@@ -119,7 +119,7 @@
   </resheader>
   <data name="AnnouncementId" xml:space="preserve">
     <value>公告</value>
-    <comment/>
+    
   </data>
   <data name="Announcement_Title" xml:space="preserve">
     <value>標題</value>

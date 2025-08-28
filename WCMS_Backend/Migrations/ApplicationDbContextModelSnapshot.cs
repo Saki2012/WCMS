@@ -647,6 +647,8 @@ namespace WCMS.Migrations
 
                     b.HasKey("GalleryId", "ParentRowId", "RowId");
 
+                    b.HasIndex("GalleryId", "RowId");
+
                     b.ToTable("GalleryPhotosInfo", (string)null);
                 });
 
@@ -2107,6 +2109,33 @@ namespace WCMS.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryInfo", b =>
+                {
+                    b.HasOne("WCMS.Features.SiteEdit.Gallery.Gallery", null)
+                        .WithMany("GalleryInfo")
+                        .HasForeignKey("GalleryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryPhotos", b =>
+                {
+                    b.HasOne("WCMS.Features.SiteEdit.Gallery.Gallery", null)
+                        .WithMany("GalleryPhotos")
+                        .HasForeignKey("GalleryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryPhotosInfo", b =>
+                {
+                    b.HasOne("WCMS.Features.SiteEdit.Gallery.GalleryPhotos", null)
+                        .WithMany("GalleryPhotosInfo")
+                        .HasForeignKey("GalleryId", "RowId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("WCMS.Features.SiteEdit.PageManagement.PageManagementDetail", b =>
                 {
                     b.HasOne("WCMS.Features.SiteEdit.PageManagement.PageManagement", null)
@@ -2121,6 +2150,33 @@ namespace WCMS.Migrations
                     b.HasOne("WCMS.Features.SiteEdit.Tag.TagData", null)
                         .WithMany("TagDetail")
                         .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.WebResource.WebResourceInfo", b =>
+                {
+                    b.HasOne("WCMS.Features.SiteEdit.WebResource.WebResource", null)
+                        .WithMany("WebResourceInfo")
+                        .HasForeignKey("WebResourceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch.SpecResearchDetailModel", b =>
+                {
+                    b.HasOne("WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch.SpecResearchModel", null)
+                        .WithMany("SpecResearchDetail")
+                        .HasForeignKey("ResearchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRDetail", b =>
+                {
+                    b.HasOne("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRModel", null)
+                        .WithMany("SpecUSRDetail")
+                        .HasForeignKey("USRId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2190,6 +2246,18 @@ namespace WCMS.Migrations
                     b.Navigation("FileArchiveInfo");
                 });
 
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.Gallery", b =>
+                {
+                    b.Navigation("GalleryInfo");
+
+                    b.Navigation("GalleryPhotos");
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryPhotos", b =>
+                {
+                    b.Navigation("GalleryPhotosInfo");
+                });
+
             modelBuilder.Entity("WCMS.Features.SiteEdit.PageManagement.PageManagement", b =>
                 {
                     b.Navigation("PageManagementDetail");
@@ -2198,6 +2266,21 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.Tag.TagData", b =>
                 {
                     b.Navigation("TagDetail");
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.WebResource.WebResource", b =>
+                {
+                    b.Navigation("WebResourceInfo");
+                });
+
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch.SpecResearchModel", b =>
+                {
+                    b.Navigation("SpecResearchDetail");
+                });
+
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRModel", b =>
+                {
+                    b.Navigation("SpecUSRDetail");
                 });
 
             modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManagement.FileManageModel", b =>

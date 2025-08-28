@@ -60,10 +60,13 @@ namespace WCMS.Features.SiteEdit.Announcement
                 if (!picFileName.IsNullOrEmpty())
                 {
                     FileManageSet fileInfo = GetSetByPicture(picFileName, fileSets);
-                    updateFileSets.Add(fileInfo);
-                    fileInfo.FileManage.FileName = picFileName;
-                    if (!picDescription.IsNullOrEmpty()) fileInfo.FileManage.FileDescription = picDescription;
-                    set.Announcement.PictureId = fileInfo.FileManage.InternalId;
+                    if (fileInfo != null)
+                    {
+                        updateFileSets.Add(fileInfo);
+                        fileInfo.FileManage.FileName = picFileName;
+                        if (!picDescription.IsNullOrEmpty()) fileInfo.FileManage.FileDescription = picDescription;
+                        set.Announcement.PictureId = fileInfo.FileManage.InternalId;
+                    }
                 }
                 set.Announcement.PicDescription = picDescription;
                 int r = 0;
