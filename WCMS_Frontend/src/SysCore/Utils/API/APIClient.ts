@@ -1,5 +1,4 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig } from "axios";
-import https from "node:https";
 import type { ModelDisplaySchema } from "../../../types/IApiSchema";
 import type { ApiResponse, QueryListCondition } from "../../Interface/IApiProvider";
 

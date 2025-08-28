@@ -72,7 +72,7 @@ const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string) 
     });
 };
 
-export interface IAnnouncementListOptions { Category?: string; Tag?: string; Style: number; }
+export interface IAnnouncementListOptions { Category?: string; Tag?: string; Style?: number; }
 interface IAnnouncementListProps { Theme: IFETheme; Lang: string | Lang; Options?: IAnnouncementListOptions; }
 
 export const AnnouncementList = (props: IAnnouncementListProps) => {

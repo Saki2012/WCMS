@@ -128,6 +128,8 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
         /// 標籤 (多個) 
         /// </summary>
         [LibDesc] public string? Tags { get; set; } = string.Empty;
+
+        public List<SpecResearchDetailModel_DTO> SpecResearchDetail { get; set; } = [];
     }
     public class SpecResearchDetailModel_DTO
     {

@@ -5,7 +5,7 @@ import Swiper from 'swiper';
 import 'swiper/swiper-bundle.css';
 
 
-const IconCardMenu = () => {
+export const IconCardMenu = () => {
     const iconCardRef = useRef<HTMLElement>(null);
     useEffect(() => {
         // ✅ Swiper 區塊
@@ -123,5 +123,3 @@ const IconCardMenu = () => {
         </section>
     )
 };
-
-export default IconCardMenu;

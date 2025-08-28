@@ -1,19 +1,15 @@
 /**公告清單 */
-import { useMemo } from "react";
 import type { components } from "../../../../types/api";
 import type { IFETheme } from "../../../../Features/Client/Layout/Theme/ITheme";
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
 import { Link, useLocation } from "react-router-dom";
 import type { Lang } from "../../../../SysCore/i18n/lang";
-import { Merge } from "../../../../SysCore/Utils/Library/LibMergeData";
 import * as SchemaFields from "../../../../types/SchemaFields"
 import SpecUSRProvider from "../../Server/BizFunc/SpecUSR/SpecUSR_Api";
 import { useFetchGridListData } from "../../../../SysCore/Utils/API/FetchGridListData";
-import type { ColumnConfig, GridProps, GridRow, RowCell } from "../../../../SysCore/Components/Grid/Grid_Data";
-import { GridViewContentComp } from "../../../../Features/Client/Layout/Scaffold/ContentViewMode/GridView/GridView/GridContent_Comp";
+import type { ColumnConfig } from "../../../../SysCore/Components/Grid/Grid_Data";
 import LoadingErrorHandler from "../../../../SysCore/Components/LoadingErrorHandler";
-import { Paginator } from "../../../../SysCore/Components/Paginator/Paginator_Comp";
 import SpecCategoryProvider from "../../Server/BizFunc/SpecCategory/SpecCategory_Api";
 
 
@@ -84,7 +80,7 @@ export const useGetShowColumnItems = (categoryId: string) => {
             PageSize: 0,
         }),
         enabled: true,
-        deps: [],
+        deps: [categoryId],
     });
 }
 
@@ -99,12 +95,9 @@ export const SpecUSRListComp = (props: ISpecUSRListProps) => {
     const isLoading = [useSpecUsrList.isLoading, useGetShowColumns.isLoading];
     const errors = [useSpecUsrList.error, useGetShowColumns.error];
     return (
-        <>
-            <LoadingErrorHandler loadingList={isLoading} errorList={errors} >
-                <SpecUSRList lang={props.Lang} rawData={useSpecUsrList.rawData} showColumnItems={showColumns} showColTitle={useSpecUsrList.gridProps.columns}></SpecUSRList>
-            </LoadingErrorHandler>
-        </>
-
+        <LoadingErrorHandler loadingList={isLoading} errorList={errors} >
+            <SpecUSRList lang={props.Lang} rawData={useSpecUsrList.rawData} showColumnItems={showColumns} showColTitle={useSpecUsrList.gridProps.columns}></SpecUSRList>
+        </LoadingErrorHandler>
     );
 };
 

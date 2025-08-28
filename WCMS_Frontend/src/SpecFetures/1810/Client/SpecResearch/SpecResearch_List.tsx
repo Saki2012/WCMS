@@ -1,65 +1,100 @@
 /**公告清單 */
-import { useMemo } from "react";
 import type { components } from "../../../../types/api";
 import type { IFETheme } from "../../../../Features/Client/Layout/Theme/ITheme";
 type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"];
-import { Link, useLocation } from "react-router-dom";
+type SpecResearchDetailModelFields = components["schemas"]["SpecResearchDetailModel_DTO"];
 import type { Lang } from "../../../../SysCore/i18n/lang";
 import { Merge } from "../../../../SysCore/Utils/Library/LibMergeData";
 import * as SchemaFields from "../../../../types/SchemaFields"
 import { useFetchGridListData } from "../../../../SysCore/Utils/API/FetchGridListData";
-import type { GridProps, GridRow, RowCell } from "../../../../SysCore/Components/Grid/Grid_Data";
-import { GridViewContentComp } from "../../../../Features/Client/Layout/Scaffold/ContentViewMode/GridView/GridView/GridContent_Comp";
+import type { ColumnConfig, GridProps, RowCell } from "../../../../SysCore/Components/Grid/Grid_Data";
 import SpecResearchProvider from "../../Server/BizFunc/SpecResearch/SpecResearch_Api";
+import LoadingErrorHandler from "../../../../SysCore/Components/LoadingErrorHandler";
+import { useGetShowColumnItems } from "../../Server/BizFunc/SpecCategory/SpecCategory_Hook";
+import { Grid } from "../../../../SysCore/Components/Grid/Grid_Comp";
+import React from "react";
 
 
-const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string) => {
+const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, showColumns: string[]) => {
 
     var condition: string = "";
-    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Categories} In ('${categoryIds}')`)
-    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} In ('${tagIds}')`)
+    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.CategoryId} = ${categoryIds}`)
+    // if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.Tags} In (${tagIds})`)
+
+    type VisibleKey = [string, string];
+
+    const buildVisibleKeys = (cols?: string[]): VisibleKey[] => {
+        const { SpecResearchSetFields, SpecResearchDetailModelFields } = SchemaFields;
+        const seen = new Set<string>();
+        const out: VisibleKey[] = [];
+        for (const raw of cols ?? []) {
+            const name = raw.split(".").pop()!.trim(); // e.g. "SpecResearchDetail.Year" -> "Year"
+            if (!name || seen.has(name)) continue;
+            if (name in SpecResearchDetailModelFields) {
+                seen.add(name);
+                const key = name as keyof typeof SpecResearchDetailModelFields;
+                out.push([SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields[key]]);
+            }
+        }
+        return out;
+    };
+
     const provider = SpecResearchProvider();
     return useFetchGridListData<SpecResearchSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
         fetchListCount: (cond) => provider.fetchListCount(cond),
-        visibleKeys: [
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Categories],
-            [SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Title],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.DataStatus],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyUserId],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyTime],
-        ],
+        visibleKeys: buildVisibleKeys(showColumns),
         buildQueryCondition: (page) => ({
             Fields: [
-                SchemaFields.AnnouncementFields.AnnouncementId,
-                SchemaFields.AnnouncementFields.Categories,
-                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
-                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
-                SchemaFields.PageManagementFields.ModifyUserId,
-                SchemaFields.PageManagementFields.ModifyTime,
-                SchemaFields.PageManagementFields.InternalId,
+                SchemaFields.SpecResearchModelFields.InternalId,
+                SchemaFields.SpecResearchModelFields.ResearchId,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Year}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.AcademicYear}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Semester}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.ClassTime}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.ProjectLeader}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.College}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Department}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.ProjectName}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.TeachingStaffOfOurSchool}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.ApprovalNumber}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.ApprovedAmount}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.DuringExecution}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.ContractPeriod}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Name}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.GraduationDegree}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.PaperTitle}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.CooperatingUnits}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.CooperationProject}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Courses}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Cohost1}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Cohost2}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Commissioned}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.PlanAmount}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.PlanContent}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Remark}`,
             ],
             Condition: condition,
             PageNumber: page,
             PageSize: 10,
         }),
         parseRow: (item, columns) => {
-            const data = item.SpecResearch ?? {};
             const cells: RowCell[] = columns.map(col => {
                 let content = "";
-                if (col.key === SchemaFields.AnnouncementDetailFields.Title) {
-                    // content = data.AnnouncementDetail?.find(d => d.Lang === lang)?.Title ?? "";
-                } else if (col.key === SchemaFields.AnnouncementFields.ModifyTime) {
-                    // content = FormatDateTime((data as any)[col.key]);
-                } else {
-                    content = (data as any)[col.key] ?? "";
+                if (showColumns.includes(col.key)) {
+                    const detail = item.SpecResearchDetail?.find(p => p.Lang === lang);
+                    content = detail ? (detail as Record<string, any>)[col.key] ?? "" : "";
+                }
+                else {
+                    content = (item.SpecResearch as any)[col.key] ?? "";
                 }
                 return { col, content };
             });
             return { cells };
         },
-        enabled: true,
+        enabled: !!showColumns?.length && !!categoryIds,
         deps: [],
     });
 };
@@ -69,41 +104,16 @@ export interface ISpecResearchListOptions { Category?: string; Tag?: string; }
 interface ISpecResearchListProps { Theme: IFETheme; Lang: string | Lang; Options?: ISpecResearchListOptions; }
 
 export const SpecResearchListComp = (props: ISpecResearchListProps) => {
-    const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
-    const useAnnounceList = useSpecResearchList(props.Lang, props.Options?.Category ?? "", props.Options?.Tag ?? "");
-    const adjustedGrid = useMemo(() => {
-        return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData);
-    }, [useAnnounceList.gridProps, useAnnounceList.rawData]);
-    const isLoading = [useAnnounceList.isLoading];
-    const errors = [useAnnounceList.error];
-    return <GridViewContentComp GridData={adjustedGrid} Theme={props.Theme} LoadingList={isLoading} ErrorList={errors} />;
-};
+    const useGetShowColumns = useGetShowColumnItems(props.Options?.Category ?? "");
+    const showColumns = useGetShowColumns.rawData?.[0]?.SpecCategory?.ShowColumnItems?.split(',') as string[];
+    const useSpecResearch = useSpecResearchList(props.Lang, props.Options?.Category ?? "", props.Options?.Tag ?? "", showColumns);
 
-const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: SpecResearchSet[]): GridProps => {
-    const newRows: GridRow[] = gridProps.rows.map((row, index) => {
-        const internalId = rawData?.[index]?.SpecResearch?.InternalId ?? "";
-        // const title = rawData?.[index]?.Announcement?.AnnouncementDetail?.Title ?? "";
-        const titleId = `title-${internalId}`;
-        const newCells = row.cells.map((cell) => {
-            const isTitle = cell.col.key === SchemaFields.AnnouncementDetailFields.Title;
-            return {
-                ...cell,
-                content: (
-                    <Link
-                        to={`${dirUrl}/${internalId}`}
-                        className="link-cell"
-                        id={isTitle ? titleId : undefined}
-                        // aria-label={isTitle ? `前往 ${title} 的詳細頁面` : undefined}
-                        aria-labelledby={isTitle ? undefined : titleId}
-                    >
-                        <span aria-hidden={!isTitle}>
-                            {cell.content}
-                        </span>
-                    </Link>
-                ),
-            };
-        });
-        return { ...row, cells: newCells };
-    });
-    return { ...gridProps, rows: newRows };
+    const isLoading = [useSpecResearch.isLoading];
+    const errors = [useSpecResearch.error];
+
+    return (
+        <LoadingErrorHandler loadingList={isLoading} errorList={errors} >
+            <Grid gridData={useSpecResearch.gridProps} style={props.Theme.GridView} pageStyle={props.Theme.Paginator}></Grid>
+        </LoadingErrorHandler>
+    )
 };

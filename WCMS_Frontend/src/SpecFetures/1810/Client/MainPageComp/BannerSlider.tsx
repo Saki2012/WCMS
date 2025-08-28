@@ -1,59 +1,18 @@
-/* Banner */
-// import { useRef } from "react";
-// import {Carousel} from 'bootstrap'
-import "swiper/swiper-bundle.css";
 
-const BannerSlider = () => {
-    // const bannerRef = useRef<HTMLElement>(null);
-    //   useEffect(() => {
-    //     if (typeof window === 'undefined') return;
 
-    //     // ✅ Bootstrap Carousel
-    //     if (bannerRef.current) {
-    //         const myCarousel = bannerRef.current.querySelector('#carousel-Controls');
-    //         const myCarousel2 = bannerRef.current.querySelector('#carousel-Controls_MB');
+import { useCarousel } from "../../../../SysCore/Utils/UI_HookFunc/useCarousel";
 
-    //         if (myCarousel) {
-    //           new Carousel(myCarousel, {
-    //             interval: 5000,
-    //             pause: false,
-    //             ride: 'carousel',
-    //             touch: true,
-    //             wrap: true,
-    //             keyboard: true,
-    //           });
-    //         }
 
-    //         if (myCarousel2) {
-    //           new Carousel(myCarousel2, {
-    //             interval: 5000,
-    //             pause: false,
-    //             ride: 'carousel',
-    //             touch: true,
-    //             wrap: true,
-    //             keyboard: true,
-    //           });
-    //         }
 
-    //         // ✅ jQuery 控制播放暫停
-    //         // 確保 jQuery ($) 已經被載入
-    //         if (typeof window.$ === 'function') {
-    //           window.$(() => {
-    //             window.$('#cycleCarousel').click(() => {
-    //               window.$('#carousel-Controls').carousel('cycle');
-    //             });
-    //             window.$('#pauseCarousel').click(() => {
-    //               window.$('#carousel-Controls').carousel('pause');
-    //             });
-    //             window.$('#cycleCarousel_MB').click(() => {
-    //               window.$('#carousel-Controls').carousel('cycle');
-    //             });
-    //             window.$('#pauseCarousel_MB').click(() => {
-    //               window.$('#carousel-Controls').carousel('pause');
-    //             });
-    //           });
-    //         }
-    //     }}, []);
+
+export const BannerSlider = () => {
+
+    // const items = [
+    //     { id: "pc-1", img: "/legacy/Client/File/Banner/A9-2E-A9-5C-8E-CF-E0-75-3D-5A-CF-6F-7B-C8.jpg", alt: "首頁輪播圖1" },
+    // ];
+    // const { index, next, prev, goTo, play, pause, playing, bind } =
+    //     useCarousel({ length: items.length, interval: 5000, autoPlay: true });
+
     return (
         // <section className="carousel_slide_section" ref={bannerRef}>
         <section className="carousel_slide_section">
@@ -62,34 +21,23 @@ const BannerSlider = () => {
                     <a href="#content" className="eng_font">SCROLL</a>
                 </div>
             </div>
-            <div
-                className="customize_visualBox + animate__animated animate__slow wow fadeInRight d-xl-block d-lg-block d-md-block d-sm-none d-none"
-                data-wow-delay="0.05s"
-            >
-                <div
-                    id="carousel-Controls"
-                    className="carousel carousel-dark slide carousel-fade"
-                    data-bs-ride="carousel"
-                >
-                    {/* <asp:Literal ID="Lit_Banner_PC" runat="server" /> 以下為測試資料 */}
+            <div className="customize_visualBox + animate__animated animate__slow wow fadeInRight d-xl-block d-lg-block d-md-block d-sm-none d-none" data-wow-delay="0.05s">
+                <div id="carousel-Controls" className="carousel carousel-dark slide carousel-fade" data-bs-ride="carousel">
                     <div className="carousel-inner">
+                        {/* <asp:Literal ID="Lit_Banner_PC" runat="server" /> 以下為測試資料 */}
+
                         <div className="carousel-item active" data-bs-interval="5000">
-                            <img
-                                src="/Legacy/Client/File/Banner/A9-2E-A9-5C-8E-CF-E0-75-3D-50-5A-3B-CF-6F-78-C8.jpg"
+                            <img src="/Legacy/Client/File/Banner/A9-2E-A9-5C-8E-CF-E0-75-3D-50-5A-3B-CF-6F-78-C8.jpg"
                                 className="d-block w-100"
                                 alt="首頁Banner圖片"
                             />
                         </div>
+
+
                         <div className="carousel-item" data-bs-interval="5000">
-                            <img
-                                src="/Legacy/Client/File/Banner/6B-28-1E-A5-EC-12-E1-E4-73-8F-76-44-8E-97-4D-65.PNG"
-                                className="d-block w-100"
-                                alt=""
-                            />
+                            <video className='d-block w-100' src='/Legacy/Client/File/Banner/0E-67-17-2F-FF-BB-B6-0A-EC-A9-15-D8-6B-F3-88-6F.mp4' title='影片' autoPlay muted loop style={{ width: '100vw', height: 'auto' }}></video>
                         </div>
-                        <div className="carousel-item" data-bs-interval="5000">
-                            {/* <video className='d-block w-100' src='/Legacy/Client/File/Banner/0E-67-17-2F-FF-BB-B6-0A-EC-A9-15-D8-6B-F3-88-6F.mp4' title='影片'  autoPlay muted loop style={{width: '100vw', height: 'auto'}}></video> */}
-                        </div>
+
                         <div className="carousel-item" data-bs-interval="5000">
                             <img
                                 src="/Legacy/Client/File/Banner/1C-13-3E-9A-51-ED-8A-B6-0B-1C-1A-C3-3B-42-D7-B0.jpg"
@@ -167,11 +115,7 @@ const BannerSlider = () => {
                 className="customize_visualBox + animate__animated animate__slow wow fadeInRight d-xl-none d-lg-none d-md-none d-sm-block "
                 data-wow-delay="0.05s"
             >
-                <div
-                    id="carousel-Controls_MB"
-                    className="carousel carousel-dark slide carousel-fade"
-                    data-bs-ride="carousel"
-                >
+                <div id="carousel-Controls_MB" className="carousel carousel-dark slide carousel-fade" data-bs-ride="carousel">
                     {/* <asp:Literal ID="Lit_Banner_MB" runat="server" /> */}
                     <div className="carousel-inner">
                         <div className="carousel-item active" data-bs-interval="5000">
@@ -189,7 +133,7 @@ const BannerSlider = () => {
                             />
                         </div>
                         <div className="carousel-item" data-bs-interval="5000">
-                            {/* <video className='d-block w-100' src='/File/Banner/0E-67-17-2F-FF-BB-B6-0A-EC-A9-15-D8-6B-F3-88-6F.mp4' title='影片'  autoPlay muted loop style={{width: '100vw', height: 'auto'}}></video> */}
+                            <video className='d-block w-100' src='/File/Banner/0E-67-17-2F-FF-BB-B6-0A-EC-A9-15-D8-6B-F3-88-6F.mp4' title='影片' autoPlay muted loop style={{ width: '100vw', height: 'auto' }}></video>
                         </div>
                         <div className="carousel-item" data-bs-interval="5000">
                             <img
@@ -267,4 +211,11 @@ const BannerSlider = () => {
     );
 };
 
-export default BannerSlider;
+
+const PCBanner = () => {
+
+}
+
+const MobileBanner = () => {
+
+}

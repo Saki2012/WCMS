@@ -63,11 +63,11 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: SpecRe
                             <i className="far fa-edit"></i>
                         </button>
                     </Link>
-                    <a id="trash" className="icon" onClick={() => handleDelete(internalId)} data-bs-toggle="modal" data-bs-target="#All_Delete">
+                    {/* <a id="trash" className="icon" onClick={() => handleDelete(internalId)} data-bs-toggle="modal" data-bs-target="#All_Delete">
                         <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title="刪除研究計畫">
                             <i className="far fa-trash-alt"></i>
                         </button>
-                    </a>
+                    </a> */}
                 </div>
             )
         };
