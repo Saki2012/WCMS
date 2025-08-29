@@ -9,6 +9,7 @@ import AnnouncementProvider from '../../../../Features/Server/Layout/BizFunc/Web
 import { useFetchGridListData } from '../../../../SysCore/Utils/API/FetchGridListData';
 import TagProvider from '../../../../Features/Server/Layout/BizFunc/WebManagement/Tags/Tag_Api';
 import LoadingErrorHandler from '../../../../SysCore/Components/LoadingErrorHandler';
+import { useEffect, useRef } from 'react';
 
 const useAnnouncementList = () => {
     const provider = AnnouncementProvider();
@@ -76,6 +77,64 @@ export const EventSession = () => {
     const rawData = (useEvent.rawData ?? []).filter(item => item.Announcement?.PictureId && item.Announcement.PictureId.trim() !== "").slice().
         sort((a, b) => new Date(b.Announcement?.Validate_Start ?? "").getTime() - new Date(a.Announcement?.Validate_Start ?? "").getTime()).slice(0, 6);
     const eventList = getData(lang, rawData, tagDict)
+
+    const carouselRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (eventList.length > 0 && carouselRef.current) {
+            const $owl = $(carouselRef.current);
+
+            // Destroy if exists
+            if ($owl.hasClass('owl-loaded')) {
+                $owl.trigger('destroy.owl.carousel');
+            }
+
+            // Init carousel
+            setTimeout(() => {
+                $owl.owlCarousel({
+                    items: 4,
+                    loop: true,
+                    dots: true,
+                    nav: true,
+                    margin: 30,
+                    // autoplay: true,
+                    autoplayTimeout: 3000,
+                    autoplayHoverPause: true,
+                    responsive: {
+                        0: { items: 1 },
+                        767: { items: 2 },
+                        991: { items: 3 },
+                        1200: { items: 4 }
+                    }
+                });
+
+                // 設定 tabindex
+                $('#Event .owl-nav button').attr('tabindex', '7');
+
+                // 播放與暫停控制
+                $('#Event_start').on('click', () => {
+                    $owl.trigger('play.owl.autoplay', [6000]);
+                });
+
+                $('#Event_pause').on('click', () => {
+                    $owl.trigger('stop.owl.autoplay');
+                });
+            }, 0);
+
+            return () => {
+                $('#Event_start').off();
+                $('#Event_pause').off();
+                if ($owl.hasClass('owl-loaded')) {
+                    $owl.trigger('destroy.owl.carousel');
+                }
+            };
+        }
+    }, [eventList]);
+
+
+
+
+
     return (
         <LoadingErrorHandler loadingList={isLoading} errorList={errors}>
             <section className="Event-section owl-box" style={{ backgroundImage: "url(/Legacy/Client/Images/bg/background-transparent-image_1920x600.png)" }}>
@@ -100,40 +159,39 @@ export const EventSession = () => {
                             <div className="row">
                                 <div className="col-12 + p-0">
                                     <div className="content-box + animate__animated animate__slow wow animate__bounceInUp" data-wow-delay="0.1s">
-                                        <div id="Event" className="owl-carousel owl-theme px-2">
+                                        <div id="Event" className="owl-carousel owl-theme px-2" ref={carouselRef}>
                                             {/* <asp:Literal ID="Lit_Event" runat="server" /> {/*輪播項目*/}
                                             {eventList.map((item, index) => {
-                                                return (
-                                                    <div className="owl-item active" key={item.Id}>
-                                                        <div className="item">
-                                                            <Link to={item.Url} title={item.Title} tabIndex={index + 1}>
-                                                                <div className="DivBox_content v_itemBOX">
-                                                                    <div className="Picture_Div">
-                                                                        <div className="img_wrapper">
-                                                                            <div className="figure_wrapper">
-                                                                                <img src={item.ImgSrc} alt={item.Title} />
+                                                return item && (
+                                                    <div className="item" key={item.Id}>
+                                                        <Link to={item.Url} title={item.Title} tabIndex={index + 1}>
+                                                            <div className="DivBox_content v_itemBOX">
+                                                                <div className="Picture_Div">
+                                                                    <div className="img_wrapper">
+                                                                        <div className="figure_wrapper">
+                                                                            <img src={item.ImgSrc} alt={item.Title} />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="TxtBoxDiv">
+                                                                    <div className="card_titleDiv">
+                                                                        <div className="card_title">{item.Title}</div>
+                                                                    </div>
+                                                                    <div className="m-news_detail">
+                                                                        <div className="category_box">
+                                                                            <div className="m-news_category"> <i className="fa fa-bookmark" aria-hidden="true"></i>
+                                                                                <div className="tags-text">{item.Tags}</div>
                                                                             </div>
                                                                         </div>
-                                                                    </div>
-                                                                    <div className="TxtBoxDiv">
-                                                                        <div className="card_titleDiv">
-                                                                            <div className="card_title">{item.Title}</div>
+                                                                        <div className="TimeBoxDiv">
+                                                                            <div className="card_time"><i className="fa fa-clock-o" aria-hidden="true"></i>2025/04/11</div>
+                                                                            <div className="card_arrow"><i className="fa fa-arrow-circle-right" aria-hidden="true"></i></div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div className="m-news_detail">
-                                                                    <div className="category_box">
-                                                                        <div className="m-news_category"> <i className="fa fa-bookmark" aria-hidden="true"></i>
-                                                                            <div className="tags-text">{item.Tags}</div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div className="TimeBoxDiv">
-                                                                        <div className="card_time"><i className="fa fa-clock-o" aria-hidden="true"></i>2025/04/11</div>
-                                                                        <div className="card_arrow"><i className="fa fa-arrow-circle-right" aria-hidden="true"></i></div>
-                                                                    </div>
-                                                                </div>
-                                                            </Link>
-                                                        </div>
+                                                            </div>
+                                                            
+                                                        </Link>
                                                     </div>
                                                 )
                                             })}
@@ -162,6 +220,9 @@ export const EventSession = () => {
                     </div>
                 </div>
             </section>
+
+
+            
         </LoadingErrorHandler>
     )
 };

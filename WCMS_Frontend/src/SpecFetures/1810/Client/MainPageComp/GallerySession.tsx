@@ -11,6 +11,7 @@ import { useFetchGridListData } from '../../../../SysCore/Utils/API/FetchGridLis
 import TagProvider from '../../../../Features/Server/Layout/BizFunc/WebManagement/Tags/Tag_Api';
 import { FormatDate } from '../../../../SysCore/Utils/Library/LibData';
 import LoadingErrorHandler from '../../../../SysCore/Components/LoadingErrorHandler';
+import { useEffect, useRef } from 'react';
 
 const useGalleryList = () => {
     const provider = GalleryProvider();
@@ -98,6 +99,60 @@ export const GallerySession = () => {
 
     const result: DataProp[] = getDataProps(lang, gallery.rawData, tag.rawData)
 
+    const carouselRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (result.length > 0 && carouselRef.current) {
+            const $owl = $(carouselRef.current);
+
+            // Destroy if exists
+            if ($owl.hasClass('owl-loaded')) {
+                $owl.trigger('destroy.owl.carousel');
+            }
+
+            // Init carousel
+            setTimeout(() => {
+                $owl.owlCarousel({
+                    items: 3,
+                    loop: true,
+                    dots: true,
+                    nav: true,
+                    margin: 30,
+                    // autoplay: true,
+                    autoplayTimeout: 3000,
+                    autoplayHoverPause: true,
+                    responsive: {
+                        0: { items: 1 },
+                        767: { items: 2 },
+                        991: { items: 3 },
+                        1200: { items: 3 }
+                    }
+
+                });
+
+                // 設定 tabindex
+                $('#Gallery .owl-nav button').attr('tabindex', '7');
+
+                // 播放與暫停控制
+                $('#Gallery_start').on('click', () => {
+                    $owl.trigger('play.owl.autoplay', [6000]);
+                });
+
+                $('#Gallery_pause').on('click', () => {
+                    $owl.trigger('stop.owl.autoplay');
+                });
+            }, 0);
+
+            return () => {
+                $('#Gallery_start').off();
+                $('#Gallery_pause').off();
+                if ($owl.hasClass('owl-loaded')) {
+                    $owl.trigger('destroy.owl.carousel');
+                }
+            };
+        }
+    }, [result]);
+
     return (
         <LoadingErrorHandler loadingList={isLoading} errorList={errors}>
 
@@ -123,59 +178,39 @@ export const GallerySession = () => {
                             <div className="row">
                                 <div className="col-12 + p-0">
                                     <div className="content-box + animate__animated animate__slow wow animate__zoomIn" data-wow-delay="0.15s">
-                                        <div id="Gallery" className="owl-carousel owl-theme px-2">
+                                        <div id="Gallery" className="owl-carousel owl-theme px-2" ref={carouselRef}>
                                             {/* <asp:Literal ID="Li_Album" runat="server" /> */}
-                                            <div className="owl-stage-outer">
-                                                <div className="owl-stage" >
-                                                    {result.map((item) => {
-                                                        return (<div className="owl-item active" >
-                                                            <div className="item">
-                                                                <Link to={`/EventHighlights/event-album/${item.internalId}`} tabIndex={13} title={item.title}>
-                                                                    <div className="DivBox_content v_itemBOX">
-                                                                        <div className="Picture_Div">
-                                                                            <div className="img_wrapper">
-                                                                                <div className="figure_wrapper"> <img src={`/Service/FileManagement/Preview/${item.picInternalId}`} alt={item.title} /> </div>
+                                            {result.map((item) => {
+                                                return item && (
+                                                    <div className="item">
+                                                        <Link to={`/EventHighlights/event-album/${item.internalId}`} tabIndex={13} title={item.title}>
+                                                            <div className="DivBox_content v_itemBOX">
+                                                                <div className="Picture_Div">
+                                                                    <div className="img_wrapper">
+                                                                        <div className="figure_wrapper"> <img src={`/Service/FileManagement/Preview/${item.picInternalId}`} alt={item.title} /> </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="TxtBoxDiv">
+                                                                    <div className="card_titleDiv">
+                                                                        <div className="card_title">{item.title}</div>
+                                                                    </div>
+                                                                    <div className="m-news_detail">
+                                                                        <div className="category_box">
+                                                                            <div className="m-news_category"> <i className="fa fa-bookmark" aria-hidden="true"></i>
+                                                                                <div className="tags-text">{item.tagName}</div>
                                                                             </div>
                                                                         </div>
-                                                                        <div className="TxtBoxDiv">
-                                                                            <div className="card_titleDiv">
-                                                                                <div className="card_title">{item.title}</div>
-                                                                            </div>
-                                                                            <div className="m-news_detail">
-                                                                                <div className="category_box">
-                                                                                    <div className="m-news_category"> <i className="fa fa-bookmark" aria-hidden="true"></i>
-                                                                                        <div className="tags-text">{item.tagName}</div>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div className="TimeBoxDiv">
-                                                                                    <div className="card_time"><i className="fa fa-clock-o" aria-hidden="true"></i>{item.date}</div>
-                                                                                    <div className="card_arrow"><i className="fa fa-arrow-circle-right" aria-hidden="true"></i></div>
-                                                                                </div>
-                                                                            </div>
+                                                                        <div className="TimeBoxDiv">
+                                                                            <div className="card_time"><i className="fa fa-clock-o" aria-hidden="true"></i>{item.date}</div>
+                                                                            <div className="card_arrow"><i className="fa fa-arrow-circle-right" aria-hidden="true"></i></div>
                                                                         </div>
                                                                     </div>
-                                                                </Link>
+                                                                </div>
                                                             </div>
-                                                        </div>)
-                                                    })}
-                                                </div>
-                                            </div>
-                                            <div className="owl-nav">
-                                                <button type="button" role="presentation" className="owl-prev" tabIndex={7}>
-                                                    <span aria-label="Previous" title="上一張">
-                                                        <span className="d-none">上一張</span>
-                                                    </span>
-                                                </button>
-                                                <button type="button" role="presentation" className="owl-next" tabIndex={7}>
-                                                    <span aria-label="Next" title="下一張">
-                                                        <span className="d-none">下一張</span>
-                                                    </span>
-                                                </button>
-                                            </div>
-                                            <div className="owl-dots">
-                                                <button role="button" className="owl-dot active"><span></span></button>
-                                                <button role="button" className="owl-dot"><span></span></button>
-                                            </div>
+                                                        </Link>
+                                                    </div>
+                                                    )
+                                            })}
                                         </div>
                                         {/*// Banner 控制 暫停 / 播放 按鈕 START // */}
                                         <div className="control-box">

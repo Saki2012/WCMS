@@ -51,15 +51,28 @@ export const buildMenuItems = (nodes: INormNode[] = [], activeId: number): MenuI
       const hasChildren = !!(n.children && n.children.length);
       const isInternal = !!n.redirectTo && n.redirectTo.startsWith("/");
       const isActivedId = n.id === activeId;
+
+      const domContent=(<>{n.title}<i className="fa fa-angle-right arrow" aria-hidden="true"></i></>)
+
+      // 無下層 直接顯示title
       const content: ReactNode = n.redirectTo
         ? (isInternal
           ? (<Link to={n.redirectTo} title={n.title} className={isActivedId ? "active" : ""} aria-current={isActivedId ? "page" : undefined} > {n.title} </Link>)
           : (<a href={n.redirectTo} title={n.title} rel="noopener" aria-current={isActivedId ? "page" : undefined} > {n.title} </a>)
         )
         : <a href={n.redirectTo} title={n.title} rel="noopener" aria-current={isActivedId ? "page" : undefined} > {n.title} </a>;
+
+      // 有下層 + 標籤箭頭
+      const contentHasChildren: ReactNode = n.redirectTo
+        ? (isInternal
+          ? (<Link to={n.redirectTo} title={n.title} className={isActivedId ? "active" : ""} aria-current={isActivedId ? "page" : undefined} > {domContent} </Link>)
+          : (<a href={n.redirectTo} title={n.title} rel="noopener" aria-current={isActivedId ? "page" : undefined} > {domContent} </a>)
+        )
+        : <a href={n.redirectTo} title={n.title} rel="noopener" aria-current={isActivedId ? "page" : undefined} > {domContent} </a>;
+
       const result: MenuItemData = {
         Id: String(n.id), SrcData: "", Type: n.redirectTo ? "url" : "module", Url: n.redirectTo ?? "", URL_Open: "1",
-        DOMContent: content, SubItem: hasChildren ? buildMenuItems(n.children!, activeId) : []
+        DOMContent: hasChildren ? contentHasChildren : content, SubItem: hasChildren ? buildMenuItems(n.children!, activeId) : []
       };
       return result;
     });

@@ -37,7 +37,7 @@ export const Header = ({ lang, site }: { lang: string; site: INormSite }) => {
                                 <MainMenu lang={lang} site={site}></MainMenu>
                                 <div className="overlayer"></div>
                                 <div className="rightBox">
-                                    <button className="main" type="button">
+                                    <button className="main bg-custom-s5" type="button">
                                         <div><i className="fa customize-bars" aria-hidden="true"></i></div>
                                         <span>MENU</span>
                                     </button>

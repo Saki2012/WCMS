@@ -9,6 +9,7 @@ import * as SchemaFields from "../../../../types/SchemaFields";
 import WebResourceProvider from '../../../../Features/Server/Layout/BizFunc/WebManagement/WebResource/WebResource_Api';
 import { useFetchGridListData } from '../../../../SysCore/Utils/API/FetchGridListData';
 import LoadingErrorHandler from '../../../../SysCore/Components/LoadingErrorHandler';
+import { useEffect, useRef } from 'react';
 
 interface DataProp { internalId: string; title: string; ResUrl: string; }
 
@@ -65,76 +66,104 @@ export const VideoSession = () => {
     const isLoading = [useData.isLoading]
     const errors = [useData.error]
 
+    const carouselRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (result.length > 0 && carouselRef.current) {
+            const $owl = $(carouselRef.current);
+
+            // Destroy if exists
+            if ($owl.hasClass('owl-loaded')) {
+                $owl.trigger('destroy.owl.carousel');
+            }
+
+            // Init carousel
+            setTimeout(() => {
+                $owl.owlCarousel({
+                    items: 3,
+                    loop: true,
+                    dots: true,
+                    nav: true,
+                    margin: 30,
+                    // autoplay: true,
+                    autoplayTimeout: 3000,
+                    autoplayHoverPause: true,
+                    responsive: {
+                        0: { items: 1 },
+                        767: { items: 2 },
+                        991: { items: 2 },
+                        1200: { items: 2 }
+                    }
+                });
+
+                // 設定 tabindex
+                $('#Video .owl-nav button').attr('tabindex', '7');
+
+                // 播放與暫停控制
+                $('#Video_start').on('click', () => {
+                    $owl.trigger('play.owl.autoplay', [6000]);
+                });
+
+                $('#Video_pause').on('click', () => {
+                    $owl.trigger('stop.owl.autoplay');
+                });
+            }, 0);
+
+            return () => {
+                $('#Video_start').off();
+                $('#Video_pause').off();
+                if ($owl.hasClass('owl-loaded')) {
+                    $owl.trigger('destroy.owl.carousel');
+                }
+            };
+        }
+    }, [result]);
 
     return (
         <LoadingErrorHandler loadingList={isLoading} errorList={errors}>
 
-            <section className="Vedio-section owl-box" style={{ backgroundImage: "url(/Legacy/Client/Images/bg/background-image_video_2000x1500.jpg)" }}>
+            <section className="Video-section owl-box" style={{ backgroundImage: "url(/Legacy/Client/Images/bg/background-image_video_2000x1500.jpg)" }}>
                 <div className="Mask-DivBox layout_padding1">
                     <div className="customizeBox">
                         <div className="container">
                             <div className="row">
                                 <div className="col-12 + p-0">
                                     <div className="content-box + animate__animated animate__slow wow animate__zoomIn" data-wow-delay="0.15s">
-                                        <div id="Vedio" className="owl-carousel owl-theme px-2">
+                                        <div id="Video" className="owl-carousel owl-theme px-2" ref={carouselRef}>
                                             {/* <asp:Literal ID="Lit_Video" runat="server" /> */}
 
-                                            <div className="owl-stage-outer">
-                                                <div className="owl-stage">
-                                                    {result.map((item) => {
-                                                        return (<div className="owl-item">
-                                                            <div className="item">
-                                                                <div className="wrapper_box">
-                                                                    <div className="MV-item mb-3 w-100">
-                                                                        <a className="venobox vbox-item" data-autoplay="true" data-vbtype="video" href={item.ResUrl} tabIndex={14} title={`${item.title} (另開視窗)`} target="_blank" rel="noopener noreferrer">
-                                                                            <div className="img_wrapper">
-                                                                                <div className="figure_wrapper">
-                                                                                    <iframe width="100%" height="315" src={item.ResUrl} allowFullScreen
-                                                                                        title={item.title} style={{ border: "0" }}
-                                                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                                                                        referrerPolicy="strict-origin-when-cross-origin">
-                                                                                    </iframe>
-                                                                                    <span className="sr-only">{item.title}</span>
-                                                                                </div>
-                                                                            </div>
-                                                                        </a>
+                                            {result.map((item) => {
+                                                return item && (
+                                                <div className="item">
+                                                    <div className="wrapper_box">
+                                                        <div className="MV-item mb-3 w-100">
+                                                            <a className="venobox vbox-item" data-autoplay="true" data-vbtype="video" href={item.ResUrl} tabIndex={14} title={`${item.title} (另開視窗)`} target="_blank" rel="noopener noreferrer">
+                                                                <div className="img_wrapper">
+                                                                    <div className="figure_wrapper">
+                                                                        <iframe width="100%" height="315" src={item.ResUrl} allowFullScreen
+                                                                            title={item.title} style={{ border: "0" }}
+                                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                                            referrerPolicy="strict-origin-when-cross-origin">
+                                                                        </iframe>
+                                                                        <span className="sr-only">{item.title}</span>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                        </div>)
-                                                    })}
-                                                </div>
-                                            </div>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>)
+                                            })}
 
-                                            <div className="owl-nav">
-                                                <button type="button" role="presentation" className="owl-prev" tabIndex={7}>
-                                                    <span aria-label="Previous" title="上一張">
-                                                        <span className="d-none">上一張</span>
-                                                    </span>
-                                                </button>
-                                                <button type="button" role="presentation" className="owl-next" tabIndex={7}>
-                                                    <span aria-label="Next" title="下一張">
-                                                        <span className="d-none">下一張</span>
-                                                    </span>
-                                                </button>
-                                            </div>
-                                            <div className="owl-dots">
-                                                <button role="button" className="owl-dot">
-                                                    <span></span>
-                                                </button>
-                                                <button role="button" className="owl-dot active">
-                                                    <span></span>
-                                                </button>
-                                            </div>
+                                            
                                         </div>
                                         {/*// Banner 控制 暫停 / 播放 按鈕 START // */}
                                         <div className="control-box">
-                                            <a id="Vedio_start" href="#" onClick={(e) => { e.preventDefault(); }} className="play" tabIndex={14} title="播放">
+                                            <a id="Video_start" href="#" onClick={(e) => { e.preventDefault(); }} className="play" tabIndex={14} title="播放">
                                                 <div className="control_start">
                                                     <span className="control-start-icon"><span className="d-none">播放</span></span>
                                                 </div>
                                             </a>
-                                            <a id="Vedio_pause" href="#" onClick={(e) => { e.preventDefault(); }} className="stop" tabIndex={14} title="暫停">
+                                            <a id="Video_pause" href="#" onClick={(e) => { e.preventDefault(); }} className="stop" tabIndex={14} title="暫停">
                                                 <div className="control_pause">
                                                     <span className="control-pause-icon"><span className="d-none">暫停</span></span>
                                                 </div>

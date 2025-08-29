@@ -51,6 +51,7 @@ export const LEGACY_JS = [
     "/Legacy/Server/fonts/feather/feather.min.js",
     "/Legacy/Server/js/simplebarv6.2.5.min.js",
     "/Legacy/Server/js/Custompcoded.js",
+    "/Legacy/Client/Content/owlcarousel_2/owl.carousel_v2.3.4.js"
     // "/Legacy/Server/ContentBack/nestable/jquery-1.12.4.min.js",
     // "/Legacy/Server/ContentBack/nestable/jquery.nestable.js",
     // "/Legacy/Server/ContentBack/bootstrap-datepicker1.6.1/bootstrap-datepicker1.6.1.min.js",
