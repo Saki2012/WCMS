@@ -106,7 +106,7 @@ export const CategoryTabs = () => {
         })
     );
     const rawData = (useNewsData.rawData ?? []).slice().sort((a, b) => new Date(b.Announcement?.Validate_Start ?? "").getTime() - new Date(a.Announcement?.Validate_Start ?? "").getTime());
-    const allNews = getNewsDataProps(rawData, lang, "/Allnews/All-announcement", "", categoryDict, tagDict);
+    const allNews = getNewsDataProps(rawData, lang, "/Allnews/Project-solicitation/National-Science-Accounting", "", categoryDict, tagDict);
     const project = getNewsDataProps(rawData, lang, "/Allnews/Project-solicitation/National-Science-Accounting", "4", categoryDict, tagDict);
     const legal = getNewsDataProps(rawData, lang, "/Allnews/Regulatory-Announcements", "6", categoryDict, tagDict)
     const even = getNewsDataProps(rawData, lang, "/Allnews/Intramural-activities/In-school-activities", "8", categoryDict, tagDict)

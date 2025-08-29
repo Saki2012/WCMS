@@ -5,10 +5,11 @@ import MenuListComp from "../../../../../SysCore/Components/MenuList/MenuList_Co
 import type { BreadCrumbData } from "../../../../../SysCore/Components/BreadCrumb/BreadCrumb_Data"
 import type { MenuItemData } from "../../../../../SysCore/Components/MenuList/MenuList_Data"
 import type { IFETheme } from '../../Theme/ITheme'
-import type { ReactNode } from 'react'
+import { useRef, type ReactNode } from 'react'
 import type { INormNode, INormSite } from '../../../Site-Routing'
 import type { Lang } from '../../../../../SysCore/i18n/lang'
 import { useNavigate } from "react-router-dom";
+import { useLegacyMenuDOM } from '../../Scaffold/Menu/MainMenu/MainMenu_Comp'
 
 
 interface ISubPagesProps {
@@ -49,29 +50,31 @@ export const buildMenuItems = (nodes: INormNode[] = [], activeId: number): MenuI
     .filter(n => n.isShowOnMenu !== false) // 過濾掉不顯示的
     .map(n => {
       const hasChildren = !!(n.children && n.children.length);
-      const isInternal = !!n.redirectTo && n.redirectTo.startsWith("/");
+      const isInternal = !!n.type && n.type === 'module'
       const isActivedId = n.id === activeId;
+      const domContent = (<>{n.title}<i className="fa fa-angle-right arrow" aria-hidden="true"></i></>)
+      const segments = (n.absSegments ?? []).filter(Boolean);
+      const path = segments.length > 0 ? "/" + segments.map(s => encodeURIComponent(s.toLowerCase())).join("/") : ("#");
 
-      const domContent=(<>{n.title}<i className="fa fa-angle-right arrow" aria-hidden="true"></i></>)
 
       // 無下層 直接顯示title
-      const content: ReactNode = n.redirectTo
+      const content: ReactNode = !hasChildren
         ? (isInternal
-          ? (<Link to={n.redirectTo} title={n.title} className={isActivedId ? "active" : ""} aria-current={isActivedId ? "page" : undefined} > {n.title} </Link>)
-          : (<a href={n.redirectTo} title={n.title} rel="noopener" aria-current={isActivedId ? "page" : undefined} > {n.title} </a>)
+          ? (<Link to={path} title={n.title} className={isActivedId ? "active" : ""} aria-current={isActivedId ? "page" : undefined} > {n.title} </Link>)
+          : (<a href={path} title={n.title} rel="noopener" aria-current={isActivedId ? "page" : undefined} > {n.title} </a>)
         )
-        : <a href={n.redirectTo} title={n.title} rel="noopener" aria-current={isActivedId ? "page" : undefined} > {n.title} </a>;
+        : <a href={path} title={n.title} rel="noopener" aria-current={isActivedId ? "page" : undefined} > {n.title} </a>;
 
       // 有下層 + 標籤箭頭
-      const contentHasChildren: ReactNode = n.redirectTo
+      const contentHasChildren: ReactNode = hasChildren
         ? (isInternal
-          ? (<Link to={n.redirectTo} title={n.title} className={isActivedId ? "active" : ""} aria-current={isActivedId ? "page" : undefined} > {domContent} </Link>)
-          : (<a href={n.redirectTo} title={n.title} rel="noopener" aria-current={isActivedId ? "page" : undefined} > {domContent} </a>)
+          ? (<Link to={path} title={n.title} className={isActivedId ? "active" : ""} aria-current={isActivedId ? "page" : undefined} > {domContent} </Link>)
+          : (<a href={path} title={n.title} rel="noopener" aria-current={isActivedId ? "page" : undefined} > {domContent} </a>)
         )
-        : <a href={n.redirectTo} title={n.title} rel="noopener" aria-current={isActivedId ? "page" : undefined} > {domContent} </a>;
+        : <a href={path} title={n.title} rel="noopener" aria-current={isActivedId ? "page" : undefined} > {domContent} </a>;
 
       const result: MenuItemData = {
-        Id: String(n.id), SrcData: "", Type: n.redirectTo ? "url" : "module", Url: n.redirectTo ?? "", URL_Open: "1",
+        Id: String(n.id), SrcData: "", Type: path ? "url" : "module", Url: path ?? "", URL_Open: "1",
         DOMContent: hasChildren ? contentHasChildren : content, SubItem: hasChildren ? buildMenuItems(n.children!, activeId) : []
       };
       return result;
@@ -92,6 +95,9 @@ const SubContent = (props: ISubPagesProps) => {
     </a>
   </div>
 
+  const menuRef = useRef<HTMLUListElement>(null);
+  useLegacyMenuDOM(menuRef);
+
   return (
     <>
       <SubBannerComp title={title} srcImg={"/Legacy/Client/images/banner/subpage_banner_img_1920x550.jpg"}></SubBannerComp>
@@ -106,7 +112,7 @@ const SubContent = (props: ISubPagesProps) => {
             <div className="row">
               {/* BreacCrumb區塊 */}
               <div className="col-md-12 w-100">
-                <nav className="custom_breadcrumb" aria-label="breadcrumb">
+                <nav className="custom_breadcrumb" aria-label="breadcrumb" >
                   <BreadCrumbComp items={breadCrumbData} style={props.Style.BreadCrumb} isUl={false} externalDOM={back}></BreadCrumbComp>
                 </nav>
               </div>
@@ -116,7 +122,7 @@ const SubContent = (props: ISubPagesProps) => {
                   <a accessKey="L" href="#" className="accesskey_left L" title="左方選單區(L)">:::</a>
                   <h2>{title}</h2>
                   <p></p>
-                  <nav className="Left-Second-navBox">
+                  <nav className="Left-Second-navBox" ref={menuRef}>
                     <MenuListComp items={menuData} Style={props.Style.SideMenu}></MenuListComp>
                   </nav>
                 </div>

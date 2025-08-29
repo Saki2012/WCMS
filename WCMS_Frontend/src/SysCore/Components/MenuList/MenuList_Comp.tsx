@@ -1,7 +1,7 @@
 import type { MenuItemData } from './MenuList_Data'
 import type { IMenu_Style } from "./MenuList_Clsx"
 
-const RecursiveMenuItem = (item: MenuItemData, key: string, Style: IMenu_Style, lv: number = 1, expandedKeys?: Set<string>, onToggleKey?: (key: string) => void, isFirst: boolean = false ) => {
+const RecursiveMenuItem = (item: MenuItemData, key: string, Style: IMenu_Style, lv: number = 1, expandedKeys?: Set<string>, onToggleKey?: (key: string) => void, isFirst: boolean = false) => {
   const hasSub = item.SubItem.length > 0;
   const isExpanded = !!expandedKeys?.has(key);
 
@@ -21,7 +21,7 @@ const RecursiveMenuItem = (item: MenuItemData, key: string, Style: IMenu_Style, 
   );
 };
 
-const MenuListComp = ({items, Style, expandedKeys, onToggleKey}: { items: MenuItemData[]; Style: IMenu_Style; expandedKeys?: Set<string>; onToggleKey?: (key: string) => void;}) => {
+const MenuListComp = ({ items, Style, expandedKeys, onToggleKey }: { items: MenuItemData[]; Style: IMenu_Style; expandedKeys?: Set<string>; onToggleKey?: (key: string) => void; }) => {
   return (
     <ul className={Style.ul(1)}>
       {items.map((item, idx) =>

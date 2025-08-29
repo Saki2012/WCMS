@@ -1,13 +1,12 @@
 import { Grid } from "../../../../../../SysCore/Components/Grid/Grid_Comp"
-import { SearchComp } from "../../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
 import type { SearchBarProps } from "../../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
 import { DividerComp } from "../../../../../../SysCore/Components/Divider/Divider_Comp"
-import { List_Toolbar } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Comp"
 import type { IBETheme } from "../../../Theme/ITheme"
 import type { GridProps, ColumnConfig, GridRow, RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data"
 import { useMemo } from "react"
 import { useLocation, Link } from 'react-router-dom';
 import { useGalleryListData } from "./Gallery_Hook"
+import { GalleryFields } from "../../../../../../types/SchemaFields"
 
 const searchCompProp: SearchBarProps = {
     title: "相簿搜尋",
@@ -74,6 +73,19 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps): GridProps => {
     const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
     const newRows: GridRow[] = gridProps.rows.map(row => {
         const uid = row.cells.find(cell => cell.col.key === "InternalId")?.content?.toString();
+        const pic = row.cells.find(cell => cell.col.key === GalleryFields.CoverPicSrcId);
+        // pic.content=(<img src={`/Service/Filemanagement/Preview/${}`}/>);
+        if (pic) {
+            const coverPicId = pic.content?.toString(); // 轉成字串
+            pic.content = (
+                <img
+                    src={`/Service/Filemanagement/Preview/${coverPicId}`}
+                    alt="cover"
+                    style={{ width: "80px", height: "80px", objectFit: "cover" }}
+                />
+            );
+        }
+
         const newCell: RowCell = {
             col: adjustCol,
             content: (

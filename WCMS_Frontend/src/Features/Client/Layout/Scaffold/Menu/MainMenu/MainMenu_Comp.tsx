@@ -72,6 +72,9 @@ export const MainMenu = ({ lang, site }: { lang: string; site: INormSite }) => {
     };
   }, []);
 
+  const menuRef = useRef<HTMLUListElement>(null);
+  useLegacyMenuDOM(menuRef);
+
   return (
     <div className="menulayer">
       <button type="button" className="closemain" tabIndex={1}>
@@ -99,7 +102,7 @@ export const MainMenu = ({ lang, site }: { lang: string; site: INormSite }) => {
         </div>
         {/* // menuBox // */}
         <nav className="menuBox">
-          <ul id="menu">
+          <ul id="menu" ref={menuRef}>
             <MenuListComp items={menuItems} Style={fakeStyle.MainMenu}></MenuListComp>
           </ul>
           {/* <script type="text/javascript">
@@ -149,5 +152,73 @@ export const MainMenu = ({ lang, site }: { lang: string; site: INormSite }) => {
 
 
 
+export const useLegacyMenuDOM = (menuRef: React.RefObject<HTMLUListElement>) => {
+  useEffect(() => {
+    if (typeof window === "undefined") return; // SSR guard
+    const root = menuRef.current;
+    if (!root) return;
 
+    const getIcon = (li: HTMLElement) => li.querySelector(":scope > a i");
+    const setArrow = (li: HTMLElement, open: boolean) => {
+      const icon = getIcon(li);
+      if (!icon) return;
+      icon.classList.toggle("fa-angle-right", !open);
+      icon.classList.toggle("fa-angle-down", open);
+    };
 
+    const closeBranch = (li: HTMLElement) => {
+      const childUl = li.querySelector(":scope > ul") as HTMLElement | null;
+      if (childUl) childUl.classList.remove("in");
+      li.classList.remove("active");
+      setArrow(li, false);
+      // 也把後代全部收掉（避免留下展開殘影）
+      childUl?.querySelectorAll("li").forEach(n => {
+        const h = n as HTMLElement;
+        h.classList.remove("active");
+        const sub = h.querySelector(":scope > ul") as HTMLElement | null;
+        if (sub) sub.classList.remove("in");
+        setArrow(h, false);
+      });
+    };
+
+    const onClick = (e: Event) => {
+      const target = e.target as Element;
+      const link = target.closest("a");
+      if (!link || !root.contains(link)) return;
+
+      const li = link.closest("li") as HTMLElement | null;
+      if (!li) return;
+
+      const childUl = li.querySelector(":scope > ul") as HTMLElement | null;
+
+      // 沒子層 = 正常導頁；若要只設 active 可在這裡加 li.classList.add("active")
+      if (!childUl) return;
+
+      // 有子層：阻止導頁，改為展開/收合
+      e.preventDefault();
+
+      const isOpen = childUl.classList.contains("in");
+
+      // 只關閉「同層」兄弟的直屬子層與箭頭
+      const parentUl = li.parentElement as HTMLElement | null; // li 的父層 ul
+      const siblings = parentUl ? Array.from(parentUl.children) : [];
+      siblings.forEach(node => {
+        const sib = node as HTMLElement;
+        if (sib !== li) closeBranch(sib);
+      });
+
+      if (isOpen) {
+        // ✅ 目前已展開 → 縮回
+        closeBranch(li);
+      } else {
+        // ✅ 目前收合 → 展開
+        childUl.classList.add("in");
+        li.classList.add("active");
+        setArrow(li, true);
+      }
+    };
+
+    root.addEventListener("click", onClick);
+    return () => root.removeEventListener("click", onClick);
+  }, [menuRef]);
+}
