@@ -7,6 +7,7 @@ using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 
@@ -140,19 +141,19 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// <summary>
         /// 檔案分類ID
         /// </summary>
-        [LibDesc, Required, Key] public string FileArchiveId { get; set; }
+        [LibDesc(ModelDisplayName.FileArchiveId), Required, Key] public string FileArchiveId { get; set; }
         /// <summary>
         /// 狀態:置頂/熱門/隱藏
         /// </summary>
-        [LibDesc] public ContentStatus ContentStatus { get; set; }
+        [LibDesc(ModelDisplayName.Common_ContentStatus)] public ContentStatus ContentStatus { get; set; }
         /// <summary>
         /// 類別ID(多個)
         /// </summary>
-        [LibDesc, Required] public string CategoriesId { get; set; }
+        [LibDesc(ModelDisplayName.Common_Category), Required] public string CategoriesId { get; set; }
         /// <summary>
         /// 標籤ID(多個)
         /// </summary>
-        [LibDesc, Required] public string TagsId { get; set; }
+        [LibDesc(ModelDisplayName.Common_Tag), Required] public string TagsId { get; set; }
 
         #region 關聯
         public virtual List<FileArchiveInfo_DTO> FileArchiveInfo { get; set; } = [];
@@ -163,19 +164,19 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// <summary>
         /// 檔案分類ID
         /// </summary>
-        [LibDesc, Required, Key] public string FileArchiveId { get; set; }
+        [LibDesc(ModelDisplayName.FileArchiveId), Required, Key] public string FileArchiveId { get; set; }
         /// <summary>
         /// 行主鍵
         /// </summary>
-        [LibDesc, Key] public int RowId { get; set; }
+        [LibDesc(ModelDisplayName.Common_RowId), Key] public int RowId { get; set; }
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc] public string Lang { get; set; }
+        [LibDesc(ModelDisplayName.Common_Lang)] public string Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>
-        public string Title { get; set; }
+        [LibDesc(ModelDisplayName.Common_Title)] public string Title { get; set; }
         public virtual List<FileArchiveDetail_DTO> FileArchiveDetail { get; set; } = [];
     }
     /* 不確定這張表該關聯Header還是Info，待討論 */
@@ -184,22 +185,22 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// <summary>
         /// 靜態客製頁面ID
         /// </summary>
-        [LibDesc, Required, Key] public string FileArchiveId { get; set; }
+        [LibDesc(ModelDisplayName.FileArchiveId), Required, Key] public string FileArchiveId { get; set; }
         /// <summary>
         /// 父行主鍵 (FileArchiveInfo)
         /// </summary>
-        [LibDesc, Key] public int ParentRowId { get; set; }
+        [LibDesc(ModelDisplayName.Common_ParentRowId), Key] public int ParentRowId { get; set; }
         /// <summary>
         /// 行主鍵
         /// </summary>
-        [LibDesc, Key] public int RowId { get; set; }
+        [LibDesc(ModelDisplayName.Common_RowId), Key] public int RowId { get; set; }
         /// <summary>
         /// 檔案來源
         /// </summary>
-        [LibDesc] public string FileSrcId { get; set; }
+        [LibDesc(ModelDisplayName.FileArchive_FileSrcId)] public string FileSrcId { get; set; }
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc] public string FileName { get; set; }
+        [LibDesc(ModelDisplayName.FileArchive_FileName)] public string FileName { get; set; }
     }
 }

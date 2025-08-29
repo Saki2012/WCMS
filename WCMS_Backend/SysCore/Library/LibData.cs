@@ -587,7 +587,7 @@ namespace WCMS.SysCore.Library
             private static string GetEnumDisplayName(System.Enum value)
             {
                 var field =  value.GetType().GetField(value.ToString());
-                var attr = field?.GetCustomAttribute<DescriptionAttribute>();
+                var attr = field?.GetCustomAttribute<LibDescAttribute>();
                 return attr?.Description ?? value.ToString();
             }
         }

@@ -1,5 +1,6 @@
 ﻿using WCMS.SysCore.Library;
 using System.ComponentModel;
+using WCMS.SysCore.Resx;
 
 namespace WCMS.SysCore.Enum
 {
@@ -315,15 +316,15 @@ namespace WCMS.SysCore.Enum
             /// <summary>
             /// 置頂
             /// </summary>
-            Top = 1 << 0,
+            [LibDesc(ModelDisplayName.Enum_Top)]Top = 1 << 0,
             /// <summary>
             /// 熱門
             /// </summary>
-            Hot = 1 << 1,
+            [LibDesc(ModelDisplayName.Enum_Hot)] Hot = 1 << 1,
             /// <summary>
             /// 隱藏
             /// </summary>
-            Hidden = 1 << 2
+            [LibDesc(ModelDisplayName.Enum_Hidden)] Hidden = 1 << 2
         }
         /// <summary>
         /// 
@@ -337,11 +338,11 @@ namespace WCMS.SysCore.Enum
             /// <summary>
             /// 超連結
             /// </summary>
-            Url=1,
+            [LibDesc(ModelDisplayName.Enum_Url)] Url = 1,
             /// <summary>
             /// 模型功能
             /// </summary>
-            Module=2,
+            [LibDesc(ModelDisplayName.Enum_Module)] Module = 2,
         }
         /// <summary>
         /// 
@@ -366,31 +367,31 @@ namespace WCMS.SysCore.Enum
             /// <summary>
             /// 清單列表式
             /// </summary>
-            List=1,
+            [LibDesc(ModelDisplayName.Enum_List)] List =1,
             /// <summary>
             /// 圖文式
             /// </summary>
-            PictureList=2,
+            [LibDesc(ModelDisplayName.Enum_PictureList)] PictureList =2,
             /// <summary>
             /// QA列表式
             /// </summary>
-            QAList=3,
+            [LibDesc(ModelDisplayName.Enum_QAList)] QAList =3,
             /// <summary>
             /// 瀑布式
             /// </summary>
-            Waterfall=4,
+            [LibDesc(ModelDisplayName.Enum_Waterfall)] Waterfall =4,
             /// <summary>
             /// 展開式(類別)
             /// </summary>
-            Expand_Category=5,
+            [LibDesc(ModelDisplayName.Enum_Expand_Category)] Expand_Category =5,
             /// <summary>
             /// 展開式(標籤)
             /// </summary>
-            Expand_Tag=6,
+            [LibDesc(ModelDisplayName.Enum_Expand_Tag)] Expand_Tag =6,
             /// <summary>
             /// Youtube
             /// </summary>
-            Youtube=7
+            [LibDesc(ModelDisplayName.Enum_Youtube)] Youtube =7
         }
     }
 }

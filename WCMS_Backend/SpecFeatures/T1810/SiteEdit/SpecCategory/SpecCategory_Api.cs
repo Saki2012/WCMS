@@ -8,6 +8,7 @@ using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using WCMS.SysCore.Resx;
 
 namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
 {
@@ -112,15 +113,15 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
 
     public class SpecCategoryModel_DTO: DTOBasicDataModel
     {
-        [LibDesc] public string CategoryId { get; set; }
+        [LibDesc(ModelDisplayName.SpecCategoryId)] public string CategoryId { get; set; }
         /// <summary>
         /// 功能Id
         /// </summary>
-        public string ProgId { get; set; }
+        [LibDesc(ModelDisplayName.Common_ProgId)]public string ProgId { get; set; }
         /// <summary>
         /// 顯示欄位
         /// </summary>
-        public string ShowColumnItems { get; set; }
+        [LibDesc(ModelDisplayName.SpecCategory_ShowColumn)]public string ShowColumnItems { get; set; }
     }
 
     public class SpecCategoryDetailModel_DTO
@@ -128,10 +129,10 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
         /// <summary>
         /// 
         /// </summary>
-        [LibDesc] public string CategoryId { get; set; }
-        [LibDesc] public int RowId { get; set; }
-        [LibDesc] public string Lang { get; set; }
-        [LibDesc] public string CategoryName { get; set; }
+        [LibDesc(ModelDisplayName.SpecCategoryId)] public string CategoryId { get; set; }
+        [LibDesc(ModelDisplayName.Common_RowId)] public int RowId { get; set; }
+        [LibDesc(ModelDisplayName.Common_Lang)] public string Lang { get; set; }
+        [LibDesc(ModelDisplayName.SpecCategory_Name)] public string CategoryName { get; set; }
     }
 
 }

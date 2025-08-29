@@ -20,8 +20,9 @@ namespace WCMS.SysCore.Library
         private readonly ResourceManager _resourceManager;
         private string? _resourceKey;
 
-        public LibDescAttribute()
+        public LibDescAttribute(string resKey="")
         {
+            if(!resKey.IsNullOrEmpty()) _resourceKey = resKey;
             // 可以改成從 DI 注入或集中設定資源路徑
             _resourceManager = new ResourceManager("WCMS.SysCore.Resx.ModelDisplayName", Assembly.GetExecutingAssembly());
         }

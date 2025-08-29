@@ -8,6 +8,7 @@ using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using WCMS.SysCore.Resx;
 
 namespace WCMS.Features.SiteEdit.Category
 {
@@ -64,11 +65,11 @@ namespace WCMS.Features.SiteEdit.Category
         /// <summary>
         /// 類別ID
         /// </summary>
-        [LibDesc] public string? CategoryId { get; set; }
+        [LibDesc(ModelDisplayName.CategoryId)] public string? CategoryId { get; set; }
         /// <summary>
         /// 對應功能模塊ID
         /// </summary>
-        [LibDesc] public string? ProgId { get; set; }
+        [LibDesc(ModelDisplayName.Common_ProgId)] public string? ProgId { get; set; }
         /// <summary>
         /// 類別明細
         /// </summary>
@@ -79,18 +80,18 @@ namespace WCMS.Features.SiteEdit.Category
         /// <summary>
         /// 靜態客製頁面ID
         /// </summary>
-        [LibDesc] public string CategoryId { get; set; }
+        [LibDesc(ModelDisplayName.CategoryId)] public string CategoryId { get; set; }
         /// <summary>
         /// 行主鍵
         /// </summary>
-        [LibDesc] public int RowId { get; set; }
+        [LibDesc(ModelDisplayName.Common_RowId)] public int RowId { get; set; }
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc] public string Lang { get; set; }
+        [LibDesc(ModelDisplayName.Common_Lang)] public string Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>
-        public string CategoryName { get; set; }
+        [LibDesc(ModelDisplayName.Category_CategoryName)]public string CategoryName { get; set; }
     }
 }

@@ -5,6 +5,7 @@ using System.Security.Claims;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.UserRolePermission.Role;
 using WCMS.SysCore.SystemFunc.UserRolePermission.User;
 using static WCMS.SysCore.Enum.SysEnum;
@@ -216,11 +217,11 @@ namespace WCMS.SysCore.SystemFunc.Auth
             /// <summary>
             /// 使用者編號
             /// </summary>
-            [LibDesc] public string UserId { get; set; }
+            [LibDesc(ModelDisplayName.User_UserID)] public string UserId { get; set; }
             /// <summary>
             /// 使用者名稱
             /// </summary>
-            [LibDesc] public string UserName { get; set; }
+            [LibDesc(ModelDisplayName.User_UserName)] public string UserName { get; set; }
             /// <summary>
             /// 帳戶狀態
             /// </summary>

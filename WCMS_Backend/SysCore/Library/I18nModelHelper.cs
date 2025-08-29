@@ -20,11 +20,8 @@ namespace WCMS.SysCore.Library
         private static string DoGetLocalizedDescription(string name,LibDescAttribute attr)
         {
             string result = string.Empty;
-            if (attr != null)
-            {
-                attr.SetResourceKey(name);
-                result = attr.Description;
-            }
+            if (attr != null&& attr.Description.IsNullOrEmpty()) attr.SetResourceKey(name);
+            result = attr?.Description;
             return result.IsNullOrEmpty()?$"[{name}]":result;
         }
 

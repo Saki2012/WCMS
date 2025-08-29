@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.Model
@@ -16,21 +17,21 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 創建時間
         /// </summary>
-        [LibDesc, DTOReadOnly]
+        [LibDesc(ModelDisplayName.Common_CreateTime), DTOReadOnly]
         public DateTime? CreateTime { get; set; }
         /// <summary>
         /// 創建人ID
         /// </summary>
-        [LibDesc, DTOReadOnly] public string CreateUserId { get; set; }
+        [LibDesc(ModelDisplayName.Common_CreateUserId), DTOReadOnly] public string CreateUserId { get; set; }
         /// <summary>
         /// 修改時間
         /// </summary>
-        [LibDesc, DTOReadOnly]
+        [LibDesc(ModelDisplayName.Common_ModifyTime), DTOReadOnly]
         public DateTime? ModifyTime { get; set; }
         /// <summary>
         /// 修改人ID
         /// </summary>
-        [LibDesc, DTOReadOnly]
+        [LibDesc(ModelDisplayName.Common_ModifyUserId), DTOReadOnly]
         public string ModifyUserId { get; set; }
         /// <summary>
         /// 單據狀態
@@ -54,6 +55,6 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 系統內部唯一標識號
         /// </summary>
-        [LibDesc] public string InternalId { get; set; }
+        [LibDesc(ModelDisplayName.Common_InternalId)] public string InternalId { get; set; }
     }
 }

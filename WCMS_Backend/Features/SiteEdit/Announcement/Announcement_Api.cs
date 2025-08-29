@@ -10,6 +10,7 @@ using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Library.LibData;
@@ -169,41 +170,40 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 公告代碼
         /// </summary>
-        [LibDesc] public string? AnnouncementId { get; set; }
+        [LibDesc(ModelDisplayName.AnnouncementId)] public string? AnnouncementId { get; set; }
         /// <summary>
         /// 類別 (多個)
         /// </summary>
-        [LibDesc] public string? Categories { get; set; } = string.Empty;
+        [LibDesc(ModelDisplayName.Common_Category)] public string? Categories { get; set; } = string.Empty;
         /// <summary>
         /// 標籤 (多個) 
         /// </summary>
-        [LibDesc] public string? Tags { get; set; } = string.Empty;
+        [LibDesc(ModelDisplayName.Common_Tag)] public string? Tags { get; set; } = string.Empty;
         /// <summary>
         /// 狀態 (多個)
         /// </summary>
-        [LibDesc] public ContentStatus ContentStatus { get; set; }
+        [LibDesc(ModelDisplayName.Common_ContentStatus)] public ContentStatus ContentStatus { get; set; }
         /// <summary>
         /// 圖片 (關聯檔案資料)
         /// </summary>
-        [LibDesc] public string? PictureId { get; set; } = string.Empty;
+        [LibDesc(ModelDisplayName.Announcement_CoverPictureId)] public string? PictureId { get; set; } = string.Empty;
         /// <summary>
         /// 圖片描述
         /// </summary>
-        [LibDesc] public string? PicDescription { get; set; } = string.Empty;
+        [LibDesc(ModelDisplayName.Announcement_PicDescription)] public string? PicDescription { get; set; } = string.Empty;
         /// <summary>
         /// 觀看次數
         /// </summary>
-        [LibDesc] public int? ViewCount { get; set; } = 0;
-
+        [LibDesc(ModelDisplayName.Announcement_ViewCount)] public int? ViewCount { get; set; } = 0;
         /// <summary>
         /// 資料有效日期-起
         /// </summary>
-        [LibDesc]
+        [LibDesc(ModelDisplayName.Announcement_CreationDate)]
         public DateTime? Validate_Start { get; set; }
         /// <summary>
         /// 資料有效日期-迄
         /// </summary>
-        [LibDesc]
+        [LibDesc(ModelDisplayName.Announcement_EndDate)]
         public DateTime? Validate_End { get; set; }
 
         #region Detail關聯
@@ -219,31 +219,31 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 公告代碼
         /// </summary>
-        [LibDesc] public string? AnnouncementId { get; set; }
+        [LibDesc(ModelDisplayName.AnnouncementId)] public string? AnnouncementId { get; set; }
         /// <summary>
         /// 行代碼
         /// </summary>
-        [LibDesc] public int? RowId { get; set; }
+        [LibDesc(ModelDisplayName.Common_RowId)] public int? RowId { get; set; }
         /// <summary>
         /// 語系
         /// </summary>
-        [LibDesc] public string? Lang { get; set; }
+        [LibDesc(ModelDisplayName.Common_Lang)] public string? Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>
-        [LibDesc] public string? Title { get; set; }
+        [LibDesc(ModelDisplayName.Common_Title)] public string? Title { get; set; }
         /// <summary>
         /// 副標題
         /// </summary>
-        [LibDesc] public string? SubTitle { get; set; }
+        [LibDesc(ModelDisplayName.Common_SubTitle)] public string? SubTitle { get; set; }
         /// <summary>
         /// 內文
         /// </summary>
-        [LibDesc] public string? Content { get; set; }
+        [LibDesc(ModelDisplayName.Common_Content)] public string? Content { get; set; }
         /// <summary>
         /// 網址
         /// </summary>
-        [LibDesc] public string? Url { get; set; }
+        [LibDesc(ModelDisplayName.Common_Url)] public string? Url { get; set; }
     }
     /// <summary>
     /// 明細檔案關聯
@@ -254,19 +254,19 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 公告代碼
         /// </summary>
-        [LibDesc] public string AnnouncementId { get; set; }
+        [LibDesc(ModelDisplayName.AnnouncementId)] public string AnnouncementId { get; set; }
         /// <summary>
         /// 父行代碼 - (AnnouncementDetail)
         /// </summary>
-        [LibDesc] public int ParentRowId { get; set; }
+        [LibDesc(ModelDisplayName.Common_ParentRowId)] public int ParentRowId { get; set; }
         /// <summary>
         /// 行代碼
         /// </summary>
-        [LibDesc] public int RowId { get; set; }
+        [LibDesc(ModelDisplayName.Common_RowId)] public int RowId { get; set; }
         /// <summary>
         /// 檔案來源
         /// </summary>
-        [LibDesc] public string FileId { get; set; }
+        [LibDesc(ModelDisplayName.Announcement_FileId)] public string FileId { get; set; }
     }
 
 }

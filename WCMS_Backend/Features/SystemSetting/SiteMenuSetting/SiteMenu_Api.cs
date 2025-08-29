@@ -10,6 +10,7 @@ using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SystemSetting.SiteMenuSetting
@@ -349,7 +350,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
         /// <summary>
         /// 首頁代碼
         /// </summary>
-        public string? SiteIndex { get; set; }
+        [LibDesc]public string? SiteIndex { get; set; }
         /// <summary>
         /// Goole分析碼
         /// </summary>
@@ -371,19 +372,19 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
         /// <summary>
         /// 
         /// </summary>
-        public int? RowId { get; set; }
+        [LibDesc(ModelDisplayName.Common_RowId)]public int? RowId { get; set; }
         /// <summary>
         /// 語系
         /// </summary>
-        public string? Lang { get; set; }
+        [LibDesc(ModelDisplayName.Common_Lang)]public string? Lang { get; set; }
         /// <summary>
         /// 網站標題
         /// </summary>
-        public string Title { get; set; }
+        [LibDesc(ModelDisplayName.Common_Title)]public string Title { get; set; }
         /// <summary>
         /// 網站描述
         /// </summary>
-        public string Description { get; set; }
+        [LibDesc()]public string Description { get; set; }
         /// <summary>
         /// Header
         /// </summary>

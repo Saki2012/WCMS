@@ -7,6 +7,7 @@ using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using WCMS.SysCore.Resx;
 
 namespace WCMS.Features.SiteEdit.Tag
 {
@@ -62,29 +63,29 @@ namespace WCMS.Features.SiteEdit.Tag
         /// <summary>
         /// 類別ID
         /// </summary>
-        [LibDesc] public string TagId { get; set; } = string.Empty;
+        [LibDesc(ModelDisplayName.TagId)] public string TagId { get; set; } = string.Empty;
         /// <summary>
         /// 對應功能模塊ID
         /// </summary>
-        [LibDesc] public string ProgId { get; set; } = string.Empty;
+        [LibDesc(ModelDisplayName.Common_ProgId)] public string ProgId { get; set; } = string.Empty;
     }
     public class TagDetail_DTO
     {
         /// <summary>
         /// 靜態客製頁面ID
         /// </summary>
-        [LibDesc] public string TagId { get; set; } = string.Empty;
+        [LibDesc(ModelDisplayName.TagId)] public string TagId { get; set; } = string.Empty;
         /// <summary>
         /// 行主鍵
         /// </summary>
-        [LibDesc] public int RowId { get; set; }
+        [LibDesc(ModelDisplayName.Common_RowId)] public int RowId { get; set; }
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc] public string Lang { get; set; } = string.Empty;
+        [LibDesc(ModelDisplayName.Common_Lang)] public string Lang { get; set; } = string.Empty;
         /// <summary>
         /// 標籤名稱
         /// </summary>
-        [LibDesc] public string TagName { get; set; } = string.Empty;
+        [LibDesc(ModelDisplayName.Tag_TagName)] public string TagName { get; set; } = string.Empty;
     }
 }

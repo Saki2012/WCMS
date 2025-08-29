@@ -57,12 +57,11 @@
     <Folder Include="Features\SystemSetting\SiteInfo\SiteArch\" />
     <Folder Include="Features\SystemSetting\SiteInfo\SEO\" />
     <Folder Include="Features\SystemSetting\SiteInfo\SystemInfo\" />
-    <Folder Include="Features\SystemSetting\UserAccount\User\" />
-    <Folder Include="Features\SystemSetting\UserAccount\RolePermission\" />
     <Folder Include="Features\SystemSetting\DataChangeLog\" />
     <Folder Include="Features\SystemSetting\AccountManage\" />
     <Folder Include="Features\SystemSetting\RolePermission\" />
     <Folder Include="Features\SystemSetting\OperateLog\" />
+    <Folder Include="Features\SystemSetting\UserAccount\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 </Project>

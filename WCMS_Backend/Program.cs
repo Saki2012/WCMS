@@ -525,31 +525,35 @@ namespace WCMS
                         });
                     }
                     //==================================弱掃，偽造跨網站的要求的解決方法===================================
-                    Uri MyUri = new Uri(referer);
-                    int counting = 0;
-                    foreach (string Item in Backlist)
-                    {
-                        if (MyUri.OriginalString.Equals(Item, StringComparison.OrdinalIgnoreCase))
+                    if (app.Environment.IsProduction()) 
+                    { 
+                        Uri MyUri = new Uri(referer);
+                        int counting = 0;
+                        foreach (string Item in Backlist)
                         {
-                            counting++;
+                            if (MyUri.OriginalString.Equals(Item, StringComparison.OrdinalIgnoreCase))
+                            {
+                                counting++;
+                            }
+                        }
+
+                        counting = 0;
+                        foreach (string Item in whitelist)
+                        {
+                            if (MyUri.Host.Equals(Item, StringComparison.OrdinalIgnoreCase))
+                            {
+                                counting++;
+                            }
+                        }
+
+                        if (counting == 0)
+                        {
+                            ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+                            await ctx.Response.WriteAsJsonAsync(new { success = false, message = "Invalid Origin/Referer." });
+                            return;
                         }
                     }
 
-                    counting = 0;
-                    foreach (string Item in whitelist)
-                    {
-                        if (MyUri.Host.Equals(Item, StringComparison.OrdinalIgnoreCase))
-                        {
-                            counting++;
-                        }
-                    }
-
-                    if (counting == 0)
-                    {
-                        ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
-                        await ctx.Response.WriteAsJsonAsync(new { success = false, message = "Invalid Origin/Referer." });
-                        return;
-                    }
                     //========================================================================================================
 
                     // 2) 只有「會改資料」且「走受保護 API」時才驗證 CSRF
@@ -571,17 +575,20 @@ namespace WCMS
                         }
 
                         // 驗證 XSRF（需要 xsrf cookie + X-XSRF-TOKEN header ）
-                        try
-                        {
-                            //var af = ctx.RequestServices.GetRequiredService<IAntiforgery>();
-                            af = ctx.RequestServices.GetRequiredService<IAntiforgery>();
-                            await af.ValidateRequestAsync(ctx);
-                        }
-                        catch
-                        {
-                            ctx.Response.StatusCode = StatusCodes.Status400BadRequest;
-                            await ctx.Response.WriteAsJsonAsync(new { success = false, message = "Invalid XSRF token." });
-                            return;
+                        if (app.Environment.IsProduction()) 
+                        { 
+                            try
+                            {
+                                //var af = ctx.RequestServices.GetRequiredService<IAntiforgery>();
+                                af = ctx.RequestServices.GetRequiredService<IAntiforgery>();
+                                await af.ValidateRequestAsync(ctx);
+                            }
+                            catch
+                            {
+                                ctx.Response.StatusCode = StatusCodes.Status400BadRequest;
+                                await ctx.Response.WriteAsJsonAsync(new { success = false, message = "Invalid XSRF token." });
+                                return;
+                            }
                         }
                     }
 

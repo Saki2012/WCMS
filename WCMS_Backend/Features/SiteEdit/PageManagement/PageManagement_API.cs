@@ -7,6 +7,7 @@ using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Library.LibData;
 
@@ -88,37 +89,37 @@ namespace WCMS.Features.SiteEdit.PageManagement
         /// <summary>
         /// 靜態客製頁面ID
         /// </summary>
-        [LibDesc] public string? PageId { get; set; }
+        [LibDesc(ModelDisplayName.PageId)] public string? PageId { get; set; }
         /// <summary>
         /// 類別ID
         /// </summary>
-        [LibDesc] public string? CategoryId { get; set; }
+        [LibDesc(ModelDisplayName.Common_Category)] public string? CategoryId { get; set; }
         /// <summary>
         /// 查看次數
         /// </summary>
-        [LibDesc] public int? ViewCount { get; set; }
+        [LibDesc(ModelDisplayName.Page_ViewCount)] public int? ViewCount { get; set; }
     }
     public class PageManagementDetail_DTO
     {
         /// <summary>
         /// 靜態客製頁面ID
         /// </summary>
-        [LibDesc] public string? PageId { get; set; }
+        [LibDesc(ModelDisplayName.PageId)] public string? PageId { get; set; }
         /// <summary>
         /// 行主鍵
         /// </summary>
-        [LibDesc] public int? RowId { get; set; }
+        [LibDesc(ModelDisplayName.Common_RowId)] public int? RowId { get; set; }
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc] public string? Lang { get; set; }
+        [LibDesc(ModelDisplayName.Common_Lang)] public string? Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>
-        [LibDesc] public string? Title { get; set; }
+        [LibDesc(ModelDisplayName.Common_Title)] public string? Title { get; set; }
         /// <summary>
         /// 內容
         /// </summary>
-        [LibDesc] public string? Content { get; set; }
+        [LibDesc(ModelDisplayName.Common_Content)] public string? Content { get; set; }
     }
 }
