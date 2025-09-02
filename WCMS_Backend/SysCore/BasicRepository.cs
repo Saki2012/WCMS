@@ -11,13 +11,14 @@ using WCMS.SysCore.Model;
 
 namespace WCMS.SysCore
 {
-    public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRepository<TModel> where TModel : class
+    public class BasicRepository<TModel>(ApplicationDbContext dataAccess, IErrorHelper message) : IBasicRepository<TModel> where TModel : class
     {
         #region Property
         /// <summary>
         /// 
         /// </summary>
         public ApplicationDbContext DataAccess { get; } = dataAccess;
+        protected IErrorHelper Message { get; } = message;
         #endregion
 
         #region Public

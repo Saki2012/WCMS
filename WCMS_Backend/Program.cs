@@ -28,6 +28,7 @@ using WCMS.SysCore.Interface;
 using WCMS.SysCore.Middleware;
 using WCMS.SysCore.SystemFunc.Auth;
 
+
 namespace WCMS
 {
     public class Program
@@ -189,6 +190,7 @@ namespace WCMS
                 });
                 services.AddScoped(typeof(IBasicRepository<>), typeof(BasicRepository<>));
                 services.AddScoped<IRepositoryMapProvider, RepositoryMapProvider>();
+                services.AddScoped<IErrorHelper, ErrorHelper>();
                 RegisterBizServices(services);
 
                 // 暫時先不用Redis，等開始能架Docker包Linux後再來

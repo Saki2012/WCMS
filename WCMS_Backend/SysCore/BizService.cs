@@ -12,6 +12,7 @@ using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.UserRolePermission.User;
+using static GraphQL.Validation.Rules.OverlappingFieldsCanBeMerged;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore
@@ -59,15 +60,17 @@ namespace WCMS.SysCore
         /// 
         /// </summary>
         private ApplicationDbContext DataAccess { get; }
-        
+        protected IErrorHelper Message { get; }
+
         #endregion
 
         #region Construct
-        public BizService(IRepositoryMapProvider repoMapProvider)
+        public BizService(IRepositoryMapProvider repoMapProvider, IErrorHelper message)
         {
             //SysChangeLog = new SysChangeLog(repo.DataAccess);
             RepoDict = repoMapProvider.GetRepoDict<TSet>();
             DataAccess = ((dynamic)RepoDict.FirstOrDefault().Value).DataAccess;
+            Message = message;
         }
         #endregion
 
@@ -88,6 +91,7 @@ namespace WCMS.SysCore
                 //await CommitDataAsync();
                 await DataAccess.SaveChangesAsync();      //先寫看看
                 AfterSaveChanges(FuncAction.Create);
+                Message.AddMessage(MessageStatus.Green, "BECode00002");
                 //Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00002);
                 //Response.Data.Add(set);
                 return set;

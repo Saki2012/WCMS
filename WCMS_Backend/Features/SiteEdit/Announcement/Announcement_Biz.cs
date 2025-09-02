@@ -10,12 +10,13 @@ using WCMS.SysCore.SystemFunc.FileManagement;
 namespace WCMS.Features.SiteEdit.Announcement
 {
     [ProgId("Announcement")]
-    public class AnnouncementBiz(IRepositoryMapProvider repo) : BizService<AnnouncementSet>(repo), IBizService<AnnouncementSet>
+    public class AnnouncementBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<AnnouncementSet>(repo, message), IBizService<AnnouncementSet>
     {
         #region Protected
         protected override void BeforeUpdate(AnnouncementSet set, SysEnum.FuncAction act)
         {
             base.BeforeUpdate(set, act);
+
             switch (act)
             {
                 case SysEnum.FuncAction.Create:

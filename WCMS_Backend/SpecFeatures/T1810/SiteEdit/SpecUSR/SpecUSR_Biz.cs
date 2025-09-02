@@ -8,7 +8,7 @@ using WCMS.SysCore.Library;
 namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
 {
     [ProgId("SpecUSR")]
-    public class SpecUSRBiz(IRepositoryMapProvider repo) : BizService<SpecUSRSet>(repo), IBizService<SpecUSRSet> 
+    public class SpecUSRBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<SpecUSRSet>(repo, message), IBizService<SpecUSRSet> 
     {
         #region Protected
         protected override void BeforeUpdate(SpecUSRSet set, SysEnum.FuncAction act)

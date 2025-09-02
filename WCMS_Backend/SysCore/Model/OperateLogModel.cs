@@ -137,13 +137,5 @@ namespace WCMS.SysCore.Model
         /// 訊息內容(透過resx獲取實際訊息)
         /// </summary>
         public string Message { get; set; }
-        /// <summary>
-        /// 堆疊(待考慮作法)
-        /// </summary>
-        public string Stack { get; set; }
-        /// <summary>
-        /// 執行時完整資料來源
-        /// </summary>
-        public object? Data { get; set; }
     }
 }

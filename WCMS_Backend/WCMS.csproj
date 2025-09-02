@@ -26,6 +26,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="C:\Users\it-016\.nuget\packages\nlog.config\4.7.15\contentFiles\any\any\NLog.config" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="EFCore.BulkExtensions" Version="9.0.1" />
     <PackageReference Include="EFCore.BulkExtensions.MySql" Version="8.1.3" />
     <PackageReference Include="GraphQL" Version="8.5.0" />
@@ -43,6 +47,9 @@
     <PackageReference Include="Mime-Detective" Version="25.8.1" />
     <PackageReference Include="Mime-Detective.Definitions.Condensed" Version="25.8.1" />
     <PackageReference Include="Mime-Detective.Definitions.Exhaustive" Version="25.8.1" />
+    <PackageReference Include="NLog" Version="6.0.3" />
+    <PackageReference Include="NLog.Config" Version="4.7.15" />
+    <PackageReference Include="NLog.Schema" Version="6.0.3" />
     <PackageReference Include="SharpCompress" Version="0.40.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.58" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />

@@ -1,17 +1,19 @@
-﻿using System.Net;
+﻿using NLog;
 using System.Text.Json;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.Middleware
 {
-    public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
+    public class ErrorHandlingMiddleware(RequestDelegate next)
     {
         #region Property
         private readonly RequestDelegate _next = next;
-        private readonly ILogger<ErrorHandlingMiddleware> _logger = logger;
+        // 一般 Logger（Info / Error）
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         #endregion
 
         #region Public
-        public async Task Invoke(HttpContext context)
+        public async Task Invoke(HttpContext context, IErrorHelper message)
         {
             try
             {
@@ -19,49 +21,38 @@ namespace WCMS.SysCore.Middleware
             }
             catch (Exception ex)
             {
-                await HandleExceptionAsync(context, ex);
+                await HandleExceptionAsync(context, ex, message);
             }
         }
         #endregion
 
         #region Private
-        private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+        private async Task HandleExceptionAsync(HttpContext context, Exception exception, IErrorHelper message)
         {
             var response = context.Response;
             response.ContentType = "application/json";
-
-            object result;
-            int statusCode;
-
+            
             switch (exception)
             {
-                //case BusinessException ex:
+                //case BusinessException:
                 //    statusCode = (int)HttpStatusCode.BadRequest;
                 //    result = new
                 //    {
                 //        success = false,
-                //        errorCode = ex.Code,
-                //        message = ex.Message,
-                //        data = ex.ExtraData
+                //        errorCode = "INTERNAL_ERROR",
+                //        message = exception.Message,
+                //        data = exception.Data,
+                //        detail = exception.Message
                 //    };
                 //    break;
-
                 default:
-                    statusCode = (int)HttpStatusCode.InternalServerError;
-                    result = new
-                    {
-                        success = false,
-                        errorCode = "INTERNAL_ERROR",
-                        message = "系統錯誤，請稍後再試。",
-                        detail = exception.Message
-                    };
+                    message.AddMessage(MessageStatus.Error, "BECode00001");
+                    logger.Error(exception.StackTrace);
+                    //response.StatusCode = StatusCodes
                     break;
             }
-
-            _logger.LogError(exception, "Unhandled exception: {Message}", exception.Message);
-
-            response.StatusCode = statusCode;
-            var json = JsonSerializer.Serialize(result);
+            
+            var json = JsonSerializer.Serialize(message.Messages);
             await response.WriteAsync(json);
         }
         #endregion

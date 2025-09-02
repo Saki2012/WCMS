@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 namespace WCMS.Features.SiteEdit.Category
 {
     [ProgId("Category")]
-    public class CategoryBiz(IRepositoryMapProvider repo) : BizService<CategoryDataSet>(repo), IBizService<CategoryDataSet> 
+    public class CategoryBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<CategoryDataSet>(repo,message), IBizService<CategoryDataSet> 
     {
     }
 }

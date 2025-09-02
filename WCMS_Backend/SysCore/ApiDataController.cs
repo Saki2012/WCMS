@@ -22,6 +22,8 @@ namespace WCMS.SysCore
     {
         #region Property
         private IBizService<TSet>? _service;
+        protected IErrorHelper Message => _Message ??= HttpContext.RequestServices.GetRequiredService<ErrorHelper>();
+        private ErrorHelper? _Message;
         protected IBizService<TSet> Service => _service ??= HttpContext.RequestServices.GetRequiredService<IBizService<TSet>>();
         private IOutputCacheStore? _cacheStore;
         protected IOutputCacheStore CacheStore => _cacheStore ??= HttpContext.RequestServices.GetRequiredService<IOutputCacheStore>();
@@ -224,7 +226,7 @@ namespace WCMS.SysCore
             if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
             AddListTags();
             var result = await Service.BizQueryTotalCounts(queryCondition.Fields, queryCondition.Condition);
-            var response = new ApiResponse<int>() { Data = [result] };
+            var response = new ApiResponse<int>() {SysMessage=Message.Messages, Data = [result] };
             return Ok(response);
         }
         #endregion

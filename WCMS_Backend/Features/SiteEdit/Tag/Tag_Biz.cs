@@ -4,5 +4,5 @@ using WCMS.Features.SiteEdit.WebResource;
 
 namespace WCMS.Features.SiteEdit.Tag
 {
-    public class TagBiz(IRepositoryMapProvider repo) : BizService<TagSet>(repo), IBizService<TagSet> { }
+    public class TagBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<TagSet>(repo, message), IBizService<TagSet> { }
 }

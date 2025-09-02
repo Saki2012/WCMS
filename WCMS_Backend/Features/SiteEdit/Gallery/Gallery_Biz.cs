@@ -9,7 +9,7 @@ using WCMS.SysCore.Library;
 namespace WCMS.Features.SiteEdit.Gallery
 {
     [ProgId("Gallery")]
-    public class GalleryBiz(IRepositoryMapProvider repoMapProvider) : BizService<GallerySet>(repoMapProvider), IBizService<GallerySet> {
+    public class GalleryBiz(IRepositoryMapProvider repoMapProvider, IErrorHelper message) : BizService<GallerySet>(repoMapProvider, message), IBizService<GallerySet> {
 
 
         #region Protected
