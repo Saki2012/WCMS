@@ -65,7 +65,7 @@ namespace WCMS.SysCore.SystemFunc.Auth
                 Expires = refreshExp
             });
 
-            // ⬅ Anti-CSRF（非 HttpOnly）
+            // ⬅ Anti-XSRF（非 HttpOnly）
             Response.Cookies.Append("XSRF-TOKEN", Guid.NewGuid().ToString("N"), new CookieOptions
             {
                 HttpOnly = false,
@@ -98,15 +98,15 @@ namespace WCMS.SysCore.SystemFunc.Auth
         /// </summary>
         /// <param name="xsrfHeader"></param>
         /// <returns></returns>
-        [HttpPost(nameof(Refresh)), AllowAnonymous] public async Task<IActionResult> Refresh([FromHeader(Name = "X-CSRF-Token")] string? xsrfHeader)
+        [HttpPost(nameof(Refresh)), AllowAnonymous] public async Task<IActionResult> Refresh([FromHeader(Name = "X-XSRF-Token")] string? xsrfHeader)
         {
-            // 1) 取 Cookie + 驗 CSRF
+            // 1) 取 Cookie + 驗 XSRF
             if (!Request.Cookies.TryGetValue("rtid", out var oldRtid))
                 return Unauthorized("No refresh token id.");
 
             var xsrfCookie = Request.Cookies["XSRF-TOKEN"];
             if (string.IsNullOrEmpty(xsrfHeader) || xsrfHeader != xsrfCookie)
-                return Unauthorized("Invalid CSRF.");
+                return Unauthorized("Invalid XSRF.");
 
             // 2) 用 rtid 找回 userId
             var userId = await _tokenSvc.GetUserIdByRefreshIdAsync(oldRtid);

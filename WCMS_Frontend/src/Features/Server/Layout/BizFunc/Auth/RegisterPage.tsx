@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { UserAPI } from '../../../../../SysCore/Utils/API/UserAPI';
-import { AuthAPI } from '../../../../../SysCore/Utils/API/AuthClient';
+import { AuthAPI, UserAPI } from '../../../../../SysCore/Utils/API/AuthClient';
 
 
 

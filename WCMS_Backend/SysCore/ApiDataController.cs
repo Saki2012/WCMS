@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.RenderTree;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
@@ -88,7 +89,8 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="set"></param>
         /// <returns></returns>
-        [HttpPost(nameof(Create))] public virtual async Task<IActionResult> Create(TSet_DTO set, CancellationToken ct)
+        [HttpPost(nameof(Create))]
+        public virtual async Task<IActionResult> Create(TSet_DTO set, CancellationToken ct)
         {
             TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(set);
             var createResult = await Service.BizCreateSetAsync(entity);
@@ -97,25 +99,26 @@ namespace WCMS.SysCore
             var response = new ApiResponse<TSet_DTO>() { Data = [result] };
             return Ok(response);
         }
-        [HttpPost(nameof(InitialCreateData))] public virtual async Task<IActionResult> InitialCreateData(TSet_DTO[] sets, CancellationToken ct)
+        [HttpPost(nameof(InitialCreateData))]
+        public virtual async Task<IActionResult> InitialCreateData(TSet_DTO[] sets, CancellationToken ct)
         {
             await Service.BeginTransactionAsync();
             try
             {
                 int i = 1;
-                foreach (var set in sets) 
+                foreach (var set in sets)
                 {
                     TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(set);
                     PropertyInfo headerProp = PropertyAccessorCache.GetProperties<TSet>().Where(p => !p.IsListPropertyType()).FirstOrDefault();
                     var header = PropertyAccessorCache.Get(entity, headerProp.Name);
-                    PropertyAccessorCache.Set(header, nameof(BasicDataModel.IsIniData),true);
+                    PropertyAccessorCache.Set(header, nameof(BasicDataModel.IsIniData), true);
                     await Service.BizCreateSetAsync(entity);
                     i++;
                 }
                 await Service.CommitDataAsync();
                 return Ok();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 await Service.RollbackTransactionAsync();
                 return BadRequest($"初始化失敗：{ex.Message}");
@@ -127,7 +130,8 @@ namespace WCMS.SysCore
         /// <param name="pk"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        [HttpPut(nameof(Update))] public virtual async Task<IActionResult> Update(ApiRequest<TSet_DTO> data, CancellationToken ct)
+        [HttpPut(nameof(Update))]
+        public virtual async Task<IActionResult> Update(ApiRequest<TSet_DTO> data, CancellationToken ct)
         {
             TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(data.Data);
             var updateResult = await Service.BizUpdateSetAsync(data.InternalId, entity);
@@ -142,13 +146,14 @@ namespace WCMS.SysCore
         /// <param name="pk"></param>
         /// <param name="isInvalid"></param>
         /// <returns></returns>
-        [HttpPatch($"{nameof(Invalid)}/{{pk}}")] public virtual async Task<IActionResult> Invalid(string internalId, bool isInvalid, CancellationToken ct)
+        [HttpPatch($"{nameof(Invalid)}/{{pk}}")]
+        public virtual async Task<IActionResult> Invalid(string internalId, bool isInvalid, CancellationToken ct)
         {
-            if (!Guid.TryParse(internalId, out var guid)){ return BadRequest("Invalid internalId format."); }
+            if (!Guid.TryParse(internalId, out var guid)) { return BadRequest("Invalid internalId format."); }
             var invalidResult = await Service.BizInvalidSetAsync(internalId, isInvalid);
-            var result = DTOHelper.MapToDTO<TSet,TSet_DTO>(invalidResult);
+            var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(invalidResult);
             await EvictForSetAsync(ct, internalId);
-            var response = new ApiResponse<TSet_DTO>(){ Data = [result], };
+            var response = new ApiResponse<TSet_DTO>() { Data = [result], };
             return Ok(response);
         }
         /// <summary>
@@ -162,7 +167,8 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="pk"></param>
         /// <returns></returns>
-        [HttpDelete(nameof(Delete))] public virtual async Task<IActionResult> Delete(string internalId, CancellationToken ct)
+        [HttpDelete(nameof(Delete))]
+        public virtual async Task<IActionResult> Delete(string internalId, CancellationToken ct)
         {
             if (!Guid.TryParse(internalId, out var guid)) { return BadRequest("Invalid internalId format."); }
             var deleteResult = await Service.BizDeleteSetAsync(internalId);
@@ -196,13 +202,14 @@ namespace WCMS.SysCore
         /// 查詢清單
         /// </summary>
         /// <returns></returns>
-        [HttpPost(nameof(QueryList)), OutputCache(PolicyName = "ListJson"), AllowAnonymous, IgnoreAntiforgeryToken] public virtual async Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition, CancellationToken ct)
+        [HttpPost(nameof(QueryList)), OutputCache(PolicyName = "ListJson"), AllowAnonymous, IgnoreAntiforgeryToken]
+        public virtual async Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition, CancellationToken ct)
         {
             if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
             AddListTags();
             var queryResult = await Service.BizQueryListAsync(queryCondition.Fields, queryCondition.Condition, queryCondition.PageNumber, queryCondition.PageSize);
             List<TSet_DTO> result = [];
-            foreach(var item in queryResult) result.Add(DTOHelper.MapToDTO<TSet,TSet_DTO>(item));
+            foreach (var item in queryResult) result.Add(DTOHelper.MapToDTO<TSet, TSet_DTO>(item));
             var response = new ApiResponse<TSet_DTO>() { Data = result };
             return Ok(response);
         }
@@ -211,7 +218,8 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="queryCondition"></param>
         /// <returns></returns>
-        [HttpPost(nameof(GetTotalCounts)), OutputCache(PolicyName = "ListJson"), AllowAnonymous, IgnoreAntiforgeryToken] public virtual async Task<IActionResult> GetTotalCounts([FromBody] QueryListParam? queryCondition, CancellationToken ct)
+        [HttpPost(nameof(GetTotalCounts)), OutputCache(PolicyName = "ListJson"), AllowAnonymous, IgnoreAntiforgeryToken]
+        public virtual async Task<IActionResult> GetTotalCounts([FromBody] QueryListParam? queryCondition, CancellationToken ct)
         {
             if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
             AddListTags();
@@ -222,7 +230,7 @@ namespace WCMS.SysCore
         #endregion
 
         #region Private
-        
+
         #endregion
     }
     /// <summary>
@@ -240,15 +248,31 @@ namespace WCMS.SysCore
     /// 系統功能API
     /// </summary>
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class SystemAPIController: ControllerBase
+    public class SystemAPIController(IAntiforgery anti) : ControllerBase
     {
+        private readonly IAntiforgery _anti = anti;
+        /// <summary>發出/更新 XSRF Token，寫入可讀 Cookie：XSRF-TOKEN</summary>
+        [HttpGet(nameof(GetXsrfToken)), AllowAnonymous, ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        public IActionResult GetXsrfToken()
+        {
+            var tokens = _anti.GetAndStoreTokens(HttpContext);
+
+            Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken!, new CookieOptions
+            {
+                HttpOnly = false,                 // 讓前端可讀，axios 才能送到 header
+                Secure = true,                  // 只在 HTTPS 傳送
+                SameSite = SameSiteMode.Strict,      // 同站情境會自動帶上
+                Path = "/"
+            });
+            return NoContent();                   // 204
+        }
         /// <summary>
         /// 獲取EnumOption
         /// </summary>
         /// <param name="enumName"></param>
         /// <returns></returns>
         [HttpGet(nameof(GetEnumOptions)), OutputCache(PolicyName = "PermanentJson")]
-        public IActionResult GetEnumOptions([FromQuery,Required] string enumName)
+        public IActionResult GetEnumOptions([FromQuery, Required] string enumName)
         {
             try
             {
@@ -291,7 +315,7 @@ namespace WCMS.SysCore
     /// <summary>
     /// 查詢條件
     /// </summary>
-    public class QueryListParam: IQueryListParam
+    public class QueryListParam : IQueryListParam
     {
         public string[] Fields { get; set; }
         public string Condition { get; set; }
@@ -306,7 +330,9 @@ namespace WCMS.SysCore
     {
         #region Property
         public ModelMetadata Model
-        { get {
+        {
+            get
+            {
                 var result = new ModelMetadata
                 {
                     ModelId = typeof(TSet_DTO).Name,
@@ -344,7 +370,7 @@ namespace WCMS.SysCore
                     }
                 }
                 return result;
-            } 
+            }
         }
         public class ModelMetadata
         {

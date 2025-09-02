@@ -1,6 +1,0 @@
-@WCMS_HostAddress = http://localhost:5098
-
-GET {{WCMS_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

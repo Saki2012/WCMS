@@ -31,11 +31,7 @@ export default function LoginPage() {
     try {
 
       // 前端最終防線（避免被繞過）
-      if (
-        account.length < ACCOUNT_MIN ||
-        account.length > ACCOUNT_MAX ||
-        !ACCOUNT_PATTERN.test(account)
-      ) {
+      if (account.length < ACCOUNT_MIN || account.length > ACCOUNT_MAX || !ACCOUNT_PATTERN.test(account)) {
         setErr(`帳號需為 ${ACCOUNT_MIN}–${ACCOUNT_MAX} 碼，僅可含英數與 . _ -`);
         return;
       }

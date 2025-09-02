@@ -12,7 +12,7 @@ export const IconCardMenu = () => {
         if (iconCardRef.current && typeof Swiper !== 'undefined') {
             new Swiper('#card', {
                 direction: 'horizontal',
-                loop: true,
+                loop: false,
                 slidesPerView: 2,
                 spaceBetween: 30,
                 breakpoints: {
@@ -28,7 +28,6 @@ export const IconCardMenu = () => {
                     el: '.swiper-pagination',
                     clickable: false,
                 },
-                // draggable: true,
             });
         }
     }, []);
@@ -102,18 +101,6 @@ export const IconCardMenu = () => {
                                         </div>
                                     </div>
                                     {/* 以上為假資料 */}
-                                </div>
-                                <div className="swiper-nav mt-1">
-                                    <button type="button" className="swiper-prev" tabIndex={6}>
-                                        <span aria-label="Previous" title="上一張">
-                                            <span className="d-none">上一張</span>
-                                        </span>
-                                    </button>
-                                    <button type="button" className="swiper-next" tabIndex={6}>
-                                        <span aria-label="Next" title="下一張">
-                                            <span className="d-none">下一張</span>
-                                        </span>
-                                    </button>
                                 </div>
                             </div>
                         </div>

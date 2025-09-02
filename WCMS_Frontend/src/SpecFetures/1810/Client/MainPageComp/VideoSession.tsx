@@ -134,27 +134,27 @@ export const VideoSession = () => {
 
                                             {result.map((item) => {
                                                 return item && (
-                                                <div className="item">
-                                                    <div className="wrapper_box">
-                                                        <div className="MV-item mb-3 w-100">
-                                                            <a className="venobox vbox-item" data-autoplay="true" data-vbtype="video" href={item.ResUrl} tabIndex={14} title={`${item.title} (另開視窗)`} target="_blank" rel="noopener noreferrer">
-                                                                <div className="img_wrapper">
-                                                                    <div className="figure_wrapper">
-                                                                        <iframe width="100%" height="315" src={item.ResUrl} allowFullScreen
-                                                                            title={item.title} style={{ border: "0" }}
-                                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                                                            referrerPolicy="strict-origin-when-cross-origin">
-                                                                        </iframe>
-                                                                        <span className="sr-only">{item.title}</span>
+                                                    <div className="item" key={item.internalId}>
+                                                        <div className="wrapper_box">
+                                                            <div className="MV-item mb-3 w-100">
+                                                                <a className="venobox vbox-item" data-autoplay="true" data-vbtype="video" href={item.ResUrl} tabIndex={14} title={`${item.title} (另開視窗)`} target="_blank" rel="noopener noreferrer">
+                                                                    <div className="img_wrapper">
+                                                                        <div className="figure_wrapper">
+                                                                            <iframe width="100%" height="315" src={item.ResUrl} allowFullScreen
+                                                                                title={item.title} style={{ border: "0" }}
+                                                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                                                referrerPolicy="strict-origin-when-cross-origin">
+                                                                            </iframe>
+                                                                            <span className="sr-only">{item.title}</span>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                            </a>
+                                                                </a>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </div>)
+                                                    </div>)
                                             })}
 
-                                            
+
                                         </div>
                                         {/*// Banner 控制 暫停 / 播放 按鈕 START // */}
                                         <div className="control-box">

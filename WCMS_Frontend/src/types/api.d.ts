@@ -3,7 +3,8 @@
  * Do not make direct changes to the file.
  */
 
-export interface paths {
+export interface paths
+{
     "/Service/Announcement/Migrate": {
         parameters: {
             query?: never;
@@ -507,7 +508,7 @@ export interface paths {
             parameters: {
                 query?: never;
                 header?: {
-                    "X-CSRF-Token"?: string;
+                    "X-XSRF-Token"?: string;
                 };
                 path?: never;
                 cookie?: never;
@@ -6638,7 +6639,8 @@ export interface paths {
     };
 }
 export type webhooks = Record<string, never>;
-export interface components {
+export interface components
+{
     schemas: {
         /**
          * Format: int32

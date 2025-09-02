@@ -8,7 +8,7 @@ export const Index = ({ lang, site }: { lang: string; site: INormSite }) => {
   const location = useLocation();
   const currentPath = location.pathname;
   const isSubPage = currentPath !== '/';
-  const containerClass = isSubPage ? 'subpage_body_bg' : 'body_bg';
+  const containerClass = isSubPage ? '' : 'body_bg';
 
   return (
     <>

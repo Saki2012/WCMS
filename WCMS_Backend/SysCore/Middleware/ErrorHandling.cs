@@ -53,7 +53,7 @@ namespace WCMS.SysCore.Middleware
                         success = false,
                         errorCode = "INTERNAL_ERROR",
                         message = "系統錯誤，請稍後再試。",
-                        //detail = exception.Message
+                        detail = exception.Message
                     };
                     break;
             }
