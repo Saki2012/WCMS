@@ -15,9 +15,12 @@ export const Paginator = ({ currentPage, totalPages, onPageChange, style }: Pagi
                 <ul className={style.ul}>
                     <li className={style.li}>
                         {/* 在確認Link如何優化 */}
-                        <Link to="" state={""} className={style.aLink} aria-label="Previous" title="第一頁">
+                        {/* <Link to="" state={""} className={style.aLink} aria-label="Previous" title="第一頁">
                             <span aria-hidden="true"><i className={style.FirstPage}></i></span>
-                        </Link>
+                        </Link> */}
+                        <a onClick={() => currentPage !== 1 && onPageChange(1)} className={style.aLink} aria-label="Previous" title="第一頁">
+                            <span aria-hidden="true"><i className={style.FirstPage}></i></span>
+                        </a>
                     </li>
 
                     <li className={style.li}>
@@ -33,11 +36,11 @@ export const Paginator = ({ currentPage, totalPages, onPageChange, style }: Pagi
                     ))}
 
                     <li className={style.li}>
-                        <a onClick={() => currentPage === totalPages && onPageChange(currentPage + 1)} className={style.aLink} aria-label="Next" title="下一頁">
+                        <a onClick={() => currentPage !== totalPages && onPageChange(currentPage + 1)} className={`${style.aLink} disabled`} aria-disabled={currentPage === totalPages} aria-label="Next" title="下一頁">
                             <span aria-hidden="true"><i className={style.NextPage}></i></span>
                         </a>
                     </li>
-                    
+
                     <li className={style.li}>
                         <a onClick={() => currentPage !== totalPages && onPageChange(totalPages)} className={style.aLink} aria-label="Last" title="最後一頁">
                             <span aria-hidden="true"><i className={style.LastPage}></i></span>
