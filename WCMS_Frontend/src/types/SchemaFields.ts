@@ -227,6 +227,7 @@ export const FileArchiveInfoFields = {
   RowId: 'RowId',
   Lang: 'Lang',
   Title: 'Title',
+  FileArchiveDetail: 'FileArchiveDetail',
 } as const;
 
 export type FileArchiveInfoFieldKey = keyof typeof FileArchiveInfoFields;
@@ -260,6 +261,7 @@ export const FileArchiveFields = {
   ContentStatus: 'ContentStatus',
   CategoriesId: 'CategoriesId',
   TagsId: 'TagsId',
+  FileArchiveInfo: 'FileArchiveInfo',
 } as const;
 
 export type FileArchiveFieldKey = keyof typeof FileArchiveFields;
@@ -380,6 +382,7 @@ export const GalleryPhotosFields = {
   RowId: 'RowId',
   PicSrcId: 'PicSrcId',
   Sort: 'Sort',
+  GalleryPhotosInfo: 'GalleryPhotosInfo',
 } as const;
 
 export type GalleryPhotosFieldKey = keyof typeof GalleryPhotosFields;
@@ -416,6 +419,8 @@ export const GalleryFields = {
   ContentStatus: 'ContentStatus',
   CoverPicSrcId: 'CoverPicSrcId',
   Sort: 'Sort',
+  GalleryInfo: 'GalleryInfo',
+  GalleryPhotos: 'GalleryPhotos',
 } as const;
 
 export type GalleryFieldKey = keyof typeof GalleryFields;
@@ -437,6 +442,13 @@ export const MenuUrlTypeFields = {
 } as const;
 
 export type MenuUrlTypeFieldKey = keyof typeof MenuUrlTypeFields;
+
+export const OrderBySpecFields = {
+  Col: 'Col',
+  Desc: 'Desc',
+} as const;
+
+export type OrderBySpecFieldKey = keyof typeof OrderBySpecFields;
 
 export const PageManagementDetailFields = {
   PageId: 'PageId',
@@ -482,12 +494,15 @@ export type PageManagementFieldKey = keyof typeof PageManagementFields;
 export const PermissionModelFields = {
   CreateTime: 'CreateTime',
   CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
   ModifyTime: 'ModifyTime',
   ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
   FormStatus: 'FormStatus',
   DataStatus: 'DataStatus',
   InvalidTime: 'InvalidTime',
   InvalidUserId: 'InvalidUserId',
+  InvalidUser: 'InvalidUser',
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
   IsIniData: 'IsIniData',
@@ -504,6 +519,7 @@ export type PermissionModelFieldKey = keyof typeof PermissionModelFields;
 export const QueryListParamFields = {
   Fields: 'Fields',
   Condition: 'Condition',
+  OrderBy: 'OrderBy',
   PageNumber: 'PageNumber',
   PageSize: 'PageSize',
 } as const;
@@ -513,12 +529,15 @@ export type QueryListParamFieldKey = keyof typeof QueryListParamFields;
 export const RoleModelFields = {
   CreateTime: 'CreateTime',
   CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
   ModifyTime: 'ModifyTime',
   ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
   FormStatus: 'FormStatus',
   DataStatus: 'DataStatus',
   InvalidTime: 'InvalidTime',
   InvalidUserId: 'InvalidUserId',
+  InvalidUser: 'InvalidUser',
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
   IsIniData: 'IsIniData',
@@ -712,6 +731,7 @@ export const SpecResearchModelFields = {
   CategoryId: 'CategoryId',
   ContentStatus: 'ContentStatus',
   Tags: 'Tags',
+  SpecResearchDetail: 'SpecResearchDetail',
 } as const;
 
 export type SpecResearchModelFieldKey = keyof typeof SpecResearchModelFields;
@@ -772,6 +792,7 @@ export const SpecUSRModelFields = {
   Tags: 'Tags',
   PictureId: 'PictureId',
   PicDescription: 'PicDescription',
+  SpecUSRDetail: 'SpecUSRDetail',
 } as const;
 
 export type SpecUSRModelFieldKey = keyof typeof SpecUSRModelFields;
@@ -832,12 +853,15 @@ export type TagSet_DTOApiRequestFieldKey = keyof typeof TagSet_DTOApiRequestFiel
 export const UserModelFields = {
   CreateTime: 'CreateTime',
   CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
   ModifyTime: 'ModifyTime',
   ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
   FormStatus: 'FormStatus',
   DataStatus: 'DataStatus',
   InvalidTime: 'InvalidTime',
   InvalidUserId: 'InvalidUserId',
+  InvalidUser: 'InvalidUser',
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
   IsIniData: 'IsIniData',
@@ -910,6 +934,7 @@ export const WebResourceFields = {
   ContentStatus: 'ContentStatus',
   PicId: 'PicId',
   PicDescription: 'PicDescription',
+  WebResourceInfo: 'WebResourceInfo',
 } as const;
 
 export type WebResourceFieldKey = keyof typeof WebResourceFields;

@@ -1,6 +1,8 @@
+import type { components } from "../../../types/api";
 import type { ModelDisplaySchema } from "../../../types/IApiSchema";
-import type { ApiResponse, QueryListCondition } from "../../Interface/IApiProvider";
+import type { ApiResponse } from "../../Interface/IApiProvider";
 import api from "./APIBase";
+type QueryListParam = components["schemas"]["QueryListParam"];
 
 const genericApi = {
     create: <T>(module: string, data: T) => api.post<ApiResponse<T>>(`${module}/Create`, data),
@@ -12,9 +14,9 @@ const genericApi = {
         api.delete<ApiResponse<T>>(`${module}/Invalid`, { data: { internalId, isInvalid } }),
     queryData: <T>(module: string, internalId: string) =>
         api.get<ApiResponse<T>>(`${module}/QueryData`, { params: { internalId: internalId } }),
-    queryList: <T>(module: string, condition: QueryListCondition) =>
+    queryList: <T>(module: string, condition: QueryListParam) =>
         api.post<ApiResponse<T[]>>(`${module}/QueryList`, condition),
-    queryListCount: (module: string, condition: QueryListCondition) =>
+    queryListCount: (module: string, condition: QueryListParam) =>
         api.post<ApiResponse<number>>(`${module}/GetTotalCounts`, condition),
     getModelDisplayName: (module: string) => api.get(`${module}/GetModelDisplayName`),
 };
@@ -52,12 +54,12 @@ export class BaseApiService<T>
         return await genericApi.queryData<T>(this.module, internaId);
     }
 
-    async queryList(condition: QueryListCondition)
+    async queryList(condition: QueryListParam)
     {
         return await genericApi.queryList<T>(this.module, condition);
     }
 
-    async queryCount(condition: QueryListCondition)
+    async queryCount(condition: QueryListParam)
     {
         return await genericApi.queryListCount(this.module, condition);
     }

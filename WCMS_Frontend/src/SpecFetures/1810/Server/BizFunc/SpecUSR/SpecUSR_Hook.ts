@@ -40,6 +40,7 @@ export const useSpecUSRProjList = () =>
                 SchemaFields.SpecUSRModelFields.InternalId,
             ],
             Condition: "",
+            OrderBy: [{ Col: SchemaFields.SpecUSRModelFields.ModifyTime, Desc: true }],
             PageNumber: page,
             PageSize: 10,
         }),

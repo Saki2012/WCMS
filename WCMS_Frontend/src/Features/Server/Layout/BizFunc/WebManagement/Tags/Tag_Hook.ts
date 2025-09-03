@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import type { QueryListCondition } from "../../../../../../SysCore/Interface/IApiProvider";
 import type { components } from "../../../../../../types/api";
 import TagProvider from "./Tag_Api";
 
@@ -10,6 +9,7 @@ import type { RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Dat
 import { useFetchGridListData } from "../../../../../../SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "../../../../../../SysCore/Utils/Library/LibData";
 import * as SchemaFields from "../../../../../../types/SchemaFields";
+type QueryListParam = components["schemas"]["QueryListParam"];
 
 /** 獲取類別清單 */
 export const useGetTagListByProgId = (progId: string, lang: string, pageSize: number = 0) =>
@@ -25,7 +25,7 @@ export const useGetTagListByProgId = (progId: string, lang: string, pageSize: nu
         {
             setLoading(true);
             setError(null);
-            const queryCondition: QueryListCondition = {
+            const queryCondition: QueryListParam = {
                 Fields: [
                     SchemaFields.TagDataFields.TagId,
                     SchemaFields.TagDataFields.InternalId,
@@ -91,6 +91,7 @@ export const useCategoryListData = (progId: string, lang: string) =>
                 `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
             ],
             Condition: `${SchemaFields.TagDataFields.ProgId} = ${progId}`,
+            OrderBy: [{ Col: SchemaFields.TagDataFields.ModifyTime, Desc: true }],
             PageNumber: 0,
             PageSize: 0,
         }),

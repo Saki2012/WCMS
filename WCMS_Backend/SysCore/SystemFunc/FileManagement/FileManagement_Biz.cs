@@ -43,7 +43,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             var list = await this.DoQueryListAsync(typeof(FileManageModel),
                 [nameof(FileManageModel.InternalId), nameof(FileManageModel.FileName)],
                 $@"{nameof(FileManageModel.InternalId)} in ({LibData.Merge(",", false, internalIds)}) And 
-                    {nameof(FileManageModel.FileStatus)} = {FileStatus.Pending}" , 0, 0);
+                    {nameof(FileManageModel.FileStatus)} = {FileStatus.Pending}", default, 0, 0);
 
             foreach (var item in list) sets.Add(await DoQuerySetAsync(((FileManageModel)item).InternalId));
             await MoveFileFromTempToFinal(sets);
@@ -60,7 +60,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             var list = await this.DoQueryListAsync(typeof(FileManageModel),
                 [nameof(FileManageModel.InternalId), nameof(FileManageModel.FileName)],
                 $@"{nameof(FileManageModel.InternalId)} in ({LibData.Merge(",", false, internalIds)}) And 
-                    {nameof(FileManageModel.FileStatus)} = {FileStatus.Pending}", 0, 0);
+                    {nameof(FileManageModel.FileStatus)} = {FileStatus.Pending}", default, 0, 0);
 
             foreach (var item in list) sets.Add(await DoQuerySetAsync(((FileManageModel)item).InternalId));
             await DeleteFromTemp(sets);
@@ -79,7 +79,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 string condition;
                 if (internalIds.Length == 1) condition = $"{nameof(FileManageModel.InternalId)} = {internalIds[0]}";
                 else condition = $"{nameof(FileManageModel.InternalId)} In {LibData.Merge(',', false, internalIds)}";
-                return await DoQueryListAsync(typeof(FileManageModel), selectFields, condition, 0, 0) as IList<FileManageModel>;
+                return await DoQueryListAsync(typeof(FileManageModel), selectFields, condition, default, 0, 0) as IList<FileManageModel>;
             }
         }
         /// <summary>
@@ -152,7 +152,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             var exist = await DoQueryListAsync(
                 typeof(FileManageModel),
                 [nameof(FileManageSet.FileManage.InternalId), nameof(FileManageSet.FileManage.FileSHA256)],
-                @$"{nameof(FileManageSet.FileManage.FileSHA256)} = {sha256}", 0, 0
+                @$"{nameof(FileManageSet.FileManage.FileSHA256)} = {sha256}", default, 0, 0
             );
             FileManageSet set = exist.Count == 0 ? CreateNewFileInfo(file, sha256) : await DoQuerySetAsync(((FileManageModel)exist[0]).InternalId);
             set.FileManage_SyncInfo.Add(new FileManage_SyncInfoModel()

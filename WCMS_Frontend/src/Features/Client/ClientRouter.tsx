@@ -1,15 +1,21 @@
 import type { IRouteModule } from "../../SysCore/Interface/IBaseRouter";
-import { Outlet, type RouteObject } from "react-router-dom";
+import { type RouteObject } from "react-router-dom";
 import type { components } from "../../types/api";
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"]
 import SiteMenuSetProvider from "../Server/Layout/BizFunc/Dashboard/SiteInfo/SiteInfo_Api";
 import * as SchemaFields from "../../types/SchemaFields";
 import { configureModuleRegistry, createRoutesFromSite, normalizeSite, type INormNode, type INormSite, type ModuleEntry } from "./Site-Routing";
-import type { QueryListCondition } from "../../SysCore/Interface/IApiProvider";
+
+type QueryListParam = components["schemas"]["QueryListParam"];
+
+
 export const CLIENT_ROOT_ID = "client-root";
 
 const fetchSite = async (): Promise<INormSite[]> => {
-  const condition: QueryListCondition = { Fields: [SchemaFields.SiteMenu_IndexFields.InternalId], Condition: "", PageSize: 0, PageNumber: 0 };
+  const condition: QueryListParam = {
+    Fields: [SchemaFields.SiteMenu_IndexFields.InternalId], Condition: "",
+    PageSize: 0, PageNumber: 0
+  };
   const provider = SiteMenuSetProvider();
   const sites = await provider.fetchList(condition);
   if (!sites.IsSuccess || !Array.isArray(sites.Data)) return [];

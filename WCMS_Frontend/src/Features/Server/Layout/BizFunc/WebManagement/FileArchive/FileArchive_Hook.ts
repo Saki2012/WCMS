@@ -32,6 +32,7 @@ export const useFileArchiveList = () =>
                 SchemaFields.FileArchiveFields.ModifyTime,
             ],
             Condition: "",
+            OrderBy: [{ Col: SchemaFields.AnnouncementFields.ModifyTime, Desc: true }],
             PageNumber: page,
             PageSize: 10,
         }),

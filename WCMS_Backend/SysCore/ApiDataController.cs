@@ -209,7 +209,7 @@ namespace WCMS.SysCore
         {
             if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
             AddListTags();
-            var queryResult = await Service.BizQueryListAsync(queryCondition.Fields, queryCondition.Condition, queryCondition.PageNumber, queryCondition.PageSize);
+            var queryResult = await Service.BizQueryListAsync(queryCondition.Fields, queryCondition.Condition,queryCondition.OrderBy, queryCondition.PageNumber, queryCondition.PageSize);
             List<TSet_DTO> result = [];
             foreach (var item in queryResult) result.Add(DTOHelper.MapToDTO<TSet, TSet_DTO>(item));
             var response = new ApiResponse<TSet_DTO>() { Data = result };
@@ -296,14 +296,6 @@ namespace WCMS.SysCore
         public bool IsSuccess { get { foreach (var msg in SysMessage) if (msg.Status == MessageStatus.Error) return false; return true; } }
         public IList<SysMessageModel> SysMessage { get; set; } = [];
         public IList<T>? Data { get; set; } = [];
-        public void AddMessage(MessageStatus status, SysMessageCode code)
-        {
-            SysMessage.Add(new SysMessageModel { Status = status, MessageCode = code.ToString() });
-        }
-        public void ThrowIfFailed(string message = "業務邏輯錯誤")
-        {
-            if (!IsSuccess) throw new BusinessException(message);
-        }
     }
     /// <summary>
     /// 
@@ -319,8 +311,10 @@ namespace WCMS.SysCore
     /// </summary>
     public class QueryListParam : IQueryListParam
     {
+        public readonly record struct OrderBySpec(string Col, bool Desc = false);
         public string[] Fields { get; set; }
         public string Condition { get; set; }
+        public IReadOnlyList<OrderBySpec>? OrderBy { get; set; }
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
     }

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data";
-import type { QueryListCondition } from "../../../../../../SysCore/Interface/IApiProvider";
 import type { components } from "../../../../../../types/api";
 import * as SchemaFields from "../../../../../../types/SchemaFields";
 import WebResourceProvider from "./WebResource_Api";
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
+type QueryListParam = components["schemas"]["QueryListParam"];
+
 import Swiper from "swiper";
 import { useFetchGridListData } from "../../../../../../SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "../../../../../../SysCore/Utils/Library/LibData";
@@ -36,6 +37,7 @@ export const useWebResourceListData = () =>
                 SchemaFields.WebResourceFields.InternalId,
             ],
             Condition: "",
+            OrderBy: [{ Col: SchemaFields.WebResourceFields.ModifyTime, Desc: true }],
             PageNumber: page,
             PageSize: 10,
         }),

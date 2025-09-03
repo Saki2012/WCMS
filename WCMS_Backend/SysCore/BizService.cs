@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -14,6 +15,7 @@ using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.UserRolePermission.User;
 using static GraphQL.Validation.Rules.OverlappingFieldsCanBeMerged;
 using static WCMS.SysCore.Enum.SysEnum;
+using static WCMS.SysCore.QueryListParam;
 
 namespace WCMS.SysCore
 {
@@ -189,12 +191,12 @@ namespace WCMS.SysCore
             //Response.Data.Add(data);
             return data;
         }
-        public async Task<IList<TSet>> BizQueryListAsync(string[] selectFields, string condition, int pageNumber, int pageSize)
+        public async Task<IList<TSet>> BizQueryListAsync(string[] selectFields, string condition, IReadOnlyList<OrderBySpec> OrderBy=null, int pageNumber=0, int pageSize = 0)
         {
             IList<TSet> result = [];
             var props = PropertyAccessorCache.GetProperties<TSet>();
             var headerProp = props.FirstOrDefault(p => !p.PropertyType.IsGenericType);
-            var datas = (await DoQueryListAsync(headerProp, selectFields, condition, pageNumber, pageSize)).ToDynamicList();
+            var datas = (await DoQueryListAsync(headerProp, selectFields, condition, OrderBy, pageNumber, pageSize)).ToDynamicList();
             foreach (var data in datas)
             {
                 TSet srcData = PropertyAccessorCache.CreateInstance<TSet>();
@@ -367,13 +369,13 @@ namespace WCMS.SysCore
             {
                 if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && typeof(BasicDataModel).IsAssignableFrom(prop.PropertyType))
                 {
-                    var data = (await DoQueryListAsync(prop, [], condition, 0, 0)).ToDynamicList().FirstOrDefault();
+                    var data = (await DoQueryListAsync(prop, [], condition, default,0, 0)).ToDynamicList().FirstOrDefault();
                     PropertyAccessorCache.Set(result, prop.Name, data);
                 }
                 else if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
                 {
                     var detailType = prop.PropertyType.GetGenericArguments().First();
-                    var data = (await DoQueryListAsync(detailType, [], condition, 0, 0));
+                    var data = (await DoQueryListAsync(detailType, [], condition,default, 0, 0));
                     PropertyAccessorCache.Set(result, prop.Name, data);
                 }
             }
@@ -384,15 +386,15 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        protected async Task<IList> DoQueryListAsync(PropertyInfo prop, string[] selectFields, string condition, int pageCt, int takeCt)
+        protected async Task<IList> DoQueryListAsync(PropertyInfo prop, string[] selectFields, string condition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt)
         {
-            return await DoQueryListAsync(prop.PropertyType, selectFields, condition, pageCt, takeCt);
+            return await DoQueryListAsync(prop.PropertyType, selectFields, condition, orderBy, pageCt, takeCt);
         }
-        protected async Task<IList> DoQueryListAsync(Type type, string[] selectFields, string condition, int pageCt, int takeCt)
+        protected async Task<IList> DoQueryListAsync(Type type, string[] selectFields, string condition, IReadOnlyList<OrderBySpec> orderBy, int pageCt, int takeCt)
         {
             var selectExpr = GetSelectFieldsExpr(type, selectFields);
             var whereExpr = GetConditionExpr(type, condition);
-            var data = await ((dynamic)RepoDict[type.Name]).QueryListAsync(selectExpr, whereExpr, pageCt, takeCt);
+            var data = await ((dynamic)RepoDict[type.Name]).QueryListAsync(selectExpr, whereExpr,orderBy, pageCt, takeCt);
             return data;
         }
         /// <summary>
@@ -723,7 +725,7 @@ namespace WCMS.SysCore
                     var pkProps = PropertyAccessorCache.GetProperties(prop.PropertyType).Where(p => p.IsDefined(typeof(KeyAttribute), inherit: true)).ToArray();
                     var condition = $"InternalId = \"{internalId}\"";
                     var fieldNames = pkProps.Select(p => p.Name).ToArray();
-                    var headerData = (await DoQueryListAsync(prop, fieldNames, condition, 0, 0)).ToDynamicList().FirstOrDefault();
+                    var headerData = (await DoQueryListAsync(prop, fieldNames, condition,default, 0, 0)).ToDynamicList().FirstOrDefault();
                     if (headerData == null) return resultCondition;
                     foreach (var pk in pkProps) resultCondition = LibData.Merge(" And ", false, resultCondition, $"{pk.Name} = \"{PropertyAccessorCache.Get(headerData, pk.Name)}\"");
                     return resultCondition;

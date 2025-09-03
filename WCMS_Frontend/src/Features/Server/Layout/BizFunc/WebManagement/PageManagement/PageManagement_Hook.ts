@@ -34,6 +34,7 @@ export const usePageManagementListData = () =>
                 SchemaFields.PageManagementFields.InternalId,
             ],
             Condition: "",
+            OrderBy: [{ Col: SchemaFields.PageManagementFields.ModifyTime, Desc: true }],
             PageNumber: page,
             PageSize: 10,
         }),

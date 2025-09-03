@@ -120,13 +120,4 @@ export interface ApiResponse<T>
     data: T | null;
     message?: string;
 }
-
-export interface QueryListCondition
-{
-    Fields?: string[];
-    Condition?: Record<string, unknown>;
-    PageNumber?: number;
-    PageSize?: number;
-    Sorts?: Array<{ field: string; dir: "asc" | "desc"; }>;
-}
 // #endregion

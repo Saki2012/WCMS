@@ -3,8 +3,7 @@
  * Do not make direct changes to the file.
  */
 
-export interface paths
-{
+export interface paths {
     "/Service/Announcement/Migrate": {
         parameters: {
             query?: never;
@@ -2065,7 +2064,7 @@ export interface paths
         patch?: never;
         trace?: never;
     };
-    "/Service/FileManagement/Download/internalId": {
+    "/Service/FileManagement/Download/{internalId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2074,11 +2073,11 @@ export interface paths
         };
         get: {
             parameters: {
-                query?: {
-                    internalId?: string;
-                };
+                query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    internalId: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -5286,6 +5285,39 @@ export interface paths
         patch?: never;
         trace?: never;
     };
+    "/Service/SystemAPI/GetXsrfToken": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/SystemAPI/GetEnumOptions": {
         parameters: {
             query?: never;
@@ -6639,8 +6671,7 @@ export interface paths
     };
 }
 export type webhooks = Record<string, never>;
-export interface components
-{
+export interface components {
     schemas: {
         /**
          * Format: int32
@@ -6648,21 +6679,38 @@ export interface components
          */
         AccountStatus: 0 | 1 | 2 | 3 | 4;
         AnnouncementDetailFile_DTO: {
+            /** @description 公告代碼 */
             AnnouncementId?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 父行代碼
+             */
             ParentRowId?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             RowId?: number;
+            /** @description 檔案來源 */
             FileId?: string | null;
         };
         AnnouncementDetail_DTO: {
+            /** @description 公告代碼 */
             AnnouncementId?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             RowId?: number | null;
+            /** @description 語系 */
             Lang?: string | null;
+            /** @description 標題 */
             Title?: string | null;
+            /** @description 副標題 */
             SubTitle?: string | null;
+            /** @description 內文 */
             Content?: string | null;
+            /** @description 網址 */
             Url?: string | null;
         };
         AnnouncementSet_DTO: {
@@ -6675,55 +6723,107 @@ export interface components
             Data?: components["schemas"]["AnnouncementSet_DTO"];
         };
         Announcement_DTO: {
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
             CreateTime?: string | null;
+            /** @description 創建人ID */
             CreateUserId?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
             ModifyTime?: string | null;
+            /** @description 修改人ID */
             ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            /** @description 公告代碼 */
             AnnouncementId?: string | null;
+            /** @description 類別 */
             Categories?: string | null;
+            /** @description 標籤 */
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
+            /** @description 封面圖片 */
             PictureId?: string | null;
+            /** @description 圖片說明 */
             PicDescription?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 瀏覽次數
+             */
             ViewCount?: number | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 新增日期
+             */
             Validate_Start?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 下架日期
+             */
             Validate_End?: string | null;
         };
         BannerDetailInfo_DTO: {
+            /** @description 橫幅廣告代碼 */
             BannerId?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 父行代碼
+             */
             ParentRowId?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             RowId?: number;
+            /** @description 語系 */
             Lang?: string | null;
+            /** @description 標題 */
             Title?: string | null;
+            /** @description 內文 */
             Content?: string | null;
+            /** @description 網址 */
             URL?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 開啟方式
+             */
             URL_Open?: number;
         };
         BannerDetail_DTO: {
+            /** @description 橫幅廣告代碼 */
             BannerId?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             RowId?: number;
+            /** @description 圖片來源 */
             PicSrcId?: string | null;
+            /** @description 標題顏色 */
             FontColor?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 上架日期
+             */
             Validate_Start?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 下架日期
+             */
             Validate_End?: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 排序編號
+             */
             Sort?: number;
         };
         BannerSet_DTO: {
@@ -6736,28 +6836,52 @@ export interface components
             Data?: components["schemas"]["BannerSet_DTO"];
         };
         Banner_DTO: {
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
             CreateTime?: string | null;
+            /** @description 創建人ID */
             CreateUserId?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
             ModifyTime?: string | null;
+            /** @description 修改人ID */
             ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            /** @description 橫幅廣告代碼 */
             BannerId?: string | null;
+            /** @description 橫幅類別名稱 */
             BannerCategoryName?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 轉換間隔
+             */
             Interval?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 轉換速度
+             */
             Speed?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 圖片高度(px)
+             */
             Height?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 圖片寬度(px)
+             */
             Width?: number;
+            /** @description 輪播效果 */
             Effect?: string | null;
         };
         CategoryDataSet_DTO: {
@@ -6769,26 +6893,43 @@ export interface components
             Data?: components["schemas"]["CategoryDataSet_DTO"];
         };
         CategoryDetail_DTO: {
+            /** @description 類別代碼 */
             CategoryId?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             RowId?: number;
+            /** @description 語系 */
             Lang?: string | null;
+            /** @description 類別名稱 */
             CategoryName?: string | null;
         };
         Category_DTO: {
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
             CreateTime?: string | null;
+            /** @description 創建人ID */
             CreateUserId?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
             ModifyTime?: string | null;
+            /** @description 修改人ID */
             ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            /** @description 類別代碼 */
             CategoryId?: string | null;
+            /** @description 功能模塊代碼 */
             ProgId?: string | null;
         };
         /**
@@ -6813,20 +6954,36 @@ export interface components
          */
         EndType: 0 | 1;
         FileArchiveDetail_DTO: {
+            /** @description 檔案室代碼 */
             FileArchiveId: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 父行代碼
+             */
             ParentRowId?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             RowId?: number;
+            /** @description 檔案來源 */
             FileSrcId?: string | null;
+            /** @description 檔案名稱 */
             FileName?: string | null;
         };
         FileArchiveInfo_DTO: {
+            /** @description 檔案室代碼 */
             FileArchiveId: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             RowId?: number;
+            /** @description 語系 */
             Lang?: string | null;
+            /** @description 標題 */
             Title?: string | null;
+            FileArchiveDetail?: components["schemas"]["FileArchiveDetail_DTO"][] | null;
         };
         FileArchiveSet_DTO: {
             FileArchive?: components["schemas"]["FileArchive_DTO"];
@@ -6838,35 +6995,57 @@ export interface components
             Data?: components["schemas"]["FileArchiveSet_DTO"];
         };
         FileArchive_DTO: {
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
             CreateTime?: string | null;
+            /** @description 創建人ID */
             CreateUserId?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
             ModifyTime?: string | null;
+            /** @description 修改人ID */
             ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            /** @description 檔案室代碼 */
             FileArchiveId: string;
             ContentStatus?: components["schemas"]["ContentStatus"];
+            /** @description 類別 */
             CategoriesId: string;
+            /** @description 標籤 */
             TagsId: string;
+            FileArchiveInfo?: components["schemas"]["FileArchiveInfo_DTO"][] | null;
         };
         FileManageModel_DTO: {
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
             CreateTime?: string | null;
+            /** @description 創建人ID */
             CreateUserId?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
             ModifyTime?: string | null;
+            /** @description 修改人ID */
             ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
             InternalId?: string | null;
             Path?: string | null;
             FileName?: string | null;
@@ -6929,29 +7108,54 @@ export interface components
          */
         FormStatus: 0 | 1 | 2 | 3;
         GalleryInfo_DTO: {
+            /** @description 相簿 */
             GalleryId: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             RowId?: number;
+            /** @description 語系 */
             Lang?: string | null;
+            /** @description 標題 */
             Title?: string | null;
+            /** @description 內文 */
             Content?: string | null;
         };
         GalleryPhotosInfo_DTO: {
+            /** @description 相簿 */
             GalleryId: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 父行代碼
+             */
             ParentRowId?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             RowId?: number;
+            /** @description 語系 */
             Lang?: string | null;
+            /** @description 標題 */
             Title?: string | null;
         };
         GalleryPhotos_DTO: {
+            /** @description 相簿 */
             GalleryId: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             RowId?: number;
+            /** @description 相片來源 */
             PicSrcId?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 排序編號
+             */
             Sort?: number;
+            GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo_DTO"][] | null;
         };
         GallerySet_DTO: {
             Gallery?: components["schemas"]["Gallery_DTO"];
@@ -6964,41 +7168,70 @@ export interface components
             Data?: components["schemas"]["GallerySet_DTO"];
         };
         Gallery_DTO: {
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
             CreateTime?: string | null;
+            /** @description 創建人ID */
             CreateUserId?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
             ModifyTime?: string | null;
+            /** @description 修改人ID */
             ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            /** @description 相簿 */
             GalleryId: string;
+            /** @description 類別 */
             Categories: string;
+            /** @description 標籤 */
             Tags: string;
             ContentStatus?: components["schemas"]["ContentStatus"];
+            /** @description 相簿封面圖 */
             CoverPicSrcId?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 排序編號
+             */
             Sort?: number;
+            GalleryInfo?: components["schemas"]["GalleryInfo_DTO"][] | null;
+            GalleryPhotos?: components["schemas"]["GalleryPhotos_DTO"][] | null;
         };
         LoginDto: {
-            Account?: string | null;
-            Password?: string | null;
+            Account: string;
+            Password: string;
         };
         /**
          * Format: int32
          * @enum {integer}
          */
         MenuUrlType: 0 | 1 | 2;
+        OrderBySpec: {
+            Col?: string | null;
+            Desc?: boolean;
+        };
         PageManagementDetail_DTO: {
+            /** @description 頁面 */
             PageId?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             RowId?: number | null;
+            /** @description 語系 */
             Lang?: string | null;
+            /** @description 標題 */
             Title?: string | null;
+            /** @description 內文 */
             Content?: string | null;
         };
         PageManagementSet_DTO: {
@@ -7010,35 +7243,52 @@ export interface components
             Data?: components["schemas"]["PageManagementSet_DTO"];
         };
         PageManagement_DTO: {
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
             CreateTime?: string | null;
+            /** @description 創建人ID */
             CreateUserId?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
             ModifyTime?: string | null;
+            /** @description 修改人ID */
             ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            /** @description 頁面 */
             PageId?: string | null;
+            /** @description 類別 */
             CategoryId?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 瀏覽次數
+             */
             ViewCount?: number | null;
         };
         PermissionModel: {
             /** Format: date-time */
             CreateTime?: string | null;
             CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["UserModel"];
             /** Format: date-time */
             ModifyTime?: string | null;
             ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["UserModel"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
+            InvalidUser?: components["schemas"]["UserModel"];
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
@@ -7054,6 +7304,7 @@ export interface components
         QueryListParam: {
             Fields?: string[] | null;
             Condition?: string | null;
+            OrderBy?: components["schemas"]["OrderBySpec"][] | null;
             /** Format: int32 */
             PageNumber?: number;
             /** Format: int32 */
@@ -7063,14 +7314,17 @@ export interface components
             /** Format: date-time */
             CreateTime?: string | null;
             CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["UserModel"];
             /** Format: date-time */
             ModifyTime?: string | null;
             ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["UserModel"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
+            InvalidUser?: components["schemas"]["UserModel"];
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
@@ -7098,9 +7352,14 @@ export interface components
         };
         SiteMenu_IndexInfo_DTO: {
             SiteIndex?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             RowId?: number | null;
+            /** @description 語系 */
             Lang?: string | null;
+            /** @description 標題 */
             Title?: string | null;
             Description?: string | null;
             SiteHeader?: string | null;
@@ -7108,17 +7367,26 @@ export interface components
             Keyword?: string | null;
         };
         SiteMenu_Index_DTO: {
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
             CreateTime?: string | null;
+            /** @description 創建人ID */
             CreateUserId?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
             ModifyTime?: string | null;
+            /** @description 修改人ID */
             ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
             InternalId?: string | null;
             SiteIndex?: string | null;
             GoogleAnalytics?: string | null;
@@ -7165,27 +7433,45 @@ export interface components
             RedirectUrl?: string | null;
         };
         SpecCategoryDetailModel_DTO: {
+            /** @description 計畫類別代碼 */
             CategoryId?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             RowId?: number;
+            /** @description 語系 */
             Lang?: string | null;
+            /** @description 計畫類別名稱 */
             CategoryName?: string | null;
         };
         SpecCategoryModel_DTO: {
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
             CreateTime?: string | null;
+            /** @description 創建人ID */
             CreateUserId?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
             ModifyTime?: string | null;
+            /** @description 修改人ID */
             ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            /** @description 計畫類別代碼 */
             CategoryId?: string | null;
+            /** @description 功能模塊代碼 */
             ProgId?: string | null;
+            /** @description 顯示欄位 */
             ShowColumnItems?: string | null;
         };
         SpecCategorySet_DTO: {
@@ -7197,53 +7483,96 @@ export interface components
             Data?: components["schemas"]["SpecCategorySet_DTO"];
         };
         SpecResearchDetailModel_DTO: {
+            /** @description 研究計畫 */
             ResearchId?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             RowId?: number;
+            /** @description 語系 */
             Lang?: string | null;
+            /** @description 年 */
             Year?: string | null;
+            /** @description 學年度 */
             AcademicYear?: string | null;
+            /** @description 學期 */
             Semester?: string | null;
+            /** @description 執行期間 */
             DuringExecution?: string | null;
+            /** @description 合約期間 */
             ContractPeriod?: string | null;
+            /** @description 上課時間 */
             ClassTime?: string | null;
+            /** @description 計畫主持人 */
             ProjectLeader?: string | null;
+            /** @description 姓名 */
             Name?: string | null;
+            /** @description 教師課程表 */
             TeachingStaffOfOurSchool?: string | null;
+            /** @description 核定編號 */
             ApprovalNumber?: string | null;
+            /** @description 核定金額 */
             ApprovedAmount?: string | null;
+            /** @description 學院 */
             College?: string | null;
+            /** @description 系所 */
             Department?: string | null;
+            /** @description 學位 */
             GraduationDegree?: string | null;
+            /** @description 合作單位/學校 */
             CooperatingUnits?: string | null;
+            /** @description 合作項目 */
             CooperationProject?: string | null;
+            /** @description 課程/社團 */
             Courses?: string | null;
+            /** @description 計畫名稱 */
             ProjectName?: string | null;
+            /** @description 論文名稱 */
             PaperTitle?: string | null;
+            /** @description 備註 */
             Remark?: string | null;
+            /** @description 共同主持人 */
             Cohost1?: string | null;
+            /** @description 協同主持人 */
             Cohost2?: string | null;
+            /** @description 委辦/補助單位 */
             Commissioned?: string | null;
+            /** @description 計畫金額 */
             PlanAmount?: string | null;
+            /** @description 計畫內容簡介 */
             PlanContent?: string | null;
         };
         SpecResearchModel_DTO: {
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
             CreateTime?: string | null;
+            /** @description 創建人ID */
             CreateUserId?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
             ModifyTime?: string | null;
+            /** @description 修改人ID */
             ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            /** @description 研究計畫 */
             ResearchId?: string | null;
+            /** @description 計畫類別 */
             CategoryId?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
+            /** @description 研究標籤 */
             Tags?: string | null;
+            SpecResearchDetail?: components["schemas"]["SpecResearchDetailModel_DTO"][] | null;
         };
         SpecResearchSet_DTO: {
             SpecResearch?: components["schemas"]["SpecResearchModel_DTO"];
@@ -7254,48 +7583,86 @@ export interface components
             Data?: components["schemas"]["SpecResearchSet_DTO"];
         };
         SpecUSRDetail_DTO: {
+            /** @description USR計畫 */
             USRId?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             RowId?: number;
+            /** @description 語系 */
             Lang: string;
+            /** @description 年 */
             Year?: string | null;
+            /** @description 學年度 */
             AcademicYear?: string | null;
+            /** @description 課程/活動名稱 */
             Courses?: string | null;
+            /** @description 實踐領域 */
             PracticeField?: string | null;
+            /** @description 計畫名稱 */
             ProjectName?: string | null;
+            /** @description 外部合作單位 */
             ExternalCooperationUnit?: string | null;
+            /** @description 本校合作系所單位 */
             Department?: string | null;
+            /** @description 執行期間 */
             DuringExecution?: string | null;
+            /** @description 計劃金額 */
             PlanAmount?: string | null;
+            /** @description 外部合作單位 */
             ExecutionStrategy?: string | null;
+            /** @description 計畫內容簡介 */
             ContentIntroduction?: string | null;
+            /** @description 計畫理念 */
             ProjectConcept?: string | null;
+            /** @description 計畫亮點 */
             ProjectHighlights?: string | null;
+            /** @description 計畫主持人 */
             ProjectLeader?: string | null;
+            /** @description 共同主持人 */
             Cohost1?: string | null;
+            /** @description 協同主持人 */
             Cohost2?: string | null;
+            /** @description 委辦/補助單位 */
             Commissioned?: string | null;
+            /** @description 備註 */
             Remark?: string | null;
         };
         SpecUSRModel_DTO: {
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
             CreateTime?: string | null;
+            /** @description 創建人ID */
             CreateUserId?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
             ModifyTime?: string | null;
+            /** @description 修改人ID */
             ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            /** @description USR計畫 */
             USRId?: string | null;
+            /** @description 計畫類別 */
             CategoryId?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
+            /** @description 研究標籤 */
             Tags?: string | null;
+            /** @description 封面圖片 */
             PictureId?: string | null;
+            /** @description 圖片說明 */
             PicDescription?: string | null;
+            SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"][] | null;
         };
         SpecUSRSet_DTO: {
             SpecUSR?: components["schemas"]["SpecUSRModel_DTO"];
@@ -7306,26 +7673,43 @@ export interface components
             Data?: components["schemas"]["SpecUSRSet_DTO"];
         };
         TagData_DTO: {
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
             CreateTime?: string | null;
+            /** @description 創建人ID */
             CreateUserId?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
             ModifyTime?: string | null;
+            /** @description 修改人ID */
             ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            /** @description 標籤功能 */
             TagId?: string | null;
+            /** @description 功能模塊代碼 */
             ProgId?: string | null;
         };
         TagDetail_DTO: {
+            /** @description 標籤功能 */
             TagId?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             RowId?: number;
+            /** @description 語系 */
             Lang?: string | null;
+            /** @description 標籤名稱 */
             TagName?: string | null;
         };
         TagSet_DTO: {
@@ -7340,14 +7724,17 @@ export interface components
             /** Format: date-time */
             CreateTime?: string | null;
             CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["UserModel"];
             /** Format: date-time */
             ModifyTime?: string | null;
             ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["UserModel"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
+            InvalidUser?: components["schemas"]["UserModel"];
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
@@ -7375,13 +7762,22 @@ export interface components
             Data?: components["schemas"]["UserSet_DTO"];
         };
         WebResourceInfo_DTO: {
+            /** @description 網路資源 */
             WebResourceId?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             RowId?: number;
+            /** @description 語系 */
             Lang?: string | null;
+            /** @description 標題 */
             Title?: string | null;
+            /** @description 內文 */
             Content?: string | null;
+            /** @description 網址 */
             ResUrl?: string | null;
+            /** @description 開啟方式 */
             Url_OpenType?: string | null;
         };
         WebResourceSet_DTO: {
@@ -7393,24 +7789,39 @@ export interface components
             Data?: components["schemas"]["WebResourceSet_DTO"];
         };
         WebResource_DTO: {
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
             CreateTime?: string | null;
+            /** @description 創建人ID */
             CreateUserId?: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
             ModifyTime?: string | null;
+            /** @description 修改人ID */
             ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
             InvalidTime?: string | null;
             InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            /** @description 網路資源 */
             WebResourceId?: string | null;
+            /** @description 類別 */
             Categories?: string | null;
+            /** @description 標籤 */
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
+            /** @description 封面圖片 */
             PicId?: string | null;
+            /** @description 圖片說明 */
             PicDescription?: string | null;
+            WebResourceInfo?: components["schemas"]["WebResourceInfo_DTO"][] | null;
         };
         /**
          * Format: int32

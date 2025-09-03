@@ -1,14 +1,17 @@
 import type { NaviData } from '../../../../../../SysCore/Components/NaviBar/NaviBar_Data';
-import { IApiProvider, IDataProvider, type ApiResponse, type QueryListCondition } from '../../../../../../SysCore/Interface/IApiProvider'
+import { IApiProvider, IDataProvider, type ApiResponse } from '../../../../../../SysCore/Interface/IApiProvider'
 import { BaseCssIcon2 } from "../../../../../../SysCore/Constants/icon/Base"
 import { EnumMap } from "../../../../../../SysCore/Utils/Library/LibData"
 import type { ModelDisplaySchema } from '../../../../../../types/IApiSchema';
+import type { components } from '../../../../../../types/api';
+type QueryListParam = components["schemas"]["QueryListParam"];
+
 
 //#region Construct
 abstract class INaviProvider extends IDataProvider<NaviData> {
   /** 獲取導覽資料 */
   //#region Public
-  override async fetchList(condition?: QueryListCondition): Promise<ApiResponse<NaviData[]>> {
+  override async fetchList(condition?: QueryListParam): Promise<ApiResponse<NaviData[]>> {
     const srcData = await super.fetchList(condition);
     const processedData = this.setDOMContent(srcData.Data as NaviData[])
     return { ...srcData, Data: processedData };
@@ -53,10 +56,10 @@ class MockProvider extends INaviProvider {
   protected doFetchData(internaId?: string): Promise<ApiResponse<NaviData>> {
     throw new Error('Method not implemented.');
   }
-  protected doFetchList(condition?: QueryListCondition): Promise<ApiResponse<NaviData[]>> {
+  protected doFetchList(condition?: QueryListParam): Promise<ApiResponse<NaviData[]>> {
     throw new Error('Method not implemented.');
   }
-  protected doFetchListCount(condition?: QueryListCondition): Promise<ApiResponse<number>> {
+  protected doFetchListCount(condition?: QueryListParam): Promise<ApiResponse<number>> {
     throw new Error('Method not implemented.');
   }
   protected doGetModelDisplayName(): Promise<ModelDisplaySchema> {
@@ -80,7 +83,7 @@ class APIProvider extends INaviProvider {
   protected doFetchData(internaId?: string): Promise<ApiResponse<NaviData>> {
     throw new Error('Method not implemented.');
   }
-  protected doFetchList(condition?: QueryListCondition): Promise<ApiResponse<NaviData[]>> {
+  protected doFetchList(condition?: QueryListParam): Promise<ApiResponse<NaviData[]>> {
     const data: NaviData[] = [
       { Id: "A", SrcData: "Admin", Url: "", },
       { Id: "B", SrcData: "排版板模", Url: "/WebManagement", },
@@ -94,7 +97,7 @@ class APIProvider extends INaviProvider {
     ];
     return Promise.resolve({ IsSuccess: true, SysMessage: [], Data: data, });
   }
-  protected doFetchListCount(condition?: QueryListCondition): Promise<ApiResponse<number>> {
+  protected doFetchListCount(condition?: QueryListParam): Promise<ApiResponse<number>> {
     throw new Error('Method not implemented.');
   }
   protected doGetModelDisplayName(): Promise<ModelDisplaySchema> {

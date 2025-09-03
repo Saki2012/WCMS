@@ -8,6 +8,7 @@ using System.Reflection;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using static WCMS.SysCore.QueryListParam;
 
 namespace WCMS.SysCore
 {
@@ -105,11 +106,13 @@ namespace WCMS.SysCore
         /// 查看表單清單(非同步)
         /// </summary>
         /// <returns></returns>
-        public async Task<IList<TModel>> QueryListAsync(LambdaExpression selectExpr, LambdaExpression whereExpr, int pageCt = 0, int takeCt = 0)
+        public async Task<IList<TModel>> QueryListAsync(LambdaExpression selectExpr, LambdaExpression whereExpr, IReadOnlyList<OrderBySpec>? orderBy = null, int pageCt = 0, int takeCt = 0)
         {
             IQueryable<TModel> query = DataAccess.Set<TModel>();
             // ✅ Where 條件
             if (!whereExpr.IsNullOrEmpty()) query = query.Where((Expression<Func<TModel, bool>>)whereExpr);
+            // ✅ 排序
+            if (orderBy != null && orderBy.Count > 0) query = ApplyOrderBy(query, orderBy);
             // ✅ 分頁
             if (takeCt > 0 && pageCt > 0) query = query.Skip((pageCt - 1) * takeCt).Take(takeCt);
             // ✅ 解析 navigation 路徑
@@ -284,6 +287,43 @@ namespace WCMS.SysCore
                     return base.VisitMethodCall(node);
                 }
             }
+        }
+
+
+        private static IQueryable<TModel> ApplyOrderBy(IQueryable<TModel> source,IReadOnlyList<OrderBySpec>? specs)
+        {
+            if (specs == null || specs.Count == 0) return source;
+
+            var param = Expression.Parameter(typeof(TModel), "x");
+            IOrderedQueryable<TModel>? ordered = null;
+
+            foreach (var spec in specs)
+            {
+                // 支援巢狀路徑：CreateUser.UserName
+                Expression body = spec.Col
+                    .Split('.', StringSplitOptions.RemoveEmptyEntries)
+                    .Aggregate((Expression)param, Expression.PropertyOrField);
+
+                // 產出 x => x.Prop[.Child]…（不轉 object，避免不必要的 CAST）
+                var lambda = Expression.Lambda(body, param);
+
+                string methodName =
+                    ordered == null
+                        ? (spec.Desc ? "OrderByDescending" : "OrderBy")
+                        : (spec.Desc ? "ThenByDescending" : "ThenBy");
+
+                // 反射呼叫 Queryable.OrderBy[..]<TModel, TKey>(…)
+                var method = typeof(Queryable).GetMethods()
+                    .First(m => m.Name == methodName &&
+                                m.GetParameters().Length == 2);
+
+                var generic = method.MakeGenericMethod(typeof(TModel), body.Type);
+                var result = generic.Invoke(null, new object[] { ordered ?? source, lambda })!;
+
+                ordered = (IOrderedQueryable<TModel>)result;
+            }
+
+            return ordered ?? source;
         }
         #endregion
 

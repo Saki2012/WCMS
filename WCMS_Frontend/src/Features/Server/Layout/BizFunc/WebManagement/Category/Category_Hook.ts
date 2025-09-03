@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import type { QueryListCondition } from "../../../../../../SysCore/Interface/IApiProvider";
 import type { components } from "../../../../../../types/api";
 import CategoryProvider from "./Category_Api";
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
@@ -8,6 +7,7 @@ import type { RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Dat
 import { useFetchGridListData } from "../../../../../../SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "../../../../../../SysCore/Utils/Library/LibData";
 import * as SchemaFields from "../../../../../../types/SchemaFields";
+type QueryListParam = components["schemas"]["QueryListParam"];
 
 /** 獲取類別清單 */
 export const useGetCategoryListByProgId = (progId: string, lang: string, pageSize: number = 0) =>
@@ -23,7 +23,7 @@ export const useGetCategoryListByProgId = (progId: string, lang: string, pageSiz
         {
             setLoading(true);
             setError(null);
-            const queryCondition: QueryListCondition = {
+            const queryCondition: QueryListParam = {
                 Fields: [
                     SchemaFields.CategoryFields.CategoryId,
                     `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
@@ -88,6 +88,7 @@ export const useCategoryListData = (progId: string, lang: string) =>
                 `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
             ],
             Condition: `${SchemaFields.CategoryFields.ProgId} = ${progId}`,
+            OrderBy: [{ Col: SchemaFields.CategoryFields.ModifyTime, Desc: true }],
             PageNumber: 0,
             PageSize: 0,
         }),

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.UserRolePermission.User;
+using static WCMS.SysCore.QueryListParam;
 
 namespace WCMS.SysCore.Interface
 {
@@ -62,7 +63,7 @@ namespace WCMS.SysCore.Interface
         /// <param name="pageCt"></param>
         /// <param name="takeCt"></param>
         /// <returns></returns>
-        public Task<IList<TSet>> BizQueryListAsync(string[] selectFields, string condition, int pageNumber, int pageSize);
+        public Task<IList<TSet>> BizQueryListAsync(string[] selectFields, string condition,IReadOnlyList<OrderBySpec> orderBy, int pageNumber, int pageSize);
         /// <summary>
         /// 獲取清單總頁數
         /// </summary>
