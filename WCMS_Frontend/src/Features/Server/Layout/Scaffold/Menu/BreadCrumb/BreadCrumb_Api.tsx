@@ -1,6 +1,5 @@
 import type { BreadCrumbData } from '../../../../../../SysCore/Components/BreadCrumb/BreadCrumb_Data';
 import { IApiProvider, IDataProvider } from '../../../../../../SysCore/Interface/IApiProvider'
-import { Link } from 'react-router-dom';
 import type { ApiResponse } from '../../../../../../SysCore/Interface/IApiProvider';
 import type { ModelDisplaySchema } from '../../../../../../types/IApiSchema';
 import type { components } from '../../../../../../types/api';

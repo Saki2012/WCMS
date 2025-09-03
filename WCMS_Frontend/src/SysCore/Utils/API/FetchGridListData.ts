@@ -2,20 +2,22 @@ import { useEffect, useMemo, useState } from "react";
 import type { ModelDisplaySchema } from "../../../types/IApiSchema";
 import type { ColumnConfig, GridProps, GridRow } from "../../Components/Grid/Grid_Data";
 
-import type { QueryListCondition } from "../../Interface/IApiProvider";
+type QueryListParam = components["schemas"]["QueryListParam"];
+
+import type { components } from "../../../types/api";
 import type { ApiResponse } from "../../Interface/IApiProvider";
 interface UseGridListOptions<T>
 {
     /** 取得 model display 名稱 */
     getModelDisplayName: () => Promise<ModelDisplaySchema>;
     /** 取得資料筆數 */
-    fetchListCount: (condition: QueryListCondition) => Promise<ApiResponse<number>>;
+    fetchListCount: (condition: QueryListParam) => Promise<ApiResponse<number>>;
     /** 取得清單資料 */
-    fetchList: (condition: QueryListCondition) => Promise<ApiResponse<T[]>>;
+    fetchList: (condition: QueryListParam) => Promise<ApiResponse<T[]>>;
     /** 欄位對應關係 */
     visibleKeys: [string, string][];
     /** 查詢條件 */
-    buildQueryCondition: (page: number) => QueryListCondition;
+    buildQueryCondition: (page: number) => QueryListParam;
     /** 如何解析 row 資料 */
     parseRow?: (item: T, columns: ColumnConfig[]) => GridRow;
     initialData?: T[]; // ✅ SSR 預先帶進來的資料

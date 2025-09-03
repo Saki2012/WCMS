@@ -210,10 +210,14 @@ namespace WCMS.SysCore
                 {
                     if (node.Expression is MemberExpression || node.Expression is ParameterExpression)
                     {
-                        var path = BuildPath(node);
-                        if (path.Contains(".")) _paths.Add(path); // 主表欄位不加入
+                        var full = BuildPath(node);              // 例如：CreateUser.UserName / Details.FieldA
+                        var i = full.LastIndexOf('.');
+                        if (i > 0)
+                        {
+                            var navOnly = full.Substring(0, i);  // → CreateUser / Details
+                            _paths.Add(navOnly);
+                        }
                     }
-
                     return base.VisitMember(node);
                 }
 

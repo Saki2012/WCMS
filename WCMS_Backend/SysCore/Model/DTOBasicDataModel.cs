@@ -26,9 +26,7 @@ namespace WCMS.SysCore.Model
         /// 創建人ID
         /// </summary>
         [LibDesc(ModelDisplayName.Common_CreateUserId), DTOReadOnly] public string CreateUserId { get; set; }
-
-        [ForeignKey(nameof(CreateUserId)), JsonIgnore] public UserModel_DTO CreateUser { get; set; }
-
+        [ForeignKey(nameof(CreateUserId))] public UserModel_DTO CreateUser { get; set; }
         /// <summary>
         /// 修改時間
         /// </summary>
@@ -40,7 +38,7 @@ namespace WCMS.SysCore.Model
         [LibDesc(ModelDisplayName.Common_ModifyUserId), DTOReadOnly]
         public string ModifyUserId { get; set; }
 
-        [ForeignKey(nameof(ModifyUserId)), JsonIgnore] public UserModel_DTO ModifyUser { get; set; }
+        [ForeignKey(nameof(ModifyUserId))] public UserModel_DTO ModifyUser { get; set; }
         /// <summary>
         /// 單據狀態
         /// </summary>

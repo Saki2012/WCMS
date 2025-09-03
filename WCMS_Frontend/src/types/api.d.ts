@@ -6730,6 +6730,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人ID */
             CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -6737,6 +6738,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人ID */
             ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -6843,6 +6845,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人ID */
             CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -6850,6 +6853,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人ID */
             ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -6913,6 +6917,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人ID */
             CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -6920,6 +6925,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人ID */
             ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -7002,6 +7008,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人ID */
             CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -7009,6 +7016,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人ID */
             ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -7033,6 +7041,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人ID */
             CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -7040,6 +7049,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人ID */
             ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -7175,6 +7185,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人ID */
             CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -7182,6 +7193,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人ID */
             ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -7250,6 +7262,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人ID */
             CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -7257,6 +7270,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人ID */
             ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -7374,6 +7388,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人ID */
             CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -7381,6 +7396,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人ID */
             ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -7453,6 +7469,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人ID */
             CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -7460,6 +7477,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人ID */
             ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -7551,6 +7569,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人ID */
             CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -7558,6 +7577,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人ID */
             ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -7637,6 +7657,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人ID */
             CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -7644,6 +7665,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人ID */
             ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -7680,6 +7702,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人ID */
             CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -7687,6 +7710,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人ID */
             ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -7754,6 +7778,35 @@ export interface components {
             AccountStatus?: components["schemas"]["AccountStatus"];
             UserRoles?: components["schemas"]["PermissionModel"][] | null;
         };
+        UserModel_DTO: {
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
+            CreateTime?: string | null;
+            /** @description 創建人ID */
+            CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["UserModel_DTO"];
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
+            ModifyTime?: string | null;
+            /** @description 修改人ID */
+            ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["UserModel_DTO"];
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
+            InternalId?: string | null;
+            UserId?: string | null;
+            UserName?: string | null;
+            Email?: string | null;
+            UserRoles?: components["schemas"]["PermissionModel"][] | null;
+        };
         UserSet_DTO: {
             User?: components["schemas"]["UserModel"];
         };
@@ -7796,6 +7849,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人ID */
             CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -7803,6 +7857,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人ID */
             ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
