@@ -22,8 +22,8 @@ namespace WCMS.SysCore
     {
         #region Property
         private IBizService<TSet>? _service;
-        protected IErrorHelper Message => _Message ??= HttpContext.RequestServices.GetRequiredService<ErrorHelper>();
-        private ErrorHelper? _Message;
+        protected IErrorHelper Message => _Message ??= HttpContext.RequestServices.GetRequiredService<IErrorHelper>();
+        private IErrorHelper? _Message;
         protected IBizService<TSet> Service => _service ??= HttpContext.RequestServices.GetRequiredService<IBizService<TSet>>();
         private IOutputCacheStore? _cacheStore;
         protected IOutputCacheStore CacheStore => _cacheStore ??= HttpContext.RequestServices.GetRequiredService<IOutputCacheStore>();
