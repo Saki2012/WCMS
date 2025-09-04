@@ -1,15 +1,16 @@
 import { IApiProvider, IDataProvider } from "../../../../../../SysCore/Interface/IApiProvider";
-import type { ApiResponse, QueryListCondition } from "../../../../../../SysCore/Interface/IApiProvider";
+import type { ApiResponse } from "../../../../../../SysCore/Interface/IApiProvider";
 import { BaseApiService } from "../../../../../../SysCore/Utils/API/APIClient";
 import type { components } from "../../../../../../types/api";
 import type { ModelDisplaySchema } from "../../../../../../types/IApiSchema";
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
+type QueryListParam = components["schemas"]["QueryListParam"];
 
 abstract class IFileArchiveProvider extends IDataProvider<FileArchiveSet>
 {}
 class MockProvider extends IFileArchiveProvider
 {
-    protected doFetchListCount(condition?: QueryListCondition): Promise<ApiResponse<number>>
+    protected doFetchListCount(condition?: QueryListParam): Promise<ApiResponse<number>>
     {
         throw new Error("Method not implemented.");
     }
@@ -33,7 +34,7 @@ class MockProvider extends IFileArchiveProvider
     {
         throw new Error("Method not implemented.");
     }
-    protected async doFetchList(condition: QueryListCondition): Promise<ApiResponse<FileArchiveSet[]>>
+    protected async doFetchList(condition: QueryListParam): Promise<ApiResponse<FileArchiveSet[]>>
     {
         throw new Error("Method not implemented.");
     }
@@ -72,12 +73,12 @@ class APIProvider extends IFileArchiveProvider
         const res = await this.API.queryData(internaId);
         return res.data;
     }
-    protected async doFetchList(condition: QueryListCondition): Promise<ApiResponse<FileArchiveSet[]>>
+    protected async doFetchList(condition: QueryListParam): Promise<ApiResponse<FileArchiveSet[]>>
     {
         const res = await this.API.queryList(condition);
         return res.data;
     }
-    protected async doFetchListCount(condition: QueryListCondition): Promise<ApiResponse<number>>
+    protected async doFetchListCount(condition: QueryListParam): Promise<ApiResponse<number>>
     {
         const res = await this.API.queryCount(condition);
         return res.data;

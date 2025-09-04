@@ -16,7 +16,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.SystemFunc.UserRolePermission.User
 {
-    public class UserBiz(IRepositoryMapProvider repoMapProvider) : BizService<UserSet>(repoMapProvider), IBizService<UserSet>
+    public class UserBiz(IRepositoryMapProvider repoMapProvider, IErrorHelper message) : BizService<UserSet>(repoMapProvider, message), IBizService<UserSet>
     {
         #region Public
         public bool VerifyPassword(UserSet user, string password) => PasswordHasher.Verify(password, user.User.PasswordHash, user.User.PasswordSalt, user.User.PasswordAlgoVer);

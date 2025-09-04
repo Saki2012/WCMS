@@ -9,7 +9,7 @@ using WCMS.SysCore.Library;
 namespace WCMS.Features.SiteEdit.SpecCategory
 {
     [ProgId("SpecCategory")]
-    public class SpecCategoryBiz(IRepositoryMapProvider repo) : BizService<SpecCategorySet>(repo), IBizService<SpecCategorySet> 
+    public class SpecCategoryBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<SpecCategorySet>(repo, message), IBizService<SpecCategorySet> 
     {
         #region Protected
         protected override void BeforeUpdate(SpecCategorySet set, SysEnum.FuncAction act)

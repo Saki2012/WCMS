@@ -91,8 +91,21 @@ namespace WCMS.SysCore
             {
                 if (fieldProp.IsListPropertyType()) continue;
                 if (isReadOnly&&PropertyAccessorCache.TryGetAttribute<DTOReadOnlyAttribute>(fieldProp,out _)) continue;
-                var field = PropertyAccessorCache.Get(srcHeader, fieldProp.Name);
-                if (field != null) PropertyAccessorCache.Set(dstHeader, fieldProp.Name, field);
+                object field = PropertyAccessorCache.Get(srcHeader, fieldProp.Name);
+                if (field != null)
+                {
+                    if (fieldProp.PropertyType != typeof(string) && fieldProp.PropertyType.IsClass)
+                    {
+                        object dstRelModel = PropertyAccessorCache.CreateInstance(fieldProp.PropertyType);
+                        foreach(var relColProp in PropertyAccessorCache.GetProperties(fieldProp.PropertyType))
+                        {
+                            var value = PropertyAccessorCache.Get(field, relColProp.Name);
+                            PropertyAccessorCache.Set(dstRelModel, relColProp.Name, value);
+                        }
+                        PropertyAccessorCache.Set(dstHeader, fieldProp.Name, dstRelModel);
+                    }
+                    else PropertyAccessorCache.Set(dstHeader, fieldProp.Name, field);
+                }
             }
         }
         /// <summary>
@@ -154,8 +167,16 @@ namespace WCMS.SysCore
                 else
                 {
                     string[] f = field.Split('.');
-                    if (!dictFields.ContainsKey(f[0])) return false;
-                    if (!dictFields[f[0]].Contains(f[1])) return false;
+                    //關聯字段姑且先檢查關聯欄位
+                    if(dictFields.FirstOrDefault().Value.FirstOrDefault(p => p == f[0]) != null)
+                    {
+
+                    }
+                    else
+                    { 
+                        if (!dictFields.ContainsKey(f[0])) return false;
+                        if (!dictFields[f[0]].Contains(f[1])) return false;
+                    }
                 }
             }
             return true;

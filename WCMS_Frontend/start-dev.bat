@@ -3,7 +3,7 @@ echo [1/2] Start WCMS FE service With SSR...
 cd /d %~dp0
 
 REM 啟動開發伺服器（背景執行）
-start "" cmd /k "npm run dev"
+start "" cmd /k "npm run dev:csr"
 
 dotnet dev-certs https --check
 IF %ERRORLEVEL% NEQ 0 (

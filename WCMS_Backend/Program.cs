@@ -28,6 +28,7 @@ using WCMS.SysCore.Interface;
 using WCMS.SysCore.Middleware;
 using WCMS.SysCore.SystemFunc.Auth;
 
+
 namespace WCMS
 {
     public class Program
@@ -60,6 +61,7 @@ namespace WCMS
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost,
+                KnownProxies =  { IPAddress.Parse("127.0.0.1"),{ IPAddress.Loopback } }
                 //KnownProxies = { System.Net.IPAddress.Loopback }
                 //KnownNetworks = { },
                 //KnownProxies = { }
@@ -68,7 +70,7 @@ namespace WCMS
             //app.UseHttpsRedirection();
             // 安全標頭（弱掃友好）
             AppSetup.UseSecurityHeaders(app, builder.Configuration);
-            AppSetup.UseSecurityCSRF(app, builder.Configuration);
+            AppSetup.UseSecurityXSRF(app, builder.Configuration);
             // Swagger 僅開發期
             if (app.Environment.IsDevelopment())
             {
@@ -98,7 +100,7 @@ namespace WCMS
             app.UseCookiePolicy(new CookiePolicyOptions
             {
                 MinimumSameSitePolicy = SameSiteMode.Strict,
-                HttpOnly = HttpOnlyPolicy.Always,
+                HttpOnly = HttpOnlyPolicy.None,
                 Secure = CookieSecurePolicy.Always
             });
             // CORS 放在 Auth 前
@@ -188,6 +190,10 @@ namespace WCMS
                 });
                 services.AddScoped(typeof(IBasicRepository<>), typeof(BasicRepository<>));
                 services.AddScoped<IRepositoryMapProvider, RepositoryMapProvider>();
+                services.AddScoped<IErrorHelper, ErrorHelper>();
+                services.AddScoped<IOperateLog, OperateLog>();
+
+                
                 RegisterBizServices(services);
 
                 // 暫時先不用Redis，等開始能架Docker包Linux後再來
@@ -233,7 +239,8 @@ namespace WCMS
             {
                 services.AddAntiforgery(o =>
                 {
-                    o.Cookie.Name = "XSRF-TOKEN"; o.Cookie.HttpOnly = true;
+                    o.Cookie.Name = "XSRF-TOKEN"; 
+                    o.Cookie.HttpOnly = false;
                     o.HeaderName = "X-XSRF-TOKEN";   // 前端送在這個 header
                     o.Cookie.SecurePolicy = CookieSecurePolicy.Always; // ✅ 強制 Secure
                     o.Cookie.SameSite = SameSiteMode.Strict;
@@ -247,7 +254,7 @@ namespace WCMS
                     {
                         policy
                         .WithOrigins(whitelist!)
-                        .WithHeaders("Content-Type", "X-XSRF-TOKEN", "X-CSRF-Token", "Authorization", "X-Requested-With", "Access-Control-Allow-Origin")
+                        .WithHeaders("Content-Type", "X-XSRF-TOKEN", "Authorization", "X-Requested-With", "Access-Control-Allow-Origin")
                         .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH")
                         .AllowCredentials();
                         ;
@@ -477,7 +484,7 @@ namespace WCMS
                 });
             }
 
-            public static void UseSecurityCSRF(WebApplication app, IConfiguration cfg)
+            public static void UseSecurityXSRF(WebApplication app, IConfiguration cfg)
             {
                 var whitelist = cfg.GetSection("Whitelist:Frontend").Get<string[]>();
                 var Backlist = cfg.GetSection("Whitelist:Backend").Get<string[]>();
@@ -489,6 +496,12 @@ namespace WCMS
                     bool isApi = path.StartsWith("/Service/", StringComparison.OrdinalIgnoreCase);
                     bool isUnsafe = !HttpMethods.IsGet(method) && !HttpMethods.IsHead(method) && !HttpMethods.IsOptions(method);
                     bool hasOurCookie = ctx.Request.Cookies.ContainsKey("access"); // 你用 Cookie 存 JWT
+
+                    if (path.Equals("/Service/SystemAPI/GetXsrfToken", StringComparison.OrdinalIgnoreCase))
+                    {
+                        await next();
+                        return;
+                    }
 
                     // 1) 在 GET 時發 token（同時把 request token 種成前端可讀 cookie）
                     //if (HttpMethods.IsGet(method) && isApi)
@@ -556,7 +569,7 @@ namespace WCMS
 
                     //========================================================================================================
 
-                    // 2) 只有「會改資料」且「走受保護 API」時才驗證 CSRF
+                    // 2) 只有「會改資料」且「走受保護 API」時才驗證 XSRF
                     if (isApi && isUnsafe && hasOurCookie)
                     {
                         // 先做 Origin/Referer 白名單
@@ -579,7 +592,6 @@ namespace WCMS
                         { 
                             try
                             {
-                                //var af = ctx.RequestServices.GetRequiredService<IAntiforgery>();
                                 af = ctx.RequestServices.GetRequiredService<IAntiforgery>();
                                 await af.ValidateRequestAsync(ctx);
                             }

@@ -20,6 +20,7 @@ export const useGetShowColumnItems = (categoryId: string) =>
                 SchemaFields.SpecCategoryModelFields.ShowColumnItems,
             ],
             Condition: `${SchemaFields.SpecCategoryModelFields.CategoryId} = ${categoryId}`,
+            OrderBy: [{ Col: SchemaFields.SpecCategoryModelFields.ModifyTime, Desc: true }],
             PageNumber: 0,
             PageSize: 0,
         }),

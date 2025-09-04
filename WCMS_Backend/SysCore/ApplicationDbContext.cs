@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Security.AccessControl;
@@ -15,21 +16,6 @@ namespace WCMS.SysCore
     /// </summary>
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
     {
-        #region Property
-        /// <summary>
-        /// 操作日誌
-        /// </summary>
-        public DbSet<OperateLogModel> OperateLog { get; set; }
-        /// <summary>
-        /// 變更日誌
-        /// </summary>
-        public DbSet<DataChangeLog> DataChangeLog { get; set; }
-        /// <summary>
-        /// 變更日誌明細
-        /// </summary>
-        public DbSet<DataChangeLogDetail> DataChangeLogDetail { get; set; }
-
-        #endregion
         #region Construct
         #endregion
         #region Protected
@@ -37,8 +23,9 @@ namespace WCMS.SysCore
         {
             base.OnModelCreating(builder);
             ModelDbSetting(builder);
+            AutoBindRelationships(builder);
             ApplyCascadeDeleteRules(builder);
-            builder.Entity<DataChangeLogDetail>().HasKey(p => new { p.DataChangeId, p.RowId });
+            builder.Entity<OperateLogModel>().ToTable("OperateLog");
             //builder.BuildIndexesFromAnnotations();//設置Index套件
             SetDateTimeDBType(builder);
         }
@@ -60,6 +47,56 @@ namespace WCMS.SysCore
                 string[] keyPropName = type.GetProperties().Where(p => p.IsDefined(typeof(KeyAttribute))).Select(p => p.Name).ToArray();
                 if (keyPropName.Length != 0) builder.Entity(type).ToTable(tableName).HasKey(keyPropName);
                 else builder.Entity(type).ToTable(tableName);
+            }
+        }
+
+        /// <summary>
+        /// 依慣例自動綁定一對多關聯：
+        /// 規則：實體上的「導航屬性 Nav (class 非 string)」
+        ///      若存在同名外鍵「{Nav}Id」，且 {Nav} 的型別是模型中的實體，
+        ///      則建立 HasOne(Nav).WithMany().HasForeignKey("{Nav}Id").OnDelete(NoAction)。
+        /// 注意：FK 可空時，在查詢層 Include 會生成 LEFT JOIN；非空時語意較接近 INNER。
+        /// </summary>
+        private static void AutoBindRelationships(ModelBuilder mb)
+        {
+            foreach (var entityType in mb.Model.GetEntityTypes())
+            {
+                var clr = entityType.ClrType;
+                if (clr == null) continue;
+
+                var props = clr.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+                foreach (var navProp in props)
+                {
+                    // 只處理 class 導航且排除 string
+                    var navType = navProp.PropertyType;
+                    if (navType == typeof(string) || !navType.IsClass) continue;
+
+                    // 必須有 [ForeignKey] 屬性（嚴格模式，不做名稱猜測）
+                    var fkAttr = navProp.GetCustomAttribute<ForeignKeyAttribute>();
+                    if (fkAttr == null) continue;
+
+                    var fkName = fkAttr.Name;
+                    if (string.IsNullOrWhiteSpace(fkName)) continue;
+
+                    // 必須存在對應外鍵屬性
+                    var fkProp = props.FirstOrDefault(p => p.Name == fkName);
+                    if (fkProp == null) continue;
+
+                    // 導航型別必須是 EF 追蹤的實體
+                    var principalEntityType = mb.Model.FindEntityType(navType);
+                    if (principalEntityType == null) continue;
+
+                    // FK 型別需與主鍵型別相容（允許可空）
+                    var principalPkType = principalEntityType.FindPrimaryKey()?.Properties.First().ClrType;
+                    if (principalPkType == null) continue;
+
+                    var fkClr = Nullable.GetUnderlyingType(fkProp.PropertyType) ?? fkProp.PropertyType;
+                    if (fkClr != principalPkType) continue;
+
+                    // 建立關聯（用字串 overload，避免泛型反射樣板）
+                    mb.Entity(clr).HasOne(navType, navProp.Name).WithMany().HasForeignKey(fkName).OnDelete(DeleteBehavior.NoAction);
+                }
             }
         }
 

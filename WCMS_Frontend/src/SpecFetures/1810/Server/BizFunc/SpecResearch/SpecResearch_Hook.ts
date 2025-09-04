@@ -32,6 +32,7 @@ export const useSpecResearchList = () =>
                 SchemaFields.AnnouncementFields.InternalId,
             ],
             Condition: "",
+            OrderBy: [{ Col: SchemaFields.SpecResearchModelFields.ModifyTime, Desc: true }],
             PageNumber: page,
             PageSize: 10,
         }),

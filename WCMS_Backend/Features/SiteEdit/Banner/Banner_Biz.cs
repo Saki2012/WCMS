@@ -6,5 +6,5 @@ using System.Runtime.InteropServices;
 namespace WCMS.Features.SiteEdit.Banner
 {
     [ProgId("Banner")]
-    public class BannerBiz(IRepositoryMapProvider repo) : BizService<BannerSet>(repo), IBizService<BannerSet> { }
+    public class BannerBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<BannerSet>(repo, message), IBizService<BannerSet> { }
 }

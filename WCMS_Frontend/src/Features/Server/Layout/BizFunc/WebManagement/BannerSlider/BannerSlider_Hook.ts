@@ -28,6 +28,7 @@ export const useBannerListData = () =>
                 SchemaFields.BannerFields.ModifyTime,
             ],
             Condition: "",
+            OrderBy: [{ Col: SchemaFields.BannerFields.ModifyTime, Desc: true }],
             PageNumber: page,
             PageSize: 10,
         }),

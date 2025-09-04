@@ -7,7 +7,7 @@ using WCMS.SysCore.Library;
 namespace WCMS.Features.SiteEdit.FileArchive
 {
     [ProgId("FileArchive")]
-    public class FileArchiveBiz(IRepositoryMapProvider repoMapProvider) : BizService<FileArchiveSet>(repoMapProvider), IBizService<FileArchiveSet> {
+    public class FileArchiveBiz(IRepositoryMapProvider repoMapProvider, IErrorHelper message) : BizService<FileArchiveSet>(repoMapProvider, message), IBizService<FileArchiveSet> {
 
         #region Protected
         protected override void BeforeUpdate(FileArchiveSet set, SysEnum.FuncAction act)

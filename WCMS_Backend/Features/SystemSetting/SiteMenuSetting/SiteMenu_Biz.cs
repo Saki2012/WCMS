@@ -9,7 +9,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.SystemSetting.SiteMenuSetting
 {
     [ProgId("SiteMenu")]
-    public class SiteMenuBiz(IRepositoryMapProvider repo) : BizService<SiteMenuSet>(repo), IBizService<SiteMenuSet>
+    public class SiteMenuBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<SiteMenuSet>(repo, message), IBizService<SiteMenuSet>
     {
         #region Property
         protected override bool IsAutoGenerateId { get; set; } = false;

@@ -1,9 +1,10 @@
 import { IApiProvider, IDataProvider } from "../../../../../../SysCore/Interface/IApiProvider";
-import type { ApiResponse, QueryListCondition } from "../../../../../../SysCore/Interface/IApiProvider";
+import type { ApiResponse } from "../../../../../../SysCore/Interface/IApiProvider";
 import { BaseApiService } from "../../../../../../SysCore/Utils/API/APIClient";
 import type { components } from "../../../../../../types/api";
 import type { ModelDisplaySchema } from "../../../../../../types/IApiSchema";
 type GallerySet = components["schemas"]["GallerySet_DTO"];
+type QueryListParam = components["schemas"]["QueryListParam"];
 
 abstract class IGalleryProvider extends IDataProvider<GallerySet>
 {}
@@ -97,7 +98,7 @@ class MockProvider extends IGalleryProvider
         throw new Error("Method not implemented.");
     }
     protected doFetchList(
-        condition?: QueryListCondition,
+        condition?: QueryListParam,
     ): Promise<
         ApiResponse<
             {
@@ -111,7 +112,7 @@ class MockProvider extends IGalleryProvider
     {
         throw new Error("Method not implemented.");
     }
-    protected doFetchListCount(condition?: QueryListCondition): Promise<ApiResponse<number>>
+    protected doFetchListCount(condition?: QueryListParam): Promise<ApiResponse<number>>
     {
         throw new Error("Method not implemented.");
     }
@@ -150,12 +151,12 @@ class APIProvider extends IGalleryProvider
         const res = await this.API.queryData(internaId);
         return res.data;
     }
-    protected async doFetchList(condition: QueryListCondition): Promise<ApiResponse<GallerySet[]>>
+    protected async doFetchList(condition: QueryListParam): Promise<ApiResponse<GallerySet[]>>
     {
         const res = await this.API.queryList(condition);
         return res.data;
     }
-    protected async doFetchListCount(condition: QueryListCondition): Promise<ApiResponse<number>>
+    protected async doFetchListCount(condition: QueryListParam): Promise<ApiResponse<number>>
     {
         const res = await this.API.queryCount(condition);
         return res.data;

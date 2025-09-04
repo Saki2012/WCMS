@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using StackExchange.Redis;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using WCMS.SysCore.Enum;
@@ -18,7 +20,10 @@ namespace WCMS.SysCore.SystemFunc.Auth
         #region Property
         private readonly ITokenService _tokenSvc = tokenSvc;
         private readonly IConfiguration _cfg = cfg;
-        private readonly IAuthService _authBiz=authBiz;
+        private readonly IAuthService _authBiz = authBiz;
+
+        protected IOperateLog OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IOperateLog>();
+        private IOperateLog? _OperateLog;
         #endregion
 
         #region Public
@@ -27,13 +32,14 @@ namespace WCMS.SysCore.SystemFunc.Auth
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        [HttpPost(nameof(Login)), AllowAnonymous] public async Task<IActionResult> Login([FromBody] LoginDto req)
+        [HttpPost(nameof(Login)), AllowAnonymous]
+        public async Task<IActionResult> Login([FromBody] LoginDto req)
         {
             if (string.IsNullOrWhiteSpace(req?.Account) || string.IsNullOrWhiteSpace(req?.Password)) return BadRequest("帳密不可為空");
             if (req.Account.Length > 20) return BadRequest("帳號長度不可超過20");
-            
+
             int intAccountValidagte = 0;
-            if(int.TryParse(req.Account, out intAccountValidagte)) return BadRequest("帳號不可輸入全數字形態");
+            if (int.TryParse(req.Account, out intAccountValidagte)) return BadRequest("帳號不可輸入全數字形態");
 
 
             // 1) 登入帳號
@@ -65,7 +71,7 @@ namespace WCMS.SysCore.SystemFunc.Auth
                 Expires = refreshExp
             });
 
-            // ⬅ Anti-CSRF（非 HttpOnly）
+            // ⬅ Anti-XSRF（非 HttpOnly）
             Response.Cookies.Append("XSRF-TOKEN", Guid.NewGuid().ToString("N"), new CookieOptions
             {
                 HttpOnly = false,
@@ -91,6 +97,14 @@ namespace WCMS.SysCore.SystemFunc.Auth
                 UserName = r.user.UserName,
                 AccountStatus = r.user.AccountStatus,
             };
+
+            OperateLogModel followInfo = new OperateLogModel();
+            followInfo.APIName = nameof(Login);
+            followInfo.UserId = "";
+            followInfo.followingDT = JsonConvert.SerializeObject(result);
+            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+
             return Ok(result);
         }
         /// <summary>
@@ -98,15 +112,16 @@ namespace WCMS.SysCore.SystemFunc.Auth
         /// </summary>
         /// <param name="xsrfHeader"></param>
         /// <returns></returns>
-        [HttpPost(nameof(Refresh)), AllowAnonymous] public async Task<IActionResult> Refresh([FromHeader(Name = "X-CSRF-Token")] string? xsrfHeader)
+        [HttpPost(nameof(Refresh)), AllowAnonymous]
+        public async Task<IActionResult> Refresh([FromHeader(Name = "X-XSRF-Token")] string? xsrfHeader)
         {
-            // 1) 取 Cookie + 驗 CSRF
+            // 1) 取 Cookie + 驗 XSRF
             if (!Request.Cookies.TryGetValue("rtid", out var oldRtid))
                 return Unauthorized("No refresh token id.");
 
             var xsrfCookie = Request.Cookies["XSRF-TOKEN"];
             if (string.IsNullOrEmpty(xsrfHeader) || xsrfHeader != xsrfCookie)
-                return Unauthorized("Invalid CSRF.");
+                return Unauthorized("Invalid XSRF.");
 
             // 2) 用 rtid 找回 userId
             var userId = await _tokenSvc.GetUserIdByRefreshIdAsync(oldRtid);
@@ -162,7 +177,8 @@ namespace WCMS.SysCore.SystemFunc.Auth
         /// 登出此裝置
         /// </summary>
         /// <returns></returns>
-        [HttpPost(nameof(Logout)), Authorize] public async Task<IActionResult> Logout()
+        [HttpPost(nameof(Logout)), Authorize]
+        public async Task<IActionResult> Logout()
         {
             // Access 黑名單
             var jti = User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Jti)?.Value;
@@ -176,6 +192,14 @@ namespace WCMS.SysCore.SystemFunc.Auth
 
             // 清 cookie
             var delOpt = new CookieOptions { Path = "/", Secure = true, SameSite = SameSiteMode.Lax };
+
+            OperateLogModel followInfo = new OperateLogModel();
+            followInfo.APIName = nameof(Logout);
+            followInfo.UserId = "";
+            followInfo.followingDT = JsonConvert.SerializeObject(delOpt);
+            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+
             Response.Cookies.Delete("rtid", delOpt);
             Response.Cookies.Delete("XSRF-TOKEN", delOpt);
             Response.Cookies.Delete("access", delOpt);
@@ -185,30 +209,41 @@ namespace WCMS.SysCore.SystemFunc.Auth
         /// <summary>
         /// 取得目前登入者（驗證 JWT；失效就 401）
         /// </summary>
-        [HttpGet(nameof(Me)), Authorize] public IActionResult Me()
+        [HttpGet(nameof(Me)), Authorize]
+        public IActionResult Me()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
             var userName = User.FindFirstValue(ClaimTypes.Name) ?? userId;
             var role = User.FindFirstValue(ClaimTypes.Role) ?? "User";
             // 回傳你前端需要的最小欄位；之後要接 DB 再補充
-            return Ok(new
+
+            var dt = new
             {
                 Id = userId,
                 Name = userName,
                 Role = role
-            });
+            };
+
+            OperateLogModel followInfo = new OperateLogModel();
+            followInfo.APIName = nameof(Me);
+            followInfo.UserId = "";
+            followInfo.followingDT = JsonConvert.SerializeObject(dt);
+            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+
+            return Ok(dt);
         }
         #endregion
 
         #region DTO
         public sealed class LoginDto
         {
-            [Required] 
-            [StringLength(20, MinimumLength = 3, ErrorMessage = "account 長度需介於 3~20。")] 
+            [Required]
+            [StringLength(20, MinimumLength = 3, ErrorMessage = "account 長度需介於 3~20。")]
             [RegularExpression(@"^[A-Za-z0-9._\-@]+$", ErrorMessage = "account 僅允許英數、. _ - @。")]
             public string Account { get; set; } = "";
             [Required]
-            [StringLength(64, MinimumLength = 3,ErrorMessage = "password 長度需介於 3~64。")]
+            [StringLength(64, MinimumLength = 3, ErrorMessage = "password 長度需介於 3~64。")]
             public string Password { get; set; } = "";
         }
 

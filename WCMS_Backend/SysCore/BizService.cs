@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -12,7 +13,9 @@ using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.UserRolePermission.User;
+using static GraphQL.Validation.Rules.OverlappingFieldsCanBeMerged;
 using static WCMS.SysCore.Enum.SysEnum;
+using static WCMS.SysCore.QueryListParam;
 
 namespace WCMS.SysCore
 {
@@ -54,20 +57,22 @@ namespace WCMS.SysCore
         /// <summary>
         /// 變更日誌系統
         /// </summary>
-        public SysChangeLog? SysChangeLog { get; }
+        //public SysChangeLog? SysChangeLog { get; }
         /// <summary>
         /// 
         /// </summary>
         private ApplicationDbContext DataAccess { get; }
-        
+        protected IErrorHelper Message { get; }
+
         #endregion
 
         #region Construct
-        public BizService(IRepositoryMapProvider repoMapProvider)
+        public BizService(IRepositoryMapProvider repoMapProvider, IErrorHelper message)
         {
             //SysChangeLog = new SysChangeLog(repo.DataAccess);
             RepoDict = repoMapProvider.GetRepoDict<TSet>();
             DataAccess = ((dynamic)RepoDict.FirstOrDefault().Value).DataAccess;
+            Message = message;
         }
         #endregion
 
@@ -88,6 +93,7 @@ namespace WCMS.SysCore
                 //await CommitDataAsync();
                 await DataAccess.SaveChangesAsync();      //先寫看看
                 AfterSaveChanges(FuncAction.Create);
+                Message.AddMessage(MessageStatus.Green, "BECode00002");
                 //Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00002);
                 //Response.Data.Add(set);
                 return set;
@@ -185,12 +191,12 @@ namespace WCMS.SysCore
             //Response.Data.Add(data);
             return data;
         }
-        public async Task<IList<TSet>> BizQueryListAsync(string[] selectFields, string condition, int pageNumber, int pageSize)
+        public async Task<IList<TSet>> BizQueryListAsync(string[] selectFields, string condition, IReadOnlyList<OrderBySpec> OrderBy=null, int pageNumber=0, int pageSize = 0)
         {
             IList<TSet> result = [];
             var props = PropertyAccessorCache.GetProperties<TSet>();
             var headerProp = props.FirstOrDefault(p => !p.PropertyType.IsGenericType);
-            var datas = (await DoQueryListAsync(headerProp, selectFields, condition, pageNumber, pageSize)).ToDynamicList();
+            var datas = (await DoQueryListAsync(headerProp, selectFields, condition, OrderBy, pageNumber, pageSize)).ToDynamicList();
             foreach (var data in datas)
             {
                 TSet srcData = PropertyAccessorCache.CreateInstance<TSet>();
@@ -363,13 +369,13 @@ namespace WCMS.SysCore
             {
                 if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && typeof(BasicDataModel).IsAssignableFrom(prop.PropertyType))
                 {
-                    var data = (await DoQueryListAsync(prop, [], condition, 0, 0)).ToDynamicList().FirstOrDefault();
+                    var data = (await DoQueryListAsync(prop, [], condition, default,0, 0)).ToDynamicList().FirstOrDefault();
                     PropertyAccessorCache.Set(result, prop.Name, data);
                 }
                 else if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
                 {
                     var detailType = prop.PropertyType.GetGenericArguments().First();
-                    var data = (await DoQueryListAsync(detailType, [], condition, 0, 0));
+                    var data = (await DoQueryListAsync(detailType, [], condition,default, 0, 0));
                     PropertyAccessorCache.Set(result, prop.Name, data);
                 }
             }
@@ -380,15 +386,15 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        protected async Task<IList> DoQueryListAsync(PropertyInfo prop, string[] selectFields, string condition, int pageCt, int takeCt)
+        protected async Task<IList> DoQueryListAsync(PropertyInfo prop, string[] selectFields, string condition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt)
         {
-            return await DoQueryListAsync(prop.PropertyType, selectFields, condition, pageCt, takeCt);
+            return await DoQueryListAsync(prop.PropertyType, selectFields, condition, orderBy, pageCt, takeCt);
         }
-        protected async Task<IList> DoQueryListAsync(Type type, string[] selectFields, string condition, int pageCt, int takeCt)
+        protected async Task<IList> DoQueryListAsync(Type type, string[] selectFields, string condition, IReadOnlyList<OrderBySpec> orderBy, int pageCt, int takeCt)
         {
             var selectExpr = GetSelectFieldsExpr(type, selectFields);
             var whereExpr = GetConditionExpr(type, condition);
-            var data = await ((dynamic)RepoDict[type.Name]).QueryListAsync(selectExpr, whereExpr, pageCt, takeCt);
+            var data = await ((dynamic)RepoDict[type.Name]).QueryListAsync(selectExpr, whereExpr,orderBy, pageCt, takeCt);
             return data;
         }
         /// <summary>
@@ -519,59 +525,111 @@ namespace WCMS.SysCore
         {
             foreach (var entity in entityList) entity.RowState = RowState.Insert;
         }
-        /// <summary>
-        /// 獲取要搜尋的欄位表達式
-        /// </summary>
-        /// <typeparam name="TModel"></typeparam>
-        /// <param name="selectFields"></param>
-        /// <returns></returns>
+        private sealed class ParameterReplacer : ExpressionVisitor
+        {
+            private readonly ParameterExpression _from;
+            private readonly Expression _to;
+            public ParameterReplacer(ParameterExpression from, Expression to)
+            {
+                _from = from; _to = to;
+            }
+            protected override Expression VisitParameter(ParameterExpression node)
+                => node == _from ? _to : base.VisitParameter(node);
+        }
+
         private LambdaExpression GetSelectFieldsExpr(Type modelType, string[] selectFields)
         {
             if (selectFields == null || selectFields.Length == 0) return null;
+
             var param = Expression.Parameter(modelType, "x");
-            var groupMap = selectFields.Select(field => field.Split('.')).GroupBy(parts => parts[0]);
+            var newModel = Expression.New(modelType);
             var bindings = new List<MemberBinding>();
-            foreach (var group in groupMap)
+
+            // 依最外層屬性分組：e.g. ["CreateUser.UserName", "CreateUser.Email", "CreateTime"]
+            var groups = selectFields
+                .Select(f => f.Split('.', StringSplitOptions.RemoveEmptyEntries))
+                .GroupBy(parts => parts[0]);
+
+            foreach (var g in groups)
             {
-                var propName = group.Key;
+                var propName = g.Key;
                 var propInfo = PropertyAccessorCache.GetProperty(modelType, propName);
                 if (propInfo == null) continue;
-                // 單層屬性
-                if (group.All(parts => parts.Length == 1)) bindings.Add(Expression.Bind(propInfo, Expression.Property(param, propName)));
-                // 多層屬性 (巢狀物件或集合)
+
+                // 單層屬性：直接綁定 x.Prop
+                if (g.All(parts => parts.Length == 1))
+                {
+                    bindings.Add(Expression.Bind(propInfo, Expression.Property(param, propName)));
+                    continue;
+                }
+
+                // 多層屬性（巢狀物件或集合）
+                var childFields = g.Where(p => p.Length > 1)
+                                   .Select(p => string.Join('.', p.Skip(1)))
+                                   .ToArray();
+
+                var childType = propInfo.PropertyType;
+
+                // 是否為集合（排除 string）
+                bool isEnumerable = typeof(IEnumerable).IsAssignableFrom(childType) && childType != typeof(string);
+
+                // 取得集合元素型別或子物件型別
+                Type itemType;
+                if (isEnumerable)
+                {
+                    if (childType.IsArray)
+                        itemType = childType.GetElementType()!;
+                    else
+                        itemType = childType.GenericTypeArguments.FirstOrDefault() ?? typeof(object);
+                }
                 else
                 {
-                    var childFields = group.Where(p => p.Length > 1).Select(p => string.Join('.', p.Skip(1))).ToArray();
-                    var childType = propInfo.PropertyType;
-                    var isEnumerable = typeof(IEnumerable).IsAssignableFrom(childType) && childType != typeof(string);
-                    var itemType = isEnumerable ? childType.GenericTypeArguments.FirstOrDefault() ?? childType.GetElementType() : childType;
-                    var innerSelector = GetSelectFieldsExpr(itemType, childFields);
-                    if (innerSelector == null) continue;
-                    if (isEnumerable)
-                    {
-                        // x.ChildCollection.Select(...)
-                        var selectMethod = typeof(Queryable).GetMethods().First(m => m.Name == "Select" && m.GetParameters().Length == 2 && m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Expression<>)).MakeGenericMethod(itemType, ((LambdaExpression)innerSelector).ReturnType);
-                        var toListMethod = typeof(Enumerable).GetMethods().First(m => m.Name == "ToList" && m.GetParameters().Length == 1).MakeGenericMethod(((LambdaExpression)innerSelector).ReturnType);
-                        var collectionExpr = Expression.Property(param, propName);
-                        var asQueryableMethod = typeof(Queryable).GetMethods().First(m => m.Name == "AsQueryable" && m.IsGenericMethodDefinition).MakeGenericMethod(itemType);
-                        var queryableExpr = Expression.Call(asQueryableMethod, collectionExpr);
-                        var selectCall = Expression.Call(selectMethod, queryableExpr, innerSelector);
-                        var toListCall = Expression.Call(toListMethod, selectCall);
-                        bindings.Add(Expression.Bind(propInfo, toListCall));
-                    }
-                    else
-                    {
-                        var nestedExpr = Expression.Property(param, propName);
-                        var innerInit = Expression.Invoke(innerSelector, nestedExpr);
-                        bindings.Add(Expression.Bind(propInfo, innerInit));
-                    }
+                    itemType = childType;
+                }
+
+                // 針對子型別再遞迴產生 λ：TChild -> TChild
+                var innerSelector = GetSelectFieldsExpr(itemType, childFields);
+                if (innerSelector == null) continue;
+
+                if (isEnumerable)
+                {
+                    // x.Child.AsQueryable().Select(inner).ToList()
+                    var collExpr = Expression.Property(param, propName);
+
+                    var asQueryable = typeof(Queryable).GetMethods()
+                        .First(m => m.Name == "AsQueryable" && m.IsGenericMethodDefinition)
+                        .MakeGenericMethod(itemType);
+
+                    var select = typeof(Queryable).GetMethods()
+                        .First(m => m.Name == "Select" && m.GetParameters().Length == 2)
+                        .MakeGenericMethod(itemType, ((LambdaExpression)innerSelector).ReturnType);
+
+                    var toList = typeof(Enumerable).GetMethods()
+                        .First(m => m.Name == "ToList" && m.GetParameters().Length == 1)
+                        .MakeGenericMethod(((LambdaExpression)innerSelector).ReturnType);
+
+                    var q = Expression.Call(asQueryable, collExpr);
+                    var s = Expression.Call(select, q, innerSelector);
+                    var tl = Expression.Call(toList, s);
+
+                    bindings.Add(Expression.Bind(propInfo, tl));
+                }
+                else
+                {
+                    // 巢狀物件：將 innerSelector 的參數替換成 x.Prop，直接綁定其 Body（MemberInit）
+                    var nestedExpr = Expression.Property(param, propName);           // x.Prop
+                    var replacer = new ParameterReplacer(innerSelector.Parameters[0], nestedExpr);
+                    var replacedBody = replacer.Visit(innerSelector.Body);             // 內聯後的 MemberInit/MemberAccess
+
+                    bindings.Add(Expression.Bind(propInfo, replacedBody));
                 }
             }
 
-            var body = Expression.MemberInit(Expression.New(modelType), bindings);
+            var body = Expression.MemberInit(newModel, bindings);
             var delegateType = typeof(Func<,>).MakeGenericType(modelType, modelType);
             return Expression.Lambda(delegateType, body, param);
         }
+
         /// <summary>
         /// 獲取要搜尋的條件表達式
         /// </summary>
@@ -719,7 +777,7 @@ namespace WCMS.SysCore
                     var pkProps = PropertyAccessorCache.GetProperties(prop.PropertyType).Where(p => p.IsDefined(typeof(KeyAttribute), inherit: true)).ToArray();
                     var condition = $"InternalId = \"{internalId}\"";
                     var fieldNames = pkProps.Select(p => p.Name).ToArray();
-                    var headerData = (await DoQueryListAsync(prop, fieldNames, condition, 0, 0)).ToDynamicList().FirstOrDefault();
+                    var headerData = (await DoQueryListAsync(prop, fieldNames, condition,default, 0, 0)).ToDynamicList().FirstOrDefault();
                     if (headerData == null) return resultCondition;
                     foreach (var pk in pkProps) resultCondition = LibData.Merge(" And ", false, resultCondition, $"{pk.Name} = \"{PropertyAccessorCache.Get(headerData, pk.Name)}\"");
                     return resultCondition;

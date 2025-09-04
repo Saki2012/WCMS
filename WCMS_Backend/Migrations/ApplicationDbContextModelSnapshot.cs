@@ -37,8 +37,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -59,8 +58,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -69,8 +67,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
@@ -96,8 +93,14 @@ namespace WCMS.Migrations
 
                     b.HasKey("AnnouncementId");
 
+                    b.HasIndex("CreateUserId");
+
                     b.HasIndex("InternalId")
                         .IsUnique();
+
+                    b.HasIndex("InvalidUserId");
+
+                    b.HasIndex("ModifyUserId");
 
                     b.ToTable("Announcement", (string)null);
                 });
@@ -163,8 +166,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -195,8 +197,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -205,8 +206,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
@@ -226,8 +226,14 @@ namespace WCMS.Migrations
 
                     b.HasKey("BannerId");
 
+                    b.HasIndex("CreateUserId");
+
                     b.HasIndex("InternalId")
                         .IsUnique();
+
+                    b.HasIndex("InvalidUserId");
+
+                    b.HasIndex("ModifyUserId");
 
                     b.ToTable("Banner", (string)null);
                 });
@@ -306,8 +312,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -328,8 +333,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -338,8 +342,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
@@ -356,8 +359,14 @@ namespace WCMS.Migrations
 
                     b.HasKey("CategoryId");
 
+                    b.HasIndex("CreateUserId");
+
                     b.HasIndex("InternalId")
                         .IsUnique();
+
+                    b.HasIndex("InvalidUserId");
+
+                    b.HasIndex("ModifyUserId");
 
                     b.ToTable("Category", (string)null);
                 });
@@ -399,8 +408,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -421,8 +429,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -431,8 +438,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
@@ -450,8 +456,14 @@ namespace WCMS.Migrations
 
                     b.HasKey("FileArchiveId");
 
+                    b.HasIndex("CreateUserId");
+
                     b.HasIndex("InternalId")
                         .IsUnique();
+
+                    b.HasIndex("InvalidUserId");
+
+                    b.HasIndex("ModifyUserId");
 
                     b.ToTable("FileArchive", (string)null);
                 });
@@ -521,8 +533,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -543,8 +554,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -553,8 +563,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
@@ -575,8 +584,14 @@ namespace WCMS.Migrations
 
                     b.HasKey("GalleryId");
 
+                    b.HasIndex("CreateUserId");
+
                     b.HasIndex("InternalId")
                         .IsUnique();
+
+                    b.HasIndex("InvalidUserId");
+
+                    b.HasIndex("ModifyUserId");
 
                     b.ToTable("Gallery", (string)null);
                 });
@@ -664,8 +679,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -686,8 +700,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -696,8 +709,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
@@ -708,8 +720,14 @@ namespace WCMS.Migrations
 
                     b.HasKey("PageId");
 
+                    b.HasIndex("CreateUserId");
+
                     b.HasIndex("InternalId")
                         .IsUnique();
+
+                    b.HasIndex("InvalidUserId");
+
+                    b.HasIndex("ModifyUserId");
 
                     b.ToTable("PageManagement", (string)null);
                 });
@@ -745,8 +763,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -767,8 +784,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -777,8 +793,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
@@ -796,8 +811,14 @@ namespace WCMS.Migrations
 
                     b.HasKey("TagId");
 
+                    b.HasIndex("CreateUserId");
+
                     b.HasIndex("InternalId")
                         .IsUnique();
+
+                    b.HasIndex("InvalidUserId");
+
+                    b.HasIndex("ModifyUserId");
 
                     b.ToTable("TagData", (string)null);
                 });
@@ -839,8 +860,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -861,8 +881,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -871,8 +890,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
@@ -898,8 +916,14 @@ namespace WCMS.Migrations
 
                     b.HasKey("WebResourceId");
 
+                    b.HasIndex("CreateUserId");
+
                     b.HasIndex("InternalId")
                         .IsUnique();
+
+                    b.HasIndex("InvalidUserId");
+
+                    b.HasIndex("ModifyUserId");
 
                     b.ToTable("WebResource", (string)null);
                 });
@@ -980,8 +1004,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -1009,8 +1032,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -1019,8 +1041,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
@@ -1034,8 +1055,14 @@ namespace WCMS.Migrations
 
                     b.HasKey("SiteIndex");
 
+                    b.HasIndex("CreateUserId");
+
                     b.HasIndex("InternalId")
                         .IsUnique();
+
+                    b.HasIndex("InvalidUserId");
+
+                    b.HasIndex("ModifyUserId");
 
                     b.ToTable("SiteMenu_Index", (string)null);
                 });
@@ -1176,8 +1203,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -1198,8 +1224,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -1208,8 +1233,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
@@ -1231,8 +1255,14 @@ namespace WCMS.Migrations
 
                     b.HasKey("CategoryId");
 
+                    b.HasIndex("CreateUserId");
+
                     b.HasIndex("InternalId")
                         .IsUnique();
+
+                    b.HasIndex("InvalidUserId");
+
+                    b.HasIndex("ModifyUserId");
 
                     b.ToTable("SpecCategory", (string)null);
                 });
@@ -1368,8 +1398,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -1390,8 +1419,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -1400,8 +1428,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
@@ -1418,8 +1445,14 @@ namespace WCMS.Migrations
 
                     b.HasKey("ResearchId");
 
+                    b.HasIndex("CreateUserId");
+
                     b.HasIndex("InternalId")
                         .IsUnique();
+
+                    b.HasIndex("InvalidUserId");
+
+                    b.HasIndex("ModifyUserId");
 
                     b.ToTable("SpecResearch", (string)null);
                 });
@@ -1525,8 +1558,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -1547,8 +1579,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -1557,8 +1588,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
@@ -1581,72 +1611,27 @@ namespace WCMS.Migrations
 
                     b.HasKey("USRId");
 
+                    b.HasIndex("CreateUserId");
+
                     b.HasIndex("InternalId")
                         .IsUnique();
+
+                    b.HasIndex("InvalidUserId");
+
+                    b.HasIndex("ModifyUserId");
 
                     b.ToTable("SpecUSR", (string)null);
                 });
 
-            modelBuilder.Entity("WCMS.SysCore.Model.DataChangeLog", b =>
+            modelBuilder.Entity("WCMS.SysCore.OperateLogModel", b =>
                 {
-                    b.Property<long>("DataChangeId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("DataChangeId"));
-
-                    b.Property<DateTime>("DataChangeTime")
-                        .HasColumnType("datetime2(0)");
-
-                    b.Property<string>("InternalId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProgId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("DataChangeId");
-
-                    b.ToTable("DataChangeLog");
-                });
-
-            modelBuilder.Entity("WCMS.SysCore.Model.DataChangeLogDetail", b =>
-                {
-                    b.Property<long>("DataChangeId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("RowId")
-                        .HasColumnType("bigint");
-
-                    b.Property<byte[]>("ChangeData")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<byte>("RowState")
-                        .HasColumnType("tinyint");
-
-                    b.Property<int>("TableIndex")
                         .HasColumnType("int");
 
-                    b.HasKey("DataChangeId", "RowId");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.ToTable("DataChangeLogDetail");
-                });
-
-            modelBuilder.Entity("WCMS.SysCore.Model.OperateLogModel", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Action")
+                    b.Property<string>("APIName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -1654,32 +1639,29 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("IP")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<byte>("ExcStatus")
+                        .HasColumnType("tinyint");
 
-                    b.Property<string>("Memo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("OperateTime")
+                    b.Property<DateTime>("ExcuteTime")
                         .HasColumnType("datetime2(0)");
 
-                    b.Property<string>("PK")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProgId")
+                    b.Property<string>("IP")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("followingDT")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("OperateLog");
+                    b.HasIndex("UserId");
+
+                    b.ToTable("OperateLog", (string)null);
                 });
 
             modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManagement.FileManageModel", b =>
@@ -1691,8 +1673,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<byte[]>("DataVersion")
                         .IsConcurrencyToken()
@@ -1728,6 +1709,10 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("InvalidUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
 
@@ -1739,8 +1724,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
@@ -1762,10 +1746,16 @@ namespace WCMS.Migrations
 
                     b.HasKey("InternalId");
 
+                    b.HasIndex("CreateUserId");
+
                     b.HasIndex("FileSHA256");
 
                     b.HasIndex("InternalId")
                         .IsUnique();
+
+                    b.HasIndex("InvalidUserId");
+
+                    b.HasIndex("ModifyUserId");
 
                     b.ToTable("FileManage", (string)null);
                 });
@@ -1863,8 +1853,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -1885,8 +1874,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -1895,8 +1883,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
@@ -1910,8 +1897,14 @@ namespace WCMS.Migrations
 
                     b.HasKey("UserId", "RoleId");
 
+                    b.HasIndex("CreateUserId");
+
                     b.HasIndex("InternalId")
                         .IsUnique();
+
+                    b.HasIndex("InvalidUserId");
+
+                    b.HasIndex("ModifyUserId");
 
                     b.HasIndex("RoleId");
 
@@ -1927,8 +1920,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -1952,8 +1944,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("bit");
@@ -1965,8 +1956,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
@@ -1984,8 +1974,14 @@ namespace WCMS.Migrations
 
                     b.HasKey("RoleId");
 
+                    b.HasIndex("CreateUserId");
+
                     b.HasIndex("InternalId")
                         .IsUnique();
+
+                    b.HasIndex("InvalidUserId");
+
+                    b.HasIndex("ModifyUserId");
 
                     b.ToTable("Role", (string)null);
                 });
@@ -2002,8 +1998,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -2027,8 +2022,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -2037,8 +2031,7 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
@@ -2067,10 +2060,40 @@ namespace WCMS.Migrations
 
                     b.HasKey("UserId");
 
+                    b.HasIndex("CreateUserId");
+
                     b.HasIndex("InternalId")
                         .IsUnique();
 
+                    b.HasIndex("InvalidUserId");
+
+                    b.HasIndex("ModifyUserId");
+
                     b.ToTable("User", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.Announcement", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
+                        .WithMany()
+                        .HasForeignKey("InvalidUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
+                        .WithMany()
+                        .HasForeignKey("ModifyUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("InvalidUser");
+
+                    b.Navigation("ModifyUser");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.AnnouncementDetail", b =>
@@ -2082,6 +2105,54 @@ namespace WCMS.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Banner.Banner", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
+                        .WithMany()
+                        .HasForeignKey("InvalidUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
+                        .WithMany()
+                        .HasForeignKey("ModifyUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("InvalidUser");
+
+                    b.Navigation("ModifyUser");
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Category.Category", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
+                        .WithMany()
+                        .HasForeignKey("InvalidUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
+                        .WithMany()
+                        .HasForeignKey("ModifyUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("InvalidUser");
+
+                    b.Navigation("ModifyUser");
+                });
+
             modelBuilder.Entity("WCMS.Features.SiteEdit.Category.CategoryDetail", b =>
                 {
                     b.HasOne("WCMS.Features.SiteEdit.Category.Category", null)
@@ -2089,6 +2160,30 @@ namespace WCMS.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.FileArchive.FileArchive", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
+                        .WithMany()
+                        .HasForeignKey("InvalidUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
+                        .WithMany()
+                        .HasForeignKey("ModifyUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("InvalidUser");
+
+                    b.Navigation("ModifyUser");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.FileArchive.FileArchiveDetail", b =>
@@ -2107,6 +2202,30 @@ namespace WCMS.Migrations
                         .HasForeignKey("FileArchiveId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.Gallery", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
+                        .WithMany()
+                        .HasForeignKey("InvalidUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
+                        .WithMany()
+                        .HasForeignKey("ModifyUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("InvalidUser");
+
+                    b.Navigation("ModifyUser");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryInfo", b =>
@@ -2136,6 +2255,30 @@ namespace WCMS.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("WCMS.Features.SiteEdit.PageManagement.PageManagement", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
+                        .WithMany()
+                        .HasForeignKey("InvalidUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
+                        .WithMany()
+                        .HasForeignKey("ModifyUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("InvalidUser");
+
+                    b.Navigation("ModifyUser");
+                });
+
             modelBuilder.Entity("WCMS.Features.SiteEdit.PageManagement.PageManagementDetail", b =>
                 {
                     b.HasOne("WCMS.Features.SiteEdit.PageManagement.PageManagement", null)
@@ -2143,6 +2286,30 @@ namespace WCMS.Migrations
                         .HasForeignKey("PageId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Tag.TagData", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
+                        .WithMany()
+                        .HasForeignKey("InvalidUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
+                        .WithMany()
+                        .HasForeignKey("ModifyUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("InvalidUser");
+
+                    b.Navigation("ModifyUser");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Tag.TagDetail", b =>
@@ -2154,6 +2321,30 @@ namespace WCMS.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("WCMS.Features.SiteEdit.WebResource.WebResource", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
+                        .WithMany()
+                        .HasForeignKey("InvalidUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
+                        .WithMany()
+                        .HasForeignKey("ModifyUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("InvalidUser");
+
+                    b.Navigation("ModifyUser");
+                });
+
             modelBuilder.Entity("WCMS.Features.SiteEdit.WebResource.WebResourceInfo", b =>
                 {
                     b.HasOne("WCMS.Features.SiteEdit.WebResource.WebResource", null)
@@ -2161,6 +2352,54 @@ namespace WCMS.Migrations
                         .HasForeignKey("WebResourceId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("WCMS.Features.SystemSetting.SiteMenuSetting.SiteMenu_IndexModel", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
+                        .WithMany()
+                        .HasForeignKey("InvalidUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
+                        .WithMany()
+                        .HasForeignKey("ModifyUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("InvalidUser");
+
+                    b.Navigation("ModifyUser");
+                });
+
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory.SpecCategoryModel", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
+                        .WithMany()
+                        .HasForeignKey("InvalidUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
+                        .WithMany()
+                        .HasForeignKey("ModifyUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("InvalidUser");
+
+                    b.Navigation("ModifyUser");
                 });
 
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch.SpecResearchDetailModel", b =>
@@ -2172,6 +2411,30 @@ namespace WCMS.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch.SpecResearchModel", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
+                        .WithMany()
+                        .HasForeignKey("InvalidUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
+                        .WithMany()
+                        .HasForeignKey("ModifyUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("InvalidUser");
+
+                    b.Navigation("ModifyUser");
+                });
+
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRDetail", b =>
                 {
                     b.HasOne("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRModel", null)
@@ -2181,15 +2444,64 @@ namespace WCMS.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("WCMS.SysCore.Model.DataChangeLogDetail", b =>
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRModel", b =>
                 {
-                    b.HasOne("WCMS.SysCore.Model.DataChangeLog", "DataChangeLog")
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("DataChangeId")
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
+                        .WithMany()
+                        .HasForeignKey("InvalidUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
+                        .WithMany()
+                        .HasForeignKey("ModifyUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("InvalidUser");
+
+                    b.Navigation("ModifyUser");
+                });
+
+            modelBuilder.Entity("WCMS.SysCore.OperateLogModel", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManagement.FileManageModel", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
+                        .WithMany()
+                        .HasForeignKey("InvalidUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("DataChangeLog");
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
+                        .WithMany()
+                        .HasForeignKey("ModifyUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("InvalidUser");
+
+                    b.Navigation("ModifyUser");
                 });
 
             modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManagement.FileManage_DownloadInfoModel", b =>
@@ -2212,6 +2524,21 @@ namespace WCMS.Migrations
 
             modelBuilder.Entity("WCMS.SysCore.SystemFunc.UserRolePermission.Permission.PermissionModel", b =>
                 {
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
+                        .WithMany()
+                        .HasForeignKey("InvalidUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
+                        .WithMany()
+                        .HasForeignKey("ModifyUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.Role.RoleModel", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
@@ -2224,9 +2551,63 @@ namespace WCMS.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("InvalidUser");
+
+                    b.Navigation("ModifyUser");
+
                     b.Navigation("Role");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.UserRolePermission.Role.RoleModel", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
+                        .WithMany()
+                        .HasForeignKey("InvalidUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
+                        .WithMany()
+                        .HasForeignKey("ModifyUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("InvalidUser");
+
+                    b.Navigation("ModifyUser");
+                });
+
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
+                        .WithMany()
+                        .HasForeignKey("InvalidUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
+                        .WithMany()
+                        .HasForeignKey("ModifyUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("InvalidUser");
+
+                    b.Navigation("ModifyUser");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.Announcement", b =>

@@ -1,7 +1,10 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Resx;
+using WCMS.SysCore.SystemFunc.UserRolePermission.User;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.Model
@@ -23,6 +26,7 @@ namespace WCMS.SysCore.Model
         /// 創建人ID
         /// </summary>
         [LibDesc(ModelDisplayName.Common_CreateUserId), DTOReadOnly] public string CreateUserId { get; set; }
+        [ForeignKey(nameof(CreateUserId))] public UserModel_DTO? CreateUser { get; set; }
         /// <summary>
         /// 修改時間
         /// </summary>
@@ -33,6 +37,8 @@ namespace WCMS.SysCore.Model
         /// </summary>
         [LibDesc(ModelDisplayName.Common_ModifyUserId), DTOReadOnly]
         public string ModifyUserId { get; set; }
+
+        [ForeignKey(nameof(ModifyUserId))] public UserModel_DTO? ModifyUser { get; set; }
         /// <summary>
         /// 單據狀態
         /// </summary>
@@ -40,18 +46,17 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 資料狀態
         /// </summary>
-        [LibDesc, DTOReadOnly]
-        public DataStatus DataStatus { get; set; }
+        [LibDesc, DTOReadOnly] public DataStatus DataStatus { get; set; }
         /// <summary>
         /// 作廢時間
         /// </summary>
-        [LibDesc, DTOReadOnly]
-        public DateTime? InvalidTime { get; set; }
+        [LibDesc, DTOReadOnly] public DateTime? InvalidTime { get; set; }
         /// <summary>
         /// 作廢人ID
         /// </summary>
-        [LibDesc, DTOReadOnly]
-        public string InvalidUserId { get; set; }
+        [LibDesc, DTOReadOnly] public string InvalidUserId { get; set; }
+
+        [ForeignKey(nameof(InvalidUserId)), JsonIgnore] public UserModel_DTO? InvalidUser { get; set; }
         /// <summary>
         /// 系統內部唯一標識號
         /// </summary>

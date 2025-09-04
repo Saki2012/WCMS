@@ -65,7 +65,7 @@ const Content = (prop: ContentCompProp) => {
     }
 
 
-    <div className="row">
+    {/* <div className="row">
       <div className="col-lg-8 col-md-8 col-sm-6 col-4"></div>
       <div className="col-lg-2 col-md-2 col-sm-3 col-4 text-right">
         <a id="ContentPlaceContent_ContentPlaceConentA_wuc1_btn_edit" className="btn btn-primary btn-custom-color" href="/Back/News/NewsAdd.aspx?action=edit&amp;Sn=249">編輯</a>
@@ -73,7 +73,7 @@ const Content = (prop: ContentCompProp) => {
       <div className="col-lg-2 col-md-2 col-sm-3 col-4 text-right">
         <button type="button" name="ctl00$ctl00$ContentPlaceContent$ContentPlaceConentA$wuc1$btn_goback" value="回上一頁" onClick={handleBack} id="ContentPlaceContent_ContentPlaceConentA_wuc1_btn_goback" className="btn btn-primary btn-custom-color" title="回上一頁" />
       </div>
-    </div>
+    </div> */}
   </>
   )
 }

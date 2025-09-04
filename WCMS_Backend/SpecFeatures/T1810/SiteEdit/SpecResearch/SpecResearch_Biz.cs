@@ -9,7 +9,7 @@ using WCMS.SysCore.Library;
 namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
 {
     [ProgId("SpecResearch")]
-    public class SpecResearchBiz(IRepositoryMapProvider repo) : BizService<SpecResearchSet>(repo), IBizService<SpecResearchSet> {
+    public class SpecResearchBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<SpecResearchSet>(repo, message), IBizService<SpecResearchSet> {
 
         #region Protected
         protected override void BeforeUpdate(SpecResearchSet set, SysEnum.FuncAction act)

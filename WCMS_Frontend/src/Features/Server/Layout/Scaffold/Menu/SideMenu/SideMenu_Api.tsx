@@ -5,13 +5,15 @@ import { EnumMap } from "../../../../../../SysCore/Utils/Library/LibData"
 import type { EnumGetValueFunc } from "../../../../../../SysCore/Utils/Library/LibData"
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import type { QueryListCondition, ApiResponse } from '../../../../../../SysCore/Interface/IApiProvider';
+import type { ApiResponse } from '../../../../../../SysCore/Interface/IApiProvider';
 import type { ModelDisplaySchema } from '../../../../../../types/IApiSchema';
+import type { components } from '../../../../../../types/api';
+type QueryListParam = components["schemas"]["QueryListParam"];
 
 abstract class ISideMenuProvider extends IDataProvider<MenuItemData> {
   /** 獲取導覽資料 */
   //#region Public
-  override async fetchList(condition?: QueryListCondition): Promise<ApiResponse<MenuItemData[]>> {
+  override async fetchList(condition?: QueryListParam): Promise<ApiResponse<MenuItemData[]>> {
     const srcData = await super.fetchList(condition)
     const processedData = this.setDOMContent(srcData.Data as MenuItemData[])
     return { ...srcData, Data: processedData };
@@ -76,10 +78,10 @@ class MockProvider extends ISideMenuProvider {
   protected doFetchData(internaId?: string): Promise<ApiResponse<MenuItemData>> {
     throw new Error('Method not implemented.');
   }
-  protected doFetchList(condition?: QueryListCondition): Promise<ApiResponse<MenuItemData[]>> {
+  protected doFetchList(condition?: QueryListParam): Promise<ApiResponse<MenuItemData[]>> {
     throw new Error('Method not implemented.');
   }
-  protected doFetchListCount(condition?: QueryListCondition): Promise<ApiResponse<number>> {
+  protected doFetchListCount(condition?: QueryListParam): Promise<ApiResponse<number>> {
     throw new Error('Method not implemented.');
   }
   protected doGetModelDisplayName(): Promise<ModelDisplaySchema> {
@@ -103,7 +105,7 @@ class APIProvider extends ISideMenuProvider {
   protected doFetchData(internaId?: string): Promise<ApiResponse<MenuItemData>> {
     throw new Error('Method not implemented.');
   }
-  protected doFetchListCount(condition?: QueryListCondition): Promise<ApiResponse<number>> {
+  protected doFetchListCount(condition?: QueryListParam): Promise<ApiResponse<number>> {
     throw new Error('Method not implemented.');
   }
   protected doGetModelDisplayName(): Promise<ModelDisplaySchema> {

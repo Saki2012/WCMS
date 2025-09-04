@@ -1,13 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Linq.Dynamic.Core;
-using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.Resx;
@@ -38,7 +34,7 @@ namespace WCMS.Features.SiteEdit.Announcement
             };
             DataSet ds = MigrateOldData.GetOldData(sqls);
 
-            var importFileInternalIds = await FileService.BizQueryListAsync([nameof(FileManageModel.InternalId)],$"{nameof(FileManageModel.ImportLabel)} = {importFileLabel}",0,0);
+            var importFileInternalIds = await FileService.BizQueryListAsync([nameof(FileManageModel.InternalId)],$"{nameof(FileManageModel.ImportLabel)} = {importFileLabel}", default, 0,0);
             List<FileManageSet> fileSets=[];
             foreach(var id in importFileInternalIds.Select(p => p.FileManage.InternalId).ToList().Distinct())
             {

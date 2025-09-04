@@ -8,7 +8,7 @@ using WCMS.SysCore.Library;
 namespace WCMS.Features.SiteEdit.WebResource
 {
     [ProgId("WebResource")]
-    public class WebResourceBiz(IRepositoryMapProvider repo) : BizService<WebResourceSet>(repo), IBizService<WebResourceSet> 
+    public class WebResourceBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<WebResourceSet>(repo, message), IBizService<WebResourceSet> 
     {
         #region Protected
         protected override void BeforeUpdate(WebResourceSet set, SysEnum.FuncAction act)

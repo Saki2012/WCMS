@@ -8,7 +8,11 @@ import { RouterProvider } from "react-router-dom";
 import { LEGACY_JS, LEGACY_CSS } from "./LegacySrc.ts";
 import { MessageProvider } from "../SysCore/Components/Message/Dialog/Dialog_Comp.tsx";
 import { HeaderMetaComp } from "../SysCore/Components/HeaderMeta/HeaderMeta_Comp.tsx";
-
+import api, { type BrowserApiWithInit } from "../SysCore/Utils/API/APIBase.ts"
+if (typeof window !== "undefined") {
+  // CSR：初始化一次 XSRF；SSR：這個屬性不存在，呼叫也不會發生
+  (api as BrowserApiWithInit).__initXsrfOnce?.();
+}
 
 LEGACY_CSS.forEach((href) => {
   if (!document.querySelector(`link[rel="stylesheet"][href="${href}"]`)) {
@@ -129,8 +133,6 @@ const rootNode = <ClientBootstrap router={router} />;
 container.innerHTML = "";
 
 const CSR_Render = () => {
-
-
   if (container.hasChildNodes()) {
     console.log("Exec HydrateRoot")
     hydrateRoot(container, rootNode);

@@ -319,7 +319,7 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
         <>
             {prop.map((item) => {
                 return (
-                    <li className="m-news_item">
+                    <li className="m-news_item" key={item.announceInternalId}>
                         <Link className="m-news_link" to={`${item.redir}/${item.announceInternalId}`} tabIndex={7} title={item.title}>
                             <div className="m-news_date">
                                 <div className="d-big">{item.date}</div>

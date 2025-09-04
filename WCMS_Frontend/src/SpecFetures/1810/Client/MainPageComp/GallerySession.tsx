@@ -182,7 +182,7 @@ export const GallerySession = () => {
                                             {/* <asp:Literal ID="Li_Album" runat="server" /> */}
                                             {result.map((item) => {
                                                 return item && (
-                                                    <div className="item">
+                                                    <div className="item" key={item.title}>
                                                         <Link to={`/EventHighlights/event-album/${item.internalId}`} tabIndex={13} title={item.title}>
                                                             <div className="DivBox_content v_itemBOX">
                                                                 <div className="Picture_Div">
@@ -209,7 +209,7 @@ export const GallerySession = () => {
                                                             </div>
                                                         </Link>
                                                     </div>
-                                                    )
+                                                )
                                             })}
                                         </div>
                                         {/*// Banner 控制 暫停 / 播放 按鈕 START // */}

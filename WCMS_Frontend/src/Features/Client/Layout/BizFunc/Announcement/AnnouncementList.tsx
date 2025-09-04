@@ -40,6 +40,7 @@ const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string) 
                 SchemaFields.AnnouncementFields.ViewCount,
             ],
             Condition: condition,
+            OrderBy: [{ Col: SchemaFields.AnnouncementFields.Validate_Start, Desc: true }],
             PageNumber: page,
             PageSize: 10,
         }),

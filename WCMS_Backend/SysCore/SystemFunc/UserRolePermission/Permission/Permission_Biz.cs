@@ -18,7 +18,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.SystemFunc.UserRolePermission.Role
 {
-    public class PermissionBiz(IRepositoryMapProvider repoMapProvider) : BizService<PermissionSet>(repoMapProvider), IBizService<PermissionSet>
+    public class PermissionBiz(IRepositoryMapProvider repoMapProvider, IErrorHelper message) : BizService<PermissionSet>(repoMapProvider, message), IBizService<PermissionSet>
     {
         #region Public
 

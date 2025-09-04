@@ -5,7 +5,6 @@ import type { components } from "../../../../../types/api";
 import type { IFETheme } from "../../Theme/ITheme";
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
 type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"];
-import { Link, useLocation } from "react-router-dom";
 import type { GridRow } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import type { RowCell } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import { useFetchGridListData } from "../../../../../SysCore/Utils/API/FetchGridListData";

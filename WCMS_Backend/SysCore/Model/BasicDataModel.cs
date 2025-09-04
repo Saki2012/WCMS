@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Resx;
+using WCMS.SysCore.SystemFunc.UserRolePermission.User;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.Model
@@ -19,23 +20,21 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 創建時間
         /// </summary>
-        [LibDesc]
-        public DateTime? CreateTime { get; set; }
+        [LibDesc] public DateTime? CreateTime { get; set; }
         /// <summary>
         /// 創建人ID
         /// </summary>
-        [LibDesc]
-        public string CreateUserId { get; set; } = string.Empty;
+        [LibDesc] public string? CreateUserId { get; set; }
+        [ForeignKey(nameof(CreateUserId))] public UserModel? CreateUser { get; set; }
         /// <summary>
         /// 修改時間
         /// </summary>
-        [LibDesc]
-        public DateTime? ModifyTime { get; set; }
+        [LibDesc] public DateTime? ModifyTime { get; set; }
         /// <summary>
         /// 修改人ID
         /// </summary>
-        [LibDesc]
-        public string ModifyUserId { get; set; } = string.Empty;
+        [LibDesc] public string? ModifyUserId { get; set; }
+        [ForeignKey(nameof(ModifyUserId))] public UserModel? ModifyUser { get; set; }
         /// <summary>
         /// 單據狀態
         /// </summary>
@@ -43,18 +42,16 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 資料狀態
         /// </summary>
-        [LibDesc]
-        public DataStatus DataStatus { get; set; }
+        [LibDesc] public DataStatus DataStatus { get; set; }
         /// <summary>
         /// 作廢時間
         /// </summary>
-        [LibDesc]
-        public DateTime? InvalidTime { get; set; }
+        [LibDesc] public DateTime? InvalidTime { get; set; }
         /// <summary>
         /// 作廢人ID
         /// </summary>
-        [LibDesc]
-        public string InvalidUserId { get; set; } = string.Empty;
+        [LibDesc] public string? InvalidUserId { get; set; }
+        [ForeignKey(nameof(InvalidUserId))] public UserModel? InvalidUser { get; set; }
         /// <summary>
         /// 系統內部唯一標識號
         /// </summary>
