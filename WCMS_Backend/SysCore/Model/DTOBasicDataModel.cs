@@ -20,8 +20,7 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 創建時間
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_CreateTime), DTOReadOnly]
-        public DateTime? CreateTime { get; set; }
+        [LibDesc(ModelDisplayName.Common_CreateTime), DTOReadOnly] public DateTime? CreateTime { get; set; }
         /// <summary>
         /// 創建人ID
         /// </summary>
@@ -30,13 +29,11 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 修改時間
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_ModifyTime), DTOReadOnly]
-        public DateTime? ModifyTime { get; set; }
+        [LibDesc(ModelDisplayName.Common_ModifyTime), DTOReadOnly] public DateTime? ModifyTime { get; set; }
         /// <summary>
         /// 修改人ID
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_ModifyUserId), DTOReadOnly]
-        public string ModifyUserId { get; set; }
+        [LibDesc(ModelDisplayName.Common_ModifyUserId), DTOReadOnly] public string? ModifyUserId { get; set; }
 
         [ForeignKey(nameof(ModifyUserId))] public UserModel_DTO? ModifyUser { get; set; }
         /// <summary>
@@ -54,7 +51,7 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 作廢人ID
         /// </summary>
-        [LibDesc, DTOReadOnly] public string InvalidUserId { get; set; }
+        [LibDesc, DTOReadOnly] public string? InvalidUserId { get; set; }
 
         [ForeignKey(nameof(InvalidUserId)), JsonIgnore] public UserModel_DTO? InvalidUser { get; set; }
         /// <summary>

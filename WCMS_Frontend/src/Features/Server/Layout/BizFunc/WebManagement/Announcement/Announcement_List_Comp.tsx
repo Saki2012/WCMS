@@ -21,9 +21,7 @@ import * as SchemaFields from "../../../../../../types/SchemaFields";
  */
 export const AnnouncementListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
-
     const useAnnounceList = useAnnouncementList();
-
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData]);
     const useToolbar = useListToolbarActions(dirUrl)
     const isLoading = [useAnnounceList.isLoading];

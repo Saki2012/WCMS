@@ -18,6 +18,7 @@ export const useAnnouncementList = () =>
             [SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Title],
             [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ContentStatus],
             [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyUserId],
+            [SchemaFields.AnnouncementFields.ModifyUser, SchemaFields.UserModelFields.UserName],
             [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyTime],
         ],
         buildQueryCondition: (page) => ({
@@ -28,6 +29,7 @@ export const useAnnouncementList = () =>
                 `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
                 `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
                 SchemaFields.AnnouncementFields.ModifyUserId,
+                `${SchemaFields.AnnouncementFields.ModifyUser}.${SchemaFields.UserModelFields.UserName}`,
                 SchemaFields.AnnouncementFields.ModifyTime,
                 SchemaFields.AnnouncementFields.InternalId,
             ],
@@ -42,15 +44,23 @@ export const useAnnouncementList = () =>
             const cells: RowCell[] = columns.map(col =>
             {
                 let content = "";
-                if (col.key === SchemaFields.AnnouncementDetailFields.Title)
+
+                switch (col.key)
                 {
-                    content = item.AnnouncementDetail?.find(d => d.Lang === "zh-tw")?.Title ?? "";
-                } else if (col.key === SchemaFields.AnnouncementFields.ModifyTime)
-                {
-                    content = FormatDateTime((data as any)[col.key]);
-                } else
-                {
-                    content = (data as any)[col.key] ?? "";
+                    case SchemaFields.AnnouncementDetailFields.Title:
+                        content = item.AnnouncementDetail?.find(d => d.Lang === "zh-tw")?.Title ?? "";
+                        break;
+                    case SchemaFields.AnnouncementFields.ModifyTime:
+                        content = FormatDateTime((data as any)[col.key]);
+                        break;
+
+                    case SchemaFields.AnnouncementFields.ModifyUserId:
+                        content = item.Announcement?.ModifyUser?.UserName ?? "";
+                        break;
+                    default:
+                        content = (data as any)[col.key] ?? "";
+
+                        break;
                 }
                 return { col, content };
             });

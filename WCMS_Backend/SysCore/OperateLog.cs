@@ -14,7 +14,7 @@ namespace WCMS.SysCore
     {
         [Key]public int Id { get; set; }
         public string APIName { get; set; } = string.Empty;
-        public string UserId { get; set; } = string.Empty;
+        public string? UserId { get; set; } = string.Empty;
         [ForeignKey(nameof(UserId))] public UserModel? User { get; set; }
         public string followingDT { get; set; } = string.Empty;
         public string Browser { get; set; } = string.Empty;
@@ -40,6 +40,7 @@ namespace WCMS.SysCore
         public void AddMoveFollow(OperateLogModel _MoveFollows)
         {
             DataAccess.Add(_MoveFollows);
+            DataAccess.SaveChanges();
         }
     }
 }

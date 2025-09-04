@@ -100,7 +100,7 @@ namespace WCMS.SysCore.SystemFunc.Auth
 
             OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = nameof(Login);
-            followInfo.UserId = "";
+            followInfo.UserId = "SysOperator";
             followInfo.followingDT = JsonConvert.SerializeObject(result);
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             OperateLog.AddMoveFollow(followInfo);
@@ -195,7 +195,7 @@ namespace WCMS.SysCore.SystemFunc.Auth
 
             OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = nameof(Logout);
-            followInfo.UserId = "";
+            followInfo.UserId = "SysOperator";
             followInfo.followingDT = JsonConvert.SerializeObject(delOpt);
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             OperateLog.AddMoveFollow(followInfo);
@@ -226,7 +226,7 @@ namespace WCMS.SysCore.SystemFunc.Auth
 
             OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = nameof(Me);
-            followInfo.UserId = "";
+            followInfo.UserId = "SysOperator";
             followInfo.followingDT = JsonConvert.SerializeObject(dt);
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             OperateLog.AddMoveFollow(followInfo);

@@ -105,7 +105,7 @@ namespace WCMS.SysCore
             //TODO:操作日誌記錄 By Peter
             OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(Create)}";
-            followInfo.UserId = "";
+            followInfo.UserId = "SysOperator";
             followInfo.followingDT = JsonConvert.SerializeObject(set);
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             OperateLog.AddMoveFollow(followInfo);
@@ -126,7 +126,7 @@ namespace WCMS.SysCore
 
             OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(InitialCreateData)}";
-            followInfo.UserId = "";
+            followInfo.UserId = "SysOperator";
             followInfo.followingDT = JsonConvert.SerializeObject(sets);
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             OperateLog.AddMoveFollow(followInfo);
@@ -167,7 +167,7 @@ namespace WCMS.SysCore
 
             OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(Update)}";
-            followInfo.UserId = "";
+            followInfo.UserId = "SysOperator";
             followInfo.followingDT = JsonConvert.SerializeObject(data);
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             OperateLog.AddMoveFollow(followInfo);
@@ -192,7 +192,7 @@ namespace WCMS.SysCore
 
             OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(Invalid)}";
-            followInfo.UserId = "";
+            followInfo.UserId = "SysOperator";
             followInfo.followingDT = JsonConvert.SerializeObject(result);
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             OperateLog.AddMoveFollow(followInfo);
@@ -221,7 +221,7 @@ namespace WCMS.SysCore
 
             OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(Delete)}";
-            followInfo.UserId = "";
+            followInfo.UserId = "SysOperator";
             followInfo.followingDT = JsonConvert.SerializeObject(result);
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             OperateLog.AddMoveFollow(followInfo);
@@ -250,7 +250,7 @@ namespace WCMS.SysCore
 
             OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(QueryData)}";
-            followInfo.UserId = "";
+            followInfo.UserId = "SysOperator";
             followInfo.followingDT = JsonConvert.SerializeObject(result);
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             OperateLog.AddMoveFollow(followInfo);
@@ -273,7 +273,7 @@ namespace WCMS.SysCore
 
             OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(QueryList)}";
-            followInfo.UserId = "";
+            followInfo.UserId = "SysOperator";
             followInfo.followingDT = JsonConvert.SerializeObject(result);
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             OperateLog.AddMoveFollow(followInfo);
@@ -295,7 +295,7 @@ namespace WCMS.SysCore
 
             OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(GetTotalCounts)}";
-            followInfo.UserId = "";
+            followInfo.UserId = "SysOperator";
             followInfo.followingDT = JsonConvert.SerializeObject(result);
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             OperateLog.AddMoveFollow(followInfo);
@@ -360,6 +360,12 @@ namespace WCMS.SysCore
                 return NotFound(new { message = ex.Message });
             }
         }
+
+        //public IActionResult Migration(string labelTag = "1810")
+        //{
+
+        //    return Ok;
+        //}
     }
     /// <summary>
     /// 回應結果

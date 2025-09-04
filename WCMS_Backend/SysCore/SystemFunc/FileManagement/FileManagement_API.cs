@@ -33,7 +33,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
 
             OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(UploadTemp)}";
-            followInfo.UserId = "";
+            followInfo.UserId = "SysOperator";
             followInfo.followingDT = JsonConvert.SerializeObject(response);
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             OperateLog.AddMoveFollow(followInfo);
@@ -49,7 +49,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
 
             OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(MoveToPermanent)}";
-            followInfo.UserId = "";
+            followInfo.UserId = "SysOperator";
             followInfo.followingDT = JsonConvert.SerializeObject(response);
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             OperateLog.AddMoveFollow(followInfo);
@@ -65,7 +65,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
 
             OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(CancelUploadFiles)}";
-            followInfo.UserId = "";
+            followInfo.UserId = "SysOperator";
             followInfo.followingDT = JsonConvert.SerializeObject(response);
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             OperateLog.AddMoveFollow(followInfo);
@@ -84,7 +84,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
 
             OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(Download)}";
-            followInfo.UserId = "";
+            followInfo.UserId = "SysOperator";
             followInfo.followingDT = JsonConvert.SerializeObject(result);
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             OperateLog.AddMoveFollow(followInfo);
@@ -135,7 +135,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
 
             OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(Preview)}";
-            followInfo.UserId = "";
+            followInfo.UserId = "SysOperator";
             followInfo.followingDT = JsonConvert.SerializeObject(param);
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             OperateLog.AddMoveFollow(followInfo);
