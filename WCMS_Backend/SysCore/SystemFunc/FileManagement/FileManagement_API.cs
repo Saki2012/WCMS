@@ -15,7 +15,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.SysCore.SystemFunc.FileManagement
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class FileManagementController(IWebHostEnvironment env, IMoveFollowingRecord OperateLog, HttpRequest request) : ApiDataController<FileManageSet,FileManageSet_DTO>
+    public class FileManagementController(IWebHostEnvironment env, IOperateLog OperateLog, HttpRequest request) : ApiDataController<FileManageSet,FileManageSet_DTO>
     {
 
         /*
@@ -24,7 +24,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             4. 同步資料
          */
         private readonly IWebHostEnvironment Env = env;
-        private readonly IMoveFollowingRecord _operateLog = OperateLog;
+        private readonly IOperateLog _operateLog = OperateLog;
 
         [HttpPost(nameof(UploadTemp))]
         [RequestSizeLimit(200L * 1024 * 1024)] // 200 MB
@@ -33,7 +33,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             var internalId = await ((FileManagementBiz)Service).UploadTemp(file);
             var response = new ApiResponse<string>() { Data = [internalId] };
 
-            MoveFollow followInfo = new MoveFollow();
+            OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(UploadTemp)}";
             followInfo.UserId = "";
             followInfo.followingDT = JsonConvert.SerializeObject(response);
@@ -49,7 +49,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             await ((FileManagementBiz)Service).MoveToPermanent(internalIds);
             var response = new ApiResponse<string>() { Data = internalIds };
 
-            MoveFollow followInfo = new MoveFollow();
+            OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(MoveToPermanent)}";
             followInfo.UserId = "";
             followInfo.followingDT = JsonConvert.SerializeObject(response);
@@ -65,7 +65,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             await ((FileManagementBiz)Service).CancelUploadFiles(internalIds);
             var response = new ApiResponse<string>() { Data = internalIds };
 
-            MoveFollow followInfo = new MoveFollow();
+            OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(CancelUploadFiles)}";
             followInfo.UserId = "";
             followInfo.followingDT = JsonConvert.SerializeObject(response);
@@ -84,7 +84,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         {
             var result = await ((FileManagementBiz)Service).GetDownloadFileInfo([internalId]);
 
-            MoveFollow followInfo = new MoveFollow();
+            OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(Download)}";
             followInfo.UserId = "";
             followInfo.followingDT = JsonConvert.SerializeObject(result);
@@ -135,7 +135,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
 
             var fileQuery = await Service.BizQueryListAsync(param.Fields, param.Condition, default, param.PageNumber, param.PageSize);
 
-            MoveFollow followInfo = new MoveFollow();
+            OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(Preview)}";
             followInfo.UserId = "";
             followInfo.followingDT = JsonConvert.SerializeObject(param);

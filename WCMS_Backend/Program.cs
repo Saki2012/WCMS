@@ -191,7 +191,7 @@ namespace WCMS
                 services.AddScoped(typeof(IBasicRepository<>), typeof(BasicRepository<>));
                 services.AddScoped<IRepositoryMapProvider, RepositoryMapProvider>();
                 services.AddScoped<IErrorHelper, ErrorHelper>();
-                services.AddScoped<IMoveFollowingRecord, MoveFollowingRecord>();
+                services.AddScoped<IOperateLog, OperateLog>();
 
                 
                 RegisterBizServices(services);

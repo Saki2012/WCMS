@@ -22,8 +22,8 @@ namespace WCMS.SysCore.SystemFunc.Auth
         private readonly IConfiguration _cfg = cfg;
         private readonly IAuthService _authBiz = authBiz;
 
-        protected IMoveFollowingRecord OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IMoveFollowingRecord>();
-        private IMoveFollowingRecord? _OperateLog;
+        protected IOperateLog OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IOperateLog>();
+        private IOperateLog? _OperateLog;
         #endregion
 
         #region Public
@@ -98,7 +98,7 @@ namespace WCMS.SysCore.SystemFunc.Auth
                 AccountStatus = r.user.AccountStatus,
             };
 
-            MoveFollow followInfo = new MoveFollow();
+            OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = nameof(Login);
             followInfo.UserId = "";
             followInfo.followingDT = JsonConvert.SerializeObject(result);
@@ -193,7 +193,7 @@ namespace WCMS.SysCore.SystemFunc.Auth
             // 清 cookie
             var delOpt = new CookieOptions { Path = "/", Secure = true, SameSite = SameSiteMode.Lax };
 
-            MoveFollow followInfo = new MoveFollow();
+            OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = nameof(Logout);
             followInfo.UserId = "";
             followInfo.followingDT = JsonConvert.SerializeObject(delOpt);
@@ -224,7 +224,7 @@ namespace WCMS.SysCore.SystemFunc.Auth
                 Role = role
             };
 
-            MoveFollow followInfo = new MoveFollow();
+            OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = nameof(Me);
             followInfo.UserId = "";
             followInfo.followingDT = JsonConvert.SerializeObject(dt);
