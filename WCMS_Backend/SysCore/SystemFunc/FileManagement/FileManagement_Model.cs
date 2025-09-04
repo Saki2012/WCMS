@@ -1,12 +1,13 @@
-﻿using WCMS.SysCore.Library;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
-using static WCMS.SysCore.Enum.SysEnum;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using System.ComponentModel.DataAnnotations;
-using WCMS.SysCore.Model;
 using WCMS.Features.SiteEdit.PageManagement;
-using Microsoft.EntityFrameworkCore;
+using WCMS.SysCore.Library;
+using WCMS.SysCore.Model;
+using WCMS.SysCore.SystemFunc.UserRolePermission.User;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.SystemFunc.FileManagement
 {
@@ -83,7 +84,8 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         [NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public new FormStatus FormStatus { get; }
         [NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public new DataStatus DataStatus { get; }
         [NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public new DateTime? InvalidTime { get; }
-        [NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public new string InvalidUserId { get; }
+        [NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public new string? InvalidUserId { get; }
+        [NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public new UserModel? InvalidUser { get; set; }
         #endregion
     }
     /// <summary>

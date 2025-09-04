@@ -15,7 +15,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.SysCore.SystemFunc.FileManagement
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class FileManagementController(IWebHostEnvironment env, IOperateLog OperateLog, HttpRequest request) : ApiDataController<FileManageSet,FileManageSet_DTO>
+    public class FileManagementController(IWebHostEnvironment env) : ApiDataController<FileManageSet,FileManageSet_DTO>
     {
 
         /*
@@ -24,8 +24,6 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             4. 同步資料
          */
         private readonly IWebHostEnvironment Env = env;
-        private readonly IOperateLog _operateLog = OperateLog;
-
         [HttpPost(nameof(UploadTemp))]
         [RequestSizeLimit(200L * 1024 * 1024)] // 200 MB
         public async Task<IActionResult> UploadTemp(IFormFile file)

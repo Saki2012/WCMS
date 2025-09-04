@@ -47,6 +47,7 @@ namespace WCMS.SysCore.Middleware
                 //    break;
                 default:
                     message.AddMessage(MessageStatus.Error, "BECode00001");
+                    logger.Error(exception.Message);
                     logger.Error(exception.StackTrace);
                     //response.StatusCode = StatusCodes
                     break;
