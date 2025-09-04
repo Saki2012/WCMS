@@ -30,7 +30,7 @@ namespace WCMS.SysCore
     }
 
     //實做操作記錄的點
-    public class MoveFollowingRecord(ApplicationDbContext dataAccess)
+    public class MoveFollowingRecord(ApplicationDbContext dataAccess): IMoveFollowingRecord
     {
         private ApplicationDbContext DataAccess = dataAccess;
         public IList<MoveFollow> MoveFollows { get; set; } = [];
