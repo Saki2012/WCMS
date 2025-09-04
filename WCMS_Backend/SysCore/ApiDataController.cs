@@ -42,8 +42,8 @@ namespace WCMS.SysCore
                 return _modelDisplayName;
             }
         }
-        protected IMoveFollowingRecord OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IMoveFollowingRecord>();
-        private IMoveFollowingRecord? _OperateLog;
+        protected IOperateLog OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IOperateLog>();
+        private IOperateLog? _OperateLog;
         #endregion
 
         #region Tag helpers
@@ -103,7 +103,7 @@ namespace WCMS.SysCore
             await EvictForSetAsync(ct);
 
             //TODO:操作日誌記錄 By Peter
-            MoveFollow followInfo = new MoveFollow();
+            OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(Create)}";
             followInfo.UserId = "";
             followInfo.followingDT = JsonConvert.SerializeObject(set);
@@ -124,7 +124,7 @@ namespace WCMS.SysCore
         {
             await Service.BeginTransactionAsync();
 
-            MoveFollow followInfo = new MoveFollow();
+            OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(InitialCreateData)}";
             followInfo.UserId = "";
             followInfo.followingDT = JsonConvert.SerializeObject(sets);
@@ -165,7 +165,7 @@ namespace WCMS.SysCore
             var updateResult = await Service.BizUpdateSetAsync(data.InternalId, entity);
             await EvictForSetAsync(ct, data.InternalId);
 
-            MoveFollow followInfo = new MoveFollow();
+            OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(Update)}";
             followInfo.UserId = "";
             followInfo.followingDT = JsonConvert.SerializeObject(data);
@@ -190,7 +190,7 @@ namespace WCMS.SysCore
             var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(invalidResult);
             await EvictForSetAsync(ct, internalId);
 
-            MoveFollow followInfo = new MoveFollow();
+            OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(Invalid)}";
             followInfo.UserId = "";
             followInfo.followingDT = JsonConvert.SerializeObject(result);
@@ -219,7 +219,7 @@ namespace WCMS.SysCore
             var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(deleteResult);
             await EvictForSetAsync(ct, internalId);
 
-            MoveFollow followInfo = new MoveFollow();
+            OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(Delete)}";
             followInfo.UserId = "";
             followInfo.followingDT = JsonConvert.SerializeObject(result);
@@ -248,7 +248,7 @@ namespace WCMS.SysCore
             var queryResult = await Service.BizQuerySetAsync(internalId);
             var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(queryResult);
 
-            MoveFollow followInfo = new MoveFollow();
+            OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(QueryData)}";
             followInfo.UserId = "";
             followInfo.followingDT = JsonConvert.SerializeObject(result);
@@ -271,7 +271,7 @@ namespace WCMS.SysCore
             List<TSet_DTO> result = [];
             foreach (var item in queryResult) result.Add(DTOHelper.MapToDTO<TSet, TSet_DTO>(item));
 
-            MoveFollow followInfo = new MoveFollow();
+            OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(QueryList)}";
             followInfo.UserId = "";
             followInfo.followingDT = JsonConvert.SerializeObject(result);
@@ -293,7 +293,7 @@ namespace WCMS.SysCore
             AddListTags();
             var result = await Service.BizQueryTotalCounts(queryCondition.Fields, queryCondition.Condition);
 
-            MoveFollow followInfo = new MoveFollow();
+            OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(GetTotalCounts)}";
             followInfo.UserId = "";
             followInfo.followingDT = JsonConvert.SerializeObject(result);

@@ -16,21 +16,6 @@ namespace WCMS.SysCore
     /// </summary>
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
     {
-        #region Property
-        /// <summary>
-        /// 操作日誌
-        /// </summary>
-        public DbSet<OperateLogModel> OperateLog { get; set; }
-        /// <summary>
-        /// 變更日誌
-        /// </summary>
-        public DbSet<DataChangeLog> DataChangeLog { get; set; }
-        /// <summary>
-        /// 變更日誌明細
-        /// </summary>
-        public DbSet<DataChangeLogDetail> DataChangeLogDetail { get; set; }
-
-        #endregion
         #region Construct
         #endregion
         #region Protected
@@ -40,7 +25,7 @@ namespace WCMS.SysCore
             ModelDbSetting(builder);
             AutoBindRelationships(builder);
             ApplyCascadeDeleteRules(builder);
-            builder.Entity<DataChangeLogDetail>().HasKey(p => new { p.DataChangeId, p.RowId });
+            builder.Entity<OperateLogModel>().ToTable("OperateLog");
             //builder.BuildIndexesFromAnnotations();//設置Index套件
             SetDateTimeDBType(builder);
         }

@@ -5,7 +5,8 @@ WCMS_Backend/.vs/
 WCMS_Backend/obj/
 WCMS_Backend/bin/
 WCMS_Frontend/WCMS_Frontend.zip
-WCMS_Backend/Migrations/
 WCMS_Backend/publish/
 WCMS_Backend/FileManage/
 *.zip
+*.rar
+*.7z
