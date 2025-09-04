@@ -12,11 +12,10 @@ using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.SystemFunc.FileManagement
 {
-    public class FileManagementBiz(IRepositoryMapProvider repoMapProvider, IOptions<FilePathOptions> options, IErrorHelper message, IMoveFollowingRecord OperateLog, HttpRequest request) : BizService<FileManageSet>(repoMapProvider, message), IBizService<FileManageSet>
+    public class FileManagementBiz(IRepositoryMapProvider repoMapProvider, IOptions<FilePathOptions> options, IErrorHelper message) : BizService<FileManageSet>(repoMapProvider, message), IBizService<FileManageSet>
     {
         #region Property
         private readonly FilePathOptions FilePath = options.Value;
-        private readonly IMoveFollowingRecord _operateLog = OperateLog;
         #endregion
 
         #region Public
@@ -34,14 +33,6 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 set.FileManage.FileStatus = FileStatus.Pending;
             }
             await (isNew ? BizCreateSetAsync(set) : BizUpdateSetAsync(set.FileManage.InternalId, set));
-
-            MoveFollow followInfo = new MoveFollow();
-            followInfo.APIName = nameof(UploadTemp);
-            followInfo.UserId = "";
-            followInfo.followingDT = JsonConvert.SerializeObject(set);
-            followInfo.IP = request.Headers["HTTP_CLIENT_IP"].ToString();
-            OperateLog.AddMoveFollow(followInfo);
-
             return set.FileManage.InternalId;
         }
         /// <summary>
@@ -58,14 +49,6 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                    {nameof(FileManageModel.FileStatus)} = {FileStatus.Pending}",default, 0, 0);
 
             foreach (var item in list) sets.Add(await DoQuerySetAsync(((FileManageModel)item).InternalId));
-
-            MoveFollow followInfo = new MoveFollow();
-            followInfo.APIName = nameof(MoveToPermanent);
-            followInfo.UserId = "";
-            followInfo.followingDT = JsonConvert.SerializeObject(sets);
-            followInfo.IP = request.Headers["HTTP_CLIENT_IP"].ToString();
-            OperateLog.AddMoveFollow(followInfo);
-
             await MoveFileFromTempToFinal(sets);
         }
         /// <summary>
@@ -83,14 +66,6 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                     {nameof(FileManageModel.FileStatus)} = {FileStatus.Pending}", default, 0, 0);
 
             foreach (var item in list) sets.Add(await DoQuerySetAsync(((FileManageModel)item).InternalId));
-
-            MoveFollow followInfo = new MoveFollow();
-            followInfo.APIName = nameof(CancelUploadFiles);
-            followInfo.UserId = "";
-            followInfo.followingDT = JsonConvert.SerializeObject(sets);
-            followInfo.IP = request.Headers["HTTP_CLIENT_IP"].ToString();
-            OperateLog.AddMoveFollow(followInfo);
-
             await DeleteFromTemp(sets);
         }
         /// <summary>
@@ -99,13 +74,6 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <param name="internalIds"></param>
         public async Task<IList<FileManageModel>> GetDownloadFileInfo(string[] internalIds)
         {
-            MoveFollow followInfo = new MoveFollow();
-            followInfo.APIName = nameof(GetDownloadFileInfo);
-            followInfo.UserId = "";
-            followInfo.followingDT = JsonConvert.SerializeObject(internalIds);
-            followInfo.IP = request.Headers["HTTP_CLIENT_IP"].ToString();
-            OperateLog.AddMoveFollow(followInfo);
-
             if (internalIds.Length == 0) return [];
             else
             {
