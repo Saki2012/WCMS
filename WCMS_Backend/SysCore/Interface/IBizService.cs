@@ -15,7 +15,7 @@ namespace WCMS.SysCore.Interface
         /// <summary>
         /// 資料異動及操作日誌系統
         /// </summary>
-        public SysChangeLog? SysChangeLog { get; }
+        //public SysChangeLog? SysChangeLog { get; }
         /// <summary>
         /// 功能Id
         /// </summary>

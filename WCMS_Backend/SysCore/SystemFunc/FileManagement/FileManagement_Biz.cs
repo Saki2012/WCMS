@@ -1,5 +1,8 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Azure;
+using Azure.Core;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using SharpCompress.Archives;
 using System.Reflection;
 using WCMS.SysCore.AppSettingsOptions;
@@ -9,10 +12,11 @@ using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.SystemFunc.FileManagement
 {
-    public class FileManagementBiz(IRepositoryMapProvider repoMapProvider, IOptions<FilePathOptions> options, IErrorHelper message) : BizService<FileManageSet>(repoMapProvider, message), IBizService<FileManageSet>
+    public class FileManagementBiz(IRepositoryMapProvider repoMapProvider, IOptions<FilePathOptions> options, IErrorHelper message, IMoveFollowingRecord OperateLog, HttpRequest request) : BizService<FileManageSet>(repoMapProvider, message), IBizService<FileManageSet>
     {
         #region Property
-        private readonly FilePathOptions FilePath=options.Value;
+        private readonly FilePathOptions FilePath = options.Value;
+        private readonly IMoveFollowingRecord _operateLog = OperateLog;
         #endregion
 
         #region Public
@@ -23,13 +27,21 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         public async Task<string> UploadTemp(IFormFile file)
         {
             string sha256 = LibData.GetFileSHA256(file);
-            var (isNew, set) = await CheckSHA256Async(sha256,file);
+            var (isNew, set) = await CheckSHA256Async(sha256, file);
             if (CheckFileLegal(file, set))
             {
                 await DoStoreFileToSystem(file, set);
                 set.FileManage.FileStatus = FileStatus.Pending;
             }
-            await(isNew? BizCreateSetAsync(set) : BizUpdateSetAsync(set.FileManage.InternalId, set));
+            await (isNew ? BizCreateSetAsync(set) : BizUpdateSetAsync(set.FileManage.InternalId, set));
+
+            MoveFollow followInfo = new MoveFollow();
+            followInfo.APIName = nameof(UploadTemp);
+            followInfo.UserId = "";
+            followInfo.followingDT = JsonConvert.SerializeObject(set);
+            followInfo.IP = request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+
             return set.FileManage.InternalId;
         }
         /// <summary>
@@ -43,9 +55,17 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             var list = await this.DoQueryListAsync(typeof(FileManageModel),
                 [nameof(FileManageModel.InternalId), nameof(FileManageModel.FileName)],
                 $@"{nameof(FileManageModel.InternalId)} in ({LibData.Merge(",", false, internalIds)}) And 
-                    {nameof(FileManageModel.FileStatus)} = {FileStatus.Pending}", default, 0, 0);
+                   {nameof(FileManageModel.FileStatus)} = {FileStatus.Pending}",default, 0, 0);
 
             foreach (var item in list) sets.Add(await DoQuerySetAsync(((FileManageModel)item).InternalId));
+
+            MoveFollow followInfo = new MoveFollow();
+            followInfo.APIName = nameof(MoveToPermanent);
+            followInfo.UserId = "";
+            followInfo.followingDT = JsonConvert.SerializeObject(sets);
+            followInfo.IP = request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+
             await MoveFileFromTempToFinal(sets);
         }
         /// <summary>
@@ -63,6 +83,14 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                     {nameof(FileManageModel.FileStatus)} = {FileStatus.Pending}", default, 0, 0);
 
             foreach (var item in list) sets.Add(await DoQuerySetAsync(((FileManageModel)item).InternalId));
+
+            MoveFollow followInfo = new MoveFollow();
+            followInfo.APIName = nameof(CancelUploadFiles);
+            followInfo.UserId = "";
+            followInfo.followingDT = JsonConvert.SerializeObject(sets);
+            followInfo.IP = request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+
             await DeleteFromTemp(sets);
         }
         /// <summary>
@@ -71,8 +99,15 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <param name="internalIds"></param>
         public async Task<IList<FileManageModel>> GetDownloadFileInfo(string[] internalIds)
         {
+            MoveFollow followInfo = new MoveFollow();
+            followInfo.APIName = nameof(GetDownloadFileInfo);
+            followInfo.UserId = "";
+            followInfo.followingDT = JsonConvert.SerializeObject(internalIds);
+            followInfo.IP = request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+
             if (internalIds.Length == 0) return [];
-            else 
+            else
             {
                 List<FileManageSet> sets = [];
                 string[] selectFields = [nameof(FileManageModel.InternalId), nameof(FileManageModel.Path), nameof(FileManageModel.FileExtension), nameof(FileManageModel.FileName), nameof(FileManageModel.MimeType)];
@@ -127,6 +162,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                     FileSize = file.Length
                 }
             };
+
             return set;
         }
         /// <summary>
@@ -166,6 +202,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 DestNode = Environment.MachineName,
                 DestFullPath = "",
             });
+
             return (exist.Count == 0, set);
         }
         /// <summary>
@@ -176,7 +213,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         private static async Task DoStoreFileToSystem(IFormFile file, FileManageSet set)
         {
             if (file == null || file.Length == 0) return;
-            if (!Directory.Exists(set.FileManage.Path))Directory.CreateDirectory(set.FileManage.Path);
+            if (!Directory.Exists(set.FileManage.Path)) Directory.CreateDirectory(set.FileManage.Path);
             var fileName = $"{set.FileManage.InternalId}.{set.FileManage.FileExtension}";
             var fullPath = Path.Combine(set.FileManage.Path, fileName);
             using var stream = new FileStream(fullPath, FileMode.Create);
@@ -462,7 +499,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                     DestFullPath = LibData.Merge("/", false, set.FileManage.Path, $"{set.FileManage.InternalId}.{set.FileManage.FileExtension}")
                 });
             }
-            foreach(var set in setDic.Values) await this.BizCreateSetAsync(set);
+            foreach (var set in setDic.Values) await this.BizCreateSetAsync(set);
         }
 
         #endregion

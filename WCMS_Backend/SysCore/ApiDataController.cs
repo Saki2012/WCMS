@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.RenderTree;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Reflection;
@@ -12,6 +13,7 @@ using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Library.LibData;
 using static WCMS.SysCore.SystemFunc.Auth.AuthController;
@@ -40,6 +42,8 @@ namespace WCMS.SysCore
                 return _modelDisplayName;
             }
         }
+        protected IMoveFollowingRecord OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IMoveFollowingRecord>();
+        private IMoveFollowingRecord? _OperateLog;
         #endregion
 
         #region Tag helpers
@@ -97,14 +101,36 @@ namespace WCMS.SysCore
             TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(set);
             var createResult = await Service.BizCreateSetAsync(entity);
             await EvictForSetAsync(ct);
+
+            //TODO:操作日誌記錄 By Peter
+            MoveFollow followInfo = new MoveFollow();
+            followInfo.APIName = $"{Service.ProgId}/{nameof(Create)}";
+            followInfo.UserId = "";
+            followInfo.followingDT = JsonConvert.SerializeObject(set);
+            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+
             TSet_DTO result = DTOHelper.MapToDTO<TSet, TSet_DTO>(createResult);
             var response = new ApiResponse<TSet_DTO>() { Data = [result] };
+
+            if (ct == CancellationToken.None) { followInfo.ExcStatus = ExcStatus.CancelExc; }
+            if(!response.IsSuccess) followInfo.ExcStatus = ExcStatus.Fail;
+            else followInfo.ExcStatus = ExcStatus.OK;
+             
             return Ok(response);
         }
         [HttpPost(nameof(InitialCreateData))]
         public virtual async Task<IActionResult> InitialCreateData(TSet_DTO[] sets, CancellationToken ct)
         {
             await Service.BeginTransactionAsync();
+
+            MoveFollow followInfo = new MoveFollow();
+            followInfo.APIName = $"{Service.ProgId}/{nameof(InitialCreateData)}";
+            followInfo.UserId = "";
+            followInfo.followingDT = JsonConvert.SerializeObject(sets);
+            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+
             try
             {
                 int i = 1;
@@ -138,6 +164,14 @@ namespace WCMS.SysCore
             TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(data.Data);
             var updateResult = await Service.BizUpdateSetAsync(data.InternalId, entity);
             await EvictForSetAsync(ct, data.InternalId);
+
+            MoveFollow followInfo = new MoveFollow();
+            followInfo.APIName = $"{Service.ProgId}/{nameof(Update)}";
+            followInfo.UserId = "";
+            followInfo.followingDT = JsonConvert.SerializeObject(data);
+            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+
             TSet_DTO result = DTOHelper.MapToDTO<TSet, TSet_DTO>(updateResult);
             var response = new ApiResponse<TSet_DTO>() { Data = [result] };
             return Ok(response);
@@ -155,6 +189,14 @@ namespace WCMS.SysCore
             var invalidResult = await Service.BizInvalidSetAsync(internalId, isInvalid);
             var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(invalidResult);
             await EvictForSetAsync(ct, internalId);
+
+            MoveFollow followInfo = new MoveFollow();
+            followInfo.APIName = $"{Service.ProgId}/{nameof(Invalid)}";
+            followInfo.UserId = "";
+            followInfo.followingDT = JsonConvert.SerializeObject(result);
+            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+
             var response = new ApiResponse<TSet_DTO>() { Data = [result], };
             return Ok(response);
         }
@@ -176,6 +218,14 @@ namespace WCMS.SysCore
             var deleteResult = await Service.BizDeleteSetAsync(internalId);
             var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(deleteResult);
             await EvictForSetAsync(ct, internalId);
+
+            MoveFollow followInfo = new MoveFollow();
+            followInfo.APIName = $"{Service.ProgId}/{nameof(Delete)}";
+            followInfo.UserId = "";
+            followInfo.followingDT = JsonConvert.SerializeObject(result);
+            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+
             var response = new ApiResponse<TSet_DTO>() { Data = [result] };
             return Ok(response);
         }
@@ -197,6 +247,14 @@ namespace WCMS.SysCore
             AddDetailTags(internalId);
             var queryResult = await Service.BizQuerySetAsync(internalId);
             var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(queryResult);
+
+            MoveFollow followInfo = new MoveFollow();
+            followInfo.APIName = $"{Service.ProgId}/{nameof(QueryData)}";
+            followInfo.UserId = "";
+            followInfo.followingDT = JsonConvert.SerializeObject(result);
+            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+
             var response = new ApiResponse<TSet_DTO>() { Data = [result] };
             return Ok(response);
         }
@@ -212,6 +270,14 @@ namespace WCMS.SysCore
             var queryResult = await Service.BizQueryListAsync(queryCondition.Fields, queryCondition.Condition,queryCondition.OrderBy, queryCondition.PageNumber, queryCondition.PageSize);
             List<TSet_DTO> result = [];
             foreach (var item in queryResult) result.Add(DTOHelper.MapToDTO<TSet, TSet_DTO>(item));
+
+            MoveFollow followInfo = new MoveFollow();
+            followInfo.APIName = $"{Service.ProgId}/{nameof(QueryList)}";
+            followInfo.UserId = "";
+            followInfo.followingDT = JsonConvert.SerializeObject(result);
+            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+
             var response = new ApiResponse<TSet_DTO>() { Data = result };
             return Ok(response);
         }
@@ -226,6 +292,14 @@ namespace WCMS.SysCore
             if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
             AddListTags();
             var result = await Service.BizQueryTotalCounts(queryCondition.Fields, queryCondition.Condition);
+
+            MoveFollow followInfo = new MoveFollow();
+            followInfo.APIName = $"{Service.ProgId}/{nameof(GetTotalCounts)}";
+            followInfo.UserId = "";
+            followInfo.followingDT = JsonConvert.SerializeObject(result);
+            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+
             var response = new ApiResponse<int>() {SysMessage=Message.Messages, Data = [result] };
             return Ok(response);
         }

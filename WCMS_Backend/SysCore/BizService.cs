@@ -57,7 +57,7 @@ namespace WCMS.SysCore
         /// <summary>
         /// 變更日誌系統
         /// </summary>
-        public SysChangeLog? SysChangeLog { get; }
+        //public SysChangeLog? SysChangeLog { get; }
         /// <summary>
         /// 
         /// </summary>

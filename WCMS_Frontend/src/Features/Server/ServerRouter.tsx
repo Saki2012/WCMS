@@ -25,6 +25,7 @@ import { ResearchProjListComp } from "../../SpecFetures/1810/Server/BizFunc/Spec
 import { USRProjFormComp } from "../../SpecFetures/1810/Server/BizFunc/SpecUSR/SpecUSR_Form_Comp";
 import { USRProjListComp } from "../../SpecFetures/1810/Server/BizFunc/SpecUSR/SpecUSR_List_Comp";
 import { AutoRedirect } from "../../SysCore/Utils/Route/AutoRedirect";
+import { UserManage_Comp } from "./Layout/BizFunc/UserDTs/UserInfo";
 
 export class BackendRouteModule implements IRouteModule {
   getRoutes(): RouteObject[] {
@@ -39,6 +40,22 @@ export class BackendRouteModule implements IRouteModule {
             <DashboardPage theme={Classic_BETheme} />
           </RequireAuth>
         , children: [
+
+          //#region 賬號管理
+          {
+            path: 'AccountManage',
+            children: [
+              { index: true, element: <AutoRedirect to="AccountManage/List" replace />, },
+              {
+                path: 'UserManage',
+                children: [
+                  { index: true, element: <AutoRedirect to="Form" replace /> },
+                  { path: 'Form/:internalId?', element: <UserManage_Comp /> },
+                ],
+              },
+            ]
+          },
+          //#endregion
           //#region 網站功能管理
           {
             path: 'WebManagement',
@@ -140,9 +157,6 @@ export class BackendRouteModule implements IRouteModule {
             ],
           },
           //#endregion
-          {
-
-          }
         ],
       },
     ];

@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -13,7 +15,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.SysCore.SystemFunc.FileManagement
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class FileManagementController(IWebHostEnvironment env) : ApiDataController<FileManageSet,FileManageSet_DTO>
+    public class FileManagementController(IWebHostEnvironment env, IMoveFollowingRecord OperateLog, HttpRequest request) : ApiDataController<FileManageSet,FileManageSet_DTO>
     {
 
         /*
@@ -22,6 +24,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             4. 同步資料
          */
         private readonly IWebHostEnvironment Env = env;
+        private readonly IMoveFollowingRecord _operateLog = OperateLog;
 
         [HttpPost(nameof(UploadTemp))]
         [RequestSizeLimit(200L * 1024 * 1024)] // 200 MB
@@ -29,6 +32,14 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         {
             var internalId = await ((FileManagementBiz)Service).UploadTemp(file);
             var response = new ApiResponse<string>() { Data = [internalId] };
+
+            MoveFollow followInfo = new MoveFollow();
+            followInfo.APIName = $"{Service.ProgId}/{nameof(UploadTemp)}";
+            followInfo.UserId = "";
+            followInfo.followingDT = JsonConvert.SerializeObject(response);
+            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+
             return Ok(response);
         }
 
@@ -37,6 +48,14 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         {
             await ((FileManagementBiz)Service).MoveToPermanent(internalIds);
             var response = new ApiResponse<string>() { Data = internalIds };
+
+            MoveFollow followInfo = new MoveFollow();
+            followInfo.APIName = $"{Service.ProgId}/{nameof(MoveToPermanent)}";
+            followInfo.UserId = "";
+            followInfo.followingDT = JsonConvert.SerializeObject(response);
+            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+
             return Ok(response);
         }
 
@@ -45,6 +64,14 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         {
             await ((FileManagementBiz)Service).CancelUploadFiles(internalIds);
             var response = new ApiResponse<string>() { Data = internalIds };
+
+            MoveFollow followInfo = new MoveFollow();
+            followInfo.APIName = $"{Service.ProgId}/{nameof(CancelUploadFiles)}";
+            followInfo.UserId = "";
+            followInfo.followingDT = JsonConvert.SerializeObject(response);
+            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+
             return Ok(response);
         }
 
@@ -56,6 +83,14 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         [HttpGet($"{nameof(Download)}/{{internalId}}")] public async Task<IActionResult> Download(string internalId)
         {
             var result = await ((FileManagementBiz)Service).GetDownloadFileInfo([internalId]);
+
+            MoveFollow followInfo = new MoveFollow();
+            followInfo.APIName = $"{Service.ProgId}/{nameof(Download)}";
+            followInfo.UserId = "";
+            followInfo.followingDT = JsonConvert.SerializeObject(result);
+            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+
             if (result.Count == 0) return NotFound();
             else if (result.Count == 1) 
             {
@@ -96,7 +131,16 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 PageSize = 1,
                 PageNumber =1,
             };
+
             var fileQuery = await Service.BizQueryListAsync(param.Fields, param.Condition, default, param.PageNumber, param.PageSize);
+
+            MoveFollow followInfo = new MoveFollow();
+            followInfo.APIName = $"{Service.ProgId}/{nameof(Preview)}";
+            followInfo.UserId = "";
+            followInfo.followingDT = JsonConvert.SerializeObject(param);
+            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+           
             var file = fileQuery.FirstOrDefault().FileManage;
             if (file is null) return NotFound();
             // 1) 包成 DateTimeOffset（UTC）並去掉毫秒
