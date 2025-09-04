@@ -13,7 +13,7 @@ using static WCMS.SysCore.QueryListParam;
 
 namespace WCMS.SysCore
 {
-    public class BasicRepository<TModel>(ApplicationDbContext dataAccess, IErrorHelper message, IMoveFollowingRecord OperateLog, HttpRequest request) : IBasicRepository<TModel> where TModel : class
+    public class BasicRepository<TModel>(ApplicationDbContext dataAccess, IErrorHelper message) : IBasicRepository<TModel> where TModel : class
     {
         #region Property
         /// <summary>
@@ -21,8 +21,6 @@ namespace WCMS.SysCore
         /// </summary>
         public ApplicationDbContext DataAccess { get; } = dataAccess;
         protected IErrorHelper Message { get; } = message;
-
-        private readonly IMoveFollowingRecord _operateLog = OperateLog;
         #endregion
 
         #region Public
@@ -39,13 +37,6 @@ namespace WCMS.SysCore
             }
             else if (newData is IEnumerable<TModel> list)
             {
-                MoveFollow followInfo = new MoveFollow();
-                followInfo.APIName = nameof(CreateAsync);
-                followInfo.UserId = "";
-                followInfo.followingDT = JsonConvert.SerializeObject(list);
-                followInfo.IP = request.Headers["HTTP_CLIENT_IP"].ToString();
-                OperateLog.AddMoveFollow(followInfo);
-
                 foreach (var p in list)
                 {
                     if(p is DetailRowModel detailRowModel)
@@ -85,7 +76,7 @@ namespace WCMS.SysCore
                 if (fieldProp.GetCustomAttribute<NotMappedAttribute>() != null) continue;
                 var oldVal = PropertyAccessorCache.Get(oldData, fieldProp.Name);
                 var newVal = PropertyAccessorCache.Get(newData, fieldProp.Name);
-                if (!Equals(oldVal, newVal))
+                if (!Equals(oldVal, newVal)&&newVal!=null)
                 {
                     PropertyAccessorCache.Set(oldData, fieldProp.Name, newVal);
                     entry.Property(fieldProp.Name).IsModified = true;
