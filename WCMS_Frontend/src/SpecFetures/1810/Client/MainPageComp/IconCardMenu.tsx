@@ -13,7 +13,7 @@ export const IconCardMenu = () => {
             new Swiper('#card', {
                 direction: 'horizontal',
                 loop: true,
-                slidesPerView: 2,
+                slidesPerView: 3,
                 spaceBetween: 30,
                 breakpoints: {
                     992: { slidesPerView: 3 },
