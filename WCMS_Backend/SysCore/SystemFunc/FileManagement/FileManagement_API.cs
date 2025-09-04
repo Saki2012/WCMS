@@ -132,6 +132,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 PageNumber =1,
             };
 
+
             var fileQuery = await Service.BizQueryListAsync(param.Fields, param.Condition, default, param.PageNumber, param.PageSize);
 
             MoveFollow followInfo = new MoveFollow();
@@ -140,7 +141,6 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             followInfo.followingDT = JsonConvert.SerializeObject(param);
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             OperateLog.AddMoveFollow(followInfo);
-           
             var file = fileQuery.FirstOrDefault().FileManage;
             if (file is null) return NotFound();
             // 1) 包成 DateTimeOffset（UTC）並去掉毫秒
