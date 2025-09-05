@@ -43,6 +43,6 @@ namespace WCMS.Features.SiteEdit.Category
         /// <summary>
         /// 標題
         /// </summary>
-        [StringLength(SysLengthParam.Name)] public string CategoryName { get; set; }
+        [StringLength(SysLengthParam.Title)] public string CategoryName { get; set; }
     }
 }

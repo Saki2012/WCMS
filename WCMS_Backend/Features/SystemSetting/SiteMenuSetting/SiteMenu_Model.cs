@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
@@ -46,11 +47,11 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
         /// <summary>
         /// 首頁代碼
         /// </summary>
-        [Key] public string ? SiteIndex { get; set; }
+        [Key, StringLength(SysLengthParam.ID)] public string ? SiteIndex { get; set; }
         /// <summary>
         /// Goole分析碼
         /// </summary>
-        public string GoogleAnalytics { get; set; }
+        [StringLength(SysLengthParam.Memo)] public string GoogleAnalytics { get; set; }
         /// <summary>
         /// 是否啟用站台
         /// </summary>
@@ -64,7 +65,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
         /// <summary>
         /// 首頁代碼
         /// </summary>
-        [Key] public string? SiteIndex { get; set; }
+        [Key, StringLength(SysLengthParam.ID)] public string? SiteIndex { get; set; }
         /// <summary>
         /// 
         /// </summary>
@@ -72,15 +73,15 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
         /// <summary>
         /// 語系
         /// </summary>
-        public string? Lang { get; set; }
+        [StringLength(SysLengthParam.Lang)] public string? Lang { get; set; }
         /// <summary>
         /// 網站標題
         /// </summary>
-        public string Title { get; set; }
+        [StringLength(SysLengthParam.Title)] public string Title { get; set; }
         /// <summary>
         /// 網站描述
         /// </summary>
-        public string Description { get; set; }
+        [StringLength(SysLengthParam.Memo)] public string Description { get; set; }
         /// <summary>
         /// Header
         /// </summary>
@@ -92,7 +93,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
         /// <summary>
         /// 網站關鍵字
         /// </summary>
-        public string Keyword { get; set; }
+        [StringLength(SysLengthParam.Memo)] public string Keyword { get; set; }
     }
     /// <summary>
     /// 
@@ -103,7 +104,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
         /// <summary>
         /// 主站Url，最主要的會是Empty，新的子站則是https://xxx.com/{SiteIndex}
         /// </summary>
-        [Key] public string? SiteIndex { get; set; }
+        [Key, StringLength(SysLengthParam.ID)] public string? SiteIndex { get; set; }
         /// <summary>
         /// url主鍵
         /// </summary>
@@ -115,11 +116,11 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
         /// <summary>
         /// 當前頁面Url E.x.:AllNews
         /// </summary>
-        public string? ItemSiteUrl { get; set; }
+        [StringLength(SysLengthParam.Url)] public string? ItemSiteUrl { get; set; }
         /// <summary>
         /// 完整的Url，整個系統唯一值，後端賦值處理
         /// </summary>
-        public string? FullUrl { get; set; }
+        [StringLength(SysLengthParam.Url)] public string? FullUrl { get; set; }
         /// <summary>
         /// 層級
         /// </summary>
@@ -146,11 +147,11 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
     /// </summary>
     public class SiteMenu_Item_Title : DetailRowModel
     {
-        [Key] public string? SiteIndex { get; set; }
+        [Key, StringLength(SysLengthParam.ID)] public string? SiteIndex { get; set; }
         [Key] public int? ItemRowId { get; set; }
         [Key] public int? RowId { get; set; }
-        public string Lang { get; set; }
-        public string Title { get; set; }
+        [StringLength(SysLengthParam.Lang)] public string Lang { get; set; }
+        [StringLength(SysLengthParam.Title)] public string Title { get; set; }
     }
     /// <summary>
     /// 
@@ -160,17 +161,17 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
         [Key] public string? SiteIndex { get; set; }
         [Key] public int? ItemRowId { get; set; }
         public MenuUrlType RedirectType { get; set; } //0:無, 1:外部,2:內部模型功能(直接轉FullUrl、但是是用下拉的看Title/Url)
-        public string? RedirectUrl { get; set; }
+        [StringLength(SysLengthParam.Url)] public string? RedirectUrl { get; set; }
     }
     /// <summary>
     /// 
     /// </summary>
     public class SiteMenu_Item_Module : DetailRowModel
     {
-        [Key] public string? SiteIndex { get; set; }
+        [Key, StringLength(SysLengthParam.ID)] public string? SiteIndex { get; set; }
         [Key] public int? ItemRowId { get; set; }
-        public string? BannerId { get; set; }
-        public string? ModuleProgId { get; set; } //功能代碼
+        [StringLength(SysLengthParam.ID)] public string? BannerId { get; set; }
+        [StringLength(SysLengthParam.ProgId)] public string? ModuleProgId { get; set; } //功能代碼
         public string? ModuleOptions { get; set; }//動態參數，存Json格式
     }
     /// <summary>

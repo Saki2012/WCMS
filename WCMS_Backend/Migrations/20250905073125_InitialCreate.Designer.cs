@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WCMS.SysCore;
 
@@ -11,9 +12,11 @@ using WCMS.SysCore;
 namespace WCMS.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250905073125_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -413,8 +416,8 @@ namespace WCMS.Migrations
 
                     b.Property<string>("CategoryName")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Lang")
                         .IsRequired()
@@ -918,8 +921,8 @@ namespace WCMS.Migrations
 
                     b.Property<string>("TagName")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("TagId", "RowId");
 
@@ -1490,8 +1493,8 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("ProjectName")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Remark")
                         .HasMaxLength(500)
@@ -1623,7 +1626,8 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("ContentIntroduction")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Courses")
                         .HasMaxLength(200)
@@ -1876,8 +1880,8 @@ namespace WCMS.Migrations
 
                     b.Property<string>("MimeType")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("ModifyTime")
                         .HasColumnType("datetime2(0)");

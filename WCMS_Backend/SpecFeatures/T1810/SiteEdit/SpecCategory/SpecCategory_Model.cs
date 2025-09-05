@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 
@@ -12,11 +13,11 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
 
     public class SpecCategoryModel : MasterDataModel
     {
-        [LibDesc, Key] public string CategoryId { get; set; }
+        [LibDesc, Key, StringLength(SysLengthParam.ID)] public string CategoryId { get; set; }
         /// <summary>
         /// 功能Id
         /// </summary>
-        public string ProgId { get; set; }
+        [StringLength(SysLengthParam.ProgId)] public string ProgId { get; set; }
         /// <summary>
         /// 顯示欄位
         /// </summary>
@@ -28,10 +29,10 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
         /// <summary>
         /// 
         /// </summary>
-        [LibDesc, Key] public string CategoryId { get;set; }
+        [LibDesc, Key, StringLength(SysLengthParam.ID)] public string CategoryId { get;set; }
         [LibDesc, Key] public int RowId { get; set; }
-        [LibDesc] public string Lang { get; set; }
-        [LibDesc]public string CategoryName { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Lang)] public string Lang { get; set; }
+        [StringLength(SysLengthParam.Name)] public string CategoryName { get; set; }
     }
 
 }

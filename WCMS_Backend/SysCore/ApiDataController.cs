@@ -273,7 +273,7 @@ namespace WCMS.SysCore
 
             OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{Service.ProgId}/{nameof(QueryList)}";
-            followInfo.UserId = "SysOperator";
+            //followInfo.UserId = "SysOperator";
             followInfo.followingDT = JsonConvert.SerializeObject(result);
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             OperateLog.AddMoveFollow(followInfo);
@@ -292,14 +292,6 @@ namespace WCMS.SysCore
             if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
             AddListTags();
             var result = await Service.BizQueryTotalCounts(queryCondition.Fields, queryCondition.Condition);
-
-            OperateLogModel followInfo = new OperateLogModel();
-            followInfo.APIName = $"{Service.ProgId}/{nameof(GetTotalCounts)}";
-            followInfo.UserId = "SysOperator";
-            followInfo.followingDT = JsonConvert.SerializeObject(result);
-            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
-            OperateLog.AddMoveFollow(followInfo);
-
             var response = new ApiResponse<int>() {SysMessage=Message.Messages, Data = [result] };
             return Ok(response);
         }

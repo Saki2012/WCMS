@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
@@ -19,15 +20,15 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// <summary>
         /// 檔案分類ID
         /// </summary>
-        [LibDesc, Required, Key] public string WebResourceId { get; set; }
+        [LibDesc, Required, Key, StringLength(SysLengthParam.ID)] public string WebResourceId { get; set; }
         /// <summary>
         /// 類別ID(多個)
         /// </summary>
-        [LibDesc] public string Categories { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Title)] public string Categories { get; set; }
         /// <summary>
         /// 標籤ID(多個)
         /// </summary>
-        [LibDesc] public string Tags { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Title)] public string Tags { get; set; }
         /// <summary>
         /// 狀態:置頂/熱門/隱藏
         /// </summary>
@@ -35,11 +36,11 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// <summary>
         /// 圖片顯示
         /// </summary>
-        [LibDesc] public string PicId { get; set; }
+        [LibDesc, StringLength(SysLengthParam.InternalId)] public string PicId { get; set; }
         /// <summary>
         /// 圖片顯示描述
         /// </summary>
-        [LibDesc] public string PicDescription { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Memo)] public string PicDescription { get; set; }
 
         public List<WebResourceInfo> WebResourceInfo { get; set; } = [];
 
@@ -52,7 +53,7 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// <summary>
         /// 檔案分類ID
         /// </summary>
-        [LibDesc, Required, Key] public string WebResourceId { get; set; }
+        [LibDesc, Required, Key, StringLength(SysLengthParam.ID)] public string WebResourceId { get; set; }
         /// <summary>
         /// 行主鍵
         /// </summary>
@@ -60,11 +61,11 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc] public string Lang { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Lang)] public string Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>
-        public string Title { get; set; }
+        [StringLength(SysLengthParam.Title)] public string Title { get; set; }
         /// <summary>
         /// 內容
         /// </summary>
@@ -72,10 +73,10 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// <summary>
         /// 超連結
         /// </summary>
-        public string ResUrl { get; set; }
+        [StringLength(SysLengthParam.Url)] public string ResUrl { get; set; }
         /// <summary>
         /// 超連結開啟方式
         /// </summary>
-        public string Url_OpenType { get; set; }
+        [StringLength(SysLengthParam.ID)] public string Url_OpenType { get; set; }
     }
 }

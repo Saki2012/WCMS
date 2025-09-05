@@ -15,10 +15,10 @@ namespace WCMS.Migrations
                 name: "AnnouncementDetailFile",
                 columns: table => new
                 {
-                    AnnouncementId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    AnnouncementId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     ParentRowId = table.Column<int>(type: "int", nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
-                    FileId = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    FileId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -46,13 +46,13 @@ namespace WCMS.Migrations
                 name: "BannerDetailInfo",
                 columns: table => new
                 {
-                    BannerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    BannerId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     ParentRowId = table.Column<int>(type: "int", nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
-                    Lang = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    URL = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    URL = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
                     URL_Open = table.Column<byte>(type: "tinyint", nullable: false)
                 },
                 constraints: table =>
@@ -64,14 +64,14 @@ namespace WCMS.Migrations
                 name: "SiteMenu_IndexInfo",
                 columns: table => new
                 {
-                    SiteIndex = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    SiteIndex = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
-                    Lang = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     SiteHeader = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SiteFooter = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Keyword = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Keyword = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -82,11 +82,11 @@ namespace WCMS.Migrations
                 name: "SiteMenu_Item",
                 columns: table => new
                 {
-                    SiteIndex = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    SiteIndex = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
                     ParentRowId = table.Column<int>(type: "int", nullable: true),
-                    ItemSiteUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FullUrl = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ItemSiteUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    FullUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
                     Level = table.Column<byte>(type: "tinyint", nullable: false),
                     DisplayOrder = table.Column<byte>(type: "tinyint", nullable: false),
                     ItemType = table.Column<byte>(type: "tinyint", nullable: false),
@@ -102,10 +102,10 @@ namespace WCMS.Migrations
                 name: "SiteMenu_Item_Module",
                 columns: table => new
                 {
-                    SiteIndex = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    SiteIndex = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     ItemRowId = table.Column<int>(type: "int", nullable: false),
-                    BannerId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ModuleProgId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BannerId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    ModuleProgId = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: true),
                     ModuleOptions = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -117,11 +117,11 @@ namespace WCMS.Migrations
                 name: "SiteMenu_Item_Title",
                 columns: table => new
                 {
-                    SiteIndex = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    SiteIndex = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     ItemRowId = table.Column<int>(type: "int", nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
-                    Lang = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -135,7 +135,7 @@ namespace WCMS.Migrations
                     SiteIndex = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ItemRowId = table.Column<int>(type: "int", nullable: false),
                     RedirectType = table.Column<byte>(type: "tinyint", nullable: false),
-                    RedirectUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    RedirectUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -146,10 +146,10 @@ namespace WCMS.Migrations
                 name: "SpecCategoryDetail",
                 columns: table => new
                 {
-                    CategoryId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CategoryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
-                    Lang = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CategoryName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    CategoryName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -160,23 +160,23 @@ namespace WCMS.Migrations
                 name: "User",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     PasswordHash = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     PasswordSalt = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     PasswordAlgoVer = table.Column<int>(type: "int", nullable: false),
                     AccountStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    CreateUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    ModifyUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ModifyUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     FormStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     DataStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     InvalidTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    InvalidUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    InternalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OrgLvId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InvalidUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    InternalId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    OrgLvId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     IsIniData = table.Column<bool>(type: "bit", nullable: false),
                     DataVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
                     Validate_Start = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
@@ -209,23 +209,23 @@ namespace WCMS.Migrations
                 name: "Announcement",
                 columns: table => new
                 {
-                    AnnouncementId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Categories = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Tags = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AnnouncementId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Categories = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Tags = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     ContentStatus = table.Column<byte>(type: "tinyint", nullable: false),
-                    PictureId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PicDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PictureId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: true),
+                    PicDescription = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     ViewCount = table.Column<int>(type: "int", nullable: true),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    CreateUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    ModifyUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ModifyUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     FormStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     DataStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     InvalidTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    InvalidUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    InternalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OrgLvId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InvalidUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    InternalId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    OrgLvId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     IsIniData = table.Column<bool>(type: "bit", nullable: false),
                     DataVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
                     Validate_Start = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
@@ -258,23 +258,22 @@ namespace WCMS.Migrations
                 name: "Banner",
                 columns: table => new
                 {
-                    BannerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    BannerCategoryName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BannerId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    BannerCategoryName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Interval = table.Column<short>(type: "smallint", nullable: false),
                     Speed = table.Column<short>(type: "smallint", nullable: false),
                     Height = table.Column<short>(type: "smallint", nullable: false),
                     Width = table.Column<short>(type: "smallint", nullable: false),
-                    Effect = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    CreateUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    ModifyUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ModifyUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     FormStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     DataStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     InvalidTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    InvalidUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    InternalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OrgLvId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InvalidUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    InternalId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    OrgLvId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     IsIniData = table.Column<bool>(type: "bit", nullable: false),
                     DataVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
                     Validate_Start = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
@@ -307,18 +306,18 @@ namespace WCMS.Migrations
                 name: "Category",
                 columns: table => new
                 {
-                    CategoryId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ProgId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CategoryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    ProgId = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: true),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    CreateUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    ModifyUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ModifyUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     FormStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     DataStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     InvalidTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    InvalidUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    InternalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OrgLvId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InvalidUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    InternalId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    OrgLvId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     IsIniData = table.Column<bool>(type: "bit", nullable: false),
                     DataVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
                     Validate_Start = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
@@ -351,20 +350,20 @@ namespace WCMS.Migrations
                 name: "FileArchive",
                 columns: table => new
                 {
-                    FileArchiveId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FileArchiveId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     ContentStatus = table.Column<byte>(type: "tinyint", nullable: false),
-                    CategoriesId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TagsId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CategoriesId = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    TagsId = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    CreateUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    ModifyUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ModifyUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     FormStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     DataStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     InvalidTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    InvalidUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    InternalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OrgLvId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InvalidUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    InternalId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    OrgLvId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     IsIniData = table.Column<bool>(type: "bit", nullable: false),
                     DataVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
                     Validate_Start = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
@@ -397,22 +396,22 @@ namespace WCMS.Migrations
                 name: "FileManage",
                 columns: table => new
                 {
-                    InternalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Path = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FileName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    FileExtension = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
-                    FileDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MimeType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InternalId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    Path = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    FileName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    FileExtension = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    FileDescription = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    MimeType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     FileSHA256 = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
                     FileSize = table.Column<long>(type: "bigint", nullable: false),
-                    ProgId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImportLabel = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProgId = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
+                    ImportLabel = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     FileStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    CreateUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    ModifyUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    OrgLvId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ModifyUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    OrgLvId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     IsIniData = table.Column<bool>(type: "bit", nullable: false),
                     DataVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
                     Validate_Start = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
@@ -439,22 +438,22 @@ namespace WCMS.Migrations
                 name: "Gallery",
                 columns: table => new
                 {
-                    GalleryId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Categories = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Tags = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    GalleryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Categories = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Tags = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     ContentStatus = table.Column<byte>(type: "tinyint", nullable: false),
-                    CoverPicSrcId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CoverPicSrcId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
                     Sort = table.Column<int>(type: "int", nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    CreateUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    ModifyUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ModifyUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     FormStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     DataStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     InvalidTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    InvalidUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    InternalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OrgLvId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InvalidUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    InternalId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    OrgLvId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     IsIniData = table.Column<bool>(type: "bit", nullable: false),
                     DataVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
                     Validate_Start = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
@@ -489,11 +488,11 @@ namespace WCMS.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    APIName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    APIName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     followingDT = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Browser = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IP = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Browser = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    IP = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
                     ExcuteTime = table.Column<DateTime>(type: "datetime2(0)", nullable: false),
                     ExcStatus = table.Column<byte>(type: "tinyint", nullable: false)
                 },
@@ -504,27 +503,26 @@ namespace WCMS.Migrations
                         name: "FK_OperateLog_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
                 name: "PageManagement",
                 columns: table => new
                 {
-                    PageId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CategoryId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PageId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    CategoryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ViewCount = table.Column<int>(type: "int", nullable: true),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    CreateUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    ModifyUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ModifyUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     FormStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     DataStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     InvalidTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    InvalidUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    InternalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OrgLvId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InvalidUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    InternalId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    OrgLvId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     IsIniData = table.Column<bool>(type: "bit", nullable: false),
                     DataVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
                 },
@@ -555,20 +553,20 @@ namespace WCMS.Migrations
                 name: "Role",
                 columns: table => new
                 {
-                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RoleName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RoleId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    RoleName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     EndType = table.Column<byte>(type: "tinyint", nullable: false),
                     IsAdmin = table.Column<bool>(type: "bit", nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    CreateUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    ModifyUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ModifyUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     FormStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     DataStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     InvalidTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    InvalidUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    InternalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OrgLvId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InvalidUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    InternalId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    OrgLvId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     IsIniData = table.Column<bool>(type: "bit", nullable: false),
                     DataVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
                     Validate_Start = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
@@ -601,19 +599,19 @@ namespace WCMS.Migrations
                 name: "SiteMenu_Index",
                 columns: table => new
                 {
-                    SiteIndex = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    GoogleAnalytics = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SiteIndex = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    GoogleAnalytics = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     Enable = table.Column<bool>(type: "bit", nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    CreateUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    ModifyUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ModifyUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     FormStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     DataStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     InvalidTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    InvalidUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    InternalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OrgLvId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InvalidUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    InternalId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    OrgLvId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     IsIniData = table.Column<bool>(type: "bit", nullable: false),
                     DataVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
                     Validate_Start = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
@@ -646,19 +644,19 @@ namespace WCMS.Migrations
                 name: "SpecCategory",
                 columns: table => new
                 {
-                    CategoryId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ProgId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CategoryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    ProgId = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
                     ShowColumnItems = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    CreateUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    ModifyUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ModifyUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     FormStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     DataStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     InvalidTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    InvalidUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    InternalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OrgLvId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InvalidUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    InternalId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    OrgLvId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     IsIniData = table.Column<bool>(type: "bit", nullable: false),
                     DataVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
                     Validate_Start = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
@@ -691,20 +689,20 @@ namespace WCMS.Migrations
                 name: "SpecResearch",
                 columns: table => new
                 {
-                    ResearchId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CategoryId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ResearchId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    CategoryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     ContentStatus = table.Column<byte>(type: "tinyint", nullable: false),
-                    Tags = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Tags = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    CreateUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    ModifyUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ModifyUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     FormStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     DataStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     InvalidTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    InvalidUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    InternalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OrgLvId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InvalidUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    InternalId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    OrgLvId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     IsIniData = table.Column<bool>(type: "bit", nullable: false),
                     DataVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
                     Validate_Start = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
@@ -737,22 +735,22 @@ namespace WCMS.Migrations
                 name: "SpecUSR",
                 columns: table => new
                 {
-                    USRId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CategoryId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    USRId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    CategoryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     ContentStatus = table.Column<byte>(type: "tinyint", nullable: false),
-                    Tags = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PictureId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PicDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Tags = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    PictureId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: true),
+                    PicDescription = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    CreateUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    ModifyUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ModifyUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     FormStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     DataStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     InvalidTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    InvalidUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    InternalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OrgLvId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InvalidUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    InternalId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    OrgLvId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     IsIniData = table.Column<bool>(type: "bit", nullable: false),
                     DataVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
                     Validate_Start = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
@@ -785,18 +783,18 @@ namespace WCMS.Migrations
                 name: "TagData",
                 columns: table => new
                 {
-                    TagId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ProgId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TagId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    ProgId = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    CreateUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    ModifyUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ModifyUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     FormStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     DataStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     InvalidTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    InvalidUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    InternalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OrgLvId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InvalidUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    InternalId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    OrgLvId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     IsIniData = table.Column<bool>(type: "bit", nullable: false),
                     DataVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
                     Validate_Start = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
@@ -829,22 +827,22 @@ namespace WCMS.Migrations
                 name: "WebResource",
                 columns: table => new
                 {
-                    WebResourceId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Categories = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Tags = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    WebResourceId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Categories = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Tags = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     ContentStatus = table.Column<byte>(type: "tinyint", nullable: false),
-                    PicId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PicDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PicId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    PicDescription = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    CreateUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    ModifyUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ModifyUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     FormStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     DataStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     InvalidTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    InvalidUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    InternalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OrgLvId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InvalidUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    InternalId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    OrgLvId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     IsIniData = table.Column<bool>(type: "bit", nullable: false),
                     DataVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
                     Validate_Start = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
@@ -877,13 +875,13 @@ namespace WCMS.Migrations
                 name: "AnnouncementDetail",
                 columns: table => new
                 {
-                    AnnouncementId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    AnnouncementId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
-                    Lang = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SubTitle = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    SubTitle = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Url = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Url = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -900,10 +898,10 @@ namespace WCMS.Migrations
                 name: "CategoryDetail",
                 columns: table => new
                 {
-                    CategoryId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CategoryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
-                    Lang = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CategoryName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    CategoryName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -920,11 +918,11 @@ namespace WCMS.Migrations
                 name: "FileArchiveDetail",
                 columns: table => new
                 {
-                    FileArchiveId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FileArchiveId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     ParentRowId = table.Column<int>(type: "int", nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
-                    FileSrcId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    FileSrcId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    FileName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -941,10 +939,10 @@ namespace WCMS.Migrations
                 name: "FileArchiveInfo",
                 columns: table => new
                 {
-                    FileArchiveId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FileArchiveId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
-                    Lang = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -961,12 +959,12 @@ namespace WCMS.Migrations
                 name: "FileManage_DownloadInfo",
                 columns: table => new
                 {
-                    InternalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    InternalId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
-                    DownloadUserIP = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserAgent = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RefererURL = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DownloadStatus = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DownloadUserIP = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
+                    UserAgent = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    RefererURL = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    DownloadStatus = table.Column<bool>(type: "bit", nullable: false),
                     DownloadTime = table.Column<DateTime>(type: "datetime2(0)", nullable: false)
                 },
                 constraints: table =>
@@ -984,17 +982,17 @@ namespace WCMS.Migrations
                 name: "FileManage_SyncInfo",
                 columns: table => new
                 {
-                    InternalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    InternalId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
                     FileStatus = table.Column<byte>(type: "tinyint", nullable: false),
-                    SrcIP = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SrcNode = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SrcFullPath = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DestIP = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DestNode = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DestFullPath = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ErrorCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ErrorMessage = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SrcIP = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
+                    SrcNode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    SrcFullPath = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    DestIP = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
+                    DestNode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    DestFullPath = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    ErrorCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    ErrorMessage = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     ExecuteTime = table.Column<DateTime>(type: "datetime2(0)", nullable: false)
                 },
                 constraints: table =>
@@ -1012,7 +1010,7 @@ namespace WCMS.Migrations
                 name: "GalleryInfo",
                 columns: table => new
                 {
-                    GalleryId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    GalleryId = table.Column<string>(type: "nvarchar(20)", nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
                     Lang = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -1033,9 +1031,9 @@ namespace WCMS.Migrations
                 name: "GalleryPhotos",
                 columns: table => new
                 {
-                    GalleryId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    GalleryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
-                    PicSrcId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PicSrcId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
                     Sort = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -1053,10 +1051,10 @@ namespace WCMS.Migrations
                 name: "PageManagementDetail",
                 columns: table => new
                 {
-                    PageId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    PageId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
-                    Lang = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -1074,18 +1072,18 @@ namespace WCMS.Migrations
                 name: "Permission",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    RoleId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    CreateUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    ModifyUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ModifyUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     FormStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     DataStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     InvalidTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
-                    InvalidUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    InternalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OrgLvId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InvalidUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    InternalId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    OrgLvId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     IsIniData = table.Column<bool>(type: "bit", nullable: false),
                     DataVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
                     Validate_Start = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
@@ -1130,9 +1128,9 @@ namespace WCMS.Migrations
                 name: "SpecResearchDetail",
                 columns: table => new
                 {
-                    ResearchId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ResearchId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
-                    Lang = table.Column<string>(type: "nvarchar(5)", maxLength: 5, nullable: false),
+                    Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Year = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
                     AcademicYear = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
                     Semester = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
@@ -1150,9 +1148,9 @@ namespace WCMS.Migrations
                     CooperatingUnits = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     CooperationProject = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Courses = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    ProjectName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProjectName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     PaperTitle = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    Remark = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Remark = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Cohost1 = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Cohost2 = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Commissioned = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
@@ -1174,9 +1172,9 @@ namespace WCMS.Migrations
                 name: "SpecUSRDetail",
                 columns: table => new
                 {
-                    USRId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    USRId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
-                    Lang = table.Column<string>(type: "nvarchar(5)", maxLength: 5, nullable: false),
+                    Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Year = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
                     AcademicYear = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
                     Courses = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
@@ -1186,15 +1184,15 @@ namespace WCMS.Migrations
                     Department = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     DuringExecution = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     PlanAmount = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    ExecutionStrategy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ContentIntroduction = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ProjectConcept = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ProjectHighlights = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ExecutionStrategy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    ContentIntroduction = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    ProjectConcept = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    ProjectHighlights = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     ProjectLeader = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Cohost1 = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Cohost2 = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Commissioned = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    Remark = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Remark = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1211,10 +1209,10 @@ namespace WCMS.Migrations
                 name: "TagDetail",
                 columns: table => new
                 {
-                    TagId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TagId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
-                    Lang = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TagName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    TagName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1231,13 +1229,13 @@ namespace WCMS.Migrations
                 name: "WebResourceInfo",
                 columns: table => new
                 {
-                    WebResourceId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    WebResourceId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
-                    Lang = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ResUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Url_OpenType = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    ResUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    Url_OpenType = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1254,11 +1252,11 @@ namespace WCMS.Migrations
                 name: "GalleryPhotosInfo",
                 columns: table => new
                 {
-                    GalleryId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    GalleryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     ParentRowId = table.Column<int>(type: "int", nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
-                    Lang = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
                 {

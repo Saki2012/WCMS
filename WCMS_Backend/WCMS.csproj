@@ -68,7 +68,6 @@
     <Folder Include="Features\SystemSetting\RolePermission\" />
     <Folder Include="Features\SystemSetting\OperateLog\" />
     <Folder Include="Features\SystemSetting\UserAccount\" />
-    <Folder Include="Migrations\" />
     <Folder Include="SysCore\NLogger\DataChange\" />
     <Folder Include="SysCore\NLogger\Operate\" />
     <Folder Include="SysCore\NLogger\Sys\" />

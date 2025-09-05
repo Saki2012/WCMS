@@ -11,7 +11,7 @@ namespace WCMS.SysCore
     {
         [Key]public int Id { get; set; }
         [StringLength(SysLengthParam.Name)] public string APIName { get; set; } = string.Empty;
-        [StringLength(SysLengthParam.ID)] public string? UserId { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.ID)] public string? UserId { get; set; }
         [ForeignKey(nameof(UserId))] public UserModel? User { get; set; }
         public string followingDT { get; set; } = string.Empty;
         [StringLength(SysLengthParam.Memo)]public string Browser { get; set; } = string.Empty;

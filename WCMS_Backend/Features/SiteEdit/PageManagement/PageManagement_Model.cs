@@ -22,7 +22,6 @@ namespace WCMS.Features.SiteEdit.PageManagement
         /// 類別ID
         /// </summary>
         [LibDesc, StringLength(SysLengthParam.ID)] public string? CategoryId { get; set; }
-
         //[ForeignKey(nameof(CategoryId))] public virtual Category.Category Category { get; set; }
         /// <summary>
         /// 查看次數
@@ -38,7 +37,7 @@ namespace WCMS.Features.SiteEdit.PageManagement
         /// <summary>
         /// 靜態客製頁面ID
         /// </summary>
-        [LibDesc, Key] public string? PageId { get; set; }
+        [LibDesc, Key, StringLength(SysLengthParam.ID)] public string? PageId { get; set; }
         /// <summary>
         /// 行主鍵
         /// </summary>
@@ -46,11 +45,11 @@ namespace WCMS.Features.SiteEdit.PageManagement
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc] public string? Lang { get;set; }
+        [LibDesc, StringLength(SysLengthParam.Lang)] public string? Lang { get;set; }
         /// <summary>
         /// 標題
         /// </summary>
-        [LibDesc] public string? Title { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Title)] public string? Title { get; set; }
         /// <summary>
         /// 內容
         /// </summary>
