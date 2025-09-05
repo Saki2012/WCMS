@@ -79,7 +79,7 @@ namespace WCMS.Features.SiteEdit.WebResource
                             Lang = dRow["Lang"].ToString(),
                             Title = dRow["Title"].ToString(),
                             Content = dRow["Content"].ToString(),
-                            ResUrl = dRow["URL"].ToString(),
+                            ResUrl = dRow["Url"].ToString(),
                             Url_OpenType = dRow["URL_Open"].ToString(),
                         };
                         set.WebResourceInfo.Add(detail);

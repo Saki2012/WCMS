@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.UserRolePermission.Permission;
@@ -15,11 +16,11 @@ namespace WCMS.SysCore.SystemFunc.UserRolePermission.User
         /// <summary>
         /// 使用者編號
         /// </summary>
-        [LibDesc, Key] public string UserId { get; set; }
+        [LibDesc, Key, StringLength(SysLengthParam.ID)] public string UserId { get; set; }
         /// <summary>
         /// 使用者名稱
         /// </summary>
-        [LibDesc] public string UserName { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Name)] public string UserName { get; set; }
         /// <summary>
         /// 部門代號
         /// </summary>
@@ -27,7 +28,7 @@ namespace WCMS.SysCore.SystemFunc.UserRolePermission.User
         /// <summary>
         /// 
         /// </summary>
-        [LibDesc] public string? Email { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Email)] public string? Email { get; set; }
         /// <summary>
         /// 雜湊密碼
         /// </summary>

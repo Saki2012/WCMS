@@ -86,7 +86,7 @@ namespace WCMS.Features.SiteEdit.Announcement
                             Title = dRow["Title"].ToString(),
                             Content = contentXml,
                             SubTitle = dRow["SubTitle"].ToString(),
-                            Url = dRow["URL"].ToString(),
+                            Url = dRow["Url"].ToString(),
                         };
                         set.AnnouncementDetail.Add(detail);
                         for (int i = 1; i < 10; i++)

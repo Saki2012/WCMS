@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WCMS.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -408,7 +408,6 @@ namespace WCMS.Migrations
                     ProgId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ImportLabel = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FileStatus = table.Column<byte>(type: "tinyint", nullable: false),
-                    InvalidUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
                     CreateUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
@@ -425,12 +424,6 @@ namespace WCMS.Migrations
                     table.ForeignKey(
                         name: "FK_FileManage_User_CreateUserId",
                         column: x => x.CreateUserId,
-                        principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_FileManage_User_InvalidUserId",
-                        column: x => x.InvalidUserId,
                         principalTable: "User",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Restrict);
@@ -1377,11 +1370,6 @@ namespace WCMS.Migrations
                 table: "FileManage",
                 column: "InternalId",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FileManage_InvalidUserId",
-                table: "FileManage",
-                column: "InvalidUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FileManage_ModifyUserId",

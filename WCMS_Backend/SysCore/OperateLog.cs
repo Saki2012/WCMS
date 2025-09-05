@@ -1,9 +1,6 @@
-﻿using Newtonsoft.Json;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Reflection;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.SystemFunc.UserRolePermission.User;
 
@@ -13,12 +10,12 @@ namespace WCMS.SysCore
     public class OperateLogModel
     {
         [Key]public int Id { get; set; }
-        public string APIName { get; set; } = string.Empty;
-        public string? UserId { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.Name)] public string APIName { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.ID)] public string? UserId { get; set; } = string.Empty;
         [ForeignKey(nameof(UserId))] public UserModel? User { get; set; }
         public string followingDT { get; set; } = string.Empty;
-        public string Browser { get; set; } = string.Empty;
-        public string IP { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.Memo)]public string Browser { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.IP)]public string IP { get; set; } = string.Empty;
         public DateTime ExcuteTime { get; set; } = DateTime.UtcNow;
         public ExcStatus ExcStatus { get; set; }
     }

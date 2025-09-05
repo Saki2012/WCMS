@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.SiteEdit.Category;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 
@@ -16,11 +17,11 @@ namespace WCMS.Features.SiteEdit.PageManagement
         /// <summary>
         /// 靜態客製頁面ID
         /// </summary>
-        [LibDesc,Key] public string? PageId { get; set; }
+        [LibDesc,Key, StringLength(SysLengthParam.ID)] public string? PageId { get; set; }
         /// <summary>
         /// 類別ID
         /// </summary>
-        [LibDesc] public string? CategoryId { get; set; }
+        [LibDesc, StringLength(SysLengthParam.ID)] public string? CategoryId { get; set; }
 
         //[ForeignKey(nameof(CategoryId))] public virtual Category.Category Category { get; set; }
         /// <summary>

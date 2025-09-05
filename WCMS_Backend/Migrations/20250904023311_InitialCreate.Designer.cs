@@ -12,8 +12,8 @@ using WCMS.SysCore;
 namespace WCMS.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250904014956_Initial")]
-    partial class Initial
+    [Migration("20250904023311_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -294,7 +294,7 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("URL")
+                    b.Property<string>("Url")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -1712,10 +1712,6 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("InvalidUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
 
@@ -1755,8 +1751,6 @@ namespace WCMS.Migrations
 
                     b.HasIndex("InternalId")
                         .IsUnique();
-
-                    b.HasIndex("InvalidUserId");
 
                     b.HasIndex("ModifyUserId");
 
@@ -2489,20 +2483,12 @@ namespace WCMS.Migrations
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
-                        .WithMany()
-                        .HasForeignKey("InvalidUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
                         .WithMany()
                         .HasForeignKey("ModifyUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("CreateUser");
-
-                    b.Navigation("InvalidUser");
 
                     b.Navigation("ModifyUser");
                 });

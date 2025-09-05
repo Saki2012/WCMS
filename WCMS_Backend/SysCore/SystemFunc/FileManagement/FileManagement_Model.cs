@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using WCMS.Features.SiteEdit.PageManagement;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.UserRolePermission.User;
@@ -27,33 +28,33 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 檔案識別碼
         /// </summary>
-        [LibDesc, Key] public new string InternalId { get; set; } = new Guid().ToString();
+        [LibDesc, Key, StringLength(SysLengthParam.InternalId)] public new string InternalId { get; set; } = new Guid().ToString();
         /// <summary>
         /// 路徑
         /// </summary>
-        [LibDesc] public string Path { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Path)] public string Path { get; set; }
         /// <summary>
         /// 檔案名稱
         /// </summary>
-        [LibDesc, MaxLength(255)] public string FileName { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Title)] public string FileName { get; set; }
         /// <summary>
         /// 副檔名
         /// </summary>
-        [LibDesc, MaxLength(15)] public string FileExtension { get; set; }
+        [LibDesc, StringLength(SysLengthParam.FileExt)] public string FileExtension { get; set; }
         /// <summary>
         /// 檔案描述
         /// (後續可透過帶出，其他表可修改對應的顯示說明)
         /// </summary>
-        [LibDesc] public string FileDescription { get; set; } = string.Empty;
+        [LibDesc, StringLength(SysLengthParam.Memo)] public string FileDescription { get; set; } = string.Empty;
         /// <summary>
         /// 網際網路媒體型式
         /// </summary>
-        [LibDesc] public string MimeType { get; set; } = string.Empty;
+        [LibDesc, StringLength(SysLengthParam.FileMineType)] public string MimeType { get; set; } = string.Empty;
         /// <summary>
         /// 檔案SHA256值 
         /// 用來檢查Server是否已有該檔案，若有就不用再次上傳，但是要更新其他欄位
         /// </summary>
-        [LibDesc, MaxLength(64)] public string FileSHA256 { get; set; }
+        [LibDesc, StringLength(SysLengthParam.FileSHA256)] public string FileSHA256 { get; set; }
         /// <summary>
         /// 檔案大小
         /// </summary>
@@ -61,12 +62,12 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 功能Id
         /// </summary>
-        [LibDesc] public string ProgId { get; set; }
+        [LibDesc, StringLength(SysLengthParam.ProgId)] public string ProgId { get; set; }
         /// <summary>
         /// 匯入標籤(
         /// (供初始化的，例如1810專案的檔案匯入，資料夾就為1810(ImportLabel名就為1810)，底下結構不變的紀錄至Path)
         /// </summary>
-        [LibDesc] public string ImportLabel { get; set; } = string.Empty;
+        [LibDesc, StringLength(SysLengthParam.ID)] public string ImportLabel { get; set; } = string.Empty;
         /// <summary>
         /// 檔案狀態
         /// </summary>
@@ -96,7 +97,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 檔案識別碼
         /// </summary>
-        [LibDesc, Key] public string InternalId { get; set; }
+        [LibDesc, Key, StringLength(SysLengthParam.InternalId)] public string InternalId { get; set; }
         /// <summary>
         /// 行代碼
         /// </summary>
@@ -104,19 +105,19 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 下載者IP
         /// </summary>
-        [LibDesc] public string DownloadUserIP { get; set; }
+        [LibDesc, StringLength(SysLengthParam.IP)] public string DownloadUserIP { get; set; }
         /// <summary>
         /// 使用裝置
         /// </summary>
-        [LibDesc] public string UserAgent { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Memo)] public string UserAgent { get; set; }
         /// <summary>
         /// 下載來源
         /// </summary>
-        [LibDesc] public string RefererURL { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Url)] public string RefererURL { get; set; }
         /// <summary>
-        /// 下載狀態 (成功/失敗)
+        /// 下載狀態 (1成功/0失敗)
         /// </summary>
-        [LibDesc] public string DownloadStatus { get; set; }
+        [LibDesc] public bool DownloadStatus { get; set; }
         /// <summary>
         /// 下載時間
         /// </summary>
@@ -130,7 +131,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 檔案識別碼
         /// </summary>
-        [LibDesc, Key] public string InternalId { get; set; }
+        [LibDesc, Key, StringLength(SysLengthParam.InternalId)] public string InternalId { get; set; }
         /// <summary>
         /// 行代碼
         /// </summary>
@@ -142,35 +143,35 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 來源IP
         /// </summary>
-        public string SrcIP { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.IP)] public string SrcIP { get; set; } = string.Empty;
         /// <summary>
         /// 來源機器
         /// </summary>
-        public string SrcNode { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.Name)] public string SrcNode { get; set; } = string.Empty;
         /// <summary>
         /// 來源完整路徑
         /// </summary>
-        public string SrcFullPath { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.Url)] public string SrcFullPath { get; set; } = string.Empty;
         /// <summary>
         /// 目的地IP
         /// </summary>
-        public string DestIP { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.IP)] public string DestIP { get; set; } = string.Empty;
         /// <summary>
         /// 目的地機器
         /// </summary>
-        public string DestNode { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.Name)] public string DestNode { get; set; } = string.Empty;
         /// <summary>
         /// 目的地完整路徑
         /// </summary>
-        public string DestFullPath { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.Url)] public string DestFullPath { get; set; } = string.Empty;
         /// <summary>
         /// 錯誤訊息碼
         /// </summary>
-        public string? ErrorCode { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.ID)] public string? ErrorCode { get; set; } = string.Empty;
         /// <summary>
         /// 錯誤訊息
         /// </summary>
-        public string? ErrorMessage { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.CodeMessage)] public string? ErrorMessage { get; set; } = string.Empty;
         /// <summary>
         /// 執行時間
         /// </summary>
@@ -184,7 +185,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 檔案識別碼
         /// </summary>
-        [LibDesc, Key] public string InternalId { get; set; }
+        [LibDesc, Key, StringLength(SysLengthParam.InternalId)] public string InternalId { get; set; }
         /// <summary>
         /// 行代碼
         /// </summary>
@@ -192,14 +193,14 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 使用的功能表名
         /// </summary>
-        [LibDesc] public string TableName { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Name)] public string TableName { get; set; }
         /// <summary>
         /// 使用的功能欄位名稱
         /// </summary>
-        [LibDesc] public string ColumnName{ get; set; }
+        [LibDesc, StringLength(SysLengthParam.Name)] public string ColumnName{ get; set; }
         /// <summary>
         /// 對應資料主鍵
         /// </summary>
-        public string CompositeKey { get; set; }
+        [StringLength(SysLengthParam.Memo)] public string CompositeKey { get; set; }
     }
 }

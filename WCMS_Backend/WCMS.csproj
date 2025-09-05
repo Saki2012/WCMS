@@ -48,7 +48,6 @@
     <PackageReference Include="Mime-Detective.Definitions.Condensed" Version="25.8.1" />
     <PackageReference Include="Mime-Detective.Definitions.Exhaustive" Version="25.8.1" />
     <PackageReference Include="NLog" Version="6.0.3" />
-    <PackageReference Include="NLog.Config" Version="4.7.15" />
     <PackageReference Include="NLog.Schema" Version="6.0.3" />
     <PackageReference Include="SharpCompress" Version="0.40.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.58" />
@@ -73,5 +72,11 @@
     <Folder Include="SysCore\NLogger\DataChange\" />
     <Folder Include="SysCore\NLogger\Operate\" />
     <Folder Include="SysCore\NLogger\Sys\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="NLog.config">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>

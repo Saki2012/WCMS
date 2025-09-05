@@ -117,7 +117,7 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
                                 set.SiteMenu_Item_Url.Add(item_url);
                                 foreach (DataRow rl in menuLang.Select($"Sn={sn}"))
                                 {
-                                    string url = rl["URL"].ToString();
+                                    string url = rl["Url"].ToString();
 
                                     if (url.StartsWith("/Front"))
                                     {

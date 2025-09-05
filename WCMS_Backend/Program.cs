@@ -1,21 +1,14 @@
-﻿
-using Azure;
-using Azure.Core;
-using Microsoft.AspNetCore.Antiforgery;
+﻿using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Components.RenderTree;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using NetTopologySuite.Index.HPRtree;
 using StackExchange.Redis;
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO.Compression;
 using System.Net;
@@ -61,13 +54,10 @@ namespace WCMS
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost,
-                KnownProxies =  { IPAddress.Parse("127.0.0.1"),{ IPAddress.Loopback } }
-                //KnownProxies = { System.Net.IPAddress.Loopback }
-                //KnownNetworks = { },
-                //KnownProxies = { }
+                KnownProxies = { IPAddress.Loopback, IPAddress.IPv6Loopback, IPAddress.Parse("127.0.0.1") },
+                RequireHeaderSymmetry = false,
             });
-            // 產線請確保有 HTTPS（若由前置 Proxy 終結 TLS，保留這行也 OK）
-            //app.UseHttpsRedirection();
+            
             // 安全標頭（弱掃友好）
             AppSetup.UseSecurityHeaders(app, builder.Configuration);
             AppSetup.UseSecurityXSRF(app, builder.Configuration);
@@ -79,6 +69,20 @@ namespace WCMS
             }
             else
             {
+                // 只允許本機打 /swagger/*
+                app.UseWhen(ctx => ctx.Request.Path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase),sub => sub.Use(async (ctx, next) =>
+                {
+                     var ip = ctx.Connection.RemoteIpAddress;
+                     // 僅允許 127.0.0.1/::1，且 Host 必須是 127.0.0.1（防止繞 Host）
+                     if (!(IPAddress.IsLoopback(ip) &&
+                           string.Equals(ctx.Request.Host.Host, "127.0.0.1", StringComparison.OrdinalIgnoreCase)))
+                     {
+                         ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+                         await ctx.Response.WriteAsync("Swagger is local-only.");
+                         return;
+                     }
+                     await next();
+                }));
                 app.UseWhen(ctx =>
                 {
                     var ip = ctx.Connection.RemoteIpAddress;
@@ -87,10 +91,18 @@ namespace WCMS
                 branch =>
                 {
                     branch.UseSwagger();
-                    branch.UseSwaggerUI();
+                    branch.UseSwaggerUI(c =>
+                    {
+                        c.RoutePrefix = "swagger";
+                        c.SwaggerEndpoint("/swagger/v1/swagger.json", "WCMS API v1");
+                        // 讓 Swagger-UI 自動帶 XSRF header（從 Cookie 讀）
+                        //c.UseRequestInterceptor("(req)=>{var m=document.cookie.match(/(?:^|;\\\\s*)XSRF-TOKEN=([^;]+)/);if(m){req.headers['X-XSRF-TOKEN']=decodeURIComponent(m[1]);}return req;}");
+                    });
                 });
                 app.UseHsts();
             }
+            // 產線請確保有 HTTPS（若由前置 Proxy 終結 TLS，保留這行也 OK）
+            app.UseHttpsRedirection();
             using (var scope = app.Services.CreateScope())
             {
                 var cacheStore = scope.ServiceProvider.GetRequiredService<IOutputCacheStore>();
@@ -137,6 +149,7 @@ namespace WCMS
                     o.AddServerHeader = false; // 移除 Server 標頭（弱掃友好）
                     o.Limits.MaxRequestHeadersTotalSize = 64 * 1024;      // 64KB headers
                     o.Limits.RequestHeadersTimeout = TimeSpan.FromSeconds(15);
+                    if(builder.Environment.IsProduction()) o.ListenLocalhost(5624);// 後端只聽本機（IIS/Nginx 反向 Proxy）
                     // 視流量特性微調
                     // o.Limits.MaxConcurrentConnections = 1000;
                     // o.Limits.MaxRequestBodySize = 100 * 1024 * 1024;   // 若要全域限制上傳
@@ -241,26 +254,26 @@ namespace WCMS
                 {
                     o.Cookie.Name = "XSRF-TOKEN"; 
                     o.Cookie.HttpOnly = false;
-                    o.HeaderName = "X-XSRF-TOKEN";   // 前端送在這個 header
-                    o.Cookie.SecurePolicy = CookieSecurePolicy.Always; // ✅ 強制 Secure
+                    o.HeaderName = "X-XSRF-TOKEN";
+                    o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                     o.Cookie.SameSite = SameSiteMode.Strict;
                 });
-                var whitelist = cfg.GetSection("Whitelist:Frontend").Get<string[]>();
-
-                // CORS：只允許本機與你的網域。要再加網域請到 appsettings 或改這裡。
+                var feHosts = (cfg.GetSection("Whitelist:Frontend").Get<string[]>() ?? []).Select(HostOnly).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                // CORS：只允許本機與你的網域。要再加網域請到 appsettings 。
                 services.AddCors(options =>
                 {
                     options.AddPolicy(CorsPolicyName, policy =>
                     {
-                        policy
-                        .WithOrigins(whitelist!)
+                        policy.SetIsOriginAllowed(origin =>
+                        {
+                            if (!Uri.TryCreate(origin, UriKind.Absolute, out var u)) return false;
+                            return feHosts.Contains(u.Host);
+                        })
                         .WithHeaders("Content-Type", "X-XSRF-TOKEN", "Authorization", "X-Requested-With", "Access-Control-Allow-Origin")
                         .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH")
                         .AllowCredentials();
-                        ;
                     });
                 });
-
                 services.AddHsts(o =>
                 {
                     o.Preload = false;
@@ -433,7 +446,7 @@ namespace WCMS
             public static void UseSecurityHeaders(WebApplication app, IConfiguration cfg)
             {
 
-                var whitelist = cfg.GetSection("Whitelist:Backend").Get<string[]>();
+                var beHosts = (cfg.GetSection("Whitelist:Backend").Get<string[]>() ?? []).Select(HostOnly).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
                 app.Use(async (ctx, next) =>
                 {
@@ -441,14 +454,12 @@ namespace WCMS
                     ctx.Response.Headers.XFrameOptions = "DENY";
                     ctx.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
                     ctx.Response.Headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=(), fullscreen=(self)";
-
-                    // 若整站全 HTTPS，建議一併加 HSTS（測試好再開 subdomains）
-                    ctx.Response.Headers["Strict-Transport-Security"] = "max-age=31536000";
+                    ctx.Response.Headers.StrictTransportSecurity = "max-age=31536000";
 
                     if (ctx.Request.Path.StartsWithSegments("/Service"))
                     {
                         // API：超嚴 CSP（不影響 JSON/檔案傳輸）
-                        ctx.Response.Headers["Content-Security-Policy"] =
+                        ctx.Response.Headers.ContentSecurityPolicy =
                         "default-src 'none'; script-src 'none'; connect-src 'self'; img-src 'none'; " +
                         "style-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; " +
                         "frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'";
@@ -457,23 +468,15 @@ namespace WCMS
                     {
                         // 非 API（真的有 HTML 才需要）
                         // 先保留你現有策略，之後有需要再做 nonce 化
-                        ctx.Response.Headers["Content-Security-Policy"] =
-                            "default-src 'self'; img-src 'self' data:; style-src 'self'";
+                        ctx.Response.Headers.ContentSecurityPolicy = "default-src 'self'; img-src 'self' data:; style-src 'self'";
                     }
 
-                    //ctx.Response.Headers.ContentSecurityPolicy = app.Environment.IsDevelopment()
-                    //? "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'"
-                    //: "default-src 'self'; img-src 'self' data:; style-src 'self'";
-
-                    if (app.Environment.IsProduction())
+                    if (app.Environment.IsProduction() && beHosts.Count > 0)
                     {
                         // ⬇️ 新增：本機請求直接放行（避免 403）
-                        var ip = ctx.Connection.RemoteIpAddress;
-                        var isLoopback = ip is not null && IPAddress.IsLoopback(ip);
-                        var host = ctx.Request.Host.Host;
-                        var allowed = whitelist;
-
-                        if (!IPAddress.IsLoopback(ctx.Connection.RemoteIpAddress) && !allowed.Contains(host, StringComparer.OrdinalIgnoreCase))
+                        var effectiveHost = EffectiveHost(ctx); // 支援代理的 X-Forwarded-Host
+                        var isLoopback = ctx.Connection.RemoteIpAddress is IPAddress ip && IPAddress.IsLoopback(ip);
+                        if (!isLoopback && !beHosts.Contains(effectiveHost))
                         {
                             ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
                             return;
@@ -486,128 +489,104 @@ namespace WCMS
 
             public static void UseSecurityXSRF(WebApplication app, IConfiguration cfg)
             {
-                var whitelist = cfg.GetSection("Whitelist:Frontend").Get<string[]>();
-                var Backlist = cfg.GetSection("Whitelist:Backend").Get<string[]>();
+                var feHosts = (cfg.GetSection("Whitelist:Frontend").Get<string[]>() ?? []).Select(HostOnly).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
                 app.Use(async (ctx, next) =>
                 {
                     var path = ctx.Request.Path.Value ?? "";
                     var method = ctx.Request.Method;
-                    bool isApi = path.StartsWith("/Service/", StringComparison.OrdinalIgnoreCase);
-                    bool isUnsafe = !HttpMethods.IsGet(method) && !HttpMethods.IsHead(method) && !HttpMethods.IsOptions(method);
-                    bool hasOurCookie = ctx.Request.Cookies.ContainsKey("access"); // 你用 Cookie 存 JWT
-
                     if (path.Equals("/Service/SystemAPI/GetXsrfToken", StringComparison.OrdinalIgnoreCase))
                     {
                         await next();
                         return;
                     }
-
-                    // 1) 在 GET 時發 token（同時把 request token 種成前端可讀 cookie）
-                    //if (HttpMethods.IsGet(method) && isApi)
-                    //{
-                    //    var af = ctx.RequestServices.GetRequiredService<IAntiforgery>();
-                    //    var tokens = af.GetAndStoreTokens(ctx); // 會種伺服器用的 xsrf cookie
-
-                    //    if (!string.IsNullOrEmpty(tokens.RequestToken))
-                    //    {
-                    //        ctx.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken, new CookieOptions
-                    //        {
-                    //            HttpOnly = false,                      // 前端要讀來塞 header
-                    //            Secure = true,
-                    //            SameSite = SameSiteMode.Strict,          // 與後端不同網域需要 None
-                    //            Path = "/"
-                    //        });
-                    //    }
-                    //}
-
-                    var af = ctx.RequestServices.GetRequiredService<IAntiforgery>();
-                    var tokens = af.GetAndStoreTokens(ctx); // 會種伺服器用的 xsrf cookie
-                    var allowed = whitelist ?? [];
-                    var origin = ctx.Request.Headers.Origin.FirstOrDefault();
-                    var referer = ctx.Request.Headers.Referer.FirstOrDefault();
-
-                    if (!string.IsNullOrEmpty(tokens.RequestToken))
+                    // === A) 本機 HTTP 的 /swagger 頁面：不要鑄 Anti-forgery token，避免 CheckSSLConfig ===
+                    bool isSwaggerPath = ctx.Request.Path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase);
+                    bool isLocal = IPAddress.IsLoopback(ctx.Connection.RemoteIpAddress);
+                    if (isSwaggerPath && isLocal && !ctx.Request.IsHttps)
                     {
-                        ctx.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken, new CookieOptions
-                        {
-                            HttpOnly = false,                      // 前端要讀來塞 header
-                            Secure = true,
-                            SameSite = SameSiteMode.Strict,          // 與後端不同網域需要 None
-                            Path = "/"
-                        });
+                        await next(); // 直接放行載入 Swagger UI
+                        return;
                     }
-                    //==================================弱掃，偽造跨網站的要求的解決方法===================================
-                    if (app.Environment.IsProduction()) 
-                    { 
-                        Uri MyUri = new Uri(referer);
-                        int counting = 0;
-                        foreach (string Item in Backlist)
-                        {
-                            if (MyUri.OriginalString.Equals(Item, StringComparison.OrdinalIgnoreCase))
-                            {
-                                counting++;
-                            }
-                        }
+                    // === B) 從「本機 Swagger」發出的寫入型請求：暫時略過 XSRF 驗證（僅限本機） ===
+                    bool isWrite =
+                        HttpMethods.IsPost(ctx.Request.Method) || HttpMethods.IsPut(ctx.Request.Method) ||
+                        HttpMethods.IsDelete(ctx.Request.Method) || HttpMethods.IsPatch(ctx.Request.Method);
 
-                        counting = 0;
-                        foreach (string Item in whitelist)
-                        {
-                            if (MyUri.Host.Equals(Item, StringComparison.OrdinalIgnoreCase))
-                            {
-                                counting++;
-                            }
-                        }
+                    // 來源判斷：Referer 指向本機 swagger，或 Origin 是 http://127.0.0.1
+                    string referer = ctx.Request.Headers.Referer.ToString();
+                    string origin = ctx.Request.Headers.Origin.ToString();
+                    bool fromLocalSwagger =
+                        isLocal &&
+                        (referer.Contains("http://127.0.0.1/swagger", StringComparison.OrdinalIgnoreCase) ||
+                         origin.Equals("http://127.0.0.1", StringComparison.OrdinalIgnoreCase));
 
-                        if (counting == 0)
+                    if (isWrite && fromLocalSwagger)
+                    {
+                        await next(); // ← 本機用 Swagger 測試 POST/PUT/DELETE/PATCH：不驗 XSRF
+                        return;
+                    }
+                    bool isHtml = ctx.Request.Headers.Accept.ToString().Contains("text/html", StringComparison.OrdinalIgnoreCase);
+
+                    if (ctx.Request.IsHttps && !ctx.Request.Path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase) 
+                        && isHtml && HttpMethods.IsGet(ctx.Request.Method))
+                    {
+                        var af = ctx.RequestServices.GetRequiredService<IAntiforgery>();
+                        var tokens = af.GetAndStoreTokens(ctx);
+
+                        if (!string.IsNullOrEmpty(tokens.RequestToken))
+                        {
+                            ctx.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken, new CookieOptions
+                            {
+                                HttpOnly = false,   // 讓前端可讀→塞進 X-XSRF-TOKEN
+                                Secure = true,      // 測試期若純 http 可改 SameAsRequest
+                                SameSite = SameSiteMode.Strict,
+                                Path = "/"
+                            });
+                        }
+                    }
+                    
+                    if (app.Environment.IsProduction() && (HttpMethods.IsPost(method) || HttpMethods.IsPut(method) || HttpMethods.IsDelete(method) || HttpMethods.IsPatch(method)))
+                    {
+                        // 來源：優先 Origin，沒有就用 Referer
+                        static Uri? TryParse(string? v) => !string.IsNullOrWhiteSpace(v) && Uri.TryCreate(v, UriKind.Absolute, out var u) ? u : null;
+                        var src = TryParse(origin) ?? TryParse(referer);
+                        var sourceHost = src?.Host;
+                        var effectiveHost = EffectiveHost(ctx);
+                        var isLoopback = ctx.Connection.RemoteIpAddress is IPAddress ip && IPAddress.IsLoopback(ip);
+                        // 接受：1) 來自本機；2) 來源 host 在前端白名單；3) 來源 host 就是本站（同源）
+                        var pass = isLoopback || (sourceHost != null && feHosts.Contains(sourceHost)) || (sourceHost != null && string.Equals(sourceHost, effectiveHost, StringComparison.OrdinalIgnoreCase));
+                        if (!pass)
                         {
                             ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
                             await ctx.Response.WriteAsJsonAsync(new { success = false, message = "Invalid Origin/Referer." });
                             return;
                         }
                     }
-
-                    //========================================================================================================
-
-                    // 2) 只有「會改資料」且「走受保護 API」時才驗證 XSRF
-                    if (isApi && isUnsafe && hasOurCookie)
-                    {
-                        // 先做 Origin/Referer 白名單
-                        //var allowed = whitelist ?? [];
-                        //var origin = ctx.Request.Headers.Origin.FirstOrDefault();
-                        //var referer = ctx.Request.Headers.Referer.FirstOrDefault();
-
-                        bool passOrigin = !string.IsNullOrEmpty(origin) && allowed.Any(h => origin.Contains(h, StringComparison.OrdinalIgnoreCase));
-                        bool passReferer = !string.IsNullOrEmpty(referer) && allowed.Any(h => referer.Contains(h, StringComparison.OrdinalIgnoreCase));
-
-                        if (!passOrigin && !passReferer)
-                        {
-                            ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
-                            await ctx.Response.WriteAsJsonAsync(new { success = false, message = "Invalid Origin/Referer." });
-                            return;
-                        }
-
-                        // 驗證 XSRF（需要 xsrf cookie + X-XSRF-TOKEN header ）
-                        if (app.Environment.IsProduction()) 
-                        { 
-                            try
-                            {
-                                af = ctx.RequestServices.GetRequiredService<IAntiforgery>();
-                                await af.ValidateRequestAsync(ctx);
-                            }
-                            catch
-                            {
-                                ctx.Response.StatusCode = StatusCodes.Status400BadRequest;
-                                await ctx.Response.WriteAsJsonAsync(new { success = false, message = "Invalid XSRF token." });
-                                return;
-                            }
-                        }
-                    }
-
                     await next();
                 });
             }
             #endregion
         }
+
+        /// <summary>
+        /// 取得「對外實際主機」：優先 X-Forwarded-Host，否則用 Request.Host
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        private static string EffectiveHost(HttpContext ctx)
+        {
+            var fwd = ctx.Request.Headers["X-Forwarded-Host"].FirstOrDefault();
+            var raw = !string.IsNullOrWhiteSpace(fwd) ? fwd : ctx.Request.Host.Value;
+            return HostOnly(raw);
+        }
+        private static string HostOnly(string? hostPort)
+        {
+            if (string.IsNullOrWhiteSpace(hostPort)) return string.Empty;
+            var h = hostPort.Trim();
+            var i = h.IndexOf(':');
+            return i >= 0 ? h[..i] : h;
+        }
+        private static Uri? TryParseUri(string? s) => !string.IsNullOrWhiteSpace(s) && Uri.TryCreate(s, UriKind.Absolute, out var u) ? u : null;
     }
 }

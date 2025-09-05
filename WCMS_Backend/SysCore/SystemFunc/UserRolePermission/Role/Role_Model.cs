@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.AccessControl;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.UserRolePermission.Permission;
@@ -26,11 +27,11 @@ namespace WCMS.SysCore.SystemFunc.UserRolePermission.Role
         /// <summary>
         /// 角色權限代號
         /// </summary>
-        [LibDesc, Key] public string RoleId { get; set; }
+        [LibDesc, Key, StringLength(SysLengthParam.ID)] public string RoleId { get; set; }
         /// <summary>
         /// 角色權限名稱
         /// </summary>
-        [LibDesc] public string RoleName { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Name)] public string RoleName { get; set; }
         /// <summary>
         /// 前/後台
         /// </summary>

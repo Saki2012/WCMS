@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
@@ -21,15 +22,15 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// <summary>
         /// 檔案分類ID
         /// </summary>
-        [LibDesc, Required, Key] public string GalleryId { get; set; }
+        [LibDesc, Required, Key, StringLength(SysLengthParam.ID)] public string GalleryId { get; set; }
         /// <summary>
         /// 類別ID(多個)
         /// </summary>
-        [LibDesc, Required] public string Categories { get; set; }
+        [LibDesc, Required, StringLength(SysLengthParam.Title)] public string Categories { get; set; }
         /// <summary>
         /// 標籤ID(多個)
         /// </summary>
-        [LibDesc, Required] public string Tags { get; set; }
+        [LibDesc, Required, StringLength(SysLengthParam.Title)] public string Tags { get; set; }
         /// <summary>
         /// 狀態:置頂/熱門/隱藏
         /// </summary>
@@ -37,7 +38,7 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// <summary>
         /// 封面照 (透過功能從相簿裡的PicSrcId直接取得，保存時紀錄，供之後list查看時減少效能使用)
         /// </summary>
-        public string CoverPicSrcId { get; set; }
+        [StringLength(SysLengthParam.InternalId)] public string CoverPicSrcId { get; set; }
         /// <summary>
         /// 相簿排序
         /// </summary>
@@ -80,7 +81,7 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// <summary>
         /// 檔案分類ID
         /// </summary>
-        [LibDesc, Required, Key] public string GalleryId { get; set; }
+        [LibDesc, Required, Key, StringLength(SysLengthParam.ID)] public string GalleryId { get; set; }
         /// <summary>
         /// 行主鍵
         /// </summary>
@@ -88,7 +89,7 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// <summary>
         /// 圖片來源
         /// </summary>
-        public string PicSrcId { get;set; }
+        [StringLength(SysLengthParam.InternalId)] public string PicSrcId { get;set; }
         /// <summary>
         /// 相片排序
         /// </summary>
@@ -104,7 +105,7 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// <summary>
         /// 檔案分類ID
         /// </summary>
-        [LibDesc, Required, Key] public string GalleryId { get; set; }
+        [LibDesc, Required, Key, StringLength(SysLengthParam.ID)] public string GalleryId { get; set; }
         /// <summary>
         /// 父行主鍵 - (GalleryPhotos)
         /// </summary>
@@ -116,10 +117,10 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc] public string Lang { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Lang)] public string Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>
-        public string Title { get; set; }
+        [StringLength(SysLengthParam.Title)] public string Title { get; set; }
     }
 }

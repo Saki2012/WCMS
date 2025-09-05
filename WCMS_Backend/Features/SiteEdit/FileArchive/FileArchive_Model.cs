@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.SiteEdit.Announcement;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using static WCMS.Features.SystemSetting.SiteMenuSetting.ModuleOptions;
@@ -19,7 +20,7 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// <summary>
         /// 檔案分類ID
         /// </summary>
-        [LibDesc, Required, Key] public string FileArchiveId { get; set; }
+        [Required, Key, StringLength(SysLengthParam.ID)] public string FileArchiveId { get; set; }
         /// <summary>
         /// 狀態:置頂/熱門/隱藏
         /// </summary>
@@ -27,11 +28,11 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// <summary>
         /// 類別ID(多個)
         /// </summary>
-        [LibDesc, Required] public string CategoriesId { get; set; }
+        [Required, StringLength(SysLengthParam.Title)] public string CategoriesId { get; set; }
         /// <summary>
         /// 標籤ID(多個)
         /// </summary>
-        [LibDesc, Required] public string TagsId { get; set; }
+        [Required, StringLength(SysLengthParam.Title)] public string TagsId { get; set; }
 
         #region 關聯
         public virtual ICollection<FileArchiveInfo>? FileArchiveInfo { get; set; }
@@ -43,19 +44,19 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// <summary>
         /// 檔案分類ID
         /// </summary>
-        [LibDesc, Required, Key] public string FileArchiveId { get; set; }
+        [Required, Key, StringLength(SysLengthParam.ID)] public string FileArchiveId { get; set; }
         /// <summary>
         /// 行主鍵
         /// </summary>
-        [LibDesc, Key] public int RowId { get; set; }
+        [Key] public int RowId { get; set; }
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc] public string Lang { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Lang)] public string Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>
-        public string Title { get; set; }
+        [StringLength(SysLengthParam.Title)] public string Title { get; set; }
         #region 關聯
         #endregion
     }
@@ -64,22 +65,22 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// <summary>
         /// 靜態客製頁面ID
         /// </summary>
-        [LibDesc, Required, Key] public string FileArchiveId { get; set; }
+        [Required, Key, StringLength(SysLengthParam.ID)] public string FileArchiveId { get; set; }
         /// <summary>
         /// 父行主鍵 (FileArchiveInfo)
         /// </summary>
-        [LibDesc, Key] public int ParentRowId { get; set; }
+        [Key] public int ParentRowId { get; set; }
         /// <summary>
         /// 行主鍵
         /// </summary>
-        [LibDesc, Key] public int RowId { get; set; }
+        [Key] public int RowId { get; set; }
         /// <summary>
         /// 檔案來源
         /// </summary>
-        [LibDesc] public string FileSrcId { get; set; }
+        [LibDesc, StringLength(SysLengthParam.InternalId)] public string FileSrcId { get; set; }
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc] public string FileName { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Title)] public string FileName { get; set; }
     }
 }

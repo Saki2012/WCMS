@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 
@@ -16,11 +17,11 @@ namespace WCMS.Features.SiteEdit.Banner
         /// <summary>
         /// 橫幅ID
         /// </summary>
-        [LibDesc, Key] public string BannerId { get; set; }
+        [LibDesc, Key, StringLength(SysLengthParam.ID)] public string BannerId { get; set; }
         /// <summary>
         /// 類別ID
         /// </summary>
-        public string BannerCategoryName { get; set; }
+        [StringLength(SysLengthParam.Name)] public string BannerCategoryName { get; set; }
         /// <summary>
         /// 轉換間隔
         /// </summary>
@@ -37,10 +38,6 @@ namespace WCMS.Features.SiteEdit.Banner
         /// 橫幅寬度
         /// </summary>
         public short Width { get; set; }
-        /// <summary>
-        /// 橫幅效果
-        /// </summary>
-        public string Effect { get; set; }
     }
     public class BannerDetail:DetailRowModel
     {
@@ -78,7 +75,7 @@ namespace WCMS.Features.SiteEdit.Banner
         /// <summary>
         /// 
         /// </summary>
-        [LibDesc, Key] public string BannerId { get; set; }
+        [LibDesc, Key, StringLength(SysLengthParam.ID)] public string BannerId { get; set; }
         /// <summary>
         /// 
         /// </summary>
@@ -90,17 +87,17 @@ namespace WCMS.Features.SiteEdit.Banner
         /// <summary>
         /// 語系
         /// </summary>
-        [LibDesc] public string Lang { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Lang)] public string Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>
-        [LibDesc] public string Title { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Title)] public string Title { get; set; }
         /// <summary>
         /// 
         /// </summary>
         [LibDesc] public string Content { get; set; }
 
-        [LibDesc] public string URL { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Url)] public string URL { get; set; }
         /// <summary>
         /// 網址開啟方式
         /// </summary>

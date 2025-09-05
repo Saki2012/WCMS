@@ -1,4 +1,5 @@
-﻿using WCMS.SysCore.SystemFunc.UserRolePermission.User;
+﻿using Microsoft.Identity.Client;
+using WCMS.SysCore.SystemFunc.UserRolePermission.User;
 
 namespace WCMS.SysCore.Enum
 {
@@ -43,5 +44,6 @@ namespace WCMS.SysCore.Enum
         /// 系統操作
         /// </summary>
         public static readonly UserModel SysOperator = new() { UserId = "SysOperator", UserName = "系統操作" };
+
     }
 }

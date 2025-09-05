@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.UserRolePermission.User;
@@ -24,7 +25,7 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 創建人ID
         /// </summary>
-        [LibDesc] public string? CreateUserId { get; set; }
+        [LibDesc, StringLength(SysLengthParam.ID)] public string? CreateUserId { get; set; }
         [ForeignKey(nameof(CreateUserId))] public UserModel? CreateUser { get; set; }
         /// <summary>
         /// 修改時間
@@ -33,7 +34,7 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 修改人ID
         /// </summary>
-        [LibDesc] public string? ModifyUserId { get; set; }
+        [LibDesc, StringLength(SysLengthParam.ID)] public string? ModifyUserId { get; set; }
         [ForeignKey(nameof(ModifyUserId))] public UserModel? ModifyUser { get; set; }
         /// <summary>
         /// 單據狀態
@@ -50,16 +51,16 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 作廢人ID
         /// </summary>
-        [LibDesc] public string? InvalidUserId { get; set; }
+        [LibDesc, StringLength(SysLengthParam.ID)] public string? InvalidUserId { get; set; }
         [ForeignKey(nameof(InvalidUserId))] public UserModel? InvalidUser { get; set; }
         /// <summary>
         /// 系統內部唯一標識號
         /// </summary>
-        [LibDesc] public string InternalId { get; set; } = string.Empty;
+        [LibDesc, StringLength(SysLengthParam.InternalId)] public string InternalId { get; set; } = string.Empty;
         /// <summary>
         /// 主子站層級ID
         /// </summary>
-        [LibDesc] public string OrgLvId { get; set; } = string.Empty;
+        [LibDesc, StringLength(SysLengthParam.ID)] public string OrgLvId { get; set; } = string.Empty;
         /// <summary>
         /// // 是否為初始化資料
         /// </summary>

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 
@@ -15,11 +16,11 @@ namespace WCMS.Features.SiteEdit.Category
         /// <summary>
         /// 類別ID
         /// </summary>
-        [LibDesc, Key] public string? CategoryId { get; set; }
+        [Key, StringLength(SysLengthParam.ID)] public string? CategoryId { get; set; }
         /// <summary>
         /// 對應功能模塊ID
         /// </summary>
-        [LibDesc] public string? ProgId { get; set; }
+        [StringLength(SysLengthParam.ProgId)] public string? ProgId { get; set; }
         /// <summary>
         /// 類別明細
         /// </summary>
@@ -30,18 +31,18 @@ namespace WCMS.Features.SiteEdit.Category
         /// <summary>
         /// 靜態客製頁面ID
         /// </summary>
-        [LibDesc, Key] public string CategoryId { get; set; }
+        [Key, StringLength(SysLengthParam.ID)] public string CategoryId { get; set; }
         /// <summary>
         /// 行主鍵
         /// </summary>
-        [LibDesc, Key] public int RowId { get; set; }
+        [Key] public int RowId { get; set; }
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc] public string Lang { get; set; }
+        [StringLength(SysLengthParam.Lang)] public string Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>
-        public string CategoryName { get; set; }
+        [StringLength(SysLengthParam.Name)] public string CategoryName { get; set; }
     }
 }

@@ -393,5 +393,7 @@ namespace WCMS.SysCore.Enum
             /// </summary>
             [LibDesc(ModelDisplayName.Enum_Youtube)] Youtube =7
         }
+
+
     }
 }

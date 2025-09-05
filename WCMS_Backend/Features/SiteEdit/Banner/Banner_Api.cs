@@ -55,7 +55,6 @@ namespace WCMS.Features.SiteEdit.Banner
                 set.Banner.Speed = Convert.ToInt16(row["Speed"]);
                 set.Banner.Height = Convert.ToInt16(row["Height"]);
                 set.Banner.Width = Convert.ToInt16(row["Width"]);
-                set.Banner.Effect = row["Effect"].ToString();
                 int rowId = 1;
                 foreach(var dRow in ds.Tables["AdBanner"].AsEnumerable().Where(dr => dr["CategorySn"].ToString() == set.Banner.BannerId).ToList())
                 {
@@ -92,7 +91,7 @@ namespace WCMS.Features.SiteEdit.Banner
                                 Lang = detailLangRow["Lang"].ToString(),
                                 Title = detailLangRow["Title"].ToString(),
                                 Content = detailLangRow["Content"].ToString(),
-                                URL = detailLangRow["URL"].ToString(),
+                                URL = detailLangRow["Url"].ToString(),
                                 URL_Open = Convert.ToByte(detailLangRow["URL_Open"]),
                             };
                             set.BannerDetailInfo.Add(detailInfo);
@@ -148,10 +147,6 @@ namespace WCMS.Features.SiteEdit.Banner
         /// 橫幅寬度
         /// </summary>
         [LibDesc(ModelDisplayName.Banner_Width)]public short Width { get; set; }
-        /// <summary>
-        /// 橫幅效果
-        /// </summary>
-        [LibDesc(ModelDisplayName.Banner_Effect)]public string Effect { get; set; }
     }
     public class BannerDetail_DTO
     {

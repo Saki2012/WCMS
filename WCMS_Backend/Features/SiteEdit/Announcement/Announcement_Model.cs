@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.AccessControl;
 using WCMS.Features.SiteEdit.PageManagement;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
@@ -26,15 +27,15 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 公告代碼
         /// </summary>
-        [LibDesc, Key] public string? AnnouncementId { get; set; }
+        [LibDesc, Key, StringLength(SysLengthParam.ID)] public string? AnnouncementId { get; set; }
         /// <summary>
         /// 類別 (多個)
         /// </summary>
-        [LibDesc] public string? Categories { get; set; } = string.Empty;
+        [LibDesc, StringLength(SysLengthParam.Title)] public string? Categories { get; set; } = string.Empty;
         /// <summary>
         /// 標籤 (多個) 
         /// </summary>
-        [LibDesc] public string? Tags { get; set; } = string.Empty;
+        [LibDesc, StringLength(SysLengthParam.Title)] public string? Tags { get; set; } = string.Empty;
         /// <summary>
         /// 狀態 (多個)
         /// </summary>
@@ -42,11 +43,11 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 圖片 (關聯檔案資料)
         /// </summary>
-        [LibDesc] public string? PictureId { get; set; } = string.Empty;
+        [LibDesc, StringLength(SysLengthParam.InternalId)] public string? PictureId { get; set; } = string.Empty;
         /// <summary>
         /// 圖片描述
         /// </summary>
-        [LibDesc] public string? PicDescription { get; set; } = string.Empty;
+        [LibDesc, StringLength(SysLengthParam.Memo)] public string? PicDescription { get; set; } = string.Empty;
         /// <summary>
         /// 觀看次數
         /// </summary>
@@ -64,7 +65,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 公告代碼
         /// </summary>
-        [LibDesc, Key] public string? AnnouncementId { get; set; }
+        [LibDesc, Key, StringLength(SysLengthParam.ID)] public string? AnnouncementId { get; set; }
         /// <summary>
         /// 行代碼
         /// </summary>
@@ -72,15 +73,15 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 語系
         /// </summary>
-        [LibDesc] public string? Lang { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Lang)] public string? Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>
-        [LibDesc] public string? Title { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Title)] public string? Title { get; set; }
         /// <summary>
         /// 副標題
         /// </summary>
-        [LibDesc] public string? SubTitle { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Title)] public string? SubTitle { get; set; }
         /// <summary>
         /// 內文
         /// </summary>
@@ -88,7 +89,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 網址
         /// </summary>
-        [LibDesc] public string? Url { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Url)] public string? Url { get; set; }
     }
     /// <summary>
     /// 明細檔案關聯
@@ -98,7 +99,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 公告代碼
         /// </summary>
-        [LibDesc, Key] public string AnnouncementId { get; set; }
+        [LibDesc, Key, StringLength(SysLengthParam.ID)] public string AnnouncementId { get; set; }
         /// <summary>
         /// 父行代碼 - (AnnouncementDetail)
         /// </summary>
@@ -110,6 +111,6 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 檔案來源
         /// </summary>
-        [LibDesc] public string FileId { get; set; }
+        [LibDesc, StringLength(SysLengthParam.InternalId)] public string FileId { get; set; }
     }
 }

@@ -328,7 +328,7 @@ namespace WCMS.SysCore
     {
         private readonly IAntiforgery _anti = anti;
         /// <summary>發出/更新 XSRF Token，寫入可讀 Cookie：XSRF-TOKEN</summary>
-        [HttpGet(nameof(GetXsrfToken)), AllowAnonymous, ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        [HttpGet(nameof(GetXsrfToken)), AllowAnonymous, ResponseCache(NoStore = true, Location = ResponseCacheLocation.None), IgnoreAntiforgeryToken]
         public IActionResult GetXsrfToken()
         {
             var tokens = _anti.GetAndStoreTokens(HttpContext);
