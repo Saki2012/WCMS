@@ -13,7 +13,7 @@ const LibTextBox = (prop: LibTextBoxWithParentClassProp) => {
             <label htmlFor={inputId} className={prop.Style.Labelstyle}>{prop.ColumnDisplayName}</label>
             <div className={prop.Style.SelectStyle}>
                 <input id={inputId} type="text" className={prop.Style.InputStyle}
-                    placeholder={`${prop.DefaultInputDisplay}${prop.ColumnDisplayName} ...`} value={prop.InputValue ?? ""}
+                    placeholder={`${prop.DefaultInputDisplay}${prop.ColumnDisplayName} ...`} value={prop.InputValue ?? ""} disabled={prop.disabled ?? false}
                     onChange={(e) => prop.OnChange?.(e.target.value)}
                 />
             </div>

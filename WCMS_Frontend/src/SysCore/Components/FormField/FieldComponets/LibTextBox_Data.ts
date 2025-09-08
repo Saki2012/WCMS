@@ -25,4 +25,5 @@ export interface ILibTextBoxProp
     DefaultInputDisplay: string;
     InputValue?: string | number | null | undefined;
     OnChange?: (value: string) => void;
+    disabled?: boolean;
 }

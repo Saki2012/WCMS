@@ -11,6 +11,7 @@ import type {
     ILibTextBoxStyle2,
     ILibTextBoxStyle3,
     ILibTinyMCEStyle,
+    ILibUserCardStyle,
 } from "../../../../SysCore/Components/FormField/LibFormField";
 import type { IGridView_Style } from "../../../../SysCore/Components/Grid/Grid_Clsx";
 import type { IMenu_Style } from "../../../../SysCore/Components/MenuList/MenuList_Clsx";
@@ -110,6 +111,11 @@ export const Classic_LibFileInput: ILibFileInputStyle = {
     InputStyle: clsx("form-control"),
 };
 
+
+export const Classic_LibUserCard: ILibUserCardStyle ={
+    Bgstyle: clsx("bg-custom-gray"),
+}
+
 /** Grid表樣式 */
 export const Classic_GridView: IGridView_Style = {
     TableStyle: clsx("table", "table-striped", "table-bordered", "table-rwd"),
@@ -157,4 +163,5 @@ export const Classic_BETheme: IBETheme = {
     TinyMCE: Classic_LibTinyMCE,
     File: Classic_LibFile,
     FileInput: Classic_LibFileInput,
+    UserCard: Classic_LibUserCard
 };

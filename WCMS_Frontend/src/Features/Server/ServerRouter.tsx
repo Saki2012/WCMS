@@ -26,6 +26,7 @@ import { USRProjFormComp } from "../../SpecFetures/1810/Server/BizFunc/SpecUSR/S
 import { USRProjListComp } from "../../SpecFetures/1810/Server/BizFunc/SpecUSR/SpecUSR_List_Comp";
 import { AutoRedirect } from "../../SysCore/Utils/Route/AutoRedirect";
 import { UserManage_Comp } from "./Layout/BizFunc/UserDTs/UserInfo";
+import { UserManageList_Comp } from "./Layout/BizFunc/UserDTs/UserInfo_List_Comp";
 
 export class BackendRouteModule implements IRouteModule {
   getRoutes(): RouteObject[] {
@@ -50,7 +51,8 @@ export class BackendRouteModule implements IRouteModule {
                 path: 'UserManage',
                 children: [
                   { index: true, element: <AutoRedirect to="Form" replace /> },
-                  { path: 'Form/:internalId?', element: <UserManage_Comp /> },
+                  { path: 'List', element: <UserManageList_Comp theme={Classic_BETheme} /> },
+                  { path: 'Form/:internalId?', element: <UserManage_Comp theme={Classic_BETheme} /> },
                 ],
               },
             ]
