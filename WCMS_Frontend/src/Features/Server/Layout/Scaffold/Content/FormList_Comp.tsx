@@ -8,9 +8,9 @@ import MenuListComp from "../../../../../SysCore/Components/MenuList/MenuList_Co
 import { FormList_Toolbar } from "../../../../../SysCore/Components/Toolbar/Toolbar_Comp";
 
 /**類別/標籤使用 */
-export const FormListComp = ({prop}:{prop:FormListCompProp;}) => {
+export const FormListComp = ({ prop }: { prop: FormListCompProp; }) => {
     return (
-      <div className="Form-Main-Content">
+        <div className="Form-Main-Content">
             <div className="row">
                 <div className="col-sm-12">
                     <div className="card">
@@ -22,24 +22,24 @@ export const FormListComp = ({prop}:{prop:FormListCompProp;}) => {
                                 <div className="col-sm-12">
                                     <div className="panel">
                                         <div className="panel-body">
-                                            <div className="form"> 
+                                            <div className="form">
                                                 <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList} >
                                                     <div className="row mx-0">
                                                         <div className="col form-group">
 
                                                             {prop.InputControl.map((item, idx) => (
-                                                            <div key={idx} className="col-md-6 col-sm-12 float-md-left float-sm-none">
-                                                                <div className="row mx-0"> {item} </div>
-                                                            </div>
+                                                                <div key={idx} className="col-md-6 col-sm-12 float-md-left float-sm-none">
+                                                                    <div className="row mx-0"> {item} </div>
+                                                                </div>
                                                             ))}
 
-                                                        </div>                         
+                                                        </div>
                                                     </div>
                                                     <FormList_Toolbar items={prop.FormToolbar}></FormList_Toolbar>
                                                     <DividerComp></DividerComp>
                                                     <List_Toolbar items={prop.FormToolbar}></List_Toolbar>{/* Form_Toolbar */}
                                                     <DividerComp></DividerComp>
-                                                    <div className="row mx-0"> 
+                                                    <div className="row mx-0">
                                                         <div className="col-sm-12">
                                                             <div className="panel">
                                                                 <div className="panel-body">
@@ -56,18 +56,18 @@ export const FormListComp = ({prop}:{prop:FormListCompProp;}) => {
                                                                                     {/* li 內容要有:1. label 2. 點下去可以直接連結到對應的internalId 3. 刪除按鈕 4. 頁籤*/}
                                                                                     <ul className="list-group p-0">
                                                                                         {prop.GridItems.map((item) => (
-                                                                                        <li className="list-group-item">
-                                                                                            {item}
-                                                                                            
-                                                                                        </li>
+                                                                                            <li className="list-group-item">
+                                                                                                {item}
+
+                                                                                            </li>
                                                                                         ))}
-                                                                                            
-                                                                                        
+
+
                                                                                     </ul>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-                                                                    </div> 
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -77,7 +77,7 @@ export const FormListComp = ({prop}:{prop:FormListCompProp;}) => {
                                         </div>
                                     </div>
                                 </div>
-                            </div>                            
+                            </div>
                         </div>
                     </div>
                 </div>

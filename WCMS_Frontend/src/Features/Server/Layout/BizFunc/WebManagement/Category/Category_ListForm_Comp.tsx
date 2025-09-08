@@ -23,8 +23,16 @@ const emptyData: CategoryDataSet = {
  */
 export const CategoryListFormComp = ({ progId, title, theme }: { progId: string; title: string; theme: IBETheme }) => {
     const { internalId } = useParams();
-    const dirUrl = useLocation().pathname.replace(/\/Category$/, `/Category`);
+    var dirUrl = useLocation().pathname.replace(/\/Category$/, `/Category`);
+    const pathParts = useLocation().pathname.split('/');
+
+    //const lastPart = pathParts.pop(); // 移除並取得最後一個部分
+    if (pathParts[pathParts.length - 1] !== 'Category') {
+
+        dirUrl = location.pathname.split('/').slice(0, -1).join('/');
+    }
     const useToolbar = useListToolbarActions(dirUrl)
+
     const useCategoryList = useCategoryListData(progId, 'zh-tw')
     const formData = useFetchFormData<CategoryDataSet>(CategoryProvider(), internalId, emptyData)
     // formData.data?.Category?.ProgId=progId??"";
@@ -78,7 +86,7 @@ const generateLangFields = (lang: string, label: string, theme: IBETheme,
 ): React.ReactNode[] => {
     const details = formData?.CategoryDetail ?? [];
     const getLangData = (): CategoryDetail => details.find(d => d.Lang === lang) ?? { Lang: lang, CategoryName: "" };
-    const updateLangData = (key: "Title" | "SubTitle" | "Content" | "Url", val: string) => {
+    const updateLangData = (key: "CategoryName", val: string) => {
         const currentData = getLangData();
         const newItem = { ...currentData, [key]: val };
         const isEmpty = (newItem.CategoryName?.trim() ?? "") === "";
@@ -87,6 +95,6 @@ const generateLangFields = (lang: string, label: string, theme: IBETheme,
     };
     const data = getLangData();
     return [
-        <LibTextBox key={`${lang}-Title`} Style={theme.TextBox} ColumnDisplayName={`類別名稱（${label}）`} DefaultInputDisplay="請輸入" InputValue={data.CategoryName ?? ""} OnChange={(val) => updateLangData("Title", val)} />,
+        <LibTextBox key={`${lang}-Title`} Style={theme.TextBox} ColumnDisplayName={`類別名稱（${label}）`} DefaultInputDisplay="請輸入" InputValue={data.CategoryName ?? ""} OnChange={(val) => updateLangData("CategoryName", val)} />,
     ];
 };
