@@ -24,8 +24,8 @@ namespace WCMS.SysCore.SystemFunc.Auth
 
         public async Task<(bool ok, UserSet userSet, List<string> roles, string reason)> SignInAsync(string account, string password)
         {
-            string[] selectFields = [nameof(UserModel.UserId),$"{nameof(UserInfo)}.{nameof(UserInfo.UserName)}" ,nameof(UserModel.PasswordHash),nameof(UserModel.PasswordSalt),nameof(UserModel.PasswordAlgoVer)];
-            var userResult = await _users.BizQueryListAsync(selectFields,$"{nameof(UserModel.UserId)} = {account} And {nameof(UserInfo)}.{nameof(UserInfo.Lang)} = zh-tw", default, 0,0);
+            string[] selectFields = [nameof(UserModel.UserId),$"{nameof(UserModel.UserInfo)}.{nameof(UserInfo.UserName)}" ,nameof(UserModel.PasswordHash),nameof(UserModel.PasswordSalt),nameof(UserModel.PasswordAlgoVer)];
+            var userResult = await _users.BizQueryListAsync(selectFields,$"{nameof(UserModel.UserId)} = {account} And {nameof(UserModel.UserInfo)}.{nameof(UserInfo.Lang)} = zh-tw", default, 0,0);
             var set = userResult.FirstOrDefault();
             if (set is null) return (false, null!, new(), "not_found_or_inactive");
             var ok = PasswordHasher.Verify(password, set.User.PasswordHash, set.User.PasswordSalt, set.User.PasswordAlgoVer);
@@ -36,7 +36,7 @@ namespace WCMS.SysCore.SystemFunc.Auth
 
         public async Task<UserModel> FindByAccountAsync(string account)
         {
-            string[] selectFields = [nameof(UserModel.UserId), $"{nameof(UserInfo)}.{nameof(UserInfo.UserName)}"];
+            string[] selectFields = [nameof(UserModel.UserId), $"{nameof(UserModel.UserInfo)}.{nameof(UserInfo.UserName)}"];
             var userResult = await _users.BizQueryListAsync(selectFields, $"{nameof(UserModel.UserId)} = {account}", default, 0, 0);
             var user = userResult.FirstOrDefault().User;
             return user;

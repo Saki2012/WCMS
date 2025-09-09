@@ -47,8 +47,8 @@ namespace WCMS.SysCore.SystemFunc.UserRolePermission.User
         /// 帳戶狀態
         /// </summary>
         [LibDesc] public AccountStatus AccountStatus { get; set; }
-
-        public ICollection<PermissionModel> UserRoles { get; set; } = [];
+        public ICollection<PermissionModel> UserRoles { get; set; }
+        public List<UserInfo> UserInfo { get; set; }
     }
     public class UserInfo:DetailRowModel
     {
