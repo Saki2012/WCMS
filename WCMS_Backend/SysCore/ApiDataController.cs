@@ -1,22 +1,17 @@
 ﻿using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.RenderTree;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
-using System.Globalization;
 using System.Reflection;
-using WCMS.Features.SiteEdit.Tag;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Library.LibData;
-using static WCMS.SysCore.SystemFunc.Auth.AuthController;
 
 namespace WCMS.SysCore
 {
@@ -45,7 +40,6 @@ namespace WCMS.SysCore
         protected IOperateLog OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IOperateLog>();
         private IOperateLog? _OperateLog;
         #endregion
-
         #region Tag helpers
         // 型別級（list/detail）tag
         private static string ListTag => $"set:list:{typeof(TSet).Name}";
@@ -299,17 +293,6 @@ namespace WCMS.SysCore
 
         #region Private
 
-        #endregion
-    }
-    /// <summary>
-    /// 報表API入口
-    /// </summary>
-    /// <typeparam name="TSet"></typeparam>
-    public abstract class ApiReportController<TSet, TSet_DTO> : ApiBaseController<TSet, TSet_DTO>, IBaseReportController<TSet, TSet_DTO> where TSet : ITSet where TSet_DTO : ITSet_DTO
-    {
-        #region Public
-        [HttpPost(nameof(GetReport)), AllowAnonymous, IgnoreAntiforgeryToken]
-        public virtual Task<IActionResult> GetReport(CancellationToken ct) => throw new NotImplementedException();
         #endregion
     }
     /// <summary>

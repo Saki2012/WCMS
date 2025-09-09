@@ -5,12 +5,9 @@ type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"]
 import SiteMenuSetProvider from "../Server/Layout/BizFunc/Dashboard/SiteInfo/SiteInfo_Api";
 import * as SchemaFields from "../../types/SchemaFields";
 import { configureModuleRegistry, createRoutesFromSite, normalizeSite, type INormNode, type INormSite, type ModuleEntry } from "./Site-Routing";
-
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-
 export const CLIENT_ROOT_ID = "client-root";
-
 const fetchSite = async (): Promise<INormSite[]> => {
   const condition: QueryListParam = {
     Fields: [SchemaFields.SiteMenu_IndexFields.InternalId], Condition: "",
@@ -31,14 +28,12 @@ const fetchSite = async (): Promise<INormSite[]> => {
   const result = await Promise.all(tasks);
   return result.filter((x): x is INormSite => !!x);
 }
-
 export const loadClientChildren = async (): Promise<RouteObject[]> => {
   ensureClientRegistryInstalled();           // ★ 必須在這裡呼叫一次，安裝/覆寫 registry
   const site = await fetchSite();
   const module = new FrontendRouteModule(site);
   return module.getRoutes();
 };
-
 export class FrontendRouteModule implements IRouteModule {
   sites: INormSite[];
   constructor(sites: INormSite[]) { this.sites = sites }

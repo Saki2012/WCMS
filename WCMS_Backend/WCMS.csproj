@@ -21,6 +21,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Features\SystemSetting\SiteInfo\SystemInfo\SystemInfo_Api.cs" />
     <Compile Remove="SysCore\AccountLogin.cs" />
     <Compile Remove="SysCore\Library\RecComparison.cs" />
   </ItemGroup>
@@ -62,15 +63,16 @@
     <Folder Include="Features\SystemSetting\SiteInfo\EnvConfig\" />
     <Folder Include="Features\SystemSetting\SiteInfo\SiteArch\" />
     <Folder Include="Features\SystemSetting\SiteInfo\SEO\" />
-    <Folder Include="Features\SystemSetting\SiteInfo\SystemInfo\" />
     <Folder Include="Features\SystemSetting\DataChangeLog\" />
     <Folder Include="Features\SystemSetting\AccountManage\" />
     <Folder Include="Features\SystemSetting\RolePermission\" />
     <Folder Include="Features\SystemSetting\OperateLog\" />
     <Folder Include="Features\SystemSetting\UserAccount\" />
+    <Folder Include="Migrations\" />
     <Folder Include="SysCore\NLogger\DataChange\" />
     <Folder Include="SysCore\NLogger\Operate\" />
     <Folder Include="SysCore\NLogger\Sys\" />
+    <Folder Include="SysCore\UDF\" />
   </ItemGroup>
 
   <ItemGroup>

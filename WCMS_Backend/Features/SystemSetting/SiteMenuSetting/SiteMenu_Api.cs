@@ -20,7 +20,6 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
     {
         private IBizService<PageManagementSet> _PageManagementService;
         private PageManagementBiz PageManagementService => (PageManagementBiz)(_PageManagementService ??= HttpContext.RequestServices.GetRequiredService<IBizService<PageManagementSet>>());
-
         #region Migration Old Data
         [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task<IActionResult> Migrate(CancellationToken ct)

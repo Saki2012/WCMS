@@ -12,8 +12,8 @@ using WCMS.SysCore;
 namespace WCMS.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250905075102_ChangeProjectNameLength")]
-    partial class ChangeProjectNameLength
+    [Migration("20250909071106_userpic")]
+    partial class userpic
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1626,8 +1626,7 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("ContentIntroduction")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Courses")
                         .HasMaxLength(200)
@@ -1780,6 +1779,15 @@ namespace WCMS.Migrations
                     b.HasIndex("ModifyUserId");
 
                     b.ToTable("SpecUSR", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.SysCore.ApplicationDbContext+SplitStringRow", b =>
+                {
+                    b.Property<string>("Id")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("SplitStringRow");
                 });
 
             modelBuilder.Entity("WCMS.SysCore.OperateLogModel", b =>
@@ -2177,6 +2185,30 @@ namespace WCMS.Migrations
                     b.ToTable("Role", (string)null);
                 });
 
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserInfo", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("RowId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Lang")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("UserId", "RowId");
+
+                    b.ToTable("UserInfo", (string)null);
+                });
+
             modelBuilder.Entity("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", b =>
                 {
                     b.Property<string>("UserId")
@@ -2246,10 +2278,8 @@ namespace WCMS.Migrations
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<string>("UserImageId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("Validate_End")
                         .HasColumnType("datetime2(0)");
@@ -2775,6 +2805,15 @@ namespace WCMS.Migrations
                     b.Navigation("ModifyUser");
                 });
 
+            modelBuilder.Entity("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserInfo", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", null)
+                        .WithMany("UserInfo")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", b =>
                 {
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
@@ -2867,6 +2906,8 @@ namespace WCMS.Migrations
 
             modelBuilder.Entity("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", b =>
                 {
+                    b.Navigation("UserInfo");
+
                     b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618

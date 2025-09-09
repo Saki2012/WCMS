@@ -19,7 +19,7 @@ const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, 
 
     var condition: string = "";
     if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.CategoryId} = ${categoryIds}`)
-    // if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.Tags} In (${tagIds})`)
+    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.Tags} HasAny (${tagIds})`)
 
     type VisibleKey = [string, string];
 

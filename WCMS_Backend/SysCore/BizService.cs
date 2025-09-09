@@ -641,7 +641,7 @@ namespace WCMS.SysCore
             var param = Expression.Parameter(modelType, "x");
             string normalized = NormalizeCondition(modelType, condition, out object[] args);
             if (string.IsNullOrWhiteSpace(normalized)) return Expression.Lambda(Expression.Constant(true), param);
-            var config = new ParsingConfig{ ResolveTypesBySimpleName = true, AllowNewToEvaluateAnyType = true, UseParameterizedNamesInDynamicQuery = true };
+            var config = new ParsingConfig{ ResolveTypesBySimpleName = true, AllowNewToEvaluateAnyType = true, UseParameterizedNamesInDynamicQuery = true , CustomTypeProvider = new WcmsTypeProvider()};
             var lambda = DynamicExpressionParser.ParseLambda(config, new[] { param }, typeof(bool), normalized, args);
             return lambda;
         }
@@ -661,7 +661,7 @@ namespace WCMS.SysCore
             {
                 string clause = tokens[i].Trim();
                 string? connector = (i > 0 && i - 1 < tokens.Length) ? tokens[i - 1].Trim().ToLower() : null;
-                var match = Regex.Match(clause, @"^(?<fullPath>[\w.]+)\s*(?<op>=|==|!=|>=|<=|>|<|in|not in|like|is null|is not null)\s*(?<val>.+)?$", RegexOptions.IgnoreCase);
+                var match = Regex.Match(clause, @"^(?<fullPath>[\w.]+)\s*(?<op>=|==|!=|>=|<=|>|<|in|not in|like|is null|is not null|hasany)\s*(?<val>.+)?$", RegexOptions.IgnoreCase);
                 if (!match.Success) continue;
 
                 string fullPath = match.Groups["fullPath"].Value;
@@ -723,6 +723,32 @@ namespace WCMS.SysCore
                         else expr = $"!@{paramIndex}.Contains({fieldExpr})";
                         break;
                     case "like": expr = $"{fieldExpr}.Contains(\"{val}\")"; break;
+                    case "hasany":
+                        {
+                            // 允許格式：
+                            //   Categories hasAny ("a","b","c")
+                            //   Categories hasAny (a,b,c)
+                            //   Categories hasAny ["a","b"]
+                            //   Categories hasAny a,b,c
+                            var raw = (val ?? string.Empty).Trim();
+
+                            // 去外層 () 或 []
+                            if ((raw.StartsWith("(") && raw.EndsWith(")")) || (raw.StartsWith("[") && raw.EndsWith("]")))
+                                raw = raw.Substring(1, raw.Length - 2);
+
+                            // 以逗號切分並清理引號/空白
+                            var tokens = raw.Split(',').Select(s => s.Trim().Trim('"', '\'')).Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+                            if (tokens.Length == 0) return null;
+
+                            // 放進動態 LINQ 參數清單
+                            int pIndex = args.Count;
+                            args.Add(tokens);
+
+                            // 透過 DbFunction 切 CSV，再做交集判斷（任一命中即可）
+                            // 這會被 EF 轉為：EXISTS (SELECT 1 FROM dbo.SplitToStringTable(field) WHERE Id IN (@p...))
+                            expr = $"ApplicationDbContext.SplitToStringTable({fieldExpr}).Any(@{pIndex}.Contains(Id.ToUpper()))";
+                            break;
+                        }
                     default: expr = $"{fieldExpr} {op} \"{val}\""; break;
                 }
                 return expr;

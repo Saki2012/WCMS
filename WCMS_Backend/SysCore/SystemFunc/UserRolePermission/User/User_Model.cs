@@ -25,7 +25,7 @@ namespace WCMS.SysCore.SystemFunc.UserRolePermission.User
         /// </summary>
         //[LibDesc] public string DeptId { get; set; }
 
-        public string UserImageId { get; set; }
+        public string? UserImageId { get; set; }
 
         /// <summary>
         /// 

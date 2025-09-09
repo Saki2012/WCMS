@@ -56,7 +56,7 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 系統內部唯一標識號
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.InternalId)] public string InternalId { get; set; } = string.Empty;
+        [LibDesc, StringLength(SysLengthParam.InternalId),] public string InternalId { get; set; } = string.Empty;
         /// <summary>
         /// 主子站層級ID
         /// </summary>

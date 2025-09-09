@@ -72,22 +72,6 @@ namespace WCMS.SysCore.Interface
         public Task<IActionResult> GetModelDisplayName();
     }
     /// <summary>
-    /// 報表
-    /// </summary>
-    public interface IBaseReportController<TSet,TSet_DTO>
-    {
-        /// <summary>
-        /// 查看報表
-        /// </summary>
-        /// <returns></returns>
-        public Task<IActionResult> GetReport(CancellationToken ct);
-        /// <summary>
-        /// 獲取功能的欄位模型顯示名稱
-        /// </summary>
-        /// <returns></returns>
-        public Task<IActionResult> GetModelDisplayName();
-    }
-    /// <summary>
     /// 回傳結果
     /// </summary>
     /// <typeparam name="T"></typeparam>

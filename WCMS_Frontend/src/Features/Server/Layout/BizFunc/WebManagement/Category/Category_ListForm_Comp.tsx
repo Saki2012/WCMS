@@ -3,14 +3,13 @@ import { useLocation } from 'react-router-dom';
 import { FormListComp } from "../../../Scaffold/Content/FormList_Comp";
 import type { FormListCompProp } from "../../../Scaffold/Content/Content_Data"
 import { useListToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
-import { useCategoryListData, useGetCategoryListByProgId } from "./Category_Hook";
+import { useCategoryListData } from "./Category_Hook";
 import { useParams } from "react-router-dom";
 import type { components } from "../../../../../../types/api";
 import CategoryProvider from "./Category_Api";
 import { useFetchFormData } from "../../../../../../SysCore/Utils/API/FetchFormData";
 import { LibTextBox } from "../../../../../../SysCore/Components/FormField/LibFormField";
 import { Link } from "react-router-dom";
-import { map } from "jquery";
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 type CategoryDetail = components["schemas"]["CategoryDetail_DTO"]
 

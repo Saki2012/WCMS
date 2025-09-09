@@ -5,6 +5,7 @@ import type { components } from "../../../../../types/api";
 import type { IFETheme } from "../../Theme/ITheme";
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
 type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"];
+type TagSet = components["schemas"]["TagSet_DTO"];
 import type { GridRow } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import type { RowCell } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import { useFetchGridListData } from "../../../../../SysCore/Utils/API/FetchGridListData";
@@ -13,11 +14,12 @@ import { GridViewContentComp } from "../../Scaffold/ContentViewMode/GridView/Gri
 import type { Lang } from "../../../../../SysCore/i18n/lang";
 import FileArchiveProvider from "../../../../Server/Layout/BizFunc/WebManagement/FileArchive/FileArchive_Api";
 import { Merge } from "../../../../../SysCore/Utils/Library/LibMergeData";
+import { useTagListData } from "../../../../Server/Layout/BizFunc/WebManagement/Tags/Tag_Hook";
 
-const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string) => {
+const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string, tagSets?: TagSet[]) => {
     var condition: string = "";
-    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.CategoriesId} In (${categoryIds})`)
-    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.TagsId} In (${tagIds})`)
+    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.CategoriesId} HasAny (${categoryIds})`)
+    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.TagsId} HasAny (${tagIds})`)
 
     const provider = FileArchiveProvider();
     return useFetchGridListData<FileArchiveSet>({
@@ -49,21 +51,37 @@ const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string
         parseRow: (item, columns) => {
             const cells: RowCell[] = columns.map(col => {
                 let content = "";
-
                 switch (col.key) {
                     case SchemaFields.FileArchiveInfoFields.Title:
                         {
                             content = item.FileArchiveInfo?.find(p => p.Lang === lang)?.Title ?? "";
                             break;
                         }
+                    case SchemaFields.FileArchiveFields.TagsId:
+                        {
+                            const tags = (item.FileArchive?.TagsId ?? "")
+                                .split(",")
+                                .map(s => s.trim())
+                                .filter(Boolean);
 
+                            content = tags
+                                .map(tagId =>
+                                    tagSets
+                                        ?.find(s => String(s.TagData?.TagId) === tagId)
+                                        ?.TagDetail?.find(d => d.Lang === lang)?.TagName
+                                )
+                                .filter((x): x is string => !!x)
+                                .join("、");
+
+                            break;
+                        }
                 }
                 return { col, content };
             });
             return { cells };
         },
         enabled: true,
-        deps: [],
+        deps: [tagSets],
     });
 };
 
@@ -71,10 +89,11 @@ export interface IFileArchiveOptions { Category: string; Tag: string; Style: num
 interface FileArchiveProps { Theme: IFETheme; Lang: string | Lang; Options: IFileArchiveOptions; }
 
 export const FileArchiveList = (props: FileArchiveProps) => {
-    const useFileArchiveList = useFileArchive(props.Lang, props.Options.Category, props.Options.Tag);
+    const useTagData = useTagListData("FileArchive", "zh-tw");
+    const useFileArchiveList = useFileArchive(props.Lang, props.Options.Category, props.Options.Tag, useTagData.rawData);
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(props.Lang, useFileArchiveList.gridProps, useFileArchiveList.rawData); }, [useFileArchiveList.gridProps, useFileArchiveList.rawData]);
-    const isLoading = [useFileArchiveList.isLoading];
-    const errors = [useFileArchiveList.error];
+    const isLoading = [useFileArchiveList.isLoading, useTagData.isLoading];
+    const errors = [useFileArchiveList.error, useTagData.error];
     return <GridViewContentComp GridData={adjustedGrid} Theme={props.Theme} LoadingList={isLoading} ErrorList={errors} />;
 };
 

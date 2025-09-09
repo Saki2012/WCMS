@@ -11,12 +11,13 @@ import { useFetchGridListData } from "../../../../SysCore/Utils/API/FetchGridLis
 import type { ColumnConfig } from "../../../../SysCore/Components/Grid/Grid_Data";
 import LoadingErrorHandler from "../../../../SysCore/Components/LoadingErrorHandler";
 import SpecCategoryProvider from "../../Server/BizFunc/SpecCategory/SpecCategory_Api";
+import { Merge } from "../../../../SysCore/Utils/Library/LibMergeData";
 
 
 const useSpecUSRList = (categoryId: string, tagIds: string) => {
     var condition: string = "";
     condition = `${SchemaFields.SpecUSRModelFields.CategoryId} = ${categoryId}`;
-    // if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} In (${tagIds})`)
+    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} HasAny (${tagIds})`)
     const provider = SpecUSRProvider();
     return useFetchGridListData<SpecUSRSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),

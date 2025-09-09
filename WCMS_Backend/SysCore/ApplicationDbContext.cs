@@ -3,6 +3,8 @@ using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq.Dynamic.Core;
+using System.Linq.Dynamic.Core.CustomTypeProviders;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Security.AccessControl;
@@ -16,7 +18,18 @@ namespace WCMS.SysCore
     /// </summary>
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
     {
-        #region Construct
+        #region Property
+
+        #region DB UDF用
+        /// <summary>
+        /// 把 CSV 字串切成 IQueryable<string>，給 EF 轉 SQL 用（不會在 .NET 端執行）
+        /// </summary>
+        public static IQueryable<SplitStringRow> SplitToStringTable(string csv) => throw new NotSupportedException();
+        [Keyless] public class SplitStringRow
+        {
+            public string Id { get; set; } = default!; // 要和 UDF 的欄位別名 "Id" 對上
+        }
+        #endregion
         #endregion
         #region Protected
         protected override void OnModelCreating(ModelBuilder builder)
@@ -28,6 +41,7 @@ namespace WCMS.SysCore
             builder.Entity<OperateLogModel>().ToTable("OperateLog");
             //builder.BuildIndexesFromAnnotations();//設置Index套件
             SetDateTimeDBType(builder);
+            RegistUDF(builder);
         }
         #endregion
         #region Private
@@ -49,7 +63,6 @@ namespace WCMS.SysCore
                 else builder.Entity(type).ToTable(tableName);
             }
         }
-
         /// <summary>
         /// 依慣例自動綁定一對多關聯：
         /// 規則：實體上的「導航屬性 Nav (class 非 string)」
@@ -99,7 +112,6 @@ namespace WCMS.SysCore
                 }
             }
         }
-
         /// <summary>
         /// 自動對所有「主表 → 子表」的關聯套用 DeleteBehavior.Cascade
         /// 可排除某些 Entity 類型不套用（例如：參考用的主資料表）
@@ -135,7 +147,6 @@ namespace WCMS.SysCore
                 }
             }
         }
-
         /// <summary>
         /// 設置 DateTime 欄位的資料庫類型為 datetime2(0) (yy/mm/dd hh:mm:ss)
         /// </summary>
@@ -152,6 +163,13 @@ namespace WCMS.SysCore
                     }
                 }
             }
+        }
+        /// <summary>
+        /// 註冊UDF功能
+        /// </summary>
+        public static void RegistUDF(ModelBuilder modelBuilder)
+        {
+            modelBuilder.HasDbFunction(typeof(ApplicationDbContext).GetMethod(nameof(SplitToStringTable), [typeof(string)])!).HasName(nameof(SplitToStringTable)).HasSchema("dbo");
         }
         #endregion
     }
@@ -189,5 +207,20 @@ namespace WCMS.SysCore
             return builder.Options;
         }
         #endregion
+    }
+
+    public sealed class WcmsTypeProvider : DefaultDynamicLinqCustomTypeProvider
+    {
+        // 新版建構子：用 ParsingConfig 的這個，不要用舊的 bool 那個（已 Obsolete）
+        public WcmsTypeProvider() : base(new ParsingConfig()) { }
+
+        // 你的套件版本：覆寫無參數的 GetCustomTypes()
+        public override HashSet<Type> GetCustomTypes()
+        {
+            var set = base.GetCustomTypes();
+            set.Add(typeof(ApplicationDbContext));                    // 讓解析器認得
+            set.Add(typeof(ApplicationDbContext.SplitStringRow));     // UDF 的回傳型別（可選）
+            return set;
+        }
     }
 }

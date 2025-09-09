@@ -4,7 +4,7 @@ import { FormListComp } from "../../../Scaffold/Content/FormList_Comp";
 import type { FormListCompProp } from "../../../Scaffold/Content/Content_Data"
 import { useListToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
 import { useParams } from "react-router-dom";
-import { useCategoryListData } from "./Tag_Hook";
+import { useTagListData } from "./Tag_Hook";
 import type { components } from "../../../../../../types/api";
 import { useFetchFormData } from "../../../../../../SysCore/Utils/API/FetchFormData";
 import TagProvider from "./Tag_Api";
@@ -32,7 +32,7 @@ export const TagListFormComp = ({ progId, title, theme }: { progId: string; titl
     }
     const useToolbar = useListToolbarActions(dirUrl)
 
-    const useTagList = useCategoryListData(progId, 'zh-tw')
+    const useTagList = useTagListData(progId, 'zh-tw')
     const formData = useFetchFormData<TagSet>(TagProvider(), internalId, emptyData)
 
 

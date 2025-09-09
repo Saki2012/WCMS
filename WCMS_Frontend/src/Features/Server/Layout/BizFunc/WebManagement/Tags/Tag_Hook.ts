@@ -69,7 +69,7 @@ export const useGetTagListByProgId = (progId: string, lang: string, pageSize: nu
     return { data, isLoading, error };
 };
 
-export const useCategoryListData = (progId: string, lang: string) =>
+export const useTagListData = (progId: string, lang: string) =>
 {
     const provider = TagProvider();
     return useFetchGridListData<TagSet>({

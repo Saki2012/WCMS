@@ -12,8 +12,9 @@ import LoadingErrorHandler from '../../../../SysCore/Components/LoadingErrorHand
 import CategoryProvider from '../../../../Features/Server/Layout/BizFunc/WebManagement/Category/Category_Api';
 import TagProvider from '../../../../Features/Server/Layout/BizFunc/WebManagement/Tags/Tag_Api';
 
-const useAnnouncementList = () => {
+const useAnnouncementList = (categories?: string) => {
     const provider = AnnouncementProvider();
+    const cdt = categories ? `${SchemaFields.AnnouncementFields.Categories} HasAny ${categories}` : ""
     return useFetchGridListData<AnnouncementSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
@@ -30,9 +31,10 @@ const useAnnouncementList = () => {
                 `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
                 SchemaFields.AnnouncementFields.ViewCount,
             ],
-            Condition: "",
-            PageNumber: 0,
-            PageSize: 0,
+            Condition: cdt,
+            OrderBy: [{ Col: SchemaFields.AnnouncementFields.Validate_Start, Desc: true }],
+            PageNumber: 1,
+            PageSize: 6,
         }),
         enabled: true,
         deps: [],
@@ -82,11 +84,17 @@ const useTagList = () => {
 };
 
 export const CategoryTabs = () => {
-    const useNewsData = useAnnouncementList();
+    const useAllNewsData = useAnnouncementList();
+    const useProjectData = useAnnouncementList("4");
+    const useLegalData = useAnnouncementList("6");
+    const useEvenData = useAnnouncementList("8");
+    const useAwardData = useAnnouncementList("45");
+    const useMediaData = useAnnouncementList("46");
+
     const useCategoryData = useCategoryList();
     const useTagData = useTagList();
-    const loadingList = [useNewsData.isLoading, useCategoryData.isLoading, useTagData.isLoading]
-    const errorList = [useNewsData.error, useCategoryData.error, useTagData.error]
+    const loadingList = [useAllNewsData.isLoading, useProjectData.isLoading, useLegalData.isLoading, useEvenData.isLoading, useAwardData.isLoading, useMediaData.isLoading, useCategoryData.isLoading, useTagData.isLoading]
+    const errorList = [useAllNewsData.error, useProjectData.error, useLegalData.error, useEvenData.error, useAwardData.error, useMediaData.error, useCategoryData.error, useTagData.error]
 
     const lang = 'zh-tw'
 
@@ -105,13 +113,12 @@ export const CategoryTabs = () => {
             return [id, name];
         })
     );
-    const rawData = (useNewsData.rawData ?? []).slice().sort((a, b) => new Date(b.Announcement?.Validate_Start ?? "").getTime() - new Date(a.Announcement?.Validate_Start ?? "").getTime());
-    const allNews = getNewsDataProps(rawData, lang, "/Allnews/Project-solicitation/National-Science-Accounting", "", categoryDict, tagDict);
-    const project = getNewsDataProps(rawData, lang, "/Allnews/Project-solicitation/National-Science-Accounting", "4", categoryDict, tagDict);
-    const legal = getNewsDataProps(rawData, lang, "/Allnews/Regulatory-Announcements", "6", categoryDict, tagDict)
-    const even = getNewsDataProps(rawData, lang, "/Allnews/Intramural-activities/In-school-activities", "8", categoryDict, tagDict)
-    const award = getNewsDataProps(rawData, lang, "/Allnews/Award-announcement", "45", categoryDict, tagDict)
-    const media = getNewsDataProps(rawData, lang, "/Allnews/Special-Topics-and-Media-Coverage", "46", categoryDict, tagDict)
+    const allNews = getNewsDataProps(useAllNewsData.rawData, lang, "/Allnews/Project-solicitation/National-Science-Accounting", "", categoryDict, tagDict);
+    const project = getNewsDataProps(useProjectData.rawData, lang, "/Allnews/Project-solicitation/National-Science-Accounting", "4", categoryDict, tagDict);
+    const legal = getNewsDataProps(useLegalData.rawData, lang, "/Allnews/Regulatory-Announcements", "6", categoryDict, tagDict)
+    const even = getNewsDataProps(useEvenData.rawData, lang, "/Allnews/Intramural-activities/In-school-activities", "8", categoryDict, tagDict)
+    const award = getNewsDataProps(useAwardData.rawData, lang, "/Allnews/Award-announcement", "45", categoryDict, tagDict)
+    const media = getNewsDataProps(useMediaData.rawData, lang, "/Allnews/Special-Topics-and-Media-Coverage", "46", categoryDict, tagDict)
     return (
         <LoadingErrorHandler loadingList={loadingList} errorList={errorList} >
 
@@ -285,7 +292,7 @@ const getNewsDataProps = (newsData: AnnouncementSet[], lang: string, redir: stri
 
 const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    const day = date.getDate().toString();
+    const day = date.getDate().toString().padStart(2, "0");
     const month = date.toLocaleString("en-US", { month: "short" });
     return { day, month };
 }

@@ -5,34 +5,32 @@
 namespace WCMS.Migrations
 {
     /// <inheritdoc />
-    public partial class ChangeFileMineTypeLength : Migration
+    public partial class userpic : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
-                name: "MimeType",
-                table: "FileManage",
-                type: "nvarchar(150)",
-                maxLength: 150,
-                nullable: false,
+                name: "UserImageId",
+                table: "User",
+                type: "nvarchar(max)",
+                nullable: true,
                 oldClrType: typeof(string),
-                oldType: "nvarchar(50)",
-                oldMaxLength: 50);
+                oldType: "nvarchar(max)");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
-                name: "MimeType",
-                table: "FileManage",
-                type: "nvarchar(50)",
-                maxLength: 50,
+                name: "UserImageId",
+                table: "User",
+                type: "nvarchar(max)",
                 nullable: false,
+                defaultValue: "",
                 oldClrType: typeof(string),
-                oldType: "nvarchar(150)",
-                oldMaxLength: 150);
+                oldType: "nvarchar(max)",
+                oldNullable: true);
         }
     }
 }

@@ -38,9 +38,6 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
         {
             SetItemFullUrl(set);
         }
-
-
-
         private void SetItemFullUrl(SiteMenuSet set)
         {
             foreach (var item in set.SiteMenu_Item)
@@ -57,7 +54,6 @@ namespace WCMS.Features.SystemSetting.SiteMenuSetting
             //this.BizQueryListAsync([])
             return string.Empty;
         }
-
         #endregion
     }
 }

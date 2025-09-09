@@ -157,11 +157,21 @@ namespace WCMS.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SplitStringRow",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                });
+
+            migrationBuilder.CreateTable(
                 name: "User",
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    UserImageId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     PasswordHash = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     PasswordSalt = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
@@ -401,7 +411,7 @@ namespace WCMS.Migrations
                     FileName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     FileExtension = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     FileDescription = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    MimeType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    MimeType = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     FileSHA256 = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
                     FileSize = table.Column<long>(type: "bigint", nullable: false),
                     ProgId = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
@@ -824,6 +834,26 @@ namespace WCMS.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserInfo",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    RowId = table.Column<int>(type: "int", nullable: false),
+                    Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserInfo", x => new { x.UserId, x.RowId });
+                    table.ForeignKey(
+                        name: "FK_UserInfo_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "WebResource",
                 columns: table => new
                 {
@@ -901,7 +931,7 @@ namespace WCMS.Migrations
                     CategoryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
                     Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    CategoryName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                    CategoryName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1148,7 +1178,7 @@ namespace WCMS.Migrations
                     CooperatingUnits = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     CooperationProject = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Courses = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    ProjectName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    ProjectName = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     PaperTitle = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Remark = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Cohost1 = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
@@ -1185,7 +1215,7 @@ namespace WCMS.Migrations
                     DuringExecution = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     PlanAmount = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     ExecutionStrategy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    ContentIntroduction = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    ContentIntroduction = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ProjectConcept = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     ProjectHighlights = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     ProjectLeader = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
@@ -1212,7 +1242,7 @@ namespace WCMS.Migrations
                     TagId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
                     Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    TagName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                    TagName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1707,7 +1737,13 @@ namespace WCMS.Migrations
                 name: "SpecUSRDetail");
 
             migrationBuilder.DropTable(
+                name: "SplitStringRow");
+
+            migrationBuilder.DropTable(
                 name: "TagDetail");
+
+            migrationBuilder.DropTable(
+                name: "UserInfo");
 
             migrationBuilder.DropTable(
                 name: "WebResourceInfo");

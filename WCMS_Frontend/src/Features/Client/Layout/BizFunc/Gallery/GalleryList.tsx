@@ -1,6 +1,7 @@
 import type { components } from "../../../../../types/api";
 import type { IFETheme } from "../../Theme/ITheme";
 type GallerySet = components["schemas"]["GallerySet_DTO"];
+type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 import type { RowCell } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import { useFetchGridListData } from "../../../../../SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "../../../../../SysCore/Utils/Library/LibData";
@@ -9,11 +10,12 @@ import { Merge } from "../../../../../SysCore/Utils/Library/LibMergeData";
 import type { Lang } from "../../../../../SysCore/i18n/lang";
 import GalleryProvider from "../../../../Server/Layout/BizFunc/WebManagement/Gallery/Gallery_Api";
 import { GalleryViewComp, type MainGridContentProp } from "../../Scaffold/ContentViewMode/GalleryView/GalleryView";
+import { useCategoryListData } from "../../../../Server/Layout/BizFunc/WebManagement/Category/Category_Hook";
 
 const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
     var condition: string = "";
-    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.GalleryFields.Categories} In (${categoryIds})`)
-    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.GalleryFields.Tags} In (${tagIds})`)
+    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.GalleryFields.Categories} HasAny (${categoryIds})`)
+    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.GalleryFields.Tags} HasAny (${tagIds})`)
     const provider = GalleryProvider();
     return useFetchGridListData<GallerySet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
@@ -35,6 +37,7 @@ const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
                 `${SchemaFields.GallerySetFields.GalleryInfo}.${SchemaFields.GalleryInfoFields.Title}`,
             ],
             Condition: condition,
+            OrderBy: [{ Col: SchemaFields.GalleryFields.ModifyTime, Desc: true }],
             PageNumber: page,
             PageSize: 12,
         }),
@@ -59,33 +62,34 @@ const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
 };
 
 
-export interface IGalleryListOptions { Category?: string; Tag?: string; Style: number; }
+export interface IGalleryListOptions { Title: string, Category?: string; Tag?: string; Style: number; }
 interface IGalleryListProps { Theme: IFETheme; Lang: string | Lang; Options?: IGalleryListOptions; }
 
 
 export const GalleryListComp = (props: IGalleryListProps) => {
-
+    const useCategoryList = useCategoryListData("Gallery", props.Lang)
     const useListData = useGalleryList(props.Lang, props.Options?.Category ?? "", props.Options?.Tag ?? "");
 
-    const isLoading = [useListData.isLoading];
-    const errors = [useListData.error];
+    const isLoading = [useListData.isLoading, useCategoryList.isLoading, useCategoryList.isLoading];
+    const errors = [useListData.error, useCategoryList.error, useCategoryList.error];
 
-    const CompProps: MainGridContentProp[] = GetGridViewContentProps(props.Lang, useListData.rawData)
-    return <GalleryViewComp Title={props.Lang} MainContentProps={CompProps} LoadingList={isLoading} ErrorList={errors} />;
+    const CompProps: MainGridContentProp[] = GetGridViewContentProps(props.Lang, useListData.rawData, useCategoryList.rawData)
+    return <GalleryViewComp Title={""} MainContentProps={CompProps} LoadingList={isLoading} ErrorList={errors} />;
 };
 
 
 
-const GetGridViewContentProps = (lang: string, rawData: GallerySet[]): MainGridContentProp[] => {
+const GetGridViewContentProps = (lang: string, rawData: GallerySet[], categoryList: CategorySet[]): MainGridContentProp[] => {
     if (!rawData) return [];
     let result: MainGridContentProp[] = [];
     rawData.map(item => {
-        const g = item.Gallery;
-        const galleryId = g?.InternalId ?? "";
+        const gly = item.Gallery;
+        const galleryId = gly?.InternalId ?? "";
         const title = item.GalleryInfo?.find(p => p?.Lang?.toLocaleLowerCase() === lang.toLocaleLowerCase())?.Title ?? "未命名";
-        const coverPic = g?.CoverPicSrcId ?? "";
-        const categories = g?.Categories ?? "";
-        const created = g?.CreateTime ?? "";
+        const coverPic = gly?.CoverPicSrcId ?? "";
+        const categorys = (gly?.Categories ?? "").split(",").map(s => s.trim()).filter(Boolean);
+        const categories = categorys.map(catId => categoryList?.find(s => String(s.Category?.CategoryId) === catId)?.CategoryDetail?.find(d => d.Lang === lang)?.CategoryName).filter((x): x is string => !!x).join("、");
+        const created = gly?.CreateTime ?? "";
         result.push({
             galleryInternalId: galleryId,
             Title: title,
