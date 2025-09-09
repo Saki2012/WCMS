@@ -170,6 +170,7 @@ export const useLegacyMenuDOM = (menuRef: React.RefObject<HTMLUListElement>) => 
       // 找到最近的 header_Box
       const headerBox = document.querySelector(".header_Box");
       if (headerBox) {
+        document.body.style.overflow = "auto";
         headerBox.classList.remove("active");
       }
     };
