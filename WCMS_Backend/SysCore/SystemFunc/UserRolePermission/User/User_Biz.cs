@@ -6,6 +6,7 @@ using SharpCompress.Archives;
 using System.IO;
 using System.Net;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using WCMS.SysCore.Interface;
@@ -16,6 +17,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.SystemFunc.UserRolePermission.User
 {
+    [ProgId("User")]
     public class UserBiz(IRepositoryMapProvider repoMapProvider, IErrorHelper message) : BizService<UserSet>(repoMapProvider, message), IBizService<UserSet>
     {
         #region Public

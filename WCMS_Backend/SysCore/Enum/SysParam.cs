@@ -43,7 +43,7 @@ namespace WCMS.SysCore.Enum
         /// <summary>
         /// 系統操作
         /// </summary>
-        public static readonly UserModel SysOperator = new() { UserId = "SysOperator", UserName = "系統操作" };
+        public static readonly UserModel SysOperator = new() { UserId = "SysOperator"};
 
     }
 }

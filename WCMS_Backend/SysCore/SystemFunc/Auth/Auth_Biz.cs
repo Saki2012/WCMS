@@ -9,9 +9,10 @@ using WCMS.SysCore.SystemFunc.UserRolePermission.User;
 
 namespace WCMS.SysCore.SystemFunc.Auth
 {
+    
     public interface IAuthService
     {
-        Task<(bool ok, UserModel user, List<string> roles, string reason)> SignInAsync(string account, string password);
+        Task<(bool ok, UserSet userSet, List<string> roles, string reason)> SignInAsync(string account, string password);
         Task<UserModel> FindByAccountAsync(string account);
         //Task<List<RoleModel>> GetRolesByUserIdAsync(string account);
     }
@@ -20,31 +21,25 @@ namespace WCMS.SysCore.SystemFunc.Auth
     {
         private readonly UserBiz _users = (UserBiz)users;
         private readonly RoleBiz _roles = (RoleBiz)roles;
-        
 
-        public async Task<(bool ok, UserModel user, List<string> roles, string reason)> SignInAsync(string account, string password)
+        public async Task<(bool ok, UserSet userSet, List<string> roles, string reason)> SignInAsync(string account, string password)
         {
-            string[] selectFields = [nameof(UserModel.UserId),nameof(UserModel.UserName),nameof(UserModel.PasswordHash),nameof(UserModel.PasswordSalt),nameof(UserModel.PasswordAlgoVer)];
-            var userResult = await _users.BizQueryListAsync(selectFields,$"{nameof(UserModel.UserId)} = {account}", default, 0,0);
-            var user = userResult.FirstOrDefault().User;
-            if (user is null) return (false, null!, new(), "not_found_or_inactive");
-            var ok = PasswordHasher.Verify(password, user.PasswordHash, user.PasswordSalt, user.PasswordAlgoVer);
+            string[] selectFields = [nameof(UserModel.UserId),$"{nameof(UserInfo)}.{nameof(UserInfo.UserName)}" ,nameof(UserModel.PasswordHash),nameof(UserModel.PasswordSalt),nameof(UserModel.PasswordAlgoVer)];
+            var userResult = await _users.BizQueryListAsync(selectFields,$"{nameof(UserModel.UserId)} = {account} And {nameof(UserInfo)}.{nameof(UserInfo.Lang)} = zh-tw", default, 0,0);
+            var set = userResult.FirstOrDefault();
+            if (set is null) return (false, null!, new(), "not_found_or_inactive");
+            var ok = PasswordHasher.Verify(password, set.User.PasswordHash, set.User.PasswordSalt, set.User.PasswordAlgoVer);
             if (!ok) return (false, null!, new(), "bad_password");
             //var roles = await _roles.BizQuerySetAsync("");
-            return (true, user, null, string.Empty);
+            return (true, set, null, string.Empty);
         }
 
         public async Task<UserModel> FindByAccountAsync(string account)
         {
-            string[] selectFields = [nameof(UserModel.UserId), nameof(UserModel.UserName)];
+            string[] selectFields = [nameof(UserModel.UserId), $"{nameof(UserInfo)}.{nameof(UserInfo.UserName)}"];
             var userResult = await _users.BizQueryListAsync(selectFields, $"{nameof(UserModel.UserId)} = {account}", default, 0, 0);
             var user = userResult.FirstOrDefault().User;
             return user;
         }
-
-
-
-
-
     }
 }

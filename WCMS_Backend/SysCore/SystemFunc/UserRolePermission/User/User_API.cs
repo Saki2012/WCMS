@@ -34,12 +34,20 @@ namespace WCMS.SysCore.SystemFunc.UserRolePermission.User
                 User = new()
                 {
                     UserId = newUser.UserId,
-                    UserName = newUser.UserName,
                     Email = newUser.Email,
                     PasswordHash = hash,
                     PasswordSalt = salt,
                     PasswordAlgoVer = ver,
                     AccountStatus = AccountStatus.Enable
+                },
+                UserInfo =new List<UserInfo>()
+                {
+                    new UserInfo()
+                    {
+                        UserId=newUser.UserId,
+                        UserName=newUser.UserName,
+                        Lang="zh-tw",
+                    }
                 }
             };
             var result = await Service.BizCreateSetAsync(newUserSet);

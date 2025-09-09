@@ -25,7 +25,7 @@ namespace WCMS.SysCore
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId),
-                new Claim(ClaimTypes.Name, user.UserName ?? user.UserId),
+                //new Claim(ClaimTypes.Name, user.UserName ?? user.UserId),
                 //new Claim(ClaimTypes.Role, user.RoleId ?? "User"),
                 new Claim(JwtRegisteredClaimNames.Jti, jti),
             };

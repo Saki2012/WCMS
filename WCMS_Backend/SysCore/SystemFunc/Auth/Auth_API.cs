@@ -47,11 +47,11 @@ namespace WCMS.SysCore.SystemFunc.Auth
             if (!r.ok) return Unauthorized();
 
             // 2) 簽發 AccessToken
-            var (accessToken, jti, accessExp) = _tokenSvc.IssueAccessToken(r.user);
+            var (accessToken, jti, accessExp) = _tokenSvc.IssueAccessToken(r.userSet.User);
 
             // 3) 產生 Refresh 資料並寫入 HttpOnly Cookie（同源 HTTPS）
-            var (refreshToken, tokenId, refreshExp) = _tokenSvc.IssueRefreshToken(r.user);
-            await _tokenSvc.StoreRefreshAsync(r.user.UserId, tokenId, refreshExp);
+            var (refreshToken, tokenId, refreshExp) = _tokenSvc.IssueRefreshToken(r.userSet.User);
+            await _tokenSvc.StoreRefreshAsync(r.userSet.User.UserId, tokenId, refreshExp);
 
             // ✅ 同源 HTTPS（正式上線）：Secure=true；同源可用 Lax
             var baseOpt = new CookieOptions
@@ -93,9 +93,9 @@ namespace WCMS.SysCore.SystemFunc.Auth
             // 4) 回傳給前端
             var result = new User_DTO
             {
-                UserId = r.user.UserId,
-                UserName = r.user.UserName,
-                AccountStatus = r.user.AccountStatus,
+                UserId = r.userSet.User.UserId,
+                UserName = r.userSet.UserInfo.FirstOrDefault().UserName,
+                AccountStatus = r.userSet.User.AccountStatus,
             };
 
             OperateLogModel followInfo = new OperateLogModel();
