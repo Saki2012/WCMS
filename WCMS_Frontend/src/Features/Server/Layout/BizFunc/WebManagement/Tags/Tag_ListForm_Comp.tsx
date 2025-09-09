@@ -21,10 +21,20 @@ const emptyData: TagSet = {
  */
 export const TagListFormComp = ({ progId, title, theme }: { progId: string; title: string; theme: IBETheme }) => {
     const { internalId } = useParams();
-    const dirUrl = useLocation().pathname.replace(/\/Tag$/, `/Tag`);
+    var dirUrl = useLocation().pathname.replace(/\/Tag$/, `/Tag`);
+
+    const pathParts = useLocation().pathname.split('/');
+
+    //const lastPart = pathParts.pop(); // 移除並取得最後一個部分
+    if (pathParts[pathParts.length - 1] !== 'Tag') {
+
+        dirUrl = location.pathname.split('/').slice(0, -1).join('/');
+    }
+    const useToolbar = useListToolbarActions(dirUrl)
+
     const useTagList = useCategoryListData(progId, 'zh-tw')
     const formData = useFetchFormData<TagSet>(TagProvider(), internalId, emptyData)
-    const useToolbar = useListToolbarActions(dirUrl)
+
 
     //*需要itmes動態化
     const LibTabsPropB = {
@@ -73,7 +83,7 @@ const generateLangFields = (lang: string, label: string, theme: IBETheme,
 ): React.ReactNode[] => {
     const details: TagDetail[] = (formData?.TagDetail ?? []) as TagDetail[];
     const getLangData = (): TagDetail => details.find(d => d.Lang === lang) ?? ({ Lang: lang, Title: "", SubTitle: "", Content: "", Url: "" } as TagDetail);
-    const updateLangData = (key: "Title" | "SubTitle" | "Content" | "Url", val: string) => {
+    const updateLangData = (key: "TagName", val: string) => {
         const currentData = getLangData();
         const newItem = { ...currentData, [key]: val };
         const isEmpty = (newItem.TagName?.trim() ?? "") === "";
@@ -82,6 +92,6 @@ const generateLangFields = (lang: string, label: string, theme: IBETheme,
     };
     const data = getLangData();
     return [
-        <LibTextBox key={`${lang}-Title`} Style={theme.TextBox} ColumnDisplayName={`標籤名稱（${label}）`} DefaultInputDisplay="請輸入" InputValue={data.TagName ?? ""} OnChange={(val) => updateLangData("Title", val)} />,
+        <LibTextBox key={`${lang}-Title`} Style={theme.TextBox} ColumnDisplayName={`標籤名稱（${label}）`} DefaultInputDisplay="請輸入" InputValue={data.TagName ?? ""} OnChange={(val) => updateLangData("TagName", val)} />,
     ];
 };
