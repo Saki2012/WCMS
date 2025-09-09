@@ -166,8 +166,17 @@ export const useLegacyMenuDOM = (menuRef: React.RefObject<HTMLUListElement>) => 
       icon.classList.toggle("fa-angle-down", open);
     };
 
+    const closeMenu = () => {
+      // 找到最近的 header_Box
+      const headerBox = document.querySelector(".header_Box");
+      if (headerBox) {
+        headerBox.classList.remove("active");
+      }
+    };
+
     const closeBranch = (li: HTMLElement) => {
       const childUl = li.querySelector(":scope > ul") as HTMLElement | null;
+
       if (childUl) childUl.classList.remove("in");
       li.classList.remove("active");
       setArrow(li, false);
@@ -191,8 +200,8 @@ export const useLegacyMenuDOM = (menuRef: React.RefObject<HTMLUListElement>) => 
 
       const childUl = li.querySelector(":scope > ul") as HTMLElement | null;
 
-      // 沒子層 = 正常導頁；若要只設 active 可在這裡加 li.classList.add("active")
-      if (!childUl) return;
+      // 沒子層 = 正常導頁並關閉menu；若要只設 active 可在這裡加 li.classList.add("active")
+      if (!childUl) return closeMenu();
 
       // 有子層：阻止導頁，改為展開/收合
       e.preventDefault();
@@ -216,6 +225,9 @@ export const useLegacyMenuDOM = (menuRef: React.RefObject<HTMLUListElement>) => 
         li.classList.add("active");
         setArrow(li, true);
       }
+
+
+
     };
 
     root.addEventListener("click", onClick);
