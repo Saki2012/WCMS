@@ -26,3 +26,6 @@ dotnet_diagnostic.CS8629.severity = silent
 
 # CA1854: 建議使用 'IDictionary.TryGetValue(TKey，out TValue)' 方法
 dotnet_diagnostic.CA1854.severity = silent
+
+# CS8619: 值中參考型別的可 Null 性與目標型別不符合。
+dotnet_diagnostic.CS8619.severity = none

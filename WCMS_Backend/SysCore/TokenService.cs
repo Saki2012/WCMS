@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.SystemFunc.UserRolePermission.User;
+using static WCMS.SysCore.SystemFunc.Auth.AuthController;
 
 namespace WCMS.SysCore
 {
@@ -14,7 +15,7 @@ namespace WCMS.SysCore
         private readonly IMemoryCache _cache = cache;
         private readonly IConfiguration _cfg = cfg;
 
-        public (string accessToken, string jti, DateTime expires) IssueAccessToken(UserModel user)
+        public (string accessToken, string jti, DateTime expires) IssueAccessToken(User_DTO user)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_cfg["Jwt:Key"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -25,7 +26,7 @@ namespace WCMS.SysCore
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId),
-                //new Claim(ClaimTypes.Name, user.UserName ?? user.UserId),
+                new Claim(ClaimTypes.Name, user.UserName ?? user.UserId),
                 //new Claim(ClaimTypes.Role, user.RoleId ?? "User"),
                 new Claim(JwtRegisteredClaimNames.Jti, jti),
             };
@@ -43,7 +44,7 @@ namespace WCMS.SysCore
             return (jwt, jti, expires);
         }
 
-        public (string refreshToken, string tokenId, DateTime expires) IssueRefreshToken(UserModel user)
+        public (string refreshToken, string tokenId, DateTime expires) IssueRefreshToken(User_DTO user)
         {
             var tokenId = Guid.NewGuid().ToString("N");
             var raw = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));

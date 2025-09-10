@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -15,6 +16,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization.Metadata;
+using System.Threading.RateLimiting;
 using WCMS.SysCore;
 using WCMS.SysCore.AppSettingsOptions;
 using WCMS.SysCore.Interface;
@@ -42,6 +44,7 @@ namespace WCMS
             AppSetup.AddJwtAuthentication(builder.Services, builder.Configuration);
             AppSetup.AddAppCookie(builder.Services);
             AppSetup.APIBehavior(builder.Services);
+            AppSetup.AddRateLimit(builder.Services);
             // 開發期 Swagger（產線預設關）
             AppSetup.AddDebugServices(builder);
             ///啟動時自動建立資料夾
@@ -120,6 +123,7 @@ namespace WCMS
             app.UseOutputCache();
             app.UseResponseCompression();
 
+            app.UseRateLimiter();
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
@@ -436,6 +440,30 @@ namespace WCMS
             {
                 services.Configure<FilePathOptions>(cfg.GetSection("FilePaths"));
                 services.Configure<WhitelistOptions>(cfg.GetSection("Whitelist"));
+            }
+
+            public static void AddRateLimit(IServiceCollection services)
+            {
+                services.AddRateLimiter(options =>
+                {
+                    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+                    options.OnRejected = async (context, token) =>
+                    {
+                        context.HttpContext.Response.ContentType = "application/json";
+                        // 如果系統有提供 Retry-After，就取出來加到 header
+                        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+                        {
+                            context.HttpContext.Response.Headers.RetryAfter = ((int)retryAfter.TotalSeconds).ToString();
+                        }
+                        await context.HttpContext.Response.WriteAsync("{\"message\":\"登入嘗試過多，請稍後再試。\"}", token);
+                    };
+                    options.AddFixedWindowLimiter(nameof(AuthController.Login), opt =>
+                    {
+                        opt.PermitLimit = 3;
+                        opt.Window = TimeSpan.FromMinutes(5);
+                        opt.QueueLimit = 0;
+                    });
+                });
             }
             #endregion
 

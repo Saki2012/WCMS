@@ -1,11 +1,12 @@
 ﻿using WCMS.SysCore.SystemFunc.UserRolePermission.User;
+using static WCMS.SysCore.SystemFunc.Auth.AuthController;
 
 namespace WCMS.SysCore.Interface
 {
     public interface ITokenService
     {
-        (string accessToken, string jti, DateTime expires) IssueAccessToken(UserModel user);
-        (string refreshToken, string tokenId, DateTime expires) IssueRefreshToken(UserModel user);
+        (string accessToken, string jti, DateTime expires) IssueAccessToken(User_DTO user);
+        (string refreshToken, string tokenId, DateTime expires) IssueRefreshToken(User_DTO user);
         Task StoreRefreshAsync(string userId, string tokenId, DateTime expires);
         Task<string?> GetUserIdByRefreshIdAsync(string tokenId);   // ★ 新增
         Task<bool> ValidateRefreshAsync(string userId, string tokenId);

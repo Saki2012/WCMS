@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 using System.ComponentModel.DataAnnotations;
@@ -32,26 +33,28 @@ namespace WCMS.SysCore.SystemFunc.Auth
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        [HttpPost(nameof(Login)), AllowAnonymous]
+        [HttpPost(nameof(Login)), AllowAnonymous, EnableRateLimiting(nameof(Login))]
         public async Task<IActionResult> Login([FromBody] LoginDto req)
         {
-            if (string.IsNullOrWhiteSpace(req?.Account) || string.IsNullOrWhiteSpace(req?.Password)) return BadRequest("帳密不可為空");
-            if (req.Account.Length > 20) return BadRequest("帳號長度不可超過20");
+            OperateLogModel followInfo = new OperateLogModel();
+            followInfo.APIName = nameof(Login);
+            followInfo.UserId = "SysOperator";
+            followInfo.followingDT = JsonConvert.SerializeObject(req.Account);
+            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
 
-            int intAccountValidagte = 0;
-            if (int.TryParse(req.Account, out intAccountValidagte)) return BadRequest("帳號不可輸入全數字形態");
+            const string GENERIC_LOGIN_ERROR = "帳號或密碼錯誤";
+            
+            var (ok, userInfo) = await _authBiz.CheckLoginValid(req.Account, req.Password);
+            if (!ok) return Unauthorized(GENERIC_LOGIN_ERROR);
 
-
-            // 1) 登入帳號
-            var r = await _authBiz.SignInAsync(req.Account, req.Password);
-            if (!r.ok) return Unauthorized();
 
             // 2) 簽發 AccessToken
-            var (accessToken, jti, accessExp) = _tokenSvc.IssueAccessToken(r.userSet.User);
+            var (accessToken, jti, accessExp) = _tokenSvc.IssueAccessToken(userInfo);
 
             // 3) 產生 Refresh 資料並寫入 HttpOnly Cookie（同源 HTTPS）
-            var (refreshToken, tokenId, refreshExp) = _tokenSvc.IssueRefreshToken(r.userSet.User);
-            await _tokenSvc.StoreRefreshAsync(r.userSet.User.UserId, tokenId, refreshExp);
+            var (refreshToken, tokenId, refreshExp) = _tokenSvc.IssueRefreshToken(userInfo);
+            await _tokenSvc.StoreRefreshAsync(userInfo.UserId, tokenId, refreshExp);
 
             // ✅ 同源 HTTPS（正式上線）：Secure=true；同源可用 Lax
             var baseOpt = new CookieOptions
@@ -90,22 +93,7 @@ namespace WCMS.SysCore.SystemFunc.Auth
                 Path = baseOpt.Path,
                 Expires = accessExp
             });
-            // 4) 回傳給前端
-            var result = new User_DTO
-            {
-                UserId = r.userSet.User.UserId,
-                UserName = r.userSet.UserInfo.FirstOrDefault().UserName,
-                AccountStatus = r.userSet.User.AccountStatus,
-            };
-
-            OperateLogModel followInfo = new OperateLogModel();
-            followInfo.APIName = nameof(Login);
-            followInfo.UserId = "SysOperator";
-            followInfo.followingDT = JsonConvert.SerializeObject(result);
-            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
-            OperateLog.AddMoveFollow(followInfo);
-
-            return Ok(result);
+            return Ok(userInfo);
         }
         /// <summary>
         /// 刷新狀態
@@ -257,6 +245,10 @@ namespace WCMS.SysCore.SystemFunc.Auth
             /// 使用者名稱
             /// </summary>
             [LibDesc(ModelDisplayName.User_UserName)] public string UserName { get; set; }
+            /// <summary>
+            /// 
+            /// </summary>
+            public string InternalId { get; set; } = string.Empty;
             /// <summary>
             /// 帳戶狀態
             /// </summary>
