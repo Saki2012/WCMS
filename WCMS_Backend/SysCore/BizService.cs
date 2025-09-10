@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
@@ -77,6 +78,18 @@ namespace WCMS.SysCore
         #endregion
 
         #region Public
+
+        public async Task BizInitCreateSetsAsync(TSet[] sets)
+        {
+            foreach (var set in sets)
+            {
+                PropertyInfo headerProp = PropertyAccessorCache.GetProperties<TSet>().Where(p => !p.IsListPropertyType()).FirstOrDefault();
+                var header = PropertyAccessorCache.Get(set, headerProp.Name);
+                PropertyAccessorCache.Set(header, nameof(BasicDataModel.IsIniData), true);
+                await BizCreateSetAsync(set);
+            }
+        }
+
         public async Task<TSet> BizCreateSetAsync(TSet set)
         {
             try
@@ -190,6 +203,10 @@ namespace WCMS.SysCore
             //Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00010);
             //Response.Data.Add(data);
             return data;
+        }
+        public async Task<IList<TSet>> BizQueryListAsync(QueryListParam param)
+        {
+            return await BizQueryListAsync(param.Fields,param.Condition, param.OrderBy, param.PageNumber, param.PageSize);
         }
         public async Task<IList<TSet>> BizQueryListAsync(string[] selectFields, string condition, IReadOnlyList<OrderBySpec> OrderBy=null, int pageNumber=0, int pageSize = 0)
         {

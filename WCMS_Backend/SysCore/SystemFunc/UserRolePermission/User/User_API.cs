@@ -1,15 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
-using System.Collections.Generic;
-using WCMS.Features.SiteEdit.PageManagement;
-using WCMS.Features.SiteEdit.Tag;
-using WCMS.SysCore;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.Interface;
-using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.Security;
-using WCMS.SysCore.Model;
-using WCMS.SysCore.SystemFunc.UserRolePermission.Permission;
 using static WCMS.SysCore.Enum.SysEnum;
 
 
@@ -34,6 +25,7 @@ namespace WCMS.SysCore.SystemFunc.UserRolePermission.User
                 User = new()
                 {
                     UserId = newUser.UserId,
+                    UserName = newUser.UserName,
                     Email = newUser.Email,
                     PasswordHash = hash,
                     PasswordSalt = salt,
@@ -73,33 +65,5 @@ namespace WCMS.SysCore.SystemFunc.UserRolePermission.User
         public string UserName { get; set; } = "";       // 顯示名稱
         public string Password { get; set; } = "";       // 原始密碼
         public string? Email { get; set; }               // 選填
-    }
-
-
-    [LibDesc]
-    public class UserSet_DTO:ITSet_DTO
-    {
-        public UserModel User { get; set; } = new();
-    }
-    [LibDesc]
-    public class UserModel_DTO: DTOBasicDataModel
-    {
-        /// <summary>
-        /// 使用者編號
-        /// </summary>
-        [LibDesc] public string UserId { get; set; }
-        /// <summary>
-        /// 使用者名稱
-        /// </summary>
-        [LibDesc] public string UserName { get; set; }
-        /// <summary>
-        /// 部門代號
-        /// </summary>
-        //[LibDesc] public string DeptId { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        [LibDesc] public string? Email { get; set; }
-        public ICollection<PermissionModel> UserRoles { get; set; } = [];
     }
 }

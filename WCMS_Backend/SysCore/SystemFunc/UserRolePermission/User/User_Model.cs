@@ -8,18 +8,21 @@ using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.SystemFunc.UserRolePermission.User
 {
-    [LibDesc] public class UserSet:ITSet
+    public class UserSet:ITSet
     {
         public UserModel User { get; set; } = new();
         public List<UserInfo> UserInfo { get; set; } = [];
     }
-    [LibDesc] public class UserModel : MasterDataModel
+     public class UserModel : MasterDataModel
     {
         /// <summary>
         /// 使用者編號
         /// </summary>
-        [LibDesc, Key, StringLength(SysLengthParam.ID)] public string UserId { get; set; }
-
+        [Key, StringLength(SysLengthParam.ID)] public string UserId { get; set; }
+        /// <summary>
+        /// 使用者名稱(之後再想辦法移動到detail，影響範圍會擴及到所有用到的username的地方，暫時先用Obsolete標記)
+        /// </summary>
+        [Obsolete,StringLength(SysLengthParam.Name)] public string UserName { get; set; }
         /// <summary>
         /// 部門代號
         /// </summary>

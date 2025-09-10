@@ -2,9 +2,27 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.Identity.Client;
+using Microsoft.VisualBasic;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using System.Threading.Tasks;
+using WCMS.Features.SiteEdit.Announcement;
+using WCMS.Features.SiteEdit.Banner;
+using WCMS.Features.SiteEdit.Category;
+using WCMS.Features.SiteEdit.FileArchive;
+using WCMS.Features.SiteEdit.Gallery;
+using WCMS.Features.SiteEdit.PageManagement;
+using WCMS.Features.SiteEdit.SpecCategory;
+using WCMS.Features.SiteEdit.Tag;
+using WCMS.Features.SiteEdit.WebResource;
+using WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting;
+using WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory;
+using WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch;
+using WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
@@ -118,26 +136,24 @@ namespace WCMS.SysCore
         {
             await Service.BeginTransactionAsync();
 
-            OperateLogModel followInfo = new OperateLogModel();
-            followInfo.APIName = $"{Service.ProgId}/{nameof(InitialCreateData)}";
-            followInfo.UserId = "SysOperator";
-            followInfo.followingDT = JsonConvert.SerializeObject(sets);
-            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLogModel followInfo = new()
+            {
+                APIName = $"{Service.ProgId}/{nameof(InitialCreateData)}",
+                UserId = "SysOperator",
+                followingDT = JsonConvert.SerializeObject(sets),
+                IP = Request.Headers["HTTP_CLIENT_IP"].ToString()
+            };
             OperateLog.AddMoveFollow(followInfo);
 
             try
             {
-                int i = 1;
+                IList<TSet>entitySets = [];
                 foreach (var set in sets)
                 {
                     TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(set);
-                    PropertyInfo headerProp = PropertyAccessorCache.GetProperties<TSet>().Where(p => !p.IsListPropertyType()).FirstOrDefault();
-                    var header = PropertyAccessorCache.Get(entity, headerProp.Name);
-                    PropertyAccessorCache.Set(header, nameof(BasicDataModel.IsIniData), true);
-                    await Service.BizCreateSetAsync(entity);
-                    i++;
+                    entitySets.Add(entity);
                 }
-                await Service.CommitDataAsync();
+                await Service.BizInitCreateSetsAsync(entitySets.ToArray());
                 return Ok();
             }
             catch (Exception ex)
@@ -301,7 +317,12 @@ namespace WCMS.SysCore
     [ApiController, Route(SysParam.ServiceRoute)]
     public class SystemAPIController(IAntiforgery anti) : ControllerBase
     {
+        #region Property
         private readonly IAntiforgery _anti = anti;
+        protected IOperateLog OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IOperateLog>();
+        private IOperateLog? _OperateLog;
+        #endregion
+        #region Public
         /// <summary>發出/更新 XSRF Token，寫入可讀 Cookie：XSRF-TOKEN</summary>
         [HttpGet(nameof(GetXsrfToken)), AllowAnonymous, ResponseCache(NoStore = true, Location = ResponseCacheLocation.None), IgnoreAntiforgeryToken]
         public IActionResult GetXsrfToken()
@@ -335,12 +356,73 @@ namespace WCMS.SysCore
                 return NotFound(new { message = ex.Message });
             }
         }
+        /// <summary>
+        /// 轉移舊資料
+        /// </summary>
+        /// <param name="labelTag"></param>
+        /// <returns></returns>
+        [HttpPost(nameof(Migration)), LocalhostOnly] public async Task<IActionResult> Migration(string labelTag = "1810")
+        {
+            FileManagementBiz fileManagement = HttpContext.RequestServices.GetRequiredService<IBizService<FileManageSet>>() as FileManagementBiz;
+            OperateLogModel followInfo = new OperateLogModel();
+            followInfo.APIName = $"{"SystemAPI"}/{nameof(Migration)}";
+            followInfo.UserId = "SysOperator";
+            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            OperateLog.AddMoveFollow(followInfo);
+            await fileManagement.ImportZip(labelTag);
+            QueryListParam p = new(){Fields=[nameof(FileManageModel.InternalId)], Condition = $"{nameof(FileManageModel.ImportLabel)} = {labelTag}"};
+            IList<FileManageSet> fileInternalIds = await fileManagement.BizQueryListAsync(p);
+            IList<FileManageSet> srcFiles = [];
+            foreach(var file in fileInternalIds)
+            {
+                var f = await fileManagement.BizQuerySetAsync(file.FileManage.InternalId);
+                if (f != null) srcFiles.Add(f);
+            }
+            AnnouncementBiz announcement = HttpContext.RequestServices.GetRequiredService<IBizService<AnnouncementSet>>() as AnnouncementBiz;
+            await announcement.Migrate(labelTag, srcFiles);
 
-        //public IActionResult Migration(string labelTag = "1810")
-        //{
+            BannerBiz banner = HttpContext.RequestServices.GetRequiredService<IBizService<BannerSet>>() as BannerBiz;
+            await banner.Migrate(labelTag, srcFiles);
 
-        //    return Ok;
-        //}
+            CategoryBiz category = HttpContext.RequestServices.GetRequiredService<IBizService<CategoryDataSet>>() as CategoryBiz;
+            await category.Migrate();
+
+            FileArchiveBiz fileArchive = HttpContext.RequestServices.GetRequiredService<IBizService<FileArchiveSet>>() as FileArchiveBiz;
+            await fileArchive.Migrate(labelTag,srcFiles);
+
+            GalleryBiz gallery = HttpContext.RequestServices.GetRequiredService<IBizService<GallerySet>>() as GalleryBiz;
+            await gallery.Migrate(labelTag, srcFiles);
+
+            PageManagementBiz pageManagement = HttpContext.RequestServices.GetRequiredService<IBizService<PageManagementSet>>() as PageManagementBiz;
+            await pageManagement.Migrate(labelTag, srcFiles);
+
+            TagBiz tagBiz = HttpContext.RequestServices.GetRequiredService<IBizService<TagSet>>() as TagBiz;
+            await tagBiz.Migrate();
+
+            WebResourceBiz webResourceBiz = HttpContext.RequestServices.GetRequiredService<IBizService<WebResourceSet>>() as WebResourceBiz;
+            await webResourceBiz.Migrate(labelTag, srcFiles);
+
+            SiteMenuBiz siteMenuBiz = HttpContext.RequestServices.GetRequiredService<IBizService<SiteMenuSet>>() as SiteMenuBiz;
+            await siteMenuBiz.Migrate(pageManagement);
+
+            SpecCategoryBiz specCategoryBiz = HttpContext.RequestServices.GetRequiredService<IBizService<SpecCategorySet>>() as SpecCategoryBiz;
+            await specCategoryBiz.Migrate();
+
+            SpecResearchBiz specResearchBiz = HttpContext.RequestServices.GetRequiredService<IBizService<SpecResearchSet>>() as SpecResearchBiz;
+            await specResearchBiz.Migrate();
+
+            SpecUSRBiz specUSRBiz = HttpContext.RequestServices.GetRequiredService<IBizService<SpecUSRSet>>() as SpecUSRBiz;
+            await specUSRBiz.Migrate(labelTag, srcFiles);
+
+            //foreach (var fileSet in srcFiles) await fileManagement.BizUpdateSetAsync(fileSet.FileManage.InternalId, fileSet);
+
+            return Ok();
+        }
+        #endregion
+
+        #region Private
+        
+        #endregion
     }
     /// <summary>
     /// 回應結果

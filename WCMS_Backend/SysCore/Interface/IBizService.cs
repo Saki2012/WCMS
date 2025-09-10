@@ -30,6 +30,12 @@ namespace WCMS.SysCore.Interface
         /// <returns></returns>
         public Task<TSet> BizCreateSetAsync(TSet set);
         /// <summary>
+        /// 初始化資料(多筆)
+        /// </summary>
+        /// <param name="sets"></param>
+        /// <returns></returns>
+        public Task BizInitCreateSetsAsync(TSet[] sets);
+        /// <summary>
         /// 修改
         /// </summary>
         /// <param name="key"></param>
@@ -55,6 +61,13 @@ namespace WCMS.SysCore.Interface
         /// <param name="InternalId">內部唯一標示號</param>
         /// <returns></returns>
         public Task<TSet> BizQuerySetAsync(string internalId);
+        /// <summary>
+        /// 查詢清單
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public Task<IList<TSet>> BizQueryListAsync(QueryListParam param);
+
         /// <summary>
         /// 查詢清單
         /// </summary>

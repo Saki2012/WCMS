@@ -4,7 +4,7 @@ using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
-using static WCMS.Features.SystemSetting.SiteMenuSetting.ModuleOptions;
+using static WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.ModuleOptions;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.FileArchive

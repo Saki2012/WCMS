@@ -7,7 +7,7 @@ using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
 
-namespace WCMS.Features.SystemSetting.SiteMenuSetting
+namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
 {
     /// <summary>
     /// 

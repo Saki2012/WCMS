@@ -373,7 +373,7 @@
     <value>研究標籤</value>
   </data>
   <data name="SpecResearch_Year" xml:space="preserve">
-    <value>年</value>
+    <value>年度</value>
   </data>
   <data name="SpecResearch_AcademicYear" xml:space="preserve">
     <value>學年度</value>
@@ -475,7 +475,7 @@
     <value>圖片說明</value>
   </data>
   <data name="SpecUSR_Year" xml:space="preserve">
-    <value>年</value>
+    <value>年度</value>
   </data>
   <data name="SpecUSR_AcademicYear" xml:space="preserve">
     <value>學年度</value>

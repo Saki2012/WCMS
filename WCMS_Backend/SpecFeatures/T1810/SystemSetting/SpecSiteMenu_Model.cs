@@ -1,4 +1,4 @@
-﻿using WCMS.Features.SystemSetting.SiteMenuSetting;
+﻿using WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting;
 
 namespace WCMS.SpecFeatures.T1810.SystemSetting
 {

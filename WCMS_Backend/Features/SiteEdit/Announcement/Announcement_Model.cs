@@ -52,7 +52,6 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// 觀看次數
         /// </summary>
         [LibDesc] public int? ViewCount { get; set; } = 0;
-
         #region Detail關聯
         [ForeignKey(nameof(AnnouncementId))] public virtual ICollection<AnnouncementDetail>? AnnouncementDetail { get; set; }
         #endregion
