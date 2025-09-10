@@ -26,6 +26,8 @@ export type { ILibModalStyle, LibModalProp } from "./FieldComponets/LibModal_Dat
 export { default as LibModal } from "./FieldComponets/LibModal_Comp"
 export type { ILibUserCardStyle, ILibUserCardProp } from "./FieldComponets/LibUserCard_Data"
 export { default as LibUserCard } from "./FieldComponets/LibUserCard_Comp"
+export type { ILibSelectCardProp } from "./FieldComponets/LibSelectCard_Data"
+export { default as LibSelectCard } from "./FieldComponets/LibSelectCard_Comp"
 // export {default as LibDropList} from "./FieldComponets/LibDropList_Comp"
 // export {default as LibDropList} from "./FieldComponets/LibDropList_Comp"
 // export {default as LibDropList} from "./FieldComponets/LibDropList_Comp"

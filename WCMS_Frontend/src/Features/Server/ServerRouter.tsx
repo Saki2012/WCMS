@@ -28,6 +28,7 @@ import { AutoRedirect } from "../../SysCore/Utils/Route/AutoRedirect";
 // import { UserManage_Comp } from "./Layout/BizFunc/UserDTs/UserInfo";
 import { UserManageList_Comp } from "./Layout/BizFunc/UserDTs/UserInfo_List_Comp";
 import { UserManage_Comp } from "./Layout/BizFunc/UserDTs/UserManage_Comp";
+import { SiteMenu_Comp } from "./Layout/BizFunc/Dashboard/SiteMenu/SiteMenu_Comp";
 
 export class BackendRouteModule implements IRouteModule {
   getRoutes(): RouteObject[] {
@@ -43,6 +44,20 @@ export class BackendRouteModule implements IRouteModule {
           </RequireAuth>
         , children: [
 
+          //#region 網站管理
+          {
+            path: 'Dashboard',
+            children: [
+              { index: true, element: <AutoRedirect to="SiteMenu" replace />, },
+              {
+                path: 'SiteMenu',
+                children: [
+                  { index: true, element: <SiteMenu_Comp theme={Classic_BETheme} /> },
+                ],
+              },
+            ]
+          },
+          //#endregion
           //#region 賬號管理
           {
             path: 'AccountManage',

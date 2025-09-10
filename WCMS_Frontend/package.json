@@ -37,6 +37,7 @@
     "react-dom": "18.2.0",
     "react-helmet": "^6.1.0",
     "react-helmet-async": "^2.0.5",
+    "react-nestable": "^3.0.2",
     "react-router": "^6.30.1",
     "react-router-dom": "^6.30.1",
     "swiper": "^11.2.8",
