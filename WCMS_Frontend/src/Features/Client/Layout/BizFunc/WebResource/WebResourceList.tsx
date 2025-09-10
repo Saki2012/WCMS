@@ -47,7 +47,7 @@ const useWebResourceList = (categoryIds: string, tagIds: string) => {
             PageSize: 0,
         }),
         enabled: true,
-        deps: [],
+        deps: [categoryIds, tagIds],
     });
 };
 

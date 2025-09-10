@@ -45,9 +45,9 @@ const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
             const data = item.Gallery ?? {};
             const cells: RowCell[] = columns.map(col => {
                 let content = "";
-                if (col.key === SchemaFields.AnnouncementDetailFields.Title) {
+                if (col.key === SchemaFields.GalleryInfoFields.Title) {
                     // content = data.AnnouncementDetail?.find(d => d.Lang === lang)?.Title ?? "";
-                } else if (col.key === SchemaFields.AnnouncementFields.ModifyTime) {
+                } else if (col.key === SchemaFields.GalleryFields.ModifyTime) {
                     content = FormatDateTime((data as any)[col.key]);
                 } else {
                     content = (data as any)[col.key] ?? "";
@@ -57,7 +57,7 @@ const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
             return { cells };
         },
         enabled: true,
-        deps: [],
+        deps: [lang, categoryIds, tagIds],
     });
 };
 
@@ -74,7 +74,11 @@ export const GalleryListComp = (props: IGalleryListProps) => {
     const errors = [useListData.error, useCategoryList.error, useCategoryList.error];
 
     const CompProps: MainGridContentProp[] = GetGridViewContentProps(props.Lang, useListData.rawData, useCategoryList.rawData)
-    return <GalleryViewComp Title={""} MainContentProps={CompProps} LoadingList={isLoading} ErrorList={errors} />;
+
+
+
+
+    return <GalleryViewComp Title={""} MainContentProps={CompProps} gridProps={useListData.gridProps} Theme={props.Theme} LoadingList={isLoading} ErrorList={errors} />;
 };
 
 

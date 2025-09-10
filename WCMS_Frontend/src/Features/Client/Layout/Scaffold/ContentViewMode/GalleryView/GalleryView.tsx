@@ -1,15 +1,19 @@
 import { Link, useLocation } from "react-router-dom";
 import LoadingErrorHandler from "../../../../../../SysCore/Components/LoadingErrorHandler";
 import { Paginator } from "../../../../../../SysCore/Components/Paginator/Paginator_Comp";
-import type { PaginatorProps } from "../../../../../../SysCore/Components/Paginator/Paginator_Data";
 import { SubPageTitle } from "../../Header/SubPageTitle_Comp";
+import type { GridProps } from "../../../../../../SysCore/Components/Grid/Grid_Data";
+import type { IFETheme } from "../../../Theme/ITheme";
 
 export interface GridViewContentProps {
     Title: string,
     MainContentProps: MainGridContentProp[],
+    gridProps: GridProps,
     // PaginatorProp: PaginatorProps,
     LoadingList: boolean[],
     ErrorList: (string | null | undefined)[],
+    Theme: IFETheme
+
 }
 
 export const GalleryViewComp = (prop: GridViewContentProps) => {
@@ -17,7 +21,7 @@ export const GalleryViewComp = (prop: GridViewContentProps) => {
         <>
             <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList} >
                 <SubPageTitle title={prop.Title} />
-                <MainContent props={prop.MainContentProps} />
+                <MainContent props={prop.MainContentProps} gridProps={prop.gridProps} theme={prop.Theme} />
             </LoadingErrorHandler>
         </>
     );
@@ -31,7 +35,7 @@ export interface MainGridContentProp {
     CreateDate: string;
 }
 
-const MainContent = ({ props }: { props: MainGridContentProp[] }) => {
+const MainContent = ({ props, gridProps, theme }: { props: MainGridContentProp[]; gridProps: GridProps; theme: IFETheme }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
     return (
         <>
@@ -59,8 +63,8 @@ const MainContent = ({ props }: { props: MainGridContentProp[] }) => {
                     </div>
                 ))}
             </div>
-            {/* {!( gridData.CurrentPage === 1 && gridData.TotalPage === 1) && 
-                (<Paginator currentPage={gridData.CurrentPage} totalPages={gridData.TotalPage} onPageChange={handlePageChange} style={pageStyle} ></Paginator>)} */}
+            {!(gridProps.CurrentPage === 1 && gridProps.TotalPage === 1) &&
+                (<Paginator currentPage={gridProps.CurrentPage} totalPages={gridProps.TotalPage} onPageChange={gridProps.onPageChange} style={theme.Paginator} ></Paginator>)}
         </>
     )
 }

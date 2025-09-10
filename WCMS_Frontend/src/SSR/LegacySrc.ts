@@ -11,8 +11,8 @@ export const LEGACY_CSS = [
     "/Legacy/Server/css/style_Admin_All.css",
     "/Legacy/Server/css/style_class_kit.css",
     "/Legacy/Server/css/style_background_color.css",
-    // "/Legacy/Server/ContentBack/nestable/nestable.css",
-    // "/Legacy/Server/ContentBack/table_rwd/table_rwd.css",
+    "/Legacy/Server/ContentBack/nestable/nestable.css",
+    "/Legacy/Server/ContentBack/table_rwd/table_rwd.css",
     // "/Legacy/Server/ContentBack/bootstrap-datepicker1.6.1/bootstrap-datepicker1.6.1.css",
     "/Legacy/Server/ContentBack/login/login_NewDesige.css",
     "/Legacy/Server/ContentBack/register/register_NewDesige.css",
@@ -22,7 +22,6 @@ export const LEGACY_CSS = [
     // "https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600&display=swap",
 
     // Client
-
     "/Legacy/Client/Content/Front-content.css",
     "/Legacy/Client/Content/Front-index-content.css",
     "/Legacy/Client/Content/Front-subpage-content.css",
