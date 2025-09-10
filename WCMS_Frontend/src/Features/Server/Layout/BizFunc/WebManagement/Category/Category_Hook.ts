@@ -123,3 +123,23 @@ export const useCategoryListData = (progId: string, lang: string) =>
         deps: [],
     });
 };
+/** 根據id獲取顯示名稱 */
+export const useFormatCategoriesName = (
+    content: string,
+    categoryData: CategoryDataSet[],
+    lang: string = "zh-tw",
+): string =>
+{
+    if (!content) return "";
+
+    return (content.toString() ?? "")
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean)
+        .map(catId =>
+            categoryData?.find(s => String(s.Category?.CategoryId) === catId)
+                ?.CategoryDetail?.find(d => d.Lang === lang)?.CategoryName
+        )
+        .filter((x): x is string => !!x) // 過濾掉 undefined/null
+        .join("、");
+};

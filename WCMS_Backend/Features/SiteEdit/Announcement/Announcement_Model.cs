@@ -27,15 +27,15 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 公告代碼
         /// </summary>
-        [LibDesc, Key, StringLength(SysLengthParam.ID)] public string? AnnouncementId { get; set; }
+        [Key, StringLength(SysLengthParam.ID)] public string? AnnouncementId { get; set; }
         /// <summary>
         /// 類別 (多個)
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.Title)] public string? Categories { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.Title)] public string? Categories { get; set; } = string.Empty;
         /// <summary>
         /// 標籤 (多個) 
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.Title)] public string? Tags { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.Title)] public string? Tags { get; set; } = string.Empty;
         /// <summary>
         /// 狀態 (多個)
         /// </summary>
@@ -43,11 +43,11 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 圖片 (關聯檔案資料)
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.InternalId)] public string? PictureId { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.InternalId)] public string? PictureId { get; set; } = string.Empty;
         /// <summary>
         /// 圖片描述
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.Memo)] public string? PicDescription { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.Memo)] public string? PicDescription { get; set; } = string.Empty;
         /// <summary>
         /// 觀看次數
         /// </summary>
@@ -64,23 +64,23 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 公告代碼
         /// </summary>
-        [LibDesc, Key, StringLength(SysLengthParam.ID)] public string? AnnouncementId { get; set; }
+        [Key, StringLength(SysLengthParam.ID)] public string? AnnouncementId { get; set; }
         /// <summary>
         /// 行代碼
         /// </summary>
-        [LibDesc, Key] public int? RowId { get; set; }
+        [Key] public int? RowId { get; set; }
         /// <summary>
         /// 語系
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.Lang)] public string? Lang { get; set; }
+        [StringLength(SysLengthParam.Lang)] public string? Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.Title)] public string? Title { get; set; }
+        [StringLength(SysLengthParam.Title)] public string? Title { get; set; }
         /// <summary>
         /// 副標題
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.Title)] public string? SubTitle { get; set; }
+        [StringLength(SysLengthParam.Title)] public string? SubTitle { get; set; }
         /// <summary>
         /// 內文
         /// </summary>
@@ -88,7 +88,8 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 網址
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.Url)] public string? Url { get; set; }
+        [StringLength(SysLengthParam.Url)] public string Url { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.Memo)] public string UrlDescription { get; set; } = string.Empty;
     }
     /// <summary>
     /// 明細檔案關聯
@@ -98,18 +99,18 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 公告代碼
         /// </summary>
-        [LibDesc, Key, StringLength(SysLengthParam.ID)] public string AnnouncementId { get; set; }
+        [Key, StringLength(SysLengthParam.ID)] public string AnnouncementId { get; set; }
         /// <summary>
         /// 父行代碼 - (AnnouncementDetail)
         /// </summary>
-        [LibDesc, Key] public int ParentRowId { get; set; }
+        [Key] public int ParentRowId { get; set; }
         /// <summary>
         /// 行代碼
         /// </summary>
-        [LibDesc, Key] public int RowId { get; set; }
+        [Key] public int RowId { get; set; }
         /// <summary>
         /// 檔案來源
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.InternalId)] public string FileId { get; set; }
+        [StringLength(SysLengthParam.InternalId)] public string FileId { get; set; }
     }
 }

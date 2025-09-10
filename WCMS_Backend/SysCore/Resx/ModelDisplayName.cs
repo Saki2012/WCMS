@@ -17,6 +17,7 @@
         public const string Common_ModifyUserId = "Common_ModifyUserId";
         public const string Common_InternalId = "Common_InternalId";
         public const string Common_Url = "Common_Url";
+        public const string Common_UrlDescription = "Common_UrlDescription";
         public const string Common_UrlOpen = "Common_UrlOpen";
         public const string Common_ProgId = "Common_ProgId";
         public const string Common_ContentStatus = "Common_ContentStatus";

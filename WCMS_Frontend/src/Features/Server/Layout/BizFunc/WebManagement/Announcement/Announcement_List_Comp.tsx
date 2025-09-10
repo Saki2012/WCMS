@@ -9,23 +9,24 @@ import * as React from "react";
 import type { components } from "../../../../../../types/api";
 import { handleDelete } from "./Announcement_Hook"
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
+type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 import { useListToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
 import { useAnnouncementList } from "./Announcement_Hook"
 import * as SchemaFields from "../../../../../../types/SchemaFields";
-
-
-
+import { useCategoryListData, useFormatCategoriesName } from "../Category/Category_Hook";
 
 /** 公告列表
  * @returns 
  */
 export const AnnouncementListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
+    const useCategory = useCategoryListData("Announcement", "zh-tw");
     const useAnnounceList = useAnnouncementList();
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData]);
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData); },
+        [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData]);
     const useToolbar = useListToolbarActions(dirUrl)
-    const isLoading = [useAnnounceList.isLoading];
-    const errors = [useAnnounceList.error];
+    const isLoading = [useAnnounceList.isLoading, useCategory.isLoading];
+    const errors = [useAnnounceList.error, useCategory.error];
     const searchCompProp: SearchBarProps = {
         title: "公告搜尋",
         subTitle: "搜尋公告 ...",
@@ -39,17 +40,19 @@ export const AnnouncementListComp = ({ title, theme }: { title: string; theme: I
 }
 
 /** 動態添加每行的動作功能 */
-const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[]): GridProps => {
+const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[], categoryData: CategoryDataSet[]): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
 
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
     const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
-
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
         const statusCell = row.cells.find(cell => cell.col.key === SchemaFields.AnnouncementFields.ContentStatus);
         if (statusCell && typeof statusCell.content === 'number') { statusCell.content = GetDataStatusContent(statusCell.content); }
-
+        const categoryCell = row.cells.find(p => p.col.key === SchemaFields.AnnouncementFields.Categories);
+        if (categoryCell) {
+            categoryCell.content = useFormatCategoriesName(categoryCell.content?.toString() ?? "", categoryData)
+        }
         const internalId = rawData?.[index]?.Announcement?.InternalId ?? "";
         const newCell: RowCell = {
             col: adjustCol,

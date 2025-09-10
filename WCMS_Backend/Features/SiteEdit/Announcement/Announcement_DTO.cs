@@ -1,4 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.Resx;
@@ -99,6 +101,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// 網址
         /// </summary>
         [LibDesc(ModelDisplayName.Common_Url)] public string? Url { get; set; }
+        [LibDesc(ModelDisplayName.Common_UrlDescription)] public string? UrlDescription { get; set; }
     }
     /// <summary>
     /// 明細檔案關聯

@@ -2,14 +2,14 @@ import { useId } from 'react';
 import type { ILibFileProp } from './LibFile_Data';
 
 interface LibFileithParentClassProp extends ILibFileProp {
-  parentClass?: string; // 新增
+    parentClass?: string; // 新增
 }
 
-const LibFile=({children,...prop}:LibFileithParentClassProp)=>{
+const LibFile = ({ children, ...prop }: LibFileithParentClassProp) => {
     const inputId = useId();
     const hasChildren = !!children;
-    return(
-        <>  
+    return (
+        <>
             <div className="">
                 <div className="row">
                     <div className={hasChildren ? "col-12" : "d-none"}>
@@ -24,16 +24,16 @@ const LibFile=({children,...prop}:LibFileithParentClassProp)=>{
                         <div className="row">
                             <label htmlFor={inputId} className={prop.Style.Labelstyle}>{prop.ColumnDisplayName}</label>
                             <div className={prop.Style.SelectStyle}>
-                                <input type="file" className={prop.Style.InputStyle} id={inputId} multiple={prop.Multiple} 
-                                onChange={(e) => {
-                                    if (!e.target.files) return;
-                                    const filesArray = Array.from(e.target.files);
-                                    prop.onChange?.(filesArray); // 傳 File[]
-                                    }}/>
+                                <input type="file" accept={prop.accept} className={prop.Style.InputStyle} id={inputId} multiple={prop.Multiple}
+                                    onChange={(e) => {
+                                        if (!e.target.files) return;
+                                        const filesArray = Array.from(e.target.files);
+                                        prop.onChange?.(filesArray); // 傳 File[]
+                                    }} />
                             </div>
                         </div>
                     </div>
-                    
+
                 </div>
             </div>
         </>

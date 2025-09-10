@@ -28,6 +28,7 @@ export const AnnouncementDetailFields = {
     SubTitle: "SubTitle",
     Content: "Content",
     Url: "Url",
+    UrlDescription: "UrlDescription",
 } as const;
 
 export type AnnouncementDetailFieldKey = keyof typeof AnnouncementDetailFields;
@@ -130,7 +131,6 @@ export const BannerFields = {
     Speed: "Speed",
     Height: "Height",
     Width: "Width",
-    Effect: "Effect",
 } as const;
 
 export type BannerFieldKey = keyof typeof BannerFields;
@@ -566,6 +566,17 @@ export const RoleModelFields = {
 
 export type RoleModelFieldKey = keyof typeof RoleModelFields;
 
+export const RowStateFields = {
+    toString: "toString",
+    toFixed: "toFixed",
+    toExponential: "toExponential",
+    toPrecision: "toPrecision",
+    valueOf: "valueOf",
+    toLocaleString: "toLocaleString",
+} as const;
+
+export type RowStateFieldKey = keyof typeof RowStateFields;
+
 export const SiteMenuSetFields = {
     SiteMenu_Index: "SiteMenu_Index",
     SiteMenu_IndexInfo: "SiteMenu_IndexInfo",
@@ -874,6 +885,16 @@ export const TagSet_DTOApiRequestFields = {
 
 export type TagSet_DTOApiRequestFieldKey = keyof typeof TagSet_DTOApiRequestFields;
 
+export const UserInfoFields = {
+    RowState: "RowState",
+    UserId: "UserId",
+    RowId: "RowId",
+    Lang: "Lang",
+    UserName: "UserName",
+} as const;
+
+export type UserInfoFieldKey = keyof typeof UserInfoFields;
+
 export const UserModelFields = {
     CreateTime: "CreateTime",
     CreateUserId: "CreateUserId",
@@ -885,11 +906,22 @@ export const UserModelFields = {
     DataStatus: "DataStatus",
     InvalidTime: "InvalidTime",
     InvalidUserId: "InvalidUserId",
+    InvalidUser: "InvalidUser",
     InternalId: "InternalId",
+    OrgLvId: "OrgLvId",
+    IsIniData: "IsIniData",
+    Validate_Start: "Validate_Start",
+    Validate_End: "Validate_End",
     UserId: "UserId",
     UserName: "UserName",
+    UserImageId: "UserImageId",
     Email: "Email",
+    PasswordHash: "PasswordHash",
+    PasswordSalt: "PasswordSalt",
+    PasswordAlgoVer: "PasswordAlgoVer",
+    AccountStatus: "AccountStatus",
     UserRoles: "UserRoles",
+    UserInfo: "UserInfo",
 } as const;
 
 export type UserModelFieldKey = keyof typeof UserModelFields;

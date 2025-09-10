@@ -10,15 +10,20 @@ import * as React from "react";
 import type { components } from "../../../../../../types/api";
 import { useListToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"]
+type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 import { handleDelete } from "./PageManagement_Hook";
+import { useCategoryListData, useFormatCategoriesName } from "../Category/Category_Hook";
+import * as SchemaFields from "../../../../../../types/SchemaFields";
 
 /** 頁面清單
  * @returns 
  */
 export const PageListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
+    const useCategory = useCategoryListData("PageManagement", "zh-tw");
+
     const usePageList = usePageManagementListData();
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps, usePageList.rawData); }, [usePageList.gridProps, usePageList.rawData]);
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps, usePageList.rawData, useCategory.rawData); }, [usePageList.gridProps, usePageList.rawData, useCategory.rawData]);
 
     const useToolbar = useListToolbarActions(dirUrl)
     const searchCompProp: SearchBarProps = {
@@ -26,8 +31,8 @@ export const PageListComp = ({ title, theme }: { title: string; theme: IBETheme 
         subTitle: "搜尋頁面 ...",
         settingTitle: "搜尋設定",
     }
-    const isLoading = [usePageList.isLoading];
-    const errors = [usePageList.error];
+    const isLoading = [usePageList.isLoading, useCategory.isLoading];
+    const errors = [usePageList.error, useCategory.error];
     const prop: ListCompProp = { Title: title, Theme: theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.toolbarActions, GridData: adjustedGrid, SearchBar: searchCompProp }
 
     return (
@@ -36,7 +41,7 @@ export const PageListComp = ({ title, theme }: { title: string; theme: IBETheme 
 }
 
 /** 動態添加每行的動作功能 */
-const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: PageManagementSet[]): GridProps => {
+const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: PageManagementSet[], categoryData: CategoryDataSet[]): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
 
@@ -48,7 +53,10 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: PageMa
         if (statusCell && typeof statusCell.content === 'number') {
             statusCell.content = GetDataStatusContent(statusCell.content);
         }
-
+        const categoryCell = row.cells.find(p => p.col.key === SchemaFields.PageManagementFields.CategoryId);
+        if (categoryCell) {
+            categoryCell.content = useFormatCategoriesName(categoryCell.content?.toString() ?? "", categoryData)
+        }
         const internalId = rawData?.[index]?.PageManagement?.InternalId ?? "";
 
         const newCell: RowCell = {

@@ -4,41 +4,6 @@
  */
 
 export interface paths {
-    "/Service/Announcement/Migrate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: {
-                    importFileLabel?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/Service/Announcement/Create": {
         parameters: {
             query?: never;
@@ -595,41 +560,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/Banner/Migrate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: {
-                    importFileLabel?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/Service/Banner/Create": {
         parameters: {
             query?: never;
@@ -1046,39 +976,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/Category/Migrate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/Service/Category/Create": {
         parameters: {
             query?: never;
@@ -1489,41 +1386,6 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/FileArchive/Migrate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: {
-                    importFileLabel?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
         delete?: never;
         options?: never;
         head?: never;
@@ -2585,41 +2447,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/Gallery/Migrate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: {
-                    importFileLabel?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/Service/Gallery/Create": {
         parameters: {
             query?: never;
@@ -3030,41 +2857,6 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/PageManagement/Migrate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: {
-                    importFileLabel?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
         delete?: never;
         options?: never;
         head?: never;
@@ -3487,39 +3279,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SiteMenu/Migrate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/Service/SiteMenu/Create": {
         parameters: {
             query?: never;
@@ -3930,39 +3689,6 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecCategory/Migrate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
         delete?: never;
         options?: never;
         head?: never;
@@ -4385,39 +4111,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecResearch/Migrate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/Service/SpecResearch/Create": {
         parameters: {
             query?: never;
@@ -4828,41 +4521,6 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecUSR/Migrate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: {
-                    importFileLabel?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
         delete?: never;
         options?: never;
         head?: never;
@@ -5353,7 +5011,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/Tag/Migrate": {
+    "/Service/SystemAPI/Migration": {
         parameters: {
             query?: never;
             header?: never;
@@ -5364,7 +5022,9 @@ export interface paths {
         put?: never;
         post: {
             parameters: {
-                query?: never;
+                query?: {
+                    labelTag?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -6218,41 +5878,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/WebResource/Migrate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: {
-                    importFileLabel?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/Service/WebResource/Create": {
         parameters: {
             query?: never;
@@ -6712,6 +6337,8 @@ export interface components {
             Content?: string | null;
             /** @description 網址 */
             Url?: string | null;
+            /** @description 網址 */
+            UrlDescription?: string | null;
         };
         AnnouncementSet_DTO: {
             Announcement?: components["schemas"]["Announcement_DTO"];
@@ -6885,8 +6512,6 @@ export interface components {
              * @description 圖片寬度(px)
              */
             Width?: number;
-            /** @description 輪播效果 */
-            Effect?: string | null;
         };
         CategoryDataSet_DTO: {
             Category?: components["schemas"]["Category_DTO"];
@@ -7352,6 +6977,11 @@ export interface components {
             IsAdmin?: boolean;
             UserRoles?: components["schemas"]["PermissionModel"][] | null;
         };
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
+        RowState: 0 | 1 | 2 | 3;
         SiteMenuSet_DTO: {
             SiteMenu_Index?: components["schemas"]["SiteMenu_Index_DTO"];
             SiteMenu_IndexInfo?: components["schemas"]["SiteMenu_IndexInfo_DTO"][] | null;
@@ -7510,7 +7140,7 @@ export interface components {
             RowId?: number;
             /** @description 語系 */
             Lang?: string | null;
-            /** @description 年 */
+            /** @description 年度 */
             Year?: string | null;
             /** @description 學年度 */
             AcademicYear?: string | null;
@@ -7612,7 +7242,7 @@ export interface components {
             RowId?: number;
             /** @description 語系 */
             Lang: string;
-            /** @description 年 */
+            /** @description 年度 */
             Year?: string | null;
             /** @description 學年度 */
             AcademicYear?: string | null;
@@ -7744,6 +7374,14 @@ export interface components {
             InternalId?: string | null;
             Data?: components["schemas"]["TagSet_DTO"];
         };
+        UserInfo: {
+            RowState?: components["schemas"]["RowState"];
+            UserId?: string | null;
+            /** Format: int32 */
+            RowId?: number;
+            Lang?: string | null;
+            UserName?: string | null;
+        };
         UserModel: {
             /** Format: date-time */
             CreateTime?: string | null;
@@ -7767,7 +7405,9 @@ export interface components {
             /** Format: date-time */
             Validate_End?: string | null;
             UserId?: string | null;
+            /** @deprecated */
             UserName?: string | null;
+            UserImageId?: string | null;
             Email?: string | null;
             /** Format: byte */
             PasswordHash?: string | null;
@@ -7777,6 +7417,7 @@ export interface components {
             PasswordAlgoVer?: number;
             AccountStatus?: components["schemas"]["AccountStatus"];
             UserRoles?: components["schemas"]["PermissionModel"][] | null;
+            UserInfo?: components["schemas"]["UserInfo"][] | null;
         };
         UserModel_DTO: {
             /**

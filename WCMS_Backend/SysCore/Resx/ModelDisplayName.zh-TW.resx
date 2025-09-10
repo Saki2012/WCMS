@@ -603,4 +603,7 @@
   <data name="Enum_Youtube" xml:space="preserve">
     <value>Youtube清單</value>
   </data>
+  <data name="Common_UrlDescription" xml:space="preserve">
+    <value>網址描述</value>
+  </data>
 </root>

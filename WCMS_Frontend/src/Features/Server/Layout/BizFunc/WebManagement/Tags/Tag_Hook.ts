@@ -126,3 +126,22 @@ export const useTagListData = (progId: string, lang: string) =>
         deps: [],
     });
 };
+
+export const useFormatTagsName = (
+    content: string,
+    categoryData: TagSet[],
+    lang: string = "zh-tw",
+): string =>
+{
+    if (!content) return "";
+    return (content.toString() ?? "")
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean)
+        .map(catId =>
+            categoryData?.find(s => String(s.TagData?.TagId) === catId)
+                ?.TagDetail?.find(d => d.Lang === lang)?.TagName
+        )
+        .filter((x): x is string => !!x)
+        .join("、");
+};
