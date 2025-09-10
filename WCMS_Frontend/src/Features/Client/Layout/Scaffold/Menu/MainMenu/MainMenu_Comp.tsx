@@ -25,6 +25,7 @@ const GetMenuData = (lang: string, site: INormSite): MenuItemData[] => {
 
 export const MainMenu = ({ lang, site }: { lang: string; site: INormSite }) => {
   const translateRef = useRef<HTMLDivElement>(null);
+  const navsRef = useRef<HTMLDivElement>(null);
   //   const menuItems = mock_MenuListData()
   const menuItems = GetMenuData(lang, site)
   const Mock_naviData: NaviData[] = [
@@ -90,7 +91,7 @@ export const MainMenu = ({ lang, site }: { lang: string; site: INormSite }) => {
         </div>
         {/* // topBox上方選單 // */}
         <div className="topBox">
-          <div className="navsBox">
+          <div className="navsBox" ref={navsRef}>
             <NaviBarComp items={Mock_naviData} style={fakeStyle.NaviBarMenu} ></NaviBarComp>
           </div>
         </div>
@@ -148,10 +149,6 @@ export const MainMenu = ({ lang, site }: { lang: string; site: INormSite }) => {
 
 
 
-
-
-
-
 export const useLegacyMenuDOM = (menuRef: React.RefObject<HTMLUListElement>) => {
   useEffect(() => {
     if (typeof window === "undefined") return; // SSR guard
@@ -166,14 +163,6 @@ export const useLegacyMenuDOM = (menuRef: React.RefObject<HTMLUListElement>) => 
       icon.classList.toggle("fa-angle-down", open);
     };
 
-    const closeMenu = () => {
-      // 找到最近的 header_Box
-      const headerBox = document.querySelector(".header_Box");
-      if (headerBox) {
-        document.body.style.overflow = "auto";
-        headerBox.classList.remove("active");
-      }
-    };
 
     const closeBranch = (li: HTMLElement) => {
       const childUl = li.querySelector(":scope > ul") as HTMLElement | null;
@@ -194,6 +183,7 @@ export const useLegacyMenuDOM = (menuRef: React.RefObject<HTMLUListElement>) => 
     const onClick = (e: Event) => {
       const target = e.target as Element;
       const link = target.closest("a");
+
       if (!link || !root.contains(link)) return;
 
       const li = link.closest("li") as HTMLElement | null;
@@ -203,6 +193,7 @@ export const useLegacyMenuDOM = (menuRef: React.RefObject<HTMLUListElement>) => 
 
       // 沒子層 = 正常導頁並關閉menu；若要只設 active 可在這裡加 li.classList.add("active")
       if (!childUl) return closeMenu();
+
 
       // 有子層：阻止導頁，改為展開/收合
       e.preventDefault();
@@ -235,3 +226,12 @@ export const useLegacyMenuDOM = (menuRef: React.RefObject<HTMLUListElement>) => 
     return () => root.removeEventListener("click", onClick);
   }, [menuRef]);
 }
+
+
+export const closeMenu = () => {
+  const headerBox = document.querySelector(".header_Box");
+  if (headerBox) {
+    document.body.style.overflow = "auto";
+    headerBox.classList.remove("active");
+  }
+};
