@@ -6391,7 +6391,7 @@ export interface components {
             ViewCount?: number | null;
             /**
              * Format: date-time
-             * @description 新增日期
+             * @description 公告日期
              */
             Validate_Start?: string | null;
             /**
@@ -6657,6 +6657,11 @@ export interface components {
             CategoriesId: string;
             /** @description 組別 */
             TagsId: string;
+            /**
+             * Format: int32
+             * @description 下載次數
+             */
+            DownloadCount?: number;
             FileArchiveInfo?: components["schemas"]["FileArchiveInfo_DTO"][] | null;
         };
         FileManageModel_DTO: {

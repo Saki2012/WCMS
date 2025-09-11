@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.Identity.Client;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
@@ -30,6 +31,7 @@ using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Library.LibData;
+using static WCMS.SysCore.SystemFunc.Auth.AuthController;
 
 namespace WCMS.SysCore
 {
@@ -414,7 +416,11 @@ namespace WCMS.SysCore
             SpecUSRBiz specUSRBiz = HttpContext.RequestServices.GetRequiredService<IBizService<SpecUSRSet>>() as SpecUSRBiz;
             await specUSRBiz.Migrate(labelTag, srcFiles);
 
-            //foreach (var fileSet in srcFiles) await fileManagement.BizUpdateSetAsync(fileSet.FileManage.InternalId, fileSet);
+            foreach (var fileSet in srcFiles)
+            {
+                var copy = System.Text.Json.JsonSerializer.Deserialize<FileManageSet>(System.Text.Json.JsonSerializer.Serialize(fileSet));
+                await fileManagement.BizUpdateSetAsync(fileSet.FileManage.InternalId, copy);
+            }
 
             return Ok();
         }

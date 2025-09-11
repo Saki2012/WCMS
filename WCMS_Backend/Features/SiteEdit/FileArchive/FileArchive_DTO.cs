@@ -33,6 +33,7 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// </summary>
         //[LibDesc(ModelDisplayName.Common_Tag), Required] public string TagsId { get; set; }
         [LibDesc(ModelDisplayName.Spec1810_Tag), Required] public string TagsId { get; set; }
+        [LibDesc(ModelDisplayName.FileArchive_DownloadCount)]public int DownloadCount { get; set; }
         #region 關聯
         public virtual List<FileArchiveInfo_DTO> FileArchiveInfo { get; set; } = [];
         #endregion

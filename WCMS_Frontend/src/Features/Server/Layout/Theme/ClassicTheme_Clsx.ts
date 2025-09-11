@@ -36,7 +36,7 @@ export const Classic_SidebarMenu: IMenu_Style = {
     isUl: true,
     ul: (lv: number, isExpanded?: boolean) =>
         clsx(lv == 1 ? "pc-navbar" : "pc-submenu", { show: isExpanded, hide: !isExpanded }),
-    li: (isFirst, hasMenu, isExpanded = false) =>
+    li: (lv, isFirst, hasMenu, isExpanded = false) =>
         clsx("pc-item", {
             "pc-caption": isFirst,
             "Left_line": isFirst,
@@ -111,10 +111,9 @@ export const Classic_LibFileInput: ILibFileInputStyle = {
     InputStyle: clsx("form-control"),
 };
 
-
-export const Classic_LibUserCard: ILibUserCardStyle ={
+export const Classic_LibUserCard: ILibUserCardStyle = {
     Bgstyle: clsx("bg-custom-gray"),
-}
+};
 
 /** Grid表樣式 */
 export const Classic_GridView: IGridView_Style = {
@@ -163,5 +162,5 @@ export const Classic_BETheme: IBETheme = {
     TinyMCE: Classic_LibTinyMCE,
     File: Classic_LibFile,
     FileInput: Classic_LibFileInput,
-    UserCard: Classic_LibUserCard
+    UserCard: Classic_LibUserCard,
 };

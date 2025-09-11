@@ -32,12 +32,14 @@ const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string
         visibleKeys: [
             [SchemaFields.FileArchiveSetFields.FileArchive, SchemaFields.FileArchiveFields.TagsId],
             [SchemaFields.FileArchiveSetFields.FileArchiveInfo, SchemaFields.FileArchiveInfoFields.Title],
+            [SchemaFields.FileArchiveSetFields.FileArchive, SchemaFields.FileArchiveFields.DownloadCount]
         ],
         buildQueryCondition: (page) => ({
             Fields: [
                 SchemaFields.FileArchiveFields.InternalId,
                 SchemaFields.FileArchiveFields.FileArchiveId,
                 SchemaFields.FileArchiveFields.TagsId,
+                SchemaFields.FileArchiveFields.DownloadCount,
                 `${SchemaFields.FileArchiveSetFields.FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.FileArchiveId}`,
                 `${SchemaFields.FileArchiveSetFields.FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.RowId}`,
                 `${SchemaFields.FileArchiveSetFields.FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.Lang}`,
@@ -80,6 +82,9 @@ const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string
 
                             break;
                         }
+                    default:
+                        content = (item.FileArchive as any)[col.key] ?? "";
+                        break;
                 }
                 return { col, content };
             });
@@ -110,29 +115,48 @@ export const FileArchiveList = (props: FileArchiveProps) => {
 };
 
 const SetAdjustFunction = (lang: string, gridProps: GridProps, rawData: FileArchiveSet[]): GridProps => {
-    const downloadColName = '__Download__'
+    const downloadColName = '__Download__';
+
     if (gridProps.columns.some(col => col.key === downloadColName)) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
 
+    // 1) 欄位層級：抽掉「下載次數」，最後組合為「其他｜下載｜下載次數」
+    let baseColumns = [...gridProps.columns];
+    const dcIdx = baseColumns.findIndex(c => c.key === SchemaFields.FileArchiveFields.DownloadCount);
+
+    let downloadCountCol: ColumnConfig | null = null;
+    if (dcIdx !== -1) {
+        [downloadCountCol] = baseColumns.splice(dcIdx, 1);
+    }
     const downloadCol: ColumnConfig = { key: downloadColName, title: '下載' };
-    const newColumns: ColumnConfig[] = [...gridProps.columns, downloadCol];
-
+    const newColumns: ColumnConfig[] = [...baseColumns, downloadCol, ...(downloadCountCol ? [downloadCountCol] : []),];
+    // 2) 列層級：抽掉「下載次數」cell，最後組合為「其他｜下載｜下載次數」
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
-
-        const fileInfoRowId = rawData?.[index].FileArchiveInfo?.find(p => p.Lang === lang)?.RowId
-        const fileRows = rawData?.[index].FileArchiveDetail?.filter(p => p.ParentRowId === fileInfoRowId) as FileArchiveDetail[]
+        const fileInfoRowId = rawData?.[index].FileArchiveInfo?.find(p => p.Lang === lang)?.RowId;
+        const fileRows = rawData[index].FileArchiveDetail?.filter(p => p.ParentRowId === fileInfoRowId) as FileArchiveDetail[];
+        // 產生「下載」內容
         let downloadFileContent = <></>;
-        fileRows.map((item) => {
-            downloadFileContent = <>{downloadFileContent}{SetDownloadIcon(item.FileSrcId ?? "", item.FileSrc?.FileExtension ?? "docx", item.FileName ?? "")}</>
+        fileRows?.forEach(item => {
+            downloadFileContent = (
+                <>
+                    {downloadFileContent}
+                    {SetDownloadIcon(item.FileSrcId ?? '', item.FileSrc?.FileExtension ?? 'docx', item.FileName ?? '')}
+                </>
+            );
         });
-        const newCell: RowCell = {
-            col: downloadCol,
-            content: downloadFileContent,
+        const cells = [...row.cells];
+        const dcCellIdx = cells.findIndex(c => c.col?.key === SchemaFields.FileArchiveFields.DownloadCount);
+        let downloadCountCell: RowCell | null = null;
+        if (dcCellIdx !== -1) {
+            [downloadCountCell] = cells.splice(dcCellIdx, 1);
+            if (downloadCountCol) downloadCountCell = { ...downloadCountCell, col: downloadCountCol };
+        }
+        const downloadCell: RowCell = { col: downloadCol, content: downloadFileContent };
+        return {
+            ...row,
+            cells: [...cells, downloadCell, ...(downloadCountCell ? [downloadCountCell] : [])],
         };
-
-        return { ...row, cells: [...row.cells, newCell] };
     });
-
     return { ...gridProps, columns: newColumns, rows: newRows };
 };
 

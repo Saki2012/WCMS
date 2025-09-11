@@ -7,12 +7,12 @@ import type { Lang } from "../../../../SysCore/i18n/lang";
 import { Merge } from "../../../../SysCore/Utils/Library/LibMergeData";
 import * as SchemaFields from "../../../../types/SchemaFields"
 import { useFetchGridListData } from "../../../../SysCore/Utils/API/FetchGridListData";
-import type { ColumnConfig, GridProps, RowCell } from "../../../../SysCore/Components/Grid/Grid_Data";
+import type { ColumnConfig, GridProps, GridRow, RowCell } from "../../../../SysCore/Components/Grid/Grid_Data";
 import SpecResearchProvider from "../../Server/BizFunc/SpecResearch/SpecResearch_Api";
 import LoadingErrorHandler from "../../../../SysCore/Components/LoadingErrorHandler";
 import { useGetShowColumnItems } from "../../Server/BizFunc/SpecCategory/SpecCategory_Hook";
 import { Grid } from "../../../../SysCore/Components/Grid/Grid_Comp";
-import React from "react";
+import React, { useMemo } from "react";
 
 
 const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, showColumns: string[]) => {
@@ -22,19 +22,34 @@ const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, 
     if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.Tags} HasAny (${tagIds})`)
 
     type VisibleKey = [string, string];
+    const ORDER: string[] = [
+        SchemaFields.SpecResearchDetailModelFields.Year, SchemaFields.SpecResearchDetailModelFields.AcademicYear,
+        SchemaFields.SpecResearchDetailModelFields.Semester, SchemaFields.SpecResearchDetailModelFields.ClassTime,
+        SchemaFields.SpecResearchDetailModelFields.ProjectLeader, SchemaFields.SpecResearchDetailModelFields.College,
+        SchemaFields.SpecResearchDetailModelFields.Department, SchemaFields.SpecResearchDetailModelFields.ProjectName,
+        SchemaFields.SpecResearchDetailModelFields.TeachingStaffOfOurSchool, SchemaFields.SpecResearchDetailModelFields.ApprovalNumber,
+        SchemaFields.SpecResearchDetailModelFields.ApprovedAmount, SchemaFields.SpecResearchDetailModelFields.DuringExecution,
+        SchemaFields.SpecResearchDetailModelFields.ContractPeriod, SchemaFields.SpecResearchDetailModelFields.Name,
+        SchemaFields.SpecResearchDetailModelFields.GraduationDegree, SchemaFields.SpecResearchDetailModelFields.PaperTitle,
+        SchemaFields.SpecResearchDetailModelFields.CooperatingUnits, SchemaFields.SpecResearchDetailModelFields.CooperationProject,
+        SchemaFields.SpecResearchDetailModelFields.Courses, SchemaFields.SpecResearchDetailModelFields.Cohost1,
+        SchemaFields.SpecResearchDetailModelFields.Cohost2, SchemaFields.SpecResearchDetailModelFields.Commissioned,
+        SchemaFields.SpecResearchDetailModelFields.PlanAmount, SchemaFields.SpecResearchDetailModelFields.PlanContent,
+        SchemaFields.SpecResearchDetailModelFields.Remark];
+
 
     const buildVisibleKeys = (cols?: string[]): VisibleKey[] => {
         const { SpecResearchSetFields, SpecResearchDetailModelFields } = SchemaFields;
         const seen = new Set<string>();
+        const names = (cols ?? [])
+            .map(raw => raw.split(".").pop()!.trim())
+            .filter(n => !!n && !seen.has(n) && (ORDER.includes(n)))
+            .map(n => (seen.add(n), n))
+            .sort((a, b) => ORDER.indexOf(a) - ORDER.indexOf(b));
         const out: VisibleKey[] = [];
-        for (const raw of cols ?? []) {
-            const name = raw.split(".").pop()!.trim(); // e.g. "SpecResearchDetail.Year" -> "Year"
-            if (!name || seen.has(name)) continue;
-            if (name in SpecResearchDetailModelFields) {
-                seen.add(name);
-                const key = name as keyof typeof SpecResearchDetailModelFields;
-                out.push([SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields[key]]);
-            }
+        for (const name of names) {
+            const key = name as keyof typeof SpecResearchDetailModelFields;
+            out.push([SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields[key]]);
         }
         return out;
     };
@@ -107,13 +122,12 @@ export const SpecResearchListComp = (props: ISpecResearchListProps) => {
     const useGetShowColumns = useGetShowColumnItems(props.Options?.Category ?? "");
     const showColumns = useGetShowColumns.rawData?.[0]?.SpecCategory?.ShowColumnItems?.split(',') as string[];
     const useSpecResearch = useSpecResearchList(props.Lang, props.Options?.Category ?? "", props.Options?.Tag ?? "", showColumns);
-
     const isLoading = [useSpecResearch.isLoading];
     const errors = [useSpecResearch.error];
-
     return (
         <LoadingErrorHandler loadingList={isLoading} errorList={errors} >
             <Grid gridData={useSpecResearch.gridProps} style={props.Theme.GridView} pageStyle={props.Theme.Paginator}></Grid>
         </LoadingErrorHandler>
     )
 };
+

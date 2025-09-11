@@ -270,6 +270,7 @@ export const FileArchiveFields = {
     ContentStatus: "ContentStatus",
     CategoriesId: "CategoriesId",
     TagsId: "TagsId",
+    DownloadCount: "DownloadCount",
     FileArchiveInfo: "FileArchiveInfo",
 } as const;
 

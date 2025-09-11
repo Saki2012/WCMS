@@ -40,6 +40,7 @@ namespace WCMS.Features.SiteEdit.FileArchive
                         CategoriesId = srcHeader["Category"].ToString(),
                         TagsId = srcHeader["Tag"].ToString(),
                         ContentStatus = GetContentStatus(srcHeader["Status"].ToString()),
+                        DownloadCount= srcHeader["DownloadTime"].ToInt32(),
                         CreateTime = srcHeader["CreateTime"].ToString().ToDateTime(),
                         ModifyTime = srcHeader["UpdateTime"].ToString().ToDateTime(),
                     }

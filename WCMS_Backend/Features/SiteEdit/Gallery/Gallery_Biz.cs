@@ -74,7 +74,7 @@ namespace WCMS.Features.SiteEdit.Gallery
                 ds.Tables["Gallery_Album"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.Gallery.GalleryId).OrderBy(dr => dr["PhotoName"].ToString()).ToList().ForEach(dRow =>
                 {
 
-                    var photoSet = GetSetByPicture(dRow["PhotoName"].ToString(), srcFileSets);
+                    var photoSet = GetSetByPicture(dRow["Sn"].ToString(),dRow["PhotoName"].ToString(), srcFileSets);
                     updateFileSets.Add(photoSet);
                     photoSet.FileManage.FileName = dRow["PhotoName"].ToString();
                     var photo = new GalleryPhotos()
@@ -136,9 +136,11 @@ namespace WCMS.Features.SiteEdit.Gallery
             }
             return result;
         }
-        private static FileManageSet GetSetByPicture(string srcPic, IList<FileManageSet> fileSets)
+        private static FileManageSet GetSetByPicture(string albumId,string srcPic, IList<FileManageSet> fileSets)
         {
-            return fileSets.Where(x => x.FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Contains($@"{srcPic}".ToLowerInvariant()))).FirstOrDefault();
+            return fileSets.Where(x => x.FileManage_SyncInfo.Any(y =>
+                        y.SrcFullPath.Contains($"file/image/album/{albumId}/{srcPic}", StringComparison.InvariantCultureIgnoreCase) &&
+                        y.SrcFullPath.Contains(srcPic, StringComparison.InvariantCultureIgnoreCase))).FirstOrDefault();
         }
         #endregion
 

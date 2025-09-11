@@ -34,7 +34,10 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// 標籤ID(多個)
         /// </summary>
         [Required, StringLength(SysLengthParam.Title)] public string TagsId { get; set; }
-
+        /// <summary>
+        /// 下載次數
+        /// </summary>
+        public int DownloadCount { get; set; }
         #region 關聯
         public virtual ICollection<FileArchiveInfo>? FileArchiveInfo { get; set; }
         public virtual ICollection<FileArchiveDetail>? FileArchiveDetail { get; set; }

@@ -52,6 +52,7 @@ const useSpecUSRList = (categoryId: string, tagIds: string) => {
                 `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Cohost2}`,
                 `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Commissioned}`,
                 `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ProjectConcept}`,
+                `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ContentIntroduction}`,
             ],
             Condition: condition,
             PageNumber: page,
@@ -144,7 +145,7 @@ const SpecUSRList = ({ lang, rawData, showColumnItems, showColTitle }: { lang: s
                                                 </div>
                                             </div>
                                             <div className="card_PDiv">
-                                                <p className="p_txt">{detail?.ProjectConcept}</p>
+                                                <p className="p_txt">{detail?.ContentIntroduction}</p>
                                             </div>
                                             <div className="col-12 text-right p-0">
                                                 <div className="customize_btn mt-2"> <Link to={pageLink} className="Btn_s1" tabIndex={1} title="E">VIEW ALL<span className="ml-2">+</span></Link></div>
