@@ -223,6 +223,7 @@ export const FileArchiveDetailFields = {
     ParentRowId: "ParentRowId",
     RowId: "RowId",
     FileSrcId: "FileSrcId",
+    FileSrc: "FileSrc",
     FileName: "FileName",
 } as const;
 
@@ -455,6 +456,17 @@ export const MenuUrlTypeFields = {
 
 export type MenuUrlTypeFieldKey = keyof typeof MenuUrlTypeFields;
 
+export const ModulePageTypeFields = {
+    toString: "toString",
+    toFixed: "toFixed",
+    toExponential: "toExponential",
+    toPrecision: "toPrecision",
+    valueOf: "valueOf",
+    toLocaleString: "toLocaleString",
+} as const;
+
+export type ModulePageTypeFieldKey = keyof typeof ModulePageTypeFields;
+
 export const OrderBySpecFields = {
     Col: "Col",
     Desc: "Desc",
@@ -646,6 +658,7 @@ export const SiteMenu_Item_ModuleFields = {
     SiteIndex: "SiteIndex",
     ItemRowId: "ItemRowId",
     BannerId: "BannerId",
+    PageType: "PageType",
     ModuleProgId: "ModuleProgId",
     ModuleOptions: "ModuleOptions",
 } as const;

@@ -327,20 +327,20 @@ namespace WCMS.SysCore.Enum
             [LibDesc(ModelDisplayName.Enum_Hidden)] Hidden = 1 << 2
         }
         /// <summary>
-        /// 
+        /// 連結方式
         /// </summary>
         public enum MenuUrlType : byte
         {
             /// <summary>
             /// 
             /// </summary>
-            None=0,
+            [LibDesc(ModelDisplayName.Common_None)]None=0,
             /// <summary>
-            /// 超連結
+            /// 外部連結
             /// </summary>
             [LibDesc(ModelDisplayName.Enum_Url)] Url = 1,
             /// <summary>
-            /// 模型功能
+            /// 內部連結
             /// </summary>
             [LibDesc(ModelDisplayName.Enum_Module)] Module = 2,
         }
@@ -354,6 +354,21 @@ namespace WCMS.SysCore.Enum
             //Parent = 2, // _parent (父層框架)
             //Top = 3,    // _top (最上層框架)
             //Named = 4   // 自訂視窗名稱
+        }
+
+        /// <summary>
+        /// 模型頁面樣式
+        /// </summary>
+        public enum ModulePageType : byte
+        {
+            /// <summary>
+            /// 雙欄式
+            /// </summary>
+            [LibDesc]TwoColumn=0,
+            /// <summary>
+            /// 直瀑式
+            /// </summary>
+            [LibDesc]Vertical=1,
         }
         /// <summary>
         /// 模型功能顯示方式

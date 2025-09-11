@@ -1,5 +1,5 @@
 /**公告清單 */
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { ColumnConfig, GridProps } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import type { components } from "../../../../../types/api";
 import type { IFETheme } from "../../Theme/ITheme";
@@ -15,9 +15,12 @@ import type { Lang } from "../../../../../SysCore/i18n/lang";
 import FileArchiveProvider from "../../../../Server/Layout/BizFunc/WebManagement/FileArchive/FileArchive_Api";
 import { Merge } from "../../../../../SysCore/Utils/Library/LibMergeData";
 import { useTagListData } from "../../../../Server/Layout/BizFunc/WebManagement/Tags/Tag_Hook";
+import { SearchBarComp, type ISearchQuery } from "../../../../../SysCore/Components/SearchBar/SearchBar_Comp";
 
-const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string, tagSets?: TagSet[]) => {
+const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string, tagSets: TagSet[], query: ISearchQuery) => {
     var condition: string = "";
+    if (query.keyword) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveSetFields.FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.Title} Like ${query.keyword}`)
+    if (query.tag) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.TagsId} HasAny ${query.tag}`)
     if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.CategoriesId} HasAny (${categoryIds})`)
     if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.TagsId} HasAny (${tagIds})`)
 
@@ -43,6 +46,8 @@ const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string
                 `${SchemaFields.FileArchiveSetFields.FileArchiveDetail}.${SchemaFields.FileArchiveDetailFields.ParentRowId}`,
                 `${SchemaFields.FileArchiveSetFields.FileArchiveDetail}.${SchemaFields.FileArchiveDetailFields.FileSrcId}`,
                 `${SchemaFields.FileArchiveSetFields.FileArchiveDetail}.${SchemaFields.FileArchiveDetailFields.FileName}`,
+                `${SchemaFields.FileArchiveSetFields.FileArchiveDetail}.${SchemaFields.FileArchiveDetailFields.FileSrc}.${SchemaFields.FileManageModelFields.InternalId}`,
+                `${SchemaFields.FileArchiveSetFields.FileArchiveDetail}.${SchemaFields.FileArchiveDetailFields.FileSrc}.${SchemaFields.FileManageModelFields.FileExtension}`
             ],
             Condition: condition,
             PageNumber: page,
@@ -81,7 +86,7 @@ const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string
             return { cells };
         },
         enabled: true,
-        deps: [lang, categoryIds, tagIds, tagSets],
+        deps: [lang, categoryIds, tagIds, tagSets, query],
     });
 };
 
@@ -89,12 +94,19 @@ export interface IFileArchiveOptions { Category: string; Tag: string; Style: num
 interface FileArchiveProps { Theme: IFETheme; Lang: string | Lang; Options: IFileArchiveOptions; }
 
 export const FileArchiveList = (props: FileArchiveProps) => {
+    const [queryDraft, setQueryDraft] = useState<ISearchQuery>({});
+    const [query, setQuery] = useState<ISearchQuery>({});
     const useTagData = useTagListData("FileArchive", "zh-tw");
-    const useFileArchiveList = useFileArchive(props.Lang, props.Options.Category, props.Options.Tag, useTagData.rawData);
+    const useFileArchiveList = useFileArchive(props.Lang, props.Options.Category, props.Options.Tag, useTagData.rawData, query);
+    const tags = (useTagData.rawData ?? []).map(t => ({ id: t.TagData?.TagId ?? "", name: t.TagDetail?.find(p => p.Lang === props.Lang)?.TagName ?? "" }));
+    const searchSlot = (
+        <SearchBarComp value={queryDraft} tags={tags} onChange={(k, v) => setQueryDraft(prev => ({ ...prev, [k]: v }))}
+            onSubmit={() => setQuery(queryDraft)} onReset={() => { setQueryDraft({}); setQuery({}); }} />);
+
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(props.Lang, useFileArchiveList.gridProps, useFileArchiveList.rawData); }, [useFileArchiveList.gridProps, useFileArchiveList.rawData]);
     const isLoading = [useFileArchiveList.isLoading, useTagData.isLoading];
     const errors = [useFileArchiveList.error, useTagData.error];
-    return <GridViewContentComp GridData={adjustedGrid} Theme={props.Theme} LoadingList={isLoading} ErrorList={errors} />;
+    return <GridViewContentComp searchSlot={searchSlot} GridData={adjustedGrid} Theme={props.Theme} LoadingList={isLoading} ErrorList={errors} />;
 };
 
 const SetAdjustFunction = (lang: string, gridProps: GridProps, rawData: FileArchiveSet[]): GridProps => {
@@ -111,7 +123,7 @@ const SetAdjustFunction = (lang: string, gridProps: GridProps, rawData: FileArch
         const fileRows = rawData?.[index].FileArchiveDetail?.filter(p => p.ParentRowId === fileInfoRowId) as FileArchiveDetail[]
         let downloadFileContent = <></>;
         fileRows.map((item) => {
-            downloadFileContent = <>{downloadFileContent}{SetDownloadIcon(item.FileSrcId ?? "", "docx", item.FileName ?? "")}</>
+            downloadFileContent = <>{downloadFileContent}{SetDownloadIcon(item.FileSrcId ?? "", item.FileSrc?.FileExtension ?? "docx", item.FileName ?? "")}</>
         });
         const newCell: RowCell = {
             col: downloadCol,
@@ -140,5 +152,6 @@ const SetDownloadIcon = (fileInternalId: string, fileExtName: string, fileTitle:
             break;
         }
     }
-    return (<a href={`/Service/FileManagement/Download/${fileInternalId}`} target="_blank" rel="noopener noreferrer" className="btn btn-default" title={`${fileTitle}(另開視窗)`} > {div}</ a>)
+    return (<a href={`/Service/FileManagement/Download/${fileInternalId}`} target="_blank" rel="noopener noreferrer"
+        className="btn btn-default" title={`${fileTitle}(另開視窗)`} > {div}</ a>)
 }

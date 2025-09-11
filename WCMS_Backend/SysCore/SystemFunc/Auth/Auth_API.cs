@@ -22,7 +22,6 @@ namespace WCMS.SysCore.SystemFunc.Auth
         private readonly ITokenService _tokenSvc = tokenSvc;
         private readonly IConfiguration _cfg = cfg;
         private readonly IAuthService _authBiz = authBiz;
-
         protected IOperateLog OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IOperateLog>();
         private IOperateLog? _OperateLog;
         #endregion
@@ -234,7 +233,6 @@ namespace WCMS.SysCore.SystemFunc.Auth
             [StringLength(64, MinimumLength = 3, ErrorMessage = "password 長度需介於 3~64。")]
             public string Password { get; set; } = "";
         }
-
         public sealed class User_DTO
         {
             /// <summary>

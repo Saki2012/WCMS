@@ -36,8 +36,7 @@ const Footer = () => {
                                                                 <li><a href="/Division-Planning/Division-Planning-About" tabIndex={5} title="研究企劃組">研究企劃組</a></li>
                                                                 <li><a href="/Division-Academic/Division-Academic-About" tabIndex={5} title="學術發展組">學術發展組</a></li>
                                                                 <li><a href="https://iic.ntua.edu.tw/" rel="noopener noreferrer" tabIndex={5} target="_blank" title="產學暨育成中心(另開新視窗)">產學暨育成中心</a></li>
-                                                                <li><a href="/TACP/TACP-About/TACP-About-Intro" tabIndex={5} title="臺灣文化政策智庫中心">臺灣文化政策智庫中心</a></li>
-                                                                <li><a href="/USR/USR-About/USR-About-Org" tabIndex={5} title="大學社會責任實踐計畫推動辦公室">大學社會責任實踐計畫推動辦公室</a></li>
+                                                                <li><a href="/USR/USR-About/USR-About-Org" tabIndex={5} title="永續發展暨社會責任實踐計畫推動中心">永續發展暨社會責任實踐計畫推動中心</a></li>
                                                             </ul>
                                                         </div>
                                                         <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12 p-0">
@@ -46,8 +45,6 @@ const Footer = () => {
                                                                 <li><a href="/Allnews/Project-solicitation/National-Science-Accounting" tabIndex={5} title="計畫徵件">計畫徵件</a></li>
                                                                 <li><a href="/RelevantRegulations/DownloadsAll1" tabIndex={5} title="相關法規">相關法規</a></li>
                                                                 <li><a href="/All-Downloads/DownloadsAllView" tabIndex={5} title="資料下載">資料下載</a></li>
-                                                                <li><a href="#" onClick={(e) => { e.preventDefault(); }} tabIndex={5} title="研究發展處 Facebook">研究發展處 Facebook</a></li>
-                                                                <li><a href="#" onClick={(e) => { e.preventDefault(); }} tabIndex={5} title="研究發展處 Youtube">研究發展處 Youtube</a></li>
                                                             </ul>
                                                         </div>
                                                     </div>

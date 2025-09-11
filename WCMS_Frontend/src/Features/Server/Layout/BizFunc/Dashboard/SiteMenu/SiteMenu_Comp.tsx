@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import Nestable from "react-nestable";
 import type { RenderItem } from "react-nestable";
 import "react-nestable/dist/styles/index.css";
@@ -6,9 +6,7 @@ import { FormComp } from "../../../Scaffold/Content/Form_Comp";
 import type { FormCompProp } from "../../../Scaffold/Content/Content_Data";
 import type { IBETheme } from "../../../Theme/ITheme";
 import TabContentComp from "../../../../../../SysCore/Components/TabContent/TabContent";
-import { LibCheckBox, LibDropList, LibSelectCard, LibTextBox, type ILibCheckItemProp, type LibTabsProp } from "../../../../../../SysCore/Components/FormField/LibFormField";
-import { DividerComp } from "../../../../../../SysCore/Components/Divider/Divider_Comp";
-import { Form_Toolbar } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Comp";
+import { LibCheckBox, LibDropList, LibSelectCard, LibTextBox, type LibTabsProp } from "../../../../../../SysCore/Components/FormField/LibFormField";
 
 export interface Item {
   id: number;
@@ -39,17 +37,30 @@ const initialItems: Item[] = [
 ];
 
 export const SiteMenu_Comp = ({ theme }: { theme: IBETheme }) => {
+
+
+
+
+
+
   const isLoading: boolean[] = []
   const errors: (string | null | undefined)[] = []
-  const prop: FormCompProp = { Title: "網站功能", Theme: theme, LoadingList: isLoading, ErrorList: errors, }
-  const c: ILibCheckItemProp[] = [{ itemId: "1", itemDisplayName: "版型 01" }, { itemId: "2", itemDisplayName: "版型 02" }, { itemId: "3", itemDisplayName: "版型 03" }, { itemId: "4", itemDisplayName: "版型 04" }];
-  const str: string[] = ["value"];
-
-  const [items, setItems] = useState<Item[]>(initialItems);
-  const [collapseAll, setCollapseAll] = useState(false);
-  const [selectedItemAdd, setSelectedItemAdd] = useState<Item | null>(null);
   const [selectedItemEdit, setSelectedItemEdit] = useState<Item | null>(null);
+  const prop: FormCompProp = { Title: "網站功能", Theme: theme, LoadingList: isLoading, ErrorList: errors, }
+  return (
+    <FormComp prop={prop}>
+      <div className="row">
+        <RenderLeftBox setSelectedItemEdit={setSelectedItemEdit} />
+        <RenderRightBox theme={theme} selectedItemEdit={selectedItemEdit} />
+      </div>
+    </FormComp>
+  );
+};
 
+//LeftBox
+const RenderLeftBox: React.FC<{ setSelectedItemEdit: React.Dispatch<React.SetStateAction<Item | null>>; }> = ({ setSelectedItemEdit }) => {
+  const [collapseAll, setCollapseAll] = useState(false);
+  const [items, setItems] = useState<Item[]>(initialItems);
   const renderItem: RenderItem = ({ item, handler, collapseIcon }) => {
     const typedItem = item as Item; // 明確告訴 TS item 是 Item
     return (
@@ -68,27 +79,17 @@ export const SiteMenu_Comp = ({ theme }: { theme: IBETheme }) => {
             </div>
             <div className="icon" title="">
               <button title="新增子層" className="Icogs btn btn-ctm btn-ctm-rounded" key={typedItem.id} onClick={() => {
-                setSelectedItemAdd(typedItem);
-                setSelectedItemEdit(null);
+                setSelectedItemEdit(typedItem);
               }}>
                 <i className="far fa-plus"></i></button>
             </div>
-            {/* <div className="icon" title="">
-              <button title="新增連結" className="Ilink btn btn-ctm btn-ctm-rounded"><i className="far fa-link"></i></button>
-            </div> */}
             <div className="icon" title="">
               <button title="編輯" className="Ipencil btn btn-ctm btn-ctm-rounded" key={typedItem.id} onClick={() => {
                 setSelectedItemEdit(typedItem);
-                setSelectedItemAdd(null);
               }}><i className="far fa-edit"></i></button>
             </div>
-            {/* <div className="icon" title="">
-              <button title="版面配置" className="Iwindow btn btn-ctm btn-ctm-rounded"><i className="far fa-window-restore"></i></button>
-            </div> */}
             <div className="icon" title="">
-              <button
-                title="刪除"
-                className="Itrash btn btn-ctm btn-ctm-rounded"
+              <button title="刪除" className="Itrash btn btn-ctm btn-ctm-rounded"
                 onClick={() => {
                   const deleteItem = (arr: Item[], id: number): Item[] =>
                     arr
@@ -98,194 +99,255 @@ export const SiteMenu_Comp = ({ theme }: { theme: IBETheme }) => {
                         children: i.children ? deleteItem(i.children, id) : undefined,
                       }));
                   setItems(deleteItem(items, item.id));
-                  setSelectedItemAdd(null);
                   setSelectedItemEdit(null);
                 }}
-                key={typedItem.id}
-              >
+                key={typedItem.id}>
                 <i className="far fa-trash-alt"></i>
               </button>
             </div>
-
           </div>
         </div>
       </div>
     );
   };
-
-  const renderRightBox = () => {
-    if (selectedItemAdd && !selectedItemEdit) {
-      return (
-        <div className="addchild-box">
-          <div className="panel">
-            <div className="panel-body">
-              <div className="card-header pt-1">
-                <h3>
-                  <i className="fas fa-align-left me-2"></i>
-                  <span className="fw-bold text-primary">{selectedItemAdd.text}</span> - 新增子層
-                </h3>
-              </div>
-              <div className="mt-4">
-                <TabContentComp libTabsProp={LibTabsPropA} components={componentsA} />
-                <TabContentComp libTabsProp={LibTabsPropB} components={componentsB} />
-              </div>
-              <div className="d-flex justify-content-center">
-                <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">儲存</button>
-                <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">取消</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (selectedItemEdit && !selectedItemAdd) {
-      return (
-        <div className="edit-box">
-          <div className="panel">
-            <div className="panel-body">
-              <div className="card-header pt-1">
-                <h3>
-                  <i className="fas fa-align-left me-2"></i>
-                  <span className="fw-bold text-primary">{selectedItemEdit.text}</span> - 編輯
-                </h3>
-              </div>
-              <div className="mt-4">
-                <TabContentComp libTabsProp={LibTabsPropW} components={componentsW} />
-              </div>
-              <div className="d-flex justify-content-center">
-                <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">儲存</button>
-                <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">取消</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    // 預設畫面
-    return <div className="default-box"></div>;
-  };
-
   const handleChange = ({ items }: any) => {
     if (!items) return;
     setItems(items);
   };
+  return (
+    <div className="col-xxl-5 col-12 left-box">
+      <div className="panel">
+        <div className="panel-body">
+          <div className="mb-2">
+            <button onClick={() => setCollapseAll(!collapseAll)} className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">
+              {collapseAll ? "展開" : "收合"}
+            </button>
+            <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">儲存</button>
+          </div>
+          <div className="cf nestable-lists">
+            <Nestable items={items || []} renderItem={renderItem} onChange={handleChange} className="dd-list" collapsed={collapseAll} />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
-  const LibTabsPropB: LibTabsProp = {
+//RightBox
+const RenderRightBox: React.FC<{ theme: IBETheme; selectedItemEdit: Item | null }> = ({ theme, selectedItemEdit }) => {
+  // 1) 基本：功能連結（radio）→ 決定要顯示哪些分頁
+  type LinkType = '功能' | '連結' | null;
+  const [linkType, setLinkType] = React.useState<LinkType>(null);
+
+  // 2) 模型配置：只顯示一種設定框
+  type ModelKey = 'announce' | 'page' | 'gallery' | 'file' | 'webres' | null;
+  const [modelKey, setModelKey] = React.useState<ModelKey>(null);
+
+  // 3) 超連結設定：導向方式（0 外部連結 / 1 內部網站功能）→ 只顯示一個輸入框
+  type NavType = 0 | 1 | null;
+  const [navType, setNavType] = React.useState<NavType>(null);
+
+  // ---- 語系分頁（維持原邏輯，包成 memo）----
+  const LibTabsPropB: LibTabsProp = React.useMemo(() => ({
     Style: theme.Tabs,
-    item: { "zh-tw": "繁體中文", "en": "English", }
-  }
-  const componentsB: Record<string, React.ReactNode[]> = Object.entries(LibTabsPropB.item).reduce(
-    (acc, [lang, label]) => {
-      acc[lang] = generateLangFields(lang, label, theme);
-      return acc;
-    },
-    {} as Record<string, React.ReactNode[]>
+    item: { 'zh-tw': '繁體中文', en: 'English' }
+  }), [theme]);
+
+  const generateLangFields = React.useCallback(
+    (lang: string, label: string): React.ReactNode[] => ([
+      <LibTextBox key={`${lang}-Title`} Style={theme.TextBox} ColumnDisplayName={`網站標題（${label}）`} DefaultInputDisplay="請輸入" />
+    ]),
+    [theme],
   );
 
-  const LibTabsPropA: LibTabsProp = {
-    Style: theme.Tabs,
-    item: { "basic": "基本" }
+  const componentsB = React.useMemo(() => {
+    return Object.entries(LibTabsPropB.item).reduce((acc, [lang, label]) => {
+      acc[lang] = generateLangFields(lang, label as string);
+      return acc;
+    }, {} as Record<string, React.ReactNode[]>);
+  }, [LibTabsPropB.item, generateLangFields]);
+
+  // ---- 1) 依「功能 / 連結」決定主 Tabs ----
+  const LibTabsPropA: LibTabsProp = React.useMemo(() => {
+    const base = { basic: '基本' } as const;
+    const module = { module: '模型配置' } as const;
+    const url = { url: '超連結設定' } as const;
+
+    return {
+      Style: theme.Tabs,
+      item:
+        linkType === '功能' ? { ...base, ...module } :
+          linkType === '連結' ? { ...base, ...url } :
+            { ...base, ...module, ...url } // 未選時先顯示全部
+    };
+  }, [theme, linkType]);
+
+  // ---- 2) 模型配置：只顯示一種設定卡 ----
+  const moduleNodes: React.ReactNode[] = React.useMemo(() => {
+    const nodes: React.ReactNode[] = [
+      <LibCheckBox key="layout" colDisplayName="頁面樣式" checkboxStyle="radio" />,
+      <LibDropList
+        key="model"
+        Style={theme.DropList}
+        ColumnDisplayName="功能模型"
+      // 你的 LibDropList 事件名稱若不同，把 onChangeValue 換成你實際的
+      // onChangeValue={(v: ModelKey) => setModelKey(v)}
+      // value={modelKey ?? undefined}
+      // options={[
+      //   { value: 'banner', label: '輪播設定' },
+      //   { value: 'announce', label: '公告設定' },
+      //   { value: 'page', label: '頁面設定' },
+      //   { value: 'gallery', label: '相簿設定' },
+      //   { value: 'file', label: '檔案室設定' },
+      //   { value: 'webres', label: '網路資源設定' },
+      // ]}
+      />,
+      <LibSelectCard key="banner" colDisplayName="輪播設定" components={comp_banner(theme)} />,
+    ];
+
+    const map: Record<Exclude<ModelKey, null>, React.ReactNode[]> = {
+      announce: comp_announce(theme),
+      page: comp_page(theme),
+      gallery: comp_gallery(theme),
+      file: comp_fileArchive(theme),
+      webres: comp_webRes(theme),
+    };
+
+    if (modelKey) {
+      const label = {
+        banner: '輪播設定',
+        announce: '公告設定',
+        page: '頁面設定',
+        gallery: '相簿設定',
+        file: '檔案室設定',
+        webres: '網路資源設定',
+      }[modelKey];
+
+      nodes.push(<LibSelectCard key="onlyOne" colDisplayName={label} components={map[modelKey]} />);
+    }
+    return nodes;
+  }, [theme, modelKey]);
+
+  // ---- 3) 超連結設定：只顯示二擇一輸入 ----
+  const urlNodes: React.ReactNode[] = React.useMemo(() => {
+    const nodes: React.ReactNode[] = [
+      <LibCheckBox
+        key="nav"
+        colDisplayName="導向方式"
+        checkboxStyle="radio"
+      // onChangeValue={(v: NavType) => setNavType(v)}
+      // value={navType ?? undefined}
+      // options={[
+      //   { value: 0, label: '外部連結' },
+      //   { value: 1, label: '網站內功能' },
+      // ]}
+      />,
+    ];
+
+    if (navType === 0) {
+      nodes.push(
+        <LibTextBox
+          key="ext"
+          Style={theme.TextBox}
+          ColumnDisplayName="外部連結"
+          DefaultInputDisplay="請輸入數字或英文，不可使用空白的"
+        />,
+      );
+    } else if (navType === 1) {
+      nodes.push(
+        <LibDropList key="int" Style={theme.DropList} ColumnDisplayName="網站內功能" />,
+      );
+    }
+    return nodes;
+  }, [theme, navType]);
+
+  // ---- 基本分頁：把「功能連結」做成 radio，切換時會改變主 Tabs ----
+  const basicNodes: React.ReactNode[] = React.useMemo(() => ([
+    <LibTextBox key="id" Style={theme.TextBox} ColumnDisplayName="選單ID" DefaultInputDisplay="請輸入數字或英文，不可使用空白的" />,
+    <LibTextBox key="fullurl" Style={theme.TextBox} ColumnDisplayName="完整Url" DefaultInputDisplay="請輸入數字或英文，不可使用空白的" />,
+    <LibCheckBox
+      key="linktype"
+      colDisplayName="功能連結"
+      checkboxStyle="radio"
+    // onChangeValue={(v: LinkType) => setLinkType(v)}
+    // value={linkType ?? undefined}
+    // options={[
+    //   { value: '功能', label: '功能' },
+    //   { value: '連結', label: '連結' },
+    // ]}
+    />,
+    <LibCheckBox key="open" colDisplayName="開啟方式" checkboxStyle="radio" />,
+    <LibCheckBox key="show" colDisplayName="是否顯示於選單" />,
+    <TabContentComp key="lang" libTabsProp={LibTabsPropB} components={componentsB} />,
+  ]), [theme, linkType, LibTabsPropB, componentsB]);
+
+  // ---- 組合給 TabContentComp ----
+  const componentsA = React.useMemo(() => ({
+    basic: basicNodes,
+    module: moduleNodes,
+    url: urlNodes,
+  }), [basicNodes, moduleNodes, urlNodes]);
+
+  if (!selectedItemEdit) {
+    return (
+      <div className="col-xxl-7 col-12 right-box">
+        <div className="default-box"></div>
+      </div>
+    );
   }
-  const componentsA: Record<string, React.ReactNode[]> = {
-    basic: [
-      <LibTextBox Style={theme.TextBox} ColumnDisplayName="選單ID" DefaultInputDisplay="請輸入數字或英文，不可使用空白的"></LibTextBox>,
-      <LibDropList Style={theme.DropList} ColumnDisplayName="新增方式"></LibDropList>, //選項：功能、連結
-      <LibDropList Style={theme.DropList} ColumnDisplayName="頁面樣式"></LibDropList>, //選項：雙欄式、直瀑式 - 新增方式為 "功能" 會用到
-    ]
-  };
-
-  const LibTabsPropW: LibTabsProp = {
-    Style: theme.Tabs,
-    item: { "basicSet": "基本設定", "layout": "版面配置" }
-  }
-
-  const componentsC: React.ReactNode[] = [
-    <LibCheckBox value={str} options={c} checkboxStyle="radio" colDisplayName="版型選擇" />
-  ];
-  const componentsD: React.ReactNode[] = [
-    <LibDropList Style={theme.DropList} ColumnDisplayName="輪播橫幅"></LibDropList>,
-    <LibDropList Style={theme.DropList} ColumnDisplayName="廣告輪播"></LibDropList>
-  ];
-  const componentsE: React.ReactNode[] = [
-    <LibDropList Style={theme.DropList} ColumnDisplayName="輪播橫幅"></LibDropList>,
-    <LibDropList Style={theme.DropList} ColumnDisplayName="廣告輪播"></LibDropList>
-  ];
-  const componentsF: React.ReactNode[] = [
-    <LibDropList Style={theme.DropList} ColumnDisplayName="頁面選擇"></LibDropList>,
-  ];
-  const componentsG: React.ReactNode[] = [
-    <LibDropList Style={theme.DropList} ColumnDisplayName="相簿類別"></LibDropList>,
-    <LibDropList Style={theme.DropList} ColumnDisplayName="相簿標籤"></LibDropList>,
-    <LibDropList Style={theme.DropList} ColumnDisplayName="相簿數量"></LibDropList>,
-  ];
-  const componentsH: React.ReactNode[] = [
-    <LibDropList Style={theme.DropList} ColumnDisplayName="檔案室類別"></LibDropList>,
-    <LibDropList Style={theme.DropList} ColumnDisplayName="檔案室標籤"></LibDropList>,
-    <LibDropList Style={theme.DropList} ColumnDisplayName="檔案室數量"></LibDropList>,
-  ];
-  const componentsI: React.ReactNode[] = [
-    <LibDropList Style={theme.DropList} ColumnDisplayName="網路資源類別"></LibDropList>,
-    <LibDropList Style={theme.DropList} ColumnDisplayName="網路資源標籤"></LibDropList>,
-    <LibDropList Style={theme.DropList} ColumnDisplayName="網路資源數量"></LibDropList>,
-  ];
-  const componentsJ: React.ReactNode[] = [
-    <LibDropList Style={theme.DropList} ColumnDisplayName="問卷留言類別"></LibDropList>,
-    <LibDropList Style={theme.DropList} ColumnDisplayName="問卷留言數量"></LibDropList>,
-  ];
-
-  const componentsW: Record<string, React.ReactNode[]> = {
-    basicSet: [
-      <TabContentComp libTabsProp={LibTabsPropA} components={componentsA}></TabContentComp>,
-      <TabContentComp libTabsProp={LibTabsPropB} components={componentsB}></TabContentComp>
-    ],
-    layout: [
-      <LibSelectCard colDisplayName="前台版型" components={componentsC}></LibSelectCard>,
-      <LibSelectCard colDisplayName="輪播設定" components={componentsD}></LibSelectCard>,
-      <LibSelectCard colDisplayName="公告設定" components={componentsE}></LibSelectCard>,
-      <LibSelectCard colDisplayName="頁面設定" components={componentsF}></LibSelectCard>,
-      <LibSelectCard colDisplayName="相簿設定" components={componentsG}></LibSelectCard>,
-      <LibSelectCard colDisplayName="檔案室設定" components={componentsH}></LibSelectCard>,
-      <LibSelectCard colDisplayName="網路資源設定" components={componentsI}></LibSelectCard>,
-      <LibSelectCard colDisplayName="問卷留言設定" components={componentsJ}></LibSelectCard>,
-    ]
-  };
 
   return (
-    <FormComp prop={prop}>
-      <div className="row">
-        <div className="col-xxl-5 col-12 left-box">
-          <div className="panel">
-            <div className="panel-body">
-              <div className="mb-2">
-                <button onClick={() => setCollapseAll(!collapseAll)} className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">
-                  {collapseAll ? "展開" : "收合"}
-                </button>
-                <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">儲存</button>
-              </div>
-              <div className="cf nestable-lists">
-                <Nestable items={items || []} renderItem={renderItem} onChange={handleChange} className="dd-list" collapsed={collapseAll} />
-              </div>
+    <div className="col-xxl-7 col-12 right-box">
+      <div className="edit-box">
+        <div className="panel">
+          <div className="panel-body">
+            <div className="card-header pt-1">
+              <h3>
+                <i className="fas fa-align-left me-2"></i>
+                <span className="fw-bold text-primary">{selectedItemEdit.text}</span> - 編輯
+              </h3>
+            </div>
+            <div className="mt-4">
+              <TabContentComp libTabsProp={LibTabsPropA} components={componentsA} />
+            </div>
+            <div className="d-flex justify-content-center">
+              <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">儲存</button>
+              <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">取消</button>
             </div>
           </div>
         </div>
-
-        <div className="col-xxl-7 col-12 right-box">
-          {renderRightBox()}
-        </div>
-
       </div>
-    </FormComp>
+    </div>
   );
 };
 
-const generateLangFields = (lang: string, label: string, theme: IBETheme): React.ReactNode[] => {
-  return [
-    <LibTextBox key={`${lang}-Title`} Style={theme.TextBox} ColumnDisplayName={`網站標題（${label}）`} DefaultInputDisplay="請輸入" />,
-    <LibTextBox key={`${lang}-Title`} Style={theme.TextBox} ColumnDisplayName={`連結網址（${label}）`} DefaultInputDisplay="請輸入" />, //新增方式為 "連結" 會用到
-    <LibDropList Style={theme.DropList} ColumnDisplayName="開啟方式"></LibDropList>, //選項：當前視窗開啟、新視窗開啟
-    <LibCheckBox colDisplayName="是否顯示於選單"></LibCheckBox>,
-    <LibCheckBox colDisplayName="是否顯示於網站導覽"></LibCheckBox>,
-  ];
-};
+//#region 模型配置
+
+
+const comp_banner = (theme: IBETheme): React.ReactNode[] => [
+  <LibDropList Style={theme.DropList} ColumnDisplayName="輪播橫幅"></LibDropList>,
+];
+const comp_announce = (theme: IBETheme): React.ReactNode[] => [
+  <LibCheckBox colDisplayName="類別"></LibCheckBox>,
+  <LibCheckBox colDisplayName="標籤"></LibCheckBox>,
+  <LibDropList Style={theme.DropList} ColumnDisplayName="清單樣式"></LibDropList>
+];
+const comp_page = (theme: IBETheme): React.ReactNode[] => [
+  <LibDropList Style={theme.DropList} ColumnDisplayName="頁面選擇"></LibDropList>,
+];
+const comp_gallery = (theme: IBETheme): React.ReactNode[] => [
+  <LibCheckBox colDisplayName="類別"></LibCheckBox>,
+  <LibCheckBox colDisplayName="標籤"></LibCheckBox>,
+  <LibDropList Style={theme.DropList} ColumnDisplayName="清單樣式"></LibDropList>
+];
+const comp_fileArchive = (theme: IBETheme): React.ReactNode[] => [
+  <LibCheckBox colDisplayName="類別"></LibCheckBox>,
+  <LibCheckBox colDisplayName="標籤"></LibCheckBox>,
+  <LibDropList Style={theme.DropList} ColumnDisplayName="清單樣式"></LibDropList>
+];
+const comp_webRes = (theme: IBETheme): React.ReactNode[] => [
+  <LibCheckBox colDisplayName="類別"></LibCheckBox>,
+  <LibCheckBox colDisplayName="標籤"></LibCheckBox>,
+  <LibDropList Style={theme.DropList} ColumnDisplayName="清單樣式"></LibDropList>
+];
+//#endregion

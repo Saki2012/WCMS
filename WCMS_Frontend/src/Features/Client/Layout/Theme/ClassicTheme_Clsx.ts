@@ -10,7 +10,7 @@ import type { IFETheme } from "./ITheme";
 export const Classic_MainMenu: IMenu_Style = {
     isUl: true,
     ul: (lv: number) => clsx(lv == 1 ? "menu" : "collapse"),
-    li: () => clsx("m-number"),
+    li: (lv: number) => clsx(lv == 1 ? "m-number" : ""),
 };
 /** 前台SubPage SideMenu樣式 */
 export const Classic_SideMenu: IMenu_Style = {

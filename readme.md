@@ -161,6 +161,12 @@
     2. $env:NODE_TLS_REJECT_UNAUTHORIZED = "0";
     3. npx openapi-typescript https://localhost:7030/swagger/v1/swagger.json -o src/types/api.d.ts;
     4. 成功後再至types資料夾中執行 npx tsx ./src/types/generate-fields.ts 產生SchemaNameFields
+`
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass;
+$env:NODE_TLS_REJECT_UNAUTHORIZED = "0";
+npx openapi-typescript https://localhost:7030/swagger/v1/swagger.json -o src/types/api.d.ts;
+npx tsx ./src/types/generate-fields.ts
+`
 6. 若是在前端的系統連結，透過Link to來達到SPA效果，避免不斷刷新造成效能及使用體驗低落
 7. 控鍵與資料流程: Component(.tsx) -> Hook(.ts) -> Api(.ts)
     - Component 不寫任何有關useEffect等相關時機

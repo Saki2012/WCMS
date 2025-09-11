@@ -171,6 +171,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         [Key, StringLength(SysLengthParam.ID)] public string? SiteIndex { get; set; }
         [Key] public int? ItemRowId { get; set; }
         [StringLength(SysLengthParam.ID)] public string? BannerId { get; set; }
+        public ModulePageType PageType { get; set; }
         [StringLength(SysLengthParam.ProgId)] public string? ModuleProgId { get; set; } //功能代碼
         public string? ModuleOptions { get; set; }//動態參數，存Json格式
     }

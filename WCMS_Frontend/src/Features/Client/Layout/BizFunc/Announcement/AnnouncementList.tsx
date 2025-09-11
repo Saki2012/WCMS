@@ -1,5 +1,5 @@
 /**公告清單 */
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { GridProps } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import type { components } from "../../../../../types/api";
 import type { IFETheme } from "../../Theme/ITheme";
@@ -14,9 +14,13 @@ import { GridViewContentComp } from "../../Scaffold/ContentViewMode/GridView/Gri
 import { Merge } from "../../../../../SysCore/Utils/Library/LibMergeData";
 import type { Lang } from "../../../../../SysCore/i18n/lang";
 import { FormatDate } from "../../../../../SysCore/Utils/Library/LibData";
+import { SearchBarComp, type ISearchQuery } from "../../../../../SysCore/Components/SearchBar/SearchBar_Comp";
+import { useTagListData } from "../../../../Server/Layout/BizFunc/WebManagement/Tags/Tag_Hook";
 
-const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string) => {
+const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string, query: ISearchQuery) => {
     var condition: string = "";
+    if (query.keyword) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title} Like ${query.keyword}`)
+    if (query.tag) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} HasAny ${query.tag}`)
     if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Categories} In (${categoryIds})`)
     if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} In (${tagIds})`)
     const provider = AnnouncementProvider();
@@ -69,7 +73,7 @@ const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string) 
             return { cells };
         },
         enabled: true,
-        deps: [],
+        deps: [lang, categoryIds, tagIds, query],
     });
 };
 
@@ -77,12 +81,22 @@ export interface IAnnouncementListOptions { Category?: string; Tag?: string; Sty
 interface IAnnouncementListProps { Theme: IFETheme; Lang: string | Lang; Options?: IAnnouncementListOptions; }
 
 export const AnnouncementList = (props: IAnnouncementListProps) => {
+
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
-    const useAnnounceList = useAnnouncementList(props.Lang, props.Options?.Category ?? "", props.Options?.Tag ?? "");
+    const [queryDraft, setQueryDraft] = useState<ISearchQuery>({});
+    const [query, setQuery] = useState<ISearchQuery>({});
+    const useAnnounceList = useAnnouncementList(props.Lang, props.Options?.Category ?? "", props.Options?.Tag ?? "", query);
+    const useTagData = useTagListData("Announcement", props.Lang);
+    const tags = (useTagData.rawData ?? []).map(t => ({ id: t.TagData?.TagId ?? "", name: t.TagDetail?.find(p => p.Lang === props.Lang)?.TagName ?? "" }));
+
+    const searchSlot = (
+        <SearchBarComp value={queryDraft} tags={tags} onChange={(k, v) => setQueryDraft(prev => ({ ...prev, [k]: v }))}
+            onSubmit={() => setQuery(queryDraft)} onReset={() => { setQueryDraft({}); setQuery({}); }} />);
+
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData]);
-    const isLoading = [useAnnounceList.isLoading];
-    const errors = [useAnnounceList.error];
-    return <GridViewContentComp GridData={adjustedGrid} Theme={props.Theme} LoadingList={isLoading} ErrorList={errors} />;
+    const isLoading = [useAnnounceList.isLoading, useTagData.isLoading];
+    const errors = [useAnnounceList.error, useTagData.error];
+    return <GridViewContentComp searchSlot={searchSlot} GridData={adjustedGrid} Theme={props.Theme} LoadingList={isLoading} ErrorList={errors} />;
 };
 
 const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[]): GridProps => {

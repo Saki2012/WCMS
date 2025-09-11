@@ -1,5 +1,6 @@
 ﻿using SharpCompress.Readers.Arc;
 using System.Collections;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
@@ -91,6 +92,7 @@ namespace WCMS.SysCore
             {
                 if (fieldProp.IsListPropertyType()) continue;
                 if (isReadOnly&&PropertyAccessorCache.TryGetAttribute<DTOReadOnlyAttribute>(fieldProp,out _)) continue;
+                if (PropertyAccessorCache.TryGetAttribute<NotMappedAttribute>(fieldProp, out _)) continue;
                 object field = PropertyAccessorCache.Get(srcHeader, fieldProp.Name);
                 if (field != null)
                 {
@@ -99,6 +101,7 @@ namespace WCMS.SysCore
                         object dstRelModel = PropertyAccessorCache.CreateInstance(fieldProp.PropertyType);
                         foreach(var relColProp in PropertyAccessorCache.GetProperties(fieldProp.PropertyType))
                         {
+                            if (PropertyAccessorCache.TryGetAttribute<NotMappedAttribute>(relColProp, out _)) continue;
                             var value = PropertyAccessorCache.Get(field, relColProp.Name);
                             PropertyAccessorCache.Set(dstRelModel, relColProp.Name, value);
                         }
@@ -126,8 +129,23 @@ namespace WCMS.SysCore
                 {
                     if (fieldProp.IsListPropertyType()) continue;
                     if (isReadOnly&&PropertyAccessorCache.TryGetAttribute<DTOReadOnlyAttribute>(fieldProp, out _)) continue;
+                    if (PropertyAccessorCache.TryGetAttribute<NotMappedAttribute>(fieldProp, out _)) continue;
                     var field = PropertyAccessorCache.Get(srcData, fieldProp.Name);
-                    if (field != null) PropertyAccessorCache.Set(dstData, fieldProp.Name, field);
+                    if (field != null)
+                    {
+                        if (fieldProp.PropertyType != typeof(string) && fieldProp.PropertyType.IsClass)
+                        {
+                            object dstRelModel = PropertyAccessorCache.CreateInstance(fieldProp.PropertyType);
+                            foreach (var relColProp in PropertyAccessorCache.GetProperties(fieldProp.PropertyType))
+                            {
+                                if (PropertyAccessorCache.TryGetAttribute<NotMappedAttribute>(relColProp, out _)) continue;
+                                var value = PropertyAccessorCache.Get(field, relColProp.Name);
+                                PropertyAccessorCache.Set(dstRelModel, relColProp.Name, value);
+                            }
+                            PropertyAccessorCache.Set(dstData, fieldProp.Name, dstRelModel);
+                        }
+                        else PropertyAccessorCache.Set(dstData, fieldProp.Name, field);
+                    }
                 }
             }
         }

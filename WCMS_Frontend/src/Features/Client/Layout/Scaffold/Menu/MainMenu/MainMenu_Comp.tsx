@@ -217,16 +217,11 @@ export const useLegacyMenuDOM = (menuRef: React.RefObject<HTMLUListElement>) => 
         li.classList.add("active");
         setArrow(li, true);
       }
-
-
-
     };
-
     root.addEventListener("click", onClick);
     return () => root.removeEventListener("click", onClick);
   }, [menuRef]);
 }
-
 
 export const closeMenu = () => {
   const headerBox = document.querySelector(".header_Box");

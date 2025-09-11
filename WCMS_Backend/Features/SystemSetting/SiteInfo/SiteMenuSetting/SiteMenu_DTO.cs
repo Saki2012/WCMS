@@ -166,6 +166,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         public string? SiteIndex { get; set; }
         public int? ItemRowId { get; set; }
         public string? BannerId { get; set; }
+        public ModulePageType PageType { get; set; }
         public string? ModuleProgId { get; set; } //功能代碼
         public string? ModuleOptions { get; set; }//動態參數，存Json格式
     }

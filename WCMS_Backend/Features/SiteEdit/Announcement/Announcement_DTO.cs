@@ -55,8 +55,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 資料有效日期-起
         /// </summary>
-        [LibDesc(ModelDisplayName.Announcement_CreationDate)]
-        public DateTime? Validate_Start { get; set; }
+        [LibDesc(ModelDisplayName.Announcement_StartDate)]public DateTime? Validate_Start { get; set; }
         /// <summary>
         /// 資料有效日期-迄
         /// </summary>

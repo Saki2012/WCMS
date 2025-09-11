@@ -21,6 +21,10 @@
         public const string Common_UrlOpen = "Common_UrlOpen";
         public const string Common_ProgId = "Common_ProgId";
         public const string Common_ContentStatus = "Common_ContentStatus";
+        /// <summary>
+        /// 無
+        /// </summary>
+        public const string Common_None = "Common_None";
         #endregion
 
         #region Enums
@@ -48,6 +52,7 @@
         public const string Announcement_EndDate="Announcement_EndDate";
         public const string Announcement_CreationDate="Announcement_CreationDate";
         public const string Announcement_FileId="Announcement_FileId";
+
         #endregion 
         #region 廣告輪播
         public const string BannerId="BannerId";
@@ -201,6 +206,13 @@
         public const string User_UserID = "User_UserID";
         public const string User_UserName = "User_UserName";
         public const string User_AccountStatus = "User_AccountStatus";
+        #endregion
+
+        #region 1810調整的東西
+        /// <summary>
+        /// 組別
+        /// </summary>
+        public const string Spec1810_Tag = "Spec1810_Tag";
         #endregion
     }
 }

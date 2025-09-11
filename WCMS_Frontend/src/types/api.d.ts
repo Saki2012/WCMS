@@ -6337,7 +6337,7 @@ export interface components {
             Content?: string | null;
             /** @description 網址 */
             Url?: string | null;
-            /** @description 網址 */
+            /** @description 網址描述 */
             UrlDescription?: string | null;
         };
         AnnouncementSet_DTO: {
@@ -6599,6 +6599,7 @@ export interface components {
             RowId?: number;
             /** @description 檔案來源 */
             FileSrcId?: string | null;
+            FileSrc?: components["schemas"]["FileManageModel_DTO"];
             /** @description 檔案名稱 */
             FileName?: string | null;
         };
@@ -6654,7 +6655,7 @@ export interface components {
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 類別 */
             CategoriesId: string;
-            /** @description 標籤 */
+            /** @description 組別 */
             TagsId: string;
             FileArchiveInfo?: components["schemas"]["FileArchiveInfo_DTO"][] | null;
         };
@@ -6852,6 +6853,11 @@ export interface components {
          * @enum {integer}
          */
         MenuUrlType: 0 | 1 | 2;
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
+        ModulePageType: 0 | 1;
         OrderBySpec: {
             Col?: string | null;
             Desc?: boolean;
@@ -7059,6 +7065,7 @@ export interface components {
             /** Format: int32 */
             ItemRowId?: number | null;
             BannerId?: string | null;
+            PageType?: components["schemas"]["ModulePageType"];
             ModuleProgId?: string | null;
             ModuleOptions?: string | null;
         };

@@ -6,7 +6,7 @@ const RecursiveMenuItem = (item: MenuItemData, key: string, Style: IMenu_Style, 
   const isExpanded = !!expandedKeys?.has(key);
 
   return (
-    <li className={Style.li(isFirst, hasSub, isExpanded)} key={key}>
+    <li className={Style.li(lv, isFirst, hasSub, isExpanded)} key={key}>
       <div className={'w-100'} onClick={() => { if (hasSub && onToggleKey) onToggleKey(key); }} style={{ cursor: hasSub ? 'pointer' : 'default' }}>
         {item.DOMContent}
       </div>

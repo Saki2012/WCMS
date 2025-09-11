@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.Resx;
+using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.FileArchive
@@ -29,8 +31,8 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// <summary>
         /// 標籤ID(多個)
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Tag), Required] public string TagsId { get; set; }
-
+        //[LibDesc(ModelDisplayName.Common_Tag), Required] public string TagsId { get; set; }
+        [LibDesc(ModelDisplayName.Spec1810_Tag), Required] public string TagsId { get; set; }
         #region 關聯
         public virtual List<FileArchiveInfo_DTO> FileArchiveInfo { get; set; } = [];
         #endregion
@@ -73,7 +75,11 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// <summary>
         /// 檔案來源
         /// </summary>
-        [LibDesc(ModelDisplayName.FileArchive_FileSrcId)] public string FileSrcId { get; set; }
+        [LibDesc(ModelDisplayName.FileArchive_FileSrcId)] public string? FileSrcId { get; set; }
+        /// <summary>
+        /// 檔案關聯資訊
+        /// </summary>
+        [ForeignKey(nameof(FileSrcId))]public FileManageModel_DTO FileSrc { get; set; }
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>

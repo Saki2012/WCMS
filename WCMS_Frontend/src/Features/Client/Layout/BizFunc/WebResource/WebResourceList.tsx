@@ -1,16 +1,9 @@
 /**公告清單 */
-import { useMemo } from "react";
-import type { GridProps } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import type { components } from "../../../../../types/api";
 import type { IFETheme } from "../../Theme/ITheme";
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
-import { Link, useLocation } from "react-router-dom";
-import type { GridRow } from "../../../../../SysCore/Components/Grid/Grid_Data";
-import type { RowCell } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import { useFetchGridListData } from "../../../../../SysCore/Utils/API/FetchGridListData";
-import { FormatDateTime } from "../../../../../SysCore/Utils/Library/LibData";
 import * as SchemaFields from "../../../../../types/SchemaFields";
-import { GridViewContentComp } from "../../Scaffold/ContentViewMode/GridView/GridView/GridContent_Comp";
 import { Merge } from "../../../../../SysCore/Utils/Library/LibMergeData";
 import type { Lang } from "../../../../../SysCore/i18n/lang";
 import WebResourceProvider from "../../../../Server/Layout/BizFunc/WebManagement/WebResource/WebResource_Api";
@@ -27,11 +20,6 @@ const useWebResourceList = (categoryIds: string, tagIds: string) => {
         fetchList: (cond) => provider.fetchList(cond),
         fetchListCount: (cond) => provider.fetchListCount(cond),
         visibleKeys: [
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Categories],
-            [SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Title],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.DataStatus],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyUserId],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyTime],
         ],
         buildQueryCondition: () => ({
             Fields: [

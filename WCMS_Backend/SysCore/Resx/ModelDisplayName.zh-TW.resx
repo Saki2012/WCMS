@@ -148,7 +148,7 @@
     <value>瀏覽次數</value>
   </data>
   <data name="Announcement_StartDate" xml:space="preserve">
-    <value>上架日期</value>
+    <value>公告日期</value>
   </data>
   <data name="Announcement_EndDate" xml:space="preserve">
     <value>下架日期</value>
@@ -605,5 +605,8 @@
   </data>
   <data name="Common_UrlDescription" xml:space="preserve">
     <value>網址描述</value>
+  </data>
+  <data name="Spec1810_Tag" xml:space="preserve">
+    <value>組別</value>
   </data>
 </root>

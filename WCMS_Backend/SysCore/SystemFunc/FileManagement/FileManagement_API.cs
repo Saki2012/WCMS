@@ -93,14 +93,13 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             else if (result.Count == 1) 
             {
                 string path = Path.Combine(Env.ContentRootPath,result[0].Path,$"{result[0].InternalId}.{result[0].FileExtension}");
-                return PhysicalFile(path, result[0].MimeType, fileDownloadName: $"{result[0].FileName}.{result[0].FileExtension}");
+                return PhysicalFile(path, result[0].MimeType/*, fileDownloadName: $"{result[0].FileName}.{result[0].FileExtension}"*/);
             }
             else
             {
                 Response.ContentType = "application/zip";
                 var zipFileName = $"download_{DateTime.UtcNow:yyyyMMddHHmmss}.zip";
                 Response.Headers.ContentDisposition = $"attachment; filename*=UTF-8''{Uri.EscapeDataString(zipFileName)}";
-
                 await using var zipStream = Response.BodyWriter.AsStream(true);
                 using var zip = new ZipArchive(zipStream, ZipArchiveMode.Create, leaveOpen: false);
                 foreach (var file in result)

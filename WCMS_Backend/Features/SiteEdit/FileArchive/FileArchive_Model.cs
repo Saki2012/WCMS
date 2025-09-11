@@ -4,6 +4,7 @@ using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.ModuleOptions;
 using static WCMS.SysCore.Enum.SysEnum;
 
@@ -78,6 +79,7 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// 檔案來源
         /// </summary>
         [LibDesc, StringLength(SysLengthParam.InternalId)] public string FileSrcId { get; set; }
+        [ForeignKey(nameof(FileSrcId))] public FileManageModel FileSrc { get; set; }
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
