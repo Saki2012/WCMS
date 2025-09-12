@@ -1,26 +1,22 @@
-/**公告清單 */
 import type { components } from "../../../../types/api";
 import type { IFETheme } from "../../../../Features/Client/Layout/Theme/ITheme";
 type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"];
-type SpecResearchDetailModelFields = components["schemas"]["SpecResearchDetailModel_DTO"];
 import type { Lang } from "../../../../SysCore/i18n/lang";
 import { Merge } from "../../../../SysCore/Utils/Library/LibMergeData";
 import * as SchemaFields from "../../../../types/SchemaFields"
 import { useFetchGridListData } from "../../../../SysCore/Utils/API/FetchGridListData";
-import type { ColumnConfig, GridProps, GridRow, RowCell } from "../../../../SysCore/Components/Grid/Grid_Data";
+import type { RowCell } from "../../../../SysCore/Components/Grid/Grid_Data";
 import SpecResearchProvider from "../../Server/BizFunc/SpecResearch/SpecResearch_Api";
 import LoadingErrorHandler from "../../../../SysCore/Components/LoadingErrorHandler";
 import { useGetShowColumnItems } from "../../Server/BizFunc/SpecCategory/SpecCategory_Hook";
 import { Grid } from "../../../../SysCore/Components/Grid/Grid_Comp";
-import React, { useMemo } from "react";
-
 
 const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, showColumns: string[]) => {
-
     var condition: string = "";
     if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.CategoryId} = ${categoryIds}`)
-    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.Tags} HasAny (${tagIds})`)
-
+    // if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.Tags} HasAny (${tagIds})`)
+    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.Tags} = ${tagIds}`)
+    condition = Merge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.ContentStatus} !& 4`)//不包含隱藏的資料
     type VisibleKey = [string, string];
     const ORDER: string[] = [
         SchemaFields.SpecResearchDetailModelFields.Year, SchemaFields.SpecResearchDetailModelFields.AcademicYear,
@@ -92,6 +88,10 @@ const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, 
                 `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Remark}`,
             ],
             Condition: condition,
+            OrderBy: [
+                { Col: `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Year}`, Desc: true },
+                { Col: `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.AcademicYear}`, Desc: true },
+            ],
             PageNumber: page,
             PageSize: 10,
         }),
@@ -110,7 +110,7 @@ const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, 
             return { cells };
         },
         enabled: !!showColumns?.length && !!categoryIds,
-        deps: [],
+        deps: [lang, categoryIds, tagIds],
     });
 };
 

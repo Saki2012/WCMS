@@ -12,8 +12,9 @@ import { SubPageTitle } from "../../Scaffold/Header/SubPageTitle_Comp";
 
 const useWebResourceList = (categoryIds: string, tagIds: string) => {
     var condition: string = "";
-    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Categories} HasAny (${categoryIds})`)
-    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} HasAny (${tagIds})`)
+    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.WebResourceFields.Categories} HasAny (${categoryIds})`)
+    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.WebResourceFields.Tags} HasAny (${tagIds})`)
+    condition = Merge(" And ", false, condition, `${SchemaFields.WebResourceFields.ContentStatus} !& 4`)//不包含隱藏的資料
     const provider = WebResourceProvider();
     return useFetchGridListData<WebResourceSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),

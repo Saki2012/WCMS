@@ -5,13 +5,13 @@ import { Link } from 'react-router-dom';
 import GalleryProvider from '../../../../Features/Server/Layout/BizFunc/WebManagement/Gallery/Gallery_Api';
 import type { components } from '../../../../types/api';
 type GallerySet = components["schemas"]["GallerySet_DTO"]
-type TagSet = components["schemas"]["TagSet_DTO"]
+type CategorySet = components["schemas"]["CategoryDataSet_DTO"]
 import * as SchemaFields from "../../../../types/SchemaFields";
 import { useFetchGridListData } from '../../../../SysCore/Utils/API/FetchGridListData';
-import TagProvider from '../../../../Features/Server/Layout/BizFunc/WebManagement/Tags/Tag_Api';
 import { FormatDate } from '../../../../SysCore/Utils/Library/LibData';
 import LoadingErrorHandler from '../../../../SysCore/Components/LoadingErrorHandler';
 import { useEffect, useRef } from 'react';
+import CategoryProvider from '../../../../Features/Server/Layout/BizFunc/WebManagement/Category/Category_Api';
 
 const useGalleryList = () => {
     const provider = GalleryProvider();
@@ -24,7 +24,7 @@ const useGalleryList = () => {
             Fields: [
                 SchemaFields.GalleryFields.GalleryId,
                 SchemaFields.GalleryFields.InternalId,
-                SchemaFields.GalleryFields.Tags,
+                SchemaFields.GalleryFields.Categories,
                 SchemaFields.GalleryFields.CoverPicSrcId,
                 SchemaFields.GalleryFields.CreateTime,
                 `${SchemaFields.GallerySetFields.GalleryInfo}.${SchemaFields.GalleryInfoFields.Lang}`,
@@ -39,18 +39,18 @@ const useGalleryList = () => {
     });
 };
 
-const useTagList = () => {
-    const provider = TagProvider();
-    return useFetchGridListData<TagSet>({
+const useCategoryList = () => {
+    const provider = CategoryProvider();
+    return useFetchGridListData<CategorySet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
         fetchListCount: (cond) => provider.fetchListCount(cond),
         visibleKeys: [],
         buildQueryCondition: () => ({
             Fields: [
-                SchemaFields.TagDataFields.TagId,
-                `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
-                `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
+                SchemaFields.CategoryFields.CategoryId,
+                `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
+                `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
             ],
             Condition: `${SchemaFields.TagDataFields.ProgId} = Gallery`,
             PageNumber: 0,
@@ -61,28 +61,27 @@ const useTagList = () => {
     });
 };
 
-interface DataProp { internalId: string; picInternalId: string; title: string; date: string; tagName: string; }
+interface DataProp { internalId: string; picInternalId: string; title: string; date: string; catName: string; }
 
-const getDataProps = (lang: string, galleryData: GallerySet[], tagData: TagSet[]) => {
+const getDataProps = (lang: string, galleryData: GallerySet[], catData: CategorySet[]) => {
     const result: DataProp[] = [];
-    const tagDict: Record<string, string> = Object.fromEntries(
-        (tagData ?? []).map(cat => {
-            const id = cat.TagData?.TagId;
-            const name = cat.TagDetail?.find(p => p.Lang === lang)?.TagName ?? "";
+    const catDict: Record<string, string> = Object.fromEntries(
+        (catData ?? []).map(cat => {
+            const id = cat.Category?.CategoryId;
+            const name = cat.CategoryDetail?.find(p => p.Lang === lang)?.CategoryName ?? "";
             return [id, name];
         })
     );
     galleryData.map((item) => {
-        const tags = (item.Gallery?.Tags ?? "").split(",").map(s => s.trim()).filter(Boolean);
-        const tagsName = tags.map(id => tagDict[id] ?? "").filter(Boolean).join(", ");
+        const cats = (item.Gallery?.Categories ?? "").split(",").map(s => s.trim()).filter(Boolean);
+        const catsName = cats.map(id => catDict[id] ?? "").filter(Boolean).join(", ");
         result.push({
             internalId: item.Gallery?.InternalId ?? "",
             picInternalId: item.Gallery?.CoverPicSrcId ?? "",
             title: item.GalleryInfo?.find(p => p.Lang === lang)?.Title ?? "",
             date: FormatDate(item.Gallery?.CreateTime),
-            tagName: tagsName,
+            catName: catsName,
         })
-
     })
     return result
 }
@@ -92,15 +91,12 @@ export const GallerySession = () => {
     BaseCarousel({ selectorId: '#Gallery', itemCount: 3 });
     const lang = "zh-tw"
     const gallery = useGalleryList();
-    const tag = useTagList();
+    const cate = useCategoryList();
 
-    const isLoading = [gallery.isLoading, tag.isLoading]
-    const errors = [gallery.error, tag.error]
-
-    const result: DataProp[] = getDataProps(lang, gallery.rawData, tag.rawData)
-
+    const isLoading = [gallery.isLoading, cate.isLoading]
+    const errors = [gallery.error, cate.error]
+    const result: DataProp[] = getDataProps(lang, gallery.rawData, cate.rawData)
     const carouselRef = useRef<HTMLDivElement>(null);
-
     useEffect(() => {
         if (result.length > 0 && carouselRef.current) {
             const $owl = $(carouselRef.current);
@@ -197,7 +193,7 @@ export const GallerySession = () => {
                                                                     <div className="m-news_detail">
                                                                         <div className="category_box">
                                                                             <div className="m-news_category"> <i className="fa fa-bookmark" aria-hidden="true"></i>
-                                                                                <div className="tags-text">{item.tagName}</div>
+                                                                                <div className="tags-text">{item.catName}</div>
                                                                             </div>
                                                                         </div>
                                                                         <div className="TimeBoxDiv">

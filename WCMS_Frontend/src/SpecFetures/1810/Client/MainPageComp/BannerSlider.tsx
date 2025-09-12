@@ -33,11 +33,6 @@ export const BannerSlider = () => {
                             />
                         </div>
 
-
-                        <div className="carousel-item" data-bs-interval="5000">
-                            <video className='d-block w-100' src='/Legacy/Client/File/Banner/0E-67-17-2F-FF-BB-B6-0A-EC-A9-15-D8-6B-F3-88-6F.mp4' title='影片' autoPlay muted loop style={{ width: '100vw', height: 'auto' }}></video>
-                        </div>
-
                         <div className="carousel-item" data-bs-interval="5000">
                             <img
                                 src="/Legacy/Client/File/Banner/1C-13-3E-9A-51-ED-8A-B6-0B-1C-1A-C3-3B-42-D7-B0.jpg"

@@ -76,6 +76,47 @@ const Footer = () => {
                         </div>
                     </div>
                 </section>
+                <section className="visitor_section">
+                    <div className="container-customize1">
+                        <div className="col-12">
+                            <div className="row mx-0">
+                                <div className="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                                    <div className="info_contact">
+                                        <div className="dbox">
+                                            <p>Copyright © 2024. 國立臺灣藝術大學_研究發展處 All rights reserved.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                                    <div className="info_contact">
+                                        <div className="dbox">
+
+                                            <p>瀏覽人數　:　-0000000009</p>
+                                            <p className="px-2">｜</p>
+                                            <p>更新日期　:　2025/08/05</p>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section className="copyright_section">
+                    <div className="container-customize1">
+                        <div className="col-12">
+                            <div className="row mx-0">
+                                <div className="col-md-12">
+                                    <div className="dbox-tb">
+                                        <p>為提供更為穩定的瀏覽品質與使用體驗，建議更新瀏覽器 Microsoft Edge / Google Chrome / Mozilla Firefox 或相容 W3C 網頁標準之瀏覽器  ( 螢幕最佳瀏覽解析度為1920*1080 )</p>
+                                        <p className="px-2">｜</p>
+                                        <p><a href="http://www.it-easygo.com/Main.aspx" title="國際暢行科技有限公司(另開新視窗)" rel="noopener noreferrer" target="_blank" tabIndex={5}>Design by it-easygo.</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
         </footer>
     );

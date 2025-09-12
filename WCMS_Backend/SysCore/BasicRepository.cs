@@ -294,8 +294,17 @@ namespace WCMS.SysCore
             }
         }
 
+        private static Type? TryGetIEnumerableElementType(Type type)
+        {
+            if (type.IsArray) return type.GetElementType();
+            foreach (var t in type.GetInterfaces().Concat(new[] { type }))
+                if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                    return t.GetGenericArguments()[0];
+            return null;
+        }
 
-        private static IQueryable<TModel> ApplyOrderBy(IQueryable<TModel> source,IReadOnlyList<OrderBySpec>? specs)
+
+        private static IQueryable<TModel> ApplyOrderBy(IQueryable<TModel> source, IReadOnlyList<OrderBySpec>? specs)
         {
             if (specs == null || specs.Count == 0) return source;
 
@@ -304,31 +313,78 @@ namespace WCMS.SysCore
 
             foreach (var spec in specs)
             {
-                // 支援巢狀路徑：CreateUser.UserName
-                Expression body = spec.Col
-                    .Split('.', StringSplitOptions.RemoveEmptyEntries)
-                    .Aggregate((Expression)param, Expression.PropertyOrField);
+                var parts = spec.Col.Split('.', StringSplitOptions.RemoveEmptyEntries);
 
-                // 產出 x => x.Prop[.Child]…（不轉 object，避免不必要的 CAST）
-                var lambda = Expression.Lambda(body, param);
+                // 產生排序用 key（處理集合→聚合成純量）
+                Expression key = BuildKeyForOrder(param, parts, spec.Desc);
 
+                var lambda = Expression.Lambda(key, param);
                 string methodName =
                     ordered == null
                         ? (spec.Desc ? "OrderByDescending" : "OrderBy")
                         : (spec.Desc ? "ThenByDescending" : "ThenBy");
 
-                // 反射呼叫 Queryable.OrderBy[..]<TModel, TKey>(…)
                 var method = typeof(Queryable).GetMethods()
-                    .First(m => m.Name == methodName &&
-                                m.GetParameters().Length == 2);
+                    .First(m => m.Name == methodName && m.GetParameters().Length == 2);
 
-                var generic = method.MakeGenericMethod(typeof(TModel), body.Type);
+                var generic = method.MakeGenericMethod(typeof(TModel), key.Type);
                 var result = generic.Invoke(null, new object[] { ordered ?? source, lambda })!;
-
                 ordered = (IOrderedQueryable<TModel>)result;
             }
 
             return ordered ?? source;
+        }
+        private static Expression BuildKeyForOrder(ParameterExpression root, string[] parts, bool desc)
+        {
+            Expression current = root;
+            Type currentType = root.Type;
+
+            for (int i = 0; i < parts.Length; i++)
+            {
+                var member = Expression.PropertyOrField(current, parts[i]);
+                var elemType = TryGetIEnumerableElementType(member.Type);
+
+                // 碰到集合：用 Min/Max( e => 後續路徑 ) 聚合成純量
+                if (elemType != null && member.Type != typeof(string))
+                {
+                    if (++i >= parts.Length)
+                        throw new InvalidOperationException($"排序欄位 '{string.Join(".", parts)}' 少了集合元素的後續屬性。");
+
+                    // 走完集合元素的後續路徑
+                    var pe = Expression.Parameter(elemType, "e");
+                    Expression elemKey = Expression.PropertyOrField(pe, parts[i]);
+                    while (++i < parts.Length)
+                        elemKey = Expression.PropertyOrField(elemKey, parts[i]);
+
+                    // AsQueryable(collection)
+                    var asQ = Expression.Call(typeof(Queryable), nameof(Queryable.AsQueryable), new[] { elemType }, member);
+
+                    // 升冪取 Min、降冪取 Max（可依需求改）
+                    var selector = Expression.Lambda(elemKey, pe);
+                    var selectMethod = typeof(Queryable).GetMethods()
+                        .First(m => m.Name == nameof(Queryable.Select) && m.GetParameters().Length == 2)
+                        .MakeGenericMethod(elemType, elemKey.Type);
+                    var projected = Expression.Call(null, selectMethod, asQ, selector);
+                    var aggName = desc ? nameof(Queryable.Max) : nameof(Queryable.Min);
+                    var aggMethod = typeof(Queryable).GetMethods()
+                        .Where(m => m.Name == aggName && m.IsGenericMethodDefinition)
+                        .Where(m => m.GetGenericArguments().Length == 1 && m.GetParameters().Length == 1)
+                        .Single()
+                        .MakeGenericMethod(elemKey.Type);
+
+
+                    current = Expression.Call(null, aggMethod, projected);
+                    currentType = elemKey.Type;
+                    break; // 已聚合為純量，路徑消化完畢
+                }
+                else
+                {
+                    current = member;
+                    currentType = member.Type;
+                }
+            }
+
+            return current;
         }
         #endregion
 

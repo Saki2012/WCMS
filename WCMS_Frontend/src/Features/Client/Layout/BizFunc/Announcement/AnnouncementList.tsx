@@ -16,6 +16,8 @@ import type { Lang } from "../../../../../SysCore/i18n/lang";
 import { FormatDate } from "../../../../../SysCore/Utils/Library/LibData";
 import { SearchBarComp, type ISearchQuery } from "../../../../../SysCore/Components/SearchBar/SearchBar_Comp";
 import { useTagListData } from "../../../../Server/Layout/BizFunc/WebManagement/Tags/Tag_Hook";
+import { PictureList_Comp } from "../../Scaffold/ContentViewMode/GridView/PictureList/PictureList_Comp";
+import { useCategoryListData } from "../../../../Server/Layout/BizFunc/WebManagement/Category/Category_Hook";
 
 const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string, query: ISearchQuery) => {
     var condition: string = "";
@@ -23,6 +25,8 @@ const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string, 
     if (query.tag) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} HasAny ${query.tag}`)
     if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Categories} In (${categoryIds})`)
     if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} In (${tagIds})`)
+    condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.ContentStatus} !& 4`)//不包含隱藏的資料
+
     const provider = AnnouncementProvider();
     return useFetchGridListData<AnnouncementSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
@@ -37,6 +41,8 @@ const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string, 
             Fields: [
                 SchemaFields.AnnouncementFields.AnnouncementId,
                 SchemaFields.AnnouncementFields.InternalId,
+                SchemaFields.AnnouncementFields.PictureId,
+                SchemaFields.AnnouncementFields.PicDescription,
                 SchemaFields.AnnouncementFields.Categories,
                 SchemaFields.AnnouncementFields.Validate_Start,
                 `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
@@ -46,7 +52,7 @@ const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string, 
             Condition: condition,
             OrderBy: [{ Col: SchemaFields.AnnouncementFields.Validate_Start, Desc: true }],
             PageNumber: page,
-            PageSize: 10,
+            PageSize: 12,
         }),
         parseRow: (item, columns) => {
             const cells: RowCell[] = columns.map(col => {
@@ -87,6 +93,7 @@ export const AnnouncementList = (props: IAnnouncementListProps) => {
     const [query, setQuery] = useState<ISearchQuery>({});
     const useAnnounceList = useAnnouncementList(props.Lang, props.Options?.Category ?? "", props.Options?.Tag ?? "", query);
     const useTagData = useTagListData("Announcement", props.Lang);
+
     const tags = (useTagData.rawData ?? []).map(t => ({ id: t.TagData?.TagId ?? "", name: t.TagDetail?.find(p => p.Lang === props.Lang)?.TagName ?? "" }));
 
     const searchSlot = (
@@ -96,7 +103,15 @@ export const AnnouncementList = (props: IAnnouncementListProps) => {
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData]);
     const isLoading = [useAnnounceList.isLoading, useTagData.isLoading];
     const errors = [useAnnounceList.error, useTagData.error];
-    return <GridViewContentComp searchSlot={searchSlot} GridData={adjustedGrid} Theme={props.Theme} LoadingList={isLoading} ErrorList={errors} />;
+
+
+    switch (props.Options?.Style) {
+        case 2://圖文式
+            return <PictureList_Comp searchSlot={searchSlot} GridData={adjustedGrid} Theme={props.Theme} LoadingList={isLoading} ErrorList={errors} />
+        case 1://清單式
+        default:
+            return <GridViewContentComp searchSlot={searchSlot} GridData={adjustedGrid} Theme={props.Theme} LoadingList={isLoading} ErrorList={errors} />;
+    }
 };
 
 const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[]): GridProps => {
@@ -109,16 +124,10 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: Announ
             return {
                 ...cell,
                 content: (
-                    <Link
-                        to={`${dirUrl}/${internalId}`}
-                        className="link-cell"
-                        id={isTitle ? titleId : undefined}
+                    <Link to={`${dirUrl}/${internalId}`} className="link-cell" id={isTitle ? titleId : undefined}
                         // aria-label={isTitle ? `前往 ${title} 的詳細頁面` : undefined}
-                        aria-labelledby={isTitle ? undefined : titleId}
-                    >
-                        <span aria-hidden={!isTitle}>
-                            {cell.content}
-                        </span>
+                        aria-labelledby={isTitle ? undefined : titleId}>
+                        <span aria-hidden={!isTitle}>{cell.content}</span>
                     </Link>
                 ),
             };

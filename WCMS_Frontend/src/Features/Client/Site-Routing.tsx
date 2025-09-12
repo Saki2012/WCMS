@@ -6,6 +6,7 @@ type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"]
 type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title_DTO"]
 type SiteMenu_Item_Module = components["schemas"]["SiteMenu_Item_Module_DTO"]
 type SiteMenu_Item_Url = components["schemas"]["SiteMenu_Item_Url_DTO"]
+type WindowTarget = components["schemas"]["WindowTarget"];
 
 // import { PageManagementComp } from "@/Features/Client/BizFunc/PageManagement/PageManagementComp"; // 第2步再接
 
@@ -20,7 +21,7 @@ export interface INormNode {
     redirectTo?: string;               // redirect-* 用
     module?: { progId: string; options?: unknown }; // module 用
     children: INormNode[];
-
+    windowTarget: WindowTarget;
     isShowOnMenu: boolean;
     parentId?: number | null;
     rootId?: number;
@@ -90,6 +91,7 @@ export const normalizeSite = (siteMenu: SiteMenuSet): INormSite => {
                 title: it.Title ?? "",
                 path: trimSlash(it.ItemSiteUrl ?? ""),
                 type: "module",
+                windowTarget: it.WindowTarget ?? 0,
                 isShowOnMenu: it.IsShowOnMenu ?? true,
                 children: [],
             };

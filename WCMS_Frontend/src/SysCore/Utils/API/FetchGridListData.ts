@@ -88,10 +88,11 @@ export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
     const gridProps: GridProps = useMemo(() => ({
         columns,
         rows,
+        rawData,
         CurrentPage: currentPage,
         TotalPage: totalPages,
         onPageChange: (page: number) => setCurrentPage(page),
-    }), [columns, rows, currentPage, totalPages]);
+    }), [columns, rows, rawData, currentPage, totalPages]);
 
     return { rawData, gridProps, isLoading, error };
 };

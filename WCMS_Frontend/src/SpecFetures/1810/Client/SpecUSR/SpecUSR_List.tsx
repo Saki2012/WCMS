@@ -17,7 +17,9 @@ import { Merge } from "../../../../SysCore/Utils/Library/LibMergeData";
 const useSpecUSRList = (categoryId: string, tagIds: string) => {
     var condition: string = "";
     condition = `${SchemaFields.SpecUSRModelFields.CategoryId} = ${categoryId}`;
-    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} HasAny (${tagIds})`)
+    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.SpecUSRModelFields.Tags} HasAny (${tagIds})`)
+    condition = Merge(" And ", false, condition, `${SchemaFields.SpecUSRModelFields.ContentStatus} !& 4`)//不包含隱藏的資料
+
     const provider = SpecUSRProvider();
     return useFetchGridListData<SpecUSRSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),

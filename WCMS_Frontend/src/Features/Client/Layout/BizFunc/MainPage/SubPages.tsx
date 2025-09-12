@@ -55,23 +55,30 @@ export const buildMenuItems = (nodes: INormNode[] = [], activeId: number): MenuI
       const domContent = (<>{n.title}<i className="fa fa-angle-right arrow" aria-hidden="true"></i></>)
       const segments = (n.absSegments ?? []).filter(Boolean);
       const path = segments.length > 0 ? "/" + segments.map(s => encodeURIComponent(s.toLowerCase())).join("/") : ("#");
-
-
+      const target = (() => {
+        switch (n.windowTarget) {
+          case 0: return "_self";
+          case 1: return "_blank";
+          // case 2: return "_parent";
+          // case 3: return "_top";
+          default: return "";
+        }
+      })();
       // 無下層 直接顯示title
       const content: ReactNode = !hasChildren
         ? (isInternal
           ? (<Link to={path} title={n.title} className={isActivedId ? "active" : ""} aria-current={isActivedId ? "page" : undefined} > {n.title} </Link>)
-          : (<a href={path} title={n.title} rel="noopener" aria-current={isActivedId ? "page" : undefined} > {n.title} </a>)
+          : (<a href={path} title={n.title} rel="noopener" target={target} aria-current={isActivedId ? "page" : undefined} > {n.title} </a>)
         )
-        : <a href={path} title={n.title} rel="noopener" aria-current={isActivedId ? "page" : undefined} > {n.title} </a>;
+        : <a href={path} title={n.title} rel="noopener" target={target} aria-current={isActivedId ? "page" : undefined} > {n.title} </a>;
 
       // 有下層 + 標籤箭頭
       const contentHasChildren: ReactNode = hasChildren
         ? (isInternal
           ? (<Link to={path} title={n.title} className={isActivedId ? "active" : ""} aria-current={isActivedId ? "page" : undefined} > {domContent} </Link>)
-          : (<a href={path} title={n.title} rel="noopener" aria-current={isActivedId ? "page" : undefined} > {domContent} </a>)
+          : (<a href={path} title={n.title} rel="noopener" target={target} aria-current={isActivedId ? "page" : undefined} > {domContent} </a>)
         )
-        : <a href={path} title={n.title} rel="noopener" aria-current={isActivedId ? "page" : undefined} > {domContent} </a>;
+        : <a href={path} title={n.title} rel="noopener" target={target} aria-current={isActivedId ? "page" : undefined} > {domContent} </a>;
 
       const result: MenuItemData = {
         Id: String(n.id), SrcData: "", Type: path ? "url" : "module", Url: path ?? "", URL_Open: "1",

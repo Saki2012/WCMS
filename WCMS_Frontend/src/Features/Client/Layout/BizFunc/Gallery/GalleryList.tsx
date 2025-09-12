@@ -16,6 +16,7 @@ const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
     var condition: string = "";
     if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.GalleryFields.Categories} HasAny (${categoryIds})`)
     if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.GalleryFields.Tags} HasAny (${tagIds})`)
+    condition = Merge(" And ", false, condition, `${SchemaFields.GalleryFields.ContentStatus} !& 4`)//不包含隱藏的資料
     const provider = GalleryProvider();
     return useFetchGridListData<GallerySet>({
         getModelDisplayName: () => provider.getModelDisplayName(),

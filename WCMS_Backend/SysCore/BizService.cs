@@ -678,7 +678,7 @@ namespace WCMS.SysCore
             {
                 string clause = tokens[i].Trim();
                 string? connector = (i > 0 && i - 1 < tokens.Length) ? tokens[i - 1].Trim().ToLower() : null;
-                var match = Regex.Match(clause, @"^(?<fullPath>[\w.]+)\s*(?<op>=|==|!=|>=|<=|>|<|in|not in|like|is null|is not null|hasany)\s*(?<val>.+)?$", RegexOptions.IgnoreCase);
+                var match = Regex.Match(clause, @"^(?<fullPath>[\w.]+)\s*(?<op>=|&|!&|==|!=|>=|<=|>|<|in|not in|like|is null|is not null|hasany)\s*(?<val>.+)?$", RegexOptions.IgnoreCase);
                 if (!match.Success) continue;
 
                 string fullPath = match.Groups["fullPath"].Value;
@@ -764,6 +764,50 @@ namespace WCMS.SysCore
                             // 透過 DbFunction 切 CSV，再做交集判斷（任一命中即可）
                             // 這會被 EF 轉為：EXISTS (SELECT 1 FROM dbo.SplitToStringTable(field) WHERE Id IN (@p...))
                             expr = $"ApplicationDbContext.SplitToStringTable({fieldExpr}).Any(@{pIndex}.Contains(Id.ToUpper()))";
+                            break;
+                        }
+                    case "&":
+                    case "!&":
+                        {
+                            // 右值（旗標），允許 "4"、"(4)"、"4|8"、"4, 8"
+                            var raw = (val ?? string.Empty).Trim();
+                            if ((raw.StartsWith("(") && raw.EndsWith(")")) || (raw.StartsWith("[") && raw.EndsWith("]")))
+                                raw = raw.Substring(1, raw.Length - 2);
+
+                            // 欄位型別（Nullable<int> / enum? 等）
+                            var propInfo = PropertyAccessorCache.GetProperty(type, fieldExpr);
+                            var propType = propInfo.PropertyType;
+                            var isNullable = Nullable.GetUnderlyingType(propType) != null;
+                            var nonNullType = Nullable.GetUnderlyingType(propType) ?? propType;
+
+                            // 允許 enum / byte / short / int / long
+                            Type underlying;
+                            if (nonNullType.IsEnum)
+                                underlying = System.Enum.GetUnderlyingType(nonNullType);
+                            else
+                                underlying = nonNullType;
+
+                            long acc = 0;
+                            foreach (var p in raw.Split(new[] { '|', ',', ' ' }, StringSplitOptions.RemoveEmptyEntries))
+                                acc |= Convert.ToInt64(p);
+
+                            object flagVal =
+                                underlying == typeof(long) ? acc :
+                                underlying == typeof(int) ? (int)acc :
+                                underlying == typeof(short) ? (short)acc :
+                                underlying == typeof(byte) ? (byte)acc :
+                                Convert.ChangeType(acc, underlying); // 例如 enum underlying
+
+                            var pIndex = args.Count;
+                            args.Add(flagVal);
+
+                            // Nullable 時先 coalesce 成 0，避免 Null 位元運算
+                            var left = isNullable ? $"({fieldExpr} ?? 0)" : fieldExpr;
+
+                            // &  => (field & flag) != 0   （包含）
+                            // !& => (field & flag) == 0   （不包含）
+                            var cmp = (op == "&") ? "!= 0" : "== 0";
+                            expr = $"(({left} & @{pIndex}) {cmp})";
                             break;
                         }
                     default: expr = $"{fieldExpr} {op} \"{val}\""; break;

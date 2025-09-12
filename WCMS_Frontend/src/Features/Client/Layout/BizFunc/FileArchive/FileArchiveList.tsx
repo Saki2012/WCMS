@@ -23,6 +23,7 @@ const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string
     if (query.tag) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.TagsId} HasAny ${query.tag}`)
     if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.CategoriesId} HasAny (${categoryIds})`)
     if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.TagsId} HasAny (${tagIds})`)
+    condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.ContentStatus} !& 4`)//不包含隱藏的資料
 
     const provider = FileArchiveProvider();
     return useFetchGridListData<FileArchiveSet>({
