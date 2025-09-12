@@ -446,6 +446,7 @@ namespace WCMS
             {
                 services.AddRateLimiter(options =>
                 {
+                    
                     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
                     options.OnRejected = async (context, token) =>
                     {
@@ -453,7 +454,7 @@ namespace WCMS
                         // 如果系統有提供 Retry-After，就取出來加到 header
                         if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
                         {
-                            context.HttpContext.Response.Headers.RetryAfter = ((int)retryAfter.TotalSeconds).ToString();
+                            context.HttpContext.Response.Headers.RetryAfter = "300";
                         }
                         await context.HttpContext.Response.WriteAsync("{\"message\":\"登入嘗試過多，請稍後再試。\"}", token);
                     };
