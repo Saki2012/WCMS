@@ -146,9 +146,9 @@ export const EventSession = () => {
                                     {/* // 標題 start // */}
                                     <div className="Standard-TitleDiv div-header">
                                         <div className="TextDIV">
-                                            <h3><span className="title2-tw">活動資訊<span className="c-line-white"></span></span></h3>
+                                            <h3><span className="title-tw">活動資訊<span className="c-line-3ac3d1"></span></span></h3>
                                             <span className="en-box">
-                                                <span className="title2-en">Event information</span>
+                                                <span className="title-en-3ac3d1">Event information</span>
                                             </span>
                                         </div>
                                     </div>
@@ -190,7 +190,7 @@ export const EventSession = () => {
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            
+
                                                         </Link>
                                                     </div>
                                                 )
@@ -222,7 +222,7 @@ export const EventSession = () => {
             </section>
 
 
-            
+
         </LoadingErrorHandler>
     )
 };
