@@ -50,8 +50,8 @@ const MainContent = ({ props, gridProps, theme }: { props: MainGridContentProp[]
                                 <div className="category_box">
                                     <div className="m-news_category">
                                         <i className="fa fa-bookmark" aria-hidden="true">
-                                            <div className="tags-text">{prop.CategoryNames}</div>
                                         </i>
+                                        <div className="tags-text">{prop.CategoryNames}</div>
                                     </div>
                                 </div>
                                 <h3 className="title mt-0 mb-0">{prop.Title}</h3>
