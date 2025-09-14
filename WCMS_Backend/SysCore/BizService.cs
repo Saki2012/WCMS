@@ -678,7 +678,7 @@ namespace WCMS.SysCore
             {
                 string clause = tokens[i].Trim();
                 string? connector = (i > 0 && i - 1 < tokens.Length) ? tokens[i - 1].Trim().ToLower() : null;
-                var match = Regex.Match(clause, @"^(?<fullPath>[\w.]+)\s*(?<op>=|&|!&|==|!=|>=|<=|>|<|in|not in|like|is null|is not null|hasany)\s*(?<val>.+)?$", RegexOptions.IgnoreCase);
+                var match = Regex.Match(clause, @"^(?<fullPath>[\w.]+)\s*(?<op>=|&|!&|==|!=|>=|<=|>|<|in|not in|like|is null|is not null|hasany|hasall)\s*(?<val>.+)?$", RegexOptions.IgnoreCase);
                 if (!match.Success) continue;
 
                 string fullPath = match.Groups["fullPath"].Value;
@@ -764,6 +764,42 @@ namespace WCMS.SysCore
                             // 透過 DbFunction 切 CSV，再做交集判斷（任一命中即可）
                             // 這會被 EF 轉為：EXISTS (SELECT 1 FROM dbo.SplitToStringTable(field) WHERE Id IN (@p...))
                             expr = $"ApplicationDbContext.SplitToStringTable({fieldExpr}).Any(@{pIndex}.Contains(Id.ToUpper()))";
+                            break;
+                        }
+                    case "hasall":
+                        {
+                            // 允許格式：
+                            //   Categories hasAll ("A1","A2","A3")
+                            //   Categories hasAll (A1,A2,A3)
+                            //   Categories hasAll ["A1","A2","A3"]
+                            //   Categories hasAll A1,A2,A3
+                            var raw = (val ?? string.Empty).Trim();
+
+                            // 去外層 () 或 []
+                            if ((raw.StartsWith("(") && raw.EndsWith(")")) || (raw.StartsWith("[") && raw.EndsWith("]")))
+                                raw = raw.Substring(1, raw.Length - 2);
+
+                            // 以逗號切分並清理引號/空白，統一大寫以做到不分大小寫
+                            var tokens = raw
+                                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                .Select(s => s.Trim().Trim('"', '\''))
+                                .Where(s => !string.IsNullOrWhiteSpace(s))
+                                .Select(s => s.ToUpperInvariant())
+                                .ToArray();
+
+                            if (tokens.Length == 0) return null;
+
+                            int pIndex = args.Count;
+                            args.Add(tokens);
+
+                            // 以 DbFunction 切 CSV → 計數
+                            // 1) 交集數量 == 查詢條件數量
+                            // 2) 欄位 CSV 總數量 == 查詢條件數量
+                            // 兩者同時滿足 ⇒ 集合相等（順序無關，且不能多/少）
+                            var split = $"ApplicationDbContext.SplitToStringTable({fieldExpr})";
+                            expr =
+                                $"{split}.Count(@{pIndex}.Contains(Id.ToUpper())) == @{pIndex}.Length && " +
+                                $"{split}.Count() == @{pIndex}.Length";
                             break;
                         }
                     case "&":

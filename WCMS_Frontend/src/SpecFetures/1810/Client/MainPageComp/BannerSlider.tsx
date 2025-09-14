@@ -7,12 +7,6 @@ import { useCarousel } from "../../../../SysCore/Utils/UI_HookFunc/useCarousel";
 
 export const BannerSlider = () => {
 
-    // const items = [
-    //     { id: "pc-1", img: "/legacy/Client/File/Banner/A9-2E-A9-5C-8E-CF-E0-75-3D-5A-CF-6F-7B-C8.jpg", alt: "首頁輪播圖1" },
-    // ];
-    // const { index, next, prev, goTo, play, pause, playing, bind } =
-    //     useCarousel({ length: items.length, interval: 5000, autoPlay: true });
-
     return (
         // <section className="carousel_slide_section" ref={bannerRef}>
         <section className="carousel_slide_section">
@@ -106,11 +100,9 @@ export const BannerSlider = () => {
                     </div>
                 </div>
             </div>
-            <div
-                className="customize_visualBox + animate__animated animate__slow wow fadeInRight d-xl-none d-lg-none d-md-none d-sm-block "
-                data-wow-delay="0.05s"
-            >
+            <div className="customize_visualBox + animate__animated animate__slow wow fadeInRight d-xl-none d-lg-none d-md-none d-sm-block " data-wow-delay="0.05s">
                 <div id="carousel-Controls_MB" className="carousel carousel-dark slide carousel-fade" data-bs-ride="carousel">
+
                     {/* <asp:Literal ID="Lit_Banner_MB" runat="server" /> */}
                     <div className="carousel-inner">
                         <div className="carousel-item active" data-bs-interval="5000">
@@ -119,16 +111,6 @@ export const BannerSlider = () => {
                                 className="d-block w-100"
                                 alt="首頁Banner圖片"
                             />
-                        </div>
-                        <div className="carousel-item" data-bs-interval="5000">
-                            <img
-                                src="/Legacy/Client/File/Banner/6B-28-1E-A5-EC-12-E1-E4-73-8F-76-44-8E-97-4D-65.PNG"
-                                className="d-block w-100"
-                                alt=""
-                            />
-                        </div>
-                        <div className="carousel-item" data-bs-interval="5000">
-                            <video className='d-block w-100' src='/File/Banner/0E-67-17-2F-FF-BB-B6-0A-EC-A9-15-D8-6B-F3-88-6F.mp4' title='影片' autoPlay muted loop style={{ width: '100vw', height: 'auto' }}></video>
                         </div>
                         <div className="carousel-item" data-bs-interval="5000">
                             <img

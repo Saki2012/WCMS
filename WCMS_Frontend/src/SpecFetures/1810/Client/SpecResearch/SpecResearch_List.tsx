@@ -14,8 +14,7 @@ import { Grid } from "../../../../SysCore/Components/Grid/Grid_Comp";
 const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, showColumns: string[]) => {
     var condition: string = "";
     if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.CategoryId} = ${categoryIds}`)
-    // if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.Tags} HasAny (${tagIds})`)
-    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.Tags} = ${tagIds}`)
+    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.Tags} HasAll ${tagIds}`)
     condition = Merge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.ContentStatus} !& 4`)//不包含隱藏的資料
     type VisibleKey = [string, string];
     const ORDER: string[] = [
