@@ -61,7 +61,7 @@ export const clientEntries: Record<string, ModuleEntry> = {
     element: (lang: string, site: INormSite, node: INormNode) => (
       <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
     ),
-    children: (opts, lang) => [
+    children: (opts, lang, node: INormNode) => [
       { index: true, element: <PageManagementFormComp lang={lang} options={opts as IPageManagementOptions} /> },
     ],
   },
@@ -70,7 +70,7 @@ export const clientEntries: Record<string, ModuleEntry> = {
     element: (lang: string, site: INormSite, node: INormNode) => (
       <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
     ),
-    children: (opts, lang) => [
+    children: (opts, lang, node: INormNode) => [
       { index: true, element: <AutoRedirect to="List" replace /> },
       { path: "List", element: <AnnouncementList Theme={Classic_FETheme} Lang={lang} Options={opts as IAnnouncementListOptions} /> },
       { path: ":internalId", element: <AnnouncementFormComp Theme={Classic_FETheme} Lang={lang} /> },
@@ -81,7 +81,7 @@ export const clientEntries: Record<string, ModuleEntry> = {
     element: (lang: string, site: INormSite, node: INormNode) => (
       <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
     ),
-    children: (opts, lang) => [
+    children: (opts, lang, node: INormNode) => [
       { index: true, element: <FileArchiveList Theme={Classic_FETheme} Lang={lang} Options={opts as IFileArchiveOptions} /> },
     ],
   },
@@ -90,9 +90,9 @@ export const clientEntries: Record<string, ModuleEntry> = {
     element: (lang: string, site: INormSite, node: INormNode) => (
       <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
     ),
-    children: (opts, lang) => [
+    children: (opts, lang, node: INormNode) => [
       { index: true, element: <AutoRedirect to="List" replace /> },
-      { path: "List", element: <GalleryListComp Theme={Classic_FETheme} Lang={lang} Options={opts as IGalleryListOptions} /> },
+      { path: "List", element: <GalleryListComp Theme={Classic_FETheme} Lang={lang} Options={opts as IGalleryListOptions} title={node.title} /> },
       { path: ":internalId", element: <GalleryFormComp Theme={Classic_FETheme} Lang={lang} /> },
     ],
   },
@@ -101,8 +101,8 @@ export const clientEntries: Record<string, ModuleEntry> = {
     element: (lang: string, site: INormSite, node: INormNode) => (
       <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
     ),
-    children: (opts, lang) => [
-      { index: true, element: <WebResourceListComp Theme={Classic_FETheme} Lang={lang} Options={opts as IWebResourceListOptions} /> },
+    children: (opts, lang, node: INormNode) => [
+      { index: true, element: <WebResourceListComp Theme={Classic_FETheme} Lang={lang} Options={opts as IWebResourceListOptions} title={node.title} /> },
     ],
   },
 };

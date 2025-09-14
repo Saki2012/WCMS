@@ -57,6 +57,10 @@ const useSpecUSRList = (categoryId: string, tagIds: string) => {
                 `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ContentIntroduction}`,
             ],
             Condition: condition,
+            OrderBy: [
+                { Col: `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Year}`, Desc: true },
+                { Col: `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.AcademicYear}`, Desc: true },
+            ],
             PageNumber: page,
             PageSize: 10,
         }),

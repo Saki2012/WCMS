@@ -42,7 +42,7 @@ const useWebResourceList = (categoryIds: string, tagIds: string) => {
 
 
 export interface IWebResourceListOptions { Category?: string; Tag?: string; Style: number; }
-interface IWebResourceListProps { Theme: IFETheme; Lang: string | Lang; Options?: IWebResourceListOptions; }
+interface IWebResourceListProps { Theme: IFETheme; Lang: string | Lang; Options?: IWebResourceListOptions; title: string }
 
 export const WebResourceListComp = (props: IWebResourceListProps) => {
     const useWebResList = useWebResourceList(props.Options?.Category ?? "", props.Options?.Tag ?? "");
@@ -51,7 +51,7 @@ export const WebResourceListComp = (props: IWebResourceListProps) => {
     return (
         <>
             <LoadingErrorHandler loadingList={isLoading} errorList={errors} >
-                <SubPageTitle title={""} />
+                <SubPageTitle title={props.title} />
                 <YoutubeContent lang={props.Lang} datas={useWebResList.rawData ?? []} />
                 {/* <Paginator {...prop.PaginatorProp}></Paginator> */}
             </LoadingErrorHandler>

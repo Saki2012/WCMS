@@ -169,7 +169,7 @@ const normalizeInternal = (s: string) => {
 };
 
 export type ModuleFactory = (lang: string, site: INormSite, node: INormNode) => React.ReactElement;
-export type ModuleRoutesFactory = (opts: unknown, lang: string) => RouteObject[];
+export type ModuleRoutesFactory = (opts: unknown, lang: string, node: INormNode) => RouteObject[];
 export type ModuleEntry =
     | { kind: "element"; render: ModuleFactory }
     | { kind: "routes"; element: ModuleFactory; children: ModuleRoutesFactory };
@@ -267,7 +267,7 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
         const element = <ModuleElement node={n} site={site} />;
 
         // routes 型模組的自帶 children；element 型為空
-        const modChildren: RouteObject[] = entry.kind === "routes" ? entry.children(n.module.options, defaultLang) : [];
+        const modChildren: RouteObject[] = entry.kind === "routes" ? entry.children(n.module.options, defaultLang, n) : [];
 
         const children = [...modChildren, ...menuChildren];
 

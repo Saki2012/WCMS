@@ -64,7 +64,7 @@ const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
 
 
 export interface IGalleryListOptions { Title: string, Category?: string; Tag?: string; Style: number; }
-interface IGalleryListProps { Theme: IFETheme; Lang: string | Lang; Options?: IGalleryListOptions; }
+interface IGalleryListProps { Theme: IFETheme; Lang: string | Lang; Options?: IGalleryListOptions; title: string }
 
 
 export const GalleryListComp = (props: IGalleryListProps) => {
@@ -79,7 +79,7 @@ export const GalleryListComp = (props: IGalleryListProps) => {
 
 
 
-    return <GalleryViewComp Title={""} MainContentProps={CompProps} gridProps={useListData.gridProps} Theme={props.Theme} LoadingList={isLoading} ErrorList={errors} />;
+    return <GalleryViewComp Title={props.title} MainContentProps={CompProps} gridProps={useListData.gridProps} Theme={props.Theme} LoadingList={isLoading} ErrorList={errors} />;
 };
 
 
