@@ -1,27 +1,25 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
-using StackExchange.Redis;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Resx;
-using WCMS.SysCore.SystemFunc.UserRolePermission.Role;
-using WCMS.SysCore.SystemFunc.UserRolePermission.User;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.SystemFunc.Auth
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class AuthController(ITokenService tokenSvc, IConfiguration cfg, IAuthService authBiz) : ControllerBase
+    public class AuthController(IMemoryCache cache, ITokenService tokenSvc, IConfiguration cfg, IAuthService authBiz) : ControllerBase
     {
         #region Property
         private readonly ITokenService _tokenSvc = tokenSvc;
         private readonly IConfiguration _cfg = cfg;
         private readonly IAuthService _authBiz = authBiz;
+        private readonly IMemoryCache _cache = cache;
         protected IOperateLog OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IOperateLog>();
         private IOperateLog? _OperateLog;
         #endregion
@@ -32,7 +30,7 @@ namespace WCMS.SysCore.SystemFunc.Auth
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        [HttpPost(nameof(Login)), AllowAnonymous, EnableRateLimiting(nameof(Login))]
+        [HttpPost(nameof(Login)), AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginDto req)
         {
             OperateLogModel followInfo = new OperateLogModel();
@@ -43,9 +41,20 @@ namespace WCMS.SysCore.SystemFunc.Auth
             OperateLog.AddMoveFollow(followInfo);
 
             const string GENERIC_LOGIN_ERROR = "帳號或密碼錯誤";
-            
+
+            var key = $"login_attempts:{req.Account}";
+            var attempts = _cache.Get<int>(key);
+
+            if (attempts >= 3) return StatusCode(StatusCodes.Status429TooManyRequests, new { message = "登入嘗試過多，請稍後再試。" });
+
+
+
             var (ok, userInfo) = await _authBiz.CheckLoginValid(req.Account, req.Password);
-            if (!ok) return Unauthorized(GENERIC_LOGIN_ERROR);
+            if (!ok)
+            {
+                _cache.Set(key, attempts + 1, TimeSpan.FromMinutes(5)); // 五分鐘封鎖
+                return Unauthorized(GENERIC_LOGIN_ERROR);
+            }
 
 
             // 2) 簽發 AccessToken

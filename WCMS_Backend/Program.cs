@@ -44,7 +44,7 @@ namespace WCMS
             AppSetup.AddJwtAuthentication(builder.Services, builder.Configuration);
             AppSetup.AddAppCookie(builder.Services);
             AppSetup.APIBehavior(builder.Services);
-            AppSetup.AddRateLimit(builder.Services);
+            //AppSetup.AddRateLimit(builder.Services);
             // 開發期 Swagger（產線預設關）
             AppSetup.AddDebugServices(builder);
             AppSetup.AddCookiePolicyOptions(builder);
@@ -61,12 +61,7 @@ namespace WCMS
                 KnownProxies = { IPAddress.Loopback, IPAddress.IPv6Loopback, IPAddress.Parse("127.0.0.1") },
                 RequireHeaderSymmetry = false,
             });
-            app.UseCookiePolicy(new CookiePolicyOptions
-            {
-                MinimumSameSitePolicy = SameSiteMode.Strict,
-                HttpOnly = HttpOnlyPolicy.None,
-                Secure = CookieSecurePolicy.Always
-            });
+            app.UseCookiePolicy();
             // 安全標頭（弱掃友好）
             AppSetup.UseSecurityHeaders(app, builder.Configuration);
             AppSetup.UseSecurityXSRF(app, builder.Configuration);
@@ -420,6 +415,7 @@ namespace WCMS
                 {
                     opt.MinimumSameSitePolicy = SameSiteMode.Strict;
                     opt.Secure = CookieSecurePolicy.Always;
+                    opt.HttpOnly = HttpOnlyPolicy.None;
                     opt.OnAppendCookie = ctx =>
                     {
                         var c = ctx.CookieOptions;
