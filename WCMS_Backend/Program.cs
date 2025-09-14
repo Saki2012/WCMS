@@ -47,6 +47,7 @@ namespace WCMS
             AppSetup.AddRateLimit(builder.Services);
             // 開發期 Swagger（產線預設關）
             AppSetup.AddDebugServices(builder);
+            AppSetup.AddCookiePolicyOptions(builder);
             ///啟動時自動建立資料夾
             //builder.Services.AddHostedService<EnsureStorageFoldersHostedService>();
 
@@ -60,7 +61,12 @@ namespace WCMS
                 KnownProxies = { IPAddress.Loopback, IPAddress.IPv6Loopback, IPAddress.Parse("127.0.0.1") },
                 RequireHeaderSymmetry = false,
             });
-            
+            app.UseCookiePolicy(new CookiePolicyOptions
+            {
+                MinimumSameSitePolicy = SameSiteMode.Strict,
+                HttpOnly = HttpOnlyPolicy.None,
+                Secure = CookieSecurePolicy.Always
+            });
             // 安全標頭（弱掃友好）
             AppSetup.UseSecurityHeaders(app, builder.Configuration);
             AppSetup.UseSecurityXSRF(app, builder.Configuration);
@@ -112,12 +118,7 @@ namespace WCMS
                 cacheStore.EvictByTagAsync("perm", default).GetAwaiter().GetResult();
             }
 
-            app.UseCookiePolicy(new CookiePolicyOptions
-            {
-                MinimumSameSitePolicy = SameSiteMode.Strict,
-                HttpOnly = HttpOnlyPolicy.None,
-                Secure = CookieSecurePolicy.Always
-            });
+            
             // CORS 放在 Auth 前
             app.UseCors(AppSetup.CorsPolicyName);
             app.UseOutputCache();
@@ -413,6 +414,21 @@ namespace WCMS
                 //}
             }
 
+            public static void AddCookiePolicyOptions(WebApplicationBuilder builder)
+            {
+                builder.Services.Configure<CookiePolicyOptions>(opt =>
+                {
+                    opt.MinimumSameSitePolicy = SameSiteMode.Strict;
+                    opt.Secure = CookieSecurePolicy.Always;
+                    opt.OnAppendCookie = ctx =>
+                    {
+                        var c = ctx.CookieOptions;
+                        if (c.SameSite == SameSiteMode.Unspecified) c.SameSite = SameSiteMode.Strict;
+                        c.Secure = true;
+                    };
+                });
+            }
+
             public static void APIBehavior(IServiceCollection services)
             {
                 services.Configure<ApiBehaviorOptions>(opt =>
@@ -454,7 +470,7 @@ namespace WCMS
                         // 如果系統有提供 Retry-After，就取出來加到 header
                         if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
                         {
-                            context.HttpContext.Response.Headers.RetryAfter = "300";
+                            context.HttpContext.Response.Headers.RetryAfter = ((int)retryAfter.TotalSeconds).ToString();
                         }
                         await context.HttpContext.Response.WriteAsync("{\"message\":\"登入嘗試過多，請稍後再試。\"}", token);
                     };
