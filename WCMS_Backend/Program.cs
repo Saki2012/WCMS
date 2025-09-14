@@ -119,7 +119,7 @@ namespace WCMS
             app.UseOutputCache();
             app.UseResponseCompression();
 
-            app.UseRateLimiter();
+            //app.UseRateLimiter();
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
