@@ -55,6 +55,7 @@ namespace WCMS.SysCore.SystemFunc.Auth
                 _cache.Set(key, attempts + 1, TimeSpan.FromMinutes(5)); // 五分鐘封鎖
                 return Unauthorized(GENERIC_LOGIN_ERROR);
             }
+            _cache.Remove(key); // 成功登入就清除計數
 
 
             // 2) 簽發 AccessToken
