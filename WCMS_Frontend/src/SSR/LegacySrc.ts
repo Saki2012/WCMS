@@ -32,7 +32,6 @@ export const LEGACY_CSS = [
     "/Legacy/Client/Content/visitor/visitor.css",
     "/Legacy/Client/Content/ContentConentA_table_rwd.css",
     "/Legacy/Client/Content/ekko-lightbox/ekko-lightbox.css",
-    "/Legacy/Client/Content/venobox-master/dist/venobox.min.css",
     "/Legacy/Client/Content/Sitemap/Sitemap.css",
     "/Legacy/Client/Content/owlcarousel_2/custom_owlcarousel_style.css",
     "/Legacy/Client/Content/owlcarousel_2/owl.carousel_v2.3.4.min.css",

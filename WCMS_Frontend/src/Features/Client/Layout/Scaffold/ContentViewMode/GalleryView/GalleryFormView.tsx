@@ -1,81 +1,120 @@
-import { Link, useLocation } from "react-router-dom";
-import LoadingErrorHandler from "../../../../../../SysCore/Components/LoadingErrorHandler";
-import { Paginator } from "../../../../../../SysCore/Components/Paginator/Paginator_Comp";
-import type { PaginatorProps } from "../../../../../../SysCore/Components/Paginator/Paginator_Data";
+import { useState } from "react";
+import "yet-another-react-lightbox/styles.css";
+import Lightbox from "yet-another-react-lightbox";
+import Download from "yet-another-react-lightbox/plugins/download";
+import Share from "yet-another-react-lightbox/plugins/share";
+import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
+import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import "yet-another-react-lightbox/plugins/thumbnails.css";
+import Captions from "yet-another-react-lightbox/plugins/captions";
+import "yet-another-react-lightbox/plugins/captions.css";
+import Counter from "yet-another-react-lightbox/plugins/counter";
+import Inline from "yet-another-react-lightbox/plugins/inline";
+import Slideshow from "yet-another-react-lightbox/plugins/slideshow";
+import Video from "yet-another-react-lightbox/plugins/video";
+
 import type { ReactNode } from "react";
+import LoadingErrorHandler from "../../../../../../SysCore/Components/LoadingErrorHandler";
 
 export interface GalleryFormViewProps {
-    Title: string,
+    Title: string;
     CategoryName: string;
     Content: ReactNode;
-    photoInfoProps: PhotoInfos[],
-    LoadingList: boolean[],
-    ErrorList: (string | null | undefined)[],
-}
-
-export const GalleryFormViewComp = (prop: GalleryFormViewProps) => {
-    return (
-        <>
-            <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList} >
-                <TitleContentBar title={prop.Title} categoryName={prop.CategoryName} content={prop.Content} />
-                <GalleryContent props={prop.photoInfoProps} />
-            </LoadingErrorHandler>
-        </>
-    );
-}
-
-const TitleContentBar = ({ title, categoryName, content }: { title: string; categoryName: string, content: ReactNode }) => {
-    return <>
-        <div className="row">
-            <div className="page-header">
-                <h3>{title}</h3>
-            </div>
-            <div className="page_category_box">
-                <div className="page_category">
-                    <h4><i className="fa fa-bookmark" aria-hidden="true"></i> {categoryName}</h4>
-                </div>
-            </div>
-            {content}
-        </div>
-        <hr className="hr-Css" />
-    </>
+    photoInfoProps: PhotoInfos[];
+    LoadingList: boolean[];
+    ErrorList: (string | null | undefined)[];
 }
 
 export interface PhotoInfos {
     pictureInternalId: string;
 }
 
-const GalleryContent = ({ props }: { props: PhotoInfos[] }) => {
-    const prefix = '/Service/FileManagement/Preview/'
-    // 把資料切成每 4 個一組
-    const chunkArray = (arr: PhotoInfos[], size: number) => {
-        return arr.reduce((acc: PhotoInfos[][], _, index) => {
-            if (index % size === 0) { acc.push(arr.slice(index, index + size)); }
-            return acc;
-        }, []);
-    };
-    const rows = chunkArray(props, 4);
+const prefix = "/Service/FileManagement/Preview/";
+
+export const GalleryFormViewComp = (prop: GalleryFormViewProps) => {
+    const [open, setOpen] = useState(false);
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    const images = prop.photoInfoProps.map((item) => ({
+        src: `${prefix}${item.pictureInternalId}`,
+        title: item.pictureInternalId,
+    }));
+
     return (
-        <>
-            {rows.map((row, rowIndex) => (
-                <div className="row mt-5" key={rowIndex}>
-                    {row.map((item, idx) => (
-                        <div className="col-xs-12 col-sm-6 col-md-6 col-lg-3 photo_one_pic_standardbox" key={idx}>
-                            <a className="venobox vbox-item" href={`${prefix}${item.pictureInternalId}`} data-gall="myGallery" data-caption={item.pictureInternalId ?? ""}
-                                title={item.pictureInternalId ?? ""}>
-                                <div className="img-box">
-                                    <img className="img-fluid"
-                                        src={`${prefix}${item.pictureInternalId}`}
-                                        alt={item.pictureInternalId ?? ""} />
-                                    <div className="zoom-plus">
-                                        <i className="fa fa-zoom-plus" aria-hidden="true"></i>
-                                    </div>
+        <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList}>
+            <TitleContentBar
+                title={prop.Title}
+                categoryName={prop.CategoryName}
+                content={prop.Content}
+            />
+
+            <div className="row mt-3">
+                {images.map((img, idx) => (
+                    <div
+                        className="col-xs-12 col-sm-6 col-md-6 col-lg-3 photo_one_pic_standardbox"
+                        key={img.src}
+                    >
+                        <div className="lightbox">
+                            <div
+                                className="img-box"
+                                style={{ cursor: "pointer" }}
+                                onClick={() => {
+                                    setCurrentIndex(idx);
+                                    setOpen(true);
+                                }}
+                            >
+                                <img
+                                    src={img.src}
+                                    alt={img.title}
+                                    className="img-fluid"
+                                />
+                                <div className="zoom-plus">
+                                    <i className="fa fa-zoom-plus" aria-hidden="true"></i>
                                 </div>
-                            </a>
+                            </div>
                         </div>
-                    ))}
-                </div>
-            ))}
-        </>
+                    </div>
+                ))}
+            </div>
+
+            {open && (
+                <Lightbox
+                    open={open}
+                    close={() => setOpen(false)}
+                    slides={images}
+                    index={currentIndex}
+                    plugins={[Download, Share, Fullscreen, Zoom, Thumbnails]}
+                // plugins={[Download, Share, Captions, Counter, Fullscreen, Inline, Slideshow, Thumbnails, Video, Zoom]}
+                />
+            )}
+        </LoadingErrorHandler>
     );
-}
+};
+
+const TitleContentBar = ({
+    title,
+    categoryName,
+    content,
+}: {
+    title: string;
+    categoryName: string;
+    content: ReactNode;
+}) => (
+    <>
+        <div className="row">
+            <div className="page-header">
+                <h3>{title}</h3>
+            </div>
+            <div className="page_category_box">
+                <div className="page_category">
+                    <h4>
+                        <i className="fa fa-bookmark" aria-hidden="true"></i> {categoryName}
+                    </h4>
+                </div>
+            </div>
+            {content}
+        </div>
+        <hr className="hr-Css" />
+    </>
+);
