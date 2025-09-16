@@ -126,14 +126,14 @@ const SpecUSRList = ({ lang, rawData, showColumnItems, showColTitle }: { lang: s
                             <div className="articles_item col-12">
                                 <article className="cardbox">
                                     <div className="card_content_2">
-                                        <div className="leftBox">
-                                            <figure className="card_figure">
+                                        <div className="leftBox d-flex">
+                                            <figure className="card_figure w-100 h-100">
                                                 <Link to={pageLink} className="card_image_link">
-                                                    <picture> <img className="card_image" src={`/Service/FileManagement/Preview/${item.SpecUSR?.PictureId}`} alt={item.SpecUSR?.PicDescription ?? ""} /> </picture>
+                                                    <picture className="w-100 h-100"> <img className="card_image" src={`/Service/FileManagement/Preview/${item.SpecUSR?.PictureId}`} alt={item.SpecUSR?.PicDescription ?? ""} /> </picture>
                                                 </Link>
                                             </figure>
                                         </div>
-                                        <div className="rightBox ml-xl-5 ml-lg-5 ml-0">
+                                        <div className="rightBox ml-xl-4 ml-lg-4 ml-0">
                                             <div className="card_titleDiv"> <Link to={pageLink} className="card_title">{detail?.ProjectName}</Link> </div>
                                             <div className="card_catDiv">
                                                 <div className="card_cat">
