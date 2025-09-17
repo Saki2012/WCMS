@@ -6,17 +6,17 @@ import type { RowCell } from "../../../../../SysCore/Components/Grid/Grid_Data";
 import { useFetchGridListData } from "../../../../../SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "../../../../../SysCore/Utils/Library/LibData";
 import * as SchemaFields from "../../../../../types/SchemaFields";
-import { Merge } from "../../../../../SysCore/Utils/Library/LibMergeData";
+import { LibMerge } from "../../../../../SysCore/Utils/Library/LibMergeData";
 import type { Lang } from "../../../../../SysCore/i18n/lang";
 import GalleryProvider from "../../../../Server/Layout/BizFunc/WebManagement/Gallery/Gallery_Api";
 import { GalleryViewComp, type MainGridContentProp } from "../../Scaffold/ContentViewMode/GalleryView/GalleryView";
-import { useCategoryListData } from "../../../../Server/Layout/BizFunc/WebManagement/Category/Category_Hook";
+import { useCategoryListData } from "../../../../Pages/Server/BizFunc/WebManagement/Category/Category_Hook";
 
 const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
     var condition: string = "";
-    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.GalleryFields.Categories} HasAny (${categoryIds})`)
-    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.GalleryFields.Tags} HasAny (${tagIds})`)
-    condition = Merge(" And ", false, condition, `${SchemaFields.GalleryFields.ContentStatus} !& 4`)//不包含隱藏的資料
+    if (categoryIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.GalleryFields.Categories} HasAny (${categoryIds})`)
+    if (tagIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.GalleryFields.Tags} HasAny (${tagIds})`)
+    condition = LibMerge(" And ", false, condition, `${SchemaFields.GalleryFields.ContentStatus} !& 4`)//不包含隱藏的資料
     const provider = GalleryProvider();
     return useFetchGridListData<GallerySet>({
         getModelDisplayName: () => provider.getModelDisplayName(),

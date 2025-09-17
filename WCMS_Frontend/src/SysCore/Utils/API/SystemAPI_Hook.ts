@@ -9,7 +9,7 @@ export interface EnumOption
 
 export const useFetchEnumOptions = (enumName: string) =>
 {
-    const [data, setData] = useState<EnumOption[]>([]);
+    const [data, setData] = useState<Record<string, string>>({});
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const fetchData = useCallback(async () =>
@@ -20,7 +20,10 @@ export const useFetchEnumOptions = (enumName: string) =>
         try
         {
             const result = await SystemAPI.getEnumOptions(enumName);
-            setData(result.data ?? []);
+            const dict: Record<string, string> = Object.fromEntries(
+                (result.data ?? []).map((o: EnumOption) => [String(o.Key), o.DisplayName]),
+            );
+            setData(dict);
         } catch (err: any)
         {
             setError(err.message ?? "查詢失敗");

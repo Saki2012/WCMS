@@ -1,3 +1,4 @@
+import type { ILibBaseComponentsProp } from "@/SysCore/Components/FormField/FieldComponets/LibBaseData";
 import type { ReactNode } from "react";
 
 export interface ILibFileStyle
@@ -7,7 +8,7 @@ export interface ILibFileStyle
     InputStyle: string;
 }
 
-export interface ILibFileProp
+export interface ILibFileProp extends ILibBaseComponentsProp
 {
     Style: ILibFileStyle;
     ColumnDisplayName: string;

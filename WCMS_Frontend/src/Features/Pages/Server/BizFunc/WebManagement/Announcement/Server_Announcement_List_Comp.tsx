@@ -1,19 +1,19 @@
-import type { SearchBarProps } from "../../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
-import type { IBETheme } from "../../../../../../Features/Server/Layout/Theme/ITheme"
-import type { GridProps, ColumnConfig, GridRow, RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data"
+import type { SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
+import type { IBETheme } from "@/Features/Server/Layout/Theme/ITheme"
+import type { GridProps, ColumnConfig, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data"
 import { useMemo } from "react"
 import { useLocation, Link } from 'react-router-dom';
-import { ListComp } from "../../../Scaffold/Content/List_Comp"
-import type { ListCompProp } from "../../../Scaffold/Content/Content_Data"
+import { ListComp } from "@/Features/Server/Layout/Scaffold/Content/List_Comp"
+import type { ListCompProp } from "@/Features/Server/Layout/Scaffold/Content/Content_Data"
 import * as React from "react";
-import type { components } from "../../../../../../types/api";
-import { handleDelete } from "./Announcement_Hook"
+import type { components } from "@/types/api";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
-import { useListToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
-import { useAnnouncementList } from "./Announcement_Hook"
-import * as SchemaFields from "../../../../../../types/SchemaFields";
+import { useListToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
+import * as SchemaFields from "@/types/SchemaFields";
 import { useCategoryListData, useFormatCategoriesName } from "../Category/Category_Hook";
+import { useAnnouncementList } from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Hook";
+import { handleDelete } from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Hook";
 
 /** 公告列表
  * @returns 

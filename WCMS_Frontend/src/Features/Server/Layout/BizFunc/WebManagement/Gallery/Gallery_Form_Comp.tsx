@@ -32,7 +32,7 @@ export const GalleryFormComp = ({ theme }: { theme: IBETheme }) => {
     const componentsA: Record<string, React.ReactNode[]> = {
         Basic: [
             <LibCheckBox colDisplayName="類別"></LibCheckBox>,
-            <LibCalendar colDisplayName="上架日期"></LibCalendar>,
+            <LibCalendar ColumnDisplayName="上架日期"></LibCalendar>,
             <LibTextBox Style={theme.TextBox} ColumnDisplayName="排序編號" DefaultInputDisplay="請輸入" ></LibTextBox>
         ],
         Status: [

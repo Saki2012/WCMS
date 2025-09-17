@@ -2,7 +2,7 @@ import { LibCheckBox, LibTextBox, LibTextArea, LibFileInput, LibFile, LibTinyMCE
 import type { LibTabsProp, LibTextBoxProp, LibTinyMCEProp } from "../../../../../../SysCore/Components/FormField/LibFormField"
 import { DividerComp } from "../../../../../../SysCore/Components/Divider/Divider_Comp";
 import type { IBETheme } from "../../../Theme/ITheme";
-import { useGetCategoryListByProgId } from "../Category/Category_Hook"
+import { useGetCategoryListByProgId } from "../../../../../Pages/Server/BizFunc/WebManagement/Category/Category_Hook"
 import { FormComp } from "../../../Scaffold/Content/Form_Comp";
 import { useFormToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
 import { useParams } from "react-router-dom";
@@ -62,7 +62,7 @@ export const WebResourceFormComp = ({ theme }: { theme: IBETheme }) => {
     const componentsA: Record<string, React.ReactNode[]> = {
         Basic: [
             <LibCheckBox colDisplayName="類別" options={Object.entries(useCategory.data ?? {}).map(([key, value]) => ({ itemId: key, itemDisplayName: value, }))}
-                value={formData.data?.WebResource?.Categories?.split(",") ?? []}
+                InputValue={formData.data?.WebResource?.Categories?.split(",") ?? []}
                 onChange={(val) => { const joined = val.join(","); formData.setFormData((prev) => ({ ...prev, WebResource: { ...prev?.WebResource, Categories: joined, }, })); }}
             />,
             <LibTextBox Style={theme.TextBox} ColumnDisplayName="排序編號" DefaultInputDisplay="請輸入" ></LibTextBox>,
@@ -70,14 +70,14 @@ export const WebResourceFormComp = ({ theme }: { theme: IBETheme }) => {
         Status: [
             <LibCheckBox colDisplayName="狀態"
                 options={(useContentStatus.data ?? []).map(item => ({ itemId: String(item.Key), itemDisplayName: item.DisplayName, }))}
-                value={parseBitmaskToStringArray(formData.data?.WebResource?.ContentStatus ?? 0, useContentStatus.data?.map(d => d.Key) ?? [])}
+                InputValue={parseBitmaskToStringArray(formData.data?.WebResource?.ContentStatus ?? 0, useContentStatus.data?.map(d => d.Key) ?? [])}
                 onChange={(val) => { const sum = sumStringArrayToBitmask(val); formData.setFormData((prev) => ({ ...prev, WebResource: { ...prev?.WebResource ?? {}, ContentStatus: sum as any, }, })); }}
             />
         ],
         Tags: [
             <LibCheckBox colDisplayName="標籤"
                 options={Object.entries(useTag.data ?? {}).map(([key, value]) => ({ itemId: key, itemDisplayName: value, }))}
-                value={formData.data?.WebResource?.Tags?.split(",") ?? []}
+                InputValue={formData.data?.WebResource?.Tags?.split(",") ?? []}
                 onChange={(val) => { const joined = val.join(","); formData.setFormData((prev) => ({ ...prev, WebResource: { ...prev?.WebResource, Tags: joined, }, })); }}
             />
         ],

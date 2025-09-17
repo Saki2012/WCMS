@@ -4,7 +4,7 @@ import type { IFETheme } from "../../Theme/ITheme";
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 import { useFetchGridListData } from "../../../../../SysCore/Utils/API/FetchGridListData";
 import * as SchemaFields from "../../../../../types/SchemaFields";
-import { Merge } from "../../../../../SysCore/Utils/Library/LibMergeData";
+import { LibMerge } from "../../../../../SysCore/Utils/Library/LibMergeData";
 import type { Lang } from "../../../../../SysCore/i18n/lang";
 import WebResourceProvider from "../../../../Server/Layout/BizFunc/WebManagement/WebResource/WebResource_Api";
 import LoadingErrorHandler from "../../../../../SysCore/Components/LoadingErrorHandler";
@@ -12,9 +12,9 @@ import { SubPageTitle } from "../../Scaffold/Header/SubPageTitle_Comp";
 
 const useWebResourceList = (categoryIds: string, tagIds: string) => {
     var condition: string = "";
-    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.WebResourceFields.Categories} HasAny (${categoryIds})`)
-    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.WebResourceFields.Tags} HasAny (${tagIds})`)
-    condition = Merge(" And ", false, condition, `${SchemaFields.WebResourceFields.ContentStatus} !& 4`)//不包含隱藏的資料
+    if (categoryIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.WebResourceFields.Categories} HasAny (${categoryIds})`)
+    if (tagIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.WebResourceFields.Tags} HasAny (${tagIds})`)
+    condition = LibMerge(" And ", false, condition, `${SchemaFields.WebResourceFields.ContentStatus} !& 4`)//不包含隱藏的資料
     const provider = WebResourceProvider();
     return useFetchGridListData<WebResourceSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),

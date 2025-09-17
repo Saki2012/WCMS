@@ -11,7 +11,7 @@ import { useFetchGridListData } from '../../../../SysCore/Utils/API/FetchGridLis
 import { FormatDate } from '../../../../SysCore/Utils/Library/LibData';
 import LoadingErrorHandler from '../../../../SysCore/Components/LoadingErrorHandler';
 import { useEffect, useRef } from 'react';
-import CategoryProvider from '../../../../Features/Server/Layout/BizFunc/WebManagement/Category/Category_Api';
+import CategoryProvider from '../../../../Features/Pages/Server/BizFunc/WebManagement/Category/Category_Api';
 
 const useGalleryList = () => {
     const provider = GalleryProvider();

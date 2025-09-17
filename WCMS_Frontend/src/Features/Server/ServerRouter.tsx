@@ -3,13 +3,13 @@ import type { RouteObject } from "react-router-dom";
 import DashboardPage from "./Pages/DashboardPage"
 import { PageFormComp } from "./Layout/BizFunc/WebManagement/PageManagement/PageManagement_Form_Comp"
 import { PageListComp } from "./Layout/BizFunc/WebManagement/PageManagement/PageManagement_List_Comp"
-import { AnnouncementListComp } from "./Layout/BizFunc/WebManagement/Announcement/Announcement_List_Comp";
+import { AnnouncementListComp } from "../Pages/Server/BizFunc/WebManagement/Announcement/Server_Announcement_List_Comp";
 import { Classic_BETheme } from "./Layout/Theme/ClassicTheme_Clsx";
-import { CategoryListFormComp } from "./Layout/BizFunc/WebManagement/Category/Category_ListForm_Comp";
+import { CategoryListFormComp } from "../Pages/Server/BizFunc/WebManagement/Category/Category_ListForm_Comp";
 import { TagListFormComp } from "./Layout/BizFunc/WebManagement/Tags/Tag_ListForm_Comp";
-import { AnnouncementFormComp } from "./Layout/BizFunc/WebManagement/Announcement/Announcement_Form_Comp";
-import { BannerSliderFormComp } from "./Layout/BizFunc/WebManagement/BannerSlider/BannerSlider_Form_Comp";
-import { BannerSliderListComp } from "./Layout/BizFunc/WebManagement/BannerSlider/BannerSlider_List_Comp";
+import { AnnouncementFormComp } from "../Pages/Server/BizFunc/WebManagement/Announcement/Server_Announcement_Form_Comp";
+import { BannerSliderFormComp } from "../Pages/Server/BizFunc/WebManagement/Banner/BannerSlider_Form_Comp";
+import { BannerSliderListComp } from "../Pages/Server/BizFunc/WebManagement/Banner/BannerSlider_List_Comp";
 import LoginPage from "./Layout/BizFunc/Auth/LoginPage";
 import RequireAuth from "../../SysCore/Components/Auth/RequireAuth";
 import LogoutPage from "./Layout/BizFunc/Auth/LogoutPage";

@@ -13,17 +13,17 @@ import * as SchemaFields from "../../../../../types/SchemaFields";
 import { GridViewContentComp } from "../../Scaffold/ContentViewMode/GridView/GridView/GridContent_Comp";
 import type { Lang } from "../../../../../SysCore/i18n/lang";
 import FileArchiveProvider from "../../../../Server/Layout/BizFunc/WebManagement/FileArchive/FileArchive_Api";
-import { Merge } from "../../../../../SysCore/Utils/Library/LibMergeData";
+import { LibMerge } from "../../../../../SysCore/Utils/Library/LibMergeData";
 import { useTagListData } from "../../../../Server/Layout/BizFunc/WebManagement/Tags/Tag_Hook";
 import { SearchBarComp, type ISearchQuery } from "../../../../../SysCore/Components/SearchBar/SearchBar_Comp";
 
 const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string, tagSets: TagSet[], query: ISearchQuery) => {
     var condition: string = "";
-    if (query.keyword) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveSetFields.FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.Title} Like ${query.keyword}`)
-    if (query.tag) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.TagsId} HasAny ${query.tag}`)
-    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.CategoriesId} HasAny (${categoryIds})`)
-    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.TagsId} HasAny (${tagIds})`)
-    condition = Merge(" And ", false, condition, `${SchemaFields.FileArchiveFields.ContentStatus} !& 4`)//不包含隱藏的資料
+    if (query.keyword) condition = LibMerge(" And ", false, condition, `${SchemaFields.FileArchiveSetFields.FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.Title} Like ${query.keyword}`)
+    if (query.tag) condition = LibMerge(" And ", false, condition, `${SchemaFields.FileArchiveFields.TagsId} HasAny ${query.tag}`)
+    if (categoryIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.FileArchiveFields.CategoriesId} HasAny (${categoryIds})`)
+    if (tagIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.FileArchiveFields.TagsId} HasAny (${tagIds})`)
+    condition = LibMerge(" And ", false, condition, `${SchemaFields.FileArchiveFields.ContentStatus} !& 4`)//不包含隱藏的資料
 
     const provider = FileArchiveProvider();
     return useFetchGridListData<FileArchiveSet>({

@@ -23,7 +23,10 @@ export const PageManagementFormComp: React.FC<IPageManagementProps> = (props) =>
 
     const parseContent = useResolveInternalIds(detail?.Content ?? "", { locale: props.lang });
 
-    const safeHtml = useMemo(() => DOMPurify.sanitize(parseContent.html ?? ''), [parseContent.html])
+    const safeHtml = useMemo(() => DOMPurify.sanitize(parseContent.html ?? '', {
+        ALLOWED_TAGS: ['p', 'iframe'],  // 允許保留 p 跟 iframe
+        ALLOWED_ATTR: ['src', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen', 'scrolling', 'title', 'name'],  // 允許 iframe 常見屬性
+    }), [parseContent.html]);
     const content = safeHtml ? parse(safeHtml) : null;
 
 

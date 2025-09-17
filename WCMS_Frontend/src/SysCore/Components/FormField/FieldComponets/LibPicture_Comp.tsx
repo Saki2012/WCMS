@@ -7,7 +7,6 @@ interface LibPictureWithParentClassProp extends ILibPictureProp {
 }
 
 const LibPicture = ({ children, ...prop }: LibPictureWithParentClassProp) => {
-  const inputId = useId();
   return (
     <div className="col-12">
       <div className="panel align-items-center">
@@ -17,7 +16,6 @@ const LibPicture = ({ children, ...prop }: LibPictureWithParentClassProp) => {
               <img src={prop.PicSrc} className="d-block w-100 h-100 object-fit-contain card_image" alt={prop.PicDescription} />
             </picture>
           </div>
-          {/* <label htmlFor={inputId} className="col-12 float-md-left float-sm-none col-form-label py-md-1 pb-4">{prop.ColumnDisplayName}</label> */}
           {children}
         </div>
       </div>

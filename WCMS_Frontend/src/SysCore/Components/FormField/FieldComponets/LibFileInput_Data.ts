@@ -1,3 +1,5 @@
+import type { ILibBaseComponentsProp } from "./LibBaseData";
+
 export interface ILibFileInputStyle
 {
     Labelstyle: string;
@@ -5,14 +7,14 @@ export interface ILibFileInputStyle
     InputStyle: string;
 }
 
-export interface ILibFileInputProp
+export interface ILibFileInputProp extends ILibBaseComponentsProp
 {
     Style: ILibFileInputStyle;
-    ColumnDisplayName: string;
     DefaultInputDisplay: string;
-    InputValue: string; // 目前 internalId（受控）
-    OnChange: (internalId: string | null, fileName?: string | null) => void;
+    InputValue: string;
+    onChange: (internalId: string | null, fileName?: string | null) => void;
+    onDelete: () => void;
     // 進階
-    accept?: string; // e.g. "image/*,.pdf"
+    accept?: string;
     disabled?: boolean;
 }

@@ -1,10 +1,10 @@
-import type { RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data";
-import type { components } from "../../../../../../types/api";
-import * as SchemaFields from "../../../../../../types/SchemaFields";
-import AnnouncementProvider from "./Announcement_Api";
+import AnnouncementProvider from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api";
+import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import type { components } from "@/types/api";
+import * as SchemaFields from "@/types/SchemaFields";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
-import { useFetchGridListData } from "../../../../../../SysCore/Utils/API/FetchGridListData";
-import { FormatDateTime } from "../../../../../../SysCore/Utils/Library/LibData";
+import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
+import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 
 export const useAnnouncementList = () =>
 {

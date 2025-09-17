@@ -1,31 +1,30 @@
 /**公告清單 */
 import { useMemo, useState } from "react";
-import type { GridProps } from "../../../../../SysCore/Components/Grid/Grid_Data";
-import type { components } from "../../../../../types/api";
-import type { IFETheme } from "../../Theme/ITheme";
+import type { GridProps } from "@/SysCore/Components/Grid/Grid_Data";
+import type { components } from "@/types/api";
+import type { IFETheme } from "@/Features/Client/Layout/Theme/ITheme";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 import { Link, useLocation } from "react-router-dom";
-import type { GridRow } from "../../../../../SysCore/Components/Grid/Grid_Data";
-import type { RowCell } from "../../../../../SysCore/Components/Grid/Grid_Data";
-import { useFetchGridListData } from "../../../../../SysCore/Utils/API/FetchGridListData";
-import * as SchemaFields from "../../../../../types/SchemaFields";
-import AnnouncementProvider from "../../../../Server/Layout/BizFunc/WebManagement/Announcement/Announcement_Api";
+import type { GridRow } from "@/SysCore/Components/Grid/Grid_Data";
+import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
+import * as SchemaFields from "@/types/SchemaFields";
+import AnnouncementProvider from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api";
 import { GridViewContentComp } from "../../Scaffold/ContentViewMode/GridView/GridView/GridContent_Comp";
-import { Merge } from "../../../../../SysCore/Utils/Library/LibMergeData";
-import type { Lang } from "../../../../../SysCore/i18n/lang";
-import { FormatDate } from "../../../../../SysCore/Utils/Library/LibData";
-import { SearchBarComp, type ISearchQuery } from "../../../../../SysCore/Components/SearchBar/SearchBar_Comp";
-import { useTagListData } from "../../../../Server/Layout/BizFunc/WebManagement/Tags/Tag_Hook";
-import { PictureList_Comp } from "../../Scaffold/ContentViewMode/GridView/PictureList/PictureList_Comp";
-import { useCategoryListData } from "../../../../Server/Layout/BizFunc/WebManagement/Category/Category_Hook";
+import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import type { Lang } from "@/SysCore/i18n/lang";
+import { FormatDate } from "@/SysCore/Utils/Library/LibData";
+import { SearchBarComp, type ISearchQuery } from "@/SysCore/Components/SearchBar/SearchBar_Comp";
+import { useTagListData } from "@/Features/Server/Layout/BizFunc/WebManagement/Tags/Tag_Hook";
+import { PictureList_Comp } from "@/Features/Client/Layout/Scaffold/ContentViewMode/GridView/PictureList/PictureList_Comp";
 
 const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string, query: ISearchQuery) => {
     var condition: string = "";
-    if (query.keyword) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title} Like ${query.keyword}`)
-    if (query.tag) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} HasAny ${query.tag}`)
-    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Categories} In (${categoryIds})`)
-    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} In (${tagIds})`)
-    condition = Merge(" And ", false, condition, `${SchemaFields.AnnouncementFields.ContentStatus} !& 4`)//不包含隱藏的資料
+    if (query.keyword) condition = LibMerge(" And ", false, condition, `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title} Like ${query.keyword}`)
+    if (query.tag) condition = LibMerge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} HasAny ${query.tag}`)
+    if (categoryIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Categories} In (${categoryIds})`)
+    if (tagIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} In (${tagIds})`)
+    condition = LibMerge(" And ", false, condition, `${SchemaFields.AnnouncementFields.ContentStatus} !& 4`)//不包含隱藏的資料
 
     const provider = AnnouncementProvider();
     return useFetchGridListData<AnnouncementSet>({

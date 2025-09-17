@@ -108,6 +108,78 @@ const replaceAnchorDownload = (
     return render(doc, { encodeEntities: true });
 };
 
+const getDataInternalId = (el: Element): string | undefined =>
+{
+    // 盡量兼容三種寫法
+    // @ts-ignore
+    const a = el.attribs || {};
+    return a["data-internalid"] || a["data-internalId"] || a["data-internal-id"];
+};
+
+const buildPreviewUrl = (id: string, opt?: TransformOptions): string =>
+{
+    if (opt?.urlBuilder) return opt.urlBuilder(id);
+    // 後端既有的預覽端點（與 img/a 維持一致的預設）
+    return `/Service/FileManagement/Preview/${id}`;
+};
+
+const ensureTitleForAA = (el: Element, meta?: FileMeta) =>
+{
+    // @ts-ignore
+    el.attribs = el.attribs || {};
+    // @ts-ignore
+    if (!el.attribs.title || el.attribs.title.trim() === "")
+    {
+        // @ts-ignore
+        el.attribs.title = meta?.FileName || "Embedded content";
+    }
+};
+
+const replaceIframe = (
+    html: string,
+    metaMap: Record<string, FileMeta>,
+    opt?: TransformOptions,
+): string =>
+{
+    if (!html) return html;
+
+    const doc = parseDocument(html);
+    const nodes = DomUtils.findAll(
+        // 只抓 <iframe>
+        (el): el is Element => (el as any)?.type === "tag" && (el as any)?.name === "iframe",
+        doc.children,
+    );
+
+    if (!nodes.length) return html;
+
+    for (const el of nodes)
+    {
+        const id = getDataInternalId(el);
+        if (!id) continue;
+
+        const meta = metaMap?.[id];
+        const src = buildPreviewUrl(id, opt);
+
+        // 設定 src
+        // @ts-ignore
+        el.attribs = el.attribs || {};
+        // @ts-ignore
+        el.attribs.src = src;
+
+        // AA：補 title（不覆蓋既有）
+        ensureTitleForAA(el, meta);
+
+        // @ts-ignore
+        delete el.attribs["data-internalid"];
+        // @ts-ignore
+        delete el.attribs["data-internalId"];
+        // @ts-ignore
+        delete el.attribs["data-internal-id"];
+    }
+
+    return render(doc, { decodeEntities: true });
+};
+
 export const transformHtmlWithMeta = (
     html: string,
     metaMap: Record<string, FileMeta>,
@@ -116,6 +188,7 @@ export const transformHtmlWithMeta = (
 {
     if (!html) return html;
     let out = html;
+    out = replaceIframe(out, metaMap, opt);
     out = replaceImg(out, metaMap, opt);
     out = replaceAnchorDownload(out, metaMap, opt);
     return out;

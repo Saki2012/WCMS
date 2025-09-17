@@ -2,6 +2,7 @@
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Banner
 {
@@ -101,6 +102,6 @@ namespace WCMS.Features.SiteEdit.Banner
         /// <summary>
         /// 網址開啟方式
         /// </summary>
-        [LibDesc] public byte URL_Open { get; set; }
+        [LibDesc] public WindowTarget URL_Open { get; set; }
     }
 }

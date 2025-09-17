@@ -11,7 +11,7 @@ const LibCalendar = (prop: ILibCalendarProp) => {
     return (
         <>
             <label htmlFor={inputId} className="col-md-2 col-sm-12 float-md-left float-sm-none col-form-label">
-                {prop.colDisplayName}
+                {prop.ColumnDisplayName}
             </label>
             <div className="col-md-10 col-sm-12 float-md-left float-sm-none">
                 <div className="Date input-group input-daterange">

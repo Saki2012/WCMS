@@ -51,27 +51,27 @@ export const MainMenu = ({ lang, site }: { lang: string; site: INormSite }) => {
 
 
 
-  // useEffect(() => {
-  //   if (typeof window === 'undefined') return;
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
 
-  //   const scriptId = 'google-translate-script';
-  //   const exist = document.getElementById(scriptId);
-  //   if (exist) return;
+    const scriptId = 'google-translate-script';
+    const exist = document.getElementById(scriptId);
+    if (exist) return;
 
-  //   const script = document.createElement('script');
-  //   script.id = scriptId;
-  //   script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-  //   script.async = true;
-  //   document.body.appendChild(script);
+    const script = document.createElement('script');
+    script.id = scriptId;
+    script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+    script.async = true;
+    document.body.appendChild(script);
 
-  //   window.googleTranslateElementInit = () => {
-  //     if (translateRef.current) {
-  //       new window.google.translate.TranslateElement({
-  //         pageLanguage: 'zh-TW',
-  //       }, translateRef.current);
-  //     }
-  //   };
-  // }, []);
+    window.googleTranslateElementInit = () => {
+      if (translateRef.current) {
+        new window.google.translate.TranslateElement({
+          pageLanguage: 'zh-TW',
+        }, translateRef.current);
+      }
+    };
+  }, []);
 
   const menuRef = useRef<HTMLUListElement>(null);
   useLegacyMenuDOM(menuRef);

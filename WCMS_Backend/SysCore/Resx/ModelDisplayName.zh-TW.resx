@@ -157,7 +157,7 @@
     <value>新增日期</value>
   </data>
   <data name="Announcement_FileId" xml:space="preserve">
-    <value>檔案來源</value>
+    <value>附件</value>
   </data>
   <data name="Common_ParentRowId" xml:space="preserve">
     <value>父行代碼</value>
@@ -608,5 +608,11 @@
   </data>
   <data name="Spec1810_Tag" xml:space="preserve">
     <value>組別</value>
+  </data>
+  <data name="Enum_WindowTarget_Self" xml:space="preserve">
+    <value>當前視窗開啟</value>
+  </data>
+  <data name="Enum_WindowTarget_Blank" xml:space="preserve">
+    <value>另開分頁</value>
   </data>
 </root>

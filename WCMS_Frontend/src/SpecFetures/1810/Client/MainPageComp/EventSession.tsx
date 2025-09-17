@@ -1,14 +1,14 @@
 /* Banner */
-import type { components } from '../../../../types/api';
+import type { components } from '@/types/api';
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
-import * as SchemaFields from "../../../../types/SchemaFields";
+import * as SchemaFields from "@/types/SchemaFields";
 import { type EventData } from './Event_Data'
 import { Link } from 'react-router-dom';
-import AnnouncementProvider from '../../../../Features/Server/Layout/BizFunc/WebManagement/Announcement/Announcement_Api';
-import { useFetchGridListData } from '../../../../SysCore/Utils/API/FetchGridListData';
-import TagProvider from '../../../../Features/Server/Layout/BizFunc/WebManagement/Tags/Tag_Api';
-import LoadingErrorHandler from '../../../../SysCore/Components/LoadingErrorHandler';
+import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api';
+import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
+import TagProvider from '@/Features/Server/Layout/BizFunc/WebManagement/Tags/Tag_Api';
+import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import { useEffect, useRef } from 'react';
 
 const useAnnouncementList = () => {

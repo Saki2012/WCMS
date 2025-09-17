@@ -1,17 +1,15 @@
-import type { SearchBarProps } from "../../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
-import type { IBETheme } from "../../../Theme/ITheme"
-import type { GridProps, ColumnConfig, GridRow, RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data"
+import type { SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
+import type { IBETheme } from "@/Features/Server/Layout/Theme/ITheme"
+import type { GridProps, ColumnConfig, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data"
 import { useMemo } from "react"
 import { Link } from "react-router-dom"
 import { useLocation } from 'react-router-dom';
-import { ListComp } from "../../../Scaffold/Content/List_Comp"
-import type { ListCompProp } from "../../../Scaffold/Content/Content_Data"
-import type { components } from "../../../../../../types/api";
-import { useListToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
-
-// 借用Page資料
+import { ListComp } from "../../../../../Server/Layout/Scaffold/Content/List_Comp"
+import type { ListCompProp } from "../../../../../Server/Layout/Scaffold/Content/Content_Data"
+import type { components } from "@/types/api";
+import { useListToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
 type BannerSet = components["schemas"]["BannerSet_DTO"]
-import { handleDelete, useBannerListData } from "./BannerSlider_Hook"
+import { handleDelete, useBannerListData } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Hook"
 
 /** 廣告輪播清單
  * @returns 

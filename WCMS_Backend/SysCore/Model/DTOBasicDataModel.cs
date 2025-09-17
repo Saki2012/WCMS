@@ -24,7 +24,7 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 創建人ID
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_CreateUserId), DTOReadOnly] public string CreateUserId { get; set; }
+        [LibDesc(ModelDisplayName.Common_CreateUserId), DTOReadOnly] public string? CreateUserId { get; set; }
         [ForeignKey(nameof(CreateUserId))] public UserModel_DTO? CreateUser { get; set; }
         /// <summary>
         /// 修改時間
@@ -57,6 +57,6 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 系統內部唯一標識號
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_InternalId)] public string InternalId { get; set; }
+        [LibDesc(ModelDisplayName.Common_InternalId)] public string? InternalId { get; set; }
     }
 }

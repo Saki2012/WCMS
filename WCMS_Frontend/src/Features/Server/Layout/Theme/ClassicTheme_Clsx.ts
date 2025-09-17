@@ -1,6 +1,7 @@
 import { clsx } from "clsx";
 import type { IBreadCrumbStyle } from "../../../../SysCore/Components/BreadCrumb/BreadCrumb_Clsx";
 import type {
+    ILibCheckBoxStyle,
     ILibDropListStyle,
     ILibFileInputStyle,
     ILibFileStyle,
@@ -142,6 +143,12 @@ export const Classic_CategoryListTag: IMenu_Style = {
     li: () => clsx("list-group-item"),
 };
 
+export const Classic_CheckBox: ILibCheckBoxStyle = {
+    Labelstyle: "",
+    SelectStyle: "",
+    OptionsStyle: "",
+};
+
 /** 經典主題 */
 export const Classic_BETheme: IBETheme = {
     // #region Componets
@@ -163,4 +170,6 @@ export const Classic_BETheme: IBETheme = {
     File: Classic_LibFile,
     FileInput: Classic_LibFileInput,
     UserCard: Classic_LibUserCard,
+    CheckBox: Classic_CheckBox,
+    RadioBox: Classic_CheckBox,
 };

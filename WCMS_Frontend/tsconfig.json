@@ -13,15 +13,16 @@
     //以上暫時添加 為了編譯略過一些異常
 
     "module": "ESNext",// 為 SSR 與 CSR 同時服務
-    "target": "ES2020",// 兼容 React/Vite
+    "target": "ES2022",// 兼容 React/Vite
+    "lib": ["ES2022", "DOM"],
     "moduleResolution": "Node",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["*"]
+      "@/*": ["src/*"]
     }
   },
   "ts-node": {

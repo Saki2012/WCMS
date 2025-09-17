@@ -2,7 +2,7 @@ import { LibCheckBox, LibTextBox, LibFileInput, LibFile, LibTinyMCE } from "../.
 import type { LibTabsProp, LibTextBoxProp, LibTinyMCEProp } from "../../../../../../SysCore/Components/FormField/LibFormField"
 import { DividerComp } from "../../../../../../SysCore/Components/Divider/Divider_Comp";
 import type { IBETheme } from "../../../Theme/ITheme";
-import { useGetCategoryListByProgId } from "../Category/Category_Hook"
+import { useGetCategoryListByProgId } from "../../../../../Pages/Server/BizFunc/WebManagement/Category/Category_Hook"
 import { FormComp } from "../../../Scaffold/Content/Form_Comp";
 import { useFormToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
 import { useParams } from "react-router-dom";
@@ -55,21 +55,21 @@ export const FileArchiveFormComp = ({ theme }: { theme: IBETheme }) => {
         Basic: [
             <LibCheckBox colDisplayName="類別"
                 options={Object.entries(useCategory.data ?? {}).map(([key, value]) => ({ itemId: key, itemDisplayName: value, }))}
-                value={formData.data?.FileArchive?.CategoriesId?.split(",") ?? []}
+                InputValue={formData.data?.FileArchive?.CategoriesId?.split(",") ?? []}
                 onChange={(val) => { const joined = val.join(","); formData.setFormData((prev) => ({ ...prev, FileArchive: { ...prev?.FileArchive, CategoriesId: joined, }, })); }}
             />,
         ],
         Status: [
             <LibCheckBox colDisplayName="狀態"
                 options={(useContentStatus.data ?? []).map(item => ({ itemId: String(item.Key), itemDisplayName: item.DisplayName, }))}
-                value={parseBitmaskToStringArray(formData.data?.FileArchive?.ContentStatus ?? 0, useContentStatus.data?.map(d => d.Key) ?? [])}
+                InputValue={parseBitmaskToStringArray(formData.data?.FileArchive?.ContentStatus ?? 0, useContentStatus.data?.map(d => d.Key) ?? [])}
                 onChange={(val) => { const sum = sumStringArrayToBitmask(val); formData.setFormData((prev) => ({ ...prev, FileArchive: { ...prev?.FileArchive ?? {}, ContentStatus: sum as any, }, })); }}
             />
         ],
         Tags: [
             <LibCheckBox colDisplayName="標籤"
                 options={Object.entries(useTag.data ?? {}).map(([key, value]) => ({ itemId: key, itemDisplayName: value, }))}
-                value={formData.data?.FileArchive?.TagsId?.split(",") ?? []}
+                InputValue={formData.data?.FileArchive?.TagsId?.split(",") ?? []}
                 onChange={(val) => { const joined = val.join(","); formData.setFormData((prev) => ({ ...prev, FileArchive: { ...prev?.FileArchive, TagsId: joined, }, })); }}
             />
         ]

@@ -13,9 +13,8 @@ const LibFileInput = (prop: ILibFileInputProp) => {
         // 先簡單模擬：用檔名代替 internalId
         const fakeInternalId = file.name;
 
-        prop.OnChange?.(fakeInternalId, file.name);
+        prop.onChange?.(fakeInternalId, file.name);
     };
-    const handleClear = () => { prop.OnChange?.(null, null); };
     return (
         <>
             <label htmlFor={inputFileId} className={prop.Style.Labelstyle}> {prop.ColumnDisplayName} </label>
@@ -23,7 +22,7 @@ const LibFileInput = (prop: ILibFileInputProp) => {
                 <div className="input-group search-box">
                     <input type="text" className={prop.Style.InputStyle} id={inputTextId} placeholder={`${prop.DefaultInputDisplay}${prop.ColumnDisplayName} ...`}
                         value={prop.InputValue ?? ""} />
-                    <button type="button" className="btn btn-custom mb-1" title="刪除附加檔案" onClick={handleClear}>
+                    <button type="button" className="btn btn-custom mb-1" title="刪除附加檔案" onClick={prop.onDelete}>
                         <i className="far fa-times"></i>
                     </button>
                 </div>

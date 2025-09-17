@@ -7,7 +7,7 @@ import type { ListCompProp } from "../GridView_Data";
 
 import type { components } from "../../../../../../../types/api";
 import { FormatDate } from "../../../../../../../SysCore/Utils/Library/LibData";
-import { useCategoryListData, useFormatCategoriesName } from "../../../../../../Server/Layout/BizFunc/WebManagement/Category/Category_Hook";
+import { useCategoryListData, useFormatCategoriesName } from "../../../../../../Pages/Server/BizFunc/WebManagement/Category/Category_Hook";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
 export interface GridViewContentSlots extends ListCompProp {

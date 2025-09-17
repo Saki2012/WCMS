@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
+import type { ModelDisplaySchema } from "../../../types/IApiSchema";
 import type { IDataProvider } from "../../Interface/IApiProvider";
 
 export interface UseFetchFormDataResult<T>
 {
     data: T | null;
+    displayName: ModelDisplaySchema | null;
     setFormData: React.Dispatch<React.SetStateAction<T | null>>;
     isLoading: boolean;
     error: string | null;
@@ -23,22 +25,24 @@ export const useFetchFormData = <T>(
 ): UseFetchFormDataResult<T> =>
 {
     const [data, setFormData] = useState<T | null>(null);
+    const [displayName, setDisplayName] = useState<ModelDisplaySchema | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
     const fetchData = useCallback(async () =>
     {
-        if (!internalId)
-        {
-            if (emptyData) setFormData(emptyData);
-            return;
-        }
         setIsLoading(true);
         setError(null);
         try
         {
+            const display = await provider.getModelDisplayName();
+            setDisplayName(display);
+            if (!internalId)
+            {
+                if (emptyData) setFormData(emptyData);
+                return;
+            }
             const res = await provider.fetchData(internalId);
-
             if (!res.IsSuccess)
             {
                 const msg = res.SysMessage?.map(m => `${m.MessageCode}:${m.Message}`).join("；") ?? "查詢失敗";
@@ -53,11 +57,9 @@ export const useFetchFormData = <T>(
             setIsLoading(false);
         }
     }, [internalId, provider, emptyData]);
-
     useEffect(() =>
     {
         fetchData();
     }, [internalId]);
-
-    return { data, setFormData, isLoading, error, refetch: fetchData };
+    return { displayName, data, setFormData, isLoading, error, refetch: fetchData };
 };

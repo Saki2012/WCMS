@@ -1,10 +1,10 @@
-import type { RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data";
-import type { components } from "../../../../../../types/api";
-import * as SchemaFields from "../../../../../../types/SchemaFields";
+import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import type { components } from "@/types/api";
+import * as SchemaFields from "@/types/SchemaFields";
 import BannerSliderProvider from "./BannerSlider_Api";
 type BannerSet = components["schemas"]["BannerSet_DTO"];
-import { useFetchGridListData } from "../../../../../../SysCore/Utils/API/FetchGridListData";
-import { FormatDateTime } from "../../../../../../SysCore/Utils/Library/LibData";
+import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
+import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 
 export const useBannerListData = () =>
 {

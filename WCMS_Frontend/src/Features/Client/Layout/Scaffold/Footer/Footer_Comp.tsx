@@ -91,9 +91,9 @@ const Footer = () => {
                                     <div className="info_contact">
                                         <div className="dbox">
 
-                                            <p>瀏覽人數　:　-0000000009</p>
+                                            <p>瀏覽人數　:　0000000037</p>
                                             <p className="px-2">｜</p>
-                                            <p>更新日期　:　2025/08/05</p>
+                                            <p>更新日期　:　2025/09/15</p>
 
                                         </div>
                                     </div>

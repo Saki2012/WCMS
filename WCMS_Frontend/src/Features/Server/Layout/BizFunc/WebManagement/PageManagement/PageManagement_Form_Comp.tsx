@@ -1,7 +1,7 @@
 import { LibDropList, LibTextBox, LibTinyMCE } from "../../../../../../SysCore/Components/FormField/LibFormField"
 import type { LibTabsProp } from "../../../../../../SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "../../../Theme/ITheme";
-import { useGetCategoryListByProgId } from "../Category/Category_Hook"
+import { useGetCategoryListByProgId } from "../../../../../Pages/Server/BizFunc/WebManagement/Category/Category_Hook"
 import PageManagementProvider from "./PageManagement_Api"
 import { FormComp } from "../../../Scaffold/Content/Form_Comp";
 import { useFormToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";

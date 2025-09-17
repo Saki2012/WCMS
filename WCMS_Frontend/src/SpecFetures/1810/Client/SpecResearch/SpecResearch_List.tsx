@@ -2,7 +2,7 @@ import type { components } from "../../../../types/api";
 import type { IFETheme } from "../../../../Features/Client/Layout/Theme/ITheme";
 type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"];
 import type { Lang } from "../../../../SysCore/i18n/lang";
-import { Merge } from "../../../../SysCore/Utils/Library/LibMergeData";
+import { LibMerge } from "../../../../SysCore/Utils/Library/LibMergeData";
 import * as SchemaFields from "../../../../types/SchemaFields"
 import { useFetchGridListData } from "../../../../SysCore/Utils/API/FetchGridListData";
 import type { RowCell } from "../../../../SysCore/Components/Grid/Grid_Data";
@@ -13,9 +13,9 @@ import { Grid } from "../../../../SysCore/Components/Grid/Grid_Comp";
 
 const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, showColumns: string[]) => {
     var condition: string = "";
-    if (categoryIds) condition = Merge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.CategoryId} = ${categoryIds}`)
-    if (tagIds) condition = Merge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.Tags} HasAll ${tagIds}`)
-    condition = Merge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.ContentStatus} !& 4`)//不包含隱藏的資料
+    if (categoryIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.CategoryId} = ${categoryIds}`)
+    if (tagIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.Tags} HasAny ${tagIds}`)
+    condition = LibMerge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.ContentStatus} !& 4`)//不包含隱藏的資料
     type VisibleKey = [string, string];
     const ORDER: string[] = [
         SchemaFields.SpecResearchDetailModelFields.Year, SchemaFields.SpecResearchDetailModelFields.AcademicYear,

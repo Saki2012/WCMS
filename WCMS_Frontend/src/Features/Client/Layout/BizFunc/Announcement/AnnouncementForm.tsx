@@ -1,21 +1,21 @@
-import type { IFETheme } from '../../Theme/ITheme';
-import type { components } from '../../../../../types/api';
+import type { IFETheme } from '@/Features/Client/Layout/Theme/ITheme';
+import type { components } from '@/types/api';
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
-import * as SchemaFields from "../../../../../types/SchemaFields";
+import * as SchemaFields from "@/types/SchemaFields";
 import { useParams } from 'react-router-dom';
-import { ContentComp } from '../../Scaffold/ContentViewMode/FormView/FormView_Comp';
-import { FormatDate } from '../../../../../SysCore/Utils/Library/LibData';
+import { ContentComp } from '@/Features/Client/Layout/Scaffold/ContentViewMode/FormView/FormView_Comp';
+import { FormatDate } from '@/SysCore/Utils/Library/LibData';
 import parse from 'html-react-parser';
 import DOMPurify from 'isomorphic-dompurify'
-import AnnouncementProvider from '../../../../Server/Layout/BizFunc/WebManagement/Announcement/Announcement_Api';
-import { useFetchFormData } from '../../../../../SysCore/Utils/API/FetchFormData';
-import { useResolveInternalIds } from '../../../../../SysCore/Components/File/useResolveInternalIds';
+import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api';
+import { useFetchFormData } from '@/SysCore/Utils/API/FetchFormData';
+import { useResolveInternalIds } from '@/SysCore/Components/File/useResolveInternalIds';
 import { useMemo } from 'react';
-import type { Lang } from '../../../../../SysCore/i18n/lang';
-import { useFetchGridListData } from '../../../../../SysCore/Utils/API/FetchGridListData';
-import CategoryProvider from '../../../../Server/Layout/BizFunc/WebManagement/Category/Category_Api';
+import type { Lang } from '@/SysCore/i18n/lang';
+import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
+import CategoryProvider from '../../../../Pages/Server/BizFunc/WebManagement/Category/Category_Api';
 import TagProvider from '../../../../Server/Layout/BizFunc/WebManagement/Tags/Tag_Api';
 
 
