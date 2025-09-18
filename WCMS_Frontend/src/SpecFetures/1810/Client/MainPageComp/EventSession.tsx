@@ -164,7 +164,7 @@ export const EventSession = () => {
                                             {eventList.map((item, index) => {
                                                 return item && (
                                                     <div className="item" key={item.Id}>
-                                                        <Link to={item.Url} title={item.Title} tabIndex={index + 1}>
+                                                        <Link to={`Allnews/Intramural-activities/In-school-activities${item.Url}`} title={item.Title} tabIndex={index + 1}>
                                                             <div className="DivBox_content v_itemBOX">
                                                                 <div className="Picture_Div">
                                                                     <div className="img_wrapper">

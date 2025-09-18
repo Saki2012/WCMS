@@ -8,6 +8,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import WebResourceProvider from "@/Features/Pages/Server/BizFunc/WebManagement/WebResource/WebResource_Api";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { SubPageTitle } from "@/Features/Pages/Client/Scaffold/Header/SubPageTitle_Comp";
+import DefaultImg from "@/Assets/1810/WebResource_Default.png"
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 
 const useWebResourceList = (categoryIds: string, tagIds: string) => {
@@ -26,6 +27,8 @@ const useWebResourceList = (categoryIds: string, tagIds: string) => {
             Fields: [
                 SchemaFields.WebResourceFields.InternalId,
                 SchemaFields.WebResourceFields.WebResourceId,
+                SchemaFields.WebResourceFields.PicId,
+                SchemaFields.WebResourceFields.PicDescription,
                 `${SchemaFields.WebResourceSetFields.WebResourceInfo}.${SchemaFields.WebResourceInfoFields.Lang}`,
                 `${SchemaFields.WebResourceSetFields.WebResourceInfo}.${SchemaFields.WebResourceInfoFields.Title}`,
                 `${SchemaFields.WebResourceSetFields.WebResourceInfo}.${SchemaFields.WebResourceInfoFields.Content}`,
@@ -48,21 +51,36 @@ export const WebResourceListComp = (props: IWebResourceListProps) => {
     const useWebResList = useWebResourceList(props.Options?.Category ?? "", props.Options?.Tag ?? "");
     const isLoading = [useWebResList.isLoading];
     const errors = [useWebResList.error];
+
+
+
+    const content = (() => {
+        switch (props.Options?.Style) {
+            case 7:
+                return <YoutubeContent lang={props.Lang} datas={useWebResList.rawData ?? []} />;
+            case 2:
+                return <PictureListContent lang={props.Lang} datas={useWebResList.rawData ?? []} />;
+            case 1:
+            default:
+                return null;
+        }
+    })();
+
     return (
         <>
             <LoadingErrorHandler loadingList={isLoading} errorList={errors} >
                 <SubPageTitle title={props.title} />
-                <YoutubeContent lang={props.Lang} datas={useWebResList.rawData ?? []} />
+                {content}
                 {/* <Paginator {...prop.PaginatorProp}></Paginator> */}
             </LoadingErrorHandler>
         </>);
 };
 
-const YoutubeContent = ({ lang, datas }: { lang: string, datas: WebResourceSet[] }) => {
+const YoutubeContent = (prop: { lang: string, datas: WebResourceSet[] }) => {
     return (<>
         <div className="row margin_0">
-            {datas.map((item) => {
-                const detail = item.WebResourceInfo?.find(p => p.Lang === lang)
+            {prop.datas.map((item) => {
+                const detail = item.WebResourceInfo?.find(p => p.Lang === prop.lang)
                 return (
                     <div className="col-lg-4 col-md-6 col-sm-6 col-12 photo_standardbox">
                         <a className="venobox vbox-item" data-autoplay="true" data-vbtype="video" href={detail?.ResUrl ?? ""} title={`${detail?.Title ?? ""} (另開新視窗)`} target="_blank" rel="noopener noreferrer">
@@ -70,10 +88,35 @@ const YoutubeContent = ({ lang, datas }: { lang: string, datas: WebResourceSet[]
                                 <iframe width="100%" height="275" src={detail?.ResUrl ?? ""}
                                     title={detail?.Title ?? ""} style={{ border: 'none' }}
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowFullScreen></iframe>
+                                    allowFullScreen>
+                                </iframe>
                             </div>
                             <figcaption>
                                 <h3 className="title mt-0 mb-0">{detail?.Title ?? ""}</h3>
+                            </figcaption>
+                        </a>
+                    </div>
+                )
+            })}
+        </div>
+    </>)
+}
+
+const PictureListContent = (prop: { lang: string, datas: WebResourceSet[] }) => {
+    return (<>
+        <div className="row margin_0">
+            {prop.datas.map((item) => {
+                const header = item.WebResource;
+                const detail = item.WebResourceInfo?.find(p => p.Lang === prop.lang);
+                const picUrl = header?.PicId ? `/Service/Filemanagement/Preview/${header.PicId}` : DefaultImg
+                return (
+                    <div className="col-lg-4 col-md-6 col-sm-6 col-12 photo_standardbox">
+                        <a href={detail?.ResUrl ?? ""} title={`${detail?.Title}(另開新視窗)`} target="_blank" rel="noopener noreferrer">
+                            <div className="img-box">
+                                <img className="img-fluid" src={picUrl} alt={header?.PicDescription ?? ""} />
+                            </div>
+                            <figcaption>
+                                <h3 className="title mt-0 mb-0">{detail?.Title}</h3>
                             </figcaption>
                         </a>
                     </div>

@@ -58,7 +58,7 @@ const defaultBuildDownloadUrl = (id: string, meta?: FileMeta) =>
 {
     // 若 meta 有現成 downloadUrl 就用，否則走預設路徑
     if (meta?.url) return meta.url;
-    const base = import.meta.env.VITE_API_BASE_URL ?? "";
+    const base = import.meta.env.VITE_API_BASE_URL ?? "/Service";
     return `${base}/FileManagement/Download/${id}`;
 };
 
