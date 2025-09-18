@@ -1,10 +1,10 @@
-import { LibCheckBox, LibTextBox, LibTextArea, LibDropList } from "../../../../../SysCore/Components/FormField/LibFormField";
-import type { LibTabsProp } from "../../../../../SysCore/Components/FormField/LibFormField";
-import type { IBETheme } from "../../../../../Features/Server/Layout/Theme/ITheme";
-import { FormComp } from "../../../../../Features/Server/Layout/Scaffold/Content/Form_Comp";
+import { LibCheckBox, LibTextBox, LibTextArea, LibDropList } from "@/SysCore/Components/FormField/LibFormField";
+import type { LibTabsProp } from "@/SysCore/Components/FormField/LibFormField";
+import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
+import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
 import { useParams } from "react-router-dom";
-import TabContentComp from "../../../../../SysCore/Components/TabContent/TabContent";
-import type { FormCompProp } from "../../../../../Features/Server/Layout/Scaffold/Content/Content_Data";
+import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 
 
 /** 網路資源表單
@@ -30,10 +30,10 @@ export const ResearchProjFormComp = ({ theme }: { theme: IBETheme }) => {
             <LibTextBox Style={theme.TextBox} ColumnDisplayName="排序編號" DefaultInputDisplay="請輸入" ></LibTextBox>,
         ],
         Status: [
-            <LibCheckBox colDisplayName="狀態"></LibCheckBox>
+            <LibCheckBox ColumnDisplayName="狀態"></LibCheckBox>
         ],
         Tags: [
-            <LibCheckBox colDisplayName="標籤"></LibCheckBox>
+            <LibCheckBox ColumnDisplayName="標籤"></LibCheckBox>
         ]
     }
     const LibTabsPropB: LibTabsProp = {

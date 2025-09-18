@@ -1,20 +1,19 @@
 import { LibTextBox, LibTinyMCE, LibFile, LibPicture, LibFileInput } from "@/SysCore/Components/FormField/LibFormField"
 import type { LibTabsProp } from "@/SysCore/Components/FormField/LibFormField"
-import type { IBETheme } from "@/Features/Server/Layout/Theme/ITheme";
-import { useGetCategoryListByProgId } from "../Category/Category_Hook"
-import { useGetTagListByProgId } from "@/Features/Server/Layout/BizFunc/WebManagement/Tags/Tag_Hook";
+import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
+import { useGetCategoryListByProgId } from "@/Features/Pages/Server/BizFunc/WebManagement/Category/Category_Hook";
+import { useGetTagListByProgId } from "@/Features/Pages/Server/BizFunc/WebManagement/Tags/Tag_Hook";
 import AnnouncementProvider from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api";
-import { FormComp } from "@/Features/Server/Layout/Scaffold/Content/Form_Comp";
+import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
 import { useFormToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
 import { useParams } from "react-router-dom";
-import type { FormCompProp } from "@/Features/Server/Layout/Scaffold/Content/Content_Data";
+import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import type { components } from "@/types/api";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import LibCheckBox from "@/SysCore/Components/FormField/FieldComponets/LibCheckBox_Comp";
 import LibCalendar from "@/SysCore/Components/FormField/FieldComponets/LibCalendar_Comp";
 import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
-import { parseBitmaskToStringArray, sumStringArrayToBitmask } from "@/SysCore/Utils/Library/LibData";
 import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import * as SchemaFields from "@/types/SchemaFields";
@@ -119,7 +118,7 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<A
                 <LibTinyMCE Style={props.theme.TinyMCE} {...setField(SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Content, "string", rowKeys)} />,
                 <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Url, "string", rowKeys)} />,
                 <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.UrlDescription, "string", rowKeys)} />,
-                <SubDetailComp theme={props.theme} formData={props.formData} parentRowId={detailRowId} ></SubDetailComp>
+                <SubDetailComp theme={props.theme} formData={props.formData} parentRowId={detailRowId}></SubDetailComp>
             ]
             return compMap;
         }, {}
@@ -130,69 +129,88 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<A
     )
 };
 
-const SubDetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<AnnouncementSet>; parentRowId: number }) => {
-    // 整體檔案清單
+const SubDetailComp = (props: {
+    theme: IBETheme;
+    formData: UseFetchFormDataResult<AnnouncementSet>;
+    parentRowId: number;
+}) => {
+    // 目前整份表單的附件集合
     const allFiles: AnnouncementDetailFile[] = props.formData.data?.AnnouncementDetailFile ?? [];
 
+    // 取出目前這個「明細(RowId) + 所屬公告(AnnouncementId)」的附件們
     const getFiles = (): AnnouncementDetailFile[] => allFiles.filter(f => f.ParentRowId === props.parentRowId).sort((a, b) => (a.RowId ?? 0) - (b.RowId ?? 0));
-    // const commitFiles = (nextFiles: AnnouncementDetailFile[]) => { props.formData.setFormData({ ...props.formData, AnnouncementDetailFile: nextFiles, }); };
+
+    // 提交回整份表單（關鍵：真正更新 formData）
+    const commitFiles = (nextFiles: AnnouncementDetailFile[]) => {
+        props.formData.setFormData(prev => ({
+            ...(prev ?? { Announcement: {}, AnnouncementDetail: [], AnnouncementDetailFile: [] }),
+            AnnouncementDetailFile: nextFiles,
+        }));
+    };
+
+    // 新增一筆附件列
     const addFile = () => {
         const list = getFiles();
         const nextRowId = (list.at(-1)?.RowId ?? 0) + 1;
+
         const newItem: AnnouncementDetailFile = {
-            ParentRowId: props.parentRowId,
+            ParentRowId: props.parentRowId,       // 補齊：關聯到當前語系明細
             RowId: nextRowId,
-            FileId: null,
+            FileId: "",
+            FileName: "",
         };
-        // commitFiles([...allFiles, newItem]);
+
+        commitFiles([...allFiles, newItem]);
     };
-    // 更新第 i 筆（i 為目前語系+明細的過濾結果索引）
+
+    // 更新第 i 筆附件列（以「同一公告 + 同一 ParentRowId + 同一 RowId」定位）
     const updateFileAt = (i: number, patch: Partial<AnnouncementDetailFile>) => {
         const filtered = getFiles();
         const target = filtered[i];
         if (!target) return;
+
         const nextAll = allFiles.map(f => {
-            const isSame =
-                f.AnnouncementId === target.AnnouncementId &&
-                f.ParentRowId === target.ParentRowId &&
-                f.RowId === target.RowId;
+            const isSame = f.ParentRowId === target.ParentRowId && f.RowId === target.RowId;
             return isSame ? { ...f, ...patch } : f;
         });
-        // commitFiles(nextAll);
+
+        commitFiles(nextAll);
     };
-    // 刪除第 i 筆
+
+    // 刪除第 i 筆附件列
     const removeFileAt = (i: number) => {
         const filtered = getFiles();
         const target = filtered[i];
         if (!target) return;
+
         const nextAll = allFiles.filter(
             f =>
                 !(
-                    f.AnnouncementId === target.AnnouncementId &&
                     f.ParentRowId === target.ParentRowId &&
                     f.RowId === target.RowId
                 )
         );
-        // commitFiles(nextAll);
+
+        commitFiles(nextAll);
     };
 
-    return (<>
-        <div role="group" className="mt-4">
-            <button type="button" onClick={addFile} aria-label={`新增附件`} className="btn btn-secondary mb-2">新增附件</button>
-            {getFiles().map((f, i) => (
-                <div key={`${f.ParentRowId}-${f.RowId}`} className="flex items-center gap-2 mb-2">
-                    <LibFileInput
-                        ColumnDisplayName={`附件 ${i + 1}`}
-                        DefaultInputDisplay="請選擇檔案"
-                        Style={props.theme.FileInput}
-                        InputValue={""} // 或 f.FileSrcId
-                        onChange={(internalId, fileName) => {
-                            updateFileAt(i, { FileId: internalId });
-                        }}
-                        onDelete={() => { }}
-                    />
-                </div>
-            ))}
-        </div>
-    </>)
+    return (
+        <>
+            <div role="group" className="mt-4">
+                <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-secondary mb-2">新增附件</button>
+
+                {getFiles().map((f, i) => (
+                    <div key={`${f.ParentRowId}-${f.RowId}`} className="flex items-center gap-2 mb-2">
+                        <LibFileInput ColumnDisplayName={`附件 ${i + 1}`} DefaultInputDisplay="請選擇檔案"
+                            Style={props.theme.FileInput} InputValue={f.FileId ?? ""}
+                            onChange={(internalId, fileName) => {
+                                updateFileAt(i, { FileId: internalId });
+                            }}
+                            onDelete={() => removeFileAt(i)}
+                        />
+                    </div>
+                ))}
+            </div>
+        </>
+    );
 };

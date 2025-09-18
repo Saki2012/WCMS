@@ -1,7 +1,7 @@
-import type { IBETheme } from "../../../../../Server/Layout/Theme/ITheme"
+import type { IBETheme } from "../../../Theme/ITheme"
 import { useLocation } from 'react-router-dom';
-import { FormListComp } from "../../../../../Server/Layout/Scaffold/Content/FormList_Comp";
-import type { FormListCompProp } from "../../../../../Server/Layout/Scaffold/Content/Content_Data"
+import { FormListComp } from "@/Features/Pages/Server/Scaffold/Content/FormList_Comp";
+import type { FormListCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data"
 import { useListToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
 import { useCategoryListData } from "./Category_Hook";
 import { useParams } from "react-router-dom";

@@ -10,11 +10,13 @@ import * as SchemaFields from "@/types/SchemaFields";
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import CategoryProvider from '@/Features/Pages/Server/BizFunc/WebManagement/Category/Category_Api';
-import TagProvider from '@/Features/Server/Layout/BizFunc/WebManagement/Tags/Tag_Api';
+import TagProvider from '@/Features/Pages/Server/BizFunc/WebManagement/Tags/Tag_Api';
+import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
 
 const useAnnouncementList = (categories?: string) => {
     const provider = AnnouncementProvider();
-    const cdt = categories ? `${SchemaFields.AnnouncementFields.Categories} HasAny ${categories}` : ""
+    let cdt = `${SchemaFields.AnnouncementFields.ContentStatus} !& 4`;
+    cdt = LibMerge(" And ", false, cdt, categories ? `${SchemaFields.AnnouncementFields.Categories} HasAny ${categories}` : "");
     return useFetchGridListData<AnnouncementSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
@@ -37,7 +39,7 @@ const useAnnouncementList = (categories?: string) => {
             PageSize: 6,
         }),
         enabled: true,
-        deps: [],
+        deps: [categories],
     });
 };
 const useCategoryList = () => {

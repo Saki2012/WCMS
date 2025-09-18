@@ -7,7 +7,7 @@ import { type EventData } from './Event_Data'
 import { Link } from 'react-router-dom';
 import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api';
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
-import TagProvider from '@/Features/Server/Layout/BizFunc/WebManagement/Tags/Tag_Api';
+import TagProvider from '@/Features/Pages/Server/BizFunc/WebManagement/Tags/Tag_Api';
 import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import { useEffect, useRef } from 'react';
 

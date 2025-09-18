@@ -93,8 +93,9 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             else if (result.Count == 1) 
             {
                 string path = Path.Combine(Env.ContentRootPath,result[0].Path,$"{result[0].InternalId}.{result[0].FileExtension}");
-                if (result[0].FileExtension.Equals(FileExtensions.PDF)) return PhysicalFile(path, result[0].MimeType);
-                else return PhysicalFile(path, result[0].MimeType, fileDownloadName: $"{result[0].FileName}.{result[0].FileExtension}");
+                //if (result[0].FileExtension.Equals(FileExtensions.PDF)) return PhysicalFile(path, result[0].MimeType);
+                //else 
+                return PhysicalFile(path, result[0].MimeType, fileDownloadName: $"{result[0].FileName}.{result[0].FileExtension}");
             }
             else
             {
@@ -132,12 +133,12 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
 
             var fileQuery = await Service.BizQueryListAsync(param.Fields, param.Condition, default, param.PageNumber, param.PageSize);
 
-            OperateLogModel followInfo = new OperateLogModel();
-            followInfo.APIName = $"{Service.ProgId}/{nameof(Preview)}";
-            followInfo.UserId = "SysOperator";
-            followInfo.followingDT = JsonConvert.SerializeObject(param);
-            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
-            OperateLog.AddMoveFollow(followInfo);
+            //OperateLogModel followInfo = new OperateLogModel();
+            //followInfo.APIName = $"{Service.ProgId}/{nameof(Preview)}";
+            //followInfo.UserId = "SysOperator";
+            //followInfo.followingDT = JsonConvert.SerializeObject(param);
+            //followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            //OperateLog.AddMoveFollow(followInfo);
             var file = fileQuery.FirstOrDefault().FileManage;
             if (file is null) return NotFound();
             // 1) 包成 DateTimeOffset（UTC）並去掉毫秒

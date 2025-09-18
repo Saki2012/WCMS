@@ -1,12 +1,12 @@
 import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
+import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import * as SchemaFields from "@/types/SchemaFields";
 import BannerSliderProvider from "./BannerSlider_Api";
 type BannerSet = components["schemas"]["BannerSet_DTO"];
-import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 
-export const useBannerListData = () =>
+export const useBannerListData = (condition?: string) =>
 {
     const provider = BannerSliderProvider();
     return useFetchGridListData<BannerSet>({
@@ -27,8 +27,10 @@ export const useBannerListData = () =>
                 // 缺Name
                 SchemaFields.BannerFields.ModifyTime,
             ],
-            Condition: "",
-            OrderBy: [{ Col: SchemaFields.BannerFields.ModifyTime, Desc: true }],
+            Condition: condition ?? "",
+            OrderBy: [
+                { Col: SchemaFields.BannerFields.ModifyTime, Desc: true },
+            ],
             PageNumber: page,
             PageSize: 10,
         }),

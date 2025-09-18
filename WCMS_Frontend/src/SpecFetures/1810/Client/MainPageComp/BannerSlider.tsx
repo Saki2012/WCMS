@@ -1,9 +1,11 @@
 import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
+import { useBannerListData } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Hook";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
 import clsx from "clsx";
-
+import * as SchemaFields from "@/types/SchemaFields";
+import { useMemo } from "react";
 type BannerSet = components["schemas"]["BannerSet_DTO"]
 const emptyData: BannerSet = {
     Banner: {},
@@ -38,20 +40,27 @@ const emptyData: BannerSet = {
     ]
 }
 
-
-
-
 export const BannerSlider = () => {
 
-    const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), "fa0faf5a-86cf-46ef-92eb-79b57e0a9e59", emptyData)
-    const loadingList = [useBanner.isLoading]
-    const errorList = [useBanner.error]
+    const usebannerList = useBannerListData(`${SchemaFields.BannerFields.BannerId} = 1`)
+    const bannerInternal = usebannerList.rawData?.[0]?.Banner?.InternalId ?? ""
+    const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), bannerInternal, emptyData)
+    const loadingList = [useBanner.isLoading, usebannerList.isLoading]
+    const errorList = [useBanner.error, usebannerList.error]
 
+    const sortedDetails = useMemo(() => {
+        const list = useBanner.data?.BannerDetail ?? [];
+        // 依 Detail.Sort 由小到大
+        return [...list].sort((a, b) => {
+            const as = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
+            const bs = Number.isFinite(b?.Sort) ? Number(b.Sort) : Number.MAX_SAFE_INTEGER;
+            // 次排序：RowId，確保順序穩定
+            return as - bs || (a.RowId ?? 0) - (b.RowId ?? 0);
+        });
+    }, [useBanner.data?.BannerDetail]);
 
     return (
-
         <LoadingErrorHandler loadingList={loadingList} errorList={errorList} >
-
             <section className="carousel_slide_section">
                 <div className="sidebar">
                     <div className="scroll_Down">
@@ -61,7 +70,7 @@ export const BannerSlider = () => {
                 <div className="customize_visualBox + animate__animated animate__slow wow fadeInRight d-xl-block d-lg-block d-md-block d-sm-none d-none" data-wow-delay="0.05s">
                     <div id="carousel-Controls" className="carousel carousel-dark slide carousel-fade" data-bs-ride="carousel">
                         <div className="carousel-inner">
-                            {useBanner.data?.BannerDetail?.map((p, i) => {
+                            {sortedDetails.map((p, i) => {
                                 const alt = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.Title ?? ""
                                 return (
                                     <div key={i} className={clsx("carousel-item", i === 0 ? "active" : "")} data-bs-interval="5000">
@@ -136,7 +145,7 @@ export const BannerSlider = () => {
                         {/* <asp:Literal ID="Lit_Banner_MB" runat="server" /> */}
                         <div className="carousel-inner">
 
-                            {useBanner.data?.BannerDetail?.map((p, i) => {
+                            {sortedDetails.map((p, i) => {
                                 const alt = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.Title ?? ""
                                 return (
                                     <div key={i} className={clsx("carousel-item", i === 0 ? "active" : "")} data-bs-interval="5000">

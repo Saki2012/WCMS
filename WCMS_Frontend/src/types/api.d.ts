@@ -6316,8 +6316,10 @@ export interface components {
              * @description 行代碼
              */
             RowId?: number;
-            /** @description 檔案來源 */
+            /** @description 附件 */
             FileId?: string | null;
+            /** @description 附件名稱 */
+            FileName?: string | null;
         };
         AnnouncementDetail_DTO: {
             /** @description 公告代碼 */
@@ -6421,11 +6423,7 @@ export interface components {
             Content?: string | null;
             /** @description 網址 */
             URL?: string | null;
-            /**
-             * Format: int32
-             * @description 開啟方式
-             */
-            URL_Open?: number;
+            URL_Open?: components["schemas"]["WindowTarget"];
         };
         BannerDetail_DTO: {
             /** @description 橫幅廣告代碼 */
@@ -7152,10 +7150,16 @@ export interface components {
             RowId?: number;
             /** @description 語系 */
             Lang?: string | null;
-            /** @description 年度 */
-            Year?: string | null;
-            /** @description 學年度 */
-            AcademicYear?: string | null;
+            /**
+             * Format: int32
+             * @description 年度
+             */
+            Year?: number | null;
+            /**
+             * Format: int32
+             * @description 學年度
+             */
+            AcademicYear?: number | null;
             /** @description 學期 */
             Semester?: string | null;
             /** @description 執行期間 */
@@ -7172,8 +7176,11 @@ export interface components {
             TeachingStaffOfOurSchool?: string | null;
             /** @description 核定編號 */
             ApprovalNumber?: string | null;
-            /** @description 核定金額 */
-            ApprovedAmount?: string | null;
+            /**
+             * Format: double
+             * @description 核定金額
+             */
+            ApprovedAmount?: number | null;
             /** @description 學院 */
             College?: string | null;
             /** @description 系所 */
@@ -7198,8 +7205,11 @@ export interface components {
             Cohost2?: string | null;
             /** @description 委辦/補助單位 */
             Commissioned?: string | null;
-            /** @description 計畫金額 */
-            PlanAmount?: string | null;
+            /**
+             * Format: double
+             * @description 計畫金額
+             */
+            PlanAmount?: number | null;
             /** @description 計畫內容簡介 */
             PlanContent?: string | null;
         };
@@ -7256,8 +7266,11 @@ export interface components {
             Lang: string;
             /** @description 年度 */
             Year?: string | null;
-            /** @description 學年度 */
-            AcademicYear?: string | null;
+            /**
+             * Format: int32
+             * @description 學年度
+             */
+            AcademicYear?: number | null;
             /** @description 課程/活動名稱 */
             Courses?: string | null;
             /** @description 實踐領域 */
@@ -7270,8 +7283,11 @@ export interface components {
             Department?: string | null;
             /** @description 執行期間 */
             DuringExecution?: string | null;
-            /** @description 計劃金額 */
-            PlanAmount?: string | null;
+            /**
+             * Format: double
+             * @description 計劃金額
+             */
+            PlanAmount?: number | null;
             /** @description 外部合作單位 */
             ExecutionStrategy?: string | null;
             /** @description 計畫內容簡介 */

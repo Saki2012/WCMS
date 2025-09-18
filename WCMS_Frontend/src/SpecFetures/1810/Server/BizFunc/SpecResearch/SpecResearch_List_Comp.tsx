@@ -1,16 +1,16 @@
-import type { SearchBarProps } from "../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
-import type { IBETheme } from "../../../../../Features/Server/Layout/Theme/ITheme"
-import type { GridProps, ColumnConfig, GridRow, RowCell } from "../../../../../SysCore/Components/Grid/Grid_Data"
+import type { SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
+import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme"
+import type { GridProps, ColumnConfig, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data"
 import { useMemo } from "react"
 import { Link } from "react-router-dom"
 import { useLocation } from 'react-router-dom';
-import { ListComp } from "../../../../../Features/Server/Layout/Scaffold/Content/List_Comp"
-import type { ListCompProp } from "../../../../../Features/Server/Layout/Scaffold/Content/Content_Data"
+import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp"
+import type { ListCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data"
 import * as React from "react";
-import type { components } from "../../../../../types/api"
+import type { components } from "@/types/api"
 type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"]
-import { useListToolbarActions } from "../../../../../SysCore/Components/Toolbar/Toolbar_Hook"
-import { useSpecResearchList } from "./SpecResearch_Hook"
+import { useListToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook"
+import { useSpecResearchList } from "@/SpecFetures/1810/Server/BizFunc/SpecResearch/SpecResearch_Hook"
 
 
 /** 研究計畫清單

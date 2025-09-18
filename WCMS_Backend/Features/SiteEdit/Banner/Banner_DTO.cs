@@ -37,6 +37,7 @@ namespace WCMS.Features.SiteEdit.Banner
         /// 橫幅寬度
         /// </summary>
         [LibDesc(ModelDisplayName.Banner_Width)] public short Width { get; set; }
+        [LibDesc] public List<BannerDetail_DTO> BannerDetail { get; set; } = [];
     }
     public class BannerDetail_DTO
     {
@@ -68,6 +69,7 @@ namespace WCMS.Features.SiteEdit.Banner
         /// 播放順序
         /// </summary>
         [LibDesc(ModelDisplayName.Banner_Sort)] public ushort Sort { get; set; }
+        [LibDesc] public List<BannerDetailInfo_DTO> BannerDetailInfo { get; set; } = [];
     }
     public class BannerDetailInfo_DTO
     {

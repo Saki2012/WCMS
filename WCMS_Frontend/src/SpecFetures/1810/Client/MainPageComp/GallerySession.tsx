@@ -1,17 +1,17 @@
 /* Banner */
 import 'swiper/swiper-bundle.css';
-import { BaseCarousel } from '../../../../SysCore/Components/BaseCarousel'
+import { BaseCarousel } from '@/SysCore/Components/BaseCarousel'
 import { Link } from 'react-router-dom';
-import GalleryProvider from '../../../../Features/Server/Layout/BizFunc/WebManagement/Gallery/Gallery_Api';
-import type { components } from '../../../../types/api';
+import GalleryProvider from '@/Features/Pages/Server/BizFunc/WebManagement/Gallery/Gallery_Api';
+import type { components } from '@/types/api';
 type GallerySet = components["schemas"]["GallerySet_DTO"]
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"]
-import * as SchemaFields from "../../../../types/SchemaFields";
-import { useFetchGridListData } from '../../../../SysCore/Utils/API/FetchGridListData';
-import { FormatDate } from '../../../../SysCore/Utils/Library/LibData';
-import LoadingErrorHandler from '../../../../SysCore/Components/LoadingErrorHandler';
+import * as SchemaFields from "@/types/SchemaFields";
+import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
+import { FormatDate } from '@/SysCore/Utils/Library/LibData';
+import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import { useEffect, useRef } from 'react';
-import CategoryProvider from '../../../../Features/Pages/Server/BizFunc/WebManagement/Category/Category_Api';
+import CategoryProvider from '@/Features/Pages/Server/BizFunc/WebManagement/Category/Category_Api';
 
 const useGalleryList = () => {
     const provider = GalleryProvider();
@@ -31,6 +31,7 @@ const useGalleryList = () => {
                 `${SchemaFields.GallerySetFields.GalleryInfo}.${SchemaFields.GalleryInfoFields.Title}`,
             ],
             Condition: `${SchemaFields.GalleryFields.Categories} In (25,26,27,28)`,
+            OrderBy: [{ Col: SchemaFields.GalleryFields.ModifyTime, Desc: true }],
             PageNumber: 1,
             PageSize: 10,
         }),

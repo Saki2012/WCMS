@@ -39,6 +39,7 @@ namespace WCMS.Features.SiteEdit.Banner
         /// 橫幅寬度
         /// </summary>
         public short Width { get; set; }
+        [LibDesc] public List<BannerDetail> BannerDetail { get; set; } = [];
     }
     public class BannerDetail:DetailRowModel
     {
@@ -70,6 +71,7 @@ namespace WCMS.Features.SiteEdit.Banner
         /// 播放順序
         /// </summary>
         [LibDesc] public ushort Sort { get; set; }
+        [LibDesc] public List<BannerDetailInfo> BannerDetailInfo { get; set; } = [];
     }
     public class BannerDetailInfo : DetailRowModel
     {

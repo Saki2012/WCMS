@@ -1,4 +1,4 @@
-import type { IFETheme } from '../../../../Features/Client/Layout/Theme/ITheme';
+import type { IFETheme } from '../../../../Features/Pages/Client/Theme/ITheme';
 import type { components } from '../../../../types/api';
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"]
 import { useParams } from 'react-router-dom';
@@ -10,7 +10,7 @@ import LoadingErrorHandler from '../../../../SysCore/Components/LoadingErrorHand
 import * as SchemaFields from "../../../../types/SchemaFields"
 import { useFetchGridListData } from '../../../../SysCore/Utils/API/FetchGridListData';
 import type { ColumnConfig } from '../../../../SysCore/Components/Grid/Grid_Data';
-
+import DefaultPic from "@/Assets/1810/images_960x960.jpg"
 
 const emptyData: SpecUSRSet = {}
 
@@ -86,6 +86,8 @@ const SpecUSRForm = ({ lang, rawData, showColumns, showColTitle }: { lang: strin
         "Cohost2", "Commissioned", "Remark"]
     const header = rawData.SpecUSR;
     const detail = rawData.SpecUSRDetail?.find(p => p.Lang === lang);
+
+    const picUrl = header?.PictureId ? `/Service/FileManagement/Preview/${header?.PictureId}` : DefaultPic
     return (
         <div className="articles_contentBoxs_1 mb-5">
             <div className="articles_item col-12">
@@ -115,8 +117,8 @@ const SpecUSRForm = ({ lang, rawData, showColumns, showColTitle }: { lang: strin
                             <div className="td__ col-sm-10 col-12 d-flex justify-content-start align-content-center p-0">
                                 <div className="ttBox_R">
                                     <div className="card_image_link">
-                                        <a className="venobox vbox-item" data-vbtype="img" href={`/Service/FileManagement/Preview/${header?.PictureId}`} tabIndex={1} title={header?.PicDescription ?? ""} target="_blank">
-                                            <picture><img className="card_image" src={`/Service/FileManagement/Preview/${header?.PictureId}`} alt={header?.PicDescription ?? ""} /></picture>
+                                        <a className="venobox vbox-item" data-vbtype="img" href={picUrl} tabIndex={1} title={header?.PicDescription ?? ""} target="_blank">
+                                            <picture><img className="card_image" src={picUrl} alt={header?.PicDescription ?? ""} /></picture>
                                         </a>
                                     </div>
                                 </div>

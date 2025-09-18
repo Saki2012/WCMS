@@ -1,14 +1,14 @@
 /* Banner */
 import 'swiper/swiper-bundle.css';
-import { BaseCarousel } from '../../../../SysCore/Components/BaseCarousel'
+import { BaseCarousel } from '@/SysCore/Components/BaseCarousel'
 import { Link } from 'react-router-dom';
-import type { components } from '../../../../types/api';
+import type { components } from '@/types/api';
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
-import * as SchemaFields from "../../../../types/SchemaFields";
-import WebResourceProvider from '../../../../Features/Server/Layout/BizFunc/WebManagement/WebResource/WebResource_Api';
-import { useFetchGridListData } from '../../../../SysCore/Utils/API/FetchGridListData';
-import LoadingErrorHandler from '../../../../SysCore/Components/LoadingErrorHandler';
+import * as SchemaFields from "@/types/SchemaFields";
+import WebResourceProvider from '@/Features/Pages/Server/BizFunc/WebManagement/WebResource/WebResource_Api';
+import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
+import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import { useEffect, useRef } from 'react';
 
 interface DataProp { internalId: string; title: string; ResUrl: string; }
@@ -153,7 +153,6 @@ export const VideoSession = () => {
                                                         </div>
                                                     </div>)
                                             })}
-
 
                                         </div>
                                         {/*// Banner 控制 暫停 / 播放 按鈕 START // */}

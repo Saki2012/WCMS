@@ -4,7 +4,7 @@ import type { components } from "@/types/api";
 import * as SchemaFields from "@/types/SchemaFields";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
+import { FormatDate, FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 
 export const useAnnouncementList = () =>
 {
@@ -18,6 +18,7 @@ export const useAnnouncementList = () =>
             [SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Title],
             [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ContentStatus],
             [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyUserId],
+            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Validate_Start],
             [SchemaFields.AnnouncementFields.ModifyUser, SchemaFields.UserModelFields.UserName],
             [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyTime],
         ],
@@ -28,6 +29,8 @@ export const useAnnouncementList = () =>
                 SchemaFields.AnnouncementFields.ContentStatus,
                 `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
                 `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
+                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
+                SchemaFields.AnnouncementFields.Validate_Start,
                 SchemaFields.AnnouncementFields.ModifyUserId,
                 `${SchemaFields.AnnouncementFields.ModifyUser}.${SchemaFields.UserModelFields.UserName}`,
                 SchemaFields.AnnouncementFields.ModifyTime,
@@ -49,6 +52,9 @@ export const useAnnouncementList = () =>
                 {
                     case SchemaFields.AnnouncementDetailFields.Title:
                         content = item.AnnouncementDetail?.find(d => d.Lang === "zh-tw")?.Title ?? "";
+                        break;
+                    case SchemaFields.AnnouncementFields.Validate_Start:
+                        content = FormatDate((data as any)[col.key]);
                         break;
                     case SchemaFields.AnnouncementFields.ModifyTime:
                         content = FormatDateTime((data as any)[col.key]);

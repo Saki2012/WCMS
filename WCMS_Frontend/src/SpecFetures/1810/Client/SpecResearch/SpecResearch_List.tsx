@@ -1,5 +1,5 @@
 import type { components } from "../../../../types/api";
-import type { IFETheme } from "../../../../Features/Client/Layout/Theme/ITheme";
+import type { IFETheme } from "../../../../Features/Pages/Client/Theme/ITheme";
 type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"];
 import type { Lang } from "../../../../SysCore/i18n/lang";
 import { LibMerge } from "../../../../SysCore/Utils/Library/LibMergeData";
@@ -14,25 +14,24 @@ import { Grid } from "../../../../SysCore/Components/Grid/Grid_Comp";
 const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, showColumns: string[]) => {
     var condition: string = "";
     if (categoryIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.CategoryId} = ${categoryIds}`)
-    if (tagIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.Tags} HasAny ${tagIds}`)
+    if (tagIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.Tags} HasAllOf ${tagIds}`)
     condition = LibMerge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.ContentStatus} !& 4`)//不包含隱藏的資料
     type VisibleKey = [string, string];
+    //調整前台欄位顯示順序(目前需手動調整)
     const ORDER: string[] = [
         SchemaFields.SpecResearchDetailModelFields.Year, SchemaFields.SpecResearchDetailModelFields.AcademicYear,
-        SchemaFields.SpecResearchDetailModelFields.Semester, SchemaFields.SpecResearchDetailModelFields.ClassTime,
-        SchemaFields.SpecResearchDetailModelFields.ProjectLeader, SchemaFields.SpecResearchDetailModelFields.College,
-        SchemaFields.SpecResearchDetailModelFields.Department, SchemaFields.SpecResearchDetailModelFields.ProjectName,
-        SchemaFields.SpecResearchDetailModelFields.TeachingStaffOfOurSchool, SchemaFields.SpecResearchDetailModelFields.ApprovalNumber,
-        SchemaFields.SpecResearchDetailModelFields.ApprovedAmount, SchemaFields.SpecResearchDetailModelFields.DuringExecution,
-        SchemaFields.SpecResearchDetailModelFields.ContractPeriod, SchemaFields.SpecResearchDetailModelFields.Name,
-        SchemaFields.SpecResearchDetailModelFields.GraduationDegree, SchemaFields.SpecResearchDetailModelFields.PaperTitle,
-        SchemaFields.SpecResearchDetailModelFields.CooperatingUnits, SchemaFields.SpecResearchDetailModelFields.CooperationProject,
-        SchemaFields.SpecResearchDetailModelFields.Courses, SchemaFields.SpecResearchDetailModelFields.Cohost1,
+        SchemaFields.SpecResearchDetailModelFields.Semester, SchemaFields.SpecResearchDetailModelFields.CooperatingUnits,
+        SchemaFields.SpecResearchDetailModelFields.Courses, SchemaFields.SpecResearchDetailModelFields.CooperationProject,
+        SchemaFields.SpecResearchDetailModelFields.ClassTime, SchemaFields.SpecResearchDetailModelFields.TeachingStaffOfOurSchool,
+        SchemaFields.SpecResearchDetailModelFields.Department, SchemaFields.SpecResearchDetailModelFields.ProjectLeader,
+        SchemaFields.SpecResearchDetailModelFields.College, SchemaFields.SpecResearchDetailModelFields.ProjectName,
+        SchemaFields.SpecResearchDetailModelFields.ApprovalNumber, SchemaFields.SpecResearchDetailModelFields.ApprovedAmount,
+        SchemaFields.SpecResearchDetailModelFields.DuringExecution, SchemaFields.SpecResearchDetailModelFields.ContractPeriod,
+        SchemaFields.SpecResearchDetailModelFields.Name, SchemaFields.SpecResearchDetailModelFields.GraduationDegree,
+        SchemaFields.SpecResearchDetailModelFields.PaperTitle, SchemaFields.SpecResearchDetailModelFields.Cohost1,
         SchemaFields.SpecResearchDetailModelFields.Cohost2, SchemaFields.SpecResearchDetailModelFields.Commissioned,
         SchemaFields.SpecResearchDetailModelFields.PlanAmount, SchemaFields.SpecResearchDetailModelFields.PlanContent,
         SchemaFields.SpecResearchDetailModelFields.Remark];
-
-
     const buildVisibleKeys = (cols?: string[]): VisibleKey[] => {
         const { SpecResearchSetFields, SpecResearchDetailModelFields } = SchemaFields;
         const seen = new Set<string>();
@@ -99,7 +98,13 @@ const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, 
                 let content = "";
                 if (showColumns.includes(col.key)) {
                     const detail = item.SpecResearchDetail?.find(p => p.Lang === lang);
-                    content = detail ? (detail as Record<string, any>)[col.key] ?? "" : "";
+                    if (col.key === SchemaFields.SpecResearchDetailModelFields.ApprovedAmount ||
+                        col.key === SchemaFields.SpecResearchDetailModelFields.PlanAmount) {
+                        let val = detail ? (detail as Record<string, any>)[col.key] ?? "" : "";
+                        content = new Intl.NumberFormat("zh-TW", { style: "decimal", }).format(val)
+                    }
+                    else
+                        content = detail ? (detail as Record<string, any>)[col.key] ?? "" : "";
                 }
                 else {
                     content = (item.SpecResearch as any)[col.key] ?? "";

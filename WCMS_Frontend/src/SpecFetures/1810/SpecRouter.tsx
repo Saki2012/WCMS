@@ -1,15 +1,15 @@
 // SpecFeatures/1810/Router.ts
-import type { IRouteModule } from "../../SysCore/Interface/IBaseRouter";
-import { loadClientChildren } from "../../Features/Client/ClientRouter";
-import { BackendRouteModule } from "../../Features/Server/ServerRouter";
+import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
+import { loadClientChildren } from "@/Features/Pages/Client/ClientRouter";
+import { BackendRouteModule } from "@/Features/Pages/Server/ServerRouter";
 import type { RouteObject } from "react-router-dom";
-import { type INormNode, type INormSite, type ModuleEntry } from "../../Features/Client/Site-Routing";
-import SubContent from "../../Features/Client/Layout/BizFunc/MainPage/SubPages";
-import { Classic_FETheme } from "../../Features/Client/Layout/Theme/ClassicTheme_Clsx";
+import { type INormNode, type INormSite, type ModuleEntry } from "@/Features/Pages/Client/Site-Routing";
+import SubContent from "@/Features/Pages/Client/BizFunc/MainPage/SubPages";
+import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx";
 import { SpecUSRListComp, type ISpecUSRListOptions } from "./Client/SpecUSR/SpecUSR_List";
 import { SpecResearchListComp, type ISpecResearchListOptions } from "./Client/SpecResearch/SpecResearch_List";
-import { AutoRedirect } from "../../SysCore/Utils/Route/AutoRedirect";
-import { SpecUSRFormComp } from "./Client/SpecUSR/SpecUSR_Form";
+import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
+import { SpecUSRFormComp } from "@/SpecFetures/1810/Client/SpecUSR/SpecUSR_Form";
 
 
 export class SpecRouteModule implements IRouteModule {

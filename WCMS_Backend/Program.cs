@@ -503,7 +503,7 @@ namespace WCMS
                         ctx.Response.Headers.ContentSecurityPolicy =
                         "default-src 'none'; script-src 'none'; connect-src 'self'; img-src 'none'; " +
                         "style-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; " +
-                        "frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'";
+                        "frame-ancestors 'self'; form-action 'self'; require-trusted-types-for 'script'";
                     }
                     else
                     {

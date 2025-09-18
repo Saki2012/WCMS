@@ -64,20 +64,22 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
                 int rowId = 1;
                 ds.Tables["USRProject_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.SpecUSR.USRId).ToList().ForEach(dRow =>
                 {
+                    int.TryParse(dRow["AcademicYear"].ToString(), out int academicYear);
+                    decimal.TryParse(dRow["PlanAmount"].ToString().Replace(",", ""), out decimal planAmount);
                     SpecUSRDetail detail = new()
                     {
                         USRId = set.SpecUSR.USRId,
                         RowId = rowId++,
                         Lang = dRow["Lang"].ToString(),
                         Year = dRow["Year"].ToString(),
-                        AcademicYear = dRow["AcademicYear"].ToString(),
+                        AcademicYear = academicYear,
                         Courses = dRow["Courses"].ToString(),
                         PracticeField = dRow["PracticeField"].ToString(),
                         ProjectName = dRow["ProjectName"].ToString(),
                         ExternalCooperationUnit = dRow["ExternalCooperationUnit"].ToString(),
                         Department = dRow["Department"].ToString(),
                         DuringExecution = dRow["DuringExecution"].ToString(),
-                        PlanAmount = dRow["PlanAmount"].ToString(),
+                        PlanAmount = planAmount,
                         ExecutionStrategy = dRow["ExecutionStrategy"].ToString(),
                         ContentIntroduction = dRow["ContentIntroduction"].ToString(),
                         ProjectConcept = dRow["ProjectConcept"].ToString(),

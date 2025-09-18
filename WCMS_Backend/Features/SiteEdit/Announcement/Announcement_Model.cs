@@ -112,5 +112,6 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// 檔案來源
         /// </summary>
         [StringLength(SysLengthParam.InternalId)] public string FileId { get; set; }
+        [StringLength(SysLengthParam.Title)] public string FileName { get; set; }
     }
 }

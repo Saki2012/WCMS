@@ -60,29 +60,47 @@ namespace WCMS.SysCore
         /// <returns></returns>
         public async Task UpdateAsync(TModel oldData, TModel newData)
         {
-            //foreach(var fieldProp in PropertyAccessorCache.GetProperties(typeof(TModel))) 
-            //{
-            //    if (!fieldProp.CanWrite) continue;
-            //    var oldVal = PropertyAccessorCache.Get(oldData, fieldProp.Name);
-            //    var NewVal = PropertyAccessorCache.Get(newData, fieldProp.Name);
-            //    if (!Equals(oldVal,NewVal)) PropertyAccessorCache.Set(oldData, fieldProp.Name, NewVal);
-            //}
-            var entry = DataAccess.Entry(oldData);
+            var set = DataAccess.Set<TModel>();
+
+            // 1) 找到 TModel 的主鍵（支援複合鍵）
+            var entityType = DataAccess.Model.FindEntityType(typeof(TModel)) ?? throw new InvalidOperationException($"EntityType not found: {typeof(TModel).Name}");
+            var pk = entityType.FindPrimaryKey() ?? throw new InvalidOperationException($"Primary key not found: {typeof(TModel).Name}");
+            object[] GetKeyValues(object entity) => pk.Properties.Select(p => p.PropertyInfo!.GetValue(entity)!).ToArray();
+
+            bool KeysEqual(object[] a, object[] b) => a.Length == b.Length && a.Zip(b, (x, y) => Equals(x, y)).All(_ => _);
+
+            var newKey = GetKeyValues(newData);
+
+            // 2) 若 ChangeTracker 內已經有同 key 的實體，先 Detach（避免“cannot be tracked…”）
+            var dup = DataAccess.ChangeTracker.Entries<TModel>().FirstOrDefault(e => KeysEqual(GetKeyValues(e.Entity), newKey));
+            if (dup != null) dup.State = EntityState.Detached;
+
+            // 3) Attach 你要寫回去的“新資料”，這一份才是被追蹤的實體
+            set.Attach(newData);
+            var entry = DataAccess.Entry(newData);
+            entry.State = EntityState.Unchanged; // 先視為未變更，再逐欄位標記
+
+            // 4) 你的 diff + 逐欄位 IsModified（保留你現有邏輯）
             foreach (var fieldProp in PropertyAccessorCache.GetProperties(typeof(TModel)))
             {
                 if (!fieldProp.CanWrite) continue;
+                // 跳過集合型別（但 string 例外）
                 if (typeof(IEnumerable).IsAssignableFrom(fieldProp.PropertyType) && fieldProp.PropertyType != typeof(string)) continue;
+                // 跳過 Key / NotMapped
                 if (fieldProp.GetCustomAttribute<KeyAttribute>() != null) continue;
                 if (fieldProp.GetCustomAttribute<NotMappedAttribute>() != null) continue;
+
                 var oldVal = PropertyAccessorCache.Get(oldData, fieldProp.Name);
                 var newVal = PropertyAccessorCache.Get(newData, fieldProp.Name);
-                if (!Equals(oldVal, newVal)&&newVal!=null)
+
+                if (!Equals(oldVal, newVal) && newVal != null)
                 {
-                    PropertyAccessorCache.Set(oldData, fieldProp.Name, newVal);
+                    PropertyAccessorCache.Set(oldData, fieldProp.Name, newVal); // 若你有用到快取比對可保留
                     entry.Property(fieldProp.Name).IsModified = true;
                 }
             }
         }
+
         /// <summary>
         /// 刪除(非同步)
         /// </summary>

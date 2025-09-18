@@ -48,14 +48,14 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         [LibDesc(ModelDisplayName.Common_RowId), Key] public int RowId { get; set; }
         [LibDesc(ModelDisplayName.Common_Lang), Required, StringLength(5)] public string Lang { get; set; } = default!;
         [LibDesc(ModelDisplayName.SpecUSR_Year), StringLength(10)] public string? Year { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_AcademicYear), StringLength(10)] public string? AcademicYear { get; set; }
+        [LibDesc(ModelDisplayName.SpecUSR_AcademicYear), StringLength(10)] public int? AcademicYear { get; set; }
         [LibDesc(ModelDisplayName.SpecUSR_Courses), StringLength(200)] public string? Courses { get; set; }
         [LibDesc(ModelDisplayName.SpecUSR_PracticeField), StringLength(200)] public string? PracticeField { get; set; }
         [LibDesc(ModelDisplayName.SpecUSR_ProjectName), StringLength(200)] public string? ProjectName { get; set; }
         [LibDesc(ModelDisplayName.SpecUSR_ExternalCoUnits), StringLength(200)] public string? ExternalCooperationUnit { get; set; }
         [LibDesc(ModelDisplayName.SpecUSR_Department), StringLength(200)] public string? Department { get; set; }
         [LibDesc(ModelDisplayName.SpecUSR_DuringExecution), StringLength(200)] public string? DuringExecution { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_PlanAmount), StringLength(200)] public string? PlanAmount { get; set; }
+        [LibDesc(ModelDisplayName.SpecUSR_PlanAmount), StringLength(200)] public decimal? PlanAmount { get; set; }
         [LibDesc(ModelDisplayName.SpecUSR_ExternalCoUnits)] public string? ExecutionStrategy { get; set; }
         [LibDesc(ModelDisplayName.SpecUSR_ContentIntro)] public string? ContentIntroduction { get; set; }
         [LibDesc(ModelDisplayName.SpecUSR_ProjectConcept)] public string? ProjectConcept { get; set; }

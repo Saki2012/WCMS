@@ -1,6 +1,6 @@
 /**公告清單 */
 import type { components } from "../../../../types/api";
-import type { IFETheme } from "../../../../Features/Client/Layout/Theme/ITheme";
+import type { IFETheme } from "../../../../Features/Pages/Client/Theme/ITheme";
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
 import { Link, useLocation } from "react-router-dom";
@@ -12,12 +12,12 @@ import type { ColumnConfig } from "../../../../SysCore/Components/Grid/Grid_Data
 import LoadingErrorHandler from "../../../../SysCore/Components/LoadingErrorHandler";
 import SpecCategoryProvider from "../../Server/BizFunc/SpecCategory/SpecCategory_Api";
 import { LibMerge } from "../../../../SysCore/Utils/Library/LibMergeData";
-
+import DefaultPic from "@/Assets/1810/images_960x960.jpg"
 
 const useSpecUSRList = (categoryId: string, tagIds: string) => {
     var condition: string = "";
     condition = `${SchemaFields.SpecUSRModelFields.CategoryId} = ${categoryId}`;
-    if (tagIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.SpecUSRModelFields.Tags} HasAny (${tagIds})`)
+    if (tagIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.SpecUSRModelFields.Tags} HasAllOf (${tagIds})`)
     condition = LibMerge(" And ", false, condition, `${SchemaFields.SpecUSRModelFields.ContentStatus} !& 4`)//不包含隱藏的資料
 
     const provider = SpecUSRProvider();
@@ -122,6 +122,10 @@ const SpecUSRList = ({ lang, rawData, showColumnItems, showColTitle }: { lang: s
                     {rawData.map((item) => {
                         const pageLink = `${dirUrl}/${item.SpecUSR?.InternalId}`;
                         const detail = item.SpecUSRDetail?.find(p => p.Lang.toLocaleLowerCase() === lang.toLocaleLowerCase());
+
+                        const picUrl = item.SpecUSR?.PictureId ? `/Service/FileManagement/Preview/${item.SpecUSR?.PictureId}` : DefaultPic
+
+
                         return (
                             <div className="articles_item col-12">
                                 <article className="cardbox">
@@ -129,7 +133,7 @@ const SpecUSRList = ({ lang, rawData, showColumnItems, showColTitle }: { lang: s
                                         <div className="leftBox d-flex">
                                             <figure className="card_figure w-100 h-100">
                                                 <Link to={pageLink} className="card_image_link">
-                                                    <picture className="w-100 h-100"> <img className="card_image" src={`/Service/FileManagement/Preview/${item.SpecUSR?.PictureId}`} alt={item.SpecUSR?.PicDescription ?? ""} /> </picture>
+                                                    <picture className="w-100 h-100"> <img className="card_image" src={picUrl} alt={item.SpecUSR?.PicDescription ?? ""} /> </picture>
                                                 </Link>
                                             </figure>
                                         </div>

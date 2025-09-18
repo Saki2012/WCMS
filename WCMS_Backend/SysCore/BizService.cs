@@ -659,7 +659,7 @@ namespace WCMS.SysCore
             string normalized = NormalizeCondition(modelType, condition, out object[] args);
             if (string.IsNullOrWhiteSpace(normalized)) return Expression.Lambda(Expression.Constant(true), param);
             var config = new ParsingConfig{ ResolveTypesBySimpleName = true, AllowNewToEvaluateAnyType = true, UseParameterizedNamesInDynamicQuery = true , CustomTypeProvider = new WcmsTypeProvider()};
-            var lambda = DynamicExpressionParser.ParseLambda(config, new[] { param }, typeof(bool), normalized, args);
+            var lambda = DynamicExpressionParser.ParseLambda(config, [param], typeof(bool), normalized, args);
             return lambda;
         }
 
@@ -668,7 +668,7 @@ namespace WCMS.SysCore
             List<object> argList = [];
 
             // 預處理原始條件字串
-            rawCondition = Regex.Replace(rawCondition, @"(?<=[^\s<>!=])=(?=[^=])", " == ");
+            rawCondition = Regex.Replace(rawCondition, @"(?<=[^!\s<>!=])=(?=[^=])", " == ");
             rawCondition = Regex.Replace(rawCondition, @"(?<=[^\s])(?<op>==|!=|>=|<=|>|<)(?=[^\s])", " ${op} ");
 
             var tokens = Regex.Split(rawCondition, @"\s+(and|or)\s+", RegexOptions.IgnoreCase);
@@ -678,7 +678,7 @@ namespace WCMS.SysCore
             {
                 string clause = tokens[i].Trim();
                 string? connector = (i > 0 && i - 1 < tokens.Length) ? tokens[i - 1].Trim().ToLower() : null;
-                var match = Regex.Match(clause, @"^(?<fullPath>[\w.]+)\s*(?<op>=|&|!&|==|!=|>=|<=|>|<|in|not in|like|is null|is not null|hasany|hasall)\s*(?<val>.+)?$", RegexOptions.IgnoreCase);
+                var match = Regex.Match(clause, @"^(?<fullPath>[\w.]+)\s*(?<op>=|&|!&|==|!=|>=|<=|>|<|in|not in|like|is null|is not null|hasany|hasallof|hasall)\s*(?<val>.+)?$", RegexOptions.IgnoreCase);
                 if (!match.Success) continue;
 
                 string fullPath = match.Groups["fullPath"].Value;
@@ -800,6 +800,38 @@ namespace WCMS.SysCore
                             expr =
                                 $"{split}.Count(@{pIndex}.Contains(Id.ToUpper())) == @{pIndex}.Length && " +
                                 $"{split}.Count() == @{pIndex}.Length";
+                            break;
+                        }
+                    case "hasallof":
+                        {
+                            // 允許格式：
+                            //   Categories hasAllOf ("A1","A2")
+                            //   Categories hasAllOf (A1,A2)
+                            //   Categories hasAllOf ["A1","A2"]
+                            //   Categories hasAllOf A1,A2
+                            var raw = (val ?? string.Empty).Trim();
+
+                            // 去外層 () 或 []
+                            if ((raw.StartsWith("(") && raw.EndsWith(")")) || (raw.StartsWith("[") && raw.EndsWith("]")))
+                                raw = raw.Substring(1, raw.Length - 2);
+
+                            // 以逗號切分並清理引號/空白，統一大寫以做到不分大小寫
+                            var tokens = raw
+                                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                .Select(s => s.Trim().Trim('"', '\''))
+                                .Where(s => !string.IsNullOrWhiteSpace(s))
+                                .Select(s => s.ToUpperInvariant())
+                                .ToArray();
+
+                            if (tokens.Length == 0) return null;
+
+                            int pIndex = args.Count;
+                            args.Add(tokens);
+
+                            // DbFunction 切 CSV → 計數
+                            // 條件：交集數量 == 查詢條件數量
+                            var split = $"ApplicationDbContext.SplitToStringTable({fieldExpr})";
+                            expr = $"{split}.Count(@{pIndex}.Contains(Id.ToUpper())) == @{pIndex}.Length";
                             break;
                         }
                     case "&":

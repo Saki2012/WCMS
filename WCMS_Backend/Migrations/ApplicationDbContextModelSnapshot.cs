@@ -171,6 +171,11 @@ namespace WCMS.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.HasKey("AnnouncementId", "ParentRowId", "RowId");
 
                     b.ToTable("AnnouncementDetailFile", (string)null);
@@ -1419,17 +1424,15 @@ namespace WCMS.Migrations
                     b.Property<int>("RowId")
                         .HasColumnType("int");
 
-                    b.Property<string>("AcademicYear")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                    b.Property<int?>("AcademicYear")
+                        .HasColumnType("int");
 
                     b.Property<string>("ApprovalNumber")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("ApprovedAmount")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                    b.Property<decimal?>("ApprovedAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("ClassTime")
                         .HasMaxLength(200)
@@ -1492,9 +1495,8 @@ namespace WCMS.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("PlanAmount")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                    b.Property<decimal?>("PlanAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("PlanContent")
                         .HasColumnType("nvarchar(max)");
@@ -1519,9 +1521,8 @@ namespace WCMS.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("Year")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                    b.Property<int?>("Year")
+                        .HasColumnType("int");
 
                     b.HasKey("ResearchId", "RowId");
 
@@ -1620,9 +1621,8 @@ namespace WCMS.Migrations
                     b.Property<int>("RowId")
                         .HasColumnType("int");
 
-                    b.Property<string>("AcademicYear")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                    b.Property<int?>("AcademicYear")
+                        .HasColumnType("int");
 
                     b.Property<string>("Cohost1")
                         .HasMaxLength(200)
@@ -1664,9 +1664,8 @@ namespace WCMS.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
-                    b.Property<string>("PlanAmount")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                    b.Property<decimal?>("PlanAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("PracticeField")
                         .HasMaxLength(200)

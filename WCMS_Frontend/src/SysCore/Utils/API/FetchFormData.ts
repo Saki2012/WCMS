@@ -4,9 +4,9 @@ import type { IDataProvider } from "../../Interface/IApiProvider";
 
 export interface UseFetchFormDataResult<T>
 {
-    data: T | null;
-    displayName: ModelDisplaySchema | null;
-    setFormData: React.Dispatch<React.SetStateAction<T | null>>;
+    data: T;
+    displayName: ModelDisplaySchema;
+    setFormData: React.Dispatch<React.SetStateAction<T>>;
     isLoading: boolean;
     error: string | null;
     refetch: () => void;
@@ -24,8 +24,8 @@ export const useFetchFormData = <T>(
     emptyData?: T,
 ): UseFetchFormDataResult<T> =>
 {
-    const [data, setFormData] = useState<T | null>(null);
-    const [displayName, setDisplayName] = useState<ModelDisplaySchema | null>(null);
+    const [data, setFormData] = useState<T>(null as T);
+    const [displayName, setDisplayName] = useState<ModelDisplaySchema>(null as unknown as ModelDisplaySchema);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -48,7 +48,7 @@ export const useFetchFormData = <T>(
                 const msg = res.SysMessage?.map(m => `${m.MessageCode}:${m.Message}`).join("；") ?? "查詢失敗";
                 throw new Error(msg);
             }
-            setFormData((res.Data as T[])?.[0] ?? null);
+            setFormData((res.Data as T[])?.[0] ?? null as T);
         } catch (err: any)
         {
             setError(err.message ?? "資料讀取失敗");
