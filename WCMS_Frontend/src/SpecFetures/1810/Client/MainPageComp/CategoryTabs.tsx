@@ -89,7 +89,7 @@ export const CategoryTabs = () => {
     const useAllNewsData = useAnnouncementList();
     const useProjectData = useAnnouncementList("3,4,5");
     const useLegalData = useAnnouncementList("6");
-    const useEvenData = useAnnouncementList("8");
+    const useEvenData = useAnnouncementList("8,10");
     const useAwardData = useAnnouncementList("45");
     const useMediaData = useAnnouncementList("46");
 
@@ -115,10 +115,11 @@ export const CategoryTabs = () => {
             return [id, name];
         })
     );
+
     const allNews = getNewsDataProps(useAllNewsData.rawData, lang, "/Allnews/Project-solicitation/National-Science-Accounting", "", categoryDict, tagDict);
-    const project = getNewsDataProps(useProjectData.rawData, lang, "/Allnews/Project-solicitation/National-Science-Accounting", "4", categoryDict, tagDict);
+    const project = getNewsDataProps(useProjectData.rawData, lang, "/Allnews/Project-solicitation/National-Science-Accounting", "", categoryDict, tagDict);
     const legal = getNewsDataProps(useLegalData.rawData, lang, "/Allnews/Regulatory-Announcements", "6", categoryDict, tagDict)
-    const even = getNewsDataProps(useEvenData.rawData, lang, "/Allnews/Intramural-activities/In-school-activities", "8", categoryDict, tagDict)
+    const even = getNewsDataProps(useEvenData.rawData, lang, "/Allnews/Intramural-activities/In-school-activities", "", categoryDict, tagDict)
     const award = getNewsDataProps(useAwardData.rawData, lang, "/Allnews/Award-announcement", "45", categoryDict, tagDict)
     const media = getNewsDataProps(useMediaData.rawData, lang, "/Allnews/Special-Topics-and-Media-Coverage", "46", categoryDict, tagDict)
     return (
@@ -269,6 +270,7 @@ export const CategoryTabs = () => {
 
 interface getDataProp { redir: string; announceInternalId: string; title: string; date: string; month: string; tagName: string; categoryName: string; }
 //最新公告
+/**注:預計把targetCategoryId的參數拿掉，會影響邏輯 */
 const getNewsDataProps = (newsData: AnnouncementSet[], lang: string, redir: string, targetCategoryId: string, categoryDict: Record<string, string>, tagDict: Record<string, string>) => {
     const top6 = pickNewsByCategories(newsData, targetCategoryId, 6, 'any');
     const resultProps: getDataProp[] = []
@@ -301,22 +303,12 @@ const formatDate = (dateStr: string) => {
 
 const pickNewsByCategories = <T extends { Announcement?: { Categories?: string | null | undefined } }>
     (newsData: T[] | undefined, categories: string | string[], take: number = 6, mode: 'any' | 'all' = 'any'): T[] => {
-    const target = new Set(
-        (Array.isArray(categories) ? categories : String(categories).split(','))
-            .map(s => s.trim())
-            .filter(Boolean)
-    );
+    const target = new Set((Array.isArray(categories) ? categories : String(categories).split(',')).map(s => s.trim()).filter(Boolean));
     if (!newsData || target.size === 0) return (newsData ?? []).slice(0, take);
-
     const result = newsData.filter(item => {
-        const tokens = (item.Announcement?.Categories ?? '')
-            .split(',')
-            .map(s => s.trim())
-            .filter(Boolean);
+        const tokens = (item.Announcement?.Categories ?? '').split(',').map(s => s.trim()).filter(Boolean);
         if (tokens.length === 0) return false;
-        return mode === 'all'
-            ? [...target].every(t => tokens.includes(t))
-            : tokens.some(t => target.has(t));
+        return mode === 'all' ? [...target].every(t => tokens.includes(t)) : tokens.some(t => target.has(t));
     });
     return result.slice(0, take);
 }

@@ -6,6 +6,7 @@ import type { components } from "@/types/api";
 import clsx from "clsx";
 import * as SchemaFields from "@/types/SchemaFields";
 import { useMemo } from "react";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 type BannerSet = components["schemas"]["BannerSet_DTO"]
 const emptyData: BannerSet = {
     Banner: {},
@@ -74,7 +75,7 @@ export const BannerSlider = () => {
                                 const alt = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.Title ?? ""
                                 return (
                                     <div key={i} className={clsx("carousel-item", i === 0 ? "active" : "")} data-bs-interval="5000">
-                                        <img src={`/Service/FileManagement/Preview/${p.PicSrcId}`}
+                                        <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`}
                                             className="d-block w-100"
                                             alt={alt}
                                         />
@@ -149,7 +150,7 @@ export const BannerSlider = () => {
                                 const alt = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.Title ?? ""
                                 return (
                                     <div key={i} className={clsx("carousel-item", i === 0 ? "active" : "")} data-bs-interval="5000">
-                                        <img src={`/Service/FileManagement/Preview/${p.PicSrcId}`}
+                                        <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`}
                                             className="d-block w-100"
                                             alt={alt}
                                         />

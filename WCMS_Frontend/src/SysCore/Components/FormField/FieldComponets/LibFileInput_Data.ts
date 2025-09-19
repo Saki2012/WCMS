@@ -14,6 +14,7 @@ export interface ILibFileInputProp extends ILibBaseComponentsProp
     InputValue: string;
     onChange: (internalId: string | null, fileName?: string | null) => void;
     onDelete: () => void;
+    onNameChange?: (name: string) => void;
     // 進階
     accept?: string;
     disabled?: boolean;

@@ -49,6 +49,7 @@ namespace WCMS.Features.SiteEdit.Gallery
                         Tags = srcHeader["Tag"].ToString(),
                         CreateTime = srcHeader["CreateTime"].ToString().ToDateTime(),
                         ModifyTime = srcHeader["UpdateTime"].ToString().ToDateTime(),
+                        Validate_Start= srcHeader["StartDate"].ToString().ToDateTime(),
                     }
                 };
                 int galleryRowId = 1;

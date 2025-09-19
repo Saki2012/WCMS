@@ -2,7 +2,7 @@ import type { IFETheme } from '../../../Theme/ITheme';
 import type { components } from '@/types/api';
 import { useParams } from 'react-router-dom';
 import parse from 'html-react-parser';
-import GalleryProvider from '@/Features/Pages/Server/BizFunc/WebManagement/Gallery/Gallery_Api';
+import GalleryProvider from '@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api';
 import { useFetchFormData } from '@/SysCore/Utils/API/FetchFormData';
 import { useResolveInternalIds } from '@/SysCore/Components/File/useResolveInternalIds';
 import type { Lang } from '@/SysCore/i18n/lang';

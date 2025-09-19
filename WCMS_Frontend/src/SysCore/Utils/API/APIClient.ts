@@ -87,3 +87,11 @@ class systemAPI
 }
 
 export const SystemAPI = new systemAPI();
+
+export class FileManagementAPI
+{
+    private static readonly BASEURL = `FileManagement`;
+    public static readonly PREVIEW_URL: string = `${import.meta.env.VITE_API_BASE_URL}/${this.BASEURL}/Preview`;
+    public static readonly UPLOAD_URL: string = `${import.meta.env.VITE_API_BASE_URL}/${this.BASEURL}/UploadTemp`;
+    public static readonly DOWNLOAD_URL: string = `${import.meta.env.VITE_API_BASE_URL}/${this.BASEURL}/Download`;
+}

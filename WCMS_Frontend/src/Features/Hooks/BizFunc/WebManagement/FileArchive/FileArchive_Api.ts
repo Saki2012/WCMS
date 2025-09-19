@@ -1,8 +1,8 @@
-import { IApiProvider, IDataProvider } from "../../../../../../SysCore/Interface/IApiProvider";
-import type { ApiResponse } from "../../../../../../SysCore/Interface/IApiProvider";
-import { BaseApiService } from "../../../../../../SysCore/Utils/API/APIClient";
-import type { components } from "../../../../../../types/api";
-import type { ModelDisplaySchema } from "../../../../../../types/IApiSchema";
+import { IApiProvider, IDataProvider } from "@/SysCore/Interface/IApiProvider";
+import type { ApiResponse } from "@/SysCore/Interface/IApiProvider";
+import { BaseApiService } from "@/SysCore/Utils/API/APIClient";
+import type { components } from "@/types/api";
+import type { ModelDisplaySchema } from "@/types/IApiSchema";
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
 type QueryListParam = components["schemas"]["QueryListParam"];
 

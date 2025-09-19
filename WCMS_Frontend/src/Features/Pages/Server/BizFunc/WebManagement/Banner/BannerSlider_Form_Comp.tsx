@@ -11,10 +11,11 @@ import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import * as SchemaFields from "@/types/SchemaFields";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
-import { LangLabelMap } from "@/SysCore/Components/LangTab/LangTab_Comp";
 import { LibMerge as LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { LangLabelMap, type Lang } from "@/SysCore/i18n/lang";
 type BannerSet = components["schemas"]["BannerSet_DTO"]
 type BannerDetail = components["schemas"]["BannerDetail_DTO"]
 type BannerDetailInfo = components["schemas"]["BannerDetailInfo_DTO"]
@@ -147,7 +148,7 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<B
     const tabContent: Record<string, React.ReactNode[]> = details.reduce<Record<string, React.ReactNode[]>>(
         (acc, d, idx) => {
             const detailRowId = d.RowId ?? idx;
-            const picSrc = d.PicSrcId ? `/Service/FileManagement/Preview/${d.PicSrcId}` : "https://dummyimage.com/1920x550/555/fff.png";
+            const picSrc = d.PicSrcId ? `${FileManagementAPI.PREVIEW_URL}/${d.PicSrcId}` : "https://dummyimage.com/1920x550/555/fff.png";
             const rowKeys = { [SchemaFields.BannerDetailFields.BannerId]: d.BannerId, [SchemaFields.BannerDetailFields.RowId]: d.RowId }
             acc[String(detailRowId)] = [
                 <LibFile
@@ -187,7 +188,7 @@ const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
         Style: props.theme.Tabs,
         item: rawDetails.reduce<Record<string, string>>((tabItems, info) => {
             const langKey = LibMerge("_", true, info.BannerId, info.ParentRowId, info.RowId, info.Lang)
-            tabItems[langKey] = LangLabelMap[info.Lang ?? ""] ?? info.Lang ?? "Unknown";
+            tabItems[langKey] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
             return tabItems;
         }, {})
     };

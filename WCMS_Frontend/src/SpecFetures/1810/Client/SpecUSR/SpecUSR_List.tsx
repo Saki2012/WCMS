@@ -13,6 +13,7 @@ import LoadingErrorHandler from "../../../../SysCore/Components/LoadingErrorHand
 import SpecCategoryProvider from "../../Server/BizFunc/SpecCategory/SpecCategory_Api";
 import { LibMerge } from "../../../../SysCore/Utils/Library/LibMergeData";
 import DefaultPic from "@/Assets/1810/images_960x960.jpg"
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 
 const useSpecUSRList = (categoryId: string, tagIds: string) => {
     var condition: string = "";
@@ -123,7 +124,7 @@ const SpecUSRList = ({ lang, rawData, showColumnItems, showColTitle }: { lang: s
                         const pageLink = `${dirUrl}/${item.SpecUSR?.InternalId}`;
                         const detail = item.SpecUSRDetail?.find(p => p.Lang.toLocaleLowerCase() === lang.toLocaleLowerCase());
 
-                        const picUrl = item.SpecUSR?.PictureId ? `/Service/FileManagement/Preview/${item.SpecUSR?.PictureId}` : DefaultPic
+                        const picUrl = item.SpecUSR?.PictureId ? `${FileManagementAPI.PREVIEW_URL}/${item.SpecUSR?.PictureId}` : DefaultPic
 
 
                         return (

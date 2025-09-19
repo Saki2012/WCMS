@@ -1,10 +1,10 @@
-import type { RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data";
-import type { components } from "../../../../../../types/api";
-import * as SchemaFields from "../../../../../../types/SchemaFields";
-import FileArchiveProvider from "./FileArchive_Api";
+import FileArchiveProvider from "@/Features/Hooks/BizFunc/WebManagement/FileArchive/FileArchive_Api";
+import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import type { components } from "@/types/api";
+import * as SchemaFields from "@/types/SchemaFields";
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
-import { useFetchGridListData } from "../../../../../../SysCore/Utils/API/FetchGridListData";
-import { FormatDateTime } from "../../../../../../SysCore/Utils/Library/LibData";
+import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
+import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 
 export const useFileArchiveList = () =>
 {

@@ -1,4 +1,5 @@
 // src/core/internalId/transformHtml.ts
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { render } from "dom-serializer";
 import type { Element } from "html-react-parser";
 import { parseDocument } from "htmlparser2";
@@ -56,10 +57,8 @@ const replaceImg = (
 
 const defaultBuildDownloadUrl = (id: string, meta?: FileMeta) =>
 {
-    // 若 meta 有現成 downloadUrl 就用，否則走預設路徑
     if (meta?.url) return meta.url;
-    const base = import.meta.env.VITE_API_BASE_URL ?? "/Service";
-    return `${base}/FileManagement/Download/${id}`;
+    return `${FileManagementAPI.DOWNLOAD_URL}/${id}`;
 };
 
 const replaceAnchorDownload = (
@@ -120,7 +119,7 @@ const buildPreviewUrl = (id: string, opt?: TransformOptions): string =>
 {
     if (opt?.urlBuilder) return opt.urlBuilder(id);
     // 後端既有的預覽端點（與 img/a 維持一致的預設）
-    return `/Service/FileManagement/Preview/${id}`;
+    return `${FileManagementAPI.PREVIEW_URL}/${id}`;
 };
 
 const ensureTitleForAA = (el: Element, meta?: FileMeta) =>

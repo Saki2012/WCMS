@@ -2,7 +2,7 @@
 import 'swiper/swiper-bundle.css';
 import { BaseCarousel } from '@/SysCore/Components/BaseCarousel'
 import { Link } from 'react-router-dom';
-import GalleryProvider from '@/Features/Pages/Server/BizFunc/WebManagement/Gallery/Gallery_Api';
+import GalleryProvider from '@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api';
 import type { components } from '@/types/api';
 type GallerySet = components["schemas"]["GallerySet_DTO"]
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"]
@@ -12,6 +12,7 @@ import { FormatDate } from '@/SysCore/Utils/Library/LibData';
 import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import { useEffect, useRef } from 'react';
 import CategoryProvider from '@/Features/Pages/Server/BizFunc/WebManagement/Category/Category_Api';
+import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 
 const useGalleryList = () => {
     const provider = GalleryProvider();
@@ -184,7 +185,7 @@ export const GallerySession = () => {
                                                             <div className="DivBox_content v_itemBOX">
                                                                 <div className="Picture_Div">
                                                                     <div className="img_wrapper">
-                                                                        <div className="figure_wrapper"> <img src={`/Service/FileManagement/Preview/${item.picInternalId}`} alt={item.title} /> </div>
+                                                                        <div className="figure_wrapper"> <img src={`${FileManagementAPI.PREVIEW_URL}/${item.picInternalId}`} alt={item.title} /> </div>
                                                                     </div>
                                                                 </div>
                                                                 <div className="TxtBoxDiv">

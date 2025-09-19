@@ -1,4 +1,5 @@
 // SysCore/Components/File/useResolveInternalIds.ts
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import DOMPurify from "dompurify";
 import { useEffect, useMemo, useState } from "react";
 import { fetchFileMetaMap } from "./fetchFileMeta";
@@ -16,7 +17,7 @@ export interface UseResolveResult
     error?: unknown;
 }
 
-const buildFileUrlById = (id: string) => `/Service/FileManagement/Preview/${encodeURIComponent(id)}`;
+const buildFileUrlById = (id: string) => `${FileManagementAPI.PREVIEW_URL}/${encodeURIComponent(id)}`;
 
 const createPermissiveSanitizer = () =>
 {

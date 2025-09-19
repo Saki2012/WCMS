@@ -1,4 +1,5 @@
 // src/hooks/TinyMCE_Hook.ts
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useCallback, useMemo, useRef } from "react";
 import type { Editor as TinyMCEEditor } from "tinymce";
 import { useContentTransform } from "./useContentTransform";
@@ -30,7 +31,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
 
     // 1) 掛上內容轉換（prefix 可自訂；不給就用預設）
     const { toDb, toEditor } = useContentTransform({
-        previewPrefix: "/Service/FileManagement/Preview/",
+        previewPrefix: `${FileManagementAPI.PREVIEW_URL}`,
         attrName: "data-internalid",
     });
     const value = useMemo(() => toEditor(p.value ?? ""), [p.value, toEditor]);
@@ -45,7 +46,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
 
     const uploadAndReturn = async (file: File) =>
     {
-        const api = p.uploadFileApi ?? "/Service/FileManagement/UploadTemp";
+        const api = p.uploadFileApi ?? `${FileManagementAPI.UPLOAD_URL}`;
         const fd = new FormData();
         fd.append("file", file);
         const res = await fetch(api, { method: "POST", body: fd });
@@ -60,7 +61,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
     };
 
     const toUrl = (id: string, kind: "file" | "image") =>
-        (p.makeFileUrl?.(id, { kind })) ?? `/Service/FileManagement/Preview/${id}`;
+        (p.makeFileUrl?.(id, { kind })) ?? `${FileManagementAPI.PREVIEW_URL}/${id}`;
 
     const pickLocalFile = (cb: (file: File) => void) =>
     {

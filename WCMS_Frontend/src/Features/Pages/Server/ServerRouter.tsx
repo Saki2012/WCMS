@@ -1,21 +1,21 @@
 import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter"
 import type { RouteObject } from "react-router-dom";
 import DashboardPage from "@/Features/Pages/Server/Scaffold/DashboardPage"
-import { PageFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/PageManagement/PageManagement_Form_Comp"
-import { PageListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/PageManagement/PageManagement_List_Comp"
-import { AnnouncementListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Announcement/Server_Announcement_List_Comp";
+import { PageFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/PageManagement/Server_PageManagement_Form_Comp"
+import { PageListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/PageManagement/Server_PageManagement_List_Comp"
+import { Server_AnnouncementListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Announcement/Server_Announcement_List_Comp";
 import { Classic_BETheme } from "@/Features/Pages/Server/Theme/ClassicTheme_Clsx";
 import { CategoryListFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Category/Category_ListForm_Comp";
 import { TagListFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Tags/Tag_ListForm_Comp";
-import { AnnouncementFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Announcement/Server_Announcement_Form_Comp";
+import { Server_AnnouncementFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Announcement/Server_Announcement_Form_Comp";
 import { BannerSliderFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Banner/BannerSlider_Form_Comp";
 import { BannerSliderListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Banner/BannerSlider_List_Comp";
 import LoginPage from "@/Features/Pages/Server/BizFunc/Auth/LoginPage";
 import RequireAuth from "@/SysCore/Components/Auth/RequireAuth";
 import LogoutPage from "@/Features/Pages/Server/BizFunc/Auth/LogoutPage";
 import RegisterPage from "@/Features/Pages/Server/BizFunc/Auth/RegisterPage";
-import { GalleryFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Gallery/Gallery_Form_Comp";
-import { GalleryListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Gallery/Gallery_List_Comp";
+import { Server_GalleryFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Gallery/Server_Gallery_Form_Comp";
+import { Server_GalleryListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Gallery/Server_Gallery_List_Comp";
 import { FileArchiveListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/FileArchive/FileArchive_List_Comp";
 import { FileArchiveFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/FileArchive/FileArchive_Form_Comp";
 import { WebResourceListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/WebResource/WebResource_List_Comp";
@@ -93,8 +93,8 @@ export class BackendRouteModule implements IRouteModule {
                 path: 'Announcement',
                 children: [
                   { index: true, element: <AutoRedirect to="List" replace /> },
-                  { path: 'Form/:internalId?', element: <AnnouncementFormComp theme={Classic_BETheme} /> },
-                  { path: 'List', element: <AnnouncementListComp title="公告列表" theme={Classic_BETheme} /> },
+                  { path: 'Form/:internalId?', element: <Server_AnnouncementFormComp theme={Classic_BETheme} lang={"zh-tw"} /> },
+                  { path: 'List', element: <Server_AnnouncementListComp title="公告列表" theme={Classic_BETheme} /> },
                   { path: 'Category/:internalId?', element: <CategoryListFormComp progId="Announcement" title="類別" theme={Classic_BETheme} /> },
                   { path: 'Tag/:internalId?', element: <TagListFormComp progId="Announcement" title="標籤" theme={Classic_BETheme} /> },
                 ],
@@ -116,8 +116,8 @@ export class BackendRouteModule implements IRouteModule {
                 path: 'Gallery',
                 children: [
                   { index: true, element: <AutoRedirect to="List" replace /> },
-                  { path: 'Form/:internalId?', element: <GalleryFormComp theme={Classic_BETheme} /> },
-                  { path: 'List', element: <GalleryListComp title="相簿列表" theme={Classic_BETheme} /> },
+                  { path: 'Form/:internalId?', element: <Server_GalleryFormComp theme={Classic_BETheme} lang={'zh-tw'} /> },
+                  { path: 'List', element: <Server_GalleryListComp title="相簿列表" theme={Classic_BETheme} /> },
                   { path: 'Category/:internalId?', element: <CategoryListFormComp progId="Gallery" title="類別" theme={Classic_BETheme} /> },
                   { path: 'Tag/:internalId?', element: <TagListFormComp progId="Gallery" title="標籤" theme={Classic_BETheme} /> },
                 ],

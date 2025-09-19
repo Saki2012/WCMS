@@ -4,6 +4,7 @@ import { Paginator } from "../../../../../../SysCore/Components/Paginator/Pagina
 import { SubPageTitle } from "../../Header/SubPageTitle_Comp";
 import type { GridProps } from "../../../../../../SysCore/Components/Grid/Grid_Data";
 import type { IFETheme } from "../../../Theme/ITheme";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 
 export interface GridViewContentProps {
     Title: string,
@@ -44,7 +45,7 @@ const MainContent = ({ props, gridProps, theme }: { props: MainGridContentProp[]
                     <div className="col-xxl-3 col-xl-4 col-lg-6 col-md-6 col-sm-6 col-12 photo_standardbox">
                         <Link key={idx} to={`${dirUrl}/${prop.galleryInternalId}`} title={prop.Title}>
                             <div className="img-box">
-                                <img className="img-fluid" src={`/Service/Filemanagement/Preview/${prop.CoverPicInternlId}`} alt={prop.Title} />
+                                <img className="img-fluid" src={`${FileManagementAPI.PREVIEW_URL}/${prop.CoverPicInternlId}`} alt={prop.Title} />
                             </div>
                             <figcaption>
                                 <div className="category_box">
@@ -56,7 +57,8 @@ const MainContent = ({ props, gridProps, theme }: { props: MainGridContentProp[]
                                 </div>
                                 <h3 className="title mt-0 mb-0">{prop.Title}</h3>
                                 <div className="category_box">
-                                    <div className="m-date_category mt-2"> <i className="fa fa-clock-o" aria-hidden="true"></i>
+                                    <div className="m-date_category mt-2">
+                                        <i className="fa fa-clock-o" aria-hidden="true"></i>
                                         <div className="tags-text">{prop.CreateDate}</div>
                                     </div>
                                 </div>

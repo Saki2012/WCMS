@@ -18,12 +18,12 @@ import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import * as SchemaFields from "@/types/SchemaFields";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-import { LangLabelMap } from "@/SysCore/Components/LangTab/LangTab_Comp";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { DefaultLang, LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type AnnouncementDetail = components["schemas"]["AnnouncementDetail_DTO"]
 type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"]
-
 
 
 const emptyData: AnnouncementSet = {
@@ -34,20 +34,21 @@ const emptyData: AnnouncementSet = {
 /** 頁面表單
  * @returns 
  */
-export const AnnouncementFormComp = ({ theme }: { theme: IBETheme }) => {
+export const Server_AnnouncementFormComp = (props: { theme: IBETheme; lang: Lang }) => {
     const { internalId } = useParams();
-    const useCategory = useGetCategoryListByProgId("Announcement", "zh-tw");
-    const useTag = useGetTagListByProgId("Announcement", "zh-tw");
+    const useCategory = useGetCategoryListByProgId("Announcement", props.lang);
+    const useTag = useGetTagListByProgId("Announcement", props.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
     const formData = useFetchFormData<AnnouncementSet>(AnnouncementProvider(), internalId, emptyData)
     const useToolbar = useFormToolbarActions(AnnouncementProvider(), formData.data as AnnouncementSet, internalId as string, () => formData.refetch())
+    useEnsureLangDetails(formData, { headerName: SchemaFields.AnnouncementSetFields.Announcement, detailName: SchemaFields.AnnouncementSetFields.AnnouncementDetail, parentKeys: [SchemaFields.AnnouncementDetailFields.AnnouncementId] });
     const isLoading = [useTag.isLoading, useCategory.isLoading, formData.isLoading, useContentStatus.isLoading]
     const errors = [useTag.error, useCategory.error, formData.error, useContentStatus.error]
-    const prop: FormCompProp = { Title: "新增公告", Theme: theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }
+    const prop: FormCompProp = { Title: "新增公告", Theme: props.theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }
     return (
         <FormComp prop={prop}>
-            <HeaderComp theme={theme} formData={formData} cateOpts={useCategory.data} statusOpts={useContentStatus.data} tagOpts={useTag.data} />
-            <DetailComp theme={theme} formData={formData} />
+            <HeaderComp theme={props.theme} formData={formData} cateOpts={useCategory.data} statusOpts={useContentStatus.data} tagOpts={useTag.data} />
+            <DetailComp theme={props.theme} formData={formData} />
         </FormComp>
     )
 }
@@ -59,23 +60,16 @@ const HeaderComp = (props: {
     const setField = useSetTableField<AnnouncementSet>(props.formData);
     const useUploadPic = useUploadPicture();
     const initialPicId = props.formData.data?.Announcement?.PictureId;
-    const previewSrc = useUploadPic.result.previewUrl || (initialPicId ? `/Service/FileManagement/Preview/${initialPicId}` : "https://dummyimage.com/1920x550/555/fff.png");
-    const tabInfo: LibTabsProp = {
-        Style: props.theme.Tabs,
-        item: { "Basic": "基本", "Status": "狀態", "Tags": "標籤", "Pic": "圖片" }
-    }
+    const previewSrc = useUploadPic.result.previewUrl || (initialPicId ? `${FileManagementAPI.PREVIEW_URL}/${initialPicId}` : "https://dummyimage.com/1920x550/555/fff.png");
+    const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: { "Basic": "基本", "Status": "狀態", "Tags": "標籤", "Pic": "圖片" } }
     const tabContent: Record<string, React.ReactNode[]> = {
         Basic: [
             <LibCheckBox Style={props.theme.CheckBox} options={props.cateOpts} {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Categories, 'string', undefined, 'csv')} />,
             <LibCalendar {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Validate_Start, "string")} />,
             <LibCalendar {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Validate_End, "string")} />,
         ],
-        Status: [
-            <LibCheckBox Style={props.theme.CheckBox} options={props.statusOpts} {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ContentStatus, 'number', undefined, { strategy: 'sum', sumKeys: Object.keys(props.statusOpts ?? {}).map(Number) })} />
-        ],
-        Tags: [
-            <LibCheckBox Style={props.theme.CheckBox} options={props.tagOpts} {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Categories, 'string', undefined, 'csv')} />,
-        ],
+        Status: [<LibCheckBox Style={props.theme.CheckBox} options={props.statusOpts} {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ContentStatus, 'number', undefined, { strategy: 'sum', sumKeys: Object.keys(props.statusOpts ?? {}).map(Number) })} />],
+        Tags: [<LibCheckBox Style={props.theme.CheckBox} options={props.tagOpts} {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Tags, 'string', undefined, 'csv')} />,],
         Pic: [
             <LibFile Style={props.theme.File} ColumnDisplayName={`選擇圖片`} Multiple={false}
                 InputValue={""}
@@ -96,16 +90,15 @@ const HeaderComp = (props: {
     )
 }
 const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<AnnouncementSet> }) => {
-    const rawDetails = props.formData.data?.AnnouncementDetail ?? [];
     const setField = useSetTableField<AnnouncementSet>(props.formData);
+    const rawDetails = props.formData.data?.AnnouncementDetail ?? [];
     const tabInfo: LibTabsProp = {
         Style: props.theme.Tabs,
         item: rawDetails.reduce<Record<string, string>>((tabItems, info) => {
             const langKey = LibMerge("_", true, info.AnnouncementId, info.RowId, info.Lang)
-            tabItems[langKey] = LangLabelMap[info.Lang ?? ""] ?? info.Lang ?? "Unknown";
+            tabItems[langKey] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
             return tabItems;
         }, {})
-
     }
     const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>(
         (compMap, info, idx) => {
@@ -129,15 +122,8 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<A
     )
 };
 
-const SubDetailComp = (props: {
-    theme: IBETheme;
-    formData: UseFetchFormDataResult<AnnouncementSet>;
-    parentRowId: number;
-}) => {
-    // 目前整份表單的附件集合
+const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<AnnouncementSet>; parentRowId: number; }) => {
     const allFiles: AnnouncementDetailFile[] = props.formData.data?.AnnouncementDetailFile ?? [];
-
-    // 取出目前這個「明細(RowId) + 所屬公告(AnnouncementId)」的附件們
     const getFiles = (): AnnouncementDetailFile[] => allFiles.filter(f => f.ParentRowId === props.parentRowId).sort((a, b) => (a.RowId ?? 0) - (b.RowId ?? 0));
 
     // 提交回整份表單（關鍵：真正更新 formData）
@@ -152,14 +138,7 @@ const SubDetailComp = (props: {
     const addFile = () => {
         const list = getFiles();
         const nextRowId = (list.at(-1)?.RowId ?? 0) + 1;
-
-        const newItem: AnnouncementDetailFile = {
-            ParentRowId: props.parentRowId,       // 補齊：關聯到當前語系明細
-            RowId: nextRowId,
-            FileId: "",
-            FileName: "",
-        };
-
+        const newItem: AnnouncementDetailFile = { ParentRowId: props.parentRowId, RowId: nextRowId, FileId: "", FileName: "", };
         commitFiles([...allFiles, newItem]);
     };
 
@@ -168,12 +147,7 @@ const SubDetailComp = (props: {
         const filtered = getFiles();
         const target = filtered[i];
         if (!target) return;
-
-        const nextAll = allFiles.map(f => {
-            const isSame = f.ParentRowId === target.ParentRowId && f.RowId === target.RowId;
-            return isSame ? { ...f, ...patch } : f;
-        });
-
+        const nextAll = allFiles.map(f => { const isSame = f.ParentRowId === target.ParentRowId && f.RowId === target.RowId; return isSame ? { ...f, ...patch } : f; });
         commitFiles(nextAll);
     };
 
@@ -182,15 +156,7 @@ const SubDetailComp = (props: {
         const filtered = getFiles();
         const target = filtered[i];
         if (!target) return;
-
-        const nextAll = allFiles.filter(
-            f =>
-                !(
-                    f.ParentRowId === target.ParentRowId &&
-                    f.RowId === target.RowId
-                )
-        );
-
+        const nextAll = allFiles.filter(f => !(f.ParentRowId === target.ParentRowId && f.RowId === target.RowId));
         commitFiles(nextAll);
     };
 
@@ -198,14 +164,12 @@ const SubDetailComp = (props: {
         <>
             <div role="group" className="mt-4">
                 <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-secondary mb-2">新增附件</button>
-
                 {getFiles().map((f, i) => (
                     <div key={`${f.ParentRowId}-${f.RowId}`} className="flex items-center gap-2 mb-2">
                         <LibFileInput ColumnDisplayName={`附件 ${i + 1}`} DefaultInputDisplay="請選擇檔案"
                             Style={props.theme.FileInput} InputValue={f.FileId ?? ""}
-                            onChange={(internalId, fileName) => {
-                                updateFileAt(i, { FileId: internalId });
-                            }}
+                            onChange={(internalId, fileName) => { updateFileAt(i, { FileId: internalId }); }}
+                            onNameChange={(name) => updateFileAt(i, { FileName: name })}
                             onDelete={() => removeFileAt(i)}
                         />
                     </div>

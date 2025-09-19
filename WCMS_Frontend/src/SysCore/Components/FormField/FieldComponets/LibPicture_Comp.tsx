@@ -1,6 +1,7 @@
 import { useId } from 'react';
 import type { ILibPictureProp } from './LibPicture_Data';
 import { useState } from "react";
+import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 
 interface LibPictureWithParentClassProp extends ILibPictureProp {
   parentClass?: string; // 新增
@@ -25,7 +26,7 @@ const LibPicture = ({ children, ...prop }: LibPictureWithParentClassProp) => {
 
 interface UploadResult { internalId: string | null; previewUrl: string; uploading: boolean; error: string | null; }
 
-export const useUploadPicture = (uploadUrl: string = "/Service/FileManagement/UploadTemp") => {
+export const useUploadPicture = (uploadUrl: string = FileManagementAPI.UPLOAD_URL) => {
   const [result, setResult] = useState<UploadResult>({
     internalId: null,
     previewUrl: "",
@@ -58,7 +59,7 @@ export const useUploadPicture = (uploadUrl: string = "/Service/FileManagement/Up
 
       setResult({
         internalId,
-        previewUrl: `/Service/FileManagement/Preview/${internalId}`,
+        previewUrl: `${FileManagementAPI.PREVIEW_URL}/${internalId}`,
         uploading: false,
         error: null,
       });

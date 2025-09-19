@@ -49,7 +49,21 @@ namespace WCMS.SysCore
         /// <summary>
         /// 流水編號前綴碼
         /// </summary>
-        public string PrefixId { get { return _Prifix == string.Empty ? ProgId : _Prifix; } protected set { _Prifix = value; } }
+        public string PrefixId
+        {
+            get 
+            {
+                if (_Prifix == string.Empty)this.PrefixId = ProgId;
+                    return  _Prifix; 
+            }
+            protected set
+            {
+                if (!string.IsNullOrEmpty(value) && value.Length > SysLengthParam.ID - 11)
+                    _Prifix = value.Substring(0, SysLengthParam.ID - 11); // 最多 xxxyyyymmdd(八位) 個字
+                else
+                    _Prifix = value;
+            }
+        }
         /// <summary>
         /// 是否自動創建主鍵
         /// </summary>

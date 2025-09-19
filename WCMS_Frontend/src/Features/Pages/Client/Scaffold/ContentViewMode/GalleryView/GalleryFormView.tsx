@@ -12,6 +12,7 @@ import "yet-another-react-lightbox/plugins/captions.css";
 
 import type { ReactNode } from "react";
 import LoadingErrorHandler from "../../../../../../SysCore/Components/LoadingErrorHandler";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 
 interface GalleryFormViewProps {
     Title: string;
@@ -26,16 +27,12 @@ export interface PhotoInfos {
     pictureInternalId: string;
 }
 
-const prefix = "/Service/FileManagement/Preview/";
 
 export const GalleryFormViewComp = (prop: GalleryFormViewProps) => {
     const [open, setOpen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
 
-    const images = prop.photoInfoProps.map((item) => ({
-        src: `${prefix}${item.pictureInternalId}`,
-        title: item.pictureInternalId,
-    }));
+    const images = prop.photoInfoProps.map((item) => ({ src: `${FileManagementAPI.PREVIEW_URL}${item.pictureInternalId}`, title: item.pictureInternalId }));
 
     return (
         <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList}>

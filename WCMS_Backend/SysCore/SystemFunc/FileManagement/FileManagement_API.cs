@@ -137,7 +137,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             //followInfo.followingDT = JsonConvert.SerializeObject(param);
             //followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             //OperateLog.AddMoveFollow(followInfo);
-            var file = fileQuery.FirstOrDefault().FileManage;
+            var file = fileQuery.FirstOrDefault()?.FileManage;
             if (file is null) return NotFound();
             // 1) 包成 DateTimeOffset（UTC）並去掉毫秒
             DateTime utc = (DateTime)file.ModifyTime;

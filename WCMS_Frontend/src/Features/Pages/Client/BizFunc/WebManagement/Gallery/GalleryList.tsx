@@ -4,11 +4,11 @@ type GallerySet = components["schemas"]["GallerySet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
+import { FormatDate, FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import * as SchemaFields from "@/types/SchemaFields";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { Lang } from "@/SysCore/i18n/lang";
-import GalleryProvider from "@/Features/Pages/Server/BizFunc/WebManagement/Gallery/Gallery_Api";
+import GalleryProvider from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api";
 import { GalleryViewComp, type MainGridContentProp } from "@/Features/Pages/Client/Scaffold/ContentViewMode/GalleryView/GalleryView";
 import { useCategoryListData } from "@/Features/Pages/Server/BizFunc/WebManagement/Category/Category_Hook";
 
@@ -26,6 +26,7 @@ const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
             [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.InternalId],
             [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.Categories],
             [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.CoverPicSrcId],
+            [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.CreateTime],
             [SchemaFields.GallerySetFields.GalleryInfo, SchemaFields.GalleryInfoFields.Lang],
             [SchemaFields.GallerySetFields.GalleryInfo, SchemaFields.GalleryInfoFields.Title],
         ],
@@ -34,6 +35,7 @@ const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
                 SchemaFields.GalleryFields.InternalId,
                 SchemaFields.GalleryFields.Categories,
                 SchemaFields.GalleryFields.CoverPicSrcId,
+                SchemaFields.GalleryFields.CreateTime,
                 `${SchemaFields.GallerySetFields.GalleryInfo}.${SchemaFields.GalleryInfoFields.Lang}`,
                 `${SchemaFields.GallerySetFields.GalleryInfo}.${SchemaFields.GalleryInfoFields.Title}`,
             ],
@@ -46,12 +48,18 @@ const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
             const data = item.Gallery ?? {};
             const cells: RowCell[] = columns.map(col => {
                 let content = "";
-                if (col.key === SchemaFields.GalleryInfoFields.Title) {
-                    // content = data.AnnouncementDetail?.find(d => d.Lang === lang)?.Title ?? "";
-                } else if (col.key === SchemaFields.GalleryFields.ModifyTime) {
-                    content = FormatDateTime((data as any)[col.key]);
-                } else {
-                    content = (data as any)[col.key] ?? "";
+
+                switch (col.key) {
+                    case SchemaFields.GalleryInfoFields.Title:
+                        // content = data?.find(d => d.Lang === lang)?.Title ?? "";
+                        break;
+                    case SchemaFields.GalleryFields.CreateTime:
+                    case SchemaFields.GalleryFields.ModifyTime:
+                        content = FormatDate((data as any)[col.key]);
+                        break;
+                    default:
+                        content = (data as any)[col.key] ?? "";
+                        break;
                 }
                 return { col, content };
             });
@@ -94,7 +102,7 @@ const GetGridViewContentProps = (lang: string, rawData: GallerySet[], categoryLi
         const coverPic = gly?.CoverPicSrcId ?? "";
         const categorys = (gly?.Categories ?? "").split(",").map(s => s.trim()).filter(Boolean);
         const categories = categorys.map(catId => categoryList?.find(s => String(s.Category?.CategoryId) === catId)?.CategoryDetail?.find(d => d.Lang === lang)?.CategoryName).filter((x): x is string => !!x).join("、");
-        const created = gly?.CreateTime ?? "";
+        const created = FormatDate(gly?.CreateTime) ?? "";
         result.push({
             galleryInternalId: galleryId,
             Title: title,

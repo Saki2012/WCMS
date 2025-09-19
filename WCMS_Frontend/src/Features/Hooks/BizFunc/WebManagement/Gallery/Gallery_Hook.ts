@@ -1,10 +1,10 @@
-import type { RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data";
-import type { components } from "../../../../../../types/api";
-import * as SchemaFields from "../../../../../../types/SchemaFields";
-import GalleryProvider from "./Gallery_Api";
+import GalleryProvider from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api";
+import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
+import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
+import type { components } from "@/types/api";
+import * as SchemaFields from "@/types/SchemaFields";
 type GallerySet = components["schemas"]["GallerySet_DTO"];
-import { useFetchGridListData } from "../../../../../../SysCore/Utils/API/FetchGridListData";
-import { FormatDateTime } from "../../../../../../SysCore/Utils/Library/LibData";
 
 export const useGalleryListData = () =>
 {
@@ -16,7 +16,6 @@ export const useGalleryListData = () =>
         visibleKeys: [
             [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.CoverPicSrcId],
             [SchemaFields.GallerySetFields.GalleryInfo, SchemaFields.GalleryInfoFields.Title],
-            [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.Sort],
             [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.ModifyTime],
             [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.ModifyUserId],
         ],
@@ -25,9 +24,8 @@ export const useGalleryListData = () =>
                 SchemaFields.GalleryFields.InternalId,
                 SchemaFields.GalleryFields.GalleryId,
                 SchemaFields.GalleryFields.CoverPicSrcId,
-                `${SchemaFields.GallerySetFields.GalleryInfo}.${SchemaFields.GalleryInfoFields.Lang}`,
                 `${SchemaFields.GallerySetFields.GalleryInfo}.${SchemaFields.GalleryInfoFields.Title}`,
-                SchemaFields.GalleryFields.Sort,
+                `${SchemaFields.GallerySetFields.GalleryInfo}.${SchemaFields.GalleryInfoFields.Lang}`,
                 SchemaFields.GalleryFields.ModifyTime,
                 SchemaFields.GalleryFields.ModifyUserId,
             ],
@@ -39,25 +37,23 @@ export const useGalleryListData = () =>
         parseRow: (item, columns) =>
         {
             const data = item.Gallery ?? {};
+            const dt = item.GalleryInfo?.find(p => p.Lang === "zh-tw");
             const cells: RowCell[] = columns.map(col =>
             {
                 let content: any = "";
-                if (col.key === SchemaFields.PageManagementDetailFields.Title)
+                switch (col.key)
                 {
-                    // 專處理 PageManagementDetail.Title (lang: zh-tw)
-                    content = "";
-                } else if (col.key === SchemaFields.PageManagementFields.ModifyTime)
-                {
-                    content = FormatDateTime((data as any)[col.key]);
-                } else
-                {
-                    // 一般欄位直接取用
-                    content = (data as any)[col.key] ?? "";
+                    case SchemaFields.PageManagementDetailFields.Title:
+                        content = dt?.Title;
+                        break;
+                    case SchemaFields.PageManagementFields.ModifyTime:
+                        content = FormatDateTime((data as any)[col.key]);
+                        break;
+                    default:
+                        content = (data as any)[col.key] ?? "";
+                        break;
                 }
-                return {
-                    col,
-                    content,
-                };
+                return { col, content };
             });
             return { cells };
         },

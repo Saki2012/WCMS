@@ -25,8 +25,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.Announcement", b =>
                 {
                     b.Property<string>("AnnouncementId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Categories")
                         .HasMaxLength(200)
@@ -39,8 +39,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -62,8 +62,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -72,13 +72,13 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("PicDescription")
                         .HasMaxLength(500)
@@ -118,8 +118,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.AnnouncementDetail", b =>
                 {
                     b.Property<string>("AnnouncementId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("RowId")
                         .HasColumnType("int");
@@ -157,8 +157,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.AnnouncementDetailFile", b =>
                 {
                     b.Property<string>("AnnouncementId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("ParentRowId")
                         .HasColumnType("int");
@@ -184,20 +184,20 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.Banner.Banner", b =>
                 {
                     b.Property<string>("BannerId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("BannerCategoryName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
 
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -225,8 +225,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -235,13 +235,13 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<short>("Speed")
                         .HasColumnType("smallint");
@@ -272,7 +272,7 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.Banner.BannerDetail", b =>
                 {
                     b.Property<string>("BannerId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("RowId")
                         .HasColumnType("int");
@@ -302,8 +302,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.Banner.BannerDetailInfo", b =>
                 {
                     b.Property<string>("BannerId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("ParentRowId")
                         .HasColumnType("int");
@@ -335,21 +335,23 @@ namespace WCMS.Migrations
 
                     b.HasKey("BannerId", "ParentRowId", "RowId");
 
+                    b.HasIndex("BannerId", "RowId");
+
                     b.ToTable("BannerDetailInfo", (string)null);
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Category.Category", b =>
                 {
                     b.Property<string>("CategoryId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -371,8 +373,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -381,13 +383,13 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("ProgId")
                         .HasMaxLength(25)
@@ -416,8 +418,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.Category.CategoryDetail", b =>
                 {
                     b.Property<string>("CategoryId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("RowId")
                         .HasColumnType("int");
@@ -440,8 +442,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.FileArchive.FileArchive", b =>
                 {
                     b.Property<string>("FileArchiveId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("CategoriesId")
                         .IsRequired()
@@ -455,8 +457,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -481,8 +483,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -491,13 +493,13 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("TagsId")
                         .IsRequired()
@@ -527,8 +529,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.FileArchive.FileArchiveDetail", b =>
                 {
                     b.Property<string>("FileArchiveId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("ParentRowId")
                         .HasColumnType("int");
@@ -556,8 +558,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.FileArchive.FileArchiveInfo", b =>
                 {
                     b.Property<string>("FileArchiveId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("RowId")
                         .HasColumnType("int");
@@ -580,8 +582,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.Gallery", b =>
                 {
                     b.Property<string>("GalleryId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Categories")
                         .IsRequired()
@@ -600,8 +602,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -623,8 +625,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -633,13 +635,13 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("Sort")
                         .HasColumnType("int");
@@ -672,7 +674,7 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryInfo", b =>
                 {
                     b.Property<string>("GalleryId")
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("RowId")
                         .HasColumnType("int");
@@ -697,8 +699,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryPhotos", b =>
                 {
                     b.Property<string>("GalleryId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("RowId")
                         .HasColumnType("int");
@@ -719,8 +721,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryPhotosInfo", b =>
                 {
                     b.Property<string>("GalleryId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("ParentRowId")
                         .HasColumnType("int");
@@ -748,19 +750,19 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.PageManagement.PageManagement", b =>
                 {
                     b.Property<string>("PageId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("CategoryId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -782,8 +784,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -792,13 +794,13 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int?>("ViewCount")
                         .HasColumnType("int");
@@ -820,8 +822,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.PageManagement.PageManagementDetail", b =>
                 {
                     b.Property<string>("PageId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("RowId")
                         .HasColumnType("int");
@@ -845,15 +847,15 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.Tag.TagData", b =>
                 {
                     b.Property<string>("TagId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -875,8 +877,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -885,13 +887,13 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("ProgId")
                         .IsRequired()
@@ -921,8 +923,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.Tag.TagDetail", b =>
                 {
                     b.Property<string>("TagId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("RowId")
                         .HasColumnType("int");
@@ -945,8 +947,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.WebResource.WebResource", b =>
                 {
                     b.Property<string>("WebResourceId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Categories")
                         .IsRequired()
@@ -960,8 +962,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -983,8 +985,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -993,13 +995,13 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("PicDescription")
                         .IsRequired()
@@ -1039,8 +1041,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.WebResource.WebResourceInfo", b =>
                 {
                     b.Property<string>("WebResourceId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("RowId")
                         .HasColumnType("int");
@@ -1066,8 +1068,8 @@ namespace WCMS.Migrations
 
                     b.Property<string>("Url_OpenType")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("WebResourceId", "RowId");
 
@@ -1077,8 +1079,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_IndexInfoModel", b =>
                 {
                     b.Property<string>("SiteIndex")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("RowId")
                         .HasColumnType("int");
@@ -1116,15 +1118,15 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_IndexModel", b =>
                 {
                     b.Property<string>("SiteIndex")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -1154,8 +1156,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -1164,13 +1166,13 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("Validate_End")
                         .HasColumnType("datetime2(0)");
@@ -1195,8 +1197,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_Item", b =>
                 {
                     b.Property<string>("SiteIndex")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("RowId")
                         .HasColumnType("int");
@@ -1239,15 +1241,15 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_Item_Module", b =>
                 {
                     b.Property<string>("SiteIndex")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("ItemRowId")
                         .HasColumnType("int");
 
                     b.Property<string>("BannerId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("ModuleOptions")
                         .HasColumnType("nvarchar(max)");
@@ -1267,8 +1269,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_Item_Title", b =>
                 {
                     b.Property<string>("SiteIndex")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("ItemRowId")
                         .HasColumnType("int");
@@ -1314,16 +1316,16 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory.SpecCategoryDetailModel", b =>
                 {
                     b.Property<string>("CategoryId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("RowId")
                         .HasColumnType("int");
 
                     b.Property<string>("CategoryName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
 
                     b.Property<string>("Lang")
                         .IsRequired()
@@ -1338,15 +1340,15 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory.SpecCategoryModel", b =>
                 {
                     b.Property<string>("CategoryId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -1368,8 +1370,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -1378,13 +1380,13 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("ProgId")
                         .IsRequired()
@@ -1418,8 +1420,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch.SpecResearchDetailModel", b =>
                 {
                     b.Property<string>("ResearchId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("RowId")
                         .HasColumnType("int");
@@ -1532,13 +1534,13 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch.SpecResearchModel", b =>
                 {
                     b.Property<string>("ResearchId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("CategoryId")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte>("ContentStatus")
                         .HasColumnType("tinyint");
@@ -1547,8 +1549,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -1570,8 +1572,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -1580,13 +1582,13 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Tags")
                         .HasMaxLength(200)
@@ -1615,8 +1617,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRDetail", b =>
                 {
                     b.Property<string>("USRId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("RowId")
                         .HasColumnType("int");
@@ -1703,13 +1705,13 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRModel", b =>
                 {
                     b.Property<string>("USRId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("CategoryId")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte>("ContentStatus")
                         .HasColumnType("tinyint");
@@ -1718,8 +1720,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -1741,8 +1743,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -1751,13 +1753,13 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("PicDescription")
                         .HasMaxLength(500)
@@ -1810,8 +1812,8 @@ namespace WCMS.Migrations
 
                     b.Property<string>("APIName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
 
                     b.Property<string>("Browser")
                         .IsRequired()
@@ -1830,8 +1832,8 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(40)");
 
                     b.Property<string>("UserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("followingDT")
                         .IsRequired()
@@ -1854,8 +1856,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte[]>("DataVersion")
                         .IsConcurrencyToken()
@@ -1890,8 +1892,8 @@ namespace WCMS.Migrations
 
                     b.Property<string>("ImportLabel")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -1905,13 +1907,13 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Path")
                         .IsRequired()
@@ -1999,12 +2001,12 @@ namespace WCMS.Migrations
 
                     b.Property<string>("DestNode")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
 
                     b.Property<string>("ErrorCode")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("ErrorMessage")
                         .HasMaxLength(100)
@@ -2028,8 +2030,8 @@ namespace WCMS.Migrations
 
                     b.Property<string>("SrcNode")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
 
                     b.HasKey("InternalId", "RowId");
 
@@ -2039,19 +2041,19 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.SysCore.SystemFunc.UserRolePermission.Permission.PermissionModel", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("RoleId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -2073,8 +2075,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -2083,13 +2085,13 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("Validate_End")
                         .HasColumnType("datetime2(0)");
@@ -2116,15 +2118,15 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.SysCore.SystemFunc.UserRolePermission.Role.RoleModel", b =>
                 {
                     b.Property<string>("RoleId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -2149,8 +2151,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("bit");
@@ -2162,18 +2164,18 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("RoleName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
 
                     b.Property<DateTime?>("Validate_End")
                         .HasColumnType("datetime2(0)");
@@ -2198,8 +2200,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserInfo", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("RowId")
                         .HasColumnType("int");
@@ -2211,8 +2213,8 @@ namespace WCMS.Migrations
 
                     b.Property<string>("UserName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
 
                     b.HasKey("UserId", "RowId");
 
@@ -2222,8 +2224,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte>("AccountStatus")
                         .HasColumnType("tinyint");
@@ -2232,8 +2234,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("CreateUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte>("DataStatus")
                         .HasColumnType("tinyint");
@@ -2259,8 +2261,8 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("InvalidUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsIniData")
                         .HasColumnType("bit");
@@ -2269,13 +2271,13 @@ namespace WCMS.Migrations
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("ModifyUserId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("OrgLvId")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("PasswordAlgoVer")
                         .HasColumnType("int");
@@ -2293,8 +2295,8 @@ namespace WCMS.Migrations
 
                     b.Property<string>("UserName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
 
                     b.Property<DateTime?>("Validate_End")
                         .HasColumnType("datetime2(0)");
@@ -2371,6 +2373,24 @@ namespace WCMS.Migrations
                     b.Navigation("InvalidUser");
 
                     b.Navigation("ModifyUser");
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Banner.BannerDetail", b =>
+                {
+                    b.HasOne("WCMS.Features.SiteEdit.Banner.Banner", null)
+                        .WithMany("BannerDetail")
+                        .HasForeignKey("BannerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Banner.BannerDetailInfo", b =>
+                {
+                    b.HasOne("WCMS.Features.SiteEdit.Banner.BannerDetail", null)
+                        .WithMany("BannerDetailInfo")
+                        .HasForeignKey("BannerId", "RowId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Category.Category", b =>
@@ -2864,6 +2884,16 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.Announcement", b =>
                 {
                     b.Navigation("AnnouncementDetail");
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Banner.Banner", b =>
+                {
+                    b.Navigation("BannerDetail");
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Banner.BannerDetail", b =>
+                {
+                    b.Navigation("BannerDetailInfo");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Category.Category", b =>

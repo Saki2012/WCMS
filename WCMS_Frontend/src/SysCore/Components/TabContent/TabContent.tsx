@@ -29,19 +29,19 @@ const Content = ({ tabId, components, isFirst }: { tabId: string; components: Re
     )
 }
 
-const TabContentComp = ({ tabInfos, components }: { tabInfos: LibTabsProp; components: Record<string, React.ReactNode[]>; }) => {
+const TabContentComp = (props: { tabInfos: LibTabsProp; components: Record<string, React.ReactNode[]>; }) => {
     const uid = useId();
     return (
         <div className="panel">
             <div className="panel-body">
                 <div className="form">
                     <div className="row mx-0">
-                        <LibTabs {...tabInfos}></LibTabs>
+                        <LibTabs {...props.tabInfos}></LibTabs>
                         <div className="tab-content px-0" id={uid}>
-                            {Object.keys(tabInfos.item).map((key, idx) => {
+                            {Object.keys(props.tabInfos.item).map((key, idx) => {
                                 const isFirst = idx === 0;
-                                if (!components.hasOwnProperty(key)) { return (<Content key={key} tabId={key} components={[<div>Key:{key}尚未提供內容</div>]} isFirst={isFirst} />); }
-                                return (<Content key={key} tabId={key} components={components[key]} isFirst={isFirst} />);
+                                if (!props.components.hasOwnProperty(key)) { return (<Content key={key} tabId={key} components={[<div>Key:{key}尚未提供內容</div>]} isFirst={isFirst} />); }
+                                return (<Content key={key} tabId={key} components={props.components[key]} isFirst={isFirst} />);
                             })}
 
                         </div>

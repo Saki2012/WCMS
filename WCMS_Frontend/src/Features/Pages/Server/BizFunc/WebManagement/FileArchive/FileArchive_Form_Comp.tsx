@@ -8,25 +8,12 @@ import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
-import FileArchiveProvider from "./FileArchive_Api";
+import FileArchiveProvider from "../../../../../Hooks/BizFunc/WebManagement/FileArchive/FileArchive_Api";
 import { useGetTagListByProgId } from "../Tags/Tag_Hook";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { parseBitmaskToStringArray, sumStringArrayToBitmask } from "@/SysCore/Utils/Library/LibData";
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"]
-
-
-const emptyData: FileArchiveSet = {
-    FileArchive: {},
-    FileArchiveInfo: [
-        {
-            RowId: 1,
-            Lang: "zh-tw",
-            FileArchiveId: ""
-        },
-    ],
-    FileArchiveDetail: [
-    ]
-}
+const emptyData: FileArchiveSet = { FileArchive: {}, FileArchiveInfo: [], FileArchiveDetail: [] }
 
 /** 檔案室表單
  * @returns 
@@ -59,14 +46,14 @@ export const FileArchiveFormComp = ({ theme }: { theme: IBETheme }) => {
         ],
         Status: [
             <LibCheckBox colDisplayName="狀態"
-                options={(useContentStatus.data ?? []).map(item => ({ itemId: String(item.Key), itemDisplayName: item.DisplayName, }))}
-                InputValue={parseBitmaskToStringArray(formData.data?.FileArchive?.ContentStatus ?? 0, useContentStatus.data?.map(d => d.Key) ?? [])}
+                // options={(useContentStatus.data ?? []).map(item => ({ itemId: String(item.Key), itemDisplayName: item.DisplayName, }))}
+                // InputValue={parseBitmaskToStringArray(formData.data?.FileArchive?.ContentStatus ?? 0, useContentStatus.data?.map(d => d.Key) ?? [])}
                 onChange={(val) => { const sum = sumStringArrayToBitmask(val); formData.setFormData((prev) => ({ ...prev, FileArchive: { ...prev?.FileArchive ?? {}, ContentStatus: sum as any, }, })); }}
             />
         ],
         Tags: [
             <LibCheckBox colDisplayName="標籤"
-                options={Object.entries(useTag.data ?? {}).map(([key, value]) => ({ itemId: key, itemDisplayName: value, }))}
+                // options={Object.entries(useTag.data ?? {}).map(([key, value]) => ({ itemId: key, itemDisplayName: value, }))}
                 InputValue={formData.data?.FileArchive?.TagsId?.split(",") ?? []}
                 onChange={(val) => { const joined = val.join(","); formData.setFormData((prev) => ({ ...prev, FileArchive: { ...prev?.FileArchive, TagsId: joined, }, })); }}
             />

@@ -18,7 +18,7 @@ import { handleDelete } from "@/Features/Hooks/BizFunc/WebManagement/Announcemen
 /** 公告列表
  * @returns 
  */
-export const AnnouncementListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
+export const Server_AnnouncementListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
     const useCategory = useCategoryListData("Announcement", "zh-tw");
     const useAnnounceList = useAnnouncementList();
@@ -80,9 +80,10 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: Announ
 
 /** 目前說只有公告/檔案室/網路資源/相簿會用到 */
 const GetDataStatusContent = (contentStatus: number): React.ReactNode => {
+    const id = React.useId()
     const statusItems: React.ReactNode[] = [];
     if (contentStatus & 1) { statusItems.push(<div className="icon-small top-bg">置頂</div>); }
     if (contentStatus & 2) { statusItems.push(<div className="icon-small hot-bg">熱門</div>); }
     if (contentStatus & 4) { statusItems.push(<div className="icon-small hide-bg">隱藏</div>); }
-    return <div className="CustomState">{statusItems}</div>
+    return <div key={id} className="CustomState">{statusItems}</div>
 };

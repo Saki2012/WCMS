@@ -9,6 +9,7 @@ import WebResourceProvider from "@/Features/Pages/Server/BizFunc/WebManagement/W
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { SubPageTitle } from "@/Features/Pages/Client/Scaffold/Header/SubPageTitle_Comp";
 import DefaultImg from "@/Assets/1810/WebResource_Default.png"
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 
 const useWebResourceList = (categoryIds: string, tagIds: string) => {
@@ -108,7 +109,7 @@ const PictureListContent = (prop: { lang: string, datas: WebResourceSet[] }) => 
             {prop.datas.map((item) => {
                 const header = item.WebResource;
                 const detail = item.WebResourceInfo?.find(p => p.Lang === prop.lang);
-                const picUrl = header?.PicId ? `/Service/Filemanagement/Preview/${header.PicId}` : DefaultImg
+                const picUrl = header?.PicId ? `${FileManagementAPI.PREVIEW_URL}/${header.PicId}` : DefaultImg
                 return (
                     <div className="col-lg-4 col-md-6 col-sm-6 col-12 photo_standardbox">
                         <a href={detail?.ResUrl ?? ""} title={`${detail?.Title}(另開新視窗)`} target="_blank" rel="noopener noreferrer">

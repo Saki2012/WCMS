@@ -95,6 +95,7 @@ export const BannerDetailFields = {
     Validate_Start: "Validate_Start",
     Validate_End: "Validate_End",
     Sort: "Sort",
+    BannerDetailInfo: "BannerDetailInfo",
 } as const;
 
 export type BannerDetailFieldKey = keyof typeof BannerDetailFields;
@@ -132,6 +133,7 @@ export const BannerFields = {
     Speed: "Speed",
     Height: "Height",
     Width: "Width",
+    BannerDetail: "BannerDetail",
 } as const;
 
 export type BannerFieldKey = keyof typeof BannerFields;
@@ -433,7 +435,7 @@ export const GalleryFields = {
     Tags: "Tags",
     ContentStatus: "ContentStatus",
     CoverPicSrcId: "CoverPicSrcId",
-    Sort: "Sort",
+    Validate_Start: "Validate_Start",
     GalleryInfo: "GalleryInfo",
     GalleryPhotos: "GalleryPhotos",
 } as const;

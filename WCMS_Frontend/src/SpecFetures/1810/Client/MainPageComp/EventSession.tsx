@@ -10,6 +10,7 @@ import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import TagProvider from '@/Features/Pages/Server/BizFunc/WebManagement/Tags/Tag_Api';
 import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import { useEffect, useRef } from 'react';
+import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 
 const useAnnouncementList = () => {
     const provider = AnnouncementProvider();
@@ -237,7 +238,7 @@ const getData = (lang: string, rawData: AnnouncementSet[], tagDict: Record<strin
         result.push({
             Id: item.Announcement?.AnnouncementId ?? "",
             Title: item.AnnouncementDetail?.find(p => p.Lang === lang)?.Title ?? "",
-            ImgSrc: `/Service/Filemanagement/Preview/${item.Announcement?.PictureId}`,
+            ImgSrc: `${FileManagementAPI.PREVIEW_URL}/${item.Announcement?.PictureId}`,
             Url: `/${item.Announcement?.InternalId}`,
             Tags: tagsName
         })

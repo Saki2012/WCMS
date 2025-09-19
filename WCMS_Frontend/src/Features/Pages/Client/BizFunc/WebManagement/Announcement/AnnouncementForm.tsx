@@ -16,6 +16,7 @@ import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import CategoryProvider from '@/Features/Pages/Server/BizFunc/WebManagement/Category/Category_Api';
 import TagProvider from '@/Features/Pages/Server/BizFunc/WebManagement/Tags/Tag_Api';
 import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
+import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 
 const buildInList = (csv?: string) =>
     (csv ?? "")
@@ -142,7 +143,7 @@ const Content = (prop: { lang: string; theme: IFETheme; data: AnnouncementSet; c
                 {files && (
                     <li >
                         {files.map((file: AnnouncementDetailFile, idx: number) => (
-                            <a key={idx} href={`/Service/FileManagement/Download/${file.FileId}`} rel="noopener noreferrer" className="btn btn-default" tabIndex={1} title={`${file.FileName}(另開新視窗)`}>
+                            <a key={idx} href={`${FileManagementAPI.DOWNLOAD_URL}/${file.FileId}`} rel="noopener noreferrer" className="btn btn-default" tabIndex={1} title={`${file.FileName}(另開新視窗)`}>
                                 <i className="fa fa-paperclip"></i> {file.FileName}
                             </a>
                         ))}

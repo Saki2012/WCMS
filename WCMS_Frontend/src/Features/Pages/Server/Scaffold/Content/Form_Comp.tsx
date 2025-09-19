@@ -19,14 +19,8 @@ export const FormComp = ({ prop, children }: { prop: FormCompProp; children: Rea
                                 <div className="col-12">
                                     <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList} >
                                         {children}
-                                        {/* <div className="panel">
-                                        <div className="panel-body">
-                                            <div className="form"> */}
                                         <DividerComp></DividerComp>
                                         <Form_Toolbar items={prop.Toolbar}></Form_Toolbar>
-                                        {/* </div>
-                                        </div>
-                                    </div> */}
                                     </LoadingErrorHandler>
                                 </div>
                             </div>

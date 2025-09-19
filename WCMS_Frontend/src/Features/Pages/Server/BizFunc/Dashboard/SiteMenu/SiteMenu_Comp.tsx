@@ -148,10 +148,7 @@ const RenderRightBox: React.FC<{ theme: IBETheme; selectedItemEdit: Item | null 
   const [navType, setNavType] = React.useState<NavType>(null);
 
   // ---- 語系分頁（維持原邏輯，包成 memo）----
-  const LibTabsPropB: LibTabsProp = React.useMemo(() => ({
-    Style: theme.Tabs,
-    item: { 'zh-tw': '繁體中文', en: 'English' }
-  }), [theme]);
+  const LibTabsPropB: LibTabsProp = React.useMemo(() => ({ Style: theme.Tabs, item: { 'zh-tw': '繁體中文', en: 'English' } }), [theme]);
 
   const generateLangFields = React.useCallback(
     (lang: string, label: string): React.ReactNode[] => ([

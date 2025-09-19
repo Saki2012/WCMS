@@ -75,6 +75,7 @@ export const useCategoryListData = (progId: string, lang: string) =>
         fetchListCount: (cond) => provider.fetchListCount(cond),
         visibleKeys: [
             [SchemaFields.CategoryDataSetFields.CategoryDetail, SchemaFields.CategoryDetailFields.CategoryName],
+            [SchemaFields.CategoryDataSetFields.Category, SchemaFields.CategoryFields.CreateTime],
             [SchemaFields.CategoryDataSetFields.Category, SchemaFields.CategoryFields.ModifyTime],
             [SchemaFields.CategoryDataSetFields.Category, SchemaFields.CategoryFields.ModifyUserId],
         ],
@@ -82,6 +83,7 @@ export const useCategoryListData = (progId: string, lang: string) =>
             Fields: [
                 SchemaFields.CategoryFields.InternalId,
                 SchemaFields.CategoryFields.CategoryId,
+                SchemaFields.CategoryFields.CreateTime,
                 SchemaFields.CategoryFields.ModifyTime,
                 SchemaFields.CategoryFields.ModifyUserId,
                 `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,

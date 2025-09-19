@@ -21,6 +21,7 @@ import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { Paginator } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import type { ListCompProp } from "@/Features/Pages/Client/Scaffold/ContentViewMode/GridView/GridView_Data";
 import DefaultEventImg from "@/Assets/1810/DefaultEventPic_940x1330.jpg"
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 
 const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string, query: ISearchQuery) => {
     var condition: string = "";
@@ -159,7 +160,7 @@ const PictureList_Comp = (prop: GridViewContentSlots) => {
                 <div className="articles_itemBoxs">
                     {prop.GridData && prop.GridData.rawData.map((row: AnnouncementSet) => {
                         const internalId = `${dirUrl}/${row.Announcement?.InternalId ?? ""}`
-                        const picUrl = row.Announcement?.PictureId ? `/Service/Filemanagement/Preview/${row.Announcement?.PictureId ?? ""}` : DefaultEventImg
+                        const picUrl = row.Announcement?.PictureId ? `${FileManagementAPI.PREVIEW_URL}/${row.Announcement?.PictureId ?? ""}` : DefaultEventImg
                         const picDesc = row.Announcement?.PicDescription ?? ""
                         const title = row.AnnouncementDetail?.find(p => p.Lang === 'zh-tw')?.Title ?? ""
                         const date = FormatDate(row.Announcement?.Validate_Start) ?? ""

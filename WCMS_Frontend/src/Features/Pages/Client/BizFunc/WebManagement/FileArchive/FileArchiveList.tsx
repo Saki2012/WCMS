@@ -12,10 +12,11 @@ import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import * as SchemaFields from "@/types/SchemaFields";
 import { GridViewContentComp } from "@/Features/Pages/Client/Scaffold/ContentViewMode/GridView/GridView/GridContent_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
-import FileArchiveProvider from "@/Features/Pages/Server/BizFunc/WebManagement/FileArchive/FileArchive_Api";
+import FileArchiveProvider from "@/Features/Hooks/BizFunc/WebManagement/FileArchive/FileArchive_Api";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useTagListData } from "@/Features/Pages/Server/BizFunc/WebManagement/Tags/Tag_Hook";
 import { SearchBarComp, type ISearchQuery } from "@/SysCore/Components/SearchBar/SearchBar_Comp";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 
 const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string, tagSets: TagSet[], query: ISearchQuery) => {
     var condition: string = "";
@@ -174,6 +175,6 @@ const SetDownloadIcon = (fileInternalId: string, fileExtName: string, fileTitle:
             break;
         }
     }
-    return (<a href={`/Service/FileManagement/Download/${fileInternalId}`} target="_blank" rel="noopener noreferrer"
+    return (<a href={`${FileManagementAPI.DOWNLOAD_URL}/${fileInternalId}`} target="_blank" rel="noopener noreferrer"
         className="btn btn-default" title={`${fileTitle}(另開視窗)`} > {div}</ a>)
 }

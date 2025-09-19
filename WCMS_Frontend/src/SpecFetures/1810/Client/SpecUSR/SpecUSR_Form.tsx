@@ -11,6 +11,7 @@ import * as SchemaFields from "../../../../types/SchemaFields"
 import { useFetchGridListData } from '../../../../SysCore/Utils/API/FetchGridListData';
 import type { ColumnConfig } from '../../../../SysCore/Components/Grid/Grid_Data';
 import DefaultPic from "@/Assets/1810/images_960x960.jpg"
+import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 
 const emptyData: SpecUSRSet = {}
 
@@ -87,7 +88,7 @@ const SpecUSRForm = ({ lang, rawData, showColumns, showColTitle }: { lang: strin
     const header = rawData.SpecUSR;
     const detail = rawData.SpecUSRDetail?.find(p => p.Lang === lang);
 
-    const picUrl = header?.PictureId ? `/Service/FileManagement/Preview/${header?.PictureId}` : DefaultPic
+    const picUrl = header?.PictureId ? `${FileManagementAPI.PREVIEW_URL}/${header?.PictureId}` : DefaultPic
     return (
         <div className="articles_contentBoxs_1 mb-5">
             <div className="articles_item col-12">

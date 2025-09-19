@@ -168,14 +168,7 @@ export const Grid = ({
                     </table>
                 </div>
             </div>
-            {gridData.TotalPage > 1 && (
-                <Paginator
-                    currentPage={gridData.CurrentPage}
-                    totalPages={gridData.TotalPage}
-                    onPageChange={handlePageChange}
-                    style={pageStyle}
-                />
-            )}
+            {gridData.TotalPage > 1 && (<Paginator currentPage={gridData.CurrentPage} totalPages={gridData.TotalPage} onPageChange={handlePageChange} style={pageStyle} />)}
         </>
     );
 };

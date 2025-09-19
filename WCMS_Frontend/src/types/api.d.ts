@@ -6452,6 +6452,7 @@ export interface components {
              * @description 排序編號
              */
             Sort?: number;
+            BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
         };
         BannerSet_DTO: {
             Banner?: components["schemas"]["Banner_DTO"];
@@ -6510,6 +6511,7 @@ export interface components {
              * @description 圖片寬度(px)
              */
             Width?: number;
+            BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
         };
         CategoryDataSet_DTO: {
             Category?: components["schemas"]["Category_DTO"];
@@ -6584,7 +6586,7 @@ export interface components {
         EndType: 0 | 1;
         FileArchiveDetail_DTO: {
             /** @description 檔案室代碼 */
-            FileArchiveId: string;
+            FileArchiveId?: string | null;
             /**
              * Format: int32
              * @description 父行代碼
@@ -6603,7 +6605,7 @@ export interface components {
         };
         FileArchiveInfo_DTO: {
             /** @description 檔案室代碼 */
-            FileArchiveId: string;
+            FileArchiveId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
@@ -6649,12 +6651,12 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             /** @description 檔案室代碼 */
-            FileArchiveId: string;
+            FileArchiveId?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 類別 */
-            CategoriesId: string;
+            CategoriesId?: string | null;
             /** @description 組別 */
-            TagsId: string;
+            TagsId?: string | null;
             /**
              * Format: int32
              * @description 下載次數
@@ -6748,7 +6750,7 @@ export interface components {
         FormStatus: 0 | 1 | 2 | 3;
         GalleryInfo_DTO: {
             /** @description 相簿 */
-            GalleryId: string;
+            GalleryId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
@@ -6763,7 +6765,7 @@ export interface components {
         };
         GalleryPhotosInfo_DTO: {
             /** @description 相簿 */
-            GalleryId: string;
+            GalleryId?: string | null;
             /**
              * Format: int32
              * @description 父行代碼
@@ -6781,7 +6783,7 @@ export interface components {
         };
         GalleryPhotos_DTO: {
             /** @description 相簿 */
-            GalleryId: string;
+            GalleryId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
@@ -6831,19 +6833,19 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             /** @description 相簿 */
-            GalleryId: string;
+            GalleryId?: string | null;
             /** @description 類別 */
-            Categories: string;
+            Categories?: string | null;
             /** @description 標籤 */
-            Tags: string;
+            Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 相簿封面圖 */
             CoverPicSrcId?: string | null;
             /**
-             * Format: int32
-             * @description 排序編號
+             * Format: date-time
+             * @description 上架日期
              */
-            Sort?: number;
+            Validate_Start?: string;
             GalleryInfo?: components["schemas"]["GalleryInfo_DTO"][] | null;
             GalleryPhotos?: components["schemas"]["GalleryPhotos_DTO"][] | null;
         };
@@ -7172,7 +7174,7 @@ export interface components {
             ProjectLeader?: string | null;
             /** @description 姓名 */
             Name?: string | null;
-            /** @description 教師課程表 */
+            /** @description 本校教學人員 */
             TeachingStaffOfOurSchool?: string | null;
             /** @description 核定編號 */
             ApprovalNumber?: string | null;
