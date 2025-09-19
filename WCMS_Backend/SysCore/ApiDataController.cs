@@ -260,12 +260,12 @@ namespace WCMS.SysCore
             var queryResult = await Service.BizQuerySetAsync(internalId);
             var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(queryResult);
 
-            OperateLogModel followInfo = new OperateLogModel();
-            followInfo.APIName = $"{Service.ProgId}/{nameof(QueryData)}";
-            followInfo.UserId = "SysOperator";
-            followInfo.followingDT = JsonConvert.SerializeObject(result);
-            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
-            OperateLog.AddMoveFollow(followInfo);
+            //OperateLogModel followInfo = new OperateLogModel();
+            //followInfo.APIName = $"{Service.ProgId}/{nameof(QueryData)}";
+            //followInfo.UserId = "SysOperator";
+            //followInfo.followingDT = JsonConvert.SerializeObject(result);
+            //followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            //OperateLog.AddMoveFollow(followInfo);
 
             var response = new ApiResponse<TSet_DTO>() { Data = [result] };
             return Ok(response);
@@ -283,12 +283,12 @@ namespace WCMS.SysCore
             List<TSet_DTO> result = [];
             foreach (var item in queryResult) result.Add(DTOHelper.MapToDTO<TSet, TSet_DTO>(item));
 
-            OperateLogModel followInfo = new OperateLogModel();
-            followInfo.APIName = $"{Service.ProgId}/{nameof(QueryList)}";
-            //followInfo.UserId = "SysOperator";
-            followInfo.followingDT = JsonConvert.SerializeObject(result);
-            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
-            OperateLog.AddMoveFollow(followInfo);
+            //OperateLogModel followInfo = new OperateLogModel();
+            //followInfo.APIName = $"{Service.ProgId}/{nameof(QueryList)}";
+            ////followInfo.UserId = "SysOperator";
+            //followInfo.followingDT = JsonConvert.SerializeObject(result);
+            //followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            //OperateLog.AddMoveFollow(followInfo);
 
             var response = new ApiResponse<TSet_DTO>() { Data = result };
             return Ok(response);
@@ -425,7 +425,6 @@ namespace WCMS.SysCore
             return Ok();
         }
         #endregion
-
         #region Private
         
         #endregion

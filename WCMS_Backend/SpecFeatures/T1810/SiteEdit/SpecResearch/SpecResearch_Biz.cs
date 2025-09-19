@@ -43,13 +43,18 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
                 int rowId = 1;
                 ds.Tables["ResearchProject_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.SpecResearch.ResearchId).ToList().ForEach(dRow =>
                 {
+                    
+                    int.TryParse(dRow["Year"].ToString(), out int year);
+                    int.TryParse(dRow["AcademicYear"].ToString(), out int academicYear);
+                    decimal.TryParse(dRow["PlanAmount"].ToString().Replace(",", ""), out decimal planAmount);
+                    decimal.TryParse(dRow["ApprovedAmount"].ToString().Replace(",", ""), out decimal approvedAmount);
                     SpecResearchDetailModel detail = new()
                     {
                         ResearchId = set.SpecResearch.ResearchId,
                         RowId = rowId++,
                         Lang = dRow["Lang"].ToString(),
-                        Year = dRow["Year"].ToString(),
-                        AcademicYear = dRow["AcademicYear"].ToString(),
+                        Year = year,
+                        AcademicYear = academicYear,
                         Semester = dRow["Semester"].ToString(),
                         DuringExecution = dRow["DuringExecution"].ToString(),
                         ContractPeriod = dRow["ContractPeriod"].ToString(),
@@ -58,7 +63,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
                         Name = dRow["Name"].ToString(),
                         TeachingStaffOfOurSchool = dRow["TeachingStaffOfOurSchool"].ToString(),
                         ApprovalNumber = dRow["ApprovalNumber"].ToString(),
-                        ApprovedAmount = dRow["ApprovedAmount"].ToString(),
+                        ApprovedAmount = approvedAmount,
                         College = dRow["College"].ToString(),
                         Department = dRow["Department"].ToString(),
                         GraduationDegree = dRow["GraduationDegree"].ToString(),
@@ -71,7 +76,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
                         Cohost1 = dRow["Cohost1"].ToString(),
                         Cohost2 = dRow["Cohost2"].ToString(),
                         Commissioned = dRow["Commissioned"].ToString(),
-                        PlanAmount = dRow["PlanAmount"].ToString(),
+                        PlanAmount = planAmount,
                         PlanContent = dRow["PlanContent"].ToString(),
                     };
                     set.SpecResearchDetail.Add(detail);

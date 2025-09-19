@@ -16,6 +16,7 @@ export const AnnouncementDetailFileFields = {
     ParentRowId: "ParentRowId",
     RowId: "RowId",
     FileId: "FileId",
+    FileName: "FileName",
 } as const;
 
 export type AnnouncementDetailFileFieldKey = keyof typeof AnnouncementDetailFileFields;

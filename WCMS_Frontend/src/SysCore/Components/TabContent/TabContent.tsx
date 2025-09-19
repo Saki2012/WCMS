@@ -29,37 +29,16 @@ const Content = ({ tabId, components, isFirst }: { tabId: string; components: Re
     )
 }
 
-
-// const Content = ({ tabId, components, isFirst }: { tabId: string; components: ReactNode[]; isFirst: boolean }) => {
-//     return (
-//         <div className={clsx("tab-pane", "fade", { active: isFirst, show: isFirst })} role="tabpanel" id={`Tab_TWEN_${tabId}`}>
-//             <div className="form row">
-//                 {components.map((ComponentNode, idx) => (
-//                     // <div className="col-12 mx-0" key={idx}>
-//                     <div className="w-50 form-group" key={idx}>
-//                         {/* <div className="row mx-0"> */}
-//                         {ComponentNode}
-//                         {/* </div> */}
-//                     </div>
-//                     // </div>
-//                 ))}
-//             </div>
-//         </div>
-//     )
-// }
-
-
-const TabContentComp = ({ libTabsProp, components }: { libTabsProp: LibTabsProp; components: Record<string, React.ReactNode[]>; }) => {
+const TabContentComp = ({ tabInfos, components }: { tabInfos: LibTabsProp; components: Record<string, React.ReactNode[]>; }) => {
     const uid = useId();
     return (
         <div className="panel">
             <div className="panel-body">
                 <div className="form">
                     <div className="row mx-0">
-                        <LibTabs {...libTabsProp}></LibTabs>
+                        <LibTabs {...tabInfos}></LibTabs>
                         <div className="tab-content px-0" id={uid}>
-
-                            {Object.keys(libTabsProp.item).map((key, idx) => {
+                            {Object.keys(tabInfos.item).map((key, idx) => {
                                 const isFirst = idx === 0;
                                 if (!components.hasOwnProperty(key)) { return (<Content key={key} tabId={key} components={[<div>Key:{key}尚未提供內容</div>]} isFirst={isFirst} />); }
                                 return (<Content key={key} tabId={key} components={components[key]} isFirst={isFirst} />);

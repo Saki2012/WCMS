@@ -47,14 +47,14 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         [LibDesc, Key] public int RowId { get; set; }
         [Required, StringLength(SysLengthParam.Lang)] public string Lang { get; set; } = default!;
         [StringLength(10)] public string? Year { get; set; }
-        [StringLength(10)] public string? AcademicYear { get; set; }
+        public int? AcademicYear { get; set; }
         [StringLength(200)] public string? Courses { get; set; }
         [StringLength(200)] public string? PracticeField { get; set; }
         [StringLength(200)] public string? ProjectName { get; set; }
         [StringLength(200)] public string? ExternalCooperationUnit { get; set; }
         [StringLength(200)] public string? Department { get; set; }
         [StringLength(200)] public string? DuringExecution { get; set; }
-        [StringLength(200)] public string? PlanAmount { get; set; }
+        public decimal? PlanAmount { get; set; }
         [StringLength(200)] public string? ExecutionStrategy { get; set; }
         public string? ContentIntroduction { get; set; }
         [StringLength(200)] public string? ProjectConcept { get; set; }

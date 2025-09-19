@@ -23,7 +23,7 @@ export interface RemergeOptions
 }
 
 /** 將多個值以分隔字元合併為字串 */
-export const Merge = (mergeStr: string, hasEmpty: boolean, ...strs: unknown[]): string =>
+export const LibMerge = (mergeStr: string, hasEmpty: boolean, ...strs: unknown[]): string =>
 {
     if (!strs || strs.length === 0) return "";
     const parts: string[] = [];
@@ -108,7 +108,7 @@ export const Remerge = (val: string | null | undefined, mergeStr: string, option
 
     if (isDesc) data.reverse();
 
-    return Merge(mergeStr, hasEmpty, ...data);
+    return LibMerge(mergeStr, hasEmpty, ...data);
 };
 
 /* ===== 使用範例 =====

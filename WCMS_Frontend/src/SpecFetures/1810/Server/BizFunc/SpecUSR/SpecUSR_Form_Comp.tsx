@@ -1,11 +1,10 @@
-import { LibCheckBox, LibTextBox, LibTextArea, LibFileInput, LibFile, LibTinyMCE, LibDropList,LibPicture } from "../../../../../SysCore/Components/FormField/LibFormField";
+import { LibCheckBox, LibTextBox, LibTextArea, LibFile, LibDropList, LibPicture } from "@/SysCore/Components/FormField/LibFormField";
 
-import type { LibTabsProp, LibTextBoxProp, LibTinyMCEProp } from "../../../../../SysCore/Components/FormField/LibFormField";
-import type { IBETheme } from "../../../../../Features/Server/Layout/Theme/ITheme";
-import { FormComp } from "../../../../../Features/Server/Layout/Scaffold/Content/Form_Comp";
-import { useParams } from "react-router-dom";
-import TabContentComp from "../../../../../SysCore/Components/TabContent/TabContent";
-import type { FormCompProp } from "../../../../../Features/Server/Layout/Scaffold/Content/Content_Data";
+import type { LibTabsProp } from "@/SysCore/Components/FormField/LibFormField";
+import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
+import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
+import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import { useState } from "react";
 
 
@@ -13,7 +12,6 @@ import { useState } from "react";
  * @returns 
  */
 export const USRProjFormComp = ({ theme }: { theme: IBETheme }) => {
-    const { uid } = useParams()
 
     const isLoading: boolean[] = []
     const errors: (string | null | undefined)[] = []

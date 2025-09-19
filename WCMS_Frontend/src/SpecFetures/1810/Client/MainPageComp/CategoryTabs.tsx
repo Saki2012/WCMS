@@ -1,20 +1,22 @@
 {/* // 最新消息 // */ }
 import { Link } from 'react-router-dom';
 import 'swiper/swiper-bundle.css';
-import AnnouncementProvider from '../../../../Features/Server/Layout/BizFunc/WebManagement/Announcement/Announcement_Api';
-import type { components } from '../../../../types/api';
+import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api';
+import type { components } from '@/types/api';
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
-import * as SchemaFields from "../../../../types/SchemaFields";
-import { useFetchGridListData } from '../../../../SysCore/Utils/API/FetchGridListData';
-import LoadingErrorHandler from '../../../../SysCore/Components/LoadingErrorHandler';
-import CategoryProvider from '../../../../Features/Server/Layout/BizFunc/WebManagement/Category/Category_Api';
-import TagProvider from '../../../../Features/Server/Layout/BizFunc/WebManagement/Tags/Tag_Api';
+import * as SchemaFields from "@/types/SchemaFields";
+import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
+import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
+import CategoryProvider from '@/Features/Pages/Server/BizFunc/WebManagement/Category/Category_Api';
+import TagProvider from '@/Features/Pages/Server/BizFunc/WebManagement/Tags/Tag_Api';
+import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
 
 const useAnnouncementList = (categories?: string) => {
     const provider = AnnouncementProvider();
-    const cdt = categories ? `${SchemaFields.AnnouncementFields.Categories} HasAny ${categories}` : ""
+    let cdt = `${SchemaFields.AnnouncementFields.ContentStatus} !& 4`;
+    cdt = LibMerge(" And ", false, cdt, categories ? `${SchemaFields.AnnouncementFields.Categories} HasAny ${categories}` : "");
     return useFetchGridListData<AnnouncementSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
@@ -37,7 +39,7 @@ const useAnnouncementList = (categories?: string) => {
             PageSize: 6,
         }),
         enabled: true,
-        deps: [],
+        deps: [categories],
     });
 };
 const useCategoryList = () => {
@@ -85,7 +87,7 @@ const useTagList = () => {
 
 export const CategoryTabs = () => {
     const useAllNewsData = useAnnouncementList();
-    const useProjectData = useAnnouncementList("4");
+    const useProjectData = useAnnouncementList("3,4,5");
     const useLegalData = useAnnouncementList("6");
     const useEvenData = useAnnouncementList("8");
     const useAwardData = useAnnouncementList("45");

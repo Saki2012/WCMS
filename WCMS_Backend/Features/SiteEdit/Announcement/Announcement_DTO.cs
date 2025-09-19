@@ -123,6 +123,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 檔案來源
         /// </summary>
-        [LibDesc(ModelDisplayName.Announcement_FileId)] public string FileId { get; set; }
+        [LibDesc(ModelDisplayName.Announcement_FileId)] public string? FileId { get; set; }
+        [LibDesc(ModelDisplayName.Announcement_FileName)] public string? FileName { get; set; }
     }
 }

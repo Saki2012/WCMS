@@ -1,16 +1,16 @@
-import type { SearchBarProps } from "../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
-import type { IBETheme } from "../../../../../Features/Server/Layout/Theme/ITheme"
-import type { GridProps, ColumnConfig, GridRow, RowCell } from "../../../../../SysCore/Components/Grid/Grid_Data"
+import type { SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
+import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme"
+import type { GridProps, ColumnConfig, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data"
 import { useMemo } from "react"
 import { Link } from "react-router-dom"
 import { useLocation } from 'react-router-dom';
-import { ListComp } from "../../../../../Features/Server/Layout/Scaffold/Content/List_Comp"
-import type { ListCompProp } from "../../../../../Features/Server/Layout/Scaffold/Content/Content_Data"
-import type { components } from "../../../../../types/api"
-import { useListToolbarActions } from "../../../../../SysCore/Components/Toolbar/Toolbar_Hook"
+import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp"
+import type { ListCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data"
+import type { components } from "@/types/api"
+import { useListToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook"
 import { useSpecUSRProjList } from "./SpecUSR_Hook"
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"]
-import * as SchemaFields from "../../../../../types/SchemaFields";
+import * as SchemaFields from "@/types/SchemaFields";
 
 /** USR計畫清單
  * @returns 

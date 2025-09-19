@@ -29,7 +29,11 @@ export default defineConfig(({ mode }) => {
           target: 'es2022',
           assetsInlineLimit: 0,
         },
-        resolve: { alias: { '/src': path.resolve(__dirname, './src'),}},
+        resolve: {
+          alias: {
+            '@': path.resolve(__dirname, 'src'),  // 這裡設定 @ = /src
+          },
+        },
         ssr: {
           noExternal: ['swiper'],
           external: [],          

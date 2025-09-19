@@ -3,6 +3,7 @@ using System.Data;
 using System.Runtime.InteropServices;
 using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SysCore;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.SystemFunc.FileManagement;
@@ -55,7 +56,7 @@ namespace WCMS.Features.SiteEdit.Banner
                         updateFileSets.Add(fileInfo);
                         picFileName = fileInfo.FileManage.InternalId;
                     }
-
+                    int.TryParse(dRow["FontColor"].ToString(), out int fontcolor);
                     BannerDetail detail = new()
                     {
                         BannerId = set.Banner.BannerId,
@@ -63,7 +64,7 @@ namespace WCMS.Features.SiteEdit.Banner
                         PicSrcId = picFileName,
                         Validate_Start = Convert.ToDateTime(dRow["StartDate"]),
                         Validate_End = Convert.ToDateTime(dRow["EndDate"]),
-                        FontColor = dRow["FontColor"].ToString(),
+                        FontColor = fontcolor.ToString(),
                         Sort = Convert.ToUInt16(dRow["Sort"]),
                     };
                     set.BannerDetail.Add(detail);
@@ -72,6 +73,18 @@ namespace WCMS.Features.SiteEdit.Banner
                     {
                         if (!detailLangRow["Title"].IsNullOrEmpty())
                         {
+                            SysEnum.WindowTarget target;
+                            switch (Convert.ToByte(detailLangRow["URL_Open"]))
+                            {
+                                case 1:
+                                    target = SysEnum.WindowTarget.Self;
+                                    break;
+                                case 2:
+                                    target = SysEnum.WindowTarget.Blank;
+                                    break;
+                            }
+
+
                             BannerDetailInfo detailInfo = new()
                             {
                                 BannerId = set.Banner.BannerId,
@@ -81,7 +94,7 @@ namespace WCMS.Features.SiteEdit.Banner
                                 Title = detailLangRow["Title"].ToString(),
                                 Content = detailLangRow["Content"].ToString(),
                                 URL = detailLangRow["Url"].ToString(),
-                                URL_Open = Convert.ToByte(detailLangRow["URL_Open"]),
+                                URL_Open = (SysEnum.WindowTarget)Convert.ToByte(detailLangRow["URL_Open"]),
                             };
                             set.BannerDetailInfo.Add(detailInfo);
                             subRowId++;

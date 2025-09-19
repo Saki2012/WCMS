@@ -99,6 +99,7 @@ namespace WCMS.Features.SiteEdit.Announcement
                                     ParentRowId = rowId,
                                     RowId = i,
                                     FileId = fileInfo.FileManage.InternalId,
+                                    FileName = subFileName
                                 };
                                 set.AnnouncementDetailFile.Add(detailFile);
                             }

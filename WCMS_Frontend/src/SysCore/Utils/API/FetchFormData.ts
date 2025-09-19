@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
+import type { ModelDisplaySchema } from "../../../types/IApiSchema";
 import type { IDataProvider } from "../../Interface/IApiProvider";
 
 export interface UseFetchFormDataResult<T>
 {
-    data: T | null;
-    setFormData: React.Dispatch<React.SetStateAction<T | null>>;
+    data: T;
+    displayName: ModelDisplaySchema;
+    setFormData: React.Dispatch<React.SetStateAction<T>>;
     isLoading: boolean;
     error: string | null;
     refetch: () => void;
@@ -22,29 +24,31 @@ export const useFetchFormData = <T>(
     emptyData?: T,
 ): UseFetchFormDataResult<T> =>
 {
-    const [data, setFormData] = useState<T | null>(null);
+    const [data, setFormData] = useState<T>(null as T);
+    const [displayName, setDisplayName] = useState<ModelDisplaySchema>(null as unknown as ModelDisplaySchema);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
     const fetchData = useCallback(async () =>
     {
-        if (!internalId)
-        {
-            if (emptyData) setFormData(emptyData);
-            return;
-        }
         setIsLoading(true);
         setError(null);
         try
         {
+            const display = await provider.getModelDisplayName();
+            setDisplayName(display);
+            if (!internalId)
+            {
+                if (emptyData) setFormData(emptyData);
+                return;
+            }
             const res = await provider.fetchData(internalId);
-
             if (!res.IsSuccess)
             {
                 const msg = res.SysMessage?.map(m => `${m.MessageCode}:${m.Message}`).join("；") ?? "查詢失敗";
                 throw new Error(msg);
             }
-            setFormData((res.Data as T[])?.[0] ?? null);
+            setFormData((res.Data as T[])?.[0] ?? null as T);
         } catch (err: any)
         {
             setError(err.message ?? "資料讀取失敗");
@@ -53,11 +57,9 @@ export const useFetchFormData = <T>(
             setIsLoading(false);
         }
     }, [internalId, provider, emptyData]);
-
     useEffect(() =>
     {
         fetchData();
     }, [internalId]);
-
-    return { data, setFormData, isLoading, error, refetch: fetchData };
+    return { displayName, data, setFormData, isLoading, error, refetch: fetchData };
 };

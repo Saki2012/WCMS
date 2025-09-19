@@ -40,6 +40,8 @@
         public const string Enum_Expand_Category = "Enum_Expand_Category";
         public const string Enum_Expand_Tag = "Enum_Expand_Tag";
         public const string Enum_Youtube = "Enum_Youtube";
+        public const string Enum_WindowTarget_Self = "Enum_WindowTarget_Self";
+        public const string Enum_WindowTarget_Blank = "Enum_WindowTarget_Blank";
         #endregion
 
         #region 公告
@@ -51,7 +53,8 @@
         public const string Announcement_StartDate="Announcement_StartDate";
         public const string Announcement_EndDate="Announcement_EndDate";
         public const string Announcement_CreationDate="Announcement_CreationDate";
-        public const string Announcement_FileId="Announcement_FileId";
+        public const string Announcement_FileId = "Announcement_FileId";
+        public const string Announcement_FileName = "Announcement_FileName";
 
         #endregion 
         #region 廣告輪播
@@ -154,7 +157,7 @@
         public const string SpecResearch_ClassTime="SpecResearch_ClassTime";
         public const string SpecResearch_ProjectLeader="SpecResearch_ProjectLeader";
         public const string SpecResearch_Name="SpecResearch_Name";
-        public const string SpecResearch_FacultySchedule="SpecResearch_FacultySchedule";
+        public const string SpecResearch_TeachingStaffOfOurSchool="SpecResearch_TeachingStaffOfOurSchool";
         public const string SpecResearch_ApprovalNumber="SpecResearch_ApprovalNumber";
         public const string SpecResearch_ApprovedAmount="SpecResearch_ApprovedAmount";
         public const string SpecResearch_College="SpecResearch_College";

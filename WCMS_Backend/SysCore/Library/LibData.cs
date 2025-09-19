@@ -576,7 +576,6 @@ namespace WCMS.SysCore.Library
 
                 return [.. System.Enum.GetValues(enumType)
                     .Cast<System.Enum>()
-                    .Where(e => Convert.ToInt32(e) != 0) // 可視情況包含 None
                     .Select(e => new EnumOption
                     {
                         Key = Convert.ToInt32(e),

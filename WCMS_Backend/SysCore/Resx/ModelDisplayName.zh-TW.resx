@@ -157,7 +157,7 @@
     <value>新增日期</value>
   </data>
   <data name="Announcement_FileId" xml:space="preserve">
-    <value>檔案來源</value>
+    <value>附件</value>
   </data>
   <data name="Common_ParentRowId" xml:space="preserve">
     <value>父行代碼</value>
@@ -396,8 +396,8 @@
   <data name="SpecResearch_Name" xml:space="preserve">
     <value>姓名</value>
   </data>
-  <data name="SpecResearch_FacultySchedule" xml:space="preserve">
-    <value>教師課程表</value>
+  <data name="SpecResearch_TeachingStaffOfOurSchool" xml:space="preserve">
+    <value>本校教學人員</value>
   </data>
   <data name="SpecResearch_ApprovalNumber" xml:space="preserve">
     <value>核定編號</value>
@@ -608,5 +608,14 @@
   </data>
   <data name="Spec1810_Tag" xml:space="preserve">
     <value>組別</value>
+  </data>
+  <data name="Enum_WindowTarget_Self" xml:space="preserve">
+    <value>當前視窗開啟</value>
+  </data>
+  <data name="Enum_WindowTarget_Blank" xml:space="preserve">
+    <value>另開分頁</value>
+  </data>
+  <data name="Announcement_FileName" xml:space="preserve">
+    <value>附件名稱</value>
   </data>
 </root>

@@ -349,8 +349,9 @@ namespace WCMS.SysCore.Enum
         /// </summary>
         public enum WindowTarget : byte
         {
-            Self = 0,   // _self (當前頁面)
-            Blank = 1,  // _blank (新開分頁/視窗)
+            [LibDesc(ModelDisplayName.Enum_WindowTarget_Self)] Self = 0,   // _self (當前頁面)
+            [LibDesc(ModelDisplayName.Enum_WindowTarget_Blank)] Blank = 1,  // _blank (新開分頁/視窗)
+
             //Parent = 2, // _parent (父層框架)
             //Top = 3,    // _top (最上層框架)
             //Named = 4   // 自訂視窗名稱

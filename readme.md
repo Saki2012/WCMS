@@ -178,7 +178,8 @@ npx tsx ./src/types/generate-fields.ts
     1. 執行 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass;
     2. 執行 npm run build:csr   (#如果是ssr，改為build:ssr)
     3. 會產生dist-csr資料夾，將底下的所有資料打包覆蓋至Server上的部屬環境資料夾
-
+    注意:不要覆蓋掉webconfig
 後端:
     1. 執行 if (Test-Path .\Publish) { Remove-Item .\Publish -Recurse -Force }; dotnet publish WCMS.csproj -c Release -r win-x64 -o Publish
     2. 會產生publish資料夾，將底下的所有資料打包覆蓋至Server上的部屬環境資料夾
+    注意:不要覆蓋掉webconfig和appsettingjson
