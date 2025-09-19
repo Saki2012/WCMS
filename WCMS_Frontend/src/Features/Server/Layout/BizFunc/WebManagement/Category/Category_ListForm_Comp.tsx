@@ -94,6 +94,6 @@ const generateLangFields = (lang: string, label: string, theme: IBETheme,
     };
     const data = getLangData();
     return [
-        <LibTextBox key={`${lang}-Title`} Style={theme.TextBox} ColumnDisplayName={`類別名稱（${label}）`} DefaultInputDisplay="請輸入" InputValue={data.CategoryName ?? ""} OnChange={(val) => updateLangData("CategoryName", val)} />,
+        <LibTextBox key={`${lang}-CategoryName`} Style={theme.TextBox} ColumnDisplayName={`類別名稱（${label}）`} DefaultInputDisplay="請輸入" InputValue={data.CategoryName ?? ""} OnChange={(val) => updateLangData("CategoryName", val)} />,
     ];
 };
