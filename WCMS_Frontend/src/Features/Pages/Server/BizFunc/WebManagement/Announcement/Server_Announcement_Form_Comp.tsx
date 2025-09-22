@@ -15,7 +15,7 @@ import LibCalendar from "@/SysCore/Components/FormField/FieldComponets/LibCalend
 import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
-import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
+import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
 import * as SchemaFields from "@/types/SchemaFields";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
@@ -123,6 +123,10 @@ const DetailComp = (prop: { theme: IBETheme, formData: UseFetchFormDataResult<An
 };
 
 const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<AnnouncementSet>; parentRowId: number; }) => {
+
+
+    const setFileField = useSetTableFileField(props.formData);
+
     const allFiles: AnnouncementDetailFile[] = props.formData.data?.AnnouncementDetailFile ?? [];
     const getFiles = (): AnnouncementDetailFile[] => allFiles.filter(f => f.ParentRowId === props.parentRowId).sort((a, b) => (a.RowId ?? 0) - (b.RowId ?? 0));
 
@@ -164,16 +168,28 @@ const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
         <>
             <div role="group" className="mt-4">
                 <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-secondary mb-2">新增附件</button>
-                {getFiles().map((f, i) => (
-                    <div key={`${f.ParentRowId}-${f.RowId}`} className="flex items-center gap-2 mb-2">
-                        <LibFileInput ColumnDisplayName={`附件 ${i + 1}`} DefaultInputDisplay="請選擇檔案"
-                            Style={props.theme.FileInput} InputValue={f.FileId ?? ""}
-                            onChange={(internalId, fileName) => { updateFileAt(i, { FileId: internalId }); }}
-                            onNameChange={(name) => updateFileAt(i, { FileName: name })}
-                            onDelete={() => removeFileAt(i)}
-                        />
-                    </div>
-                ))}
+                {getFiles().map((f, i) => {
+                    const rowKeys = { [SchemaFields.AnnouncementDetailFileFields.AnnouncementId]: f.AnnouncementId, [SchemaFields.AnnouncementDetailFileFields.ParentRowId]: f.ParentRowId, [SchemaFields.AnnouncementDetailFileFields.RowId]: f.RowId, }
+                    return (
+                        <div key={`${f.ParentRowId}-${f.RowId}`} className="flex items-center gap-2 mb-2">
+                            <LibFileInput
+                                Style={props.theme.FileInput}
+                                DefaultInputDisplay="請輸入附件說明"
+                                // 直接展開！只要給：表名、id欄位、name欄位(可選)、rowKeys(可選)、options(可選)
+                                {...setFileField(
+                                    SchemaFields.AnnouncementSetFields.AnnouncementDetailFile,
+                                    SchemaFields.AnnouncementDetailFileFields.FileId,      // ← internalId 欄位
+                                    SchemaFields.AnnouncementDetailFileFields.FileName,       // ← 檔名欄位（可省略）
+                                    rowKeys,                               // ← 指定哪一列
+                                    { defaultNameFromOriginal: "basename" }               // ← 第一次上傳自動帶入不含副檔名
+                                )}
+                                // 其他 UI 行為仍由你自己控制
+                                Accept="*/*"
+                                onDelete={() => updateFileAt(i, { FileId: null })}
+                            />
+                        </div>
+                    )
+                })}
             </div>
         </>
     );

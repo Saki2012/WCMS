@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WCMS.SysCore;
 
@@ -11,9 +12,11 @@ using WCMS.SysCore;
 namespace WCMS.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250922075706_ChangeType")]
+    partial class ChangeType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -549,6 +552,8 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(36)");
 
                     b.HasKey("FileArchiveId", "ParentRowId", "RowId");
+
+                    b.HasIndex("FileSrcId");
 
                     b.ToTable("FileArchiveDetail", (string)null);
                 });
@@ -1648,8 +1653,8 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("ExecutionStrategy")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("ExternalCooperationUnit")
                         .HasMaxLength(200)
@@ -2451,6 +2456,14 @@ namespace WCMS.Migrations
                         .HasForeignKey("FileArchiveId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("WCMS.SysCore.SystemFunc.FileManagement.FileManageModel", "FileSrc")
+                        .WithMany()
+                        .HasForeignKey("FileSrcId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FileSrc");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.FileArchive.FileArchiveInfo", b =>

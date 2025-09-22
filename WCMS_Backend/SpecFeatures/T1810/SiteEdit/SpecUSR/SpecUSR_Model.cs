@@ -55,7 +55,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         [StringLength(200)] public string? Department { get; set; }
         [StringLength(200)] public string? DuringExecution { get; set; }
         public decimal? PlanAmount { get; set; }
-        [StringLength(200)] public string? ExecutionStrategy { get; set; }
+        [StringLength(1000)] public string? ExecutionStrategy { get; set; }
         public string? ContentIntroduction { get; set; }
         [StringLength(200)] public string? ProjectConcept { get; set; }
         [StringLength(200)] public string? ProjectHighlights { get; set; }

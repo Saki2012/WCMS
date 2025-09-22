@@ -12,6 +12,8 @@ import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api';
 import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
 import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
+import { DefaultLang } from '@/SysCore/i18n/lang';
+import { number } from 'zod';
 
 
 
@@ -31,6 +33,7 @@ const useTopAnnouncementList = (categories?: string) => {
                 SchemaFields.AnnouncementFields.InternalId,
                 SchemaFields.AnnouncementFields.Categories,
                 SchemaFields.AnnouncementFields.Tags,
+                SchemaFields.AnnouncementFields.ContentStatus,
                 SchemaFields.AnnouncementFields.Validate_Start,
                 `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
                 `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
@@ -50,7 +53,7 @@ const useTopAnnouncementList = (categories?: string) => {
 
 const useAnnouncementList = (categories?: string) => {
     const provider = AnnouncementProvider();
-    let cdt = `${SchemaFields.AnnouncementFields.ContentStatus} !& 4`;
+    let cdt = `${SchemaFields.AnnouncementFields.ContentStatus} !& 4 And ${SchemaFields.AnnouncementFields.ContentStatus} !& 1`;
     cdt = LibMerge(" And ", false, cdt, categories ? `${SchemaFields.AnnouncementFields.Categories} HasAny ${categories}` : "");
     return useFetchGridListData<AnnouncementSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
@@ -63,6 +66,7 @@ const useAnnouncementList = (categories?: string) => {
                 SchemaFields.AnnouncementFields.InternalId,
                 SchemaFields.AnnouncementFields.Categories,
                 SchemaFields.AnnouncementFields.Tags,
+                SchemaFields.AnnouncementFields.ContentStatus,
                 SchemaFields.AnnouncementFields.Validate_Start,
                 `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
                 `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
@@ -121,6 +125,14 @@ const useTagList = () => {
 };
 
 export const CategoryTabs = () => {
+
+    const useTopAllNewsData = useTopAnnouncementList();
+    const useTopProjectData = useTopAnnouncementList("3,4,5");
+    const useTopLegalData = useTopAnnouncementList("6");
+    const useTopEvenData = useTopAnnouncementList("8,10");
+    const useTopAwardData = useTopAnnouncementList("45");
+    const useTopMediaData = useTopAnnouncementList("46");
+
     const useAllNewsData = useAnnouncementList();
     const useProjectData = useAnnouncementList("3,4,5");
     const useLegalData = useAnnouncementList("6");
@@ -128,12 +140,22 @@ export const CategoryTabs = () => {
     const useAwardData = useAnnouncementList("45");
     const useMediaData = useAnnouncementList("46");
 
+    const allNewsRawData = takeTopThenFill(useTopAllNewsData.rawData, useAllNewsData.rawData, 6);
+    const projectRawData = takeTopThenFill(useTopProjectData.rawData, useProjectData.rawData, 6);
+    const legalRawData = takeTopThenFill(useTopLegalData.rawData, useLegalData.rawData, 6);
+    const evenRawData = takeTopThenFill(useTopEvenData.rawData, useEvenData.rawData, 6);
+    const awardRawData = takeTopThenFill(useTopAwardData.rawData, useAwardData.rawData, 6);
+    const mediaRawData = takeTopThenFill(useTopMediaData.rawData, useMediaData.rawData, 6);
+
+
     const useCategoryData = useCategoryList();
     const useTagData = useTagList();
-    const loadingList = [useAllNewsData.isLoading, useProjectData.isLoading, useLegalData.isLoading, useEvenData.isLoading, useAwardData.isLoading, useMediaData.isLoading, useCategoryData.isLoading, useTagData.isLoading]
-    const errorList = [useAllNewsData.error, useProjectData.error, useLegalData.error, useEvenData.error, useAwardData.error, useMediaData.error, useCategoryData.error, useTagData.error]
+    const loadingList = [useAllNewsData.isLoading, useProjectData.isLoading, useLegalData.isLoading, useEvenData.isLoading, useAwardData.isLoading, useMediaData.isLoading, useCategoryData.isLoading, useTagData.isLoading,
+    useTopAllNewsData.isLoading, useTopProjectData.isLoading, useTopLegalData.isLoading, useTopEvenData.isLoading, useTopAwardData.isLoading, useTopMediaData.isLoading,]
+    const errorList = [useAllNewsData.error, useProjectData.error, useLegalData.error, useEvenData.error, useAwardData.error, useMediaData.error, useCategoryData.error, useTagData.error,
+    useTopAllNewsData.error, useTopProjectData.error, useTopLegalData.error, useTopEvenData.error, useTopAwardData.error, useTopMediaData.error]
 
-    const lang = 'zh-tw'
+    const lang = DefaultLang
 
     const categoryDict: Record<string, string> = Object.fromEntries(
         (useCategoryData.rawData ?? []).map(cat => {
@@ -151,12 +173,12 @@ export const CategoryTabs = () => {
         })
     );
 
-    const allNews = getNewsDataProps(useAllNewsData.rawData, lang, "/Allnews/Project-solicitation/National-Science-Accounting", "", categoryDict, tagDict);
-    const project = getNewsDataProps(useProjectData.rawData, lang, "/Allnews/Project-solicitation/National-Science-Accounting", "", categoryDict, tagDict);
-    const legal = getNewsDataProps(useLegalData.rawData, lang, "/Allnews/Regulatory-Announcements", "6", categoryDict, tagDict)
-    const even = getNewsDataProps(useEvenData.rawData, lang, "/Allnews/Intramural-activities/In-school-activities", "", categoryDict, tagDict)
-    const award = getNewsDataProps(useAwardData.rawData, lang, "/Allnews/Award-announcement", "45", categoryDict, tagDict)
-    const media = getNewsDataProps(useMediaData.rawData, lang, "/Allnews/Special-Topics-and-Media-Coverage", "46", categoryDict, tagDict)
+    const allNews = getNewsDataProps(allNewsRawData, lang, "/Allnews/Project-solicitation/National-Science-Accounting", "", categoryDict, tagDict);
+    const project = getNewsDataProps(projectRawData, lang, "/Allnews/Project-solicitation/National-Science-Accounting", "", categoryDict, tagDict);
+    const legal = getNewsDataProps(legalRawData, lang, "/Allnews/Regulatory-Announcements", "6", categoryDict, tagDict)
+    const even = getNewsDataProps(evenRawData, lang, "/Allnews/Intramural-activities/In-school-activities", "", categoryDict, tagDict)
+    const award = getNewsDataProps(awardRawData, lang, "/Allnews/Award-announcement", "45", categoryDict, tagDict)
+    const media = getNewsDataProps(mediaRawData, lang, "/Allnews/Special-Topics-and-Media-Coverage", "46", categoryDict, tagDict)
     return (
         <LoadingErrorHandler loadingList={loadingList} errorList={errorList} >
 
@@ -303,7 +325,7 @@ export const CategoryTabs = () => {
     )
 };
 
-interface getDataProp { redir: string; announceInternalId: string; title: string; date: string; month: string; tagName: string; categoryName: string; }
+interface getDataProp { redir: string; announceInternalId: string; title: string; date: string; month: string; monthNum: number; tagName: string; categoryName: string; contentStatus: number }
 //最新公告
 /**注:預計把targetCategoryId的參數拿掉，會影響邏輯 */
 const getNewsDataProps = (newsData: AnnouncementSet[], lang: string, redir: string, targetCategoryId: string, categoryDict: Record<string, string>, tagDict: Record<string, string>) => {
@@ -314,14 +336,17 @@ const getNewsDataProps = (newsData: AnnouncementSet[], lang: string, redir: stri
         const categoryName = categoryIds.map(id => categoryDict[id] ?? "").filter(Boolean).join(", ");
         const tags = (item.Announcement?.Tags ?? "").split(",").map(s => s.trim()).filter(Boolean);
         const tagsName = tags.map(id => tagDict[id] ?? "").filter(Boolean).join(", ");
-
+        const contentStatus = item.Announcement?.ContentStatus ?? 0;
         const date = formatDate(item.Announcement?.Validate_Start ?? "");
+        const monthNum = Number(new Date(item.Announcement?.Validate_Start ?? "").getUTCMonth() + 1);
         resultProps.push({
             redir: redir,
             announceInternalId: item.Announcement?.InternalId ?? "",
             title: item.AnnouncementDetail?.find(p => p.Lang === lang)?.Title ?? "",
             date: date.day,
             month: date.month,
+            monthNum: monthNum,
+            contentStatus: contentStatus,
             tagName: tagsName,
             categoryName: categoryName,
         })
@@ -350,7 +375,6 @@ const pickNewsByCategories = <T extends { Announcement?: { Categories?: string |
 
 
 const GetData = ({ prop }: { prop: getDataProp[] }) => {
-
     return (
         <>
             {prop.map((item) => {
@@ -366,6 +390,17 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
                                     <div className="link-text">{item.title}</div>
                                 </div>
                                 <div className="m-news_detail">
+                                    <div className="customstyle-hotop">
+                                        {isWithinLastNDaysFromMD(Number(item.monthNum), Number(item.date)) && (
+                                            <div className="icon-small new-bg" role="status" aria-label="最新">最新</div>
+                                        )}
+                                        {item.contentStatus != 0 && (
+                                            <>
+                                                {Boolean(item.contentStatus & 1) && (<div className="icon-small top-bg">置頂</div>)}
+                                                {(item.contentStatus & 2 && <div className="icon-small hot-bg">熱門</div>)}
+                                            </>
+                                        )}
+                                    </div>
                                     <div className="category_box">
                                         <div className="m-news_category mr-3"> <i className="fa fa-tags" aria-hidden="true"></i>
                                             <div className="tags-text">{item.tagName}</div>
@@ -379,7 +414,53 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
                         </Link>
                     </li>)
             })}
-
         </>
     )
 }
+
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// 置頂優先 → 去重 → 補滿到 limit（預設 6）
+const takeTopThenFill = (
+    top: AnnouncementSet[] | undefined,
+    rest: AnnouncementSet[] | undefined,
+    limit: number = 6
+): AnnouncementSet[] => {
+    const getKey = (x: AnnouncementSet) => x.Announcement?.InternalId ?? String(x.Announcement?.AnnouncementId ?? '');
+
+    const seen = new Set<string>();
+    const out: AnnouncementSet[] = [];
+
+    // 先放置頂
+    for (const it of (top ?? [])) {
+        const k = getKey(it);
+        if (!seen.has(k) && out.length < limit) { seen.add(k); out.push(it); }
+    }
+    // 再用一般補足到 limit
+    for (const it of (rest ?? [])) {
+        if (out.length >= limit) break;
+        const k = getKey(it);
+        if (!seen.has(k)) { seen.add(k); out.push(it); }
+    }
+    return out;
+};
+
+const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean => {
+    if (!month1to12 || !day1to31) return false;
+
+    const now = new Date();
+    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+
+    let y = now.getUTCFullYear();
+    let candidateUTC = Date.UTC(y, month1to12 - 1, day1to31);
+
+    // 若候選日在未來，代表跨年情境 → 改用去年
+    if (candidateUTC > nowUTC) {
+        y -= 1;
+        candidateUTC = Date.UTC(y, month1to12 - 1, day1to31);
+    }
+
+    const diffDays = Math.floor((nowUTC - candidateUTC) / DAY_MS);
+    return diffDays >= 0 && diffDays <= n;
+};

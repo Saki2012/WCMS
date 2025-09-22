@@ -36,7 +36,7 @@ type RowType<X> = X extends (infer U)[] ? NonNullable<U> : NonNullable<X>;
 /** 比對是否符合複合主鍵（全部 key 都相等才算符合） */
 const matchRowKeys = (
     row: RowLike,
-    rowKeys?: Record<string, string | number | boolean>,
+    rowKeys?: Record<string, string | number | boolean | null | undefined>,
 ): boolean =>
 {
     if (!rowKeys) return false;
@@ -143,4 +143,122 @@ export const useSetTableField = <T>(form: UseFetchFormDataResult<T>) =>
         },
         [form.data, form.displayName, form.setFormData],
     );
+};
+
+interface UseSetTableFileFieldOptions
+{
+    /** 第一次上傳時，若檔名為空，要如何帶入預設值（original=全名；basename=去副檔名；none=不帶） */
+    defaultNameFromOriginal?: "original" | "basename" | "none";
+    /** 僅在目前檔名為空時才自動帶入（預設 true） */
+    onlyFillNameIfEmpty?: boolean;
+}
+const deriveName = (
+    originalName: string | undefined,
+    mode: UseSetTableFileFieldOptions["defaultNameFromOriginal"] = "basename",
+): string =>
+{
+    if (!originalName) return "";
+    if (mode === "none") return "";
+    if (mode === "basename") return originalName.replace(/\.[^.]+$/, "");
+    return originalName; // original
+};
+
+/** 回傳給 <LibFileInput /> 可以直接展開的屬性 */
+export interface FileFieldBindProps
+{
+    InputValue: string; // 檔名（可編輯）
+    InternalId: string; // 檔案 internalId（唯讀顯示）
+    onFileUploaded: (internalId: string, originalName?: string) => void;
+    onNameChange: (name: string) => void; // 只有有提供檔名欄位時才會真的更新
+}
+
+export const useSetTableFileField = <TSet>(formData: UseFetchFormDataResult<TSet>) =>
+{
+    const setFileField = React.useMemo(() =>
+    {
+        return (
+            tableName: string,
+            fileIdField: string,
+            fileNameField?: string,
+            rowKeys?: Record<string, string | number | boolean | null | undefined>,
+            opts?: UseSetTableFileFieldOptions,
+        ): FileFieldBindProps =>
+        {
+            const data: any = formData.data ?? {};
+            const table = data?.[tableName];
+
+            // 讀取目前值（header 物件或 detail 陣列）
+            let currentRow: any = undefined;
+            if (Array.isArray(table))
+            {
+                currentRow = table.find((r: any) => matchRowKeys(r, rowKeys));
+            } else if (table && typeof table === "object")
+            {
+                currentRow = table;
+            }
+
+            const currentId: string = String(currentRow?.[fileIdField] ?? "");
+            const currentName: string = fileNameField ? String(currentRow?.[fileNameField] ?? "") : "";
+
+            // 寫入工具：immutable 更新 header/detail
+            const updateRow = (updater: (row: any) => any) =>
+            {
+                formData.setFormData((prevAny: any) =>
+                {
+                    const prev = prevAny ?? {};
+                    const t = prev?.[tableName];
+
+                    if (Array.isArray(t))
+                    {
+                        const nextList = (t ?? []).map((r: any) => (matchRowKeys(r, rowKeys) ? updater(r) : r));
+                        return { ...prev, [tableName]: nextList };
+                    } else if (t && typeof t === "object")
+                    {
+                        const nextObj = updater(t);
+                        return { ...prev, [tableName]: nextObj };
+                    } else
+                    {
+                        // 若不存在，建 header 物件
+                        const nextObj = updater({});
+                        return { ...prev, [tableName]: nextObj };
+                    }
+                });
+            };
+
+            const onlyFillIfEmpty = opts?.onlyFillNameIfEmpty ?? true;
+            const nameMode = opts?.defaultNameFromOriginal ?? "basename";
+
+            const onFileUploaded = (internalId: string, originalName?: string) =>
+            {
+                updateRow((row) =>
+                {
+                    const next: any = { ...row, [fileIdField]: internalId };
+                    if (fileNameField)
+                    {
+                        const needFill = onlyFillIfEmpty ? !String(row?.[fileNameField] ?? "").trim() : true;
+                        if (needFill)
+                        {
+                            next[fileNameField] = deriveName(originalName, nameMode);
+                        }
+                    }
+                    return next;
+                });
+            };
+
+            const onNameChange = (name: string) =>
+            {
+                if (!fileNameField) return; // 未提供檔名欄位就無動作
+                updateRow((row) => ({ ...row, [fileNameField]: name }));
+            };
+
+            return {
+                InputValue: fileNameField ? currentName : "", // 若沒提供檔名欄位就回空字串
+                InternalId: currentId,
+                onFileUploaded,
+                onNameChange,
+            };
+        };
+    }, [formData]);
+
+    return setFileField;
 };

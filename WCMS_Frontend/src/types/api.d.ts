@@ -7133,6 +7133,7 @@ export interface components {
             ProgId?: string | null;
             /** @description 顯示欄位 */
             ShowColumnItems?: string | null;
+            SpecCategoryDetail?: components["schemas"]["SpecCategoryDetailModel_DTO"][] | null;
         };
         SpecCategorySet_DTO: {
             SpecCategory?: components["schemas"]["SpecCategoryModel_DTO"];
@@ -7244,7 +7245,7 @@ export interface components {
             /** @description 計畫類別 */
             CategoryId?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
-            /** @description 研究標籤 */
+            /** @description 標籤 */
             Tags?: string | null;
             SpecResearchDetail?: components["schemas"]["SpecResearchDetailModel_DTO"][] | null;
         };
@@ -7338,7 +7339,7 @@ export interface components {
             /** @description 計畫類別 */
             CategoryId?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
-            /** @description 研究標籤 */
+            /** @description 標籤 */
             Tags?: string | null;
             /** @description 封面圖片 */
             PictureId?: string | null;
@@ -7501,8 +7502,7 @@ export interface components {
             Content?: string | null;
             /** @description 網址 */
             ResUrl?: string | null;
-            /** @description 開啟方式 */
-            Url_OpenType?: string | null;
+            Url_OpenType?: components["schemas"]["WindowTarget"];
         };
         WebResourceSet_DTO: {
             WebResource?: components["schemas"]["WebResource_DTO"];

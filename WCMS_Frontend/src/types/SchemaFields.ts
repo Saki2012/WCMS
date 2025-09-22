@@ -712,6 +712,7 @@ export const SpecCategoryModelFields = {
     CategoryId: "CategoryId",
     ProgId: "ProgId",
     ShowColumnItems: "ShowColumnItems",
+    SpecCategoryDetail: "SpecCategoryDetail",
 } as const;
 
 export type SpecCategoryModelFieldKey = keyof typeof SpecCategoryModelFields;

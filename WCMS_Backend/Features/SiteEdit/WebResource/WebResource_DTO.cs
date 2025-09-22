@@ -18,15 +18,15 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// <summary>
         /// 檔案分類ID
         /// </summary>
-        [LibDesc(ModelDisplayName.WebResourceId)] public string WebResourceId { get; set; }
+        [LibDesc(ModelDisplayName.WebResourceId)] public string?  WebResourceId { get; set; }
         /// <summary>
         /// 類別ID(多個)
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Category)] public string Categories { get; set; }
+        [LibDesc(ModelDisplayName.Common_Category)] public string?  Categories { get; set; }
         /// <summary>
         /// 標籤ID(多個)
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Tag)] public string Tags { get; set; }
+        [LibDesc(ModelDisplayName.Common_Tag)] public string?  Tags { get; set; }
         /// <summary>
         /// 狀態:置頂/熱門/隱藏
         /// </summary>
@@ -34,11 +34,11 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// <summary>
         /// 圖片顯示
         /// </summary>
-        [LibDesc(ModelDisplayName.WebResource_PicId)] public string PicId { get; set; }
+        [LibDesc(ModelDisplayName.WebResource_PicId)] public string?  PicId { get; set; }
         /// <summary>
         /// 圖片顯示描述
         /// </summary>
-        [LibDesc(ModelDisplayName.WebResource_PicDescription)] public string PicDescription { get; set; }
+        [LibDesc(ModelDisplayName.WebResource_PicDescription)] public string?  PicDescription { get; set; }
 
         public List<WebResourceInfo_DTO> WebResourceInfo { get; set; } = [];
     }
@@ -50,7 +50,7 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// <summary>
         /// 檔案分類ID
         /// </summary>
-        [LibDesc(ModelDisplayName.WebResourceId)] public string WebResourceId { get; set; }
+        [LibDesc(ModelDisplayName.WebResourceId)] public string?  WebResourceId { get; set; }
         /// <summary>
         /// 行主鍵
         /// </summary>
@@ -58,22 +58,22 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Lang)] public string Lang { get; set; }
+        [LibDesc(ModelDisplayName.Common_Lang)] public string?  Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Title)] public string Title { get; set; }
+        [LibDesc(ModelDisplayName.Common_Title)] public string?  Title { get; set; }
         /// <summary>
         /// 內容
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Content)] public string Content { get; set; }
+        [LibDesc(ModelDisplayName.Common_Content)] public string?  Content { get; set; }
         /// <summary>
         /// 超連結
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Url)] public string ResUrl { get; set; }
+        [LibDesc(ModelDisplayName.Common_Url)] public string?  ResUrl { get; set; }
         /// <summary>
         /// 超連結開啟方式
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_UrlOpen)] public string Url_OpenType { get; set; }
+        [LibDesc(ModelDisplayName.Common_UrlOpen)] public WindowTarget?  Url_OpenType { get; set; }
     }
 }

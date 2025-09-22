@@ -6,7 +6,7 @@ export type { ILibTextBoxStyle, ILibTextBoxStyle2, ILibTextBoxStyle3, ILibTextBo
 export { default as LibTextBox } from "./FieldComponets/LibTextBox_Comp"
 export type { ILibTextAreaStyle, ILibTextAreaStyle2, ILibTextAreaProp as LibTextAreaProp } from "./FieldComponets/LibTextArea_Data"
 export { default as LibTextArea } from "./FieldComponets/LibTextArea_Comp"
-export type { ILibCheckBoxStyle, ILibCheckItemProp, ILibCheckBoxProp } from "./FieldComponets/LibCheckBox_Data"
+export type { ILibCheckBoxStyle, ILibCheckBoxProp } from "./FieldComponets/LibCheckBox_Data"
 export { default as LibCheckBox } from "./FieldComponets/LibCheckBox_Comp"
 export type { ILibCheckBoxSingleStyle, ILibCheckItemSingleProp, ILibCheckBoxSingleProp } from "./FieldComponets/LibCheckBoxSingle_Data"
 export { default as LibCheckBoxSingle } from "./FieldComponets/LibCheckBoxSingle_Comp"

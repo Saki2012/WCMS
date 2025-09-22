@@ -44,6 +44,7 @@ namespace WCMS.Features.SiteEdit.Gallery
                     Gallery = new Gallery()
                     {
                         GalleryId = srcHeader["Sn"].ToString(),
+                        CoverPicSrcId="",
                         Categories = srcHeader["Category"].ToString(),
                         ContentStatus = GetContentStatus(srcHeader["Status"].ToString()),
                         Tags = srcHeader["Tag"].ToString(),
@@ -83,7 +84,7 @@ namespace WCMS.Features.SiteEdit.Gallery
                         GalleryId = set.Gallery.GalleryId,
                         RowId = photoRowId,
                         PicSrcId = photoSet.FileManage.InternalId,
-                        Sort = dRow["Sort"].ToInt32(),
+                        Sort = photoRowId,
                     };
 
                     set.GalleryPhotos.Add(photo);

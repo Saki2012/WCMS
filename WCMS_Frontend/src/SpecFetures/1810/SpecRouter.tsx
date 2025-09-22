@@ -10,6 +10,7 @@ import { SpecUSRListComp, type ISpecUSRListOptions } from "./Pages/Client/SpecUS
 import { SpecResearchListComp, type ISpecResearchListOptions } from "./Pages/Client/SpecResearch/SpecResearch_List";
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 import { SpecUSRFormComp } from "@/SpecFetures/1810/Pages/Client/SpecUSR/SpecUSR_Form";
+import type { Lang } from "@/SysCore/i18n/lang";
 
 
 export class SpecRouteModule implements IRouteModule {
@@ -24,7 +25,7 @@ export class SpecRouteModule implements IRouteModule {
 export const specClientEntries: Record<string, ModuleEntry> = {
   SpecUSR: {
     kind: "routes",
-    element: (lang: string, site: INormSite, node: INormNode) => (
+    element: (lang: Lang, site: INormSite, node: INormNode) => (
       <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
     ),
     children: (opts: unknown, lang: string) => [
@@ -35,7 +36,7 @@ export const specClientEntries: Record<string, ModuleEntry> = {
   },
   SpecResearch: {
     kind: "routes",
-    element: (lang: string, site: INormSite, node: INormNode) => (
+    element: (lang: Lang, site: INormSite, node: INormNode) => (
       <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
     ),
     children: (opts: unknown, lang: string) => [

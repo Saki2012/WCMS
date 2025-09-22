@@ -26,7 +26,8 @@ const LibPicture = ({ children, ...prop }: LibPictureWithParentClassProp) => {
 
 interface UploadResult { internalId: string | null; previewUrl: string; uploading: boolean; error: string | null; }
 
-export const useUploadPicture = (uploadUrl: string = FileManagementAPI.UPLOAD_URL) => {
+export const useUploadPicture = () => {
+  const uploadUrl: string = FileManagementAPI.UPLOAD_URL
   const [result, setResult] = useState<UploadResult>({
     internalId: null,
     previewUrl: "",

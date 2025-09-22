@@ -66,6 +66,8 @@ export interface EnsureLangSimpleOptions
     parentKeys?: string[];
     /** 額外依賴（例如當前的 parentRowId 是由 UI 狀態決定時） */
     deps?: unknown[];
+
+    preferFirstLang?: Lang; // 或用你的 Lang 型別：preferFirstLang?: Lang;
 }
 
 /** 自動匹配並補齊「多語系明細列（detail）」的 Hook。
@@ -170,10 +172,41 @@ export const useEnsureLangDetails = <TSet = any>(
             Lang: lang,
             // 想要預設欄位值可在這裡再加（Title/Content…），不同表可各自更新後端時再填
         }));
+        // ---- 新增：先把缺的補上，然後依 preferFirstLang 排序 ----
+        const prefer = String(opt.preferFirstLang ?? DefaultLang).toLowerCase();
+        const groupKey = (d: any) => (opt.parentKeys ?? []).map(k => String(d?.[k] ?? "")).join("|");
+
+        // 先合併得到最新的明細
+        const merged = [...details, ...toAppend];
+
+        // 依 parentKeys 分組後，各組內把 prefer 語系排前面（穩定排序）
+        const grouped = new Map<string, any[]>();
+        for (const d of merged)
+        {
+            const key = groupKey(d);
+            if (!grouped.has(key)) grouped.set(key, []);
+            grouped.get(key)!.push(d);
+        }
+
+        const reorderOneGroup = (list: any[]) =>
+        {
+            if (!prefer || !isSupportedLang(prefer)) return list;
+            const first: any[] = [];
+            const rest: any[] = [];
+            for (const d of list)
+            {
+                const lang = String(d?.Lang ?? "").toLowerCase();
+                (lang === prefer ? first : rest).push(d);
+            }
+            return [...first, ...rest]; // 保持相對順序
+        };
+
+        const reordered: any[] = [];
+        for (const [, list] of grouped) reordered.push(...reorderOneGroup(list));
 
         // 5) 寫回 formData（只更新明細陣列）
-        const updated = { ...src, [opt.detailName]: [...details, ...toAppend] };
-        formData.setFormData(updated);
+        formData.setFormData({ ...src, [opt.detailName]: reordered });
+
         // 觀察 data/formData 與外部依賴
     }, [formData.data, opt.headerName, opt.detailName, JSON.stringify(opt.parentKeys ?? []), ...(opt.deps ?? [])]);
 };

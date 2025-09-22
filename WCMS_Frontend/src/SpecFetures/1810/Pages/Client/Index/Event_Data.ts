@@ -6,6 +6,8 @@ export interface EventData
     ImgSrc: string; // 圖片來源
     Url: string; // 連結
     Tags: string; //
+    date: string;
+    contentStatus: number;
 }
 
 export function mock_EventDatas(): EventData[]

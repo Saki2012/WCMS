@@ -62,43 +62,52 @@ namespace WCMS.SysCore
         {
             var set = DataAccess.Set<TModel>();
 
-            // 1) 找到 TModel 的主鍵（支援複合鍵）
-            var entityType = DataAccess.Model.FindEntityType(typeof(TModel)) ?? throw new InvalidOperationException($"EntityType not found: {typeof(TModel).Name}");
-            var pk = entityType.FindPrimaryKey() ?? throw new InvalidOperationException($"Primary key not found: {typeof(TModel).Name}");
-            object[] GetKeyValues(object entity) => pk.Properties.Select(p => p.PropertyInfo!.GetValue(entity)!).ToArray();
-
-            bool KeysEqual(object[] a, object[] b) => a.Length == b.Length && a.Zip(b, (x, y) => Equals(x, y)).All(_ => _);
-
-            var newKey = GetKeyValues(newData);
-
-            // 2) 若 ChangeTracker 內已經有同 key 的實體，先 Detach（避免“cannot be tracked…”）
-            var dup = DataAccess.ChangeTracker.Entries<TModel>().FirstOrDefault(e => KeysEqual(GetKeyValues(e.Entity), newKey));
-            if (dup != null) dup.State = EntityState.Detached;
-
-            // 3) Attach 你要寫回去的“新資料”，這一份才是被追蹤的實體
-            set.Attach(newData);
-            var entry = DataAccess.Entry(newData);
-            entry.State = EntityState.Unchanged; // 先視為未變更，再逐欄位標記
-
-            // 4) 你的 diff + 逐欄位 IsModified（保留你現有邏輯）
-            foreach (var fieldProp in PropertyAccessorCache.GetProperties(typeof(TModel)))
+            // 1) 確保 oldData 受追蹤（不要 Attach newData）
+            var oldEntry = DataAccess.Entry(oldData);
+            if (oldEntry.State == EntityState.Detached)
             {
-                if (!fieldProp.CanWrite) continue;
-                // 跳過集合型別（但 string 例外）
-                if (typeof(IEnumerable).IsAssignableFrom(fieldProp.PropertyType) && fieldProp.PropertyType != typeof(string)) continue;
-                // 跳過 Key / NotMapped
-                if (fieldProp.GetCustomAttribute<KeyAttribute>() != null) continue;
-                if (fieldProp.GetCustomAttribute<NotMappedAttribute>() != null) continue;
+                set.Attach(oldData);
+                oldEntry = DataAccess.Entry(oldData);
+            }
+            oldEntry.State = EntityState.Unchanged; // 以「逐欄位 IsModified」為準
 
-                var oldVal = PropertyAccessorCache.Get(oldData, fieldProp.Name);
-                var newVal = PropertyAccessorCache.Get(newData, fieldProp.Name);
+            // 2) 取出主鍵，禁止在更新時變更主鍵值
+            var entityType = DataAccess.Model.FindEntityType(typeof(TModel))
+                            ?? throw new InvalidOperationException($"EntityType not found: {typeof(TModel).Name}");
+            var pk = entityType.FindPrimaryKey()
+                     ?? throw new InvalidOperationException($"Primary key not found: {typeof(TModel).Name}");
+            object[] GetKeyValues(object entity) => pk.Properties.Select(p => p.PropertyInfo!.GetValue(entity)!).ToArray();
+            if (!GetKeyValues(oldData).SequenceEqual(GetKeyValues(newData)))
+                throw new InvalidOperationException("Primary key cannot be changed during update.");
 
-                if (!Equals(oldVal, newVal) && newVal != null)
+            // 3) 欄位差異套用到 oldData（跳過集合/Key/NotMapped/併發欄位）
+            bool IsScalar(Type t) => !(typeof(IEnumerable).IsAssignableFrom(t)) || t == typeof(string);
+            bool IsConcurrency(PropertyInfo p) =>
+                p.GetCustomAttribute<TimestampAttribute>() != null ||
+                p.GetCustomAttribute<ConcurrencyCheckAttribute>() != null ||
+                string.Equals(p.Name, nameof(BasicDataModel.DataVersion), StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(p.Name, nameof(DetailRowModel.RowState), StringComparison.OrdinalIgnoreCase);
+
+            foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TModel)))
+            {
+                if (!prop.CanWrite) continue;
+                if (!IsScalar(prop.PropertyType)) continue;                     // 跳過集合型別（string 例外）
+                if (prop.GetCustomAttribute<KeyAttribute>() != null) continue;  // 跳過主鍵
+                if (prop.GetCustomAttribute<NotMappedAttribute>() != null) continue; // 跳過 NotMapped
+                if (IsConcurrency(prop)) continue;                               // 跳過併發欄位
+
+                var oldVal = PropertyAccessorCache.Get(oldData, prop.Name);
+                var newVal = PropertyAccessorCache.Get(newData, prop.Name);
+
+                // 允許把值改成 null；只要不同就更新並標記
+                if (!Equals(oldVal, newVal))
                 {
-                    PropertyAccessorCache.Set(oldData, fieldProp.Name, newVal); // 若你有用到快取比對可保留
-                    entry.Property(fieldProp.Name).IsModified = true;
+                    PropertyAccessorCache.Set(oldData, prop.Name, newVal);
+                    oldEntry.Property(prop.Name).IsModified = true;
                 }
             }
+            // 這個方法只負責把變更標記好；真正 SaveChanges 在上層 CommitDataAsync
+            await Task.CompletedTask;
         }
 
         /// <summary>

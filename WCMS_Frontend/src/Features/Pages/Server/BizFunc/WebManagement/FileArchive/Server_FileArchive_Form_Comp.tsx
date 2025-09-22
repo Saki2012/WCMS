@@ -13,8 +13,9 @@ import { useGetTagListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Ta
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 import * as SchemaFields from "@/types/SchemaFields";
-import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
+import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { useFormToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"]
 type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"]
 const emptyData: FileArchiveSet = { FileArchive: {}, FileArchiveInfo: [], FileArchiveDetail: [] }
@@ -29,9 +30,10 @@ export const Server_FileArchiveFormComp = (prop: { theme: IBETheme; lang: Lang }
     const useTag = useGetTagListByProgId("FileArchive", prop.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
     useEnsureLangDetails(formData, { headerName: SchemaFields.FileArchiveSetFields.FileArchive, detailName: SchemaFields.FileArchiveSetFields.FileArchiveInfo, parentKeys: [SchemaFields.FileArchiveFields.FileArchiveId] });
+    const useToolbar = useFormToolbarActions(FileArchiveProvider(), formData.data as FileArchiveSet, internalId as string, () => formData.refetch())
     const isLoading = [useTag.isLoading, useCategory.isLoading, formData.isLoading, useContentStatus.isLoading]
     const errors = [useTag.error, useCategory.error, formData.error, useContentStatus.error]
-    const formProp: FormCompProp = { Title: "新增檔案室", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, }
+    const formProp: FormCompProp = { Title: "新增檔案室", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }
 
     return (
         <FormComp prop={formProp}>
@@ -92,6 +94,8 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Fi
 }
 
 const SubDetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<FileArchiveSet>; parentRowId: number }) => {
+    const setFileField = useSetTableFileField(prop.formData);
+
     const allFiles: FileArchiveDetail[] = prop.formData.data?.FileArchiveDetail ?? [];
     const getFiles = (): FileArchiveDetail[] => allFiles.filter(f => f.ParentRowId === prop.parentRowId).sort((a, b) => (a.RowId ?? 0) - (b.RowId ?? 0));
 
@@ -133,16 +137,29 @@ const SubDetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
         <>
             <div role="group" className="mt-4">
                 <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-secondary mb-2">新增附件</button>
-                {getFiles().map((f, i) => (
-                    <div key={`${f.ParentRowId}-${f.RowId}`} className="flex items-center gap-2 mb-2">
-                        <LibFileInput ColumnDisplayName={`附件 ${i + 1}`} DefaultInputDisplay="請選擇檔案"
-                            Style={prop.theme.FileInput} InputValue={f.FileSrcId ?? ""}
-                            onChange={(internalId, fileName) => { updateFileAt(i, { FileSrcId: internalId }); }}
-                            onNameChange={(name) => updateFileAt(i, { FileName: name })}
-                            onDelete={() => removeFileAt(i)}
-                        />
-                    </div>
-                ))}
+
+                {getFiles().map((f, i) => {
+                    const rowKeys = { [SchemaFields.FileArchiveDetailFields.FileArchiveId]: f.FileArchiveId, [SchemaFields.FileArchiveDetailFields.ParentRowId]: f.ParentRowId, [SchemaFields.FileArchiveDetailFields.RowId]: f.RowId, }
+                    return (
+                        <div key={`${f.ParentRowId}-${f.RowId}`} className="flex items-center gap-2 mb-2">
+                            <LibFileInput
+                                Style={prop.theme.FileInput}
+                                DefaultInputDisplay="請輸入附件說明"
+                                // 直接展開！只要給：表名、id欄位、name欄位(可選)、rowKeys(可選)、options(可選)
+                                {...setFileField(
+                                    SchemaFields.AnnouncementSetFields.AnnouncementDetailFile,
+                                    SchemaFields.AnnouncementDetailFileFields.FileId,      // ← internalId 欄位
+                                    SchemaFields.AnnouncementDetailFileFields.FileName,       // ← 檔名欄位（可省略）
+                                    rowKeys,                               // ← 指定哪一列
+                                    { defaultNameFromOriginal: "basename" }               // ← 第一次上傳自動帶入不含副檔名
+                                )}
+                                // 其他 UI 行為仍由你自己控制
+                                Accept="*/*"
+                                onDelete={() => removeFileAt(i)}
+                            />
+                        </div>
+                    )
+                })}
             </div>
         </>
     );

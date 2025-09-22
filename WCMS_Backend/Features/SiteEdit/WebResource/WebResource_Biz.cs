@@ -71,7 +71,11 @@ namespace WCMS.Features.SiteEdit.WebResource
                             Title = dRow["Title"].ToString(),
                             Content = dRow["Content"].ToString(),
                             ResUrl = dRow["Url"].ToString(),
-                            Url_OpenType = dRow["URL_Open"].ToString(),
+                            Url_OpenType = dRow["URL_Open"].ToString() switch
+                            {
+                                "2" => WindowTarget.Blank,
+                                _ => WindowTarget.Self,
+                            },
                         };
                         set.WebResourceInfo.Add(detail);
                     }

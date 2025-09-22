@@ -77,6 +77,6 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// <summary>
         /// 超連結開啟方式
         /// </summary>
-        [StringLength(SysLengthParam.ID)] public string Url_OpenType { get; set; }
+        [StringLength(SysLengthParam.ID)] public WindowTarget Url_OpenType { get; set; }
     }
 }

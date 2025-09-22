@@ -80,7 +80,7 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// <summary>
         /// 檔案關聯資訊
         /// </summary>
-        [ForeignKey(nameof(FileSrcId))]public FileManageModel_DTO FileSrc { get; set; }
+        [ForeignKey(nameof(FileSrcId))]public FileManageModel_DTO? FileSrc { get; set; }
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>

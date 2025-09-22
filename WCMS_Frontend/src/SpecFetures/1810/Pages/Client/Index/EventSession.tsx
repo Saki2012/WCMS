@@ -11,6 +11,7 @@ import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
 import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import { useEffect, useRef } from 'react';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
+import { FormatDate } from '@/SysCore/Utils/Library/LibData';
 
 const useAnnouncementList = () => {
     const provider = AnnouncementProvider();
@@ -27,13 +28,15 @@ const useAnnouncementList = () => {
                 SchemaFields.AnnouncementFields.Validate_Start,
                 SchemaFields.AnnouncementFields.PictureId,
                 SchemaFields.AnnouncementFields.PicDescription,
+                SchemaFields.AnnouncementFields.ContentStatus,
                 `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
                 `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
                 SchemaFields.AnnouncementFields.ViewCount,
             ],
-            Condition: `${SchemaFields.AnnouncementFields.Categories} In (8,10)`,
-            PageNumber: 0,
-            PageSize: 0,
+            Condition: `${SchemaFields.AnnouncementFields.Categories} In (8,10) And ${SchemaFields.AnnouncementFields.ContentStatus} !&4`,
+            OrderBy: [{ Col: SchemaFields.AnnouncementFields.Validate_Start, Desc: true }],
+            PageNumber: 1,
+            PageSize: 6,
         }),
         enabled: true,
         deps: [],
@@ -163,6 +166,7 @@ export const EventSession = () => {
                                         <div id="Event" className="owl-carousel owl-theme px-2" ref={carouselRef}>
                                             {/* <asp:Literal ID="Lit_Event" runat="server" /> {/*輪播項目*/}
                                             {eventList.map((item, index) => {
+                                                const { month, day } = getMonthDayNums(item.date);
                                                 return item && (
                                                     <div className="item" key={item.Id}>
                                                         <Link to={`Allnews/Intramural-activities/In-school-activities${item.Url}`} title={item.Title} tabIndex={index + 1}>
@@ -179,13 +183,27 @@ export const EventSession = () => {
                                                                         <div className="card_title">{item.Title}</div>
                                                                     </div>
                                                                     <div className="m-news_detail">
+
+                                                                        <div className="customstyle-hotop">
+                                                                            {isWithinLastNDaysFromMD(Number(month), Number(day)) && (
+                                                                                <div className="icon-small new-bg" role="status" aria-label="最新">最新</div>
+                                                                            )}
+                                                                            {item.contentStatus != 0 && (
+                                                                                <>
+                                                                                    {Boolean(item.contentStatus & 1) && (<div className="icon-small top-bg">置頂</div>)}
+                                                                                    {(item.contentStatus & 2 && <div className="icon-small hot-bg">熱門</div>)}
+                                                                                </>
+                                                                            )}
+                                                                        </div>
+
+
                                                                         <div className="category_box">
                                                                             <div className="m-news_category"> <i className="fa fa-bookmark" aria-hidden="true"></i>
                                                                                 <div className="tags-text">{item.Tags}</div>
                                                                             </div>
                                                                         </div>
                                                                         <div className="TimeBoxDiv">
-                                                                            <div className="card_time"><i className="fa fa-clock-o" aria-hidden="true"></i>2025/04/11</div>
+                                                                            <div className="card_time"><i className="fa fa-clock-o" aria-hidden="true"></i>{FormatDate(item.date)}</div>
                                                                             <div className="card_arrow"><i className="fa fa-arrow-circle-right" aria-hidden="true"></i></div>
                                                                         </div>
                                                                     </div>
@@ -240,8 +258,35 @@ const getData = (lang: string, rawData: AnnouncementSet[], tagDict: Record<strin
             Title: item.AnnouncementDetail?.find(p => p.Lang === lang)?.Title ?? "",
             ImgSrc: `${FileManagementAPI.PREVIEW_URL}/${item.Announcement?.PictureId}`,
             Url: `/${item.Announcement?.InternalId}`,
-            Tags: tagsName
+            Tags: tagsName,
+            date: item.Announcement?.Validate_Start ?? "",
+            contentStatus: item.Announcement?.ContentStatus ?? 0
         })
     })
     return result;
 }
+const getMonthDayNums = (d?: string | Date | null): { month?: number; day?: number } => {
+    if (!d) return {};
+    const dt = typeof d === "string" ? new Date(d) : d;
+    if (isNaN(dt.getTime())) return {};
+    return { month: dt.getUTCMonth() + 1, day: dt.getUTCDate() };
+};
+const DAY_MS = 24 * 60 * 60 * 1000;
+const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean => {
+    if (!month1to12 || !day1to31) return false;
+
+    const now = new Date();
+    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+
+    let y = now.getUTCFullYear();
+    let candidateUTC = Date.UTC(y, month1to12 - 1, day1to31);
+
+    // 若候選日在未來，代表跨年情境 → 改用去年
+    if (candidateUTC > nowUTC) {
+        y -= 1;
+        candidateUTC = Date.UTC(y, month1to12 - 1, day1to31);
+    }
+
+    const diffDays = Math.floor((nowUTC - candidateUTC) / DAY_MS);
+    return diffDays >= 0 && diffDays <= n;
+};

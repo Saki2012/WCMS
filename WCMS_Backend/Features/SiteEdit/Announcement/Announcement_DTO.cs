@@ -111,7 +111,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 公告代碼
         /// </summary>
-        [LibDesc(ModelDisplayName.AnnouncementId)] public string AnnouncementId { get; set; }
+        [LibDesc(ModelDisplayName.AnnouncementId)] public string? AnnouncementId { get; set; }
         /// <summary>
         /// 父行代碼 - (AnnouncementDetail)
         /// </summary>

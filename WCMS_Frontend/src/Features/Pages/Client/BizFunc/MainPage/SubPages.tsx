@@ -100,7 +100,6 @@ const getAncestorAtLevel = (lang: Lang, site: INormSite, node: INormNode, level:
   // 若實際深度不夠，回傳最接近的（最後找到的）節點
   return undefined;
 };
-
 const SubContent = (props: ISubPagesProps) => {
   const title: string = props.node.title;
   const breadCrumbData: BreadCrumbData[] = GetBreadCrumbData(props.Lang, props.site, props.node);

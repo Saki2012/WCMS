@@ -15,7 +15,7 @@ import { LibMerge as LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { LangLabelMap, type Lang } from "@/SysCore/i18n/lang";
+import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 type BannerSet = components["schemas"]["BannerSet_DTO"]
 type BannerDetail = components["schemas"]["BannerDetail_DTO"]
 type BannerDetailInfo = components["schemas"]["BannerDetailInfo_DTO"]
@@ -56,6 +56,7 @@ const emptyData: BannerSet = {
 export const BannerSliderFormComp = ({ theme }: { theme: IBETheme }) => {
     const { internalId } = useParams();
     const formData = useFetchFormData<BannerSet>(BannerSliderProvider(), internalId, emptyData)
+    useEnsureLangDetails(formData, { headerName: SchemaFields.BannerSetFields.BannerDetail, detailName: SchemaFields.BannerSetFields.BannerDetailInfo, parentKeys: [SchemaFields.BannerDetailInfoFields.BannerId, SchemaFields.BannerDetailInfoFields.ParentRowId] });
     const useToolbar = useFormToolbarActions(BannerSliderProvider(), formData.data as BannerSet, internalId as string, () => formData.refetch())
     const isLoading = [formData.isLoading]
     const errors = [formData.error]
@@ -65,7 +66,6 @@ export const BannerSliderFormComp = ({ theme }: { theme: IBETheme }) => {
             <FormComp prop={prop}>
                 <HeaderComp theme={theme} formData={formData} />
                 <DetailComp theme={theme} formData={formData} />
-                {/* <TabContentComp libTabsProp={detailComp.LibTabsPropA} components={detailComp.componentsA}></TabContentComp> */}
             </FormComp>
         </>
     )
@@ -116,13 +116,15 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<B
                 BannerId: props.formData.data.Banner?.BannerId,
                 ParentRowId: newRowId,
                 RowId: 1,
-                Lang: 'zh-tw'
+                Lang: 'zh-tw',
+                Content: "",
             },
             {
                 BannerId: props.formData.data.Banner?.BannerId,
                 ParentRowId: newRowId,
                 RowId: 2,
-                Lang: 'en'
+                Lang: 'en',
+                Content: "",
             },
         ]
         // 更新 BannerDetailInfo
@@ -130,7 +132,6 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<B
             ...props.formData.data,
             BannerDetail: [...(props.formData.data.BannerDetail ?? []), newItem],
             BannerDetailInfo: [...(props.formData.data.BannerDetailInfo ?? []), ...subNewItem],
-
         };
         props.formData.setFormData(updated);
     };
