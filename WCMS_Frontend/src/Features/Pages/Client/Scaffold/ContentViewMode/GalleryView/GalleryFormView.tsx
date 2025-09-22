@@ -32,7 +32,7 @@ export const GalleryFormViewComp = (prop: GalleryFormViewProps) => {
     const [open, setOpen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
 
-    const images = prop.photoInfoProps.map((item) => ({ src: `${FileManagementAPI.PREVIEW_URL}${item.pictureInternalId}`, title: item.pictureInternalId }));
+    const images = prop.photoInfoProps.map((item) => ({ src: `${FileManagementAPI.PREVIEW_URL}/${item.pictureInternalId}`, title: item.pictureInternalId }));
 
     return (
         <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList}>
@@ -41,7 +41,7 @@ export const GalleryFormViewComp = (prop: GalleryFormViewProps) => {
                 {images.map((img, idx) => (
                     <div className="col-xs-12 col-sm-6 col-md-6 col-lg-3 photo_one_pic_standardbox" key={img.src}>
                         <div className="lightbox">
-                            <div className="img-box" style={{ cursor: "pointer" }} onClick={() => { setCurrentIndex(idx); setOpen(true); }}>
+                            <div className="img-box" style={{ cursor: "pointer" }} onClick={() => { setCurrentIndex(idx); setOpen(true); }} title={img.title}>
                                 <img src={img.src} alt={img.title} className="img-fluid" />
                                 <div className="zoom-plus">
                                     <i className="fa fa-zoom-plus" aria-hidden="true"></i>

@@ -10,8 +10,20 @@ import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import * as SchemaFields from "@/types/SchemaFields"
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import type { ColumnConfig } from '@/SysCore/Components/Grid/Grid_Data';
+
 import DefaultPic from "@/Assets/1810/images_960x960.jpg"
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
+import "yet-another-react-lightbox/styles.css";
+import Lightbox from "yet-another-react-lightbox";
+import Download from "yet-another-react-lightbox/plugins/download";
+import Share from "yet-another-react-lightbox/plugins/share";
+import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
+import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import "yet-another-react-lightbox/plugins/thumbnails.css";
+import { useState } from 'react';
+import type { PhotoInfos } from '@/Features/Pages/Client/Scaffold/ContentViewMode/GalleryView/GalleryFormView';
+
 
 const emptyData: SpecUSRSet = {}
 
@@ -57,7 +69,7 @@ const useSpecUSRList = (internalId: string) => {
 };
 
 
-interface ISpecUSRFormProps { Theme: IFETheme; Lang: string | Lang }
+interface ISpecUSRFormProps { Theme: IFETheme; Lang: string | Lang; photoInfoProps: PhotoInfos[]; }
 
 export const SpecUSRFormComp = (props: ISpecUSRFormProps) => {
     const { internalId } = useParams()
@@ -79,7 +91,7 @@ export const SpecUSRFormComp = (props: ISpecUSRFormProps) => {
     );
 }
 
-const SpecUSRForm = ({ lang, rawData, showColumns, showColTitle }: { lang: string | Lang; rawData: SpecUSRSet; showColumns: string[]; showColTitle: ColumnConfig[] }) => {
+const SpecUSRForm = ({ lang, rawData, showColumns, showColTitle }: { lang: string | Lang; rawData: SpecUSRSet; showColumns: string[]; showColTitle: ColumnConfig[]; }) => {
 
     const allCols = ["Year", "AcademicYear", "Courses", "PracticeField", "ProjectName",
         "ExternalCooperationUnit", "Department", "PlanAmount", "DuringExecution", "ExecutionStrategy",
@@ -88,7 +100,16 @@ const SpecUSRForm = ({ lang, rawData, showColumns, showColTitle }: { lang: strin
     const header = rawData.SpecUSR;
     const detail = rawData.SpecUSRDetail?.find(p => p.Lang === lang);
 
-    const picUrl = header?.PictureId ? `${FileManagementAPI.PREVIEW_URL}/${header?.PictureId}` : DefaultPic
+    const [open, setOpen] = useState(false);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const images = (header?.PictureId
+        ? [{
+            src: `${FileManagementAPI.PREVIEW_URL}/${header.PictureId}`,
+            title: `${header.PicDescription ?? ""}`
+        }]
+        : []
+    );
+
     return (
         <div className="articles_contentBoxs_1 mb-5">
             <div className="articles_item col-12">
@@ -117,17 +138,34 @@ const SpecUSRForm = ({ lang, rawData, showColumns, showColTitle }: { lang: strin
                             </div>
                             <div className="td__ col-sm-10 col-12 d-flex justify-content-start align-content-center p-0">
                                 <div className="ttBox_R">
-                                    <div className="card_image_link">
-                                        <a className="venobox vbox-item" data-vbtype="img" href={picUrl} tabIndex={1} title={header?.PicDescription ?? ""} target="_blank">
-                                            <picture><img className="card_image" src={picUrl} alt={header?.PicDescription ?? ""} /></picture>
-                                        </a>
-                                    </div>
+                                    {images.map((img, idx) => (
+                                        <div className="col-xs-12 col-sm-10 col-md-7 col-lg-6 photo_one_pic_standardbox mb-0" key={idx}>
+                                            <div className="lightbox">
+                                                <div className="img-box" style={{ cursor: "pointer" }} onClick={() => { setCurrentIndex(idx); setOpen(true); }} title={img.title}>
+                                                    <img src={img.src} alt={img.title} className="img-fluid" />
+                                                    <div className="zoom-plus">
+                                                        <i className="fa fa-zoom-plus" aria-hidden="true"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </article>
             </div>
+            {open && (
+                <Lightbox
+                    open={open}
+                    close={() => setOpen(false)}
+                    slides={images}
+                    index={currentIndex}
+                    plugins={[Download, Share, Fullscreen, Zoom, Thumbnails]}
+                // plugins={[Download, Share, Captions, Counter, Fullscreen, Inline, Slideshow, Thumbnails, Video, Zoom]}
+                />
+            )}
         </div>
     )
 }
