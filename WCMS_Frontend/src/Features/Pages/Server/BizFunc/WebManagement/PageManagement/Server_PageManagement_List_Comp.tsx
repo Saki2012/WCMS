@@ -12,7 +12,7 @@ import { useListToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 import { handleDelete } from "../../../../../Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Hook";
-import { useCategoryListData, useFormatCategoriesName } from "../Category/Category_Hook";
+import { useCategoryListData, useFormatCategoriesName } from "../../../../../Hooks/BizFunc/WebManagement/Category/Category_Hook";
 import * as SchemaFields from "@/types/SchemaFields";
 
 /** 頁面清單

@@ -317,7 +317,7 @@ namespace WCMS.SysCore
                 var oldModel = PropertyAccessorCache.Get(oldSet, prop.Name);
                 var newModel = PropertyAccessorCache.Get(newSet, prop.Name);
                 string repoDictPropName = string.Empty;
-                if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
+                if (!LibData.IsListPropertyType(prop))
                 {
                     repoDictPropName = prop.PropertyType.Name;
                     await ((dynamic)RepoDict[repoDictPropName]).UpdateAsync((dynamic)oldModel, (dynamic)newModel);

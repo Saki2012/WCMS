@@ -1,7 +1,7 @@
 
 /*Header模塊*/
-import type { INormSite } from "../../../Site-Routing";
-import { MainMenu } from "../Menu/MainMenu/MainMenu_Comp"
+import type { INormSite } from "@/Features/Pages/Client/Site-Routing";
+import { MainMenu } from "@/Features/Pages/Client/Scaffold/Menu/MainMenu/MainMenu_Comp"
 import { mock_HeaderData } from './Header_Data'
 import { useHeaderBehaviorRef } from './Header_Hook';
 import { useRef } from 'react'

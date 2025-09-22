@@ -8,7 +8,7 @@ import { useResolveInternalIds } from '@/SysCore/Components/File/useResolveInter
 import type { Lang } from '@/SysCore/i18n/lang';
 import { GalleryFormViewComp, type PhotoInfos } from '@/Features/Pages/Client/Scaffold/ContentViewMode/GalleryView/GalleryFormView';
 import * as SchemaFields from "@/types/SchemaFields";
-import CategoryProvider from '@/Features/Pages/Server/BizFunc/WebManagement/Category/Category_Api';
+import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api';
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 type GallerySet = components["schemas"]["GallerySet_DTO"]
 type GalleryPhotos = components["schemas"]["GalleryPhotos_DTO"]

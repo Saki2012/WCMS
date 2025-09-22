@@ -6,10 +6,10 @@ import type { RouteObject } from "react-router-dom";
 import { type INormNode, type INormSite, type ModuleEntry } from "@/Features/Pages/Client/Site-Routing";
 import SubContent from "@/Features/Pages/Client/BizFunc/MainPage/SubPages";
 import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx";
-import { SpecUSRListComp, type ISpecUSRListOptions } from "./Client/SpecUSR/SpecUSR_List";
-import { SpecResearchListComp, type ISpecResearchListOptions } from "./Client/SpecResearch/SpecResearch_List";
+import { SpecUSRListComp, type ISpecUSRListOptions } from "./Pages/Client/SpecUSR/SpecUSR_List";
+import { SpecResearchListComp, type ISpecResearchListOptions } from "./Pages/Client/SpecResearch/SpecResearch_List";
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
-import { SpecUSRFormComp } from "@/SpecFetures/1810/Client/SpecUSR/SpecUSR_Form";
+import { SpecUSRFormComp } from "@/SpecFetures/1810/Pages/Client/SpecUSR/SpecUSR_Form";
 
 
 export class SpecRouteModule implements IRouteModule {

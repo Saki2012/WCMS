@@ -11,7 +11,7 @@ type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 import { useListToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
 import * as SchemaFields from "@/types/SchemaFields";
-import { useCategoryListData, useFormatCategoriesName } from "../Category/Category_Hook";
+import { useCategoryListData, useFormatCategoriesName } from "../../../../../Hooks/BizFunc/WebManagement/Category/Category_Hook";
 import { useAnnouncementList } from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Hook";
 import { handleDelete } from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Hook";
 

@@ -14,7 +14,7 @@ import { GridViewContentComp } from "@/Features/Pages/Client/Scaffold/ContentVie
 import type { Lang } from "@/SysCore/i18n/lang";
 import FileArchiveProvider from "@/Features/Hooks/BizFunc/WebManagement/FileArchive/FileArchive_Api";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-import { useTagListData } from "@/Features/Pages/Server/BizFunc/WebManagement/Tags/Tag_Hook";
+import { useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 import { SearchBarComp, type ISearchQuery } from "@/SysCore/Components/SearchBar/SearchBar_Comp";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 

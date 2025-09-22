@@ -69,7 +69,7 @@ namespace WCMS.Features.SiteEdit.SpecCategory
                 result.Add(set);
                 string id = $"USR_{row["Sn"]}";
                 set.SpecCategory.CategoryId = id;
-                set.SpecCategory.ProgId = "SpecUSRModel";
+                set.SpecCategory.ProgId = "SpecUSR";
                 set.SpecCategory.ShowColumnItems = GetShowColumnItems(row["ShowItems"].ToString(), ds.Tables["USRProjectItem"]);
                 int rowId = 1;
                 foreach (var dRow in ds.Tables["USRProjectCategory_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == row["Sn"].ToString()).ToList())

@@ -6,6 +6,7 @@ import { useLang } from "@/SysCore/i18n/LangContext";
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 import HomePage from "@/Features/Pages/Client/BizFunc/MainPage/HomePage";
 import { Index } from "@/Features/Pages/Client/BizFunc/MainPage/Index";
+import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"]
 type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"]
 type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title_DTO"]
@@ -38,7 +39,7 @@ export interface INormNode {
 export interface INormSite {
     siteIndex: string;
     indexInfoByLang: Record<string, { title: string; description: string }>;
-    treeByLang: Record<string, INormNode[]>; // 每個語系自己的根層節點（多層往下）
+    treeByLang: Record<Lang, INormNode[]>; // 每個語系自己的根層節點（多層往下）
 }
 
 /* ---------- 3) 純函式：把資料表 → 樹 ---------- */
@@ -77,7 +78,21 @@ export const normalizeSite = (siteMenu: SiteMenuSet): INormSite => {
     });
 
     // 4) 為每個語系建立樹（正確使用 ItemRowId / ParentRowId）
-    const treeByLang: INormSite["treeByLang"] = {};
+    const treeByLang: INormSite["treeByLang"] = {
+        "zh-tw": [], "zh-cn": [], en: [], ja: [], ko: [],
+        fr: [],
+        de: [],
+        es: [],
+        pt: [],
+        ru: [],
+        ar: [],
+        it: [],
+        nl: [],
+        th: [],
+        vi: [],
+        id: [],
+        ms: []
+    };
 
     for (const [lang, items] of byLang) {
         // 排序（層級→顯示序→主鍵）
@@ -156,7 +171,7 @@ export const normalizeSite = (siteMenu: SiteMenuSet): INormSite => {
                 fillMeta(c, r, r.id, r.absSegments, r.absIds);
             }
         }
-        treeByLang[lang] = roots;
+        treeByLang[DefaultLang] = roots;
     }
     return {
         siteIndex: siteMenu.SiteMenu_Index?.SiteIndex ?? "",
@@ -173,7 +188,7 @@ const normalizeInternal = (s: string) => {
     return cleaned.replace(/\/{2,}/g, "/");
 };
 
-export type ModuleFactory = (lang: string, site: INormSite, node: INormNode) => React.ReactElement;
+export type ModuleFactory = (lang: Lang, site: INormSite, node: INormNode) => React.ReactElement;
 export type ModuleRoutesFactory = (opts: unknown, lang: string, node: INormNode) => RouteObject[];
 export type ModuleEntry =
     | { kind: "element"; render: ModuleFactory }
@@ -191,7 +206,8 @@ export const getModuleRegistry = (): ModuleRegistry => resolveRegistry();
 
 // 2) 模組元件：用 useLang() 把 lang 傳給對應的模組 component
 const ModuleElement: React.FC<{ node: INormNode; site: INormSite }> = ({ node, site }) => {
-    const { lang } = useLang();
+    // const { code: lang } = useLang();
+    const lang = DefaultLang
     if (node.type !== "module" || !node.module) {
         return <div>Module not registered</div>;
     }
@@ -204,9 +220,7 @@ const ModuleElement: React.FC<{ node: INormNode; site: INormSite }> = ({ node, s
 };
 
 export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
-    const skeletonRoots = site.treeByLang["zh-tw"] ?? Object.values(site.treeByLang)[0] ?? [];
-    // const defaultLang = (Object.keys(site.indexInfoByLang)[0] ?? "zh-tw").toLowerCase();
-    const defaultLang = "zh-tw";
+    const skeletonRoots = site.treeByLang[DefaultLang] ?? Object.values(site.treeByLang)[0] ?? [];
 
     const toRoute = (n: INormNode): RouteObject => {
         // 先把菜單樹的 children 算好（第二層/第三層都會遞迴進來）
@@ -268,7 +282,7 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
         const element = <ModuleElement node={n} site={site} />;
 
         // routes 型模組的自帶 children；element 型為空
-        const modChildren: RouteObject[] = entry.kind === "routes" ? entry.children(n.module.options, defaultLang, n) : [];
+        const modChildren: RouteObject[] = entry.kind === "routes" ? entry.children(n.module.options, DefaultLang, n) : [];
 
         const children = [...modChildren, ...menuChildren];
 
@@ -284,7 +298,7 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
     return [
         {
             path: "/" + site.siteIndex,
-            element: <Index lang={defaultLang} site={site} />,
+            element: <Index lang={DefaultLang} site={site} />,
             children:
                 [
                     { index: true, element: <HomePage /> },

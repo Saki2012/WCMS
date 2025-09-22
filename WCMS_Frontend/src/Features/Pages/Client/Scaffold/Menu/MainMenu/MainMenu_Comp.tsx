@@ -1,13 +1,13 @@
 import { useEffect, useRef } from 'react';
-import NaviBarComp from '../../../../../../SysCore/Components/NaviBar/NaviBar_Comp'
-import type { NaviData } from '../../../../../../SysCore/Components/NaviBar/NaviBar_Data'
+import NaviBarComp from '@/SysCore/Components/NaviBar/NaviBar_Comp'
+import type { NaviData } from '@/SysCore/Components/NaviBar/NaviBar_Data'
 import { Link } from 'react-router-dom';
-import type { IFETheme } from '../../../Theme/ITheme';
-import { Classic_FETheme } from '../../../Theme/ClassicTheme_Clsx';
-import MenuListComp from '../../../../../../SysCore/Components/MenuList/MenuList_Comp';
-import type { INormSite } from '../../../../Site-Routing';
-import { buildMenuItems } from '../../../../../Pages/Client/BizFunc/MainPage/SubPages';
-import type { MenuItemData } from '../../../../../../SysCore/Components/MenuList/MenuList_Data';
+import type { IFETheme } from '@/Features/Pages/Client/Theme/ITheme';
+import { Classic_FETheme } from '@/Features/Pages/Client/Theme/ClassicTheme_Clsx';
+import MenuListComp from '@/SysCore/Components/MenuList/MenuList_Comp';
+import type { INormSite } from '@/Features/Pages/Client/Site-Routing';
+import { buildMenuItems } from '@/Features/Pages/Client/BizFunc/MainPage/SubPages';
+import type { MenuItemData } from '@/SysCore/Components/MenuList/MenuList_Data';
 
 declare global {
   interface Window {

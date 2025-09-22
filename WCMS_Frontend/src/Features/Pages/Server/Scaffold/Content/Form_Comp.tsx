@@ -1,7 +1,7 @@
-import { DividerComp } from "../../../../../SysCore/Components/Divider/Divider_Comp";
-import LoadingErrorHandler from "../../../../../SysCore/Components/LoadingErrorHandler";
-import { Form_Toolbar } from "../../../../../SysCore/Components/Toolbar/Toolbar_Comp";
-import type { FormCompProp } from "./Content_Data";
+import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
+import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import { Form_Toolbar } from "@/SysCore/Components/Toolbar/Toolbar_Comp";
+import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 
 
 export const FormComp = ({ prop, children }: { prop: FormCompProp; children: React.ReactNode }) => {

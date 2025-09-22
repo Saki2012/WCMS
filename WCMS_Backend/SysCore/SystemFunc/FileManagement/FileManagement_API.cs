@@ -92,8 +92,8 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             else if (result.Count == 1) 
             {
                 string path = Path.Combine(Env.ContentRootPath,result[0].Path,$"{result[0].InternalId}.{result[0].FileExtension}");
-                //if (result[0].FileExtension.Equals(FileExtensions.PDF)) return PhysicalFile(path, result[0].MimeType);
-                //else 
+                if (result[0].FileExtension.Equals(FileExtensions.PDF)) return PhysicalFile(path, result[0].MimeType);
+                else 
                 return PhysicalFile(path, result[0].MimeType, fileDownloadName: $"{result[0].FileName}.{result[0].FileExtension}");
             }
             else

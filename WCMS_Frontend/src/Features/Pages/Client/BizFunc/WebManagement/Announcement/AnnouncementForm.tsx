@@ -13,8 +13,8 @@ import { useFetchFormData } from '@/SysCore/Utils/API/FetchFormData';
 import { useResolveInternalIds } from '@/SysCore/Components/File/useResolveInternalIds';
 import type { Lang } from '@/SysCore/i18n/lang';
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
-import CategoryProvider from '@/Features/Pages/Server/BizFunc/WebManagement/Category/Category_Api';
-import TagProvider from '@/Features/Pages/Server/BizFunc/WebManagement/Tags/Tag_Api';
+import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api';
+import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
 import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 

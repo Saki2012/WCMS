@@ -1,8 +1,8 @@
 import { LibTextBox, LibTinyMCE, LibFile, LibPicture, LibFileInput } from "@/SysCore/Components/FormField/LibFormField"
 import type { LibTabsProp } from "@/SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { useGetCategoryListByProgId } from "@/Features/Pages/Server/BizFunc/WebManagement/Category/Category_Hook";
-import { useGetTagListByProgId } from "@/Features/Pages/Server/BizFunc/WebManagement/Tags/Tag_Hook";
+import { useGetCategoryListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
+import { useGetTagListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 import AnnouncementProvider from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api";
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
 import { useFormToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
@@ -19,7 +19,7 @@ import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableFiel
 import * as SchemaFields from "@/types/SchemaFields";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { DefaultLang, LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
+import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type AnnouncementDetail = components["schemas"]["AnnouncementDetail_DTO"]
@@ -36,10 +36,10 @@ const emptyData: AnnouncementSet = {
  */
 export const Server_AnnouncementFormComp = (props: { theme: IBETheme; lang: Lang }) => {
     const { internalId } = useParams();
+    const formData = useFetchFormData<AnnouncementSet>(AnnouncementProvider(), internalId, emptyData)
     const useCategory = useGetCategoryListByProgId("Announcement", props.lang);
     const useTag = useGetTagListByProgId("Announcement", props.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
-    const formData = useFetchFormData<AnnouncementSet>(AnnouncementProvider(), internalId, emptyData)
     const useToolbar = useFormToolbarActions(AnnouncementProvider(), formData.data as AnnouncementSet, internalId as string, () => formData.refetch())
     useEnsureLangDetails(formData, { headerName: SchemaFields.AnnouncementSetFields.Announcement, detailName: SchemaFields.AnnouncementSetFields.AnnouncementDetail, parentKeys: [SchemaFields.AnnouncementDetailFields.AnnouncementId] });
     const isLoading = [useTag.isLoading, useCategory.isLoading, formData.isLoading, useContentStatus.isLoading]
@@ -53,47 +53,47 @@ export const Server_AnnouncementFormComp = (props: { theme: IBETheme; lang: Lang
     )
 }
 
-const HeaderComp = (props: {
+const HeaderComp = (prop: {
     theme: IBETheme; formData: UseFetchFormDataResult<AnnouncementSet>;
     cateOpts: Record<string, string>; statusOpts: Record<string, string>; tagOpts: Record<string, string>;
 }) => {
-    const setField = useSetTableField<AnnouncementSet>(props.formData);
+    const setField = useSetTableField<AnnouncementSet>(prop.formData);
     const useUploadPic = useUploadPicture();
-    const initialPicId = props.formData.data?.Announcement?.PictureId;
+    const initialPicId = prop.formData.data?.Announcement?.PictureId;
     const previewSrc = useUploadPic.result.previewUrl || (initialPicId ? `${FileManagementAPI.PREVIEW_URL}/${initialPicId}` : "https://dummyimage.com/1920x550/555/fff.png");
-    const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: { "Basic": "基本", "Status": "狀態", "Tags": "標籤", "Pic": "圖片" } }
+    const tabInfo: LibTabsProp = { Style: prop.theme.Tabs, item: { "Basic": "基本", "Status": "狀態", "Tags": "標籤", "Pic": "圖片" } }
     const tabContent: Record<string, React.ReactNode[]> = {
         Basic: [
-            <LibCheckBox Style={props.theme.CheckBox} options={props.cateOpts} {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Categories, 'string', undefined, 'csv')} />,
+            <LibCheckBox Style={prop.theme.CheckBox} options={prop.cateOpts} {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Categories, 'string', undefined, 'csv')} />,
             <LibCalendar {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Validate_Start, "string")} />,
             <LibCalendar {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Validate_End, "string")} />,
         ],
-        Status: [<LibCheckBox Style={props.theme.CheckBox} options={props.statusOpts} {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ContentStatus, 'number', undefined, { strategy: 'sum', sumKeys: Object.keys(props.statusOpts ?? {}).map(Number) })} />],
-        Tags: [<LibCheckBox Style={props.theme.CheckBox} options={props.tagOpts} {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Tags, 'string', undefined, 'csv')} />,],
+        Status: [<LibCheckBox Style={prop.theme.CheckBox} options={prop.statusOpts} {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ContentStatus, 'number', undefined, { strategy: 'sum', sumKeys: Object.keys(prop.statusOpts ?? {}).map(Number) })} />],
+        Tags: [<LibCheckBox Style={prop.theme.CheckBox} options={prop.tagOpts} {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Tags, 'string', undefined, 'csv')} />,],
         Pic: [
-            <LibFile Style={props.theme.File} ColumnDisplayName={`選擇圖片`} Multiple={false}
+            <LibFile Style={prop.theme.File} ColumnDisplayName={`選擇圖片`} Multiple={false}
                 InputValue={""}
                 accept="image/*"
                 parentClass="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12"
                 onChange={(files) =>
                     useUploadPic.handleFileChange(files, (internalId) => {
-                        props.formData.setFormData((prev) => ({ ...prev, Announcement: { ...prev?.Announcement, PictureId: internalId, }, }));
+                        prop.formData.setFormData((prev) => ({ ...prev, Announcement: { ...prev?.Announcement, PictureId: internalId, }, }));
                     })
                 }>
                 <LibPicture key="preview" ColumnDisplayName={useUploadPic?.result.previewUrl ?? ""} PicSrc={previewSrc} PicDescription={`選中的圖片`} />
             </LibFile>,
-            <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.PicDescription, "string")} />,
+            <LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.PicDescription, "string")} />,
         ],
     };
     return (
         <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>
     )
 }
-const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<AnnouncementSet> }) => {
-    const setField = useSetTableField<AnnouncementSet>(props.formData);
-    const rawDetails = props.formData.data?.AnnouncementDetail ?? [];
+const DetailComp = (prop: { theme: IBETheme, formData: UseFetchFormDataResult<AnnouncementSet> }) => {
+    const setField = useSetTableField<AnnouncementSet>(prop.formData);
+    const rawDetails = prop.formData.data?.AnnouncementDetail ?? [];
     const tabInfo: LibTabsProp = {
-        Style: props.theme.Tabs,
+        Style: prop.theme.Tabs,
         item: rawDetails.reduce<Record<string, string>>((tabItems, info) => {
             const langKey = LibMerge("_", true, info.AnnouncementId, info.RowId, info.Lang)
             tabItems[langKey] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
@@ -106,12 +106,12 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<A
             const langKey = LibMerge("_", true, info.AnnouncementId, info.RowId, info.Lang)
             const rowKeys = { [SchemaFields.AnnouncementDetailFields.AnnouncementId]: info.AnnouncementId, [SchemaFields.AnnouncementDetailFields.RowId]: info.RowId, }
             compMap[langKey] = [
-                <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Title, "string", rowKeys)} />,
-                <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.SubTitle, "string", rowKeys)} />,
-                <LibTinyMCE Style={props.theme.TinyMCE} {...setField(SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Content, "string", rowKeys)} />,
-                <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Url, "string", rowKeys)} />,
-                <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.UrlDescription, "string", rowKeys)} />,
-                <SubDetailComp theme={props.theme} formData={props.formData} parentRowId={detailRowId}></SubDetailComp>
+                <LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Title, "string", rowKeys)} />,
+                <LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.SubTitle, "string", rowKeys)} />,
+                <LibTinyMCE Style={prop.theme.TinyMCE} {...setField(SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Content, "string", rowKeys)} />,
+                <LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Url, "string", rowKeys)} />,
+                <LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.UrlDescription, "string", rowKeys)} />,
+                <SubDetailComp theme={prop.theme} formData={prop.formData} parentRowId={detailRowId}></SubDetailComp>
             ]
             return compMap;
         }, {}

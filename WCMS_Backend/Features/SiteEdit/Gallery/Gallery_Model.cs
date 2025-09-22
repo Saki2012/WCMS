@@ -89,7 +89,6 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// 相片排序
         /// </summary>
         public int Sort { get; set; }
-
         public List<GalleryPhotosInfo> GalleryPhotosInfo { get; set; } = [];
     }
     /// <summary>

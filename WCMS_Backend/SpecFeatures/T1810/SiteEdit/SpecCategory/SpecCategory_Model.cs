@@ -22,6 +22,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
         /// 顯示欄位
         /// </summary>
         public string ShowColumnItems { get; set; }
+        public List<SpecCategoryDetailModel> SpecCategoryDetail { get; set; } = [];
     }
 
     public class SpecCategoryDetailModel : DetailRowModel

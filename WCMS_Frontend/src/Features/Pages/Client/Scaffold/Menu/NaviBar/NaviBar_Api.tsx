@@ -1,9 +1,9 @@
-import type { NaviData } from '../../../../../../SysCore/Components/NaviBar/NaviBar_Data';
-import { IApiProvider, IDataProvider, type ApiResponse } from '../../../../../../SysCore/Interface/IApiProvider'
-import { BaseCssIcon2 } from "../../../../../../SysCore/Constants/icon/Base"
-import { EnumMap } from "../../../../../../SysCore/Utils/Library/LibData"
-import type { ModelDisplaySchema } from '../../../../../../types/IApiSchema';
-import type { components } from '../../../../../../types/api';
+import type { NaviData } from '@/SysCore/Components/NaviBar/NaviBar_Data';
+import { IApiProvider, IDataProvider, type ApiResponse } from '@/SysCore/Interface/IApiProvider'
+import { BaseCssIcon2 } from "@/SysCore/Constants/icon/Base"
+import { EnumMap } from "@/SysCore/Utils/Library/LibData"
+import type { ModelDisplaySchema } from '@/types/IApiSchema';
+import type { components } from '@/types/api';
 type QueryListParam = components["schemas"]["QueryListParam"];
 
 

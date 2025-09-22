@@ -5,7 +5,7 @@ import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import * as SchemaFields from "@/types/SchemaFields";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { Lang } from "@/SysCore/i18n/lang";
-import WebResourceProvider from "@/Features/Pages/Server/BizFunc/WebManagement/WebResource/WebResource_Api";
+import WebResourceProvider from "@/Features/Hooks/BizFunc/WebManagement/WebResource/WebResource_Api";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { SubPageTitle } from "@/Features/Pages/Client/Scaffold/Header/SubPageTitle_Comp";
 import DefaultImg from "@/Assets/1810/WebResource_Default.png"

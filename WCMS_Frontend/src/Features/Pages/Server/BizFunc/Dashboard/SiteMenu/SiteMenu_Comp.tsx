@@ -182,7 +182,7 @@ const RenderRightBox: React.FC<{ theme: IBETheme; selectedItemEdit: Item | null 
   // ---- 2) 模型配置：只顯示一種設定卡 ----
   const moduleNodes: React.ReactNode[] = React.useMemo(() => {
     const nodes: React.ReactNode[] = [
-      <LibCheckBox key="layout" colDisplayName="頁面樣式" checkboxStyle="radio" />,
+      <LibCheckBox key="layout" ColumnDisplayName="頁面樣式" checkboxStyle="radio" />,
       <LibDropList
         key="model"
         Style={theme.DropList}
@@ -264,7 +264,7 @@ const RenderRightBox: React.FC<{ theme: IBETheme; selectedItemEdit: Item | null 
     <LibTextBox key="fullurl" Style={theme.TextBox} ColumnDisplayName="完整Url" DefaultInputDisplay="請輸入數字或英文，不可使用空白的" />,
     <LibCheckBox
       key="linktype"
-      colDisplayName="功能連結"
+      ColumnDisplayName="功能連結"
       checkboxStyle="radio"
     // onChangeValue={(v: LinkType) => setLinkType(v)}
     // value={linkType ?? undefined}
@@ -273,9 +273,9 @@ const RenderRightBox: React.FC<{ theme: IBETheme; selectedItemEdit: Item | null 
     //   { value: '連結', label: '連結' },
     // ]}
     />,
-    <LibCheckBox key="open" colDisplayName="開啟方式" checkboxStyle="radio" />,
-    <LibCheckBox key="show" colDisplayName="是否顯示於選單" />,
-    <TabContentComp key="lang" libTabsProp={LibTabsPropB} components={componentsB} />,
+    <LibCheckBox key="open" ColumnDisplayName="開啟方式" checkboxStyle="radio" />,
+    <LibCheckBox key="show" ColumnDisplayName="是否顯示於選單" />,
+    <TabContentComp key="lang" tabInfos={LibTabsPropB} components={componentsB} />,
   ]), [theme, linkType, LibTabsPropB, componentsB]);
 
   // ---- 組合給 TabContentComp ----
@@ -305,7 +305,7 @@ const RenderRightBox: React.FC<{ theme: IBETheme; selectedItemEdit: Item | null 
               </h3>
             </div>
             <div className="mt-4">
-              <TabContentComp libTabsProp={LibTabsPropA} components={componentsA} />
+              <TabContentComp tabInfos={LibTabsPropA} components={componentsA} />
             </div>
             <div className="d-flex justify-content-center">
               <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">儲存</button>
@@ -325,26 +325,26 @@ const comp_banner = (theme: IBETheme): React.ReactNode[] => [
   <LibDropList Style={theme.DropList} ColumnDisplayName="輪播橫幅"></LibDropList>,
 ];
 const comp_announce = (theme: IBETheme): React.ReactNode[] => [
-  <LibCheckBox colDisplayName="類別"></LibCheckBox>,
-  <LibCheckBox colDisplayName="標籤"></LibCheckBox>,
+  <LibCheckBox ColumnDisplayName="類別"></LibCheckBox>,
+  <LibCheckBox ColumnDisplayName="標籤"></LibCheckBox>,
   <LibDropList Style={theme.DropList} ColumnDisplayName="清單樣式"></LibDropList>
 ];
 const comp_page = (theme: IBETheme): React.ReactNode[] => [
   <LibDropList Style={theme.DropList} ColumnDisplayName="頁面選擇"></LibDropList>,
 ];
 const comp_gallery = (theme: IBETheme): React.ReactNode[] => [
-  <LibCheckBox colDisplayName="類別"></LibCheckBox>,
-  <LibCheckBox colDisplayName="標籤"></LibCheckBox>,
+  <LibCheckBox ColumnDisplayName="類別"></LibCheckBox>,
+  <LibCheckBox ColumnDisplayName="標籤"></LibCheckBox>,
   <LibDropList Style={theme.DropList} ColumnDisplayName="清單樣式"></LibDropList>
 ];
 const comp_fileArchive = (theme: IBETheme): React.ReactNode[] => [
-  <LibCheckBox colDisplayName="類別"></LibCheckBox>,
-  <LibCheckBox colDisplayName="標籤"></LibCheckBox>,
+  <LibCheckBox ColumnDisplayName="類別"></LibCheckBox>,
+  <LibCheckBox ColumnDisplayName="標籤"></LibCheckBox>,
   <LibDropList Style={theme.DropList} ColumnDisplayName="清單樣式"></LibDropList>
 ];
 const comp_webRes = (theme: IBETheme): React.ReactNode[] => [
-  <LibCheckBox colDisplayName="類別"></LibCheckBox>,
-  <LibCheckBox colDisplayName="標籤"></LibCheckBox>,
+  <LibCheckBox ColumnDisplayName="類別"></LibCheckBox>,
+  <LibCheckBox ColumnDisplayName="標籤"></LibCheckBox>,
   <LibDropList Style={theme.DropList} ColumnDisplayName="清單樣式"></LibDropList>
 ];
 //#endregion

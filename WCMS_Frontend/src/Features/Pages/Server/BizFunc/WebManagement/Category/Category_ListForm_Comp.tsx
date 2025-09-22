@@ -3,33 +3,27 @@ import { useLocation } from 'react-router-dom';
 import { FormListComp } from "@/Features/Pages/Server/Scaffold/Content/FormList_Comp";
 import type { FormListCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data"
 import { useListToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
-import { useCategoryListData } from "./Category_Hook";
+import { useCategoryListData } from "../../../../../Hooks/BizFunc/WebManagement/Category/Category_Hook";
 import { useParams } from "react-router-dom";
 import type { components } from "../../../../../../types/api";
-import CategoryProvider from "./Category_Api";
+import CategoryProvider from "../../../../../Hooks/BizFunc/WebManagement/Category/Category_Api";
 import { useFetchFormData } from "../../../../../../SysCore/Utils/API/FetchFormData";
 import { LibTextBox } from "../../../../../../SysCore/Components/FormField/LibFormField";
 import { Link } from "react-router-dom";
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 type CategoryDetail = components["schemas"]["CategoryDetail_DTO"]
 
-const emptyData: CategoryDataSet = {
-    Category: {},
-    CategoryDetail: []
-}
+const emptyData: CategoryDataSet = { Category: {}, CategoryDetail: [] }
 /** 頁面清單
  * @returns 
  */
-export const CategoryListFormComp = ({ progId, title, theme }: { progId: string; title: string; theme: IBETheme }) => {
+export const Server_CategoryListFormComp = ({ progId, title, theme }: { progId: string; title: string; theme: IBETheme }) => {
     const { internalId } = useParams();
     var dirUrl = useLocation().pathname.replace(/\/Category$/, `/Category`);
     const pathParts = useLocation().pathname.split('/');
 
     //const lastPart = pathParts.pop(); // 移除並取得最後一個部分
-    if (pathParts[pathParts.length - 1] !== 'Category') {
-
-        dirUrl = location.pathname.split('/').slice(0, -1).join('/');
-    }
+    if (pathParts[pathParts.length - 1] !== 'Category') { dirUrl = location.pathname.split('/').slice(0, -1).join('/'); }
     const useToolbar = useListToolbarActions(dirUrl)
 
     const useCategoryList = useCategoryListData(progId, 'zh-tw')
@@ -60,6 +54,15 @@ export const CategoryListFormComp = ({ progId, title, theme }: { progId: string;
     return (
         <FormListComp prop={prop}></FormListComp>
     );
+}
+
+
+const CateEditComp = () => {
+    return (<></>)
+}
+
+const CateListComp = () => {
+    return (<></>)
 }
 
 

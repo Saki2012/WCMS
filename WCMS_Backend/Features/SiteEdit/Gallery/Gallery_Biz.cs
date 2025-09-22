@@ -83,7 +83,7 @@ namespace WCMS.Features.SiteEdit.Gallery
                         GalleryId = set.Gallery.GalleryId,
                         RowId = photoRowId,
                         PicSrcId = photoSet.FileManage.InternalId,
-                        Sort = photoRowId,
+                        Sort = dRow["Sort"].ToInt32(),
                     };
 
                     set.GalleryPhotos.Add(photo);

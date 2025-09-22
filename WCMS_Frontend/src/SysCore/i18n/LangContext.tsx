@@ -1,20 +1,31 @@
 import React from "react";
-import type { Lang } from "./lang";
+import { LangLabelMap, type Lang } from "./lang";
 
 interface LangState {
-    lang: string;
-    setLang: (l: Lang) => void;
+    // 只存語系代碼
+    code: Lang;
+    // 顯示名稱由代碼衍生（不要存進 state）
+    label: string;
+    setCode: (l: Lang) => void;
 }
+
 const Ctx = React.createContext<LangState | null>(null);
 
-export const LangProvider: React.FC<{ initial: string; children: React.ReactNode; }> = ({ initial, children }) => {
-    const [lang, setLang] = React.useState<string>(initial);
-    const value = React.useMemo(() => ({ lang, setLang }), [lang]);
+export const LangProvider: React.FC<{ initial: Lang; children: React.ReactNode }> = ({ initial, children }) => {
+    const [code, setCode] = React.useState<Lang>(initial);
+
+    const value = React.useMemo<LangState>(() => ({
+        code,
+        label: LangLabelMap[code],
+        setCode,
+    }), [code]);
+
     return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 };
 
+// 想要像 useState 一樣好用也可以回傳 tuple
 export const useLang = () => {
     const ctx = React.useContext(Ctx);
     if (!ctx) throw new Error("useLang must be used within LangProvider");
-    return ctx;
+    return ctx; // ctx.code 會是 'zh-tw' 這種代碼
 };

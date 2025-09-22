@@ -15,6 +15,7 @@ import { GalleryListComp, type IGalleryListOptions } from "@/Features/Pages/Clie
 import { GalleryFormComp } from "@/Features/Pages/Client/BizFunc/WebManagement/Gallery/GalleryForm";
 import { WebResourceListComp, type IWebResourceListOptions } from "@/Features/Pages/Client/BizFunc/WebManagement/WebResource/WebResourceList";
 import { specClientEntries } from "@/SpecFetures/1810/SpecRouter";
+import type { Lang } from "@/SysCore/i18n/lang";
 type QueryListParam = components["schemas"]["QueryListParam"];
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"]
 
@@ -58,7 +59,7 @@ export class FrontendRouteModule implements IRouteModule {
 export const clientEntries: Record<string, ModuleEntry> = {
   PageManagement: {
     kind: "routes",
-    element: (lang: string, site: INormSite, node: INormNode) => (
+    element: (lang: Lang, site: INormSite, node: INormNode) => (
       <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
     ),
     children: (opts, lang, node: INormNode) => [
@@ -67,7 +68,7 @@ export const clientEntries: Record<string, ModuleEntry> = {
   },
   Announcement: {
     kind: "routes",
-    element: (lang: string, site: INormSite, node: INormNode) => (
+    element: (lang: Lang, site: INormSite, node: INormNode) => (
       <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
     ),
     children: (opts, lang, node: INormNode) => [
@@ -78,7 +79,7 @@ export const clientEntries: Record<string, ModuleEntry> = {
   },
   FileArchive: {
     kind: "routes",
-    element: (lang: string, site: INormSite, node: INormNode) => (
+    element: (lang: Lang, site: INormSite, node: INormNode) => (
       <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
     ),
     children: (opts, lang, node: INormNode) => [
@@ -87,7 +88,7 @@ export const clientEntries: Record<string, ModuleEntry> = {
   },
   Gallery: {
     kind: "routes",
-    element: (lang: string, site: INormSite, node: INormNode) => (
+    element: (lang: Lang, site: INormSite, node: INormNode) => (
       <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
     ),
     children: (opts, lang, node: INormNode) => [
@@ -98,7 +99,7 @@ export const clientEntries: Record<string, ModuleEntry> = {
   },
   WebResource: {
     kind: "routes",
-    element: (lang: string, site: INormSite, node: INormNode) => (
+    element: (lang: Lang, site: INormSite, node: INormNode) => (
       <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
     ),
     children: (opts, lang, node: INormNode) => [

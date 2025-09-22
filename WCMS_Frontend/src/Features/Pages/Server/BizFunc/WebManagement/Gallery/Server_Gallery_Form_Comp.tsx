@@ -8,8 +8,8 @@ import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Cont
 import { useState } from 'react';
 import * as React from "react";
 import * as SchemaFields from "@/types/SchemaFields";
-import { useGetCategoryListByProgId } from "@/Features/Pages/Server/BizFunc/WebManagement/Category/Category_Hook";
-import { useGetTagListByProgId } from "@/Features/Pages/Server/BizFunc/WebManagement/Tags/Tag_Hook";
+import { useGetCategoryListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
+import { useGetTagListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
@@ -103,8 +103,7 @@ const UploadPicComp = (prop: { theme: IBETheme; }) => {
                 {/* 選擇欲上傳的圖片(多選) */}
                 <div className="col-12">
                     <div className="row">
-                        <LibFile Style={prop.theme.File} ColumnDisplayName={`選擇圖片(多選)`} Multiple={true} onChange={(files) => handleFileChange(files)}>
-                        </LibFile>
+                        <LibFile Style={prop.theme.File} ColumnDisplayName={`選擇圖片(多選)`} Multiple={true} onChange={(files) => handleFileChange(files)} />
                     </div>
                 </div>
                 {/* 顯示「預覽圖片」標題 + 預覽圖片 */}

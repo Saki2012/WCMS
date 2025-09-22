@@ -10,7 +10,7 @@ import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { Lang } from "@/SysCore/i18n/lang";
 import GalleryProvider from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api";
 import { GalleryViewComp, type MainGridContentProp } from "@/Features/Pages/Client/Scaffold/ContentViewMode/GalleryView/GalleryView";
-import { useCategoryListData } from "@/Features/Pages/Server/BizFunc/WebManagement/Category/Category_Hook";
+import { useCategoryListData } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
 
 const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
     var condition: string = "";

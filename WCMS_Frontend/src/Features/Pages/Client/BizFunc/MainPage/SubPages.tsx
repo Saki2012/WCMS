@@ -13,10 +13,10 @@ import { useLegacyMenuDOM } from '@/Features/Pages/Client/Scaffold/Menu/MainMenu
 import { ThirdMenuComp } from '@/Features/Pages/Client/Scaffold/Menu/ThirdMenu'
 
 
-interface ISubPagesProps { Style: IFETheme; Lang: string | Lang; site: INormSite; node: INormNode; backHref?: string; }
+interface ISubPagesProps { Style: IFETheme; Lang: Lang; site: INormSite; node: INormNode; backHref?: string; }
 
 
-const GetBreadCrumbData = (lang: string, site: INormSite, node: INormNode): BreadCrumbData[] => {
+const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode): BreadCrumbData[] => {
   const result: BreadCrumbData[] = [{ DOMContent: <Link to={`/${site.siteIndex}`} title='首頁'>首頁</Link> }];
   var curNodes = site.treeByLang[lang]
   node.absIds?.forEach(id => {
@@ -32,7 +32,7 @@ const GetBreadCrumbData = (lang: string, site: INormSite, node: INormNode): Brea
   return result;
 }
 
-const GetMenuData = (lang: string, site: INormSite, node: INormNode, maxDepth: number = Infinity): MenuItemData[] => {
+const GetMenuData = (lang: Lang, site: INormSite, node: INormNode, maxDepth: number = Infinity): MenuItemData[] => {
   const roots = site.treeByLang?.[lang] ?? [];
   const rootNode = roots.find(n => n.id === (node.rootId ?? roots[0]?.id));
   if (!rootNode) return [];
@@ -77,7 +77,7 @@ export const buildMenuItems = (nodes: INormNode[] = [], activeId: number, curren
 };
 
 // 取得「第 level 層」的節點（level=1 表示 root 的第一層子節點層級）
-const getAncestorAtLevel = (lang: string, site: INormSite, node: INormNode, level: number): INormNode | undefined => {
+const getAncestorAtLevel = (lang: Lang, site: INormSite, node: INormNode, level: number): INormNode | undefined => {
   const roots = site.treeByLang?.[lang] ?? [];
   const root = roots.find(n => n.id === (node.rootId ?? roots[0]?.id));
   if (!root) return undefined;
