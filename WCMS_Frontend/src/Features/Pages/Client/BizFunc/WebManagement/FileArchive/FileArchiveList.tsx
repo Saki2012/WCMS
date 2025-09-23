@@ -80,12 +80,12 @@ const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string
 };
 
 export interface IFileArchiveOptions { Category: string; Tag: string; Style: number; }
-interface FileArchiveProps { Theme: IFETheme; Lang: string | Lang; Options: IFileArchiveOptions; }
+interface FileArchiveProps { Theme: IFETheme; Lang: Lang; Options: IFileArchiveOptions; }
 
 export const FileArchiveList = (props: FileArchiveProps) => {
     const [queryDraft, setQueryDraft] = useState<ISearchQuery>({});
     const [query, setQuery] = useState<ISearchQuery>({});
-    const useTagData = useTagListData("FileArchive", "zh-tw");
+    const useTagData = useTagListData("FileArchive", props.Lang);
     const useFileArchiveList = useFileArchive(props.Lang, props.Options.Category, props.Options.Tag, useTagData.rawData, query);
     const tags = (useTagData.rawData ?? []).map(t => ({ id: t.TagData?.TagId ?? "", name: t.TagDetail?.find(p => p.Lang === props.Lang)?.TagName ?? "" }));
 

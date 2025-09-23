@@ -62,11 +62,11 @@ namespace WCMS.Features.SiteEdit.Banner
         /// <summary>
         /// 資料有效日期-起
         /// </summary>
-        [LibDesc] public DateTime Validate_Start { get; set; }
+        [LibDesc] public DateTime? Validate_Start { get; set; }
         /// <summary>
         /// 資料有效日期-迄
         /// </summary>
-        [LibDesc] public DateTime Validate_End { get; set; }
+        [LibDesc] public DateTime? Validate_End { get; set; }
         /// <summary>
         /// 播放順序
         /// </summary>

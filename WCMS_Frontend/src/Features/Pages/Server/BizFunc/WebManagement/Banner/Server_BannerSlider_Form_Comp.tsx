@@ -15,48 +15,16 @@ import { LibMerge as LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
+import { LangLabelMap, type Lang } from "@/SysCore/i18n/lang";
 type BannerSet = components["schemas"]["BannerSet_DTO"]
 type BannerDetail = components["schemas"]["BannerDetail_DTO"]
 type BannerDetailInfo = components["schemas"]["BannerDetailInfo_DTO"]
+const emptyData: BannerSet = { Banner: {}, BannerDetail: [], BannerDetailInfo: [] }
 
-
-const emptyData: BannerSet = {
-    Banner: {},
-    BannerDetail: [
-        {
-            RowId: 1,
-            Validate_Start: "",
-            Validate_End: "",
-            PicSrcId: "",
-            FontColor: "",
-        }
-    ],
-    BannerDetailInfo: [
-        {
-            ParentRowId: 1,
-            RowId: 1,
-            Lang: "zh-tw",
-            Title: "",
-            Content: "",
-            URL: "",
-            URL_Open: 1,
-        },
-        {
-            ParentRowId: 1,
-            RowId: 2,
-            Lang: "en",
-            Title: "",
-            Content: "",
-            URL: "",
-            URL_Open: 1,
-        }
-    ]
-}
 export const BannerSliderFormComp = ({ theme }: { theme: IBETheme }) => {
     const { internalId } = useParams();
     const formData = useFetchFormData<BannerSet>(BannerSliderProvider(), internalId, emptyData)
-    useEnsureLangDetails(formData, { headerName: SchemaFields.BannerSetFields.BannerDetail, detailName: SchemaFields.BannerSetFields.BannerDetailInfo, parentKeys: [SchemaFields.BannerDetailInfoFields.BannerId, SchemaFields.BannerDetailInfoFields.ParentRowId] });
+    // useEnsureLangDetails(formData, { headerName: SchemaFields.BannerSetFields.BannerDetail, detailName: SchemaFields.BannerSetFields.BannerDetailInfo, parentKeys: [SchemaFields.BannerDetailInfoFields.BannerId, SchemaFields.BannerDetailInfoFields.ParentRowId] });
     const useToolbar = useFormToolbarActions(BannerSliderProvider(), formData.data as BannerSet, internalId as string, () => formData.refetch())
     const isLoading = [formData.isLoading]
     const errors = [formData.error]

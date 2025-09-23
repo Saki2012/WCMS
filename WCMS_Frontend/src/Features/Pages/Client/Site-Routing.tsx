@@ -189,7 +189,7 @@ const normalizeInternal = (s: string) => {
 };
 
 export type ModuleFactory = (lang: Lang, site: INormSite, node: INormNode) => React.ReactElement;
-export type ModuleRoutesFactory = (opts: unknown, lang: string, node: INormNode) => RouteObject[];
+export type ModuleRoutesFactory = (opts: unknown, lang: Lang, node: INormNode) => RouteObject[];
 export type ModuleEntry =
     | { kind: "element"; render: ModuleFactory }
     | { kind: "routes"; element: ModuleFactory; children: ModuleRoutesFactory };

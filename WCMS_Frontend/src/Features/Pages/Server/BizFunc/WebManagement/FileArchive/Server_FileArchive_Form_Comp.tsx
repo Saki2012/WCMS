@@ -95,10 +95,8 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Fi
 
 const SubDetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<FileArchiveSet>; parentRowId: number }) => {
     const setFileField = useSetTableFileField(prop.formData);
-
     const allFiles: FileArchiveDetail[] = prop.formData.data?.FileArchiveDetail ?? [];
     const getFiles = (): FileArchiveDetail[] => allFiles.filter(f => f.ParentRowId === prop.parentRowId).sort((a, b) => (a.RowId ?? 0) - (b.RowId ?? 0));
-
     // 提交回整份表單（關鍵：真正更新 formData）
     const commitFiles = (nextFiles: FileArchiveDetail[]) => {
         prop.formData.setFormData(prev => ({
@@ -106,22 +104,12 @@ const SubDetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
             FileArchiveDetail: nextFiles,
         }));
     };
-
     // 新增一筆附件列
     const addFile = () => {
         const list = getFiles();
         const nextRowId = (list.at(-1)?.RowId ?? 0) + 1;
         const newItem: FileArchiveDetail = { ParentRowId: prop.parentRowId, RowId: nextRowId, FileSrcId: "", FileName: "", };
         commitFiles([...allFiles, newItem]);
-    };
-
-    // 更新第 i 筆附件列（以「同一公告 + 同一 ParentRowId + 同一 RowId」定位）
-    const updateFileAt = (i: number, patch: Partial<FileArchiveDetail>) => {
-        const filtered = getFiles();
-        const target = filtered[i];
-        if (!target) return;
-        const nextAll = allFiles.map(f => { const isSame = f.ParentRowId === target.ParentRowId && f.RowId === target.RowId; return isSame ? { ...f, ...patch } : f; });
-        commitFiles(nextAll);
     };
 
     // 刪除第 i 筆附件列
@@ -132,31 +120,16 @@ const SubDetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
         const nextAll = allFiles.filter(f => !(f.ParentRowId === target.ParentRowId && f.RowId === target.RowId));
         commitFiles(nextAll);
     };
-
     return (
         <>
             <div role="group" className="mt-4">
                 <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-secondary mb-2">新增附件</button>
-
                 {getFiles().map((f, i) => {
                     const rowKeys = { [SchemaFields.FileArchiveDetailFields.FileArchiveId]: f.FileArchiveId, [SchemaFields.FileArchiveDetailFields.ParentRowId]: f.ParentRowId, [SchemaFields.FileArchiveDetailFields.RowId]: f.RowId, }
                     return (
                         <div key={`${f.ParentRowId}-${f.RowId}`} className="flex items-center gap-2 mb-2">
-                            <LibFileInput
-                                Style={prop.theme.FileInput}
-                                DefaultInputDisplay="請輸入附件說明"
-                                // 直接展開！只要給：表名、id欄位、name欄位(可選)、rowKeys(可選)、options(可選)
-                                {...setFileField(
-                                    SchemaFields.AnnouncementSetFields.AnnouncementDetailFile,
-                                    SchemaFields.AnnouncementDetailFileFields.FileId,      // ← internalId 欄位
-                                    SchemaFields.AnnouncementDetailFileFields.FileName,       // ← 檔名欄位（可省略）
-                                    rowKeys,                               // ← 指定哪一列
-                                    { defaultNameFromOriginal: "basename" }               // ← 第一次上傳自動帶入不含副檔名
-                                )}
-                                // 其他 UI 行為仍由你自己控制
-                                Accept="*/*"
-                                onDelete={() => removeFileAt(i)}
-                            />
+                            <LibFileInput Style={prop.theme.FileInput} DefaultInputDisplay="請輸入附件說明" Accept="*/*" onDelete={() => removeFileAt(i)}
+                                {...setFileField(SchemaFields.FileArchiveSetFields.FileArchiveDetail, SchemaFields.FileArchiveDetailFields.FileSrcId, SchemaFields.FileArchiveDetailFields.FileName, rowKeys,)} />
                         </div>
                     )
                 })}

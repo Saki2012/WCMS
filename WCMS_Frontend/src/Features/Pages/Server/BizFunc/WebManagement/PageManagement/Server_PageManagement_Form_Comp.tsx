@@ -16,7 +16,6 @@ import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"]
-type PageManagementDetail = components["schemas"]["PageManagementDetail_DTO"]
 const emptyData: PageManagementSet = {
     PageManagement: {},
     PageManagementDetail: []

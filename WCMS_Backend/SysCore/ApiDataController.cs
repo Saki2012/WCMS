@@ -2,15 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.EntityFrameworkCore.Migrations.Internal;
-using Microsoft.Identity.Client;
-using Microsoft.VisualBasic;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Reflection;
-using System.Threading.Tasks;
 using WCMS.Features.SiteEdit.Announcement;
 using WCMS.Features.SiteEdit.Banner;
 using WCMS.Features.SiteEdit.Category;
@@ -31,7 +24,6 @@ using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Library.LibData;
-using static WCMS.SysCore.SystemFunc.Auth.AuthController;
 
 namespace WCMS.SysCore
 {

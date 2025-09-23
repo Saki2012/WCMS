@@ -20,9 +20,9 @@ import * as SchemaFields from "@/types/SchemaFields";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
+import { useMemo } from "react";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
-type AnnouncementDetail = components["schemas"]["AnnouncementDetail_DTO"]
 type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"]
 
 
@@ -57,6 +57,12 @@ const HeaderComp = (prop: {
     theme: IBETheme; formData: UseFetchFormDataResult<AnnouncementSet>;
     cateOpts: Record<string, string>; statusOpts: Record<string, string>; tagOpts: Record<string, string>;
 }) => {
+    const status = useMemo(() => {
+        const src = prop.statusOpts ?? {};
+        // 把 "0" 這個鍵移除
+        const { ["0"]: _drop, ...rest } = src;
+        return rest as Record<string, string>;
+    }, [prop.statusOpts]);
     const setField = useSetTableField<AnnouncementSet>(prop.formData);
     const useUploadPic = useUploadPicture();
     const initialPicId = prop.formData.data?.Announcement?.PictureId;
@@ -68,7 +74,7 @@ const HeaderComp = (prop: {
             <LibCalendar {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Validate_Start, "string")} />,
             <LibCalendar {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Validate_End, "string")} />,
         ],
-        Status: [<LibCheckBox Style={prop.theme.CheckBox} options={prop.statusOpts} {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ContentStatus, 'number', undefined, { strategy: 'sum', sumKeys: Object.keys(prop.statusOpts ?? {}).map(Number) })} />],
+        Status: [<LibCheckBox Style={prop.theme.CheckBox} options={status} {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ContentStatus, 'number', undefined, { strategy: 'sum', sumKeys: Object.keys(prop.statusOpts ?? {}).map(Number) })} />],
         Tags: [<LibCheckBox Style={prop.theme.CheckBox} options={prop.tagOpts} {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Tags, 'string', undefined, 'csv')} />,],
         Pic: [
             <LibFile Style={prop.theme.File} ColumnDisplayName={`選擇圖片`} Multiple={false}
@@ -123,13 +129,9 @@ const DetailComp = (prop: { theme: IBETheme, formData: UseFetchFormDataResult<An
 };
 
 const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<AnnouncementSet>; parentRowId: number; }) => {
-
-
     const setFileField = useSetTableFileField(props.formData);
-
     const allFiles: AnnouncementDetailFile[] = props.formData.data?.AnnouncementDetailFile ?? [];
     const getFiles = (): AnnouncementDetailFile[] => allFiles.filter(f => f.ParentRowId === props.parentRowId).sort((a, b) => (a.RowId ?? 0) - (b.RowId ?? 0));
-
     // 提交回整份表單（關鍵：真正更新 formData）
     const commitFiles = (nextFiles: AnnouncementDetailFile[]) => {
         props.formData.setFormData(prev => ({
@@ -137,7 +139,6 @@ const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
             AnnouncementDetailFile: nextFiles,
         }));
     };
-
     // 新增一筆附件列
     const addFile = () => {
         const list = getFiles();
@@ -145,16 +146,6 @@ const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
         const newItem: AnnouncementDetailFile = { ParentRowId: props.parentRowId, RowId: nextRowId, FileId: "", FileName: "", };
         commitFiles([...allFiles, newItem]);
     };
-
-    // 更新第 i 筆附件列（以「同一公告 + 同一 ParentRowId + 同一 RowId」定位）
-    const updateFileAt = (i: number, patch: Partial<AnnouncementDetailFile>) => {
-        const filtered = getFiles();
-        const target = filtered[i];
-        if (!target) return;
-        const nextAll = allFiles.map(f => { const isSame = f.ParentRowId === target.ParentRowId && f.RowId === target.RowId; return isSame ? { ...f, ...patch } : f; });
-        commitFiles(nextAll);
-    };
-
     // 刪除第 i 筆附件列
     const removeFileAt = (i: number) => {
         const filtered = getFiles();
@@ -163,7 +154,6 @@ const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
         const nextAll = allFiles.filter(f => !(f.ParentRowId === target.ParentRowId && f.RowId === target.RowId));
         commitFiles(nextAll);
     };
-
     return (
         <>
             <div role="group" className="mt-4">
@@ -185,7 +175,7 @@ const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
                                 )}
                                 // 其他 UI 行為仍由你自己控制
                                 Accept="*/*"
-                                onDelete={() => updateFileAt(i, { FileId: null })}
+                                onDelete={() => removeFileAt(i)}
                             />
                         </div>
                     )
