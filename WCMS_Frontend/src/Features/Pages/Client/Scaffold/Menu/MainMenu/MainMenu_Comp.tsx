@@ -24,7 +24,7 @@ const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] => {
 };
 
 
-export const MainMenu = ({ lang, site }: { lang: Lang; site: INormSite }) => {
+export const MainMenu = ({ lang, site }: { lang: string; site: INormSite }) => {
   const translateRef = useRef<HTMLDivElement>(null);
   const navsRef = useRef<HTMLDivElement>(null);
   //   const menuItems = mock_MenuListData()
@@ -164,7 +164,6 @@ export const useLegacyMenuDOM = (menuRef: React.RefObject<HTMLUListElement>) => 
       icon.classList.toggle("fa-angle-down", open);
     };
 
-
     const closeBranch = (li: HTMLElement) => {
       const childUl = li.querySelector(":scope > ul") as HTMLElement | null;
 
@@ -181,6 +180,12 @@ export const useLegacyMenuDOM = (menuRef: React.RefObject<HTMLUListElement>) => 
       });
     };
 
+    const closeAllMenu = (root: HTMLElement) => {
+      root.querySelectorAll(":scope li").forEach(node => {
+        closeBranch(node as HTMLElement);
+      });
+    };
+
     const onClick = (e: Event) => {
       const target = e.target as Element;
       const link = target.closest("a");
@@ -191,6 +196,7 @@ export const useLegacyMenuDOM = (menuRef: React.RefObject<HTMLUListElement>) => 
       if (!li) return;
 
       const childUl = li.querySelector(":scope > ul") as HTMLElement | null;
+
 
       // 沒子層 = 正常導頁並關閉menu；若要只設 active 可在這裡加 li.classList.add("active")
       if (!childUl) return closeMenu();
@@ -220,7 +226,23 @@ export const useLegacyMenuDOM = (menuRef: React.RefObject<HTMLUListElement>) => 
       }
     };
     root.addEventListener("click", onClick);
-    return () => root.removeEventListener("click", onClick);
+
+    // 監聽 header_Box 的 active class
+    const headerBox = document.querySelector(".header_Box");
+    let observer: MutationObserver | null = null;
+    if (headerBox) {
+      observer = new MutationObserver(() => {
+        if (headerBox.classList.contains("active")) {
+          closeAllMenu(root); // header_Box 再次 active → 收掉全部展開的 menu
+        }
+      });
+      observer.observe(headerBox, { attributes: true, attributeFilter: ["class"] });
+    }
+
+    return () => {
+      root.removeEventListener("click", onClick);
+      if (observer) observer.disconnect();
+    }
   }, [menuRef]);
 }
 
