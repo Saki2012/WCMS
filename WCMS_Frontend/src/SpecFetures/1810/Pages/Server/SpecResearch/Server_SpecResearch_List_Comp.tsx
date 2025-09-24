@@ -7,10 +7,14 @@ import { useLocation } from 'react-router-dom';
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp"
 import type { ListCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data"
 import * as React from "react";
+import * as SchemaFields from "@/types/SchemaFields";
 import type { components } from "@/types/api"
-type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"]
 import { useListToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook"
 import { useSpecResearchList } from "@/SpecFetures/1810/Hooks/SpecResearch/SpecResearch_Hook"
+import { useFormatSpecCategoriesName, useSpecCateListData } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Hook"
+import { handleDelete } from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Hook"
+type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"]
+type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"]
 
 
 /** 研究計畫清單
@@ -19,19 +23,18 @@ import { useSpecResearchList } from "@/SpecFetures/1810/Hooks/SpecResearch/SpecR
 export const Server_ResearchProjListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
     const usePageList = useSpecResearchList();
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps, usePageList.rawData); }, [usePageList.gridProps, usePageList.rawData]);
+    const useCategory = useSpecCateListData("SpecResearch", "zh-tw");
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps, usePageList.rawData, useCategory.rawData); }, [usePageList.gridProps, usePageList.rawData, useCategory.rawData]);
     const useToolbar = useListToolbarActions(dirUrl)
     const searchCompProp: SearchBarProps = { title: "研究計畫搜尋", subTitle: "搜尋研究計畫...", settingTitle: "搜尋設定", }
-    const isLoading = [usePageList.isLoading];
-    const errors = [usePageList.error];
+    const isLoading = [usePageList.isLoading, useCategory.isLoading];
+    const errors = [usePageList.error, useCategory.error];
     const prop: ListCompProp = { Title: title, Theme: theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.toolbarActions, GridData: adjustedGrid, SearchBar: searchCompProp }
-    return (
-        <ListComp prop={prop}></ListComp>
-    );
+    return (<ListComp prop={prop}></ListComp>);
 }
 
 /** 動態添加每行的動作功能 */
-const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: SpecResearchSet[]): GridProps => {
+const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: SpecResearchSet[], cateData: SpecCategorySet[]): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
 
@@ -39,13 +42,12 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: SpecRe
     const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
 
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
-        const statusCell = row.cells.find(cell => cell.col.key === "DataStatus");
-        if (statusCell && typeof statusCell.content === 'number') {
-            statusCell.content = GetDataStatusContent(statusCell.content);
-        }
-
+        const statusCell = row.cells.find(cell => cell.col.key === SchemaFields.SpecResearchModelFields.ContentStatus);
+        if (statusCell && typeof statusCell.content === 'number') { statusCell.content = GetDataStatusContent(statusCell.content); }
+        const categoryCell = row.cells.find(p => p.col.key === SchemaFields.SpecResearchModelFields.CategoryId);
+        const rawCatId = rawData?.[index]?.SpecResearch?.CategoryId ?? categoryCell?.content?.toString() ?? "";
+        if (categoryCell) { categoryCell.content = useFormatSpecCategoriesName(rawCatId, cateData); }
         const internalId = rawData?.[index]?.SpecResearch?.InternalId ?? "";
-
         const newCell: RowCell = {
             col: adjustCol,
             content: (
@@ -55,11 +57,11 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: SpecRe
                             <i className="far fa-edit"></i>
                         </button>
                     </Link>
-                    {/* <a id="trash" className="icon" onClick={() => handleDelete(internalId)} data-bs-toggle="modal" data-bs-target="#All_Delete">
+                    <a id="trash" className="icon" onClick={() => handleDelete(internalId)} data-bs-toggle="modal" data-bs-target="#All_Delete">
                         <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title="刪除研究計畫">
                             <i className="far fa-trash-alt"></i>
                         </button>
-                    </a> */}
+                    </a>
                 </div>
             )
         };

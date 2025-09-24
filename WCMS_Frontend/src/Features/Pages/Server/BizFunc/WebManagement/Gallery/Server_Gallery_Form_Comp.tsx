@@ -19,12 +19,7 @@ import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useFormToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 type GallerySet = components["schemas"]["GallerySet_DTO"]
-const emptyData: GallerySet = {
-    Gallery: { GalleryId: "", Categories: "", Tags: "" },
-    GalleryInfo: [],
-    GalleryPhotos: [],
-    GalleryPhotosInfo: [],
-}
+const emptyData: GallerySet = { Gallery: {}, GalleryInfo: [], GalleryPhotos: [], GalleryPhotosInfo: [], }
 /** 相簿表單
  * @returns 
  */
@@ -95,7 +90,7 @@ const AlbumInfo = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Gal
             const rowKeys = { [SchemaFields.GalleryInfoFields.GalleryId]: info.GalleryId, [SchemaFields.GalleryInfoFields.RowId]: info.RowId, }
             compMap[langKey] = [
                 <LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.GallerySetFields.GalleryInfo, SchemaFields.GalleryInfoFields.Title, "string", rowKeys)} />,
-                <LibTinyMCE Style={prop.theme.TinyMCE} {...setField(SchemaFields.GallerySetFields.GalleryInfo, SchemaFields.GalleryInfoFields.Content, "string", rowKeys)} />
+                <LibTinyMCE Style={prop.theme.TinyMCE} {...setField(SchemaFields.GallerySetFields.GalleryInfo, SchemaFields.GalleryInfoFields.Content, "string", rowKeys)} />,
             ]
             return compMap;
         }, {}
@@ -216,7 +211,6 @@ const UploadPicComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
             setIsUploading(false);
         }
     };
-
 
     return (
         <LibModal ModalName="上傳圖片" BtnName1="關閉" BtnName2="儲存並上傳" onConfirm={handleUpload} confirmDisabled={isUploading || selectedFiles.length === 0} confirmBusy={isUploading}>

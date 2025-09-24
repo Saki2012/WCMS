@@ -1,6 +1,24 @@
 import { useId } from "react";
-import type { LibTabsProp } from "./LibTabs_Data"
 import { clsx } from "clsx";
+
+
+export interface ILibTabsStyle {
+    UlStyle: string;
+    LiStyle: string;
+    BtnStyle: string;
+    RemoveBtnStyle?: string;
+}
+
+export interface LibTabsProp {
+    Style: ILibTabsStyle;
+    item: Record<string, string>;
+    onAddTab?: () => void;
+    onRemoveTab?: (key: string) => void;
+    /**（可選）回傳 false 可讓特定 key 不可刪 */
+    isRemovable?: (key: string) => boolean;
+}
+
+
 const LibTabs = (prop: LibTabsProp) => {
     const uid = useId();
     return (
@@ -13,6 +31,31 @@ const LibTabs = (prop: LibTabsProp) => {
                             type="button" role="tab" aria-selected={isActive ? "true" : "false"}>
                             <h4 className="tab-name">{label}</h4>
                         </button>
+
+                        {prop.onRemoveTab && (!prop.isRemovable || prop.isRemovable(key)) && (
+                            <button
+                                type="button"
+                                className={clsx("btn-remove-tab", prop.Style.RemoveBtnStyle)}
+                                title="移除"
+                                aria-label={`移除「${String(label)}」分頁`}
+                                onClick={(e) => {
+                                    // 避免點 X 觸發切換分頁
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    prop.onRemoveTab?.(key);
+                                }}
+                                onKeyDown={(e) => {
+                                    // 鍵盤操作：Enter/Space 也能刪除
+                                    if (e.key === "Enter" || e.key === " ") {
+                                        e.preventDefault();
+                                        prop.onRemoveTab?.(key);
+                                    }
+                                }}
+                            >
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        )}
+
                     </li>
                 )
             })}

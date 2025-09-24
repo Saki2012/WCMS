@@ -1,5 +1,4 @@
 import { LibTextBox, LibTinyMCE, LibFile, LibPicture, LibFileInput } from "@/SysCore/Components/FormField/LibFormField"
-import type { LibTabsProp } from "@/SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { useGetCategoryListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
 import { useGetTagListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
@@ -21,6 +20,7 @@ import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 import { useMemo } from "react";
+import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"]

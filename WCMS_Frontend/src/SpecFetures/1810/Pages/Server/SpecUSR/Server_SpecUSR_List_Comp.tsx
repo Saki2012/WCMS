@@ -9,26 +9,32 @@ import type { ListCompProp } from "@/Features/Pages/Server/Scaffold/Content/Cont
 import type { components } from "@/types/api"
 import { useListToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook"
 import { useSpecUSRProjList } from "@/SpecFetures/1810/Hooks/SpecUSR/SpecUSR_Hook"
-type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"]
 import * as SchemaFields from "@/types/SchemaFields";
-
+import { handleDelete } from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Hook"
+import { useFormatSpecCategoriesName, useSpecCateListData } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Hook"
+import { useFormatTagsName, useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook"
+type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"]
+type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"]
+type TagSet = components["schemas"]["TagSet_DTO"]
 /** USR計畫清單
  * @returns 
  */
 export const USRProjListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
     const usePageList = useSpecUSRProjList();
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps, usePageList.rawData); }, [usePageList.gridProps, usePageList.rawData]);
+    const useCategory = useSpecCateListData("SpecUSR", "zh-tw");
+    const useTag = useTagListData("SpecUSR", "zh-tw");
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps, usePageList.rawData, useCategory.rawData, useTag.rawData); }, [usePageList.gridProps, usePageList.rawData, useCategory.rawData, useTag.rawData]);
     const useToolbar = useListToolbarActions(dirUrl)
     const searchCompProp: SearchBarProps = { title: "USR計畫搜尋", subTitle: "搜尋USR計畫 ...", settingTitle: "搜尋設定", }
-    const isLoading = [usePageList.isLoading];
-    const errors = [usePageList.error];
+    const isLoading = [usePageList.isLoading, useCategory.isLoading, useTag.isLoading];
+    const errors = [usePageList.error, useCategory.error, useTag.error];
     const prop: ListCompProp = { Title: title, Theme: theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.toolbarActions, GridData: adjustedGrid, SearchBar: searchCompProp }
     return (<ListComp prop={prop}></ListComp>);
 }
 
 /** 動態添加每行的動作功能 */
-const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: SpecUSRSet[]): GridProps => {
+const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: SpecUSRSet[], cateData: SpecCategorySet[], tagData: TagSet[]): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
@@ -36,6 +42,12 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: SpecUS
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
         const statusCell = row.cells.find(cell => cell.col.key === SchemaFields.SpecUSRModelFields.ContentStatus);
         if (statusCell && typeof statusCell.content === 'number') { statusCell.content = GetDataStatusContent(statusCell.content); }
+        const categoryCell = row.cells.find(p => p.col.key === SchemaFields.SpecUSRModelFields.CategoryId);
+        const rawCatId = rawData?.[index]?.SpecUSR?.CategoryId ?? categoryCell?.content?.toString() ?? "";
+        if (categoryCell) { categoryCell.content = useFormatSpecCategoriesName(rawCatId, cateData); }
+        const tagCell = row.cells.find(p => p.col.key === SchemaFields.SpecUSRModelFields.Tags);
+        const rawTagId = rawData?.[index]?.SpecUSR?.Tags ?? categoryCell?.content?.toString() ?? "";
+        if (tagCell) { tagCell.content = useFormatTagsName(rawTagId, tagData); }
         const internalId = rawData?.[index]?.SpecUSR?.InternalId ?? "";
         const newCell: RowCell = {
             col: adjustCol,
@@ -46,18 +58,16 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: SpecUS
                             <i className="far fa-edit"></i>
                         </button>
                     </Link>
-                    {/* <a id="trash" className="icon" onClick={() => handleDelete(internalId)} data-bs-toggle="modal" data-bs-target="#All_Delete">
+                    <a id="trash" className="icon" onClick={() => handleDelete(internalId)} data-bs-toggle="modal" data-bs-target="#All_Delete">
                         <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title="刪除USR計畫">
                             <i className="far fa-trash-alt"></i>
                         </button>
-                    </a> */}
+                    </a>
                 </div>
             )
         };
-
         return { ...row, cells: [...row.cells, newCell] };
     });
-
     return { ...gridProps, columns: newColumns, rows: newRows };
 };
 

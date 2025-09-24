@@ -29,6 +29,8 @@ export const useSpecUSRProjList = () =>
                 SchemaFields.SpecUSRModelFields.CategoryId,
                 SchemaFields.SpecUSRModelFields.Tags,
                 SchemaFields.SpecUSRModelFields.ContentStatus,
+                `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.RowId}`,
+                `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Lang}`,
                 `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Year}`,
                 `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.AcademicYear}`,
                 `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ProjectName}`,

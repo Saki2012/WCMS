@@ -12,7 +12,8 @@ export interface UseContentTransformOptions
 /** 內容轉換：<img src="/Service/FileManagement/Preview/{id}"> ⇄ <img data-internalid="{id}"> */
 export const useContentTransform = (opts?: UseContentTransformOptions) =>
 {
-    const previewPrefix = opts?.previewPrefix ?? FileManagementAPI.PREVIEW_URL;
+    const rawPrefix = opts?.previewPrefix ?? FileManagementAPI.PREVIEW_URL;
+    const previewPrefix = rawPrefix.endsWith("/") ? rawPrefix : `${rawPrefix}/`;
     const attrName = opts?.attrName ?? "data-internalid";
 
     const esc = useCallback((s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), []);

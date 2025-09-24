@@ -11,7 +11,9 @@ import type { components } from "@/types/api";
 import { useListToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
 import { handleDelete, useFileArchiveList } from "@/Features/Hooks/BizFunc/WebManagement/FileArchive/FileArchive_Hook"
 import * as SchemaFields from "@/types/SchemaFields";
+import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook"
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"]
+type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 
 /** 檔案室清單
  * @returns 
@@ -19,17 +21,18 @@ type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"]
 export const Server_FileArchiveListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
     const usePageList = useFileArchiveList();
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps, usePageList.rawData); }, [usePageList.gridProps, usePageList.rawData]);
+    const useCategory = useCategoryListData("FileArchive", "zh-tw");
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps, usePageList.rawData, useCategory.rawData); }, [usePageList.gridProps, usePageList.rawData, useCategory.rawData]);
     const useToolbar = useListToolbarActions(dirUrl)
     const searchCompProp: SearchBarProps = { title: "檔案室搜尋", subTitle: "搜尋檔案室 ...", settingTitle: "搜尋設定", }
-    const isLoading = [usePageList.isLoading];
-    const errors = [usePageList.error];
+    const isLoading = [usePageList.isLoading, useCategory.isLoading];
+    const errors = [usePageList.error, useCategory.error];
     const prop: ListCompProp = { Title: title, Theme: theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.toolbarActions, GridData: adjustedGrid, SearchBar: searchCompProp }
     return (<ListComp prop={prop}></ListComp>);
 }
 
 /** 動態添加每行的動作功能 */
-const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: FileArchiveSet[]): GridProps => {
+const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: FileArchiveSet[], categoryData: CategoryDataSet[]): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
@@ -39,6 +42,9 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: FileAr
         if (statusCell && typeof statusCell.content === 'number') {
             statusCell.content = GetContentStatus(statusCell.content);
         }
+        const categoryCell = row.cells.find(p => p.col.key === SchemaFields.FileArchiveFields.CategoriesId);
+        const rawCatId = rawData?.[index]?.FileArchive?.CategoriesId ?? categoryCell?.content?.toString() ?? "";
+        if (categoryCell) { categoryCell.content = useFormatCategoriesName(rawCatId, categoryData); }
         const internalId = rawData?.[index]?.FileArchive?.InternalId ?? "";
         const newCell: RowCell = {
             col: adjustCol,

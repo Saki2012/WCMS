@@ -214,7 +214,7 @@
     <value>開啟方式</value>
   </data>
   <data name="CategoryId" xml:space="preserve">
-    <value>類別代碼</value>
+    <value>類別</value>
   </data>
   <data name="Category_Module" xml:space="preserve">
     <value>功能類別對應模組</value>
@@ -535,13 +535,13 @@
     <value>創建時間</value>
   </data>
   <data name="Common_CreateUserId" xml:space="preserve">
-    <value>創建人ID</value>
+    <value>創建人</value>
   </data>
   <data name="Common_ModifyTime" xml:space="preserve">
     <value>修改時間</value>
   </data>
   <data name="Common_ModifyUserId" xml:space="preserve">
-    <value>修改人ID</value>
+    <value>修改人</value>
   </data>
   <data name="Common_InternalId" xml:space="preserve">
     <value>內部唯一標示號</value>

@@ -138,15 +138,11 @@ export const useFormatCategoriesName = (
 ): string =>
 {
     if (!content) return "";
-
-    return (content.toString() ?? "")
-        .split(",")
-        .map(s => s.trim())
-        .filter(Boolean)
+    return (content.toString() ?? "").split(",").map(s => s.trim()).filter(Boolean)
         .map(catId =>
-            categoryData?.find(s => String(s.Category?.CategoryId) === catId)
-                ?.CategoryDetail?.find(d => d.Lang === lang)?.CategoryName
+            categoryData?.find(s => String(s.Category?.CategoryId) === catId)?.CategoryDetail?.find(d =>
+                d.Lang === lang
+            )?.CategoryName
         )
-        .filter((x): x is string => !!x) // 過濾掉 undefined/null
-        .join("、");
+        .filter((x): x is string => !!x).join("、");
 };

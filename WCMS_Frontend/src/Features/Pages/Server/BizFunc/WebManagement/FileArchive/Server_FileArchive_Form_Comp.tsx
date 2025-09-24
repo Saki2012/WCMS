@@ -1,5 +1,4 @@
 import { LibCheckBox, LibTextBox, LibFileInput } from "@/SysCore/Components/FormField/LibFormField"
-import type { LibTabsProp } from "@/SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { useGetCategoryListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook"
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
@@ -17,6 +16,7 @@ import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/For
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useFormToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
 import { useMemo } from "react";
+import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"]
 type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"]
 const emptyData: FileArchiveSet = { FileArchive: {}, FileArchiveInfo: [], FileArchiveDetail: [] }
@@ -31,7 +31,7 @@ export const Server_FileArchiveFormComp = (prop: { theme: IBETheme; lang: Lang }
     const useTag = useGetTagListByProgId("FileArchive", prop.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
     const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
-    useEnsureLangDetails(formData, { headerName: SchemaFields.FileArchiveSetFields.FileArchive, detailName: SchemaFields.FileArchiveSetFields.FileArchiveInfo, parentKeys: [SchemaFields.FileArchiveFields.FileArchiveId] });
+    useEnsureLangDetails(formData, { headerName: SchemaFields.FileArchiveSetFields.FileArchive, detailName: SchemaFields.FileArchiveSetFields.FileArchiveInfo, parentKeys: [SchemaFields.FileArchiveFields.FileArchiveId], preferFirstLang: prop.lang });
     const useToolbar = useFormToolbarActions(FileArchiveProvider(), formData.data as FileArchiveSet, internalId as string, () => formData.refetch())
     const isLoading = [useTag.isLoading, useCategory.isLoading, formData.isLoading, useContentStatus.isLoading]
     const errors = [useTag.error, useCategory.error, formData.error, useContentStatus.error]

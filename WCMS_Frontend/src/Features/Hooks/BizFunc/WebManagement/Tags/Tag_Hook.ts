@@ -131,7 +131,7 @@ export const useTagListData = (progId: string, lang: Lang) =>
 
 export const useFormatTagsName = (
     content: string,
-    categoryData: TagSet[],
+    tagData: TagSet[],
     lang: Lang = DefaultLang,
 ): string =>
 {
@@ -140,8 +140,8 @@ export const useFormatTagsName = (
         .split(",")
         .map(s => s.trim())
         .filter(Boolean)
-        .map(catId =>
-            categoryData?.find(s => String(s.TagData?.TagId) === catId)
+        .map(tagId =>
+            tagData?.find(s => String(s.TagData?.TagId) === tagId)
                 ?.TagDetail?.find(d => d.Lang === lang)?.TagName
         )
         .filter((x): x is string => !!x)

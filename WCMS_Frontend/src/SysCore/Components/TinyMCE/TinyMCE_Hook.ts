@@ -22,12 +22,9 @@ export interface TinyMceHookOptions
     initExtras?: Record<string, any>;
 }
 
-type CopiedInlineStyle = string | null;
-
 export const useTinyMCE = (p: TinyMceHookOptions) =>
 {
     const editorRef = useRef<TinyMCEEditor | null>(null);
-    const copiedStyleRef = useRef<CopiedInlineStyle>(null);
 
     // 1) 掛上內容轉換（prefix 可自訂；不給就用預設）
     const { toDb, toEditor } = useContentTransform({
@@ -360,14 +357,6 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     if (p) p.removeChild(probe);
                     return src;
                 };
-                const getSourceElement = () =>
-                {
-                    const startEl = editor.selection.getStart(true) as Element | null;
-                    if (startEl) return startEl;
-                    const rng = editor.selection.getRng();
-                    const node = (rng?.startContainer ?? editor.selection.getNode()) as Node;
-                    return (node instanceof Element) ? node : node.parentElement;
-                };
                 // ✅ 轉成 style 屬性字串
                 const toStyleAttr = (styles: Partial<Record<keyof CSSStyleDeclaration, string>>) =>
                     Object.entries(styles)
@@ -503,7 +492,6 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                         });
                     },
                 });
-
                 editor.addShortcut("alt+shift+c", "複製格式", () => editor.execCommand("mceToggleFormat")); // 只為了提示，實際上用上面的按鈕
                 editor.addShortcut("alt+shift+v", "套用格式", () =>
                 {/* 上面按鈕處理 */});
@@ -559,7 +547,6 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     onAction: () => editor.execCommand("mceTableCellProps"),
                     context: "table",
                 });
-
                 // 保障：將使用者手動輸入的 <img> 也轉為 data-internal（若可解析 internal）
                 editor.on("NodeChange", (_evt) =>
                 {
@@ -573,7 +560,6 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                         if (img.getAttribute("src") !== expect) editor.dom.setAttrib(img, "src", expect);
                     });
                 });
-
                 // ★01 檔案連結插入按鈕（除了工具列外也提供）
                 editor.ui.registry.addButton("filepicker", {
                     icon: "new-document",
@@ -598,7 +584,6 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                         });
                     },
                 });
-
                 // AA：連結預設帶 title（以文字當 title，使用者可再改）
                 editor.on("ExecCommand", (cmd) =>
                 {
@@ -609,10 +594,8 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     }
                 });
             },
-
             // ★06 / ★14 文字前景/背景色已在 toolbar forecolor / backcolor
             // ★10 / ★11 的快捷鍵見 setup
-
             // 基本事件接上外部 state
             setup_onchange: true,
             init_instance_callback: (ed: TinyMCEEditor) =>
@@ -627,22 +610,9 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
             paste_webkit_styles:
                 "color font-size font-family background-color text-decoration font-style font-weight line-height",
             paste_filter_drop: false,
-            valid_elements: `
-              +p[class|style],+span[class|style],+div[class|style],
-              strong/b,em/i,u,s,strike,sub,sup,hr,
-              a[href|target|rel|title|class|style],
-              img[src|alt|title|width|height|class|style],
-              table[class|style|border|cellpadding|cellspacing|width|height|summary],
-              thead,tbody,tfoot,tr,
-              td[style|colspan|rowspan|width|height|align|valign],
-              th[style|colspan|rowspan|scope|width|height|align|valign],
-              colgroup[span|width|style],col[span|width|style]`,
-            extended_valid_elements:
-                "span[class|style],p[class|style],div[class|style],td[class|style],th[class|style],"
-                + "img[class|style],a[rel|target|href|title|class|style],"
-                + "table[class|style|border|cellpadding|cellspacing|width|height|summary],"
-                + "colgroup[span|width|style],col[span|width|style],sub[class|style],sup[class|style]",
-
+            valid_elements: "*[*]",
+            extended_valid_elements: undefined,
+            invalid_elements: "script",
             // ← 這裡是處理從 Word/Excel 貼上時移除固定 px 寬度
             paste_postprocess: (_plugin: any, args: any) =>
             {
@@ -663,14 +633,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [p.id, p.language, p.languageUrl, p.baseUrl, p.uploadFileApi, p.makeFileUrl, p.initExtras, toDb, toEditor]);
 
-    return {
-        editorRef,
-        init: editorInit,
-        value: p.value,
-        onChange: p.onChange,
-        uploadAndReturn,
-        toUrl,
-    };
+    return { editorRef, init: editorInit, value: value, onChange: onChange, uploadAndReturn, toUrl };
 };
 
 export interface UseTinyMceInternalImageOptions

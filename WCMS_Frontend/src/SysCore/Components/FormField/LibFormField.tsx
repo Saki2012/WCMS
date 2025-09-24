@@ -1,6 +1,4 @@
-export type { ILibDropListStyle, ILibDropListProp } from "./FieldComponets/LibDropList_Data"
 export { default as LibDropList } from "./FieldComponets/LibDropList_Comp"
-export type { ILibTabsStyle, LibTabsProp } from "./FieldComponets/LibTabs_Data"
 export { default as LibTabs } from "./FieldComponets/LibTabs_Comp"
 export type { ILibTextBoxStyle, ILibTextBoxStyle2, ILibTextBoxStyle3, ILibTextBoxProp as LibTextBoxProp } from "./FieldComponets/LibTextBox_Data"
 export { default as LibTextBox } from "./FieldComponets/LibTextBox_Comp"

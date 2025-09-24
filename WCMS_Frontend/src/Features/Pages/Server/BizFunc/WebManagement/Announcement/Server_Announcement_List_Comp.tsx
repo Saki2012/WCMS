@@ -1,7 +1,7 @@
 import type { SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme"
 import type { GridProps, ColumnConfig, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data"
-import { useId, useMemo } from "react"
+import { useMemo } from "react"
 import { useLocation, Link } from 'react-router-dom';
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp"
 import type { ListCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data"
@@ -39,7 +39,8 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: Announ
         const statusCell = row.cells.find(cell => cell.col.key === SchemaFields.AnnouncementFields.ContentStatus);
         if (statusCell && typeof statusCell.content === 'number') { statusCell.content = GetDataStatusContent(statusCell.content); }
         const categoryCell = row.cells.find(p => p.col.key === SchemaFields.AnnouncementFields.Categories);
-        if (categoryCell) { categoryCell.content = useFormatCategoriesName(categoryCell.content?.toString() ?? "", categoryData) }
+        const rawCatId = rawData?.[index]?.Announcement?.Categories ?? categoryCell?.content?.toString() ?? "";
+        if (categoryCell) { categoryCell.content = useFormatCategoriesName(rawCatId, categoryData); }
         const internalId = rawData?.[index]?.Announcement?.InternalId ?? "";
         const newCell: RowCell = {
             col: adjustCol,

@@ -1,8 +1,10 @@
 // src/components/TinyMCE_Comp.tsx
 import { Editor } from '@tinymce/tinymce-react';
 import { useTinyMCE, useTinyMceInternalImage } from './TinyMCE_Hook';
-import { useMemo } from 'react';
+import { useContentTransform } from './useContentTransform';
+import { useCallback, useMemo } from 'react';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
+import { DefaultLang } from '@/SysCore/i18n/lang';
 
 type Props = {
   args: {
@@ -29,9 +31,14 @@ const TinyMCE_Comp = ({ args }: Props) => {
     uploadFileApi: args.uploadFileApi ?? FileManagementAPI.UPLOAD_URL,
     makeFileUrl: args.makeFileUrl ?? ((id, meta) => meta.kind === 'image' ? `${FileManagementAPI.PREVIEW_URL}/${id}` : `${FileManagementAPI.DOWNLOAD_URL}/${id}`),
     languageUrl: args.languageUrl ?? '/tinymce-i18n/langs5/zh_TW.js',
-    language: args.language ?? 'zh_TW',
+    language: args.language ?? DefaultLang,
     baseUrl: args.baseUrl ?? '/tinymce',
   });
+
+
+  const { toEditor, toDb } = useContentTransform({ previewPrefix: `${FileManagementAPI.PREVIEW_URL}`, attrName: 'data-internalid', });
+  const value = useMemo(() => toEditor(tiny.value ?? ''), [tiny.value, toEditor]);          // 🟢 DB→Editor
+  const onChange = useCallback((html: string) => tiny.onChange?.(toDb(html)), [tiny.onChange, toDb]); // 🟢 Editor→DB
 
   // 新增：圖片 internalId <-> src 的轉換（預覽用 API 路徑）
   const image = useTinyMceInternalImage({
@@ -62,8 +69,8 @@ const TinyMCE_Comp = ({ args }: Props) => {
       <Editor
         id={args.id}
         tinymceScriptSrc="/tinymce/tinymce.min.js"
-        value={tiny.value}
-        onEditorChange={tiny.onChange}
+        value={value}
+        onEditorChange={onChange}
         init={init as any}
       />
       <p style={{

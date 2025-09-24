@@ -1,9 +1,8 @@
-import { LibTabs } from "../FormField/LibFormField"
+import { LibTabs } from "@/SysCore/Components/FormField/LibFormField"
 import { useId, type ReactNode } from "react"
-import type { LibTabsProp } from "../FormField/LibFormField"
 import { clsx } from "clsx"
-
 import React from 'react';
+import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 
 const Content = ({ tabId, components, isFirst }: { tabId: string; components: ReactNode[]; isFirst: boolean }) => {
     return (

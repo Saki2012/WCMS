@@ -116,3 +116,20 @@ export const useSpecCateListData = (progId: string, lang: Lang) =>
     });
     return { ...base, refetch };
 };
+
+/** 根據id獲取顯示名稱 */
+export const useFormatSpecCategoriesName = (
+    content: string,
+    categoryData: SpecCategorySet[],
+    lang: string = "zh-tw",
+): string =>
+{
+    if (!content) return "";
+    return (content.toString() ?? "").split(",").map(s => s.trim()).filter(Boolean)
+        .map(catId =>
+            categoryData?.find(s => String(s.SpecCategory?.CategoryId) === catId)?.SpecCategoryDetail?.find(d =>
+                d.Lang === lang
+            )?.CategoryName
+        )
+        .filter((x): x is string => !!x).join("、");
+};

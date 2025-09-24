@@ -126,13 +126,13 @@ export const useEnsureLangDetails = (
     opt: {
         headerName: string;
         detailName: string;
-        parentKeys: string[]; // <<<<<< 明細表的欄位名稱（不是父表）
-        langs?: string[]; // 例如 ["zh-tw","en"]
-        preferFirstLang?: string;
+        parentKeys: string[]; // 明細上的 FK 欄位名稱（如 ['FileArchiveId','ParentRowId']）
+        langs?: Lang[]; // 例如 ['zh-tw','en']；不給就用預設
+        preferFirstLang?: Lang; // 希望置頂的語言
     },
 ) =>
 {
-    const langs = (opt.langs && opt.langs.length > 0) ? opt.langs : ["zh-tw", "en"];
+    const langs = (opt.langs && opt.langs.length > 0) ? opt.langs : (["zh-tw", "en"] as Lang[]);
 
     useEffect(() =>
     {
@@ -143,6 +143,7 @@ export const useEnsureLangDetails = (
         const parents: any[] = Array.isArray(data[opt.headerName])
             ? data[opt.headerName]
             : (data[opt.headerName] ? [data[opt.headerName]] : []);
+
         const details: any[] = Array.isArray(data[opt.detailName])
             ? data[opt.detailName]
             : (data[opt.detailName] ? [data[opt.detailName]] : []);
@@ -150,7 +151,7 @@ export const useEnsureLangDetails = (
         // 依明細的 FK 值建立分組 key
         const keyFromDetail = (d: any) => opt.parentKeys.map(k => String(d?.[k] ?? "")).join("|");
 
-        // 先把既有明細分組，以便快速查找兄弟節點
+        // 既有明細分組（便於查找兄弟節點）
         const groupMap = new Map<string, any[]>();
         for (const d of details)
         {
@@ -161,7 +162,7 @@ export const useEnsureLangDetails = (
 
         // 從父表建立對應到明細的 FK 物件：
         // - ParentRowId 從父表 RowId 來
-        // - 其他 FK 欄位（如 GalleryId）直接抄父表同名欄位
+        // - 其他 FK 欄位（如 FileArchiveId）直接抄父表同名欄位
         const mapParentToDetailFK = (parent: any) =>
             opt.parentKeys.reduce((acc, k) =>
             {
@@ -171,44 +172,79 @@ export const useEnsureLangDetails = (
 
         const toAppend: any[] = [];
 
+        // 逐一父表分組，缺哪個語系就補哪個
         for (const p of parents)
         {
-            const fkObj = mapParentToDetailFK(p); // 例如 { GalleryId: '36', ParentRowId: 3 }
+            const fkObj = mapParentToDetailFK(p); // 例：{ FileArchiveId: 12, ParentRowId: 3 }
             const gkey = opt.parentKeys.map(k => String(fkObj[k] ?? "")).join("|");
             const siblings = groupMap.get(gkey) ?? [];
+
             // 現有語系
             const exist = new Set(siblings.map(s => String(s?.Lang ?? "").toLowerCase()));
             // 待補語系
             const missing = langs.filter(l => !exist.has(String(l).toLowerCase()));
             if (missing.length === 0) continue;
-            // 在「同一組」內計算當前最大 RowId，再往後遞增
+
+            // 在同組內計算當前最大 RowId，再往後遞增
             const baseRowId = siblings.reduce((m, s) => Math.max(m, Number(s?.RowId || 0)), 0) || 0;
             missing.forEach((lang, idx) =>
             {
                 toAppend.push({
-                    ...fkObj, // <<<<<< 帶入 GalleryId + ParentRowId（= 父表 RowId）
-                    RowId: baseRowId + idx + 1,
+                    ...fkObj, // 帶入 FK：如 FileArchiveId + ParentRowId
+                    RowId: baseRowId + idx + 1, // 同組內連號
                     Lang: lang,
-                    // 其餘欄位的預設值可視需求補上（例如 Title: ""）
+                    // 其餘欄位預設值可視需求補上（如 Title: ""）
                 });
             });
         }
-        // 若無需新增則不寫回，避免無限 re-render
-        if (toAppend.length === 0) return;
 
-        // 在 effect 內寫回（安全）
+        // ---------- 最小改動：沒有新增也可能需要「語系置頂」 ----------
+        // 當沒有新增時，若 preferFirstLang 存在且該組第一筆不是該語言，就需要進入重排
+        let needReorder = false;
+        if (toAppend.length === 0 && opt.preferFirstLang)
+        {
+            const pref = String(opt.preferFirstLang).toLowerCase();
+            const groupKey = (d: any) => opt.parentKeys.map(k => String(d?.[k] ?? "")).join("|");
+
+            const grouped = new Map<string, any[]>();
+            for (const d of details)
+            {
+                const k = groupKey(d);
+                if (!grouped.has(k)) grouped.set(k, []);
+                grouped.get(k)!.push(d);
+            }
+
+            for (const [, list] of grouped)
+            {
+                const idx = list.findIndex(x => String(x?.Lang ?? "").toLowerCase() === pref);
+                if (idx > 0)
+                {
+                    needReorder = true;
+                    break;
+                } // 存在但不在第一筆 → 需要重排
+            }
+        }
+
+        // 沒有新增、又不需要重排 → 提前離開（避免不必要的 setFormData）
+        if (toAppend.length === 0 && !needReorder) return;
+
+        // 寫回（只有有新增或真的需要重排時才執行）
         formData.setFormData(prev =>
         {
             const draft: any = { ...(prev ?? {}) };
             const curr: any[] = Array.isArray(draft[opt.detailName])
                 ? draft[opt.detailName]
                 : (draft[opt.detailName] ? [draft[opt.detailName]] : []);
-            let next = [...curr, ...toAppend];
 
-            // （可選）每一組把 preferFirstLang 排到第一位，保持相對順序
+            // 有新增就併入；無新增則複製一份以供重排
+            let next = toAppend.length > 0 ? [...curr, ...toAppend] : curr.slice();
+
+            // 同組把 preferFirstLang 置頂（穩定分割：first + rest，保持其它相對順序）
             if (opt.preferFirstLang)
             {
+                const pref = String(opt.preferFirstLang).toLowerCase();
                 const kfd = (d: any) => opt.parentKeys.map(k => String(d?.[k] ?? "")).join("|");
+
                 const grouped2 = new Map<string, any[]>();
                 for (const d of next)
                 {
@@ -216,26 +252,30 @@ export const useEnsureLangDetails = (
                     if (!grouped2.has(k)) grouped2.set(k, []);
                     grouped2.get(k)!.push(d);
                 }
+
                 const rebuilt: any[] = [];
                 for (const [, list] of grouped2)
                 {
-                    const first: any[] = [];
-                    const rest: any[] = [];
-                    const pref = String(opt.preferFirstLang).toLowerCase();
-                    for (const d of list)
-                    {
-                        const lang = String(d?.Lang ?? "").toLowerCase();
-                        (lang === pref ? first : rest).push(d);
-                    }
+                    const first = list.filter(d => String(d?.Lang ?? "").toLowerCase() === pref);
+                    const rest = list.filter(d => String(d?.Lang ?? "").toLowerCase() !== pref);
                     rebuilt.push(...first, ...rest);
                 }
-                next = rebuilt;
+
+                // 只有順序真的不同才寫回；若沒新增且順序也沒變，就直接回傳 prev
+                const changed = rebuilt.length !== next.length || rebuilt.some((d, i) => d !== next[i]);
+                if (changed) next = rebuilt;
+                else if (toAppend.length === 0) return prev;
+            } else if (toAppend.length === 0)
+            {
+                // 沒新增、也沒有排序需求 → 不寫回
+                return prev;
             }
 
             draft[opt.detailName] = next;
             return draft;
         });
-        // 依賴：資料內容與設定
+
+        // 依賴：資料內容與設定（join 可避免引用變更導致的重跑）
     }, [
         formData?.data,
         opt.headerName,

@@ -1,5 +1,4 @@
 import { LibDropList, LibTextBox, LibFile, LibPicture, LibCalendar, LibTextArea } from "@/SysCore/Components/FormField/LibFormField"
-import type { LibTabsProp } from "@/SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
@@ -15,16 +14,17 @@ import { LibMerge as LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { LangLabelMap, type Lang } from "@/SysCore/i18n/lang";
+import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
+import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 type BannerSet = components["schemas"]["BannerSet_DTO"]
 type BannerDetail = components["schemas"]["BannerDetail_DTO"]
 type BannerDetailInfo = components["schemas"]["BannerDetailInfo_DTO"]
-const emptyData: BannerSet = { Banner: {}, BannerDetail: [], BannerDetailInfo: [] }
+const emptyData: BannerSet = { Banner: {}, BannerDetail: [{ RowId: 1 }], BannerDetailInfo: [] }
 
 export const BannerSliderFormComp = ({ theme }: { theme: IBETheme }) => {
     const { internalId } = useParams();
     const formData = useFetchFormData<BannerSet>(BannerSliderProvider(), internalId, emptyData)
-    // useEnsureLangDetails(formData, { headerName: SchemaFields.BannerSetFields.BannerDetail, detailName: SchemaFields.BannerSetFields.BannerDetailInfo, parentKeys: [SchemaFields.BannerDetailInfoFields.BannerId, SchemaFields.BannerDetailInfoFields.ParentRowId] });
+    useEnsureLangDetails(formData, { headerName: SchemaFields.BannerSetFields.BannerDetail, detailName: SchemaFields.BannerSetFields.BannerDetailInfo, parentKeys: [SchemaFields.BannerDetailInfoFields.BannerId, SchemaFields.BannerDetailInfoFields.ParentRowId] });
     const useToolbar = useFormToolbarActions(BannerSliderProvider(), formData.data as BannerSet, internalId as string, () => formData.refetch())
     const isLoading = [formData.isLoading]
     const errors = [formData.error]
@@ -104,6 +104,31 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<B
         props.formData.setFormData(updated);
     };
 
+    const removeOne = (rowKey: number | string): void => {
+        const keyStr = String(rowKey);
+        props.formData.setFormData(prev => {
+            if (!prev) return prev;
+            const allDetails = prev.BannerDetail ?? [];
+            const target = allDetails.find((d, i) => String(d.RowId ?? i) === keyStr);
+            if (!target) return prev;
+            // 有正式 RowId：用複合鍵過濾；沒有：用索引當後備（避免新筆比不到）
+            let nextDetails: typeof allDetails;
+            if (target.RowId != null) {
+                nextDetails = allDetails.filter(d => !(d.BannerId === target.BannerId && d.RowId === target.RowId));
+            } else {
+                const hitIdx = allDetails.findIndex((d, i) => String(d.RowId ?? i) === keyStr);
+                nextDetails = allDetails.filter((_, i) => i !== hitIdx);
+            }
+            // 子明細一併清掉（只有既有 RowId 才有 ParentRowId 對應）
+            const allInfos = prev.BannerDetailInfo ?? [];
+            const nextInfos =
+                target.RowId != null
+                    ? allInfos.filter(info => !(info.BannerId === target.BannerId && info.ParentRowId === target.RowId))
+                    : allInfos; // 新筆通常沒有子明細（或 ParentRowId 未定），直接保留
+            return { ...prev, BannerDetail: nextDetails, BannerDetailInfo: nextInfos };
+        });
+    };
+
     const tabInfo: LibTabsProp = {
         Style: props.theme.Tabs,
         item: details.reduce<Record<string, string>>((acc, d, idx) => {
@@ -111,7 +136,11 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<B
             acc[key] = `圖片${idx + 1}`;
             return acc;
         }, {}),
-        onAddTab: () => { handleAdd(); }
+        onAddTab: () => { handleAdd(); },
+        // ⬅ 如果 removeOne 需要 number（RowId）
+        onRemoveTab: (key) => removeOne(Number(key)),
+        // ✅ 這裡要回傳 boolean，寫成表達式最安全
+        // isRemovable: (key) => key !== String(details[0]?.RowId ?? "1"),
     };
 
     const tabContent: Record<string, React.ReactNode[]> = details.reduce<Record<string, React.ReactNode[]>>(
@@ -136,7 +165,6 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<B
                 >
                     <LibPicture PicSrc={picSrc} />
                 </LibFile>,
-                <div role="note" aria-label="建議圖片尺寸" className="col-12">最佳尺寸：1920px X 550px</div>,
                 <LibCalendar {...setField(SchemaFields.BannerSetFields.BannerDetail, SchemaFields.BannerDetailFields.Validate_Start, "datetime", rowKeys)} />,
                 <LibCalendar {...setField(SchemaFields.BannerSetFields.BannerDetail, SchemaFields.BannerDetailFields.Validate_End, "datetime", rowKeys)} />,
                 <LibDropList Style={props.theme.DropList} Options={fontColorOptions} {...setField(SchemaFields.BannerSetFields.BannerDetail, SchemaFields.BannerDetailFields.FontColor, "string", rowKeys)} />,

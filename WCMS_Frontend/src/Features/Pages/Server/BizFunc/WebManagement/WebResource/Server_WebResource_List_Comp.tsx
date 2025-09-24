@@ -9,19 +9,19 @@ import type { ListCompProp } from "@/Features/Pages/Server/Scaffold/Content/Cont
 import type { components } from "@/types/api";
 import { useListToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
 import * as SchemaFields from "@/types/SchemaFields";
-
-// 借用Page資料
 import { useWebResourceListData } from "@/Features/Hooks/BizFunc/WebManagement/WebResource/WebResource_Hook"
 import { handleDelete } from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Hook";
+import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook"
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"]
-
+type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 /** 網路資源清單
  * @returns 
  */
 export const WebResourceListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
     const useListData = useWebResourceListData();
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useListData.gridProps, useListData.rawData); }, [useListData.gridProps, useListData.rawData]);
+    const useCategory = useCategoryListData("WebResource", "zh-tw");
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useListData.gridProps, useListData.rawData, useCategory.rawData); }, [dirUrl, useListData.gridProps, useListData.rawData, useCategory.rawData]);
     const useToolbar = useListToolbarActions(dirUrl)
     const searchCompProp: SearchBarProps = { title: "網路資源搜尋", subTitle: "搜尋網路資源 ...", settingTitle: "搜尋設定", }
     const isLoading = [useListData.isLoading];
@@ -31,7 +31,7 @@ export const WebResourceListComp = ({ title, theme }: { title: string; theme: IB
 }
 
 /** 動態添加每行的動作功能 */
-const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: WebResourceSet[]): GridProps => {
+const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: WebResourceSet[], categoryData: CategoryDataSet[]): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
 
@@ -43,6 +43,9 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: WebRes
         if (statusCell && typeof statusCell.content === 'number') {
             statusCell.content = GetDataStatusContent(statusCell.content);
         }
+        const categoryCell = row.cells.find(p => p.col.key === SchemaFields.WebResourceFields.Categories);
+        const rawCatId = rawData?.[index]?.WebResource?.Categories ?? categoryCell?.content?.toString() ?? "";
+        if (categoryCell) { categoryCell.content = useFormatCategoriesName(rawCatId, categoryData); }
         const internalId = rawData?.[index]?.WebResource?.InternalId ?? "";
         const newCell: RowCell = {
             col: adjustCol,
