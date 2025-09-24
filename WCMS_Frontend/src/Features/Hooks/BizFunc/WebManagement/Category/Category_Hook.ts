@@ -1,9 +1,10 @@
 import CategoryProvider from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
 import type { components } from "@/types/api";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
 type CategoryDetail = components["schemas"]["CategoryDetail_DTO"];
 import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import type { Lang } from "@/SysCore/i18n/lang";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import * as SchemaFields from "@/types/SchemaFields";
@@ -16,7 +17,6 @@ export const useGetCategoryListByProgId = (progId: string, lang: string, pageSiz
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState<any>(null);
     const [currentPage, setCurrentPage] = useState(0);
-
     const fetch = async (progId: string, lang: string, page: number) =>
     {
         try
@@ -66,10 +66,12 @@ export const useGetCategoryListByProgId = (progId: string, lang: string, pageSiz
     return { data, isLoading, error };
 };
 
-export const useCategoryListData = (progId: string, lang: string) =>
+export const useCategoryListData = (progId: string, lang: Lang) =>
 {
     const provider = CategoryProvider();
-    return useFetchGridListData<CategoryDataSet>({
+    const [refreshToken, setRefreshToken] = useState(Symbol());
+    const refetch = useCallback(() => setRefreshToken(Symbol()), []);
+    const base = useFetchGridListData<CategoryDataSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
         fetchListCount: (cond) => provider.fetchListCount(cond),
@@ -89,6 +91,8 @@ export const useCategoryListData = (progId: string, lang: string) =>
                 `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
                 `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
             ],
+            // 如果 progId 是字串型別且後端期望字串，記得加引號：
+            // Condition: `${SchemaFields.CategoryFields.ProgId} = '${progId.replace(/'/g,"''")}'`,
             Condition: `${SchemaFields.CategoryFields.ProgId} = ${progId}`,
             OrderBy: [{ Col: SchemaFields.CategoryFields.ModifyTime, Desc: true }],
             PageNumber: 0,
@@ -106,7 +110,7 @@ export const useCategoryListData = (progId: string, lang: string) =>
                         content = item.CategoryDetail?.find(i => i.Lang === lang)?.CategoryName ?? "";
                         break;
                     }
-                    case SchemaFields.BannerFields.ModifyTime:
+                    case SchemaFields.CategoryFields.ModifyTime:
                     {
                         content = FormatDateTime(item.Category?.ModifyTime) ?? "";
                         break;
@@ -122,8 +126,9 @@ export const useCategoryListData = (progId: string, lang: string) =>
             return { cells };
         },
         enabled: true,
-        deps: [],
+        deps: [progId, lang, refreshToken],
     });
+    return { ...base, refetch };
 };
 /** 根據id獲取顯示名稱 */
 export const useFormatCategoriesName = (

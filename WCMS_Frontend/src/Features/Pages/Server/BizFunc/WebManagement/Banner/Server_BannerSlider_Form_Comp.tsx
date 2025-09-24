@@ -137,8 +137,8 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<B
                     <LibPicture PicSrc={picSrc} />
                 </LibFile>,
                 <div role="note" aria-label="建議圖片尺寸" className="col-12">最佳尺寸：1920px X 550px</div>,
-                <LibCalendar {...setField(SchemaFields.BannerSetFields.BannerDetail, SchemaFields.BannerDetailFields.Validate_Start, "string", rowKeys)} />,
-                <LibCalendar {...setField(SchemaFields.BannerSetFields.BannerDetail, SchemaFields.BannerDetailFields.Validate_End, "string", rowKeys)} />,
+                <LibCalendar {...setField(SchemaFields.BannerSetFields.BannerDetail, SchemaFields.BannerDetailFields.Validate_Start, "datetime", rowKeys)} />,
+                <LibCalendar {...setField(SchemaFields.BannerSetFields.BannerDetail, SchemaFields.BannerDetailFields.Validate_End, "datetime", rowKeys)} />,
                 <LibDropList Style={props.theme.DropList} Options={fontColorOptions} {...setField(SchemaFields.BannerSetFields.BannerDetail, SchemaFields.BannerDetailFields.FontColor, "string", rowKeys)} />,
                 <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.BannerSetFields.BannerDetail, SchemaFields.BannerDetailFields.Sort, "number", rowKeys)} />,
                 <SubDetailComp theme={props.theme} formData={props.formData} parentRowId={detailRowId} />,

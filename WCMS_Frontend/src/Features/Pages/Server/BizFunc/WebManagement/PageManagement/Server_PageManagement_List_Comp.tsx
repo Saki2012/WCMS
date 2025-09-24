@@ -21,33 +21,21 @@ import * as SchemaFields from "@/types/SchemaFields";
 export const PageListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
     const useCategory = useCategoryListData("PageManagement", "zh-tw");
-
     const usePageList = usePageManagementListData();
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps, usePageList.rawData, useCategory.rawData); }, [usePageList.gridProps, usePageList.rawData, useCategory.rawData]);
-
     const useToolbar = useListToolbarActions(dirUrl)
-    const searchCompProp: SearchBarProps = {
-        title: "頁面搜尋",
-        subTitle: "搜尋頁面 ...",
-        settingTitle: "搜尋設定",
-    }
+    const searchCompProp: SearchBarProps = { title: "頁面搜尋", subTitle: "搜尋頁面 ...", settingTitle: "搜尋設定", }
     const isLoading = [usePageList.isLoading, useCategory.isLoading];
     const errors = [usePageList.error, useCategory.error];
     const prop: ListCompProp = { Title: title, Theme: theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.toolbarActions, GridData: adjustedGrid, SearchBar: searchCompProp }
-
-    return (
-        <ListComp prop={prop}></ListComp>
-    );
+    return (<ListComp prop={prop}></ListComp>);
 }
-
 /** 動態添加每行的動作功能 */
 const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: PageManagementSet[], categoryData: CategoryDataSet[]): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
-
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
     const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
-
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
         const statusCell = row.cells.find(cell => cell.col.key === "DataStatus");
         if (statusCell && typeof statusCell.content === 'number') {

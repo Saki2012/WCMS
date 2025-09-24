@@ -1,7 +1,9 @@
+import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import type { Lang } from "@/SysCore/i18n/lang";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import type { components } from "@/types/api";
 import * as SchemaFields from "@/types/SchemaFields";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import SpecCategoryProvider from "./SpecCategory_Api";
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
 type SpecCategoryDetail = components["schemas"]["SpecCategoryDetailModel_DTO"];
@@ -83,4 +85,34 @@ export const useGetSpecCategoryListByProgId = (progId: string, lang: string) =>
         fetch(progId, lang);
     }, [progId, lang]);
     return { data, isLoading, error };
+};
+
+export const useSpecCateListData = (progId: string, lang: Lang) =>
+{
+    const provider = SpecCategoryProvider();
+    const [refreshToken, setRefreshToken] = useState(Symbol());
+    const refetch = useCallback(() => setRefreshToken(Symbol()), []);
+    const base = useFetchGridListData<SpecCategorySet>({
+        getModelDisplayName: () => provider.getModelDisplayName(),
+        fetchList: (cond) => provider.fetchList(cond),
+        fetchListCount: (cond) => provider.fetchListCount(cond),
+        visibleKeys: [],
+        buildQueryCondition: () => ({
+            Fields: [
+                SchemaFields.SpecCategoryModelFields.InternalId,
+                SchemaFields.SpecCategoryModelFields.CategoryId,
+                SchemaFields.SpecCategoryModelFields.ModifyTime,
+                SchemaFields.SpecCategoryModelFields.ModifyUserId,
+                `${SchemaFields.SpecCategorySetFields.SpecCategoryDetail}.${SchemaFields.SpecCategoryDetailModelFields.Lang}`,
+                `${SchemaFields.SpecCategorySetFields.SpecCategoryDetail}.${SchemaFields.SpecCategoryDetailModelFields.CategoryName}`,
+            ],
+            Condition: `${SchemaFields.SpecCategoryModelFields.ProgId} = ${progId}`,
+            OrderBy: [{ Col: SchemaFields.SpecCategoryModelFields.ModifyTime, Desc: true }],
+            PageNumber: 0,
+            PageSize: 0,
+        }),
+        enabled: true,
+        deps: [progId, lang, refreshToken],
+    });
+    return { ...base, refetch };
 };

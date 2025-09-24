@@ -32,7 +32,7 @@ namespace WCMS.Features.SiteEdit.Category
         /// <summary>
         /// 靜態客製頁面ID
         /// </summary>
-        [LibDesc(ModelDisplayName.CategoryId)] public string CategoryId { get; set; }
+        [LibDesc(ModelDisplayName.CategoryId)] public string? CategoryId { get; set; }
         /// <summary>
         /// 行主鍵
         /// </summary>
@@ -40,10 +40,10 @@ namespace WCMS.Features.SiteEdit.Category
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Lang)] public string Lang { get; set; }
+        [LibDesc(ModelDisplayName.Common_Lang)] public string? Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>
-        [LibDesc(ModelDisplayName.Category_CategoryName)] public string CategoryName { get; set; }
+        [LibDesc(ModelDisplayName.Category_CategoryName)] public string? CategoryName { get; set; }
     }
 }

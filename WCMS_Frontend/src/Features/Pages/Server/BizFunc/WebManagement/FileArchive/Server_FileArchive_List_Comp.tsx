@@ -21,17 +21,11 @@ export const Server_FileArchiveListComp = ({ title, theme }: { title: string; th
     const usePageList = useFileArchiveList();
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps, usePageList.rawData); }, [usePageList.gridProps, usePageList.rawData]);
     const useToolbar = useListToolbarActions(dirUrl)
-    const searchCompProp: SearchBarProps = {
-        title: "檔案室搜尋",
-        subTitle: "搜尋檔案室 ...",
-        settingTitle: "搜尋設定",
-    }
+    const searchCompProp: SearchBarProps = { title: "檔案室搜尋", subTitle: "搜尋檔案室 ...", settingTitle: "搜尋設定", }
     const isLoading = [usePageList.isLoading];
     const errors = [usePageList.error];
     const prop: ListCompProp = { Title: title, Theme: theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.toolbarActions, GridData: adjustedGrid, SearchBar: searchCompProp }
-    return (
-        <ListComp prop={prop}></ListComp>
-    );
+    return (<ListComp prop={prop}></ListComp>);
 }
 
 /** 動態添加每行的動作功能 */
@@ -69,10 +63,9 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: FileAr
 };
 
 const GetContentStatus = (contentStatus: number): React.ReactNode => {
-    const id = React.useId()
     const statusItems: React.ReactNode[] = [];
     if (contentStatus & 1) { statusItems.push(<div className="icon-small top-bg">置頂</div>); }
     if (contentStatus & 2) { statusItems.push(<div className="icon-small hot-bg">熱門</div>); }
     if (contentStatus & 4) { statusItems.push(<div className="icon-small hide-bg">隱藏</div>); }
-    return <div key={id} className="CustomState">{statusItems}</div>
+    return <div className="CustomState">{statusItems}</div>
 };

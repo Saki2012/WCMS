@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import type { UseFetchFormDataResult } from "../Utils/API/FetchFormData";
 
 // src/SysCore/i18n/lang.ts
 export type Lang =
@@ -47,15 +46,6 @@ export const normalizeLang = (x?: Lang): string => LangLabelMap[x ?? DefaultLang
 export const isSupportedLang = (x?: string | null): x is Lang => SUPPORTED_LANGS.includes(x as Lang);
 export const SUPPORTED_LANGS: Lang[] = ["zh-tw", "en"]; /** 支援語系，之後做參數設定 */
 
-const DiffMissingLangs = (details: Array<{ Lang?: string | null; }>) =>
-{
-    const have = new Set(
-        details.map(d => (d.Lang ?? "").toLowerCase()).filter(l => l && isSupportedLang(l)),
-    );
-    const missing = SUPPORTED_LANGS.filter(l => !have.has(l));
-    return missing;
-};
-
 export interface EnsureLangSimpleOptions
 {
     /** 表頭物件名稱，例如 "PageManagement"、"Banner" */
@@ -66,7 +56,6 @@ export interface EnsureLangSimpleOptions
     parentKeys?: string[];
     /** 額外依賴（例如當前的 parentRowId 是由 UI 狀態決定時） */
     deps?: unknown[];
-
     preferFirstLang?: Lang; // 或用你的 Lang 型別：preferFirstLang?: Lang;
 }
 
@@ -129,84 +118,130 @@ export interface EnsureLangSimpleOptions
  *     // deps: [currentParentRowId],
  *   });
  */
-export const useEnsureLangDetails = <TSet = any>(
-    formData: UseFetchFormDataResult<TSet>,
-    opt: EnsureLangSimpleOptions,
-): void =>
+export const useEnsureLangDetails = (
+    formData: {
+        data?: any;
+        setFormData: (updater: (prev: any) => any) => void;
+    },
+    opt: {
+        headerName: string;
+        detailName: string;
+        parentKeys: string[]; // <<<<<< 明細表的欄位名稱（不是父表）
+        langs?: string[]; // 例如 ["zh-tw","en"]
+        preferFirstLang?: string;
+    },
+) =>
 {
+    const langs = (opt.langs && opt.langs.length > 0) ? opt.langs : ["zh-tw", "en"];
+
     useEffect(() =>
     {
-        const src: any = formData.data;
-        if (!src) return;
-        const header: any = src?.[opt.headerName] ?? {};
-        const details: any[] = Array.isArray(src?.[opt.detailName]) ? src[opt.detailName] : [];
-        // 1) 找出缺少的語系
-        const missing = DiffMissingLangs(details as any);
-        if (missing.length === 0)
+        const data = formData?.data;
+        if (!data) return;
+
+        // 取父表/明細集合（皆視為陣列）
+        const parents: any[] = Array.isArray(data[opt.headerName])
+            ? data[opt.headerName]
+            : (data[opt.headerName] ? [data[opt.headerName]] : []);
+        const details: any[] = Array.isArray(data[opt.detailName])
+            ? data[opt.detailName]
+            : (data[opt.detailName] ? [data[opt.detailName]] : []);
+
+        // 依明細的 FK 值建立分組 key
+        const keyFromDetail = (d: any) => opt.parentKeys.map(k => String(d?.[k] ?? "")).join("|");
+
+        // 先把既有明細分組，以便快速查找兄弟節點
+        const groupMap = new Map<string, any[]>();
+        for (const d of details)
         {
-            // 沒缺時，同步一次編輯狀態（避免後續 setField 取不到）
-            formData.setFormData(src);
-            return;
+            const k = keyFromDetail(d);
+            if (!groupMap.has(k)) groupMap.set(k, []);
+            groupMap.get(k)!.push(d);
         }
-        // 2) 計算下一個 RowId
-        const maxRowId = details.reduce((m, d) => Math.max(m, Number(d?.RowId ?? 0)), 0);
-        // 3) 準備主鍵欄位值：先從表頭抓，抓不到就從任一現有明細補；都沒有就不帶
-        const parentKeys = opt.parentKeys ?? [];
-        const parentVals: Record<string, unknown> = {};
-        for (const k of parentKeys)
-        {
-            const v = header?.[k];
-            if (v !== undefined && v !== null)
+
+        // 從父表建立對應到明細的 FK 物件：
+        // - ParentRowId 從父表 RowId 來
+        // - 其他 FK 欄位（如 GalleryId）直接抄父表同名欄位
+        const mapParentToDetailFK = (parent: any) =>
+            opt.parentKeys.reduce((acc, k) =>
             {
-                parentVals[k] = v;
-                continue;
-            }
-            const fromDetail = details.find(d => d && d[k] !== undefined && d[k] !== null);
-            if (fromDetail) parentVals[k] = fromDetail[k];
-        }
+                acc[k] = /parentrowid/i.test(k) ? (parent?.RowId ?? 0) : (parent?.[k] ?? null);
+                return acc;
+            }, {} as Record<string, any>);
 
-        // 4) 產生要補的明細
-        const toAppend = missing.map((lang: string, i: number) => ({
-            ...parentVals,
-            RowId: maxRowId + i + 1,
-            Lang: lang,
-            // 想要預設欄位值可在這裡再加（Title/Content…），不同表可各自更新後端時再填
-        }));
-        // ---- 新增：先把缺的補上，然後依 preferFirstLang 排序 ----
-        const prefer = String(opt.preferFirstLang ?? DefaultLang).toLowerCase();
-        const groupKey = (d: any) => (opt.parentKeys ?? []).map(k => String(d?.[k] ?? "")).join("|");
+        const toAppend: any[] = [];
 
-        // 先合併得到最新的明細
-        const merged = [...details, ...toAppend];
-
-        // 依 parentKeys 分組後，各組內把 prefer 語系排前面（穩定排序）
-        const grouped = new Map<string, any[]>();
-        for (const d of merged)
+        for (const p of parents)
         {
-            const key = groupKey(d);
-            if (!grouped.has(key)) grouped.set(key, []);
-            grouped.get(key)!.push(d);
-        }
-
-        const reorderOneGroup = (list: any[]) =>
-        {
-            if (!prefer || !isSupportedLang(prefer)) return list;
-            const first: any[] = [];
-            const rest: any[] = [];
-            for (const d of list)
+            const fkObj = mapParentToDetailFK(p); // 例如 { GalleryId: '36', ParentRowId: 3 }
+            const gkey = opt.parentKeys.map(k => String(fkObj[k] ?? "")).join("|");
+            const siblings = groupMap.get(gkey) ?? [];
+            // 現有語系
+            const exist = new Set(siblings.map(s => String(s?.Lang ?? "").toLowerCase()));
+            // 待補語系
+            const missing = langs.filter(l => !exist.has(String(l).toLowerCase()));
+            if (missing.length === 0) continue;
+            // 在「同一組」內計算當前最大 RowId，再往後遞增
+            const baseRowId = siblings.reduce((m, s) => Math.max(m, Number(s?.RowId || 0)), 0) || 0;
+            missing.forEach((lang, idx) =>
             {
-                const lang = String(d?.Lang ?? "").toLowerCase();
-                (lang === prefer ? first : rest).push(d);
+                toAppend.push({
+                    ...fkObj, // <<<<<< 帶入 GalleryId + ParentRowId（= 父表 RowId）
+                    RowId: baseRowId + idx + 1,
+                    Lang: lang,
+                    // 其餘欄位的預設值可視需求補上（例如 Title: ""）
+                });
+            });
+        }
+        // 若無需新增則不寫回，避免無限 re-render
+        if (toAppend.length === 0) return;
+
+        // 在 effect 內寫回（安全）
+        formData.setFormData(prev =>
+        {
+            const draft: any = { ...(prev ?? {}) };
+            const curr: any[] = Array.isArray(draft[opt.detailName])
+                ? draft[opt.detailName]
+                : (draft[opt.detailName] ? [draft[opt.detailName]] : []);
+            let next = [...curr, ...toAppend];
+
+            // （可選）每一組把 preferFirstLang 排到第一位，保持相對順序
+            if (opt.preferFirstLang)
+            {
+                const kfd = (d: any) => opt.parentKeys.map(k => String(d?.[k] ?? "")).join("|");
+                const grouped2 = new Map<string, any[]>();
+                for (const d of next)
+                {
+                    const k = kfd(d);
+                    if (!grouped2.has(k)) grouped2.set(k, []);
+                    grouped2.get(k)!.push(d);
+                }
+                const rebuilt: any[] = [];
+                for (const [, list] of grouped2)
+                {
+                    const first: any[] = [];
+                    const rest: any[] = [];
+                    const pref = String(opt.preferFirstLang).toLowerCase();
+                    for (const d of list)
+                    {
+                        const lang = String(d?.Lang ?? "").toLowerCase();
+                        (lang === pref ? first : rest).push(d);
+                    }
+                    rebuilt.push(...first, ...rest);
+                }
+                next = rebuilt;
             }
-            return [...first, ...rest]; // 保持相對順序
-        };
 
-        const reordered: any[] = [];
-        for (const [, list] of grouped) reordered.push(...reorderOneGroup(list));
-
-        // 5) 寫回 formData（只更新明細陣列）
-        formData.setFormData({ ...src, [opt.detailName]: reordered });
-
-        // 觀察 data/formData 與外部依賴
-    }, [formData.data, opt.headerName, opt.detailName, JSON.stringify(opt.parentKeys ?? []), ...(opt.deps ?? [])]);
+            draft[opt.detailName] = next;
+            return draft;
+        });
+        // 依賴：資料內容與設定
+    }, [
+        formData?.data,
+        opt.headerName,
+        opt.detailName,
+        opt.parentKeys.join("|"),
+        (opt.langs ?? []).join("|"),
+        opt.preferFirstLang ?? "",
+    ]);
 };

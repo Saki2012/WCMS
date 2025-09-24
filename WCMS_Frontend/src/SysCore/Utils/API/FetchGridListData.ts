@@ -85,14 +85,17 @@ export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
         fetchData(currentPage);
     }, [currentPage, props.enabled, ...props.deps ?? []]);
 
-    const gridProps: GridProps = useMemo(() => ({
-        columns,
-        rows,
-        rawData,
-        CurrentPage: currentPage,
-        TotalPage: totalPages,
-        onPageChange: (page: number) => setCurrentPage(page),
-    }), [columns, rows, rawData, currentPage, totalPages]);
+    const gridProps: GridProps = useMemo(
+        () => ({
+            columns,
+            rows,
+            rawData,
+            CurrentPage: currentPage,
+            TotalPage: totalPages,
+            onPageChange: (page: number) => setCurrentPage(page),
+        }),
+        [columns, rows, rawData, currentPage, totalPages],
+    );
 
     return { rawData, gridProps, isLoading, error };
 };

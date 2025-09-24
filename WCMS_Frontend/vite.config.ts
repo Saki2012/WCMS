@@ -28,6 +28,8 @@ export default defineConfig(({ mode }) => {
           outDir: 'dist',
           target: 'es2022',
           assetsInlineLimit: 0,
+          // sourcemap: true,   // ✅ 讓錯誤指回 .tsx 檔案與行號
+          // minify: false      // ✅ 先關，堆疊更可讀；定位後再開回去
         },
         resolve: {
           alias: {

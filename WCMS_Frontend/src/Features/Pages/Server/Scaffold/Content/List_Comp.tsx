@@ -1,16 +1,16 @@
-import type { ListCompProp } from "./Content_Data";
-import { DividerComp } from "../../../../../SysCore/Components/Divider/Divider_Comp";
-import { List_Toolbar } from "../../../../../SysCore/Components/Toolbar/Toolbar_Comp";
-import { SearchComp } from "../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
-import { Grid } from "../../../../../SysCore/Components/Grid/Grid_Comp";
-import type { SearchBarProps } from "../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
-import LoadingErrorHandler from "../../../../../SysCore/Components/LoadingErrorHandler";
+import type { ListCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
+import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
+import { List_Toolbar } from "@/SysCore/Components/Toolbar/Toolbar_Comp";
+import { SearchComp } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
+import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
+import type { SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
+import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 
 
 
-export const ListComp = ({prop}:{prop:ListCompProp;}) => {
+export const ListComp = ({ prop }: { prop: ListCompProp; }) => {
     return (
-      <div className="Form-Main-Content">
+        <div className="Form-Main-Content">
             <div className="row">
                 <div className="col-sm-12">
                     <div className="card">
@@ -22,7 +22,7 @@ export const ListComp = ({prop}:{prop:ListCompProp;}) => {
                                 <div className="col-sm-12">
                                     <div className="panel">
                                         <div className="panel-body">
-                                            <div className="form"> 
+                                            <div className="form">
                                                 <SearchComp prop={prop.SearchBar}></SearchComp>
                                                 <DividerComp></DividerComp>
                                                 {/* <Form_Toolbar items={prop.Toolbar}></Form_Toolbar> */}
@@ -34,7 +34,7 @@ export const ListComp = ({prop}:{prop:ListCompProp;}) => {
                                         </div>
                                     </div>
                                 </div>
-                            </div>                            
+                            </div>
                         </div>
                     </div>
                 </div>

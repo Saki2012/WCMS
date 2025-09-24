@@ -18,21 +18,13 @@ import { useSpecResearchList } from "@/SpecFetures/1810/Hooks/SpecResearch/SpecR
  */
 export const Server_ResearchProjListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
-
     const usePageList = useSpecResearchList();
-
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps, usePageList.rawData); }, [usePageList.gridProps, usePageList.rawData]);
-
     const useToolbar = useListToolbarActions(dirUrl)
-    const searchCompProp: SearchBarProps = {
-        title: "研究計畫搜尋",
-        subTitle: "搜尋研究計畫...",
-        settingTitle: "搜尋設定",
-    }
-    const isLoading: boolean[] = [];
-    const errors: string[] = [];
+    const searchCompProp: SearchBarProps = { title: "研究計畫搜尋", subTitle: "搜尋研究計畫...", settingTitle: "搜尋設定", }
+    const isLoading = [usePageList.isLoading];
+    const errors = [usePageList.error];
     const prop: ListCompProp = { Title: title, Theme: theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.toolbarActions, GridData: adjustedGrid, SearchBar: searchCompProp }
-
     return (
         <ListComp prop={prop}></ListComp>
     );

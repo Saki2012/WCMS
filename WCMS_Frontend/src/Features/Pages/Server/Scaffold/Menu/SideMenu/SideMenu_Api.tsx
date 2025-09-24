@@ -145,11 +145,11 @@ class APIProvider extends ISideMenuProvider {
         ]
       },
       {
-        Id: "File", SrcData: "檔案室", Url: "WebManagement/FileManage", SubItem: [
-          { Id: "6-1", SrcData: "新增", Url: "WebManagement/FileManage/Form", SubItem: [] },
-          { Id: "6-2", SrcData: "列表", Url: "WebManagement/FileManage/List", SubItem: [] },
-          { Id: "6-3", SrcData: "類別", Url: "WebManagement/FileManage/Category", SubItem: [] },
-          { Id: "6-4", SrcData: "標籤", Url: "WebManagement/FileManage/Tag", SubItem: [] }
+        Id: "File", SrcData: "檔案室", Url: "WebManagement/FileArchive", SubItem: [
+          { Id: "6-1", SrcData: "新增", Url: "WebManagement/FileArchive/Form", SubItem: [] },
+          { Id: "6-2", SrcData: "列表", Url: "WebManagement/FileArchive/List", SubItem: [] },
+          { Id: "6-3", SrcData: "類別", Url: "WebManagement/FileArchive/Category", SubItem: [] },
+          { Id: "6-4", SrcData: "標籤", Url: "WebManagement/FileArchive/Tag", SubItem: [] }
         ]
       },
       {
@@ -164,7 +164,7 @@ class APIProvider extends ISideMenuProvider {
         Id: "ResearchProj", SrcData: "研究計畫", Url: "WebManagement/ResearchProj", SubItem: [
           { Id: "10-1", SrcData: "新增", Url: "WebManagement/ResearchProj/Form", SubItem: [] },
           { Id: "10-2", SrcData: "列表", Url: "WebManagement/ResearchProj/List", SubItem: [] },
-          { Id: "10-3", SrcData: "類別", Url: "WebManagement/ResearchProj/Category", SubItem: [] },
+          { Id: "10-3", SrcData: "類別", Url: "WebManagement/ResearchProj/SpecCategory", SubItem: [] },
           { Id: "10-4", SrcData: "標籤", Url: "WebManagement/ResearchProj/Tag", SubItem: [] },
         ]
       },
@@ -172,7 +172,7 @@ class APIProvider extends ISideMenuProvider {
         Id: "USR", SrcData: "USR計畫", Url: "WebManagement/USR", SubItem: [
           { Id: "11-1", SrcData: "新增", Url: "WebManagement/USR/Form", SubItem: [] },
           { Id: "11-2", SrcData: "列表", Url: "WebManagement/USR/List", SubItem: [] },
-          { Id: "11-3", SrcData: "類別", Url: "WebManagement/USR/Category", SubItem: [] },
+          { Id: "11-3", SrcData: "類別", Url: "WebManagement/USR/SpecCategory", SubItem: [] },
           { Id: "11-4", SrcData: "標籤", Url: "WebManagement/USR/Tag", SubItem: [] },
         ]
       }

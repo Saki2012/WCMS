@@ -1,94 +1,83 @@
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme"
 import { useLocation } from 'react-router-dom';
 import { FormListComp } from "@/Features/Pages/Server/Scaffold/Content/FormList_Comp";
-import type { FormListCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data"
-import { useListToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
+import { useFormListToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
 import { useParams } from "react-router-dom";
 import { useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 import type { components } from "@/types/api";
-import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
+import * as SchemaFields from "@/types/SchemaFields";
+import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import TagProvider from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
-import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
+import { LibTextBox, type LibTabsProp } from "@/SysCore/Components/FormField/LibFormField";
 import { Link } from "react-router-dom";
+import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
+import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
+import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { useMemo } from "react";
 type TagSet = components["schemas"]["TagSet_DTO"]
-type TagDetail = components["schemas"]["TagDetail_DTO"]
-const emptyData: TagSet = { TagData: {}, TagDetail: [] }
-/** 頁面清單
- * @returns 
- */
-export const TagListFormComp = ({ progId, title, theme }: { progId: string; title: string; theme: IBETheme }) => {
+const buildEmptyTagSet = (progId: string): TagSet => ({ TagData: { ProgId: progId }, TagDetail: [] });
+export const TagListFormComp = (prop: { progId: string; title: string; theme: IBETheme; lang: Lang }) => {
     const { internalId } = useParams();
-    var dirUrl = useLocation().pathname.replace(/\/Tag$/, `/Tag`);
-    const pathParts = useLocation().pathname.split('/');
-    //const lastPart = pathParts.pop(); // 移除並取得最後一個部分
+    const { pathname } = useLocation();
+    const emptyData = useMemo(() => buildEmptyTagSet(prop.progId), [prop.progId]);
+    var dirUrl = pathname.replace(/\/Tag$/, `/Tag`);
+    const pathParts = pathname.split('/');
     if (pathParts[pathParts.length - 1] !== 'Tag') dirUrl = location.pathname.split('/').slice(0, -1).join('/');
-    const useToolbar = useListToolbarActions(dirUrl)
-    const useTagList = useTagListData(progId, 'zh-tw')
+    const useTagList = useTagListData(prop.progId, prop.lang)
     const formData = useFetchFormData<TagSet>(TagProvider(), internalId, emptyData)
-    //*需要itmes動態化
-    const LibTabsPropB = { item: { "zh-tw": "繁體中文", "en": "English", } }
-
-    const components: Record<string, React.ReactNode[]> = Object.entries(LibTabsPropB.item).reduce(
-        (acc, [lang, label]) => {
-            acc[lang] = generateLangFields(lang, label, theme, formData.data as TagSet, formData.setFormData);
-            return acc;
-        },
-        {} as Record<string, React.ReactNode[]>
-    );
-
-    const gridItems: React.ReactNode[] = useTagList.rawData.map(
-        (item) => TagListItem(item.TagData?.InternalId ?? "", item.TagDetail?.find(i => i.Lang === 'zh-tw')?.TagName ?? "")
-    );
-
+    const useToolbar = useFormListToolbarActions(dirUrl, TagProvider(), formData.data, internalId ?? "", () => { useTagList.refetch(); if (!internalId) formData.setFormData(buildEmptyTagSet(prop.progId)); })
+    useEnsureLangDetails(formData, { headerName: SchemaFields.TagSetFields.TagData, detailName: SchemaFields.TagSetFields.TagDetail, parentKeys: [SchemaFields.TagDataFields.TagId], preferFirstLang: prop.lang });
     const isLoading = [useTagList.isLoading, formData.isLoading];
     const errors = [useTagList.error, formData.error];
-    const prop: FormListCompProp = { Title: title, SubTitle: title, Theme: theme, LoadingList: isLoading, ErrorList: errors, InputControl: [components['zh-tw'], components['en']], GridItems: gridItems, FormToolbar: useToolbar.toolbarActions }
-
+    const tagEditNode = useMemo(() => formData.data ? (<TagEditComp theme={prop.theme} formData={formData} />) : null, [prop.theme, formData.data, prop.progId, prop.lang, pathname]);
+    const tagListNode = useMemo(() => useTagList.rawData ? (<TagListComp theme={prop.theme} tagSets={useTagList.rawData} lang={prop.lang} />) : null, [prop.theme, useTagList.rawData, internalId, prop.lang, prop.progId, pathname]);
     return (
-        <FormListComp prop={prop}></FormListComp>
+        <FormListComp Title={prop.title} SubTitle={prop.title} Theme={prop.theme}
+            LoadingList={isLoading} ErrorList={errors}
+            InputControl={tagEditNode} GridItems={tagListNode}
+            FormToolbar={useToolbar.toolbarActions}
+        ></FormListComp>
     );
 }
-
-
-const TagEditComp = () => {
-    return (<></>)
+const TagEditComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<TagSet>; }) => {
+    const setField = useSetTableField<TagSet>(props.formData);
+    const rawDetails = props.formData.data?.TagDetail ?? [];
+    const tabInfo: LibTabsProp = {
+        Style: props.theme.Tabs,
+        item: rawDetails.reduce<Record<string, string>>((tabItems, info) => {
+            const langKey = LibMerge("_", true, info.TagId, info.RowId, info.Lang)
+            tabItems[langKey] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
+            return tabItems;
+        }, {})
+    };
+    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>(
+        (compMap, info) => {
+            const langKey = LibMerge("_", true, info.TagId, info.RowId, info.Lang)
+            const rowKeys = { [SchemaFields.TagDetailFields.TagId]: info.TagId, [SchemaFields.TagDetailFields.RowId]: info.RowId, }
+            compMap[langKey] = [<LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.TagSetFields.TagDetail, SchemaFields.TagDetailFields.TagName, "string", rowKeys)} />,]
+            return compMap;
+        }, {}
+    );
+    return (<TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>)
 }
 
-const TagListComp = () => {
-    return (<></>)
-}
-
-
-const TagListItem = (internalId: string, displayName: string) => {
+const TagListComp = (prop: { theme: IBETheme; tagSets: TagSet[]; lang: Lang; }) => {
     const basePath = useLocation().pathname.split('/Tag')[0];
-    const dirPath = `${basePath}/Tag/${internalId}`;
+    const dirPath = `${basePath}/Tag`;
     return (
-        <>
-            <div className="checkboxDIV my-2">
-                <div className="custom-control form-check">
-                    <Link to={dirPath} className="form-check-label" aria-label={`前往 ${displayName} 詳細頁`}>
-                        <span className="check-txt">{displayName}</span>
-                    </Link>
-                </div>
-            </div>
-        </>
+        <ul className="list-group p-0">
+            {prop.tagSets.map((item) => (
+                <li className="list-group-item" key={`${item.TagData?.InternalId}-${item.TagDetail?.find(p => p.Lang === prop.lang)?.RowId}`}>
+                    <div className="checkboxDIV my-2">
+                        <div className="custom-control form-check">
+                            <Link to={`${dirPath}/${item.TagData?.InternalId}`} className="form-check-label" aria-label={`前往 ${item.TagDetail?.find(p => p.Lang === prop.lang)?.TagName} 詳細頁`}>
+                                <span className="check-txt">{item.TagDetail?.find(p => p.Lang === prop.lang)?.TagName}</span>
+                            </Link>
+                        </div>
+                    </div>
+                </li>
+            ))}
+        </ul>
     )
 }
-
-const generateLangFields = (lang: string, label: string, theme: IBETheme,
-    formData: TagSet, setFormData: React.Dispatch<React.SetStateAction<TagSet | null>>
-): React.ReactNode[] => {
-    const details: TagDetail[] = (formData?.TagDetail ?? []) as TagDetail[];
-    const getLangData = (): TagDetail => details.find(d => d.Lang === lang) ?? ({ Lang: lang, Title: "", SubTitle: "", Content: "", Url: "" } as TagDetail);
-    const updateLangData = (key: "TagName", val: string) => {
-        const currentData = getLangData();
-        const newItem = { ...currentData, [key]: val };
-        const isEmpty = (newItem.TagName?.trim() ?? "") === "";
-        const nextDetails = isEmpty ? details.filter((d) => d.Lang !== lang) : details.some((d) => d.Lang === lang) ? details.map((d) => (d.Lang === lang ? newItem : d)) : [...details, newItem];
-        setFormData({ ...formData, TagDetail: nextDetails });
-    };
-    const data = getLangData();
-    return [
-        <LibTextBox key={`${lang}-Title`} Style={theme.TextBox} ColumnDisplayName={`標籤名稱（${label}）`} DefaultInputDisplay="請輸入" InputValue={data.TagName ?? ""} OnChange={(val) => updateLangData("TagName", val)} />,
-    ];
-};

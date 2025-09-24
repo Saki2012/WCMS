@@ -1,21 +1,16 @@
-import { Grid } from "../../../../../../SysCore/Components/Grid/Grid_Comp"
-import type { SearchBarProps } from "../../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
-import { DividerComp } from "../../../../../../SysCore/Components/Divider/Divider_Comp"
-import type { IBETheme } from "../../../../../Pages/Server/Theme/ITheme"
-import type { GridProps, ColumnConfig, GridRow, RowCell } from "../../../../../../SysCore/Components/Grid/Grid_Data"
+import type { SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
+import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme"
+import type { GridProps, ColumnConfig, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data"
 import { useMemo } from "react"
 import { useLocation, Link } from 'react-router-dom';
-import { useGalleryListData } from "../../../../../Hooks/BizFunc/WebManagement/Gallery/Gallery_Hook"
-import { GalleryFields, GalleryInfoFields } from "../../../../../../types/SchemaFields"
+import { useGalleryListData } from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Hook"
+import { GalleryFields, GalleryInfoFields } from "@/types/SchemaFields"
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient"
 import type { components } from "@/types/api";
+import type { ListCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data"
+import { useListToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
+import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp";
 type GallerySet = components["schemas"]["GallerySet_DTO"]
-
-const searchCompProp: SearchBarProps = {
-    title: "相簿搜尋",
-    subTitle: "搜尋相簿 ...",
-    settingTitle: "搜尋設定",
-}
 
 /** 相簿清單
  * @returns 
@@ -24,54 +19,17 @@ export const Server_GalleryListComp = ({ title, theme }: { title: string; theme:
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form/`);
     const useGalleryList = useGalleryListData();
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useGalleryList.gridProps, useGalleryList.rawData); }, [useGalleryList.gridProps, useGalleryList.rawData]);
-
-    const searchCompProp: SearchBarProps = {
-        title: "相簿搜尋",
-        subTitle: "搜尋相簿 ...",
-        settingTitle: "搜尋設定",
-    }
+    const useToolbar = useListToolbarActions(dirUrl)
+    const searchCompProp: SearchBarProps = { title: "相簿搜尋", subTitle: "搜尋相簿 ...", settingTitle: "搜尋設定", }
     const isLoading = [useGalleryList.isLoading];
     const errors = [useGalleryList.error];
-
-
-
-    return (
-        <div className="Form-Main-Content">
-            <div className="row">
-                <div className="col-sm-12">
-                    <div className="card">
-                        <div className="card-header">
-                            <h3><i className="fas fa-braille me-2"></i>{title}</h3>
-                        </div>
-                        {/* <ListBodyComp></ListBodyComp> */}
-                        <div className="card-body">
-                            <div className="row">
-                                <div className="col-sm-12">
-                                    <div className="panel">
-                                        <div className="panel-body">
-                                            <div className="form">
-                                                {/* <SearchComp {...searchCompProp}></SearchComp> */}
-                                                <DividerComp></DividerComp>
-                                                {/* <List_Toolbar Title="新增頁面" url="/Server/WebManagement/PageManage/Form"></List_Toolbar> */}
-                                                <Grid gridData={adjustedGrid} style={theme.GridView} pageStyle={theme.Paginator}></Grid>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
+    const prop: ListCompProp = { Title: title, Theme: theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.toolbarActions, GridData: adjustedGrid, SearchBar: searchCompProp }
+    return (<ListComp prop={prop}></ListComp>);
 }
-
 /** 動態添加每行的動作功能 */
 const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: GallerySet[]): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
-
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
     const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
@@ -86,7 +44,6 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: Galler
                 </>
             );
         }
-
         const newCell: RowCell = {
             col: adjustCol,
             content: (

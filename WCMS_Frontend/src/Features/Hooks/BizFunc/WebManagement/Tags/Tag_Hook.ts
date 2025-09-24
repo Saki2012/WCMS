@@ -1,10 +1,11 @@
 import TagProvider from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
 import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import * as SchemaFields from "@/types/SchemaFields";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 type TagSet = components["schemas"]["TagSet_DTO"];
 type TagDetail = components["schemas"]["TagDetail_DTO"];
 type QueryListParam = components["schemas"]["QueryListParam"];
@@ -67,10 +68,12 @@ export const useGetTagListByProgId = (progId: string, lang: string, pageSize: nu
     return { data, isLoading, error };
 };
 
-export const useTagListData = (progId: string, lang: string) =>
+export const useTagListData = (progId: string, lang: Lang) =>
 {
     const provider = TagProvider();
-    return useFetchGridListData<TagSet>({
+    const [refreshToken, setRefreshToken] = useState(Symbol());
+    const refetch = useCallback(() => setRefreshToken(Symbol()), []);
+    const base = useFetchGridListData<TagSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
         fetchListCount: (cond) => provider.fetchListCount(cond),
@@ -121,14 +124,15 @@ export const useTagListData = (progId: string, lang: string) =>
             return { cells };
         },
         enabled: true,
-        deps: [],
+        deps: [progId, lang, refreshToken],
     });
+    return { ...base, refetch };
 };
 
 export const useFormatTagsName = (
     content: string,
     categoryData: TagSet[],
-    lang: string = "zh-tw",
+    lang: Lang = DefaultLang,
 ): string =>
 {
     if (!content) return "";

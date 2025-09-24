@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using System.Runtime.InteropServices;
 using WCMS.Features.SiteEdit.WebResource;
 using WCMS.SysCore;
 using WCMS.SysCore.Interface;
@@ -7,6 +8,7 @@ using WCMS.SysCore.Library;
 
 namespace WCMS.Features.SiteEdit.Tag
 {
+    [ProgId("Tag")]
     public class TagBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<TagSet>(repo, message), IBizService<TagSet> {
         #region Migration Old Data
         public async Task Migrate()

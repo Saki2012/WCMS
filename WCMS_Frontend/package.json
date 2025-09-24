@@ -65,7 +65,7 @@
     "@vitejs/plugin-basic-ssl": "^2.1.0",
     "@vitejs/plugin-react": "^4.5.2",
     "dprint": "^0.50.1",
-    "eslint": "^9.29.0",
+    "eslint": "^9.36.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",

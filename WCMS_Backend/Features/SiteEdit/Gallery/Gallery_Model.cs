@@ -38,7 +38,7 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// <summary>
         /// 封面照 (透過功能從相簿裡的PicSrcId直接取得，保存時紀錄，供之後list查看時減少效能使用)
         /// </summary>
-        [StringLength(SysLengthParam.InternalId)] public string CoverPicSrcId { get; set; }
+        [StringLength(SysLengthParam.InternalId)] public string? CoverPicSrcId { get; set; }
         public List<GalleryInfo> GalleryInfo { get; set; } = [];
         public List<GalleryPhotos> GalleryPhotos { get; set; } = [];
     }

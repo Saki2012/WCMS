@@ -18,6 +18,7 @@ import { useGetTagListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Ta
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { useFormToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
 import { useGetSpecCategoryListByProgId } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Hook";
+import { useMemo } from "react";
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"]
 const emptyData: SpecUSRSet = { SpecUSR: {}, SpecUSRDetail: [], }
 
@@ -30,6 +31,7 @@ export const Server_USRProjFormComp = (prop: { theme: IBETheme; lang: Lang }) =>
     const useCategory = useGetSpecCategoryListByProgId("SpecUSR", prop.lang);
     const useTag = useGetTagListByProgId("SpecUSR", prop.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
+    const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
     const useToolbar = useFormToolbarActions(SpecUSRProvider(), formData.data as SpecUSRSet, internalId as string, () => formData.refetch())
     useEnsureLangDetails(formData, { headerName: SchemaFields.SpecUSRSetFields.SpecUSR, detailName: SchemaFields.SpecUSRSetFields.SpecUSRDetail, parentKeys: [SchemaFields.SpecUSRModelFields.USRId] });
     const isLoading = [formData.isLoading, useCategory.isLoading, useTag.isLoading, useContentStatus.isLoading]
@@ -37,7 +39,7 @@ export const Server_USRProjFormComp = (prop: { theme: IBETheme; lang: Lang }) =>
     const formProp: FormCompProp = { Title: "新增USR計畫", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }
     return (
         <FormComp prop={formProp}>
-            <HeaderComp theme={prop.theme} formData={formData} cateOpts={useCategory.data} statusOpts={useContentStatus.data} tagOpts={useTag.data} />
+            <HeaderComp theme={prop.theme} formData={formData} cateOpts={useCategory.data} statusOpts={status} tagOpts={useTag.data} />
             <DetailComp theme={prop.theme} formData={formData} />
         </FormComp>
     )

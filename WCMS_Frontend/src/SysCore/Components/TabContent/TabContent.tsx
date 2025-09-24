@@ -17,7 +17,7 @@ const Content = ({ tabId, components, isFirst }: { tabId: string; components: Re
                     return (
                         <div className={className} key={idx}>
                             <div className="form-group">
-                                <div className="row justify-content-center">
+                                <div className="row justify-content-center-start">
                                     {ComponentNode}
                                 </div>
                             </div>

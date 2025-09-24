@@ -69,7 +69,7 @@ const useSpecUSRList = (internalId: string) => {
 };
 
 
-interface ISpecUSRFormProps { Theme: IFETheme; Lang: string | Lang; photoInfoProps: PhotoInfos[]; }
+interface ISpecUSRFormProps { Theme: IFETheme; Lang: string | Lang; }
 
 export const SpecUSRFormComp = (props: ISpecUSRFormProps) => {
     const { internalId } = useParams()

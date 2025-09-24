@@ -23,6 +23,8 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
+      'react-hooks/rules-of-hooks': 'error',  // 禁止在一般函式/條件/迴圈中呼叫 Hook
+      'react-hooks/exhaustive-deps': 'warn',  // 依賴陣列檢查
     },
   },
 )

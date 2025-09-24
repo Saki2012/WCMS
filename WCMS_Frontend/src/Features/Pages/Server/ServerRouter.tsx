@@ -28,6 +28,8 @@ import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 import { UserManageList_Comp } from "@/Features/Pages/Server/BizFunc/UserDTs/UserInfo_List_Comp";
 import { UserManage_Comp } from "@/Features/Pages/Server/BizFunc/UserDTs/UserManage_Comp";
 import { SiteMenu_Comp } from "@/Features/Pages/Server/BizFunc/Dashboard/SiteMenu/SiteMenu_Comp";
+import { DefaultLang } from "@/SysCore/i18n/lang";
+import { Server_SpecCategoryListFormComp } from "@/SpecFetures/1810/Pages/Server/SpecCategory/Server_SpecCategory_ListForm_Comp";
 
 export class BackendRouteModule implements IRouteModule {
   getRoutes(): RouteObject[] {
@@ -95,8 +97,8 @@ export class BackendRouteModule implements IRouteModule {
                   { index: true, element: <AutoRedirect to="List" replace /> },
                   { path: 'Form/:internalId?', element: <Server_AnnouncementFormComp theme={Classic_BETheme} lang={"zh-tw"} /> },
                   { path: 'List', element: <Server_AnnouncementListComp title="公告列表" theme={Classic_BETheme} /> },
-                  { path: 'Category/:internalId?', element: <Server_CategoryListFormComp progId="Announcement" title="類別" theme={Classic_BETheme} /> },
-                  { path: 'Tag/:internalId?', element: <TagListFormComp progId="Announcement" title="標籤" theme={Classic_BETheme} /> },
+                  { path: 'Category/:internalId?', element: <Server_CategoryListFormComp progId="Announcement" title="類別" theme={Classic_BETheme} lang={DefaultLang} /> },
+                  { path: 'Tag/:internalId?', element: <TagListFormComp progId="Announcement" title="標籤" theme={Classic_BETheme} lang={DefaultLang} /> },
                 ],
               },
               //#endregion
@@ -107,7 +109,7 @@ export class BackendRouteModule implements IRouteModule {
                   { index: true, element: <AutoRedirect to="List" replace /> },
                   { path: 'Form/:internalId?', element: <PageFormComp theme={Classic_BETheme} /> },
                   { path: 'List', element: <PageListComp title="頁面列表" theme={Classic_BETheme} /> },
-                  { path: 'Category/:internalId?', element: <Server_CategoryListFormComp progId="PageManagement" title="類別" theme={Classic_BETheme} /> },
+                  { path: 'Category/:internalId?', element: <Server_CategoryListFormComp progId="PageManagement" title="類別" theme={Classic_BETheme} lang={DefaultLang} /> },
                 ],
               },
               //#endregion
@@ -118,20 +120,20 @@ export class BackendRouteModule implements IRouteModule {
                   { index: true, element: <AutoRedirect to="List" replace /> },
                   { path: 'Form/:internalId?', element: <Server_GalleryFormComp theme={Classic_BETheme} lang={'zh-tw'} /> },
                   { path: 'List', element: <Server_GalleryListComp title="相簿列表" theme={Classic_BETheme} /> },
-                  { path: 'Category/:internalId?', element: <Server_CategoryListFormComp progId="Gallery" title="類別" theme={Classic_BETheme} /> },
-                  { path: 'Tag/:internalId?', element: <TagListFormComp progId="Gallery" title="標籤" theme={Classic_BETheme} /> },
+                  { path: 'Category/:internalId?', element: <Server_CategoryListFormComp progId="Gallery" title="類別" theme={Classic_BETheme} lang={DefaultLang} /> },
+                  { path: 'Tag/:internalId?', element: <TagListFormComp progId="Gallery" title="標籤" theme={Classic_BETheme} lang={DefaultLang} /> },
                 ],
               },
               //#endregion
               //#region 檔案室
               {
-                path: 'FileManage',
+                path: 'FileArchive',
                 children: [
                   { index: true, element: <AutoRedirect to="List" replace /> },
                   { path: 'Form/:internalId?', element: <Server_FileArchiveFormComp theme={Classic_BETheme} lang={"zh-tw"} /> },
                   { path: 'List', element: <Server_FileArchiveListComp title="檔案室列表" theme={Classic_BETheme} /> },
-                  { path: 'Category/:internalId?', element: <Server_CategoryListFormComp progId="FileManage" title="類別" theme={Classic_BETheme} /> },
-                  { path: 'Tag/:internalId?', element: <TagListFormComp progId="FileManage" title="標籤" theme={Classic_BETheme} /> },
+                  { path: 'Category/:internalId?', element: <Server_CategoryListFormComp progId="FileArchive" title="類別" theme={Classic_BETheme} lang={DefaultLang} /> },
+                  { path: 'Tag/:internalId?', element: <TagListFormComp progId="FileArchive" title="標籤" theme={Classic_BETheme} lang={DefaultLang} /> },
                 ],
               },
               //#endregion
@@ -142,8 +144,8 @@ export class BackendRouteModule implements IRouteModule {
                   { index: true, element: <AutoRedirect to="List" replace /> },
                   { path: 'Form/:internalId?', element: <WebResourceFormComp theme={Classic_BETheme} lang={"zh-tw"} /> },
                   { path: 'List', element: <WebResourceListComp title="網路資源列表" theme={Classic_BETheme} /> },
-                  { path: 'Category/:internalId?', element: <Server_CategoryListFormComp progId="WebResource" title="類別" theme={Classic_BETheme} /> },
-                  { path: 'Tag/:internalId?', element: <TagListFormComp progId="WebResource" title="標籤" theme={Classic_BETheme} /> },
+                  { path: 'Category/:internalId?', element: <Server_CategoryListFormComp progId="WebResource" title="類別" theme={Classic_BETheme} lang={DefaultLang} /> },
+                  { path: 'Tag/:internalId?', element: <TagListFormComp progId="WebResource" title="標籤" theme={Classic_BETheme} lang={DefaultLang} /> },
                 ],
               },
               //#endregion
@@ -154,8 +156,8 @@ export class BackendRouteModule implements IRouteModule {
                   { index: true, element: <AutoRedirect to="List" replace /> },
                   { path: 'Form/:internalId?', element: <Server_ResearchProjFormComp theme={Classic_BETheme} lang={'zh-tw'} /> },
                   { path: 'List', element: <Server_ResearchProjListComp title="研究計劃列表" theme={Classic_BETheme} /> },
-                  { path: 'Category/:internalId?', element: <Server_CategoryListFormComp progId="SpecResearch" title="類別" theme={Classic_BETheme} /> },
-                  { path: 'Tag/:internalId?', element: <TagListFormComp progId="SpecResearch" title="標籤" theme={Classic_BETheme} /> },
+                  { path: 'SpecCategory/:internalId?', element: <Server_SpecCategoryListFormComp progId="SpecResearch" title="類別" theme={Classic_BETheme} lang={DefaultLang} /> },
+                  { path: 'Tag/:internalId?', element: <TagListFormComp progId="SpecResearch" title="標籤" theme={Classic_BETheme} lang={DefaultLang} /> },
                 ],
               },
               //#endregion
@@ -166,8 +168,8 @@ export class BackendRouteModule implements IRouteModule {
                   { index: true, element: <AutoRedirect to="List" replace /> },
                   { path: 'Form/:internalId?', element: <Server_USRProjFormComp theme={Classic_BETheme} lang={"zh-tw"} /> },
                   { path: 'List', element: <USRProjListComp title="USR列表" theme={Classic_BETheme} /> },
-                  { path: 'Category/:internalId?', element: <Server_CategoryListFormComp progId="SpecUSR" title="類別" theme={Classic_BETheme} /> },
-                  { path: 'Tag/:internalId?', element: <TagListFormComp progId="SpecUSR" title="標籤" theme={Classic_BETheme} /> },
+                  { path: 'SpecCategory/:internalId?', element: <Server_SpecCategoryListFormComp progId="SpecUSR" title="類別" theme={Classic_BETheme} lang={DefaultLang} /> },
+                  { path: 'Tag/:internalId?', element: <TagListFormComp progId="SpecUSR" title="標籤" theme={Classic_BETheme} lang={DefaultLang} /> },
                 ],
               },
               //#endregion

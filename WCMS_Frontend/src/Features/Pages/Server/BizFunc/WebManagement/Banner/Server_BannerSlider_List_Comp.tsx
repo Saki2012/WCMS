@@ -16,24 +16,14 @@ import { handleDelete, useBannerListData } from "@/Features/Hooks/BizFunc/WebMan
  */
 export const BannerSliderListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
-
     const usePageList = useBannerListData();
-
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps, usePageList.rawData); }, [usePageList.gridProps, usePageList.rawData]);
-
     const useToolbar = useListToolbarActions(dirUrl)
-    const searchCompProp: SearchBarProps = {
-        title: "廣告輪播搜尋",
-        subTitle: "搜尋廣告輪播 ...",
-        settingTitle: "搜尋設定",
-    }
+    const searchCompProp: SearchBarProps = { title: "廣告輪播搜尋", subTitle: "搜尋廣告輪播 ...", settingTitle: "搜尋設定", }
     const isLoading = [usePageList.isLoading];
     const errors = [usePageList.error];
     const prop: ListCompProp = { Title: title, Theme: theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.toolbarActions, GridData: adjustedGrid, SearchBar: searchCompProp }
-
-    return (
-        <ListComp prop={prop}></ListComp>
-    );
+    return (<ListComp prop={prop}></ListComp>);
 }
 
 /** 動態添加每行的動作功能 */

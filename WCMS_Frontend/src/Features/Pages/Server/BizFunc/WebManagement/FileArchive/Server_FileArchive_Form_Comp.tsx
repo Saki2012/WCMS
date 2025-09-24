@@ -16,6 +16,7 @@ import * as SchemaFields from "@/types/SchemaFields";
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useFormToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
+import { useMemo } from "react";
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"]
 type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"]
 const emptyData: FileArchiveSet = { FileArchive: {}, FileArchiveInfo: [], FileArchiveDetail: [] }
@@ -29,6 +30,7 @@ export const Server_FileArchiveFormComp = (prop: { theme: IBETheme; lang: Lang }
     const useCategory = useGetCategoryListByProgId("FileArchive", prop.lang);
     const useTag = useGetTagListByProgId("FileArchive", prop.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
+    const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
     useEnsureLangDetails(formData, { headerName: SchemaFields.FileArchiveSetFields.FileArchive, detailName: SchemaFields.FileArchiveSetFields.FileArchiveInfo, parentKeys: [SchemaFields.FileArchiveFields.FileArchiveId] });
     const useToolbar = useFormToolbarActions(FileArchiveProvider(), formData.data as FileArchiveSet, internalId as string, () => formData.refetch())
     const isLoading = [useTag.isLoading, useCategory.isLoading, formData.isLoading, useContentStatus.isLoading]
@@ -37,7 +39,7 @@ export const Server_FileArchiveFormComp = (prop: { theme: IBETheme; lang: Lang }
 
     return (
         <FormComp prop={formProp}>
-            <HeaderComp theme={prop.theme} formData={formData} cateOpts={useCategory.data} statusOpts={useContentStatus.data} tagOpts={useTag.data} />
+            <HeaderComp theme={prop.theme} formData={formData} cateOpts={useCategory.data} statusOpts={status} tagOpts={useTag.data} />
             <DetailComp theme={prop.theme} formData={formData} />
         </FormComp>
     )

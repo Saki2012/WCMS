@@ -3,7 +3,7 @@ import { parseBitmaskToStringArray, sumStringArrayToBitmask } from "@/SysCore/Ut
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { ModelDisplaySchema } from "../../../types/IApiSchema";
 import type { UseFetchFormDataResult } from "../../Utils/API/FetchFormData";
-type CoerceMode = "string" | "number" | "boolean" | ((v: unknown) => any);
+type CoerceMode = "string" | "number" | "boolean" | "datetime" | ((v: unknown) => any);
 
 const coerce = (mode: CoerceMode, val: unknown) =>
 {
@@ -15,6 +15,22 @@ const coerce = (mode: CoerceMode, val: unknown) =>
             return Number(val) || 0;
         case "boolean":
             return Boolean(val);
+        case "datetime":
+        {
+            // 空值一律回 null
+            if (val === null || val === undefined) return null;
+            if (typeof val === "string")
+            {
+                const s = val.trim();
+                return s === "" ? null : s; // 保留原始字串（YYYY-MM-DD 或 ISO）
+            }
+            if (val instanceof Date)
+            {
+                return isNaN(val.getTime()) ? null : val.toISOString();
+            }
+            const d = new Date(val as any);
+            return isNaN(d.getTime()) ? null : d.toISOString();
+        }
         case "string":
         default:
             return String(val ?? "").trim();
@@ -62,6 +78,7 @@ const computeAutoDefault = (mode: CoerceMode, strategy: SetStrategy) =>
     if (strategy === "csv") return "";
     if (strategy === "sum") return 0;
     if (typeof mode === "function") return undefined;
+
     switch (mode)
     {
         case "string":
@@ -70,6 +87,8 @@ const computeAutoDefault = (mode: CoerceMode, strategy: SetStrategy) =>
             return 0;
         case "boolean":
             return false;
+        case "datetime":
+            return null;
         default:
             return undefined;
     }
@@ -90,7 +109,7 @@ const ensureDefaultOnce = (
     if (ref.current.has(key)) return;
 
     const cfg = (typeof setType === "object" ? setType : undefined) ?? {};
-    const when: DefaultWhen = cfg.defaultWhen ?? "nullish";
+    const when: DefaultWhen = cfg.defaultWhen ?? (mode === "datetime" ? "empty" : "nullish");
     const enabled = cfg.autoDefault ?? true;
 
     if (!enabled)

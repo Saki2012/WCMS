@@ -23,18 +23,11 @@ export const WebResourceListComp = ({ title, theme }: { title: string; theme: IB
     const useListData = useWebResourceListData();
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useListData.gridProps, useListData.rawData); }, [useListData.gridProps, useListData.rawData]);
     const useToolbar = useListToolbarActions(dirUrl)
-    const searchCompProp: SearchBarProps = {
-        title: "網路資源搜尋",
-        subTitle: "搜尋網路資源 ...",
-        settingTitle: "搜尋設定",
-    }
+    const searchCompProp: SearchBarProps = { title: "網路資源搜尋", subTitle: "搜尋網路資源 ...", settingTitle: "搜尋設定", }
     const isLoading = [useListData.isLoading];
     const errors = [useListData.error];
     const prop: ListCompProp = { Title: title, Theme: theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.toolbarActions, GridData: adjustedGrid, SearchBar: searchCompProp }
-
-    return (
-        <ListComp prop={prop}></ListComp>
-    );
+    return (<ListComp prop={prop}></ListComp>);
 }
 
 /** 動態添加每行的動作功能 */

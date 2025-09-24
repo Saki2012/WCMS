@@ -9,7 +9,7 @@ interface LibPictureWithParentClassProp extends ILibPictureProp {
 
 const LibPicture = ({ children, ...prop }: LibPictureWithParentClassProp) => {
   return (
-    <div className="col-12">
+    <div className="col-xxl-4 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
       <div className="panel align-items-center">
         <div className="panel-body w-100">
           <div className="col-12 float-md-left float-sm-none py-1 d-flex justify-content-center">

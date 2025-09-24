@@ -26,11 +26,7 @@ type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"]
 
 
-const emptyData: AnnouncementSet = {
-    Announcement: {},
-    AnnouncementDetail: [],
-    AnnouncementDetailFile: [],
-}
+const emptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [], AnnouncementDetailFile: [], }
 /** 頁面表單
  * @returns 
  */
@@ -40,14 +36,15 @@ export const Server_AnnouncementFormComp = (props: { theme: IBETheme; lang: Lang
     const useCategory = useGetCategoryListByProgId("Announcement", props.lang);
     const useTag = useGetTagListByProgId("Announcement", props.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
+    const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
     const useToolbar = useFormToolbarActions(AnnouncementProvider(), formData.data as AnnouncementSet, internalId as string, () => formData.refetch())
-    useEnsureLangDetails(formData, { headerName: SchemaFields.AnnouncementSetFields.Announcement, detailName: SchemaFields.AnnouncementSetFields.AnnouncementDetail, parentKeys: [SchemaFields.AnnouncementDetailFields.AnnouncementId] });
+    useEnsureLangDetails(formData, { headerName: SchemaFields.AnnouncementSetFields.Announcement, detailName: SchemaFields.AnnouncementSetFields.AnnouncementDetail, parentKeys: [SchemaFields.AnnouncementDetailFields.AnnouncementId], preferFirstLang: props.lang });
     const isLoading = [useTag.isLoading, useCategory.isLoading, formData.isLoading, useContentStatus.isLoading]
     const errors = [useTag.error, useCategory.error, formData.error, useContentStatus.error]
     const prop: FormCompProp = { Title: "新增公告", Theme: props.theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }
     return (
         <FormComp prop={prop}>
-            <HeaderComp theme={props.theme} formData={formData} cateOpts={useCategory.data} statusOpts={useContentStatus.data} tagOpts={useTag.data} />
+            <HeaderComp theme={props.theme} formData={formData} cateOpts={useCategory.data} statusOpts={status} tagOpts={useTag.data} />
             <DetailComp theme={props.theme} formData={formData} />
         </FormComp>
     )
@@ -57,12 +54,6 @@ const HeaderComp = (prop: {
     theme: IBETheme; formData: UseFetchFormDataResult<AnnouncementSet>;
     cateOpts: Record<string, string>; statusOpts: Record<string, string>; tagOpts: Record<string, string>;
 }) => {
-    const status = useMemo(() => {
-        const src = prop.statusOpts ?? {};
-        // 把 "0" 這個鍵移除
-        const { ["0"]: _drop, ...rest } = src;
-        return rest as Record<string, string>;
-    }, [prop.statusOpts]);
     const setField = useSetTableField<AnnouncementSet>(prop.formData);
     const useUploadPic = useUploadPicture();
     const initialPicId = prop.formData.data?.Announcement?.PictureId;
@@ -71,10 +62,10 @@ const HeaderComp = (prop: {
     const tabContent: Record<string, React.ReactNode[]> = {
         Basic: [
             <LibCheckBox Style={prop.theme.CheckBox} options={prop.cateOpts} {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Categories, 'string', undefined, 'csv')} />,
-            <LibCalendar {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Validate_Start, "string")} />,
-            <LibCalendar {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Validate_End, "string")} />,
+            <LibCalendar {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Validate_Start, "datetime")} />,
+            <LibCalendar {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Validate_End, "datetime")} />,
         ],
-        Status: [<LibCheckBox Style={prop.theme.CheckBox} options={status} {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ContentStatus, 'number', undefined, { strategy: 'sum', sumKeys: Object.keys(prop.statusOpts ?? {}).map(Number) })} />],
+        Status: [<LibCheckBox Style={prop.theme.CheckBox} options={prop.statusOpts} {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ContentStatus, 'number', undefined, { strategy: 'sum', sumKeys: Object.keys(prop.statusOpts ?? {}).map(Number) })} />],
         Tags: [<LibCheckBox Style={prop.theme.CheckBox} options={prop.tagOpts} {...setField(SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Tags, 'string', undefined, 'csv')} />,],
         Pic: [
             <LibFile Style={prop.theme.File} ColumnDisplayName={`選擇圖片`} Multiple={false}

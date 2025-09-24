@@ -1,102 +1,92 @@
-import type { IBETheme } from "../../../Theme/ITheme"
+import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme"
 import { useLocation } from 'react-router-dom';
 import { FormListComp } from "@/Features/Pages/Server/Scaffold/Content/FormList_Comp";
-import type { FormListCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data"
-import { useListToolbarActions } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Hook";
-import { useCategoryListData } from "../../../../../Hooks/BizFunc/WebManagement/Category/Category_Hook";
+import { useFormListToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
+import { useCategoryListData } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
 import { useParams } from "react-router-dom";
-import type { components } from "../../../../../../types/api";
-import CategoryProvider from "../../../../../Hooks/BizFunc/WebManagement/Category/Category_Api";
-import { useFetchFormData } from "../../../../../../SysCore/Utils/API/FetchFormData";
-import { LibTextBox } from "../../../../../../SysCore/Components/FormField/LibFormField";
+import type { components } from "@/types/api";
+import CategoryProvider from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
+import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
+import { LibTextBox, type LibTabsProp } from "@/SysCore/Components/FormField/LibFormField";
 import { Link } from "react-router-dom";
-type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
-type CategoryDetail = components["schemas"]["CategoryDetail_DTO"]
+import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
+import * as SchemaFields from "@/types/SchemaFields";
+import { useMemo } from "react";
+import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
+import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 
-const emptyData: CategoryDataSet = { Category: {}, CategoryDetail: [] }
+type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
+
+const buildEmptyTagSet = (progId: string): CategoryDataSet => ({ Category: { ProgId: progId }, CategoryDetail: [] });
 /** 頁面清單
  * @returns 
  */
-export const Server_CategoryListFormComp = ({ progId, title, theme }: { progId: string; title: string; theme: IBETheme }) => {
+export const Server_CategoryListFormComp = (prop: { progId: string; title: string; theme: IBETheme; lang: Lang }) => {
     const { internalId } = useParams();
-    var dirUrl = useLocation().pathname.replace(/\/Category$/, `/Category`);
-    const pathParts = useLocation().pathname.split('/');
-
-    //const lastPart = pathParts.pop(); // 移除並取得最後一個部分
-    if (pathParts[pathParts.length - 1] !== 'Category') { dirUrl = location.pathname.split('/').slice(0, -1).join('/'); }
-    const useToolbar = useListToolbarActions(dirUrl)
-
-    const useCategoryList = useCategoryListData(progId, 'zh-tw')
+    const { pathname } = useLocation();
+    const emptyData = useMemo(() => buildEmptyTagSet(prop.progId), [prop.progId]);
+    var dirUrl = pathname.replace(/\/Category$/, `/Category`);
+    const pathParts = pathname.split('/');
+    if (pathParts[pathParts.length - 1] !== 'Category') dirUrl = location.pathname.split('/').slice(0, -1).join('/');
+    const useCateList = useCategoryListData(prop.progId, prop.lang)
     const formData = useFetchFormData<CategoryDataSet>(CategoryProvider(), internalId, emptyData)
-    // formData.data?.Category?.ProgId=progId??"";
-    //*需要itmes動態化
-    const LibTabsPropB = {
-        item: { "zh-tw": "繁體中文", "en": "English", }
-    }
-
-    const components: Record<string, React.ReactNode[]> = Object.entries(LibTabsPropB.item).reduce(
-        (acc, [lang, label]) => {
-            acc[lang] = generateLangFields(lang, label, theme, formData.data as CategoryDataSet, formData.setFormData);
-            return acc;
-        },
-        {} as Record<string, React.ReactNode[]>
-    );
-
-    const gridItems: React.ReactNode[] = useCategoryList.rawData.map(
-        (item) => CategoryListItem(item.Category?.InternalId ?? "", item.CategoryDetail?.find(i => i.Lang === 'zh-tw')?.CategoryName ?? "")
-    );
-
-
-    const isLoading = [useCategoryList.isLoading, formData.isLoading];
-    const errors = [useCategoryList.error, formData.error];
-    const prop: FormListCompProp = { Title: title, SubTitle: title, Theme: theme, LoadingList: isLoading, ErrorList: errors, InputControl: [components['zh-tw'], components['en']], GridItems: gridItems, FormToolbar: useToolbar.toolbarActions }
-
+    const useToolbar = useFormListToolbarActions(dirUrl, CategoryProvider(), formData.data, internalId ?? "", () => { useCateList.refetch(); if (!internalId) formData.setFormData(buildEmptyTagSet(prop.progId)); })
+    useEnsureLangDetails(formData, { headerName: SchemaFields.CategoryDataSetFields.Category, detailName: SchemaFields.CategoryDataSetFields.CategoryDetail, parentKeys: [SchemaFields.CategoryFields.CategoryId], preferFirstLang: prop.lang });
+    const isLoading = [useCateList.isLoading, formData.isLoading];
+    const errors = [useCateList.error, formData.error];
+    const cateEditNode = useMemo(() => formData.data ? (<CateEditComp theme={prop.theme} formData={formData} />) : null, [prop.theme, formData.data, prop.progId, prop.lang, pathname]);
+    const cateListNode = useMemo(() => useCateList.rawData ? (<CateListComp theme={prop.theme} cateSets={useCateList.rawData} lang={prop.lang} />) : null, [prop.theme, useCateList.rawData, internalId, prop.lang, prop.progId, pathname]);
     return (
-        <FormListComp prop={prop}></FormListComp>
+        <FormListComp Title={prop.title} SubTitle={prop.title} Theme={prop.theme}
+            LoadingList={isLoading} ErrorList={errors}
+            InputControl={cateEditNode} GridItems={cateListNode}
+            FormToolbar={useToolbar.toolbarActions}
+        ></FormListComp>
     );
 }
 
 
-const CateEditComp = () => {
-    return (<></>)
-}
-
-const CateListComp = () => {
-    return (<></>)
-}
-
-
-const CategoryListItem = (internalId: string, displayName: string) => {
-    const basePath = useLocation().pathname.split('/Category')[0];
-    const dirPath = `${basePath}/Category/${internalId}`;
+const CateEditComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<CategoryDataSet>; }) => {
+    const setField = useSetTableField<CategoryDataSet>(props.formData);
+    const rawDetails = props.formData.data?.CategoryDetail ?? [];
+    const tabInfo: LibTabsProp = {
+        Style: props.theme.Tabs,
+        item: rawDetails.reduce<Record<string, string>>((tabItems, info) => {
+            const langKey = LibMerge("_", true, info.CategoryId, info.RowId, info.Lang)
+            tabItems[langKey] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
+            return tabItems;
+        }, {})
+    };
+    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>(
+        (compMap, info) => {
+            const langKey = LibMerge("_", true, info.CategoryId, info.RowId, info.Lang)
+            const rowKeys = { [SchemaFields.CategoryDetailFields.CategoryId]: info.CategoryId, [SchemaFields.CategoryDetailFields.RowId]: info.RowId, }
+            compMap[langKey] = [<LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.CategoryDataSetFields.CategoryDetail, SchemaFields.CategoryDetailFields.CategoryName, "string", rowKeys)} />,]
+            return compMap;
+        }, {}
+    );
     return (
-        <>
-            <div className="checkboxDIV my-2">
-                <div className="custom-control form-check">
-                    <Link to={dirPath} className="form-check-label" aria-label={`前往 ${displayName} 詳細頁`}>
-                        <span className="check-txt">{displayName}</span>
-                    </Link>
-                </div>
-            </div>
-        </>
+        <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>
     )
 }
 
-
-const generateLangFields = (lang: string, label: string, theme: IBETheme,
-    formData: CategoryDataSet, setFormData: React.Dispatch<React.SetStateAction<CategoryDataSet | null>>
-): React.ReactNode[] => {
-    const details = formData?.CategoryDetail ?? [];
-    const getLangData = (): CategoryDetail => details.find(d => d.Lang === lang) ?? { Lang: lang, CategoryName: "" };
-    const updateLangData = (key: "CategoryName", val: string) => {
-        const currentData = getLangData();
-        const newItem = { ...currentData, [key]: val };
-        const isEmpty = (newItem.CategoryName?.trim() ?? "") === "";
-        const nextDetails = isEmpty ? details.filter((d) => d.Lang !== lang) : details.some((d) => d.Lang === lang) ? details.map((d) => (d.Lang === lang ? newItem : d)) : [...details, newItem];
-        setFormData({ ...formData, CategoryDetail: nextDetails });
-    };
-    const data = getLangData();
-    return [
-        <LibTextBox key={`${lang}-CategoryName`} Style={theme.TextBox} ColumnDisplayName={`類別名稱（${label}）`} DefaultInputDisplay="請輸入" InputValue={data.CategoryName ?? ""} OnChange={(val) => updateLangData("CategoryName", val)} />,
-    ];
-};
+const CateListComp = (prop: { theme: IBETheme; cateSets: CategoryDataSet[]; lang: Lang; }) => {
+    const basePath = useLocation().pathname.split('/Category')[0];
+    const dirPath = `${basePath}/Category`;
+    return (
+        <ul className="list-group p-0">
+            {prop.cateSets.map((item) => (
+                <li className="list-group-item" key={`${item.Category?.InternalId}-${item.CategoryDetail?.find(p => p.Lang === prop.lang)?.RowId}`}>
+                    <div className="checkboxDIV my-2">
+                        <div className="custom-control form-check">
+                            <Link to={`${dirPath}/${item.Category?.InternalId}`} className="form-check-label" aria-label={`前往 ${item.CategoryDetail?.find(p => p.Lang === prop.lang)?.CategoryName} 詳細頁`}>
+                                <span className="check-txt">{item.CategoryDetail?.find(p => p.Lang === prop.lang)?.CategoryName}</span>
+                            </Link>
+                        </div>
+                    </div>
+                </li>
+            ))}
+        </ul>
+    )
+}

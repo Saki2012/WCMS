@@ -16,6 +16,7 @@ import { useFormToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook
 import * as SchemaFields from "@/types/SchemaFields";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
+import { useMemo } from "react";
 type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"]
 const emptyData: SpecResearchSet = { SpecResearch: {}, SpecResearchDetail: [], }
 
@@ -28,6 +29,7 @@ export const Server_ResearchProjFormComp = (prop: { theme: IBETheme; lang: Lang 
     const useCategory = useGetSpecCategoryListByProgId("SpecResearch", prop.lang);
     const useTag = useGetTagListByProgId("SpecResearch", prop.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
+    const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
     const useToolbar = useFormToolbarActions(SpecResearchProvider(), formData.data as SpecResearchSet, internalId as string, () => formData.refetch())
     useEnsureLangDetails(formData, { headerName: SchemaFields.SpecResearchSetFields.SpecResearch, detailName: SchemaFields.SpecResearchSetFields.SpecResearchDetail, parentKeys: [SchemaFields.SpecResearchModelFields.ResearchId] });
     const isLoading = [formData.isLoading, useCategory.isLoading, useTag.isLoading, useContentStatus.isLoading]
@@ -36,7 +38,7 @@ export const Server_ResearchProjFormComp = (prop: { theme: IBETheme; lang: Lang 
 
     return (
         <FormComp prop={formProp}>
-            <HeaderComp theme={prop.theme} formData={formData} cateOpts={useCategory.data} statusOpts={useContentStatus.data} tagOpts={useTag.data} />
+            <HeaderComp theme={prop.theme} formData={formData} cateOpts={useCategory.data} statusOpts={status} tagOpts={useTag.data} />
             <DetailComp theme={prop.theme} formData={formData} />
         </FormComp>
     )

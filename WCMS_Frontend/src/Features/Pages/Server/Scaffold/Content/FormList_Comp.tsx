@@ -1,11 +1,26 @@
-import type { FormListCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
-import { List_Toolbar } from "@/SysCore/Components/Toolbar/Toolbar_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { FormList_Toolbar } from "@/SysCore/Components/Toolbar/Toolbar_Comp";
+import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
+import type { ReactNode } from "react";
+import type { ToolbarAction } from "@/SysCore/Components/Toolbar/Toolbar_Data";
+
+
+interface FormListCompProp {
+    Title: string;
+    SubTitle: string;
+    Theme: IBETheme;
+    LoadingList: boolean[];
+    ErrorList: (string | null | undefined)[];
+    InputControl: ReactNode;
+    GridItems: ReactNode;
+    FormToolbar: ToolbarAction[];
+}
+
+
 
 /**類別/標籤使用 */
-export const FormListComp = ({ prop }: { prop: FormListCompProp; }) => {
+export const FormListComp = (prop: FormListCompProp) => {
     return (
         <div className="Form-Main-Content">
             <div className="row">
@@ -23,16 +38,10 @@ export const FormListComp = ({ prop }: { prop: FormListCompProp; }) => {
                                                 <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList} >
                                                     <div className="row mx-0">
                                                         <div className="col form-group">
-                                                            {prop.InputControl.map((item, idx) => (
-                                                                <div key={idx} className="col-md-6 col-sm-12 float-md-left float-sm-none">
-                                                                    <div className="row mx-0"> {item} </div>
-                                                                </div>
-                                                            ))}
+                                                            {prop.InputControl}
                                                         </div>
                                                     </div>
                                                     <FormList_Toolbar items={prop.FormToolbar}></FormList_Toolbar>
-                                                    <DividerComp></DividerComp>
-                                                    <List_Toolbar items={prop.FormToolbar}></List_Toolbar>{/* Form_Toolbar */}
                                                     <DividerComp></DividerComp>
                                                     <div className="row mx-0">
                                                         <div className="col-sm-12">
@@ -45,16 +54,8 @@ export const FormListComp = ({ prop }: { prop: FormListCompProp; }) => {
                                                                         <div className="row align-items-center justify-content-center">
                                                                             <div className="col-12">
                                                                                 <div className="list-group-wrapper">
-                                                                                    {/* <MenuListComp ></MenuListComp> */}
-                                                                                    {/* <MenuListComp items={} Style={prop.Theme.CategoryTagList}></MenuListComp> */}
-                                                                                    {/* li 內容要有:1. label 2. 點下去可以直接連結到對應的internalId 3. 刪除按鈕 4. 頁籤*/}
-                                                                                    <ul className="list-group p-0">
-                                                                                        {prop.GridItems.map((item) => (
-                                                                                            <li className="list-group-item">
-                                                                                                {item}
-                                                                                            </li>
-                                                                                        ))}
-                                                                                    </ul>
+                                                                                    {prop.GridItems}
+
                                                                                 </div>
                                                                             </div>
                                                                         </div>

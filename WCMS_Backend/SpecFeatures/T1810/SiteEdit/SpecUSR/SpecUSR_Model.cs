@@ -48,21 +48,21 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         [Required, StringLength(SysLengthParam.Lang)] public string Lang { get; set; } = default!;
         [StringLength(10)] public string? Year { get; set; }
         public int? AcademicYear { get; set; }
-        [StringLength(200)] public string? Courses { get; set; }
-        [StringLength(200)] public string? PracticeField { get; set; }
-        [StringLength(200)] public string? ProjectName { get; set; }
-        [StringLength(200)] public string? ExternalCooperationUnit { get; set; }
-        [StringLength(200)] public string? Department { get; set; }
-        [StringLength(200)] public string? DuringExecution { get; set; }
+        [StringLength(1000)] public string? Courses { get; set; }
+        [StringLength(1000)] public string? PracticeField { get; set; }
+        [StringLength(1000)] public string? ProjectName { get; set; }
+        [StringLength(1000)] public string? ExternalCooperationUnit { get; set; }
+        [StringLength(1000)] public string? Department { get; set; }
+        [StringLength(1000)] public string? DuringExecution { get; set; }
         public decimal? PlanAmount { get; set; }
         [StringLength(1000)] public string? ExecutionStrategy { get; set; }
         public string? ContentIntroduction { get; set; }
-        [StringLength(200)] public string? ProjectConcept { get; set; }
-        [StringLength(200)] public string? ProjectHighlights { get; set; }
-        [StringLength(200)] public string? ProjectLeader { get; set; }
-        [StringLength(200)] public string? Cohost1 { get; set; }
-        [StringLength(200)] public string? Cohost2 { get; set; }
-        [StringLength(200)] public string? Commissioned { get; set; }
+        [StringLength(1000)] public string? ProjectConcept { get; set; }
+        [StringLength(4000)] public string? ProjectHighlights { get; set; }
+        [StringLength(1000)] public string? ProjectLeader { get; set; }
+        [StringLength(1000)] public string? Cohost1 { get; set; }
+        [StringLength(1000)] public string? Cohost2 { get; set; }
+        [StringLength(1000)] public string? Commissioned { get; set; }
         [StringLength(500)] public string? Remark { get; set; }
     }
 }

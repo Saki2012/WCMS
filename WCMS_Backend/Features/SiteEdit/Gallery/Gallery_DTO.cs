@@ -41,7 +41,7 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// </summary>
         [LibDesc(ModelDisplayName.Gallery_CoverPicSrcId)] public string? CoverPicSrcId { get; set; }
 
-        [LibDesc(ModelDisplayName.Banner_StartDate)] public DateTime Validate_Start { get; set; }
+        [LibDesc(ModelDisplayName.Banner_StartDate)] public DateTime? Validate_Start { get; set; }
         public List<GalleryInfo_DTO> GalleryInfo { get; set; } = [];
         public List<GalleryPhotos_DTO> GalleryPhotos { get; set; } = [];
     }
