@@ -414,7 +414,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             Dictionary<string, FileManageSet> setDic = [];//Key為Sha256
             foreach (var entry in archive.Entries.Where(e => !e.IsDirectory))
             {
-                if (Path.GetFileNameWithoutExtension(entry.Key).Equals("Thumbs")) continue;
+                if (Path.GetFileNameWithoutExtension(entry.Key).ToLowerInvariant().Equals("thumbs")) continue;
                 var fullPath = LibData.Merge("/", false, extractToFolder, entry.Key);
                 Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
                 using var entryStream = entry.OpenEntryStream();

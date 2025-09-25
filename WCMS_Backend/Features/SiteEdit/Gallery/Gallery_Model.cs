@@ -13,7 +13,6 @@ namespace WCMS.Features.SiteEdit.Gallery
         public List<GalleryPhotos> GalleryPhotos { get; set; } = [];
         public List<GalleryPhotosInfo> GalleryPhotosInfo { get; set; } = [];
     }
-
     /// <summary>
     /// 相簿
     /// </summary>

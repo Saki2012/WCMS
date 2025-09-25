@@ -1,7 +1,7 @@
 import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
 import { type RouteObject } from "react-router-dom";
 import type { components } from "@/types/api";
-import SiteMenuSetProvider from "@/Features/Pages/Server/BizFunc/Dashboard/SiteInfo/SiteInfo_Api";
+import SiteMenuProvider from "@/Features/Hooks/BizFunc/Dashboard/SiteMenu/SiteInfo_Api";
 import * as SchemaFields from "@/types/SchemaFields";
 import { configureModuleRegistry, createRoutesFromSite, normalizeSite, type INormNode, type INormSite, type ModuleEntry } from "./Site-Routing";
 import { PageManagementFormComp, type IPageManagementOptions } from "@/Features/Pages/Client/BizFunc/WebManagement/PageManagement/PageManagementForm";
@@ -25,7 +25,7 @@ const fetchSite = async (): Promise<INormSite[]> => {
     Fields: [SchemaFields.SiteMenu_IndexFields.InternalId], Condition: "",
     PageSize: 0, PageNumber: 0
   };
-  const provider = SiteMenuSetProvider();
+  const provider = SiteMenuProvider();
   const sites = await provider.fetchList(condition);
   if (!sites.IsSuccess || !Array.isArray(sites.Data)) return [];
   const rows = sites.Data as SiteMenuSet[];

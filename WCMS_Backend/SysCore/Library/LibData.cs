@@ -546,7 +546,7 @@ namespace WCMS.SysCore.Library
         {
             stream.Position = 0;
             var inspector = new ContentInspectorBuilder() { Definitions = All() }.Build();
-            FileType fileType = inspector.Inspect(stream).OrderByDescending(p=>p.Points).FirstOrDefault().Definition.File;
+            FileType fileType = inspector.Inspect(stream).OrderByDescending(p=>p.Points).FirstOrDefault()?.Definition.File;
             stream.Position = 0;
             if (fileType != null) return fileType.Extensions.FirstOrDefault().ToLowerInvariant();
             return string.Empty;
@@ -555,7 +555,7 @@ namespace WCMS.SysCore.Library
         {
             stream.Position = 0;
             var inspector = new ContentInspectorBuilder() { Definitions = All() }.Build();
-            FileType fileType = inspector.Inspect(stream).OrderByDescending(p => p.Points).FirstOrDefault().Definition.File;
+            FileType fileType = inspector.Inspect(stream).OrderByDescending(p => p.Points).FirstOrDefault()?.Definition.File;
             stream.Position = 0;
             if (fileType != null) return fileType.MimeType.ToLowerInvariant();
             return string.Empty;

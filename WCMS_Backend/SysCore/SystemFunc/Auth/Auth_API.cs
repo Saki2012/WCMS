@@ -221,12 +221,12 @@ namespace WCMS.SysCore.SystemFunc.Auth
                 Role = role
             };
 
-            OperateLogModel followInfo = new OperateLogModel();
-            followInfo.APIName = nameof(Me);
-            followInfo.UserId = "SysOperator";
-            followInfo.followingDT = JsonConvert.SerializeObject(dt);
-            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
-            OperateLog.AddMoveFollow(followInfo);
+            //OperateLogModel followInfo = new OperateLogModel();
+            //followInfo.APIName = nameof(Me);
+            //followInfo.UserId = "SysOperator";
+            //followInfo.followingDT = JsonConvert.SerializeObject(dt);
+            //followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
+            //OperateLog.AddMoveFollow(followInfo);
 
             return Ok(dt);
         }

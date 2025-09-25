@@ -648,7 +648,7 @@ export interface UseTinyMceInternalImageResult
     transformForDb: (html: string) => string;
 }
 
-export const INTERNAL_ATTR = "data-internalId";
+export const INTERNAL_ATTR = "data-internalid";
 
 const doTransformForEditor = (html: string, makeSrc: (id: string) => string) =>
 {

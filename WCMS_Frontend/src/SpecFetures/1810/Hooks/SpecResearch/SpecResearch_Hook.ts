@@ -18,6 +18,24 @@ export const useSpecResearchList = () =>
             [SchemaFields.SpecResearchSetFields.SpecResearch, SchemaFields.SpecResearchModelFields.ContentStatus],
             [SchemaFields.SpecResearchSetFields.SpecResearch, SchemaFields.SpecResearchModelFields.ModifyUserId],
             [SchemaFields.SpecResearchSetFields.SpecResearch, SchemaFields.SpecResearchModelFields.ModifyTime],
+            [SchemaFields.SpecResearchSetFields.SpecResearchDetail, SchemaFields.SpecResearchDetailModelFields.Year],
+            [
+                SchemaFields.SpecResearchSetFields.SpecResearchDetail,
+                SchemaFields.SpecResearchDetailModelFields.AcademicYear,
+            ],
+            [
+                SchemaFields.SpecResearchSetFields.SpecResearchDetail,
+                SchemaFields.SpecResearchDetailModelFields.ProjectName,
+            ],
+            [
+                SchemaFields.SpecResearchSetFields.SpecResearchDetail,
+                SchemaFields.SpecResearchDetailModelFields.PaperTitle,
+            ],
+            [
+                SchemaFields.SpecResearchSetFields.SpecResearchDetail,
+                SchemaFields.SpecResearchDetailModelFields.CooperationProject,
+            ],
+            [SchemaFields.SpecResearchSetFields.SpecResearchDetail, SchemaFields.SpecResearchDetailModelFields.Courses],
         ],
         buildQueryCondition: (page) => ({
             Fields: [
@@ -26,7 +44,12 @@ export const useSpecResearchList = () =>
                 SchemaFields.SpecResearchModelFields.CategoryId,
                 SchemaFields.SpecResearchModelFields.ContentStatus,
                 `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Lang}`,
-                // `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Title}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Year}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.AcademicYear}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.ProjectName}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.PaperTitle}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.CooperationProject}`,
+                `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Courses}`,
                 SchemaFields.SpecResearchModelFields.ModifyUserId,
                 SchemaFields.SpecResearchModelFields.ModifyTime,
             ],
@@ -41,15 +64,47 @@ export const useSpecResearchList = () =>
             const cells: RowCell[] = columns.map(col =>
             {
                 let content = "";
-                if (col.key === SchemaFields.AnnouncementDetailFields.Title)
+                switch (col.key)
                 {
-                    //   content = data.CreateTime?.find(d => d.Lang === "zh-tw")?.Title ?? "";
-                } else if (col.key === SchemaFields.SpecResearchModelFields.ModifyTime)
-                {
-                    content = FormatDateTime((data as any)[col.key]);
-                } else
-                {
-                    content = (data as any)[col.key] ?? "";
+                    case SchemaFields.SpecResearchDetailModelFields.Year:
+                    {
+                        content = item.SpecResearchDetail?.find(p => p.Lang === "zh-tw")?.Year?.toString() ?? "";
+                        break;
+                    }
+                    case SchemaFields.SpecResearchDetailModelFields.AcademicYear:
+                    {
+                        content = item.SpecResearchDetail?.find(p => p.Lang === "zh-tw")?.AcademicYear?.toString()
+                            ?? "";
+                        break;
+                    }
+                    case SchemaFields.SpecResearchDetailModelFields.ProjectName:
+                    {
+                        content = item.SpecResearchDetail?.find(p => p.Lang === "zh-tw")?.ProjectName ?? "";
+                        break;
+                    }
+                    case SchemaFields.SpecResearchDetailModelFields.PaperTitle:
+                    {
+                        content = item.SpecResearchDetail?.find(p => p.Lang === "zh-tw")?.PaperTitle ?? "";
+                        break;
+                    }
+                    case SchemaFields.SpecResearchDetailModelFields.CooperationProject:
+                    {
+                        content = item.SpecResearchDetail?.find(p => p.Lang === "zh-tw")?.CooperationProject ?? "";
+                        break;
+                    }
+                    case SchemaFields.SpecResearchDetailModelFields.Courses:
+                    {
+                        content = item.SpecResearchDetail?.find(p => p.Lang === "zh-tw")?.Courses ?? "";
+                        break;
+                    }
+                    case SchemaFields.SpecResearchModelFields.ModifyTime:
+                    {
+                        content = FormatDateTime((data as any)[col.key]);
+                        break;
+                    }
+                    default:
+                        content = (data as any)[col.key] ?? "";
+                        break;
                 }
                 return { col, content };
             });

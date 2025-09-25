@@ -6,7 +6,7 @@ type QueryListParam = components["schemas"]["QueryListParam"];
 
 import type { components } from "../../../types/api";
 import type { ApiResponse } from "../../Interface/IApiProvider";
-interface UseGridListOptions<T>
+export interface UseGridListOptions<T>
 {
     /** 取得 model display 名稱 */
     getModelDisplayName: () => Promise<ModelDisplaySchema>;
