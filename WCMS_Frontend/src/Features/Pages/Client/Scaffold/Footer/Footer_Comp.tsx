@@ -16,7 +16,7 @@ const Footer = () => {
                                 <div className="col-sm-3 col-12">
                                     <div className="row">
                                         <div className="col-12">
-                                            <div className="footer-widget about-widget my-md-4 mb-3"><img alt="國立臺灣藝術大學_研究發展處 LOGO" src="/Legacy/Client/images/logo/logo_Footer_W_225x125.svg" /></div>
+                                            <div className="footer-widget about-widget mb-3"><img alt="國立臺灣藝術大學_研究發展處 LOGO" src="/Legacy/Client/images/logo/logo_Footer_W_225x125.svg" /></div>
                                         </div>
                                     </div>
                                 </div>
@@ -26,7 +26,7 @@ const Footer = () => {
                                             <div className="footer-widget info-widget">
                                                 <div className="widget-content w-100">
                                                     <div className="row">
-                                                        <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12 p-0">
+                                                        <div className="col-xl-7 col-lg-6 col-md-6 col-sm-12 col-12 p-0">
                                                             <ul className="list">
                                                                 <li><a href="/About/About-Intro" tabIndex={5} title="關於本處">關於本處</a></li>
                                                                 <li><a href="/Division-Planning/Division-Planning-About" tabIndex={5} title="研究企劃組">研究企劃組</a></li>
@@ -35,7 +35,7 @@ const Footer = () => {
                                                                 <li><a href="/USR/USR-About/USR-About-Org" tabIndex={5} title="永續發展暨社會責任實踐計畫推動中心">永續發展暨社會責任實踐計畫推動中心</a></li>
                                                             </ul>
                                                         </div>
-                                                        <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12 p-0">
+                                                        <div className="col-xl-5 col-lg-6 col-md-6 col-sm-12 col-12 p-0">
                                                             <ul className="list">
                                                                 <li><a href="/Allnews/All-announcement" tabIndex={5} title="最新消息">最新消息</a></li>
                                                                 <li><a href="/Allnews/Project-solicitation/National-Science-Accounting" tabIndex={5} title="計畫徵件">計畫徵件</a></li>
@@ -76,14 +76,14 @@ const Footer = () => {
                     <div className="container-customize1">
                         <div className="col-12">
                             <div className="row mx-0">
-                                <div className="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                                <div className="col-xl-5 col-lg-6 col-md-12 col-sm-12 col-12">
                                     <div className="info_contact">
                                         <div className="dbox">
-                                            <p>Copyright © 2024. 國立臺灣藝術大學_研究發展處 All rights reserved.</p>
+                                            <p>Copyright © 2025. 國立臺灣藝術大學_研究發展處 All rights reserved.</p>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                                <div className="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
                                     <div className="info_contact">
                                         <div className="dbox">
                                             <p>瀏覽人數　:　0000000037</p>
@@ -92,23 +92,22 @@ const Footer = () => {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                <section className="copyright_section">
-                    <div className="container-customize1">
-                        <div className="col-12">
-                            <div className="row mx-0">
-                                <div className="col-md-12">
-                                    <div className="dbox-tb">
-                                        <p><a href="http://www.it-easygo.com/Main.aspx" title="國際暢行科技有限公司(另開新視窗)" rel="noopener noreferrer" target="_blank" tabIndex={5}>Design by it-easygo.</a></p>
-                                    </div>
+                                <div className="col-xl-3 col-lg-12 col-md-12 col-sm-12 col-12">
+                                    <section className="copyright_section justify-content-start">
+                                        <div className="row">
+                                            <div className="col-md-12">
+                                                <div className="dbox-tb">
+                                                    <p><a href="http://www.it-easygo.com/Main.aspx" title="國際暢行科技有限公司(另開新視窗)" rel="noopener noreferrer" target="_blank" tabIndex={5}>Design by it-easygo.</a></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
+
             </div>
         </footer>
     );

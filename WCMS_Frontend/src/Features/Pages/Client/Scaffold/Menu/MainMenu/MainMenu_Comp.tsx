@@ -32,25 +32,23 @@ export const MainMenu = ({ lang, site }: { lang: string; site: INormSite }) => {
   const Mock_naviData: NaviData[] = [
     {
       Id: "", SrcData: "", Url: "",
-      DOMContent: <Link className="nav-link" to="/" target="_self" title="首頁">首頁</Link>
+      DOMContent: <Link className="nav-link" to="/" target="_self" title="首頁" onClick={() => closeMenu()}>首頁</Link>
     },
     {
       Id: "", SrcData: "", Url: "",
-      DOMContent: <Link className="nav-link" to="https://www.ntua.edu.tw/" target="_self" title="臺藝校首頁">臺藝校首頁</Link>
+      DOMContent: <Link className="nav-link" to="https://www.ntua.edu.tw/" target="_self" title="臺藝校首頁" onClick={() => closeMenu()}>臺藝校首頁</Link>
     },
     {
       Id: "", SrcData: "", Url: "",
-      DOMContent: <Link className="nav-link" to="Sitemap" target="_self" title="網站導覽">網站導覽</Link>
+      DOMContent: <Link className="nav-link" to="Sitemap" target="_self" title="網站導覽" onClick={() => closeMenu()}>網站導覽</Link>
     },
     {
       Id: "", SrcData: "", Url: "",
-      DOMContent: <Link className="nav-link" to="/en" target="_self" title="English">English</Link>
+      DOMContent: <Link className="nav-link" to="/en" target="_self" title="English" onClick={() => closeMenu()}>English</Link>
     },
   ]
 
-  const fakeStyle: IFETheme = Classic_FETheme
-
-
+  const fakeStyle: IFETheme = Classic_FETheme;
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
