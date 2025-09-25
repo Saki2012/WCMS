@@ -29,7 +29,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
     // 1) 掛上內容轉換（prefix 可自訂；不給就用預設）
     const { toDb, toEditor } = useContentTransform({
         previewPrefix: `${FileManagementAPI.PREVIEW_URL}`,
-        attrName: "data-internalid",
+        attrName: INTERNAL_ATTR,
     });
     const value = useMemo(() => toEditor(p.value ?? ""), [p.value, toEditor]);
     const onChange = useCallback(
@@ -240,7 +240,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                         {
                             const href = toUrl(internalId, "file");
                             // 插入可下載連結 + data-internal
-                            callback(href, { text: name ?? file.name, "data-internal": internalId });
+                            callback(href, { text: name ?? file.name, "data-internalId": internalId });
                             // 直接把當前選取轉成 <a>
                             const ed = editorRef.current!;
                             const anchor = ed.dom.select("a[href=\"" + href + "\"]").pop();
@@ -249,7 +249,11 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                         {
                             const src = toUrl(internalId, "image");
                             // 先用 100% RWD
-                            callback(src, { alt: name ?? file.name, "class": "rwd-img", "data-internal": internalId });
+                            callback(src, {
+                                alt: name ?? file.name,
+                                "class": "rwd-img",
+                                "data-internalid": internalId,
+                            });
                         }
                     } catch
                     {
@@ -553,9 +557,9 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     const imgs = editor.dom.select("img");
                     imgs.forEach((img) =>
                     {
-                        if (!img.getAttribute("data-internal")) return;
+                        if (!img.getAttribute(INTERNAL_ATTR)) return;
                         // 確保 src 與 internal 對應（避免被 TinyMCE 改寫）
-                        const internalId = img.getAttribute("data-internal")!;
+                        const internalId = img.getAttribute(INTERNAL_ATTR)!;
                         const expect = toUrl(internalId, "image");
                         if (img.getAttribute("src") !== expect) editor.dom.setAttrib(img, "src", expect);
                     });
@@ -573,7 +577,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                                 const { internalId, name } = await uploadAndReturn(file);
                                 const href = toUrl(internalId, "file");
                                 editor.insertContent(
-                                    `<a href="${editor.dom.encode(href)}" data-internal="${
+                                    `<a href="${editor.dom.encode(href)}" ${INTERNAL_ATTR}="${
                                         editor.dom.encode(internalId)
                                     }" download>${editor.dom.encode(name ?? file.name)}</a>`,
                                 );
@@ -653,7 +657,7 @@ export interface UseTinyMceInternalImageResult
     transformForDb: (html: string) => string;
 }
 
-const INTERNAL_ATTR = "data-internalid";
+export const INTERNAL_ATTR = "data-internalId";
 
 const doTransformForEditor = (html: string, makeSrc: (id: string) => string) =>
 {
