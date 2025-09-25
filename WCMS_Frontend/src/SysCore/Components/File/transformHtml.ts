@@ -4,6 +4,7 @@ import { render } from "dom-serializer";
 import type { Element } from "html-react-parser";
 import { parseDocument } from "htmlparser2";
 import { DomUtils } from "htmlparser2";
+import { INTERNAL_ATTR } from "../TinyMCE/TinyMCE_Hook";
 import type { FileMeta } from "./FileResolver_Data";
 
 export interface TransformOptions
@@ -73,13 +74,13 @@ const replaceAnchorDownload = (
         (el): el is Element =>
             el.type === "tag"
             && el.name === "a"
-            && !!el.attribs?.["data-internalid"],
+            && !!el.attribs?.[INTERNAL_ATTR],
         doc.children,
     );
 
     anchors.forEach((a) =>
     {
-        const internalId = a.attribs["data-internalid"]?.trim();
+        const internalId = a.attribs[INTERNAL_ATTR]?.trim();
         if (!internalId) return;
 
         const meta = metaMap?.[internalId];
@@ -100,7 +101,7 @@ const replaceAnchorDownload = (
 
         if (!opt?.keepDataAttr)
         {
-            delete a.attribs["data-internalid"];
+            delete a.attribs[INTERNAL_ATTR];
         }
     });
 
@@ -112,7 +113,7 @@ const getDataInternalId = (el: Element): string | undefined =>
     // 盡量兼容三種寫法
     // @ts-ignore
     const a = el.attribs || {};
-    return a["data-internalid"] || a["data-internalId"] || a["data-internal-id"];
+    return a[INTERNAL_ATTR];
 };
 
 const buildPreviewUrl = (id: string, opt?: TransformOptions): string =>
@@ -169,11 +170,7 @@ const replaceIframe = (
         ensureTitleForAA(el, meta);
 
         // @ts-ignore
-        delete el.attribs["data-internalid"];
-        // @ts-ignore
-        delete el.attribs["data-internalId"];
-        // @ts-ignore
-        delete el.attribs["data-internal-id"];
+        delete el.attribs[INTERNAL_ATTR];
     }
 
     return render(doc, { decodeEntities: true });

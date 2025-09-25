@@ -8,13 +8,14 @@ import type { components } from "@/types/api";
 import * as SchemaFields from "@/types/SchemaFields";
 import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import TagProvider from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
-import { LibTextBox, type LibTabsProp } from "@/SysCore/Components/FormField/LibFormField";
+import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 import { Link } from "react-router-dom";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useMemo } from "react";
+import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 type TagSet = components["schemas"]["TagSet_DTO"]
 const buildEmptyTagSet = (progId: string): TagSet => ({ TagData: { ProgId: progId }, TagDetail: [] });
 export const TagListFormComp = (prop: { progId: string; title: string; theme: IBETheme; lang: Lang }) => {

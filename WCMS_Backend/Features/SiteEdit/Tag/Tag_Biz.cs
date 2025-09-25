@@ -3,6 +3,7 @@ using System.Data;
 using System.Runtime.InteropServices;
 using WCMS.Features.SiteEdit.WebResource;
 using WCMS.SysCore;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 
@@ -10,6 +11,32 @@ namespace WCMS.Features.SiteEdit.Tag
 {
     [ProgId("Tag")]
     public class TagBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<TagSet>(repo, message), IBizService<TagSet> {
+
+        #region Protected
+        protected override void BeforeUpdate(TagSet set, SysEnum.FuncAction act)
+        {
+            base.BeforeUpdate(set, act);
+            switch (act)
+            {
+                case SysEnum.FuncAction.Delete:
+                    CheckIsUsed(set.TagData.ProgId, set.TagData.TagId);
+                    break;
+            }
+        }
+        #endregion
+
+        #region Private
+        private void CheckIsUsed(string progId,string tagId)
+        {
+            switch (ProgId)
+            {
+                case "FileArchive":
+                    //檢查是否有包含在內
+                    break;  
+            }
+        }
+
+        #endregion
         #region Migration Old Data
         public async Task Migrate()
         {

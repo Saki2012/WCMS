@@ -1,5 +1,4 @@
 import { LibCheckBox, LibTextBox, LibTextArea, LibDropList } from "@/SysCore/Components/FormField/LibFormField";
-import type { LibTabsProp } from "@/SysCore/Components/FormField/LibFormField";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
 import { useParams } from "react-router-dom";
@@ -17,6 +16,7 @@ import * as SchemaFields from "@/types/SchemaFields";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import { useMemo } from "react";
+import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"]
 const emptyData: SpecResearchSet = { SpecResearch: {}, SpecResearchDetail: [], }
 
@@ -31,7 +31,7 @@ export const Server_ResearchProjFormComp = (prop: { theme: IBETheme; lang: Lang 
     const useContentStatus = useFetchEnumOptions("ContentStatus")
     const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
     const useToolbar = useFormToolbarActions(SpecResearchProvider(), formData.data as SpecResearchSet, internalId as string, () => formData.refetch())
-    useEnsureLangDetails(formData, { headerName: SchemaFields.SpecResearchSetFields.SpecResearch, detailName: SchemaFields.SpecResearchSetFields.SpecResearchDetail, parentKeys: [SchemaFields.SpecResearchModelFields.ResearchId] });
+    useEnsureLangDetails(formData, { headerName: SchemaFields.SpecResearchSetFields.SpecResearch, detailName: SchemaFields.SpecResearchSetFields.SpecResearchDetail, parentKeys: [SchemaFields.SpecResearchModelFields.ResearchId], preferFirstLang: prop.lang });
     const isLoading = [formData.isLoading, useCategory.isLoading, useTag.isLoading, useContentStatus.isLoading]
     const errors = [formData.error, useCategory.error, useTag.error, useContentStatus.error]
     const formProp: FormCompProp = { Title: "新增研究計畫", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }

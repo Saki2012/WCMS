@@ -6,7 +6,7 @@ import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
-import { LibCheckBox, LibDropList, LibSelectCard, LibTextBox, type LibTabsProp } from "@/SysCore/Components/FormField/LibFormField";
+import { LibCheckBox, LibDropList, LibSelectCard, LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 
 export interface Item {
   id: number;

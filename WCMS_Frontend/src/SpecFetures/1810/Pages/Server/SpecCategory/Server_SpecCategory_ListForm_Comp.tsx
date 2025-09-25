@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom";
 import type { components } from "@/types/api";
 import * as SchemaFields from "@/types/SchemaFields";
 import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
-import { LibTextBox, type LibTabsProp } from "@/SysCore/Components/FormField/LibFormField";
+import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 import { Link } from "react-router-dom";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
@@ -15,6 +15,7 @@ import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useMemo } from "react";
 import SpecCategoryProvider from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Api";
 import { useSpecCateListData } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Hook";
+import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"]
 const buildEmptySet = (progId: string): SpecCategorySet => ({ SpecCategory: { ProgId: progId }, SpecCategoryDetail: [] });
 

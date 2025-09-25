@@ -1,5 +1,6 @@
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useCallback } from "react";
+import { INTERNAL_ATTR } from "./TinyMCE_Hook";
 
 export interface UseContentTransformOptions
 {
@@ -14,7 +15,7 @@ export const useContentTransform = (opts?: UseContentTransformOptions) =>
 {
     const rawPrefix = opts?.previewPrefix ?? FileManagementAPI.PREVIEW_URL;
     const previewPrefix = rawPrefix.endsWith("/") ? rawPrefix : `${rawPrefix}/`;
-    const attrName = opts?.attrName ?? "data-internalid";
+    const attrName = opts?.attrName ?? INTERNAL_ATTR;
 
     const esc = useCallback((s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), []);
     const prefixRe = esc(previewPrefix);

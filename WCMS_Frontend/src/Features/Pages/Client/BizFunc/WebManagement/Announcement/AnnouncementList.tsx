@@ -3,7 +3,6 @@ import { useMemo, useState } from "react";
 import type { GridProps } from "@/SysCore/Components/Grid/Grid_Data";
 import type { components } from "@/types/api";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 import { Link, useLocation } from "react-router-dom";
 import type { GridRow } from "@/SysCore/Components/Grid/Grid_Data";
 import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
@@ -22,6 +21,7 @@ import { Paginator } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import type { ListCompProp } from "@/Features/Pages/Client/Scaffold/ContentViewMode/GridView/GridView_Data";
 import DefaultEventImg from "@/Assets/1810/DefaultEventPic_940x1330.jpg"
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
 const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string, query: ISearchQuery) => {
     var condition: string = "";
@@ -88,7 +88,7 @@ const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string, 
 };
 
 export interface IAnnouncementListOptions { Category?: string; Tag?: string; Style?: number; }
-interface IAnnouncementListProps { Theme: IFETheme; Lang: string | Lang; Options?: IAnnouncementListOptions; }
+interface IAnnouncementListProps { Theme: IFETheme; Lang: Lang; Options?: IAnnouncementListOptions; }
 
 export const AnnouncementList = (props: IAnnouncementListProps) => {
 

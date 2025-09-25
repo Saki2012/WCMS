@@ -1,5 +1,4 @@
 import { LibCheckBox, LibTextBox, LibCalendar, LibTinyMCE, LibPicturePreview, LibPicture, LibModal, LibFile, LibCheckBoxSingle } from "@/SysCore/Components/FormField/LibFormField"
-import type { LibTabsProp } from "@/SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
 import { useParams } from "react-router-dom";
@@ -18,6 +17,7 @@ import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableFiel
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useFormToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 type GallerySet = components["schemas"]["GallerySet_DTO"]
 const emptyData: GallerySet = { Gallery: {}, GalleryInfo: [], GalleryPhotos: [], GalleryPhotosInfo: [], }
 /** 相簿表單
@@ -30,8 +30,8 @@ export const Server_GalleryFormComp = (prop: { theme: IBETheme; lang: Lang }) =>
     const useTag = useGetTagListByProgId(SchemaFields.GallerySetFields.Gallery, prop.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
     const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
-    useEnsureLangDetails(formData, { headerName: SchemaFields.GallerySetFields.Gallery, detailName: SchemaFields.GallerySetFields.GalleryInfo, parentKeys: [SchemaFields.GalleryInfoFields.GalleryId] });
-    useEnsureLangDetails(formData, { headerName: SchemaFields.GallerySetFields.GalleryPhotos, detailName: SchemaFields.GallerySetFields.GalleryPhotosInfo, parentKeys: [SchemaFields.GalleryPhotosInfoFields.GalleryId, SchemaFields.GalleryPhotosInfoFields.ParentRowId] });
+    useEnsureLangDetails(formData, { headerName: SchemaFields.GallerySetFields.Gallery, detailName: SchemaFields.GallerySetFields.GalleryInfo, parentKeys: [SchemaFields.GalleryInfoFields.GalleryId], preferFirstLang: prop.lang });
+    useEnsureLangDetails(formData, { headerName: SchemaFields.GallerySetFields.GalleryPhotos, detailName: SchemaFields.GallerySetFields.GalleryPhotosInfo, parentKeys: [SchemaFields.GalleryPhotosInfoFields.GalleryId, SchemaFields.GalleryPhotosInfoFields.ParentRowId], preferFirstLang: prop.lang });
     const useToolbar = useFormToolbarActions(GalleryProvider(), formData.data, internalId ?? "", () => formData.refetch())
     const isLoading = [formData.isLoading, useCategory.isLoading, useTag.isLoading, useContentStatus.isLoading]
     const errors = [formData.error, useCategory.error, useTag.error, useContentStatus.error]
@@ -263,10 +263,42 @@ const useCoverPicSelector = (formData: UseFetchFormDataResult<GallerySet>) => {
     return { selected, select };
 };
 
+const usePhotoRemove = (formData: UseFetchFormDataResult<GallerySet>) => {
+    const remove = (galleryId?: string, rowId?: number, picSrcId?: string) => {
+        if (!galleryId || rowId == null) return;
+        formData.setFormData(prev => {
+            // 以完整結構為基礎，確保提交資料「真的」更新
+            const base: GallerySet = prev ?? { Gallery: {}, GalleryInfo: [], GalleryPhotos: [], GalleryPhotosInfo: [] };
+            const photos = base.GalleryPhotos ?? [];
+            const details = base.GalleryPhotosInfo ?? [];
+            const nextPhotos = photos.filter(p => !(p?.GalleryId === galleryId && p?.RowId === rowId));
+            const nextDetails = details.filter(d => !(d?.GalleryId === galleryId && d?.ParentRowId === rowId));
+            // 如果刪到目前封面，換成剩下第一張；沒有就清空
+            const header = base.Gallery ?? {};
+            const nextHeader = { ...header };
+            if (picSrcId && header[SchemaFields.GalleryFields.CoverPicSrcId] === picSrcId) {
+                nextHeader[SchemaFields.GalleryFields.CoverPicSrcId] =
+                    nextPhotos[0]?.[SchemaFields.GalleryPhotosFields.PicSrcId] ?? null;
+            }
+            // 以「整份物件」方式提交，確保資料狀態一致（與 Announcement 附件刪除相同風格）
+            return {
+                ...base,
+                Gallery: nextHeader,
+                GalleryPhotos: nextPhotos,
+                GalleryPhotosInfo: nextDetails,
+            };
+        });
+    };
+    return { remove };
+};
+
+
 const PhotoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<GallerySet>; }) => {
     const setField = useSetTableField<GallerySet>(prop.formData);
     const cover = useCoverPicSelector(prop.formData);
     const photos = prop.formData?.data?.GalleryPhotos ?? []
+    const remover = usePhotoRemove(prop.formData);
+
     const dom =
         (<>
             {photos.map((item) => {
@@ -281,7 +313,10 @@ const PhotoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Gal
                             </div>
                             <div className="col-6 d-flex justify-content-end">
                                 <div className="all-btn">
-                                    <a id="trash" className="icon" href="#" onClick={(e) => { e.preventDefault(); }} title="" data-bs-toggle="modal" data-bs-target="#All_Delete">
+                                    <a id="trash" className="icon" href="#" onClick={(e) => {
+                                        if (!window.confirm('確定要刪除這張相片嗎？')) return;
+                                        remover.remove(String(item.GalleryId ?? ''), Number(item.RowId ?? 0), picId);
+                                    }} title="" data-bs-toggle="modal" data-bs-target="#All_Delete">
                                         <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" title="" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="刪除輪播">
                                             <i className="far fa-trash-alt"></i>
                                         </button>

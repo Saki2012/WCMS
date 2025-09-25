@@ -36,7 +36,7 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// <summary>
         /// 圖片顯示
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.InternalId)] public string PicId { get; set; }
+        [LibDesc, StringLength(SysLengthParam.InternalId)] public string? PicId { get; set; }
         /// <summary>
         /// 圖片顯示描述
         /// </summary>

@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
 import type { components } from "@/types/api";
 import CategoryProvider from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
 import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
-import { LibTextBox, type LibTabsProp } from "@/SysCore/Components/FormField/LibFormField";
+import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 import { Link } from "react-router-dom";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 import * as SchemaFields from "@/types/SchemaFields";
@@ -15,6 +15,7 @@ import { useMemo } from "react";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 

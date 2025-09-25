@@ -1,6 +1,6 @@
 // src/hooks/TinyMCE_Hook.ts
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { useCallback, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import type { Editor as TinyMCEEditor } from "tinymce";
 import { useContentTransform } from "./useContentTransform";
 
@@ -31,15 +31,6 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
         previewPrefix: `${FileManagementAPI.PREVIEW_URL}`,
         attrName: INTERNAL_ATTR,
     });
-    const value = useMemo(() => toEditor(p.value ?? ""), [p.value, toEditor]);
-    const onChange = useCallback(
-        (editorHtml: string) =>
-        {
-            const dbHtml = toDb(editorHtml);
-            p.onChange?.(dbHtml);
-        },
-        [p.onChange, toDb],
-    );
 
     const uploadAndReturn = async (file: File) =>
     {
@@ -240,7 +231,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                         {
                             const href = toUrl(internalId, "file");
                             // 插入可下載連結 + data-internal
-                            callback(href, { text: name ?? file.name, "data-internalId": internalId });
+                            callback(href, { text: name ?? file.name, [INTERNAL_ATTR]: internalId });
                             // 直接把當前選取轉成 <a>
                             const ed = editorRef.current!;
                             const anchor = ed.dom.select("a[href=\"" + href + "\"]").pop();
@@ -252,7 +243,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                             callback(src, {
                                 alt: name ?? file.name,
                                 "class": "rwd-img",
-                                "data-internalid": internalId,
+                                [INTERNAL_ATTR]: internalId,
                             });
                         }
                     } catch
@@ -516,7 +507,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     if (elm?.tagName?.toLowerCase() === "img")
                     {
                         // 保持 data-internal
-                        const internal = elm.getAttribute("data-internal");
+                        const internal = elm.getAttribute(INTERNAL_ATTR);
                         if (internal && !elm.classList.contains("rwd-img"))
                         {
                             // 若寬度是空白或 100%，就 RWD
@@ -637,7 +628,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [p.id, p.language, p.languageUrl, p.baseUrl, p.uploadFileApi, p.makeFileUrl, p.initExtras, toDb, toEditor]);
 
-    return { editorRef, init: editorInit, value: value, onChange: onChange, uploadAndReturn, toUrl };
+    return { editorRef, init: editorInit, value: p.value, onChange: p.onChange, uploadAndReturn, toUrl };
 };
 
 export interface UseTinyMceInternalImageOptions

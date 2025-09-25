@@ -21,19 +21,19 @@ type BannerDetail = components["schemas"]["BannerDetail_DTO"]
 type BannerDetailInfo = components["schemas"]["BannerDetailInfo_DTO"]
 const emptyData: BannerSet = { Banner: {}, BannerDetail: [{ RowId: 1 }], BannerDetailInfo: [] }
 
-export const BannerSliderFormComp = ({ theme }: { theme: IBETheme }) => {
+export const BannerSliderFormComp = (prop: { theme: IBETheme; lang: Lang }) => {
     const { internalId } = useParams();
     const formData = useFetchFormData<BannerSet>(BannerSliderProvider(), internalId, emptyData)
-    useEnsureLangDetails(formData, { headerName: SchemaFields.BannerSetFields.BannerDetail, detailName: SchemaFields.BannerSetFields.BannerDetailInfo, parentKeys: [SchemaFields.BannerDetailInfoFields.BannerId, SchemaFields.BannerDetailInfoFields.ParentRowId] });
+    useEnsureLangDetails(formData, { headerName: SchemaFields.BannerSetFields.BannerDetail, detailName: SchemaFields.BannerSetFields.BannerDetailInfo, parentKeys: [SchemaFields.BannerDetailInfoFields.BannerId, SchemaFields.BannerDetailInfoFields.ParentRowId], preferFirstLang: prop.lang });
     const useToolbar = useFormToolbarActions(BannerSliderProvider(), formData.data as BannerSet, internalId as string, () => formData.refetch())
     const isLoading = [formData.isLoading]
     const errors = [formData.error]
-    const prop: FormCompProp = { Title: "設定輪播", Theme: theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }
+    const formProp: FormCompProp = { Title: "設定輪播", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }
     return (
         <>
-            <FormComp prop={prop}>
-                <HeaderComp theme={theme} formData={formData} />
-                <DetailComp theme={theme} formData={formData} />
+            <FormComp prop={formProp}>
+                <HeaderComp theme={prop.theme} formData={formData} />
+                <DetailComp theme={prop.theme} formData={formData} />
             </FormComp>
         </>
     )

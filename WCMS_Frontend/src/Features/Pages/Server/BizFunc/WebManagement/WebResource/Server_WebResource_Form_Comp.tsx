@@ -1,5 +1,4 @@
 import { LibCheckBox, LibTextBox, LibTextArea, LibFile, LibDropList, LibPicture } from "@/SysCore/Components/FormField/LibFormField"
-import type { LibTabsProp } from "@/SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { useGetCategoryListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook"
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
@@ -19,6 +18,7 @@ import { useFormToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook
 import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useMemo } from "react";
+import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"]
 const emptyData: WebResourceSet = { WebResource: {}, WebResourceInfo: [] }
 /** 網路資源表單
@@ -33,7 +33,7 @@ export const WebResourceFormComp = (prop: { theme: IBETheme; lang: Lang }) => {
     const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
     const windowTarget = useFetchEnumOptions("WindowTarget")
     const useToolbar = useFormToolbarActions(WebResourceProvider(), formData.data as WebResourceSet, internalId as string, () => formData.refetch())
-    useEnsureLangDetails(formData, { headerName: SchemaFields.WebResourceSetFields.WebResource, detailName: SchemaFields.WebResourceSetFields.WebResourceInfo, parentKeys: [SchemaFields.WebResourceFields.WebResourceId] });
+    useEnsureLangDetails(formData, { headerName: SchemaFields.WebResourceSetFields.WebResource, detailName: SchemaFields.WebResourceSetFields.WebResourceInfo, parentKeys: [SchemaFields.WebResourceFields.WebResourceId], preferFirstLang: prop.lang });
     const isLoading = [useTag.isLoading, useCategory.isLoading, formData.isLoading, useContentStatus.isLoading, windowTarget.isLoading]
     const errors = [useTag.error, useCategory.error, formData.error, useContentStatus.error, windowTarget.error]
     const formProp: FormCompProp = { Title: "新增網路資源", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }

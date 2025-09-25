@@ -85,7 +85,7 @@ export class BackendRouteModule implements IRouteModule {
                 path: 'BannerSlider',
                 children: [
                   { index: true, element: <AutoRedirect to="List" replace /> },
-                  { path: 'Form/:internalId?', element: <BannerSliderFormComp theme={Classic_BETheme} /> },
+                  { path: 'Form/:internalId?', element: <BannerSliderFormComp theme={Classic_BETheme} lang={DefaultLang} /> },
                   { path: 'List', element: <BannerSliderListComp title="廣告輪播列表" theme={Classic_BETheme} /> },
                 ],
               },
@@ -107,8 +107,8 @@ export class BackendRouteModule implements IRouteModule {
                 path: 'PageManage',
                 children: [
                   { index: true, element: <AutoRedirect to="List" replace /> },
-                  { path: 'Form/:internalId?', element: <PageFormComp theme={Classic_BETheme} /> },
-                  { path: 'List', element: <PageListComp title="頁面列表" theme={Classic_BETheme} /> },
+                  { path: 'Form/:internalId?', element: <PageFormComp theme={Classic_BETheme} lang={DefaultLang} /> },
+                  { path: 'List', element: <PageListComp title="頁面列表" theme={Classic_BETheme} lang={DefaultLang} /> },
                   { path: 'Category/:internalId?', element: <Server_CategoryListFormComp progId="PageManagement" title="類別" theme={Classic_BETheme} lang={DefaultLang} /> },
                 ],
               },

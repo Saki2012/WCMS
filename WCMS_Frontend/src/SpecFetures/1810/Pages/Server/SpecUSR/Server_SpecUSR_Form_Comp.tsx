@@ -1,6 +1,5 @@
 import { LibCheckBox, LibTextBox, LibTextArea, LibFile, LibDropList, LibPicture } from "@/SysCore/Components/FormField/LibFormField";
 import * as SchemaFields from "@/types/SchemaFields";
-import type { LibTabsProp } from "@/SysCore/Components/FormField/LibFormField";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
@@ -19,6 +18,7 @@ import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { useFormToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
 import { useGetSpecCategoryListByProgId } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Hook";
 import { useMemo } from "react";
+import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"]
 const emptyData: SpecUSRSet = { SpecUSR: {}, SpecUSRDetail: [], }
 
@@ -33,7 +33,7 @@ export const Server_USRProjFormComp = (prop: { theme: IBETheme; lang: Lang }) =>
     const useContentStatus = useFetchEnumOptions("ContentStatus")
     const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
     const useToolbar = useFormToolbarActions(SpecUSRProvider(), formData.data as SpecUSRSet, internalId as string, () => formData.refetch())
-    useEnsureLangDetails(formData, { headerName: SchemaFields.SpecUSRSetFields.SpecUSR, detailName: SchemaFields.SpecUSRSetFields.SpecUSRDetail, parentKeys: [SchemaFields.SpecUSRModelFields.USRId] });
+    useEnsureLangDetails(formData, { headerName: SchemaFields.SpecUSRSetFields.SpecUSR, detailName: SchemaFields.SpecUSRSetFields.SpecUSRDetail, parentKeys: [SchemaFields.SpecUSRModelFields.USRId], preferFirstLang: prop.lang });
     const isLoading = [formData.isLoading, useCategory.isLoading, useTag.isLoading, useContentStatus.isLoading]
     const errors = [formData.error, useCategory.error, useTag.error, useContentStatus.error]
     const formProp: FormCompProp = { Title: "新增USR計畫", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }

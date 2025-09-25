@@ -1,5 +1,4 @@
 import { LibDropList, LibTextBox, LibTinyMCE } from "@//SysCore/Components/FormField/LibFormField"
-import type { LibTabsProp } from "@//SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { useGetCategoryListByProgId } from "../../../../../Hooks/BizFunc/WebManagement/Category/Category_Hook"
 import PageManagementProvider from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Api"
@@ -14,6 +13,7 @@ import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableFiel
 import * as SchemaFields from "@/types/SchemaFields";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
+import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"]
 const emptyData: PageManagementSet = {
@@ -24,19 +24,19 @@ const emptyData: PageManagementSet = {
 /** 頁面表單
  * @returns 
  */
-export const PageFormComp = ({ theme }: { theme: IBETheme }) => {
+export const PageFormComp = (prop: { theme: IBETheme; lang: Lang }) => {
     const { internalId } = useParams()
     const useCategory = useGetCategoryListByProgId("PageManagement", "zh-tw")
     const formData = useFetchFormData<PageManagementSet>(PageManagementProvider(), internalId, emptyData);
     const useToolbar = useFormToolbarActions(PageManagementProvider(), formData.data as PageManagementSet, internalId as string, () => formData.refetch())
     const isLoading = [useCategory.isLoading, formData.isLoading]
     const errors = [useCategory.error, formData.error]
-    useEnsureLangDetails(formData, { headerName: SchemaFields.PageManagementSetFields.PageManagement, detailName: SchemaFields.PageManagementSetFields.PageManagementDetail, parentKeys: [SchemaFields.PageManagementDetailFields.PageId] });
-    const prop: FormCompProp = { Title: "新增頁面", Theme: theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }
+    useEnsureLangDetails(formData, { headerName: SchemaFields.PageManagementSetFields.PageManagement, detailName: SchemaFields.PageManagementSetFields.PageManagementDetail, parentKeys: [SchemaFields.PageManagementDetailFields.PageId], preferFirstLang: prop.lang });
+    const formProp: FormCompProp = { Title: "新增頁面", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }
     return (
-        <FormComp prop={prop}>
-            <HeaderComp theme={prop.Theme} formData={formData} catData={useCategory.data} />
-            <DetailComp theme={prop.Theme} formData={formData} />
+        <FormComp prop={formProp}>
+            <HeaderComp theme={prop.theme} formData={formData} catData={useCategory.data} />
+            <DetailComp theme={prop.theme} formData={formData} lang={prop.lang} />
         </FormComp>
     )
 }
@@ -52,7 +52,7 @@ const HeaderComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Pa
     return (<TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>)
 }
 
-const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<PageManagementSet>; }) => {
+const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<PageManagementSet>; lang: Lang }) => {
     const setField = useSetTableField<PageManagementSet>(prop.formData);
     const rawDetails = prop.formData.data?.PageManagementDetail ?? [];
     const tabInfo: LibTabsProp = {

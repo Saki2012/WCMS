@@ -1,6 +1,6 @@
 // src/components/TinyMCE_Comp.tsx
 import { Editor } from '@tinymce/tinymce-react';
-import { useTinyMCE, useTinyMceInternalImage } from './TinyMCE_Hook';
+import { INTERNAL_ATTR, useTinyMCE, useTinyMceInternalImage } from './TinyMCE_Hook';
 import { useContentTransform } from './useContentTransform';
 import { useCallback, useMemo } from 'react';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
@@ -36,9 +36,9 @@ const TinyMCE_Comp = ({ args }: Props) => {
   });
 
 
-  const { toEditor, toDb } = useContentTransform({ previewPrefix: `${FileManagementAPI.PREVIEW_URL}`, attrName: 'data-internalid', });
-  const value = useMemo(() => toEditor(tiny.value ?? ''), [tiny.value, toEditor]);          // 🟢 DB→Editor
-  const onChange = useCallback((html: string) => tiny.onChange?.(toDb(html)), [tiny.onChange, toDb]); // 🟢 Editor→DB
+  // const { toEditor, toDb } = useContentTransform({ previewPrefix: `${FileManagementAPI.PREVIEW_URL}`, attrName: INTERNAL_ATTR, });
+  // const value = useMemo(() => toEditor(tiny.value ?? ''), [tiny.value, toEditor]);          // 🟢 DB→Editor
+  // const onChange = useCallback((html: string) => tiny.onChange?.(toDb(html)), [tiny.onChange, toDb]); // 🟢 Editor→DB
 
   // 新增：圖片 internalId <-> src 的轉換（預覽用 API 路徑）
   const image = useTinyMceInternalImage({
@@ -69,8 +69,8 @@ const TinyMCE_Comp = ({ args }: Props) => {
       <Editor
         id={args.id}
         tinymceScriptSrc="/tinymce/tinymce.min.js"
-        value={value}
-        onEditorChange={onChange}
+        value={tiny.value}
+        onEditorChange={tiny.onChange}
         init={init as any}
       />
       <p style={{
