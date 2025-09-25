@@ -13,9 +13,10 @@ export const IconCardMenu = () => {
             new Swiper('#card', {
                 direction: 'horizontal',
                 loop: true,
-                slidesPerView: 3,
+                slidesPerView: 4,
                 spaceBetween: 30,
                 breakpoints: {
+                    1200: { slidesPerView: 4 },
                     992: { slidesPerView: 3 },
                     576: { slidesPerView: 2 },
                     0: { slidesPerView: 2 },
@@ -35,7 +36,7 @@ export const IconCardMenu = () => {
         <section className="card_section swiper-box layout_padding3" ref={iconCardRef}>
             <div className="Mask-DivBox">
                 <div className="customizeBox">
-                    <div className="container-customize0 BA layout_padding0">
+                    <div className="container-customize1 BA layout_padding0">
                         <div className="sliderBox">
                             <div id="card" className="swiper px-2">
                                 <div className="swiper-wrapper">
@@ -93,6 +94,26 @@ export const IconCardMenu = () => {
                                                             </div>
                                                             <div className="Title-Content">
                                                                 <div className="iconTitle">資料下載</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="swiper-slide">
+                                        <div className="item + animate__animated animate__slow wow bounceInUp" data-wow-delay="0.25s">
+                                            <div className="wrapper_box">
+                                                <Link to="/research-highlights/rh4/List" tabIndex={1} title="研究亮點" target="_self">
+                                                    <div className="media-item w-100">
+                                                        <div className="Icon-DIV">
+                                                            <div className="IMG-Content">
+                                                                <div className="IMG-icon">
+                                                                    <img src="/Legacy/Client/images/icon/icon_04_256x256.svg" className="d-block w-100" alt="..." />
+                                                                </div>
+                                                            </div>
+                                                            <div className="Title-Content">
+                                                                <div className="iconTitle">研究亮點</div>
                                                             </div>
                                                         </div>
                                                     </div>
