@@ -113,7 +113,6 @@ const DetailComp = (prop: { theme: IBETheme, formData: UseFetchFormDataResult<An
             return compMap;
         }, {}
     );
-
     return (
         <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>
     )

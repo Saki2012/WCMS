@@ -1,11 +1,13 @@
-import { clsx } from "clsx";
-import type { IBreadCrumbStyle } from "../../../../SysCore/Components/BreadCrumb/BreadCrumb_Clsx";
+import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
+import type { IBreadCrumbStyle } from "@/SysCore/Components/BreadCrumb/BreadCrumb_Clsx";
+import type { ILibDropListStyle } from "@/SysCore/Components/FormField/FieldComponets/LibDropList_Comp";
+import type { ILibTabsStyle } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import type {
     ILibCheckBoxStyle,
-    ILibDropListStyle,
+    // ILibDropListStyle,
     ILibFileInputStyle,
     ILibFileStyle,
-    ILibTabsStyle,
+    // ILibTabsStyle,
     ILibTextAreaStyle,
     ILibTextAreaStyle2,
     ILibTextBoxStyle,
@@ -13,12 +15,12 @@ import type {
     ILibTextBoxStyle3,
     ILibTinyMCEStyle,
     ILibUserCardStyle,
-} from "../../../../SysCore/Components/FormField/LibFormField";
-import type { IGridView_Style } from "../../../../SysCore/Components/Grid/Grid_Clsx";
-import type { IMenu_Style } from "../../../../SysCore/Components/MenuList/MenuList_Clsx";
-import type { INaviBarStyle } from "../../../../SysCore/Components/NaviBar/NaviBar_Clsx";
-import type { IPaginator_Style } from "../../../../SysCore/Components/Paginator/Paginator_Clsx";
-import type { IBETheme } from "./ITheme";
+} from "@/SysCore/Components/FormField/LibFormField";
+import type { IGridView_Style } from "@/SysCore/Components/Grid/Grid_Clsx";
+import type { IMenu_Style } from "@/SysCore/Components/MenuList/MenuList_Clsx";
+import type { INaviBarStyle } from "@/SysCore/Components/NaviBar/NaviBar_Clsx";
+import type { IPaginator_Style } from "@/SysCore/Components/Paginator/Paginator_Clsx";
+import { clsx } from "clsx";
 
 /** 後台BreadCrumb樣式 */
 export const Classic_BreadCrumb: IBreadCrumbStyle = {
@@ -146,7 +148,13 @@ export const Classic_CategoryListTag: IMenu_Style = {
 export const Classic_CheckBox: ILibCheckBoxStyle = {
     Labelstyle: "",
     SelectStyle: "",
-    OptionsStyle: "",
+    OptionsStyle: "checkbox",
+};
+
+export const Classic_RadioBox: ILibCheckBoxStyle = {
+    Labelstyle: "",
+    SelectStyle: "",
+    OptionsStyle: "radio",
 };
 
 /** 經典主題 */
@@ -171,5 +179,5 @@ export const Classic_BETheme: IBETheme = {
     FileInput: Classic_LibFileInput,
     UserCard: Classic_LibUserCard,
     CheckBox: Classic_CheckBox,
-    RadioBox: Classic_CheckBox,
+    RadioBox: Classic_RadioBox,
 };

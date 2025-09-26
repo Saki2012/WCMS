@@ -512,3 +512,93 @@ export const useSetTableFileField = <TSet>(formData: UseFetchFormDataResult<TSet
 
     return setFileField;
 };
+
+export interface JsonFieldBinder<TJson extends object>
+{
+    /** 取出完整 JSON 物件（已做安全解析 + 預設值套用） */
+    get: () => TJson;
+    /** 直接整包寫回（會自動 JSON.stringify） */
+    set: (next: TJson) => void;
+    /**
+     * 綁定某個 JSON 內 key（支援 string / number / csv 三種 UI 型別）
+     * - string: 直接存字串
+     * - number: 轉成 number 後存
+     * - csv: 以陣列<string> 映射 UI，入庫時存 "a,b,c" 這種字串
+     */
+    bind: <K extends keyof TJson>(
+        key: K,
+        mode?: "string" | "number" | "csv",
+    ) => {
+        value: any; // 給 UI 用的值（csv 會是 string[]）
+        onChange: (v: any) => void; // 給 UI 用的改變事件
+    };
+}
+
+const safeParse = <T extends object>(raw: unknown, fallback: T): T =>
+{
+    if (typeof raw !== "string" || raw.trim() === "") return fallback;
+    try
+    {
+        const obj = JSON.parse(raw);
+        return (obj && typeof obj === "object") ? { ...fallback, ...obj } : fallback;
+    } catch
+    {
+        return fallback;
+    }
+};
+
+const toCSV = (arr: string[] | number[] | undefined | null) => (arr ?? []).map(String).filter(Boolean).join(",");
+
+const fromCSV = (s: string | undefined | null) => (s ?? "").split(",").map(x => x.trim()).filter(Boolean);
+
+export const useSetJsonField = <TSet, TJson extends Record<string, any>>(
+    formData: { data?: TSet; setFormData: (updater: (prev: any) => any) => void; },
+    tableName: string,
+    fieldName: string, // 目標是 ModuleOptions 這個欄位
+    rowKeys: Record<string, any>, // 你的 row 定位用 keys
+    defaults: TJson, // JSON 預設值
+): JsonFieldBinder<TJson> =>
+{
+    const setField = useSetTableField<TSet>(formData);
+    // 這裡拿到 ModuleOptions（字串）對應的基本綁定 { value, onChange }
+    const base = useMemo(
+        () => setField(tableName, fieldName, "string", rowKeys),
+        [setField, tableName, fieldName, rowKeys],
+    );
+
+    const get = () => safeParse<TJson>(base.value, defaults);
+    const set = (next: TJson) => base.onChange(JSON.stringify(next));
+
+    const bind = <K extends keyof TJson>(key: K, mode: "string" | "number" | "csv" = "string") =>
+    {
+        const json = get();
+        const rawVal = json[key];
+
+        const value = mode === "csv"
+            ? fromCSV(String(rawVal ?? ""))
+            : mode === "number"
+            ? Number(rawVal ?? 0)
+            : String(rawVal ?? "");
+
+        const onChange = (uiVal: any) =>
+        {
+            const next: TJson = { ...json };
+            if (mode === "csv")
+            {
+                next[key] = toCSV(uiVal as string[]);
+            } else if (mode === "number")
+            {
+                const n = Number(uiVal);
+                next[key] = Number.isFinite(n) ? n : 0;
+            } else
+            {
+                next[key] = String(uiVal ?? "");
+            }
+            set(next);
+        };
+
+        return { value, onChange };
+    };
+
+    return { get, set, bind };
+};

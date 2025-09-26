@@ -9,7 +9,7 @@ export interface ILibDropListStyle {
 interface ILibDropListProp {
     Style: ILibDropListStyle;
     ColumnDisplayName: string;
-    Options?: Record<string, string>;
+    Options: Record<string, string>;
     InputValue?: string;
     onChange: (val: string) => void;
     AutoDefaultFirst?: boolean;

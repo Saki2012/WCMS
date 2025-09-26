@@ -365,11 +365,11 @@ namespace WCMS.SysCore.Enum
             /// <summary>
             /// 雙欄式
             /// </summary>
-            [LibDesc]TwoColumn=0,
+            [LibDesc(ModelDisplayName.Enum_TwoColumn)]TwoColumn=0,
             /// <summary>
             /// 直瀑式
             /// </summary>
-            [LibDesc]Vertical=1,
+            [LibDesc(ModelDisplayName.Enum_Vertical)]Vertical=1,
         }
         /// <summary>
         /// 模型功能顯示方式

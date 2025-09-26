@@ -42,6 +42,33 @@
         public const string Enum_Youtube = "Enum_Youtube";
         public const string Enum_WindowTarget_Self = "Enum_WindowTarget_Self";
         public const string Enum_WindowTarget_Blank = "Enum_WindowTarget_Blank";
+        public const string Enum_TwoColumn = "Enum_TwoColumn";
+        public const string Enum_Vertical = "Enum_Vertical";
+        #endregion
+
+
+
+        #region 網站結構設定
+        public const string SiteMenu_SiteIndex = "SiteMenu_SiteIndex";
+        public const string SiteMenu_GoogleAnalytics = "SiteMenu_GoogleAnalytics";
+        public const string SiteMenu_Enable = "SiteMenu_Enable";
+        public const string SiteMenu_SiteTitle = "SiteMenu_SiteTitle";
+        public const string SiteMenu_SiteDescription = "SiteMenu_SiteDescription";
+        public const string SiteMenu_SiteHeader = "SiteMenu_SiteHeader";
+        public const string SiteMenu_SiteFooter = "SiteMenu_SiteFooter";
+        public const string SiteMenu_Keyword = "SiteMenu_Keyword";
+        public const string SiteMenu_ItemSiteUrl = "SiteMenu_ItemSiteUrl";
+        public const string SiteMenu_FullUrl = "SiteMenu_FullUrl";
+        public const string SiteMenu_Level = "SiteMenu_Level";
+        public const string SiteMenu_DisplayOrder = "SiteMenu_DisplayOrder";
+        public const string SiteMenu_ItemType = "SiteMenu_ItemType";
+        public const string SiteMenu_WindowTarget = "SiteMenu_WindowTarget";
+        public const string SiteMenu_IsShowOnMenu = "SiteMenu_IsShowOnMenu";
+        public const string SiteMenu_MenuTitle = "SiteMenu_MenuTitle";
+        public const string SiteMenu_RedirectType = "SiteMenu_RedirectType";
+        public const string SiteMenu_RedirectUrl = "SiteMenu_RedirectUrl";
+        public const string SiteMenu_ModuleProgId = "SiteMenu_ModuleProgId";
+        public const string SiteMenu_ModuleOptions = "SiteMenu_ModuleOptions";
         #endregion
 
         #region 公告
@@ -73,7 +100,6 @@
         public const string Banner_Sort="Banner_Sort";
         public const string Banner_Content="Banner_Content";
         #endregion 
-        
         #region 類別
         public const string CategoryId="CategoryId";
         public const string Category_Module="Category_Module";

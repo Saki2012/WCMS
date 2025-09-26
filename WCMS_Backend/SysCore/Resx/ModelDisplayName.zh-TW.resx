@@ -618,4 +618,10 @@
   <data name="Announcement_FileName" xml:space="preserve">
     <value>附件名稱</value>
   </data>
+  <data name="Enum_TwoColumn" xml:space="preserve">
+    <value>雙欄式</value>
+  </data>
+  <data name="Enum_Vertical" xml:space="preserve">
+    <value>直瀑式</value>
+  </data>
 </root>
