@@ -52,7 +52,6 @@ export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
                 const msg = countRes.SysMessage?.map(x => `${x.MessageCode}:${x.Message}`).join(";") ?? "查詢筆數失敗";
                 throw new Error(msg);
             }
-
             const rawCount = countRes.Data;
             const count = Number(rawCount) || 0; // 確保是 number
             const pageSize = Number(condition.PageSize) || 1; // 避免除以 0/NaN
@@ -84,7 +83,6 @@ export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
         if (!props.enabled || props.initialData) return;
         fetchData(currentPage);
     }, [currentPage, props.enabled, ...props.deps ?? []]);
-
     const gridProps: GridProps = useMemo(
         () => ({
             columns,

@@ -53,7 +53,7 @@ export class BackendRouteModule implements IRouteModule {
               {
                 path: 'SiteMenu',
                 children: [
-                  { index: true, element: <SiteMenu_Comp theme={Classic_BETheme} /> },
+                  { index: true, element: <SiteMenu_Comp theme={Classic_BETheme} lang={DefaultLang} /> },
                 ],
               },
             ]

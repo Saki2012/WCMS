@@ -332,10 +332,6 @@ namespace WCMS.SysCore.Enum
         public enum MenuUrlType : byte
         {
             /// <summary>
-            /// 
-            /// </summary>
-            [LibDesc(ModelDisplayName.Common_None)]None=0,
-            /// <summary>
             /// 外部連結
             /// </summary>
             [LibDesc(ModelDisplayName.Enum_Url)] Url = 1,

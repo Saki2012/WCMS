@@ -3,7 +3,9 @@ import SiteMenuProvider from "@/Features/Hooks/BizFunc/Dashboard/SiteMenu/SiteIn
 import type { UseGridListOptions } from "@/SysCore/Utils/API/FetchGridListData";
 import type { components } from "@/types/api";
 import * as SchemaFields from "@/types/SchemaFields";
+import BannerSliderProvider from "../../WebManagement/Banner/BannerSlider_Api";
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
+type BannerSet = components["schemas"]["BannerSet_DTO"];
 type QueryListParam = components["schemas"]["QueryListParam"];
 
 export const GetSiteMenuListOpt = (): UseGridListOptions<SiteMenuSet> =>
@@ -18,6 +20,29 @@ export const GetSiteMenuListOpt = (): UseGridListOptions<SiteMenuSet> =>
             Fields: [
                 SchemaFields.SiteMenu_IndexFields.InternalId,
                 SchemaFields.SiteMenu_IndexFields.SiteIndex,
+            ],
+            Condition: "",
+            PageNumber: 0,
+            PageSize: 0,
+        }),
+        enabled: true,
+        deps: [],
+    };
+};
+
+export const GetBannerListOpt = (): UseGridListOptions<BannerSet> =>
+{
+    const provider = BannerSliderProvider();
+    return {
+        getModelDisplayName: () => provider.getModelDisplayName(),
+        fetchList: (cond: QueryListParam) => provider.fetchList(cond),
+        fetchListCount: (cond: QueryListParam) => provider.fetchListCount(cond),
+        visibleKeys: [],
+        buildQueryCondition: (): QueryListParam => ({
+            Fields: [
+                SchemaFields.BannerFields.InternalId,
+                SchemaFields.BannerFields.BannerId,
+                SchemaFields.BannerFields.BannerCategoryName,
             ],
             Condition: "",
             PageNumber: 0,

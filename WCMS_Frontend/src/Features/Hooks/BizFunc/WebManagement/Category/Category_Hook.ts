@@ -68,6 +68,8 @@ export const useGetCategoryListByProgId = (progId: string, lang: string, pageSiz
 
 export const useCategoryListData = (progId: string, lang: Lang) =>
 {
+    let condition = "";
+    if (progId !== "") condition = `${SchemaFields.CategoryFields.ProgId} = ${progId}`;
     const provider = CategoryProvider();
     const [refreshToken, setRefreshToken] = useState(Symbol());
     const refetch = useCallback(() => setRefreshToken(Symbol()), []);
@@ -85,6 +87,7 @@ export const useCategoryListData = (progId: string, lang: Lang) =>
             Fields: [
                 SchemaFields.CategoryFields.InternalId,
                 SchemaFields.CategoryFields.CategoryId,
+                SchemaFields.CategoryFields.ProgId,
                 SchemaFields.CategoryFields.CreateTime,
                 SchemaFields.CategoryFields.ModifyTime,
                 SchemaFields.CategoryFields.ModifyUserId,
@@ -93,7 +96,7 @@ export const useCategoryListData = (progId: string, lang: Lang) =>
             ],
             // 如果 progId 是字串型別且後端期望字串，記得加引號：
             // Condition: `${SchemaFields.CategoryFields.ProgId} = '${progId.replace(/'/g,"''")}'`,
-            Condition: `${SchemaFields.CategoryFields.ProgId} = ${progId}`,
+            Condition: condition,
             OrderBy: [{ Col: SchemaFields.CategoryFields.ModifyTime, Desc: true }],
             PageNumber: 0,
             PageSize: 0,

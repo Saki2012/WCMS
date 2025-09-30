@@ -70,6 +70,8 @@ export const useGetTagListByProgId = (progId: string, lang: string, pageSize: nu
 
 export const useTagListData = (progId: string, lang: Lang) =>
 {
+    let condition = "";
+    if (progId !== "") condition = `${SchemaFields.TagDataFields.ProgId} = ${progId}`;
     const provider = TagProvider();
     const [refreshToken, setRefreshToken] = useState(Symbol());
     const refetch = useCallback(() => setRefreshToken(Symbol()), []);
@@ -86,12 +88,13 @@ export const useTagListData = (progId: string, lang: Lang) =>
             Fields: [
                 SchemaFields.TagDataFields.InternalId,
                 SchemaFields.TagDataFields.TagId,
+                SchemaFields.TagDataFields.ProgId,
                 SchemaFields.TagDataFields.ModifyTime,
                 SchemaFields.TagDataFields.ModifyUserId,
                 `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
                 `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
             ],
-            Condition: `${SchemaFields.TagDataFields.ProgId} = ${progId}`,
+            Condition: condition,
             OrderBy: [{ Col: SchemaFields.TagDataFields.ModifyTime, Desc: true }],
             PageNumber: 0,
             PageSize: 0,
