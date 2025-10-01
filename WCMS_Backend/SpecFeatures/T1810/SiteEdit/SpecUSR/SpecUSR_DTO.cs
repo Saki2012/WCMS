@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.Resx;
@@ -65,5 +66,8 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         [LibDesc(ModelDisplayName.SpecUSR_Cohost2), StringLength(200)] public string? Cohost2 { get; set; }
         [LibDesc(ModelDisplayName.SpecUSR_Commissioned), StringLength(200)] public string? Commissioned { get; set; }
         [LibDesc(ModelDisplayName.SpecUSR_Remark)] public string? Remark { get; set; }
+        [LibDesc(ModelDisplayName.SpecUSR_ProjectItem)] public string? ProjectItem { get; set; }
+        [LibDesc(ModelDisplayName.SpecUSR_Url)] public string? Url { get; set; }
+        [LibDesc(ModelDisplayName.SpecUSR_UrlDescription)] public string? UrlDescription { get; set; }
     }
 }

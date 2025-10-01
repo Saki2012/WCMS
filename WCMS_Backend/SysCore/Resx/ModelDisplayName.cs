@@ -229,7 +229,10 @@
         public const string SpecUSR_Cohost2="SpecUSR_Cohost2";
         public const string SpecUSR_Commissioned="SpecUSR_Commissioned";
         public const string SpecUSR_Remark="SpecUSR_Remark";
-        public const string SpecUSR_Sort="SpecUSR_Sort";
+        public const string SpecUSR_Sort = "SpecUSR_Sort";
+        public const string SpecUSR_ProjectItem = "SpecUSR_ProjectItem";
+        public const string SpecUSR_Url = "SpecUSR_Url";
+        public const string SpecUSR_UrlDescription = "SpecUSR_UrlDescription";
         #endregion
         #region 使用者帳戶
         public const string User_UserID = "User_UserID";

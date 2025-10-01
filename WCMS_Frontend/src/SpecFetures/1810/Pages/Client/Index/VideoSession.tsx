@@ -30,7 +30,8 @@ const useWebResourceList = () => {
                 `${SchemaFields.WebResourceSetFields.WebResourceInfo}.${SchemaFields.WebResourceInfoFields.ResUrl}`,
                 `${SchemaFields.WebResourceSetFields.WebResourceInfo}.${SchemaFields.WebResourceInfoFields.Url_OpenType}`,
             ],
-            Condition: "",
+            Condition: `${SchemaFields.WebResourceFields.Categories} HasAny 29,30,31,32`,
+            OrderBy: [{ Col: SchemaFields.WebResourceFields.CreateTime, Desc: true }],
             PageNumber: 1,
             PageSize: 10,
         }),
@@ -39,13 +40,10 @@ const useWebResourceList = () => {
     });
 };
 
-const getDataProps = (lang: string, rawData: WebResourceSet[],) => {
-    const allowCategories = ["29", "30", "31", "32"];
+const getDataProps = (lang: string, rawData: WebResourceSet[]) => {
+    const allowCategories = ["29", "31", "30", "32"];
     const result: DataProp[] = [];
-    rawData.filter(item => {
-        const cats = (item.WebResource?.Categories ?? "").split(",").map(c => c.trim());
-        return cats.some(c => allowCategories.includes(c));
-    }).forEach(item => {
+    rawData.forEach(item => {
         const detail = item.WebResourceInfo?.find(p => p.Lang === lang);
         result.push({
             internalId: item.WebResource?.InternalId ?? "",

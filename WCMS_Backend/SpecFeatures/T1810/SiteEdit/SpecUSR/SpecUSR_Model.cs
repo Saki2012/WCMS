@@ -64,5 +64,8 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         [StringLength(1000)] public string? Cohost2 { get; set; }
         [StringLength(1000)] public string? Commissioned { get; set; }
         [StringLength(500)] public string? Remark { get; set; }
+        [StringLength(500)] public string? ProjectItem { get; set; }
+        [StringLength(SysLengthParam.Url)] public string? Url { get; set; }
+        [StringLength(SysLengthParam.Url)] public string? UrlDescription { get; set; }
     }
 }

@@ -114,6 +114,6 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// <summary>
         /// 標題
         /// </summary>
-        [StringLength(SysLengthParam.Title)] public string Title { get; set; }
+        [StringLength(SysLengthParam.Memo)] public string Title { get; set; }
     }
 }

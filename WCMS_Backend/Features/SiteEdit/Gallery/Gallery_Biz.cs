@@ -92,7 +92,7 @@ namespace WCMS.Features.SiteEdit.Gallery
                     if (dRow["PhotoID"].ToString() == srcHeader["Cover"].ToString()) set.Gallery.CoverPicSrcId = photo.PicSrcId;
 
                     int subPhotoRowId = 1;
-                    ds.Tables["Gallery_Album_Lang"].AsEnumerable().Where(dr => dr["PhotoID"] == dRow["PhotoID"]).ToList().ForEach(subDRow =>
+                    ds.Tables["Gallery_Album_Lang"].AsEnumerable().Where(dr => dr["PhotoID"].ToString() == dRow["PhotoID"].ToString()).ToList().ForEach(subDRow =>
                     {
                         if (!subDRow["Title"].IsNullOrEmpty())
                         {

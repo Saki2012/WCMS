@@ -89,6 +89,8 @@ export const useGetSpecCategoryListByProgId = (progId: string, lang: string) =>
 
 export const useSpecCateListData = (progId: string, lang: Lang) =>
 {
+    let condition = "";
+    if (progId !== "") condition = `${SchemaFields.SpecCategoryModelFields.ProgId} = ${progId}`;
     const provider = SpecCategoryProvider();
     const [refreshToken, setRefreshToken] = useState(Symbol());
     const refetch = useCallback(() => setRefreshToken(Symbol()), []);
@@ -100,13 +102,14 @@ export const useSpecCateListData = (progId: string, lang: Lang) =>
         buildQueryCondition: () => ({
             Fields: [
                 SchemaFields.SpecCategoryModelFields.InternalId,
+                SchemaFields.SpecCategoryModelFields.ProgId,
                 SchemaFields.SpecCategoryModelFields.CategoryId,
                 SchemaFields.SpecCategoryModelFields.ModifyTime,
                 SchemaFields.SpecCategoryModelFields.ModifyUserId,
                 `${SchemaFields.SpecCategorySetFields.SpecCategoryDetail}.${SchemaFields.SpecCategoryDetailModelFields.Lang}`,
                 `${SchemaFields.SpecCategorySetFields.SpecCategoryDetail}.${SchemaFields.SpecCategoryDetailModelFields.CategoryName}`,
             ],
-            Condition: `${SchemaFields.SpecCategoryModelFields.ProgId} = ${progId}`,
+            Condition: condition,
             OrderBy: [{ Col: SchemaFields.SpecCategoryModelFields.ModifyTime, Desc: true }],
             PageNumber: 0,
             PageSize: 0,

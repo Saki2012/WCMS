@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Runtime.InteropServices;
 using WCMS.Features.SiteEdit.Announcement;
@@ -89,6 +90,9 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
                         Cohost2 = dRow["Cohost2"].ToString(),
                         Commissioned = dRow["Commissioned"].ToString(),
                         Remark = dRow["Remark"].ToString(),
+                        ProjectItem = dRow["ProjectItem"].ToString(),
+                        Url = dRow["Url"].ToString(),
+                        UrlDescription = $@"{dRow["ProjectName"]} 相關網址(另開新視窗)"
                     };
                     set.SpecUSRDetail.Add(detail);
                 });

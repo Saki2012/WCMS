@@ -5,9 +5,12 @@ import Share from "yet-another-react-lightbox/plugins/share";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import Captions from "yet-another-react-lightbox/plugins/captions";
+import Counter from "yet-another-react-lightbox/plugins/counter";
+import "yet-another-react-lightbox/plugins/captions.css";
+import "yet-another-react-lightbox/plugins/counter.css";
 import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
-import "yet-another-react-lightbox/plugins/captions.css";
 
 
 import type { ReactNode } from "react";
@@ -25,6 +28,7 @@ interface GalleryFormViewProps {
 
 export interface PhotoInfos {
     pictureInternalId: string;
+    pictureDescription: string;
 }
 
 
@@ -32,7 +36,7 @@ export const GalleryFormViewComp = (prop: GalleryFormViewProps) => {
     const [open, setOpen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
 
-    const images = prop.photoInfoProps.map((item) => ({ src: `${FileManagementAPI.PREVIEW_URL}/${item.pictureInternalId}`, title: item.pictureInternalId }));
+    const images = prop.photoInfoProps.map((item) => ({ src: `${FileManagementAPI.PREVIEW_URL}/${item.pictureInternalId}`, description: item.pictureDescription, }));
 
     return (
         <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList}>
@@ -41,8 +45,8 @@ export const GalleryFormViewComp = (prop: GalleryFormViewProps) => {
                 {images.map((img, idx) => (
                     <div className="col-xs-12 col-sm-6 col-md-6 col-lg-3 photo_one_pic_standardbox" key={img.src}>
                         <div className="lightbox">
-                            <div className="img-box" style={{ cursor: "pointer" }} onClick={() => { setCurrentIndex(idx); setOpen(true); }} title={img.title}>
-                                <img src={img.src} alt={img.title} className="img-fluid" />
+                            <div className="img-box" style={{ cursor: "pointer" }} onClick={() => { setCurrentIndex(idx); setOpen(true); }} title={img.description}>
+                                <img src={img.src} alt={img.description} className="img-fluid" />
                                 <div className="zoom-plus">
                                     <i className="fa fa-zoom-plus" aria-hidden="true"></i>
                                 </div>
@@ -51,7 +55,8 @@ export const GalleryFormViewComp = (prop: GalleryFormViewProps) => {
                     </div>
                 ))}
             </div>
-            {open && (<Lightbox open={open} close={() => setOpen(false)} slides={images} index={currentIndex} plugins={[Download, Share, Fullscreen, Zoom, Thumbnails]} />
+            {open && (<Lightbox open={open} close={() => setOpen(false)} slides={images} index={currentIndex}
+                plugins={[Download, Captions, Share, Counter, Fullscreen, Zoom, Thumbnails]} captions={{ descriptionTextAlign: "center" }} />
             )}
         </LoadingErrorHandler>
     );

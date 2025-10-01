@@ -6357,7 +6357,7 @@ export interface components {
              * @description 創建時間
              */
             CreateTime?: string | null;
-            /** @description 創建人ID */
+            /** @description 創建人 */
             CreateUserId?: string | null;
             CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
@@ -6365,7 +6365,7 @@ export interface components {
              * @description 修改時間
              */
             ModifyTime?: string | null;
-            /** @description 修改人ID */
+            /** @description 修改人 */
             ModifyUserId?: string | null;
             ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
@@ -6441,12 +6441,12 @@ export interface components {
              * Format: date-time
              * @description 上架日期
              */
-            Validate_Start?: string;
+            Validate_Start?: string | null;
             /**
              * Format: date-time
              * @description 下架日期
              */
-            Validate_End?: string;
+            Validate_End?: string | null;
             /**
              * Format: int32
              * @description 排序編號
@@ -6469,7 +6469,7 @@ export interface components {
              * @description 創建時間
              */
             CreateTime?: string | null;
-            /** @description 創建人ID */
+            /** @description 創建人 */
             CreateUserId?: string | null;
             CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
@@ -6477,7 +6477,7 @@ export interface components {
              * @description 修改時間
              */
             ModifyTime?: string | null;
-            /** @description 修改人ID */
+            /** @description 修改人 */
             ModifyUserId?: string | null;
             ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
@@ -6522,7 +6522,7 @@ export interface components {
             Data?: components["schemas"]["CategoryDataSet_DTO"];
         };
         CategoryDetail_DTO: {
-            /** @description 類別代碼 */
+            /** @description 類別 */
             CategoryId?: string | null;
             /**
              * Format: int32
@@ -6540,7 +6540,7 @@ export interface components {
              * @description 創建時間
              */
             CreateTime?: string | null;
-            /** @description 創建人ID */
+            /** @description 創建人 */
             CreateUserId?: string | null;
             CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
@@ -6548,7 +6548,7 @@ export interface components {
              * @description 修改時間
              */
             ModifyTime?: string | null;
-            /** @description 修改人ID */
+            /** @description 修改人 */
             ModifyUserId?: string | null;
             ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
@@ -6558,7 +6558,7 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
-            /** @description 類別代碼 */
+            /** @description 類別 */
             CategoryId?: string | null;
             /** @description 功能模塊代碼 */
             ProgId?: string | null;
@@ -6632,7 +6632,7 @@ export interface components {
              * @description 創建時間
              */
             CreateTime?: string | null;
-            /** @description 創建人ID */
+            /** @description 創建人 */
             CreateUserId?: string | null;
             CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
@@ -6640,7 +6640,7 @@ export interface components {
              * @description 修改時間
              */
             ModifyTime?: string | null;
-            /** @description 修改人ID */
+            /** @description 修改人 */
             ModifyUserId?: string | null;
             ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
@@ -6670,7 +6670,7 @@ export interface components {
              * @description 創建時間
              */
             CreateTime?: string | null;
-            /** @description 創建人ID */
+            /** @description 創建人 */
             CreateUserId?: string | null;
             CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
@@ -6678,7 +6678,7 @@ export interface components {
              * @description 修改時間
              */
             ModifyTime?: string | null;
-            /** @description 修改人ID */
+            /** @description 修改人 */
             ModifyUserId?: string | null;
             ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
@@ -6814,7 +6814,7 @@ export interface components {
              * @description 創建時間
              */
             CreateTime?: string | null;
-            /** @description 創建人ID */
+            /** @description 創建人 */
             CreateUserId?: string | null;
             CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
@@ -6822,7 +6822,7 @@ export interface components {
              * @description 修改時間
              */
             ModifyTime?: string | null;
-            /** @description 修改人ID */
+            /** @description 修改人 */
             ModifyUserId?: string | null;
             ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
@@ -6845,7 +6845,7 @@ export interface components {
              * Format: date-time
              * @description 上架日期
              */
-            Validate_Start?: string;
+            Validate_Start?: string | null;
             GalleryInfo?: components["schemas"]["GalleryInfo_DTO"][] | null;
             GalleryPhotos?: components["schemas"]["GalleryPhotos_DTO"][] | null;
         };
@@ -6857,7 +6857,7 @@ export interface components {
          * Format: int32
          * @enum {integer}
          */
-        MenuUrlType: 0 | 1 | 2;
+        MenuUrlType: 1 | 2;
         /**
          * Format: int32
          * @enum {integer}
@@ -6896,7 +6896,7 @@ export interface components {
              * @description 創建時間
              */
             CreateTime?: string | null;
-            /** @description 創建人ID */
+            /** @description 創建人 */
             CreateUserId?: string | null;
             CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
@@ -6904,7 +6904,7 @@ export interface components {
              * @description 修改時間
              */
             ModifyTime?: string | null;
-            /** @description 修改人ID */
+            /** @description 修改人 */
             ModifyUserId?: string | null;
             ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
@@ -7006,6 +7006,7 @@ export interface components {
             Data?: components["schemas"]["SiteMenuSet_DTO"];
         };
         SiteMenu_IndexInfo_DTO: {
+            /** @description [SiteMenu_SiteIndex] */
             SiteIndex?: string | null;
             /**
              * Format: int32
@@ -7014,11 +7015,15 @@ export interface components {
             RowId?: number | null;
             /** @description 語系 */
             Lang?: string | null;
-            /** @description 標題 */
+            /** @description 選單名稱 */
             Title?: string | null;
+            /** @description [SiteMenu_SiteDescription] */
             Description?: string | null;
+            /** @description [SiteMenu_SiteHeader] */
             SiteHeader?: string | null;
+            /** @description [SiteMenu_SiteFooter] */
             SiteFooter?: string | null;
+            /** @description [SiteMenu_SiteFooter] */
             Keyword?: string | null;
         };
         SiteMenu_Index_DTO: {
@@ -7027,7 +7032,7 @@ export interface components {
              * @description 創建時間
              */
             CreateTime?: string | null;
-            /** @description 創建人ID */
+            /** @description 創建人 */
             CreateUserId?: string | null;
             CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
@@ -7035,7 +7040,7 @@ export interface components {
              * @description 修改時間
              */
             ModifyTime?: string | null;
-            /** @description 修改人ID */
+            /** @description 修改人 */
             ModifyUserId?: string | null;
             ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
@@ -7045,49 +7050,86 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            /** @description [SiteMenu_SiteIndex] */
             SiteIndex?: string | null;
+            /** @description [SiteMenu_GoogleAnalytics] */
             GoogleAnalytics?: string | null;
+            /** @description [SiteMenu_Enable] */
             Enable?: boolean;
         };
         SiteMenu_Item_DTO: {
+            /** @description [SiteMenu_SiteIndex] */
             SiteIndex?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             RowId?: number | null;
             /** Format: int32 */
             ParentRowId?: number | null;
+            /** @description 選單ID */
             ItemSiteUrl?: string | null;
+            /** @description 完整路徑 */
             FullUrl?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description [SiteMenu_Level]
+             */
             Level?: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description [SiteMenu_DisplayOrder]
+             */
             DisplayOrder?: number;
             ItemType?: components["schemas"]["MenuUrlType"];
             WindowTarget?: components["schemas"]["WindowTarget"];
+            /** @description 是否顯示在菜單中 */
             IsShowOnMenu?: boolean;
         };
         SiteMenu_Item_Module_DTO: {
+            /** @description [SiteMenu_SiteIndex] */
             SiteIndex?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             ItemRowId?: number | null;
+            /** @description 橫幅廣告代碼 */
             BannerId?: string | null;
             PageType?: components["schemas"]["ModulePageType"];
+            /** @description 模型功能 */
             ModuleProgId?: string | null;
+            /** @description [SiteMenu_ModuleOptions] */
             ModuleOptions?: string | null;
         };
         SiteMenu_Item_Title_DTO: {
+            /** @description [SiteMenu_SiteIndex] */
             SiteIndex?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             ItemRowId?: number | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             RowId?: number | null;
+            /** @description 語系 */
             Lang?: string | null;
+            /** @description [SiteMenu_MenuTitle] */
             Title?: string | null;
         };
         SiteMenu_Item_Url_DTO: {
+            /** @description [SiteMenu_SiteIndex] */
             SiteIndex?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
             ItemRowId?: number | null;
             RedirectType?: components["schemas"]["MenuUrlType"];
+            /** @description 網址 */
             RedirectUrl?: string | null;
         };
         SpecCategoryDetailModel_DTO: {
@@ -7109,7 +7151,7 @@ export interface components {
              * @description 創建時間
              */
             CreateTime?: string | null;
-            /** @description 創建人ID */
+            /** @description 創建人 */
             CreateUserId?: string | null;
             CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
@@ -7117,7 +7159,7 @@ export interface components {
              * @description 修改時間
              */
             ModifyTime?: string | null;
-            /** @description 修改人ID */
+            /** @description 修改人 */
             ModifyUserId?: string | null;
             ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
@@ -7222,7 +7264,7 @@ export interface components {
              * @description 創建時間
              */
             CreateTime?: string | null;
-            /** @description 創建人ID */
+            /** @description 創建人 */
             CreateUserId?: string | null;
             CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
@@ -7230,7 +7272,7 @@ export interface components {
              * @description 修改時間
              */
             ModifyTime?: string | null;
-            /** @description 修改人ID */
+            /** @description 修改人 */
             ModifyUserId?: string | null;
             ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
@@ -7282,7 +7324,7 @@ export interface components {
             ProjectName?: string | null;
             /** @description 外部合作單位 */
             ExternalCooperationUnit?: string | null;
-            /** @description 本校合作系所單位 */
+            /** @description 系所 */
             Department?: string | null;
             /** @description 執行期間 */
             DuringExecution?: string | null;
@@ -7309,6 +7351,12 @@ export interface components {
             Commissioned?: string | null;
             /** @description 備註 */
             Remark?: string | null;
+            /** @description 計畫項目 */
+            ProjectItem?: string | null;
+            /** @description 相關網址 */
+            Url?: string | null;
+            /** @description 相關網址說明 */
+            UrlDescription?: string | null;
         };
         SpecUSRModel_DTO: {
             /**
@@ -7316,7 +7364,7 @@ export interface components {
              * @description 創建時間
              */
             CreateTime?: string | null;
-            /** @description 創建人ID */
+            /** @description 創建人 */
             CreateUserId?: string | null;
             CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
@@ -7324,7 +7372,7 @@ export interface components {
              * @description 修改時間
              */
             ModifyTime?: string | null;
-            /** @description 修改人ID */
+            /** @description 修改人 */
             ModifyUserId?: string | null;
             ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
@@ -7361,7 +7409,7 @@ export interface components {
              * @description 創建時間
              */
             CreateTime?: string | null;
-            /** @description 創建人ID */
+            /** @description 創建人 */
             CreateUserId?: string | null;
             CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
@@ -7369,7 +7417,7 @@ export interface components {
              * @description 修改時間
              */
             ModifyTime?: string | null;
-            /** @description 修改人ID */
+            /** @description 修改人 */
             ModifyUserId?: string | null;
             ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
@@ -7456,7 +7504,7 @@ export interface components {
              * @description 創建時間
              */
             CreateTime?: string | null;
-            /** @description 創建人ID */
+            /** @description 創建人 */
             CreateUserId?: string | null;
             CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
@@ -7464,7 +7512,7 @@ export interface components {
              * @description 修改時間
              */
             ModifyTime?: string | null;
-            /** @description 修改人ID */
+            /** @description 修改人 */
             ModifyUserId?: string | null;
             ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
@@ -7518,7 +7566,7 @@ export interface components {
              * @description 創建時間
              */
             CreateTime?: string | null;
-            /** @description 創建人ID */
+            /** @description 創建人 */
             CreateUserId?: string | null;
             CreateUser?: components["schemas"]["UserModel_DTO"];
             /**
@@ -7526,7 +7574,7 @@ export interface components {
              * @description 修改時間
              */
             ModifyTime?: string | null;
-            /** @description 修改人ID */
+            /** @description 修改人 */
             ModifyUserId?: string | null;
             ModifyUser?: components["schemas"]["UserModel_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];

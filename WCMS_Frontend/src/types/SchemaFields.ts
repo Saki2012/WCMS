@@ -821,6 +821,9 @@ export const SpecUSRDetailFields = {
     Cohost2: "Cohost2",
     Commissioned: "Commissioned",
     Remark: "Remark",
+    ProjectItem: "ProjectItem",
+    Url: "Url",
+    UrlDescription: "UrlDescription",
 } as const;
 
 export type SpecUSRDetailFieldKey = keyof typeof SpecUSRDetailFields;

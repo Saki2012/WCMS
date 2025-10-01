@@ -552,27 +552,27 @@ const toCSV = (arr: string[] | number[] | undefined | null) => (arr ?? []).map(S
 const fromCSV = (s: string | undefined | null) => (s ?? "").split(",").map(x => x.trim()).filter(Boolean);
 
 export const useSetJsonField = <TSet, TJson extends Record<string, any>>(
-    formData: { data?: TSet; setFormData: (updater: (prev: any) => any) => void; },
+    formData: UseFetchFormDataResult<TSet>, // 🟢 1) 型別改成 UseFetchFormDataResult<TSet>
     tableName: string,
-    fieldName: string, // 目標是 ModuleOptions 這個欄位
-    rowKeys: Record<string, any>, // 你的 row 定位用 keys
+    fieldName: string, // 目標 JSON 欄位（如 ModuleOptions）
+    rowKeys: Record<string, any>, // 定位該列的 keys（SiteIndex+ItemRowId）
     defaults: TJson, // JSON 預設值
 ): JsonFieldBinder<TJson> =>
 {
     const setField = useSetTableField<TSet>(formData);
-    // 這裡拿到 ModuleOptions（字串）對應的基本綁定 { value, onChange }
+
     const base = useMemo(
-        () => setField(tableName, fieldName, "string", rowKeys),
+        () => setField(tableName as any, fieldName as any, "string", rowKeys),
         [setField, tableName, fieldName, rowKeys],
     );
 
-    const get = () => safeParse<TJson>(base.value, defaults);
-    const set = (next: TJson) => base.onChange(JSON.stringify(next));
+    const get = () => safeParse<TJson>(base.InputValue as any, defaults); // 🟢 2) 用 InputValue
+    const set = (next: TJson) => base.onChange?.(JSON.stringify(next)); // 🟢 2) 用 onChange
 
     const bind = <K extends keyof TJson>(key: K, mode: "string" | "number" | "csv" = "string") =>
     {
         const json = get();
-        const rawVal = json[key];
+        const rawVal = (json as any)[key];
 
         const value = mode === "csv"
             ? fromCSV(String(rawVal ?? ""))
@@ -582,17 +582,15 @@ export const useSetJsonField = <TSet, TJson extends Record<string, any>>(
 
         const onChange = (uiVal: any) =>
         {
-            const next: TJson = { ...json };
-            if (mode === "csv")
-            {
-                next[key] = toCSV(uiVal as string[]);
-            } else if (mode === "number")
+            const next: any = { ...json }; // 🟢 3) 用 any 解除 TJson[K] 限制
+            if (mode === "csv") next[key as any] = toCSV(uiVal as string[]);
+            else if (mode === "number")
             {
                 const n = Number(uiVal);
-                next[key] = Number.isFinite(n) ? n : 0;
+                next[key as any] = Number.isFinite(n) ? n : 0;
             } else
             {
-                next[key] = String(uiVal ?? "");
+                next[key as any] = String(uiVal ?? "");
             }
             set(next);
         };

@@ -33,7 +33,7 @@ export interface MainGridContentProp {
     Title: string;
     CoverPicInternlId: string;
     CategoryNames: string;
-    CreateDate: string;
+    Validate_StartDate: string;
 }
 
 const MainContent = ({ props, gridProps, theme }: { props: MainGridContentProp[]; gridProps: GridProps; theme: IFETheme }) => {
@@ -59,7 +59,7 @@ const MainContent = ({ props, gridProps, theme }: { props: MainGridContentProp[]
                                 <div className="category_box">
                                     <div className="m-date_category mt-2">
                                         <i className="fa fa-clock-o" aria-hidden="true"></i>
-                                        <div className="tags-text">{prop.CreateDate}</div>
+                                        <div className="tags-text">{prop.Validate_StartDate}</div>
                                     </div>
                                 </div>
                             </figcaption>

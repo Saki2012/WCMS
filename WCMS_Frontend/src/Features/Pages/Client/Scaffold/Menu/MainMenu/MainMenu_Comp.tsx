@@ -24,11 +24,11 @@ const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] => {
 };
 
 
-export const MainMenu = ({ lang, site }: { lang: string; site: INormSite }) => {
+export const MainMenu = (prop: { lang: Lang; site: INormSite }) => {
   const translateRef = useRef<HTMLDivElement>(null);
   const navsRef = useRef<HTMLDivElement>(null);
   //   const menuItems = mock_MenuListData()
-  const menuItems = GetMenuData(lang, site)
+  const menuItems = GetMenuData(prop.lang, prop.site)
   const Mock_naviData: NaviData[] = [
     {
       Id: "", SrcData: "", Url: "",
@@ -42,10 +42,10 @@ export const MainMenu = ({ lang, site }: { lang: string; site: INormSite }) => {
       Id: "", SrcData: "", Url: "",
       DOMContent: <Link className="nav-link" to="Sitemap" target="_self" title="網站導覽" onClick={() => closeMenu()}>網站導覽</Link>
     },
-    {
-      Id: "", SrcData: "", Url: "",
-      DOMContent: <Link className="nav-link" to="/en" target="_self" title="English" onClick={() => closeMenu()}>English</Link>
-    },
+    // {
+    //   Id: "", SrcData: "", Url: "",
+    //   DOMContent: <Link className="nav-link" to="/en" target="_self" title="English" onClick={() => closeMenu()}>English</Link>
+    // },
   ]
 
   const fakeStyle: IFETheme = Classic_FETheme;

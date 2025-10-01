@@ -51,11 +51,11 @@ const useGetCategories = (lang: string, categoryIds: string) => {
     });
 };
 
-export const GalleryFormComp = (prop: { theme: IFETheme; lang: string | Lang }) => {
+export const GalleryFormComp = (prop: { theme: IFETheme; lang: Lang }) => {
     const { internalId } = useParams()
     const useGalleryFormData = useFetchFormData<GallerySet>(GalleryProvider(), internalId, emptyData)
     const srcCategories = useGalleryFormData.data?.Gallery?.Categories ?? "";
-    const useCategories = useGetCategories(prop.lang as string, srcCategories);
+    const useCategories = useGetCategories(prop.lang, srcCategories);
     const isLoading = [useGalleryFormData.isLoading, useCategories.isLoading];
     const errors = [useGalleryFormData.error, useCategories.error];
     const title = useGalleryFormData.data?.GalleryInfo?.find(p => p.Lang === prop.lang)?.Title ?? "";
@@ -66,8 +66,13 @@ export const GalleryFormComp = (prop: { theme: IFETheme; lang: string | Lang }) 
     const cats = (useCategories.rawData ?? []).flatMap(item => (item.CategoryDetail ?? []).filter(detail => detail.Lang === prop.lang).map(detail => detail.CategoryName)).join(", ");
     return (<GalleryFormViewComp Title={title} CategoryName={cats} Content={content} photoInfoProps={photoInfo} LoadingList={isLoading} ErrorList={errors} />);
 }
-const GetPhotoInfos = (lang: string, photos: GalleryPhotos[], photoInfo: GalleryPhotoInfo[]): PhotoInfos[] => {
+const GetPhotoInfos = (lang: Lang, photos: GalleryPhotos[], photoInfo: GalleryPhotoInfo[]): PhotoInfos[] => {
     const result: PhotoInfos[] = []
-    photos.map((item) => { result.push({ pictureInternalId: item.PicSrcId ?? "" }) })
+    photos.map((item) => {
+        result.push({
+            pictureInternalId: item.PicSrcId ?? "",
+            pictureDescription: photoInfo.find(p => p.ParentRowId === item.RowId && p.Lang === lang)?.Title ?? ""
+        })
+    })
     return result;
 }

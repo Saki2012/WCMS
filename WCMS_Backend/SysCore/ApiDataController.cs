@@ -408,11 +408,11 @@ namespace WCMS.SysCore
             SpecUSRBiz specUSRBiz = HttpContext.RequestServices.GetRequiredService<IBizService<SpecUSRSet>>() as SpecUSRBiz;
             await specUSRBiz.Migrate(labelTag, srcFiles);
 
-            foreach (var fileSet in srcFiles)
-            {
-                var copy = System.Text.Json.JsonSerializer.Deserialize<FileManageSet>(System.Text.Json.JsonSerializer.Serialize(fileSet));
-                await fileManagement.BizUpdateSetAsync(fileSet.FileManage.InternalId, copy);
-            }
+            //foreach (var fileSet in srcFiles)
+            //{
+            //    var copy = System.Text.Json.JsonSerializer.Deserialize<FileManageSet>(System.Text.Json.JsonSerializer.Serialize(fileSet));
+            //    await fileManagement.BizUpdateSetAsync(fileSet.FileManage.InternalId, copy);
+            //}
 
             return Ok();
         }

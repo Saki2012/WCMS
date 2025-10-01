@@ -10,3 +10,4 @@ WCMS_Backend/FileManage/
 *.zip
 *.rar
 *.7z
+WCMS_Backend/appsettings.Development.json

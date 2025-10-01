@@ -5,7 +5,7 @@ type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
 import * as SchemaFields from "@/types/SchemaFields";
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FormatDate } from '@/SysCore/Utils/Library/LibData';
 import parse from 'html-react-parser';
 import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api';
@@ -17,6 +17,7 @@ import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Ca
 import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
 import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
+import { useCallback } from 'react';
 
 const buildInList = (csv?: string) =>
     (csv ?? "")
@@ -136,7 +137,7 @@ const Content = (prop: { lang: string; theme: IFETheme; data: AnnouncementSet; c
                 {href && href.length > 0 && (
                     <li>
                         <a href={href} target="_blank" rel="noopener noreferrer" className="btn btn-default">
-                            <i className="fa fa-link"></i> {hrefName ?? href}
+                            <i className="fa fa-link"></i> {hrefName !== "" ? hrefName : href}
                         </a>
                     </li>
                 )}
@@ -151,6 +152,31 @@ const Content = (prop: { lang: string; theme: IFETheme; data: AnnouncementSet; c
                 )}
             </ul>
         }
+        <GoBackRow />
     </>
     )
 }
+
+const GoBackRow: React.FC = () => {
+    const navigate = useNavigate();
+    const handleBack = useCallback(
+        (e: React.MouseEvent<HTMLButtonElement>) => {
+            e.preventDefault();       // 避免在表單中觸發提交
+            navigate(-1);             // 等同 history.back()
+        },
+        [navigate]
+    );
+    const title = "回上一頁"
+    return (
+        <div className="row">
+            <div className="col-lg-8 col-md-8 col-sm-6 col-4" />
+            <div className="col-lg-2 col-md-2 col-sm-3 col-4 text-right" />
+            <div className="col-lg-2 col-md-2 col-sm-3 col-4 text-right">
+                <button type="button" className="btn btn-primary btn-custom-color"
+                    title={title} aria-label={title} onClick={handleBack}>
+                    {title}
+                </button>
+            </div>
+        </div>
+    );
+};

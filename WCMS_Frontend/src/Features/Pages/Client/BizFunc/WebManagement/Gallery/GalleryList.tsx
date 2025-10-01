@@ -27,6 +27,7 @@ const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
             [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.Categories],
             [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.CoverPicSrcId],
             [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.CreateTime],
+            [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.Validate_Start],
             [SchemaFields.GallerySetFields.GalleryInfo, SchemaFields.GalleryInfoFields.Lang],
             [SchemaFields.GallerySetFields.GalleryInfo, SchemaFields.GalleryInfoFields.Title],
         ],
@@ -36,6 +37,7 @@ const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
                 SchemaFields.GalleryFields.Categories,
                 SchemaFields.GalleryFields.CoverPicSrcId,
                 SchemaFields.GalleryFields.CreateTime,
+                SchemaFields.GalleryFields.Validate_Start,
                 `${SchemaFields.GallerySetFields.GalleryInfo}.${SchemaFields.GalleryInfoFields.Lang}`,
                 `${SchemaFields.GallerySetFields.GalleryInfo}.${SchemaFields.GalleryInfoFields.Title}`,
             ],
@@ -55,6 +57,7 @@ const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
                         break;
                     case SchemaFields.GalleryFields.CreateTime:
                     case SchemaFields.GalleryFields.ModifyTime:
+                    case SchemaFields.GalleryFields.Validate_Start:
                         content = FormatDate((data as any)[col.key]);
                         break;
                     default:
@@ -72,7 +75,7 @@ const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
 
 
 export interface IGalleryListOptions { Title: string, Category?: string; Tag?: string; Style: number; }
-interface IGalleryListProps { Theme: IFETheme; Lang: string | Lang; Options?: IGalleryListOptions; title: string }
+interface IGalleryListProps { Theme: IFETheme; Lang: Lang; Options?: IGalleryListOptions; title: string }
 
 
 export const GalleryListComp = (props: IGalleryListProps) => {
@@ -102,13 +105,13 @@ const GetGridViewContentProps = (lang: string, rawData: GallerySet[], categoryLi
         const coverPic = gly?.CoverPicSrcId ?? "";
         const categorys = (gly?.Categories ?? "").split(",").map(s => s.trim()).filter(Boolean);
         const categories = categorys.map(catId => categoryList?.find(s => String(s.Category?.CategoryId) === catId)?.CategoryDetail?.find(d => d.Lang === lang)?.CategoryName).filter((x): x is string => !!x).join("、");
-        const created = FormatDate(gly?.CreateTime) ?? "";
+        const validate_Start = FormatDate(gly?.Validate_Start) ?? "";
         result.push({
             galleryInternalId: galleryId,
             Title: title,
             CoverPicInternlId: coverPic,
             CategoryNames: categories,
-            CreateDate: created,
+            Validate_StartDate: validate_Start,
         });
     });
     return result;

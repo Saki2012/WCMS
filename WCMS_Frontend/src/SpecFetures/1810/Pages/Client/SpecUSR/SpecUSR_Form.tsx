@@ -10,7 +10,6 @@ import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import * as SchemaFields from "@/types/SchemaFields"
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import type { ColumnConfig } from '@/SysCore/Components/Grid/Grid_Data';
-
 import DefaultPic from "@/Assets/1810/images_960x960.jpg"
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import "yet-another-react-lightbox/styles.css";
@@ -23,6 +22,7 @@ import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 import { useState } from 'react';
 import type { PhotoInfos } from '@/Features/Pages/Client/Scaffold/ContentViewMode/GalleryView/GalleryFormView';
+import { LibTextBox } from '@/SysCore/Components/FormField/LibFormField';
 
 
 const emptyData: SpecUSRSet = {}
@@ -54,6 +54,8 @@ const useSpecUSRList = (internalId: string) => {
             [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Cohost2],
             [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Commissioned],
             [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Remark],
+            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ProjectItem],
+            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Url],
         ],
         buildQueryCondition: () => ({
             Fields: [
@@ -93,22 +95,21 @@ export const SpecUSRFormComp = (props: ISpecUSRFormProps) => {
 
 const SpecUSRForm = ({ lang, rawData, showColumns, showColTitle }: { lang: string | Lang; rawData: SpecUSRSet; showColumns: string[]; showColTitle: ColumnConfig[]; }) => {
 
-    const allCols = ["Year", "AcademicYear", "Courses", "PracticeField", "ProjectName",
-        "ExternalCooperationUnit", "Department", "PlanAmount", "DuringExecution", "ExecutionStrategy",
-        "ContentIntroduction", "ProjectConcept", "ProjectHighlights", "ProjectLeader", "Cohost1",
+    const allCols = ["Year", "AcademicYear", "Courses", "ProjectLeader", "PracticeField", "ProjectName",
+        "ExternalCooperationUnit", "Department", "ProjectItem", "PlanAmount", "DuringExecution", "ExecutionStrategy",
+        "ContentIntroduction", "ProjectConcept", "ProjectHighlights", "Cohost1",
         "Cohost2", "Commissioned", "Remark"]
     const header = rawData.SpecUSR;
     const detail = rawData.SpecUSRDetail?.find(p => p.Lang === lang);
-
     const [open, setOpen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const images = (header?.PictureId
-        ? [{
-            src: `${FileManagementAPI.PREVIEW_URL}/${header.PictureId}`,
-            title: `${header.PicDescription ?? ""}`
-        }]
+    const images = (header?.PictureId ? [{
+        src: `${FileManagementAPI.PREVIEW_URL}/${header.PictureId}`,
+        title: `${header.PicDescription ?? ""}`
+    }]
         : []
     );
+
 
     return (
         <div className="articles_contentBoxs_1 mb-5">
@@ -131,7 +132,6 @@ const SpecUSRForm = ({ lang, rawData, showColumns, showColTitle }: { lang: strin
                                 </div>)
                         })}
 
-
                         <div className="tr__Box">
                             <div className="td__ col-sm-2 col-12 before_line d-flex justify-content-end align-content-center p-0">
                                 <div className="ttBox_L">{showColTitle.find(p => p.key === "PictureId")?.title}</div>
@@ -153,16 +153,26 @@ const SpecUSRForm = ({ lang, rawData, showColumns, showColTitle }: { lang: strin
                                 </div>
                             </div>
                         </div>
+
+                        {detail?.Url?.trim() && (
+                            <div className="tr__Box">
+                                <div className="td__ col-sm-2 col-12 before_line d-flex justify-content-end align-content-center p-0">
+                                    <div className="ttBox_L">{showColTitle.find(p => p.key === "Url")?.title}</div>
+                                </div>
+                                <div className="td__ col-sm-10 col-12 d-flex justify-content-start align-content-center p-0">
+                                    <div className="ttBox_R">
+                                        <a href={detail?.Url ?? ""} target="_blank" rel="noopener noreferrer" className="btn btn-default">
+                                            <i className="fa fa-link"></i> {detail?.UrlDescription}</a>
+                                    </div>
+                                </div>
+                            </div>)}
+
                     </div>
                 </article>
             </div>
             {open && (
-                <Lightbox
-                    open={open}
-                    close={() => setOpen(false)}
-                    slides={images}
-                    index={currentIndex}
-                    plugins={[Download, Share, Fullscreen, Zoom, Thumbnails]}
+                <Lightbox open={open} close={() => setOpen(false)} slides={images}
+                    index={currentIndex} plugins={[Download, Share, Fullscreen, Zoom, Thumbnails]}
                 // plugins={[Download, Share, Captions, Counter, Fullscreen, Inline, Slideshow, Thumbnails, Video, Zoom]}
                 />
             )}

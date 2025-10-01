@@ -28,6 +28,7 @@ const useGalleryList = () => {
                 SchemaFields.GalleryFields.Categories,
                 SchemaFields.GalleryFields.CoverPicSrcId,
                 SchemaFields.GalleryFields.CreateTime,
+                SchemaFields.GalleryFields.Validate_Start,
                 `${SchemaFields.GallerySetFields.GalleryInfo}.${SchemaFields.GalleryInfoFields.Lang}`,
                 `${SchemaFields.GallerySetFields.GalleryInfo}.${SchemaFields.GalleryInfoFields.Title}`,
             ],
@@ -81,7 +82,7 @@ const getDataProps = (lang: string, galleryData: GallerySet[], catData: Category
             internalId: item.Gallery?.InternalId ?? "",
             picInternalId: item.Gallery?.CoverPicSrcId ?? "",
             title: item.GalleryInfo?.find(p => p.Lang === lang)?.Title ?? "",
-            date: FormatDate(item.Gallery?.CreateTime),
+            date: FormatDate(item.Gallery?.Validate_Start),
             catName: catsName,
         })
     })

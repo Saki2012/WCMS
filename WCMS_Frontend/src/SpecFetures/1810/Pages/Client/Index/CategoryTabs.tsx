@@ -173,8 +173,8 @@ export const CategoryTabs = () => {
         })
     );
 
-    const allNews = getNewsDataProps(allNewsRawData, lang, "/Allnews/Project-solicitation/National-Science-Accounting", "", categoryDict, tagDict);
-    const project = getNewsDataProps(projectRawData, lang, "/Allnews/Project-solicitation/National-Science-Accounting", "", categoryDict, tagDict);
+    const allNews = getNewsDataProps(allNewsRawData, lang, "/Allnews/All-announcement", "", categoryDict, tagDict);
+    const project = getNewsDataProps(projectRawData, lang, "/Allnews/All-announcement", "", categoryDict, tagDict);
     const legal = getNewsDataProps(legalRawData, lang, "/Allnews/Regulatory-Announcements", "6", categoryDict, tagDict)
     const even = getNewsDataProps(evenRawData, lang, "/Allnews/Intramural-activities/In-school-activities", "", categoryDict, tagDict)
     const award = getNewsDataProps(awardRawData, lang, "/Allnews/Award-announcement", "45", categoryDict, tagDict)

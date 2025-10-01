@@ -28,11 +28,12 @@ const useSpecUSRList = (categoryId: string, tagIds: string) => {
         fetchListCount: (cond) => provider.fetchListCount(cond),
         visibleKeys: [
             [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Year],
+            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ProjectLeader],
+            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ProjectItem],
             [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ExternalCooperationUnit],
             [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Department],
             [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.PlanAmount],
             [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.DuringExecution],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ProjectLeader],
             [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Cohost1],
             [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Cohost2],
             [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Commissioned],
@@ -46,6 +47,7 @@ const useSpecUSRList = (categoryId: string, tagIds: string) => {
                 `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Lang}`,
                 `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Year}`,
                 `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ProjectName}`,
+                `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ProjectItem}`,
                 `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ExternalCooperationUnit}`,
                 `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Department}`,
                 `${SchemaFields.SpecUSRSetFields.SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.PlanAmount}`,
@@ -113,7 +115,7 @@ export const SpecUSRListComp = (props: ISpecUSRListProps) => {
 
 const SpecUSRList = ({ lang, rawData, showColumnItems, showColTitle }: { lang: string; rawData: SpecUSRSet[]; showColumnItems: string[]; showColTitle: ColumnConfig[] }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
-    const cols = ["Year", "ExternalCooperationUnit", "Department", "PlanAmount", "DuringExecution", "ProjectLeader", "Cohost1", "Cohost2", "Commissioned"]
+    const cols = ["Year", "ProjectLeader", "ExternalCooperationUnit", "Department", "ProjectItem", "PlanAmount", "DuringExecution", "Cohost1", "Cohost2", "Commissioned"]
     return (
         <>
             <div id="ContentPlaceContent_ContentConentA" className="col-sm-12 col-12 px-0">
@@ -123,10 +125,7 @@ const SpecUSRList = ({ lang, rawData, showColumnItems, showColTitle }: { lang: s
                     {rawData.map((item) => {
                         const pageLink = `${dirUrl}/${item.SpecUSR?.InternalId}`;
                         const detail = item.SpecUSRDetail?.find(p => p.Lang.toLocaleLowerCase() === lang.toLocaleLowerCase());
-
                         const picUrl = item.SpecUSR?.PictureId ? `${FileManagementAPI.PREVIEW_URL}/${item.SpecUSR?.PictureId}` : DefaultPic
-
-
                         return (
                             <div className="articles_item col-12">
                                 <article className="cardbox">
