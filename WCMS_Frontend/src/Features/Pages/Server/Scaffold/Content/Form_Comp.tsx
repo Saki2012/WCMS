@@ -5,7 +5,6 @@ import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Cont
 
 
 export const FormComp = ({ prop, children }: { prop: FormCompProp; children: React.ReactNode }) => {
-
     return (
         <div className="Form-Main-Content">
             <div className="row">
@@ -20,7 +19,7 @@ export const FormComp = ({ prop, children }: { prop: FormCompProp; children: Rea
                                     <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList} >
                                         {children}
                                         <DividerComp></DividerComp>
-                                        <Form_Toolbar items={prop.Toolbar}></Form_Toolbar>
+                                        <Form_Toolbar items={prop.Toolbar ?? []}></Form_Toolbar>
                                     </LoadingErrorHandler>
                                 </div>
                             </div>

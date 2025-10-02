@@ -373,10 +373,6 @@ namespace WCMS.SysCore.Enum
         public enum ModuleDisplayStyle : byte
         {
             /// <summary>
-            /// 無
-            /// </summary>
-            None=0,
-            /// <summary>
             /// 清單列表式
             /// </summary>
             [LibDesc(ModelDisplayName.Enum_List)] List =1,

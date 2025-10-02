@@ -321,7 +321,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
             {
                 case FuncAction.Create:
                 case FuncAction.Update:
-                    //SetData(set);
+                    SetData(set);
                     break;
             }
         }
@@ -332,25 +332,31 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         {
 
         }
-        private void SetData(SiteMenuSet set)
+        private static void SetData(SiteMenuSet set)
         {
             SetItemFullUrl(set);
         }
-        private void SetItemFullUrl(SiteMenuSet set)
+        private static void SetItemFullUrl(SiteMenuSet set)
         {
-            foreach (var item in set.SiteMenu_Item)
-                if (item.RowState.In(RowState.Insert, RowState.Update))
-                    SetFullUrl(item);
-        }
-        private void SetFullUrl(SiteMenu_Item item)
-        {
-            string parentFullUrl = GetParentFullUrl(item.SiteIndex, item.ParentRowId);
-            item.FullUrl = LibData.Merge('/', false, parentFullUrl, item.ItemSiteUrl);
-        }
-        private string GetParentFullUrl(string sideIndex, int? parentRowId)
-        {
-            //this.BizQueryListAsync([])
-            return string.Empty;
+            if (set?.SiteMenu_Item == null || set.SiteMenu_Item.Count == 0) return;
+            var byId = set.SiteMenu_Item.ToDictionary(x => x.RowId);
+            static string Normalize(string? segment) => (segment ?? string.Empty).Trim('/');
+            static string Combine(string? parentFull, string segment)
+            {
+                var p = (parentFull ?? string.Empty).Trim('/');
+                var s = Normalize(segment);
+                return "/" + (string.IsNullOrEmpty(p) ? s : $"{p}/{s}");
+            }
+            foreach (var item in set.SiteMenu_Item.OrderBy(i => i.Level))
+            {
+                var seg = Normalize(item.ItemSiteUrl);
+                if (item.ParentRowId is null || !byId.TryGetValue(item.ParentRowId.Value, out var parent))
+                {
+                    item.FullUrl = "/" + seg;
+                    continue;
+                }
+                item.FullUrl = Combine(parent.FullUrl, seg);
+            }
         }
         #endregion
     }

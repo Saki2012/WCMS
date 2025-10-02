@@ -3,8 +3,10 @@ import Footer from "@/Features/Pages/Client/Scaffold/Footer/Footer_Comp"
 import { Outlet } from 'react-router-dom'
 import { useLocation } from 'react-router-dom';
 import type { INormSite } from "@/Features/Pages/Client/Site-Routing";
+import type { Lang } from "@/SysCore/i18n/lang";
+import type { IFETheme } from "../../Theme/ITheme";
 
-export const Index = ({ lang, site }: { lang: string; site: INormSite }) => {
+export const Index = ({ lang, site, style }: { lang: Lang; site: INormSite; style: IFETheme }) => {
   const location = useLocation();
   const currentPath = location.pathname;
   const isSubPage = currentPath !== '/';
@@ -13,7 +15,7 @@ export const Index = ({ lang, site }: { lang: string; site: INormSite }) => {
   return (
     <>
       <div id="Customsize" className={containerClass}>
-        <Header lang={lang} site={site} />
+        <Header lang={lang} site={site} style={style} />
         <Outlet />
         <Footer />
       </div>

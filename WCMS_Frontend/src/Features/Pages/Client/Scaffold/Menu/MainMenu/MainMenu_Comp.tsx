@@ -3,7 +3,6 @@ import NaviBarComp from '@/SysCore/Components/NaviBar/NaviBar_Comp'
 import type { NaviData } from '@/SysCore/Components/NaviBar/NaviBar_Data'
 import { Link } from 'react-router-dom';
 import type { IFETheme } from '@/Features/Pages/Client/Theme/ITheme';
-import { Classic_FETheme } from '@/Features/Pages/Client/Theme/ClassicTheme_Clsx';
 import MenuListComp from '@/SysCore/Components/MenuList/MenuList_Comp';
 import type { INormSite } from '@/Features/Pages/Client/Site-Routing';
 import { buildMenuItems } from '@/Features/Pages/Client/BizFunc/MainPage/SubPages';
@@ -24,10 +23,9 @@ const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] => {
 };
 
 
-export const MainMenu = (prop: { lang: Lang; site: INormSite }) => {
+export const MainMenu = (prop: { lang: Lang; site: INormSite; style: IFETheme }) => {
   const translateRef = useRef<HTMLDivElement>(null);
   const navsRef = useRef<HTMLDivElement>(null);
-  //   const menuItems = mock_MenuListData()
   const menuItems = GetMenuData(prop.lang, prop.site)
   const Mock_naviData: NaviData[] = [
     {
@@ -48,7 +46,6 @@ export const MainMenu = (prop: { lang: Lang; site: INormSite }) => {
     // },
   ]
 
-  const fakeStyle: IFETheme = Classic_FETheme;
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -91,7 +88,7 @@ export const MainMenu = (prop: { lang: Lang; site: INormSite }) => {
         {/* // topBox上方選單 // */}
         <div className="topBox">
           <div className="navsBox" ref={navsRef}>
-            <NaviBarComp items={Mock_naviData} style={fakeStyle.NaviBarMenu} ></NaviBarComp>
+            <NaviBarComp items={Mock_naviData} style={prop.style.NaviBarMenu} ></NaviBarComp>
           </div>
         </div>
         {/* // topBox上方選單 end // */}
@@ -103,7 +100,7 @@ export const MainMenu = (prop: { lang: Lang; site: INormSite }) => {
         {/* // menuBox // */}
         <nav className="menuBox">
           <ul id="menu" ref={menuRef}>
-            <MenuListComp items={menuItems} Style={fakeStyle.MainMenu}></MenuListComp>
+            <MenuListComp items={menuItems} Style={prop.style.MainMenu}></MenuListComp>
           </ul>
           {/* <script type="text/javascript">
                 $(function () {

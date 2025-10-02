@@ -6403,7 +6403,7 @@ export interface components {
             Validate_End?: string | null;
         };
         BannerDetailInfo_DTO: {
-            /** @description 橫幅廣告代碼 */
+            /** @description 橫幅廣告 */
             BannerId?: string | null;
             /**
              * Format: int32
@@ -6426,7 +6426,7 @@ export interface components {
             URL_Open?: components["schemas"]["WindowTarget"];
         };
         BannerDetail_DTO: {
-            /** @description 橫幅廣告代碼 */
+            /** @description 橫幅廣告 */
             BannerId?: string | null;
             /**
              * Format: int32
@@ -6487,7 +6487,7 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
-            /** @description 橫幅廣告代碼 */
+            /** @description 橫幅廣告 */
             BannerId?: string | null;
             /** @description 橫幅類別名稱 */
             BannerCategoryName?: string | null;
@@ -7012,7 +7012,7 @@ export interface components {
              * Format: int32
              * @description 行代碼
              */
-            RowId?: number | null;
+            RowId?: number;
             /** @description 語系 */
             Lang?: string | null;
             /** @description 選單名稱 */
@@ -7064,7 +7064,7 @@ export interface components {
              * Format: int32
              * @description 行代碼
              */
-            RowId?: number | null;
+            RowId?: number;
             /** Format: int32 */
             ParentRowId?: number | null;
             /** @description 選單ID */
@@ -7094,7 +7094,7 @@ export interface components {
              * @description 行代碼
              */
             ItemRowId?: number | null;
-            /** @description 橫幅廣告代碼 */
+            /** @description 橫幅廣告 */
             BannerId?: string | null;
             PageType?: components["schemas"]["ModulePageType"];
             /** @description 模型功能 */
@@ -7324,7 +7324,7 @@ export interface components {
             ProjectName?: string | null;
             /** @description 外部合作單位 */
             ExternalCooperationUnit?: string | null;
-            /** @description 系所 */
+            /** @description 本校合作系所/單位 */
             Department?: string | null;
             /** @description 執行期間 */
             DuringExecution?: string | null;
@@ -7389,7 +7389,7 @@ export interface components {
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 標籤 */
             Tags?: string | null;
-            /** @description 封面圖片 */
+            /** @description 活動圖片 */
             PictureId?: string | null;
             /** @description 圖片說明 */
             PicDescription?: string | null;

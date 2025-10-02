@@ -54,14 +54,14 @@ export const List_Toolbar = ({ items }: { items: ToolbarAction[] }) => {
     );
 }
 
-export const Form_Toolbar = ({ items }: { items: ToolbarAction[] }) => {
+export const Form_Toolbar = (prop: { items: ToolbarAction[] }) => {
     return (
         <div className="row mx-0">
             <div className="col form-group">
                 <div className="row mx-0">
                     <div className="col float-md-left float-sm-none d-flex justify-content-start">
 
-                        {items && items.map((btn, idx) => (btn.Type === 'link' ? (
+                        {prop.items && prop.items.map((btn, idx) => (btn.Type === 'link' ? (
                             <a key={idx} href={btn.Url} target="_self" className="btn btn-custom btn-rounded btn-sm m-2" title={btn.Title}>
                                 {btn.Title}
                             </a>

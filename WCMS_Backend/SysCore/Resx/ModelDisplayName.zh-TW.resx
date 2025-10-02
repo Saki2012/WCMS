@@ -169,7 +169,7 @@
     <value>語系</value>
   </data>
   <data name="BannerId" xml:space="preserve">
-    <value>橫幅廣告代碼</value>
+    <value>橫幅廣告</value>
   </data>
   <data name="Banner_CategoryName" xml:space="preserve">
     <value>橫幅類別名稱</value>
@@ -591,7 +591,7 @@
   <data name="Enum_QAList" xml:space="preserve">
     <value>QA列表式</value>
   </data>
-  <data name="Enum_WaterfalL" xml:space="preserve">
+  <data name="Enum_Waterfall" xml:space="preserve">
     <value>瀑布式</value>
   </data>
   <data name="Enum_Expand_Category" xml:space="preserve">

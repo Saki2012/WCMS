@@ -12,8 +12,8 @@ using WCMS.SysCore;
 namespace WCMS.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250925054835_piccannull")]
-    partial class piccannull
+    [Migration("20251002094749_recove")]
+    partial class recove
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -84,8 +84,8 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("PicDescription")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("PictureId")
                         .HasMaxLength(36)
@@ -149,8 +149,8 @@ namespace WCMS.Migrations
 
                     b.Property<string>("UrlDescription")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.HasKey("AnnouncementId", "RowId");
 
@@ -736,8 +736,8 @@ namespace WCMS.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.HasKey("GalleryId", "ParentRowId", "RowId");
 
@@ -1004,8 +1004,8 @@ namespace WCMS.Migrations
 
                     b.Property<string>("PicDescription")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("PicId")
                         .HasMaxLength(36)
@@ -1084,13 +1084,13 @@ namespace WCMS.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("Keyword")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("Lang")
                         .HasMaxLength(10)
@@ -1141,8 +1141,8 @@ namespace WCMS.Migrations
 
                     b.Property<string>("GoogleAnalytics")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("InternalId")
                         .IsRequired()
@@ -1505,12 +1505,12 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("ProjectName")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("Remark")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("Semester")
                         .HasMaxLength(10)
@@ -1678,6 +1678,10 @@ namespace WCMS.Migrations
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 
+                    b.Property<string>("ProjectItem")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<string>("ProjectLeader")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
@@ -1689,6 +1693,14 @@ namespace WCMS.Migrations
                     b.Property<string>("Remark")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Url")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("UrlDescription")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<string>("Year")
                         .HasMaxLength(10)
@@ -1759,8 +1771,8 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("PicDescription")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("PictureId")
                         .HasMaxLength(36)
@@ -1814,8 +1826,8 @@ namespace WCMS.Migrations
 
                     b.Property<string>("Browser")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<byte>("ExcStatus")
                         .HasColumnType("tinyint");
@@ -1863,8 +1875,8 @@ namespace WCMS.Migrations
 
                     b.Property<string>("FileDescription")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("FileExtension")
                         .IsRequired()
@@ -1969,8 +1981,8 @@ namespace WCMS.Migrations
 
                     b.Property<string>("UserAgent")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.HasKey("InternalId", "RowId");
 

@@ -4,7 +4,6 @@ import { BaseCarousel } from '@/SysCore/Components/BaseCarousel'
 import { Link } from 'react-router-dom';
 import type { components } from '@/types/api';
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"]
-type TagSet = components["schemas"]["TagSet_DTO"]
 import * as SchemaFields from "@/types/SchemaFields";
 import WebResourceProvider from '@/Features/Hooks/BizFunc/WebManagement/WebResource/WebResource_Api';
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
@@ -41,7 +40,6 @@ const useWebResourceList = () => {
 };
 
 const getDataProps = (lang: string, rawData: WebResourceSet[]) => {
-    const allowCategories = ["29", "31", "30", "32"];
     const result: DataProp[] = [];
     rawData.forEach(item => {
         const detail = item.WebResourceInfo?.find(p => p.Lang === lang);

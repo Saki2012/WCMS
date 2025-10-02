@@ -181,8 +181,6 @@ interface GoTopButtonProps {
   durationMs?: number;
   /** 圖示路徑 */
   iconSrc?: string;
-  /** 額外 className（會疊加到根元素） */
-  className?: string;
   /** 自訂 style */
   style?: React.CSSProperties;
   /** 無障礙名稱（螢幕報讀） */
@@ -197,7 +195,6 @@ const GoTopButton: React.FC<GoTopButtonProps> = (props) => {
     threshold = 300,
     durationMs = 800,
     iconSrc = "/Legacy/Client/images/go-to-top/gototop_40x40.svg",
-    className = "",
     style,
     ariaLabel = "回到頂端",
     title = "置頂",

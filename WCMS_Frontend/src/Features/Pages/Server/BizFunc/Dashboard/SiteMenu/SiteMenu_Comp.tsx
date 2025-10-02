@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Nestable from "react-nestable";
 import type { RenderItem } from "react-nestable";
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
@@ -18,10 +18,12 @@ import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { useSetJsonField, useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import "react-nestable/dist/styles/index.css";
-import { useCategoryListData, useGetCategoryListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
-import { useGetTagListByProgId, useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
+import { useCategoryListData } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
+import { useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 import { usePageListData } from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Hook";
 import { useSpecCateListData } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Hook";
+import { useFormToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
+import type { ToolbarAction } from "@/SysCore/Components/Toolbar/Toolbar_Data";
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"]
 type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"]
 type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title_DTO"]
@@ -75,9 +77,9 @@ const siteMenuInfo = (data: SiteMenuSet, lang: Lang): Item[] => {
   // 建立：itemRowId -> (lang -> title) 對照
   const titleDict = new Map<number, Map<string, string>>();
   for (const t of titles) {
-    const itemRowId = (t as any).ItemRowId as number | undefined;
+    const itemRowId = (t as SiteMenu_Item_Title).ItemRowId;
     if (!itemRowId) continue;
-    const l = String((t as any).Lang ?? "").toLowerCase();
+    const l = String((t as SiteMenu_Item_Title).Lang ?? "").toLowerCase();
     const title = String((t as any).Title ?? "");
     if (!titleDict.has(itemRowId)) titleDict.set(itemRowId, new Map());
     titleDict.get(itemRowId)!.set(l, title);
@@ -129,7 +131,7 @@ const siteMenuInfo = (data: SiteMenuSet, lang: Lang): Item[] => {
 export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
   const [selectedItemEdit, setSelectedItemEdit] = useState<Item | null>(null);
   const useSiteList = useFetchGridListData<SiteMenuSet>(GetSiteMenuListOpt());
-  const internalId = useSiteList.rawData?.[0]?.SiteMenu_Index?.InternalId ?? "dda133d3-0932-4ee6-a745-9611dd0bcbb9"
+  const internalId = useSiteList.rawData?.[0]?.SiteMenu_Index?.InternalId ?? "87cb0b3b-105a-4902-b284-3e96a25b918d"
   const useSiteInfo = useFetchFormData<SiteMenuSet>(SiteMenuProvider(), internalId, emptyData)
   const windowTarget = useFetchEnumOptions("WindowTarget")
   const menuUrlType = useFetchEnumOptions("MenuUrlType")
@@ -139,7 +141,7 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
   const usetagList = useTagListData("", prop.lang)
   const usePageList = usePageListData()
   const useSpecCateDatas = useSpecCateListData("", prop.lang)
-
+  const useToolbar = useFormToolbarActions(SiteMenuProvider(), useSiteInfo.data as SiteMenuSet, internalId as string, () => useSiteInfo.refetch())
   const useBannerList = useFetchGridListData<BannerSet>(GetBannerListOpt());
   const bannerDict = React.useMemo<Record<string, string>>(() => {
     const src = useBannerList.rawData ?? [];
@@ -160,9 +162,9 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
   return (
     <FormComp prop={formProp}>
       <div className="row">
-        <RenderLeftBox setSelectedItemEdit={setSelectedItemEdit} sitemenuSet={useSiteInfo.data} lang={prop.lang} />
+        <RenderLeftBox setSelectedItemEdit={setSelectedItemEdit} sitemenuSet={useSiteInfo.data} lang={prop.lang} formData={useSiteInfo} action={useToolbar.action} />
         <MenuSettingBox theme={prop.theme} selectedItemEdit={selectedItemEdit} formData={useSiteInfo} windowTarget={windowTarget.data} menuUrlType={menuUrlType.data} modulePageType={modulePageType.data}
-          bannerDict={bannerDict} moduleDisplayStyle={moduleDisplayStyle.data} categoryDatas={useCateList.rawData} tagDatas={usetagList.rawData} pageList={usePageList.rawData} specCateDatas={useSpecCateDatas.rawData}
+          bannerDict={bannerDict} moduleDisplayStyle={moduleDisplayStyle.data} categoryDatas={useCateList.rawData} tagDatas={usetagList.rawData} pageList={usePageList.rawData} specCateDatas={useSpecCateDatas.rawData} action={useToolbar.action}
         />
       </div>
     </FormComp>
@@ -170,9 +172,79 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
 };
 
 //LeftBox
-const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStateAction<Item | null>>; sitemenuSet: SiteMenuSet; lang: Lang }) => {
+const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStateAction<Item | null>>; sitemenuSet: SiteMenuSet; lang: Lang; formData: UseFetchFormDataResult<SiteMenuSet>; action: ToolbarAction[] }) => {
   const [collapseAll, setCollapseAll] = useState(false);
   const [items, setItems] = useState<Item[]>([]);
+  const [dirty, setDirty] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [candidate, setCandidate] = useState<Item | null>(null);
+  const collectRowIds = (node: Item): number[] => {
+    const self = Number(node?.MenuItem?.Item?.RowId ?? node.id);
+    const children = (node.children ?? []).flatMap(collectRowIds);
+    return [self, ...children];
+  };
+  const findWithParent = (arr: Item[], id: number): { node: Item | null; parent: Item | null } => {
+    for (const n of arr) {
+      if (n.id === id) return { node: n, parent: null };
+      if (n.children?.length) {
+        if (n.children.some(c => c.id === id)) {
+          const node = n.children.find(c => c.id === id) ?? null;
+          return { node, parent: n };
+        }
+        const deep = findWithParent(n.children, id);
+        if (deep.node) return deep;
+      }
+    }
+    return { node: null, parent: null };
+  };
+  const removeNodeAndSubtree = (arr: Item[], id: number): Item[] => arr.filter(n => n.id !== id).map(n => ({ ...n, children: n.children ? removeNodeAndSubtree(n.children, id) : undefined }));
+  const promoteChildrenToParent = (arr: Item[], id: number): Item[] => {
+    const clone = (nodes: Item[]): Item[] => nodes.map(n => ({ ...n, children: n.children ? clone(n.children) : undefined }));
+    const next = clone(arr);
+
+    const walk = (nodes: Item[], parent: Item | null): boolean => {
+      for (let i = 0; i < nodes.length; i++) {
+        const n = nodes[i];
+        if (n.id === id) {
+          // 把 n 的 children 接到 parent 底下（插入 n 原本位置）
+          if (parent) {
+            const siblings = parent.children ?? [];
+            const before = siblings.slice(0, i);
+            const after = siblings.slice(i + 1);
+            const kids = n.children ?? [];
+            parent.children = [...before, ...kids, ...after];
+          } else {
+            // n 是 root，則把 children 直接提升為新的 root
+            const idx = next.findIndex(r => r.id === id);
+            const kids = n.children ?? [];
+            next.splice(idx, 1, ...kids);
+          }
+          return true;
+        }
+        if (n.children?.length && walk(n.children, n)) return true;
+      }
+      return false;
+    };
+
+    walk(next, null);
+    return next;
+  };
+  const applyRemovalToForm = (idsToRemove: Set<number>) => {
+    prop.formData.setFormData(prev => {
+      if (!prev) return prev;
+      const next = { ...(prev ?? {}) } as SiteMenuSet;
+
+      next.SiteMenu_Item = (next.SiteMenu_Item ?? []).filter(x => !idsToRemove.has(Number((x as any).RowId)));
+      next.SiteMenu_Item_Title = (next.SiteMenu_Item_Title ?? []).filter(t => !idsToRemove.has(Number((t as any).ParentRowId)));
+      next.SiteMenu_Item_Module = (next.SiteMenu_Item_Module ?? []).filter(m => !idsToRemove.has(Number((m as any).ItemRowId)));
+      next.SiteMenu_Item_Url = (next.SiteMenu_Item_Url ?? []).filter(u => !idsToRemove.has(Number((u as any).ItemRowId)));
+
+      return next;
+    });
+  };
+
+
+
   useEffect(() => { setItems(siteMenuInfo(prop.sitemenuSet, prop.lang ?? DefaultLang)); }, [prop.sitemenuSet, prop.lang]);
   const renderItem: RenderItem = ({ item, handler, collapseIcon }) => {
     const typedItem = item as Item;
@@ -200,9 +272,11 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
             <div className="icon" title="">
               <button title="刪除" className="Itrash btn btn-ctm btn-ctm-rounded"
                 onClick={() => {
-                  const deleteItem = (arr: Item[], id: number): Item[] => arr.filter((i) => i.id !== id).map((i) => ({ ...i, children: i.children ? deleteItem(i.children, id) : undefined, }));
-                  setItems(deleteItem(items, item.id));
-                  prop.setSelectedItemEdit(null);
+                  // const deleteItem = (arr: Item[], id: number): Item[] => arr.filter((i) => i.id !== id).map((i) => ({ ...i, children: i.children ? deleteItem(i.children, id) : undefined, }));
+                  // setItems(deleteItem(items, item.id));
+                  // prop.setSelectedItemEdit(null);
+                  setCandidate(typedItem);     // 🟢 指定待刪除對象
+                  setConfirmOpen(true);        // 🟢 開啟確認對話框
                 }}
                 key={typedItem.id}>
                 <i className="far fa-trash-alt"></i>
@@ -216,23 +290,121 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
   const handleChange = ({ items }: any) => {
     if (!items) return;
     setItems(items);
+    syncTreeToForm(items as Item[], prop.formData);
   };
   return (
-    <div className="col-xxl-5 col-12 left-box">
-      <div className="panel">
-        <div className="panel-body">
-          <div className="mb-2">
-            <button onClick={() => setCollapseAll(!collapseAll)} className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">
-              {collapseAll ? "展開" : "收合"}
-            </button>
-            <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">儲存</button>
-          </div>
-          <div className="cf nestable-lists">
-            <Nestable items={items || []} renderItem={renderItem} onChange={handleChange} className="dd-list" collapsed={collapseAll} />
+    <>
+      <div className="col-xxl-5 col-12 left-box">
+        <div className="panel">
+          <div className="panel-body">
+            <div className="mb-2">
+              <button onClick={() => setCollapseAll(!collapseAll)} className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">
+                {collapseAll ? "展開" : "收合"}
+              </button>
+              <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" onClick={prop.action.find(p => p.Id === "Save")?.OnClick}>儲存</button>
+            </div>
+            <div className="cf nestable-lists">
+              <Nestable items={items || []} renderItem={renderItem} onChange={handleChange} className="dd-list" collapsed={collapseAll} />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      {confirmOpen && candidate && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="del-title"
+          className="modal-backdrop show"
+          style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)",
+            display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1050
+          }}
+        >
+          <div className="card" style={{ minWidth: 420 }}>
+            <div className="card-header">
+              <h5 id="del-title" className="m-0">刪除確認</h5>
+            </div>
+            <div className="card-body">
+              <p className="mb-2">
+                要刪除「<b>{candidate.text || candidate.id}</b>」嗎？
+              </p>
+              <ul className="mb-3">
+                <li><b>A. 全部刪除</b>：此項目與其所有子項目都會移除。</li>
+                {(candidate.children?.length ?? 0) > 0 && (
+                  <li><b>B. 保留明細</b>：刪除此項目，但子項目將掛到此項目的父層。</li>
+                )}
+                <li><b>C. 取消</b>：不進行刪除。</li>
+              </ul>
+
+              <div className="d-flex justify-content-end gap-2">
+                {/* C. 取消 */}
+                <button
+                  type="button"
+                  className="btn btn-light btn-sm"
+                  onClick={() => { setConfirmOpen(false); setCandidate(null); }}
+                >
+                  取消
+                </button>
+
+                {/* B. 保留明細（只有有子節點時顯示） */}
+                {(candidate.children?.length ?? 0) > 0 && (
+                  <button
+                    type="button"
+                    className="btn btn-warning btn-sm"
+                    onClick={() => {
+                      // 1) 先把 children 提升到父層並移除自己
+                      const newTree = promoteChildrenToParent(items, candidate.id);
+                      setItems(newTree);
+
+                      // 2) formData：只刪掉自己(不含子孫)
+                      const idOnly = new Set<number>([Number(candidate.MenuItem?.Item?.RowId ?? candidate.id)]);
+                      applyRemovalToForm(idOnly);
+
+                      // 3) 把新的樹寫回 formData（ParentRowId / Level / DisplayOrder）
+                      syncTreeToForm(newTree, prop.formData);
+
+                      // 4) 關閉對話框 & 取消右側編輯
+                      setConfirmOpen(false);
+                      setCandidate(null);
+                      prop.setSelectedItemEdit(null);
+                    }}
+                  >
+                    保留明細（掛到父層）
+                  </button>
+                )}
+
+                {/* A. 全部刪除 */}
+                <button
+                  type="button"
+                  className="btn btn-danger btn-sm"
+                  onClick={() => {
+                    // 1) 先收集要刪掉的 RowId（包含子孫）
+                    const ids = new Set<number>(collectRowIds(candidate));
+
+                    // 2) 從樹狀資料移除整個子樹
+                    const newTree = removeNodeAndSubtree(items, candidate.id);
+                    setItems(newTree);
+
+                    // 3) 從 formData 移除對應資料（Item/Title/Module/Url）
+                    applyRemovalToForm(ids);
+
+                    // 4) 把新的樹寫回 formData（ParentRowId / Level / DisplayOrder）
+                    syncTreeToForm(newTree, prop.formData);
+
+                    // 5) 關閉對話框 & 取消右側編輯
+                    setConfirmOpen(false);
+                    setCandidate(null);
+                    prop.setSelectedItemEdit(null);
+                  }}
+                >
+                  全部刪除
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 //RightBox
@@ -253,7 +425,8 @@ const MenuSettingBox = (prop: {
   theme: IBETheme; selectedItemEdit: Item | null; formData: UseFetchFormDataResult<SiteMenuSet>;
   windowTarget: Record<string, string>; menuUrlType: Record<string, string>; modulePageType: Record<string, string>;
   bannerDict: Record<string, string>; moduleDisplayStyle: Record<string, string>;
-  categoryDatas: CategorySet[]; tagDatas: TagSet[]; pageList: PageSet[]; specCateDatas: SpecCategorySet[]
+  categoryDatas: CategorySet[]; tagDatas: TagSet[]; pageList: PageSet[]; specCateDatas: SpecCategorySet[];
+  action: ToolbarAction[];
 }) => {
 
   React.useEffect(() => {
@@ -266,7 +439,7 @@ const MenuSettingBox = (prop: {
   }, [prop.selectedItemEdit]);
 
 
-  const [linkType, setLinkType] = React.useState<MenuUrlType>(0);
+  const [linkType, setLinkType] = React.useState<MenuUrlType>(1);
   const [modelKey, setModelKey] = React.useState<ModelKey>('');
   const [navType, setNavType] = React.useState<MenuUrlType>(1);
 
@@ -281,7 +454,6 @@ const MenuSettingBox = (prop: {
     };
   }, [prop.theme, prop.formData, linkType, prop.selectedItemEdit]);
   // ---- 組合給 TabContentComp ----
-  // const componentsA = React.useMemo(() => ({ basic: basicNodes, module: moduleNodes, url: urlNodes, }), [basicNodes, moduleNodes, urlNodes]);
   const componentsA = {
     basic: [<BasicSettingTab key="basic" theme={prop.theme} selectedItemEdit={prop.selectedItemEdit} formData={prop.formData} itemType={prop.menuUrlType} windowTarget={prop.windowTarget} setLinkType={setLinkType} />],
     module: [<ModuleSettingTab key="module" theme={prop.theme} selectedItemEdit={prop.selectedItemEdit} formData={prop.formData} modulePageType={prop.modulePageType} windowTarget={prop.windowTarget} modelKey={modelKey} setModelKey={setModelKey} bannerDict={prop.bannerDict} moduleDisplayStyle={prop.moduleDisplayStyle} categoryDatas={prop.categoryDatas} tagDatas={prop.tagDatas} pageList={prop.pageList} specCateDatas={prop.specCateDatas} />],
@@ -310,7 +482,7 @@ const MenuSettingBox = (prop: {
               <TabContentComp tabInfos={LibTabsPropA} components={componentsA} />
             </div>
             <div className="d-flex justify-content-center">
-              <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">儲存</button>
+              <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" onClick={prop.action.find(p => p.Id === "Save")?.OnClick}>儲存</button>
               <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">取消</button>
             </div>
           </div>
@@ -319,7 +491,48 @@ const MenuSettingBox = (prop: {
     </div>
   );
 };
+const syncTreeToForm = (
+  tree: Item[],
+  formData: UseFetchFormDataResult<SiteMenuSet>
+) => {
+  // 把樹攤平成「RowId → 更新值」對照表
+  const updates = new Map<number, { ParentRowId: number | null; Level: number; DisplayOrder: number }>();
 
+  const walk = (nodes: Item[] | undefined, parentId: number | null, level: number) => {
+    if (!nodes) return;
+    nodes.forEach((n, idx) => {
+      updates.set(Number(n.id), {
+        ParentRowId: parentId,
+        Level: level,                 // 根層從 1 開始
+        DisplayOrder: idx + 1,        // 同層從 1 起連號
+      });
+      if (n.children && n.children.length) walk(n.children, Number(n.id), level + 1);
+    });
+  };
+
+  walk(tree, null, 1);
+
+  // 把對照結果回寫到 formData
+  formData.setFormData(prev => {
+    if (!prev) return prev;
+    const next: SiteMenuSet = { ...prev };
+    const list = [...(next.SiteMenu_Item ?? [])];
+
+    next.SiteMenu_Item = list.map(it => {
+      const rowId = Number((it as any).RowId);
+      const u = updates.get(rowId);
+      if (!u) return it; // 可能是資料中有但左側未呈現的項目
+      return {
+        ...it,
+        ParentRowId: u.ParentRowId,
+        Level: u.Level,
+        DisplayOrder: u.DisplayOrder,
+      } as SiteMenu_Item;
+    });
+
+    return next;
+  });
+};
 //#region 基本設定
 const BasicSettingTab = (prop: {
   theme: IBETheme; selectedItemEdit: Item | null;
@@ -382,44 +595,28 @@ const ModuleSettingTab = (prop: {
   const siteIndex = prop.selectedItemEdit?.MenuItem.Item.SiteIndex;
   const rowId = prop.selectedItemEdit?.MenuItem.Item.RowId;
 
-  const allowMap: Record<ModelKey, string[]> = {
-    Announcement: ["List", "PictureList", "QAList"],
-    Gallery: ["List", "Waterfall"],
-    FileArchive: ["List", "Expand_Category", "Expand_Tag"],
-    WebResource: ["List", "PictureList", "Youtube"],
+  const allowMap: Record<ModelKey, number[]> = {
+    Announcement: [1, 2, 3],
+    Gallery: [1, 4],
+    FileArchive: [1, 5, 6],
+    WebResource: [1, 2, 7],
     PageManagement: [], SpecResearch: [], SpecUSR: [], "": []
-  };
-  const styleAlias: Record<string, string[]> = {
-    None: ["None", "無", "不顯示"],
-    List: ["List", "列表"],
-    PictureList: ["PictureList", "圖文列表", "圖片列表"],
-    QAList: ["QAList", "問答列表", "Q&A"],
-    Waterfall: ["Waterfall", "瀑布流"],
-    Expand_Category: ["Expand_Category", "展開(分類)", "展開分類", "分類展開"],
-    Expand_Tag: ["Expand_Tag", "展開(標籤)", "展開標籤", "標籤展開"],
-    Youtube: ["Youtube", "YouTube", "影片"]
   };
   const getStyleOptionsByModule = (
     moduleKey: ModelKey,
-    fullDict: Record<string, string>
+    fullDict: Record<number, string>
   ): Record<string, string> => {
-    const allow = new Set((allowMap[moduleKey] ?? []).map(s => s.toLowerCase()));
-    if (allow.size === 0) return {}; // 該模組無 Style
-
-    const entries = Object.entries(fullDict ?? {});
-    const hit = entries.filter(([k, v]) => {
-      const keyHit = allow.has(String(k).toLowerCase()) || allow.has(String(v).toLowerCase());
-      if (keyHit) return true;
-      // 再用 alias 比對顯示文字（處理本地化）
-      return (Array.from(allow)).some(a =>
-        (styleAlias[a] ?? []).some(alias =>
-          String(v).toLowerCase().includes(alias.toLowerCase())
-        )
-      );
-    });
-
-    // 如果完全沒命中，為避免使用者看不到選項，回傳 fullDict（你可改成回傳空物件）
-    return hit.length ? Object.fromEntries(hit) : fullDict;
+    const ids = allowMap[moduleKey] ?? [];
+    if (ids.length === 0) return {};            // 該模組無可選樣式
+    const dict: Record<string, string> = {};
+    // 依 ids 的順序建立 options
+    for (const id of ids) {
+      const k = String(id);
+      // fullDict 可能用 number key，也可能已被序列化成字串 key，兩者都試一次
+      const name = (fullDict as any)[id] ?? (fullDict as any)[k] ?? `樣式 #${id}`;
+      dict[k] = name;
+    }
+    return dict;
   };
   const filteredStyleDict = React.useMemo(
     () => getStyleOptionsByModule(prop.modelKey, prop.moduleDisplayStyle),
@@ -476,14 +673,11 @@ const ModuleSettingTab = (prop: {
   }, [prop.theme, prop.formData, prop.modelKey, prop.selectedItemEdit, filteredStyleDict]);
   return moduleNodes;
 }
-
-
 const Module_Banner_Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SiteMenuSet>; selectedItemEdit: Item | null; bannerDict: Record<string, string> }): React.ReactNode[] => {
   const curRowKeys = { [SchemaFields.SiteMenu_Item_ModuleFields.SiteIndex]: prop.selectedItemEdit?.MenuItem.Item.SiteIndex, [SchemaFields.SiteMenu_Item_ModuleFields.ItemRowId]: prop.selectedItemEdit?.MenuItem.Item.RowId }
   const setField = useSetTableField<SiteMenuSet>(prop.formData);
   return ([<LibDropList Style={prop.theme.DropList} Options={prop.bannerDict} {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Module, SchemaFields.SiteMenu_Item_ModuleFields.BannerId, "string", curRowKeys)} />])
 }
-
 const Module_Announcement_Comp = (prop: {
   theme: IBETheme; formData: UseFetchFormDataResult<SiteMenuSet>; selectedItemEdit: Item | null; styleDict: Record<string, string>;
   lang: Lang; categoryDatas: CategorySet[]; tagDatas: TagSet[];
@@ -601,7 +795,6 @@ const Module_WebResource_Comp = (prop: {
     <LibDropList Style={prop.theme.DropList} ColumnDisplayName="清單樣式" Options={prop.styleDict} InputValue={styleBind.value} onChange={styleBind.onChange} />,
   ])
 }
-
 const Module_SpecResearch_Comp = (prop: {
   theme: IBETheme; formData: UseFetchFormDataResult<SiteMenuSet>; selectedItemEdit: Item | null; styleDict: Record<string, string>;
   lang: Lang; categoryDatas: SpecCategorySet[]; tagDatas: TagSet[];
@@ -616,16 +809,13 @@ const Module_SpecResearch_Comp = (prop: {
   );
   const catBind = binder.bind("Category", "csv");
   const tagBind = binder.bind("Tag", "csv");
-  const styleBind = binder.bind("Style", "number");
   const cateDic = useSpecCategoryDict(prop.categoryDatas, prop.lang, "SpecResearch")
   const tagDic = useTagDict(prop.tagDatas, prop.lang, "SpecResearch")
   return ([
     <LibDropList Style={prop.theme.DropList} ColumnDisplayName="類別" Options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />,
     <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />,
-    <LibDropList Style={prop.theme.DropList} ColumnDisplayName="清單樣式" Options={prop.styleDict} InputValue={styleBind.value} onChange={styleBind.onChange} />,
   ])
 }
-
 const Module_SpecUSR_Comp = (prop: {
   theme: IBETheme; formData: UseFetchFormDataResult<SiteMenuSet>; selectedItemEdit: Item | null; styleDict: Record<string, string>;
   lang: Lang; categoryDatas: SpecCategorySet[]; tagDatas: TagSet[];
@@ -640,16 +830,13 @@ const Module_SpecUSR_Comp = (prop: {
   );
   const catBind = binder.bind("Category", "csv");
   const tagBind = binder.bind("Tag", "csv");
-  const styleBind = binder.bind("Style", "number");
   const cateDic = useSpecCategoryDict(prop.categoryDatas, prop.lang, "SpecUSR")
   const tagDic = useTagDict(prop.tagDatas, prop.lang, "SpecUSR")
   return ([
     <LibDropList Style={prop.theme.DropList} ColumnDisplayName="類別" Options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />,
     <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />,
-    <LibDropList Style={prop.theme.DropList} ColumnDisplayName="清單樣式" Options={prop.styleDict} InputValue={styleBind.value} onChange={styleBind.onChange} />,
   ])
 }
-
 const useCategoryDict = (data: CategorySet[], lang: string, progId: string | number) =>
   React.useMemo<Record<string, string>>(() => {
     const src = data ?? [];
@@ -667,7 +854,6 @@ const useCategoryDict = (data: CategorySet[], lang: string, progId: string | num
       return acc;
     }, {});
   }, [data, lang, progId]);
-
 const useTagDict = (data: TagSet[], lang: string, progId: string | number) =>
   React.useMemo<Record<string, string>>(() => {
     const src = data ?? [];
@@ -685,7 +871,6 @@ const useTagDict = (data: TagSet[], lang: string, progId: string | number) =>
       return acc;
     }, {});
   }, [data, lang, progId]);
-
 const useSpecCategoryDict = (data: SpecCategorySet[], lang: string, progId: string | number) =>
   React.useMemo<Record<string, string>>(() => {
     const src = data ?? [];

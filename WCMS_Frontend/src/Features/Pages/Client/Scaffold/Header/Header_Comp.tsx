@@ -5,8 +5,10 @@ import { MainMenu } from "@/Features/Pages/Client/Scaffold/Menu/MainMenu/MainMen
 import { mock_HeaderData } from './Header_Data'
 import { useHeaderBehaviorRef } from './Header_Hook';
 import { useRef } from 'react'
+import type { Lang } from "@/SysCore/i18n/lang";
+import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 
-export const Header = ({ lang, site }: { lang: string; site: INormSite }) => {
+export const Header = ({ lang, site, style }: { lang: Lang; site: INormSite; style: IFETheme }) => {
     const data = mock_HeaderData();
     const headerRef = useRef<HTMLElement>(null);
     useHeaderBehaviorRef(headerRef);
@@ -34,7 +36,7 @@ export const Header = ({ lang, site }: { lang: string; site: INormSite }) => {
                                         </h1>
                                     </div>
                                 </div>
-                                <MainMenu lang={lang} site={site}></MainMenu>
+                                <MainMenu lang={lang} site={site} style={style}></MainMenu>
                                 <div className="overlayer"></div>
                                 <div className="rightBox">
                                     <button className="main bg-custom-s5" type="button">

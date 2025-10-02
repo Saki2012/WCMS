@@ -108,7 +108,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// <summary>
         /// url主鍵
         /// </summary>
-        [Key]public int? RowId { get; set; }
+        [Key]public int RowId { get; set; }
         /// <summary>
         /// 上層url外鍵(一定會跟著SiteIndex一起)
         /// </summary>
@@ -196,7 +196,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
             /// <summary>
             /// 樣式
             /// </summary>
-            [AllowedEnum(ModuleDisplayStyle.None, ModuleDisplayStyle.List, ModuleDisplayStyle.Expand_Category, ModuleDisplayStyle.Expand_Tag)]
+            [AllowedEnum(ModuleDisplayStyle.List, ModuleDisplayStyle.Expand_Category, ModuleDisplayStyle.Expand_Tag)]
             public ModuleDisplayStyle Style { get; set; }
         }
         /// <summary>
@@ -215,7 +215,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
             /// <summary>
             /// 樣式
             /// </summary>
-            [AllowedEnum(ModuleDisplayStyle.None, ModuleDisplayStyle.List, ModuleDisplayStyle.Waterfall)]
+            [AllowedEnum(ModuleDisplayStyle.List, ModuleDisplayStyle.Waterfall)]
             public ModuleDisplayStyle Style { get; set; }
         }
         /// <summary>
@@ -244,7 +244,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
             /// <summary>
             /// 樣式
             /// </summary>
-            [AllowedEnum(ModuleDisplayStyle.None, ModuleDisplayStyle.List, ModuleDisplayStyle.PictureList,ModuleDisplayStyle.QAList)]
+            [AllowedEnum(ModuleDisplayStyle.List, ModuleDisplayStyle.PictureList,ModuleDisplayStyle.QAList)]
             public ModuleDisplayStyle Style { get; set; }
         }
         /// <summary>
@@ -263,7 +263,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
             /// <summary>
             /// 樣式
             /// </summary>
-            [AllowedEnum(ModuleDisplayStyle.None, ModuleDisplayStyle.List, ModuleDisplayStyle.PictureList, ModuleDisplayStyle.Youtube)]
+            [AllowedEnum(ModuleDisplayStyle.List, ModuleDisplayStyle.PictureList, ModuleDisplayStyle.Youtube)]
             public ModuleDisplayStyle Style { get; set; }
         }
     }

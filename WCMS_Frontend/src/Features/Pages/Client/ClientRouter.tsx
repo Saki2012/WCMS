@@ -21,10 +21,7 @@ type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"]
 
 export const CLIENT_ROOT_ID = "client-root";
 const fetchSite = async (): Promise<INormSite[]> => {
-  const condition: QueryListParam = {
-    Fields: [SchemaFields.SiteMenu_IndexFields.InternalId], Condition: "",
-    PageSize: 0, PageNumber: 0
-  };
+  const condition: QueryListParam = { Fields: [SchemaFields.SiteMenu_IndexFields.InternalId], Condition: "", PageSize: 0, PageNumber: 0 };
   const provider = SiteMenuProvider();
   const sites = await provider.fetchList(condition);
   if (!sites.IsSuccess || !Array.isArray(sites.Data)) return [];

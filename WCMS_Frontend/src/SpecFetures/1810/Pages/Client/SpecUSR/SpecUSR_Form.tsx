@@ -10,7 +10,6 @@ import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import * as SchemaFields from "@/types/SchemaFields"
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import type { ColumnConfig } from '@/SysCore/Components/Grid/Grid_Data';
-import DefaultPic from "@/Assets/1810/images_960x960.jpg"
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import "yet-another-react-lightbox/styles.css";
 import Lightbox from "yet-another-react-lightbox";
@@ -21,8 +20,6 @@ import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 import { useState } from 'react';
-import type { PhotoInfos } from '@/Features/Pages/Client/Scaffold/ContentViewMode/GalleryView/GalleryFormView';
-import { LibTextBox } from '@/SysCore/Components/FormField/LibFormField';
 
 
 const emptyData: SpecUSRSet = {}

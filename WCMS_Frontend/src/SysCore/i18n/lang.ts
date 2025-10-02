@@ -166,7 +166,7 @@ export const useEnsureLangDetails = (
         const mapParentToDetailFK = (parent: any) =>
             opt.parentKeys.reduce((acc, k) =>
             {
-                acc[k] = /parentrowid/i.test(k) ? (parent?.RowId ?? 0) : (parent?.[k] ?? null);
+                acc[k] = /(parentrowid|itemrowid)/i.test(String(k)) ? (parent?.RowId ?? 0) : (parent?.[k] ?? null);
                 return acc;
             }, {} as Record<string, any>);
 

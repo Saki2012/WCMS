@@ -47,7 +47,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// <summary>
         /// Goole分析碼
         /// </summary>
-        [LibDesc(ModelDisplayName.SiteMenu_GoogleAnalytics)] public string GoogleAnalytics { get; set; }
+        [LibDesc(ModelDisplayName.SiteMenu_GoogleAnalytics)] public string? GoogleAnalytics { get; set; }
         /// <summary>
         /// 是否啟用站台
         /// </summary>
@@ -73,11 +73,11 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// <summary>
         /// 網站標題
         /// </summary>
-        [LibDesc(ModelDisplayName.SiteMenu_SiteTitle)] public string Title { get; set; }
+        [LibDesc(ModelDisplayName.SiteMenu_SiteTitle)] public string? Title { get; set; }
         /// <summary>
         /// 網站描述
         /// </summary>
-        [LibDesc(ModelDisplayName.SiteMenu_SiteDescription)] public string Description { get; set; }
+        [LibDesc(ModelDisplayName.SiteMenu_SiteDescription)] public string? Description { get; set; }
         /// <summary>
         /// Header
         /// </summary>
@@ -89,7 +89,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// <summary>
         /// 網站關鍵字
         /// </summary>
-        [LibDesc(ModelDisplayName.SiteMenu_SiteFooter)] public string Keyword { get; set; }
+        [LibDesc(ModelDisplayName.SiteMenu_SiteFooter)] public string? Keyword { get; set; }
     }
     /// <summary>
     /// 
@@ -145,8 +145,8 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         [LibDesc(ModelDisplayName.SiteMenu_SiteIndex)] public string? SiteIndex { get; set; }
         [LibDesc(ModelDisplayName.Common_RowId)] public int? ItemRowId { get; set; }
         [LibDesc(ModelDisplayName.Common_RowId)] public int? RowId { get; set; }
-        [LibDesc(ModelDisplayName.Common_Lang)] public string Lang { get; set; }
-        [LibDesc(ModelDisplayName.SiteMenu_MenuTitle)] public string Title { get; set; }
+        [LibDesc(ModelDisplayName.Common_Lang)] public string? Lang { get; set; }
+        [LibDesc(ModelDisplayName.SiteMenu_MenuTitle)] public string? Title { get; set; }
     }
     /// <summary>
     /// 

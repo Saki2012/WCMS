@@ -34,10 +34,10 @@ namespace WCMS.Migrations
                     RowId = table.Column<int>(type: "int", nullable: false),
                     Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
                     Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     SiteHeader = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SiteFooter = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Keyword = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                    Keyword = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -85,14 +85,14 @@ namespace WCMS.Migrations
                 columns: table => new
                 {
                     SiteIndex = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    ItemRowId = table.Column<int>(type: "int", nullable: false),
+                    ParentRowId = table.Column<int>(type: "int", nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
                     Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SiteMenu_Item_Title", x => new { x.SiteIndex, x.ItemRowId, x.RowId });
+                    table.PrimaryKey("PK_SiteMenu_Item_Title", x => new { x.SiteIndex, x.ParentRowId, x.RowId });
                 });
 
             migrationBuilder.CreateTable(
@@ -178,7 +178,7 @@ namespace WCMS.Migrations
                     Tags = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     ContentStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     PictureId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: true),
-                    PicDescription = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    PicDescription = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     ViewCount = table.Column<int>(type: "int", nullable: true),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
                     CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
@@ -365,7 +365,7 @@ namespace WCMS.Migrations
                     Path = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     FileName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     FileExtension = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    FileDescription = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    FileDescription = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     MimeType = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     FileSHA256 = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
                     FileSize = table.Column<long>(type: "bigint", nullable: false),
@@ -407,7 +407,7 @@ namespace WCMS.Migrations
                     Categories = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Tags = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     ContentStatus = table.Column<byte>(type: "tinyint", nullable: false),
-                    CoverPicSrcId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    CoverPicSrcId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: true),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
                     CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
@@ -455,7 +455,7 @@ namespace WCMS.Migrations
                     APIName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     followingDT = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Browser = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Browser = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     IP = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
                     ExcuteTime = table.Column<DateTime>(type: "datetime2(0)", nullable: false),
                     ExcStatus = table.Column<byte>(type: "tinyint", nullable: false)
@@ -564,7 +564,7 @@ namespace WCMS.Migrations
                 columns: table => new
                 {
                     SiteIndex = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    GoogleAnalytics = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    GoogleAnalytics = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     Enable = table.Column<bool>(type: "bit", nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
                     CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
@@ -704,7 +704,7 @@ namespace WCMS.Migrations
                     ContentStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     Tags = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     PictureId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: true),
-                    PicDescription = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    PicDescription = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
                     CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
@@ -815,8 +815,8 @@ namespace WCMS.Migrations
                     Categories = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Tags = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     ContentStatus = table.Column<byte>(type: "tinyint", nullable: false),
-                    PicId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
-                    PicDescription = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    PicId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: true),
+                    PicDescription = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
                     CreateUserId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ModifyTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
@@ -866,7 +866,7 @@ namespace WCMS.Migrations
                     SubTitle = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Url = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
-                    UrlDescription = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                    UrlDescription = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -887,8 +887,8 @@ namespace WCMS.Migrations
                     RowId = table.Column<int>(type: "int", nullable: false),
                     PicSrcId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FontColor = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Validate_Start = table.Column<DateTime>(type: "datetime2(0)", nullable: false),
-                    Validate_End = table.Column<DateTime>(type: "datetime2(0)", nullable: false),
+                    Validate_Start = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
+                    Validate_End = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
                     Sort = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -976,7 +976,7 @@ namespace WCMS.Migrations
                     InternalId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
                     DownloadUserIP = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
-                    UserAgent = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    UserAgent = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     RefererURL = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
                     DownloadStatus = table.Column<bool>(type: "bit", nullable: false),
                     DownloadTime = table.Column<DateTime>(type: "datetime2(0)", nullable: false)
@@ -1182,9 +1182,9 @@ namespace WCMS.Migrations
                     CooperatingUnits = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     CooperationProject = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Courses = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    ProjectName = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    ProjectName = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     PaperTitle = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    Remark = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Remark = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     Cohost1 = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Cohost2 = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Commissioned = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
@@ -1211,22 +1211,25 @@ namespace WCMS.Migrations
                     Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Year = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
                     AcademicYear = table.Column<int>(type: "int", nullable: true),
-                    Courses = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    PracticeField = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    ProjectName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    ExternalCooperationUnit = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    Department = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    DuringExecution = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Courses = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    PracticeField = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    ProjectName = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    ExternalCooperationUnit = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    Department = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    DuringExecution = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     PlanAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    ExecutionStrategy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    ExecutionStrategy = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     ContentIntroduction = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ProjectConcept = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    ProjectHighlights = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    ProjectLeader = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    Cohost1 = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    Cohost2 = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    Commissioned = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    Remark = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
+                    ProjectConcept = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    ProjectHighlights = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: true),
+                    ProjectLeader = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    Cohost1 = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    Cohost2 = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    Commissioned = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    Remark = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    ProjectItem = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Url = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    UrlDescription = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1269,7 +1272,7 @@ namespace WCMS.Migrations
                     Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ResUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
-                    Url_OpenType = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
+                    Url_OpenType = table.Column<byte>(type: "tinyint", maxLength: 20, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1314,7 +1317,7 @@ namespace WCMS.Migrations
                     ParentRowId = table.Column<int>(type: "int", nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
                     Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
+                    Title = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false)
                 },
                 constraints: table =>
                 {
