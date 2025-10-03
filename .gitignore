@@ -11,3 +11,4 @@ WCMS_Backend/FileManage/
 *.rar
 *.7z
 WCMS_Backend/appsettings.Development.json
+/WCMS_Frontend/src/SpecFetures/3001

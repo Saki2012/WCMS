@@ -16,7 +16,7 @@ export const LEGACY_CSS = [
     // "/Legacy/Server/ContentBack/bootstrap-datepicker1.6.1/bootstrap-datepicker1.6.1.css",
     "/Legacy/Server/ContentBack/login/login_NewDesige.css",
     "/Legacy/Server/ContentBack/register/register_NewDesige.css",
-    "/Legacy/Server/ContentBack/animate/animate.css",
+    // "/Legacy/Server/ContentBack/animate/animate.css",
     "/Legacy/Server/ContentBack/bg_dynamic/login-Particles.css",
     "/Legacy/Server/ContentBack/chart_c3_0.7.20/css/c3.css",
     // "https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600&display=swap",
@@ -38,7 +38,7 @@ export const LEGACY_CSS = [
     "/Legacy/Client/Content/swiper-11.1.14/swiper-bundle.min.css",
     "/Legacy/Client/Content/marquee/marquee-left-loop.css",
     "/Legacy/Client/Content/slide-bar/slide-bar.css",
-    "/Legacy/Client/Content/wow/animate.css",
+    // "/Legacy/Client/Content/wow/animate.css",
 ];
 
 export const LEGACY_JS = [
