@@ -69,7 +69,6 @@
 - Features
     - BizResx (WCMS功能多語系包)(前期)
     - Finance (金流)(中期)
-
     - SiteEdit  (客戶自定義網頁設計)
         - Announcement (公告)
         - Banner (廣告輪播)
@@ -100,7 +99,7 @@
 
 前端程式架構
 - src
-    - SysCore
+    - SysCore (WCMS核心)
         - Components (動態渲染元控件)
             - Banner (橫幅)
             - BannerSlider (橫幅跑馬燈)
@@ -120,21 +119,44 @@
             - 用來組裝每一個環節所用的css風格
         - Utils (自家Library、非第三方包)
 
-    - Features
-        - Header (Header 模板)
-        - Page (頁面模板)
-        - Footer (Footer 模板)
-        - GoogleAnalysis (Google SEO相關)
-        - Menu (主Menu 模板)
-
-    - SpecFeatures
+    - Features (WCMS系統公版)
+        - Assets (資源檔，如.css/.js/圖片等)
+            - Client (前台)
+            - Server (後台)
+        - Hooks (功能)
+        - Pages (功能畫面模板)
+            - Client (前台)
+            - Server (後台)
+                - BizFunc (功能)
+                    - Teacher (教師外掛 暫定)
+                    - Finance (金融相關功能 暫定)
+                    - WebManagement (網站功能)
+                        - Announcement(公告)
+                        - FileArchive (檔案室)
+                        - ...
+                - Scaffold (畫面框架，如Menu、Header、Footer等)
+                    - MainPage (首頁)
+                    - SubPages (子頁)
+                    - Header
+                    - Footer
+                    - GoogleAnalysis (Google SEO相關)
+                    - Menu
+                    - ...
+                - Theme (css標籤主題)
+    - **SpecFeatures**
         - 專案別名(e.x. 1810 台藝大研發處)
-    
-    - Style
-        - Legacy (舊的css)
+            - Assets (For當前專案才使用的客製資源檔)
+            - Hooks
+            - Pages
+                - Client (前台)
+                    - USR計劃
+                    - 研究計劃
+                - Server (後台)
+                    - USR計劃
+                    - 研究計劃
 
-    - Assets
-        - 未來放專案需要的file/fonts/image
+
+
     
 - public
     - Legacy (底下擺放舊專案原本/file/fonts/image)
@@ -183,3 +205,21 @@ npx tsx ./src/types/generate-fields.ts
     1. 執行 if (Test-Path .\Publish) { Remove-Item .\Publish -Recurse -Force }; dotnet publish WCMS.csproj -c Release -r win-x64 -o Publish
     2. 會產生publish資料夾，將底下的所有資料打包覆蓋至Server上的部屬環境資料夾
     注意:不要覆蓋掉webconfig和appsettingjson
+
+
+IIS與環境設定:
+    - 前端站台:
+    1. web.config中的url是要導向後端的系統，故路徑要調成對應的port(如http://127.0.0.1:xxxx)
+    2. IIS的Url Rewrite須新增兩個伺服器變數
+        A. 選取IIS前端站台
+        B. 點擊右邊的檢視伺服器變數
+        C. 新增 HTTP_X_FORWARDED_PROTO 和 HTTP_X_FORWARDED_HOST 變數
+    - 後端站台
+    1. 繫結設定http://127.0.0.1:xxxx
+    2. appsettings.Production.json 設定 Whitelist (FE和BE設置一樣即可，要填寫的是【前端】對外的網址)
+    3. appsettings.Production.json 設定 SqlConnection 指向DB
+    IIS站台本身:
+    1. 安裝ARR (Application Request Routing Cache)
+    2. 啟用Proxy
+        A. 點擊右邊 Server Proxy Settings
+        B. 打勾 Enable proxy
