@@ -324,7 +324,8 @@ namespace WCMS.SysCore
                 }
                 else if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && prop.PropertyType != typeof(string))
                 {
-                    repoDictPropName = prop.PropertyType.GenericTypeArguments.FirstOrDefault().Name;
+                    var modelProp = prop.PropertyType.GenericTypeArguments.FirstOrDefault();
+                    repoDictPropName = modelProp.Name;
                     var repo = (dynamic)RepoDict[repoDictPropName];
                     var detailProp = prop.PropertyType.GetGenericArguments().FirstOrDefault();
                     var oldValue = PropertyAccessorCache.Get(oldSet, prop.Name) as IList;
@@ -355,7 +356,8 @@ namespace WCMS.SysCore
                     if (newItems.Count > 0)
                     {
                         //這邊要獲取RowId的最大int值，但是是為了應急處理，之後要改演算法
-                        int maxRowId = oldDict.Values.Concat(newDict.Values).Select(item => PropertyAccessorCache.Get(item, "RowId")).OfType<int>().DefaultIfEmpty(1).Max() + 1;
+                        int? TryGetRowId(object x) =>x is Dictionary<string, object> map && map.TryGetValue("RowId", out var v) && v is int i? i : null;
+                        var maxRowId =oldDict.Values.Concat(newDict.Values).Select(TryGetRowId).Where(id => id.HasValue).Select(id => id.Value).DefaultIfEmpty(0)                                          .Max() + 1;
                         await repo.CreateAsync(newItems, maxRowId);
                     }
                 }

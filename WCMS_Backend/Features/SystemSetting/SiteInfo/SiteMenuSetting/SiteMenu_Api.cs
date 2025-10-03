@@ -18,9 +18,6 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
     [ApiController, Route(SysParam.ServiceRoute)]
     public class SiteMenuController : ApiDataController<SiteMenuSet, SiteMenuSet_DTO>
     {
-        private IBizService<PageManagementSet> _PageManagementService;
-        private PageManagementBiz PageManagementService => (PageManagementBiz)(_PageManagementService ??= HttpContext.RequestServices.GetRequiredService<IBizService<PageManagementSet>>());
-        
     }
 
 }

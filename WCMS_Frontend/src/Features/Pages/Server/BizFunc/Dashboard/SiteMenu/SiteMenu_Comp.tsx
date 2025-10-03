@@ -131,7 +131,7 @@ const siteMenuInfo = (data: SiteMenuSet, lang: Lang): Item[] => {
 export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
   const [selectedItemEdit, setSelectedItemEdit] = useState<Item | null>(null);
   const useSiteList = useFetchGridListData<SiteMenuSet>(GetSiteMenuListOpt());
-  const internalId = useSiteList.rawData?.[0]?.SiteMenu_Index?.InternalId ?? "87cb0b3b-105a-4902-b284-3e96a25b918d"
+  const internalId = useSiteList.rawData?.[0]?.SiteMenu_Index?.InternalId ?? "df9f5272-5138-47d8-87b3-974d3dd8e32e"
   const useSiteInfo = useFetchFormData<SiteMenuSet>(SiteMenuProvider(), internalId, emptyData)
   const windowTarget = useFetchEnumOptions("WindowTarget")
   const menuUrlType = useFetchEnumOptions("MenuUrlType")
@@ -146,7 +146,7 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
   const bannerDict = React.useMemo<Record<string, string>>(() => {
     const src = useBannerList.rawData ?? [];
     return src.reduce<Record<string, string>>((acc, p) => {
-      const key = p.Banner?.InternalId?.toString?.();
+      const key = p.Banner?.BannerId?.toString?.();
       if (!key) return acc;
       acc[key] = p.Banner?.BannerCategoryName ?? "";
       return acc;
@@ -242,6 +242,128 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
       return next;
     });
   };
+  // 放在 RenderLeftBox 內其他 const 之後
+  const addMenuItem = (parent: Item | null) => {
+    // 1) 計算新的 RowId / Title RowId
+    const nextRowId = (() => {
+      const all = prop.formData.data?.SiteMenu_Item ?? [];
+      const max = all.reduce((m, x) => Math.max(m, Number(x?.RowId ?? 0)), 0);
+      return (max || 0) + 1;
+    })();
+    const nextTitleRowId = (() => {
+      const all = prop.formData.data?.SiteMenu_Item_Title ?? [];
+      const max = all.reduce((m, x) => Math.max(m, Number((x as any)?.RowId ?? 0)), 0);
+      return (max || 0) + 1;
+    })();
+
+    // 2) 取得 SiteIndex（沿用現有資料的 SiteIndex）
+    const sampleSiteIndex =
+      prop.formData.data?.SiteMenu_Item?.[0]?.SiteIndex ??
+      prop.formData.data?.SiteMenu_Index?.SiteIndex ??
+      "";
+
+    // 3) 先把 formData 寫入 SiteMenu_Item 與一筆 Title（顯示用）
+    prop.formData.setFormData(prev => {
+      const next = { ...(prev ?? {}) } as SiteMenuSet;
+
+      next.SiteMenu_Item = [
+        ...(next.SiteMenu_Item ?? []),
+        {
+          SiteIndex: sampleSiteIndex,
+          RowId: nextRowId,
+          ParentRowId: parent ? parent.id : null,
+          Level: parent ? (Number((parent)?.MenuItem?.Item?.Level ?? 1) + 1) : 1,
+          DisplayOrder: 9999,             // 先給暫值，待會 syncTreeToForm 會重算
+          ItemSiteUrl: "",
+          FullUrl: "",
+          ItemType: 1,
+          WindowTarget: 0,
+          IsShowOnMenu: true,
+        } as any
+      ];
+
+      next.SiteMenu_Item_Title = [
+        ...(next.SiteMenu_Item_Title ?? []),
+        {
+          SiteIndex: sampleSiteIndex,
+          ItemRowId: nextRowId,
+          RowId: nextTitleRowId,
+          Lang: prop.lang,
+          Title: "未命名",
+        } as any
+      ];
+
+      return next;
+    });
+
+    // 4) 把新節點加到左側樹狀（主層或對應父層的最後）
+    const newNode: Item = {
+      id: nextRowId,
+      text: "未命名",
+      MenuItem: {
+        Item: {
+          SiteIndex: sampleSiteIndex,
+          RowId: nextRowId,
+          ParentRowId: parent ? parent.id : null,
+          Level: parent ? (Number((parent)?.MenuItem?.Item?.Level ?? 1) + 1) : 1,
+          DisplayOrder: 9999,
+          ItemSiteUrl: "",
+          FullUrl: "",
+          ItemType: 1,
+          WindowTarget: 0,
+          IsShowOnMenu: true,
+        } as any,
+        Title: [{
+          SiteIndex: sampleSiteIndex,
+          ItemRowId: nextRowId,
+          RowId: nextTitleRowId,
+          Lang: prop.lang,
+          Title: "未命名",
+        } as any],
+        Module: {} as any,
+        Url: {} as any,
+      },
+      children: []
+    };
+
+    setItems(prev => {
+      let nextTree: Item[];
+      if (!parent) {
+        // 新增主層：接到最後
+        nextTree = [...prev, newNode];
+      } else {
+        // 新增子層：找到 parent，接到該層最後
+        const clone = (ns: Item[]): Item[] =>
+          ns.map(n => ({
+            ...n,
+            children: n.children ? clone(n.children) : undefined
+          }));
+
+        const tree = clone(prev);
+        const attach = (ns: Item[]): boolean => {
+          for (const n of ns) {
+            if (n.id === parent.id) {
+              n.children = [...(n.children ?? []), newNode];
+              return true;
+            }
+            if (n.children && n.children.length && attach(n.children)) return true;
+          }
+          return false;
+        };
+        attach(tree);
+        nextTree = tree;
+      }
+
+      // 5) 依新樹同步回 formData（重算 ParentRowId/Level/DisplayOrder）
+      syncTreeToForm(nextTree, prop.formData);
+
+      // 6) 選取新節點，右側直接開編輯
+      const pick = newNode;
+      setTimeout(() => prop.setSelectedItemEdit(pick), 0);
+
+      return nextTree;
+    });
+  };
 
 
 
@@ -251,7 +373,7 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
     return (
       <div className="dd-item dd3-item">
         <div className="dd-handle dd3-handle"></div>
-        <div className="dd3-content content_bar">
+        <div className="dd3-content content_bar" onClick={() => { prop.setSelectedItemEdit(typedItem); }} style={{ cursor: "pointer" }}>
           {handler}
           {collapseIcon}
           <span style={{ flex: 1, padding: "0 10px 0 3px" }}>
@@ -260,21 +382,19 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
           </span>
           <div className="all-btn Edit Icon">
             <div className="icon" title="">
-              <button title="查看前台" className="Ieye btn btn-ctm btn-ctm-rounded"><i className="far fa-eye"></i></button>
+              <button title="查看前台" className="Ieye btn btn-ctm btn-ctm-rounded" onClick={(e) => { e.stopPropagation(); }}><i className="far fa-eye"></i></button>
             </div>
             <div className="icon" title="">
-              <button title="新增子層" className="Icogs btn btn-ctm btn-ctm-rounded" key={typedItem.id} onClick={() => { prop.setSelectedItemEdit(typedItem); }}>
+              <button title="新增子層" className="Icogs btn btn-ctm btn-ctm-rounded" key={typedItem.id} onClick={(e) => { e.stopPropagation(); addMenuItem(typedItem); }}>
                 <i className="far fa-plus"></i></button>
             </div>
             <div className="icon" title="">
-              <button title="編輯" className="Ipencil btn btn-ctm btn-ctm-rounded" key={typedItem.id} onClick={() => { prop.setSelectedItemEdit(typedItem); }}><i className="far fa-edit"></i></button>
+              <button title="編輯" className="Ipencil btn btn-ctm btn-ctm-rounded" key={typedItem.id} onClick={(e) => { e.stopPropagation(); prop.setSelectedItemEdit(typedItem); }}><i className="far fa-edit"></i></button>
             </div>
             <div className="icon" title="">
               <button title="刪除" className="Itrash btn btn-ctm btn-ctm-rounded"
-                onClick={() => {
-                  // const deleteItem = (arr: Item[], id: number): Item[] => arr.filter((i) => i.id !== id).map((i) => ({ ...i, children: i.children ? deleteItem(i.children, id) : undefined, }));
-                  // setItems(deleteItem(items, item.id));
-                  // prop.setSelectedItemEdit(null);
+                onClick={(e) => {
+                  e.stopPropagation();
                   setCandidate(typedItem);     // 🟢 指定待刪除對象
                   setConfirmOpen(true);        // 🟢 開啟確認對話框
                 }}
@@ -298,10 +418,9 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
         <div className="panel">
           <div className="panel-body">
             <div className="mb-2">
-              <button onClick={() => setCollapseAll(!collapseAll)} className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">
-                {collapseAll ? "展開" : "收合"}
-              </button>
+              <button onClick={() => setCollapseAll(!collapseAll)} className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">{collapseAll ? "展開" : "收合"}</button>
               <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" onClick={prop.action.find(p => p.Id === "Save")?.OnClick}>儲存</button>
+              <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" onClick={() => addMenuItem(null)}>新增</button>
             </div>
             <div className="cf nestable-lists">
               <Nestable items={items || []} renderItem={renderItem} onChange={handleChange} className="dd-list" collapsed={collapseAll} />
@@ -314,7 +433,7 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
           role="dialog"
           aria-modal="true"
           aria-labelledby="del-title"
-          className="modal-backdrop show"
+          className=""
           style={{
             position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)",
             display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1050
@@ -337,42 +456,6 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
               </ul>
 
               <div className="d-flex justify-content-end gap-2">
-                {/* C. 取消 */}
-                <button
-                  type="button"
-                  className="btn btn-light btn-sm"
-                  onClick={() => { setConfirmOpen(false); setCandidate(null); }}
-                >
-                  取消
-                </button>
-
-                {/* B. 保留明細（只有有子節點時顯示） */}
-                {(candidate.children?.length ?? 0) > 0 && (
-                  <button
-                    type="button"
-                    className="btn btn-warning btn-sm"
-                    onClick={() => {
-                      // 1) 先把 children 提升到父層並移除自己
-                      const newTree = promoteChildrenToParent(items, candidate.id);
-                      setItems(newTree);
-
-                      // 2) formData：只刪掉自己(不含子孫)
-                      const idOnly = new Set<number>([Number(candidate.MenuItem?.Item?.RowId ?? candidate.id)]);
-                      applyRemovalToForm(idOnly);
-
-                      // 3) 把新的樹寫回 formData（ParentRowId / Level / DisplayOrder）
-                      syncTreeToForm(newTree, prop.formData);
-
-                      // 4) 關閉對話框 & 取消右側編輯
-                      setConfirmOpen(false);
-                      setCandidate(null);
-                      prop.setSelectedItemEdit(null);
-                    }}
-                  >
-                    保留明細（掛到父層）
-                  </button>
-                )}
-
                 {/* A. 全部刪除 */}
                 <button
                   type="button"
@@ -399,6 +482,42 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
                 >
                   全部刪除
                 </button>
+
+                {/* B. 保留明細（只有有子節點時顯示） */}
+                {(candidate.children?.length ?? 0) > 0 && (
+                  <button
+                    type="button"
+                    className="btn btn-warning btn-sm"
+                    onClick={() => {
+                      // 1) 先把 children 提升到父層並移除自己
+                      const newTree = promoteChildrenToParent(items, candidate.id);
+                      setItems(newTree);
+
+                      // 2) formData：只刪掉自己(不含子孫)
+                      const idOnly = new Set<number>([Number(candidate.MenuItem?.Item?.RowId ?? candidate.id)]);
+                      applyRemovalToForm(idOnly);
+
+                      // 3) 把新的樹寫回 formData（ParentRowId / Level / DisplayOrder）
+                      syncTreeToForm(newTree, prop.formData);
+
+                      // 4) 關閉對話框 & 取消右側編輯
+                      setConfirmOpen(false);
+                      setCandidate(null);
+                      prop.setSelectedItemEdit(null);
+                    }}
+                  >
+                    保留明細
+                  </button>
+                )}
+                {/* C. 取消 */}
+                <button
+                  type="button"
+                  className="btn btn-light btn-sm"
+                  onClick={() => { setConfirmOpen(false); setCandidate(null); }}
+                >
+                  取消
+                </button>
+
               </div>
             </div>
           </div>
@@ -407,6 +526,8 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
     </>
   )
 }
+
+
 //RightBox
 const RenderRightBox = (prop: {
   theme: IBETheme; selectedItemEdit: Item | null; formData: UseFetchFormDataResult<SiteMenuSet>;
@@ -646,7 +767,7 @@ const ModuleSettingTab = (prop: {
   const moduleKeyBind = setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Module, SchemaFields.SiteMenu_Item_ModuleFields.ModuleProgId, "string", curRowKeys);
   const moduleNodes: React.ReactNode[] = React.useMemo(() => {
     const nodes: React.ReactNode[] = [
-      <LibCheckBox Style={prop.theme.RadioBox} options={prop.modulePageType} {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Module, SchemaFields.SiteMenu_Item_ModuleFields.PageType, "string", curRowKeys)} />,
+      <LibCheckBox Style={prop.theme.RadioBox} options={prop.modulePageType} {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Module, SchemaFields.SiteMenu_Item_ModuleFields.PageType, "number", curRowKeys)} />,
       <LibDropList key="model" Style={prop.theme.DropList} Options={ModuleOpts}
         ColumnDisplayName={moduleKeyBind.ColumnDisplayName}
         InputValue={moduleKeyBind.InputValue}
