@@ -1,0 +1,630 @@
+@charset "utf-8";
+/* CSS Document */
+
+.mainArea {
+    position: relative;
+    display: block;
+    background-color: transparent;
+    /*background-image: url(images/bg/.....);*/
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center top;
+}
+/* ============================================= */
+/* ------ 首頁 HEADER --------------------------- */
+/* ============================================= */
+header {
+    position: fixed; /*fixed*/
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 50;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    /*border-bottom: 1px solid rgba(255, 255, 255, 0.3);*/
+    background-color: transparent;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+@media screen and (max-width: 992px) {
+    header {
+        background-color: var(--FFFcolor);
+    }
+}
+
+/* === header.logo ===================== */
+header .leftBox {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+@media screen and (max-width: 992px) {
+    header .leftBox {
+        position: relative;
+    }
+}
+header .leftBox .logo a {
+    position: relative;
+    display: block;
+}
+header .leftBox .logo {
+    padding: 5px 30px 5px 95px; /*30px 30px*/
+    position: relative;
+    max-width: 505px;
+}
+@media screen and (max-width: 992px) {
+    header .leftBox .logo {
+        padding: 5px 15px 5px 15px; /*30px 30px*/
+        max-width: 100%;
+    }
+}
+
+header .leftBox .logo a img {
+    width: 100%;
+    height: auto;
+}
+/* === header.logo ===================== */
+
+/* === header.rightBox ================= */
+header .rightBox {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+@media screen and (max-width: 992px) {
+    header .rightBox {   
+        width: 100%;
+        margin: 15px 0px;
+    }
+}
+
+header .rightBox .navsBox {
+    position: relative;
+    display: block;
+    padding: 0px 45px 0px 0px;
+}
+@media screen and (max-width: 992px) {	
+	header .rightBox .navsBox {
+        position: relative;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        padding: 0px;
+	}
+}
+
+header .rightBox .custom_nav {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+	border-radius: 0;
+	
+    background: transparent;
+}
+
+header .rightBox .justify-content-start {
+	-webkit-box-pack: start!important;
+	-ms-flex-pack: start!important;
+	justify-content: flex-start!important;
+}
+
+header .rightBox .justify-content-end {
+	-webkit-box-pack: end!important;
+	-ms-flex-pack: end!important;
+	justify-content: flex-end!important;
+}
+
+header .rightBox .nav-item+.nav-item::before {
+	float: left;
+    color: rgba(0,0,0,0.35); /* #1e2d40 */
+	content: "│";
+}
+
+header .rightBox .nav-item {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+header .rightBox .nav-link {
+	font-size: 93.75%; /*0.875rem*/
+    font-weight: bold;
+    display: block;
+	
+	padding: 0.5rem 1rem;
+}
+
+@media screen and (max-width: 992px) {	
+	header .rightBox .nav-link {
+        font-size: 87.5%; /*0.75rem*/
+		padding: 0.25rem 0.5rem; /*0.125rem 0.75rem*/
+	}
+}
+
+header .rightBox .nav-item a.nav-link,
+header .rightBox .nav-item+.nav-item a.nav-link,
+header .rightBox .nav-item+.nav-item a.nav-link.disabled {
+    color: #000000;
+    /*pointer-events: none;*/ /*滑鼠無作用*/
+    /*cursor: default;*/ /*預設-滑鼠無作用*/
+}
+
+header .rightBox .nav-item a:hover.nav-link,
+header .rightBox .nav-item+.nav-item a:hover.nav-link,
+header .rightBox .nav-item+.nav-item a:hover.nav-link.disabled {
+    color: #f39700;
+    /*pointer-events: none;*/ /*滑鼠無作用*/
+    /*cursor: default;*/ /*預設-滑鼠無作用*/
+}
+header .rightBox .nav-item a.nav-link.active,
+header .rightBox .nav-item a:hover.nav-link.active {
+    color: #f39700;
+}
+
+header .rightBox .nav-item a.nav-link i {
+	margin-right: 5px;
+}
+/* === header.rightBox ================= */
+
+/* === header button.main ================= */
+header button.main {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    width: 90px;
+    height: 94px; /*98.3px*/
+    
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    
+    color: #000000;
+    background-color: transparent;    
+}
+@media screen and (min-width: 993px) {	
+	header button.main {
+        display: none;
+	}
+}
+@media screen and (max-width: 992px) {
+    header button.main {
+        width: 60px;
+        height: 80.3px;
+        font-size: 125.0%;
+    }
+}
+@media screen and (max-width: 768px) {
+    header button.main {
+        width: 50px;
+        height: 80.3px;
+        font-size: 125.0%;
+    }
+}
+@media screen and (max-width: 576px) {
+    header button.main {
+        width: 50px;
+        height: 80.3px;
+        font-size: 112.5%;
+    }
+}
+
+header button.main:hover {
+    color: #000000;
+    background-color: transparent;
+}
+
+header button.main span {
+    width: 25px;
+    height: 7px;
+    display: block;
+    position: relative;
+    margin: 0 auto 15px auto;
+}
+
+header button.main span i {
+    font-size: 125%;
+}
+
+/*----------------------------------*/
+
+header button.Paynow {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    /*width: 90px;*/
+    height: 94px; /*98.3px*/
+    
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    
+    font-size: 150%;
+    font-weight: bold;
+    color: #FFFFFF;
+    padding: 0 45px;
+    background-color: #1a4b90;
+}
+/*@media screen and (min-width: 992px) {}*/
+@media screen and (max-width: 1180px) {
+    header button.Paynow {
+        font-size: 150%;
+        padding: 0 45px;
+    }
+}
+@media screen and (max-width: 992px) {
+    header button.Paynow {
+        font-size: 150%;
+        padding: 0 45px;
+        height: 80.3px;
+    }
+}
+@media screen and (max-width: 768px) {
+    header button.Paynow {
+        font-size: 137.5%;
+        padding: 0 35px;
+    }
+}
+@media screen and (max-width: 576px) {
+    header button.Paynow {
+        font-size: 125.0%;
+        padding: 0 30px;
+    }
+}
+@media screen and (max-width: 480px) {
+    header button.Paynow {
+        font-size: 100%;
+        padding: 0 15px;
+        height: 80.3px;
+    }
+}
+@media screen and (max-width: 320px) {
+    header button.Paynow {
+        font-size: 100%;
+        padding: 0 15px;
+    }
+}
+
+header button.Paynow:hover {
+    color: #000000;
+    background-color: #f39700;
+}
+
+header button.Paynow span {
+    /*width: 25px;
+    height: 7px;
+    display: block;*/
+    
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+header button.Paynow span i {
+    position: relative;
+    top: 3px;
+    font-size: 125%;
+    margin-right: 5px;
+}
+
+/* === header.overlayer ================ */
+header.active .overlayer {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+header .overlayer {
+    content: "";
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 19;
+    background-color: rgba(0, 0, 0, 0.8);/*0.3*/
+    display: block;
+    pointer-events: none;
+    opacity: 0;
+    -webkit-transition: 0.9s;
+    transition: 0.9s;
+}
+/* === header.overlayer ================ */
+/* ============================================= */
+/* ------ 首頁 HEADER --------------------------- */
+/* ============================================= */
+
+
+/* ============================================= */
+/* ------ 首頁 All_content_section -------------- */
+/* ============================================= */
+.All_content_section {
+    position: relative;
+    display: block;
+    padding: 0;
+    /*min-height: 767px;*/
+    height: calc(100vh - 72.8px);
+    
+    z-index: 1;
+    overflow: hidden;
+    
+    background-color: transparent;
+    background-image: url(images/bg/.....);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center top;
+}
+@media only screen and (max-width: 1262.5px) {
+    .All_content_section {
+        height: calc(100% - 93.2px);
+    }
+}
+@media screen and (max-width: 1100.5px) {
+    .All_content_section {
+        height: calc(100% - 113.6px);
+    }
+}
+@media screen and (max-width: 992px) {
+    .All_content_section {
+        height: auto;
+    }
+}
+/*--------------------------------------*/
+
+.All_content_section .row {
+	display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+	margin-right: 0px;
+	margin-left: 0px;
+    margin-top: 9rem;
+}
+@media only screen and (max-width: 991px) {
+    .All_content_section .row {
+        margin-top: 8rem;
+    }
+}
+@media only screen and (max-width: 767px) {
+    .All_content_section .row {
+        margin-top: 6rem;
+    }
+}
+@media only screen and (max-width: 575px) {
+    .All_content_section .row {
+        margin-top: 10rem;
+    }
+}
+@media only screen and (max-width: 479px) {
+    .All_content_section .row {
+        margin-top: 10rem;
+    }
+}
+/*--------------------------------------*/
+
+.All_content_section .InfoWrapDiv {}
+@media screen and (max-width: 991px) {
+    .slogan_section .InfoWrapDiv {
+        flex-direction: column;
+        margin-bottom: 40px;
+    }
+}
+@media screen and (min-width: 992px) {
+    .All_content_section .InfoWrapDiv {
+        margin-right: calc(50% - 50vw); /* 一半 1/2 面積*/
+    }
+}
+
+.All_content_section .InfoWrap-login {
+    flex-shrink: 0;
+    width: 50vw;
+}
+@media screen and (max-width: 991px) {
+    .All_content_section .InfoWrap-login {
+        width: 100%;
+        margin: 0 auto 20px auto;
+    }    
+}
+@media screen and (min-width: 992px) {
+    .All_content_section .InfoWrap-login {
+        padding-left: 140px;
+        padding-right: 140px;
+        order: 1;
+    }
+}
+
+.All_content_section .wrap-loginDIV {
+    width: 500px;
+    background-color: var(--FFFcolor);
+    border-radius: 10px;
+    overflow: hidden;
+
+    box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+    -webkit-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+    -o-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+    -ms-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);  
+}
+@media screen and (max-width: 992px) {
+    .All_content_section .wrap-loginDIV {
+        width: 100%;
+        padding-right: 30px;
+        padding-left: 30px;
+    }
+}
+
+.All_content_section .InfoWrap-img img {
+    width: 100%;  
+    overflow: hidden;
+    border-top-left-radius: 40px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 40px;
+}
+@media screen and (max-width: 991px) {
+    .All_content_section .InfoWrap-img img {
+        border-top-left-radius: 40px;
+        border-top-right-radius: 40px;
+        border-bottom-right-radius: 40px;
+        border-bottom-left-radius: 40px;
+    }
+}
+
+.All_content_section .InfoWrap-text {
+    position: relative;
+    display: block;
+}
+
+.All_content_section .box-text {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    z-index: 2;
+}
+
+.All_content_section .b-text-tw {
+    position: relative;
+    font-family: "Noto Sans TC";
+    color: var(--blackcolor);
+    font-weight: bold;
+    letter-spacing: 2;
+}
+@media screen and (max-width: 575px) {
+    .All_content_section .b-text-tw {
+        font-size: 150%;
+    }
+}
+@media screen and (min-width: 576px) {
+    .All_content_section .b-text-tw {
+        font-size: 250%;
+    }
+}
+
+.All_content_section .s-text-tw {
+    position: relative;
+    font-family: "Noto Sans TC";
+    color: var(--blackcolor);
+    font-weight: bold;
+    letter-spacing: 2;
+}
+@media screen and (max-width: 575px) {
+    .All_content_section .s-text-tw {
+        font-size: 125%;
+    }
+}
+@media screen and (min-width: 576px) {
+    .All_content_section .s-text-tw {
+        font-size: 175%;
+    }
+}
+
+.All_content_section .Description {
+    position: relative;    
+    color: var(--blackcolor);
+}
+@media screen and (max-width: 575px) {
+    .All_content_section .Description {
+        font-size: 100%;
+    }
+}
+@media screen and (min-width: 576px) {
+    .All_content_section .Description {
+        font-size: 112.5%;
+    }
+}
+
+.All_content_section .Gcolor {
+    color: var(--color_007069);
+}
+.All_content_section .Fcolor {
+    color: var(--FFFcolor);
+}
+
+.All_content_section .BTN-Detail {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.All_content_section .BTN-Detail .MoreDIV .left-18 {
+    left: -18px;
+}
+
+.All_content_section .BTN-Detail.margin-Hrem {
+    margin-top: 10rem; /* 1rem = 16px --> x 5rem = 80px */
+}
+@media screen and (max-width: 575px) {
+	.All_content_section .BTN-Detail.margin-Hrem {
+		margin-top: 2rem;
+	}
+}
+@media screen and (min-width: 576px) {
+	.All_content_section .BTN-Detail.margin-Hrem {
+		margin-top: 3rem;
+	}
+}
+@media screen and (min-width: 768px) {
+	.All_content_section .BTN-Detail.margin-Hrem {
+		margin-top: 4rem;
+	}
+}
+@media screen and (min-width: 992px) {
+	.All_content_section .BTN-Detail.margin-Hrem {
+		margin-top: 5rem;
+	}
+}
+@media screen and (min-width: 1200px) {
+	.All_content_section .BTN-Detail.margin-Hrem {
+		margin-top: 6rem;
+	}
+}
+
+.All_content_section .BTN-Detail i {
+    font-size: 125%;
+    margin-left: 5px;
+}

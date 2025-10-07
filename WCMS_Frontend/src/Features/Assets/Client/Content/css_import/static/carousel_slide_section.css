@@ -1,0 +1,1019 @@
+@charset "utf-8";
+/* CSS Document */
+:root {
+    --Customize_size: 40px;
+    --Customize_size_1: 32px;
+}
+/* var(--Customize_size); */
+
+/* ============================================= */
+/* ------ 首頁 Carousel_Slide ------------------- */
+/* ============================================= */
+.carousel_slide_section {
+    position: relative;
+    overflow: hidden;  
+	
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	
+    /*background-color: transparent;*/    
+	/*background-image: url(images/bg/.....);*/
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center top;
+}
+/*-------------------------------------------*/
+.carousel_slide_section .carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/*=============================================*/
+/* ==   prev + next 按鈕 div框   ============== */
+/*=============================================*/
+.carousel_slide_section .carousel_btn-icon-prev,
+.carousel_slide_section .carousel_btn-icon-next {
+	position: absolute;
+	top: calc(50% - 24px);
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;	
+	z-index: 2; /*999*/
+}
+.carousel_slide_section .carousel_btn-icon-prev {
+	left: 2.5%;
+}
+.carousel_slide_section .carousel_btn-icon-next {
+	right: 2.5%;
+}
+@media screen and (max-width: 768px) {
+	.carousel_slide_section .carousel_btn-icon-prev,
+	.carousel_slide_section .carousel_btn-icon-next {
+		top: calc(50% - 16px);
+	}
+}
+
+/* ==================================================== */
+/* ------ Button 按鈕 carousel-control-prev ------------ */
+/* ------ Button 按鈕 carousel-control-next ------------ */
+.carousel_slide_section .carousel_btn-icon-prev a div.carousel-control-prev,
+.carousel_slide_section .carousel_btn-icon-next a div.carousel-control-next {
+	position: relative;
+	width: var(--Customize_size); /*48px*/
+	height: var(--Customize_size); /*48px*/
+	border-radius: 100%;
+	opacity: 1;
+	background-repeat: no-repeat;
+	background-size: 8px;
+	background-position: center;
+	border: 1px solid var(--FFFcolor);
+    background-color: rgba(255, 255, 255,0.5);
+}
+.carousel_slide_section .carousel_btn-icon-prev a:hover div.carousel-control-prev,
+.carousel_slide_section .carousel_btn-icon-next a:hover div.carousel-control-next {
+	background-color: var(--Customize_color);
+}
+.carousel_slide_section .carousel_btn-icon-prev a:focus div.carousel-control-prev,
+.carousel_slide_section .carousel_btn-icon-next a:focus div.carousel-control-next {
+	text-decoration: none;    
+	/*outline: thin dotted;*/
+    outline: 1px solid var(--a_focusbordercolor);
+	/*outline-offset: -2px;*/
+    
+    color: var(--blackcolor) !important;
+	background-color: #ffa700;
+}
+/* ------ Button 按鈕 carousel-control-prev ------------ */
+/* ------ Button 按鈕 carousel-control-next ------------ */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ ICON 符號 carousel-control-prev-icon --------- */
+/* ------ ICON 符號 carousel-control-next-icon --------- */
+.carousel_slide_section .carousel_btn-icon-prev a div.carousel-control-prev .carousel-control-prev-icon,
+.carousel_slide_section .carousel_btn-icon-next a div.carousel-control-next .carousel-control-next-icon {
+    display: inline-block;
+    width: var(--Customize_size); /*48px*/
+	height: var(--Customize_size); /*48px*/
+    border-radius: 100%;
+    
+	background-position-x: 50%;
+	background-position-y: center;
+	background-repeat: no-repeat;
+	background-attachment: scroll;
+	/*background-image: none;*/
+	background-size: 100% 100%;
+	background-origin: padding-box;
+	background-clip: border-box;
+	
+	/*background-color: rgba(0, 0, 0, 0);*/
+    filter: none;
+}
+.carousel_slide_section .carousel_btn-icon-prev a div.carousel-control-prev .carousel-control-prev-icon {
+	background-image: url(../../../images/banner/prev-B.svg);
+}
+.carousel_slide_section .carousel_btn-icon-next a div.carousel-control-next .carousel-control-next-icon {
+	background-image: url(../../../images/banner/next-B.svg);
+}
+
+/* ------ ICON 符號 HOVER --------- */
+.carousel_slide_section .carousel_btn-icon-prev a:hover div.carousel-control-prev .carousel-control-prev-icon {
+    background-image: url(../../../images/banner/prev-W.svg);
+}
+.carousel_slide_section .carousel_btn-icon-next a:hover div.carousel-control-next .carousel-control-next-icon {
+    background-image: url(../../../images/banner/next-W.svg);
+}
+/* ------ ICON 符號 HOVER --------- */
+
+/* ------ ICON 符號 FOCUS --------- */
+.carousel_slide_section .carousel_btn-icon-prev a:focus div.carousel-control-prev .carousel-control-prev-icon {
+    background-image: url(../../../images/banner/prev-B.svg);
+}
+.carousel_slide_section .carousel_btn-icon-next a:focus div.carousel-control-next .carousel-control-next-icon {
+    background-image: url(../../../images/banner/next-B.svg);
+}
+/* ------ ICON 符號 FOCUS --------- */
+
+/* ------ Button 按鈕 + ICON 符號 縮小至 768 的 size --------- */
+@media screen and (max-width: 768px) {
+    .carousel_slide_section .carousel_btn-icon-prev a div.carousel-control-prev,
+    .carousel_slide_section .carousel_btn-icon-next a div.carousel-control-next,    
+	.carousel_slide_section .carousel_btn-icon-prev a div.carousel-control-prev .carousel-control-prev-icon,
+    .carousel_slide_section .carousel_btn-icon-next a div.carousel-control-next .carousel-control-next-icon {
+		width: var(--Customize_size_1); /*32px*/
+		height: var(--Customize_size_1); /*32px*/
+	}
+}
+/* ------ Button 按鈕 + ICON 符號 縮小至 768 的 size --------- */
+
+/* ------ ICON 符號 carousel-control-prev-icon --------- */
+/* ------ ICON 符號 carousel-control-next-icon --------- */
+/* ==================================================== */
+
+/*=============================================*/
+/* ==   prev + next 按鈕   ==================== */
+/*=============================================*/
+
+
+/*=============================================*/
+/* ==   輪播 暫停/撥放    ====================== */
+/*=============================================*/
+.carousel_slide_section .control-box {	
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	
+	align-items: center;
+	
+	position: absolute; 
+    /*left: 1.125%;*/
+    /*right: 1.125%;*/
+    z-index: 2;
+    padding: 0; 
+    margin-bottom: 1rem;
+    color: var(--FFFcolor);
+    text-align: center;
+	/*background-color: rgba(0, 0, 0, 0.5);*/
+    width: 115px;
+}
+@media screen and (max-width: 991px) {
+	.carousel_slide_section .control-box {
+		/* 上方左邊 */
+        /*justify-content: flex-start;*/ 
+        /*left: 2.5%;*/
+        /*top: 1%;*/
+		
+		/* 下方右邊 */
+		justify-content: flex-end;
+		right: 2.5%;
+		top: 1.5%;
+		/*bottom: 0%;*/
+	}
+}
+@media screen and (min-width: 992px) {
+	.carousel_slide_section .control-box {  
+		/* 下方右邊 */
+        justify-content: flex-end;
+        right: 2.5%;
+        top: 1.5%;
+		/*bottom: 0%;*/
+	}
+}
+
+/* ==================================================== */
+/* ------ Button 按鈕 DIV框 .control-start ------------- */
+/* ------ Button 按鈕 DIV框 .control-pause ------------- */
+.carousel_slide_section .control-start,
+.carousel_slide_section .control-pause {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	z-index: 2; /*999*/
+}
+.carousel_slide_section .control-start {
+	right: calc(0% + 10px);
+}
+.carousel_slide_section .control-pause {
+	right: calc(0% - 0px);
+}
+/* ------ Button 按鈕 DIV框 .control-start ------------- */
+/* ------ Button 按鈕 DIV框 .control-pause ------------- */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ Button 按鈕 a.start -------------------------- */
+/* ------ Button 按鈕 a.pause -------------------------- */
+.carousel_slide_section .control-start a,
+.carousel_slide_section .control-pause a {
+	position: relative;
+	display:inline-block;
+	width: var(--Customize_size);
+	height: var(--Customize_size);
+    
+    color: var(--Customize_color);
+	border-radius: 100%;
+    border: 1px solid var(--FFFcolor);
+    background-color: rgba(255, 255, 255, 0.5);
+}
+.carousel_slide_section .control-start a:hover,
+.carousel_slide_section .control-pause a:hover {
+	opacity: 1;
+	background-color: var(--Customize_color);
+}
+.carousel_slide_section .control-start a:focus, 
+.carousel_slide_section .control-pause a:focus {
+    text-decoration: none;    
+	/*outline: thin dotted;*/
+    outline: 1px solid var(--a_focusbordercolor);
+	/*outline-offset: -2px;*/
+    
+    color: var(--blackcolor) !important;
+	background-color: #ffa700;
+}
+/* ------ Button 按鈕 a.start -------------------------- */
+/* ------ Button 按鈕 a.pause -------------------------- */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ ICON 符號 control-start-icon ----------------- */
+/* ------ ICON 符號 control-pause-icon ----------------- */
+.carousel_slide_section .control-start-icon,
+.carousel_slide_section .control-pause-icon {
+	display: inline-block;
+	width: var(--Customize_size);
+	height: var(--Customize_size);
+	background-position-x: 50%;
+	background-position-y: center;
+	background-repeat: no-repeat;
+	background-attachment: scroll;
+	background-image: none;
+	background-size: 100% 100%;
+	background-origin: padding-box;
+	background-clip: border-box;
+}
+.carousel_slide_section .control-start-icon {
+    background-image: url(../../../images/banner/control-start-B-icon.svg);
+}
+.carousel_slide_section .control-pause-icon {
+    background-image: url(../../../images/banner/control-pause-B-icon.svg);
+}
+
+/* ------ ICON 符號 HOVER --------- */
+.carousel_slide_section .control-start a:hover .control-start-icon {
+    background-image: url(../../../images/banner/control-start-W-icon.svg);
+}
+.carousel_slide_section .control-pause a:hover .control-pause-icon {
+    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+}
+/* ------ ICON 符號 HOVER --------- */
+
+/* ------ ICON 符號 FOCUS --------- */
+.carousel_slide_section .control-start a:focus .control-start-icon {
+    background-image: url(../../../images/banner/control-start-W-icon.svg);
+}
+.carousel_slide_section .control-pause a:focus .control-pause-icon{
+    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+}
+/* ------ ICON 符號 FOCUS --------- */
+
+/* ------ Button 按鈕 + ICON 符號 縮小至 768 的 size --------- */
+@media screen and (max-width: 768px) {
+	.carousel_slide_section .control-start a,
+	.carousel_slide_section .control-pause a,
+	.carousel_slide_section .control-start-icon,
+	.carousel_slide_section .control-pause-icon {
+		width: 32px;
+		height: 32px;
+	}
+	
+	.carousel_slide_section .control-box {	
+		padding-top: 5px;    
+		padding-left: 0px;
+		padding-right: 0px;
+		padding-bottom: 0px;
+	}
+
+	.carousel_slide_section .control-start {
+		right: calc(1.5% + 5px);
+	}
+	.carousel_slide_section .control-pause {
+		right: 1.5%;
+	}
+}
+/* ------ Button 按鈕 + ICON 符號 縮小至 768 的 size --------- */
+
+/* ------ ICON 符號 control-start-icon ----------------- */
+/* ------ ICON 符號 control-pause-icon ----------------- */
+/* ==================================================== */
+
+
+/* ==================================================== */
+/* ==================================================== */
+/* ==================================================== */
+/* ==================================================== */
+
+
+/* ==================================================== */
+/* ------ 單一切換 Button 按鈕 a.start ------------------ */
+/* ------ 單一切換 Button 按鈕 a.pause ------------------ */
+.carousel_slide_section .control-singlebox {	
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	
+	align-items: center;
+	
+	position: absolute; 
+    /*left: 1.125%;*/
+    /*right: 1.125%;*/
+    z-index: 2;
+    padding: 0; 
+    margin-bottom: 1rem;
+    color: var(--FFFcolor);
+    text-align: center;
+	/*background-color: rgba(0, 0, 0, 0.5);*/
+    width: 40px;
+}
+@media screen and (max-width: 991px) {
+	.carousel_slide_section .control-singlebox {
+		/* 上方左邊 */
+        /*justify-content: flex-start;*/ 
+        /*left: 2.5%;*/
+        /*top: 1%;*/
+		
+		/* 下方右邊 */
+		justify-content: flex-end;
+		right: 2.5%;
+		top: 1.5%;
+		/*bottom: 0%;*/
+	}
+}
+@media screen and (min-width: 992px) {
+	.carousel_slide_section .control-singlebox {  
+		/* 下方右邊 */
+        justify-content: flex-end;
+        right: 2.5%;
+		top: 1.5%;
+        /*bottom: 0%;*/
+	}
+}
+/* ==================================================== */
+.carousel_slide_section .control-toggle {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	z-index: 2;
+}
+.carousel_slide_section .control-toggle a {
+	position: relative;
+	display:inline-block;
+	width: var(--Customize_size);
+	height: var(--Customize_size);
+    
+    color: var(--Customize_color);
+	border-radius: 100%;
+    border: 1px solid var(--FFFcolor);
+    background-color: rgba(255, 255, 255, 0.5);
+}
+.carousel_slide_section .control-toggle a:hover {
+	opacity: 1;
+	background-color: var(--Customize_color);
+}
+.carousel_slide_section .control-toggle a:focus {
+    text-decoration: none;    
+	/*outline: thin dotted;*/
+    outline: 1px solid var(--a_focusbordercolor);
+	/*outline-offset: -2px;*/
+    
+    color: var(--blackcolor) !important;
+	background-color: #ffa700;
+}
+/* ------ 單一切換 Button 按鈕 a.start ------------------ */
+/* ------ 單一切換 Button 按鈕 a.pause ------------------ */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ 單一切換 ICON 符號 control-icon --------------- */
+/* ------ 單一切換 ICON 符號 control-icon --------------- */
+.carousel_slide_section .control-icon {
+	display: inline-block;
+	width: var(--Customize_size);
+	height: var(--Customize_size);
+	background-position-x: 50%;
+	background-position-y: center;
+	background-repeat: no-repeat;
+	background-attachment: scroll;
+	background-image: none;
+	background-size: 100% 100%;
+	background-origin: padding-box;
+	background-clip: border-box;
+}
+.carousel_slide_section .control-icon.play {
+    background-image: url(../../../images/banner/control-start-B-icon.svg);
+}
+.carousel_slide_section .control-icon.pause {
+    background-image: url(../../../images/banner/control-pause-B-icon.svg);
+}
+
+/* ------ ICON 符號 HOVER --------- */
+.carousel_slide_section .control-toggle a:hover .control-icon.play {
+    background-image: url(../../../images/banner/control-start-W-icon.svg);
+}
+.carousel_slide_section .control-toggle a:hover .control-icon.pause {
+    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+}
+/* ------ ICON 符號 HOVER --------- */
+
+/* ------ ICON 符號 FOCUS --------- */
+.carousel_slide_section .control-toggle a:focus .control-icon.play {
+    background-image: url(../../../images/banner/control-start-W-icon.svg);
+}
+.carousel_slide_section .control-toggle a:focus .control-icon.pause {
+    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+}
+/* ------ ICON 符號 FOCUS --------- */
+
+/* ------ Button 按鈕 + ICON 符號 縮小至 768 的 size --------- */
+@media screen and (max-width: 768px) {
+	.carousel_slide_section .control-toggle a,
+	.carousel_slide_section .control-toggle a .control-icon.play,
+	.carousel_slide_section .control-toggle a .control-icon.pause {
+		width: 32px;
+		height: 32px;
+	}
+	
+	.carousel_slide_section .control-box {	
+		padding-top: 0px;    
+		padding-left: 0px;
+		padding-right: 0px;
+		padding-bottom: 0px;
+	}
+	.carousel_slide_section .control-toggle {
+		right: 1.5%;
+	}
+}
+/* ------ Button 按鈕 + ICON 符號 縮小至 768 的 size --------- */
+
+/* ------ 單一切換 ICON 符號 control-start-icon --------- */
+/* ------ 單一切換 ICON 符號 control-pause-icon --------- */
+/* ==================================================== */
+/*=============================================*/
+/* ==   輪播 暫停/撥放    =======================*/
+/*=============================================*/
+
+
+/*=============================================*/
+/* ==   輪播 下方 按鈕指標 [ 點點 ]    =========== */
+/*=============================================*/
+.carousel-indicators {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 0;
+	margin-right: 15%;
+	margin-bottom: 1rem;
+	margin-left: 15%;
+	list-style: none;
+	
+	z-index: 15; /*15*/
+}
+@media screen and (max-width: 991px) {
+	.carousel_slide_section .carousel-indicators {
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-pack: center;
+        justify-content: center;
+		align-items: center;
+	}
+}
+/*@media screen and (min-width: 992px) {
+	.carousel_slide_section .carousel-indicators {
+        display: none;
+	}
+}*/
+
+.carousel-indicators a {
+	display: inline-block;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	height: 16px;
+	width: 16px;
+	margin: 0 0.25rem;
+}
+
+.carousel-indicators button[data-bs-target] {
+	box-sizing: content-box;
+	flex: 0 1 auto;
+	width: 10px;
+	height: 10px;
+	padding: 0;
+	margin-right: 3px;
+	margin-left: 3px;
+	text-indent: -999px;
+	cursor: pointer;
+	background-color: var(--FFFcolor);
+	background-clip: padding-box;
+	border: 0;
+	opacity: .5;
+	transition: opacity .6s ease;
+}
+.carousel-indicators a button {
+	position: relative;
+	border: none;
+	margin: 0 6px;
+	padding: 0;
+	outline: none;
+	border-radius: 50%;
+}
+.carousel-indicators a button.active {
+	opacity: 1;
+	background-color: var(--Customize_color);
+}
+
+.carousel-indicators a button.active::before {
+	transform: translate3d(-50%,-50%,0) scale(.6666666667);
+}
+/* 環繞動畫圈 */
+.carousel-indicators a button.active::after {
+	content: "";
+	position: absolute;
+	top: -6px;
+	left: -6px;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	border: 2px solid transparent;
+	border-top-color: var(--Customize_color);  /* 你想要的顏色 */
+	animation: spin-ring 5s linear infinite;
+	box-sizing: border-box;
+}
+@keyframes spin-ring {
+	to { transform: rotate(1turn); }
+}
+/*=============================================*/
+/* ==   輪播 下方 按鈕指標 [ 點點 ]    =========== */
+/*=============================================*/
+
+
+/*=============================================*/
+/* ==   輪播 左邊文字區    ====================== */
+/*=============================================*/
+.carousel-caption-item {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 100%;
+	background-color: transparent;
+	z-index: 1;
+}
+/* ------ carousel-caption-item ----------------------- */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ caption-overlayer --------------------------- */
+.caption-overlayer {
+	content: "";
+    width: 100vw;
+    height: 100%;
+    position: absolute;
+    top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+    z-index: 0;
+    background-color: rgba(0, 0, 0, 0.22);
+    display: block;
+    pointer-events: none;
+}
+/* ------ caption-overlayer --------------------------- */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ caption-container --------------------------- */
+.caption-container {
+	width: 100%;
+	padding-right: 15px;
+	padding-left: 15px;
+	margin-right: auto;
+	margin-left: auto
+}
+@media screen and (max-width: 575px) {
+	.caption-container {
+		max-width: 540px;
+		padding-right: 15%; /*=240px*/
+  		padding-left: 15%; /*=240px*/
+	}
+}
+@media screen and (min-width: 576px) {
+	.caption-container {
+		max-width: 540px;
+		padding-right: 3.75%; /*=48px*/
+  		padding-left: 3.75%; /*=48px*/
+	}
+}
+@media screen and (min-width: 768px) {
+	.caption-container {
+		max-width: 720px;
+		padding-right: 5%; /*=64px*/
+  		padding-left: 5%; /*=64px*/
+	}
+}
+@media screen and (min-width: 992px) {
+	.caption-container {
+		max-width: 960px;
+		padding-right: 5%; /*=64px*/
+  		padding-left: 5%; /*=64px*/
+	}
+}
+@media screen and (min-width: 1200px) {
+	.caption-container {
+		max-width: 1170px;
+		padding-right: 6.25%; /*=80px*/
+  		padding-left: 6.25%; /*=80px*/
+	}
+}
+@media screen and (min-width: 1400px) {
+	.caption-container {
+		max-width: 1320px;
+		padding-right: 5%; /*=64px*/
+  		padding-left: 5%; /*=64px*/
+	}
+}
+@media screen and (min-width: 1600px) {
+	.caption-container {
+		max-width: 1584px;
+		padding-right: 6.25%; /*=80px*/
+  		padding-left: 6.25%; /*=80px*/
+	}
+}
+/* ------ caption-container --------------------------- */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ caption-title ------------------------------- */
+.caption-title {	
+	font-weight: 600;
+	text-transform: uppercase;
+	max-width: fit-content;
+}
+.caption-title {
+	color: var(--FFFcolor);
+}
+@media screen and (max-width: 991px) {
+	.caption-title {
+		font-size: 225.0%;
+		line-height: 2.25rem;
+		margin-bottom: 1.25rem;
+	}
+}
+@media screen and (min-width: 992px) {
+	.caption-title {
+		font-size: 625%;
+		line-height: 6.25rem;
+		margin-bottom: 1rem;
+	}
+}
+/* ------ caption-title ------------------------------- */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ caption-sub-title --------------------------- */
+.caption-sub-title {
+	font-weight: 600;
+	text-transform: capitalize;
+	max-width: fit-content;
+}
+.caption-sub-title {
+	color: var(--FFFcolor);
+}
+@media screen and (max-width: 991px) {
+	.caption-sub-title {
+		font-size: 106.25%;
+		line-height: 1.0625rem;
+		margin-bottom: 0.5rem;
+	}
+}
+@media screen and (min-width: 992px) {
+	.caption-sub-title {
+		font-size: 300%;
+		line-height: 3rem;
+		margin-bottom: 1rem;
+	}
+}
+/* ------ caption-sub-title --------------------------- */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ caption-desc -------------------------------- */
+.caption-desc {	
+	font-size: 112.5%;
+	font-weight: 700;
+	line-height: 36px;
+	padding-top: 25px;
+	margin-bottom: 35px;
+	color: var(--FFFcolor);
+	border-top: 1px solid rgb(255, 255, 255);	
+	max-width: fit-content;
+}
+@media screen and (max-width: 479px) {
+	.caption-desc {	
+		display: none;
+	}
+}
+@media screen and (max-width: 991px) {
+	.caption-desc {	
+		font-size: 93.75%;
+		line-height: 1.125rem;
+	}
+}
+@media screen and (min-width: 992px) {
+	.caption-desc {	
+		font-size: 112.5%;
+		line-height: 2.25rem;
+	}
+}
+/* ------ caption-desc -------------------------------- */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ caption-button ------------------------------ */
+.caption-button {
+	position: relative;
+	display: inline-block;
+	opacity: 0;
+	transition-duration: 2s;
+}
+.carousel-item.active .caption-button {
+	opacity: 1;
+}
+
+a.caption-customize-btn {
+	position: relative;
+	display: inline-block;
+	font-weight: bold;
+	line-height: 1.5;
+	letter-spacing: -.25px;
+	text-transform: capitalize;
+	text-decoration: none;
+	font-style: normal;
+	
+	color: var(--Customize_color);
+	border: 1px solid transparent;
+	border-radius: 30px;
+	background-color: var(--FFFcolor);
+	box-shadow: none;
+	transition: all .3s;
+	z-index: 1;
+}
+@media screen and (max-width: 991px) {
+	a.caption-customize-btn {
+		font-size: 75%;
+		padding: 0.5rem 1rem; /*8px 16px*/
+		padding-right: 2.125rem; /*22px*/
+	}
+}
+@media screen and (min-width: 992px) {
+	a.caption-customize-btn {
+		font-size: 100%;
+		padding: 0.75rem 2rem; /*12px 32px*/
+		padding-right: 2.75rem; /*44px*/
+	}
+}
+a.caption-customize-btn .button-icon {
+	font-size: 75%;
+	line-height: 3.125rem; /*50px*/
+    text-align: center;
+    font-family: FontAwesome;
+	
+	
+	position: absolute;
+	top: 0;
+    left: auto;
+    background-color: var(--Customize_color);
+    color: var(--FFFcolor);    
+    border-radius: 50%;
+    transform: translate3d(0, 0, 0) rotateZ(0);
+    transform-style: preserve-3d;
+    transition: all .5s ease-in-out;
+}
+@media screen and (max-width: 991px) {
+	a.caption-customize-btn .button-icon {
+		content: url("../../../images/banner/caption-arrow-W.svg");
+		right: -15px;
+		width: 2.25rem; /*36px*/
+		height: 2.25rem; /*36px*/
+	}
+}
+@media screen and (min-width: 992px) {
+	a.caption-customize-btn .button-icon {
+		content: url("../../../images/banner/caption-arrow-W.svg");
+		right: -25px;
+		width: 3.125rem; /*50px*/
+		height: 3.125rem; /*50px*/
+	}
+}
+a:focus.caption-customize-btn .button-icon,
+a:hover.caption-customize-btn .button-icon {
+	transform: translate3d(10px, 0, 0) rotateZ(45deg);
+}
+
+.caption-customize-btn .button-wrapper {
+	display: flex;
+	justify-content: center;
+	overflow: hidden;
+}
+
+
+.caption-customize-btn .button-text {
+	position: relative;
+    overflow: hidden;
+	text-decoration: inherit;
+}
+.caption-button:hover .button-text {
+	animation: MoveUpInitial .2s forwards,MoveUpEnd .2s forwards .2s;
+}
+@keyframes MoveUpInitial {
+	0% {
+		transform: translate3d(0, 0, 0);
+	}
+	
+	50% {
+		transform: translate3d(0, -30%, 0);
+	}
+	100% {
+		transform: translate3d(0, -105%, 0);
+	}
+}
+@keyframes MoveUpEnd {
+	0% {
+		transform: translate3d(0, 100%, 0);
+	}
+	
+	100% {
+		transform: translate3d(0, 0, 0);
+	}
+}
+/* ------ caption-button ------------------------------ */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ transform 轉變 TOP / BOTTOM / LEFT / RIGHT --- */
+/* ------ transform-top --------- */
+.transform-top {
+	opacity: 0;
+    transform: translateY(-120px);
+    transition: all 1000ms ease;
+}
+.carousel-item.active .transform-top {
+	opacity: 1;
+	transform: translateY(0);
+}
+/* ------ transform-top --------- */
+
+/* ------ transform-bottom --------- */
+.transform-bottom {
+	opacity: 0;
+    transform: translateY(50px);
+    transition: all 1000ms ease;
+}
+.carousel-item.active .transform-bottom {
+	opacity: 1;
+    transform: translateY(0);
+}
+/* ------ transform-bottom --------- */
+
+/* ------ transform-left --------- */
+.transform-left {
+	opacity: 0;
+    transition: all 1000ms ease;
+    transform: translateX(-200px);
+}   
+.carousel-item.active .transform-left {
+	opacity: 1;
+	transform: translateX(0);
+}
+/* ------ transform-left --------- */
+
+/* ------ transform-right --------- */
+.transform-right {
+	opacity: 0;
+    transition: all 1000ms ease;
+    transform: translateX(200px);
+}
+.carousel-item.active .transform-right {
+	opacity: 1;
+    transform: translateX(0);
+}
+/* ------ transform-right --------- */
+
+/* ------ transform-center --------- */
+.transform-center {
+	opacity: 0;
+    transition: all 1000ms ease;
+    transform: scale(0.9);
+}
+.carousel-item.active .transform-center {
+	opacity: 1;
+	transform: scale(1);
+}
+/* ------ transform-center --------- */
+/* ------ transform 轉變 TOP / BOTTOM / LEFT / RIGHT --- */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ transform-delay 延遲秒數 --------------------- */
+.carousel-item.active .transform-delay-1 {
+	transition-delay: 250ms; /*1000ms*/
+}
+.carousel-item.active .transform-delay-2 {
+	transition-delay: 350ms; /*1400ms*/
+}
+.carousel-item.active .transform-delay-3 {
+	transition-delay: 425ms; /*1700ms*/
+}
+.carousel-item.active .transform-delay-4 {
+	transition-delay: 475ms; /*1900ms*/
+}
+.carousel-item.active .transform-delay-5 {
+	transition-delay: 525ms; /*2100ms*/
+}
+.carousel-item.active .transform-delay-6 {
+	transition-delay: 550ms; /*2200ms*/
+}
+/* ------ transform-delay 延遲秒數 --------------------- */
+/* ==================================================== */
+/*=============================================*/
+/* ==   輪播 左邊文字區    ====================== */
+/*=============================================*/
+
+/* ============================================= */
+/* ------ 首頁 Carousel_Slide ------------------- */
+/* ============================================= */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,418 @@
+@charset "utf-8";
+/* CSS Document */
+
+/* CSS Document */
+/* .cart-main-area  表格RWD */
+
+.ds-cart-box {
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-flow: row wrap;
+	flex-flow: row wrap;
+	-ms-flex-align: center;
+	align-items: center;
+	
+	height: 400px;
+	padding: 15px;
+	overflow-y: scroll;
+}
+
+/* ===== RWD TABLE CSS CODE START ====== */
+
+.shoping-cart-form .table-rwd { }
+/*這是額外做顏色，沒有什麼意義*/
+
+.shoping-cart-form .table thead.thead-custom {
+    color: #fff;
+    background-color: #059cb5;
+    border-color: #dee2e6;
+}
+
+/* --- 標題TR底色設定 ---*/
+.shoping-cart-form tr.tr-only-hide { 
+	font-size: inherit;
+	line-height: 1.42857143;
+	font-weight: 500;
+	color: var(--color-v0);
+	background-color: #e7e7e7!important;
+}
+
+/* --- 以下標準bootstrap.min table CSS --- */
+.shoping-cart-form .table-bordered {
+    border: 1px solid #ddd;
+}
+.shoping-cart-form .table-striped tbody tr:nth-of-type(2n+1) {
+	background-color: transparent;
+    /*background-color: rgba(0, 0, 0, 0.05);*/
+}
+.shoping-cart-form .table-striped tbody tr:nth-of-type(2n) {
+    background-color: rgba(0, 0, 0, 0.0125);
+}
+.shoping-cart-form .table {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 10px;
+}
+
+.shoping-cart-form table {
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+.shoping-cart-form table {
+    background-color: transparent;
+}
+
+.shoping-cart-form .table > tbody {
+    border-top: 1px solid transparent !important;
+}
+
+.shoping-cart-form .table-bordered > tbody > tr > td,
+.shoping-cart-form .table-bordered > tbody > tr > th,
+.shoping-cart-form .table-bordered > tfoot > tr > td,
+.shoping-cart-form .table-bordered > tfoot > tr > th,
+.shoping-cart-form .table-bordered > thead > tr > td,
+.shoping-cart-form .table-bordered > thead > tr > th {
+    border: 1px solid #ddd;
+}
+
+.shoping-cart-form .table > tbody > tr > th {
+	padding: 8px 10px;
+    vertical-align: top;
+    border-top: 1px solid #ddd;
+}
+
+.shoping-cart-form .table > tbody > tr > td {
+	line-height: 1.42857143;
+	font-weight: 500;
+	color: var(--color-v0);
+
+	padding: 8px 10px;
+    vertical-align: top;
+    border-top: 1px solid #ddd;
+	word-break: break-all;	/*自動折行*/
+}
+.shoping-cart-form .table_list {
+	font-size: inherit !important;
+}
+.shoping-cart-form .table_td_vertical_align {
+	font-size: 0.9375rem !important;
+	vertical-align: middle !important;
+}
+.shoping-cart-form .table_td_vertical_align a {	
+	color: var(--color-v0);
+}
+.shoping-cart-form .table > tbody > tr > td a {
+	font-weight: 500;
+	color: var(--color-v0) !important;
+}
+
+.shoping-cart-form .table > tbody > tr > td i {
+	margin-left: 10px;
+	color: #337ab7;
+}
+
+.shoping-cart-form .table > tbody > tr > td a:hover {
+	color: #337ab7 !important;
+}
+
+.shoping-cart-form th {
+    text-align: left;
+}
+
+.shoping-cart-form td, th {
+    padding: 0;
+	word-break: break-all;
+}
+
+/*-------------------------------------*/
+.shoping-cart-form tr.tr-only-hide-titlebar { 
+	font-size: inherit;
+	line-height: 1.42857143;
+	font-weight: 500;
+	/*color: var(--color-v0);*/
+	background-color: rgba(0,0,0,.075) !important;
+}
+
+.shoping-cart-form .table > tbody > tr.transparent > td, 
+.shoping-cart-form .table > tbody > tr.transparent > th, 
+.shoping-cart-form .table > tbody > tr > td.transparent, 
+.shoping-cart-form .table > tbody > tr > th.transparent, 
+.shoping-cart-form .table > tfoot > tr.transparent > td, 
+.shoping-cart-form .table > tfoot > tr.transparent > th, 
+.shoping-cart-form .table > tfoot > tr > td.transparent, 
+.shoping-cart-form .table > tfoot > tr > th.transparent, 
+.shoping-cart-form .table > thead > tr.transparent > td, 
+.shoping-cart-form .table > thead > tr.transparent > th, 
+.shoping-cart-form .table > thead > tr > td.transparent, 
+.shoping-cart-form .table > thead > tr > th.transparent {
+    background-color: transparent;
+}
+
+.shoping-cart-form .table > tbody > tr.gray > td, 
+.shoping-cart-form .table > tbody > tr.gray > th, 
+.shoping-cart-form .table > tbody > tr > td.gray, 
+.shoping-cart-form .table > tbody > tr > th.gray, 
+.shoping-cart-form .table > tfoot > tr.gray > td, 
+.shoping-cart-form .table > tfoot > tr.gray > th, 
+.shoping-cart-form .table > tfoot > tr > td.gray, 
+.shoping-cart-form .table > tfoot > tr > th.gray, 
+.shoping-cart-form .table > thead > tr.gray > td, 
+.shoping-cart-form .table > thead > tr.gray > th, 
+.shoping-cart-form .table > thead > tr > td.gray, 
+.shoping-cart-form .table > thead > tr > th.gray {
+    background-color: rgba(0,0,0,.0125);
+}
+
+/* 取消TR底色設定 bootstrap.min 等都要取消
+.table-striped > tbody > tr:nth-of-type(2n+1) {
+    background-color: #f9f9f9;
+}
+*/
+
+/* --- 以上標準bootstrap.min table CSS --- */
+/*-- @media (max-width: 736px) --*/
+@media (max-width: 768px) {
+	.shoping-cart-form .table-rwd {
+		min-width: 100%;
+	}
+	
+	/*針對tr去做隱藏*/
+	.shoping-cart-form  tr.tr-only-hide {
+		display: none !important;
+	}
+	
+	/*讓tr變成區塊主要讓他有個區塊*/
+	.shoping-cart-form tr.tr-only-hide-titlebar {
+		display: none !important;
+	}
+	
+	.shoping-cart-form .table-rwd tr{
+		display: block;
+		border: 1px solid #ddd;
+		margin-top: 5px;
+	}
+	
+	.shoping-cart-form .table-rwd td {
+		text-align: left;
+		font-size: inherit;
+		overflow: hidden;
+		width: 100%;
+		display: block;
+	}
+	
+	.shoping-cart-form .table-rwd td:before {
+		/*最重要的就是這串*/
+		content: attr(data-th) " : ";
+		/*最重要的就是這串*/
+		/*display: inline-block;*/    /*單獨一列顯示*/
+		text-transform: uppercase;
+		font-weight: bold;
+		margin-right: 10px;
+		color: var(--color-v0);		/*RWD 標題顏色*/
+		
+		padding: 8px 0;
+		/*border-bottom: 1px solid #ddd;*/
+		width: 100%;
+		margin-bottom: 5px;
+		/*background:#e7e7e7;*/
+	}
+	
+	/*當RWD縮小的時候.table-bordered 會有兩條線，所以針對.table-bordered去做修正*/
+	.shoping-cart-form .table-rwd.table-bordered td,
+	.shoping-cart-form .table-rwd.table-bordered th,
+	.shoping-cart-form .table-rwd.table-bordered {
+		border:0;
+	}
+}
+
+.shoping-cart-form .table-rwd.table-bordered td.tdbox {
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-flow: row wrap;
+	flex-flow: row wrap;
+	-ms-flex-align: center;
+	align-items: center;
+}
+.shoping-cart-form .table-rwd.table-bordered td .car-list-imgbox {
+    position: relative;
+	z-index: 1;
+	height: 100%;
+	max-width: 250px;
+	margin: auto;
+}
+/* ===== RWD TABLE CSS CODE END ====== */
+
+
+/* == 數量選擇 == */
+.shoping-cart-form .cart-plus-minus {
+    border: 1px solid #ebebeb;
+    display: inline-block;
+    height: 50px;
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+    width: 115px;
+}
+
+.shoping-cart-form .cart-plus-minus .qtybutton {
+    color: var(--color-v0);
+    cursor: pointer;
+    float: inherit;
+    font-size: 1.125rem; /*18px*/
+    font-weight: 500;
+    line-height: 20px;
+    margin: 0;
+    position: absolute;
+    text-align: center;
+    transition: all .3s ease 0s;
+    width: 40px;
+}
+
+.shoping-cart-form .cart-plus-minus input.cart-plus-minus-box {
+    background: transparent none repeat scroll 0 0;
+    border: medium none;
+    color: var(--color-v0);
+    float: left;
+    font-size: 0.875rem; /*14px*/
+    height: 50px;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    width: 115px;
+    outline: 0
+}
+
+/*移除 input type="number" 时浏览器自带的上下箭头*/
+.shoping-cart-form .cart-plus-minus input::-webkit-outer-spin-button, 
+.shoping-cart-form .cart-plus-minus input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+}
+
+.shoping-cart-form .cart-plus-minus input[type='number'] {
+	-moz-appearance: textfield;
+}
+/*移除 input type="number" 时浏览器自带的上下箭头*/
+
+.shoping-cart-form .cart-plus-minus .inc.qtybutton {
+    height: 50px;
+    padding-top: 14px;
+    right: 0;
+    top: 0
+}
+
+.shoping-cart-form .cart-plus-minus .dec.qtybutton {
+    height: 50px;
+    left: 0;
+    padding-top: 14px;
+    top: 0
+}
+/* == 數量選擇 == */
+
+
+/* ===== RWD-TABLE Icon Button HOVER ====== */
+.shoping-cart-form .btn.btn-custom-rounded {
+    height: 35px;
+    width: 35px;
+    padding: 0;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    -moz-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%
+}
+
+.shoping-cart-form .btn.btn-custom-rounded.btn-sm {
+    height: 35px;
+    width: 35px;
+	left: 0;
+}
+
+/* 編輯筆 */
+.shoping-cart-form .table td a .btn.btn-custom-pencil i {
+    position: relative;
+	display: inline-block;
+	top: 1px;
+	left: 2px;
+	font-size: 1.25rem;
+	color: var(--color-v0);
+	margin-left: 0px;
+}
+.shoping-cart-form .table td .btn.btn-custom-pencil {
+	color: #fff;
+    background: transparent;
+	border-color: var(--color-v0);
+}
+.shoping-cart-form .table td a:hover .btn.btn-custom-pencil i,
+.shoping-cart-form .table td a:hover .btn.btn-custom-pencil {
+	color: #fff;
+    background: var(--color-v2-hover);
+	border-color: var(--color-v2-hover);
+}
+
+/* 確認 */
+.shoping-cart-form .table td a .btn.btn-custom-check-s i {
+    position: relative;
+    display: inline-block;
+    top: 2px;
+    left: 0px;
+    font-size: 1.125rem;	
+	color: var(--color-v0);
+	margin-left: 0px;
+}
+.shoping-cart-form .table td .btn.btn-custom-check-s {
+	color: #fff;
+    background: transparent;
+	border-color: var(--color-v0);
+}
+.shoping-cart-form .table td a:hover .btn.btn-custom-check-s i,
+.shoping-cart-form .table td a:hover .btn.btn-custom-check-s {
+	color: #fff;
+    background: var(--color-v2-hover);
+	border-color: var(--color-v2-hover);
+}
+
+/* 取消 */
+.shoping-cart-form .table td a .btn.btn-custom-times i {
+    position: relative;
+    display: block;
+    top: 0.5px;
+    left: 0px;
+    font-size: 1.25rem;	
+	color: var(--color-v0);
+	margin-left: 0px;
+}
+.shoping-cart-form .table td .btn.btn-custom-times {
+	color: #fff;
+    background: transparent;
+	border-color: var(--color-v0);
+}
+.shoping-cart-form .table td a:hover .btn.btn-custom-times i,
+.shoping-cart-form .table td a:hover .btn.btn-custom-times {
+	color: #fff;
+    background: var(--color-v2-hover);
+	border-color: var(--color-v2-hover);
+}
+
+
+.shoping-cart-form .table td a .btn.btn-custom-pencil,
+.shoping-cart-form .table td a .btn.btn-custom-check-s,
+.shoping-cart-form .table td a .btn.btn-custom-times {
+	margin-right: 5px;
+}
+/* ===== RWD-TABLE Icon Button HOVER ====== */
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,244 @@
+﻿@charset "utf-8";
+/* CSS Document */
+
+/* ----- ****** 以下文字 需放在-- 網站導覽 裡 上方位置 ****** ----- */
+/* -------------------------------------------------------
+
+HTML : <p> ...以下文字... </p>
+
+
+本網站依無障礙網頁設計原則建置，網站的主要內容分為二大區塊：
+1.上方主選單連結區(U)、2.中間內容區(C)、3.下方連結區(B)。
+
+本網站的快速鍵﹝Accesskey﹞設定如下：
+Alt + U：上方主選單連結區(U)
+Alt + C：中間內容區(C)
+Alt + B：下方連結區(B)
+Alt + L：左方選單區(L)
+Alt + R：右方連結區(R)
+
+===================================================
+
+
+網站導覽 說明
+
+本網站依『無障礙網頁開發規範』設計原則而建置，遵循無障礙網站設計之規範，提供網頁導盲磚(:::)、網站導覽 (Site Navigator)、鍵盤快速鍵(Access Key) 等設計方式。
+本網站的主要區塊內容及快速鍵(Accesskey)設定如下：
+
+    上方導覽區(Alt+U)： [網站導覽]、[English] 連結。
+    中央內容區(Alt+C)： 為本站主要內容區。
+    下方功能區(Alt+B)： 為本站版權宣告說明區。
+
+各瀏覽器快速鍵操作說明：
+
+    Internet Explorer 請使用 Alt 加上快速鍵代碼操作。
+    Firefox 請使用 Alt+Shift 加上快速鍵代碼操作。
+    Google Chrome 若作業系統為 Windows 請使用 Alt 加上快速鍵代碼操作，若為 Mac 則使用 Alt+Option 加上快速鍵代碼操作。
+    Opera 請使用 Shift+Esc 加上快速鍵代碼操作。
+    Safari 若作業系統為 Windows 請使用 Alt 加上快速鍵代碼操作，若作業系統為Mac則使用 Alt+Option 加上快速鍵代碼操作。
+
+常用鍵盤快速鍵說明：
+
+    ← → or ↑↓ ：頁面上下左右移動。
+    Home or End ：跳至頁面的最上方或最下方。
+    鍵盤Tab鍵 ：下一個選項。
+    鍵盤Tab鍵+Shift鍵 ：回上一個選項。
+    Ctrl+P ：列印網頁。
+
+--------------------------------------------------------*/
+/* ----- ****** 以下文字 需放在-- 網站導覽 裡 ****** ----- */
+.sitemap-info {
+	position: relative;
+	display: block;
+}
+
+.sitemap-info h3 {
+	font-size: 150%;
+	font-weight: 500;
+}
+
+.sitemap-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.sitemap-list.level-1 > li > h3 > a, 
+.sitemap-list.level-2 > li > h4 > a, 
+.sitemap-list.level-3 > li > h5 > a,
+.sitemap-list.level-4 > li > h6 > a {
+	color: var(--blackcolor);
+	text-decoration: none;
+}
+
+.sitemap-list.level-1 > li > h3 > a:hover, 
+.sitemap-list.level-2 > li > h4 > a:hover, 
+.sitemap-list.level-3 > li > h5 > a:hover,
+.sitemap-list.level-4 > li > h6 > a:hover {
+	color: var(--color_007069);
+	text-decoration: underline;
+}
+
+/*-------// level-1 //-------*/
+ul.sitemap-list.level-1 {
+	margin-bottom: 20px;
+}
+.sitemap-list.level-1 > li {
+	border-bottom: 1px solid #d6d6d6;
+	margin-bottom: 10px;
+}
+.sitemap-list.level-1 > li > h3 {
+	font-size: 	100%;
+}
+.sitemap-list.level-1 > li > h3 > a {
+	font-size: 	150.0%; /*25*/
+	line-height: 1.71429;
+	font-weight: 500;
+	letter-spacing: normal;
+}
+.sitemap-list.level-1 > li > h3 > a::before {
+	position: relative;
+	font-family: "fontAwesome";
+	font-weight: bold;
+	top: 0;
+	left: 0;
+	content: "Ⅰ . ";
+}
+.sitemap-list.level-1 > li > h3 > a::after {
+	position: relative;
+	content: "\f105";
+	font-family: "fontAwesome";
+	margin-left: 10px;
+}
+
+/*-------// level-2 //-------*/
+ul.sitemap-list.level-2 {
+	margin-bottom: 20px;
+}
+.sitemap-list.level-2 > li {
+	position: relative;
+	display: inline-block;
+	/*width: 33.333333%;*/ /*245px*/
+	width: 50%; /*245px*/
+	vertical-align: top;	
+	z-index: 1;
+	-webkit-column-span: 1;
+	-moz-column-span: 1;
+	column-span: 1;
+	padding: 0 15px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+.sitemap-list.level-2 > li > h4 {
+	font-size: 	100%;
+}
+.sitemap-list.level-2 > li > h4 > a {
+	font-size: 125.0%; /*20*/
+	line-height: 1.45;
+	font-weight: 500;
+	letter-spacing: normal;
+	margin-bottom: 10px;
+}
+.sitemap-list.level-2 > li > h4 > a::before {
+	position: relative;
+	font-family: "fontAwesome";
+	font-weight: bold;
+	top: 0;
+	left: 0;
+	content: "Ⅱ . ";
+}
+.sitemap-list.level-2 > li > h4 > a::after {
+	position: relative;
+	font-family: "fontAwesome";
+	margin-left: 10px;
+	content: "\f105";
+}
+@media screen and (max-width: 991px) {
+	.sitemap-list.level-2 > li {
+		width: 50%;
+	}
+}
+
+/*-------// level-3 //-------*/
+ul.sitemap-list.level-3 {
+	margin-bottom: 10px;
+}
+.sitemap-list.level-3 > li {
+	position: relative;
+	display: inline-block;
+	width: 50%; /*245px*/
+	vertical-align: top;	
+	z-index: 1;
+	-webkit-column-span: 1;
+	-moz-column-span: 1;
+	column-span: 1;
+	padding: 0 35px;
+	margin-bottom: 10px;
+}
+.sitemap-list.level-3 > li > h5 {
+	font-size: 	100%;
+}
+.sitemap-list.level-3 > li > h5 > a {
+	font-size: 100%; /*16*/
+	line-height: 1.5;
+	letter-spacing: normal;
+	list-style: none;
+	margin: 0;
+}
+.sitemap-list.level-3 > li > h5 > a::before { 
+	position: relative;
+	content: "\f0da";
+	content: "Ⅲ . ";
+	font-family: "fontAwesome";
+	top: 0;
+	left: 0;
+	margin-right: 4px;
+}
+
+@media screen and (max-width: 991px) {
+	.sitemap-list.level-3 > li {
+		width: 100%;
+	}
+}
+
+/*-------// level-4 //-------*/
+ul.sitemap-list.level-4 {
+	margin-bottom: 10px;
+}
+.sitemap-list.level-4 > li {
+	position: relative;
+	display: inline-block;
+	width: 50%; /*245px*/
+	vertical-align: top;	
+	z-index: 1;
+	-webkit-column-span: 1;
+	-moz-column-span: 1;
+	column-span: 1;
+	padding: 0 35px;
+	margin-bottom: 10px;
+}
+.sitemap-list.level-4 > li > h6 {
+	font-size: 	100%;
+}
+.sitemap-list.level-4 > li > h6 > a {
+	font-size: 100%; /*16*/
+	line-height: 1.5;
+	letter-spacing: normal;
+	list-style: none;
+	margin: 0;
+}
+.sitemap-list.level-4 > li > h6 > a::before { 
+	position: relative;
+	content: "\f0da";
+	content: "Ⅳ . ";
+	font-family: "fontAwesome";
+	top: 0;
+	left: 0;
+	margin-right: 4px;
+}
+
+@media screen and (max-width: 991px) {
+	.sitemap-list.level-4 > li {
+		width: 100%;
+	}
+}
