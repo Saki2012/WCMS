@@ -21,6 +21,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 import { useMemo } from "react";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
+import { Prog } from "@/Features/Hooks/Common/Prog";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"]
@@ -33,8 +34,8 @@ const emptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [], A
 export const Server_AnnouncementFormComp = (props: { theme: IBETheme; lang: Lang }) => {
     const { internalId } = useParams();
     const formData = useFetchFormData<AnnouncementSet>(AnnouncementProvider(), internalId, emptyData)
-    const useCategory = useGetCategoryListByProgId("Announcement", props.lang);
-    const useTag = useGetTagListByProgId("Announcement", props.lang);
+    const useCategory = useGetCategoryListByProgId(Prog.Announcement, props.lang);
+    const useTag = useGetTagListByProgId(Prog.Announcement, props.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
     const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
     const useToolbar = useFormToolbarActions(AnnouncementProvider(), formData.data as AnnouncementSet, internalId as string, () => formData.refetch())

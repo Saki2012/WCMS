@@ -113,6 +113,7 @@ namespace WCMS.SysCore
                 SetCreateInfo(header);
                 await AutoGenerateId(header, details);
                 BeforeUpdate(set, FuncAction.Create);
+                if(Message.HasError) return set;
                 //Response.ThrowIfFailed();
                 await DoCreateAsync(set);
                 AfterUpdate(default, set, FuncAction.Create, TransStatus.Increase);
@@ -140,6 +141,7 @@ namespace WCMS.SysCore
                 SetModifyInfo(header);
                 await AutoGenerateId(header, details);
                 BeforeUpdate(newSet, FuncAction.Update);
+                if (Message.HasError) return newSet;
                 //Response.ThrowIfFailed();
                 TSet oldSet = await DoQuerySetAsync(internalId);
                 TSet oldSet_Cache = oldSet.DeepClone();
@@ -148,7 +150,7 @@ namespace WCMS.SysCore
                 //Response.ThrowIfFailed();
                 await CommitDataAsync();
                 AfterSaveChanges(FuncAction.Update);
-                //Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00006);
+                Message.AddMessage(MessageStatus.Green,"BECode00006");
                 //Response.Data.Add(oldSet);
                 return oldSet;
             }

@@ -9,5 +9,8 @@
     <EmbeddedResource Update="SysCore\Resx\ModelDisplayName.zh-TW.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Update="SysCore\Resx\SysMessageCode.zh-TW.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

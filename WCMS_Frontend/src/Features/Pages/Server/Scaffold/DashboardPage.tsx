@@ -2,8 +2,9 @@ import { Outlet } from 'react-router-dom'
 import SidebarMenu from "@/Features/Pages/Server/Scaffold/Menu/SideMenu/SideMenu_Comp"
 import NavibarMenu from "@/Features/Pages/Server/Scaffold/Menu/NaviBar/NaviBar_Comp"
 import BreadCrumb from "@/Features/Pages/Server/Scaffold/Menu/BreadCrumb/BreadCrumb_Comp"
-import FooterComp from "./Footer/Footer_Comp"
-import type { IBETheme } from '../Theme/ITheme'
+import FooterComp from "@/Features/Pages/Server/Scaffold/Footer/Footer_Comp"
+import type { IBETheme } from '@/Features/Pages/Server/Theme/ITheme'
+import { ToastViewport_Comp } from '@/Features/Pages/Server/Scaffold/Toast/ToastViewport_Comp'
 
 export const DashboardPage = ({ theme }: { theme: IBETheme }) => {
   return (
@@ -28,7 +29,8 @@ export const DashboardPage = ({ theme }: { theme: IBETheme }) => {
           </div>
           <Outlet /> {/* 中間會注入功能頁內容 */}
         </div>
-        <FooterComp></FooterComp>
+        <FooterComp />
+        <ToastViewport_Comp />
       </div>
     </>
   );

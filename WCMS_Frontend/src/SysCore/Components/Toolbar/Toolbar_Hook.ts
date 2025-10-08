@@ -1,5 +1,6 @@
+import { useToast } from "@/Features/Pages/Server/Scaffold/Toast/useToastCenter";
 import type { ToolbarAction } from "@/SysCore/Components/Toolbar/Toolbar_Data";
-import { IDataProvider } from "@/SysCore/Interface/IApiProvider";
+import { IDataProvider, MessageStatus } from "@/SysCore/Interface/IApiProvider";
 import axios from "axios";
 import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -13,17 +14,30 @@ export const useFormToolbarActions = <T>(
 {
     const navigate = useNavigate();
     const location = useLocation();
-    const [isLoading, setIsLoading] = useState(false);
+    const [isExcuting, setIsExcuting] = useState(false);
     const [errors, setError] = useState<string | null>(null);
+    const { publish } = useToast(); // ✅ 單一來源
     const handleSave = async () =>
     {
         try
         {
-            setIsLoading(true);
-            if (!internalId) await apiProvider.createData(formData);
-            else await apiProvider.updateData(internalId, formData);
+            setIsExcuting(true);
+            const res =
+                await (internalId ? apiProvider.updateData(internalId, formData) : apiProvider.createData(formData));
+            if (res.IsSuccess)
+            {
+                // res.SysMessage.map((item) =>
+                //     publish({ level: item.Status, code: item.MessageCode, title: "保存成功", text: item.Message })
+                // );
+                publish({ level: MessageStatus.Green, title: "保存成功" });
+                handleCancelBack();
+            } else
+            {
+                res.SysMessage.map((item) =>
+                    publish({ level: item.Status, code: item.MessageCode, title: "保存失敗", text: item.Message })
+                );
+            }
             // onSuccess?.(); // ✅ 儲存成功後，可呼叫 refetch 等，暫時不執行，等做好可以顯示保存成功的說明才
-            handleCancelBack();
         } catch (err: any)
         {
             if (axios.isAxiosError(err))
@@ -36,7 +50,7 @@ export const useFormToolbarActions = <T>(
             }
         } finally
         {
-            setIsLoading(false);
+            setIsExcuting(false);
         }
     };
     const handleCancelBack = async () =>
@@ -45,7 +59,7 @@ export const useFormToolbarActions = <T>(
     };
     const handleDelete = async () =>
     {
-        setIsLoading(true);
+        setIsExcuting(true);
         try
         {
             await apiProvider.deleteData(internalId);
@@ -54,7 +68,7 @@ export const useFormToolbarActions = <T>(
             setError(err.message ?? "資料載入失敗");
         } finally
         {
-            setIsLoading(false);
+            setIsExcuting(false);
         }
     };
     const handlePreview = () =>
@@ -64,15 +78,15 @@ export const useFormToolbarActions = <T>(
     {
         try
         {
-            setIsLoading(true);
+            setIsExcuting(true);
             await apiProvider.invalidData(internalId, true);
-            setIsLoading(false);
+            setIsExcuting(false);
         } catch (err: any)
         {
             setError(err.message);
         } finally
         {
-            setIsLoading(false);
+            setIsExcuting(false);
         }
     };
     const action: ToolbarAction[] = [
@@ -80,7 +94,7 @@ export const useFormToolbarActions = <T>(
         { Id: "Cancel", Title: "取消返回", Type: "button", OnClick: handleCancelBack },
         // { Id: 'Preview', Title: '預覽畫面', Type: 'button', OnClick: handlePreview },
     ];
-    return { isLoading, errors, action };
+    return { isLoading: isExcuting, errors, action };
 };
 /**類別/標籤使用 */
 export const useFormListToolbarActions = <T>(

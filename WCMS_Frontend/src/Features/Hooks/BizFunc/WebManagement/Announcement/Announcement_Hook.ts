@@ -37,7 +37,10 @@ export const useAnnouncementList = () =>
                 SchemaFields.AnnouncementFields.InternalId,
             ],
             Condition: "",
-            OrderBy: [{ Col: SchemaFields.AnnouncementFields.ModifyTime, Desc: true }],
+            OrderBy: [
+                { Col: SchemaFields.AnnouncementFields.Validate_Start, Desc: true },
+                { Col: SchemaFields.AnnouncementFields.ModifyTime, Desc: true },
+            ],
             PageNumber: page,
             PageSize: 10,
         }),

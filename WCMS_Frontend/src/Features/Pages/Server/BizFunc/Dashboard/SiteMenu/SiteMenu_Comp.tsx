@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Nestable from "react-nestable";
 import type { RenderItem } from "react-nestable";
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
@@ -30,9 +30,9 @@ type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title_DTO"]
 type SiteMenu_Item_Module = components["schemas"]["SiteMenu_Item_Module_DTO"]
 type SiteMenu_Item_Url = components["schemas"]["SiteMenu_Item_Url_DTO"]
 type MenuUrlType = components["schemas"]["MenuUrlType"]
-type WindowTarget = components["schemas"]["WindowTarget"]
+// type WindowTarget = components["schemas"]["WindowTarget"]
 // type ModuleDisplayStyle = components["schemas"]["ModuleDisplayStyle"]
-type ModulePageType = components["schemas"]["ModulePageType"]
+// type ModulePageType = components["schemas"]["ModulePageType"]
 type BannerSet = components["schemas"]["BannerSet_DTO"]
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"]
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"]
@@ -130,9 +130,15 @@ const siteMenuInfo = (data: SiteMenuSet, lang: Lang): Item[] => {
 
 export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
   const [selectedItemEdit, setSelectedItemEdit] = useState<Item | null>(null);
+  const provider = React.useMemo(() => SiteMenuProvider(), []);
   const useSiteList = useFetchGridListData<SiteMenuSet>(GetSiteMenuListOpt());
-  const internalId = useSiteList.rawData?.[0]?.SiteMenu_Index?.InternalId ?? "df9f5272-5138-47d8-87b3-974d3dd8e32e"
-  const useSiteInfo = useFetchFormData<SiteMenuSet>(SiteMenuProvider(), internalId, emptyData)
+
+  const internalId = React.useMemo<string | null>(() => {
+    const first = (useSiteList.rawData ?? []).find(x => x?.SiteMenu_Index?.InternalId)?.SiteMenu_Index?.InternalId;
+    return first ?? null;
+  }, [useSiteList.rawData]);
+
+  const useSiteInfo = useFetchFormData<SiteMenuSet>(provider, internalId, emptyData)
   const windowTarget = useFetchEnumOptions("WindowTarget")
   const menuUrlType = useFetchEnumOptions("MenuUrlType")
   const modulePageType = useFetchEnumOptions("ModulePageType")
@@ -141,9 +147,9 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
   const usetagList = useTagListData("", prop.lang)
   const usePageList = usePageListData()
   const useSpecCateDatas = useSpecCateListData("", prop.lang)
-  const useToolbar = useFormToolbarActions(SiteMenuProvider(), useSiteInfo.data as SiteMenuSet, internalId as string, () => useSiteInfo.refetch())
+  const useToolbar = useFormToolbarActions(provider, useSiteInfo.data as SiteMenuSet, internalId as string, () => useSiteInfo.refetch())
   const useBannerList = useFetchGridListData<BannerSet>(GetBannerListOpt());
-  const bannerDict = React.useMemo<Record<string, string>>(() => {
+  const bannerDict = useMemo<Record<string, string>>(() => {
     const src = useBannerList.rawData ?? [];
     return src.reduce<Record<string, string>>((acc, p) => {
       const key = p.Banner?.BannerId?.toString?.();
@@ -175,7 +181,6 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
 const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStateAction<Item | null>>; sitemenuSet: SiteMenuSet; lang: Lang; formData: UseFetchFormDataResult<SiteMenuSet>; action: ToolbarAction[] }) => {
   const [collapseAll, setCollapseAll] = useState(false);
   const [items, setItems] = useState<Item[]>([]);
-  const [dirty, setDirty] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [candidate, setCandidate] = useState<Item | null>(null);
   const collectRowIds = (node: Item): number[] => {
@@ -381,9 +386,7 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
             {typedItem.text}
           </span>
           <div className="all-btn Edit Icon">
-            <div className="icon" title="">
-              <button title="查看前台" className="Ieye btn btn-ctm btn-ctm-rounded" onClick={(e) => { e.stopPropagation(); }}><i className="far fa-eye"></i></button>
-            </div>
+            <CheckFrontBtn fullPath={typedItem.MenuItem.Item.FullUrl ?? ""}></CheckFrontBtn>
             <div className="icon" title="">
               <button title="新增子層" className="Icogs btn btn-ctm btn-ctm-rounded" key={typedItem.id} onClick={(e) => { e.stopPropagation(); addMenuItem(typedItem); }}>
                 <i className="far fa-plus"></i></button>
@@ -448,11 +451,11 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
                 要刪除「<b>{candidate.text || candidate.id}</b>」嗎？
               </p>
               <ul className="mb-3">
-                <li><b>A. 全部刪除</b>：此項目與其所有子項目都會移除。</li>
+                <li><b>全部刪除</b>：此項目與其所有子項目都會移除。</li>
                 {(candidate.children?.length ?? 0) > 0 && (
-                  <li><b>B. 保留明細</b>：刪除此項目，但子項目將掛到此項目的父層。</li>
+                  <li><b>保留明細</b>：刪除此項目，但子項目將掛到此項目的父層。</li>
                 )}
-                <li><b>C. 取消</b>：不進行刪除。</li>
+                <li><b>取消</b>：不進行刪除。</li>
               </ul>
 
               <div className="d-flex justify-content-end gap-2">
@@ -517,7 +520,6 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
                 >
                   取消
                 </button>
-
               </div>
             </div>
           </div>
@@ -527,6 +529,24 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
   )
 }
 
+const CheckFrontBtn = (prop: { fullPath: string }) => {
+  const toAbsolute = React.useCallback((path: string) => {
+    if (!path) return "/";
+    if (/^https?:\/\//i.test(path)) return path;                // 已是完整網址
+    const normalized = path.startsWith("/") ? path : `/${path}`; // 轉成 /xxx
+    return `${window.location.origin}${normalized}`;             // 補上目前站台
+  }, []);
+
+  const openInNewTab = React.useCallback((fullPath: string) => {
+    const href = toAbsolute(fullPath);
+    window.open(href, "_blank", "noopener,noreferrer");          // 另開分頁（安全參數）
+  }, [toAbsolute]);
+  return (
+    <div className="icon" title="">
+      <button title="查看前台" className="Ieye btn btn-ctm btn-ctm-rounded" onClick={(e) => { e.stopPropagation(); openInNewTab(prop.fullPath); }}><i className="far fa-eye"></i></button>
+    </div>
+  )
+}
 
 //RightBox
 const RenderRightBox = (prop: {

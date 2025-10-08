@@ -164,7 +164,6 @@ const SubContent = (props: ISubPagesProps) => {
         </section>
       </div>
       <GoTopButton />
-
     </>
   );
 };
@@ -190,7 +189,7 @@ interface GoTopButtonProps {
 }
 
 /** 回到頂端按鈕（React 版；支援 SSR/AA） */
-const GoTopButton: React.FC<GoTopButtonProps> = (props) => {
+export const GoTopButton: React.FC<GoTopButtonProps> = (props) => {
   const {
     threshold = 300,
     durationMs = 800,

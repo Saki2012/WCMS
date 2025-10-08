@@ -91,7 +91,7 @@ const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, 
                 { Col: `${SchemaFields.SpecResearchSetFields.SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.AcademicYear}`, Desc: true },
             ],
             PageNumber: page,
-            PageSize: 10,
+            PageSize: 15,
         }),
         parseRow: (item, columns) => {
             const cells: RowCell[] = columns.map(col => {

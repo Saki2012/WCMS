@@ -66,9 +66,11 @@ export abstract class IDataProvider<T>
 }
 
 /** 後端提供訊息包 */
+export const MessageStatus = { Green: 0, Info: 1, Warning: 2, Error: 3 } as const;
+export type MessageStatusCode = typeof MessageStatus[keyof typeof MessageStatus];
 export interface SysMessageModel
 {
-    Status: number;
+    Status: MessageStatusCode;
     MessageCode: string;
     Message: string;
 }

@@ -203,19 +203,19 @@ namespace WCMS.SysCore.Enum
             /// <summary>
             /// 執行成功
             /// </summary>
-            Green,
+            Green = 0,
             /// <summary>
             /// 訊息
             /// </summary>
-            Info,
+            Info = 1,
             /// <summary>
             /// 警告
             /// </summary>
-            Warning,
+            Warning = 2,
             /// <summary>
             /// 錯誤
             /// </summary>
-            Error,
+            Error = 3,
         }
         /// <summary>
         /// 檔案狀態

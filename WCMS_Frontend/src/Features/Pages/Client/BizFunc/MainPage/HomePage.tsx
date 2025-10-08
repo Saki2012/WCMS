@@ -4,6 +4,7 @@ import { CategoryTabs } from '@/SpecFetures/1810/Pages/Client/Index/CategoryTabs
 import { EventSession } from '@/SpecFetures/1810/Pages/Client/Index/EventSession'
 import { GallerySession } from '@/SpecFetures/1810/Pages/Client/Index/GallerySession'
 import { VideoSession } from '@/SpecFetures/1810/Pages/Client/Index/VideoSession'
+import { GoTopButton } from './SubPages'
 
 
 const HomePage = () => {
@@ -25,6 +26,8 @@ const HomePage = () => {
           <VideoSession></VideoSession>
         </div>
       </div>
+      <GoTopButton />
+
     </main>
   );
 };

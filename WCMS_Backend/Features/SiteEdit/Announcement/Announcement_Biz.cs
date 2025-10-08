@@ -8,6 +8,7 @@ using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Library.LibData;
@@ -141,14 +142,14 @@ namespace WCMS.Features.SiteEdit.Announcement
         #endregion
 
         #region Protected
-        protected override void BeforeUpdate(AnnouncementSet set, SysEnum.FuncAction act)
+        protected override void BeforeUpdate(AnnouncementSet set, FuncAction act)
         {
             base.BeforeUpdate(set, act);
-
             switch (act)
             {
-                case SysEnum.FuncAction.Create:
-                case SysEnum.FuncAction.Update:
+                case FuncAction.Create:
+                case FuncAction.Update:
+                    CheckData(set);
                     DoRemergeData(set.Announcement);
                     break;
             }
@@ -156,6 +157,17 @@ namespace WCMS.Features.SiteEdit.Announcement
         #endregion
 
         #region Private
+        private void CheckData(AnnouncementSet set)
+        {
+            CheckDate(set.Announcement);
+        }
+
+        private void CheckDate(Announcement header)
+        {
+            if (header.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, header.Validate_Start);
+            if (header.Validate_End != null && header.Validate_Start > header.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014,  header.Validate_End, header.Validate_Start);
+        }
+
         /// <summary>
         /// 重新組合多筆資料(類別、狀態、標籤)
         /// </summary>

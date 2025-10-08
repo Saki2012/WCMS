@@ -1,5 +1,5 @@
-import { Grid } from "../../../../../../../SysCore/Components/Grid/Grid_Comp";
-import LoadingErrorHandler from "../../../../../../../SysCore/Components/LoadingErrorHandler";
+import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
+import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import type { ListCompProp } from "../GridView_Data";
 
 export interface GridViewContentSlots extends ListCompProp {

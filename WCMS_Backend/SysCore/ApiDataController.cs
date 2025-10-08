@@ -117,7 +117,7 @@ namespace WCMS.SysCore
             OperateLog.AddMoveFollow(followInfo);
 
             TSet_DTO result = DTOHelper.MapToDTO<TSet, TSet_DTO>(createResult);
-            var response = new ApiResponse<TSet_DTO>() { Data = [result] };
+            var response = new ApiResponse<TSet_DTO>() { Data = [result],SysMessage=Message.Messages };
 
             if (ct == CancellationToken.None) { followInfo.ExcStatus = ExcStatus.CancelExc; }
             if(!response.IsSuccess) followInfo.ExcStatus = ExcStatus.Fail;
@@ -176,8 +176,10 @@ namespace WCMS.SysCore
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             OperateLog.AddMoveFollow(followInfo);
 
+            if (ct == CancellationToken.None) { followInfo.ExcStatus = ExcStatus.CancelExc; }
             TSet_DTO result = DTOHelper.MapToDTO<TSet, TSet_DTO>(updateResult);
-            var response = new ApiResponse<TSet_DTO>() { Data = [result] };
+            var response = new ApiResponse<TSet_DTO>() { Data = [result], SysMessage = Message.Messages };
+            if (!response.IsSuccess) followInfo.ExcStatus = ExcStatus.Fail;
             return Ok(response);
         }
         /// <summary>
