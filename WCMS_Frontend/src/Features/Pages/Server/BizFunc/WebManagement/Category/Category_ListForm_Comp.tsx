@@ -1,7 +1,6 @@
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme"
 import { useLocation } from 'react-router-dom';
 import { FormListComp } from "@/Features/Pages/Server/Scaffold/Content/FormList_Comp";
-import { useFormListToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
 import { useCategoryListData } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
 import { useParams } from "react-router-dom";
 import type { components } from "@/types/api";
@@ -16,6 +15,8 @@ import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableFiel
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
+import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions";
+import { GridCol_Toolbar } from "../../../Scaffold/Toolbar/Toolbar_Comp";
 
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 
@@ -32,17 +33,18 @@ export const Server_CategoryListFormComp = (prop: { progId: string; title: strin
     if (pathParts[pathParts.length - 1] !== 'Category') dirUrl = location.pathname.split('/').slice(0, -1).join('/');
     const useCateList = useCategoryListData(prop.progId, prop.lang)
     const formData = useFetchFormData<CategoryDataSet>(CategoryProvider(), internalId, emptyData)
-    const useToolbar = useFormListToolbarActions(dirUrl, CategoryProvider(), formData.data, internalId ?? "", () => { useCateList.refetch(); if (!internalId) formData.setFormData(buildEmptyTagSet(prop.progId)); })
+    // const useToolbar = useActions(dirUrl, CategoryProvider(), formData.data, internalId ?? "", () => { useCateList.refetch(); if (!internalId) formData.setFormData(buildEmptyTagSet(prop.progId)); })
+    const actions = useActions(dirUrl, CategoryProvider(), formData.data, internalId ?? "", useCateList.refetchFirst)
     useEnsureLangDetails(formData, { headerName: SchemaFields.CategoryDataSetFields.Category, detailName: SchemaFields.CategoryDataSetFields.CategoryDetail, parentKeys: [SchemaFields.CategoryFields.CategoryId], preferFirstLang: prop.lang });
     const isLoading = [useCateList.isLoading, formData.isLoading];
     const errors = [useCateList.error, formData.error];
     const cateEditNode = useMemo(() => formData.data ? (<CateEditComp theme={prop.theme} formData={formData} />) : null, [prop.theme, formData.data, prop.progId, prop.lang, pathname]);
-    const cateListNode = useMemo(() => useCateList.rawData ? (<CateListComp theme={prop.theme} cateSets={useCateList.rawData} lang={prop.lang} />) : null, [prop.theme, useCateList.rawData, internalId, prop.lang, prop.progId, pathname]);
+    const cateListNode = useMemo(() => useCateList.rawData ? (<CateListComp theme={prop.theme} cateSets={useCateList.rawData} lang={prop.lang} actions={actions} />) : null, [prop.theme, useCateList.rawData, internalId, prop.lang, prop.progId, pathname]);
     return (
         <FormListComp Title={prop.title} SubTitle={prop.title} Theme={prop.theme}
             LoadingList={isLoading} ErrorList={errors}
             InputControl={cateEditNode} GridItems={cateListNode}
-            FormToolbar={useToolbar.toolbarActions}
+            Actions={actions}
         ></FormListComp>
     );
 }
@@ -72,22 +74,28 @@ const CateEditComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult
     )
 }
 
-const CateListComp = (prop: { theme: IBETheme; cateSets: CategoryDataSet[]; lang: Lang; }) => {
+const CateListComp = (prop: { theme: IBETheme; cateSets: CategoryDataSet[]; lang: Lang; actions: UseActionsResult }) => {
     const basePath = useLocation().pathname.split('/Category')[0];
     const dirPath = `${basePath}/Category`;
     return (
         <ul className="list-group p-0">
-            {prop.cateSets.map((item) => (
-                <li className="list-group-item" key={`${item.Category?.InternalId}-${item.CategoryDetail?.find(p => p.Lang === prop.lang)?.RowId}`}>
-                    <div className="checkboxDIV my-2">
-                        <div className="custom-control form-check">
-                            <Link to={`${dirPath}/${item.Category?.InternalId}`} className="form-check-label" aria-label={`前往 ${item.CategoryDetail?.find(p => p.Lang === prop.lang)?.CategoryName} 詳細頁`}>
-                                <span className="check-txt">{item.CategoryDetail?.find(p => p.Lang === prop.lang)?.CategoryName}</span>
-                            </Link>
+            {prop.cateSets.map((item) => {
+                const internalId = item.Category?.InternalId ?? "";
+                return (
+                    <li className="list-group-item" key={`${item.Category?.InternalId}-${item.CategoryDetail?.find(p => p.Lang === prop.lang)?.RowId}`}>
+                        <div className="checkboxDIV my-2">
+                            <div className="custom-control form-check">
+                                <Link to={`${dirPath}/${item.Category?.InternalId}`} className="form-check-label" aria-label={`前往 ${item.CategoryDetail?.find(p => p.Lang === prop.lang)?.CategoryName} 詳細頁`}>
+                                    <span className="check-txt">{item.CategoryDetail?.find(p => p.Lang === prop.lang)?.CategoryName}</span>
+                                </Link>
+                            </div>
                         </div>
-                    </div>
-                </li>
-            ))}
+                        <div className="form-check form-switch my-2">
+                            <GridCol_Toolbar key={internalId} action={prop.actions} internalId={internalId} />
+                        </div>
+                    </li>
+                )
+            })}
         </ul>
     )
 }

@@ -22,8 +22,7 @@ import { useCategoryListData } from "@/Features/Hooks/BizFunc/WebManagement/Cate
 import { useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 import { usePageListData } from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Hook";
 import { useSpecCateListData } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Hook";
-import { useFormToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
-import type { ToolbarAction } from "@/SysCore/Components/Toolbar/Toolbar_Data";
+import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions";
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"]
 type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"]
 type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title_DTO"]
@@ -147,7 +146,7 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
   const usetagList = useTagListData("", prop.lang)
   const usePageList = usePageListData()
   const useSpecCateDatas = useSpecCateListData("", prop.lang)
-  const useToolbar = useFormToolbarActions(provider, useSiteInfo.data as SiteMenuSet, internalId as string, () => useSiteInfo.refetch())
+  const actions = useActions(provider, useSiteInfo.data as SiteMenuSet, internalId as string)
   const useBannerList = useFetchGridListData<BannerSet>(GetBannerListOpt());
   const bannerDict = useMemo<Record<string, string>>(() => {
     const src = useBannerList.rawData ?? [];
@@ -164,13 +163,13 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
 
   const isLoading: any[] = [useSiteList.isLoading, useSiteInfo.isLoading, windowTarget.isLoading, menuUrlType.isLoading, modulePageType.isLoading, useBannerList.isLoading, useCateList.isLoading, usetagList.isLoading, usePageList.isLoading, useSpecCateDatas.isLoading]
   const errors: any[] = [useSiteList.error, useSiteInfo.error, windowTarget.error, menuUrlType.error, modulePageType.error, useBannerList.error, useCateList.error, usetagList.error, usePageList.error, useSpecCateDatas.error]
-  const formProp: FormCompProp = { Title: "網站功能", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, }
+  const formProp: FormCompProp = { Title: "網站功能", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
   return (
     <FormComp prop={formProp}>
       <div className="row">
-        <RenderLeftBox setSelectedItemEdit={setSelectedItemEdit} sitemenuSet={useSiteInfo.data} lang={prop.lang} formData={useSiteInfo} action={useToolbar.action} />
+        <RenderLeftBox setSelectedItemEdit={setSelectedItemEdit} sitemenuSet={useSiteInfo.data} lang={prop.lang} formData={useSiteInfo} action={actions} />
         <MenuSettingBox theme={prop.theme} selectedItemEdit={selectedItemEdit} formData={useSiteInfo} windowTarget={windowTarget.data} menuUrlType={menuUrlType.data} modulePageType={modulePageType.data}
-          bannerDict={bannerDict} moduleDisplayStyle={moduleDisplayStyle.data} categoryDatas={useCateList.rawData} tagDatas={usetagList.rawData} pageList={usePageList.rawData} specCateDatas={useSpecCateDatas.rawData} action={useToolbar.action}
+          bannerDict={bannerDict} moduleDisplayStyle={moduleDisplayStyle.data} categoryDatas={useCateList.rawData} tagDatas={usetagList.rawData} pageList={usePageList.rawData} specCateDatas={useSpecCateDatas.rawData} action={actions}
         />
       </div>
     </FormComp>
@@ -178,7 +177,7 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
 };
 
 //LeftBox
-const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStateAction<Item | null>>; sitemenuSet: SiteMenuSet; lang: Lang; formData: UseFetchFormDataResult<SiteMenuSet>; action: ToolbarAction[] }) => {
+const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStateAction<Item | null>>; sitemenuSet: SiteMenuSet; lang: Lang; formData: UseFetchFormDataResult<SiteMenuSet>; action: UseActionsResult }) => {
   const [collapseAll, setCollapseAll] = useState(false);
   const [items, setItems] = useState<Item[]>([]);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -422,7 +421,7 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
           <div className="panel-body">
             <div className="mb-2">
               <button onClick={() => setCollapseAll(!collapseAll)} className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">{collapseAll ? "展開" : "收合"}</button>
-              <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" onClick={prop.action.find(p => p.Id === "Save")?.OnClick}>儲存</button>
+              <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" onClick={prop.action.onSave}>儲存</button>
               <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" onClick={() => addMenuItem(null)}>新增</button>
             </div>
             <div className="cf nestable-lists">
@@ -567,7 +566,7 @@ const MenuSettingBox = (prop: {
   windowTarget: Record<string, string>; menuUrlType: Record<string, string>; modulePageType: Record<string, string>;
   bannerDict: Record<string, string>; moduleDisplayStyle: Record<string, string>;
   categoryDatas: CategorySet[]; tagDatas: TagSet[]; pageList: PageSet[]; specCateDatas: SpecCategorySet[];
-  action: ToolbarAction[];
+  action: UseActionsResult;
 }) => {
 
   React.useEffect(() => {
@@ -623,7 +622,7 @@ const MenuSettingBox = (prop: {
               <TabContentComp tabInfos={LibTabsPropA} components={componentsA} />
             </div>
             <div className="d-flex justify-content-center">
-              <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" onClick={prop.action.find(p => p.Id === "Save")?.OnClick}>儲存</button>
+              <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" onClick={prop.action.onSave}>儲存</button>
               <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">取消</button>
             </div>
           </div>

@@ -2,7 +2,7 @@ import { LibCheckBox, LibTextBox, LibTextArea, LibFile, LibDropList, LibPicture 
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { useGetCategoryListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook"
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import * as SchemaFields from "@/types/SchemaFields";
@@ -14,11 +14,12 @@ import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/A
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-import { useFormToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
+import { useActions } from "@/Features/Hooks/Common/useActions";
 import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useMemo } from "react";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
+import { Prog } from "@/Features/Hooks/Common/Prog";
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"]
 const emptyData: WebResourceSet = { WebResource: {}, WebResourceInfo: [] }
 /** 網路資源表單
@@ -26,17 +27,18 @@ const emptyData: WebResourceSet = { WebResource: {}, WebResourceInfo: [] }
  */
 export const WebResourceFormComp = (prop: { theme: IBETheme; lang: Lang }) => {
     const { internalId } = useParams()
+    const dirUrl = useLocation().pathname.replace(/\/Form$/, `/Form`);
     const formData = useFetchFormData<WebResourceSet>(WebResourceProvider(), internalId, emptyData)
-    const useCategory = useGetCategoryListByProgId("WebResource", prop.lang);
-    const useTag = useGetTagListByProgId("WebResource", prop.lang);
+    const useCategory = useGetCategoryListByProgId(Prog.WebResource, prop.lang);
+    const useTag = useGetTagListByProgId(Prog.WebResource, prop.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
     const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
     const windowTarget = useFetchEnumOptions("WindowTarget")
-    const useToolbar = useFormToolbarActions(WebResourceProvider(), formData.data as WebResourceSet, internalId as string, () => formData.refetch())
+    const actions = useActions(dirUrl, WebResourceProvider(), formData.data as WebResourceSet, internalId as string)
     useEnsureLangDetails(formData, { headerName: SchemaFields.WebResourceSetFields.WebResource, detailName: SchemaFields.WebResourceSetFields.WebResourceInfo, parentKeys: [SchemaFields.WebResourceFields.WebResourceId], preferFirstLang: prop.lang });
     const isLoading = [useTag.isLoading, useCategory.isLoading, formData.isLoading, useContentStatus.isLoading, windowTarget.isLoading]
     const errors = [useTag.error, useCategory.error, formData.error, useContentStatus.error, windowTarget.error]
-    const formProp: FormCompProp = { Title: "新增網路資源", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }
+    const formProp: FormCompProp = { Title: "新增網路資源", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
     return (
         <FormComp prop={formProp}>
             <HeaderComp theme={prop.theme} formData={formData} cateOpts={useCategory.data} statusOpts={status} tagOpts={useTag.data} />

@@ -12,7 +12,7 @@ import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import { useEffect, useRef } from 'react';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import { FormatDate } from '@/SysCore/Utils/Library/LibData';
-
+import defaulteventpic from '@/Assets/1810/DefaultEventPic_940x1330.jpg'
 const useAnnouncementList = () => {
     const provider = AnnouncementProvider();
     return useFetchGridListData<AnnouncementSet>({
@@ -33,7 +33,7 @@ const useAnnouncementList = () => {
                 `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
                 SchemaFields.AnnouncementFields.ViewCount,
             ],
-            Condition: `${SchemaFields.AnnouncementFields.Categories} In (8,10) And ${SchemaFields.AnnouncementFields.ContentStatus} !&4`,
+            Condition: `${SchemaFields.AnnouncementFields.Categories} HasAny (8,10) And ${SchemaFields.AnnouncementFields.ContentStatus} !&4`,
             OrderBy: [{ Col: SchemaFields.AnnouncementFields.Validate_Start, Desc: true }],
             PageNumber: 1,
             PageSize: 6,
@@ -78,12 +78,9 @@ export const EventSession = () => {
             return [id, name];
         })
     );
-    const rawData = (useEvent.rawData ?? []).filter(item => item.Announcement?.PictureId && item.Announcement.PictureId.trim() !== "").slice().
-        sort((a, b) => new Date(b.Announcement?.Validate_Start ?? "").getTime() - new Date(a.Announcement?.Validate_Start ?? "").getTime()).slice(0, 6);
+    const rawData = (useEvent.rawData ?? []).sort((a, b) => new Date(b.Announcement?.Validate_Start ?? "").getTime() - new Date(a.Announcement?.Validate_Start ?? "").getTime()).slice(0, 6);
     const eventList = getData(lang, rawData, tagDict)
-
     const carouselRef = useRef<HTMLDivElement>(null);
-
     useEffect(() => {
         if (eventList.length > 0 && carouselRef.current) {
             const $owl = $(carouselRef.current);
@@ -253,10 +250,11 @@ const getData = (lang: string, rawData: AnnouncementSet[], tagDict: Record<strin
     rawData.map((item) => {
         const tags = (item.Announcement?.Tags ?? "").split(",").map(s => s.trim()).filter(Boolean);
         const tagsName = tags.map(id => tagDict[id] ?? "").filter(Boolean).join(", ");
+        const img = item.Announcement?.PictureId && item.Announcement.PictureId.trim() !== '' ? `${FileManagementAPI.PREVIEW_URL}/${item.Announcement.PictureId}` : defaulteventpic;
         result.push({
             Id: item.Announcement?.AnnouncementId ?? "",
             Title: item.AnnouncementDetail?.find(p => p.Lang === lang)?.Title ?? "",
-            ImgSrc: `${FileManagementAPI.PREVIEW_URL}/${item.Announcement?.PictureId}`,
+            ImgSrc: img,
             Url: `/${item.Announcement?.InternalId}`,
             Tags: tagsName,
             date: item.Announcement?.Validate_Start ?? "",

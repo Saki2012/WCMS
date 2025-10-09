@@ -7,7 +7,7 @@ import TabContentComp from '@/SysCore/Components/TabContent/TabContent';
 import type { components } from "@/types/api";
 import { useFetchFormData } from '@/SysCore/Utils/API/FetchFormData';
 import UserProvider from '@/Features/Pages/Server/BizFunc/UserDTs/UserManage_Api';
-import { useFormToolbarActions } from '@/SysCore/Components/Toolbar/Toolbar_Hook';
+import { useActions } from '@/Features/Hooks/Common/useActions';
 type UserSet = components["schemas"]["UserSet_DTO"]
 const emptyData: UserSet = {
     User: {},
@@ -21,7 +21,7 @@ export const UserManage_Comp = ({ theme }: { theme: IBETheme }) => {
     const errors: (string | null | undefined)[] = [formData.error]
     const c: ILibSwitchItemProp[] = [{ itemId: "1", itemDisplayName: "選擇封面" }];
     const str: string[] = ["value"];
-    const useToolbar = useFormToolbarActions(UserProvider(), formData.data as UserSet, internalId as string, () => formData.refetch())
+    const useToolbar = useActions(UserProvider(), formData.data as UserSet, internalId as string, () => formData.refetch())
     const LibTabsPropA: LibTabsProp = {
         Style: theme.Tabs,
         item: {

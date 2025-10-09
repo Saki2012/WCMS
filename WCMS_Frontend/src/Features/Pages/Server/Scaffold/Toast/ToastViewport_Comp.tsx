@@ -1,6 +1,6 @@
 // src/components/ToastViewport_Comp.tsx
 import * as React from "react";
-import { useToastState, useToast } from "@/Features/Pages/Server/Scaffold/Toast/useToastCenter";
+import { useToastState, useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { MessageStatus, type MessageStatusCode } from "@/SysCore/Interface/IApiProvider";
 
 const DEFAULT_AUTO_CLOSE_MS = Number(import.meta.env.VITE_TOAST_AUTO_CLOSE_MS ?? 5000);

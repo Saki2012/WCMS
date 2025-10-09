@@ -67,29 +67,3 @@ export const useFileArchiveList = () =>
         deps: [],
     });
 };
-
-export const handleDelete = async (internalId: string) =>
-{
-    if (!internalId)
-    {
-        alert("無效的資料");
-        return;
-    }
-    const confirmDelete = window.confirm("確定要刪除嗎？");
-    if (!confirmDelete) return;
-    try
-    {
-        const res = await FileArchiveProvider().deleteData(internalId);
-        if (res.IsSuccess)
-        {
-            alert("刪除成功");
-            window.location.reload(); // 或觸發重新 fetchData
-        } else
-        {
-            alert(res.SysMessage?.map(m => `${m.MessageCode}:${m.Message}`)?.join("\n") ?? "刪除失敗");
-        }
-    } catch (err)
-    {
-        alert(`刪除發生錯誤: ${(err as any)?.message}`);
-    }
-};

@@ -1,7 +1,7 @@
 import { LibCheckBox, LibTextBox, LibCalendar, LibTinyMCE, LibPicturePreview, LibPicture, LibModal, LibFile, LibCheckBoxSingle } from "@/SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import { useState, useMemo } from 'react';
@@ -15,7 +15,7 @@ import GalleryProvider from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gall
 import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-import { useFormToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
+import { useActions } from "@/Features/Hooks/Common/useActions";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 type GallerySet = components["schemas"]["GallerySet_DTO"]
@@ -25,6 +25,7 @@ const emptyData: GallerySet = { Gallery: {}, GalleryInfo: [], GalleryPhotos: [],
  */
 export const Server_GalleryFormComp = (prop: { theme: IBETheme; lang: Lang }) => {
     const { internalId } = useParams();
+    const dirUrl = useLocation().pathname.replace(/\/Form$/, `/Form`);
     const formData = useFetchFormData<GallerySet>(GalleryProvider(), internalId, emptyData)
     const useCategory = useGetCategoryListByProgId(SchemaFields.GallerySetFields.Gallery, prop.lang);
     const useTag = useGetTagListByProgId(SchemaFields.GallerySetFields.Gallery, prop.lang);
@@ -32,10 +33,10 @@ export const Server_GalleryFormComp = (prop: { theme: IBETheme; lang: Lang }) =>
     const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
     useEnsureLangDetails(formData, { headerName: SchemaFields.GallerySetFields.Gallery, detailName: SchemaFields.GallerySetFields.GalleryInfo, parentKeys: [SchemaFields.GalleryInfoFields.GalleryId], preferFirstLang: prop.lang });
     useEnsureLangDetails(formData, { headerName: SchemaFields.GallerySetFields.GalleryPhotos, detailName: SchemaFields.GallerySetFields.GalleryPhotosInfo, parentKeys: [SchemaFields.GalleryPhotosInfoFields.GalleryId, SchemaFields.GalleryPhotosInfoFields.ParentRowId], preferFirstLang: prop.lang });
-    const useToolbar = useFormToolbarActions(GalleryProvider(), formData.data, internalId ?? "", () => formData.refetch())
+    const actions = useActions(dirUrl, GalleryProvider(), formData.data, internalId ?? "")
     const isLoading = [formData.isLoading, useCategory.isLoading, useTag.isLoading, useContentStatus.isLoading]
     const errors = [formData.error, useCategory.error, useTag.error, useContentStatus.error]
-    const formProp: FormCompProp = { Title: "新增相簿", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }
+    const formProp: FormCompProp = { Title: "新增相簿", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
     return (
         <FormComp prop={formProp}>
             <MainFormComp theme={prop.theme} formData={formData} cateOpts={useCategory.data} statusOpts={status} tagOpts={useTag.data}></MainFormComp>
@@ -313,7 +314,7 @@ const PhotoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Gal
                             </div>
                             <div className="col-6 d-flex justify-content-end">
                                 <div className="all-btn">
-                                    <a id="trash" className="icon" href="#" onClick={(e) => {
+                                    <a id="trash" className="icon" href="#" onClick={() => {
                                         if (!window.confirm('確定要刪除這張相片嗎？')) return;
                                         remover.remove(String(item.GalleryId ?? ''), Number(item.RowId ?? 0), picId);
                                     }} title="" data-bs-toggle="modal" data-bs-target="#All_Delete">

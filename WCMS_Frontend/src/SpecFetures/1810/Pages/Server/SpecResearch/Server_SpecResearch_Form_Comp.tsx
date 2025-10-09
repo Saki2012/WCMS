@@ -1,7 +1,7 @@
 import { LibCheckBox, LibTextBox, LibTextArea, LibDropList } from "@/SysCore/Components/FormField/LibFormField";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
@@ -11,7 +11,7 @@ import type { components } from "@/types/api";
 import { useGetSpecCategoryListByProgId } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Hook";
 import { useGetTagListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
-import { useFormToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
+import { useActions } from "@/Features/Hooks/Common/useActions";
 import * as SchemaFields from "@/types/SchemaFields";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
@@ -25,16 +25,17 @@ const emptyData: SpecResearchSet = { SpecResearch: {}, SpecResearchDetail: [], }
  */
 export const Server_ResearchProjFormComp = (prop: { theme: IBETheme; lang: Lang }) => {
     const { internalId } = useParams();
+    const dirUrl = useLocation().pathname.replace(/\/Form$/, `/Form`);
     const formData = useFetchFormData<SpecResearchSet>(SpecResearchProvider(), internalId, emptyData)
     const useCategory = useGetSpecCategoryListByProgId("SpecResearch", prop.lang);
     const useTag = useGetTagListByProgId("SpecResearch", prop.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
     const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
-    const useToolbar = useFormToolbarActions(SpecResearchProvider(), formData.data as SpecResearchSet, internalId as string, () => formData.refetch())
+    const actions = useActions(dirUrl, SpecResearchProvider(), formData.data as SpecResearchSet, internalId as string)
     useEnsureLangDetails(formData, { headerName: SchemaFields.SpecResearchSetFields.SpecResearch, detailName: SchemaFields.SpecResearchSetFields.SpecResearchDetail, parentKeys: [SchemaFields.SpecResearchModelFields.ResearchId], preferFirstLang: prop.lang });
     const isLoading = [formData.isLoading, useCategory.isLoading, useTag.isLoading, useContentStatus.isLoading]
     const errors = [formData.error, useCategory.error, useTag.error, useContentStatus.error]
-    const formProp: FormCompProp = { Title: "新增研究計畫", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }
+    const formProp: FormCompProp = { Title: "新增研究計畫", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
 
     return (
         <FormComp prop={formProp}>

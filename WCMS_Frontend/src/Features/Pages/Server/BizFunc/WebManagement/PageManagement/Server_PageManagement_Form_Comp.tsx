@@ -3,8 +3,8 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { useGetCategoryListByProgId } from "../../../../../Hooks/BizFunc/WebManagement/Category/Category_Hook"
 import PageManagementProvider from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Api"
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
-import { useFormToolbarActions } from "@//SysCore/Components/Toolbar/Toolbar_Hook";
-import { useParams } from "react-router-dom";
+import { useActions } from "@/Features/Hooks/Common/useActions";
+import { useLocation, useParams } from "react-router-dom";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import { useFetchFormData, type UseFetchFormDataResult } from "@//SysCore/Utils/API/FetchFormData";
 import type { components } from "@//types/api";
@@ -14,25 +14,19 @@ import * as SchemaFields from "@/types/SchemaFields";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"]
-const emptyData: PageManagementSet = {
-    PageManagement: {},
-    PageManagementDetail: []
-}
+const emptyData: PageManagementSet = { PageManagement: {}, PageManagementDetail: [] }
 
-/** 頁面表單
- * @returns 
- */
 export const PageFormComp = (prop: { theme: IBETheme; lang: Lang }) => {
     const { internalId } = useParams()
+    const dirUrl = useLocation().pathname.replace(/\/Form$/, `/Form`);
     const useCategory = useGetCategoryListByProgId("PageManagement", "zh-tw")
     const formData = useFetchFormData<PageManagementSet>(PageManagementProvider(), internalId, emptyData);
-    const useToolbar = useFormToolbarActions(PageManagementProvider(), formData.data as PageManagementSet, internalId as string, () => formData.refetch())
+    const actions = useActions(dirUrl, PageManagementProvider(), formData.data as PageManagementSet, internalId as string)
     const isLoading = [useCategory.isLoading, formData.isLoading]
     const errors = [useCategory.error, formData.error]
     useEnsureLangDetails(formData, { headerName: SchemaFields.PageManagementSetFields.PageManagement, detailName: SchemaFields.PageManagementSetFields.PageManagementDetail, parentKeys: [SchemaFields.PageManagementDetailFields.PageId], preferFirstLang: prop.lang });
-    const formProp: FormCompProp = { Title: "新增頁面", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }
+    const formProp: FormCompProp = { Title: "新增頁面", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
     return (
         <FormComp prop={formProp}>
             <HeaderComp theme={prop.theme} formData={formData} catData={useCategory.data} />
@@ -40,7 +34,6 @@ export const PageFormComp = (prop: { theme: IBETheme; lang: Lang }) => {
         </FormComp>
     )
 }
-
 const HeaderComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<PageManagementSet>; catData: Record<string, string> }) => {
     const setField = useSetTableField<PageManagementSet>(prop.formData);
     const tabInfo: LibTabsProp = { Style: prop.theme.Tabs, item: { "Basic": "基本", } }
@@ -51,7 +44,6 @@ const HeaderComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Pa
     }
     return (<TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>)
 }
-
 const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<PageManagementSet>; lang: Lang }) => {
     const setField = useSetTableField<PageManagementSet>(prop.formData);
     const rawDetails = prop.formData.data?.PageManagementDetail ?? [];

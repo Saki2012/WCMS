@@ -1,8 +1,4 @@
-import { expr } from "jquery";
 import type { ReactNode } from "react";
-import type { GridProps } from "../../../../../../SysCore/Components/Grid/Grid_Data";
-import type { SearchBarProps } from "../../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
-import type { ToolbarAction } from "../../../../../../SysCore/Components/Toolbar/Toolbar_Data";
 import type { IFETheme } from "../../../Theme/ITheme";
 
 export interface ContentCompProp

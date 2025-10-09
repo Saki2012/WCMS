@@ -1,7 +1,7 @@
-import type { components } from "../../../types/api";
-import type { ModelDisplaySchema } from "../../../types/IApiSchema";
-import type { ApiResponse } from "../../Interface/IApiProvider";
-import api from "./APIBase";
+import type { ApiResponse } from "@/SysCore/Interface/IApiProvider";
+import api from "@/SysCore/Utils/API/APIBase";
+import type { components } from "@/types/api";
+import type { ModelDisplaySchema } from "@/types/IApiSchema";
 type QueryListParam = components["schemas"]["QueryListParam"];
 
 const genericApi = {

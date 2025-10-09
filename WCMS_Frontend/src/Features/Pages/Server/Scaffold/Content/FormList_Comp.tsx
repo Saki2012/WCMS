@@ -1,9 +1,9 @@
 import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
-import { FormList_Toolbar } from "@/SysCore/Components/Toolbar/Toolbar_Comp";
+import { FormList_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { ReactNode } from "react";
-import type { ToolbarAction } from "@/SysCore/Components/Toolbar/Toolbar_Data";
+import type { UseActionsResult } from "@/Features/Hooks/Common/useActions";
 
 
 interface FormListCompProp {
@@ -14,7 +14,7 @@ interface FormListCompProp {
     ErrorList: (string | null | undefined)[];
     InputControl: ReactNode;
     GridItems: ReactNode;
-    FormToolbar: ToolbarAction[];
+    Actions: UseActionsResult;
 }
 
 
@@ -41,7 +41,7 @@ export const FormListComp = (prop: FormListCompProp) => {
                                                             {prop.InputControl}
                                                         </div>
                                                     </div>
-                                                    <FormList_Toolbar items={prop.FormToolbar}></FormList_Toolbar>
+                                                    <FormList_Toolbar action={prop.Actions}></FormList_Toolbar>
                                                     <DividerComp></DividerComp>
                                                     <div className="row mx-0">
                                                         <div className="col-sm-12">
@@ -55,7 +55,6 @@ export const FormListComp = (prop: FormListCompProp) => {
                                                                             <div className="col-12">
                                                                                 <div className="list-group-wrapper">
                                                                                     {prop.GridItems}
-
                                                                                 </div>
                                                                             </div>
                                                                         </div>

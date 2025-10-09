@@ -1,10 +1,10 @@
-import type { RowCell } from "../../../../../SysCore/Components/Grid/Grid_Data";
-import type { components } from "../../../../../types/api";
-import * as SchemaFields from "../../../../../types/SchemaFields";
-import PageManagementProvider from "./PageManagement_Api";
+import PageManagementProvider from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Api";
+import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
+import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
+import type { components } from "@/types/api";
+import * as SchemaFields from "@/types/SchemaFields";
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
-import { useFetchGridListData } from "../../../../../SysCore/Utils/API/FetchGridListData";
-import { FormatDateTime } from "../../../../../SysCore/Utils/Library/LibData";
 
 export const usePageManagementListData = () =>
 {
@@ -66,33 +66,6 @@ export const usePageManagementListData = () =>
         enabled: true,
         deps: [],
     });
-};
-
-export const handleDelete = async (internalId: string) =>
-{
-    if (!internalId)
-    {
-        alert("無效的資料");
-        return;
-    }
-
-    const confirmDelete = window.confirm("確定要刪除嗎？");
-    if (!confirmDelete) return;
-    try
-    {
-        const res = await PageManagementProvider().deleteData(internalId);
-        if (res.IsSuccess)
-        {
-            alert("刪除成功");
-            window.location.reload(); // 或觸發重新 fetchData
-        } else
-        {
-            alert(res.SysMessage?.map(m => `${m.MessageCode}:${m.Message}`)?.join("\n") ?? "刪除失敗");
-        }
-    } catch (err)
-    {
-        alert(`刪除發生錯誤: ${(err as any)?.message}`);
-    }
 };
 
 export const usePageListData = () =>

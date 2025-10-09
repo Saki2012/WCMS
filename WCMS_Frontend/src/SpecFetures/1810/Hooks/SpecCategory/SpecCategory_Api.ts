@@ -1,13 +1,20 @@
-import { IApiProvider, IDataProvider } from "../../../../SysCore/Interface/IApiProvider";
-import type { ApiResponse } from "../../../../SysCore/Interface/IApiProvider";
-import { BaseApiService } from "../../../../SysCore/Utils/API/APIClient";
-import type { components } from "../../../../types/api";
-import type { ModelDisplaySchema } from "../../../../types/IApiSchema";
+import { IApiProvider, IDataProvider } from "@/SysCore/Interface/IApiProvider";
+import type { ApiResponse } from "@/SysCore/Interface/IApiProvider";
+import api from "@/SysCore/Utils/API/APIBase";
+import { BaseApiService } from "@/SysCore/Utils/API/APIClient";
+import type { components } from "@/types/api";
+import type { ModelDisplaySchema } from "@/types/IApiSchema";
+
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
 type QueryListParam = components["schemas"]["QueryListParam"];
 
 abstract class ISpecCategoryProvider extends IDataProvider<SpecCategorySet>
-{}
+{
+    public async getShowColumnItems(progId: string): Promise<ApiResponse<Record<string, string>>>
+    {
+        return (await api.get(`SpecCategory/GetShowColumnItems`, { params: { progId } })).data;
+    }
+}
 class MockProvider extends ISpecCategoryProvider
 {
     protected doFetchListCount(condition?: QueryListParam): Promise<ApiResponse<number>>

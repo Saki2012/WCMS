@@ -12,10 +12,10 @@ import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import SpecUSRProvider from "@/SpecFetures/1810/Hooks/SpecUSR/SpecUSR_Api";
-import { useParams } from "react-router";
+import { useLocation, useParams } from "react-router";
 import { useGetTagListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
-import { useFormToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
+import { useActions } from "@/Features/Hooks/Common/useActions";
 import { useGetSpecCategoryListByProgId } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Hook";
 import { useMemo } from "react";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
@@ -27,16 +27,17 @@ const emptyData: SpecUSRSet = { SpecUSR: {}, SpecUSRDetail: [], }
  */
 export const Server_USRProjFormComp = (prop: { theme: IBETheme; lang: Lang }) => {
     const { internalId } = useParams();
+    const dirUrl = useLocation().pathname.replace(/\/Form$/, `/Form`);
     const formData = useFetchFormData<SpecUSRSet>(SpecUSRProvider(), internalId, emptyData)
     const useCategory = useGetSpecCategoryListByProgId("SpecUSR", prop.lang);
     const useTag = useGetTagListByProgId("SpecUSR", prop.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
     const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
-    const useToolbar = useFormToolbarActions(SpecUSRProvider(), formData.data as SpecUSRSet, internalId as string, () => formData.refetch())
+    const actions = useActions(dirUrl, SpecUSRProvider(), formData.data as SpecUSRSet, internalId as string)
     useEnsureLangDetails(formData, { headerName: SchemaFields.SpecUSRSetFields.SpecUSR, detailName: SchemaFields.SpecUSRSetFields.SpecUSRDetail, parentKeys: [SchemaFields.SpecUSRModelFields.USRId], preferFirstLang: prop.lang });
     const isLoading = [formData.isLoading, useCategory.isLoading, useTag.isLoading, useContentStatus.isLoading]
     const errors = [formData.error, useCategory.error, useTag.error, useContentStatus.error]
-    const formProp: FormCompProp = { Title: "新增USR計畫", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }
+    const formProp: FormCompProp = { Title: "新增USR計畫", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
     return (
         <FormComp prop={formProp}>
             <HeaderComp theme={prop.theme} formData={formData} cateOpts={useCategory.data} statusOpts={status} tagOpts={useTag.data} />

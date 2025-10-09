@@ -2,36 +2,38 @@ import type { SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_Fo
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme"
 import type { GridProps, ColumnConfig, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data"
 import { useMemo } from "react"
-import { Link } from "react-router-dom"
 import { useLocation } from 'react-router-dom';
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp"
 import type { ListCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data"
 import type { components } from "@/types/api";
-import { useListToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
 import * as SchemaFields from "@/types/SchemaFields";
 import { useWebResourceListData } from "@/Features/Hooks/BizFunc/WebManagement/WebResource/WebResource_Hook"
-import { handleDelete } from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Hook";
 import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook"
+import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions"
+import { GridCol_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp"
+import WebResourceProvider from "@/Features/Hooks/BizFunc/WebManagement/WebResource/WebResource_Api";
+import { Prog } from "@/Features/Hooks/Common/Prog";
+import type { Lang } from "@/SysCore/i18n/lang";
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 /** 網路資源清單
  * @returns 
  */
-export const WebResourceListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
+export const WebResourceListComp = (prop: { title: string; theme: IBETheme; lang: Lang }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
     const useListData = useWebResourceListData();
-    const useCategory = useCategoryListData("WebResource", "zh-tw");
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useListData.gridProps, useListData.rawData, useCategory.rawData); }, [dirUrl, useListData.gridProps, useListData.rawData, useCategory.rawData]);
-    const useToolbar = useListToolbarActions(dirUrl)
+    const useCategory = useCategoryListData(Prog.WebResource, prop.lang);
+    const actions = useActions(dirUrl, WebResourceProvider(), undefined, undefined, useListData.refetchCurrent)
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(useListData.gridProps, useListData.rawData, useCategory.rawData, actions); }, [useListData.gridProps, useListData.rawData, useCategory.rawData, actions]);
     const searchCompProp: SearchBarProps = { title: "網路資源搜尋", subTitle: "搜尋網路資源 ...", settingTitle: "搜尋設定", }
     const isLoading = [useListData.isLoading];
     const errors = [useListData.error];
-    const prop: ListCompProp = { Title: title, Theme: theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.toolbarActions, GridData: adjustedGrid, SearchBar: searchCompProp }
-    return (<ListComp prop={prop}></ListComp>);
+    const compProp: ListCompProp = { Title: prop.title, Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions, GridData: adjustedGrid, SearchBar: searchCompProp }
+    return (<ListComp prop={compProp}></ListComp>);
 }
 
 /** 動態添加每行的動作功能 */
-const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: WebResourceSet[], categoryData: CategoryDataSet[]): GridProps => {
+const SetAdjustFunction = (gridProps: GridProps, rawData: WebResourceSet[], categoryData: CategoryDataSet[], actions: UseActionsResult): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
 
@@ -49,20 +51,7 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: WebRes
         const internalId = rawData?.[index]?.WebResource?.InternalId ?? "";
         const newCell: RowCell = {
             col: adjustCol,
-            content: (
-                <div className="all-btn Edit Icon">
-                    <Link id="edit" className="icon" to={`${dirUrl}/${internalId}`} target="_self">
-                        <button type="button" className="Ipencil btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title="內容編輯">
-                            <i className="far fa-edit"></i>
-                        </button>
-                    </Link>
-                    <a id="trash" className="icon" onClick={() => handleDelete(internalId)} data-bs-toggle="modal" data-bs-target="#All_Delete">
-                        <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title="刪除網路資源">
-                            <i className="far fa-trash-alt"></i>
-                        </button>
-                    </a>
-                </div>
-            )
+            content: (<GridCol_Toolbar key={internalId} action={actions} internalId={internalId} />)
         };
 
         return { ...row, cells: [...row.cells, newCell] };

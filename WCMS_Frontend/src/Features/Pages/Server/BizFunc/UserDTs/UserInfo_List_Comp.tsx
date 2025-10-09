@@ -4,19 +4,19 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { LibUserCard } from "@/SysCore/Components/FormField/LibFormField"
 import { type SearchBarProps } from '@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp';
 import { useLocation } from 'react-router-dom';
-import { useListToolbarActions } from '@/SysCore/Components/Toolbar/Toolbar_Hook';
 import { Paginator } from '@/SysCore/Components/Paginator/Paginator_Comp';
 import { useState } from 'react';
+import { useActions } from '@/Features/Hooks/Common/useActions';
 
 
 export const UserManageList_Comp = ({ theme }: { theme: IBETheme }) => {
 
   const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
-  const useToolbar = useListToolbarActions(dirUrl)
+  const actions = useActions()
   const isLoading: boolean[] = []
   const errors: (string | null | undefined)[] = []
   const searchProp: SearchBarProps = { title: "會員搜尋", subTitle: "搜尋會員... ", settingTitle: "搜尋設定" }
-  const prop: ListCompProp = { Title: "會員管理", Theme: theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.toolbarActions, SearchBar: searchProp }
+  const prop: ListCompProp = { Title: "會員管理", Theme: theme, LoadingList: isLoading, ErrorList: errors, Actions: actions, SearchBar: searchProp }
 
   const fake = [
     {
