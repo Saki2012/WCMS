@@ -3,6 +3,7 @@
     public interface IOperateLog
     {
         public IList<OperateLogModel> MoveFollows { get; set; }
-        public void AddMoveFollow(OperateLogModel _MoveFollows);
+        public OperateLogModel AddMoveFollow(string apiName, string userId, string jsonData, string ip);
+        public OperateLogModel AddMoveFollow(OperateLogModel _MoveFollows);
     }
 }

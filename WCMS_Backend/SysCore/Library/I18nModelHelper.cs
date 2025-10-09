@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq.Expressions;
 using System.Reflection;
 
 namespace WCMS.SysCore.Library
@@ -39,6 +39,13 @@ namespace WCMS.SysCore.Library
             _cache[type.Name] = labels;
             return labels;
         }
+        public static string GetLabel<T>(Expression<Func<T,object>> selector)
+        {
+            MemberExpression? member = selector.Body as MemberExpression;
+            if (member == null && selector.Body is UnaryExpression u && u.Operand is MemberExpression m) member = m;
+            if (member?.Member is PropertyInfo prop) return GetLabel(prop);
+            return GetLabel(typeof(T));
+        }
 
         public static string GetLabel(Type type)
         {
@@ -55,5 +62,6 @@ namespace WCMS.SysCore.Library
             _cache[prop.Name] = labels;
             return labels;
         }
+        
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Azure.Core;
+using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
@@ -34,10 +36,16 @@ namespace WCMS.SysCore
         private readonly ApplicationDbContext DataAccess = dataAccess;
         public IList<OperateLogModel> MoveFollows { get; set; } = [];
 
-        public void AddMoveFollow(OperateLogModel _MoveFollows)
+
+        public OperateLogModel AddMoveFollow(string apiName,string userId,string jsonData,string ip)
         {
-            DataAccess.Add(_MoveFollows);
+            return AddMoveFollow(new(){APIName = apiName,UserId = userId,followingDT = jsonData,IP = ip});
+        }
+        public OperateLogModel AddMoveFollow(OperateLogModel log)
+        {
+            DataAccess.Add(log);
             DataAccess.SaveChanges();
+            return log;
         }
     }
 }

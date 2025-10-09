@@ -1,5 +1,7 @@
 ﻿using NLog;
 using System.Text.Json;
+using WCMS.SysCore.Resx;
+using static GraphQL.Validation.Rules.OverlappingFieldsCanBeMerged;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.Middleware
@@ -31,7 +33,7 @@ namespace WCMS.SysCore.Middleware
         {
             var response = context.Response;
             response.ContentType = "application/json";
-            
+            var apiRes = new ApiResponse<string>() { SysMessage = message.Messages };
             switch (exception)
             {
                 //case BusinessException:
@@ -46,15 +48,16 @@ namespace WCMS.SysCore.Middleware
                 //    };
                 //    break;
                 default:
-                    message.AddMessage(MessageStatus.Error, "BECode00001");
+                    message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00001);
                     logger.Error(exception.Message);
                     logger.Error(exception.StackTrace);
                     //response.StatusCode = StatusCodes
+#if DEBUG
+                    message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00000,exception);
+#endif
                     break;
             }
-            
-            var json = JsonSerializer.Serialize(message.Messages);
-            await response.WriteAsync(json);
+            await response.WriteAsync(JsonSerializer.Serialize(apiRes));
         }
         #endregion
     }

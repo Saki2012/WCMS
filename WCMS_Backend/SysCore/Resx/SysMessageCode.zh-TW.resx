@@ -148,15 +148,18 @@
     <value>查詢失敗。</value>
   </data>
   <data name="BECode00012" xml:space="preserve">
-    <value>請輸入【{0}】。</value>
+    <value>請輸入[{0}]。</value>
   </data>
   <data name="BECode00013" xml:space="preserve">
-    <value>{0} 要小於 {1}</value>
+    <value>[{0}]要小於[{1}]</value>
   </data>
   <data name="BECode00001" xml:space="preserve">
     <value>系統內部發生異常。請洽系統管理員。</value>
   </data>
   <data name="BECode00014" xml:space="preserve">
-    <value>{0} 要大於 {1}</value>
+    <value>[{0}]要大於[{1}]</value>
+  </data>
+  <data name="BECode00000" xml:space="preserve">
+    <value>{0}</value>
   </data>
 </root>

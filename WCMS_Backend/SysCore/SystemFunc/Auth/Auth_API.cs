@@ -33,22 +33,11 @@ namespace WCMS.SysCore.SystemFunc.Auth
         [HttpPost(nameof(Login)), AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginDto req)
         {
-            OperateLogModel followInfo = new OperateLogModel();
-            followInfo.APIName = nameof(Login);
-            followInfo.UserId = "SysOperator";
-            followInfo.followingDT = JsonConvert.SerializeObject(req.Account);
-            followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
-            OperateLog.AddMoveFollow(followInfo);
-
+            OperateLog.AddMoveFollow(nameof(Login), req.Account, JsonConvert.SerializeObject(req.Account), Request.Headers["HTTP_CLIENT_IP"].ToString());
             const string GENERIC_LOGIN_ERROR = "帳號或密碼錯誤";
-
             var key = $"login_attempts:{req.Account}";
             var attempts = _cache.Get<int>(key);
-
             if (attempts >= 3) return StatusCode(StatusCodes.Status429TooManyRequests, new { message = "登入嘗試過多，請稍後再試。" });
-
-
-
             var (ok, userInfo) = await _authBiz.CheckLoginValid(req.Account, req.Password);
             if (!ok)
             {
@@ -56,15 +45,11 @@ namespace WCMS.SysCore.SystemFunc.Auth
                 return Unauthorized(GENERIC_LOGIN_ERROR);
             }
             _cache.Remove(key); // 成功登入就清除計數
-
-
             // 2) 簽發 AccessToken
             var (accessToken, jti, accessExp) = _tokenSvc.IssueAccessToken(userInfo);
-
             // 3) 產生 Refresh 資料並寫入 HttpOnly Cookie（同源 HTTPS）
             var (refreshToken, tokenId, refreshExp) = _tokenSvc.IssueRefreshToken(userInfo);
             await _tokenSvc.StoreRefreshAsync(userInfo.UserId, tokenId, refreshExp);
-
             // ✅ 同源 HTTPS（正式上線）：Secure=true；同源可用 Lax
             var baseOpt = new CookieOptions
             {
@@ -72,7 +57,6 @@ namespace WCMS.SysCore.SystemFunc.Auth
                 Secure = true,
                 SameSite = SameSiteMode.Lax
             };
-
             // ⬅ Refresh Id（HttpOnly）：名稱統一用 rtid
             Response.Cookies.Append("rtid", tokenId, new CookieOptions
             {
@@ -82,7 +66,6 @@ namespace WCMS.SysCore.SystemFunc.Auth
                 Path = baseOpt.Path,
                 Expires = refreshExp
             });
-
             // ⬅ Anti-XSRF（非 HttpOnly）
             Response.Cookies.Append("XSRF-TOKEN", Guid.NewGuid().ToString("N"), new CookieOptions
             {
@@ -92,7 +75,6 @@ namespace WCMS.SysCore.SystemFunc.Auth
                 Path = baseOpt.Path,
                 Expires = refreshExp
             });
-
             // ✅ 額外：把 AccessToken 也發成 HttpOnly Cookie，讓 JwtBearer 能從 Cookie 讀到
             Response.Cookies.Append("access", accessToken, new CookieOptions
             {

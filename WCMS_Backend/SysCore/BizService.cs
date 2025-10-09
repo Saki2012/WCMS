@@ -13,6 +13,7 @@ using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.UserRolePermission.User;
 using static GraphQL.Validation.Rules.OverlappingFieldsCanBeMerged;
 using static WCMS.SysCore.Enum.SysEnum;
@@ -119,10 +120,9 @@ namespace WCMS.SysCore
                 AfterUpdate(default, set, FuncAction.Create, TransStatus.Increase);
                 //Response.ThrowIfFailed();
                 //await CommitDataAsync();
-                await DataAccess.SaveChangesAsync();      //先寫看看
+                await DataAccess.SaveChangesAsync();      
                 AfterSaveChanges(FuncAction.Create);
-                Message.AddMessage(MessageStatus.Green, "BECode00002");
-                //Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00002);
+                Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00002);
                 //Response.Data.Add(set);
                 return set;
             }
