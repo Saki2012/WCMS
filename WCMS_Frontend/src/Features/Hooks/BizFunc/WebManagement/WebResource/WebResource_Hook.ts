@@ -35,7 +35,10 @@ export const useWebResourceListData = () =>
                 SchemaFields.WebResourceFields.InternalId,
             ],
             Condition: "",
-            OrderBy: [{ Col: SchemaFields.WebResourceFields.ModifyTime, Desc: true }],
+            OrderBy: [
+                { Col: SchemaFields.WebResourceFields.CreateTime, Desc: true },
+                { Col: SchemaFields.WebResourceFields.ModifyTime, Desc: true },
+            ],
             PageNumber: page,
             PageSize: 10,
         }),

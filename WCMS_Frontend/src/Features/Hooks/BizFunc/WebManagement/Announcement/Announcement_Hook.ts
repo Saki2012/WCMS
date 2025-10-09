@@ -38,7 +38,7 @@ export const useAnnouncementList = () =>
             ],
             Condition: "",
             OrderBy: [
-                { Col: SchemaFields.AnnouncementFields.Validate_Start, Desc: true },
+                { Col: SchemaFields.AnnouncementFields.CreateTime, Desc: true },
                 { Col: SchemaFields.AnnouncementFields.ModifyTime, Desc: true },
             ],
             PageNumber: page,

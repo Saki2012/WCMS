@@ -31,6 +31,7 @@ export const useGetCategoryListByProgId = (progId: string, lang: string, pageSiz
                 ],
                 Condition:
                     `${SchemaFields.CategoryFields.ProgId} = \"${progId}\" And ${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang} = \"zh-TW\"`,
+                OrderBy: [{ Col: SchemaFields.CategoryFields.ModifyTime, Desc: true }],
                 PageNumber: page,
                 PageSize: pageSize,
             };
@@ -97,7 +98,7 @@ export const useCategoryListData = (progId: string, lang: Lang) =>
             // 如果 progId 是字串型別且後端期望字串，記得加引號：
             // Condition: `${SchemaFields.CategoryFields.ProgId} = '${progId.replace(/'/g,"''")}'`,
             Condition: condition,
-            OrderBy: [{ Col: SchemaFields.CategoryFields.ModifyTime, Desc: true }],
+            OrderBy: [{ Col: SchemaFields.CategoryFields.CreateTime, Desc: false }],
             PageNumber: 0,
             PageSize: 0,
         }),

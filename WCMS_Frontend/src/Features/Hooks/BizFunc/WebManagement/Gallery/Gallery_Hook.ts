@@ -30,7 +30,9 @@ export const useGalleryListData = () =>
                 SchemaFields.GalleryFields.ModifyUserId,
             ],
             Condition: "",
-            OrderBy: [{ Col: SchemaFields.GalleryFields.ModifyTime, Desc: true }],
+            OrderBy: [
+                { Col: SchemaFields.GalleryFields.ModifyTime, Desc: true }
+            ],
             PageNumber: page,
             PageSize: 10,
         }),

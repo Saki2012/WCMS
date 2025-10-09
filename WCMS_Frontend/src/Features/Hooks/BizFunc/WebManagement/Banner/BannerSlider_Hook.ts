@@ -29,6 +29,7 @@ export const useBannerListData = (condition?: string) =>
             ],
             Condition: condition ?? "",
             OrderBy: [
+                { Col: SchemaFields.BannerFields.CreateTime, Desc: true },
                 { Col: SchemaFields.BannerFields.ModifyTime, Desc: true },
             ],
             PageNumber: page,
