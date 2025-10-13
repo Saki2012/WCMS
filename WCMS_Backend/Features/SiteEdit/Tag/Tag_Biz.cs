@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Runtime.InteropServices;
+using WCMS.Features.SiteEdit.Category;
 using WCMS.Features.SiteEdit.WebResource;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Resx;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Tag
 {
@@ -18,6 +21,11 @@ namespace WCMS.Features.SiteEdit.Tag
             base.BeforeUpdate(set, act);
             switch (act)
             {
+                case SysEnum.FuncAction.Create:
+                case SysEnum.FuncAction.Update:
+                    CheckData(set);
+                    break;
+
                 case SysEnum.FuncAction.Delete:
                     CheckIsUsed(set.TagData.ProgId, set.TagData.TagId);
                     break;
@@ -25,14 +33,43 @@ namespace WCMS.Features.SiteEdit.Tag
         }
         #endregion
 
+
+        private void CheckData(TagSet set)
+        {
+
+            for (int i = 0; i < set.TagDetail.Count; i++)
+            {
+                CheckDate(set.TagDetail[i]);
+            }
+
+
+        }
+
+
+        private void CheckDate(TagDetail datail)
+        {
+            if (datail.TagName == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<TagDetail>(x => x.TagName));
+        }
+
+
         #region Private
         private void CheckIsUsed(string progId,string tagId)
         {
-            switch (ProgId)
+            switch (progId)
             {
+                case "Announcement":
+
+                    break;
                 case "FileArchive":
                     //檢查是否有包含在內
-                    break;  
+                    break;
+                case "Gallery":
+
+                    break;
+                case "PageManagement":
+                    //檢查是否有包含在內
+
+                    break;
             }
         }
 
@@ -74,5 +111,10 @@ namespace WCMS.Features.SiteEdit.Tag
             return [.. result];
         }
         #endregion
+
+
+
+
+
     }
 }
