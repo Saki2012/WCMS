@@ -175,10 +175,10 @@
     <value>橫幅類別名稱</value>
   </data>
   <data name="Banner_Interval" xml:space="preserve">
-    <value>轉換間隔</value>
+    <value>轉換間隔(s)</value>
   </data>
   <data name="Banner_Speed" xml:space="preserve">
-    <value>轉換速度</value>
+    <value>轉換速度(ms)</value>
   </data>
   <data name="Banner_Height" xml:space="preserve">
     <value>圖片高度(px)</value>

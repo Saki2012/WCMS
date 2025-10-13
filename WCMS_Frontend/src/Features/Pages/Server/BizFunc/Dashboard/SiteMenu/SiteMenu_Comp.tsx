@@ -146,7 +146,7 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
   const usetagList = useTagListData("", prop.lang)
   const usePageList = usePageListData()
   const useSpecCateDatas = useSpecCateListData("", prop.lang)
-  const actions = useActions(provider, useSiteInfo.data as SiteMenuSet, internalId as string)
+  const actions = useActions("", SiteMenuProvider(), useSiteInfo.data as SiteMenuSet, internalId as string)
   const useBannerList = useFetchGridListData<BannerSet>(GetBannerListOpt());
   const bannerDict = useMemo<Record<string, string>>(() => {
     const src = useBannerList.rawData ?? [];

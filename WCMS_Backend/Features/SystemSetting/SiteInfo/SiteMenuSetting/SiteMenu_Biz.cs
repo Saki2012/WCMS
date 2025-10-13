@@ -10,6 +10,7 @@ using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
@@ -321,6 +322,8 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
             {
                 case FuncAction.Create:
                 case FuncAction.Update:
+                    CheckData(set);
+                    if (Message.HasError) return;
                     SetData(set);
                     break;
             }
@@ -330,7 +333,23 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         #region Private
         private void CheckData(SiteMenuSet set)
         {
+            CheckSiteUrlHasEmpty(set);
+        }
 
+        private void CheckSiteUrlHasEmpty(SiteMenuSet set)
+        {
+            Regex menuIdRegex = new Regex(@"^[A-Za-z0-9_-]+$", RegexOptions.Compiled);
+            foreach (var dt in set.SiteMenu_Item)
+            {
+                dt.ItemSiteUrl = dt.ItemSiteUrl.Trim();//防呆，清空前後空白
+                if (dt.ItemSiteUrl.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SiteMenu_Item>(x => x.ItemSiteUrl));
+                if(!menuIdRegex.IsMatch(dt.ItemSiteUrl)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00016, string.Format("{0}:{1}",I18nCache.GetLabel<SiteMenu_Item>(x => x.ItemSiteUrl),dt.ItemSiteUrl));
+            }
+            foreach(var dt in set.SiteMenu_Item_Title)
+            {   
+                //暫時寫死zh-tw跟繁體中文
+                if (dt.Lang.Equals("zh-tw")&&dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, "繁體中文", I18nCache.GetLabel<SiteMenu_Item_Title>(x => x.Title));
+            }
         }
         private static void SetData(SiteMenuSet set)
         {

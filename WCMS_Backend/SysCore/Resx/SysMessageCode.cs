@@ -20,5 +20,7 @@
         public const string BECode00012 = "BECode00012";
         public const string BECode00013 = "BECode00013";
         public const string BECode00014 = "BECode00014";
+        public const string BECode00015 = "BECode00015";
+        public const string BECode00016 = "BECode00016";
     }
 }
