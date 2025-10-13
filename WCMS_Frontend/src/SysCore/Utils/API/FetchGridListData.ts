@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ModelDisplaySchema } from "../../../types/IApiSchema";
 import type { ColumnConfig, GridProps, GridRow } from "../../Components/Grid/Grid_Data";
 
@@ -24,7 +24,10 @@ export interface UseGridListOptions<T>
     deps?: React.DependencyList; // ✅ 依賴，變化時會重新 fetch
     enabled?: boolean; // ✅ 控制是否要打 API
 }
-
+type RefetchOpt =
+    | { mode?: "current"; } // 預設：重抓目前的 page（不動頁碼）
+    | { mode: "first"; } // 回到第 1 頁再抓
+    | { mode: "page"; page: number; }; // 指定頁碼
 export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
 {
     const [rawData, setRawData] = useState<T[]>(props.initialData ?? []);
@@ -34,7 +37,7 @@ export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
     const [totalPages, setTotalPages] = useState(1);
     const [isLoading, setIsLoading] = useState(!props.initialData);
     const [error, setError] = useState<string | null>(null);
-
+    const [bump, setBump] = useState(0);
     const fetchData = async (page: number) =>
     {
         setIsLoading(true);
@@ -77,12 +80,25 @@ export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
             setIsLoading(false);
         }
     };
-
+    const refetch = useCallback((o?: RefetchOpt) =>
+    {
+        if (!o || o.mode === "current")
+        {
+            // 不改 page，只重抓目前頁
+            setBump(v => v + 1);
+        } else if (o.mode === "first")
+        {
+            setCurrentPage(1); // 改 page → 由 effect 觸發抓取
+        } else if (o.mode === "page")
+        {
+            setCurrentPage(o.page);
+        }
+    }, []);
     useEffect(() =>
     {
         if (!props.enabled || props.initialData) return;
         fetchData(currentPage);
-    }, [currentPage, props.enabled, ...props.deps ?? []]);
+    }, [currentPage, props.enabled, ...props.deps ?? [], bump]);
     const gridProps: GridProps = useMemo(
         () => ({
             columns,
@@ -92,10 +108,11 @@ export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
             TotalPage: totalPages,
             onPageChange: (page: number) => setCurrentPage(page),
         }),
-        [columns, rows, rawData, currentPage, totalPages],
+        [columns, rows, rawData, currentPage, totalPages, bump],
     );
-
-    return { rawData, gridProps, isLoading, error };
+    const refetchCurrent = useCallback(async () => refetch({ mode: "current" }), [refetch]);
+    const refetchFirst = useCallback(async () => refetch({ mode: "first" }), [refetch]);
+    return { rawData, gridProps, isLoading, error, refetchCurrent, refetchFirst };
 };
 
 /**

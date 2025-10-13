@@ -1,6 +1,7 @@
 import type { ILibPictureProp } from './LibPicture_Data';
 import { useState } from "react";
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
+import { useToast } from '@/Features/Hooks/Common/useToastCenter';
 
 interface LibPictureWithParentClassProp extends ILibPictureProp {
   parentClass?: string; // 新增
@@ -33,7 +34,7 @@ export const useUploadPicture = () => {
     uploading: false,
     error: null,
   });
-
+  const { publish } = useToast(); // ✅ 單一來源
   const handleFileChange = async (
     files: File[],
     onUploaded?: (internalId: string) => void
@@ -55,6 +56,14 @@ export const useUploadPicture = () => {
       if (!response.ok) throw new Error("Upload failed");
 
       const resultJson = await response.json();
+      if (!resultJson.IsSuccess) {
+        resultJson.SysMessage.map((item: { Status: any; MessageCode: any; Message: any; }) =>
+          publish({ level: item.Status, code: item.MessageCode, title: "保存失敗", text: item.Message })
+        );
+      }
+
+
+
       const internalId = resultJson?.Data?.[0];
 
       setResult({

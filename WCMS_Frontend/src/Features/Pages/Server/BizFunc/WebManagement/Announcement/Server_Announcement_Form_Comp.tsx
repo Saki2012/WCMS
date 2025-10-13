@@ -4,8 +4,8 @@ import { useGetCategoryListByProgId } from "@/Features/Hooks/BizFunc/WebManageme
 import { useGetTagListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 import AnnouncementProvider from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api";
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
-import { useFormToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
-import { useParams } from "react-router-dom";
+import { useActions } from "@/Features/Hooks/Common/useActions";
+import { useLocation, useParams } from "react-router-dom";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import type { components } from "@/types/api";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
@@ -33,16 +33,17 @@ const emptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [], A
  */
 export const Server_AnnouncementFormComp = (props: { theme: IBETheme; lang: Lang }) => {
     const { internalId } = useParams();
+    const dirUrl = useLocation().pathname.replace(/\/Form$/, `/Form`);
     const formData = useFetchFormData<AnnouncementSet>(AnnouncementProvider(), internalId, emptyData)
     const useCategory = useGetCategoryListByProgId(Prog.Announcement, props.lang);
     const useTag = useGetTagListByProgId(Prog.Announcement, props.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
     const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
-    const useToolbar = useFormToolbarActions(AnnouncementProvider(), formData.data as AnnouncementSet, internalId as string, () => formData.refetch())
+    const actions = useActions(dirUrl, AnnouncementProvider(), formData.data, internalId as string)
     useEnsureLangDetails(formData, { headerName: SchemaFields.AnnouncementSetFields.Announcement, detailName: SchemaFields.AnnouncementSetFields.AnnouncementDetail, parentKeys: [SchemaFields.AnnouncementDetailFields.AnnouncementId], preferFirstLang: props.lang });
     const isLoading = [useTag.isLoading, useCategory.isLoading, formData.isLoading, useContentStatus.isLoading]
     const errors = [useTag.error, useCategory.error, formData.error, useContentStatus.error]
-    const prop: FormCompProp = { Title: "新增公告", Theme: props.theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }
+    const prop: FormCompProp = { Title: internalId ? "修改公告" : "新增公告", Theme: props.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
     return (
         <FormComp prop={prop}>
             <HeaderComp theme={props.theme} formData={formData} cateOpts={useCategory.data} statusOpts={status} tagOpts={useTag.data} />

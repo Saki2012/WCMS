@@ -2,16 +2,18 @@ import type { SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_Fo
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme"
 import type { GridProps, ColumnConfig, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data"
 import { useMemo } from "react"
-import { Link } from "react-router-dom"
 import { useLocation } from 'react-router-dom';
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp"
 import type { ListCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data"
 import * as React from "react";
 import type { components } from "@/types/api";
-import { useListToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
-import { handleDelete, useFileArchiveList } from "@/Features/Hooks/BizFunc/WebManagement/FileArchive/FileArchive_Hook"
+import { useFileArchiveList } from "@/Features/Hooks/BizFunc/WebManagement/FileArchive/FileArchive_Hook"
 import * as SchemaFields from "@/types/SchemaFields";
 import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook"
+import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions"
+import FileArchiveProvider from "@/Features/Hooks/BizFunc/WebManagement/FileArchive/FileArchive_Api"
+import { GridCol_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp"
+import { Prog } from "@/Features/Hooks/Common/Prog";
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 
@@ -21,18 +23,18 @@ type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 export const Server_FileArchiveListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
     const usePageList = useFileArchiveList();
-    const useCategory = useCategoryListData("FileArchive", "zh-tw");
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, usePageList.gridProps, usePageList.rawData, useCategory.rawData); }, [usePageList.gridProps, usePageList.rawData, useCategory.rawData]);
-    const useToolbar = useListToolbarActions(dirUrl)
+    const useCategory = useCategoryListData(Prog.FileArchive, "zh-tw");
+    const actions = useActions(dirUrl, FileArchiveProvider(), undefined, undefined, usePageList.refetchCurrent);
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions); }, [usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions]);
     const searchCompProp: SearchBarProps = { title: "檔案室搜尋", subTitle: "搜尋檔案室 ...", settingTitle: "搜尋設定", }
     const isLoading = [usePageList.isLoading, useCategory.isLoading];
     const errors = [usePageList.error, useCategory.error];
-    const prop: ListCompProp = { Title: title, Theme: theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.toolbarActions, GridData: adjustedGrid, SearchBar: searchCompProp }
+    const prop: ListCompProp = { Title: title, Theme: theme, LoadingList: isLoading, ErrorList: errors, Actions: actions, GridData: adjustedGrid, SearchBar: searchCompProp }
     return (<ListComp prop={prop}></ListComp>);
 }
 
 /** 動態添加每行的動作功能 */
-const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: FileArchiveSet[], categoryData: CategoryDataSet[]): GridProps => {
+const SetAdjustFunction = (gridProps: GridProps, rawData: FileArchiveSet[], categoryData: CategoryDataSet[], actions: UseActionsResult): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
@@ -48,20 +50,7 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: FileAr
         const internalId = rawData?.[index]?.FileArchive?.InternalId ?? "";
         const newCell: RowCell = {
             col: adjustCol,
-            content: (
-                <div className="all-btn Edit Icon">
-                    <Link id="edit" className="icon" to={`${dirUrl}/${internalId}`} target="_self">
-                        <button type="button" className="Ipencil btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title="內容編輯">
-                            <i className="far fa-edit"></i>
-                        </button>
-                    </Link>
-                    <a id="trash" className="icon" onClick={() => handleDelete(internalId)} data-bs-toggle="modal" data-bs-target="#All_Delete">
-                        <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title="刪除檔案室">
-                            <i className="far fa-trash-alt"></i>
-                        </button>
-                    </a>
-                </div>
-            )
+            content: (<GridCol_Toolbar key={internalId} action={actions} internalId={internalId} />)
         };
         return { ...row, cells: [...row.cells, newCell] };
     });

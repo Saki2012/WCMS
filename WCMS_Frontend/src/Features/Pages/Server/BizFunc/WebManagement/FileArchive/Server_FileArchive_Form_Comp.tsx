@@ -2,7 +2,7 @@ import { LibCheckBox, LibTextBox, LibFileInput } from "@/SysCore/Components/Form
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { useGetCategoryListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook"
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
@@ -14,9 +14,10 @@ import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/la
 import * as SchemaFields from "@/types/SchemaFields";
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-import { useFormToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
+import { useActions } from "@/Features/Hooks/Common/useActions";
 import { useMemo } from "react";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
+import { Prog } from "@/Features/Hooks/Common/Prog";
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"]
 type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"]
 const emptyData: FileArchiveSet = { FileArchive: {}, FileArchiveInfo: [], FileArchiveDetail: [] }
@@ -26,16 +27,17 @@ const emptyData: FileArchiveSet = { FileArchive: {}, FileArchiveInfo: [], FileAr
  */
 export const Server_FileArchiveFormComp = (prop: { theme: IBETheme; lang: Lang }) => {
     const { internalId } = useParams()
+    const dirUrl = useLocation().pathname.replace(/\/Form$/, `/Form`);
     const formData = useFetchFormData<FileArchiveSet>(FileArchiveProvider(), internalId, emptyData)
-    const useCategory = useGetCategoryListByProgId("FileArchive", prop.lang);
-    const useTag = useGetTagListByProgId("FileArchive", prop.lang);
+    const useCategory = useGetCategoryListByProgId(Prog.FileArchive, prop.lang);
+    const useTag = useGetTagListByProgId(Prog.FileArchive, prop.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
     const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
     useEnsureLangDetails(formData, { headerName: SchemaFields.FileArchiveSetFields.FileArchive, detailName: SchemaFields.FileArchiveSetFields.FileArchiveInfo, parentKeys: [SchemaFields.FileArchiveFields.FileArchiveId], preferFirstLang: prop.lang });
-    const useToolbar = useFormToolbarActions(FileArchiveProvider(), formData.data as FileArchiveSet, internalId as string, () => formData.refetch())
+    const actions = useActions(dirUrl, FileArchiveProvider(), formData.data as FileArchiveSet, internalId as string)
     const isLoading = [useTag.isLoading, useCategory.isLoading, formData.isLoading, useContentStatus.isLoading]
     const errors = [useTag.error, useCategory.error, formData.error, useContentStatus.error]
-    const formProp: FormCompProp = { Title: "新增檔案室", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }
+    const formProp: FormCompProp = { Title: "新增檔案室", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
 
     return (
         <FormComp prop={formProp}>

@@ -1,10 +1,10 @@
 import type { ListCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
-import { List_Toolbar } from "@/SysCore/Components/Toolbar/Toolbar_Comp";
+import { List_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp";
 import { SearchComp } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
-import type { SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import type { GridProps } from "@/SysCore/Components/Grid/Grid_Data";
 
 
 
@@ -26,9 +26,9 @@ export const ListComp = ({ prop }: { prop: ListCompProp; }) => {
                                                 <SearchComp prop={prop.SearchBar}></SearchComp>
                                                 <DividerComp></DividerComp>
                                                 {/* <Form_Toolbar items={prop.Toolbar}></Form_Toolbar> */}
-                                                <List_Toolbar items={prop.Toolbar} ></List_Toolbar>
+                                                <List_Toolbar action={prop.Actions} ></List_Toolbar>
                                                 <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList} >
-                                                    <Grid gridData={prop.GridData} style={prop.Theme.GridView} pageStyle={prop.Theme.Paginator}></Grid>
+                                                    <Grid gridData={prop.GridData as GridProps} style={prop.Theme.GridView} pageStyle={prop.Theme.Paginator}></Grid>
                                                 </LoadingErrorHandler>
                                             </div>
                                         </div>

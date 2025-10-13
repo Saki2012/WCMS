@@ -3,6 +3,8 @@ using System.Data;
 using System.Runtime.InteropServices;
 using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory;
+using WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch;
+using WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
@@ -13,7 +15,6 @@ namespace WCMS.Features.SiteEdit.SpecCategory
     [ProgId("SpecCategory")]
     public class SpecCategoryBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<SpecCategorySet>(repo, message), IBizService<SpecCategorySet> 
     {
-
         #region Migration Old Data
         public async Task Migrate()
         {
@@ -97,6 +98,32 @@ namespace WCMS.Features.SiteEdit.SpecCategory
                 if (items.TryGetValue(x, out string value)) result = LibData.Merge(",", false, result, value);
             }
             return result.Remerge(",");
+        }
+        #endregion
+
+        #region Public
+        public Dictionary<string,string> GetShowColumnItems(string progId)
+        {
+            Dictionary<string, string> result = [];
+
+            switch (progId)
+            {
+                case "SpecResearch":
+                    foreach(var prop in PropertyAccessorCache.GetProperties< SpecResearchDetailModel_DTO>())
+                    {
+                        if (prop.Name is nameof(SpecResearchDetailModel_DTO.ResearchId) or nameof(SpecResearchDetailModel_DTO.RowId) or nameof(SpecResearchDetailModel_DTO.Lang)) continue;
+                        result.Add(prop.Name, I18nCache.GetLabel(prop));
+                    }
+                    break;
+                case "SpecUSR":
+                    foreach (var prop in PropertyAccessorCache.GetProperties<SpecUSRDetail_DTO>())
+                    {
+                        if (prop.Name is nameof(SpecUSRDetail_DTO.USRId) or nameof(SpecUSRDetail_DTO.RowId) or nameof(SpecUSRDetail_DTO.Lang)) continue;
+                        result.Add(prop.Name, I18nCache.GetLabel(prop));
+                    }
+                    break;
+            }
+            return result;
         }
         #endregion
 

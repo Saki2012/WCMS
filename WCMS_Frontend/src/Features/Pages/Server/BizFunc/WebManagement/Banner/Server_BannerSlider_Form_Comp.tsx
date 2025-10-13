@@ -2,7 +2,7 @@ import { LibDropList, LibTextBox, LibFile, LibPicture, LibCalendar, LibTextArea 
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
-import { useFormToolbarActions } from "@/SysCore/Components/Toolbar/Toolbar_Hook";
+import { useActions } from "@/Features/Hooks/Common/useActions";
 import { useParams } from "react-router-dom";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import type { components } from "@/types/api";
@@ -25,10 +25,10 @@ export const BannerSliderFormComp = (prop: { theme: IBETheme; lang: Lang }) => {
     const { internalId } = useParams();
     const formData = useFetchFormData<BannerSet>(BannerSliderProvider(), internalId, emptyData)
     useEnsureLangDetails(formData, { headerName: SchemaFields.BannerSetFields.BannerDetail, detailName: SchemaFields.BannerSetFields.BannerDetailInfo, parentKeys: [SchemaFields.BannerDetailInfoFields.BannerId, SchemaFields.BannerDetailInfoFields.ParentRowId], preferFirstLang: prop.lang });
-    const useToolbar = useFormToolbarActions(BannerSliderProvider(), formData.data as BannerSet, internalId as string, () => formData.refetch())
+    const actions = useActions(BannerSliderProvider(), formData.data as BannerSet, internalId ?? "")
     const isLoading = [formData.isLoading]
     const errors = [formData.error]
-    const formProp: FormCompProp = { Title: "設定輪播", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Toolbar: useToolbar.action }
+    const formProp: FormCompProp = { Title: "設定輪播", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
     return (
         <>
             <FormComp prop={formProp}>

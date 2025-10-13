@@ -1,6 +1,6 @@
 import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
-import { Form_Toolbar } from "@/SysCore/Components/Toolbar/Toolbar_Comp";
+import { Form_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 
 
@@ -19,7 +19,7 @@ export const FormComp = ({ prop, children }: { prop: FormCompProp; children: Rea
                                     <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList} >
                                         {children}
                                         <DividerComp></DividerComp>
-                                        <Form_Toolbar items={prop.Toolbar ?? []}></Form_Toolbar>
+                                        <Form_Toolbar action={prop.Actions}></Form_Toolbar>
                                     </LoadingErrorHandler>
                                 </div>
                             </div>

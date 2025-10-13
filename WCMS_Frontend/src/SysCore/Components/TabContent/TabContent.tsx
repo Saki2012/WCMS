@@ -42,7 +42,6 @@ const TabContentComp = (props: { tabInfos: LibTabsProp; components: Record<strin
                                 if (!props.components.hasOwnProperty(key)) { return (<Content key={key} tabId={key} components={[<div>Key:{key}尚未提供內容</div>]} isFirst={isFirst} />); }
                                 return (<Content key={key} tabId={key} components={props.components[key]} isFirst={isFirst} />);
                             })}
-
                         </div>
                     </div>
                 </div>
