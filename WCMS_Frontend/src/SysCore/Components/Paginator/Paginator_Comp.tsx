@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import type { PaginatorProps } from "../../../SysCore/Components/Paginator/Paginator_Data.ts"
 import { Link } from "react-router-dom";
 
@@ -30,8 +31,8 @@ export const Paginator = ({ currentPage, totalPages, onPageChange, style }: Pagi
                     </li>
 
                     {visiblePages.map((page) => (
-                        <li key={page} className={`${style.li} ${page === currentPage ? "active" : ""}`}>
-                            <a onClick={() => onPageChange(page)} className={style.aLink}>{page}</a>
+                        <li key={page} className={style.li}>
+                            <a onClick={() => onPageChange(page)} className={clsx(style.aLink, page === currentPage ? "active" : "")}>{page}</a>
                         </li>
                     ))}
 
