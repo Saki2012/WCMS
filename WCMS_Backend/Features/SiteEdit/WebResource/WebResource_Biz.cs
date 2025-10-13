@@ -6,6 +6,7 @@ using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 
@@ -121,11 +122,24 @@ namespace WCMS.Features.SiteEdit.WebResource
             {
                 case SysEnum.FuncAction.Create:
                 case SysEnum.FuncAction.Update:
+                    CheckData(set);
                     DoRemergeData(set.WebResource);
                     break;
             }
         }
         #endregion
+
+
+        private void CheckDate(WebResourceSet header)
+        {
+            if (header.WebResource.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, header.WebResource.Validate_Start);
+            //if (header.WebResource.Validate_End == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, header.Validate_End);
+            if (header.WebResource.Validate_End != null && header.WebResource.Validate_Start > header.WebResource.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, header.WebResource.Validate_End, header.WebResource.Validate_Start);
+
+            if (header.WebResource.Categories == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, header.WebResource.Categories);
+
+        }
+
 
         #region Private
         /// <summary>

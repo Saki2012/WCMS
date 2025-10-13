@@ -165,7 +165,11 @@ namespace WCMS.Features.SiteEdit.Announcement
         private void CheckDate(Announcement header)
         {
             if (header.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, header.Validate_Start);
+            //if (header.Validate_End == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, header.Validate_End);
             if (header.Validate_End != null && header.Validate_Start > header.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014,  header.Validate_End, header.Validate_Start);
+
+            if (header.Categories == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, header.Categories);
+
         }
 
         /// <summary>
