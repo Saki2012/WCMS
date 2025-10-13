@@ -369,7 +369,7 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
     });
   };
 
-
+  const getIconClass = (it: Item) => Number(it?.MenuItem?.Item?.ItemType ?? 1) === 1 ? "fa fa-link mr-2" : "far fa-cogs mr-2";
 
   useEffect(() => { setItems(siteMenuInfo(prop.sitemenuSet, prop.lang ?? DefaultLang)); }, [prop.sitemenuSet, prop.lang]);
   const renderItem: RenderItem = ({ item, handler, collapseIcon }) => {
@@ -381,7 +381,7 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
           {handler}
           {collapseIcon}
           <span style={{ flex: 1, padding: "0 10px 0 3px" }}>
-            <i className="far fa-cogs mr-2"></i>
+            <i className={getIconClass(typedItem)}></i>
             {typedItem.text}
           </span>
           <div className="all-btn Edit Icon">
@@ -568,6 +568,8 @@ const MenuSettingBox = (prop: {
   categoryDatas: CategorySet[]; tagDatas: TagSet[]; pageList: PageSet[]; specCateDatas: SpecCategorySet[];
   action: UseActionsResult;
 }) => {
+  const [tabResetSeed, setTabResetSeed] = React.useState(0);
+
 
   React.useEffect(() => {
     const it = prop.selectedItemEdit?.MenuItem?.Item as any;
@@ -582,7 +584,9 @@ const MenuSettingBox = (prop: {
   const [linkType, setLinkType] = React.useState<MenuUrlType>(1);
   const [modelKey, setModelKey] = React.useState<ModelKey>('');
   const [navType, setNavType] = React.useState<MenuUrlType>(1);
-
+  React.useEffect(() => {
+    setTabResetSeed(s => s + 1);
+  }, [prop.selectedItemEdit?.MenuItem?.Item?.RowId, linkType]);
   // ---- 1) 依「功能 / 連結」決定主 Tabs ----
   const LibTabsPropA: LibTabsProp = React.useMemo(() => {
     const base = { basic: '基本' } as const;
@@ -619,7 +623,7 @@ const MenuSettingBox = (prop: {
               </h3>
             </div>
             <div className="mt-4">
-              <TabContentComp tabInfos={LibTabsPropA} components={componentsA} />
+              <TabContentComp key={`tabs-${tabResetSeed}`} tabInfos={LibTabsPropA} components={componentsA} />
             </div>
             <div className="d-flex justify-content-center">
               <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" onClick={prop.action.onSave}>儲存</button>
