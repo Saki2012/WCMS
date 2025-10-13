@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "lint": "biome lint .",
     "check": "biome check . && dprint check",
-    "format": "dprint fmt"
+    "format": "dprint fmt",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@apollo/client": "^3.13.8",

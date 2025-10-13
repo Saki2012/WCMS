@@ -2,7 +2,6 @@ import { Outlet, Link } from 'react-router-dom'
 import SubBannerComp from '@/Features/Pages/Client/Scaffold/Banner/SubBanner_Comp'
 import BreadCrumbComp from '@/SysCore/Components/BreadCrumb/BreadCrumb_Comp'
 import MenuListComp from "@/SysCore/Components/MenuList/MenuList_Comp"
-import type { BreadCrumbData } from "@/SysCore/Components/BreadCrumb/BreadCrumb_Data"
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data"
 import type { IFETheme } from '@/Features/Pages/Client/Theme/ITheme'
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
@@ -16,16 +15,16 @@ import { ThirdMenuComp } from '@/Features/Pages/Client/Scaffold/Menu/ThirdMenu'
 interface ISubPagesProps { Style: IFETheme; Lang: Lang; site: INormSite; node: INormNode; backHref?: string; }
 
 
-const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode): BreadCrumbData[] => {
-  const result: BreadCrumbData[] = [{ DOMContent: <Link to={`/${site.siteIndex}`} title='首頁'>首頁</Link> }];
+const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode): ReactNode[] => {
+  const result: ReactNode[] = [<Link to={`/${site.siteIndex}`} title='首頁'>首頁</Link>];
   var curNodes = site.treeByLang[lang]
   node.absIds?.forEach(id => {
     var curNode = curNodes?.find((n: INormNode) => n.id === id);
     if (curNode?.id === node.id) {
-      result.push({ DOMContent: <>{curNode.title}</> })
+      result.push(<>{curNode.title}</>)
     }
     else {
-      result.push({ DOMContent: <Link to={curNode?.redirectTo ?? ""} title={curNode?.title}>{curNode?.title}</Link> })
+      result.push(<Link to={curNode?.redirectTo ?? ""} title={curNode?.title}>{curNode?.title}</Link>)
     }
     curNodes = curNode?.children ?? []
   });
@@ -102,7 +101,7 @@ const getAncestorAtLevel = (lang: Lang, site: INormSite, node: INormNode, level:
 };
 const SubContent = (props: ISubPagesProps) => {
   const title: string = props.node.title;
-  const breadCrumbData: BreadCrumbData[] = GetBreadCrumbData(props.Lang, props.site, props.node);
+  const breadCrumbData: ReactNode[] = GetBreadCrumbData(props.Lang, props.site, props.node);
   const SIDE_MAX_DEPTH = 3;
   const sideMenuData: MenuItemData[] = GetMenuData(props.Lang, props.site, props.node, SIDE_MAX_DEPTH);
   const anchor = getAncestorAtLevel(props.Lang, props.site, props.node, SIDE_MAX_DEPTH);

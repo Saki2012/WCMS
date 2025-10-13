@@ -30,6 +30,19 @@ import { UserManage_Comp } from "@/Features/Pages/Server/BizFunc/UserDTs/UserMan
 import { SiteMenu_Comp } from "@/Features/Pages/Server/BizFunc/Dashboard/SiteMenu/SiteMenu_Comp";
 import { DefaultLang } from "@/SysCore/i18n/lang";
 import { Server_SpecCategoryListFormComp } from "@/SpecFetures/1810/Pages/Server/SpecCategory/Server_SpecCategory_ListForm_Comp";
+import type { UIMatch } from "react-router-dom";
+
+export type RouteTitle = | string | ((m: UIMatch) => string);
+export type RouteCrumb = | string | ((m: UIMatch) => React.ReactNode);
+export interface RouteHandleMeta {
+  title?: RouteTitle;        // 用在頁面大標題 & <title>
+  breadcrumb?: RouteCrumb;   // 用在麵包屑顯示
+  ariaLabel?: string;        // AA：必要時覆寫 aria-label
+}
+export const resolveTitle = (h?: RouteHandleMeta, m?: UIMatch) =>
+  (typeof h?.title === "function" ? h?.title(m!) : h?.title) ?? "";
+export const resolveCrumb = (h?: RouteHandleMeta, m?: UIMatch) =>
+  typeof h?.breadcrumb === "function" ? h?.breadcrumb(m!) : h?.breadcrumb;
 
 export class BackendRouteModule implements IRouteModule {
   getRoutes(): RouteObject[] {
@@ -39,19 +52,21 @@ export class BackendRouteModule implements IRouteModule {
       { path: '/Server/Register', element: <RegisterPage /> },
       {
         path: '/Server',
+        handle: { title: "主控台", breadcrumb: "主控台" } as RouteHandleMeta,
         element:
           <RequireAuth>
             <DashboardPage theme={Classic_BETheme} />
           </RequireAuth>
         , children: [
-
           //#region 網站管理
           {
             path: 'Dashboard',
+            handle: { title: "網站管理", breadcrumb: "網站管理" } as RouteHandleMeta,
             children: [
               { index: true, element: <AutoRedirect to="SiteMenu" replace />, },
               {
                 path: 'SiteMenu',
+                handle: { title: "選單管理", breadcrumb: "選單管理" } as RouteHandleMeta,
                 children: [
                   { index: true, element: <SiteMenu_Comp theme={Classic_BETheme} lang={DefaultLang} /> },
                 ],
@@ -59,7 +74,7 @@ export class BackendRouteModule implements IRouteModule {
             ]
           },
           //#endregion
-          //#region 賬號管理
+          //#region 帳號管理
           {
             path: 'AccountManage',
             children: [
@@ -78,15 +93,19 @@ export class BackendRouteModule implements IRouteModule {
           //#region 網站功能管理
           {
             path: 'WebManagement',
+            handle: { title: "網站功能管理", breadcrumb: "網站功能管理" } as RouteHandleMeta,
             children: [
               { index: true, element: <AutoRedirect to="Announcement/List" replace />, },
               //#region 廣告輪播
               {
                 path: 'BannerSlider',
+                handle: { title: "廣告輪播", breadcrumb: "廣告輪播" } as RouteHandleMeta,
                 children: [
                   { index: true, element: <AutoRedirect to="List" replace /> },
-                  { path: 'Form/:internalId?', element: <BannerSliderFormComp theme={Classic_BETheme} lang={DefaultLang} /> },
-                  { path: 'List', element: <BannerSliderListComp title="廣告輪播列表" theme={Classic_BETheme} /> },
+                  {
+                    path: 'Form/:internalId?', element: <BannerSliderFormComp theme={Classic_BETheme} lang={DefaultLang} />, handle: { title: "廣告輪播設定", breadcrumb: "廣告輪播設定" } as RouteHandleMeta,
+                  },
+                  { path: 'List', element: <BannerSliderListComp title="廣告輪播列表" theme={Classic_BETheme} />, handle: { title: "廣告輪播列表", breadcrumb: "廣告輪播列表" } as RouteHandleMeta },
                 ],
               },
               //#endregion
