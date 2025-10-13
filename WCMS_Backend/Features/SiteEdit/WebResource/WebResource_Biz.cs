@@ -137,9 +137,9 @@ namespace WCMS.Features.SiteEdit.WebResource
 
         private void CheckDate(WebResource header)
         {
-            if (header.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<WebResource>(x => x.Validate_Start));
+            //if (header.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<WebResource>(x => x.Validate_Start));
             //if (header.Validate_End == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<WebResource>(x => x.Validate_End));
-            if (header.Validate_End != null && header.Validate_Start > header.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, I18nCache.GetLabel<WebResource>(x => x.Validate_End) , I18nCache.GetLabel<WebResource>(x => x.Validate_Start));
+            //if (header.Validate_End != null && header.Validate_Start > header.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, I18nCache.GetLabel<WebResource>(x => x.Validate_End) , I18nCache.GetLabel<WebResource>(x => x.Validate_Start));
 
             if (header.Categories == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<WebResource>(x => x.Categories));
 

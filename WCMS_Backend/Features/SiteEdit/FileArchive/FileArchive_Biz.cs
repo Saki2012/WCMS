@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Runtime.InteropServices;
+using WCMS.Features.SiteEdit.WebResource;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 
@@ -120,11 +122,27 @@ namespace WCMS.Features.SiteEdit.FileArchive
             {
                 case SysEnum.FuncAction.Create:
                 case SysEnum.FuncAction.Update:
+                    CheckData(set);
                     DoRemergeData(set.FileArchive);
                     break;
             }
         }
         #endregion
+
+        private void CheckData(FileArchiveSet set)
+        {
+            CheckDate(set.FileArchive);
+        }
+
+
+        private void CheckDate(FileArchive header)
+        {
+            //if (header.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchive>(x => x.Validate_Start));
+            //if (header.Validate_End == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchive>(x => x.Validate_End));
+            //if (header.Validate_End != null && header.Validate_Start > header.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, I18nCache.GetLabel<FileArchive>(x => x.Validate_End) , I18nCache.GetLabel<FileArchive>(x => x.Validate_Start));
+            if (header.CategoriesId == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchive>(x => x.CategoriesId));
+
+        }
 
         #region Private
         /// <summary>

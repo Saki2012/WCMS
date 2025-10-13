@@ -3,10 +3,12 @@ using System.Data;
 using System.Runtime.InteropServices;
 using WCMS.Features.SiteEdit.Announcement;
 using WCMS.Features.SiteEdit.Gallery;
+using WCMS.Features.SiteEdit.WebResource;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Library.LibData;
@@ -154,11 +156,29 @@ namespace WCMS.Features.SiteEdit.Gallery
             {
                 case SysEnum.FuncAction.Create:
                 case SysEnum.FuncAction.Update:
+                    CheckData(set);
                     DoRemergeData(set.Gallery);
                     break;
             }
         }
         #endregion
+
+        private void CheckData(GallerySet set)
+        {
+            CheckDate(set.Gallery);
+        }
+
+
+        private void CheckDate(Gallery header)
+        {
+            if (header.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Gallery>(x => x.Validate_Start));
+            //if (header.Validate_End == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Gallery>(x => x.Validate_End));
+            //if (header.Validate_End != null && header.Validate_Start > header.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, I18nCache.GetLabel<Gallery>(x => x.Validate_End) , I18nCache.GetLabel<WebResource>(x => x.Validate_Start));
+
+            if (header.Categories == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Gallery>(x => x.Categories));
+
+        }
+
 
         #region Private
         /// <summary>
