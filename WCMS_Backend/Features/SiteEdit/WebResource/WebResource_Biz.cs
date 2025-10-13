@@ -129,14 +129,19 @@ namespace WCMS.Features.SiteEdit.WebResource
         }
         #endregion
 
-
-        private void CheckDate(WebResourceSet header)
+        private void CheckData(WebResourceSet set)
         {
-            if (header.WebResource.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, header.WebResource.Validate_Start);
-            //if (header.WebResource.Validate_End == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, header.Validate_End);
-            if (header.WebResource.Validate_End != null && header.WebResource.Validate_Start > header.WebResource.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, header.WebResource.Validate_End, header.WebResource.Validate_Start);
+            CheckDate(set.WebResource);
+        }
 
-            if (header.WebResource.Categories == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, header.WebResource.Categories);
+
+        private void CheckDate(WebResource header)
+        {
+            if (header.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<WebResource>(x => x.Validate_Start));
+            //if (header.Validate_End == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<WebResource>(x => x.Validate_End));
+            if (header.Validate_End != null && header.Validate_Start > header.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, I18nCache.GetLabel<WebResource>(x => x.Validate_End) , I18nCache.GetLabel<WebResource>(x => x.Validate_Start));
+
+            if (header.Categories == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<WebResource>(x => x.Categories));
 
         }
 
