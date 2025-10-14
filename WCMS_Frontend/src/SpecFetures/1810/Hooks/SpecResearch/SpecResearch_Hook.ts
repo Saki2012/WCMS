@@ -16,8 +16,7 @@ export const useSpecResearchList = () =>
         visibleKeys: [
             [SchemaFields.SpecResearchSetFields.SpecResearch, SchemaFields.SpecResearchModelFields.CategoryId],
             [SchemaFields.SpecResearchSetFields.SpecResearch, SchemaFields.SpecResearchModelFields.ContentStatus],
-            [SchemaFields.SpecResearchSetFields.SpecResearch, SchemaFields.SpecResearchModelFields.ModifyUserId],
-            [SchemaFields.SpecResearchSetFields.SpecResearch, SchemaFields.SpecResearchModelFields.ModifyTime],
+
             [SchemaFields.SpecResearchSetFields.SpecResearchDetail, SchemaFields.SpecResearchDetailModelFields.Year],
             [
                 SchemaFields.SpecResearchSetFields.SpecResearchDetail,
@@ -36,6 +35,8 @@ export const useSpecResearchList = () =>
                 SchemaFields.SpecResearchDetailModelFields.CooperationProject,
             ],
             [SchemaFields.SpecResearchSetFields.SpecResearchDetail, SchemaFields.SpecResearchDetailModelFields.Courses],
+            [SchemaFields.SpecResearchSetFields.SpecResearch, SchemaFields.SpecResearchModelFields.ModifyUserId],
+            [SchemaFields.SpecResearchSetFields.SpecResearch, SchemaFields.SpecResearchModelFields.ModifyTime],
         ],
         buildQueryCondition: (page) => ({
             Fields: [

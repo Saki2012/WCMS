@@ -56,25 +56,10 @@ const SetAdjustFunction = (gridProps: GridProps, rawData: SpecResearchSet[], cat
 };
 
 /** 目前說只有公告/檔案室/網路資源/相簿會用到 */
-const GetDataStatusContent = (datastatus: number): React.ReactNode => {
-    switch (datastatus) {
-        case 0:
-            return <div className="CustomState">
-                <div className="icon-small top-bg">置頂</div>
-            </div>;
-        case 1:
-            return <div className="CustomState">
-                <div className="icon-small hot-bg">熱門</div>
-            </div>;
-        case 2:
-            return <div className="CustomState">
-                <div className="icon-small new-bg">最新</div>
-            </div>;
-        case 3:
-            return <div className="CustomState">
-                <div className="icon-small hide-bg">隱藏</div>
-            </div>;
-        default:
-            return <span>未知狀態</span>;
-    }
+const GetDataStatusContent = (contentStatus: number): React.ReactNode => {
+    const statusItems: React.ReactNode[] = [];
+    if (contentStatus & 1) { statusItems.push(<div className="icon-small top-bg">置頂</div>); }
+    if (contentStatus & 2) { statusItems.push(<div className="icon-small hot-bg">熱門</div>); }
+    if (contentStatus & 4) { statusItems.push(<div className="icon-small hide-bg">隱藏</div>); }
+    return <div className="CustomState">{statusItems}</div>
 };
