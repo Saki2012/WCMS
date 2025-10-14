@@ -2,9 +2,17 @@
 using System.Data;
 using System.Runtime.InteropServices;
 using WCMS.Features.SiteEdit.Announcement;
+using WCMS.Features.SiteEdit.Banner;
+using WCMS.Features.SiteEdit.FileArchive;
+using WCMS.Features.SiteEdit.PageManagement;
 using WCMS.SysCore;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Model;
+using WCMS.SysCore.Resx;
+using WCMS.SysCore.SystemFunc.FileManagement;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Category
 {
@@ -49,5 +57,66 @@ namespace WCMS.Features.SiteEdit.Category
             return [.. result];
         }
         #endregion
+
+
+        #region Protected
+        protected override void BeforeUpdate(CategoryDataSet set, SysEnum.FuncAction act)
+        {
+            base.BeforeUpdate(set, act);
+            switch (act)
+            {
+                case SysEnum.FuncAction.Create:
+                case SysEnum.FuncAction.Update:
+                    CheckData(set);
+                    break;
+                case SysEnum.FuncAction.Delete:
+                    CheckIsUsed(set.Category.ProgId, set.Category.CategoryId);
+                    break;
+            }
+        }
+        #endregion
+
+        private void CheckData(CategoryDataSet set)
+        {
+            for(int i = 0; i < set.CategoryDetail.Count; i++) 
+            {
+                CheckDate(set.CategoryDetail[i]);
+            }
+        }
+
+
+        private void CheckDate(CategoryDetail datail)
+        {
+            if (datail.CategoryName == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<CategoryDetail>(x => x.CategoryName));
+        }
+
+
+        private void CheckIsUsed(string progId, string categoryId)
+        {
+            switch (progId)
+            {
+                case "Announcement":
+    
+
+                    break;
+                case "FileArchive":
+                 
+                    break;
+                case "Gallery":
+                
+                    break;
+                case "PageManagement":
+                    //檢查是否有包含在內
+            
+                    break;
+            }
+        }
+
+
+        private static FileManageSet GetSetByPicture(string srcPic, IList<FileManageSet> fileSets)
+        {
+            return fileSets.Where(x => x.FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Equals($@"File/Banner/{srcPic}".ToLowerInvariant()))).FirstOrDefault();
+        }
+
     }
 }
