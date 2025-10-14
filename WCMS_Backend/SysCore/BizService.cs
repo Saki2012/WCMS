@@ -1,10 +1,12 @@
-﻿using System.Collections;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using WCMS.Features.SiteEdit.Gallery;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
@@ -303,6 +305,9 @@ namespace WCMS.SysCore
                 if (!LibData.IsListPropertyType(prop))
                 {
                     repoDictPropName = prop.PropertyType.Name;
+                    //TODO:此處暫時這樣寫，之後看如何調整較好
+                    PropertyAccessorCache.Set(newModel, nameof(BasicDataModel.CreateUserId), PropertyAccessorCache.Get(oldModel, nameof(BasicDataModel.CreateUserId)));
+                    PropertyAccessorCache.Set(newModel, nameof(BasicDataModel.CreateTime), PropertyAccessorCache.Get(oldModel, nameof(BasicDataModel.CreateTime)));
                     await ((dynamic)RepoDict[repoDictPropName]).UpdateAsync((dynamic)oldModel, (dynamic)newModel);
                 }
                 else if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && prop.PropertyType != typeof(string))
@@ -418,12 +423,10 @@ namespace WCMS.SysCore
             var data = await repo.QueryListAsync(selectExpr, whereExpr,orderBy, pageCt, takeCt);
             return data;
         }
-        
         protected async Task<int> DoQueryListCountAsync<TModel>(string[] selectFields, string condition)
         {
             return await DoQueryListCountAsync(typeof(TModel), selectFields, condition);
         }
-
         /// <summary>
         /// 查詢清單總筆數
         /// </summary>
