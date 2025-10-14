@@ -84,7 +84,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
             {
                 const data: any = api.getData();
                 const width = (data.width || "100%").trim();
-                const height = (data.height || "360").trim();
+                const height = (data.height || "100%").trim();
                 const title = (data.title || "").trim();
                 const url = (data.url || "").trim();
                 if (!url)
@@ -113,6 +113,8 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
             height: 450,
             menubar: false,
             convert_urls: false,
+            relative_urls: false,
+            remove_script_host: false,
             plugins: [
                 "advlist",
                 "autolink",
@@ -142,7 +144,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 "table |",
                 "copyformat applyformat removeformat | insertiframe | hr |",
                 "togglePBlocks toggleDivBlocks |",
-                "fullscreen code preview",
+                "fullscreen code",
             ].join(" "),
             contextmenu: "link image table",
             visualblocks_default_state: true,
@@ -707,4 +709,216 @@ export const useTinyMceInternalImage = (
     };
 
     return { setup, transformForEditor, transformForDb } as const;
+};
+
+export type TinySetup = { setup: (editor: any) => void; };
+export const useTinyMceIframeEdit = (): TinySetup =>
+{
+    const resolveIframeElm = (editor: any, node: Node | null): HTMLIFrameElement | null =>
+    {
+        if (!node) return null;
+        // a) 自己就是 <iframe>
+        if ((node as HTMLElement).nodeName === "IFRAME") return node as HTMLIFrameElement;
+        const el = node as HTMLElement;
+        // b) 往下找：常見結構 figure/div.mce-object-iframe > iframe
+        const down1 = el.querySelector?.("iframe");
+        if (down1) return down1 as HTMLIFrameElement;
+        // c) 往上找祖先：有時選到的是內層的裝飾元素
+        const up = editor.dom.getParent(el, "iframe");
+        if (up) return up as HTMLIFrameElement;
+        // d) 再保險：如果選到 wrapper（figure/div.mce-object-iframe），從 wrapper 內找
+        if (el.matches?.("figure.mce-object-iframe, div.mce-object-iframe, figure, div"))
+        {
+            const inner = el.querySelector?.("iframe");
+            if (inner) return inner as HTMLIFrameElement;
+        }
+        return null;
+    };
+    const openDialog = (editor: any, node: HTMLIFrameElement) =>
+    {
+        const dom = editor.dom;
+        const data = {
+            src: node.getAttribute("src") || "",
+            "data-mce-src": node.getAttribute("src") || "",
+            title: node.getAttribute("title") || "",
+            width: node.getAttribute("width") || dom.getStyle(node, "width") || "", // 可能是屬性或 style
+            height: node.getAttribute("height") || dom.getStyle(node, "height") || "",
+        };
+
+        editor.windowManager.open({
+            title: "編輯 iFrame",
+            size: "normal",
+            body: {
+                type: "panel",
+                items: [
+                    { type: "input", name: "src", label: "來源網址 (src)" },
+                    { type: "input", name: "title", label: "替代文字 / 描述 (AA)" },
+                    { type: "input", name: "width", label: "寬度 (留空=100%, 例: 640, 640px, 80%)" },
+                    { type: "input", name: "height", label: "高度 (例: 360, 360px)" },
+                ],
+            },
+            initialData: data,
+            buttons: [
+                { type: "cancel", text: "取消" },
+                { type: "submit", text: "套用", primary: true },
+            ],
+
+            onSubmit: (api: any) =>
+            {
+                const v = api.getData() as typeof data;
+                const ifr = resolveIframeElm(editor, node);
+                if (!ifr)
+                {
+                    api.close();
+                    return;
+                } // 找不到就先跳出，避免誤改 wrapper
+
+                // 依 URL 決定 sandbox（沿用你原本的判斷）
+                const pickSandbox = (urlStr: string) =>
+                {
+                    try
+                    {
+                        const h = new URL(urlStr).hostname.toLowerCase();
+                        if (/(^|\.)google\.[a-z.]+$/.test(h)) return "allow-scripts allow-same-origin allow-popups";
+                        if (/(^|\.)youtube\.com$|(^|\.)youtu\.be$/.test(h) || /(^|\.)vimeo\.com$/.test(h))
+                        {
+                            return "allow-scripts allow-same-origin allow-presentation allow-popups";
+                        }
+                        return null;
+                    } catch
+                    {
+                        return null;
+                    }
+                };
+                const sandbox = pickSandbox(v.src);
+
+                // 規範化寬度（你的原邏輯）
+                const toStyleLen = (raw: string, fallback: string) =>
+                {
+                    const x = (raw || "").trim();
+                    if (!x) return fallback; // 空字 → 100%
+                    if (/^\d+$/.test(x)) return `${x}px`; // 純數字 → 統一轉 px
+                    return x; // 已帶單位（%/px/...）→ 保留
+                };
+
+                const nw = toStyleLen(v.width, "100%");
+                const nh = toStyleLen(v.height, "100%");
+
+                editor.undoManager.transact(() =>
+                {
+                    const dom = editor.dom;
+
+                    // 1) 直接在同一顆 <iframe> 上改屬性（null 代表移除）
+                    dom.setAttrib(ifr, "src", v.src || null);
+                    dom.setAttrib(ifr, "title", v.title || null);
+                    dom.setAttrib(ifr, "width", nw);
+                    dom.setAttrib(ifr, "height", nh);
+                    dom.setAttrib(ifr, "sandbox", sandbox || null);
+                    dom.setAttrib(ifr, "loading", "lazy");
+                    dom.setAttrib(ifr, "referrerpolicy", "no-referrer-when-downgrade");
+                    dom.setAttrib(ifr, "allowfullscreen", "");
+
+                    // 3) 補保險：清狀況外的 "width/height='null'" 殘留
+                    if (ifr.getAttribute("width") === "null") dom.setAttrib(ifr, "width", null);
+                    if (ifr.getAttribute("height") === "null") dom.setAttrib(ifr, "height", null);
+
+                    // 4) 你原本就有的
+                    dom.setStyle(ifr, "max-width", "100%");
+                    dom.setStyle(ifr, "border", "0");
+
+                    // 2) 找到 wrapper，更新「序列化會參考的快取屬性」
+                    const wrapper = dom.getParent(ifr, (n: any) =>
+                        dom.hasClass(n, "mce-preview-object")
+                        || dom.hasClass(n, "mce-object")
+                        || dom.hasClass(n, "mce-object-iframe")
+                        || n.nodeName === "FIGURE");
+
+                    if (wrapper)
+                    {
+                        // 這幾個欄位視 TinyMCE/插件版本而定，能找到就一起同步
+                        const setWrap = (k: string, val: string | null) => dom.setAttrib(wrapper, k, val);
+                        // 主要：保證 data-mce-p-src 與各類 URL 欄位是新值
+                        setWrap("data-mce-p-src", v.src || null);
+                        setWrap("data-mce-url", v.src || null);
+                        setWrap("data-ephox-embed-iri", v.src || null);
+
+                        // 如需更完整，其他屬性也能補上 data-mce-p-*
+                        const cacheAttrs: Record<string, string | null> = {
+                            "data-mce-p-title": v.title || null,
+                            "data-mce-p-width": (typeof nw === "string" ? nw : String(nw)) || null,
+                            "data-mce-p-height": (typeof nh === "string" ? nh : String(nh)) || null,
+                            "data-mce-p-sandbox": sandbox || null,
+                            "data-mce-p-loading": "lazy",
+                            "data-mce-p-referrerpolicy": "no-referrer-when-downgrade",
+                            "data-mce-p-allowfullscreen": "", // boolean attr
+                        };
+                        Object.entries(cacheAttrs).forEach(([k, val]) => setWrap(k, val));
+                    }
+
+                    editor.nodeChanged();
+                });
+                // 4) 通知變更（確保 getContent / 外層 onChange 都拿到新字串）
+                editor.setDirty(true);
+                editor.fire("input");
+                editor.fire("change");
+                editor.fire("wcms-iframe-updated");
+                api.close();
+            },
+        });
+    };
+
+    const setup = (editor: any) =>
+    {
+        // 🟢 1) 追蹤滑鼠位置（相對於視窗座標）
+        let lastPos = { x: 0, y: 0 };
+        editor.on("MouseMove", (e: any) =>
+        {
+            // TinyMCE 事件有 clientX/clientY
+            if (typeof e?.clientX === "number" && typeof e?.clientY === "number")
+            {
+                lastPos = { x: e.clientX, y: e.clientY };
+            }
+        });
+
+        // 🟢 2) 透過座標找目前滑鼠下的 iframe
+        const getIframeAtPoint = (): HTMLIFrameElement | null =>
+        {
+            const iframes = editor.dom.select("iframe") as HTMLIFrameElement[];
+            if (!iframes?.length) return null;
+            for (const node of iframes)
+            {
+                const r = node.getBoundingClientRect?.();
+                if (!r) continue;
+                if (lastPos.x >= r.left && lastPos.x <= r.right && lastPos.y >= r.top && lastPos.y <= r.bottom)
+                {
+                    return node;
+                }
+            }
+            return null;
+        };
+
+        // 🟢 3) 自訂右鍵選單項目
+        editor.ui.registry.addMenuItem("iframeedit", {
+            text: "編輯 iFrame",
+            onAction: () =>
+            {
+                const node = getIframeAtPoint();
+                if (node) openDialog(editor, node);
+            },
+        });
+
+        // 🟢 4) 只有在滑鼠正壓在 iframe 上時才顯示選單
+        editor.ui.registry.addContextMenu("wcms-iframe-menu", {
+            update: () => (getIframeAtPoint() ? ["iframeedit"] : []),
+        });
+
+        // 🟢 5) 雙擊也能開（同樣用座標判斷）
+        editor.on("DblClick", () =>
+        {
+            const node = getIframeAtPoint();
+            if (node) openDialog(editor, node);
+        });
+    };
+
+    return { setup };
 };
