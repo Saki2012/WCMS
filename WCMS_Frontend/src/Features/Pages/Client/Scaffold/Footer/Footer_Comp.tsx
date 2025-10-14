@@ -32,7 +32,7 @@ const Footer = () => {
                                                                 <li><a href="/Division-Planning/Division-Planning-About" tabIndex={5} title="研究企劃組">研究企劃組</a></li>
                                                                 <li><a href="/Division-Academic/Division-Academic-About" tabIndex={5} title="學術發展組">學術發展組</a></li>
                                                                 <li><a href="/iic/iic-3" rel="noopener noreferrer" tabIndex={5} target="_blank" title="產學暨育成中心(另開新視窗)">產學暨育成中心</a></li>
-                                                                <li><a href="/USR/USR-About/USR-About-Org" tabIndex={5} title="永續發展暨社會責任實踐計畫推動中心">永續發展暨社會責任實踐計畫推動中心</a></li>
+                                                                <li><a href="/usr/usrabout2" tabIndex={5} title="永續發展暨社會責任實踐計畫推動中心">永續發展暨社會責任實踐計畫推動中心</a></li>
                                                             </ul>
                                                         </div>
                                                         <div className="col-xl-5 col-lg-6 col-md-6 col-sm-12 col-12 p-0">
