@@ -18,7 +18,7 @@ type GallerySet = components["schemas"]["GallerySet_DTO"]
  * @returns 
  */
 export const Server_GalleryListComp = ({ title, theme }: { title: string; theme: IBETheme }) => {
-    const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form/`);
+    const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
     const useGalleryList = useGalleryListData();
     const actions = useActions(dirUrl, GalleryProvider(), undefined, undefined, useGalleryList.refetchCurrent)
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(useGalleryList.gridProps, useGalleryList.rawData, actions); }, [useGalleryList.gridProps, useGalleryList.rawData, actions]);
