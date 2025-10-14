@@ -26,7 +26,8 @@ namespace WCMS.SysCore
         /// <summary>
         /// 
         /// </summary>
-        protected Dictionary<string, object> RepoDict { get; } = [];
+        protected Dictionary<string, object> RepoDict { get; }
+        protected IRepositoryMapProvider RepoMapProvider { get; }
         /// <summary>
         /// 
         /// </summary>
@@ -78,6 +79,7 @@ namespace WCMS.SysCore
         public BizService(IRepositoryMapProvider repoMapProvider, IErrorHelper message)
         {
             //SysChangeLog = new SysChangeLog(repo.DataAccess);
+            RepoMapProvider = repoMapProvider;
             RepoDict = repoMapProvider.GetRepoDict<TSet>();
             DataAccess = ((dynamic)RepoDict.FirstOrDefault().Value).DataAccess;
             Message = message;
@@ -85,7 +87,6 @@ namespace WCMS.SysCore
         #endregion
 
         #region Public
-
         public async Task BizInitCreateSetsAsync(TSet[] sets)
         {
             foreach (var set in sets)
@@ -96,7 +97,6 @@ namespace WCMS.SysCore
                 await BizCreateSetAsync(set);
             }
         }
-
         public async Task<TSet> BizCreateSetAsync(TSet set)
         {
             try
@@ -107,15 +107,12 @@ namespace WCMS.SysCore
                 await AutoGenerateId(header, details);
                 await BeforeUpdate(set, FuncAction.Create);
                 if(Message.HasError) return set;
-                //Response.ThrowIfFailed();
                 await DoCreateAsync(set);
                 AfterUpdate(default, set, FuncAction.Create, TransStatus.Increase);
-                //Response.ThrowIfFailed();
-                //await CommitDataAsync();
+                if (Message.HasError) return set;
                 await DataAccess.SaveChangesAsync();      
                 AfterSaveChanges(FuncAction.Create);
                 Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00002);
-                //Response.Data.Add(set);
                 return set;
             }
             catch
@@ -134,16 +131,14 @@ namespace WCMS.SysCore
                 await AutoGenerateId(header, details);
                 await BeforeUpdate(newSet, FuncAction.Update);
                 if (Message.HasError) return newSet;
-                //Response.ThrowIfFailed();
                 TSet oldSet = await DoQuerySetAsync(internalId);
                 TSet oldSet_Cache = oldSet.DeepClone();
                 await DoUpdateAsync(oldSet, newSet);
                 AfterUpdate(oldSet_Cache, oldSet, FuncAction.Update, TransStatus.Difference);//oldSet已經進入DataAccess，修改完會跟著修正至DB
-                //Response.ThrowIfFailed();
+                if (Message.HasError) return newSet;
                 await CommitDataAsync();
                 AfterSaveChanges(FuncAction.Update);
-                Message.AddMessage(MessageStatus.Green,"BECode00006");
-                //Response.Data.Add(oldSet);
+                Message.AddMessage(MessageStatus.Green,SysMessageCode.BECode00006);
                 return oldSet;
             }
             catch
@@ -161,14 +156,13 @@ namespace WCMS.SysCore
                 TSet oldSet = await DoQuerySetAsync(internalId);
                 TSet oldSet_Cache = oldSet.DeepClone();
                 await BeforeUpdate(oldSet, FuncAction.Delete);
-                //Response.ThrowIfFailed();
+                if (Message.HasError) return oldSet;
                 await DoDeleteAsync(oldSet);
                 AfterUpdate(oldSet_Cache, oldSet, FuncAction.Delete, TransStatus.Difference);
-                //Response.ThrowIfFailed();
+                if (Message.HasError) return oldSet;
                 await CommitDataAsync();
                 AfterSaveChanges(FuncAction.Update);
-                //Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00004);
-                //Response.Data.Add(oldSet);
+                Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00004);
                 return oldSet;
             }
             catch
@@ -187,14 +181,13 @@ namespace WCMS.SysCore
                 TSet newSet = oldSet.DeepClone();
                 DoInvalidSet(newSet, status);
                 await BeforeUpdate(oldSet, FuncAction.Invalid);
-                //Response.ThrowIfFailed();
+                if (Message.HasError) return newSet;
                 await DoUpdateAsync(oldSet, newSet);
                 AfterUpdate(oldSet_Cache, oldSet, FuncAction.Invalid, TransStatus.Difference);//oldSet已經進入DataAccess，修改完會跟著修正至DB
-                //Response.ThrowIfFailed();
+                if (Message.HasError) return newSet;
                 await CommitDataAsync();
                 AfterSaveChanges(FuncAction.Update);
-                //Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00008);
-                //Response.Data.Add(oldSet);
+                Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00008);
                 return oldSet;
             }
             catch
@@ -206,10 +199,6 @@ namespace WCMS.SysCore
         public async Task<TSet> BizQuerySetAsync(string internalId)
         {
             var data = await DoQuerySetAsync(internalId);
-            //Response.AddMessage(MessageStatus.Error, SysMessageCode.BECode00001);
-            //Response.ThrowIfFailed();
-            //Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00010);
-            //Response.Data.Add(data);
             return data;
         }
         public async Task<IList<TSet>> BizQueryListAsync(QueryListParam param)
@@ -425,7 +414,8 @@ namespace WCMS.SysCore
         {
             var selectExpr = GetSelectFieldsExpr(type, selectFields);
             var whereExpr = GetConditionExpr(type, condition);
-            var data = await ((dynamic)RepoDict[type.Name]).QueryListAsync(selectExpr, whereExpr,orderBy, pageCt, takeCt);
+            var repo = (dynamic)GetRepoByType(type);
+            var data = await repo.QueryListAsync(selectExpr, whereExpr,orderBy, pageCt, takeCt);
             return data;
         }
         
@@ -447,7 +437,8 @@ namespace WCMS.SysCore
         {
             var selectExpr = GetSelectFieldsExpr(type, selectFields);
             var whereExpr = GetConditionExpr(type, condition);
-            var data = await ((dynamic)RepoDict[type.Name]).QueryListCountAsync(selectExpr, whereExpr);
+            var repo = (dynamic)GetRepoByType(type);
+            var data = await repo.QueryListCountAsync(selectExpr, whereExpr);
             return data;
         }
         /// <summary>
@@ -967,6 +958,16 @@ namespace WCMS.SysCore
             Expression body = propertyAccess.Type == typeof(string) ? (Expression)propertyAccess : Expression.Call(propertyAccess, "ToString", Type.EmptyTypes);
             var delegateType = typeof(Func<,>).MakeGenericType(modelType, typeof(string));
             return Expression.Lambda(delegateType, body, param);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="modelType"></param>
+        /// <returns></returns>
+        private object GetRepoByType(Type modelType)
+        {
+            if (RepoDict.TryGetValue(modelType.Name, out var repo)) return repo;
+            return RepoMapProvider.EnsureRepo<TSet>(modelType);
         }
         #endregion
     }

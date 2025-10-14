@@ -174,7 +174,6 @@ namespace WCMS.SysCore
             var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(invalidResult);
             await EvictForSetAsync(ct, internalId);
             var response = new ApiResponse<TSet_DTO>() { Data = [result], SysMessage = Message.Messages };
-            Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00008);
             return Ok(response);
         }
         /// <summary>
@@ -197,7 +196,6 @@ namespace WCMS.SysCore
             var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(deleteResult);
             await EvictForSetAsync(ct, internalId);
             var response = new ApiResponse<TSet_DTO>() { Data = [result],SysMessage = Message.Messages };
-            Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00004);
             return Ok(response);
         }
         /// <summary>

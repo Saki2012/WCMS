@@ -13,14 +13,13 @@ using static WCMS.SysCore.QueryListParam;
 
 namespace WCMS.SysCore
 {
-    public class BasicRepository<TModel>(ApplicationDbContext dataAccess, IErrorHelper message) : IBasicRepository<TModel> where TModel : class
+    public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRepository<TModel> where TModel : class
     {
         #region Property
         /// <summary>
         /// 
         /// </summary>
         public ApplicationDbContext DataAccess { get; } = dataAccess;
-        protected IErrorHelper Message { get; } = message;
         #endregion
 
         #region Public
@@ -109,7 +108,6 @@ namespace WCMS.SysCore
             // 這個方法只負責把變更標記好；真正 SaveChanges 在上層 CommitDataAsync
             await Task.CompletedTask;
         }
-
         /// <summary>
         /// 刪除(非同步)
         /// </summary>
@@ -171,8 +169,6 @@ namespace WCMS.SysCore
             var result = selectExpr == null ? await query.Cast<TModel>().CountAsync() : await query.Select((Expression<Func<TModel, TModel>>)selectExpr).Cast<TModel>().CountAsync();
             return result;
         }
-
-
         /// <summary>
         /// 自動產生流水號ID
         /// </summary>

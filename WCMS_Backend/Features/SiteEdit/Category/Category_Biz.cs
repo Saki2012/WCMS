@@ -71,7 +71,7 @@ namespace WCMS.Features.SiteEdit.Category
             }
         }
 
-        protected virtual Task SpecCheckIsUsed(string progId, string categoryId, string categoryName,ref int useCount) => Task.CompletedTask;
+        protected virtual Task SpecCheckIsUsed(string progId, string categoryId, string categoryName) => Task.CompletedTask;
         #endregion
 
         private void CheckData(CategoryDataSet set)
@@ -81,10 +81,8 @@ namespace WCMS.Features.SiteEdit.Category
 
         private void CheckCategoryName(IList<CategoryDetail> datail,string lang)
         {
-            if (datail.Any(p => p.Lang.Equals(lang) && p.CategoryName.IsNullOrEmpty()))
-                Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<CategoryDetail>(x => x.CategoryName));
+            if (datail.Any(p => p.Lang.Equals(lang) && p.CategoryName.IsNullOrEmpty())) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<CategoryDetail>(x => x.CategoryName));
         }
-
 
         private async Task CheckIsUsed(CategoryDataSet set,string defaultLang)
         {
@@ -92,7 +90,6 @@ namespace WCMS.Features.SiteEdit.Category
             string categoryId = set.Category.CategoryId;
             string categoryName = set.CategoryDetail.FirstOrDefault(p => p.Lang.Equals(defaultLang)).CategoryName;
             int useCount = 0;
-
             switch (progId)
             {
                 case "Announcement":
@@ -108,7 +105,7 @@ namespace WCMS.Features.SiteEdit.Category
                     useCount = await DoQueryListCountAsync<PageManagement.PageManagement>([nameof(BasicDataModel.InternalId)], $@"{nameof(PageManagement.PageManagement.CategoryId)} = {categoryId}");
                     break;
                 default:
-                    await SpecCheckIsUsed(progId, categoryId, categoryName,ref useCount);
+                    await SpecCheckIsUsed(progId, categoryId, categoryName);
                     break;
             }
             if (useCount > 0) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00018, categoryName);

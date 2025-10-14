@@ -1,13 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Data;
+﻿using System.Data;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using WCMS.Features.SiteEdit.Category;
-using WCMS.Features.SiteEdit.WebResource;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Model;
 using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
@@ -26,52 +23,48 @@ namespace WCMS.Features.SiteEdit.Tag
                 case SysEnum.FuncAction.Update:
                     CheckData(set);
                     break;
-
                 case SysEnum.FuncAction.Delete:
-                    CheckIsUsed(set.TagData.ProgId, set.TagData.TagId);
+                    await CheckIsUsedAsync(set, "zh-tw");
                     break;
             }
         }
+        protected virtual Task SpecCheckIsUsed(string progId, string categoryId, string categoryName) => Task.CompletedTask;
         #endregion
 
 
         private void CheckData(TagSet set)
         {
-
-            for (int i = 0; i < set.TagDetail.Count; i++)
-            {
-                CheckDate(set.TagDetail[i]);
-            }
-
-
+            CheckTagName(set.TagDetail, "zh-tw");
         }
 
-
-        private void CheckDate(TagDetail datail)
+        private void CheckTagName(IList<TagDetail> datail, string lang)
         {
-            if (datail.TagName == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<TagDetail>(x => x.TagName));
+            if (datail.Any(p => p.Lang.Equals(lang) && p.TagName.IsNullOrEmpty())) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<TagDetail>(x => x.TagName));
         }
-
 
         #region Private
-        private void CheckIsUsed(string progId,string tagId)
+        private async Task CheckIsUsedAsync(TagSet set, string defaultLang)
         {
+            string progId = set.TagData.ProgId;
+            string tagId = set.TagData.TagId;
+            string tagName = set.TagDetail.FirstOrDefault(p => p.Lang.Equals(defaultLang)).TagName;
+            int useCount = 0;
             switch (progId)
             {
                 case "Announcement":
-
+                    useCount = await DoQueryListCountAsync<Announcement.Announcement>([nameof(BasicDataModel.InternalId)], $@"{nameof(Announcement.Announcement.Tags)} HasAny {tagId}");
                     break;
                 case "FileArchive":
-                    //檢查是否有包含在內
+                    useCount = await DoQueryListCountAsync<FileArchive.FileArchive>([nameof(BasicDataModel.InternalId)], $@"{nameof(FileArchive.FileArchive.TagsId)} HasAny {tagId}");
                     break;
                 case "Gallery":
-
+                    useCount = await DoQueryListCountAsync<Gallery.Gallery>([nameof(BasicDataModel.InternalId)], $@"{nameof(Gallery.Gallery.Tags)} HasAny {tagId}");
                     break;
-                case "PageManagement":
-                    //檢查是否有包含在內
-
+                default:
+                    await SpecCheckIsUsed(progId, tagId, tagName);
                     break;
             }
+            if (useCount > 0) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00017, tagName);
         }
 
         #endregion
