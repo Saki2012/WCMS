@@ -1,21 +1,16 @@
-﻿using Newtonsoft.Json.Linq;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.UserRolePermission.User;
-using static GraphQL.Validation.Rules.OverlappingFieldsCanBeMerged;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.QueryListParam;
 
@@ -39,10 +34,7 @@ namespace WCMS.SysCore
         /// <summary>
         /// 功能Id
         /// </summary>
-        public string ProgId { get {
-                if (_ProgId == null) _ProgId = GetType().GetCustomAttribute<ProgIdAttribute>(inherit: true)?.Value;
-                return _ProgId;
-            } }
+        public string ProgId { get { _ProgId ??= GetType().GetCustomAttribute<ProgIdAttribute>(inherit: true)?.Value; return _ProgId; } }
         /// <summary>
         /// 流水編號前綴碼
         /// </summary>
@@ -113,7 +105,7 @@ namespace WCMS.SysCore
                 GetModelType(set, out BasicDataModel header, out Dictionary<string, IList> details);
                 SetCreateInfo(header);
                 await AutoGenerateId(header, details);
-                BeforeUpdate(set, FuncAction.Create);
+                await BeforeUpdate(set, FuncAction.Create);
                 if(Message.HasError) return set;
                 //Response.ThrowIfFailed();
                 await DoCreateAsync(set);
@@ -140,7 +132,7 @@ namespace WCMS.SysCore
                 GetModelType(newSet, out BasicDataModel header, out Dictionary<string, IList> details);
                 SetModifyInfo(header);
                 await AutoGenerateId(header, details);
-                BeforeUpdate(newSet, FuncAction.Update);
+                await BeforeUpdate(newSet, FuncAction.Update);
                 if (Message.HasError) return newSet;
                 //Response.ThrowIfFailed();
                 TSet oldSet = await DoQuerySetAsync(internalId);
@@ -168,7 +160,7 @@ namespace WCMS.SysCore
                 CheckIsUsed();
                 TSet oldSet = await DoQuerySetAsync(internalId);
                 TSet oldSet_Cache = oldSet.DeepClone();
-                BeforeUpdate(oldSet, FuncAction.Delete);
+                await BeforeUpdate(oldSet, FuncAction.Delete);
                 //Response.ThrowIfFailed();
                 await DoDeleteAsync(oldSet);
                 AfterUpdate(oldSet_Cache, oldSet, FuncAction.Delete, TransStatus.Difference);
@@ -194,7 +186,7 @@ namespace WCMS.SysCore
                 TSet oldSet_Cache = oldSet.DeepClone();
                 TSet newSet = oldSet.DeepClone();
                 DoInvalidSet(newSet, status);
-                BeforeUpdate(oldSet, FuncAction.Invalid);
+                await BeforeUpdate(oldSet, FuncAction.Invalid);
                 //Response.ThrowIfFailed();
                 await DoUpdateAsync(oldSet, newSet);
                 AfterUpdate(oldSet_Cache, oldSet, FuncAction.Invalid, TransStatus.Difference);//oldSet已經進入DataAccess，修改完會跟著修正至DB
@@ -416,6 +408,10 @@ namespace WCMS.SysCore
             }
             return result;
         }
+        protected async Task<IList> DoQueryListAsync<TModel>(string[] selectFields, string condition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt)
+        {
+            return await DoQueryListAsync(typeof(TModel), selectFields, condition, orderBy, pageCt, takeCt);
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -432,6 +428,12 @@ namespace WCMS.SysCore
             var data = await ((dynamic)RepoDict[type.Name]).QueryListAsync(selectExpr, whereExpr,orderBy, pageCt, takeCt);
             return data;
         }
+        
+        protected async Task<int> DoQueryListCountAsync<TModel>(string[] selectFields, string condition)
+        {
+            return await DoQueryListCountAsync(typeof(TModel), selectFields, condition);
+        }
+
         /// <summary>
         /// 查詢清單總筆數
         /// </summary>
@@ -478,7 +480,7 @@ namespace WCMS.SysCore
         /// 保存前
         /// </summary>
         /// <param name="set"></param>
-        protected virtual void BeforeUpdate(TSet set, FuncAction act) { }
+        protected virtual Task BeforeUpdate(TSet set, FuncAction act) => Task.CompletedTask;
         /// <summary>
         /// 更新之後，尚未提交 (供過帳使用)
         /// </summary>

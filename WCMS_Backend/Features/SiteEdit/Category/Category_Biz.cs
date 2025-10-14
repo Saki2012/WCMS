@@ -1,17 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using System.Data;
 using System.Runtime.InteropServices;
-using WCMS.Features.SiteEdit.Announcement;
-using WCMS.Features.SiteEdit.Banner;
-using WCMS.Features.SiteEdit.FileArchive;
-using WCMS.Features.SiteEdit.PageManagement;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.Resx;
-using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Category
@@ -60,9 +56,9 @@ namespace WCMS.Features.SiteEdit.Category
 
 
         #region Protected
-        protected override void BeforeUpdate(CategoryDataSet set, SysEnum.FuncAction act)
+        protected override async Task BeforeUpdate(CategoryDataSet set, SysEnum.FuncAction act)
         {
-            base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act);
             switch (act)
             {
                 case SysEnum.FuncAction.Create:
@@ -70,53 +66,52 @@ namespace WCMS.Features.SiteEdit.Category
                     CheckData(set);
                     break;
                 case SysEnum.FuncAction.Delete:
-                    CheckIsUsed(set.Category.ProgId, set.Category.CategoryId);
+                    await CheckIsUsed(set,"zh-tw");
                     break;
             }
         }
+
+        protected virtual Task SpecCheckIsUsed(string progId, string categoryId, string categoryName,ref int useCount) => Task.CompletedTask;
         #endregion
 
         private void CheckData(CategoryDataSet set)
         {
-            for(int i = 0; i < set.CategoryDetail.Count; i++) 
-            {
-                CheckDate(set.CategoryDetail[i]);
-            }
+            CheckCategoryName(set.CategoryDetail, "zh-tw");
+        }
+
+        private void CheckCategoryName(IList<CategoryDetail> datail,string lang)
+        {
+            if (datail.Any(p => p.Lang.Equals(lang) && p.CategoryName.IsNullOrEmpty()))
+                Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<CategoryDetail>(x => x.CategoryName));
         }
 
 
-        private void CheckDate(CategoryDetail datail)
+        private async Task CheckIsUsed(CategoryDataSet set,string defaultLang)
         {
-            if (datail.CategoryName == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<CategoryDetail>(x => x.CategoryName));
-        }
+            string progId = set.Category.ProgId;
+            string categoryId = set.Category.CategoryId;
+            string categoryName = set.CategoryDetail.FirstOrDefault(p => p.Lang.Equals(defaultLang)).CategoryName;
+            int useCount = 0;
 
-
-        private void CheckIsUsed(string progId, string categoryId)
-        {
             switch (progId)
             {
                 case "Announcement":
-    
-
+                    useCount = await DoQueryListCountAsync<Announcement.Announcement>([nameof(BasicDataModel.InternalId)], $@"{nameof(Announcement.Announcement.Categories)} HasAny {categoryId}");
                     break;
                 case "FileArchive":
-                 
+                    useCount = await DoQueryListCountAsync<FileArchive.FileArchive>([nameof(BasicDataModel.InternalId)], $@"{nameof(FileArchive.FileArchive.CategoriesId)} HasAny {categoryId}");
                     break;
                 case "Gallery":
-                
+                    useCount = await DoQueryListCountAsync<Gallery.Gallery>([nameof(BasicDataModel.InternalId)], $@"{nameof(Gallery.Gallery.Categories)} HasAny {categoryId}");
                     break;
                 case "PageManagement":
-                    //檢查是否有包含在內
-            
+                    useCount = await DoQueryListCountAsync<PageManagement.PageManagement>([nameof(BasicDataModel.InternalId)], $@"{nameof(PageManagement.PageManagement.CategoryId)} = {categoryId}");
+                    break;
+                default:
+                    await SpecCheckIsUsed(progId, categoryId, categoryName,ref useCount);
                     break;
             }
+            if (useCount > 0) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00018, categoryName);
         }
-
-
-        private static FileManageSet GetSetByPicture(string srcPic, IList<FileManageSet> fileSets)
-        {
-            return fileSets.Where(x => x.FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Equals($@"File/Banner/{srcPic}".ToLowerInvariant()))).FirstOrDefault();
-        }
-
     }
 }

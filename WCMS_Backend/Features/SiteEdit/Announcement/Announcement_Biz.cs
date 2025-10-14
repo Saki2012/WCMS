@@ -2,6 +2,7 @@
 using System.Data;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using WCMS.Features.SiteEdit.PageManagement;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
@@ -142,9 +143,9 @@ namespace WCMS.Features.SiteEdit.Announcement
         #endregion
 
         #region Protected
-        protected override void BeforeUpdate(AnnouncementSet set, FuncAction act)
+        protected override async Task BeforeUpdate(AnnouncementSet set, FuncAction act)
         {
-            base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act);
             switch (act)
             {
                 case FuncAction.Create:

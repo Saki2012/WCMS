@@ -163,9 +163,15 @@
     <value>{0}</value>
   </data>
   <data name="BECode00015" xml:space="preserve">
-    <value>請輸入[{0}]的[{1}]。</value>
+    <value>請輸入[{0}]語系的[{1}]。</value>
   </data>
   <data name="BECode00016" xml:space="preserve">
     <value>[{0}]只能輸入英文或數字（不可含空白或符號）。</value>
+  </data>
+  <data name="BECode00018" xml:space="preserve">
+    <value>類別[{0}]已被使用，無法刪除。</value>
+  </data>
+  <data name="BECode00017" xml:space="preserve">
+    <value>標籤[{0}]已被使用，無法刪除。</value>
   </data>
 </root>

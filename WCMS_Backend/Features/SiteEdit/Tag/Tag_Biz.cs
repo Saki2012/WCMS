@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using WCMS.Features.SiteEdit.Category;
 using WCMS.Features.SiteEdit.WebResource;
 using WCMS.SysCore;
@@ -16,9 +17,9 @@ namespace WCMS.Features.SiteEdit.Tag
     public class TagBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<TagSet>(repo, message), IBizService<TagSet> {
 
         #region Protected
-        protected override void BeforeUpdate(TagSet set, SysEnum.FuncAction act)
+        protected override async Task BeforeUpdate(TagSet set, SysEnum.FuncAction act)
         {
-            base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act);
             switch (act)
             {
                 case SysEnum.FuncAction.Create:

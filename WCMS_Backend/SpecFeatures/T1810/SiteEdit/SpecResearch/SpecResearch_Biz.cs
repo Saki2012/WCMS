@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR;
 using WCMS.SysCore;
@@ -107,9 +108,9 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
         #endregion
 
         #region Protected
-        protected override void BeforeUpdate(SpecResearchSet set, SysEnum.FuncAction act)
+        protected override async Task BeforeUpdate(SpecResearchSet set, SysEnum.FuncAction act)
         {
-            base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act);
             switch (act)
             {
                 case SysEnum.FuncAction.Create:

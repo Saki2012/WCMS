@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using WCMS.Features.SiteEdit.Announcement;
 using WCMS.Features.SiteEdit.Gallery;
 using WCMS.Features.SiteEdit.WebResource;
@@ -149,9 +150,9 @@ namespace WCMS.Features.SiteEdit.Gallery
         #endregion
 
         #region Protected
-        protected override void BeforeUpdate(GallerySet set, SysEnum.FuncAction act)
+        protected override async Task BeforeUpdate(GallerySet set, SysEnum.FuncAction act)
         {
-            base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act);
             switch (act)
             {
                 case SysEnum.FuncAction.Create:

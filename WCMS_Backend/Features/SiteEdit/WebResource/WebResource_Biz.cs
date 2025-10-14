@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
@@ -19,10 +20,10 @@ namespace WCMS.Features.SiteEdit.WebResource
         #region Migration Old Data
         public async Task Migrate(string importFileLabel = "1810", IList<FileManageSet> srcFileSets = default)
         {
-            WebResourceSet[] datas = await ConvertToApiModel(importFileLabel,srcFileSets);
+            WebResourceSet[] datas = ConvertToApiModel(importFileLabel,srcFileSets);
             await BizInitCreateSetsAsync(datas);
         }
-        private async Task<WebResourceSet[]> ConvertToApiModel(string importFileLabel, IList<FileManageSet> srcFileSets = default)
+        private WebResourceSet[] ConvertToApiModel(string importFileLabel, IList<FileManageSet> srcFileSets = default)
         {
             List<WebResourceSet> result = [];
             Dictionary<string, string> sqls = new()
@@ -115,9 +116,9 @@ namespace WCMS.Features.SiteEdit.WebResource
         #endregion
 
         #region Protected
-        protected override void BeforeUpdate(WebResourceSet set, SysEnum.FuncAction act)
+        protected override async Task BeforeUpdate(WebResourceSet set, SysEnum.FuncAction act)
         {
-            base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act);
             switch (act)
             {
                 case SysEnum.FuncAction.Create:

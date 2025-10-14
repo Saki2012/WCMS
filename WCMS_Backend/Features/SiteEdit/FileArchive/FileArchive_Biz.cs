@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using WCMS.Features.SiteEdit.WebResource;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
@@ -115,9 +116,9 @@ namespace WCMS.Features.SiteEdit.FileArchive
         #endregion
 
         #region Protected
-        protected override void BeforeUpdate(FileArchiveSet set, SysEnum.FuncAction act)
+        protected override async Task BeforeUpdate(FileArchiveSet set, SysEnum.FuncAction act)
         {
-            base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act);
             switch (act)
             {
                 case SysEnum.FuncAction.Create:

@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System.Data;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using WCMS.Features.SiteEdit.Banner;
 using WCMS.Features.SiteEdit.PageManagement;
 using WCMS.SpecFeatures.T1810.SystemSetting;
@@ -315,9 +316,9 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         #endregion
 
         #region Protected
-        protected override void BeforeUpdate(SiteMenuSet set, FuncAction act)
+        protected override async Task BeforeUpdate(SiteMenuSet set, FuncAction act)
         {
-            base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act);
             switch (act)
             {
                 case FuncAction.Create:
