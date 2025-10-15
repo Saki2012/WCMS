@@ -1,4 +1,5 @@
-﻿using WCMS.SysCore.Library;
+﻿using WCMS.Features.SiteEdit.PageManagement;
+using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.Resx;
 
@@ -19,6 +20,10 @@ namespace WCMS.Features.SiteEdit.Tag
         /// 對應功能模塊ID
         /// </summary>
         [LibDesc(ModelDisplayName.Common_ProgId)] public string? ProgId { get; set; } = string.Empty;
+
+        #region 主子表關聯
+        public List<TagDetail_DTO> _TagDetail { get; set; }
+        #endregion
     }
     public class TagDetail_DTO
     {

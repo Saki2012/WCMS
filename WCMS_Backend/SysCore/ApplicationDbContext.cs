@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using SharpCompress.Compressors.RLE90;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -7,6 +8,7 @@ using System.Linq.Dynamic.Core;
 using System.Linq.Dynamic.Core.CustomTypeProviders;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.Intrinsics.Arm;
 using System.Security.AccessControl;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Model;
@@ -40,6 +42,8 @@ namespace WCMS.SysCore
             ApplyCascadeDeleteRules(builder);
             builder.Entity<OperateLogModel>().ToTable("OperateLog");
             //builder.BuildIndexesFromAnnotations();//設置Index套件
+            BindInverseNavigations(builder);         
+            ApplyGlobalDeleteBehavior(builder);      
             SetDateTimeDBType(builder);
             RegistUDF(builder);
         }
@@ -81,35 +85,137 @@ namespace WCMS.SysCore
 
                 foreach (var navProp in props)
                 {
-                    // 只處理 class 導航且排除 string
+                    // 只處理 class 導航且排除 string（延續原本嚴格規則）
                     var navType = navProp.PropertyType;
                     if (navType == typeof(string) || !navType.IsClass) continue;
 
-                    // 必須有 [ForeignKey] 屬性（嚴格模式，不做名稱猜測）
+                    // 必須有 [ForeignKey]（不做名稱猜測）
                     var fkAttr = navProp.GetCustomAttribute<ForeignKeyAttribute>();
                     if (fkAttr == null) continue;
+                    if (string.IsNullOrWhiteSpace(fkAttr.Name)) continue;
 
-                    var fkName = fkAttr.Name;
-                    if (string.IsNullOrWhiteSpace(fkName)) continue;
+                    // 1) 解析外鍵欄位（支援 "A,B, C"）
+                    var fkNames = fkAttr.Name
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(s => s.Trim())
+                        .ToArray();
+                    if (fkNames.Length == 0) continue;
 
-                    // 必須存在對應外鍵屬性
-                    var fkProp = props.FirstOrDefault(p => p.Name == fkName);
-                    if (fkProp == null) continue;
+                    // 2) 全部外鍵屬性都要存在
+                    var fkProps = fkNames
+                        .Select(n => props.FirstOrDefault(p => p.Name == n))
+                        .ToArray();
+                    if (fkProps.Any(p => p == null)) continue;
 
-                    // 導航型別必須是 EF 追蹤的實體
+                    // 3) 導航型別必須是 EF 追蹤的實體
                     var principalEntityType = mb.Model.FindEntityType(navType);
                     if (principalEntityType == null) continue;
 
-                    // FK 型別需與主鍵型別相容（允許可空）
-                    var principalPkType = principalEntityType.FindPrimaryKey()?.Properties.First().ClrType;
-                    if (principalPkType == null) continue;
+                    // 4) 只支援對主鍵（與原本邏輯一致）
+                    var principalPk = principalEntityType.FindPrimaryKey();
+                    if (principalPk == null) continue;
 
-                    var fkClr = Nullable.GetUnderlyingType(fkProp.PropertyType) ?? fkProp.PropertyType;
-                    if (fkClr != principalPkType) continue;
+                    // 5) 複合長度要一致（單欄位時等於 1）
+                    if (principalPk.Properties.Count != fkProps.Length) continue;
 
-                    // 建立關聯（用字串 overload，避免泛型反射樣板）
-                    mb.Entity(clr).HasOne(navType, navProp.Name).WithMany().HasForeignKey(fkName).OnDelete(DeleteBehavior.NoAction);
+                    // 6) 型別逐一比對（允許外鍵是 Nullable）
+                    bool typeMismatch = false;
+                    for (int i = 0; i < fkProps.Length; i++)
+                    {
+                        var fkClr = Nullable.GetUnderlyingType(fkProps[i]!.PropertyType) ?? fkProps[i]!.PropertyType;
+                        var pkClr = principalPk.Properties[i].ClrType;
+                        if (fkClr != pkClr) { typeMismatch = true; break; }
+                    }
+                    if (typeMismatch) continue;
+
+                    // 7) 建立關聯（單一/複合皆可）
+                    var rel = mb.Entity(clr).HasOne(navType, navProp.Name).WithMany();
+                    if (fkNames.Length == 1)
+                        rel.HasForeignKey(fkNames[0]).OnDelete(DeleteBehavior.NoAction);
+                    else
+                        rel.HasForeignKey(fkNames).OnDelete(DeleteBehavior.NoAction);
                 }
+            }
+        }
+        private static bool IsCollectionType(Type t)
+        {
+            if (t == typeof(string)) return false;
+            if (t.IsArray) return true;
+            if (!t.IsGenericType) return typeof(System.Collections.IEnumerable).IsAssignableFrom(t);
+            return typeof(System.Collections.IEnumerable).IsAssignableFrom(t);
+        }
+
+        private static Type? GetEnumerableElementType(Type t)
+        {
+            if (t.IsArray) return t.GetElementType();
+            if (t.IsGenericType) return t.GetGenericArguments().FirstOrDefault();
+            return null;
+        }
+        /// <summary>
+        /// 🟢 自動補全反向導航（支援複合 FK 與 [InverseProperty]）
+        /// </summary>
+        /// <param name="builder"></param>
+        private static void BindInverseNavigations(ModelBuilder builder)
+        {
+            foreach (var et in builder.Model.GetEntityTypes())
+            {
+                var clr = et.ClrType;
+
+                var navProps = clr.GetProperties()
+                    .Where(p =>
+                        Attribute.IsDefined(p, typeof(ForeignKeyAttribute)) &&
+                        !IsCollectionType(p.PropertyType) &&
+                        p.PropertyType.IsClass && !p.PropertyType.IsAbstract);
+
+                foreach (var nav in navProps)
+                {
+                    var fkAttr = nav.GetCustomAttribute<ForeignKeyAttribute>();
+                    if (fkAttr == null) continue;
+
+                    var principalClr = nav.PropertyType;
+
+                    // 🔍 關鍵：除了 InverseProperty.Property 要等於 nav.Name
+                    //      還要「集合元素型別 == 目前的子類型 (clr)」
+                    var inverseOnPrincipal = principalClr.GetProperties()
+                        .FirstOrDefault(p =>
+                        {
+                            var inv = p.GetCustomAttribute<InversePropertyAttribute>();
+                            if (inv?.Property != nav.Name) return false;
+
+                            var pt = p.PropertyType;
+                            if (IsCollectionType(pt))
+                            {
+                                var elem = GetEnumerableElementType(pt);
+                                return elem == clr;            // ✅ 集合元素必須是子類型
+                            }
+                            else
+                            {
+                                return pt == clr;             // 1:1 的情況（少見）
+                            }
+                        });
+
+                    var fkNames = fkAttr.Name.Split(',').Select(s => s.Trim()).ToArray();
+
+                    var dep = builder.Entity(clr).HasOne(principalClr, navigationName: nav.Name);
+                    var rel = (inverseOnPrincipal != null)
+                        ? dep.WithMany(inverseOnPrincipal.Name)
+                        : dep.WithMany();
+
+                    rel.HasForeignKey(fkNames);
+                }
+            }
+        }
+        private static void ApplyGlobalDeleteBehavior(ModelBuilder builder)
+        {
+            foreach (var fk in builder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+            {
+                if (fk.IsOwnership) continue;                    // 跳過 OwnedType
+                if (fk.DeclaringEntityType.IsOwned()) continue;  // 跳過 OwnedType
+
+                if (fk.IsRequired)                                // 🟢 必填 FK
+                    fk.DeleteBehavior = DeleteBehavior.Cascade;   //    → 刪主體會連動刪子項；移除關聯也不會丟例外
+                else                                              //    選填 FK
+                    fk.DeleteBehavior = DeleteBehavior.ClientSetNull; // → 由 EF 把 FK 設 null（DB 不做級聯）
             }
         }
         /// <summary>

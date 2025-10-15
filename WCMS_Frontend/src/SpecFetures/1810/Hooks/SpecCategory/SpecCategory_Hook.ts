@@ -49,8 +49,8 @@ export const useGetSpecCategoryListByProgId = (progId: string, lang: string) =>
             const queryCondition: QueryListParam = {
                 Fields: [
                     SchemaFields.SpecCategoryModelFields.CategoryId,
-                    `${SchemaFields.SpecCategorySetFields.SpecCategoryDetail}.${SchemaFields.SpecCategoryDetailModelFields.Lang}`,
-                    `${SchemaFields.SpecCategorySetFields.SpecCategoryDetail}.${SchemaFields.SpecCategoryDetailModelFields.CategoryName}`,
+                    `${SchemaFields.SpecCategoryModelFields._SpecCategoryDetail}.${SchemaFields.SpecCategoryDetailModelFields.Lang}`,
+                    `${SchemaFields.SpecCategoryModelFields._SpecCategoryDetail}.${SchemaFields.SpecCategoryDetailModelFields.CategoryName}`,
                 ],
                 Condition: `${SchemaFields.SpecCategoryModelFields.ProgId} = ${progId}`,
                 PageNumber: 0,
@@ -106,8 +106,8 @@ export const useSpecCateListData = (progId: string, lang: Lang) =>
                 SchemaFields.SpecCategoryModelFields.CategoryId,
                 SchemaFields.SpecCategoryModelFields.ModifyTime,
                 SchemaFields.SpecCategoryModelFields.ModifyUserId,
-                `${SchemaFields.SpecCategorySetFields.SpecCategoryDetail}.${SchemaFields.SpecCategoryDetailModelFields.Lang}`,
-                `${SchemaFields.SpecCategorySetFields.SpecCategoryDetail}.${SchemaFields.SpecCategoryDetailModelFields.CategoryName}`,
+                `${SchemaFields.SpecCategoryModelFields._SpecCategoryDetail}.${SchemaFields.SpecCategoryDetailModelFields.Lang}`,
+                `${SchemaFields.SpecCategoryModelFields._SpecCategoryDetail}.${SchemaFields.SpecCategoryDetailModelFields.CategoryName}`,
             ],
             Condition: condition,
             OrderBy: [{ Col: SchemaFields.SpecCategoryModelFields.ModifyTime, Desc: true }],

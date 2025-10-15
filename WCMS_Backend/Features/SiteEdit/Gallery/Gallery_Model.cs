@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
@@ -35,11 +36,13 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// </summary>
         [LibDesc] public ContentStatus ContentStatus { get; set; }
         /// <summary>
-        /// 封面照 (透過功能從相簿裡的PicSrcId直接取得，保存時紀錄，供之後list查看時減少效能使用)
+        /// 封面照 (透過功能從相簿裡的PicSrcId直接取得，保存時紀錄，供之後List查看時減少效能使用)
         /// </summary>
         [StringLength(SysLengthParam.InternalId)] public string? CoverPicSrcId { get; set; }
-        public List<GalleryInfo> GalleryInfo { get; set; } = [];
-        public List<GalleryPhotos> GalleryPhotos { get; set; } = [];
+        #region 主子表關聯
+        [InverseProperty(nameof(GalleryInfo._Gallery))] public List<GalleryInfo> _GalleryInfo { get; set; }
+        [InverseProperty(nameof(GalleryPhotos._Gallery))] public List<GalleryPhotos> _GalleryPhotos { get; set; }
+        #endregion
     }
     /// <summary>
     /// 相簿資訊
@@ -66,6 +69,10 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// 內容
         /// </summary>
         public string Content { get; set; }
+
+        #region 主子表關聯
+        [ForeignKey(nameof(GalleryId))] public Gallery _Gallery { get; set; }
+        #endregion
     }
     /// <summary>
     /// 相簿裡的相片
@@ -88,7 +95,11 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// 相片排序
         /// </summary>
         public int Sort { get; set; }
-        public List<GalleryPhotosInfo> GalleryPhotosInfo { get; set; } = [];
+
+        #region 主子表關聯
+        [ForeignKey(nameof(GalleryId))] public Gallery _Gallery { get; set; }
+        [InverseProperty(nameof(GalleryPhotosInfo._GalleryPhotos))] public List<GalleryPhotosInfo> _GalleryPhotosInfo { get; set; }
+        #endregion
     }
     /// <summary>
     /// 相簿裡的相片資訊
@@ -100,7 +111,7 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// </summary>
         [LibDesc, Required, Key, StringLength(SysLengthParam.ID)] public string GalleryId { get; set; }
         /// <summary>
-        /// 父行主鍵 - (GalleryPhotos)
+        /// 父行主鍵 - (_GalleryPhotos)
         /// </summary>
         [LibDesc, Key] public int ParentRowId { get; set; }
         /// <summary>
@@ -115,5 +126,9 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// 標題
         /// </summary>
         [StringLength(SysLengthParam.Memo)] public string Title { get; set; }
+
+        #region 主子表關聯
+        [ForeignKey($@"{nameof(GalleryId)},{nameof(ParentRowId)}")] public GalleryPhotos _GalleryPhotos { get; set; }
+        #endregion
     }
 }

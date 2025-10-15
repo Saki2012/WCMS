@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.SiteEdit.Announcement;
+using WCMS.Features.SiteEdit.Banner;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
@@ -38,9 +39,9 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// 下載次數
         /// </summary>
         public int DownloadCount { get; set; }
-        #region 關聯
-        public virtual ICollection<FileArchiveInfo>? FileArchiveInfo { get; set; }
-        public virtual ICollection<FileArchiveDetail>? FileArchiveDetail { get; set; }
+
+        #region 主子表關聯
+        [InverseProperty(nameof(FileArchiveInfo._FileArchive))] public List<FileArchiveInfo> _FileArchiveInfo { get; set; }
         #endregion
     }
     public class FileArchiveInfo : DetailRowModel
@@ -61,7 +62,10 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// 標題
         /// </summary>
         [StringLength(SysLengthParam.Title)] public string Title { get; set; }
-        #region 關聯
+
+        #region 主子表關聯
+        [ForeignKey(nameof(FileArchiveId))] public FileArchive _FileArchive { get; set; }
+        [InverseProperty(nameof(FileArchiveDetail._FileArchiveInfo))] public List<FileArchiveDetail> _FileArchiveDetail { get; set; }
         #endregion
     }
     public class FileArchiveDetail : DetailRowModel
@@ -71,7 +75,7 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// </summary>
         [Required, Key, StringLength(SysLengthParam.ID)] public string FileArchiveId { get; set; }
         /// <summary>
-        /// 父行主鍵 (FileArchiveInfo)
+        /// 父行主鍵 (_FileArchiveInfo)
         /// </summary>
         [Key] public int ParentRowId { get; set; }
         /// <summary>
@@ -87,5 +91,7 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// 語系 SysEnum.Lang
         /// </summary>
         [LibDesc, StringLength(SysLengthParam.Title)] public string FileName { get; set; }
+
+        [ForeignKey($@"{nameof(FileArchiveId)},{nameof(ParentRowId)}")] public FileArchiveInfo _FileArchiveInfo { get; set; }
     }
 }

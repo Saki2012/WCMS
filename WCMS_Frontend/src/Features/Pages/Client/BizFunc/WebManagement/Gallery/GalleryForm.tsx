@@ -39,8 +39,8 @@ const useGetCategories = (lang: string, categoryIds: string) => {
         buildQueryCondition: () => ({
             Fields: [
                 SchemaFields.CategoryFields.CategoryId,
-                `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
-                `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
+                `${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
+                `${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
             ],
             Condition: condition,
             PageNumber: 0,

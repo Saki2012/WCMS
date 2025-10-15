@@ -2,9 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.Features.SiteEdit.FileArchive;
+using WCMS.Features.SiteEdit.WebResource;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using static WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.ModuleOptions;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
@@ -56,6 +59,11 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// 是否啟用站台
         /// </summary>
         public bool Enable { get; set; } = true;
+
+        #region 主子表關聯
+        [InverseProperty(nameof(SiteMenu_IndexInfoModel._SiteMenu_Index))] public List<SiteMenu_IndexInfoModel> _SiteMenu_IndexInfo { get; set; }
+        [InverseProperty(nameof(SiteMenu_Item._SiteMenu_Index))] public List<SiteMenu_Item> _SiteMenu_Item { get; set; }
+        #endregion
     }
     /// <summary>
     /// 
@@ -94,6 +102,10 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// 網站關鍵字
         /// </summary>
         [StringLength(SysLengthParam.Memo)] public string Keyword { get; set; }
+
+        #region 主子表關聯
+        [ForeignKey(nameof(SiteIndex))] public SiteMenu_IndexModel _SiteMenu_Index { get; set; }
+        #endregion
     }
     /// <summary>
     /// 
@@ -141,6 +153,13 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// 是否顯示在清單上
         /// </summary>
         public bool IsShowOnMenu { get; set; }
+
+        #region 主子表關聯
+        [ForeignKey(nameof(SiteIndex))] public SiteMenu_IndexModel _SiteMenu_Index { get; set; }
+        [InverseProperty(nameof(SiteMenu_Item_Title._SiteMenu_Index))] public List<SiteMenu_Item_Title> _SiteMenu_Item_Title { get; set; }
+        [InverseProperty(nameof(SiteMenu_Item_Title._SiteMenu_Index))] public SiteMenu_Item_Url _SiteMenu_Item_Url { get; set; }
+        [InverseProperty(nameof(SiteMenu_Item_Title._SiteMenu_Index))] public SiteMenu_Item_Module _SiteMenu_Item_Module { get; set; }
+        #endregion
     }
     /// <summary>
     /// 
@@ -152,6 +171,10 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         [Key] public int? RowId { get; set; }
         [StringLength(SysLengthParam.Lang)] public string Lang { get; set; }
         [StringLength(SysLengthParam.Title)] public string Title { get; set; }
+
+        #region 主子表關聯
+        [ForeignKey($@"{nameof(SiteIndex)},{nameof(ItemRowId)}")] public SiteMenu_Item _SiteMenu_Index { get; set; }
+        #endregion
     }
     /// <summary>
     /// 
@@ -162,6 +185,10 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         [Key] public int? ItemRowId { get; set; }
         public MenuUrlType RedirectType { get; set; } //0:無, 1:外部,2:內部模型功能(直接轉FullUrl、但是是用下拉的看Title/Url)
         [StringLength(SysLengthParam.Url)] public string? RedirectUrl { get; set; }
+
+        #region 主子表關聯
+        [ForeignKey($@"{nameof(SiteIndex)},{nameof(ItemRowId)}")] public SiteMenu_Item _SiteMenu_Index { get; set; }
+        #endregion
     }
     /// <summary>
     /// 
@@ -174,6 +201,10 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         public ModulePageType PageType { get; set; }
         [StringLength(SysLengthParam.ProgId)] public string? ModuleProgId { get; set; } //功能代碼
         public string? ModuleOptions { get; set; }//動態參數，存Json格式
+
+        #region 主子表關聯
+        [ForeignKey($@"{nameof(SiteIndex)},{nameof(ItemRowId)}")] public SiteMenu_Item _SiteMenu_Index { get; set; }
+        #endregion
     }
     /// <summary>
     /// SiteMenu_Func參數

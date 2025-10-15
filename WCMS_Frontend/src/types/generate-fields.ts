@@ -13,6 +13,7 @@ const outputPath = path.resolve(__dirname, "SchemaFields.ts");
 
 const project = new Project();
 const sourceFile = project.addSourceFileAtPath(apiPath);
+const emittedSchemas = new Set<string>();
 
 // 嘗試取得 interface 或 type components
 let componentsType:
@@ -54,14 +55,28 @@ schemas.forEach(schema =>
     const schemaName = schema.getName().replace(/_DTO$/, "");
     const schemaType = schema.getTypeAtLocation(schema.getDeclarations()[0]!);
     const keys = schemaType.getProperties().map(p => p.getName());
-
     if (keys.length === 0) return;
-
+    // 🟩 若此 schema 已輸出過，直接略過，避免重複宣告 const XXXFields / type XXXFieldKey
+    if (emittedSchemas.has(schemaName))
+    {
+        console.warn(`⏭️ Skip duplicate schema: ${schemaName}`);
+        return;
+    }
+    emittedSchemas.add(schemaName);
     output += `export const ${schemaName}Fields = {\n`;
-    keys.forEach(k =>
+    const uniqueKeys: string[] = [];
+    const seenField = new Set<string>();
+    for (const k of keys)
+    {
+        if (seenField.has(k)) continue;
+        seenField.add(k);
+        uniqueKeys.push(k);
+    }
+    uniqueKeys.forEach(k =>
     {
         output += `  ${k}: '${k}',\n`;
     });
+
     output += `} as const;\n\n`;
 
     output += `export type ${schemaName}FieldKey = keyof typeof ${schemaName}Fields;\n\n`;

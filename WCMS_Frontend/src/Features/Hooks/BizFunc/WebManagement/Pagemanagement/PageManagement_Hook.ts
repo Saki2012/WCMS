@@ -26,8 +26,8 @@ export const usePageManagementListData = () =>
                 // `Category.CategoryDetail.Lang`,
                 // `Category.CategoryDetail.CategoryName`,
                 // 缺Name
-                `${SchemaFields.PageManagementSetFields.PageManagementDetail}.${SchemaFields.PageManagementDetailFields.Lang}`,
-                `${SchemaFields.PageManagementSetFields.PageManagementDetail}.${SchemaFields.PageManagementDetailFields.Title}`,
+                `${SchemaFields.PageManagementFields._PageManagementDetail}.${SchemaFields.PageManagementDetailFields.Lang}`,
+                `${SchemaFields.PageManagementFields._PageManagementDetail}.${SchemaFields.PageManagementDetailFields.Title}`,
                 SchemaFields.PageManagementFields.ModifyUserId,
                 // 缺Name
                 SchemaFields.PageManagementFields.ModifyTime,
@@ -86,8 +86,8 @@ export const usePageListData = () =>
                 // `Category.CategoryDetail.Lang`,
                 // `Category.CategoryDetail.CategoryName`,
                 // 缺Name
-                `${SchemaFields.PageManagementSetFields.PageManagementDetail}.${SchemaFields.PageManagementDetailFields.Lang}`,
-                `${SchemaFields.PageManagementSetFields.PageManagementDetail}.${SchemaFields.PageManagementDetailFields.Title}`,
+                `${SchemaFields.PageManagementFields._PageManagementDetail}.${SchemaFields.PageManagementDetailFields.Lang}`,
+                `${SchemaFields.PageManagementFields._PageManagementDetail}.${SchemaFields.PageManagementDetailFields.Title}`,
                 SchemaFields.PageManagementFields.ModifyUserId,
                 // 缺Name
                 SchemaFields.PageManagementFields.ModifyTime,

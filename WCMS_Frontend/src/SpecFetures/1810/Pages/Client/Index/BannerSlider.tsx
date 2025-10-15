@@ -42,13 +42,11 @@ const emptyData: BannerSet = {
 }
 
 export const BannerSlider = () => {
-
     const usebannerList = useBannerListData(`${SchemaFields.BannerFields.BannerId} = 1`)
     const bannerInternal = usebannerList.rawData?.[0]?.Banner?.InternalId ?? ""
     const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), bannerInternal, emptyData)
     const loadingList = [useBanner.isLoading, usebannerList.isLoading]
     const errorList = [useBanner.error, usebannerList.error]
-
     const sortedDetails = useMemo(() => {
         const list = useBanner.data?.BannerDetail ?? [];
         // 依 Detail.Sort 由小到大

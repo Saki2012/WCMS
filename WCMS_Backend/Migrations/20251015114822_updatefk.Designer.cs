@@ -12,8 +12,8 @@ using WCMS.SysCore;
 namespace WCMS.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251002033103_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251015114822_updatefk")]
+    partial class updatefk
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -338,8 +338,6 @@ namespace WCMS.Migrations
 
                     b.HasKey("BannerId", "ParentRowId", "RowId");
 
-                    b.HasIndex("BannerId", "RowId");
-
                     b.ToTable("BannerDetailInfo", (string)null);
                 });
 
@@ -582,7 +580,7 @@ namespace WCMS.Migrations
                     b.ToTable("FileArchiveInfo", (string)null);
                 });
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.Gallery", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit._Gallery._Gallery", b =>
                 {
                     b.Property<string>("GalleryId")
                         .HasMaxLength(20)
@@ -667,10 +665,10 @@ namespace WCMS.Migrations
 
                     b.HasIndex("ModifyUserId");
 
-                    b.ToTable("Gallery", (string)null);
+                    b.ToTable("_Gallery", (string)null);
                 });
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryInfo", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit._Gallery.GalleryInfo", b =>
                 {
                     b.Property<string>("GalleryId")
                         .HasColumnType("nvarchar(20)");
@@ -695,7 +693,7 @@ namespace WCMS.Migrations
                     b.ToTable("GalleryInfo", (string)null);
                 });
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryPhotos", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit._Gallery.GalleryPhotos", b =>
                 {
                     b.Property<string>("GalleryId")
                         .HasMaxLength(20)
@@ -717,7 +715,7 @@ namespace WCMS.Migrations
                     b.ToTable("GalleryPhotos", (string)null);
                 });
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryPhotosInfo", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit._Gallery.GalleryPhotosInfo", b =>
                 {
                     b.Property<string>("GalleryId")
                         .HasMaxLength(20)
@@ -740,8 +738,6 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(1000)");
 
                     b.HasKey("GalleryId", "ParentRowId", "RowId");
-
-                    b.HasIndex("GalleryId", "RowId");
 
                     b.ToTable("GalleryPhotosInfo", (string)null);
                 });
@@ -1269,7 +1265,7 @@ namespace WCMS.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<int>("ParentRowId")
+                    b.Property<int>("ItemRowId")
                         .HasColumnType("int");
 
                     b.Property<int>("RowId")
@@ -1285,7 +1281,7 @@ namespace WCMS.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.HasKey("SiteIndex", "ParentRowId", "RowId");
+                    b.HasKey("SiteIndex", "ItemRowId", "RowId");
 
                     b.ToTable("SiteMenu_Item_Title", (string)null);
                 });
@@ -1293,7 +1289,7 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_Item_Url", b =>
                 {
                     b.Property<string>("SiteIndex")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<int>("ItemRowId")
                         .HasColumnType("int");
@@ -2331,18 +2327,15 @@ namespace WCMS.Migrations
                 {
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CreateUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
                         .WithMany()
-                        .HasForeignKey("InvalidUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("InvalidUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
                         .WithMany()
-                        .HasForeignKey("ModifyUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ModifyUserId");
 
                     b.Navigation("CreateUser");
 
@@ -2353,29 +2346,39 @@ namespace WCMS.Migrations
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.AnnouncementDetail", b =>
                 {
-                    b.HasOne("WCMS.Features.SiteEdit.Announcement.Announcement", null)
-                        .WithMany("AnnouncementDetail")
+                    b.HasOne("WCMS.Features.SiteEdit.Announcement.Announcement", "_Announcement")
+                        .WithMany("_AnnouncementDetail")
                         .HasForeignKey("AnnouncementId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("_Announcement");
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.AnnouncementDetailFile", b =>
+                {
+                    b.HasOne("WCMS.Features.SiteEdit.Announcement.AnnouncementDetail", "_AnnouncementDetail")
+                        .WithMany("_AnnouncementDetailFile")
+                        .HasForeignKey("AnnouncementId", "ParentRowId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("_AnnouncementDetail");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Banner.Banner", b =>
                 {
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CreateUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
                         .WithMany()
-                        .HasForeignKey("InvalidUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("InvalidUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
                         .WithMany()
-                        .HasForeignKey("ModifyUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ModifyUserId");
 
                     b.Navigation("CreateUser");
 
@@ -2386,38 +2389,39 @@ namespace WCMS.Migrations
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Banner.BannerDetail", b =>
                 {
-                    b.HasOne("WCMS.Features.SiteEdit.Banner.Banner", null)
-                        .WithMany("BannerDetail")
+                    b.HasOne("WCMS.Features.SiteEdit.Banner.Banner", "_Banner")
+                        .WithMany("_BannerDetail")
                         .HasForeignKey("BannerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("_Banner");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Banner.BannerDetailInfo", b =>
                 {
-                    b.HasOne("WCMS.Features.SiteEdit.Banner.BannerDetail", null)
-                        .WithMany("BannerDetailInfo")
-                        .HasForeignKey("BannerId", "RowId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                    b.HasOne("WCMS.Features.SiteEdit.Banner.BannerDetail", "_BannerDetail")
+                        .WithMany("_BannerDetailInfo")
+                        .HasForeignKey("BannerId", "ParentRowId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("_BannerDetail");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Category.Category", b =>
                 {
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CreateUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
                         .WithMany()
-                        .HasForeignKey("InvalidUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("InvalidUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
                         .WithMany()
-                        .HasForeignKey("ModifyUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ModifyUserId");
 
                     b.Navigation("CreateUser");
 
@@ -2428,29 +2432,28 @@ namespace WCMS.Migrations
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Category.CategoryDetail", b =>
                 {
-                    b.HasOne("WCMS.Features.SiteEdit.Category.Category", null)
-                        .WithMany("CategoryDetail")
+                    b.HasOne("WCMS.Features.SiteEdit.Category.Category", "_Category")
+                        .WithMany("_CategoryDetail")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("_Category");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.FileArchive.FileArchive", b =>
                 {
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CreateUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
                         .WithMany()
-                        .HasForeignKey("InvalidUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("InvalidUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
                         .WithMany()
-                        .HasForeignKey("ModifyUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ModifyUserId");
 
                     b.Navigation("CreateUser");
 
@@ -2461,46 +2464,47 @@ namespace WCMS.Migrations
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.FileArchive.FileArchiveDetail", b =>
                 {
-                    b.HasOne("WCMS.Features.SiteEdit.FileArchive.FileArchive", null)
-                        .WithMany("FileArchiveDetail")
-                        .HasForeignKey("FileArchiveId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("WCMS.SysCore.SystemFunc.FileManagement.FileManageModel", "FileSrc")
                         .WithMany()
                         .HasForeignKey("FileSrcId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WCMS.Features.SiteEdit.FileArchive.FileArchiveInfo", "_FileArchiveInfo")
+                        .WithMany("_FileArchiveDetail")
+                        .HasForeignKey("FileArchiveId", "ParentRowId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("FileSrc");
+
+                    b.Navigation("_FileArchiveInfo");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.FileArchive.FileArchiveInfo", b =>
                 {
-                    b.HasOne("WCMS.Features.SiteEdit.FileArchive.FileArchive", null)
-                        .WithMany("FileArchiveInfo")
+                    b.HasOne("WCMS.Features.SiteEdit.FileArchive.FileArchive", "_FileArchive")
+                        .WithMany("_FileArchiveInfo")
                         .HasForeignKey("FileArchiveId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("_FileArchive");
                 });
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.Gallery", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit._Gallery._Gallery", b =>
                 {
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CreateUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
                         .WithMany()
-                        .HasForeignKey("InvalidUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("InvalidUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
                         .WithMany()
-                        .HasForeignKey("ModifyUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ModifyUserId");
 
                     b.Navigation("CreateUser");
 
@@ -2509,49 +2513,52 @@ namespace WCMS.Migrations
                     b.Navigation("ModifyUser");
                 });
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryInfo", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit._Gallery.GalleryInfo", b =>
                 {
-                    b.HasOne("WCMS.Features.SiteEdit.Gallery.Gallery", null)
-                        .WithMany("GalleryInfo")
+                    b.HasOne("WCMS.Features.SiteEdit._Gallery._Gallery", "_Gallery")
+                        .WithMany("Info")
                         .HasForeignKey("GalleryId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("_Gallery");
                 });
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryPhotos", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit._Gallery.GalleryPhotos", b =>
                 {
-                    b.HasOne("WCMS.Features.SiteEdit.Gallery.Gallery", null)
-                        .WithMany("GalleryPhotos")
+                    b.HasOne("WCMS.Features.SiteEdit._Gallery._Gallery", "_Gallery")
+                        .WithMany("_GalleryPhotos")
                         .HasForeignKey("GalleryId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("_Gallery");
                 });
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryPhotosInfo", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit._Gallery.GalleryPhotosInfo", b =>
                 {
-                    b.HasOne("WCMS.Features.SiteEdit.Gallery.GalleryPhotos", null)
-                        .WithMany("GalleryPhotosInfo")
-                        .HasForeignKey("GalleryId", "RowId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                    b.HasOne("WCMS.Features.SiteEdit._Gallery.GalleryPhotos", "_GalleryPhotos")
+                        .WithMany("_GalleryPhotosInfo")
+                        .HasForeignKey("GalleryId", "ParentRowId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("_GalleryPhotos");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.PageManagement.PageManagement", b =>
                 {
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CreateUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
                         .WithMany()
-                        .HasForeignKey("InvalidUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("InvalidUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
                         .WithMany()
-                        .HasForeignKey("ModifyUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ModifyUserId");
 
                     b.Navigation("CreateUser");
 
@@ -2562,29 +2569,28 @@ namespace WCMS.Migrations
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.PageManagement.PageManagementDetail", b =>
                 {
-                    b.HasOne("WCMS.Features.SiteEdit.PageManagement.PageManagement", null)
-                        .WithMany("PageManagementDetail")
+                    b.HasOne("WCMS.Features.SiteEdit.PageManagement.PageManagement", "_PageManagement")
+                        .WithMany("_PageManagementDetail")
                         .HasForeignKey("PageId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("_PageManagement");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Tag.TagData", b =>
                 {
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CreateUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
                         .WithMany()
-                        .HasForeignKey("InvalidUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("InvalidUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
                         .WithMany()
-                        .HasForeignKey("ModifyUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ModifyUserId");
 
                     b.Navigation("CreateUser");
 
@@ -2595,29 +2601,28 @@ namespace WCMS.Migrations
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Tag.TagDetail", b =>
                 {
-                    b.HasOne("WCMS.Features.SiteEdit.Tag.TagData", null)
-                        .WithMany("TagDetail")
+                    b.HasOne("WCMS.Features.SiteEdit.Tag.TagData", "_TagData")
+                        .WithMany("_TagDetail")
                         .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("_TagData");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.WebResource.WebResource", b =>
                 {
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CreateUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
                         .WithMany()
-                        .HasForeignKey("InvalidUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("InvalidUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
                         .WithMany()
-                        .HasForeignKey("ModifyUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ModifyUserId");
 
                     b.Navigation("CreateUser");
 
@@ -2628,29 +2633,39 @@ namespace WCMS.Migrations
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.WebResource.WebResourceInfo", b =>
                 {
-                    b.HasOne("WCMS.Features.SiteEdit.WebResource.WebResource", null)
-                        .WithMany("WebResourceInfo")
+                    b.HasOne("WCMS.Features.SiteEdit.WebResource.WebResource", "_WebResource")
+                        .WithMany("_WebResourceInfo")
                         .HasForeignKey("WebResourceId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("_WebResource");
+                });
+
+            modelBuilder.Entity("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_IndexInfoModel", b =>
+                {
+                    b.HasOne("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_IndexModel", "_SiteMenu_Index")
+                        .WithMany("_SiteMenu_IndexInfo")
+                        .HasForeignKey("SiteIndex")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("_SiteMenu_Index");
                 });
 
             modelBuilder.Entity("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_IndexModel", b =>
                 {
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CreateUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
                         .WithMany()
-                        .HasForeignKey("InvalidUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("InvalidUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
                         .WithMany()
-                        .HasForeignKey("ModifyUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ModifyUserId");
 
                     b.Navigation("CreateUser");
 
@@ -2659,31 +2674,74 @@ namespace WCMS.Migrations
                     b.Navigation("ModifyUser");
                 });
 
+            modelBuilder.Entity("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_Item", b =>
+                {
+                    b.HasOne("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_IndexModel", "_SiteMenu_Index")
+                        .WithMany("_SiteMenu_Item")
+                        .HasForeignKey("SiteIndex")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("_SiteMenu_Index");
+                });
+
+            modelBuilder.Entity("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_Item_Module", b =>
+                {
+                    b.HasOne("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_Item", "_SiteMenu_Index")
+                        .WithOne("_SiteMenu_Item_Module")
+                        .HasForeignKey("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_Item_Module", "SiteIndex", "ItemRowId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("_SiteMenu_Index");
+                });
+
+            modelBuilder.Entity("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_Item_Title", b =>
+                {
+                    b.HasOne("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_Item", "_SiteMenu_Index")
+                        .WithMany("_SiteMenu_Item_Title")
+                        .HasForeignKey("SiteIndex", "ItemRowId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("_SiteMenu_Index");
+                });
+
+            modelBuilder.Entity("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_Item_Url", b =>
+                {
+                    b.HasOne("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_Item", "_SiteMenu_Index")
+                        .WithOne("_SiteMenu_Item_Url")
+                        .HasForeignKey("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_Item_Url", "SiteIndex", "ItemRowId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("_SiteMenu_Index");
+                });
+
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory.SpecCategoryDetailModel", b =>
                 {
-                    b.HasOne("WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory.SpecCategoryModel", null)
-                        .WithMany("SpecCategoryDetail")
+                    b.HasOne("WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory.SpecCategoryModel", "_SpecCategory")
+                        .WithMany("_SpecCategoryDetail")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("_SpecCategory");
                 });
 
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory.SpecCategoryModel", b =>
                 {
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CreateUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
                         .WithMany()
-                        .HasForeignKey("InvalidUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("InvalidUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
                         .WithMany()
-                        .HasForeignKey("ModifyUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ModifyUserId");
 
                     b.Navigation("CreateUser");
 
@@ -2694,29 +2752,28 @@ namespace WCMS.Migrations
 
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch.SpecResearchDetailModel", b =>
                 {
-                    b.HasOne("WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch.SpecResearchModel", null)
-                        .WithMany("SpecResearchDetail")
+                    b.HasOne("WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch.SpecResearchModel", "_SpecResearch")
+                        .WithMany("_SpecResearchDetail")
                         .HasForeignKey("ResearchId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("_SpecResearch");
                 });
 
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch.SpecResearchModel", b =>
                 {
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CreateUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
                         .WithMany()
-                        .HasForeignKey("InvalidUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("InvalidUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
                         .WithMany()
-                        .HasForeignKey("ModifyUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ModifyUserId");
 
                     b.Navigation("CreateUser");
 
@@ -2727,29 +2784,28 @@ namespace WCMS.Migrations
 
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRDetail", b =>
                 {
-                    b.HasOne("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRModel", null)
-                        .WithMany("SpecUSRDetail")
+                    b.HasOne("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRModel", "_SpecUSR")
+                        .WithMany("_SpecUSRDetail")
                         .HasForeignKey("USRId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("_SpecUSR");
                 });
 
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRModel", b =>
                 {
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CreateUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
                         .WithMany()
-                        .HasForeignKey("InvalidUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("InvalidUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
                         .WithMany()
-                        .HasForeignKey("ModifyUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ModifyUserId");
 
                     b.Navigation("CreateUser");
 
@@ -2771,13 +2827,11 @@ namespace WCMS.Migrations
                 {
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CreateUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
                         .WithMany()
-                        .HasForeignKey("ModifyUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ModifyUserId");
 
                     b.Navigation("CreateUser");
 
@@ -2786,38 +2840,39 @@ namespace WCMS.Migrations
 
             modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManagement.FileManage_DownloadInfoModel", b =>
                 {
-                    b.HasOne("WCMS.SysCore.SystemFunc.FileManagement.FileManageModel", null)
-                        .WithMany("File_DownloadInfo")
+                    b.HasOne("WCMS.SysCore.SystemFunc.FileManagement.FileManageModel", "_FileManage")
+                        .WithMany("_FileManage_DownloadInfo")
                         .HasForeignKey("InternalId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("_FileManage");
                 });
 
             modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManagement.FileManage_SyncInfoModel", b =>
                 {
-                    b.HasOne("WCMS.SysCore.SystemFunc.FileManagement.FileManageModel", null)
-                        .WithMany("File_SyncInfo")
+                    b.HasOne("WCMS.SysCore.SystemFunc.FileManagement.FileManageModel", "_FileManage")
+                        .WithMany("_FileManage_SyncInfo")
                         .HasForeignKey("InternalId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("_FileManage");
                 });
 
             modelBuilder.Entity("WCMS.SysCore.SystemFunc.UserRolePermission.Permission.PermissionModel", b =>
                 {
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CreateUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
                         .WithMany()
-                        .HasForeignKey("InvalidUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("InvalidUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
                         .WithMany()
-                        .HasForeignKey("ModifyUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ModifyUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.Role.RoleModel", "Role")
                         .WithMany("UserRoles")
@@ -2846,18 +2901,15 @@ namespace WCMS.Migrations
                 {
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CreateUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
                         .WithMany()
-                        .HasForeignKey("InvalidUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("InvalidUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
                         .WithMany()
-                        .HasForeignKey("ModifyUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ModifyUserId");
 
                     b.Navigation("CreateUser");
 
@@ -2871,7 +2923,7 @@ namespace WCMS.Migrations
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", null)
                         .WithMany("UserInfo")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
@@ -2879,18 +2931,15 @@ namespace WCMS.Migrations
                 {
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CreateUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "InvalidUser")
                         .WithMany()
-                        .HasForeignKey("InvalidUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("InvalidUserId");
 
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "ModifyUser")
                         .WithMany()
-                        .HasForeignKey("ModifyUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ModifyUserId");
 
                     b.Navigation("CreateUser");
 
@@ -2901,78 +2950,104 @@ namespace WCMS.Migrations
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.Announcement", b =>
                 {
-                    b.Navigation("AnnouncementDetail");
+                    b.Navigation("_AnnouncementDetail");
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Announcement.AnnouncementDetail", b =>
+                {
+                    b.Navigation("_AnnouncementDetailFile");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Banner.Banner", b =>
                 {
-                    b.Navigation("BannerDetail");
+                    b.Navigation("_BannerDetail");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Banner.BannerDetail", b =>
                 {
-                    b.Navigation("BannerDetailInfo");
+                    b.Navigation("_BannerDetailInfo");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Category.Category", b =>
                 {
-                    b.Navigation("CategoryDetail");
+                    b.Navigation("_CategoryDetail");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.FileArchive.FileArchive", b =>
                 {
-                    b.Navigation("FileArchiveDetail");
-
-                    b.Navigation("FileArchiveInfo");
+                    b.Navigation("_FileArchiveInfo");
                 });
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.Gallery", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit.FileArchive.FileArchiveInfo", b =>
                 {
-                    b.Navigation("GalleryInfo");
-
-                    b.Navigation("GalleryPhotos");
+                    b.Navigation("_FileArchiveDetail");
                 });
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryPhotos", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit._Gallery._Gallery", b =>
                 {
-                    b.Navigation("GalleryPhotosInfo");
+                    b.Navigation("Info");
+
+                    b.Navigation("_GalleryPhotos");
+                });
+
+            modelBuilder.Entity("WCMS.Features.SiteEdit._Gallery.GalleryPhotos", b =>
+                {
+                    b.Navigation("_GalleryPhotosInfo");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.PageManagement.PageManagement", b =>
                 {
-                    b.Navigation("PageManagementDetail");
+                    b.Navigation("_PageManagementDetail");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Tag.TagData", b =>
                 {
-                    b.Navigation("TagDetail");
+                    b.Navigation("_TagDetail");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.WebResource.WebResource", b =>
                 {
-                    b.Navigation("WebResourceInfo");
+                    b.Navigation("_WebResourceInfo");
+                });
+
+            modelBuilder.Entity("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_IndexModel", b =>
+                {
+                    b.Navigation("_SiteMenu_IndexInfo");
+
+                    b.Navigation("_SiteMenu_Item");
+                });
+
+            modelBuilder.Entity("WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.SiteMenu_Item", b =>
+                {
+                    b.Navigation("_SiteMenu_Item_Module")
+                        .IsRequired();
+
+                    b.Navigation("_SiteMenu_Item_Title");
+
+                    b.Navigation("_SiteMenu_Item_Url")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory.SpecCategoryModel", b =>
                 {
-                    b.Navigation("SpecCategoryDetail");
+                    b.Navigation("_SpecCategoryDetail");
                 });
 
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch.SpecResearchModel", b =>
                 {
-                    b.Navigation("SpecResearchDetail");
+                    b.Navigation("_SpecResearchDetail");
                 });
 
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRModel", b =>
                 {
-                    b.Navigation("SpecUSRDetail");
+                    b.Navigation("_SpecUSRDetail");
                 });
 
             modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManagement.FileManageModel", b =>
                 {
-                    b.Navigation("File_DownloadInfo");
+                    b.Navigation("_FileManage_DownloadInfo");
 
-                    b.Navigation("File_SyncInfo");
+                    b.Navigation("_FileManage_SyncInfo");
                 });
 
             modelBuilder.Entity("WCMS.SysCore.SystemFunc.UserRolePermission.Role.RoleModel", b =>

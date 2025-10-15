@@ -23,6 +23,10 @@ namespace WCMS.Features.SiteEdit.PageManagement
         /// 查看次數
         /// </summary>
         [LibDesc(ModelDisplayName.Page_ViewCount)] public int? ViewCount { get; set; }
+
+        #region 主子表關聯
+        public List<PageManagementDetail_DTO> _PageManagementDetail { get; set; }
+        #endregion
     }
     public class PageManagementDetail_DTO
     {

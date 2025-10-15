@@ -22,10 +22,10 @@ namespace WCMS.Features.SiteEdit.Category
         /// 對應功能模塊ID
         /// </summary>
         [LibDesc(ModelDisplayName.Common_ProgId)] public string? ProgId { get; set; }
-        /// <summary>
-        /// 類別明細
-        /// </summary>
-        [JsonIgnore] public virtual ICollection<CategoryDetail_DTO>? CategoryDetail { get; set; }
+
+        #region 主子表關聯
+        public List<CategoryDetail_DTO> _CategoryDetail { get; set; }
+        #endregion
     }
     public class CategoryDetail_DTO
     {

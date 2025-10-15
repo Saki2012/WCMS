@@ -43,8 +43,8 @@ const useGetCategories = (lang: string, categoryIds: string) => {
         buildQueryCondition: () => ({
             Fields: [
                 SchemaFields.CategoryFields.CategoryId,
-                `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
-                `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
+                `${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
+                `${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
             ],
             Condition: condition,
             PageNumber: 0,
@@ -71,8 +71,8 @@ const useGetTags = (lang: string, tagIds: string) => {
         buildQueryCondition: () => ({
             Fields: [
                 SchemaFields.TagDataFields.TagId,
-                `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
-                `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
+                `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
+                `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
             ],
             Condition: condition,
             PageNumber: 0,

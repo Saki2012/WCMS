@@ -6,7 +6,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using WCMS.Features.SiteEdit.Gallery;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
@@ -220,11 +219,11 @@ namespace WCMS.SysCore
                 PropertyInfo[] dataProps = PropertyAccessorCache.GetProperties(data.GetType());
                 foreach(PropertyInfo prop in dataProps.Where(p => p.IsListPropertyType()))
                 {
-                    if (!PropertyAccessorCache.GetProperties<TSet>().Select(p => p.Name).Contains(prop.Name)) continue;
+                    var propName = prop.Name.Trim('_');
+                    if (!PropertyAccessorCache.GetProperties<TSet>().Select(p => p.Name).Contains(propName)) continue;
                     var dstData = PropertyAccessorCache.Get(data, prop.Name);
-                    PropertyAccessorCache.Set(srcData, prop.Name, dstData);
+                    PropertyAccessorCache.Set(srcData, propName, dstData);
                 }
-
                 result.Add(srcData);
             }
             return result;

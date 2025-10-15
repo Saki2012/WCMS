@@ -40,10 +40,15 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// 封面照 (透過功能從相簿裡的PicSrcId直接取得，保存時紀錄，供之後list查看時減少效能使用)
         /// </summary>
         [LibDesc(ModelDisplayName.Gallery_CoverPicSrcId)] public string? CoverPicSrcId { get; set; }
-
+        /// <summary>
+        /// 上架時間
+        /// </summary>
         [LibDesc(ModelDisplayName.Banner_StartDate)] public DateTime? Validate_Start { get; set; }
-        public List<GalleryInfo_DTO> GalleryInfo { get; set; } = [];
-        public List<GalleryPhotos_DTO> GalleryPhotos { get; set; } = [];
+
+        #region 主子表關聯
+        public List<GalleryInfo_DTO> _GalleryInfo { get; set; } = [];
+        public List<GalleryPhotos_DTO> _GalleryPhotos { get; set; } = [];
+        #endregion
     }
     /// <summary>
     /// 相簿資訊
@@ -105,7 +110,7 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// </summary>
         [LibDesc(ModelDisplayName.GalleryId)] public string? GalleryId { get; set; }
         /// <summary>
-        /// 父行主鍵 - (GalleryPhotos)
+        /// 父行主鍵 - (_GalleryPhotos)
         /// </summary>
         [LibDesc(ModelDisplayName.Common_ParentRowId)] public int ParentRowId { get; set; }
         /// <summary>

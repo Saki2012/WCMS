@@ -29,8 +29,8 @@ const useAnnouncementList = () => {
                 SchemaFields.AnnouncementFields.PictureId,
                 SchemaFields.AnnouncementFields.PicDescription,
                 SchemaFields.AnnouncementFields.ContentStatus,
-                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
-                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
+                `${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
+                `${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
                 SchemaFields.AnnouncementFields.ViewCount,
             ],
             Condition: `${SchemaFields.AnnouncementFields.Categories} HasAny (8,10) And ${SchemaFields.AnnouncementFields.ContentStatus} !&4`,
@@ -53,8 +53,8 @@ const useTagList = () => {
         buildQueryCondition: () => ({
             Fields: [
                 SchemaFields.TagDataFields.TagId,
-                `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
-                `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
+                `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
+                `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
             ],
             Condition: `${SchemaFields.TagDataFields.ProgId} = Announcement`,
             PageNumber: 0,

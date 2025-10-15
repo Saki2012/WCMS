@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
@@ -30,7 +32,9 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
         /// </summary>
         [LibDesc, StringLength(SysLengthParam.Title)] public string? Tags { get; set; } = string.Empty;
 
-        public List<SpecResearchDetailModel> SpecResearchDetail { get; set; } = [];
+        #region 主子表關聯
+        [InverseProperty(nameof(SpecResearchDetailModel._SpecResearch))] public List<SpecResearchDetailModel> _SpecResearchDetail { get; set; }
+        #endregion
     }
     public class SpecResearchDetailModel : DetailRowModel
     {
@@ -62,5 +66,9 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
         [StringLength(200)] public string? Commissioned { get; set; }
         public decimal? PlanAmount { get; set; }
         public string? PlanContent { get; set; }
+
+        #region 主子表關聯
+        [ForeignKey(nameof(ResearchId))] public SpecResearchModel _SpecResearch { get; set; }
+        #endregion
     }
 }

@@ -1,7 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using static WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.ModuleOptions;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Banner
@@ -39,7 +42,9 @@ namespace WCMS.Features.SiteEdit.Banner
         /// 橫幅寬度
         /// </summary>
         public short Width { get; set; }
-        [LibDesc] public List<BannerDetail> BannerDetail { get; set; } = [];
+        #region 主子表關聯
+        [InverseProperty(nameof(BannerDetail._Banner))] public List<BannerDetail> _BannerDetail { get; set; } = [];
+        #endregion
     }
     public class BannerDetail:DetailRowModel
     {
@@ -71,7 +76,10 @@ namespace WCMS.Features.SiteEdit.Banner
         /// 播放順序
         /// </summary>
         [LibDesc] public ushort Sort { get; set; }
-        [LibDesc] public List<BannerDetailInfo> BannerDetailInfo { get; set; } = [];
+        #region 主子表關聯
+        [ForeignKey(nameof(BannerId))] public Banner _Banner { get; set; }
+        [InverseProperty(nameof(BannerDetailInfo._BannerDetail))] public List<BannerDetailInfo> _BannerDetailInfo { get; set; }
+        #endregion
     }
     public class BannerDetailInfo : DetailRowModel
     {
@@ -105,5 +113,9 @@ namespace WCMS.Features.SiteEdit.Banner
         /// 網址開啟方式
         /// </summary>
         [LibDesc] public WindowTarget URL_Open { get; set; }
+
+        #region 主子表關聯
+        [ForeignKey($@"{nameof(BannerId)},{nameof(ParentRowId)}")] public BannerDetail _BannerDetail { get; set; }
+        #endregion
     }
 }

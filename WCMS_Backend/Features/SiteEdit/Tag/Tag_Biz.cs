@@ -55,7 +55,7 @@ namespace WCMS.Features.SiteEdit.Tag
                 case "FileArchive":
                     useCount = await DoQueryListCountAsync<FileArchive.FileArchive>([nameof(BasicDataModel.InternalId)], $@"{nameof(FileArchive.FileArchive.TagsId)} HasAny {tagId}");
                     break;
-                case "Gallery":
+                case "_Gallery":
                     useCount = await DoQueryListCountAsync<Gallery.Gallery>([nameof(BasicDataModel.InternalId)], $@"{nameof(Gallery.Gallery.Tags)} HasAny {tagId}");
                     break;
                 default:

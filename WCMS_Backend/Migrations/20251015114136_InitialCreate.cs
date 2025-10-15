@@ -12,104 +12,6 @@ namespace WCMS.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "AnnouncementDetailFile",
-                columns: table => new
-                {
-                    AnnouncementId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    ParentRowId = table.Column<int>(type: "int", nullable: false),
-                    RowId = table.Column<int>(type: "int", nullable: false),
-                    FileId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
-                    FileName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AnnouncementDetailFile", x => new { x.AnnouncementId, x.ParentRowId, x.RowId });
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SiteMenu_IndexInfo",
-                columns: table => new
-                {
-                    SiteIndex = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    RowId = table.Column<int>(type: "int", nullable: false),
-                    Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
-                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    SiteHeader = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SiteFooter = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Keyword = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SiteMenu_IndexInfo", x => new { x.SiteIndex, x.RowId });
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SiteMenu_Item",
-                columns: table => new
-                {
-                    SiteIndex = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    RowId = table.Column<int>(type: "int", nullable: false),
-                    ParentRowId = table.Column<int>(type: "int", nullable: true),
-                    ItemSiteUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    FullUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    Level = table.Column<byte>(type: "tinyint", nullable: false),
-                    DisplayOrder = table.Column<byte>(type: "tinyint", nullable: false),
-                    ItemType = table.Column<byte>(type: "tinyint", nullable: false),
-                    WindowTarget = table.Column<byte>(type: "tinyint", nullable: false),
-                    IsShowOnMenu = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SiteMenu_Item", x => new { x.SiteIndex, x.RowId });
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SiteMenu_Item_Module",
-                columns: table => new
-                {
-                    SiteIndex = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    ItemRowId = table.Column<int>(type: "int", nullable: false),
-                    BannerId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    PageType = table.Column<byte>(type: "tinyint", nullable: false),
-                    ModuleProgId = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: true),
-                    ModuleOptions = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SiteMenu_Item_Module", x => new { x.SiteIndex, x.ItemRowId });
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SiteMenu_Item_Title",
-                columns: table => new
-                {
-                    SiteIndex = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    ParentRowId = table.Column<int>(type: "int", nullable: false),
-                    RowId = table.Column<int>(type: "int", nullable: false),
-                    Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SiteMenu_Item_Title", x => new { x.SiteIndex, x.ParentRowId, x.RowId });
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SiteMenu_Item_Url",
-                columns: table => new
-                {
-                    SiteIndex = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ItemRowId = table.Column<int>(type: "int", nullable: false),
-                    RedirectType = table.Column<byte>(type: "tinyint", nullable: false),
-                    RedirectUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SiteMenu_Item_Url", x => new { x.SiteIndex, x.ItemRowId });
-                });
-
-            migrationBuilder.CreateTable(
                 name: "SplitStringRow",
                 columns: table => new
                 {
@@ -153,20 +55,17 @@ namespace WCMS.Migrations
                         name: "FK_User_User_CreateUserId",
                         column: x => x.CreateUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_User_User_InvalidUserId",
                         column: x => x.InvalidUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_User_User_ModifyUserId",
                         column: x => x.ModifyUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -202,20 +101,17 @@ namespace WCMS.Migrations
                         name: "FK_Announcement_User_CreateUserId",
                         column: x => x.CreateUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_Announcement_User_InvalidUserId",
                         column: x => x.InvalidUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_Announcement_User_ModifyUserId",
                         column: x => x.ModifyUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -250,20 +146,17 @@ namespace WCMS.Migrations
                         name: "FK_Banner_User_CreateUserId",
                         column: x => x.CreateUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_Banner_User_InvalidUserId",
                         column: x => x.InvalidUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_Banner_User_ModifyUserId",
                         column: x => x.ModifyUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -294,20 +187,17 @@ namespace WCMS.Migrations
                         name: "FK_Category_User_CreateUserId",
                         column: x => x.CreateUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_Category_User_InvalidUserId",
                         column: x => x.InvalidUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_Category_User_ModifyUserId",
                         column: x => x.ModifyUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -341,20 +231,17 @@ namespace WCMS.Migrations
                         name: "FK_FileArchive_User_CreateUserId",
                         column: x => x.CreateUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_FileArchive_User_InvalidUserId",
                         column: x => x.InvalidUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_FileArchive_User_ModifyUserId",
                         column: x => x.ModifyUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -389,18 +276,16 @@ namespace WCMS.Migrations
                         name: "FK_FileManage_User_CreateUserId",
                         column: x => x.CreateUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_FileManage_User_ModifyUserId",
                         column: x => x.ModifyUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
-                name: "Gallery",
+                name: "_Gallery",
                 columns: table => new
                 {
                     GalleryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
@@ -430,20 +315,17 @@ namespace WCMS.Migrations
                         name: "FK_Gallery_User_CreateUserId",
                         column: x => x.CreateUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_Gallery_User_InvalidUserId",
                         column: x => x.InvalidUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_Gallery_User_ModifyUserId",
                         column: x => x.ModifyUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -497,20 +379,17 @@ namespace WCMS.Migrations
                         name: "FK_PageManagement_User_CreateUserId",
                         column: x => x.CreateUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_PageManagement_User_InvalidUserId",
                         column: x => x.InvalidUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_PageManagement_User_ModifyUserId",
                         column: x => x.ModifyUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -543,20 +422,17 @@ namespace WCMS.Migrations
                         name: "FK_Role_User_CreateUserId",
                         column: x => x.CreateUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_Role_User_InvalidUserId",
                         column: x => x.InvalidUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_Role_User_ModifyUserId",
                         column: x => x.ModifyUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -588,20 +464,17 @@ namespace WCMS.Migrations
                         name: "FK_SiteMenu_Index_User_CreateUserId",
                         column: x => x.CreateUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_SiteMenu_Index_User_InvalidUserId",
                         column: x => x.InvalidUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_SiteMenu_Index_User_ModifyUserId",
                         column: x => x.ModifyUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -633,20 +506,17 @@ namespace WCMS.Migrations
                         name: "FK_SpecCategory_User_CreateUserId",
                         column: x => x.CreateUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_SpecCategory_User_InvalidUserId",
                         column: x => x.InvalidUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_SpecCategory_User_ModifyUserId",
                         column: x => x.ModifyUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -679,20 +549,17 @@ namespace WCMS.Migrations
                         name: "FK_SpecResearch_User_CreateUserId",
                         column: x => x.CreateUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_SpecResearch_User_InvalidUserId",
                         column: x => x.InvalidUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_SpecResearch_User_ModifyUserId",
                         column: x => x.ModifyUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -727,20 +594,17 @@ namespace WCMS.Migrations
                         name: "FK_SpecUSR_User_CreateUserId",
                         column: x => x.CreateUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_SpecUSR_User_InvalidUserId",
                         column: x => x.InvalidUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_SpecUSR_User_ModifyUserId",
                         column: x => x.ModifyUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -771,20 +635,17 @@ namespace WCMS.Migrations
                         name: "FK_TagData_User_CreateUserId",
                         column: x => x.CreateUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_TagData_User_InvalidUserId",
                         column: x => x.InvalidUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_TagData_User_ModifyUserId",
                         column: x => x.ModifyUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -804,7 +665,7 @@ namespace WCMS.Migrations
                         column: x => x.UserId,
                         principalTable: "User",
                         principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -839,20 +700,17 @@ namespace WCMS.Migrations
                         name: "FK_WebResource_User_CreateUserId",
                         column: x => x.CreateUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_WebResource_User_InvalidUserId",
                         column: x => x.InvalidUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_WebResource_User_ModifyUserId",
                         column: x => x.ModifyUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -876,7 +734,7 @@ namespace WCMS.Migrations
                         column: x => x.AnnouncementId,
                         principalTable: "Announcement",
                         principalColumn: "AnnouncementId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -899,7 +757,7 @@ namespace WCMS.Migrations
                         column: x => x.BannerId,
                         principalTable: "Banner",
                         principalColumn: "BannerId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -919,7 +777,7 @@ namespace WCMS.Migrations
                         column: x => x.CategoryId,
                         principalTable: "Category",
                         principalColumn: "CategoryId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -929,7 +787,8 @@ namespace WCMS.Migrations
                     FileArchiveId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
                     Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    FileArchiveId1 = table.Column<string>(type: "nvarchar(20)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -939,34 +798,12 @@ namespace WCMS.Migrations
                         column: x => x.FileArchiveId,
                         principalTable: "FileArchive",
                         principalColumn: "FileArchiveId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "FileArchiveDetail",
-                columns: table => new
-                {
-                    FileArchiveId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    ParentRowId = table.Column<int>(type: "int", nullable: false),
-                    RowId = table.Column<int>(type: "int", nullable: false),
-                    FileSrcId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
-                    FileName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_FileArchiveDetail", x => new { x.FileArchiveId, x.ParentRowId, x.RowId });
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_FileArchiveDetail_FileArchive_FileArchiveId",
-                        column: x => x.FileArchiveId,
+                        name: "FK_FileArchiveInfo_FileArchive_FileArchiveId1",
+                        column: x => x.FileArchiveId1,
                         principalTable: "FileArchive",
-                        principalColumn: "FileArchiveId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_FileArchiveDetail_FileManage_FileSrcId",
-                        column: x => x.FileSrcId,
-                        principalTable: "FileManage",
-                        principalColumn: "InternalId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "FileArchiveId");
                 });
 
             migrationBuilder.CreateTable(
@@ -989,7 +826,7 @@ namespace WCMS.Migrations
                         column: x => x.InternalId,
                         principalTable: "FileManage",
                         principalColumn: "InternalId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1017,7 +854,7 @@ namespace WCMS.Migrations
                         column: x => x.InternalId,
                         principalTable: "FileManage",
                         principalColumn: "InternalId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1036,9 +873,9 @@ namespace WCMS.Migrations
                     table.ForeignKey(
                         name: "FK_GalleryInfo_Gallery_GalleryId",
                         column: x => x.GalleryId,
-                        principalTable: "Gallery",
+                        principalTable: "_Gallery",
                         principalColumn: "GalleryId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1056,9 +893,9 @@ namespace WCMS.Migrations
                     table.ForeignKey(
                         name: "FK_GalleryPhotos_Gallery_GalleryId",
                         column: x => x.GalleryId,
-                        principalTable: "Gallery",
+                        principalTable: "_Gallery",
                         principalColumn: "GalleryId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1079,7 +916,7 @@ namespace WCMS.Migrations
                         column: x => x.PageId,
                         principalTable: "PageManagement",
                         principalColumn: "PageId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1116,25 +953,72 @@ namespace WCMS.Migrations
                         name: "FK_Permission_User_CreateUserId",
                         column: x => x.CreateUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_Permission_User_InvalidUserId",
                         column: x => x.InvalidUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_Permission_User_ModifyUserId",
                         column: x => x.ModifyUserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_Permission_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
                         principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SiteMenu_IndexInfo",
+                columns: table => new
+                {
+                    SiteIndex = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    RowId = table.Column<int>(type: "int", nullable: false),
+                    Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    SiteHeader = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SiteFooter = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Keyword = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SiteMenu_IndexInfo", x => new { x.SiteIndex, x.RowId });
+                    table.ForeignKey(
+                        name: "FK_SiteMenu_IndexInfo_SiteMenu_Index_SiteIndex",
+                        column: x => x.SiteIndex,
+                        principalTable: "SiteMenu_Index",
+                        principalColumn: "SiteIndex",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SiteMenu_Item",
+                columns: table => new
+                {
+                    SiteIndex = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    RowId = table.Column<int>(type: "int", nullable: false),
+                    ParentRowId = table.Column<int>(type: "int", nullable: true),
+                    ItemSiteUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    FullUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    Level = table.Column<byte>(type: "tinyint", nullable: false),
+                    DisplayOrder = table.Column<byte>(type: "tinyint", nullable: false),
+                    ItemType = table.Column<byte>(type: "tinyint", nullable: false),
+                    WindowTarget = table.Column<byte>(type: "tinyint", nullable: false),
+                    IsShowOnMenu = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SiteMenu_Item", x => new { x.SiteIndex, x.RowId });
+                    table.ForeignKey(
+                        name: "FK_SiteMenu_Item_SiteMenu_Index_SiteIndex",
+                        column: x => x.SiteIndex,
+                        principalTable: "SiteMenu_Index",
+                        principalColumn: "SiteIndex",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -1155,7 +1039,7 @@ namespace WCMS.Migrations
                         column: x => x.CategoryId,
                         principalTable: "SpecCategory",
                         principalColumn: "CategoryId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1199,7 +1083,7 @@ namespace WCMS.Migrations
                         column: x => x.ResearchId,
                         principalTable: "SpecResearch",
                         principalColumn: "ResearchId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1239,7 +1123,7 @@ namespace WCMS.Migrations
                         column: x => x.USRId,
                         principalTable: "SpecUSR",
                         principalColumn: "USRId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1259,7 +1143,7 @@ namespace WCMS.Migrations
                         column: x => x.TagId,
                         principalTable: "TagData",
                         principalColumn: "TagId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1282,7 +1166,28 @@ namespace WCMS.Migrations
                         column: x => x.WebResourceId,
                         principalTable: "WebResource",
                         principalColumn: "WebResourceId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AnnouncementDetailFile",
+                columns: table => new
+                {
+                    AnnouncementId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    ParentRowId = table.Column<int>(type: "int", nullable: false),
+                    RowId = table.Column<int>(type: "int", nullable: false),
+                    FileId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    FileName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AnnouncementDetailFile", x => new { x.AnnouncementId, x.ParentRowId, x.RowId });
+                    table.ForeignKey(
+                        name: "FK_AnnouncementDetailFile_AnnouncementDetail_AnnouncementId_ParentRowId",
+                        columns: x => new { x.AnnouncementId, x.ParentRowId },
+                        principalTable: "AnnouncementDetail",
+                        principalColumns: new[] { "AnnouncementId", "RowId" },
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1302,11 +1207,38 @@ namespace WCMS.Migrations
                 {
                     table.PrimaryKey("PK_BannerDetailInfo", x => new { x.BannerId, x.ParentRowId, x.RowId });
                     table.ForeignKey(
-                        name: "FK_BannerDetailInfo_BannerDetail_BannerId_RowId",
-                        columns: x => new { x.BannerId, x.RowId },
+                        name: "FK_BannerDetailInfo_BannerDetail_BannerId_ParentRowId",
+                        columns: x => new { x.BannerId, x.ParentRowId },
                         principalTable: "BannerDetail",
                         principalColumns: new[] { "BannerId", "RowId" },
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FileArchiveDetail",
+                columns: table => new
+                {
+                    FileArchiveId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    ParentRowId = table.Column<int>(type: "int", nullable: false),
+                    RowId = table.Column<int>(type: "int", nullable: false),
+                    FileSrcId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    FileName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FileArchiveDetail", x => new { x.FileArchiveId, x.ParentRowId, x.RowId });
+                    table.ForeignKey(
+                        name: "FK_FileArchiveDetail_FileArchiveInfo_FileArchiveId_ParentRowId",
+                        columns: x => new { x.FileArchiveId, x.ParentRowId },
+                        principalTable: "FileArchiveInfo",
+                        principalColumns: new[] { "FileArchiveId", "RowId" },
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_FileArchiveDetail_FileManage_FileSrcId",
+                        column: x => x.FileSrcId,
+                        principalTable: "FileManage",
+                        principalColumn: "InternalId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1323,11 +1255,74 @@ namespace WCMS.Migrations
                 {
                     table.PrimaryKey("PK_GalleryPhotosInfo", x => new { x.GalleryId, x.ParentRowId, x.RowId });
                     table.ForeignKey(
-                        name: "FK_GalleryPhotosInfo_GalleryPhotos_GalleryId_RowId",
-                        columns: x => new { x.GalleryId, x.RowId },
+                        name: "FK_GalleryPhotosInfo_GalleryPhotos_GalleryId_ParentRowId",
+                        columns: x => new { x.GalleryId, x.ParentRowId },
                         principalTable: "GalleryPhotos",
                         principalColumns: new[] { "GalleryId", "RowId" },
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SiteMenu_Item_Module",
+                columns: table => new
+                {
+                    SiteIndex = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    ItemRowId = table.Column<int>(type: "int", nullable: false),
+                    BannerId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    PageType = table.Column<byte>(type: "tinyint", nullable: false),
+                    ModuleProgId = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: true),
+                    ModuleOptions = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SiteMenu_Item_Module", x => new { x.SiteIndex, x.ItemRowId });
+                    table.ForeignKey(
+                        name: "FK_SiteMenu_Item_Module_SiteMenu_Item_SiteIndex_ItemRowId",
+                        columns: x => new { x.SiteIndex, x.ItemRowId },
+                        principalTable: "SiteMenu_Item",
+                        principalColumns: new[] { "SiteIndex", "RowId" },
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SiteMenu_Item_Title",
+                columns: table => new
+                {
+                    SiteIndex = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    ItemRowId = table.Column<int>(type: "int", nullable: false),
+                    RowId = table.Column<int>(type: "int", nullable: false),
+                    Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SiteMenu_Item_Title", x => new { x.SiteIndex, x.ItemRowId, x.RowId });
+                    table.ForeignKey(
+                        name: "FK_SiteMenu_Item_Title_SiteMenu_Item_SiteIndex_ItemRowId",
+                        columns: x => new { x.SiteIndex, x.ItemRowId },
+                        principalTable: "SiteMenu_Item",
+                        principalColumns: new[] { "SiteIndex", "RowId" },
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SiteMenu_Item_Url",
+                columns: table => new
+                {
+                    SiteIndex = table.Column<string>(type: "nvarchar(20)", nullable: false),
+                    ItemRowId = table.Column<int>(type: "int", nullable: false),
+                    RedirectType = table.Column<byte>(type: "tinyint", nullable: false),
+                    RedirectUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SiteMenu_Item_Url", x => new { x.SiteIndex, x.ItemRowId });
+                    table.ForeignKey(
+                        name: "FK_SiteMenu_Item_Url_SiteMenu_Item_SiteIndex_ItemRowId",
+                        columns: x => new { x.SiteIndex, x.ItemRowId },
+                        principalTable: "SiteMenu_Item",
+                        principalColumns: new[] { "SiteIndex", "RowId" },
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -1371,11 +1366,6 @@ namespace WCMS.Migrations
                 name: "IX_Banner_ModifyUserId",
                 table: "Banner",
                 column: "ModifyUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BannerDetailInfo_BannerId_RowId",
-                table: "BannerDetailInfo",
-                columns: new[] { "BannerId", "RowId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Category_CreateUserId",
@@ -1425,6 +1415,11 @@ namespace WCMS.Migrations
                 column: "FileSrcId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_FileArchiveInfo_FileArchiveId1",
+                table: "FileArchiveInfo",
+                column: "FileArchiveId1");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_FileManage_CreateUserId",
                 table: "FileManage",
                 column: "CreateUserId");
@@ -1447,29 +1442,24 @@ namespace WCMS.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_Gallery_CreateUserId",
-                table: "Gallery",
+                table: "_Gallery",
                 column: "CreateUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Gallery_InternalId",
-                table: "Gallery",
+                table: "_Gallery",
                 column: "InternalId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Gallery_InvalidUserId",
-                table: "Gallery",
+                table: "_Gallery",
                 column: "InvalidUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Gallery_ModifyUserId",
-                table: "Gallery",
+                table: "_Gallery",
                 column: "ModifyUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_GalleryPhotosInfo_GalleryId_RowId",
-                table: "GalleryPhotosInfo",
-                columns: new[] { "GalleryId", "RowId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_OperateLog_UserId",
@@ -1703,9 +1693,6 @@ namespace WCMS.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AnnouncementDetail");
-
-            migrationBuilder.DropTable(
                 name: "AnnouncementDetailFile");
 
             migrationBuilder.DropTable(
@@ -1716,9 +1703,6 @@ namespace WCMS.Migrations
 
             migrationBuilder.DropTable(
                 name: "FileArchiveDetail");
-
-            migrationBuilder.DropTable(
-                name: "FileArchiveInfo");
 
             migrationBuilder.DropTable(
                 name: "FileManage_DownloadInfo");
@@ -1742,13 +1726,7 @@ namespace WCMS.Migrations
                 name: "Permission");
 
             migrationBuilder.DropTable(
-                name: "SiteMenu_Index");
-
-            migrationBuilder.DropTable(
                 name: "SiteMenu_IndexInfo");
-
-            migrationBuilder.DropTable(
-                name: "SiteMenu_Item");
 
             migrationBuilder.DropTable(
                 name: "SiteMenu_Item_Module");
@@ -1781,7 +1759,7 @@ namespace WCMS.Migrations
                 name: "WebResourceInfo");
 
             migrationBuilder.DropTable(
-                name: "Announcement");
+                name: "AnnouncementDetail");
 
             migrationBuilder.DropTable(
                 name: "BannerDetail");
@@ -1790,7 +1768,7 @@ namespace WCMS.Migrations
                 name: "Category");
 
             migrationBuilder.DropTable(
-                name: "FileArchive");
+                name: "FileArchiveInfo");
 
             migrationBuilder.DropTable(
                 name: "FileManage");
@@ -1803,6 +1781,9 @@ namespace WCMS.Migrations
 
             migrationBuilder.DropTable(
                 name: "Role");
+
+            migrationBuilder.DropTable(
+                name: "SiteMenu_Item");
 
             migrationBuilder.DropTable(
                 name: "SpecCategory");
@@ -1820,10 +1801,19 @@ namespace WCMS.Migrations
                 name: "WebResource");
 
             migrationBuilder.DropTable(
+                name: "Announcement");
+
+            migrationBuilder.DropTable(
                 name: "Banner");
 
             migrationBuilder.DropTable(
-                name: "Gallery");
+                name: "FileArchive");
+
+            migrationBuilder.DropTable(
+                name: "_Gallery");
+
+            migrationBuilder.DropTable(
+                name: "SiteMenu_Index");
 
             migrationBuilder.DropTable(
                 name: "User");

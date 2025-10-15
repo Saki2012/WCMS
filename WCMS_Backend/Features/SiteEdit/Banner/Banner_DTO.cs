@@ -1,4 +1,6 @@
-﻿using WCMS.SysCore.Library;
+﻿using System.Text.Json.Serialization;
+using WCMS.Features.SiteEdit.Announcement;
+using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
@@ -37,7 +39,10 @@ namespace WCMS.Features.SiteEdit.Banner
         /// 橫幅寬度
         /// </summary>
         [LibDesc(ModelDisplayName.Banner_Width)] public short Width { get; set; }
-        [LibDesc] public List<BannerDetail_DTO> BannerDetail { get; set; } = [];
+
+        #region 主子表關聯
+        public List<BannerDetail_DTO> _BannerDetail { get; set; }
+        #endregion
     }
     public class BannerDetail_DTO
     {

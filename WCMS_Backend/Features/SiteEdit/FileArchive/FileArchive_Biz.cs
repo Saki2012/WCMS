@@ -124,28 +124,40 @@ namespace WCMS.Features.SiteEdit.FileArchive
                 case SysEnum.FuncAction.Create:
                 case SysEnum.FuncAction.Update:
                     CheckData(set);
-                    DoRemergeData(set.FileArchive);
+                    SetData(set);
                     break;
             }
         }
         #endregion
 
-        private void CheckData(FileArchiveSet set)
-        {
-            CheckDate(set.FileArchive);
-        }
 
-
-        private void CheckDate(FileArchive header)
-        {
-            //if (header.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchive>(x => x.Validate_Start));
-            //if (header.Validate_End == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchive>(x => x.Validate_End));
-            //if (header.Validate_End != null && header.Validate_Start > header.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, I18nCache.GetLabel<FileArchive>(x => x.Validate_End) , I18nCache.GetLabel<FileArchive>(x => x.Validate_Start));
-            if (header.CategoriesId == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchive>(x => x.CategoriesId));
-
-        }
 
         #region Private
+        private void CheckData(FileArchiveSet set)
+        {
+            CheckCategoryIsEmpty(set.FileArchive);
+        }
+        private static void SetData(FileArchiveSet set)
+        {
+            DoRemergeData(set.FileArchive);
+            RemoveEmptyFileSrcData(set.FileArchiveDetail);
+        }
+        /// <summary>
+        /// 檢查類別是否為空
+        /// </summary>
+        /// <param name="header"></param>
+        private void CheckCategoryIsEmpty(FileArchive header)
+        {
+            if (header.CategoriesId == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchive>(x => x.CategoriesId));
+        }
+        /// <summary>
+        /// 如果沒有上傳檔案成功的項目，就移除該項目防呆
+        /// </summary>
+        /// <param name="fileArchiveDetail"></param>
+        private static void RemoveEmptyFileSrcData(List<FileArchiveDetail> fileArchiveDetail)
+        {
+            for (int i = fileArchiveDetail.Count - 1; i >= 0; i--) if (fileArchiveDetail[i].FileSrcId.IsNullOrEmpty()) fileArchiveDetail.RemoveAt(i);
+        }
         /// <summary>
         /// 重新組合多筆資料(類別、狀態、標籤)
         /// </summary>

@@ -13,3 +13,4 @@ WCMS_Backend/FileManage/
 WCMS_Backend/appsettings.Development.json
 /WCMS_Frontend/src/SpecFetures/3001
 *.html
+WCMS_Backend/appsettings.Development.json

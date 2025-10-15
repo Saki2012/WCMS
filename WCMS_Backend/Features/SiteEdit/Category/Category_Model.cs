@@ -1,8 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using static WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.ModuleOptions;
 
 namespace WCMS.Features.SiteEdit.Category
 {
@@ -21,10 +24,10 @@ namespace WCMS.Features.SiteEdit.Category
         /// 對應功能模塊ID
         /// </summary>
         [StringLength(SysLengthParam.ProgId)] public string? ProgId { get; set; }
-        /// <summary>
-        /// 類別明細
-        /// </summary>
-        public virtual ICollection<CategoryDetail>? CategoryDetail { get; set; }
+
+        #region 主子表關聯
+        [InverseProperty(nameof(CategoryDetail._Category))] public List<CategoryDetail>? _CategoryDetail { get; set; }
+        #endregion
     }
     public class CategoryDetail : DetailRowModel
     {
@@ -44,5 +47,9 @@ namespace WCMS.Features.SiteEdit.Category
         /// 標題
         /// </summary>
         [StringLength(SysLengthParam.Title)] public string CategoryName { get; set; }
+
+        #region 主子表關聯
+        [ForeignKey(nameof(CategoryId))] public Category _Category { get; set; } = null!;
+        #endregion
     }
 }

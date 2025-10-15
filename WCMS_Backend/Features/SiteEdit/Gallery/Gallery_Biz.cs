@@ -16,7 +16,7 @@ using static WCMS.SysCore.Library.LibData;
 
 namespace WCMS.Features.SiteEdit.Gallery
 {
-    [ProgId("Gallery")]
+    [ProgId("_Gallery")]
     public class GalleryBiz(IRepositoryMapProvider repoMapProvider, IErrorHelper message) : BizService<GallerySet>(repoMapProvider, message), IBizService<GallerySet> {
 
 
@@ -31,7 +31,7 @@ namespace WCMS.Features.SiteEdit.Gallery
             List<GallerySet> result = [];
             Dictionary<string, string> sqls = new()
             {
-                { "Gallery", "Select * From Gallery" },
+                { "_Gallery", "Select * From _Gallery" },
                 { "Gallery_Lang", "Select * From Gallery_Lang" },
                 { "Gallery_Album", "Select * From Gallery_Album" },
                 { "Gallery_Album_Lang", "Select * From Gallery_Album_Lang" },
@@ -40,7 +40,7 @@ namespace WCMS.Features.SiteEdit.Gallery
             var fileSrcIdDic = srcFileSets.SelectMany(s => s.FileManage_SyncInfo).GroupBy(d => d.SrcFullPath).ToDictionary(g => g.Key, g => g.First().InternalId);
             List<FileManageSet> updateFileSets = [];
 
-            foreach (DataRow srcHeader in ds.Tables["Gallery"].Rows)
+            foreach (DataRow srcHeader in ds.Tables["_Gallery"].Rows)
             {
                 GallerySet set = new()
                 {
@@ -173,8 +173,8 @@ namespace WCMS.Features.SiteEdit.Gallery
         private void CheckDate(Gallery header)
         {
             if (header.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Gallery>(x => x.Validate_Start));
-            //if (header.Validate_End == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Gallery>(x => x.Validate_End));
-            //if (header.Validate_End != null && header.Validate_Start > header.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, I18nCache.GetLabel<Gallery>(x => x.Validate_End) , I18nCache.GetLabel<WebResource>(x => x.Validate_Start));
+            //if (header.Validate_End == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<_Gallery>(x => x.Validate_End));
+            //if (header.Validate_End != null && header.Validate_Start > header.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, I18nCache.GetLabel<_Gallery>(x => x.Validate_End) , I18nCache.GetLabel<WebResource>(x => x.Validate_Start));
 
             if (header.Categories == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Gallery>(x => x.Categories));
 

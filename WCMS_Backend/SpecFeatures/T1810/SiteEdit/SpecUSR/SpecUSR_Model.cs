@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
@@ -38,7 +40,10 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// 圖片描述
         /// </summary>
         [LibDesc, StringLength(SysLengthParam.Memo)] public string? PicDescription { get; set; } = string.Empty;
-        public List<SpecUSRDetail> SpecUSRDetail { get; set; } = [];
+
+        #region 主子表關聯
+        [InverseProperty(nameof(SpecUSRDetail._SpecUSR))] public List<SpecUSRDetail> _SpecUSRDetail { get; set; }
+        #endregion
     }
 
     public class SpecUSRDetail:DetailRowModel
@@ -67,5 +72,9 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         [StringLength(500)] public string? ProjectItem { get; set; }
         [StringLength(SysLengthParam.Url)] public string? Url { get; set; }
         [StringLength(SysLengthParam.Url)] public string? UrlDescription { get; set; }
+
+        #region 主子表關聯
+        [ForeignKey(nameof(USRId))] public SpecUSRModel _SpecUSR { get; set; }
+        #endregion
     }
 }

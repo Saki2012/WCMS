@@ -26,8 +26,8 @@ export const useGetCategoryListByProgId = (progId: string, lang: string, pageSiz
             const queryCondition: QueryListParam = {
                 Fields: [
                     SchemaFields.CategoryFields.CategoryId,
-                    `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
-                    `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
+                    `${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
+                    `${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
                 ],
                 Condition:
                     `${SchemaFields.CategoryFields.ProgId} = \"${progId}\" And ${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang} = \"zh-TW\"`,
@@ -92,8 +92,8 @@ export const useCategoryListData = (progId: string, lang: Lang) =>
                 SchemaFields.CategoryFields.CreateTime,
                 SchemaFields.CategoryFields.ModifyTime,
                 SchemaFields.CategoryFields.ModifyUserId,
-                `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
-                `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
+                `${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
+                `${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
             ],
             // 如果 progId 是字串型別且後端期望字串，記得加引號：
             // Condition: `${SchemaFields.CategoryFields.ProgId} = '${progId.replace(/'/g,"''")}'`,

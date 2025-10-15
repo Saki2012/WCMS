@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.Resx;
@@ -33,9 +34,12 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// </summary>
         //[LibDesc(ModelDisplayName.Common_Tag)] public string? TagsId { get; set; }
         [LibDesc(ModelDisplayName.Spec1810_Tag)] public string? TagsId { get; set; }
+        /// <summary>
+        /// 下載次數
+        /// </summary>
         [LibDesc(ModelDisplayName.FileArchive_DownloadCount)]public int DownloadCount { get; set; }
-        #region 關聯
-        public virtual List<FileArchiveInfo_DTO> FileArchiveInfo { get; set; } = [];
+        #region 主子表關聯
+        public List<FileArchiveInfo_DTO> _FileArchiveInfo { get; set; } = [];
         #endregion
     }
     public class FileArchiveInfo_DTO
@@ -56,7 +60,10 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// 標題
         /// </summary>
         [LibDesc(ModelDisplayName.Common_Title)] public string? Title { get; set; }
-        public virtual List<FileArchiveDetail_DTO> FileArchiveDetail { get; set; } = [];
+
+        #region 主子表關聯
+        public List<FileArchiveDetail_DTO> _FileArchiveDetail { get; set; } = [];
+        #endregion
     }
     /* 不確定這張表該關聯Header還是Info，待討論 */
     public class FileArchiveDetail_DTO
@@ -66,7 +73,7 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// </summary>
         [LibDesc(ModelDisplayName.FileArchiveId)] public string? FileArchiveId { get; set; }
         /// <summary>
-        /// 父行主鍵 (FileArchiveInfo)
+        /// 父行主鍵 (_FileArchiveInfo)
         /// </summary>
         [LibDesc(ModelDisplayName.Common_ParentRowId), Key] public int ParentRowId { get; set; }
         /// <summary>

@@ -28,8 +28,8 @@ export const useGetTagListByProgId = (progId: string, lang: string, pageSize: nu
                 Fields: [
                     SchemaFields.TagDataFields.TagId,
                     SchemaFields.TagDataFields.InternalId,
-                    `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
-                    `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
+                    `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
+                    `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
                 ],
                 Condition:
                     `${SchemaFields.TagDataFields.ProgId} = \"${progId}\" And ${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.Lang} = \"zh-tw\"`,
@@ -92,8 +92,8 @@ export const useTagListData = (progId: string, lang: Lang) =>
                 SchemaFields.TagDataFields.ProgId,
                 SchemaFields.TagDataFields.ModifyTime,
                 SchemaFields.TagDataFields.ModifyUserId,
-                `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
-                `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
+                `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
+                `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
             ],
             Condition: condition,
             OrderBy: [{ Col: SchemaFields.TagDataFields.ModifyTime, Desc: true }],
