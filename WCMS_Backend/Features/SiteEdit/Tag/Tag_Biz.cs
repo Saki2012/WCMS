@@ -39,7 +39,7 @@ namespace WCMS.Features.SiteEdit.Tag
         }
         private void CheckTagName(IList<TagDetail> datail, string lang)
         {
-            if (datail.Any(p => p.Lang.Equals(lang) && p.TagName.IsNullOrEmpty())) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<TagDetail>(x => x.TagName));
+            if (datail.Any(p => p.Lang.Equals(lang) && p.TagName.IsNullOrEmpty())) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015,"繁體中文", I18nCache.GetLabel<TagDetail>(x => x.TagName));
         }
         private async Task CheckIsUsedAsync(TagSet set, string defaultLang)
         {

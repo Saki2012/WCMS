@@ -3,6 +3,7 @@ using System.Data;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using WCMS.Features.SiteEdit.Announcement;
+using WCMS.Features.SiteEdit.Tag;
 using WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory;
 using WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch;
 using WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR;
@@ -10,6 +11,9 @@ using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Model;
+using WCMS.SysCore.Resx;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.SpecCategory
 {
@@ -138,6 +142,9 @@ namespace WCMS.Features.SiteEdit.SpecCategory
                 case SysEnum.FuncAction.Update:
                     DoRemergeData(set.SpecCategory);
                     break;
+                case SysEnum.FuncAction.Delete:
+                    await CheckIsUsedAsync(set, "zh-tw");
+                    break;
             }
         }
         #endregion
@@ -150,6 +157,23 @@ namespace WCMS.Features.SiteEdit.SpecCategory
         private static void DoRemergeData(SpecCategoryModel header)
         {
             header.ShowColumnItems = header.ShowColumnItems.Remerge(",");
+        }
+        private async Task CheckIsUsedAsync(SpecCategorySet set, string defaultLang)
+        {
+            string progId = set.SpecCategory.ProgId;
+            string cateId = set.SpecCategory.CategoryId;
+            string cateName = set.SpecCategoryDetail.FirstOrDefault(p => p.Lang.Equals(defaultLang)).CategoryName;
+            int useCount = 0;
+            switch (progId)
+            {
+                case "SpecUSR":
+                    useCount = await DoQueryListCountAsync<SpecUSRModel>([nameof(BasicDataModel.InternalId)], $@"{nameof(SpecUSRModel.CategoryId)} = {cateId}");
+                    break;
+                case "SpecResearch":
+                    useCount = await DoQueryListCountAsync<SpecResearchModel>([nameof(BasicDataModel.InternalId)], $@"{nameof(SpecResearchModel.CategoryId)} = {cateId}");
+                    break;
+            }
+            if (useCount > 0) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00018, cateName);
         }
         #endregion
     }
