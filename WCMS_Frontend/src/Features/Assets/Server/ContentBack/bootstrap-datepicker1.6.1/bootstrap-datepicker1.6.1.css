@@ -1,0 +1,312 @@
+@charset "utf-8";
+/* CSS Document */
+:root {
+    --num_color: #007eff;
+    --date_color: #009FFF;
+    --date_HRcolor: #ace0ff;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&family=Noto+Sans+TC:wght@100..900&display=swap');
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* ===== [ datepicker 日期輸入框 ] ===== // 以下 // ================ */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+.input-daterange {
+    position: relative;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    width: 100%;
+}
+
+.datepicker {
+    font-size: 93.75%;
+    border-radius: 4px;
+    direction: ltr;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/* =============================================================== */
+/* ===== [ basicos ] ============================================= */
+.datepicker .day {
+    border-radius: 4px;
+}
+
+.datepicker.datepicker-dropdown {
+    position: absolute;
+    top: 0;
+    left: 0;
+    
+    display: none;
+    
+    font-size: 81.25%;
+    font-family: "Noto Sans TC", serif;
+    color: var(--G333color);
+    text-align: left;
+    list-style: none;
+    min-width: 10rem;
+    min-width: 16rem;
+    padding: 12.5px 12.5px;
+    margin: 0;
+    
+    background-color: var(--FFFcolor);
+    background-clip: padding-box;
+    border: 1px solid var(--date_HRcolor);
+    border-radius: 0.5rem;
+    /*box-shadow: 0px 7px 7px 0px rgba(0,0,0,0.125);*/
+    box-shadow: 0px 7px 7px 0px rgba(172,224,255,0.5);
+    
+    z-index: 1000;
+}
+
+.datepicker.datepicker-dropdown:before {
+    content: '';
+    display: inline-block;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid rgba(0, 0, 0, .15);
+    border-top: 0;
+    border-bottom-color: rgba(0, 0, 0, .15);
+    position: absolute;
+}
+
+.datepicker.datepicker-dropdown:after {
+    content: '';
+    display: inline-block;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-bottom: 7px solid #009FFF; /* 小箭頭顏色 */
+    border-top: 0;
+    position: absolute;
+}
+
+.datepicker.datepicker-dropdown.datepicker-orient-left:before {
+    left: 6px;
+}
+
+.datepicker.datepicker-dropdown.datepicker-orient-left:after {
+    left: 7px;
+}
+
+.datepicker.datepicker-dropdown.datepicker-orient-right:before {
+    right: 6px;
+}
+
+.datepicker.datepicker-dropdown.datepicker-orient-right:after {
+    right: 7px;
+}
+
+.datepicker.datepicker-dropdown.datepicker-orient-bottom:before {
+    top: -7px;
+}
+
+.datepicker.datepicker-dropdown.datepicker-orient-bottom:after {
+    top: -7px;
+}
+
+.datepicker.datepicker-dropdown.datepicker-orient-top:before {
+    bottom: -7px;
+    border-bottom: 0;
+    border-top: 7px solid red;
+}
+
+.datepicker.datepicker-dropdown.datepicker-orient-top:after {
+    bottom: -6px;
+    border-bottom: 0;
+    border-top: 6px solid red;
+}
+/* ===== [ basicos ] ============================================= */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ table ] =============================================== */
+.datepicker table {
+    width: 100%;
+    margin: 0;
+    user-select: none;
+}
+/* =============================================================== */
+/* =============================================================== */
+.datepicker th,
+.datepicker td {
+    text-align: center;
+    /*width: 30px;
+    height: 30px;*/
+    width: 28px;
+    height: 25px;
+    border: none;
+}
+.datepicker th {
+    font-size: 100%;
+    font-weight: 500;
+}
+.datepicker td {
+    font-size: 87.5%;
+}
+
+.datepicker th:first-child.dow,
+.datepicker th:last-child.dow {
+    color: #dc3545;
+}
+/* =============================================================== */
+/* =============================================================== */
+.datepicker .datepicker-switch,
+.datepicker .prev,
+.datepicker .next,
+.datepicker tfoot tr th {
+    cursor: pointer;
+}
+/* =============================================================== */
+/* =============================================================== */
+/*.datepicker .datepicker-switch:hover,*/
+/*.datepicker .prev:hover,*/
+/*.datepicker .next:hover,*/
+/*.datepicker tfoot tr th:hover {*/
+/*background: red;*/
+/*border-radius: 4px;*/
+/*}*/
+.datepicker .prev .disabled,
+.datepicker .next .disabled {
+    visibility: hidden;
+}
+/* =============================================================== */
+/* =============================================================== */
+.datepicker .range-start {
+    background: var(--Customize_LMBGcolor) url("../images/range-bg-1.png") top right no-repeat;
+    color: var(--FFFcolor);
+}
+
+.datepicker .range-end {
+    background: var(--Customize_LMBGcolor) url("../images/range-bg-2.png") top left no-repeat;
+    color: var(--FFFcolor);
+}
+
+.datepicker .range-start.range-end {
+    background-image: none;
+}
+/* =============================================================== */
+/* =============================================================== */
+.datepicker .range {
+    background-color: #d5e9f7;
+}
+
+/*.datepicker .disabled.day{*/
+/*color:#999;*/
+/*}*/
+
+/* =============================================================== */
+/* ===== [ Hover para dia mes y año ] ============================ */
+.datepicker .day:hover,
+.datepicker .month:hover,
+.datepicker .year:hover,
+.datepicker .datepicker-switch:hover,
+.datepicker .next:hover,
+.datepicker .prev:hover {    
+    color: var(--num_color);
+    background-color: var(--date_HRcolor);
+    border-radius: 4px;
+}
+/* =============================================================== */
+/* =============================================================== */
+.datepicker .hover {
+    background-color: var(--date_HRcolor);
+    color: var(--FFFcolor);
+}
+/* =============================================================== */
+/* =============================================================== */
+.datepicker .today {
+    font-weight: bold;
+    color: var(--num_color); /*#1ed443*/
+    background-color: var(--date_HRcolor);
+}
+/* ===== [ Hover para dia mes y año ] ============================ */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ Estilos para meses y años ] =========================== */
+.datepicker .datepicker-months,
+.datepicker .datepicker-years {
+    width: 100%; /*213px*/
+}
+
+.datepicker .datepicker-months td,
+.datepicker .datepicker-years td {
+    width: auto;
+    height: auto;
+}
+
+.datepicker .datepicker-months .month,
+.datepicker .datepicker-years .year {
+    display: block;
+    width: 23%;
+    height: 35px;
+    line-height: 35px;
+    margin: 1%;
+    color: var(--FFFcolor);    
+    float: left;
+    
+    cursor: pointer;
+    border-radius: 4px;
+    border-color: #2e6da4;
+    background-color: var(--Customize_LMBGcolor);    
+}
+.datepicker .datepicker-months .month:hover,
+.datepicker .datepicker-years .year:hover {
+    color: var(--num_color);
+    background-color: var(--date_HRcolor);
+    border-color: var(--date_HRcolor);
+}
+/* ===== [ Estilos para meses y años ] =========================== */
+/* =============================================================== */
+
+.datepicker .day.active,
+.datepicker .start-date-active {
+    color: var(--FFFcolor);
+    background-color: var(--date_color);
+    border-color: var(--date_color);
+}
+
+/* =============================================================== */
+/* ===== [ Desactivados ] ======================================== */
+.datepicker .day.disabled,
+.datepicker .month.disabled,
+.datepicker .year.disabled,
+.datepicker .start-date-active.disabled {
+    cursor: not-allowed;
+    filter: alpha(opacity=65);
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    opacity: .65;
+}
+/* ===== [ Desactivados ] ======================================== */
+/* =============================================================== */
+
+.datepicker a:active,
+.datepicker a:hover {
+    outline: 0;
+}
+
+/* =============================================================== */
+/* ===== [ ICON ] ================================================ */
+.datepicker .dateicon::after {
+    content: "\f073";
+    position: absolute;
+    right: 0;
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: 14px;
+    font-size: inherit;
+    text-rendering: auto;    
+}
+/* ===== [ ICON ] ================================================ */
+/* =============================================================== */
+
+
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* ===== [ datepicker 日期輸入框 ] ===== // 以下 // ================ */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+
+

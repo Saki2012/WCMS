@@ -1,0 +1,3653 @@
+@charset "utf-8";
+/* CSS Document */
+/* 16px = 1rem */
+
+:root {
+    --Customize_color: #00305c;
+    --Customize_HRcolor: #0B62E3;
+    --Customize_ACcolor: #0B62E3;
+	--Customize_OPACcolor: #084196;
+    --Customize_H-green_color: #22FF00;
+    --Customize_ITcolor: #059cb5;
+    --Customize_LMBGcolor: #00305c; /*/左邊MENU底色/*/
+    
+    --Customize_Btn_color: #0a57c9;
+    --Customize_Btn_HRcolor: #0d6efd;
+	--inputBtn_BGcolor: #e9ecef;
+    --Graycolor: #727171;
+    --FFFcolor: #FFFFFF;
+    --blackcolor: #000000;
+    --b2020color: #202020;
+    --GCCCcolor: #cccccc;
+    --G333color: #333333;
+    --G555color: #555555;
+    --G777color: #777777;
+    --G999color: #999999;
+    --G979color: #979797;
+}
+
+
+/* ======================================================== */
+/* --------------------------------------------------------
+**  自定義 共用 class 物件
+**  自定義 H1 ~ H6
+**  Main Content ALL
+｜—————————————————————————————————————————————————————————｜
+**  Main Content 標題
+**  Main Content 麵包屑
+**  Main card + card-header + card-body
+**  Main panel
+**  Main 自訂 Button
+**  Main Pagination 分頁
+**  Main progress 進度條
+**  Main Tab 網站頁籤 ALL
+**  Main Main Form-group + Input + Label ALL
+**  Main 標準checkbox + radiobox 勾選鍵
+**  Main 左右開關鍵
+｜—————————————————————————————————————————————————————————｜
+**  PAGE 網頁權限設定
+**  PAGE 配置修改
+**  PAGE 個人資料修改
+**  PAGE 使用者列表
+**  PAGE 網站流量分析 + 首頁
+**  PAGE 廣告輪播 
+**  PAGE 公告
+
+
+----------------------------------------------------------- */
+/* ======================================================== */
+
+
+/* ========================================================================= */
+/* ------ CSS 所有內容設定開始 ---- 以下 START ------- */
+/* ========================================================================= */
+
+body {
+    font-family: "open sans","微軟正黑體",sans-serif;
+    font-size: 100%; /*15px*/
+    line-height: 1.5;
+    color: var(--G333color);
+    background-color: #f4f7fa;
+}
+
+*:focus {
+    outline: none;
+	outline: 2px solid #000;;
+}
+
+a,
+a:hover {
+    outline: none;
+    text-decoration: none;
+}
+
+a:not([href]) {
+    color: inherit;
+}
+
+p {
+    font-size: inherit;
+	margin-bottom: 1rem !important;
+}
+
+b, strong {
+    font-weight: 600;
+}
+
+.clearfix::after {
+	/* 1. 新增 ::after */
+	content: ''; /* 2. 新增 content，注意需要加上 "" */
+	display: block; /* 3. 新增 display，也可以用 table */
+	clear: both;
+}
+
+.list-unstyled {
+    padding-left: 0;
+    list-style: none;
+}
+
+/* ............................................................... */
+/* tip上的顏色 */
+.tooltip-inner { 
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	font-size: 81.25%;
+	width: auto !important;
+	height: auto;
+	padding: 6px 15px 6px 15px;
+	border-radius: 15px;
+    color: var(--FFFcolor);
+    background-color: var(--Customize_Btn_HRcolor);
+}
+
+/* tip箭頭上的顏色，箭頭為下三角，固只改上顏色 */
+.tooltip > .tooltip-arrow::before { 
+    display: none;
+}
+/*.tooltip > .tooltip-arrow::before { 
+    border-top-color: var(--Customize_Btn_HRcolor);
+}*/
+
+.tooltip.show {
+	opacity: 1;
+}
+
+/* -- begin:: //改變tooltip JS -- */
+/* -- 
+<script type="text/javascript">
+	$(function() {
+		$('[data-bs-toggle="tooltip"]').tooltip()
+	})
+</script>
+-- */
+/* -- end:: //改變tooltip JS -- */
+/* ............................................................... */
+
+/* ............................................................... */
+.col_box {
+	text-align: center;
+	padding-top: .75rem;
+	padding-bottom: .75rem;
+	background-color: rgba(39,41,43,0.03);
+	border: 1px solid rgba(39,41,43,0.1);
+}
+/* ............................................................... */
+.grid .grid_box {
+	text-align: center;
+	padding-top: .75rem;
+	padding-bottom: .75rem;
+	background-color: rgba(39,41,43,0.03);
+	border: 1px solid rgba(39,41,43,0.1);
+}
+/* ............................................................... */
+
+/* ............................................................... */
+/* Bootstrap v5.1.1 */
+/* ............................................................... */
+.col-12-5 {
+    width: 100%;
+    padding-right: var(--bs-gutter-x, .75rem);
+    padding-left: var(--bs-gutter-x, .75rem);
+    margin-right: auto;
+    margin-left: auto
+}
+
+.col-12-5 {
+    flex: 0 0 auto;
+    width: 12.5%
+}
+@media (min-width:576px) {
+	.col-sm-12-5 {
+        flex: 0 0 auto;
+        width: 12.5%
+    }
+}
+@media (min-width:768px) {
+	.col-md-12-5 {
+        flex: 0 0 auto;
+        width: 12.5%
+    }
+}
+@media (min-width:992px) {
+	.col-lg-12-5 {
+        flex: 0 0 auto;
+        width: 12.5%
+    }
+}
+@media (min-width:1200px) {
+	.col-xl-12-5 {
+        flex: 0 0 auto;
+        width: 12.5%
+    }
+}
+@media (min-width:1400px) {
+	.col-xxl-12-5 {
+        flex: 0 0 auto;
+        width: 12.5%
+    }
+}
+
+.col-87-5 {
+    width: 100%;
+    padding-right: var(--bs-gutter-x, .75rem);
+    padding-left: var(--bs-gutter-x, .75rem);
+    margin-right: auto;
+    margin-left: auto
+}
+
+.col-87-5 {
+    flex: 0 0 auto;
+    width: 87.5%
+}
+@media (min-width:576px) {
+	.col-sm-87-5 {
+        flex: 0 0 auto;
+        width: 87.5%
+    }
+}
+@media (min-width:768px) {
+	.col-md-87-5 {
+        flex: 0 0 auto;
+        width: 87.5%
+    }
+}
+@media (min-width:992px) {
+	.col-lg-87-5 {
+        flex: 0 0 auto;
+        width: 87.5%
+    }
+}
+@media (min-width:1200px) {
+	.col-xl-87-5 {
+        flex: 0 0 auto;
+        width: 87.5%
+    }
+}
+@media (min-width:1400px) {
+	.col-xxl-87-5 {
+        flex: 0 0 auto;
+        width: 87.5%
+    }
+}
+/* ............................................................... */
+/* Bootstrap v5.1.1 */
+/* ............................................................... */
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* ===== [ 自定義 共用 class 物件 ] ================================ */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+
+/* =============================================================== */
+/* ===== [ Main Content 自定義 共用 class 物件 ] =================== */
+.custom-border {
+    border: 1px solid var(--GCCCcolor);
+}
+.custom-border-radius {
+    border-top-left-radius: 0.25rem;
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+}
+
+@media (min-width: 1140px) {
+	.overflow-x {	
+		display: block;
+		overflow-x: scroll;
+		white-space: nowrap;
+	}
+}
+
+.imgALL_box {
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	/* max-width: 50%; */
+	aspect-ratio: 1/1;  /*1/1*//*4/3*//*6/4*//*16/9*/
+	overflow: hidden;
+	border: 1px solid var(--bs-gray-200);
+}
+
+.img_box {
+	display: block;
+	position: relative;
+	aspect-ratio: 1/1;
+	overflow: hidden;
+	z-index: 1;
+}
+
+/*.hidden {
+	visibility: hidden;
+}
+.visible {
+	visibility: visible;
+}
+.collapse {
+	visibility: collapse;
+}*/
+.d-hidden {
+	display: none;
+}
+.d-visible {
+	display: block;
+}
+
+
+/* ===== [ Main Content 自定義 共用 class 物件 ] =================== */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ Main Content HR分格線 ] ================================ */
+.hrBox-bg {
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(to right, transparent, rgba(233, 236, 239, 0.75), transparent);
+}
+
+hr.hr-double {
+    border: 0;
+    border-top: 3px double var(--G777color);
+    border-left: none;
+    border-right: none;
+    background-color: transparent
+}
+
+hr.hr-edgeweak {
+    border: 0;
+    padding-top: 1px;
+    /*background: linear-gradient(to right, transparent, var(--blackcolor), transparent);*/
+    background: linear-gradient(to right, #00000030, var(--blackcolor), #00000030);
+}
+
+hr.T-double {
+    margin-top: 1rem;
+    margin-bottom: 0.225rem;
+}
+hr.B-double {
+    margin-top: 0.225rem;
+    margin-bottom: 1rem;
+}
+/* ===== [ Main Content HR分格線 ] ================================ */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ Main Content 卷軸 ] ==================================== */
+.overflow-scroll-Y {
+    overflow-y: scroll;
+    height: 100vh;
+}
+/* 定義滾動條樣式（高寬及背景）*/ 
+.overflow-scroll-Y::-webkit-scrollbar { 
+    width: 6px;   /* 滾動條寬度， width：對應垂直滾動條的寬度 height：對應橫滾動條的高度 */
+    background-color: #e9ecef;
+} 
+/* 定義滾動條軌道（凹槽）樣式 */
+.overflow-scroll-Y::-webkit-scrollbar-track { 
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);    /* 较少使用 */
+    border-radius: 3px; 
+} 
+/* 定義滑桿 樣式 */
+.overflow-scroll-Y::-webkit-scrollbar-thumb { 
+    border-radius: 3px; 
+    height: 100px;    /* 捲軸滑桿長度 */    
+    background-color: #007acc;
+}
+/* =============================================================== */
+.overflow-scroll-X {
+    overflow-y: scroll;
+    width: 100vh;
+}
+/* 定義滾動條樣式（高寬及背景）*/ 
+.overflow-scroll-Y::-webkit-scrollbar { 
+    width: 6px;   /* 滾動條寬度， width：對應垂直滾動條的寬度 height：對應橫滾動條的高度 */
+    background-color: #e9ecef;
+} 
+/* 定義滾動條軌道（凹槽）樣式 */
+.overflow-scroll-Y::-webkit-scrollbar-track { 
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);    /* 较少使用 */
+    border-radius: 3px; 
+} 
+/* 定義滑桿 樣式 */
+.overflow-scroll-Y::-webkit-scrollbar-thumb { 
+    border-radius: 3px; 
+    height: 100px;    /* 捲軸滑桿長度 */    
+    background-color: #007acc;
+}
+/* ===== [ Main Content 卷軸 ] ==================================== */
+/* =============================================================== */
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* ===== [ 自定義 共用 class 物件 ] ================================ */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* ===== [ 自定義 H1 ~ H6 ] ======================================= */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+h1, .h1 {
+    font-size: 131.3%;
+}
+h2, .h2 {
+    font-size: 125%;
+}
+h3, .h3 {    
+    font-size: 112.5%;
+}
+h4, .h4 {
+    font-size: 106.25%;
+}
+h5, .h5 {
+    font-size: 93.75%;
+}
+h6, .h6 {
+    font-size: 93.75%;
+}
+h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
+    font-weight: normal;
+    margin-bottom: 0rem;
+}
+
+.cfs-1 {
+    font-size: 131.3% !important;
+}
+.cfs-2 {
+    font-size: 125% !important;
+}
+.cfs-3 {    
+    font-size: 112.5% !important;
+}
+.cfs-4 {
+    font-size: 106.25% !important;
+}
+.cfs-5 {
+    font-size: 93.75% !important;
+}
+.cfs-6 {
+    font-size: 93.75% !important;
+}
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* ===== [ 自定義 H1 ~ H6 ] ======================================= */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+
+
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* ===== [ Main Content ALL ] ===== // 以下 // ==================== */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+.pc-container {
+    position: relative;
+    top: 74px;
+    margin-left: 264px;
+    min-height: calc(100vh - 135px);
+}
+@media (max-width: 1024px) {
+  .pc-container {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+}
+/* =============================================================== */
+/* =============================================================== */
+.pc-container .pc-content {
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-top: 20px;
+    /*font-size: 93.75%;*/
+    font-size: 90.75%;
+}
+@media (max-width: 575.98px) {
+    .pc-container .pc-content {
+        padding: 15px;
+        font-size: 84.5%;
+    }
+}
+@media (max-width: 1024px) {
+    .pc-container .page-header + .row, 
+    .pc-container .page-header + .pc-content, 
+    .pc-container .pc-content {
+        padding-top: 20px;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+/* =============================================================== */
+/* =============================================================== */
+.pc-container .Form-Main-Content {
+    padding: 0;
+    margin: 0;
+}
+/* =============================================================== */
+/* =============================================================== */
+@media (max-width: 1199.98px) {
+    .pc-container .pc-content.container {
+        max-width: 100%;
+    }
+}
+/* =============================================================== */
+/* =============================================================== */
+.pc-container .page-header+.row {
+    padding-top: 24px;
+}
+/* =============================================================== */
+/* =============================================================== */
+.pc-container .page-header+.pc-content {
+    padding-top: 85px;
+}
+/* =============================================================== */
+/* =============================================================== */
+.pc-container .page-header {
+    display: flex;
+    align-items: center;
+    top: 74px;
+    left: 264px;
+    right: 0;
+    z-index: 1023;
+    min-height: 55px;
+    padding: 0px;
+    background: transparent;
+    border-radius: 4px;
+    margin-bottom: 24px;
+}
+@media (max-width: 1024px) {
+    .pc-container .page-header {
+        position: relative;
+        left: 0px;
+        top: 0px;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+}
+/* =============================================================== */
+/* =============================================================== */
+.pc-container .page-header .page-block {
+    width: 100%;
+}
+/* =============================================================== */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ Main Content 標題 ] =================================== */
+.pc-container .page-header .page-header-title {
+    display: inline-block;
+}
+
+.pc-container .page-header .tit {
+    margin-bottom: 0;
+    margin-right: 8px;
+    padding-right: 8px;
+    font-weight: 500;
+}
+@media (max-width: 575.98px) {
+    .pc-container .page-header .tit {
+        margin-bottom: 0
+    }
+}
+/* ===== [ Main Content 標題 ] =================================== */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ Main Content 麵包屑 ] ================================= */
+.pc-container .page-header .breadcrumb {    
+    display: inline-flex;
+    font-size: 93.75%;
+    font-weight: 500;
+    padding: 0;
+    background-color: transparent;
+}
+.pc-container .page-header .breadcrumb a {
+    color: var(--G333color);
+    text-decoration: none;
+}
+
+.pc-container .page-header .breadcrumb .breadcrumb-item a {
+    opacity: 0.75;
+}
+.pc-container .page-header .breadcrumb .breadcrumb-item.active,
+.pc-container .page-header .breadcrumb .breadcrumb-item a.active,
+.pc-container .page-header .breadcrumb .breadcrumb-item a:hover {
+    opacity: 1;
+    color: var(--Customize_ACcolor);
+}
+.pc-container .page-header .breadcrumb .breadcrumb-item+.breadcrumb-item::before {
+    position: relative;
+    top: 2px;
+}
+.pc-container .page-header .breadcrumb .breadcrumb-item:last-child {
+    opacity: 1;
+}
+.pc-container .page-header .breadcrumb svg {
+    width: 14px;
+    height: 14px;
+    vertical-align: baseline;
+}
+/* ===== [ Main Content 麵包屑 ] =================================== */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ Main card + card-header + card-body ] ================= */
+.Form-Main-Content .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: var(--FFFcolor);
+    background-clip: border-box;
+    /*border: 0px solid #F1F1F1;*/
+    border: 0px solid rgba(0, 0, 0, .125);
+    border-radius: 0.25rem;
+    box-shadow: 0 1px 20px 0 rgba(69,90,100,.08);
+    transition: box-shadow 0.2s ease-in-out;
+    margin-bottom: 24px;
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .card-header {
+    padding: 16px 16px;
+    margin-bottom: 0;
+    background-color: transparent;
+    /*border-bottom: 1px solid #F1F1F1;*/
+    border-bottom: 1px solid rgba(0, 0, 0, .125);
+}
+@media (min-width: 1024px) {
+    .Form-Main-Content .card-header {
+        padding: 25px 25px; /* 1rem=16px */
+    }
+}
+
+.Form-Main-Content .card-header:first-child {
+    border-radius: 0 0 0 0;
+}
+
+.Form-Main-Content .card-header i {
+    margin-right: 5px;
+}
+
+.Form-Main-Content .card-header h6, 
+.Form-Main-Content .card-header .h6, 
+.Form-Main-Content .card-header h5, 
+.Form-Main-Content .card-header .h5, 
+.Form-Main-Content .card-header h4, 
+.Form-Main-Content .card-header .h4, 
+.Form-Main-Content .card-header h3, 
+.Form-Main-Content .card-header .h3, 
+.Form-Main-Content .card-header h2, 
+.Form-Main-Content .card-header .h2, 
+.Form-Main-Content .card-header h1, 
+.Form-Main-Content .card-header .h1 {
+    margin-bottom: 0rem;
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .card-body {
+    flex: 1 1 auto;
+    padding: 16px 16px; /* 1rem=16px */
+}
+@media (min-width: 1024px) {
+    .Form-Main-Content .card-body {
+        padding: 25px 25px; /* 1rem=16px */
+    }
+}
+
+/* ===== [ Main card + card-header + card-body ] ================= */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ Main panel ] ========================================== */
+.Form-Main-Content .panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: var(--FFFcolor);
+    background-clip: border-box;
+    /*border: 1px solid #F1F1F1;*/
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: 0.25rem;
+    margin-bottom: 24px;
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .panel-header {
+    padding: 16px;
+    margin-bottom: 0;
+    background-color: transparent;
+    /*border-bottom: 1px solid #F1F1F1;*/
+}
+
+.Form-Main-Content .panel-header:first-child {
+    border-radius: 0 0 0 0;
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .panel-ContentBox {
+    padding: 24px 16px;
+    margin-bottom: 0;
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .panel-header i {
+    margin-right: 5px;
+}
+
+.Form-Main-Content .panel-header h6, 
+.Form-Main-Content .panel-header .h6, 
+.Form-Main-Content .panel-header h5, 
+.Form-Main-Content .panel-header .h5, 
+.Form-Main-Content .panel-header h4, 
+.Form-Main-Content .panel-header .h4, 
+.Form-Main-Content .panel-header h3, 
+.Form-Main-Content .panel-header .h3, 
+.Form-Main-Content .panel-header h2, 
+.Form-Main-Content .panel-header .h2, 
+.Form-Main-Content .panel-header h1, 
+.Form-Main-Content .panel-header .h1 {
+    margin-bottom: 0rem;
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .panel-body {
+    flex: 1 1 auto;
+    padding: 16px 16px; /* 1rem=16px */
+}
+@media (min-width: 1024px) {
+    .Form-Main-Content .panel-body {
+        padding: 25px 25px; /* 1rem=16px */
+    }
+}
+
+/* ===== [ Main panel ] ========================================== */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ Main 自訂 Button ] ===== // 以下 // ==================== */
+.all-btn,
+.all-state {
+    position: relative;
+    display: inline-block;
+}
+
+a[type="button"],a[role="button"] {
+	display: inline-block;
+}
+
+.Form-Main-Content .CF-color {
+    color: var(--Customize_color);/*#00305c*/
+}
+.Form-Main-Content .CT-color {
+    color: var(--Customize_Btn_color);/*#0a57c9*/
+}
+.Form-Main-Content .CT-HRcolor {
+    color: var(--Customize_Btn_HRcolor);/*#0d6efd*/
+}
+
+.Form-Main-Content .btn {
+    font-size: inherit;
+	-webkit-transition: all 0.4s ease-in-out;
+	-o-transition: all 0.4s ease-in-out;
+	transition: all 0.4s ease-in-out;
+}
+.Form-Main-Content .btn.btn-custom {
+	/*color: var(--G333color);*/
+    padding: 5px 24px;
+	padding: 5px 20px;
+    border: 1px solid var(--GCCCcolor);
+    background-color: var(--FFFcolor);
+}
+.Form-Main-Content .btn-custom:not(:disabled):not(.disabled):hover { 
+    color: var(--FFFcolor);
+    border-color: var(--Customize_Btn_HRcolor);
+    background-color: var(--Customize_Btn_HRcolor);
+}
+.Form-Main-Content .btn-custom:hover {
+    -webkit-animation: none;
+}
+
+.Form-Main-Content .inputbtn-custom {
+	/*color: var(--G333color);*/
+    border: 1px solid var(--GCCCcolor);
+    background-color: var(--inputBtn_BGcolor);
+}
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ btn-custom-s1 ] ======================================= */
+.Form-Main-Content .btn.btn-custom-s1 {
+	/*color: var(--G333color);*/
+    padding: 5px 16px;
+    border: 1px solid var(--GCCCcolor);
+    background-color: var(--FFFcolor);
+}
+.Form-Main-Content .btn-custom-s1:not(:disabled):not(.disabled):hover { 
+    color: var(--FFFcolor);
+    border-color: var(--Customize_Btn_HRcolor);
+    background-color: var(--Customize_Btn_HRcolor);
+}
+.Form-Main-Content .btn-custom-s1:hover {
+    -webkit-animation: none;
+}
+/* ===== [ btn-custom-s1 ] ======================================= */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ 自訂 小 ICON Button ] ================================== */
+.Form-Main-Content .all-btn a.icon {
+    position: relative;
+    display: inline-block;
+    margin: 2.5px 5px 2.5px 0px;
+}
+.Form-Main-Content .all-btn a.icon:first-child {
+    margin-left: 0;
+}
+.Form-Main-Content .all-btn a.icon:last-child {
+    margin-right: 0;
+}
+
+/* =============================================================== */
+.Form-Main-Content .all-btn a.icon > .btn.btn-txt {
+	/*font-size: 87.5%;*/
+    height: 36px;
+    width: auto;
+    padding: 0 0.75rem;
+    border-radius: .25rem;
+    border: 1px solid var(--GCCCcolor);    
+}
+.btn.btn-txt {
+	color: var(--Customize_Btn_color);
+}
+a:hover .btn.btn-txt {
+	color: var(--FFFcolor) !important;
+    background-color: var(--Customize_Btn_HRcolor) !important;
+	border-color: var(--Customize_Btn_HRcolor) !important;
+}
+/* =============================================================== */
+.Form-Main-Content .all-btn a.icon > .btn.btn-ctm {
+	/*font-size: 87.5%;*/
+	color: var(--G777color);
+    height: 36px;
+    width: 36px;
+    padding: 0;
+    border-radius: .25rem;
+    border: 1px solid var(--GCCCcolor);    
+}
+@media (max-width: 1024px) {
+    .Form-Main-Content .all-btn a.icon > .btn.btn-ctm  {
+        height: 30px;
+        width: 30px;
+    }
+}
+/* ===== [ 自訂 小 ICON Button ] ================================== */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ 自訂 圓形Button Class ] ================================ */
+.Form-Main-Content .btn-rounded {
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    -moz-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-border-radius: 50px;
+    -moz-border-radius: 50px;
+    border-radius: 50px;
+}
+
+.Form-Main-Content .rounded-circle {
+    border-radius: 50% !important;
+}
+/* ===== [ 自訂 圓形Button Class ] ================================ */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ Button FOCUS ] ======================================== */
+.Form-Main-Content .btn-check:focus + .btn, .btn:focus {
+    outline: 0;
+    box-shadow: 0 0 0 .25rem rgba(13, 110, 253, .25);
+    box-shadow: none;
+}
+/* ===== [ Button FOCUS ] ======================================== */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [  自訂 小 ICON Button HOVER 顏色 ] ======================= */
+.btn.Ieye {
+    color: #8373f0 !important;
+}
+a:hover .btn.Ieye {
+	color: var(--FFFcolor) !important;
+    background-color: #8373f0 !important;
+	border-color: #8373f0 !important;
+}
+
+.btn.Icogs {
+    color: #f77f37 !important;
+}
+a:hover .btn.Icogs {
+	color: var(--FFFcolor) !important;
+    background-color: #f77f37 !important;
+	border-color: #f77f37 !important;
+}
+
+.btn.Ilink {
+	color: #39bf67 !important;
+}
+a:hover .btn.Ilink {
+	color: var(--FFFcolor) !important;
+    background-color: #39bf67 !important;
+	border-color: #39bf67 !important;
+}
+
+.btn.Ipencil {
+	color: #4689f2 !important;
+}
+a:hover .btn.Ipencil {
+	color: var(--FFFcolor) !important;
+	background-color: #4689f2 !important;
+	border-color: #4689f2 !important;
+}
+
+.btn.Iwindow {
+	color: #059cb5 !important;
+}
+a:hover .btn.Iwindow {
+	color: var(--FFFcolor) !important;
+	background-color: #059cb5 !important;
+	border-color: #059cb5 !important;
+}
+
+.btn.Itrash {
+	color: #d9534f !important;
+}
+a:hover .btn.Itrash {
+	color: var(--FFFcolor) !important;
+    background-color: #d9534f !important;
+	border-color: #d9534f !important;
+}
+/* ===== [  自訂 小 ICON Button HOVER 顏色 ] ======================= */
+/* =============================================================== */
+
+/* ===== [ Main 自訂 Button ] ===== // 以上 // =========----======= */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ Main Pagination 分頁 ] ================================= */
+.Form-Main-Content .pagination {
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+}
+
+.Form-Main-Content .pagination .page-item:first-child .page-link {
+    border-top-left-radius: .25rem;
+    border-bottom-left-radius: .25rem;
+}
+
+.Form-Main-Content .pagination .page-link {
+    position: relative;
+    
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    color: inherit;
+    text-decoration: none;
+    background-color: var(--FFFcolor);
+    border: 1px solid #dee2e6;
+    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+.Form-Main-Content .pagination .page-link {
+	font-size: 112.5%;
+    height: 100%;
+    padding: .375rem .75rem;
+}
+
+.Form-Main-Content .pagination .page-link.active,
+.Form-Main-Content .pagination .page-link:hover,
+.Form-Main-Content .pagination .page-link:focus {
+    z-index: 2;
+    color: var(--FFFcolor);
+    background-color: var(--Customize_HRcolor);
+    border-color: var(--Customize_HRcolor);
+}
+.Form-Main-Content .pagination .page-link.disabled {
+    color: inherit;
+    background-color: #cfcfcf;
+    border: 1px solid #dee2e6;
+	opacity: .75;
+	cursor: not-allowed; /*禁止符號*/
+}
+.Form-Main-Content .pagination .page-link:focus {
+    outline: 0;
+    /*box-shadow: 0 0 0 .25rem rgba(13,110,253,.25);*/
+    box-shadow: none;
+}
+
+.Form-Main-Content .pagination .page-link span {
+    position: relative;
+    top: -2px;
+    
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+.Form-Main-Content .pagination .page-link span {
+    font-size: 112.5%;
+	color: var(--G555color);
+}
+.Form-Main-Content .pagination .page-link span i {
+    font-size: 93.75%;
+	width: 9.5px;
+	height: 24.5px;
+}
+.Form-Main-Content .pagination .page-link span i::before {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	position: relative;
+	top: 2.5px;
+	width: 9.5px;
+	height: 24.5px;
+}
+.Form-Main-Content .pagination .page-link.active span i::before,
+.Form-Main-Content .pagination .page-link:hover span i::before,
+.Form-Main-Content .pagination .page-link:focus span i::before {
+    color: var(--FFFcolor);
+}
+/* ===== [ Main Pagination 分頁 ] ================================= */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ Main progress 進度條 ] ================================= */
+.Form-Main-Content .progress-box {
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+}
+.Form-Main-Content .progress {
+    display: flex;
+    width: calc(100% - 30px - 50px);
+    height: 1rem;
+    overflow: initial;
+    font-size: inherit;
+    border: 1px solid rgba(0, 0, 0, .125);
+    background-color: var(--FFFcolor);
+    border-radius: .25rem;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
+}
+/* ===== [ Main progress 進度條 ] ================================= */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ Main Tab 網站頁籤 ALL ] ===== // 以下 // ================ */
+
+/* ===== [ 頁簽LI tab-LI ] ======================================= */
+.Form-Main-Content #Main_Tab button.nav-link {
+    display: block;
+    padding: 0;
+    color: transparent;
+    text-decoration: none;
+    transition: none;
+}
+.Form-Main-Content #Main_Tab.nav-tabs button.nav-link {
+    margin-bottom: -1px;
+    background: none;
+    border-top-left-radius: .25rem;
+    border-top-right-radius: .25rem;
+}
+.Form-Main-Content #Main_Tab.nav-tabs button.nav-link.active {
+    color: transparent;
+    background-color: transparent;
+    border: 1px solid transparent;
+}
+.Form-Main-Content #Main_Tab.nav-tabs .nav-link:hover {
+    border-color: #e9ecef #e9ecef #dee2e6;
+    isolation: isolate;
+    border: 1px solid transparent;
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content #Main_Tab.nav-tabs .nav-link .tab-name {
+    display: block;
+    margin-bottom: -1px;
+    padding: .5rem 3rem;
+    color: var(--G333color);
+    text-decoration: none;
+    background: 0 0;
+    border: 1px solid transparent;
+    border-top-left-radius: .25rem;
+    border-top-right-radius: .25rem;
+    cursor: pointer;
+
+    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out;
+}
+.Form-Main-Content #Main_Tab.nav-tabs .nav-link .tab-name {
+    background-color: rgba(0, 0, 0, 0);
+}
+@media (max-width: 575px) {
+    .Form-Main-Content #Main_Tab.nav-tabs .nav-link .tab-name {
+        padding: .5rem 1.35rem;
+    }
+}
+@media (min-width: 576px) {
+    .Form-Main-Content #Main_Tab.nav-tabs .nav-link .tab-name {
+        padding: .5rem 4rem;
+    }
+}
+
+/* =============================================================== */
+/* ===== [ After ] ===== */
+.Form-Main-Content #Main_Tab.nav-tabs button.nav-link::after {
+    content: "";
+    position: relative;
+    display: block;
+    left: 50%;
+    bottom: 0;
+    width: 0;
+    height: 1px;
+    background-color: var(--Customize_HRcolor);
+    transition: width 0.3s ease 0s, left 0.3s ease 0s; 
+}
+.Form-Main-Content #Main_Tab.nav-tabs button.nav-link:hover::after,
+.Form-Main-Content #Main_Tab.nav-tabs button.nav-link:focus::after,
+.Form-Main-Content #Main_Tab.nav-tabs button.nav-link.active::after {
+    width: 100%;
+    left: 0;
+}
+/* ===== [ After ] ===== */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ ACTIVE ] ===== */
+.Form-Main-Content #Main_Tab.nav-tabs .tab-name:hover {
+    color: var(--Customize_HRcolor);
+    background: none;
+    border: 1px solid transparent;
+}
+.Form-Main-Content #Main_Tab.nav-tabs .nav-item.show .nav-link .tab-name, 
+.Form-Main-Content #Main_Tab.nav-tabs .nav-link.active .tab-name {
+    color: var(--Customize_HRcolor);
+    background-color: var(--FFFcolor);
+    border-color: #dee2e6 #dee2e6 var(--FFFcolor);
+}
+/* ===== [ ACTIVE ] ===== */
+
+/* ===== [ 頁簽LI tab-LI ] ======================================= */
+
+/* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& */
+
+/* ===== [ 頁簽內容 tab-content ] ================================= */
+.Form-Main-Content .tab-content {
+    font-size: inherit;
+    margin-top: 25px;
+}
+/* ===== [ 頁簽內容 tab-content ] ================================= */
+/* =============================================================== */
+
+/* ===== [ Main Tab 網站頁籤 ALL ] ===== // 以上 // ================ */
+/* =============================================================== */
+
+
+/* =================================================================================== */
+/* ===== [ Main Main Form-group + Input + Label ALL ] ===== // 以下 // ================ */
+.Form-Main-Content .form-group {
+	margin: 0;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content button, 
+.Form-Main-Content input {
+    overflow: visible;
+}
+
+.Form-Main-Content .form-control {
+	display: block;
+	width: 100%;
+	/* ..........................................*/
+    height: -webkit-calc(1.5em + .75rem + 3px);
+    height: -moz-calc(1.5em + .75rem + 3px);
+    height: calc(1.5em + .75rem + 3px);
+    /* ..........................................*/     
+	padding: .375rem .75rem;
+	padding: .375rem .575rem;
+	
+	font-size: inherit;
+	font-weight: 400;
+	line-height: 1.5;
+	color: var(--G555color);
+	background-color: var(--FFFcolor);
+	background-clip: padding-box;
+	border: 1px solid var(--GCCCcolor);
+	border-radius: .25rem;
+	transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out
+}
+@media (prefers-reduced-motion:reduce) {
+	.Form-Main-Content .form-control {
+		transition: none
+	}
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .form-check .form-control {
+	display: block;
+	width: 100%;
+	/* ..........................................*/
+    height: -webkit-calc(1.5em + .75rem + 3px);
+    height: -moz-calc(1.5em + .75rem + 3px);
+    height: calc(1.5em + .75rem + 3px);
+    /* ..........................................*/     
+	padding: 0rem .75rem;
+	
+	font-size: inherit;
+	font-weight: 400;
+	line-height: 1.5;
+	color: var(--G555color);
+	background-color: var(--FFFcolor);
+	background-clip: padding-box;
+	border: 1px solid var(--GCCCcolor);
+	border-radius: .25rem;
+	transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out
+}
+@media (prefers-reduced-motion:reduce) {
+	.Form-Main-Content .form-check .form-control {
+		transition: none
+	}
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .form-control::-ms-expand {
+	background-color: transparent;
+	border: 0
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .form-select:focus,
+.Form-Main-Content .form-control:focus {
+	color: #495057;
+	background-color: var(--FFFcolor);
+	outline: 0;
+    box-shadow: none;
+    border-color: #cdcdcd;
+}
+.Form-Main-Content .form-control::placeholder,
+.Form-Main-Content .form-control::-webkit-input-placeholder,
+.Form-Main-Content .form-control::-moz-placeholder,
+.Form-Main-Content .form-control:-ms-input-placeholder,
+.Form-Main-Content .form-control::-ms-input-placeholder {
+	color: #6c757d;
+	opacity: 1
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .form-control:disabled,
+.Form-Main-Content .form-control[readonly] {
+	background-color: #e9ecef;
+	opacity: 1
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content select.form-control:focus::-ms-value {
+	color: #495057;
+	background-color: var(--FFFcolor);
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .col-form-label {
+    padding-top: calc(.375rem + 1px);
+    padding-bottom: calc(.375rem + 1px);
+    padding-right: calc(var(--bs-gutter-x) * .5);
+    padding-left: calc(var(--bs-gutter-x) * .5);
+	margin-bottom: 0;
+	font-size: inherit;
+	line-height: 1.5
+}
+.Form-Main-Content .label-before::before {
+    content: "";
+    position: relative;
+    display: block;
+    top: calc(1em + .75rem + 3px);
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: #ced4da;
+}
+
+.Form-Main-Content .col-form-label-lg {
+	padding-top: calc(.5rem + 1px);
+	padding-bottom: calc(.5rem + 1px);
+	font-size: 1.25rem; /*20*/
+	line-height: 1.5
+}
+
+.Form-Main-Content .col-form-label-sm {
+	padding-top: calc(.25rem + 1px);
+	padding-bottom: calc(.25rem + 1px);
+	font-size: .875rem; /*14*/
+	line-height: 1.5
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .form-control-sm {
+	height: calc(1.5em + .5rem + 2px);
+	padding: .25rem .5rem;
+	font-size: .875rem; /*14*/
+	line-height: 1.5;
+	border-radius: .2rem
+}
+.Form-Main-Content .form-control-lg {
+	height: calc(1.5em + 1rem + 2px);
+	padding: .5rem 1rem;
+	font-size: 1.25rem; /*20*/
+	line-height: 1.5;
+	border-radius: .3rem
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .form-select {
+    font-size: inherit;
+    font-weight: normal;
+    line-height: 1.5;
+    color: var(--G555color);
+}
+
+.select {    
+    box-shadow: 0px 0px 10px #005efe inset;
+    background-color: #122742;
+    color: #fff;
+    
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    -o-appearance: none;
+    -khtml-appearance: none;
+}
+.select::-ms-expand { 
+    display: none;
+}
+
+.option {
+    /*用div的样式代替select的样式*/
+    margin: 100px;
+    width: 140px;
+    height: 40px;
+    /*border-radius: 5px;*/
+    /*盒子阴影修饰作用,自己随意*/
+    /* box-shadow: 0 0 5px #ccc;*/
+    border: 1px solid #cccccc;
+    position: relative;
+}
+
+.option select {
+    /*清除select的边框样式*/
+    border: none;
+    /*清除select聚焦时候的边框颜色*/
+    outline: none;
+    /*将select的宽高等于div的宽高*/
+    width: 100%;
+    height: 40px;
+    line-height: 40px;
+    /*隐藏select的下拉图标*/
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    /*通过padding-left的值让文字居中*/
+    padding-left: 20px;
+}
+
+/*使用伪类给select添加自己想用的图标*/
+.option:after {
+    content: "";
+    width: 14px;
+    height: 8px;
+    background: url(../assets/arrow-down.png) no-repeat center;
+    /*通过定位将图标放在合适的位置*/
+    position: absolute;
+    right: 20px;
+    top: 41%;
+    /*给自定义的图标实现点击下来功能*/
+    pointer-events: none;
+}
+
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content select.form-control[multiple],
+.Form-Main-Content select.form-control[size] {
+	height: auto
+}
+.Form-Main-Content textarea.form-control {
+	height: auto
+}
+
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .col-form-title {
+    font-size: 106.25%;
+    font-weight: normal;
+    color: inherit;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;  
+    border-bottom: 1px solid var(--GCCCcolor);
+}
+
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .input-group > .form-control, .input-group > .form-select {
+    position: relative;
+    flex: 1 1 auto;
+    width: 1%;
+    min-width: 0;
+}
+
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .input-group:not(.has-validation) > .dropdown-toggle:nth-last-child(n+3), 
+.Form-Main-Content .input-group:not(.has-validation) > :not(:last-child):not(.dropdown-toggle):not(.dropdown-menu) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+/* ===== [ Main Main Form-group + Input + Label ALL ] ===== // 以上 // ================ */
+/* =================================================================================== */
+
+
+/* =============================================================== */
+/* ===== [ Main 標準checkbox + radiobox 勾選鍵 ] =================== */
+.Form-Main-Content .form-check,
+.Form-Main-Content .asp-checkbox,
+.Form-Main-Content .custom-checkbox {
+    position: relative;
+    display: block;
+    min-height: 1.75rem;  /*1.5rem*/
+    padding-left: 2rem;
+    padding-top: calc(.375rem + 1px);
+    padding-bottom: calc(.375rem + 1px);    
+}
+/* ===== [ checkbox + radiobox 共用 ] ===== */
+.form-check-input {
+	width: 1.125rem;
+	height: 1.125rem;
+	margin-top: .25em;
+	vertical-align: top;
+	background-color: #fff;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+	border: 1px solid rgba(0,0,0,.25);
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	-webkit-print-color-adjust: exact;
+	color-adjust: exact;
+}
+
+.form-check-input:checked[type="checkbox"] {
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+}
+
+.form-check .form-check-input {
+	position: relative;
+	top: -0.125rem;
+	float: left;
+	margin-left: -1.75rem;
+	margin-right: 0.25rem;
+}
+
+.form-check-input[type="checkbox"] {
+	border-radius: .25em;
+}
+/* ===== [ 勾選 checked 顏色 ] ===== */
+.form-check-input:checked {
+	color: var(--FFFcolor);
+	border-color: var(--Customize_HRcolor);
+	background-color: var(--Customize_HRcolor);
+	outline: 0;
+	box-shadow: none;
+}
+/* ===== [ 勾選 checked 顏色 ] ===== */
+
+/* ===== [ 勾選 active 顏色 ] ===== */
+.form-check-input:not(:disabled):active {
+	color: var(--FFFcolor);
+	background-color: var(--Customize_HRcolor);
+	border-color: var(--Customize_HRcolor);
+	outline: 0;
+	box-shadow: none;
+}
+/* ===== [ 勾選 active 顏色 ] ===== */
+
+/* ===== [ 勾選 focus 顏色 ] ===== */
+.form-check-input:focus {
+	border-color: rgba(0,0,0,.25);
+	box-shadow: 0 0 0 .25rem rgba(13,110,253,.25);
+	outline: 0;
+	box-shadow: none;
+}
+/* ===== [ 勾選 focus 顏色 ] ===== */
+
+label.form-check-label {
+	display: inline-block;
+}
+
+span.check-txt {
+	position: relative;
+	font-size: inherit;
+	height: 20px;
+	display: inline-block;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: inline-flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+}
+/* ===== [ checkbox + radiobox 共用 ] ===== */
+
+/* ===== [ radiobox 選項鍵 ] ===== */
+.form-check-input[type="radio"] {
+	border-radius: 50%;
+}
+
+.form-check-input:checked[type="radio"] {
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e");
+}
+/* ===== [ radiobox 選項鍵 ] ===== */
+
+/* ===== [ 勾選 + 開關 共用文字設定 ] ===== */
+.custom-check-label span.check-txt,
+.custom-switch span.check-txt {
+	position: relative;
+    top: -1px;
+    font-size: inherit;
+    height: 20px;
+    display: inline-block;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: inline-flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+}
+/* ===== [ 勾選 + 開關 共用文字設定 ] ===== */
+
+/* ===== [ Main 標準checkbox + radiobox 勾選鍵 ] =================== */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ ASP 標準checkbox + radiobox 勾選鍵 ] ==================== */
+.Form-Main-Content .form-check {
+    position: relative;
+    display: block;
+    min-height: 1.75rem;  /*1.5rem*/
+    /*padding-left: 2rem;*/
+    padding-top: calc(.375rem + 1px);
+    padding-bottom: calc(.375rem + 1px);    
+	
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+}
+/* ===== [ checkbox + radiobox 共用 ] ===== */
+.asp-check-input {
+	width: 1.125rem;
+	height: 1.125rem;
+	margin-top: .25em;
+	vertical-align: top;
+	background-color: #fff;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+	border: 1px solid rgba(0,0,0,.25);
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	-webkit-print-color-adjust: exact;
+	color-adjust: exact;
+}
+
+.asp-check-input:checked[type="checkbox"] {
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+}
+
+.form-check .asp-spancheck {
+	position: relative;
+}
+
+.form-check .asp-check-input {
+	position: relative;
+	top: -0.05rem;
+	float: left;
+	margin-left: -1.75rem;
+}
+
+.asp-check-input[type="checkbox"] {
+	border-radius: .25em;
+}
+/* ===== [ 勾選 checked 顏色 ] ===== */
+.asp-check-input:checked {
+	color: var(--FFFcolor);
+	border-color: var(--Customize_HRcolor);
+	background-color: var(--Customize_HRcolor);
+	outline: 0;
+	box-shadow: none;
+}
+/* ===== [ 勾選 checked 顏色 ] ===== */
+
+/* ===== [ 勾選 active 顏色 ] ===== */
+.asp-check-input:not(:disabled):active {
+	color: var(--FFFcolor);
+	background-color: var(--Customize_HRcolor);
+	border-color: var(--Customize_HRcolor);
+	outline: 0;
+	box-shadow: none;
+}
+/* ===== [ 勾選 active 顏色 ] ===== */
+
+/* ===== [ 勾選 focus 顏色 ] ===== */
+.asp-check-input:focus {
+	border-color: rgba(0,0,0,.25);
+	box-shadow: 0 0 0 .25rem rgba(13,110,253,.25);
+	outline: 0;
+	box-shadow: none;
+	border-color: transparent;
+}
+/* ===== [ 勾選 focus 顏色 ] ===== */
+/* ===== [ checkbox + radiobox 共用 ] ===== */
+
+/* ===== [ radiobox 選項鍵 ] ===== */
+.asp-check-input[type="radio"] {
+	border-radius: 50%;
+}
+
+.asp-check-input:checked[type="radio"] {
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e");
+}
+/* ===== [ radiobox 選項鍵 ] ===== */
+
+/* ===== [ ASP 標準checkbox + radiobox 勾選鍵 ] ==================== */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ Main 標準左右開關鍵 ] ===== // 以下 // =================== */
+.form-switch {
+	padding-left: 2.5em;
+}
+
+.form-switch .form-check-input {
+	position: relative;
+	top: -0.125rem;
+	float: left;
+	margin-left: -1.75rem;
+}
+
+.form-switch .form-check-input {	
+	width: 2.25em;
+	height: 1.125rem;
+	margin-left: -1.85rem;
+	margin-right: 0.25rem;
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
+	background-position: left center;
+	border-radius: 2em;
+	transition: background-position .15s ease-in-out;
+}
+.form-switch .form-check-input:checked {
+	background-position: right center;
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+}
+
+/* =============================================================== */
+/* =============================================================== */
+span.check-txt span.Iicon,
+span.check-txt span.Iicon {
+    content: "●";
+    position: relative;
+    display: inline-block;
+    top: 0.5px;
+    width: 12px;
+    height: 12px;
+    margin: 0 5px;
+    border-radius: 6px;    
+}
+span.check-txt span.Iicon.off,
+span.check-txt span.Iicon.off {
+    background-color: var(--G999color);
+}
+span.check-txt span.Iicon.on,
+span.check-txt span.Iicon.on {
+    background-color: var(--Customize_HRcolor);
+}
+/* ===== [ Main 標準左右開關鍵 ] ===== // 以上 // =================== */
+
+
+/* =============================================================== */
+/* ===== [ Main Input + Button 群組 ] ===== // 以下 // ============ */
+.Form-Main-Content .input-group-text {
+	display: flex;
+	align-items: center;
+	padding: 0rem .75rem;
+	font-size: 100%;
+	font-weight: 400;
+	line-height: 1.5;
+	color: inherit;
+	text-align: center;
+	white-space: nowrap;
+	background-color: #e9ecef;
+	border: 1px solid var(--GCCCcolor);
+	border-radius: .25rem;
+}
+
+.Form-Main-Content .input-group .btn {
+	display: inline-block;
+	font-size: 100%;
+	font-weight: 400;
+	line-height: 1.5;
+	color: inherit;
+	text-align: center;
+	text-decoration: none;
+	vertical-align: middle;
+	cursor: pointer;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
+	/*background-color: transparent;*/
+	/*border: 1px solid var(--GCCCcolor);*/
+	padding: .375rem .75rem;
+	border-radius: .25rem;
+	transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+/* 按鈕 - (帶下拉式選單) */
+.Form-Main-Content .input-group .dropdown-toggle-split {
+	padding-right: .525rem;
+	padding-left: .525rem;
+}
+
+.Form-Main-Content .input-group .dropdown-toggle::after {
+	display: inline-block;	
+	margin-left: 0em; /*0.255em*/
+	vertical-align: 0.255em;
+	content: "";
+	border-top: 0.3em solid;
+	border-right: 0.3em solid transparent;
+	border-bottom: 0;
+	border-left: 0.3em solid transparent;
+}
+/* 按鈕 - (帶下拉式選單) */
+
+/* 浮動標籤 (Floating labels) */
+.Form-Main-Content .form-floating {
+	position: relative;
+}
+
+.Form-Main-Content .form-floating > .form-control, 
+.Form-Main-Content .form-floating > .form-select {
+	height: calc(3.5rem + 2px);
+	line-height: 1.25;
+}
+
+.Form-Main-Content .form-floating > .form-control {
+	padding: 1rem .75rem;
+}
+
+.Form-Main-Content .form-floating > .form-control:focus, 
+.Form-Main-Content .form-floating > .form-control:not(:placeholder-shown) {
+	padding-top: 1.625rem;
+	padding-bottom: .625rem;
+}
+/* 浮動標籤 (Floating labels) */
+
+/* ===== [ Main Input + Button 群組 ] ===== // 以上 // ============ */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ Main ALL 彈跳視窗 ] ===== // 以下 // ==================== */
+.CustomAll_modal.modal {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 1055;
+	display: none;
+	width: 100%;
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+	outline: 0;
+	z-index: 99902;
+}
+
+.CustomAll_modal .modal-content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	color: var(--blackcolor);
+	pointer-events: auto;
+	background-color: var(--FFFcolor);
+	background-clip: padding-box;
+	border: 1px solid rgba(0, 0, 0, 0.175);
+	border-radius: var(--bs-modal-border-radius);
+	outline: 0;
+	border-radius: 0.5rem;
+	
+	font-size: 90.75%;
+}
+/* =============================================================== */
+.CustomAll_modal .modal-header {
+	display: flex;
+	flex-shrink: 0;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem 1.75rem;
+	border-bottom: 1px solid #dee2e6;
+	border-top-left-radius: calc(0.5rem - (1px));
+	border-top-right-radius: calc(0.5rem - (1px));
+	
+	background-color: rgba(0, 0, 0, 0.075);
+}
+
+.CustomAll_modal .modal-header > .modal-title {
+	font-size: 112.5%;
+	font-weight: bold;
+	color: var(--Customize_ACcolor);
+	margin-bottom: 0;
+}
+
+.CustomAll_modal .modal-header > .btn-close {
+	padding: calc(1rem * 0.5) calc(1rem * 0.5);
+	margin: calc(-.5 * 1rem) calc(-.5 * 1rem) calc(-.5 * 1rem) auto;
+}
+
+.CustomAll_modal .modal-header > button.btn-close:hover {
+	color: var(--Customize_ACcolor);
+	text-decoration: none;
+	opacity: .75;
+}
+
+.CustomAll_modal .modal-header > button.btn-close:focus:not(:focus-visible) {
+  outline: 0;
+}
+.CustomAll_modal .modal-header > button:focus, 
+.CustomAll_modal .modal-header > button.btn-close:focus {
+  outline: 0;
+  box-shadow: none;
+}
+/* =============================================================== */
+.CustomAll_modal .modal-body {
+	position: relative;
+	flex: 1 1 auto;
+	/*padding: 1rem;*/
+	padding: 1rem 1.75rem;
+}
+/* =============================================================== */
+/* 輸入框 ALL */
+.CustomAll_modal .modal-body > .form-group {
+	position: relative;
+	width: 100%;
+	z-index: 1;
+	margin-top: 20px;
+	margin-bottom: 0;
+}
+
+.CustomAll_modal .modal-body > .form-control:not(.form-control-lg):not(.form-control-sm) {
+	height: -webkit-calc(1.5em + .75rem + 3px);
+	height: -moz-calc(1.5em + .75rem + 3px);
+	height: calc(1.5em + .75rem + 3px);
+}
+
+.CustomAll_modal .modal-body > .form-group  > input.form-control {
+    font-size: 93.75%;
+    color: #4d4d4d;
+    /*min-height: 50px;*/
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    border: none;
+    padding: 10px 15px;
+    
+    border-radius: 0;
+    background-color: transparent;
+    border-bottom: 1px solid var(--G777color);    
+    transition: background-color 0.25s ease;
+}
+
+.CustomAll_modal .modal-body > .form-group  > label.i-label {
+    position: relative;
+    top: -36px;
+    font-size: 93.75%;
+    color: #4d4d4d;
+    pointer-events: none;
+    transition: all 0.25s ease;
+    font-weight: 400;
+    margin-bottom: 0;
+}
+
+/* 輸入框 input */
+.CustomAll_modal .modal-body > .form-group  > input.form-control:focus,
+.CustomAll_modal .modal-body > .form-group  > input.form-control:not(:placeholder-shown), 
+.CustomAll_modal .modal-body > .form-group  > input.form-control:-webkit-autofill {
+    border-bottom: 1px solid var(--Customize_color);
+}
+
+/* 輸入框 label 文字 */
+.CustomAll_modal .modal-body > .form-group  > input.form-control:focus + label.i-label,
+.CustomAll_modal .modal-body > .form-group  > input.form-control:not(:placeholder-shown) + label.i-label,
+.CustomAll_modal .modal-body > .form-group  > input.form-control:-webkit-autofill + label.i-label {
+    color: var(--Customize_color);
+    top: -60px;
+}
+@media only screen and (max-width: 1199px) {
+    .CustomAll_modal .modal-body > .form-group  > input.form-control:focus + label.i-label,
+    .CustomAll_modal .modal-body > .form-group  > input.form-control:not(:placeholder-shown) + label.i-label,
+    .CustomAll_modal .modal-body > .form-group  > input.form-control:-webkit-autofill + label.i-label {
+        top: -58px;
+    }
+}
+@media only screen and (max-width: 991px) {
+    .CustomAll_modal .modal-body > .form-group  > input.form-control:focus + label.i-label,
+    .CustomAll_modal .modal-body > .form-group  > input.form-control:not(:placeholder-shown) + label.i-label,
+    .CustomAll_modal .modal-body > .form-group  > input.form-control:-webkit-autofill + label.i-label {
+        top: -53px;
+    }
+}
+/* 輸入框 ALL */
+/* =============================================================== */
+.CustomAll_modal .modal-footer {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-shrink: 0;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	/*padding: calc(1rem - 0.5rem * .5);*/
+	padding: calc(1rem - 0.5rem * .5) 1.75rem;
+	background-color: var(--FFFcolor);
+	border-top: 1px solid #dee2e6;
+	border-top-left-radius: calc(0.5rem - (1px));
+	border-top-right-radius: calc(0.5rem - (1px));
+	
+	background-color: rgba(0, 0, 0, 0.075);
+}
+
+.CustomAll_modal .modal-footer > * {
+	margin: .25rem;
+}
+
+.CustomAll_modal .CF-color {
+    color: var(--Customize_color);/*#00305c*/
+}
+.CustomAll_modal .CT-color {
+    color: var(--Customize_Btn_color);/*#0a57c9*/
+}
+.CustomAll_modal .CT-HRcolor {
+    color: var(--Customize_Btn_HRcolor);/*#0d6efd*/
+}
+
+.CustomAll_modal .btn {
+    font-size: inherit;
+	-webkit-transition: all 0.4s ease-in-out;
+	-o-transition: all 0.4s ease-in-out;
+	transition: all 0.4s ease-in-out;
+}
+.CustomAll_modal .btn.btn-custom {
+	/*color: var(--G333color);*/
+    padding: 5px 24px;
+    border: 1px solid var(--GCCCcolor);
+    background-color: var(--FFFcolor);
+}
+.CustomAll_modal .btn-custom:not(:disabled):not(.disabled):hover { 
+    color: var(--FFFcolor);
+    border-color: var(--Customize_Btn_HRcolor);
+    background-color: var(--Customize_Btn_HRcolor);
+}
+.CustomAll_modal .btn-custom:hover {
+    -webkit-animation: none;
+}
+
+.CustomAll_modal .btn-rounded {
+	-webkit-box-pack: center;
+	-webkit-justify-content: center;
+	-moz-box-pack: center;
+	-ms-flex-pack: center;
+	justify-content: center;
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+}
+/* ===== [ Main ALL 彈跳視窗 ] ===== // 以上 // ==================== */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ PAGE 網站架構 ] ======================================== */
+/* =============================================================== */
+.Form-Main-Content .Layout-box {
+    position: relative;
+    display: block;
+}
+.Form-Main-Content .LayoutIMG_box {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    
+    position: relative;
+    z-index: 0;
+}
+
+.Form-Main-Content .LayoutIMG_box .menu_box {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	border-radius: .25rem;
+	text-transform: uppercase;	
+	height: 100%;
+}
+.Form-Main-Content .LayoutIMG_box .menu_bg {
+	padding: 20px 20px;
+	background-color: #e8837e;
+}
+.Form-Main-Content .LayoutIMG_box .banner_bg {
+	padding: 50px 20px;
+	background-color: #efb28c;
+}
+.Form-Main-Content .LayoutIMG_box .submenu_bg {
+	padding: 60px 20px;
+	background-color: #f0c371;
+}
+.Form-Main-Content .LayoutIMG_box .content_bg {
+	padding: 60px 20px;
+	background-color: #acba9d;
+}
+
+.Form-Main-Content .Layouttemplate_box .Block_icon,
+.Form-Main-Content .Layouttemplate_box .Block_text,
+.Form-Main-Content .LayoutIMG_box .Block_icon,
+.Form-Main-Content .LayoutIMG_box .Block_text {}
+
+@media screen and (min-width: 1200px) {
+	.Form-Main-Content .Layouttemplate_box .Block_icon,
+	.Form-Main-Content .Layouttemplate_box .Block_text,
+	.Form-Main-Content .LayoutIMG_box .Block_icon,
+	.Form-Main-Content .LayoutIMG_box .Block_text {
+		font-size: 0.9vw;
+	}
+}
+@media screen and (min-width: 992px) and (max-width: 1199px) {
+	.Form-Main-Content .Layouttemplate_box .Block_icon,
+	.Form-Main-Content .Layouttemplate_box .Block_text,
+	.Form-Main-Content .LayoutIMG_box .Block_icon,
+	.Form-Main-Content .LayoutIMG_box .Block_text {
+		font-size: 1.15vw;
+	}
+}
+@media screen and (min-width: 768px) and (max-width: 991px) {
+	.Form-Main-Content .Layouttemplate_box .Block_icon,
+	.Form-Main-Content .Layouttemplate_box .Block_text,
+	.Form-Main-Content .LayoutIMG_box .Block_icon,
+	.Form-Main-Content .LayoutIMG_box .Block_text {
+		font-size: 1.75vw;
+	}
+}
+@media screen and (min-width: 768px) and (max-width: 991px) {
+	.Form-Main-Content .Layouttemplate_box .Block_icon,
+	.Form-Main-Content .Layouttemplate_box .Block_text,
+	.Form-Main-Content .LayoutIMG_box .Block_icon,
+	.Form-Main-Content .LayoutIMG_box .Block_text {
+		font-size: 1.85vw;
+	}
+}
+@media screen and (max-width: 767px) {
+	.Form-Main-Content .Layouttemplate_box .Block_icon,
+	.Form-Main-Content .Layouttemplate_box .Block_text,
+	.Form-Main-Content .LayoutIMG_box .Block_icon,
+	.Form-Main-Content .LayoutIMG_box .Block_text {
+		font-size: 3vw;
+	}
+}
+
+.Form-Main-Content .LayoutIMG_box .Block_icon {
+	margin: 0 5px;
+}
+
+.Form-Main-Content .Layout-figure {
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	aspect-ratio: 1/1;  /*1/1*//*4/3*//*6/4*//*16/9*/
+	overflow: hidden;
+    
+    -webkit-border-radius: 0%;
+    -moz-border-radius: 0%;
+    border-radius: 0%;
+}
+
+.Form-Main-Content .template-control {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: flex-start;
+}
+
+.Form-Main-Content .Layouttemplate_box .template_box {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: column;
+	/*-ms-flex-wrap: wrap;
+	flex-wrap: wrap;*/
+	justify-content: center;
+	align-items: center;
+	border-radius: .25rem;
+	text-transform: uppercase;	
+	
+	width: 100%;
+	height: 25vh;
+	margin-left: calc(var(--bs-gutter-x) * -0.35);
+}
+
+.Form-Main-Content .Layouttemplate_box .template_bg {
+	padding: 8px 8px;
+	background-color: #cccccc;
+}
+.Form-Main-Content .Layouttemplate_box .Block_icon,
+.Form-Main-Content .Layouttemplate_box .Block_text {}
+
+@media screen and (min-width: 1200px) {
+	.Form-Main-Content .Layouttemplate_box .Block_icon,
+	.Form-Main-Content .Layouttemplate_box .Block_text {
+		font-size: 0.9vw;
+	}
+}
+@media screen and (min-width: 992px) and (max-width: 1199px) {
+	.Form-Main-Content .Layouttemplate_box .Block_icon,
+	.Form-Main-Content .Layouttemplate_box .Block_text {
+		font-size: 1.15vw;
+	}
+}
+@media screen and (min-width: 768px) and (max-width: 991px) {
+	.Form-Main-Content .Layouttemplate_box .Block_icon,
+	.Form-Main-Content .Layouttemplate_box .Block_text {
+		font-size: 1.75vw;
+	}
+}
+@media screen and (min-width: 768px) and (max-width: 991px) {
+	.Form-Main-Content .Layouttemplate_box .Block_icon,
+	.Form-Main-Content .Layouttemplate_box .Block_text {
+		font-size: 1.85vw;
+	}
+}
+@media screen and (max-width: 767px) {
+	.Form-Main-Content .Layouttemplate_box .Block_icon,
+	.Form-Main-Content .Layouttemplate_box .Block_text {
+		font-size: 3vw;
+	}
+}
+.Form-Main-Content .Layouttemplate_box .Block_icon {
+	margin: 0 5px;
+}
+/* ===== [ PAGE 網站架構 ] ======================================== */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ PAGE 網頁權限設定 ] ===================================== */
+.Form-Main-Content .accordion {
+    color: var(--G333color);
+    padding: 0;
+}
+
+.Form-Main-Content .accordion-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    font-size: inherit;
+    width: 100%;
+    padding: 1rem 1.25rem;
+    color: var(--G333color);
+    text-align: left;
+    background-color: var(--FFFcolor);
+    border: 0;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+    border-radius: 0;
+    overflow-anchor: none;
+    box-shadow: none !important;
+    /*box-shadow: inset 0 -1px 0 rgba(0,0,0,.125);*/
+    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out, border-radius .15s ease;
+}
+@media (max-width: 575px) {
+    .Form-Main-Content .accordion-button {
+        padding: 0.75rem 0.75rem;
+    }
+}
+
+.Form-Main-Content .accordion-button::before {
+    content: "";
+    position: absolute;
+    display: block;
+    left: 50%;
+    bottom: 0;
+    width: 0;
+    height: 1px;
+    background-color: var(--Customize_HRcolor);
+    transition: width 0.3s ease 0s, left 0.3s ease 0s;
+}
+
+.Form-Main-Content .accordion-button:hover::before{
+    width: 100%;
+    left: 0px;
+}
+
+
+.Form-Main-Content .accordion-button:not(.collapsed) {
+    color: var(--Customize_HRcolor);
+    background-color: var(--FFFcolor);
+    box-shadow: none !important;
+}
+
+.Form-Main-Content .accordion-body {
+    padding: 1rem 1.25rem;
+}
+@media (max-width: 575px) {
+    .Form-Main-Content .accordion-body {
+        padding: 0.75rem 0.75rem;
+    }
+}
+
+/* =============================================================== */
+/* ===== [ 下拉箭頭設定 ] ========================================== */
+.Form-Main-Content .accordion-button::after {
+    flex-shrink: 0;
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-left: auto;
+    content: "";
+    background-image: url("../images/accordion/accordion_arrow_B_150x150.svg");
+    background-repeat: no-repeat;
+    background-size: 0.75rem;
+    transition: transform .2s ease-in-out;
+}
+.Form-Main-Content .accordion-button:not(.collapsed)::after {
+    background-image: url("../images/accordion/accordion_arrow_B_150x150.svg");
+    transform: rotate(-180deg);
+}
+/* ===== [ 下拉箭頭設定 ] ========================================== */
+/* =============================================================== */
+
+/* ===== [ PAGE 網頁權限設定 ] ===================================== */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ PAGE 配置修改 ] ======================================== */
+
+/* ===== [ 表格 hover-dropdown 彈出視窗 ] ========================== */
+.hover-dropdown .dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.hover-dropdown .dropbtn {
+    color: inherit;
+    border: none;
+}
+
+.hover-dropdown .dropdown-content {
+    display: none;
+    position: absolute; 
+    right: 0;
+    bottom: 100%;  
+    min-width: auto; /*160px*/
+    z-index: 1;
+}
+
+.hover-dropdown .dropdown-content .dropdown-btn-box {
+    display: block;
+    padding: .5rem .9rem;
+    text-decoration: none;
+    border: 1px solid rgba(0,0,0,.125);
+    background-color: var(--FFFcolor);
+    box-shadow: 0px 2px 2px 0px rgba(0,0,0,0.2);
+    margin-bottom: 10px;
+}
+
+.hover-dropdown .dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+.hover-dropdown .dropdown:hover .dropdown-content {
+    display: block;
+}
+@media (max-width: 768px) {
+    .hover-dropdown .dropdown-content {
+        display: none !important;
+    }
+}
+/* ===== [ 表格 hover-dropdown 彈出視窗 ] ========================== */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ 表格 hover-dropdown table-rwd 的變化 ] ================== */
+@media (min-width: 769px) {
+    .hover-dropdown.table-rwd th:last-child,
+    .hover-dropdown.table-rwd td:last-child {
+        display: none;
+    }
+}
+@media (max-width: 768px) {
+    .hover-dropdown.table-rwd {
+		min-width: 100%;
+	}
+    
+    /*針對tr去做隱藏*/
+	.hover-dropdown tr.tr-only-hide {
+		display: none !important;
+	}
+    
+    /*讓tr變成區塊主要讓他有個區塊*/
+	.hover-dropdown tr.tr-only-hide-titlebar {
+		display: none !important;
+	}
+    
+    .hover-dropdown.table-rwd tr {
+		display: block;
+		border: 1px solid rgba(0,0,0,.125);
+		margin-top: 5px;
+	}
+    
+    .hover-dropdown.table-rwd td {
+		text-align: left;
+		font-size: inherit;
+		overflow: hidden;
+		width: 100%;
+		display: block;
+	}
+    
+    .hover-dropdown.table-rwd td:before {
+		/*最重要的就是這串*/
+		content: attr(data-th) " : ";
+		/*最重要的就是這串*/
+		/*display: inline-block;*/    /*單獨一列顯示*/
+		text-transform: uppercase;
+		font-weight: bold;
+		margin-right: 10px;
+		color: inherit;             /*RWD 標題顏色*/
+		
+		padding: 8px 0;
+		width: 100%;
+		margin-bottom: 5px;
+	}
+    
+    /*當RWD縮小的時候.table-bordered 會有兩條線，所以針對.table-bordered去做修正*/
+	.hover-dropdown.table-rwd.table-bordered td,
+	.hover-dropdown.table-rwd.table-bordered th,
+	.hover-dropdown.table-rwd.table-bordered {
+		border:0;
+	}
+    
+    .hover-dropdown.table-rwd th:last-child,
+    .hover-dropdown.table-rwd td:last-child {
+		display: block;
+	}
+}
+/* ===== [ 表格 hover-dropdown table-rwd 的變化 ] ================== */
+
+/* ===== [ PAGE 配置修改 ] ======================================== */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ PAGE 個人資料修改 ] ===================================== */
+
+/* ===== [ 自訂頭像 ALL ] ===== // 以下 // ========================= */
+.Form-Main-Content .userlist-box {
+    position: relative;
+    display: block;
+    margin-bottom: 24px;
+}
+
+/*列表 第一分色 / 第二分色 --> 區塊底色 */
+.Form-Main-Content .box_BG:nth-of-type(2n+1) .userlist-box {
+	border: 1px solid #FFFFFF;
+	/*列表第一分色*/
+    background-color: #f0f3f5;
+}
+.Form-Main-Content .box_BG:nth-of-type(2n) .userlist-box {
+	border: 1px solid #FFFFFF;
+	/*列表第二分色*/
+    background-color: #e8ebed; 
+}
+
+.Form-Main-Content .userlist-box .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: transparent;
+    background-clip: border-box;
+    /*border: 0px solid #F1F1F1;*/
+    border: 0px solid rgba(0, 0, 0, .125);
+    border-radius: 0.25rem;
+    box-shadow: none;
+    transition: box-shadow 0.2s ease-in-out;
+    margin-bottom: 0;
+}
+
+.Form-Main-Content .userlist-box .card-body {
+    flex: 1 1 auto;
+    padding: 16px 16px; /* 1rem=16px */
+}
+@media (min-width: 1024px) {
+    .Form-Main-Content .userlist-box .card-body {
+        padding: 25px 25px; /* 1rem=16px */
+    }
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .avatar_box {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    position: relative;
+    z-index: 0;
+}
+
+.Form-Main-Content .avatar-figure {
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	aspect-ratio: 1/1;  /*1/1*//*4/3*//*6/4*//*16/9*/
+	overflow: hidden;
+    
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%;
+	border: 1px solid rgba(0, 0, 0, .125);
+}
+
+.Form-Main-Content .avatar-figure > a:focus,
+.Form-Main-Content .avatar-figure > a:hover {
+    color: #646464;
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .avatar-photo {
+    position: absolute;
+    bottom: -1rem;
+    right: 0;
+    width: auto;
+	height: auto;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%;  
+    background-color: var(--FFFcolor);
+    border: 1px solid var(--GCCCcolor);
+}
+
+.Form-Main-Content .avatar-photo .PiconBox {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+}
+
+.Form-Main-Content .avatar-photo i {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+	top: 1px;
+	left: 2px;
+    font-size: 137.5%;
+    color: #4689f2;
+    z-index: 0;
+}
+.Form-Main-Content .avatar-photo i.camera {
+    position: relative;
+    top: 0px;
+    left: 0px;
+}
+
+.Form-Main-Content .avatar-photo input.avatar-input {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    opacity: 0;
+    z-index: 1;
+}
+
+.Form-Main-Content .avatar-photo:hover {
+    background-color: #4689f2;
+    border: 1px solid var(--GCCCcolor);
+}
+
+.Form-Main-Content .avatar-photo:hover i {
+    color: var(--FFFcolor);
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .avatar-figure > img {
+    width: 100%;
+    height: 100%;
+    -o-object-fit: cover;
+    object-fit: cover
+}
+
+/* ===== [ LG ] ===== */
+.Form-Main-Content .avatar-figure.custom-lg {    
+    width: 10rem;
+    height: auto;    
+    max-width: 10rem;
+    max-height: 10rem;
+}
+/* ===== [ MD ] ===== */
+.Form-Main-Content .avatar-figure.custom-md {    
+    width: 8rem;
+    height: auto;    
+    max-width: 8rem;
+    max-height: auto;
+}
+/* ===== [ SM ] ===== */
+.Form-Main-Content .avatar-figure.custom-sm {
+    width: 6rem;
+    height: auto;    
+    max-width: 6rem;
+    max-height: auto;
+}
+
+.Form-Main-Content .avatar-title {
+    font-size: 112.5%;
+}
+
+.Form-Main-Content .avatar-title a {
+    display: block;
+    color: inherit;
+}
+.Form-Main-Content .avatar-title a:hover {
+    color: var(--Customize_HRcolor);
+}
+/* ===== [ 自訂頭像 ALL ] ===== // 以上 // ========================= */
+
+.main-content .profile-box {
+	position: relative;
+}
+
+.main-content .profile-box .text-muted {
+    color: #333333 !important;
+}
+/* ===== [ PAGE 個人資料修改 ] ===================================== */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ PAGE 使用者列表 ] ======================================= */
+.Form-Main-Content .input-group.search-box,
+.Form-Main-Content .input-group.add-box {
+    position: relative;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    width: 100%;
+}
+/* =============================================================== */
+/* ===== [ 搜尋按鈕 ] ===== // 以下 // ============================= */
+.Form-Main-Content .input-group.search-box > .btn-search {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0; /*.25rem;*/
+    border-bottom-right-radius: 0; /*.25rem;*/
+    border-bottom-left-radius: 0;
+}
+/* ===== [ 搜尋箭頭按鈕 ] ========================================== */
+.Form-Main-Content .input-group.search-box > .btn-setting {
+    border-top-left-radius: 0;
+    border-top-right-radius: .25rem; /*.25rem;*/
+    border-bottom-right-radius: .25rem; /*.25rem;*/
+    border-bottom-left-radius: 0;
+}
+/* ===== [ 搜尋按鈕 ] ===== // 以上 // ============================= */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ 搜尋箭頭按鈕 下拉選單 ] ===== // 以下 // ================== */
+.Form-Main-Content .input-group.search-box > .dropdown-toggle {
+    white-space: nowrap;
+}
+.Form-Main-Content .input-group.search-box > .dropdown-toggle-search {
+    padding-right: .5625rem;
+    padding-left: .5625rem;
+    border: 1px solid var(--GCCCcolor);
+}
+
+.Form-Main-Content .input-group.search-box > .dropdown-menu {
+    position: absolute;
+    z-index: 1000;
+    display: none;
+    min-width: 10rem;
+    padding: .5rem 0;
+    margin: 0;
+    font-size: 100%;
+    color: var(--G333color);
+    text-align: left;
+    list-style: none;
+    background-color: rgba(244, 247, 250, 0.85);
+    background-color: var(--FFFcolor);
+    
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, .15);
+    border-radius: .25rem;
+}
+
+.Form-Main-Content .input-group.search-box > .dropdown-menu.show {
+    display: block;
+}
+
+.Form-Main-Content .input-group.search-box .dropdown-menu a.dropdown-item {
+    display: block;
+    width: 100%;
+    clear: both;
+    font-weight: 400;
+    color: var(--G333color);
+    text-align: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+    padding: 9px 16px;
+}
+
+.Form-Main-Content .input-group.search-box .dropdown-menu a:hover.dropdown-item,
+.Form-Main-Content .input-group.search-box .dropdown-menu a:focus.dropdown-item,
+.Form-Main-Content .input-group.search-box .dropdown-menu a.active.dropdown-item {
+    color: var(--Customize_HRcolor);
+    background-color: transparent;
+}
+/* ===== [ 搜尋箭頭按鈕 下拉選單 ] ===== // 以下 // ================== */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ 搜尋設定按鈕 下拉區塊框 ] ===== // 以下 // ================ */
+.Form-Main-Content .collapseBox .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: var(--FFFcolor);
+    background-clip: border-box;
+    /*border: 1px solid #F1F1F1;*/
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: 0.25rem;
+    margin-bottom: 0px;
+    box-shadow: none;
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.Form-Main-Content .collapseBox .card-body {
+    flex: 1 1 auto;
+    padding: 16px 16px; /* 1rem=16px */
+    margin-bottom: 1rem;
+}
+@media (min-width: 1024px) {
+    .Form-Main-Content .collapseBox .card-body {
+        padding: 25px 25px; /* 1rem=16px */
+    }
+}
+/* ===== [ 搜尋設定按鈕 下拉區塊框 ] ===== // 以下 // ================ */
+/* =============================================================== */
+
+/* ===== [ PAGE 使用者列表 ] ======================================= */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ PAGE 網站流量分析 + 首頁 ] =============================== */
+
+/* =============================================================== */
+/* ===== [ 標題按鈕 下拉區塊框 ] ===== // 以下 // ==================== */
+.Form-Main-Content .CustomFolding {
+    color: var(--G333color);
+    padding: 0;
+}
+
+.Form-Main-Content a.CustomFolding-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 16px;
+    border: 0;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+    border-radius: 0;
+    overflow-anchor: none;
+    box-shadow: none !important;
+    /*box-shadow: inset 0 -1px 0 rgba(0,0,0,.125);*/
+    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out, border-radius .15s ease;
+}
+
+.Form-Main-Content a.CustomFolding-button .panel-header {
+    padding: 0;
+    margin: 0;
+    background-color: transparent;
+}
+
+/*.Form-Main-Content a.CustomFolding-button::before {
+    content: "";
+    position: absolute;
+    display: block;
+    left: 50%;
+    bottom: 0;
+    width: 0;
+    height: 1px;
+    background-color: var(--Customize_HRcolor);
+    transition: width 0.3s ease 0s, left 0.3s ease 0s;
+}
+.Form-Main-Content a.CustomFolding-button:hover::before{
+    width: 100%;
+    left: 0px;
+}*/
+
+
+.Form-Main-Content a.CustomFolding-button:not(.collapsed) {
+    color: var(--Customize_HRcolor);
+    background-color: var(--FFFcolor);
+    box-shadow: none !important;
+}
+
+.Form-Main-Content .CustomFolding-body {
+    padding: 0 15px 0 0;
+}
+/* =============================================================== */
+/* ===== [ 下拉箭頭設定 ] ========================================== */
+.Form-Main-Content a.CustomFolding-button::after {
+    flex-shrink: 0;
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-left: auto;
+    content: "";
+    background-image: url("../images/accordion/accordion_arrow_W_150x150.svg");
+    background-repeat: no-repeat;
+    background-size: 0.75rem;
+    transition: transform .2s ease-in-out;
+}
+.Form-Main-Content a.CustomFolding-button:not(.collapsed)::after {
+    background-image: url("../images/accordion/accordion_arrow_W_150x150.svg");
+    transform: rotate(-180deg);
+}
+/* ===== [ 下拉箭頭設定 ] ========================================== */
+/* =============================================================== */
+
+/* ===== [ 標題按鈕 下拉區塊框 ] ===== // 以下 // ==================== */
+/* =============================================================== */
+
+/* ===== [ PAGE 網站流量分析 + 首頁 ] =============================== */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ PAGE 廣告輪播 ] ======================================== */
+#bannerCarousel thead > tr > th:first-of-type {
+    width: 25%;
+}
+#bannerCarousel thead > tr > th:nth-of-type(2) {
+    width: 55%;
+}
+#bannerCarousel thead > tr > th:last-of-type {
+    width: 25%;
+}
+@media (max-width: 1550px) {
+    #bannerCarousel thead > tr > th:first-of-type {
+        width: 35%;
+    }
+    #bannerCarousel thead > tr > th:nth-of-type(2) {
+        width: 40%;
+    }
+    #bannerCarousel thead > tr > th:last-of-type {
+        width: 25%;
+    }
+}
+
+#bannerCarousel .BannerCarousel-wrapper,
+#bannerCarousel .BannerImages-wrapper {
+    display: block;
+}
+@media (max-width: 1139px) {
+	#bannerCarousel .BannerCarousel-wrapper,
+	#bannerCarousel .BannerImages-wrapper {
+		display: -webkit-box;
+		display: -ms-flexbox;
+		display: flex;
+		flex-direction: row;
+		-ms-flex-wrap: wrap;
+		flex-wrap: wrap;
+		justify-content: flex-start;
+		align-items: center;
+	}
+}
+
+#bannerCarousel .BannerCarousel-wrapper .carousel {}
+@media (min-width: 768px) and (max-width: 1139px) {
+	 #bannerCarousel .BannerCarousel-wrapper .carousel {		
+		width: 70%;
+	}
+}
+@media (min-width: 319px) and (max-width: 767px) {
+	 #bannerCarousel .BannerCarousel-wrapper .carousel {		
+		width: 100%;
+	}
+}
+
+#bannerCarousel .carousel-indicators {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 2;
+	display: flex;
+	justify-content: center;
+	padding: 0;
+	margin-right: 15%;
+	margin-bottom: 0.5rem;
+	margin-left: 15%;
+	list-style: none;
+}
+
+#bannerCarousel .carousel-indicators [data-bs-target] {
+	box-sizing: content-box;
+	flex: 0 1 auto;
+	width: 16px;
+	height: 3px;
+	padding: 0;
+	margin-right: 3px;
+	margin-left: 3px;
+	text-indent: -999px;
+	cursor: pointer;
+	background-color: var(--FFFcolor);
+	background-clip: padding-box;
+	border: 0;
+	border-top: 10px solid transparent;
+	border-bottom: 10px solid transparent;
+	opacity: .5;
+	transition: opacity .6s ease;
+}
+/* =============================================================== */
+/* =============================================================== */
+#bannerImages thead > tr > th:first-of-type {
+    width: 20%;
+}
+#bannerImages thead > tr > th:last-of-type {
+    width: 10%;
+}
+@media (max-width: 1550px) {
+    #bannerImages thead > tr > th:first-of-type {
+        width: 35%;
+    }
+    #bannerImages thead > tr > th:last-of-type {
+        width: 15%;
+    }
+}
+
+#bannerImages .img_box {
+  display: block;
+  position: relative;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  z-index: 1;
+}
+
+#bannerImages .card_image_link {
+    display: block;    
+    position: relative;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    z-index: 1;
+}
+
+#bannerImages .card_image_link:hover .card_image,
+#bannerImages .card_image_link:focus .card_image,
+#bannerImages .card_image_link:active .card_image {
+    -webkit-transform: scale(1.05);
+    transform: scale(1.05)
+}
+
+#bannerImages .card_image {
+    -o-object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    
+    transition-duration: .7s;
+    transition-property: -webkit-transform;
+    transition-property: transform;
+    transition-property: transform, -webkit-transform;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+/* ===== [ PAGE 廣告輪播 ] ======================================== */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ PAGE 公告 ] ============================================ */
+.list-group-wrapper {
+	position: relative;
+	display: block;
+}
+
+.list-group-wrapper .list-group {
+	display: flex;
+	flex-direction: column;
+	padding-left: 0;
+	margin-bottom: 0;
+	border-radius: .25rem;
+	list-style: none;
+	margin: 0;
+}
+
+.list-group-wrapper .list-group-item {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	
+	padding: .5rem 1rem;
+	color: inherit;
+	text-decoration: none;
+	background-color: var(--FFFcolor);
+	border: 1px solid rgba(0, 0, 0, .125);
+}
+/* =============================================================== */
+/* =============================================================== */
+.list-group-wrapper .list-group-item .checkboxDIV {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+    align-items: center;
+}
+
+.list-group-wrapper .list-group-item .custom-checkbox {
+	position: relative;
+	display: block;
+	min-height: 0;
+	padding-left: 2rem;
+	padding-top: 0;
+	padding-bottom: 0;
+}
+.list-group-wrapper .list-group-item .custom-checkbox .custom-check-label span.check-txt,
+.list-group-wrapper .list-group-item .custom-checkbox .custom-switch span.check-txt {
+	position: relative;
+    top: -1px;
+    font-size: inherit;
+    height: auto; 
+    display: inline-block;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: inline-flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+}
+/* =============================================================== */
+/* =============================================================== */
+.list-group-wrapper .list-group-item .custom-switch {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+	position: relative;
+	min-height: auto;
+	padding-left: 3rem;
+	padding-top: 0;
+	padding-bottom: 0;
+}
+/* ===== [ PAGE 公告 ] ============================================ */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ PAGE 相簿列表 ] ======================================== */
+
+/* ===== [ 相簿 ALL ] ===== // 以下 // ============================ */
+.Form-Main-Content .PhotoAlbum-box {
+    position: relative;
+    display: block;
+    margin-bottom: 24px;
+}
+
+/*列表 第一分色 / 第二分色 --> 區塊底色 */
+.Form-Main-Content .box_BG:nth-of-type(2n+1) .PhotoAlbum-box {
+	border: 1px solid #FFFFFF;
+	/*列表第一分色*/
+    background-color: #f0f3f5;
+}
+.Form-Main-Content .box_BG:nth-of-type(2n) .PhotoAlbum-box {
+	border: 1px solid #FFFFFF;
+	/*列表第二分色*/
+    background-color: #e8ebed; 
+}
+
+.Form-Main-Content .PhotoAlbum-box .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: transparent;
+    background-clip: border-box;
+    /*border: 0px solid #F1F1F1;*/
+    border: 0px solid rgba(0, 0, 0, .125);
+    border-radius: 0.25rem;
+    box-shadow: none;
+    transition: box-shadow 0.2s ease-in-out;
+    margin-bottom: 0;
+}
+
+.Form-Main-Content .PhotoAlbum-box .card-body {
+    flex: 1 1 auto;
+    padding: 16px 16px; /* 1rem=16px */
+}
+@media (min-width: 1024px) {
+    .Form-Main-Content .PhotoAlbum-box .card-body {
+        padding: 25px 25px; /* 1rem=16px */
+    }
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .Album_box {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    position: relative;
+    z-index: 0;
+}
+
+.Form-Main-Content .Img_Icon_Wrap {
+	display: block;
+}
+
+.Form-Main-Content .Album-figure,
+.Form-Main-Content a .Album-figure {
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	aspect-ratio: 1/1;  /*1/1*//*4/3*//*6/4*//*16/9*/
+	overflow: hidden;
+    
+    -webkit-border-radius: 0%;
+    -moz-border-radius: 0%;
+    border-radius: 0%;
+}
+
+.Form-Main-Content .Album-figure > img,
+.Form-Main-Content a .Album-figure > img {
+    width: 100%;
+    height: 100%;
+    -o-object-fit: cover;
+    object-fit: cover;
+	
+	transition-duration: .7s;
+	transition-property: -webkit-transform;
+	transition-property: transform;
+	transition-property: transform, -webkit-transform;
+	transition-timing-function: cubic-bezier(.19, 1, .22, 1);
+}
+
+.Form-Main-Content a:hover .Album-figure > img.card_image,
+.Form-Main-Content a:focus .Album-figure > img.card_image,
+.Form-Main-Content a:active .Album-figure > img.card_image {
+    -webkit-transform: scale(1.05);
+    transform: scale(1.05)
+}
+/* =============================================================== */
+/* =============================================================== */
+.Form-Main-Content .Album-photo {
+    position: absolute;
+    bottom: 0.25rem;
+    right: 0.25rem;
+    width: auto;
+    height: auto;
+	
+	-webkit-border-radius: 50%;
+	-moz-border-radius: 50%;
+	border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 1px solid var(--GCCCcolor);
+}
+
+.Form-Main-Content .Album-photo .PiconBox {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+}
+
+.Form-Main-Content .Album-photo i {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+	top: 1px;
+    font-size: 137.5%;
+    color: #4689f2;
+    z-index: 0;
+}
+.Form-Main-Content a:hover .Album-photo {
+    background-color: #4689f2;
+    border: 1px solid var(--GCCCcolor);
+}
+
+.Form-Main-Content a:hover .Album-photo i {
+	color: var(--FFFcolor);
+}
+/* =============================================================== */
+/* =============================================================== */
+/* ===== [ LG ] ===== */
+.Form-Main-Content .Album-figure.custom-lg {    
+    width: 100%;
+    height: auto;    
+    max-width: 100%;
+    max-height: auto;
+}
+/* ===== [ MD ] ===== */
+.Form-Main-Content .Album-figure.custom-md {    
+    width: 8rem;
+    height: auto;    
+    max-width: 8rem;
+    max-height: auto;
+}
+/* ===== [ SM ] ===== */
+.Form-Main-Content .Album-figure.custom-sm {
+    width: 6rem;
+    height: auto;    
+    max-width: 6rem;
+    max-height: auto;
+}
+
+.Form-Main-Content .Album-title a {
+    display: block;
+    color: inherit;
+	font-size: 112.5%;
+	display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 38px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+	
+	height: 38px;
+}
+.Form-Main-Content .Album-title a:hover {
+    color: var(--Customize_HRcolor);
+}
+/* ===== [ 相簿 ALL ] ===== // 以上 // ============================ */
+
+.main-content .profile-box {
+	position: relative;
+}
+
+.main-content .profile-box .text-muted {
+    color: #333333 !important;
+}
+
+/* =============================================================== */
+/* ===== [ Main 勾選鍵 ] ========================================== */
+.CheckBoxWrap {
+	position: absolute;
+	right: 4px;
+	bottom: 4px;
+}
+
+.Album-checkbox {
+    position: relative;
+    display: block;
+    min-height: 1.75rem;  /*1.5rem*/
+    padding-left: 2rem;
+    padding-top: calc(.375rem + 1px);
+    padding-bottom: calc(.375rem + 1px);    
+}
+
+.Album-check-input {
+	position: absolute;
+    display: inline-block;
+	z-index: -1;
+	opacity: 0;
+}
+/* =============================================================== */
+/* =============================================================== */
+.Album-check-input:checked~.Album-check-label::before {
+	color: var(--FFFcolor);
+	border-color: var(--Customize_HRcolor);
+	background-color: var(--Customize_HRcolor);
+}
+
+.Album-check-input:focus~.Album-check-label::before {
+	box-shadow: 0 0 0 .2rem rgba(0,123,255,.25);
+    box-shadow: none;
+}
+
+.Album-check-input:focus:not(:checked)~.Album-check-label::before {
+	border-color: #80bdff;
+    border-color: none;
+}
+
+/* ===== [ 勾選 active 顏色 ] ===== */
+.Album-check-input:not(:disabled):active~.Album-check-label::before {
+	color: var(--FFFcolor);
+	background-color: var(--Customize_HRcolor);
+	border-color: var(--Customize_HRcolor);
+}
+/* ===== [ 勾選 active 顏色 ] ===== */
+
+/* ===== [ 勾選 checked 顏色 ] ===== */
+.Album-checkbox.custom-checkbox-warning .Album-check-input:checked ~ .Album-check-label::before {
+	color: var(--FFFcolor);
+	background-color: var(--Customize_HRcolor);
+	border-color: var(--Customize_HRcolor);
+}
+/* ===== [ 勾選 checked 顏色 ] ===== */
+
+.Album-check-input:disabled~.Album-check-label {
+	color: #6c757d
+}
+
+.Album-check-input:disabled~.Album-check-label::before {
+	background-color: #e9ecef
+}
+
+.Album-check-label {
+	position: relative;
+	margin-bottom: 0;
+	vertical-align: top
+}
+/* =============================================================== */
+/* =============================================================== */
+.Album-check-label::before,
+.Album-check-label::after {
+    content: "";
+	position: absolute;
+	top: 0.15rem; /*.25rem*/
+    left: -1.75rem; /*-2rem*/
+	display: block;
+	width: 1.125rem; /*1.25rem*/
+	height: 1.125rem; /*1.25rem*/
+}
+.Album-check-label::before {
+	pointer-events: none;
+	
+	background-color: var(--FFFcolor);
+	border: 1px solid var(--GCCCcolor);
+}
+.Album-check-label::after {
+	background: no-repeat 50%/50% 50%
+}
+/* =============================================================== */
+/* =============================================================== */
+.Album-checkbox .Album-check-label::before {
+	border-radius: .25rem
+}
+
+.Album-checkbox .Album-check-input:checked~.Album-check-label::after {
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23fff' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z'/%3e%3c/svg%3e")
+}
+
+/* ===== [ 未選 光暈 ] ===== */
+.Album-checkbox .Album-check-input:indeterminate~.Album-check-label::before {
+	border-color: var(--Customize_HRcolor);
+	background-color: var(--Customize_HRcolor);
+}
+/* ===== [ 未選 光暈 ] ===== */
+
+.Album-checkbox .Album-check-input:indeterminate~.Album-check-label::after {
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 4'%3e%3cpath stroke='%23fff' d='M0 2h4'/%3e%3c/svg%3e")
+}
+
+.Album-checkbox .Album-check-input:disabled:checked~.Album-check-label::before {
+	background-color: rgba(0,123,255,.5)
+}
+
+.Album-checkbox .Album-check-input:disabled:indeterminate~.Album-check-label::before {
+	background-color: rgba(0,123,255,.5)
+}
+/* ===== [ Main 勾選鍵 ] ========================================== */
+/* =============================================================== */
+/* ===== [ PAGE 相簿列表 ] ======================================== */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ PAGE 產品列表 ] ======================================== */
+/* =============================================================== */
+#shopImages.table > tbody > tr > td > a.td_title,
+#productImages.table > tbody > tr > td > a.td_title {
+	color: inherit;
+}
+#shopImages.table > tbody > tr > td > a.td_title:hover,
+#productImages.table > tbody > tr > td > a.td_title:hover {
+	color: var(--Customize_Btn_HRcolor);
+}
+/* =============================================================== */
+#shopImages.table thead > tr > th:first-of-type,
+#productImages.table thead > tr > th:first-of-type {
+    /*width: 10%;*/
+}
+#shopImages.table thead > tr > th:last-of-type,
+#productImages.table thead > tr > th:last-of-type {
+    width: 10%;
+}
+@media (max-width: 1550px) {
+	#shopImages.table thead > tr > th:first-of-type,
+    #productImages.table thead > tr > th:first-of-type {
+        /*width: 15%;*/
+    }
+	#shopImages.table thead > tr > th:last-of-type,
+    #productImages.table thead > tr > th:last-of-type {
+        width: 15%;
+    }
+}
+/* =============================================================== */
+#Points.table thead > tr > th:first-of-type {
+    width: 25%;
+}
+#Points.table thead > tr > th:last-of-type {
+    width: 15%;
+}
+@media (max-width: 1550px) {
+	#Points.table thead > tr > th:first-of-type {
+        width: 15%;
+    }
+	#Points.table thead > tr > th:last-of-type {
+        width: 15%;
+    }
+}
+/* =============================================================== */
+/* =============================================================== */
+#productImages .img_box {
+    display: block;    
+    position: relative;
+    aspect-ratio: 1/1;
+    overflow: hidden;
+    z-index: 1;
+}
+@media (min-width: 576px) and (max-width: 1139px) {
+	#productImages .img_box {
+		width: 323.7px !important;
+		max-width: 323.7px !important;
+	}
+}
+@media (min-width: 1140px) {
+	#productImages .img_box {
+		width: 108.033px;
+	}
+}
+/* =============================================================== */
+/* =============================================================== */
+#shopImages .card_image_link {
+    display: block;    
+    position: relative;
+    aspect-ratio: 1/1;
+    overflow: hidden;
+    z-index: 1;
+}
+@media (min-width: 576px) and (max-width: 1139px) {
+	#shopImages .card_image_link {
+		width: 323.7px !important;
+		max-width: 323.7px !important;
+	}
+}
+@media (min-width: 1140px) {
+	#shopImages .card_image_link {
+		width: 108.033px;
+	}
+}
+/* =============================================================== */
+#productImages .card_image_link {
+    display: block;    
+    position: relative;
+    aspect-ratio: 1/1;
+    overflow: hidden;
+    z-index: 1;
+}
+@media (min-width: 576px) and (max-width: 1139px) {
+	#productImages .card_image_link {
+		width: 323.7px !important;
+		max-width: 323.7px !important;
+	}
+}
+@media (min-width: 1140px) {
+	#productImages .card_image_link {
+		width: 108.033px;
+	}
+}
+
+#shopImages .card_image_link:hover .card_image,
+#shopImages .card_image_link:focus .card_image,
+#shopImages .card_image_link:active .card_image,
+#productImages .card_image_link:hover .card_image,
+#productImages .card_image_link:focus .card_image,
+#productImages .card_image_link:active .card_image {
+    -webkit-transform: scale(1.05);
+    transform: scale(1.05)
+}
+
+#shopImages .card_image,
+#productImages .card_image {
+    -o-object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    
+    transition-duration: .7s;
+    transition-property: -webkit-transform;
+    transition-property: transform;
+    transition-property: transform, -webkit-transform;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+@media (min-width: 576px) and (max-width: 1139px) {
+	#shopImages .card_image,
+	#productImages .card_image {
+		width: 323.7px !important;
+		max-width: 323.7px !important;
+	}
+}
+@media (min-width: 1140px) {
+	#shopImages .card_image,
+	#productImages .card_image {
+		width: 108.033px !important;
+	}
+}
+/* =============================================================== */
+/* =============================================================== */
+#shopImages .shop_image,
+#productImages .product_image {
+    -o-object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    
+    transition-duration: .7s;
+    transition-property: -webkit-transform;
+    transition-property: transform;
+    transition-property: transform, -webkit-transform;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+@media (min-width: 576px) and (max-width: 1139px) {
+	#shopImages .shop_image,
+	#productImages .product_image {
+		width: 323.7px !important;
+		max-width: 323.7px !important;
+	}
+}
+@media (min-width: 1140px) {
+	#shopImages .shop_image,
+	#productImages .product_image {
+		width: 108.033px !important;
+	}
+}
+/* =============================================================== */
+/* ===== [ PAGE 產品列表 ] ======================================== */
+/* =============================================================== */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* ===== [ Main Content ALL ] ===== // 以上 // ==================== */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+
+/* ========================================================================= */
+/* ------ CSS 所有內容設定開始 ---- 以上 END ------- */
+/* ========================================================================= */
+
+

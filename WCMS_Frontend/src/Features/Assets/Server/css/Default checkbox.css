@@ -1,0 +1,305 @@
+@charset "utf-8";
+/* CSS Document */
+
+/*
+<div class="col-sm-4 col-12 float-left p-0">
+	<div class="custom-control custom-checkbox">
+		<input type="checkbox" class="custom-check-input" id="customCheck-00">
+		<label class="custom-check-label" for="customCheck-00">
+			<span class="check-txt">網站導覽啟用 CheckBox</span>
+		</label>
+	</div>
+</div>
+*/
+
+/* =============================================================== */
+/* ===== [ Main checkbox 勾選鍵 ] ================================= */
+.custom-checkbox {
+    position: relative;
+    display: block;
+    min-height: 1.75rem;  /*1.5rem*/
+    padding-left: 2rem;
+    padding-top: calc(.375rem + 1px);
+    padding-bottom: calc(.375rem + 1px);    
+}
+
+.custom-check-input {
+	position: absolute;
+    display: inline-block;
+	z-index: -1;
+	opacity: 0;
+}
+/* =============================================================== */
+/* =============================================================== */
+.custom-check-input:checked~.custom-check-label::before {
+	color: var(--FFFcolor);
+	border-color: var(--Customize_HRcolor);
+	background-color: var(--Customize_HRcolor);
+}
+
+.custom-check-input:focus~.custom-check-label::before {
+	box-shadow: 0 0 0 .2rem rgba(0,123,255,.25);
+    box-shadow: none;
+}
+
+.custom-check-input:focus:not(:checked)~.custom-check-label::before {
+	border-color: #80bdff;
+    border-color: none;
+}
+
+/* ===== [ 勾選 active 顏色 ] ===== */
+.custom-check-input:not(:disabled):active~.custom-check-label::before {
+	color: var(--FFFcolor);
+	background-color: var(--Customize_HRcolor);
+	border-color: var(--Customize_HRcolor);
+}
+/* ===== [ 勾選 active 顏色 ] ===== */
+
+/* ===== [ 勾選 checked 顏色 ] ===== */
+.custom-checkbox.custom-checkbox-warning .custom-check-input:checked ~ .custom-check-label::before {
+	background-color: var(--Customize_HRcolor);
+	border-color: var(--Customize_HRcolor);
+}
+/* ===== [ 勾選 checked 顏色 ] ===== */
+
+.custom-check-input:disabled~.custom-check-label {
+	color: #6c757d
+}
+
+.custom-check-input:disabled~.custom-check-label::before {
+	background-color: #e9ecef
+}
+
+.custom-check-label {
+	position: relative;
+	margin-bottom: 0;
+	vertical-align: top
+}
+/* =============================================================== */
+/* =============================================================== */
+.custom-check-label::before,
+.custom-check-label::after {
+    content: "";
+	position: absolute;
+	top: 0.15rem; /*.25rem*/
+    left: -1.75rem; /*-2rem*/
+	display: block;
+	width: 1.125rem; /*1.25rem*/
+	height: 1.125rem; /*1.25rem*/
+}
+.custom-check-label::before {
+	pointer-events: none;
+	
+	background-color: var(--FFFcolor);
+	border: 1px solid var(--GCCCcolor);
+}
+.custom-check-label::after {
+	background: no-repeat 50%/50% 50%
+}
+/* =============================================================== */
+/* =============================================================== */
+.custom-checkbox .custom-check-label::before {
+	border-radius: .25rem
+}
+
+.custom-checkbox .custom-check-input:checked~.custom-check-label::after {
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23fff' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z'/%3e%3c/svg%3e")
+}
+
+/* ===== [ 未選 光暈 ] ===== */
+.custom-checkbox .custom-check-input:indeterminate~.custom-check-label::before {
+	border-color: var(--Customize_HRcolor);
+	background-color: var(--Customize_HRcolor);
+}
+/* ===== [ 未選 光暈 ] ===== */
+
+.custom-checkbox .custom-check-input:indeterminate~.custom-check-label::after {
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 4'%3e%3cpath stroke='%23fff' d='M0 2h4'/%3e%3c/svg%3e")
+}
+
+.custom-checkbox .custom-check-input:disabled:checked~.custom-check-label::before {
+	background-color: rgba(0,123,255,.5)
+}
+
+.custom-checkbox .custom-check-input:disabled:indeterminate~.custom-check-label::before {
+	background-color: rgba(0,123,255,.5)
+}
+/* ===== [ Main checkbox 勾選鍵 ] ================================= */
+/* =============================================================== */
+
+
+
+
+
+
+
+
+/*
+<div class="col-sm-3 col-6 float-left p-0">                                                    
+	<div class="custom-control custom-switch">
+		<input type="checkbox" class="custom-control-input" id="Switch-S1">
+		<label class="custom-control-label" for="Switch-S1"></label>
+		<span class="check-txt">網站導覽啟用 SwitchBox</span>
+	</div>
+</div>
+*/
+
+/* =============================================================== */
+/* ===== [ Main 左右開關鍵 ] ===== // 以下 // ====================== */
+.custom-button {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    
+    position: relative;
+    min-height: calc(1.5em + .75rem + 3px);
+    height: calc(1.5em + .75rem + 3px);
+    padding: 0;
+}
+.custom-switch {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    
+    position: relative;
+    min-height: calc(1.5em + .75rem + 3px);
+    padding-left: 3rem;
+    padding-top: calc(.375rem + 1px);
+    padding-bottom: calc(.375rem + 1px);    
+}
+
+/* =============================================================== */
+/* ===== [ INPUT ] ===== */
+.custom-control-input {
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+}
+
+.custom-control-input {
+    left: 0;
+}
+
+input[type="checkbox"], input[type="radio"] {
+    box-sizing: border-box;
+    padding: 0;
+}
+.custom-control-input:focus {
+	outline: 0;
+    box-shadow: none;
+}
+/* ===== [ INPUT ] ===== */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ LABLE ] ===== */
+.custom-control-label {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 0;
+    vertical-align: top;
+}
+
+.custom-control-label {
+    line-height: 25px;
+}
+/* ===== [ LABLE ] ===== */
+/* =============================================================== */
+
+/* ===== [ Before ] ===== */
+.custom-switch .custom-control-label::before {
+    position: absolute;
+    top: -9px; /*.25rem*/
+    left: -1.5rem;
+    display: block;
+    width: 1rem;
+    height: 1.125rem; /*1rem*/  /* 底的高度 */
+    pointer-events: none;
+    content: "";
+    background-color: var(--FFFcolor);
+    border: 1px solid var(--GCCCcolor);
+}
+
+.custom-switch .custom-control-label::before {
+	left: -3rem;
+	width: 2.4675rem; /*1.75rem*/  /* 底的寬度 */
+	pointer-events: all;
+	border-radius: 1.75rem; /*.5rem*/    /* 這邊修改為多少，上方.custom-switch-md .custom-control-label::after的 border-radius 就改多少*/
+}
+.custom-switch .custom-control-input:disabled:checked~.custom-control-label::before {
+	/*background-color: rgba(5, 156, 181, 0.5);*/
+}
+
+.custom-switch .custom-control-input:checked~.custom-control-label::before {
+	color: var(--FFFcolor);
+	border-color: var(--Customize_Btn_HRcolor);
+    background-color: var(--Customize_Btn_HRcolor);
+}
+
+.custom-switch .custom-control-input:focus~.custom-control-label::before {
+	/*-webkit-box-shadow: 0 0 0 .1rem rgba(5, 156, 181, .3);
+	-moz-box-shadow: 0 0 0 .1rem rgba(5, 156, 181, .3);
+	box-shadow: 0 0 0 .1rem rgba(5, 156, 181, .3)*/
+}
+
+.custom-switch .custom-control-input:not(:disabled):active~.custom-control-label::before {
+	border-color: var(--Customize_Btn_HRcolor); 
+	background-color: var(--Customize_Btn_HRcolor);
+}
+/* ===== [ Before ] ===== */
+
+/* ===== [ After ] ===== */
+.custom-control-label::after {
+    position: absolute;
+    top: .25rem;
+    left: -1.5rem;
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    content: "";
+    background: no-repeat 50%/50% 50%;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.custom-switch .custom-control-label::after {
+	top: calc(-8.75px + 2px); /*.25rem + 2px*/   /* 同上方 .custom-control-label::befor { top:值 } */
+	left: calc(-2.95rem + 2px);
+	width: calc(1.125rem - 4px); /*1rem - 4px*/   /* 同上方 .custom-control-label::befor { height:值 } */
+	height: calc(1.125rem - 4px); /*1rem - 4px*/   /* 同上方 .custom-control-label::before { height:值 } */
+	background-color: var(--G999color);
+	border-radius: 1.75rem; /*.5rem*/   /* 同上方 .custom-control-label::before { border-radius:值 } */
+	transition: background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-transform .15s ease-in-out;
+	transition: transform .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+	transition: transform .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-transform .15s ease-in-out
+}
+
+@media (prefers-reduced-motion:reduce) {
+	.custom-switch .custom-control-label::after {
+		transition: none
+	}
+}
+
+.custom-switch .custom-control-input:checked~.custom-control-label::after {
+	background-color: var(--FFFcolor);
+	-webkit-transform: translateX(1.125rem); /*0.75rem*/  /*白球移動的距離*/
+	transform: translateX(1.125rem); /*0.75rem*/  /*白球移動的距離*/
+}
+/* ===== [ After ] ===== */
+
+/* ===== [ LABLE ] ===== */
+/* =============================================================== */
+
+
+
+
+
