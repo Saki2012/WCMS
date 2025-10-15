@@ -182,7 +182,7 @@ namespace WCMS
 
             }
             /// <summary>
-            /// 核心服務/DI（Controller、Repository、Biz）
+            /// 核心服務/DI（Controller、Biz、Repository）
             /// </summary>
             public static void AddCoreServices(IServiceCollection services, IConfiguration cfg)
             {
@@ -354,15 +354,25 @@ namespace WCMS
             /// </summary>
             private static void RegisterBizServices(IServiceCollection services)
             {
-                var bizServiceType = typeof(BizService<>);
-                var ibizServiceType = typeof(IBizService<>);
-                var pairs = typeof(Program).Assembly.GetTypes()
-                    .Where(t => !t.IsAbstract && !t.IsInterface && t != bizServiceType)
-                    .SelectMany(t => t.GetInterfaces()
-                        .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == ibizServiceType)
-                        .Select(i => new { Service = i, Impl = t }));
-
-                foreach (var p in pairs) services.AddScoped(p.Service, p.Impl);
+                var asm = typeof(Program).Assembly;
+                var biz = typeof(BizService<>);
+                var ibiz = typeof(IBizService<>);
+                var pairs = asm.GetTypes().Where(t => !t.IsAbstract && !t.IsInterface && t != biz)
+                               .SelectMany(t => t.GetInterfaces()
+                                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == ibiz)
+                                    .Select(i => new
+                                        {
+                                            Service = i,             
+                                            Impl = t,                 
+                                            Ns = t.Namespace ?? string.Empty
+                                        }
+                                    )).ToList();
+                // 1) 先註冊 Feature 底下的 Biz（基礎版）
+                foreach (var p in pairs.Where(p => p.Ns.StartsWith("WCMS.Features.", StringComparison.Ordinal))) services.AddScoped(p.Service, p.Impl);
+                // 2) （可選）其餘非 Feature/Spec 的也先註冊
+                foreach (var p in pairs.Where(p => !p.Ns.StartsWith("WCMS.Features.", StringComparison.Ordinal) && !p.Ns.StartsWith("WCMS.SpecFeatures.", StringComparison.Ordinal))) services.AddScoped(p.Service, p.Impl);
+                // 3) 最後註冊 SpecFeature 的 Biz（覆蓋同服務型別 → 解析時拿最後一筆）
+                foreach (var p in pairs.Where(p => p.Ns.StartsWith("WCMS.SpecFeatures.", StringComparison.Ordinal))) services.AddScoped(p.Service, p.Impl);
                 //添加登入服務
                 services.AddScoped<IAuthService, AuthBiz>();
             }

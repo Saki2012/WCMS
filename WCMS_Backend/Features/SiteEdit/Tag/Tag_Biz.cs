@@ -28,21 +28,19 @@ namespace WCMS.Features.SiteEdit.Tag
                     break;
             }
         }
-        protected virtual Task SpecCheckIsUsed(string progId, string categoryId, string categoryName) => Task.CompletedTask;
+        protected virtual Task SpecCheckIsUsed(string progId, string tagId, string tagName) => Task.CompletedTask;
         #endregion
 
 
+        #region Private
         private void CheckData(TagSet set)
         {
             CheckTagName(set.TagDetail, "zh-tw");
         }
-
         private void CheckTagName(IList<TagDetail> datail, string lang)
         {
             if (datail.Any(p => p.Lang.Equals(lang) && p.TagName.IsNullOrEmpty())) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<TagDetail>(x => x.TagName));
         }
-
-        #region Private
         private async Task CheckIsUsedAsync(TagSet set, string defaultLang)
         {
             string progId = set.TagData.ProgId;
