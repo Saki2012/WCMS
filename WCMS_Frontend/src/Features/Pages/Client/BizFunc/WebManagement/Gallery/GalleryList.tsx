@@ -42,7 +42,7 @@ const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
                 `${SchemaFields.GallerySetFields.GalleryInfo}.${SchemaFields.GalleryInfoFields.Title}`,
             ],
             Condition: condition,
-            OrderBy: [{ Col: SchemaFields.GalleryFields.ModifyTime, Desc: true }],
+            OrderBy: [{ Col: SchemaFields.GalleryFields.Validate_Start, Desc: true }],
             PageNumber: page,
             PageSize: 12,
         }),
