@@ -622,7 +622,7 @@ const MenuSettingBox = (prop: {
                 <span className="fw-bold text-primary">{prop.selectedItemEdit.text}</span> - 編輯
               </h3>
             </div>
-            <div className="mt-4">
+            <div className="mt-4 overflow-scroll-customize">
               <TabContentComp key={`tabs-${tabResetSeed}`} tabInfos={LibTabsPropA} components={componentsA} />
             </div>
             <div className="d-flex justify-content-center">
