@@ -21,6 +21,7 @@ export const useSpecUSRProjList = () =>
             [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.AcademicYear],
             [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ProjectName],
             [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ProjectConcept],
+            [SchemaFields.SpecUSRSetFields.SpecUSR, SchemaFields.SpecUSRModelFields.CreateTime],
             [SchemaFields.SpecUSRSetFields.SpecUSR, SchemaFields.SpecUSRModelFields.ModifyUserId],
             [SchemaFields.SpecUSRSetFields.SpecUSR, SchemaFields.SpecUSRModelFields.ModifyTime],
         ],
@@ -35,12 +36,13 @@ export const useSpecUSRProjList = () =>
                 `${SchemaFields.SpecUSRModelFields._SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.AcademicYear}`,
                 `${SchemaFields.SpecUSRModelFields._SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ProjectName}`,
                 `${SchemaFields.SpecUSRModelFields._SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ProjectConcept}`,
+                SchemaFields.SpecUSRModelFields.CreateTime,
                 SchemaFields.SpecUSRModelFields.ModifyUserId,
                 SchemaFields.SpecUSRModelFields.ModifyTime,
                 SchemaFields.SpecUSRModelFields.InternalId,
             ],
             Condition: "",
-            OrderBy: [{ Col: SchemaFields.SpecUSRModelFields.ModifyTime, Desc: true }],
+            OrderBy: [{ Col: SchemaFields.SpecUSRModelFields.CreateTime, Desc: true }],
             PageNumber: page,
             PageSize: 10,
         }),
@@ -73,6 +75,7 @@ export const useSpecUSRProjList = () =>
                         content = item.SpecUSRDetail?.find(p => p.Lang === "zh-tw")?.ProjectConcept ?? "";
                         break;
                     }
+                    case SchemaFields.SpecUSRModelFields.CreateTime:
                     case SchemaFields.SpecUSRModelFields.ModifyTime:
                     {
                         content = FormatDateTime((data as any)[col.key]);

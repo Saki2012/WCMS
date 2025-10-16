@@ -35,6 +35,7 @@ export const useSpecResearchList = () =>
                 SchemaFields.SpecResearchDetailModelFields.CooperationProject,
             ],
             [SchemaFields.SpecResearchSetFields.SpecResearchDetail, SchemaFields.SpecResearchDetailModelFields.Courses],
+            [SchemaFields.SpecResearchSetFields.SpecResearch, SchemaFields.SpecResearchModelFields.CreateTime],
             [SchemaFields.SpecResearchSetFields.SpecResearch, SchemaFields.SpecResearchModelFields.ModifyUserId],
             [SchemaFields.SpecResearchSetFields.SpecResearch, SchemaFields.SpecResearchModelFields.ModifyTime],
         ],
@@ -51,11 +52,12 @@ export const useSpecResearchList = () =>
                 `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.PaperTitle}`,
                 `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.CooperationProject}`,
                 `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Courses}`,
+                SchemaFields.SpecResearchModelFields.CreateTime,
                 SchemaFields.SpecResearchModelFields.ModifyUserId,
                 SchemaFields.SpecResearchModelFields.ModifyTime,
             ],
             Condition: "",
-            OrderBy: [{ Col: SchemaFields.SpecResearchModelFields.ModifyTime, Desc: true }],
+            OrderBy: [{ Col: SchemaFields.SpecResearchModelFields.CreateTime, Desc: true }],
             PageNumber: page,
             PageSize: 10,
         }),
@@ -98,6 +100,7 @@ export const useSpecResearchList = () =>
                         content = item.SpecResearchDetail?.find(p => p.Lang === "zh-tw")?.Courses ?? "";
                         break;
                     }
+                    case SchemaFields.SpecResearchModelFields.CreateTime:
                     case SchemaFields.SpecResearchModelFields.ModifyTime:
                     {
                         content = FormatDateTime((data as any)[col.key]);

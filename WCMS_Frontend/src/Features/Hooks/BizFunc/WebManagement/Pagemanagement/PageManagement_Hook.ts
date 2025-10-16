@@ -16,6 +16,7 @@ export const usePageManagementListData = () =>
         visibleKeys: [
             [SchemaFields.PageManagementSetFields.PageManagement, SchemaFields.PageManagementFields.CategoryId],
             [SchemaFields.PageManagementSetFields.PageManagementDetail, SchemaFields.PageManagementDetailFields.Title],
+            [SchemaFields.PageManagementSetFields.PageManagement, SchemaFields.PageManagementFields.CreateTime],
             [SchemaFields.PageManagementSetFields.PageManagement, SchemaFields.PageManagementFields.ModifyUserId],
             [SchemaFields.PageManagementSetFields.PageManagement, SchemaFields.PageManagementFields.ModifyTime],
         ],
@@ -30,13 +31,13 @@ export const usePageManagementListData = () =>
                 `${SchemaFields.PageManagementFields._PageManagementDetail}.${SchemaFields.PageManagementDetailFields.Title}`,
                 SchemaFields.PageManagementFields.ModifyUserId,
                 // 缺Name
+                SchemaFields.PageManagementFields.CreateTime,
                 SchemaFields.PageManagementFields.ModifyTime,
                 SchemaFields.PageManagementFields.InternalId,
             ],
             Condition: "",
             OrderBy: [
                 { Col: SchemaFields.PageManagementFields.CreateTime, Desc: true },
-                { Col: SchemaFields.PageManagementFields.ModifyTime, Desc: true },
             ],
             PageNumber: page,
             PageSize: 10,
@@ -47,17 +48,19 @@ export const usePageManagementListData = () =>
             const cells: RowCell[] = columns.map(col =>
             {
                 let content: any = "";
-                if (col.key === SchemaFields.PageManagementDetailFields.Title)
+
+                switch (col.key)
                 {
-                    // 專處理 PageManagementDetail.Title (lang: zh-tw)
-                    content = item.PageManagementDetail?.find((d: any) => d.Lang === "zh-tw")?.Title ?? "";
-                } else if (col.key === SchemaFields.PageManagementFields.ModifyTime)
-                {
-                    content = FormatDateTime((data as any)[col.key]);
-                } else
-                {
-                    // 一般欄位直接取用
-                    content = (data as any)[col.key] ?? "";
+                    case SchemaFields.PageManagementDetailFields.Title:
+                        content = item.PageManagementDetail?.find((d: any) => d.Lang === "zh-tw")?.Title ?? "";
+                        break;
+                    case SchemaFields.PageManagementFields.CreateTime:
+                    case SchemaFields.PageManagementFields.ModifyTime:
+                        content = FormatDateTime((data as any)[col.key]);
+                        break;
+                    default:
+                        content = (data as any)[col.key] ?? "";
+                        break;
                 }
                 return {
                     col,

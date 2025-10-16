@@ -19,6 +19,7 @@ export const useWebResourceListData = () =>
             [SchemaFields.WebResourceSetFields.WebResource, SchemaFields.WebResourceFields.Categories],
             [SchemaFields.WebResourceSetFields.WebResource, SchemaFields.WebResourceFields.ContentStatus],
             [SchemaFields.WebResourceSetFields.WebResourceInfo, SchemaFields.WebResourceInfoFields.Title],
+            [SchemaFields.WebResourceSetFields.WebResource, SchemaFields.WebResourceFields.CreateTime],
             [SchemaFields.WebResourceSetFields.WebResource, SchemaFields.WebResourceFields.ModifyUserId],
             [SchemaFields.WebResourceSetFields.WebResource, SchemaFields.WebResourceFields.ModifyTime],
         ],
@@ -31,13 +32,13 @@ export const useWebResourceListData = () =>
                 `${SchemaFields.WebResourceFields._WebResourceInfo}.${SchemaFields.WebResourceInfoFields.Lang}`,
                 `${SchemaFields.WebResourceFields._WebResourceInfo}.${SchemaFields.WebResourceInfoFields.Title}`,
                 SchemaFields.WebResourceFields.ModifyUserId,
+                SchemaFields.WebResourceFields.CreateTime,
                 SchemaFields.WebResourceFields.ModifyTime,
                 SchemaFields.WebResourceFields.InternalId,
             ],
             Condition: "",
             OrderBy: [
                 { Col: SchemaFields.WebResourceFields.CreateTime, Desc: true },
-                { Col: SchemaFields.WebResourceFields.ModifyTime, Desc: true },
             ],
             PageNumber: page,
             PageSize: 10,
@@ -56,9 +57,10 @@ export const useWebResourceListData = () =>
                         content = item.WebResourceInfo?.find(d => d.Lang === "zh-tw")?.Title ?? "";
                         break;
                     }
+                    case SchemaFields.WebResourceFields.CreateTime:
                     case SchemaFields.WebResourceFields.ModifyTime:
                     {
-                        content = FormatDateTime(item.WebResource?.ModifyTime);
+                        content = FormatDateTime((data as any)[col.key]);
                         break;
                     }
                     default:

@@ -16,6 +16,10 @@ export const useBannerListData = (condition?: string) =>
         visibleKeys: [
             [SchemaFields.BannerDetailFields.PicSrcId, SchemaFields.BannerDetailFields.PicSrcId],
             [SchemaFields.BannerSetFields.Banner, SchemaFields.BannerFields.BannerCategoryName],
+            [SchemaFields.BannerSetFields.Banner, SchemaFields.BannerFields.CreateTime],
+            [SchemaFields.BannerSetFields.Banner, SchemaFields.BannerFields.ModifyUserId],
+            [SchemaFields.BannerFields.ModifyUser, SchemaFields.UserModelFields.UserName],
+            [SchemaFields.BannerSetFields.Banner, SchemaFields.BannerFields.ModifyTime],
         ],
         buildQueryCondition: (page) => ({
             Fields: [
@@ -25,12 +29,12 @@ export const useBannerListData = (condition?: string) =>
                 // 缺Name
                 SchemaFields.BannerFields.ModifyUserId,
                 // 缺Name
+                SchemaFields.BannerFields.CreateTime,
                 SchemaFields.BannerFields.ModifyTime,
             ],
             Condition: condition ?? "",
             OrderBy: [
                 { Col: SchemaFields.BannerFields.CreateTime, Desc: true },
-                { Col: SchemaFields.BannerFields.ModifyTime, Desc: true },
             ],
             PageNumber: page,
             PageSize: 10,
@@ -42,6 +46,7 @@ export const useBannerListData = (condition?: string) =>
                 let content = "";
                 switch (col.key)
                 {
+                    case SchemaFields.BannerFields.CreateTime:
                     case SchemaFields.BannerFields.ModifyTime:
                     {
                         content = FormatDateTime(item.Banner?.ModifyTime) ?? "";

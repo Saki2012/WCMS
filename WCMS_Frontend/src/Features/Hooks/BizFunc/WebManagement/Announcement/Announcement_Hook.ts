@@ -17,8 +17,9 @@ export const useAnnouncementList = () =>
             [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Categories],
             [SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Title],
             [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ContentStatus],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyUserId],
             [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Validate_Start],
+            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.CreateTime],
+            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyUserId],
             [SchemaFields.AnnouncementFields.ModifyUser, SchemaFields.UserModelFields.UserName],
             [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ModifyTime],
         ],
@@ -32,13 +33,13 @@ export const useAnnouncementList = () =>
                 SchemaFields.AnnouncementFields.Validate_Start,
                 SchemaFields.AnnouncementFields.ModifyUserId,
                 `${SchemaFields.AnnouncementFields.ModifyUser}.${SchemaFields.UserModelFields.UserName}`,
+                SchemaFields.AnnouncementFields.CreateTime,
                 SchemaFields.AnnouncementFields.ModifyTime,
                 SchemaFields.AnnouncementFields.InternalId,
             ],
             Condition: "",
             OrderBy: [
                 { Col: SchemaFields.AnnouncementFields.CreateTime, Desc: true },
-                { Col: SchemaFields.AnnouncementFields.ModifyTime, Desc: true },
             ],
             PageNumber: page,
             PageSize: 10,
@@ -58,6 +59,7 @@ export const useAnnouncementList = () =>
                     case SchemaFields.AnnouncementFields.Validate_Start:
                         content = FormatDate((data as any)[col.key]);
                         break;
+                    case SchemaFields.AnnouncementFields.CreateTime:
                     case SchemaFields.AnnouncementFields.ModifyTime:
                         content = FormatDateTime((data as any)[col.key]);
                         break;

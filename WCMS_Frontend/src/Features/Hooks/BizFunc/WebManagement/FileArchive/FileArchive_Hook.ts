@@ -17,6 +17,7 @@ export const useFileArchiveList = () =>
             [SchemaFields.FileArchiveSetFields.FileArchive, SchemaFields.FileArchiveFields.CategoriesId],
             [SchemaFields.FileArchiveSetFields.FileArchive, SchemaFields.FileArchiveFields.ContentStatus],
             [SchemaFields.FileArchiveSetFields.FileArchiveInfo, SchemaFields.FileArchiveInfoFields.Title],
+            [SchemaFields.FileArchiveSetFields.FileArchive, SchemaFields.FileArchiveFields.CreateTime],
             [SchemaFields.FileArchiveSetFields.FileArchive, SchemaFields.FileArchiveFields.ModifyUserId],
             [SchemaFields.FileArchiveSetFields.FileArchive, SchemaFields.FileArchiveFields.ModifyTime],
         ],
@@ -29,15 +30,17 @@ export const useFileArchiveList = () =>
                 `${SchemaFields.FileArchiveFields._FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.Lang}`,
                 `${SchemaFields.FileArchiveFields._FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.Title}`,
                 SchemaFields.FileArchiveFields.ModifyUserId,
+                SchemaFields.FileArchiveFields.CreateTime,
                 SchemaFields.FileArchiveFields.ModifyTime,
             ],
             Condition: "",
-            OrderBy: [{ Col: SchemaFields.AnnouncementFields.ModifyTime, Desc: true }],
+            OrderBy: [{ Col: SchemaFields.AnnouncementFields.CreateTime, Desc: true }],
             PageNumber: page,
             PageSize: 10,
         }),
         parseRow: (item, columns) =>
         {
+            const data = item.FileArchive ?? {};
             const cells: RowCell[] = columns.map(col =>
             {
                 let content = "";
@@ -48,9 +51,10 @@ export const useFileArchiveList = () =>
                         content = item.FileArchiveInfo?.find(d => d.Lang === "zh-tw")?.Title ?? "";
                         break;
                     }
+                    case SchemaFields.FileArchiveFields.CreateTime:
                     case SchemaFields.FileArchiveFields.ModifyTime:
                     {
-                        content = FormatDateTime(item.FileArchive?.ModifyTime);
+                        content = FormatDateTime((data as any)[col.key]);
                         break;
                     }
                     default:

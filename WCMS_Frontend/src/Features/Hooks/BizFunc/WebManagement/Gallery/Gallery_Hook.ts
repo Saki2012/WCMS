@@ -16,6 +16,7 @@ export const useGalleryListData = () =>
         visibleKeys: [
             [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.CoverPicSrcId],
             [SchemaFields.GallerySetFields.GalleryInfo, SchemaFields.GalleryInfoFields.Title],
+            [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.CreateTime],
             [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.ModifyTime],
             [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.ModifyUserId],
         ],
@@ -26,6 +27,7 @@ export const useGalleryListData = () =>
                 SchemaFields.GalleryFields.CoverPicSrcId,
                 `${SchemaFields.GalleryFields._GalleryInfo}.${SchemaFields.GalleryInfoFields.Title}`,
                 `${SchemaFields.GalleryFields._GalleryInfo}.${SchemaFields.GalleryInfoFields.Lang}`,
+                SchemaFields.GalleryFields.CreateTime,
                 SchemaFields.GalleryFields.ModifyTime,
                 SchemaFields.GalleryFields.ModifyUserId,
             ],
@@ -48,6 +50,7 @@ export const useGalleryListData = () =>
                     case SchemaFields.PageManagementDetailFields.Title:
                         content = dt?.Title;
                         break;
+                    case SchemaFields.PageManagementFields.CreateTime:
                     case SchemaFields.PageManagementFields.ModifyTime:
                         content = FormatDateTime((data as any)[col.key]);
                         break;
