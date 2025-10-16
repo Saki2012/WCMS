@@ -736,11 +736,21 @@ export const useTinyMceIframeEdit = (): TinySetup =>
     };
     const openDialog = (editor: any, node: HTMLIFrameElement) =>
     {
+        const ifr = resolveIframeElm(editor, node);
         const dom = editor.dom;
+        const wrapper = ifr
+            ? dom.getParent(ifr, (n: any) =>
+                dom.hasClass(n, "mce-preview-object")
+                || dom.hasClass(n, "mce-object")
+                || dom.hasClass(n, "mce-object-iframe")
+                || n.nodeName === "FIGURE")
+            : null;
+
         const data = {
             src: node.getAttribute("src") || "",
             "data-mce-src": node.getAttribute("src") || "",
-            title: node.getAttribute("title") || "",
+            title: (ifr?.getAttribute("title") || "") || (wrapper ? dom.getAttrib(wrapper, "data-mce-p-title") : "")
+                || (ifr?.getAttribute("aria-label") || ""),
             width: node.getAttribute("width") || dom.getStyle(node, "width") || "", // 可能是屬性或 style
             height: node.getAttribute("height") || dom.getStyle(node, "height") || "",
         };
