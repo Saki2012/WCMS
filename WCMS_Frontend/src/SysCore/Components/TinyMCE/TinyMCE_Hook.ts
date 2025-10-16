@@ -829,7 +829,7 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                 };
 
                 const nw = toStyleLen(v.width, "100%");
-                const nh = toStyleLen(v.height, "100%");
+                const nh = toStyleLen(v.height, "");
 
                 editor.undoManager.transact(() =>
                 {
