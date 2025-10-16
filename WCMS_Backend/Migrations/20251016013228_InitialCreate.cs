@@ -285,7 +285,7 @@ namespace WCMS.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "_Gallery",
+                name: "Gallery",
                 columns: table => new
                 {
                     GalleryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
@@ -787,8 +787,7 @@ namespace WCMS.Migrations
                     FileArchiveId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     RowId = table.Column<int>(type: "int", nullable: false),
                     Lang = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    FileArchiveId1 = table.Column<string>(type: "nvarchar(20)", nullable: true)
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -799,11 +798,6 @@ namespace WCMS.Migrations
                         principalTable: "FileArchive",
                         principalColumn: "FileArchiveId",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_FileArchiveInfo_FileArchive_FileArchiveId1",
-                        column: x => x.FileArchiveId1,
-                        principalTable: "FileArchive",
-                        principalColumn: "FileArchiveId");
                 });
 
             migrationBuilder.CreateTable(
@@ -873,7 +867,7 @@ namespace WCMS.Migrations
                     table.ForeignKey(
                         name: "FK_GalleryInfo_Gallery_GalleryId",
                         column: x => x.GalleryId,
-                        principalTable: "_Gallery",
+                        principalTable: "Gallery",
                         principalColumn: "GalleryId",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -893,7 +887,7 @@ namespace WCMS.Migrations
                     table.ForeignKey(
                         name: "FK_GalleryPhotos_Gallery_GalleryId",
                         column: x => x.GalleryId,
-                        principalTable: "_Gallery",
+                        principalTable: "Gallery",
                         principalColumn: "GalleryId",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1415,11 +1409,6 @@ namespace WCMS.Migrations
                 column: "FileSrcId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FileArchiveInfo_FileArchiveId1",
-                table: "FileArchiveInfo",
-                column: "FileArchiveId1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_FileManage_CreateUserId",
                 table: "FileManage",
                 column: "CreateUserId");
@@ -1442,23 +1431,23 @@ namespace WCMS.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_Gallery_CreateUserId",
-                table: "_Gallery",
+                table: "Gallery",
                 column: "CreateUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Gallery_InternalId",
-                table: "_Gallery",
+                table: "Gallery",
                 column: "InternalId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Gallery_InvalidUserId",
-                table: "_Gallery",
+                table: "Gallery",
                 column: "InvalidUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Gallery_ModifyUserId",
-                table: "_Gallery",
+                table: "Gallery",
                 column: "ModifyUserId");
 
             migrationBuilder.CreateIndex(
@@ -1810,7 +1799,7 @@ namespace WCMS.Migrations
                 name: "FileArchive");
 
             migrationBuilder.DropTable(
-                name: "_Gallery");
+                name: "Gallery");
 
             migrationBuilder.DropTable(
                 name: "SiteMenu_Index");

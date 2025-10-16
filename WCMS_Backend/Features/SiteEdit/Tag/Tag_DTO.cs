@@ -22,7 +22,7 @@ namespace WCMS.Features.SiteEdit.Tag
         [LibDesc(ModelDisplayName.Common_ProgId)] public string? ProgId { get; set; } = string.Empty;
 
         #region 主子表關聯
-        public List<TagDetail_DTO> _TagDetail { get; set; }
+        public List<TagDetail_DTO>? _TagDetail { get; set; }
         #endregion
     }
     public class TagDetail_DTO

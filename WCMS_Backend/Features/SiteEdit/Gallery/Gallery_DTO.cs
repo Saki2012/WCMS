@@ -46,8 +46,8 @@ namespace WCMS.Features.SiteEdit.Gallery
         [LibDesc(ModelDisplayName.Banner_StartDate)] public DateTime? Validate_Start { get; set; }
 
         #region 主子表關聯
-        public List<GalleryInfo_DTO> _GalleryInfo { get; set; } = [];
-        public List<GalleryPhotos_DTO> _GalleryPhotos { get; set; } = [];
+        public List<GalleryInfo_DTO>? _GalleryInfo { get; set; } = [];
+        public List<GalleryPhotos_DTO>? _GalleryPhotos { get; set; } = [];
         #endregion
     }
     /// <summary>

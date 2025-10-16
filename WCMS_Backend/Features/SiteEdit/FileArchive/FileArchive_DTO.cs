@@ -39,7 +39,7 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// </summary>
         [LibDesc(ModelDisplayName.FileArchive_DownloadCount)]public int DownloadCount { get; set; }
         #region 主子表關聯
-        public List<FileArchiveInfo_DTO> _FileArchiveInfo { get; set; } = [];
+        public List<FileArchiveInfo_DTO>? _FileArchiveInfo { get; set; } = [];
         #endregion
     }
     public class FileArchiveInfo_DTO

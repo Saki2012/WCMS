@@ -41,7 +41,7 @@ namespace WCMS.Features.SiteEdit.Banner
         [LibDesc(ModelDisplayName.Banner_Width)] public short Width { get; set; }
 
         #region 主子表關聯
-        public List<BannerDetail_DTO> _BannerDetail { get; set; }
+        public List<BannerDetail_DTO>? _BannerDetail { get; set; }
         #endregion
     }
     public class BannerDetail_DTO

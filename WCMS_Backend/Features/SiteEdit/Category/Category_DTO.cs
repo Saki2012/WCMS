@@ -24,7 +24,7 @@ namespace WCMS.Features.SiteEdit.Category
         [LibDesc(ModelDisplayName.Common_ProgId)] public string? ProgId { get; set; }
 
         #region 主子表關聯
-        public List<CategoryDetail_DTO> _CategoryDetail { get; set; }
+        public List<CategoryDetail_DTO>? _CategoryDetail { get; set; }
         #endregion
     }
     public class CategoryDetail_DTO

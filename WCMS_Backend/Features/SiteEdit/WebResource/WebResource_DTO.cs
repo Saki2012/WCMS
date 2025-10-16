@@ -42,7 +42,7 @@ namespace WCMS.Features.SiteEdit.WebResource
         [LibDesc(ModelDisplayName.WebResource_PicDescription)] public string?  PicDescription { get; set; }
 
         #region 主子表關聯
-        public List<WebResourceInfo_DTO> _WebResourceInfo { get; set; }
+        public List<WebResourceInfo_DTO>? _WebResourceInfo { get; set; }
         #endregion
     }
     /// <summary>

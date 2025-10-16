@@ -25,7 +25,7 @@ namespace WCMS.Features.SiteEdit.PageManagement
         [LibDesc(ModelDisplayName.Page_ViewCount)] public int? ViewCount { get; set; }
 
         #region 主子表關聯
-        public List<PageManagementDetail_DTO> _PageManagementDetail { get; set; }
+        public List<PageManagementDetail_DTO>? _PageManagementDetail { get; set; }
         #endregion
     }
     public class PageManagementDetail_DTO

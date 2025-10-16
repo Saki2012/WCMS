@@ -577,7 +577,7 @@ namespace WCMS.Migrations
                     b.ToTable("FileArchiveInfo", (string)null);
                 });
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit._Gallery._Gallery", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.Gallery", b =>
                 {
                     b.Property<string>("GalleryId")
                         .HasMaxLength(20)
@@ -662,10 +662,10 @@ namespace WCMS.Migrations
 
                     b.HasIndex("ModifyUserId");
 
-                    b.ToTable("_Gallery", (string)null);
+                    b.ToTable("Gallery", (string)null);
                 });
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit._Gallery.GalleryInfo", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryInfo", b =>
                 {
                     b.Property<string>("GalleryId")
                         .HasColumnType("nvarchar(20)");
@@ -690,7 +690,7 @@ namespace WCMS.Migrations
                     b.ToTable("GalleryInfo", (string)null);
                 });
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit._Gallery.GalleryPhotos", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryPhotos", b =>
                 {
                     b.Property<string>("GalleryId")
                         .HasMaxLength(20)
@@ -712,7 +712,7 @@ namespace WCMS.Migrations
                     b.ToTable("GalleryPhotos", (string)null);
                 });
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit._Gallery.GalleryPhotosInfo", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryPhotosInfo", b =>
                 {
                     b.Property<string>("GalleryId")
                         .HasMaxLength(20)
@@ -2489,7 +2489,7 @@ namespace WCMS.Migrations
                     b.Navigation("_FileArchive");
                 });
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit._Gallery._Gallery", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.Gallery", b =>
                 {
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
                         .WithMany()
@@ -2510,10 +2510,10 @@ namespace WCMS.Migrations
                     b.Navigation("ModifyUser");
                 });
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit._Gallery.GalleryInfo", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryInfo", b =>
                 {
-                    b.HasOne("WCMS.Features.SiteEdit._Gallery._Gallery", "_Gallery")
-                        .WithMany("Info")
+                    b.HasOne("WCMS.Features.SiteEdit.Gallery.Gallery", "_Gallery")
+                        .WithMany("_GalleryInfo")
                         .HasForeignKey("GalleryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2521,9 +2521,9 @@ namespace WCMS.Migrations
                     b.Navigation("_Gallery");
                 });
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit._Gallery.GalleryPhotos", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryPhotos", b =>
                 {
-                    b.HasOne("WCMS.Features.SiteEdit._Gallery._Gallery", "_Gallery")
+                    b.HasOne("WCMS.Features.SiteEdit.Gallery.Gallery", "_Gallery")
                         .WithMany("_GalleryPhotos")
                         .HasForeignKey("GalleryId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2532,9 +2532,9 @@ namespace WCMS.Migrations
                     b.Navigation("_Gallery");
                 });
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit._Gallery.GalleryPhotosInfo", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryPhotosInfo", b =>
                 {
-                    b.HasOne("WCMS.Features.SiteEdit._Gallery.GalleryPhotos", "_GalleryPhotos")
+                    b.HasOne("WCMS.Features.SiteEdit.Gallery.GalleryPhotos", "_GalleryPhotos")
                         .WithMany("_GalleryPhotosInfo")
                         .HasForeignKey("GalleryId", "ParentRowId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2980,14 +2980,14 @@ namespace WCMS.Migrations
                     b.Navigation("_FileArchiveDetail");
                 });
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit._Gallery._Gallery", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.Gallery", b =>
                 {
-                    b.Navigation("Info");
+                    b.Navigation("_GalleryInfo");
 
                     b.Navigation("_GalleryPhotos");
                 });
 
-            modelBuilder.Entity("WCMS.Features.SiteEdit._Gallery.GalleryPhotos", b =>
+            modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.GalleryPhotos", b =>
                 {
                     b.Navigation("_GalleryPhotosInfo");
                 });

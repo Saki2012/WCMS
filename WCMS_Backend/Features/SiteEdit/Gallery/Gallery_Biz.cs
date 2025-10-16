@@ -16,7 +16,7 @@ using static WCMS.SysCore.Library.LibData;
 
 namespace WCMS.Features.SiteEdit.Gallery
 {
-    [ProgId("_Gallery")]
+    [ProgId("Gallery")]
     public class GalleryBiz(IRepositoryMapProvider repoMapProvider, IErrorHelper message) : BizService<GallerySet>(repoMapProvider, message), IBizService<GallerySet> {
 
 
@@ -31,7 +31,7 @@ namespace WCMS.Features.SiteEdit.Gallery
             List<GallerySet> result = [];
             Dictionary<string, string> sqls = new()
             {
-                { "_Gallery", "Select * From _Gallery" },
+                { "Gallery", "Select * From Gallery" },
                 { "Gallery_Lang", "Select * From Gallery_Lang" },
                 { "Gallery_Album", "Select * From Gallery_Album" },
                 { "Gallery_Album_Lang", "Select * From Gallery_Album_Lang" },
@@ -40,7 +40,7 @@ namespace WCMS.Features.SiteEdit.Gallery
             var fileSrcIdDic = srcFileSets.SelectMany(s => s.FileManage_SyncInfo).GroupBy(d => d.SrcFullPath).ToDictionary(g => g.Key, g => g.First().InternalId);
             List<FileManageSet> updateFileSets = [];
 
-            foreach (DataRow srcHeader in ds.Tables["_Gallery"].Rows)
+            foreach (DataRow srcHeader in ds.Tables["Gallery"].Rows)
             {
                 GallerySet set = new()
                 {

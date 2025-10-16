@@ -40,7 +40,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// 圖片描述
         /// </summary>
         [LibDesc(ModelDisplayName.SpecUSR_PicDescription)] public string? PicDescription { get; set; } = string.Empty;
-        public List<SpecUSRDetail_DTO> _SpecUSRDetail { get; set; }
+        public List<SpecUSRDetail_DTO>? _SpecUSRDetail { get; set; }
     }
 
     public class SpecUSRDetail_DTO

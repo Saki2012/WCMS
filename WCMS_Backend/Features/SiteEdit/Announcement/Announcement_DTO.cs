@@ -63,7 +63,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         [LibDesc(ModelDisplayName.Announcement_EndDate)] public DateTime? Validate_End { get; set; }
 
         #region 主子表關聯
-        public List<AnnouncementDetail_DTO> _AnnouncementDetail { get; set; }
+        public List<AnnouncementDetail_DTO>? _AnnouncementDetail { get; set; }
         #endregion
     }
     /// <summary>
