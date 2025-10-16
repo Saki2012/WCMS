@@ -16,11 +16,39 @@ const LibModal = ({ children, ...prop }: Extended) => {
     const modalRef = useRef<HTMLDivElement>(null);
     const [innerBusy, setInnerBusy] = useState(false);
 
-    const hasBootstrap = typeof window !== "undefined" && (window as any).bootstrap;
+    // 🟢 換成這個 getModal：同時支援 Bootstrap 5 / 5.3 / 4(jQuery)
     const getModal = () => {
-        if (!hasBootstrap || !modalRef.current) return null;
-        const Modal = (window as any).bootstrap.Modal;
-        return Modal.getInstance(modalRef.current) ?? new Modal(modalRef.current);
+        const el = modalRef.current;
+        if (!el || typeof window === "undefined") return null;
+
+        const w = window as any;
+        const bs = w.bootstrap;
+        const Modal = bs?.Modal;
+
+        // 🟢 優先：Bootstrap 5.2+ 推薦的 API
+        if (typeof Modal?.getOrCreateInstance === "function") {
+            return Modal.getOrCreateInstance(el, { backdrop: "static", keyboard: false });
+        }
+
+        // 🟢 次之：Bootstrap 5 早期版本
+        if (typeof Modal?.getInstance === "function") {
+            return Modal.getInstance(el) || new Modal(el, { backdrop: "static", keyboard: false });
+        }
+
+        // 🟢 最後：Bootstrap 4（jQuery plugin）後援
+        const $ = w.jQuery || w.$;
+        if ($?.fn?.modal) {
+            return {
+                show: () => $(el).modal({ backdrop: "static", keyboard: false }).modal("show"),
+                hide: () => $(el).modal("hide"),
+            } as { show: () => void; hide: () => void };
+        }
+
+        // 萬一有自訂打包：把它當成建構子試一次
+        if (typeof Modal === "function") {
+            return new Modal(el, { backdrop: "static", keyboard: false });
+        }
+        return null;
     };
 
     const openModal = () => { const m = getModal(); m?.show(); };

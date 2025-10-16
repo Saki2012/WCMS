@@ -164,24 +164,27 @@ namespace WCMS.Features.SiteEdit.Gallery
         }
         #endregion
 
-        private void CheckData(GallerySet set)
-        {
-            CheckDate(set.Gallery);
-        }
 
-
-        private void CheckDate(Gallery header)
-        {
-            if (header.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Gallery>(x => x.Validate_Start));
-            //if (header.Validate_End == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<_Gallery>(x => x.Validate_End));
-            //if (header.Validate_End != null && header.Validate_Start > header.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, I18nCache.GetLabel<_Gallery>(x => x.Validate_End) , I18nCache.GetLabel<WebResource>(x => x.Validate_Start));
-
-            //if (header.Categories == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Gallery>(x => x.Categories));
-
-        }
 
 
         #region Private
+        private void CheckData(GallerySet set)
+        {
+            CheckIsEmpty(set);
+            AACheck(set);
+        }
+        private void CheckIsEmpty(GallerySet set)
+        {
+            if (set.Gallery.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Gallery_DTO>(x => x.Validate_Start));
+            if (set.GalleryInfo.FirstOrDefault(p => p.Lang.Equals("zh-tw")) == null || set.GalleryInfo.FirstOrDefault(p => p.Lang.Equals("zh-tw")).Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00019, "繁體中文", I18nCache.GetLabel<GalleryInfo_DTO>(x => x.Title));
+        }
+        private void AACheck(GallerySet set)
+        {
+            return;//有強制要求AA時才檢測該段資料，後續做開關控管
+            foreach(GalleryPhotosInfo photos in set.GalleryPhotosInfo)
+            if (photos.Lang.Equals("zh-tw") && photos.Title.IsNullOrEmpty())
+                    Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00020, "繁體中文", I18nCache.GetLabel<GalleryPhotosInfo_DTO>(x => x.Title));
+        }
         /// <summary>
         /// 重新組合多筆資料(類別、狀態、標籤)
         /// </summary>

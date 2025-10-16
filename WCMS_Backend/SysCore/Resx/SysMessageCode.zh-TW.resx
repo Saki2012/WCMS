@@ -174,4 +174,10 @@
   <data name="BECode00017" xml:space="preserve">
     <value>標籤[{0}]已被使用，無法刪除。</value>
   </data>
+  <data name="BECode00019" xml:space="preserve">
+    <value>請輸入相簿中[{0}]語系的[{1}]。</value>
+  </data>
+  <data name="BECode00020" xml:space="preserve">
+    <value>請輸入相片中[{0}]語系的[{1}]。</value>
+  </data>
 </root>
