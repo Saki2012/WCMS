@@ -951,7 +951,7 @@ const Module_SpecResearch_Comp = (prop: {
     curRowKeys,
     moduleOptionsDefaults
   );
-  const catBind = binder.bind("Category", "csv");
+  const catBind = binder.bind("Category", "string");
   const tagBind = binder.bind("Tag", "csv");
   const cateDic = useSpecCategoryDict(prop.categoryDatas, prop.lang, "SpecResearch")
   const tagDic = useTagDict(prop.tagDatas, prop.lang, "SpecResearch")
@@ -972,7 +972,7 @@ const Module_SpecUSR_Comp = (prop: {
     curRowKeys,
     moduleOptionsDefaults
   );
-  const catBind = binder.bind("Category", "csv");
+  const catBind = binder.bind("Category", "string");
   const tagBind = binder.bind("Tag", "csv");
   const cateDic = useSpecCategoryDict(prop.categoryDatas, prop.lang, "SpecUSR")
   const tagDic = useTagDict(prop.tagDatas, prop.lang, "SpecUSR")
