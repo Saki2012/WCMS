@@ -293,7 +293,7 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
           ItemRowId: nextRowId,
           RowId: nextTitleRowId,
           Lang: prop.lang,
-          Title: "未命名",
+          Title: "",
         } as any
       ];
 
@@ -303,7 +303,7 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
     // 4) 把新節點加到左側樹狀（主層或對應父層的最後）
     const newNode: Item = {
       id: nextRowId,
-      text: "未命名",
+      text: "",
       MenuItem: {
         Item: {
           SiteIndex: sampleSiteIndex,
@@ -322,7 +322,7 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
           ItemRowId: nextRowId,
           RowId: nextTitleRowId,
           Lang: prop.lang,
-          Title: "未命名",
+          Title: "",
         } as any],
         Module: {} as any,
         Url: {} as any,
