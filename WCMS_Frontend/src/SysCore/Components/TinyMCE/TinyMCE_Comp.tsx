@@ -75,15 +75,28 @@ const TinyMCE_Comp = ({ args }: Props) => {
       ].filter(Boolean).join(","),
       contextmenu: mergedContextMenu,
       setup: (editor: any) => {
-
         if (typeof originalSetup === 'function') originalSetup(editor);
         image.setup(editor);
         iframe.setup(editor);
-        const pushUpstream = () => {
+        let composing = false;
+        let rafId = 0;
+        const setComposing = (v: boolean) => {
+          composing = v;
+          (editor as any)._wcmsComposing = v;
+        };
+        const pushUpstreamNow = () => {
+          if (composing) return; // 🟢 組字中不回推
           const html = editor.getContent({ format: 'html' });
-          // 避免無限循環：只有真的不相等才回推
           if (html !== tiny.value) tiny.onChange?.(html);
         };
+        const pushUpstream = () => {
+          if (composing) return; // 🟢 組字中不回推
+          cancelAnimationFrame(rafId);
+          rafId = requestAnimationFrame(pushUpstreamNow); // 🟢 以 RAF 微節流，降低 re-render 次數
+        };
+        editor.on('compositionstart compositionupdate', () => setComposing(true));
+        editor.on('compositionend', () => { setComposing(false); pushUpstreamNow(); });
+
         editor.on('input', pushUpstream);
         editor.on('change', pushUpstream);
         editor.on('SetContent', pushUpstream);
