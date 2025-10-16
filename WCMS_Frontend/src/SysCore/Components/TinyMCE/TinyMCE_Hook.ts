@@ -706,6 +706,23 @@ export const useTinyMceInternalImage = (
                 e.content = transformForDb(e.content);
             }
         });
+        editor.on("DblClick", (e: any) =>
+        {
+            const el = e?.target as HTMLElement | null;
+            const img = el?.closest?.("img");
+            if (img)
+            {
+                editor.selection.select(img); // 🟢 先選到該 <img>，對話框才能帶入現值
+                editor.execCommand("mceImage"); // 🟢 呼叫內建圖片編輯對話框
+            }
+            const a = el?.closest?.("a[href]");
+            if (a)
+            {
+                editor.selection.select(a);
+                editor.execCommand("mceLink", false, { dialog: true });
+                return;
+            }
+        });
     };
 
     return { setup, transformForEditor, transformForDb } as const;
