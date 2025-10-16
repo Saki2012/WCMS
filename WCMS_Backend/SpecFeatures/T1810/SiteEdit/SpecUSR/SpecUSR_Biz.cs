@@ -5,10 +5,12 @@ using System.Data;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using WCMS.Features.SiteEdit.Announcement;
+using WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 
@@ -138,13 +140,26 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
             {
                 case SysEnum.FuncAction.Create:
                 case SysEnum.FuncAction.Update:
-                    DoRemergeData(set.SpecUSR);
+                    CheckData(set);
+                    SetData(set);
                     break;
             }
         }
         #endregion
 
         #region Private
+        private void CheckData(SpecUSRSet set)
+        {
+            CheckIsEmpty(set);
+        }
+        private void SetData(SpecUSRSet set)
+        {
+            DoRemergeData(set.SpecUSR);
+        }
+        private void CheckIsEmpty(SpecUSRSet set)
+        {
+            if (set.SpecUSR.CategoryId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecUSRModel>(x => x.CategoryId));
+        }
         /// <summary>
         /// 重新組合多筆資料(類別、狀態、標籤)
         /// </summary>

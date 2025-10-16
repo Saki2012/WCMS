@@ -8,6 +8,7 @@ using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
@@ -115,13 +116,28 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
             {
                 case SysEnum.FuncAction.Create:
                 case SysEnum.FuncAction.Update:
-                    DoRemergeData(set.SpecResearch);
+                    CheckData(set);
+                    SetData(set);
                     break;
             }
         }
         #endregion
 
         #region Private
+        private void CheckData(SpecResearchSet set)
+        {
+            CheckIsEmpty(set);
+        }
+        private void SetData(SpecResearchSet set)
+        {
+            DoRemergeData(set.SpecResearch);
+        }
+
+
+        private void CheckIsEmpty(SpecResearchSet set)
+        {
+            if(set.SpecResearch.CategoryId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecResearchModel>(x => x.CategoryId));
+        }
         /// <summary>
         /// 重新組合多筆資料(類別、狀態、標籤)
         /// </summary>

@@ -171,7 +171,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         private void CheckDateIsEmpty(AnnouncementSet set)
         {
             if (set.Announcement.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Announcement>(x => x.Validate_Start));
-            if (set.Announcement.Validate_End != null && set.Announcement.Validate_Start > set.Announcement.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, I18nCache.GetLabel<Announcement>(x => x.Validate_End), I18nCache.GetLabel<Announcement>(x => x.Validate_Start));
+            if (set.Announcement.Validate_End != null && set.Announcement.Validate_Start >= set.Announcement.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, I18nCache.GetLabel<Announcement>(x => x.Validate_End), I18nCache.GetLabel<Announcement>(x => x.Validate_Start));
             if (set.Announcement.Categories == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Announcement>(x => x.Categories));
             if(set.AnnouncementDetail.FirstOrDefault(p=>p.Lang.Equals("zh-tw")) == null || set.AnnouncementDetail.FirstOrDefault(p => p.Lang.Equals("zh-tw")).Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, "繁體中文", I18nCache.GetLabel<AnnouncementDetail>(x => x.Title));
         }
