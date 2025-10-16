@@ -130,24 +130,16 @@ namespace WCMS.Features.SiteEdit.WebResource
         }
         #endregion
 
+        #region Private
         private void CheckData(WebResourceSet set)
         {
-            CheckDate(set.WebResource);
+            CheckIsEmpty(set);
         }
-
-
-        private void CheckDate(WebResource header)
+        private void CheckIsEmpty(WebResourceSet set)
         {
-            //if (header.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<WebResource>(x => x.Validate_Start));
-            //if (header.Validate_End == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<WebResource>(x => x.Validate_End));
-            //if (header.Validate_End != null && header.Validate_Start > header.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, I18nCache.GetLabel<WebResource>(x => x.Validate_End) , I18nCache.GetLabel<WebResource>(x => x.Validate_Start));
-
-            //if (header.Categories == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<WebResource>(x => x.Categories));
-
+            if (set.WebResourceInfo.FirstOrDefault(p => p.Lang.Equals("zh-tw")) == null || set.WebResourceInfo.FirstOrDefault(p => p.Lang.Equals("zh-tw")).Title.IsNullOrEmpty())
+                Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, "繁體中文", I18nCache.GetLabel<WebResourceInfo_DTO>(x => x.Title));
         }
-
-
-        #region Private
         /// <summary>
         /// 重新組合多筆資料(類別、狀態、標籤)
         /// </summary>
