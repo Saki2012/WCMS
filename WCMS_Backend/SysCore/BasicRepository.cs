@@ -30,7 +30,7 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="set"></param>
         /// <returns></returns>
-        public async Task CreateAsync(object newData, int rowId = 0)
+        public async Task CreateAsync(object newData, int rowId = 1)
         {
             if (newData is TModel single)
             {
@@ -46,7 +46,7 @@ namespace WCMS.SysCore
                         if (rowIdProp != null) 
                         {
                             if (((dynamic)detailRowModel).RowId == 0 || ((dynamic)detailRowModel).RowId == null)
-                                ((dynamic)detailRowModel).RowId = ++rowId;
+                                ((dynamic)detailRowModel).RowId = rowId++;
                         }
                     }
                 }
