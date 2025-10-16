@@ -790,12 +790,12 @@ const ModuleSettingTab = (prop: {
   const moduleKeyBind = setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Module, SchemaFields.SiteMenu_Item_ModuleFields.ModuleProgId, "string", curRowKeys);
   const moduleNodes: React.ReactNode[] = React.useMemo(() => {
     const nodes: React.ReactNode[] = [
-      <LibCheckBox Style={prop.theme.RadioBox} options={prop.modulePageType} {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Module, SchemaFields.SiteMenu_Item_ModuleFields.PageType, "number", curRowKeys)} />,
+      <LibSelectCard key="basic_Setting" ColDisplayName="基礎設定" components={[<LibCheckBox Style={prop.theme.RadioBox} options={prop.modulePageType} {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Module, SchemaFields.SiteMenu_Item_ModuleFields.PageType, "number", curRowKeys)} />,
+      <Module_Banner_Comp theme={prop.theme} formData={prop.formData} selectedItemEdit={prop.selectedItemEdit} bannerDict={prop.bannerDict} />,
       <LibDropList key="model" Style={prop.theme.DropList} Options={ModuleOpts}
         ColumnDisplayName={moduleKeyBind.ColumnDisplayName}
         InputValue={moduleKeyBind.InputValue}
-        onChange={(v) => { moduleKeyBind.onChange?.(v); prop.setModelKey(v as ModelKey); }} />,
-      <LibSelectCard key="banner" ColDisplayName="輪播設定" components={[<Module_Banner_Comp theme={prop.theme} formData={prop.formData} selectedItemEdit={prop.selectedItemEdit} bannerDict={prop.bannerDict} />]} />,
+        onChange={(v) => { moduleKeyBind.onChange?.(v); prop.setModelKey(v as ModelKey); }} />,]} />,
     ];
     const map: Record<Exclude<ModelKey, null>, React.ReactNode> = {
       Announcement: <Module_Announcement_Comp theme={prop.theme} formData={prop.formData} selectedItemEdit={prop.selectedItemEdit} styleDict={filteredStyleDict} categoryDatas={prop.categoryDatas} tagDatas={prop.tagDatas} lang={DefaultLang} />,
