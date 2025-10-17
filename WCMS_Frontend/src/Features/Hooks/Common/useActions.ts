@@ -33,13 +33,14 @@ export const useActions = <T>(
     {
         formRef.current = formData as T;
     }, [formData]);
-    const handleAddNew = useCallback(() =>
+    const handleAddNew = useCallback(async () =>
     {
         navigate(createPath);
     }, [navigate, createPath]);
-    const handleEdit = useCallback((internalId: string) =>
+    const handleEdit = useCallback(async (internalId: string) =>
     {
         navigate(`${createPath}/${internalId}`);
+        await onSuccess?.();
     }, [navigate, createPath]);
     const handleSave = useCallback(async () =>
     {
@@ -57,6 +58,7 @@ export const useActions = <T>(
                     publish({ level: item.Status, code: item.MessageCode, title: item.Message });
                 });
                 handleCancelBack();
+                await onSuccess?.();
             } else
             {
                 (res.SysMessage ?? []).forEach(item =>
