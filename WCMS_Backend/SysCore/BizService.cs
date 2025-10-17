@@ -1030,23 +1030,48 @@ namespace WCMS.SysCore
                 if (!setPropDict.TryGetValue(name, out var dstProp)) return false;
 
                 var targetType = dstProp.PropertyType;
-                var rawObj = (object)raw;
+                var elemType = GetEnumerableElementType(targetType) ?? typeof(object);
 
-                // 可直接賦值：最佳效能（參考指派）
-                if (targetType.IsInstanceOfType(rawObj))
+                // 1) 先拿現在 TSet 上的清單（若沒有就新建一個 List<T>）
+                var currentObj = PropertyAccessorCache.Get(set!, dstProp.Name);
+                IList targetList;
+
+                if (currentObj is IList existingList
+                    && existingList.GetType().IsGenericType
+                    && existingList.GetType().GetGenericArguments()[0].IsAssignableFrom(elemType))
                 {
-                    PropertyAccessorCache.Set(set!, dstProp.Name, rawObj);
-                    return true;
+                    // 已有同型別/相容清單 → 直接累加
+                    targetList = existingList;
+                }
+                else
+                {
+                    // 沒有或型別不相容 → 建新的 List<TElem>
+                    var listType = typeof(List<>).MakeGenericType(elemType);
+                    targetList = (IList)Activator.CreateInstance(listType)!;
                 }
 
-                // 嘗試把 raw 轉成目標集合型別（例如 List<T>）
-                var converted = ConvertEnumerableToTarget(raw, targetType);
-                if (converted != null)
+                // 2) 累加來源（必要時做元素型別轉換）
+                foreach (var item in raw)
                 {
-                    PropertyAccessorCache.Set(set!, dstProp.Name, converted);
-                    return true;
+                    targetList.Add(ChangeIfNeeded(item, elemType));
                 }
-                return false;
+
+                // 3) 若是新建的清單或原本為 null，指回 TSet
+                if (!ReferenceEquals(targetList, currentObj))
+                {
+                    PropertyAccessorCache.Set(set!, dstProp.Name, targetList);
+                }
+
+                return true;
+            }
+            static object? ChangeIfNeeded(object? item, Type targetElem)
+            {
+                if (item == null) return null;
+                var t = item.GetType();
+                if (targetElem.IsAssignableFrom(t)) return item;
+
+                try { return Convert.ChangeType(item, targetElem); }
+                catch { return item; }
             }
             static bool IsListPropertyType(PropertyInfo p)
             {
