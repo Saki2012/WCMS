@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using WCMS.SysCore.Enum;
@@ -214,16 +215,7 @@ namespace WCMS.SysCore
             var datas = (await DoQueryListAsync(headerProp, selectFields, condition, OrderBy, pageNumber, pageSize)).ToDynamicList();
             foreach (var data in datas)
             {
-                TSet srcData = PropertyAccessorCache.CreateInstance<TSet>();
-                PropertyAccessorCache.Set(srcData, headerProp.Name, data);
-                PropertyInfo[] dataProps = PropertyAccessorCache.GetProperties(data.GetType());
-                foreach(PropertyInfo prop in dataProps.Where(p => p.IsListPropertyType()))
-                {
-                    var propName = prop.Name.Trim('_');
-                    if (!PropertyAccessorCache.GetProperties<TSet>().Select(p => p.Name).Contains(propName)) continue;
-                    var dstData = PropertyAccessorCache.Get(data, prop.Name);
-                    PropertyAccessorCache.Set(srcData, propName, dstData);
-                }
+                var srcData = BuildSetFromData(headerProp, data);
                 result.Add(srcData);
             }
             return result;
@@ -566,7 +558,6 @@ namespace WCMS.SysCore
             protected override Expression VisitParameter(ParameterExpression node)
                 => node == _from ? _to : base.VisitParameter(node);
         }
-
         private LambdaExpression GetSelectFieldsExpr(Type modelType, string[] selectFields)
         {
             if (selectFields == null || selectFields.Length == 0) return null;
@@ -659,7 +650,6 @@ namespace WCMS.SysCore
             var delegateType = typeof(Func<,>).MakeGenericType(modelType, modelType);
             return Expression.Lambda(delegateType, body, param);
         }
-
         /// <summary>
         /// 獲取要搜尋的條件表達式
         /// </summary>
@@ -675,7 +665,6 @@ namespace WCMS.SysCore
             var lambda = DynamicExpressionParser.ParseLambda(config, [param], typeof(bool), normalized, args);
             return lambda;
         }
-
         private string NormalizeCondition(Type modelType, string rawCondition, out object[] args)
         {
             List<object> argList = [];
@@ -713,7 +702,6 @@ namespace WCMS.SysCore
             args = argList.ToArray(); // ← 回傳給外部
             return string.Join(" ", result);
         }
-
         private string? BuildNestedClause(Type type, string[] pathParts, string op, string? val, ref List<object> args, int index = 0)
         {
             if (index >= pathParts.Length) return null;
@@ -901,7 +889,6 @@ namespace WCMS.SysCore
             string thisLevel = current;
             return isEnumerable ? $"{thisLevel}.Any({inner})" : $"{thisLevel}.{inner}";
         }
-
         /// <summary>
         /// 獲取表頭明細模型
         /// </summary>
@@ -970,6 +957,135 @@ namespace WCMS.SysCore
         {
             if (RepoDict.TryGetValue(modelType.Name, out var repo)) return repo;
             return RepoMapProvider.EnsureRepo<TSet>(modelType);
+        }
+        /// <summary>
+        /// 將搜尋的結果扁平化成TSet型
+        /// </summary>
+        /// <param name="headerProp"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        private static TSet BuildSetFromData(PropertyInfo headerProp, object data)
+        {
+            // 建 TSet 實例 + 先塞回 header（data1）
+            var set = PropertyAccessorCache.CreateInstance<TSet>();
+            PropertyAccessorCache.Set(set, headerProp.Name, data);
+            // 快取 TSet 的屬性字典（O(1) 查找）
+            var setProps = PropertyAccessorCache.GetProperties<TSet>();
+            var setPropDict = setProps.ToDictionary(p => p.Name, p => p, StringComparer.Ordinal);
+            // 迭代 DFS：避免深層遞迴與 StackOverflow
+            var visited = new HashSet<int>();
+            var stack = new Stack<object>();
+            stack.Push(data);
+            while (stack.Count > 0)
+            {
+                var node = stack.Pop();
+                if (node == null) continue;
+
+                // 參考等值去重
+                var id = RuntimeHelpers.GetHashCode(node);
+                if (!visited.Add(id)) continue;
+
+                var nodeType = node.GetType();
+                var nodeProps = PropertyAccessorCache.GetProperties(nodeType);
+
+                foreach (var p in nodeProps)
+                {
+                    if (IsListPropertyType(p))
+                    {
+                        var raw = PropertyAccessorCache.Get(node, p.Name) as IEnumerable;
+                        if (raw == null) continue;
+
+                        // 把清單中的子項推進 stack（讓下一層的清單也能被處理）
+                        foreach (var item in raw)
+                        {
+                            if (item != null) stack.Push(item);
+                        }
+
+                        // 規則 1：用屬性名（去底線）直配 TSet
+                        var targetName = p.Name.Trim('_');
+                        if (!AssignToSet(targetName, raw))
+                        {
+                            // 規則 2：用元素型別名或型別名+List
+                            var elemType = GetEnumerableElementType(p.PropertyType);
+                            if (elemType != null)
+                            {
+                                if (!AssignToSet(elemType.Name, raw))
+                                {
+                                    AssignToSet(elemType.Name + "List", raw);
+                                }
+                            }
+                        }
+                    }
+                    else if (ShouldDescendInto(p))
+                    {
+                        var child = PropertyAccessorCache.Get(node, p.Name);
+                        if (child != null) stack.Push(child);
+                    }
+                }
+            }
+            return set;
+            // ====== local functions ======
+            bool AssignToSet(string name, IEnumerable raw)
+            {
+                if (!setPropDict.TryGetValue(name, out var dstProp)) return false;
+
+                var targetType = dstProp.PropertyType;
+                var rawObj = (object)raw;
+
+                // 可直接賦值：最佳效能（參考指派）
+                if (targetType.IsInstanceOfType(rawObj))
+                {
+                    PropertyAccessorCache.Set(set!, dstProp.Name, rawObj);
+                    return true;
+                }
+
+                // 嘗試把 raw 轉成目標集合型別（例如 List<T>）
+                var converted = ConvertEnumerableToTarget(raw, targetType);
+                if (converted != null)
+                {
+                    PropertyAccessorCache.Set(set!, dstProp.Name, converted);
+                    return true;
+                }
+                return false;
+            }
+            static bool IsListPropertyType(PropertyInfo p)
+            {
+                if (p.PropertyType == typeof(string)) return false;
+                return typeof(IEnumerable).IsAssignableFrom(p.PropertyType);
+            }
+            static bool ShouldDescendInto(PropertyInfo p)
+            {
+                var t = p.PropertyType;
+                if (t == typeof(string)) return false;
+                if (typeof(IEnumerable).IsAssignableFrom(t)) return false; // 清單在上面處理
+                return !t.IsValueType && !t.IsPrimitive;
+            }
+            static Type? GetEnumerableElementType(Type t)
+            {
+                if (t.IsGenericType)
+                {
+                    var g = t.GetGenericTypeDefinition();
+                    if (g == typeof(IEnumerable<>) || g == typeof(IList<>) ||
+                        g == typeof(ICollection<>) || g == typeof(IReadOnlyList<>) ||
+                        g == typeof(List<>))
+                    {
+                        return t.GetGenericArguments()[0];
+                    }
+                }
+                var i = t.GetInterfaces().FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+                return i?.GetGenericArguments()[0];
+            }
+            static object? ConvertEnumerableToTarget(IEnumerable src, Type targetType)
+            {
+                var elemType = GetEnumerableElementType(targetType) ?? typeof(object);
+                var listType = typeof(List<>).MakeGenericType(elemType);
+                var list = (IList)Activator.CreateInstance(listType)!;
+                foreach (var item in src) list.Add(item);
+                if (targetType.IsAssignableFrom(listType)) return list;
+                var ctor = targetType.GetConstructor([listType]);
+                if (ctor != null) return ctor.Invoke([list]);
+                return null;
+            }
         }
         #endregion
     }
