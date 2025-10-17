@@ -12,7 +12,7 @@ using WCMS.SysCore;
 namespace WCMS.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251016013228_InitialCreate")]
+    [Migration("20251016104444_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
