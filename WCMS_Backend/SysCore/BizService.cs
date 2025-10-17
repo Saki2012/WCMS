@@ -336,7 +336,7 @@ namespace WCMS.SysCore
                     {
                         //這邊要獲取RowId的最大int值，但是是為了應急處理，之後要改演算法
                         var keysNew = new HashSet<string>(newDict.Keys, StringComparer.Ordinal);
-                        var maxRowId = oldDict.Where(kv => keysNew.Contains(kv.Key)).Select(kv => kv.Value.RowId).DefaultIfEmpty(0).Max() + 1;
+                        var maxRowId = oldDict.Where(kv => keysNew.Contains(kv.Key)).Select(kv => TryGetRowId(kv.Value) ?? 0).DefaultIfEmpty(0).Max() + 1;
                         await repo.CreateAsync(newItems, maxRowId);
                     }
                 }
@@ -957,6 +957,15 @@ namespace WCMS.SysCore
         {
             if (RepoDict.TryGetValue(modelType.Name, out var repo)) return repo;
             return RepoMapProvider.EnsureRepo<TSet>(modelType);
+        }
+        private static int? TryGetRowId(object? obj)
+        {
+            if (obj == null) return null;
+            var p = obj.GetType().GetProperty("RowId");
+            if (p == null) return null;
+            var v = p.GetValue(obj);
+            if (v is int i) return i;
+            return null;
         }
         /// <summary>
         /// 將搜尋的結果扁平化成TSet型
