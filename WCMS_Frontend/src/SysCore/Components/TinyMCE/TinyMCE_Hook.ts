@@ -21,7 +21,56 @@ export interface TinyMceHookOptions
     baseUrl?: string; // "/tinymce"
     initExtras?: Record<string, any>;
 }
+const pickSandboxForUrl = (rawUrl: string) =>
+{
+    // 讓相對網址也能被解析（SSR 也安全）
+    const base = "https://example.com";
+    let host = "";
+    try
+    {
+        host = new URL(rawUrl, base).hostname.toLowerCase(); // ← 只拿主機名
+    } catch
+    {
+        return "allow-same-origin"; // 解析失敗就保守處理
+    }
 
+    // google.*（含 maps.google.com、google.com.tw 等）
+    if (/^(?:[\w-]+\.)*google\.[a-z.]+$/i.test(host))
+    {
+        return "allow-same-origin allow-scripts allow-popups";
+    }
+
+    // YouTube / Vimeo（舉例）
+    if (
+        host === "youtu.be"
+        || /^(?:[\w-]+\.)*youtube\.com$/i.test(host)
+        || /^(?:[\w-]+\.)*vimeo\.com$/i.test(host)
+    )
+    {
+        return "allow-same-origin allow-scripts allow-presentation";
+    }
+
+    return "allow-same-origin";
+};
+const normalizeWidth = (raw?: string) =>
+{
+    const x = (raw ?? "").trim();
+    if (!x) return "100%";
+    if (/^\d+%$/i.test(x)) return x;
+    if (/^\d+(px)?$/i.test(x)) return x.replace(/px$/i, "") + "px";
+    return "100%";
+};
+
+/* 🟢 新增：height 空白→"360"；禁止百分比；接受數字或 123px（轉為 "123"） */
+const normalizeHeight = (raw?: string) =>
+{
+    const x = (raw ?? "").trim();
+    if (!x) return "360";
+    if (/^\d+%$/i.test(x)) return "360";
+    if (/^\d+$/i.test(x)) return x;
+    if (/^\d+px$/i.test(x)) return x.replace(/px$/i, "");
+    return "360";
+};
 export const useTinyMCE = (p: TinyMceHookOptions) =>
 {
     const editorRef = useRef<TinyMCEEditor | null>(null);
@@ -83,8 +132,8 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
             onSubmit(api)
             {
                 const data: any = api.getData();
-                const width = (data.width || "100%").trim();
-                const height = (data.height || "100%").trim();
+                const width = normalizeWidth(data.width);
+                const height = normalizeHeight(data.height);
                 const title = (data.title || "").trim();
                 const url = (data.url || "").trim();
                 if (!url)
@@ -92,11 +141,17 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     ed.windowManager.alert("請輸入 URL");
                     return;
                 }
-                const html = `<iframe src="${ed.dom.encode(url)}" title="${ed.dom.encode(title)}" width="${
-                    ed.dom.encode(width)
-                }" height="${
-                    ed.dom.encode(height)
-                }" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen style="max-width:100%;border:0;"></iframe>`;
+                const sandbox = pickSandboxForUrl(url);
+
+                const html = `<iframe src="${ed.dom.encode(url)}"
+                    title="${ed.dom.encode(title)}"
+                    width="${ed.dom.encode(width)}"
+                    height="${ed.dom.encode(height)}"
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"  
+                    sandbox="${sandbox}"                      
+                    allowfullscreen
+                    style="max-width:100%;border:0;"></iframe>`;
                 ed.insertContent(html);
                 api.close();
             },
@@ -723,6 +778,37 @@ export const useTinyMceInternalImage = (
                 return;
             }
         });
+        editor.on("PreInit", () =>
+        {
+            const ser = (editor as any).serializer;
+            if (ser?.addNodeFilter)
+            {
+                ser.addNodeFilter("iframe", (nodes: any[]) =>
+                {
+                    nodes.forEach((node: any) =>
+                    {
+                        const src = String(node.attr("src") || "");
+                        // 與你現成的函式一致
+                        const sb = pickSandboxForUrl(src) || "allow-same-origin";
+
+                        node.attr("sandbox", sb);
+                        node.attr("loading", "lazy");
+                        node.attr("referrerpolicy", "no-referrer-when-downgrade");
+                        node.attr("allowfullscreen", "");
+
+                        // 一起把 wrapper 的快取欄位補齊，避免被蓋回空值
+                        const wrap = node.parent;
+                        if (wrap)
+                        {
+                            wrap.attr("data-mce-p-sandbox", sb);
+                            wrap.attr("data-mce-p-loading", "lazy");
+                            wrap.attr("data-mce-p-referrerpolicy", "no-referrer-when-downgrade");
+                            wrap.attr("data-mce-p-allowfullscreen", "");
+                        }
+                    });
+                });
+            }
+        });
     };
 
     return { setup, transformForEditor, transformForDb } as const;
@@ -801,35 +887,10 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                 } // 找不到就先跳出，避免誤改 wrapper
 
                 // 依 URL 決定 sandbox（沿用你原本的判斷）
-                const pickSandbox = (urlStr: string) =>
-                {
-                    try
-                    {
-                        const h = new URL(urlStr).hostname.toLowerCase();
-                        if (/(^|\.)google\.[a-z.]+$/.test(h)) return "allow-scripts allow-same-origin allow-popups";
-                        if (/(^|\.)youtube\.com$|(^|\.)youtu\.be$/.test(h) || /(^|\.)vimeo\.com$/.test(h))
-                        {
-                            return "allow-scripts allow-same-origin allow-presentation allow-popups";
-                        }
-                        return null;
-                    } catch
-                    {
-                        return null;
-                    }
-                };
-                const sandbox = pickSandbox(v.src);
+                const sandbox = pickSandboxForUrl(v.src);
 
-                // 規範化寬度（你的原邏輯）
-                const toStyleLen = (raw: string, fallback: string) =>
-                {
-                    const x = (raw || "").trim();
-                    if (!x) return fallback; // 空字 → 100%
-                    if (/^\d+$/.test(x)) return `${x}px`; // 純數字 → 統一轉 px
-                    return x; // 已帶單位（%/px/...）→ 保留
-                };
-
-                const nw = toStyleLen(v.width, "100%");
-                const nh = toStyleLen(v.height, "");
+                const nw = normalizeWidth(v.width);
+                const nh = normalizeHeight(v.height);
 
                 editor.undoManager.transact(() =>
                 {
