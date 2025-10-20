@@ -101,7 +101,11 @@ export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
     }, []);
     useEffect(() =>
     {
-        if (!props.enabled || props.initialData) return;
+        if (!props.enabled || props.initialData)
+        {
+            setIsLoading(false);
+            return;
+        }
         fetchData(currentPage);
     }, [currentPage, props.enabled, ...props.deps ?? [], bump]);
     const gridProps: GridProps = useMemo(

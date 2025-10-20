@@ -19,13 +19,7 @@ import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import { useCallback } from 'react';
 
-const buildInList = (csv?: string) =>
-    (csv ?? "")
-        .split(",")
-        .map(s => s.trim())
-        .filter(Boolean)
-        .map(s => `${s}`)
-        .join(",");
+const buildInList = (csv?: string) => (csv ?? "").split(",").map(s => s.trim()).filter(Boolean).map(s => `${s}`).join(",");
 
 const useGetCategories = (lang: string, categoryIds: string) => {
     const inList = buildInList(categoryIds);
