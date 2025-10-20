@@ -236,15 +236,36 @@ namespace WCMS.SysCore.Library
         /// Convert
         public static short ToInt16(this object val)
         {
-            return Convert.ToInt16(val);
+            try
+            {
+                return Convert.ToInt16(val);
+            }
+            catch
+            {
+                return 0;
+            }
         }
         public static int ToInt32(this object val)
         {
-            return Convert.ToInt32(val);
+            try 
+            {
+                return Convert.ToInt32(val);
+            }
+            catch
+            {
+                return 0;
+            }
         }
         public static long ToInt64(this object val)
         {
-            return Convert.ToInt64(val);
+            try
+            {
+                return Convert.ToInt64(val);
+            }
+            catch
+            {
+                return 0;
+            }
         }
         public static string ToString(this object val)
         {
