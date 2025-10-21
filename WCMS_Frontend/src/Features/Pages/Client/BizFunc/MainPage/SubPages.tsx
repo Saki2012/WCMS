@@ -16,11 +16,7 @@ import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData'
 import BannerSliderProvider from '@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api'
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient'
 type BannerSet = components["schemas"]["BannerSet_DTO"];
-
-
-
 interface ISubPagesProps { Style: IFETheme; Lang: Lang; site: INormSite; node: INormNode; backHref?: string; }
-
 const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode): ReactNode[] => {
   const result: ReactNode[] = [<Link to={`/${site.siteIndex}`} title='首頁'>首頁</Link>];
   var curNodes = site.treeByLang[lang]
@@ -42,7 +38,6 @@ const GetMenuData = (lang: Lang, site: INormSite, node: INormNode, maxDepth: num
   if (!rootNode) return [];
   return buildMenuItems(rootNode.children ?? [], node.id, 1, maxDepth);
 };
-
 const useBannerPic = (bannerId: string) => {
   const provider = BannerSliderProvider();
   return useFetchGridListData<BannerSet>({
@@ -66,7 +61,6 @@ const useBannerPic = (bannerId: string) => {
     deps: [bannerId],
   });
 }
-//明天調整一下item的內容
 export const buildMenuItems = (nodes: INormNode[] = [], activeId: number, currentDepth: number = 1, maxDepth: number = Infinity): MenuItemData[] => {
   return nodes
     .filter(n => n.isShowOnMenu !== false) // 過濾掉不顯示的
@@ -150,9 +144,6 @@ const SubPageBase = (props: ISubPagesProps & { renderMain: () => React.ReactNode
       ? `${FileManagementAPI.PREVIEW_URL}/${picId}`
       : DEFAULT_BANNER_URL;
   }, [banner.rawData, props.node.bannerId]);
-
-
-
   useLegacyMenuDOM(menuRef);
   return (
     <>

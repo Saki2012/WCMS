@@ -1,4 +1,6 @@
-﻿using WCMS.SysCore.Library;
+﻿using System.ComponentModel.DataAnnotations;
+using WCMS.SysCore.Enum;
+using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
@@ -78,6 +80,10 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// 網站描述
         /// </summary>
         [LibDesc(ModelDisplayName.SiteMenu_SiteDescription)] public string? Description { get; set; }
+        /// <summary>
+        /// 首頁Banner設定
+        /// </summary>
+        [LibDesc(ModelDisplayName.BannerId)] public string? BannerId { get; set; }
         /// <summary>
         /// Header
         /// </summary>

@@ -91,6 +91,10 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// </summary>
         [StringLength(SysLengthParam.Memo)] public string Description { get; set; }
         /// <summary>
+        /// 首頁Banner設定
+        /// </summary>
+        [StringLength(SysLengthParam.ID)] public string? BannerId { get; set; }
+        /// <summary>
         /// Header
         /// </summary>
         public string? SiteHeader { get; set; }
