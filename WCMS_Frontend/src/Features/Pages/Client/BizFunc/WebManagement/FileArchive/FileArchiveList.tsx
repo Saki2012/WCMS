@@ -10,13 +10,14 @@ import type { GridRow } from "@/SysCore/Components/Grid/Grid_Data";
 import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import * as SchemaFields from "@/types/SchemaFields";
-import { GridViewContentComp } from "@/Features/Pages/Client/Scaffold/ContentViewMode/GridView/GridView/GridContent_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import FileArchiveProvider from "@/Features/Hooks/BizFunc/WebManagement/FileArchive/FileArchive_Api";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 import { SearchBarComp, type ISearchQuery } from "@/SysCore/Components/SearchBar/SearchBar_Comp";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 
 const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string, tagSets: TagSet[], query: ISearchQuery) => {
     var condition: string = "";
@@ -107,15 +108,20 @@ export const FileArchiveList = (props: FileArchiveProps) => {
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(props.Lang, useFileArchiveList.gridProps, useFileArchiveList.rawData, tagMap); }, [useFileArchiveList.gridProps, useFileArchiveList.rawData, tagMap]);
     const isLoading = [useFileArchiveList.isLoading, useTagData.isLoading];
     const errors = [useFileArchiveList.error, useTagData.error];
-    return <GridViewContentComp searchSlot={searchSlot} GridData={adjustedGrid} Theme={props.Theme} LoadingList={isLoading} ErrorList={errors} />;
+    return (
+        <>
+            {searchSlot}
+            <LoadingErrorHandler loadingList={isLoading} errorList={errors} >
+                <Grid gridData={adjustedGrid} style={props.Theme.GridView} pageStyle={props.Theme.Paginator}></Grid>
+            </LoadingErrorHandler>
+        </>
+    )
 };
 
 const SetAdjustFunction = (lang: string, gridProps: GridProps, rawData: FileArchiveSet[], tagMap: Map<string, string>): GridProps => {
     const downloadColName = '__Download__';
-
     if (gridProps.columns.some(col => col.key === downloadColName)) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
-
     // 1) 欄位層級：抽掉「下載次數」，最後組合為「其他｜下載｜下載次數」
     let baseColumns = [...gridProps.columns];
     const dcIdx = baseColumns.findIndex(c => c.key === SchemaFields.FileArchiveFields.DownloadCount);

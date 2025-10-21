@@ -20,7 +20,6 @@ import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import { useCallback } from 'react';
 
 const buildInList = (csv?: string) => (csv ?? "").split(",").map(s => s.trim()).filter(Boolean).map(s => `${s}`).join(",");
-
 const useGetCategories = (lang: string, categoryIds: string) => {
     const inList = buildInList(categoryIds);
     var condition: string = `${SchemaFields.CategoryFields.CategoryId} HasAny (${inList}) And ${SchemaFields.CategoryDetailFields.Lang} = ${lang}`;
@@ -48,7 +47,6 @@ const useGetCategories = (lang: string, categoryIds: string) => {
         deps: [lang, categoryIds],        // ids/lang 改變就 refetch
     });
 };
-
 const useGetTags = (lang: string, tagIds: string) => {
     const inList = buildInList(tagIds);
     var condition: string = `${SchemaFields.TagDataFields.TagId} In (${inList}) And ${SchemaFields.TagDetailFields.Lang} = ${lang}`;
@@ -114,7 +112,6 @@ const Content = (prop: { lang: string; theme: IFETheme; data: AnnouncementSet; c
     const content = parseContent.html ? parse(parseContent.html) : null;
     const cats = (prop.catData ?? []).flatMap(item => (item.CategoryDetail ?? []).filter(detail => detail.Lang === prop.lang).map(detail => detail.CategoryName)) as string[];
     const tags = (prop.tagData ?? []).flatMap(item => (item.TagDetail ?? []).filter(detail => detail.Lang === prop.lang).map(detail => detail.TagName)) as string[];
-
     return (<>
         <div className="page-header mb-3">
             <h3>{title}</h3>

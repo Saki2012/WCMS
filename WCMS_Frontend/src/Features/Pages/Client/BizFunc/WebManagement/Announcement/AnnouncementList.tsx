@@ -9,7 +9,6 @@ import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import * as SchemaFields from "@/types/SchemaFields";
 import AnnouncementProvider from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api";
-import { GridViewContentComp } from "@/Features/Pages/Client/Scaffold/ContentViewMode/GridView/GridView/GridContent_Comp";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
@@ -18,9 +17,9 @@ import { useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_
 import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { Paginator } from "@/SysCore/Components/Paginator/Paginator_Comp";
-import type { ListCompProp } from "@/Features/Pages/Client/Scaffold/ContentViewMode/GridView/GridView_Data";
 import DefaultEventImg from "@/Assets/1810/DefaultEventPic_940x1330.jpg"
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
 const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string, query: ISearchQuery) => {
@@ -114,7 +113,14 @@ export const AnnouncementList = (props: IAnnouncementListProps) => {
             return <PictureList_Comp searchSlot={searchSlot} GridData={adjustedGrid} Theme={props.Theme} LoadingList={isLoading} ErrorList={errors} />
         case 1://清單式
         default:
-            return <GridViewContentComp searchSlot={searchSlot} GridData={adjustedGrid} Theme={props.Theme} LoadingList={isLoading} ErrorList={errors} />;
+            return (
+                <>
+                    {searchSlot}
+                    <LoadingErrorHandler loadingList={isLoading} errorList={errors} >
+                        <Grid gridData={adjustedGrid} style={props.Theme.GridView} pageStyle={props.Theme.Paginator}></Grid>
+                    </LoadingErrorHandler>
+                </>
+            )
     }
 };
 
@@ -143,8 +149,18 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: Announ
 
 
 
+interface ListCompProp {
+    // Title:string
+    Theme: IFETheme
+    LoadingList: boolean[],
+    ErrorList: (string | null | undefined)[],
+    // SearchBar:SearchBarProps,
+    // SearchBar:SearchBarProps
+    // GridType?:string
+    GridData: GridProps
+}
 
-export interface GridViewContentSlots extends ListCompProp {
+interface GridViewContentSlots extends ListCompProp {
     searchSlot?: React.ReactNode;
 }
 /**圖文式公告 */

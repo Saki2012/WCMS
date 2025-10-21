@@ -116,10 +116,8 @@ const SubContent = (props: ISubPagesProps) => {
       </div>
     </a>
   </div>
-
   const menuRef = useRef<HTMLUListElement>(null);
   useLegacyMenuDOM(menuRef);
-
   return (
     <>
       <SubBannerComp title={title} srcImg={"/Legacy/Client/images/banner/subpage_banner_img_1920x550.jpg"}></SubBannerComp>
