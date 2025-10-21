@@ -21,7 +21,7 @@ import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 
 const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string, tagSets: TagSet[], query: ISearchQuery) => {
     var condition: string = "";
-    if (query.keyword) condition = LibMerge(" And ", false, condition, `${SchemaFields.FileArchiveSetFields.FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.Title} Like ${query.keyword}`)
+    if (query.keyword) condition = LibMerge(" And ", false, condition, `${SchemaFields.FileArchiveFields._FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.Title} Like ${query.keyword}`)
     if (query.tag) condition = LibMerge(" And ", false, condition, `${SchemaFields.FileArchiveFields.TagsId} HasAny ${query.tag}`)
     if (categoryIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.FileArchiveFields.CategoriesId} HasAny (${categoryIds})`)
     if (tagIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.FileArchiveFields.TagsId} HasAny (${tagIds})`)
