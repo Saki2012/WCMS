@@ -4,12 +4,19 @@ import BreadCrumbComp from '@/SysCore/Components/BreadCrumb/BreadCrumb_Comp'
 import MenuListComp from "@/SysCore/Components/MenuList/MenuList_Comp"
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data"
 import type { IFETheme } from '@/Features/Pages/Client/Theme/ITheme'
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { BannerFields, BannerDetailInfoFields, BannerDetailFields } from "@/types/SchemaFields";
 import type { INormNode, INormSite } from '@/Features/Pages//Client/Site-Routing'
 import type { Lang } from '@/SysCore/i18n/lang'
+import type { components } from "@/types/api";
 import { useNavigate } from "react-router-dom";
 import { useLegacyMenuDOM } from '@/Features/Pages/Client/Scaffold/Menu/MainMenu/MainMenu_Comp'
 import { ThirdMenuComp } from '@/Features/Pages/Client/Scaffold/Menu/ThirdMenu'
+import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData'
+import BannerSliderProvider from '@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api'
+import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient'
+type BannerSet = components["schemas"]["BannerSet_DTO"];
+
 
 
 interface ISubPagesProps { Style: IFETheme; Lang: Lang; site: INormSite; node: INormNode; backHref?: string; }
@@ -35,6 +42,30 @@ const GetMenuData = (lang: Lang, site: INormSite, node: INormNode, maxDepth: num
   if (!rootNode) return [];
   return buildMenuItems(rootNode.children ?? [], node.id, 1, maxDepth);
 };
+
+const useBannerPic = (bannerId: string) => {
+  const provider = BannerSliderProvider();
+  return useFetchGridListData<BannerSet>({
+    getModelDisplayName: () => provider.getModelDisplayName(),
+    fetchList: (cond) => provider.fetchList(cond),
+    fetchListCount: (cond) => provider.fetchListCount(cond),
+    visibleKeys: [],
+    buildQueryCondition: () => ({
+      Fields: [
+        BannerFields.BannerId, BannerFields.Interval, BannerFields.Speed, BannerFields.Height, BannerFields.Width,
+        `${BannerFields._BannerDetail}.${BannerDetailFields.PicSrcId}`,
+        `${BannerFields._BannerDetail}.${BannerDetailFields.FontColor}`,
+        `${BannerFields._BannerDetail}.${BannerDetailFields.Sort}`,
+      ],
+      Condition: `${BannerFields.BannerId} = ${bannerId}`,
+      OrderBy: [{ Col: `${BannerFields._BannerDetail}.${BannerDetailFields.Sort}`, Desc: false },],
+      PageNumber: 0,
+      PageSize: 0,
+    }),
+    enabled: !!bannerId.trim(),
+    deps: [bannerId],
+  });
+}
 //明天調整一下item的內容
 export const buildMenuItems = (nodes: INormNode[] = [], activeId: number, currentDepth: number = 1, maxDepth: number = Infinity): MenuItemData[] => {
   return nodes
@@ -109,10 +140,23 @@ const SubPageBase = (props: ISubPagesProps & { renderMain: () => React.ReactNode
     </a>
   </div>
   const menuRef = useRef<HTMLUListElement>(null);
+  const banner = useBannerPic(props.node.bannerId ?? "");
+  const DEFAULT_BANNER_URL = "/Legacy/Client/images/banner/subpage_banner_img_1920x550.jpg";
+  const bannerUrl = useMemo(() => {
+    if (!props.node.bannerId) return DEFAULT_BANNER_URL;
+    const list = banner.rawData as BannerSet[] | undefined;
+    const picId = list?.[0]?.BannerDetail?.[0]?.PicSrcId;
+    return picId
+      ? `${FileManagementAPI.PREVIEW_URL}/${picId}`
+      : DEFAULT_BANNER_URL;
+  }, [banner.rawData, props.node.bannerId]);
+
+
+
   useLegacyMenuDOM(menuRef);
   return (
     <>
-      <SubBannerComp title={title} srcImg={"/Legacy/Client/images/banner/subpage_banner_img_1920x550.jpg"}></SubBannerComp>
+      <SubBannerComp title={title} srcImg={bannerUrl}></SubBannerComp>
       <section style={{ height: "0px" }}>
         <div className="container-customize1">
           <a accessKey="C" href="#" className="accesskey_main C" title="中間內容區(C)" tabIndex={1}>:::</a>

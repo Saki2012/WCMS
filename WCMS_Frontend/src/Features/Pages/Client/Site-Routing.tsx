@@ -27,6 +27,7 @@ export interface INormNode {
     type: NodeType;
     redirectTo?: string;               // redirect-* 用
     module?: { progId: string; options?: unknown }; // module 用
+    bannerId?: string;
     children: INormNode[];
     windowTarget: WindowTarget;
     isShowOnMenu: boolean;
@@ -137,6 +138,7 @@ export const normalizeSite = (siteMenu: SiteMenuSet): INormSite => {
                         try { opts = JSON.parse(opts); } catch { /* 忽略 JSON 解析錯誤 */ }
                     }
                     node.module = { progId: mm.ModuleProgId, options: opts };
+                    node.bannerId = mm.BannerId ?? "";
                 }
             }
             nodeMap.set(id, node);

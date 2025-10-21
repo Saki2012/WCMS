@@ -87,7 +87,7 @@ export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
             setBump(v => v + 1);
         } else if (o.mode === "first")
         {
-            if (currentPage === 1)
+            if (currentPage === 1 || currentPage === 0)
             {
                 setBump(v => v + 1);
             } else
