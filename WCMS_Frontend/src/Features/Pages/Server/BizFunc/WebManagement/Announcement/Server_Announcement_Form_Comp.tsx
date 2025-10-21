@@ -1,10 +1,10 @@
-import { LibTextBox, LibTinyMCE, LibFile, LibPicture, LibFileInput } from "@/SysCore/Components/FormField/LibFormField"
+import { LibTextBox, LibTinyMCE, LibFile, LibPicture, LibFileInput, LibModal } from "@/SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { useGetCategoryListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
 import { useGetTagListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 import AnnouncementProvider from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api";
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
-import { useActions } from "@/Features/Hooks/Common/useActions";
+import { useActions, type PreviewPayload } from "@/Features/Hooks/Common/useActions";
 import { useLocation, useParams } from "react-router-dom";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import type { components } from "@/types/api";
@@ -19,9 +19,10 @@ import * as SchemaFields from "@/types/SchemaFields";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { Prog } from "@/Features/Hooks/Common/Prog";
+import { PreviewFrame } from "@/Features/Pages/Server/Scaffold/PreviewFrame/PreviewFrame";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"]
@@ -39,7 +40,24 @@ export const Server_AnnouncementFormComp = (props: { theme: IBETheme; lang: Lang
     const useTag = useGetTagListByProgId(Prog.Announcement, props.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
     const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
-    const actions = useActions(dirUrl, AnnouncementProvider(), formData.data, internalId as string)
+    const [open, setOpen] = useState(false);
+    const [payload, setPayload] = useState<PreviewPayload | undefined>(undefined);
+    const onPreview = useCallback((p?: PreviewPayload) => {
+        setPayload(p);
+        setOpen(true);
+    }, []);
+
+    // A) 編輯中預覽（用當前表單 dto）
+    const handlePreviewFromDto = useCallback((dto: any) => {
+        setPayload({
+            type: 'wcms:preview',
+            module: 'announcement',
+            payload: { kind: 'dto', dto }
+        });
+        setOpen(true); // 先設 payload 再打開，onload 時會自動 postMessage
+    }, [props.lang]);
+
+    const actions = useActions(dirUrl, AnnouncementProvider(), formData.data, internalId as string, undefined, handlePreviewFromDto)
     useEnsureLangDetails(formData, { headerName: SchemaFields.AnnouncementSetFields.Announcement, detailName: SchemaFields.AnnouncementSetFields.AnnouncementDetail, parentKeys: [SchemaFields.AnnouncementDetailFields.AnnouncementId], preferFirstLang: props.lang });
     const isLoading = [useTag.isLoading, useCategory.isLoading, formData.isLoading, useContentStatus.isLoading]
     const errors = [useTag.error, useCategory.error, formData.error, useContentStatus.error]
@@ -48,6 +66,8 @@ export const Server_AnnouncementFormComp = (props: { theme: IBETheme; lang: Lang
         <FormComp prop={prop}>
             <HeaderComp theme={props.theme} formData={formData} cateOpts={useCategory.data} statusOpts={status} tagOpts={useTag.data} />
             <DetailComp theme={props.theme} formData={formData} />
+
+            <PreviewFrame open={open} siteIndex={''} onClose={() => setOpen(false)} payload={payload} title="預覽" />
         </FormComp>
     )
 }

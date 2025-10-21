@@ -14,7 +14,6 @@ import { ThirdMenuComp } from '@/Features/Pages/Client/Scaffold/Menu/ThirdMenu'
 
 interface ISubPagesProps { Style: IFETheme; Lang: Lang; site: INormSite; node: INormNode; backHref?: string; }
 
-
 const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode): ReactNode[] => {
   const result: ReactNode[] = [<Link to={`/${site.siteIndex}`} title='首頁'>首頁</Link>];
   var curNodes = site.treeByLang[lang]
@@ -30,14 +29,12 @@ const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode): ReactN
   });
   return result;
 }
-
 const GetMenuData = (lang: Lang, site: INormSite, node: INormNode, maxDepth: number = Infinity): MenuItemData[] => {
   const roots = site.treeByLang?.[lang] ?? [];
   const rootNode = roots.find(n => n.id === (node.rootId ?? roots[0]?.id));
   if (!rootNode) return [];
   return buildMenuItems(rootNode.children ?? [], node.id, 1, maxDepth);
 };
-
 //明天調整一下item的內容
 export const buildMenuItems = (nodes: INormNode[] = [], activeId: number, currentDepth: number = 1, maxDepth: number = Infinity): MenuItemData[] => {
   return nodes
@@ -74,18 +71,15 @@ export const buildMenuItems = (nodes: INormNode[] = [], activeId: number, curren
       return result;
     });
 };
-
 // 取得「第 level 層」的節點（level=1 表示 root 的第一層子節點層級）
 const getAncestorAtLevel = (lang: Lang, site: INormSite, node: INormNode, level: number): INormNode | undefined => {
   const roots = site.treeByLang?.[lang] ?? [];
   const root = roots.find(n => n.id === (node.rootId ?? roots[0]?.id));
   if (!root) return undefined;
-
   // 第一層從 root.children 開始算
   let depth = 1;
   let curNode: INormNode | undefined = root;
   let curChildren: INormNode[] = root.children ?? [];
-
   // absIds 依序是從上到下的節點 id（包含目前節點）
   for (const id of (node.absIds ?? []).slice(1)) {
     const next = curChildren.find(c => c.id === id);
@@ -95,18 +89,16 @@ const getAncestorAtLevel = (lang: Lang, site: INormSite, node: INormNode, level:
     curChildren = next.children ?? [];
     depth++;
   }
-
   // 若實際深度不夠，回傳最接近的（最後找到的）節點
   return undefined;
 };
-const SubContent = (props: ISubPagesProps) => {
+const SubPageBase = (props: ISubPagesProps & { renderMain: () => React.ReactNode }) => {
   const title: string = props.node.title;
   const breadCrumbData: ReactNode[] = GetBreadCrumbData(props.Lang, props.site, props.node);
   const SIDE_MAX_DEPTH = 3;
   const sideMenuData: MenuItemData[] = GetMenuData(props.Lang, props.site, props.node, SIDE_MAX_DEPTH);
   const anchor = getAncestorAtLevel(props.Lang, props.site, props.node, SIDE_MAX_DEPTH);
   const topMenuData: MenuItemData[] = buildMenuItems(anchor?.children ?? [], props.node.id);
-
   const navigate = useNavigate(); // 🔑 先宣告
   const handleBack = (e: React.MouseEvent<HTMLAnchorElement>) => { e.preventDefault(); navigate(-1); };
   const back: ReactNode = <div className="pos-relative d-inline-block ml-auto">
@@ -151,9 +143,10 @@ const SubContent = (props: ISubPagesProps) => {
               <div className="col-lg-10 col-md-12 col-sm-12 col-12" id="div_ThirdMenu">
                 <div className='col-sm-12 col-12 px-0 page-righttopmenu'></div>
                 <ThirdMenuComp item={topMenuData}></ThirdMenuComp>
-                <div id="ContentPlaceContent_ContentConentA" className='col-sm-12 col-12 px-0'>
-                  <hr className="mt-1 mb-4"></hr>
-                  <Outlet />
+                <div id="ContentPlaceContent_ContentConentA" className="col-sm-12 col-12 px-0">
+                  <hr className="mt-1 mb-4" />
+                  {/* 🟢 主內容改成 renderMain()，由外界決定塞什麼 */}
+                  {props.renderMain()}
                 </div>
               </div>
             </div>
@@ -165,9 +158,15 @@ const SubContent = (props: ISubPagesProps) => {
   );
 };
 
+// 🟢 2) 既有的路由外殼：用 Outlet（保持相容）
+const SubContent = (props: ISubPagesProps) => (
+  <SubPageBase {...props} renderMain={() => <Outlet />} />
+);
 export default SubContent;
 
-
+export const SubPageShell = (props: ISubPagesProps & { children: React.ReactNode }) => (
+  <SubPageBase {...props} renderMain={() => props.children} />
+);
 
 
 interface GoTopButtonProps {

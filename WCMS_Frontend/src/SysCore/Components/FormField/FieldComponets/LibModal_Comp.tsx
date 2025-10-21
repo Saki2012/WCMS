@@ -15,7 +15,6 @@ const LibModal = ({ children, ...prop }: Extended) => {
     const uid = useId();
     const modalRef = useRef<HTMLDivElement>(null);
     const [innerBusy, setInnerBusy] = useState(false);
-
     // 🟢 換成這個 getModal：同時支援 Bootstrap 5 / 5.3 / 4(jQuery)
     const getModal = () => {
         const el = modalRef.current;
@@ -50,15 +49,12 @@ const LibModal = ({ children, ...prop }: Extended) => {
         }
         return null;
     };
-
     const openModal = () => { const m = getModal(); m?.show(); };
     const closeModal = () => { const m = getModal(); m?.hide(); };
-
     const handleCancel = () => {
         prop.onCancel?.();
         closeModal();
     };
-
     const handleConfirm = async () => {
         if (!prop.onConfirm) { closeModal(); return; }
         try {
@@ -70,13 +66,10 @@ const LibModal = ({ children, ...prop }: Extended) => {
             if (prop.confirmBusy === undefined) setInnerBusy(false);
         }
     };
-
     const disabled = Boolean(prop.confirmDisabled || prop.confirmBusy || innerBusy);
     const busy = Boolean(prop.confirmBusy || innerBusy);
-
     const modalId = `modal-${uid}`;
     const titleId = `title-${uid}`;
-
     return (
         <div id={`modal-wrap-${uid}`}>
             <button

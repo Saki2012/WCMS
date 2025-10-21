@@ -3,6 +3,20 @@ import { IDataProvider, MessageStatus } from "@/SysCore/Interface/IApiProvider";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+export type PreviewModule = "announcement" | "pagemanagement";
+
+export type PreviewPayload =
+    | {
+        type: "wcms:preview";
+        module: PreviewModule;
+        payload: { kind: "dto"; lang?: string; dto: any; };
+    }
+    | {
+        type: "wcms:preview";
+        module: PreviewModule;
+        payload: { kind: "internalId"; lang?: string; mode?: "db" | "public"; internalId: string; };
+    };
+
 export interface UseActionsResult
 {
     isExecuting: boolean;
@@ -21,6 +35,7 @@ export const useActions = <T>(
     formData?: T,
     internalId?: string,
     onSuccess?: () => Promise<void>,
+    onPreview?: (payload?: PreviewPayload) => void, // ✅ UI 由外層決定
 ): UseActionsResult =>
 {
     const navigate = useNavigate();
@@ -106,9 +121,11 @@ export const useActions = <T>(
             setIsExcuting(false);
         }
     }, [apiProvider, onSuccess, publish]);
-    const handlePreview = () =>
+
+    const handlePreview = useCallback(() =>
     {
-    };
+        onPreview?.(); // 不帶 payload，先看殼
+    }, [onPreview]);
     const handleInvalid = async () =>
     {
         if (!apiProvider || !internalId) return;

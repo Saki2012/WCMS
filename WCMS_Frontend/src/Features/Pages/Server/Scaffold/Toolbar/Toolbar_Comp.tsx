@@ -39,7 +39,7 @@ export const Form_Toolbar = (prop: { action: UseActionsResult }) => {
                     <div className="col float-md-left float-sm-none d-flex justify-content-start">
                         <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" title={"儲存送出"} onClick={prop.action.onSave}>{"儲存送出"}</button>
                         <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" title={"取消返回"} onClick={prop.action.onCancelBack}>{"取消返回"}</button>
-                        <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" title={"預覽"} onClick={prop.action.onCancelBack}>{"預覽"}</button>
+                        <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" title={"預覽"} onClick={prop.action.onPreview}>{"預覽"}</button>
                     </div>
                 </div>
             </div>

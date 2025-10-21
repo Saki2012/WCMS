@@ -7,6 +7,7 @@ import HomePage from "@/Features/Pages/Client/BizFunc/MainPage/HomePage";
 import { Index } from "@/Features/Pages/Client/BizFunc/MainPage/Index";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { Classic_FETheme } from "./Theme/ClassicTheme_Clsx";
+import TemplateHub from "../Server/Scaffold/PreviewFrame/TemplateHub.tsx";
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"]
 type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"]
 type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title_DTO"]
@@ -302,8 +303,19 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
             children:
                 [
                     { index: true, element: <HomePage /> },
+                    {
+                        path: "Template",
+                        element: (
+                            <React.Suspense fallback={<div role="status" aria-live="polite">載入預覽頁…</div>}>
+                                <TemplateHub site={site} defaultLang={DefaultLang} />
+                            </React.Suspense>
+                        ),
+                    },
                     ...skeletonRoots.map(toRoute),
                 ]
         },
+        {
+
+        }
     ];
 };

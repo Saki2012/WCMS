@@ -2,8 +2,6 @@ import type { ListCompProp } from "./Content_Data";
 import { DividerComp } from "../../../../../SysCore/Components/Divider/Divider_Comp";
 import { List_Toolbar } from "../Toolbar/Toolbar_Comp";
 import { SearchComp } from "../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
-import { Grid } from "../../../../../SysCore/Components/Grid/Grid_Comp";
-import type { SearchBarProps } from "../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
 import LoadingErrorHandler from "../../../../../SysCore/Components/LoadingErrorHandler";
 
 
