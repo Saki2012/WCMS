@@ -5,7 +5,7 @@ import MenuListComp from "@/SysCore/Components/MenuList/MenuList_Comp"
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data"
 import type { IFETheme } from '@/Features/Pages/Client/Theme/ITheme'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { BannerFields, BannerDetailInfoFields, BannerDetailFields } from "@/types/SchemaFields";
+import { BannerFields, BannerDetailFields } from "@/types/SchemaFields";
 import type { INormNode, INormSite } from '@/Features/Pages//Client/Site-Routing'
 import type { Lang } from '@/SysCore/i18n/lang'
 import type { components } from "@/types/api";
@@ -135,19 +135,16 @@ const SubPageBase = (props: ISubPagesProps & { renderMain: () => React.ReactNode
   </div>
   const menuRef = useRef<HTMLUListElement>(null);
   const banner = useBannerPic(props.node.bannerId ?? "");
-  const DEFAULT_BANNER_URL = "/Legacy/Client/images/banner/subpage_banner_img_1920x550.jpg";
   const bannerUrl = useMemo(() => {
-    if (!props.node.bannerId) return DEFAULT_BANNER_URL;
+    if (!props.node.bannerId) return "";
     const list = banner.rawData as BannerSet[] | undefined;
     const picId = list?.[0]?.BannerDetail?.[0]?.PicSrcId;
-    return picId
-      ? `${FileManagementAPI.PREVIEW_URL}/${picId}`
-      : DEFAULT_BANNER_URL;
+    return picId ? `${FileManagementAPI.PREVIEW_URL}/${picId}` : "";
   }, [banner.rawData, props.node.bannerId]);
   useLegacyMenuDOM(menuRef);
   return (
     <>
-      <SubBannerComp title={title} srcImg={bannerUrl}></SubBannerComp>
+      {!!bannerUrl && <SubBannerComp title={title} srcImg={bannerUrl}></SubBannerComp>}
       <section style={{ height: "0px" }}>
         <div className="container-customize1">
           <a accessKey="C" href="#" className="accesskey_main C" title="中間內容區(C)" tabIndex={1}>:::</a>
