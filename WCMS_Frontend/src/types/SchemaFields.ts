@@ -620,6 +620,7 @@ export const SiteMenu_IndexInfoFields = {
   Lang: 'Lang',
   Title: 'Title',
   Description: 'Description',
+  BannerId: 'BannerId',
   SiteHeader: 'SiteHeader',
   SiteFooter: 'SiteFooter',
   Keyword: 'Keyword',

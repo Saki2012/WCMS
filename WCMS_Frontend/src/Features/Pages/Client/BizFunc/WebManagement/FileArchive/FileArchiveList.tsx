@@ -1,5 +1,5 @@
 /**公告清單 */
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import type { ColumnConfig, GridProps } from "@/SysCore/Components/Grid/Grid_Data";
 import type { components } from "@/types/api";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
@@ -82,14 +82,12 @@ const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string
 
 export interface IFileArchiveOptions { Category: string; Tag: string; Style: number; }
 interface FileArchiveProps { Theme: IFETheme; Lang: Lang; Options: IFileArchiveOptions; }
-
 export const FileArchiveList = (props: FileArchiveProps) => {
     const [queryDraft, setQueryDraft] = useState<ISearchQuery>({});
     const [query, setQuery] = useState<ISearchQuery>({});
     const useTagData = useTagListData("FileArchive", props.Lang);
     const useFileArchiveList = useFileArchive(props.Lang, props.Options.Category, props.Options.Tag, useTagData.rawData, query);
     const tags = (useTagData.rawData ?? []).map(t => ({ id: t.TagData?.TagId ?? "", name: t.TagDetail?.find(p => p.Lang === props.Lang)?.TagName ?? "" }));
-
     const tagMap = useMemo(() => {
         const map = new Map<string, string>();
         (useTagData.rawData ?? []).forEach(t => {
@@ -99,25 +97,32 @@ export const FileArchiveList = (props: FileArchiveProps) => {
         });
         return map;
     }, [useTagData.rawData, props.Lang]);
-
-
-    const searchSlot = (
-        <SearchBarComp value={queryDraft} tags={tags} onChange={(k, v) => setQueryDraft(prev => ({ ...prev, [k]: v }))}
-            onSubmit={() => setQuery(queryDraft)} onReset={() => { setQueryDraft({}); setQuery({}); }} />);
-
+    const searchSlot = (<SearchBarComp value={queryDraft} tags={tags} onChange={(k, v) => setQueryDraft(prev => ({ ...prev, [k]: v }))} onSubmit={() => setQuery(queryDraft)} onReset={() => { setQueryDraft({}); setQuery({}); }} />);
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(props.Lang, useFileArchiveList.gridProps, useFileArchiveList.rawData, tagMap); }, [useFileArchiveList.gridProps, useFileArchiveList.rawData, tagMap]);
     const isLoading = [useFileArchiveList.isLoading, useTagData.isLoading];
     const errors = [useFileArchiveList.error, useTagData.error];
+    const content: React.ReactElement | null = useMemo(() => {
+        switch (props.Options?.Style) {
+            case 6://展開式 (標籤)
+            // return <QAList_Comp key="qa" GridData={adjustedGrid} Theme={props.Theme} />;
+            case 5://展開式 (類別)
+            // return <PictureList_Comp key="picture" GridData={adjustedGrid} Theme={props.Theme} />;
+            case 1://清單式
+            default: // 含 case 1
+                return <List_Comp key="grid" gridData={adjustedGrid} theme={props.Theme} />
+        }
+    }, [props.Options?.Style, searchSlot, adjustedGrid, props.Theme, isLoading, errors]);
+
+
     return (
         <>
             {searchSlot}
             <LoadingErrorHandler loadingList={isLoading} errorList={errors} >
-                <Grid gridData={adjustedGrid} style={props.Theme.GridView} pageStyle={props.Theme.Paginator}></Grid>
+                {content}
             </LoadingErrorHandler>
         </>
     )
 };
-
 const SetAdjustFunction = (lang: string, gridProps: GridProps, rawData: FileArchiveSet[], tagMap: Map<string, string>): GridProps => {
     const downloadColName = '__Download__';
     if (gridProps.columns.some(col => col.key === downloadColName)) return gridProps;
@@ -164,7 +169,6 @@ const SetAdjustFunction = (lang: string, gridProps: GridProps, rawData: FileArch
     });
     return { ...gridProps, columns: newColumns, rows: newRows };
 };
-
 const SetDownloadIcon = (fileInternalId: string, fileExtName: string, fileTitle: string) => {
     let div = <>{fileExtName.toUpperCase()}</>;
     switch (fileExtName) {
@@ -183,4 +187,19 @@ const SetDownloadIcon = (fileInternalId: string, fileExtName: string, fileTitle:
     }
     return (<a href={`${FileManagementAPI.DOWNLOAD_URL}/${fileInternalId}`} target="_blank" rel="noopener noreferrer"
         className="btn btn-default" title={`${fileTitle}(另開視窗)`} > {div}</ a>)
+}
+/** 清單式 */
+const List_Comp = (prop: { gridData: GridProps; theme: IFETheme }) => {
+    return <Grid gridData={prop.gridData} style={prop.theme.GridView} pageStyle={prop.theme.Paginator}></Grid>
+}
+const GroupList_Comp = (prop: { gridData: GridProps; theme: IFETheme }) => {
+    const uid = useId()
+    return (
+        <div className="panel panel-default mb-5">
+            <div className="panel-heading">{"Title:處本部"}</div>
+            <div className="panel-body">
+                <Grid key={uid} gridData={prop.gridData} style={prop.theme.GridView} pageStyle={prop.theme.Paginator}></Grid>
+            </div>
+        </div>
+    );
 }

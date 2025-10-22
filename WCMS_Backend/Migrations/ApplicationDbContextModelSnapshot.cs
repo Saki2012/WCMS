@@ -1075,6 +1075,10 @@ namespace WCMS.Migrations
                     b.Property<int>("RowId")
                         .HasColumnType("int");
 
+                    b.Property<string>("BannerId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(1000)

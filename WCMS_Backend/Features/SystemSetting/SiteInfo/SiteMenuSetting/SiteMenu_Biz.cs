@@ -183,7 +183,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
             return srcModule switch
             {
                 "page" => "PageManagement",
-                "gallery" => "_Gallery",
+                "gallery" => "Gallery",
                 "news" => "Announcement",
                 "archive" => "FileArchive",
                 "webresource" => "WebResource",

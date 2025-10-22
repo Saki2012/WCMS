@@ -98,7 +98,7 @@ namespace WCMS.Features.SiteEdit.Category
                 case "FileArchive":
                     useCount = await DoQueryListCountAsync<FileArchive.FileArchive>([nameof(BasicDataModel.InternalId)], $@"{nameof(FileArchive.FileArchive.CategoriesId)} HasAny {categoryId}");
                     break;
-                case "_Gallery":
+                case "Gallery":
                     useCount = await DoQueryListCountAsync<Gallery.Gallery>([nameof(BasicDataModel.InternalId)], $@"{nameof(Gallery.Gallery.Categories)} HasAny {categoryId}");
                     break;
                 case "PageManagement":

@@ -1,4 +1,4 @@
-export const Prog = {
+export const ProgId = {
     Banner: "Banner",
     Announcement: "Announcement",
     FileArchive: "FileArchive",
@@ -8,7 +8,7 @@ export const Prog = {
 } as const;
 
 // 👉 "Announcement" | "FileArchive" | ...
-export type Program = typeof Prog[keyof typeof Prog];
+export type Program = typeof ProgId[keyof typeof ProgId];
 
 // 👉 "Announcement" | "FileArchive" | ...
-export type ProgramKey = keyof typeof Prog;
+export type ProgramKey = keyof typeof ProgId;

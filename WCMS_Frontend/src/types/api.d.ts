@@ -7057,6 +7057,8 @@ export interface components {
             Title?: string | null;
             /** @description [SiteMenu_SiteDescription] */
             Description?: string | null;
+            /** @description 橫幅廣告 */
+            BannerId?: string | null;
             /** @description [SiteMenu_SiteHeader] */
             SiteHeader?: string | null;
             /** @description [SiteMenu_SiteFooter] */
