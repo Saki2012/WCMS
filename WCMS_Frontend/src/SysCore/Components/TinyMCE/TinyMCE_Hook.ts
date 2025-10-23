@@ -1,4 +1,6 @@
 // src/hooks/TinyMCE_Hook.ts
+import { useToast } from "@/Features/Hooks/Common/useToastCenter";
+import { MessageStatus, type SysMessageModel } from "@/SysCore/Interface/IApiProvider";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useMemo, useRef } from "react";
 import type { Editor as TinyMCEEditor } from "tinymce";
@@ -74,7 +76,7 @@ const normalizeHeight = (raw?: string) =>
 export const useTinyMCE = (p: TinyMceHookOptions) =>
 {
     const editorRef = useRef<TinyMCEEditor | null>(null);
-
+    const { publish } = useToast();
     // 1) 掛上內容轉換（prefix 可自訂；不給就用預設）
     const { toDb, toEditor } = useContentTransform({
         previewPrefix: `${FileManagementAPI.PREVIEW_URL}`,
@@ -90,11 +92,17 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
         if (!res.ok) throw new Error("Upload failed");
         // 後端請回傳 { internalId: "xxx", name: "filename.ext" }
         const json = await res.json();
-        if (!json.IsSuccess) throw new Error("No internalId");
-        return {
-            internalId: json.Data[0],
-            name: file.name,
-        } as { internalId: string; name: string; };
+        if (!json.IsSuccess)
+        {
+            (json.SysMessage as SysMessageModel[]).forEach((msg) =>
+            {
+                if (msg.Status === 3)
+                {
+                    publish({ level: MessageStatus.Error, title: msg.MessageCode, text: msg.Message });
+                }
+            });
+        }
+        return { isSuccess: json.IsSuccess, internalId: json.Data[0], name: file.name };
     };
 
     const toUrl = (id: string, kind: "file" | "image") =>
@@ -283,7 +291,8 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 {
                     try
                     {
-                        const { internalId, name } = await uploadAndReturn(file);
+                        const { isSuccess, internalId, name } = await uploadAndReturn(file);
+                        if (!isSuccess) return;
                         if (meta.filetype === "file")
                         {
                             const href = toUrl(internalId, "file");
@@ -628,7 +637,8 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                         {
                             try
                             {
-                                const { internalId, name } = await uploadAndReturn(file);
+                                const { isSuccess, internalId, name } = await uploadAndReturn(file);
+                                if (!isSuccess) return;
                                 const href = toUrl(internalId, "file");
                                 applyFileLinkToSelection(editor, {
                                     href,

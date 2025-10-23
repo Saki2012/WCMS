@@ -180,4 +180,19 @@
   <data name="BECode00020" xml:space="preserve">
     <value>請輸入相片中[{0}]語系的[{1}]。</value>
   </data>
+  <data name="BECode00021" xml:space="preserve">
+    <value>檔案已存在至系統，略過重複上傳。</value>
+  </data>
+  <data name="BECode00022" xml:space="preserve">
+    <value>實際的網際網路媒體類型為【{0}】，不允許上傳。</value>
+  </data>
+  <data name="BECode00023" xml:space="preserve">
+    <value>實際的檔案類型為【{0}】，不允許上傳。</value>
+  </data>
+  <data name="BECode00024" xml:space="preserve">
+    <value>檔案大小超過 {0}MB，請重新上傳。</value>
+  </data>
+  <data name="BECode00025" xml:space="preserve">
+    <value>上傳檔案失敗，原因：{0}</value>
+  </data>
 </root>
