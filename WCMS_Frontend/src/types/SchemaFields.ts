@@ -240,6 +240,7 @@ export const FileArchiveInfoFields = {
   Lang: 'Lang',
   Title: 'Title',
   _FileArchiveDetail: '_FileArchiveDetail',
+  _FileArchiveUrlDetail: '_FileArchiveUrlDetail',
 } as const;
 
 export type FileArchiveInfoFieldKey = keyof typeof FileArchiveInfoFields;
@@ -248,6 +249,7 @@ export const FileArchiveSetFields = {
   FileArchive: 'FileArchive',
   FileArchiveInfo: 'FileArchiveInfo',
   FileArchiveDetail: 'FileArchiveDetail',
+  FileArchiveUrlDetail: 'FileArchiveUrlDetail',
 } as const;
 
 export type FileArchiveSetFieldKey = keyof typeof FileArchiveSetFields;
@@ -258,6 +260,17 @@ export const FileArchiveSet_DTOApiRequestFields = {
 } as const;
 
 export type FileArchiveSet_DTOApiRequestFieldKey = keyof typeof FileArchiveSet_DTOApiRequestFields;
+
+export const FileArchiveUrlDetailFields = {
+  FileArchiveId: 'FileArchiveId',
+  ParentRowId: 'ParentRowId',
+  RowId: 'RowId',
+  Url: 'Url',
+  UrlDescription: 'UrlDescription',
+  WindowTarget: 'WindowTarget',
+} as const;
+
+export type FileArchiveUrlDetailFieldKey = keyof typeof FileArchiveUrlDetailFields;
 
 export const FileArchiveFields = {
   CreateTime: 'CreateTime',

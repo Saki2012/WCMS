@@ -577,6 +577,36 @@ namespace WCMS.Migrations
                     b.ToTable("FileArchiveInfo", (string)null);
                 });
 
+            modelBuilder.Entity("WCMS.Features.SiteEdit.FileArchive.FileArchiveUrlDetail", b =>
+                {
+                    b.Property<string>("FileArchiveId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("ParentRowId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RowId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("UrlDescription")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<byte>("WindowTarget")
+                        .HasColumnType("tinyint");
+
+                    b.HasKey("FileArchiveId", "ParentRowId", "RowId");
+
+                    b.ToTable("FileArchiveUrlDetail", (string)null);
+                });
+
             modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.Gallery", b =>
                 {
                     b.Property<string>("GalleryId")
@@ -2493,6 +2523,17 @@ namespace WCMS.Migrations
                     b.Navigation("_FileArchive");
                 });
 
+            modelBuilder.Entity("WCMS.Features.SiteEdit.FileArchive.FileArchiveUrlDetail", b =>
+                {
+                    b.HasOne("WCMS.Features.SiteEdit.FileArchive.FileArchiveInfo", "_FileArchiveInfo")
+                        .WithMany("_FileArchiveUrlDetail")
+                        .HasForeignKey("FileArchiveId", "ParentRowId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("_FileArchiveInfo");
+                });
+
             modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.Gallery", b =>
                 {
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
@@ -2982,6 +3023,8 @@ namespace WCMS.Migrations
             modelBuilder.Entity("WCMS.Features.SiteEdit.FileArchive.FileArchiveInfo", b =>
                 {
                     b.Navigation("_FileArchiveDetail");
+
+                    b.Navigation("_FileArchiveUrlDetail");
                 });
 
             modelBuilder.Entity("WCMS.Features.SiteEdit.Gallery.Gallery", b =>

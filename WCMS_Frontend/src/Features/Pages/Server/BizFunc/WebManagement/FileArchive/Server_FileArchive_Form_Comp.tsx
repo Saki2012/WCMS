@@ -18,6 +18,7 @@ import { useActions } from "@/Features/Hooks/Common/useActions";
 import { useMemo } from "react";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"]
 type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"]
 const emptyData: FileArchiveSet = { FileArchive: {}, FileArchiveInfo: [], FileArchiveDetail: [] }
@@ -69,7 +70,6 @@ const HeaderComp = (prop: {
 
 const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<FileArchiveSet>; }) => {
     const setField = useSetTableField<FileArchiveSet>(prop.formData);
-
     const rawDetails = prop.formData.data?.FileArchiveInfo ?? [];
     const tabInfo: LibTabsProp = {
         Style: prop.theme.Tabs,
@@ -86,7 +86,10 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Fi
             const rowKeys = { [SchemaFields.FileArchiveInfoFields.FileArchiveId]: info.FileArchiveId, [SchemaFields.FileArchiveInfoFields.RowId]: info.RowId, }
             compMap[langKey] = [
                 <LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.FileArchiveSetFields.FileArchiveInfo, SchemaFields.FileArchiveInfoFields.Title, "string", rowKeys)} />,
-                <SubDetailComp theme={prop.theme} formData={prop.formData} parentRowId={detailRowId}></SubDetailComp>
+                <DividerComp />,
+                <SubFilesComp theme={prop.theme} formData={prop.formData} parentRowId={detailRowId} />,
+                <DividerComp />,
+                // <SubUrlComp theme={prop.theme} formData={prop.formData} parentRowId={detailRowId} />,
             ]
             return compMap;
         }, {}
@@ -97,7 +100,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Fi
     )
 }
 
-const SubDetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<FileArchiveSet>; parentRowId: number }) => {
+const SubFilesComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<FileArchiveSet>; parentRowId: number }) => {
     const setFileField = useSetTableFileField(prop.formData);
     const allFiles: FileArchiveDetail[] = prop.formData.data?.FileArchiveDetail ?? [];
     const getFiles = (): FileArchiveDetail[] => allFiles.filter(f => f.ParentRowId === prop.parentRowId).sort((a, b) => (a.RowId ?? 0) - (b.RowId ?? 0));
@@ -126,6 +129,53 @@ const SubDetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
     };
     return (
         <>
+            {"檔案上傳"}
+            <div role="group" className="mt-4">
+                <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-secondary mb-2">新增附件</button>
+                {getFiles().map((f, i) => {
+                    const rowKeys = { [SchemaFields.FileArchiveDetailFields.FileArchiveId]: f.FileArchiveId, [SchemaFields.FileArchiveDetailFields.ParentRowId]: f.ParentRowId, [SchemaFields.FileArchiveDetailFields.RowId]: f.RowId, }
+                    return (
+                        <div key={`${f.ParentRowId}-${f.RowId}`} className="flex items-center gap-2 mb-2">
+                            <LibFileInput Style={prop.theme.FileInput} DefaultInputDisplay="請輸入附件說明" Accept="*/*" onDelete={() => removeFileAt(i)}
+                                {...setFileField(SchemaFields.FileArchiveSetFields.FileArchiveDetail, SchemaFields.FileArchiveDetailFields.FileSrcId, SchemaFields.FileArchiveDetailFields.FileName, rowKeys,)} />
+                        </div>
+                    )
+                })}
+            </div>
+        </>
+    );
+}
+
+const SubUrlComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<FileArchiveSet>; parentRowId: number }) => {
+    const setFileField = useSetTableFileField(prop.formData);
+    const allFiles: FileArchiveDetail[] = prop.formData.data?.FileArchiveDetail ?? [];
+    const getFiles = (): FileArchiveDetail[] => allFiles.filter(f => f.ParentRowId === prop.parentRowId).sort((a, b) => (a.RowId ?? 0) - (b.RowId ?? 0));
+    // 提交回整份表單（關鍵：真正更新 formData）
+    const commitFiles = (nextFiles: FileArchiveDetail[]) => {
+        prop.formData.setFormData(prev => ({
+            ...(prev ?? { FileArchive: {}, FileArchiveInfo: [], FileArchiveDetail: [] }),
+            FileArchiveDetail: nextFiles,
+        }));
+    };
+    // 新增一筆附件列
+    const addFile = () => {
+        const list = getFiles();
+        const nextRowId = (list.at(-1)?.RowId ?? 0) + 1;
+        const newItem: FileArchiveDetail = { ParentRowId: prop.parentRowId, RowId: nextRowId, FileSrcId: "", FileName: "", };
+        commitFiles([...allFiles, newItem]);
+    };
+
+    // 刪除第 i 筆附件列
+    const removeFileAt = (i: number) => {
+        const filtered = getFiles();
+        const target = filtered[i];
+        if (!target) return;
+        const nextAll = allFiles.filter(f => !(f.ParentRowId === target.ParentRowId && f.RowId === target.RowId));
+        commitFiles(nextAll);
+    };
+    return (
+        <>
+            {"外部連結"}
             <div role="group" className="mt-4">
                 <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-secondary mb-2">新增附件</button>
                 {getFiles().map((f, i) => {

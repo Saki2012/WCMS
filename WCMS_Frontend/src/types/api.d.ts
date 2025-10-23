@@ -6653,15 +6653,36 @@ export interface components {
             /** @description 標題 */
             Title?: string | null;
             _FileArchiveDetail?: components["schemas"]["FileArchiveDetail_DTO"][] | null;
+            _FileArchiveUrlDetail?: components["schemas"]["FileArchiveUrlDetail_DTO"][] | null;
         };
         FileArchiveSet_DTO: {
             FileArchive?: components["schemas"]["FileArchive_DTO"];
             FileArchiveInfo?: components["schemas"]["FileArchiveInfo_DTO"][] | null;
             FileArchiveDetail?: components["schemas"]["FileArchiveDetail_DTO"][] | null;
+            FileArchiveUrlDetail?: components["schemas"]["FileArchiveUrlDetail_DTO"][] | null;
         };
         FileArchiveSet_DTOApiRequest: {
             InternalId?: string | null;
             Data?: components["schemas"]["FileArchiveSet_DTO"];
+        };
+        FileArchiveUrlDetail_DTO: {
+            /** @description 檔案室代碼 */
+            FileArchiveId?: string | null;
+            /**
+             * Format: int32
+             * @description 父行代碼
+             */
+            ParentRowId?: number;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number;
+            /** @description 網址 */
+            Url?: string | null;
+            /** @description 網址描述 */
+            UrlDescription?: string | null;
+            WindowTarget?: components["schemas"]["WindowTarget"];
         };
         FileArchive_DTO: {
             /**
