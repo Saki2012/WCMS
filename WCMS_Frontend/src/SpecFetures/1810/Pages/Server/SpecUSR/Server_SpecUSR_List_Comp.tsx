@@ -52,14 +52,10 @@ const SetAdjustFunction = (gridProps: GridProps, rawData: SpecUSRSet[], cateData
         const rawCatId = rawData?.[index]?.SpecUSR?.CategoryId ?? categoryCell?.content?.toString() ?? "";
         if (categoryCell) { categoryCell.content = useFormatSpecCategoriesName(rawCatId, cateData); }
         const tagCell = row.cells.find(p => p.col.key === SpecUSRModelFields.Tags);
-        const rawTagId = rawData?.[index]?.SpecUSR?.Tags ?? categoryCell?.content?.toString() ?? "";
+        const rawTagId = rawData?.[index]?.SpecUSR?.Tags ?? tagCell?.content?.toString() ?? "";
         if (tagCell) { tagCell.content = useFormatTagsName(rawTagId, tagData); }
         const internalId = rawData?.[index]?.SpecUSR?.InternalId ?? "";
-        const newCell: RowCell = {
-            col: adjustCol,
-            content: (<GridCol_Toolbar key={internalId} action={actions} internalId={internalId} />)
-
-        };
+        const newCell: RowCell = { col: adjustCol, content: (<GridCol_Toolbar key={internalId} action={actions} internalId={internalId} />) };
         return { ...row, cells: [...row.cells, newCell] };
     });
     return { ...gridProps, columns: newColumns, rows: newRows };

@@ -15,8 +15,10 @@ import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { SpecResearchDetailModelFields, SpecResearchModelFields, SpecResearchSetFields } from "@/types/SchemaFields";
 import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { SpecProgId } from "@/SpecFetures/1810/Hooks/Common/SpecProgId";
+import { useFormatTagsName, useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"]
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"]
+type TagSet = components["schemas"]["TagSet_DTO"]
 
 
 /** 研究計畫清單
@@ -29,8 +31,9 @@ export const Server_ResearchProjListComp = (prop: { title: string; theme: IBEThe
     const provider = useMemo(() => SpecResearchProvider(), []);
     const usePageList = useSpecResearchList(provider, prop.lang, kw);
     const useCategory = useSpecCateListData(SpecProgId.SpecResearch, prop.lang);
+    const useTagData = useTagListData(SpecProgId.SpecResearch, prop.lang);
     const actions = useActions(dirUrl, provider, undefined, undefined, usePageList.refetchCurrent)
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions); }, [usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions]);
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(prop.lang, usePageList.gridProps, usePageList.rawData, useCategory.rawData, useTagData.rawData, actions); }, [usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions]);
     const searchCompProp: SearchBarProps = { title: "研究計畫搜尋", subTitle: "搜尋研究計畫...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
     const isLoading = [usePageList.isLoading, useCategory.isLoading];
     const errors = [usePageList.error, useCategory.error];
@@ -38,7 +41,7 @@ export const Server_ResearchProjListComp = (prop: { title: string; theme: IBEThe
 }
 
 /** 動態添加每行的動作功能 */
-const SetAdjustFunction = (gridProps: GridProps, rawData: SpecResearchSet[], cateData: SpecCategorySet[], actions: UseActionsResult): GridProps => {
+const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: SpecResearchSet[], cateData: SpecCategorySet[], tagData: TagSet[], actions: UseActionsResult): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
@@ -48,12 +51,12 @@ const SetAdjustFunction = (gridProps: GridProps, rawData: SpecResearchSet[], cat
         if (statusCell && typeof statusCell.content === 'number') { statusCell.content = GetDataStatusContent(statusCell.content); }
         const categoryCell = row.cells.find(p => p.col.key === SpecResearchModelFields.CategoryId);
         const rawCatId = rawData?.[index]?.SpecResearch?.CategoryId ?? categoryCell?.content?.toString() ?? "";
-        if (categoryCell) { categoryCell.content = useFormatSpecCategoriesName(rawCatId, cateData); }
+        if (categoryCell) { categoryCell.content = useFormatSpecCategoriesName(rawCatId, cateData, lang); }
+        const tagCell = row.cells.find(p => p.col.key === SpecResearchModelFields.Tags);
+        const rawtagId = rawData?.[index]?.SpecResearch?.Tags ?? tagCell?.content?.toString() ?? "";
+        if (tagCell) { tagCell.content = useFormatTagsName(rawtagId, tagData, lang); }
         const internalId = rawData?.[index]?.SpecResearch?.InternalId ?? "";
-        const newCell: RowCell = {
-            col: adjustCol,
-            content: (<GridCol_Toolbar key={internalId} action={actions} internalId={internalId} />)
-        };
+        const newCell: RowCell = { col: adjustCol, content: (<GridCol_Toolbar key={internalId} action={actions} internalId={internalId} />) };
         return { ...row, cells: [...row.cells, newCell] };
     });
     return { ...gridProps, columns: newColumns, rows: newRows };
@@ -76,25 +79,13 @@ const useSpecResearchList = (provider: IDataProvider<SpecResearchSet>, lang: Lan
         fetchListCount: (cond) => provider.fetchListCount(cond),
         visibleKeys: [
             [SpecResearchSetFields.SpecResearch, SpecResearchModelFields.CategoryId],
+            [SpecResearchSetFields.SpecResearch, SpecResearchModelFields.Tags],
             [SpecResearchSetFields.SpecResearch, SpecResearchModelFields.ContentStatus],
-
             [SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Year],
-            [
-                SpecResearchSetFields.SpecResearchDetail,
-                SpecResearchDetailModelFields.AcademicYear,
-            ],
-            [
-                SpecResearchSetFields.SpecResearchDetail,
-                SpecResearchDetailModelFields.ProjectName,
-            ],
-            [
-                SpecResearchSetFields.SpecResearchDetail,
-                SpecResearchDetailModelFields.PaperTitle,
-            ],
-            [
-                SpecResearchSetFields.SpecResearchDetail,
-                SpecResearchDetailModelFields.CooperationProject,
-            ],
+            [SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.AcademicYear],
+            [SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.ProjectName],
+            [SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.PaperTitle],
+            [SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.CooperationProject],
             [SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Courses],
             [SpecResearchSetFields.SpecResearch, SpecResearchModelFields.CreateTime],
             [SpecResearchSetFields.SpecResearch, SpecResearchModelFields.ModifyUserId],
@@ -105,6 +96,7 @@ const useSpecResearchList = (provider: IDataProvider<SpecResearchSet>, lang: Lan
                 SpecResearchModelFields.ResearchId,
                 SpecResearchModelFields.InternalId,
                 SpecResearchModelFields.CategoryId,
+                SpecResearchModelFields.Tags,
                 SpecResearchModelFields.ContentStatus,
                 `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Lang}`,
                 `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Year}`,
