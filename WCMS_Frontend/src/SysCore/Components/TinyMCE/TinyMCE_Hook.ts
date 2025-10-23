@@ -288,9 +288,15 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                         {
                             const href = toUrl(internalId, "file");
                             // 插入可下載連結 + data-internal
-                            callback(href, { text: name ?? file.name, [INTERNAL_ATTR]: internalId });
-                            // 直接把當前選取轉成 <a>
                             const ed = editorRef.current!;
+                            applyFileLinkToSelection(ed, {
+                                href,
+                                title: name ?? file.name,
+                                internalId,
+                                download: true,
+                                // targetBlank: true, // 若你想讓下載另開視窗可打開這行
+                            });
+                            // 直接把當前選取轉成 <a>
                             const anchor = ed.dom.select("a[href=\"" + href + "\"]").pop();
                             if (anchor) ed.dom.setAttrib(anchor, "download", "");
                         } else if (meta.filetype === "image")
@@ -624,11 +630,12 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                             {
                                 const { internalId, name } = await uploadAndReturn(file);
                                 const href = toUrl(internalId, "file");
-                                editor.insertContent(
-                                    `<a href="${editor.dom.encode(href)}" ${INTERNAL_ATTR}="${
-                                        editor.dom.encode(internalId)
-                                    }" download>${editor.dom.encode(name ?? file.name)}</a>`,
-                                );
+                                applyFileLinkToSelection(editor, {
+                                    href,
+                                    title: name ?? file.name,
+                                    internalId,
+                                    download: true,
+                                });
                             } catch
                             {
                                 alert("上傳失敗");
@@ -707,6 +714,58 @@ export interface UseTinyMceInternalImageResult
 
 export const INTERNAL_ATTR = "data-internalid";
 
+const applyFileLinkToSelection = (
+    ed: TinyMCEEditor,
+    opts: { href: string; title?: string; internalId?: string; download?: boolean; targetBlank?: boolean; },
+) =>
+{
+    const { href, title, internalId, download, targetBlank } = opts;
+    const sel = ed.selection;
+    if (!sel) return;
+
+    const setAttrs = (a: HTMLElement) =>
+    {
+        // TinyMCE 的 setAttribs 不吃運算子鍵名，因此用逐一設定避免型別衝突
+        ed.dom.setAttrib(a, "href", href);
+        ed.dom.setAttrib(a, "title", title ?? "");
+        if (internalId) ed.dom.setAttrib(a, INTERNAL_ATTR, internalId);
+        if (download) ed.dom.setAttrib(a, "download", "");
+        if (targetBlank)
+        {
+            ed.dom.setAttrib(a, "target", "_blank");
+            // AA & 安全性
+            ed.dom.setAttrib(a, "rel", "noopener");
+        }
+    };
+
+    // 未選取 → 直接插入一個連結（用 title 或檔名當文字）
+    if (sel.isCollapsed())
+    {
+        const linkText = title || href.split("/").pop() || "download";
+        const a = ed.dom.create("a", {}) as HTMLElement;
+        a.textContent = linkText;
+        setAttrs(a);
+        ed.insertContent((a as any).outerHTML);
+        ed.nodeChanged();
+        return;
+    }
+
+    // 有選取 → 優先修改既有 <a>；若沒有 <a>，用 mceInsertLink 包起來
+    const start = sel.getStart();
+    const existing = ed.dom.getParent(start, "a");
+    if (existing)
+    {
+        setAttrs(existing as HTMLElement);
+        ed.nodeChanged();
+        return;
+    }
+
+    // 包成連結（不會改文字內容）
+    ed.execCommand("mceInsertLink", false, { href, title: title ?? "" });
+    const wrapped = ed.dom.getParent(ed.selection.getStart(), "a");
+    if (wrapped) setAttrs(wrapped as HTMLElement);
+    ed.nodeChanged();
+};
 const doTransformForEditor = (html: string, makeSrc: (id: string) => string) =>
 {
     const doc = new DOMParser().parseFromString(html, "text/html");
