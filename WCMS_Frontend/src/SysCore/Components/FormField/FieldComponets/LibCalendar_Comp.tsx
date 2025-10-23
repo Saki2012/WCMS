@@ -2,7 +2,7 @@ import { useId, useMemo, useRef, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import type { ILibCalendarProp } from './LibCalendar_Data';
-import { isSameDay, parse, isValid } from "date-fns";
+import { format, isSameDay, parse, isValid } from "date-fns";
 
 const SUPPORTED_FORMATS = [
     "yyyy/MM/dd",
@@ -42,7 +42,7 @@ const LibCalendar = (prop: ILibCalendarProp) => {
         if (invalid) setInvalid(false);
     };
     const handlePick = (date: Date | null) => {
-        const dateStr = date ? date.toISOString() : "";
+        const dateStr = date ? format(date, "yyyy-MM-dd") : "";
         lastCommittedRef.current = "";
         setText("");
         setInvalid(false);
@@ -60,7 +60,7 @@ const LibCalendar = (prop: ILibCalendarProp) => {
         if (parsed) {
             lastCommittedRef.current = raw;
             setInvalid(false);
-            prop.onChange?.(parsed.toISOString());
+            prop.onChange?.(format(parsed, "yyyy-MM-dd"));
             setText(""); // 交回給 DatePicker 用 selected + dateFormat 顯示
         } else {
             setInvalid(true);

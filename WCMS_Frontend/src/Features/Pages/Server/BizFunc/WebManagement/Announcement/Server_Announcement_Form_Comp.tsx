@@ -66,7 +66,6 @@ export const Server_AnnouncementFormComp = (props: { theme: IBETheme; lang: Lang
         <FormComp prop={prop}>
             <HeaderComp theme={props.theme} formData={formData} cateOpts={useCategory.data} statusOpts={status} tagOpts={useTag.data} />
             <DetailComp theme={props.theme} formData={formData} />
-
             <PreviewFrame open={open} siteIndex={''} onClose={() => setOpen(false)} payload={payload} title="預覽" />
         </FormComp>
     )
