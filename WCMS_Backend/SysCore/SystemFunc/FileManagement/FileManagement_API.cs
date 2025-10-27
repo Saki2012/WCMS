@@ -87,39 +87,50 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 return new EmptyResult();
             }
         }
-        [HttpGet($@"{nameof(Preview)}/{{internalId}}")] public async Task<IActionResult> Preview(string internalId, CancellationToken ct)
+        [HttpGet($@"{nameof(Preview)}/{{internalId}}")]
+        public async Task<IActionResult> Preview(string internalId, CancellationToken ct)
         {
-            // 1) 取檔案資訊（你自己的資料表）
+            // === 1) 取檔案 ===
             QueryListParam param = new()
             {
-                Fields = [nameof(FileManageModel.InternalId), nameof(FileManageModel.FileSHA256),nameof(FileManageModel.Path),
-                    nameof(FileManageModel.FileExtension),nameof(FileManageModel.FileName),nameof(FileManageModel.MimeType),nameof(FileManageModel.ModifyTime)],
+                Fields = [nameof(FileManageModel.InternalId),nameof(FileManageModel.FileSHA256),nameof(FileManageModel.Path),nameof(FileManageModel.FileExtension),nameof(FileManageModel.FileName),nameof(FileManageModel.MimeType),nameof(FileManageModel.ModifyTime)],
                 Condition = $"{nameof(FileManageModel.InternalId)} = {internalId}",
                 PageSize = 1,
-                PageNumber =1,
+                PageNumber = 1,
             };
             var fileQuery = await Service.BizQueryListAsync(param.Fields, param.Condition, default, param.PageNumber, param.PageSize);
             var file = fileQuery.FirstOrDefault()?.FileManage;
             if (file is null) return NotFound();
-            // 1) 包成 DateTimeOffset（UTC）並去掉毫秒
+            // === 2) 檔案實體路徑 ===
+            var ext = (file.FileExtension ?? "").Trim().TrimStart('.'); // ← 乾淨的副檔名
+            var physicalPath = Path.Combine(Env.ContentRootPath, file.Path ?? "", $"{file.InternalId}.{ext}");
+            if (!System.IO.File.Exists(physicalPath)) return NotFound();
+            // === 3) Last-Modified / ETag 快取 ===
             DateTime utc = (DateTime)file.ModifyTime;
             var lastModified = new DateTimeOffset(utc).AddTicks(-(utc.Ticks % TimeSpan.TicksPerSecond));
-            // 2) 不能是未來時間（保險）
             if (lastModified > DateTimeOffset.UtcNow) lastModified = DateTimeOffset.UtcNow;
-            // 2) 轉為實體路徑（依你的儲存策略）
-            var physicalPath = $"{Env.ContentRootPath}/{file.Path}/{file.InternalId}.{file.FileExtension}";
-            if (!System.IO.File.Exists(physicalPath)) return NotFound();
-            // 3) 設定快取與 ETag（若 internalId 不變，可設長快取）
-            var etag = $"W/\"{file.FileSHA256}\""; // weak etag
-            Response.Headers.ETag = etag;
+            Response.Headers.ETag = $"W/\"{file.FileSHA256}\"";
             Response.Headers.LastModified = lastModified.ToString("R");
-            Response.Headers.CacheControl = "public, max-age=31536000, immutable"; // 之後想短一點就改
-            // 4) inline 顯示而非下載（AA/SEO 友善；下載另外做 /Download）
-            Response.Headers.ContentDisposition = $"inline; filename*=UTF-8''{Uri.EscapeDataString(file.FileName ?? "file")}";
-            var contentType = string.IsNullOrWhiteSpace(file.MimeType) ? "application/octet-stream" : file.MimeType;
-            // 5) 串流回傳並允許 Range（影片/音訊可拖曳）
+            Response.Headers.CacheControl = "public, max-age=31536000, immutable";
+            // === 4) 正確檔名（含副檔名） ===
+            var baseName = string.IsNullOrWhiteSpace(file.FileName) ? $"{file.InternalId}" : file.FileName.Trim();
+            var safeFileName = string.IsNullOrWhiteSpace(ext) ? baseName : $"{baseName}.{ext}";
+            // === 5) 正確 Content-Type（DB 沒存或存錯就用副檔名推斷） ===
+            var contentType = file.MimeType;
+            if (string.IsNullOrWhiteSpace(contentType) || contentType.Equals("application/octet-stream", StringComparison.OrdinalIgnoreCase))
+            {
+                var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+                if (!provider.TryGetContentType(safeFileName, out contentType))
+                    contentType = "application/octet-stream";
+            }
+            // === 6) inline + 同時提供 filename / filename*（處理中文/相容性） ===
+            var dispo = $"inline; filename=\"{safeFileName.Replace("\"", "")}\"; filename*=UTF-8''{Uri.EscapeDataString(safeFileName)}";
+            Response.Headers.ContentDisposition = dispo;
+            Response.Headers.XContentTypeOptions = "nosniff";
+            // 不必手動寫 Response.Headers.ContentType；讓 File(...) 幫你設定即可
             return PhysicalFile(physicalPath, contentType, enableRangeProcessing: true);
         }
+
         /// <summary>
         /// 匯入初始檔案資料
         /// </summary>
