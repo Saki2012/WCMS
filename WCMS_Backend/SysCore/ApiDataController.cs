@@ -85,7 +85,7 @@ namespace WCMS.SysCore
         /// 獲取功能的欄位顯示名稱
         /// </summary>
         /// <returns></returns>
-        [HttpGet(nameof(GetModelDisplayName)), OutputCache(PolicyName = "PermanentJson")]
+        [HttpGet(nameof(GetModelDisplayName))/*, OutputCache(PolicyName = "PermanentJson") 暫時不用快取，不知如何重啟後清理*/]
         public async Task<IActionResult> GetModelDisplayName()
         {
             return Ok(await Task.Run(() => ModelDescription));

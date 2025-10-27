@@ -195,4 +195,7 @@
   <data name="BECode00025" xml:space="preserve">
     <value>上傳檔案失敗，原因：{0}</value>
   </data>
+  <data name="BECode00026" xml:space="preserve">
+    <value>標題【{0}】的選單ID【{1}】有重複，請確認。</value>
+  </data>
 </root>

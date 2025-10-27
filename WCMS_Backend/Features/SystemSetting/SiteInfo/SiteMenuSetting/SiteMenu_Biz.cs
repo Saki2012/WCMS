@@ -336,7 +336,6 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         {
             CheckSiteUrlHasEmpty(set);
         }
-
         private void CheckSiteUrlHasEmpty(SiteMenuSet set)
         {
             Regex menuIdRegex = new Regex(@"^[A-Za-z0-9_-]+$", RegexOptions.Compiled);
@@ -344,7 +343,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
             {
                 dt.ItemSiteUrl = dt.ItemSiteUrl.Trim();//防呆，清空前後空白
                 if (dt.ItemSiteUrl.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SiteMenu_Item>(x => x.ItemSiteUrl));
-                if(!menuIdRegex.IsMatch(dt.ItemSiteUrl)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00016, string.Format("{0}:{1}",I18nCache.GetLabel<SiteMenu_Item>(x => x.ItemSiteUrl),dt.ItemSiteUrl));
+                else if (!menuIdRegex.IsMatch(dt.ItemSiteUrl)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00016, string.Format("{0}:{1}", I18nCache.GetLabel<SiteMenu_Item>(x => x.ItemSiteUrl), dt.ItemSiteUrl));
             }
             foreach(var dt in set.SiteMenu_Item_Title)
             {   
@@ -352,11 +351,11 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
                 if (dt.Lang.Equals("zh-tw")&&dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, "繁體中文", I18nCache.GetLabel<SiteMenu_Item_Title>(x => x.Title));
             }
         }
-        private static void SetData(SiteMenuSet set)
+        private void SetData(SiteMenuSet set)
         {
             SetItemFullUrl(set);
         }
-        private static void SetItemFullUrl(SiteMenuSet set)
+        private void SetItemFullUrl(SiteMenuSet set)
         {
             if (set?.SiteMenu_Item == null || set.SiteMenu_Item.Count == 0) return;
             var byId = set.SiteMenu_Item.ToDictionary(x => x.RowId);
@@ -367,6 +366,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
                 var s = Normalize(segment);
                 return "/" + (string.IsNullOrEmpty(p) ? s : $"{p}/{s}");
             }
+            List<string> fullUrl = [];
             foreach (var item in set.SiteMenu_Item.OrderBy(i => i.Level))
             {
                 var seg = Normalize(item.ItemSiteUrl);
@@ -376,6 +376,8 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
                     continue;
                 }
                 item.FullUrl = Combine(parent.FullUrl, seg);
+                if (!fullUrl.Contains(item.FullUrl)) fullUrl.Add(item.FullUrl);
+                else Message.AddMessage(MessageStatus.Error,SysMessageCode.BECode00026, set.SiteMenu_Item_Title.Find(p=>p.Lang.Equals("zh-tw")&&p.ItemRowId.Equals(item.RowId)).Title,item.ItemSiteUrl);
             }
         }
         #endregion

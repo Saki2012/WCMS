@@ -188,7 +188,7 @@ export const EventSession = () => {
                                                                             {item.contentStatus != 0 && (
                                                                                 <>
                                                                                     {Boolean(item.contentStatus & 1) && (<div className="icon-small top-bg">置頂</div>)}
-                                                                                    {(item.contentStatus & 2 && <div className="icon-small hot-bg">熱門</div>)}
+                                                                                    {Boolean(item.contentStatus & 2) && (<div className="icon-small hot-bg">熱門</div>)}
                                                                                 </>
                                                                             )}
                                                                         </div>

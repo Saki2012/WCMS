@@ -238,10 +238,10 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
       if (!prev) return prev;
       const next = { ...(prev ?? {}) } as SiteMenuSet;
 
-      next.SiteMenu_Item = (next.SiteMenu_Item ?? []).filter(x => !idsToRemove.has(Number((x as any).RowId)));
-      next.SiteMenu_Item_Title = (next.SiteMenu_Item_Title ?? []).filter(t => !idsToRemove.has(Number((t as any).ParentRowId)));
-      next.SiteMenu_Item_Module = (next.SiteMenu_Item_Module ?? []).filter(m => !idsToRemove.has(Number((m as any).ItemRowId)));
-      next.SiteMenu_Item_Url = (next.SiteMenu_Item_Url ?? []).filter(u => !idsToRemove.has(Number((u as any).ItemRowId)));
+      next.SiteMenu_Item = (next.SiteMenu_Item ?? []).filter(x => !idsToRemove.has(Number((x as SiteMenu_Item).RowId)));
+      next.SiteMenu_Item_Title = (next.SiteMenu_Item_Title ?? []).filter(t => !idsToRemove.has(Number((t as SiteMenu_Item_Title).ItemRowId)));
+      next.SiteMenu_Item_Module = (next.SiteMenu_Item_Module ?? []).filter(m => !idsToRemove.has(Number((m as SiteMenu_Item_Module).ItemRowId)));
+      next.SiteMenu_Item_Url = (next.SiteMenu_Item_Url ?? []).filter(u => !idsToRemove.has(Number((u as SiteMenu_Item_Url).ItemRowId)));
 
       return next;
     });
@@ -686,17 +686,28 @@ const BasicSettingTab = (prop: {
 }) => {
   const setField = useSetTableField<SiteMenuSet>(prop.formData);
   const rawDetails = prop.formData.data?.SiteMenu_Item_Title?.filter(p => p.SiteIndex === prop.selectedItemEdit?.MenuItem.Item.SiteIndex && p.ItemRowId === prop.selectedItemEdit?.MenuItem.Item.RowId) ?? [];
+  const dedupDetails = React.useMemo(() => {
+    const seen = new Set<string>();
+    const out: typeof rawDetails = [];
+    for (const d of rawDetails) {
+      const k = String((d as any).Lang ?? '').toLowerCase();
+      if (seen.has(k)) continue;
+      seen.add(k);
+      out.push(d);
+    }
+    return out;
+  }, [rawDetails]);
   const curRowKeys = { [SchemaFields.SiteMenu_ItemFields.SiteIndex]: prop.selectedItemEdit?.MenuItem.Item.SiteIndex, [SchemaFields.SiteMenu_ItemFields.RowId]: prop.selectedItemEdit?.MenuItem.Item.RowId }
   const itemTypeBind = setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item, SchemaFields.SiteMenu_ItemFields.ItemType, "number", curRowKeys);
   const tabInfo: LibTabsProp = {
     Style: prop.theme.Tabs,
-    item: rawDetails.reduce<Record<string, string>>((tabItems, info) => {
+    item: dedupDetails.reduce<Record<string, string>>((tabItems, info) => {
       const langKey = LibMerge("_", true, info.SiteIndex, info.ItemRowId, info.RowId, info.Lang)
       tabItems[langKey] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
       return tabItems;
     }, {})
   }
-  const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>(
+  const tabContent: Record<string, React.ReactNode[]> = dedupDetails.reduce<Record<string, React.ReactNode[]>>(
     (compMap, info) => {
       const langKey = LibMerge("_", true, info.SiteIndex, info.ItemRowId, info.RowId, info.Lang)
       const rowKeys = { [SchemaFields.SiteMenu_Item_TitleFields.SiteIndex]: info.SiteIndex, [SchemaFields.SiteMenu_Item_TitleFields.ItemRowId]: info.ItemRowId, [SchemaFields.SiteMenu_Item_TitleFields.RowId]: info.RowId, }

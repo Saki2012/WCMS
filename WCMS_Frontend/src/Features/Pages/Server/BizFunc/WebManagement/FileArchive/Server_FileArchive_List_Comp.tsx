@@ -45,17 +45,12 @@ const SetAdjustFunction = (gridProps: GridProps, rawData: FileArchiveSet[], cate
     const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
         const statusCell = row.cells.find(cell => cell.col.key === FileArchiveFields.ContentStatus);
-        if (statusCell && typeof statusCell.content === 'number') {
-            statusCell.content = GetContentStatus(statusCell.content);
-        }
+        if (statusCell && typeof statusCell.content === 'number') { statusCell.content = GetContentStatus(statusCell.content); }
         const categoryCell = row.cells.find(p => p.col.key === FileArchiveFields.CategoriesId);
         const rawCatId = rawData?.[index]?.FileArchive?.CategoriesId ?? categoryCell?.content?.toString() ?? "";
         if (categoryCell) { categoryCell.content = useFormatCategoriesName(rawCatId, categoryData); }
         const internalId = rawData?.[index]?.FileArchive?.InternalId ?? "";
-        const newCell: RowCell = {
-            col: adjustCol,
-            content: (<GridCol_Toolbar key={internalId} action={actions} internalId={internalId} />)
-        };
+        const newCell: RowCell = { col: adjustCol, content: (<GridCol_Toolbar key={internalId} action={actions} internalId={internalId} />) };
         return { ...row, cells: [...row.cells, newCell] };
     });
     return { ...gridProps, columns: newColumns, rows: newRows };
