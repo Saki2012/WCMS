@@ -1,4 +1,6 @@
 // SysCore/Utils/Hooks/useUploadFile.ts
+import { useToast } from "@/Features/Hooks/Common/useToastCenter";
+import { type ApiResponse, MessageStatus, type SysMessageModel } from "@/SysCore/Interface/IApiProvider";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useState } from "react";
 
@@ -23,6 +25,7 @@ type UploadedCallback = (internalId: string, originalName: string) => void;
 
 export const useUploadFile = (opts?: UseUploadFileOptions) =>
 {
+    const { publish } = useToast();
     const enablePreview = opts?.enablePreview ?? true;
     const keepOriginalName = opts?.keepOriginalName ?? true;
 
@@ -56,22 +59,31 @@ export const useUploadFile = (opts?: UseUploadFileOptions) =>
             });
             if (!resp.ok) throw new Error(`Upload failed: ${resp.status}`);
 
-            const json = await resp.json() as any;
-            // 你現有的寫法是從 Data 陣列第 0 筆拿 internalId
-            const internalId: string | null = json?.Data?.[0] ?? json?.data?.[0] ?? json?.internalId ?? null;
+            const json = await resp.json() as ApiResponse<string>;
+            if (json.IsSuccess)
+            {
+                const internalId: string | null = json?.Data?.[0] ?? null;
+                if (!internalId) throw new Error("No internalId in response");
 
-            if (!internalId) throw new Error("No internalId in response");
-
-            const next: UploadResult = {
-                internalId,
-                fileName: keepOriginalName ? file.name : null,
-                previewUrl: localPreview ? `${FileManagementAPI.PREVIEW_URL}/${internalId}` : null,
-                uploading: false,
-                error: null,
-            };
-            setResult(next);
-
-            onUploaded?.(internalId, file.name);
+                const next: UploadResult = {
+                    internalId,
+                    fileName: keepOriginalName ? file.name : null,
+                    previewUrl: localPreview ? `${FileManagementAPI.PREVIEW_URL}/${internalId}` : null,
+                    uploading: false,
+                    error: null,
+                };
+                setResult(next);
+                onUploaded?.(internalId, file.name);
+            } else
+            {
+                (json.SysMessage as SysMessageModel[]).forEach((msg) =>
+                {
+                    if (msg.Status === 3)
+                    {
+                        publish({ level: MessageStatus.Error, title: msg.MessageCode, text: msg.Message });
+                    }
+                });
+            }
         } catch (err: any)
         {
             setResult(prev => ({ ...prev, uploading: false, error: err?.message ?? "Upload error" }));

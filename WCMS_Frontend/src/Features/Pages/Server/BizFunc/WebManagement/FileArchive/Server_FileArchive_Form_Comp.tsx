@@ -11,7 +11,7 @@ import FileArchiveProvider from "@/Features/Hooks/BizFunc/WebManagement/FileArch
 import { useGetTagListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
-import * as SchemaFields from "@/types/SchemaFields";
+import { FileArchiveDetailFields, FileArchiveSetFields, FileArchiveFields, FileArchiveInfoFields } from "@/types/SchemaFields";
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useActions } from "@/Features/Hooks/Common/useActions";
@@ -29,13 +29,14 @@ const emptyData: FileArchiveSet = { FileArchive: {}, FileArchiveInfo: [], FileAr
 export const Server_FileArchiveFormComp = (prop: { theme: IBETheme; lang: Lang }) => {
     const { internalId } = useParams()
     const dirUrl = useLocation().pathname.replace(/\/Form$/, `/Form`);
-    const formData = useFetchFormData<FileArchiveSet>(FileArchiveProvider(), internalId, emptyData)
+    const provider = useMemo(() => { return FileArchiveProvider() }, [])
+    const formData = useFetchFormData<FileArchiveSet>(provider, internalId, emptyData)
     const useCategory = useGetCategoryListByProgId(ProgId.FileArchive, prop.lang);
     const useTag = useGetTagListByProgId(ProgId.FileArchive, prop.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
     const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
-    useEnsureLangDetails(formData, { headerName: SchemaFields.FileArchiveSetFields.FileArchive, detailName: SchemaFields.FileArchiveSetFields.FileArchiveInfo, parentKeys: [SchemaFields.FileArchiveFields.FileArchiveId], preferFirstLang: prop.lang });
-    const actions = useActions(dirUrl, FileArchiveProvider(), formData.data as FileArchiveSet, internalId as string)
+    useEnsureLangDetails(formData, { headerName: FileArchiveSetFields.FileArchive, detailName: FileArchiveSetFields.FileArchiveInfo, parentKeys: [FileArchiveFields.FileArchiveId], preferFirstLang: prop.lang });
+    const actions = useActions(dirUrl, provider, formData.data as FileArchiveSet, internalId as string)
     const isLoading = [useTag.isLoading, useCategory.isLoading, formData.isLoading, useContentStatus.isLoading]
     const errors = [useTag.error, useCategory.error, formData.error, useContentStatus.error]
     const formProp: FormCompProp = { Title: "新增檔案室", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
@@ -59,9 +60,9 @@ const HeaderComp = (prop: {
         item: { "Basic": "基本", "Status": "狀態", "Tags": "標籤", }
     }
     const componentsA: Record<string, React.ReactNode[]> = {
-        Basic: [<LibCheckBox Style={prop.theme.CheckBox} options={prop.cateOpts} {...setField(SchemaFields.FileArchiveSetFields.FileArchive, SchemaFields.FileArchiveFields.CategoriesId, 'string', undefined, 'csv')} />,],
-        Status: [<LibCheckBox Style={prop.theme.CheckBox} options={prop.statusOpts} {...setField(SchemaFields.FileArchiveSetFields.FileArchive, SchemaFields.FileArchiveFields.ContentStatus, 'number', undefined, { strategy: 'sum', sumKeys: Object.keys(prop.statusOpts ?? {}).map(Number) })} />],
-        Tags: [<LibCheckBox Style={prop.theme.CheckBox} options={prop.tagOpts} {...setField(SchemaFields.FileArchiveSetFields.FileArchive, SchemaFields.FileArchiveFields.TagsId, 'string', undefined, 'csv')} />]
+        Basic: [<LibCheckBox Style={prop.theme.CheckBox} options={prop.cateOpts} {...setField(FileArchiveSetFields.FileArchive, FileArchiveFields.CategoriesId, 'string', undefined, 'csv')} />,],
+        Status: [<LibCheckBox Style={prop.theme.CheckBox} options={prop.statusOpts} {...setField(FileArchiveSetFields.FileArchive, FileArchiveFields.ContentStatus, 'number', undefined, { strategy: 'sum', sumKeys: Object.keys(prop.statusOpts ?? {}).map(Number) })} />],
+        Tags: [<LibCheckBox Style={prop.theme.CheckBox} options={prop.tagOpts} {...setField(FileArchiveSetFields.FileArchive, FileArchiveFields.TagsId, 'string', undefined, 'csv')} />]
     }
     return (
         <TabContentComp tabInfos={LibTabsPropA} components={componentsA}></TabContentComp>
@@ -83,9 +84,9 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Fi
         (compMap, info, idx) => {
             const detailRowId = info.RowId ?? idx;
             const langKey = LibMerge("_", true, info.FileArchiveId, info.RowId, info.Lang)
-            const rowKeys = { [SchemaFields.FileArchiveInfoFields.FileArchiveId]: info.FileArchiveId, [SchemaFields.FileArchiveInfoFields.RowId]: info.RowId, }
+            const rowKeys = { [FileArchiveInfoFields.FileArchiveId]: info.FileArchiveId, [FileArchiveInfoFields.RowId]: info.RowId, }
             compMap[langKey] = [
-                <LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.FileArchiveSetFields.FileArchiveInfo, SchemaFields.FileArchiveInfoFields.Title, "string", rowKeys)} />,
+                <LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(FileArchiveSetFields.FileArchiveInfo, FileArchiveInfoFields.Title, "string", rowKeys)} />,
                 <DividerComp />,
                 <SubFilesComp theme={prop.theme} formData={prop.formData} parentRowId={detailRowId} />,
                 <DividerComp />,
@@ -133,11 +134,11 @@ const SubFilesComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
             <div role="group" className="mt-4">
                 <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-secondary mb-2">新增附件</button>
                 {getFiles().map((f, i) => {
-                    const rowKeys = { [SchemaFields.FileArchiveDetailFields.FileArchiveId]: f.FileArchiveId, [SchemaFields.FileArchiveDetailFields.ParentRowId]: f.ParentRowId, [SchemaFields.FileArchiveDetailFields.RowId]: f.RowId, }
+                    const rowKeys = { [FileArchiveDetailFields.FileArchiveId]: f.FileArchiveId, [FileArchiveDetailFields.ParentRowId]: f.ParentRowId, [FileArchiveDetailFields.RowId]: f.RowId, }
                     return (
                         <div key={`${f.ParentRowId}-${f.RowId}`} className="flex items-center gap-2 mb-2">
                             <LibFileInput Style={prop.theme.FileInput} DefaultInputDisplay="請輸入附件說明" Accept="*/*" onDelete={() => removeFileAt(i)}
-                                {...setFileField(SchemaFields.FileArchiveSetFields.FileArchiveDetail, SchemaFields.FileArchiveDetailFields.FileSrcId, SchemaFields.FileArchiveDetailFields.FileName, rowKeys,)} />
+                                {...setFileField(FileArchiveSetFields.FileArchiveDetail, FileArchiveDetailFields.FileSrcId, FileArchiveDetailFields.FileName, rowKeys,)} />
                         </div>
                     )
                 })}
@@ -179,11 +180,11 @@ const SubUrlComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Fi
             <div role="group" className="mt-4">
                 <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-secondary mb-2">新增附件</button>
                 {getFiles().map((f, i) => {
-                    const rowKeys = { [SchemaFields.FileArchiveDetailFields.FileArchiveId]: f.FileArchiveId, [SchemaFields.FileArchiveDetailFields.ParentRowId]: f.ParentRowId, [SchemaFields.FileArchiveDetailFields.RowId]: f.RowId, }
+                    const rowKeys = { [FileArchiveDetailFields.FileArchiveId]: f.FileArchiveId, [FileArchiveDetailFields.ParentRowId]: f.ParentRowId, [FileArchiveDetailFields.RowId]: f.RowId, }
                     return (
                         <div key={`${f.ParentRowId}-${f.RowId}`} className="flex items-center gap-2 mb-2">
                             <LibFileInput Style={prop.theme.FileInput} DefaultInputDisplay="請輸入附件說明" Accept="*/*" onDelete={() => removeFileAt(i)}
-                                {...setFileField(SchemaFields.FileArchiveSetFields.FileArchiveDetail, SchemaFields.FileArchiveDetailFields.FileSrcId, SchemaFields.FileArchiveDetailFields.FileName, rowKeys,)} />
+                                {...setFileField(FileArchiveSetFields.FileArchiveDetail, FileArchiveDetailFields.FileSrcId, FileArchiveDetailFields.FileName, rowKeys,)} />
                         </div>
                     )
                 })}
