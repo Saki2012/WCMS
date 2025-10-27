@@ -733,6 +733,29 @@ namespace WCMS.SysCore.Library
             return RemergeSortMode.String;
         }
         #endregion
+
+        public static class UrlChecks
+        {
+            // 僅允許 http/https 的絕對 URL
+            public static bool IsAbsoluteHttpUrl(string? input)
+                => Uri.TryCreate(input, UriKind.Absolute, out var uri)
+                   && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
+
+            // 安全的站內相對路徑（可含 query/fragment），拒絕 // 開頭（scheme-relative）
+            public static bool IsSafeRelativeUrl(string? input)
+            {
+                if (string.IsNullOrWhiteSpace(input)) return false;
+                var s = input.Trim();
+                if (s.StartsWith("//")) return false; // e.g. //evil.com
+                if (s.StartsWith("javascript:", StringComparison.OrdinalIgnoreCase)) return false;
+                if (s.StartsWith("data:", StringComparison.OrdinalIgnoreCase)) return false;
+                // 用基底 URI 嘗試解析；成功且結果不是絕對，就視為合法相對 URL
+                return Uri.TryCreate(s, UriKind.Relative, out _);
+            }
+
+            // 同時接受「絕對 http/https」或「站內相對路徑」
+            public static bool IsHttpOrRelativeUrl(string? input) => IsAbsoluteHttpUrl(input) || IsSafeRelativeUrl(input);
+        }
     }
     
 }

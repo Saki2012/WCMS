@@ -198,4 +198,7 @@
   <data name="BECode00026" xml:space="preserve">
     <value>標題【{0}】的選單ID【{1}】有重複，請確認。</value>
   </data>
+  <data name="BECode00027" xml:space="preserve">
+    <value>網址[{0}]輸入錯誤。</value>
+  </data>
 </root>

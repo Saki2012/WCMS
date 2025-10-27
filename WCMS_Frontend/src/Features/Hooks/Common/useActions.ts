@@ -84,7 +84,7 @@ export const useActions = <T>(
             }
         } catch (err: any)
         {
-            publish({ level: MessageStatus.Error, title: "保存失敗", text: err.message });
+            publish({ level: MessageStatus.Error, title: "保存失敗", text: err.response.data.message });
             return false;
         } finally
         {
