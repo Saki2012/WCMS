@@ -20,7 +20,7 @@ export type PreviewPayload =
 export interface UseActionsResult
 {
     isExecuting: boolean;
-    onSave: () => Promise<void>;
+    onSave: () => Promise<boolean>;
     onDelete: (internalId: string) => Promise<void>;
     onInvalid: (reason?: unknown) => void;
     onCancelBack: () => void;
@@ -59,7 +59,7 @@ export const useActions = <T>(
     }, [navigate, createPath]);
     const handleSave = useCallback(async () =>
     {
-        if (!apiProvider) return;
+        if (!apiProvider) return false;
         try
         {
             setIsExcuting(true);
@@ -74,15 +74,18 @@ export const useActions = <T>(
                 });
                 handleCancelBack();
                 await onSuccess?.();
+                return true;
             } else
             {
                 (res.SysMessage ?? []).forEach(item =>
                     publish({ level: item.Status, code: item.MessageCode, title: "保存失敗", text: item.Message })
                 );
+                return false;
             }
         } catch (err: any)
         {
             publish({ level: MessageStatus.Error, title: "保存失敗", text: err.message });
+            return false;
         } finally
         {
             setIsExcuting(false);
@@ -164,4 +167,17 @@ export const useActions = <T>(
             handlePreview,
         ],
     );
+};
+
+export const useWrapAfter = <T extends (...args: any[]) => Promise<any>>(
+    fn: T,
+    after: (result: Awaited<ReturnType<T>>) => Promise<void>,
+): T =>
+{
+    return (async (...args: Parameters<T>) =>
+    {
+        const result = await fn(...args);
+        await after(result);
+        return result;
+    }) as T;
 };

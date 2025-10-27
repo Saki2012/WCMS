@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Nestable from "react-nestable";
 import type { RenderItem } from "react-nestable";
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
@@ -22,7 +22,7 @@ import { useCategoryListData } from "@/Features/Hooks/BizFunc/WebManagement/Cate
 import { useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 import { usePageListData } from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Hook";
 import { useSpecCateListData } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Hook";
-import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions";
+import { useActions, useWrapAfter, type UseActionsResult } from "@/Features/Hooks/Common/useActions";
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"]
 type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"]
 type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title_DTO"]
@@ -37,8 +37,6 @@ type CategorySet = components["schemas"]["CategoryDataSet_DTO"]
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
 type PageSet = components["schemas"]["PageManagementSet_DTO"]
-
-
 
 const emptyData: SiteMenuSet = {}
 
@@ -56,7 +54,6 @@ const moduleOptionsDefaults: ModuleOptionsJson = {
   Style: 1
 };
 type ModelKey = '' | 'Announcement' | 'FileArchive' | 'Gallery' | 'PageManagement' | 'SpecResearch' | 'SpecUSR' | 'WebResource'
-
 
 interface Item {
   id: number;
@@ -131,12 +128,10 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
   const [selectedItemEdit, setSelectedItemEdit] = useState<Item | null>(null);
   const provider = React.useMemo(() => SiteMenuProvider(), []);
   const useSiteList = useFetchGridListData<SiteMenuSet>(GetSiteMenuListOpt());
-
   const internalId = React.useMemo<string | null>(() => {
     const first = (useSiteList.rawData ?? []).find(x => x?.SiteMenu_Index?.InternalId)?.SiteMenu_Index?.InternalId;
     return first ?? null;
   }, [useSiteList.rawData]);
-
   const useSiteInfo = useFetchFormData<SiteMenuSet>(provider, internalId, emptyData)
   const windowTarget = useFetchEnumOptions("WindowTarget")
   const menuUrlType = useFetchEnumOptions("MenuUrlType")
@@ -146,7 +141,21 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
   const usetagList = useTagListData("", prop.lang)
   const usePageList = usePageListData()
   const useSpecCateDatas = useSpecCateListData("", prop.lang)
-  const actions = useActions("", SiteMenuProvider(), useSiteInfo.data as SiteMenuSet, internalId as string)
+  const actions = useActions("", provider, useSiteInfo.data as SiteMenuSet, internalId as string)
+  const actionsEx = React.useMemo(() => {
+    return {
+      ...actions,
+      onSave: useWrapAfter(actions.onSave, async (ok) => {
+        if (ok !== false) {
+          useSiteInfo.refetch();
+        }
+      }),
+      onCancelBack: useCallback(() => {
+        void useSiteInfo.refetch();
+        setSelectedItemEdit(null);
+      }, [useSiteInfo.refetch, setSelectedItemEdit])
+    };
+  }, [actions, useSiteInfo.refetch]);
   const useBannerList = useFetchGridListData<BannerSet>(GetBannerListOpt());
   const bannerDict = useMemo<Record<string, string>>(() => {
     const src = useBannerList.rawData ?? [];
@@ -157,19 +166,17 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
       return acc;
     }, { "": "請選擇" }); // << 預設空白選項
   }, [useBannerList.rawData]);
-
   useEnsureLangDetails(useSiteInfo, { headerName: SchemaFields.SiteMenuSetFields.SiteMenu_Index, detailName: SchemaFields.SiteMenuSetFields.SiteMenu_IndexInfo, parentKeys: [SchemaFields.SiteMenu_IndexInfoFields.SiteIndex], preferFirstLang: prop.lang });
   useEnsureLangDetails(useSiteInfo, { headerName: SchemaFields.SiteMenuSetFields.SiteMenu_Item, detailName: SchemaFields.SiteMenuSetFields.SiteMenu_Item_Title, parentKeys: [SchemaFields.SiteMenu_Item_TitleFields.SiteIndex, SchemaFields.SiteMenu_Item_TitleFields.ItemRowId], preferFirstLang: prop.lang });
-
   const isLoading: any[] = [useSiteList.isLoading, useSiteInfo.isLoading, windowTarget.isLoading, menuUrlType.isLoading, modulePageType.isLoading, useBannerList.isLoading, useCateList.isLoading, usetagList.isLoading, usePageList.isLoading, useSpecCateDatas.isLoading]
   const errors: any[] = [useSiteList.error, useSiteInfo.error, windowTarget.error, menuUrlType.error, modulePageType.error, useBannerList.error, useCateList.error, usetagList.error, usePageList.error, useSpecCateDatas.error]
-  const formProp: FormCompProp = { Title: "網站功能", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
+  const formProp: FormCompProp = { Title: "網站功能", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actionsEx }
   return (
     <FormComp prop={formProp}>
       <div className="row">
-        <RenderLeftBox setSelectedItemEdit={setSelectedItemEdit} sitemenuSet={useSiteInfo.data} lang={prop.lang} formData={useSiteInfo} action={actions} />
+        <RenderLeftBox setSelectedItemEdit={setSelectedItemEdit} sitemenuSet={useSiteInfo.data} lang={prop.lang} formData={useSiteInfo} action={actionsEx} />
         <MenuSettingBox theme={prop.theme} selectedItemEdit={selectedItemEdit} formData={useSiteInfo} windowTarget={windowTarget.data} menuUrlType={menuUrlType.data} modulePageType={modulePageType.data}
-          bannerDict={bannerDict} moduleDisplayStyle={moduleDisplayStyle.data} categoryDatas={useCateList.rawData} tagDatas={usetagList.rawData} pageList={usePageList.rawData} specCateDatas={useSpecCateDatas.rawData} action={actions}
+          bannerDict={bannerDict} moduleDisplayStyle={moduleDisplayStyle.data} categoryDatas={useCateList.rawData} tagDatas={usetagList.rawData} pageList={usePageList.rawData} specCateDatas={useSpecCateDatas.rawData} action={actionsEx}
         />
       </div>
     </FormComp>
@@ -627,7 +634,7 @@ const MenuSettingBox = (prop: {
             </div>
             <div className="d-flex justify-content-center">
               <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" onClick={prop.action.onSave}>儲存</button>
-              <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">取消</button>
+              <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" onClick={prop.action.onCancelBack}>取消</button>
             </div>
           </div>
         </div>
