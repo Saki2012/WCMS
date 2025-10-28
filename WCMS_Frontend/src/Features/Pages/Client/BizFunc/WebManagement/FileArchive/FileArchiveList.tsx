@@ -9,7 +9,7 @@ type TagSet = components["schemas"]["TagSet_DTO"];
 import type { GridRow } from "@/SysCore/Components/Grid/Grid_Data";
 import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import * as SchemaFields from "@/types/SchemaFields";
+import { FileArchiveSetFields, FileArchiveFields, FileArchiveInfoFields, FileArchiveDetailFields, FileManageModelFields } from "@/types/SchemaFields";
 import type { Lang } from "@/SysCore/i18n/lang";
 import FileArchiveProvider from "@/Features/Hooks/BizFunc/WebManagement/FileArchive/FileArchive_Api";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
@@ -21,40 +21,40 @@ import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 
 const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string, tagSets: TagSet[], query: ISearchQuery) => {
     var condition: string = "";
-    if (query.keyword) condition = LibMerge(" And ", false, condition, `${SchemaFields.FileArchiveFields._FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.Title} Like ${query.keyword}`)
-    if (query.tag) condition = LibMerge(" And ", false, condition, `${SchemaFields.FileArchiveFields.TagsId} HasAny ${query.tag}`)
-    if (categoryIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.FileArchiveFields.CategoriesId} HasAny (${categoryIds})`)
-    if (tagIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.FileArchiveFields.TagsId} HasAny (${tagIds})`)
-    condition = LibMerge(" And ", false, condition, `${SchemaFields.FileArchiveFields.ContentStatus} !& 4`)//不包含隱藏的資料
+    if (query.keyword) condition = LibMerge(" And ", false, condition, `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Title} Like ${query.keyword}`)
+    if (query.tag) condition = LibMerge(" And ", false, condition, `${FileArchiveFields.TagsId} HasAny ${query.tag}`)
+    if (categoryIds) condition = LibMerge(" And ", false, condition, `${FileArchiveFields.CategoriesId} HasAny (${categoryIds})`)
+    if (tagIds) condition = LibMerge(" And ", false, condition, `${FileArchiveFields.TagsId} HasAny (${tagIds})`)
+    condition = LibMerge(" And ", false, condition, `${FileArchiveFields.ContentStatus} !& 4`)//不包含隱藏的資料
     const provider = FileArchiveProvider();
     return useFetchGridListData<FileArchiveSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
         fetchListCount: (cond) => provider.fetchListCount(cond),
         visibleKeys: [
-            [SchemaFields.FileArchiveSetFields.FileArchive, SchemaFields.FileArchiveFields.TagsId],
-            [SchemaFields.FileArchiveSetFields.FileArchiveInfo, SchemaFields.FileArchiveInfoFields.Title],
-            [SchemaFields.FileArchiveSetFields.FileArchive, SchemaFields.FileArchiveFields.DownloadCount]
+            [FileArchiveSetFields.FileArchive, FileArchiveFields.TagsId],
+            [FileArchiveSetFields.FileArchiveInfo, FileArchiveInfoFields.Title],
+            [FileArchiveSetFields.FileArchive, FileArchiveFields.DownloadCount]
         ],
         buildQueryCondition: (page) => ({
             Fields: [
-                SchemaFields.FileArchiveFields.InternalId,
-                SchemaFields.FileArchiveFields.FileArchiveId,
-                SchemaFields.FileArchiveFields.TagsId,
-                SchemaFields.FileArchiveFields.DownloadCount,
-                `${SchemaFields.FileArchiveFields._FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.FileArchiveId}`,
-                `${SchemaFields.FileArchiveFields._FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.RowId}`,
-                `${SchemaFields.FileArchiveFields._FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.Lang}`,
-                `${SchemaFields.FileArchiveFields._FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields.Title}`,
-                `${SchemaFields.FileArchiveFields._FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields._FileArchiveDetail}.${SchemaFields.FileArchiveDetailFields.FileArchiveId}`,
-                `${SchemaFields.FileArchiveFields._FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields._FileArchiveDetail}.${SchemaFields.FileArchiveDetailFields.ParentRowId}`,
-                `${SchemaFields.FileArchiveFields._FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields._FileArchiveDetail}.${SchemaFields.FileArchiveDetailFields.FileSrcId}`,
-                `${SchemaFields.FileArchiveFields._FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields._FileArchiveDetail}.${SchemaFields.FileArchiveDetailFields.FileName}`,
-                `${SchemaFields.FileArchiveFields._FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields._FileArchiveDetail}.${SchemaFields.FileArchiveDetailFields.FileSrc}.${SchemaFields.FileManageModelFields.InternalId}`,
-                `${SchemaFields.FileArchiveFields._FileArchiveInfo}.${SchemaFields.FileArchiveInfoFields._FileArchiveDetail}.${SchemaFields.FileArchiveDetailFields.FileSrc}.${SchemaFields.FileManageModelFields.FileExtension}`
+                FileArchiveFields.InternalId,
+                FileArchiveFields.FileArchiveId,
+                FileArchiveFields.TagsId,
+                FileArchiveFields.DownloadCount,
+                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.FileArchiveId}`,
+                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.RowId}`,
+                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Lang}`,
+                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Title}`,
+                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileArchiveId}`,
+                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.ParentRowId}`,
+                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrcId}`,
+                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileName}`,
+                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrc}.${FileManageModelFields.InternalId}`,
+                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrc}.${FileManageModelFields.FileExtension}`
             ],
             Condition: condition,
-            OrderBy: [{ Col: SchemaFields.FileArchiveFields.CreateTime, Desc: true }],
+            OrderBy: [{ Col: FileArchiveFields.CreateTime, Desc: true }],
             PageNumber: page,
             PageSize: 10,
         }),
@@ -62,7 +62,7 @@ const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string
             const cells: RowCell[] = columns.map(col => {
                 let content = "";
                 switch (col.key) {
-                    case SchemaFields.FileArchiveInfoFields.Title:
+                    case FileArchiveInfoFields.Title:
                         {
                             content = item.FileArchiveInfo?.find(p => p.Lang === lang)?.Title ?? "";
                             break;
@@ -129,7 +129,7 @@ const SetAdjustFunction = (lang: string, gridProps: GridProps, rawData: FileArch
     if (gridProps.rows.length === 0) return gridProps;
     // 1) 欄位層級：抽掉「下載次數」，最後組合為「其他｜下載｜下載次數」
     let baseColumns = [...gridProps.columns];
-    const dcIdx = baseColumns.findIndex(c => c.key === SchemaFields.FileArchiveFields.DownloadCount);
+    const dcIdx = baseColumns.findIndex(c => c.key === FileArchiveFields.DownloadCount);
 
     let downloadCountCol: ColumnConfig | null = null;
     if (dcIdx !== -1) {
@@ -152,13 +152,13 @@ const SetAdjustFunction = (lang: string, gridProps: GridProps, rawData: FileArch
             );
         });
         const cells = row.cells.map(cell => {
-            if (cell.col?.key !== SchemaFields.FileArchiveFields.TagsId) return cell;
+            if (cell.col?.key !== FileArchiveFields.TagsId) return cell;
             const ids = String(cell.content ?? "").split(",").map(s => s.trim()).filter(Boolean);
             const names = ids.map(id => tagMap.get(id)).filter((x): x is string => !!x).join("、");
             return { ...cell, content: names };
         });
 
-        const dcCellIdx = cells.findIndex(c => c.col?.key === SchemaFields.FileArchiveFields.DownloadCount);
+        const dcCellIdx = cells.findIndex(c => c.col?.key === FileArchiveFields.DownloadCount);
         let downloadCountCell: RowCell | null = null;
         if (dcCellIdx !== -1) {
             [downloadCountCell] = cells.splice(dcCellIdx, 1);

@@ -5,7 +5,7 @@ type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 import type { GridProps, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
-import * as SchemaFields from "@/types/SchemaFields";
+import { GalleryFields, GallerySetFields, GalleryInfoFields } from "@/types/SchemaFields";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { Lang } from "@/SysCore/i18n/lang";
 import GalleryProvider from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api";
@@ -19,35 +19,35 @@ import { Paginator } from "@/SysCore/Components/Paginator/Paginator_Comp";
 
 const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
     var condition: string = "";
-    if (categoryIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.GalleryFields.Categories} HasAny (${categoryIds})`)
-    if (tagIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.GalleryFields.Tags} HasAny (${tagIds})`)
-    condition = LibMerge(" And ", false, condition, `${SchemaFields.GalleryFields.ContentStatus} !& 4`)//不包含隱藏的資料
+    if (categoryIds) condition = LibMerge(" And ", false, condition, `${GalleryFields.Categories} HasAny (${categoryIds})`)
+    if (tagIds) condition = LibMerge(" And ", false, condition, `${GalleryFields.Tags} HasAny (${tagIds})`)
+    condition = LibMerge(" And ", false, condition, `${GalleryFields.ContentStatus} !& 4`)//不包含隱藏的資料
     const provider = GalleryProvider();
     return useFetchGridListData<GallerySet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
         fetchListCount: (cond) => provider.fetchListCount(cond),
         visibleKeys: [
-            [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.InternalId],
-            [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.Categories],
-            [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.CoverPicSrcId],
-            [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.CreateTime],
-            [SchemaFields.GallerySetFields.Gallery, SchemaFields.GalleryFields.Validate_Start],
-            [SchemaFields.GallerySetFields.GalleryInfo, SchemaFields.GalleryInfoFields.Lang],
-            [SchemaFields.GallerySetFields.GalleryInfo, SchemaFields.GalleryInfoFields.Title],
+            [GallerySetFields.Gallery, GalleryFields.InternalId],
+            [GallerySetFields.Gallery, GalleryFields.Categories],
+            [GallerySetFields.Gallery, GalleryFields.CoverPicSrcId],
+            [GallerySetFields.Gallery, GalleryFields.CreateTime],
+            [GallerySetFields.Gallery, GalleryFields.Validate_Start],
+            [GallerySetFields.GalleryInfo, GalleryInfoFields.Lang],
+            [GallerySetFields.GalleryInfo, GalleryInfoFields.Title],
         ],
         buildQueryCondition: (page) => ({
             Fields: [
-                SchemaFields.GalleryFields.InternalId,
-                SchemaFields.GalleryFields.Categories,
-                SchemaFields.GalleryFields.CoverPicSrcId,
-                SchemaFields.GalleryFields.CreateTime,
-                SchemaFields.GalleryFields.Validate_Start,
-                `${SchemaFields.GalleryFields._GalleryInfo}.${SchemaFields.GalleryInfoFields.Lang}`,
-                `${SchemaFields.GalleryFields._GalleryInfo}.${SchemaFields.GalleryInfoFields.Title}`,
+                GalleryFields.InternalId,
+                GalleryFields.Categories,
+                GalleryFields.CoverPicSrcId,
+                GalleryFields.CreateTime,
+                GalleryFields.Validate_Start,
+                `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang}`,
+                `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title}`,
             ],
             Condition: condition,
-            OrderBy: [{ Col: SchemaFields.GalleryFields.Validate_Start, Desc: true }],
+            OrderBy: [{ Col: GalleryFields.Validate_Start, Desc: true }, { Col: GalleryFields.CreateTime, Desc: true }],
             PageNumber: page,
             PageSize: 12,
         }),
@@ -57,12 +57,12 @@ const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
                 let content = "";
 
                 switch (col.key) {
-                    case SchemaFields.GalleryInfoFields.Title:
+                    case GalleryInfoFields.Title:
                         // content = data?.find(d => d.Lang === lang)?.Title ?? "";
                         break;
-                    case SchemaFields.GalleryFields.CreateTime:
-                    case SchemaFields.GalleryFields.ModifyTime:
-                    case SchemaFields.GalleryFields.Validate_Start:
+                    case GalleryFields.CreateTime:
+                    case GalleryFields.ModifyTime:
+                    case GalleryFields.Validate_Start:
                         content = FormatDate((data as any)[col.key]);
                         break;
                     default:

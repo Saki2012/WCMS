@@ -8,7 +8,7 @@ import type { GridRow } from "@/SysCore/Components/Grid/Grid_Data";
 import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import parse from 'html-react-parser';
-import * as SchemaFields from "@/types/SchemaFields";
+import { AnnouncementFields, AnnouncementDetailFields, AnnouncementSetFields } from "@/types/SchemaFields";
 import AnnouncementProvider from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -26,11 +26,11 @@ type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
 const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string, query: ISearchQuery) => {
     var condition: string = "";
-    if (query.keyword) condition = LibMerge(" And ", false, condition, `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title} Like ${query.keyword}`)
-    if (query.tag) condition = LibMerge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} HasAny ${query.tag}`)
-    if (categoryIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Categories} In (${categoryIds})`)
-    if (tagIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.AnnouncementFields.Tags} In (${tagIds})`)
-    condition = LibMerge(" And ", false, condition, `${SchemaFields.AnnouncementFields.ContentStatus} !& 4`)//不包含隱藏的資料
+    if (query.keyword) condition = LibMerge(" And ", false, condition, `${AnnouncementSetFields.AnnouncementDetail}.${AnnouncementDetailFields.Title} Like ${query.keyword}`)
+    if (query.tag) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Tags} HasAny ${query.tag}`)
+    if (categoryIds) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Categories} In (${categoryIds})`)
+    if (tagIds) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Tags} In (${tagIds})`)
+    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.ContentStatus} !& 4`)//不包含隱藏的資料
 
     const provider = AnnouncementProvider();
     return useFetchGridListData<AnnouncementSet>({
@@ -38,25 +38,25 @@ const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string, 
         fetchList: (cond) => provider.fetchList(cond),
         fetchListCount: (cond) => provider.fetchListCount(cond),
         visibleKeys: [
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.Validate_Start],
-            [SchemaFields.AnnouncementSetFields.AnnouncementDetail, SchemaFields.AnnouncementDetailFields.Title],
-            [SchemaFields.AnnouncementSetFields.Announcement, SchemaFields.AnnouncementFields.ViewCount],
+            [AnnouncementSetFields.Announcement, AnnouncementFields.Validate_Start],
+            [AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.Title],
+            [AnnouncementSetFields.Announcement, AnnouncementFields.ViewCount],
         ],
         buildQueryCondition: (page) => ({
             Fields: [
-                SchemaFields.AnnouncementFields.AnnouncementId,
-                SchemaFields.AnnouncementFields.InternalId,
-                SchemaFields.AnnouncementFields.PictureId,
-                SchemaFields.AnnouncementFields.PicDescription,
-                SchemaFields.AnnouncementFields.Categories,
-                SchemaFields.AnnouncementFields.Validate_Start,
-                `${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
-                `${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
-                `${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Content}`,
-                SchemaFields.AnnouncementFields.ViewCount,
+                AnnouncementFields.AnnouncementId,
+                AnnouncementFields.InternalId,
+                AnnouncementFields.PictureId,
+                AnnouncementFields.PicDescription,
+                AnnouncementFields.Categories,
+                AnnouncementFields.Validate_Start,
+                `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
+                `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
+                `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Content}`,
+                AnnouncementFields.ViewCount,
             ],
             Condition: condition,
-            OrderBy: [{ Col: SchemaFields.AnnouncementFields.Validate_Start, Desc: true }],
+            OrderBy: [{ Col: AnnouncementFields.Validate_Start, Desc: true }, { Col: AnnouncementFields.CreateTime, Desc: true }],
             PageNumber: page,
             PageSize: 12,
         }),
@@ -64,12 +64,12 @@ const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string, 
             const cells: RowCell[] = columns.map(col => {
                 let content = "";
                 switch (col.key) {
-                    case SchemaFields.AnnouncementDetailFields.Title:
+                    case AnnouncementDetailFields.Title:
                         {
                             content = item.AnnouncementDetail?.find(d => d.Lang === lang)?.Title ?? "";
                             break;
                         }
-                    case SchemaFields.AnnouncementFields.Validate_Start:
+                    case AnnouncementFields.Validate_Start:
                         {
                             content = FormatDate(item.Announcement?.Validate_Start) ?? ""
                             break;
@@ -133,7 +133,7 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: Announ
         // const title = rawData?.[index]?.Announcement?.AnnouncementDetail?.Title ?? "";
         const titleId = `title-${internalId}`;
         const newCells = row.cells.map((cell) => {
-            const isTitle = cell.col.key === SchemaFields.AnnouncementDetailFields.Title;
+            const isTitle = cell.col.key === AnnouncementDetailFields.Title;
             return {
                 ...cell,
                 content: (

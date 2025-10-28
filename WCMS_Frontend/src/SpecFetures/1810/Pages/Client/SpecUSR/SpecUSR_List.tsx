@@ -1,25 +1,24 @@
 /**公告清單 */
 import type { components } from "@/types/api";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
-type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
 import { Link, useLocation } from "react-router-dom";
 import type { Lang } from "@/SysCore/i18n/lang";
-import * as SchemaFields from "@/types/SchemaFields"
 import SpecUSRProvider from "@/SpecFetures/1810/Hooks/SpecUSR/SpecUSR_Api";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import type { ColumnConfig } from "@/SysCore/Components/Grid/Grid_Data";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
-import SpecCategoryProvider from "../../../Hooks/SpecCategory/SpecCategory_Api";
+import SpecCategoryProvider from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Api";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import DefaultPic from "@/Assets/1810/images_960x960.jpg"
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-
+import { SpecCategoryModelFields, SpecUSRDetailFields, SpecUSRModelFields, SpecUSRSetFields } from "@/types/SchemaFields";
+type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
+type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
 const useSpecUSRList = (categoryId: string, tagIds: string) => {
     var condition: string = "";
-    condition = `${SchemaFields.SpecUSRModelFields.CategoryId} = ${categoryId}`;
-    if (tagIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.SpecUSRModelFields.Tags} HasAllOf (${tagIds})`)
-    condition = LibMerge(" And ", false, condition, `${SchemaFields.SpecUSRModelFields.ContentStatus} !& 4`)//不包含隱藏的資料
+    condition = `${SpecUSRModelFields.CategoryId} = ${categoryId}`;
+    if (tagIds) condition = LibMerge(" And ", false, condition, `${SpecUSRModelFields.Tags} HasAllOf (${tagIds})`)
+    condition = LibMerge(" And ", false, condition, `${SpecUSRModelFields.ContentStatus} !& 4`)//不包含隱藏的資料
 
     const provider = SpecUSRProvider();
     return useFetchGridListData<SpecUSRSet>({
@@ -27,42 +26,42 @@ const useSpecUSRList = (categoryId: string, tagIds: string) => {
         fetchList: (cond) => provider.fetchList(cond),
         fetchListCount: (cond) => provider.fetchListCount(cond),
         visibleKeys: [
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Year],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ProjectLeader],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ProjectItem],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ExternalCooperationUnit],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Department],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.PlanAmount],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.DuringExecution],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Cohost1],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Cohost2],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Commissioned],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Year],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectLeader],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectItem],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ExternalCooperationUnit],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Department],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.PlanAmount],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.DuringExecution],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Cohost1],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Cohost2],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Commissioned],
         ],
         buildQueryCondition: (page) => ({
             Fields: [
-                SchemaFields.SpecUSRModelFields.InternalId,
-                SchemaFields.SpecUSRModelFields.USRId,
-                SchemaFields.SpecUSRModelFields.PictureId,
-                SchemaFields.SpecUSRModelFields.PicDescription,
-                `${SchemaFields.SpecUSRModelFields._SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Lang}`,
-                `${SchemaFields.SpecUSRModelFields._SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Year}`,
-                `${SchemaFields.SpecUSRModelFields._SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ProjectName}`,
-                `${SchemaFields.SpecUSRModelFields._SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ProjectItem}`,
-                `${SchemaFields.SpecUSRModelFields._SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ExternalCooperationUnit}`,
-                `${SchemaFields.SpecUSRModelFields._SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Department}`,
-                `${SchemaFields.SpecUSRModelFields._SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.PlanAmount}`,
-                `${SchemaFields.SpecUSRModelFields._SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.DuringExecution}`,
-                `${SchemaFields.SpecUSRModelFields._SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ProjectLeader}`,
-                `${SchemaFields.SpecUSRModelFields._SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Cohost1}`,
-                `${SchemaFields.SpecUSRModelFields._SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Cohost2}`,
-                `${SchemaFields.SpecUSRModelFields._SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Commissioned}`,
-                `${SchemaFields.SpecUSRModelFields._SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ProjectConcept}`,
-                `${SchemaFields.SpecUSRModelFields._SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.ContentIntroduction}`,
+                SpecUSRModelFields.InternalId,
+                SpecUSRModelFields.USRId,
+                SpecUSRModelFields.PictureId,
+                SpecUSRModelFields.PicDescription,
+                `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Lang}`,
+                `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Year}`,
+                `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectName}`,
+                `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectItem}`,
+                `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ExternalCooperationUnit}`,
+                `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Department}`,
+                `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.PlanAmount}`,
+                `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.DuringExecution}`,
+                `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectLeader}`,
+                `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Cohost1}`,
+                `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Cohost2}`,
+                `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Commissioned}`,
+                `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectConcept}`,
+                `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ContentIntroduction}`,
             ],
             Condition: condition,
             OrderBy: [
-                { Col: `${SchemaFields.SpecUSRModelFields._SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.Year}`, Desc: true },
-                { Col: `${SchemaFields.SpecUSRModelFields._SpecUSRDetail}.${SchemaFields.SpecUSRDetailFields.AcademicYear}`, Desc: true },
+                { Col: `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Year}`, Desc: true },
+                { Col: `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.AcademicYear}`, Desc: true },
             ],
             PageNumber: page,
             PageSize: 10,
@@ -81,12 +80,12 @@ export const useGetShowColumnItems = (categoryId: string) => {
         visibleKeys: [],
         buildQueryCondition: () => ({
             Fields: [
-                SchemaFields.SpecCategoryModelFields.InternalId,
-                SchemaFields.SpecCategoryModelFields.CategoryId,
-                SchemaFields.SpecCategoryModelFields.ProgId,
-                SchemaFields.SpecCategoryModelFields.ShowColumnItems,
+                SpecCategoryModelFields.InternalId,
+                SpecCategoryModelFields.CategoryId,
+                SpecCategoryModelFields.ProgId,
+                SpecCategoryModelFields.ShowColumnItems,
             ],
-            Condition: `${SchemaFields.SpecCategoryModelFields.CategoryId} = ${categoryId}`,
+            Condition: `${SpecCategoryModelFields.CategoryId} = ${categoryId}`,
             PageNumber: 0,
             PageSize: 0,
         }),
@@ -115,13 +114,14 @@ export const SpecUSRListComp = (props: ISpecUSRListProps) => {
 
 const SpecUSRList = ({ lang, rawData, showColumnItems, showColTitle }: { lang: string; rawData: SpecUSRSet[]; showColumnItems: string[]; showColTitle: ColumnConfig[] }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
-    const cols = ["Year", "ProjectLeader", "ExternalCooperationUnit", "Department", "ProjectItem", "PlanAmount", "DuringExecution", "Cohost1", "Cohost2", "Commissioned"]
+    const cols = [SpecUSRDetailFields.Year, SpecUSRDetailFields.ProjectLeader, SpecUSRDetailFields.ExternalCooperationUnit,
+    SpecUSRDetailFields.Department, SpecUSRDetailFields.ProjectItem, SpecUSRDetailFields.PlanAmount,
+    SpecUSRDetailFields.DuringExecution, SpecUSRDetailFields.Cohost1, SpecUSRDetailFields.Cohost2, SpecUSRDetailFields.Commissioned]
     return (
         <>
             <div id="ContentPlaceContent_ContentConentA" className="col-sm-12 col-12 px-0">
                 <hr className="mt-1 mb-4" />
                 <div className="articles_itemBoxs_2">
-
                     {rawData.map((item) => {
                         const pageLink = `${dirUrl}/${item.SpecUSR?.InternalId}`;
                         const detail = item.SpecUSRDetail?.find(p => p.Lang.toLocaleLowerCase() === lang.toLocaleLowerCase());
@@ -141,7 +141,6 @@ const SpecUSRList = ({ lang, rawData, showColumnItems, showColTitle }: { lang: s
                                             <div className="card_titleDiv"> <Link to={pageLink} className="card_title">{detail?.ProjectName}</Link> </div>
                                             <div className="card_catDiv">
                                                 <div className="card_cat">
-
                                                     {/* const colTitle = useSpecUsrList.gridProps.columns.find(p => p.key === "Year")?.title; */}
                                                     {cols.map((col) => {
                                                         const title = showColTitle.find(p => p.key === col)?.title ?? ""
@@ -157,9 +156,6 @@ const SpecUSRList = ({ lang, rawData, showColumnItems, showColTitle }: { lang: s
                                             <div className="card_PDiv">
                                                 <p className="p_txt">{detail?.ContentIntroduction}</p>
                                             </div>
-                                            {/* <div className="col-12 text-right p-0">
-                                                <div className="customize_btn mt-2"> <Link to={pageLink} className="Btn_s1" tabIndex={1} title="E">VIEW ALL<span className="ml-2">+</span></Link></div>
-                                            </div> */}
                                         </div>
                                     </div>
                                 </article>
@@ -167,7 +163,6 @@ const SpecUSRList = ({ lang, rawData, showColumnItems, showColTitle }: { lang: s
 
                         )
                     })}
-
                 </div>
                 {/* <Paginator></Paginator> */}
             </div>
