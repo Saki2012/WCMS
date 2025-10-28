@@ -37,9 +37,15 @@ export const useGetShowColumnItems = (categoryId: string) =>
 export const useGetSpecCategoryListByProgId = (progId: string, lang: string) =>
 {
     const [data, setData] = useState<Record<string, string>>({});
+    const [cols, setCols] = useState<Record<string, string[]>>({});
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState<any>(null);
-
+    const parseShowColumns = (raw?: string | null): string[] =>
+    {
+        if (!raw) return [];
+        const arr = raw.split(",").map(s => s.trim()).filter(Boolean);
+        return Array.from(new Set(arr));
+    };
     const fetch = async (progId: string, lang: string) =>
     {
         try
@@ -49,6 +55,7 @@ export const useGetSpecCategoryListByProgId = (progId: string, lang: string) =>
             const queryCondition: QueryListParam = {
                 Fields: [
                     SchemaFields.SpecCategoryModelFields.CategoryId,
+                    SchemaFields.SpecCategoryModelFields.ShowColumnItems,
                     `${SchemaFields.SpecCategoryModelFields._SpecCategoryDetail}.${SchemaFields.SpecCategoryDetailModelFields.Lang}`,
                     `${SchemaFields.SpecCategoryModelFields._SpecCategoryDetail}.${SchemaFields.SpecCategoryDetailModelFields.CategoryName}`,
                 ],
@@ -63,28 +70,40 @@ export const useGetSpecCategoryListByProgId = (progId: string, lang: string) =>
                     ?? "資料查詢失敗";
                 throw new Error(errorMsg);
             }
-            const result: Record<string, string> = (res.Data as SpecCategorySet[] ?? []).reduce((acc, p) =>
-            {
-                const categoryId = p.SpecCategory?.CategoryId;
-                if (!categoryId) return acc;
-                const matchedDetail = p.SpecCategoryDetail?.find((detail: SpecCategoryDetail) => detail.Lang === lang);
-                acc[categoryId] = matchedDetail?.CategoryName ?? "";
-                return acc;
-            }, {} as Record<string, string>);
-            setData(result);
+            const list = (res.Data as SpecCategorySet[]) ?? [];
+            const acc = list.reduce(
+                (agg, p) =>
+                {
+                    const categoryId = p.SpecCategory?.CategoryId;
+                    if (!categoryId) return agg;
+                    const matchedDetail = p.SpecCategoryDetail?.find((detail: SpecCategoryDetail) =>
+                        detail.Lang === lang
+                    );
+                    // 原本的：CategoryId -> CategoryName
+                    agg.names[categoryId] = matchedDetail?.CategoryName ?? "";
+                    // 新的：CategoryId -> ShowColumnItems 解析後的字串陣列
+                    agg.cols[categoryId] = parseShowColumns(p.SpecCategory?.ShowColumnItems);
+                    return agg;
+                },
+                { names: {} as Record<string, string>, cols: {} as Record<string, string[]> },
+            );
+            setData(acc.names);
+            setCols(acc.cols);
         } catch (err: any)
         {
-            setError(err.message ?? "資料錯誤");
+            setError(err?.message ?? "資料錯誤");
         } finally
         {
             setLoading(false);
         }
     };
+
     useEffect(() =>
     {
         fetch(progId, lang);
     }, [progId, lang]);
-    return { data, isLoading, error };
+
+    return { data, cols, isLoading, error };
 };
 
 export const useSpecCateListData = (progId: string, lang: Lang) =>

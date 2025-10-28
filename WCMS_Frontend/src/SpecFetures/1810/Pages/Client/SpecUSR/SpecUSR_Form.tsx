@@ -48,9 +48,11 @@ const useSpecUSRList = (internalId: string) => {
             [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectConcept],
             [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectHighlights],
             [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectLeader],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectSubLeader],
             [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Cohost1],
             [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Cohost2],
             [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Commissioned],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.AttendTeam],
             [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Remark],
             [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectItem],
             [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Url],
@@ -93,21 +95,17 @@ export const SpecUSRFormComp = (props: ISpecUSRFormProps) => {
 
 const SpecUSRForm = ({ lang, rawData, showColumns, showColTitle }: { lang: string | Lang; rawData: SpecUSRSet; showColumns: string[]; showColTitle: ColumnConfig[]; }) => {
 
-    const allCols = [SpecUSRDetailFields.Year, SpecUSRDetailFields.AcademicYear, SpecUSRDetailFields.Courses, SpecUSRDetailFields.ProjectLeader,
-    SpecUSRDetailFields.PracticeField, SpecUSRDetailFields.ProjectName, SpecUSRDetailFields.ExternalCooperationUnit,
-    SpecUSRDetailFields.Department, SpecUSRDetailFields.ProjectItem, SpecUSRDetailFields.PlanAmount, SpecUSRDetailFields.DuringExecution,
+    const allCols = [SpecUSRDetailFields.Year, SpecUSRDetailFields.AcademicYear, SpecUSRDetailFields.Courses, SpecUSRDetailFields.ProjectName, SpecUSRDetailFields.ProjectLeader,
+    SpecUSRDetailFields.ProjectSubLeader, SpecUSRDetailFields.Cohost1, SpecUSRDetailFields.Cohost2,
+    SpecUSRDetailFields.PracticeField, SpecUSRDetailFields.ExternalCooperationUnit,
+    SpecUSRDetailFields.Department, SpecUSRDetailFields.AttendTeam, SpecUSRDetailFields.ProjectItem, SpecUSRDetailFields.PlanAmount, SpecUSRDetailFields.DuringExecution,
     SpecUSRDetailFields.ExecutionStrategy, SpecUSRDetailFields.ContentIntroduction, SpecUSRDetailFields.ProjectConcept, SpecUSRDetailFields.ProjectHighlights,
-    SpecUSRDetailFields.Cohost1, SpecUSRDetailFields.Cohost2, SpecUSRDetailFields.Commissioned, SpecUSRDetailFields.Remark]
+    SpecUSRDetailFields.Commissioned, SpecUSRDetailFields.Remark]
     const header = rawData.SpecUSR;
     const detail = rawData.SpecUSRDetail?.find(p => p.Lang === lang);
     const [open, setOpen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const images = (header?.PictureId ? [{
-        src: `${FileManagementAPI.PREVIEW_URL}/${header.PictureId}`,
-        title: `${header.PicDescription ?? ""}`
-    }]
-        : []
-    );
+    const images = (header?.PictureId ? [{ src: `${FileManagementAPI.PREVIEW_URL}/${header.PictureId}`, title: `${header.PicDescription ?? ""}` }] : []);
 
 
     return (

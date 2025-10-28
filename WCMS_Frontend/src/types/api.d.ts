@@ -4,6 +4,45 @@
  */
 
 export interface paths {
+    "/Service/Announcement/QueryByValidate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Announcement/Create": {
         parameters: {
             query?: never;
@@ -7194,7 +7233,6 @@ export interface components {
             RedirectUrl?: string | null;
         };
         SpecCategoryDetailModel_DTO: {
-            /** @description 計畫類別代碼 */
             CategoryId?: string | null;
             /**
              * Format: int32
@@ -7230,7 +7268,6 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
-            /** @description 計畫類別代碼 */
             CategoryId?: string | null;
             /** @description 功能模塊代碼 */
             ProgId?: string | null;
@@ -7385,13 +7422,13 @@ export interface components {
             ProjectName?: string | null;
             /** @description 外部合作單位 */
             ExternalCooperationUnit?: string | null;
-            /** @description 本校合作系所/單位 */
+            /** @description 本校執行系所/單位 */
             Department?: string | null;
             /** @description 執行期間 */
             DuringExecution?: string | null;
             /**
              * Format: double
-             * @description 計劃金額
+             * @description 計畫金額
              */
             PlanAmount?: number | null;
             /** @description 外部合作單位 */
@@ -7404,6 +7441,10 @@ export interface components {
             ProjectHighlights?: string | null;
             /** @description 計畫主持人 */
             ProjectLeader?: string | null;
+            /** @description 子計畫主持人 */
+            ProjectSubLeader?: string | null;
+            /** @description 參與之師生或團隊 */
+            AttendTeam?: string | null;
             /** @description 共同主持人 */
             Cohost1?: string | null;
             /** @description 協同主持人 */
@@ -7412,7 +7453,7 @@ export interface components {
             Commissioned?: string | null;
             /** @description 備註 */
             Remark?: string | null;
-            /** @description 計畫項目 */
+            /** @description 計畫類別 */
             ProjectItem?: string | null;
             /** @description 相關網址 */
             Url?: string | null;
@@ -7450,7 +7491,7 @@ export interface components {
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 標籤 */
             Tags?: string | null;
-            /** @description 活動圖片 */
+            /** @description 成果照片 */
             PictureId?: string | null;
             /** @description 圖片說明 */
             PicDescription?: string | null;

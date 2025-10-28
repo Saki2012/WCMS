@@ -343,7 +343,7 @@
     <value>內容</value>
   </data>
   <data name="SpecCategoryId" xml:space="preserve">
-    <value>計畫類別代碼</value>
+    <value />
   </data>
   <data name="SpecCategory_Detail" xml:space="preserve">
     <value>規格類別明細</value>
@@ -460,7 +460,7 @@
     <value>USR計畫</value>
   </data>
   <data name="SpecUSR_Detail" xml:space="preserve">
-    <value>計劃明細</value>
+    <value>計畫明細</value>
   </data>
   <data name="SpecUSR_Categories" xml:space="preserve">
     <value>類別</value>
@@ -469,7 +469,7 @@
     <value>標籤</value>
   </data>
   <data name="SpecUSR_PictureId" xml:space="preserve">
-    <value>活動圖片</value>
+    <value>成果照片</value>
   </data>
   <data name="SpecUSR_PicDescription" xml:space="preserve">
     <value>圖片說明</value>
@@ -493,7 +493,7 @@
     <value>外部合作單位</value>
   </data>
   <data name="SpecUSR_Department" xml:space="preserve">
-    <value>本校合作系所/單位</value>
+    <value>本校執行系所/單位</value>
   </data>
   <data name="SpecUSR_DuringExecution" xml:space="preserve">
     <value>執行期間</value>
@@ -502,7 +502,7 @@
     <value>執行策略</value>
   </data>
   <data name="SpecUSR_PlanAmount" xml:space="preserve">
-    <value>計劃金額</value>
+    <value>計畫金額</value>
   </data>
   <data name="SpecUSR_ContentIntro" xml:space="preserve">
     <value>計畫內容簡介</value>
@@ -655,6 +655,15 @@
     <value>相關網址說明</value>
   </data>
   <data name="SpecUSR_ProjectItem" xml:space="preserve">
-    <value>計畫項目</value>
+    <value>計畫類別</value>
+  </data>
+  <data name="SpecUSR_ProjectSubLeader" xml:space="preserve">
+    <value>子計畫主持人</value>
+  </data>
+  <data name="SpecUSR_AttendTeam" xml:space="preserve">
+    <value>參與之師生或團隊</value>
+  </data>
+  <data name="SpecUSR_ExecutionStrategy" xml:space="preserve">
+    <value>執行策略</value>
   </data>
 </root>

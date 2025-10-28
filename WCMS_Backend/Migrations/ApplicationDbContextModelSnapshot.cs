@@ -1650,6 +1650,10 @@ namespace WCMS.Migrations
                     b.Property<int?>("AcademicYear")
                         .HasColumnType("int");
 
+                    b.Property<string>("AttendTeam")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
                     b.Property<string>("Cohost1")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
@@ -1714,6 +1718,10 @@ namespace WCMS.Migrations
                         .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("ProjectName")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("ProjectSubLeader")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 

@@ -4,6 +4,7 @@ using WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
@@ -65,6 +66,8 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         [StringLength(1000)] public string? ProjectConcept { get; set; }
         [StringLength(4000)] public string? ProjectHighlights { get; set; }
         [StringLength(1000)] public string? ProjectLeader { get; set; }
+        [StringLength(1000)] public string? ProjectSubLeader { get; set; }
+        [StringLength(1000)] public string? AttendTeam { get; set; }
         [StringLength(1000)] public string? Cohost1 { get; set; }
         [StringLength(1000)] public string? Cohost2 { get; set; }
         [StringLength(1000)] public string? Commissioned { get; set; }

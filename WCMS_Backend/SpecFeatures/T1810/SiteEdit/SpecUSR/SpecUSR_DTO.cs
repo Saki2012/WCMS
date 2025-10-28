@@ -57,11 +57,13 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         [LibDesc(ModelDisplayName.SpecUSR_Department), StringLength(200)] public string? Department { get; set; }
         [LibDesc(ModelDisplayName.SpecUSR_DuringExecution), StringLength(200)] public string? DuringExecution { get; set; }
         [LibDesc(ModelDisplayName.SpecUSR_PlanAmount)] public decimal? PlanAmount { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_ExternalCoUnits)] public string? ExecutionStrategy { get; set; }
+        [LibDesc(ModelDisplayName.SpecUSR_ExecutionStrategy)] public string? ExecutionStrategy { get; set; }
         [LibDesc(ModelDisplayName.SpecUSR_ContentIntro)] public string? ContentIntroduction { get; set; }
         [LibDesc(ModelDisplayName.SpecUSR_ProjectConcept)] public string? ProjectConcept { get; set; }
         [LibDesc(ModelDisplayName.SpecUSR_KeyHighlights)] public string? ProjectHighlights { get; set; }
         [LibDesc(ModelDisplayName.SpecUSR_ProjectLeader), StringLength(200)] public string? ProjectLeader { get; set; }
+        [LibDesc(ModelDisplayName.SpecUSR_ProjectSubLeader), StringLength(1000)] public string? ProjectSubLeader { get; set; }
+        [LibDesc(ModelDisplayName.SpecUSR_AttendTeam), StringLength(1000)] public string? AttendTeam { get; set; }
         [LibDesc(ModelDisplayName.SpecUSR_Cohost1), StringLength(200)] public string? Cohost1 { get; set; }
         [LibDesc(ModelDisplayName.SpecUSR_Cohost2), StringLength(200)] public string? Cohost2 { get; set; }
         [LibDesc(ModelDisplayName.SpecUSR_Commissioned), StringLength(200)] public string? Commissioned { get; set; }

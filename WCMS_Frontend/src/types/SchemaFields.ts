@@ -834,6 +834,8 @@ export const SpecUSRDetailFields = {
   ProjectConcept: 'ProjectConcept',
   ProjectHighlights: 'ProjectHighlights',
   ProjectLeader: 'ProjectLeader',
+  ProjectSubLeader: 'ProjectSubLeader',
+  AttendTeam: 'AttendTeam',
   Cohost1: 'Cohost1',
   Cohost2: 'Cohost2',
   Commissioned: 'Commissioned',

@@ -1,4 +1,7 @@
-﻿namespace WCMS.SysCore.Resx
+﻿using System.ComponentModel.DataAnnotations;
+using WCMS.SysCore.Library;
+
+namespace WCMS.SysCore.Resx
 {
     public static class ModelDisplayName
     {
@@ -217,6 +220,7 @@
         public const string SpecUSR_PracticeField="SpecUSR_PracticeField";
         public const string SpecUSR_ProjectName="SpecUSR_ProjectName";
         public const string SpecUSR_ExternalCoUnits="SpecUSR_ExternalCoUnits";
+        public const string SpecUSR_ExecutionStrategy = "SpecUSR_ExecutionStrategy";
         public const string SpecUSR_Department="SpecUSR_Department";
         public const string SpecUSR_DuringExecution="SpecUSR_DuringExecution";
         public const string SpecUSR_PlanAmount="SpecUSR_PlanAmount";
@@ -224,7 +228,9 @@
         public const string SpecUSR_ContentIntro="SpecUSR_ContentIntro";
         public const string SpecUSR_ProjectConcept="SpecUSR_ProjectConcept";
         public const string SpecUSR_KeyHighlights="SpecUSR_KeyHighlights";
-        public const string SpecUSR_ProjectLeader="SpecUSR_ProjectLeader";
+        public const string SpecUSR_ProjectLeader = "SpecUSR_ProjectLeader";
+        public const string SpecUSR_ProjectSubLeader = "SpecUSR_ProjectSubLeader";
+        public const string SpecUSR_AttendTeam = "SpecUSR_AttendTeam";
         public const string SpecUSR_Cohost1="SpecUSR_Cohost1";
         public const string SpecUSR_Cohost2="SpecUSR_Cohost2";
         public const string SpecUSR_Commissioned="SpecUSR_Commissioned";

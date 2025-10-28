@@ -22,6 +22,7 @@ import DefaultEventImg from "@/Assets/1810/DefaultEventPic_940x1330.jpg"
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
+import { ProgId } from "@/Features/Hooks/Common/ProgId";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
 const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string, query: ISearchQuery) => {
@@ -98,7 +99,7 @@ export const AnnouncementList = (props: IAnnouncementListProps) => {
     const [queryDraft, setQueryDraft] = useState<ISearchQuery>({});
     const [query, setQuery] = useState<ISearchQuery>({});
     const useAnnounceList = useAnnouncementList(props.Lang, props.Options?.Category ?? "", props.Options?.Tag ?? "", query);
-    const useTagData = useTagListData("Announcement", props.Lang);
+    const useTagData = useTagListData(ProgId.Announcement, props.Lang);
     const tags = (useTagData.rawData ?? []).map(t => ({ id: t.TagData?.TagId ?? "", name: t.TagDetail?.find(p => p.Lang === props.Lang)?.TagName ?? "" }));
     const searchSlot = <SearchBarComp value={queryDraft} tags={tags} onChange={(k, v) => setQueryDraft(prev => ({ ...prev, [k]: v }))} onSubmit={() => setQuery(queryDraft)} onReset={() => { setQueryDraft({}); setQuery({}); }} />;
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData]);
