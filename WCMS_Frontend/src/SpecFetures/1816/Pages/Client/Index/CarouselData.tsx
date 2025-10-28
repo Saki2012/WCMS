@@ -1,4 +1,4 @@
-export const LinkData = () => {
+export const CarouselData = () => {
 	return (
 
 

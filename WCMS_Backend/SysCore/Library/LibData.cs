@@ -536,7 +536,6 @@ namespace WCMS.SysCore.Library
                 return x; // 原樣回傳，如 string/int 等
             }).ToArray();
         }
-
         /// <summary>
         /// 獲取SHA256值
         /// </summary>
@@ -549,20 +548,17 @@ namespace WCMS.SysCore.Library
             ms.Position = 0;
             return GetFileSHA256(ms);
         }
-
         public static string GetFileSHA256(string filePath)
         {
             using var hashStream = File.OpenRead(filePath);
             hashStream.Position = 0;
             return GetFileSHA256(hashStream);
         }
-
         public static string GetFileSHA256(Stream stream)
         {
             var hashBytes = SHA256.HashData(stream);
             return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
         }
-
         public static string GetFileExtenstion(Stream stream)
         {
             stream.Position = 0;
@@ -581,13 +577,11 @@ namespace WCMS.SysCore.Library
             if (fileType != null) return fileType.MimeType.ToLowerInvariant();
             return string.Empty;
         }
-
         public class EnumOption
         {
             public int Key { get; set; }
             public string DisplayName { get; set; }
         }
-
         public static class EnumHelper
         {
             public static List<EnumOption> GetEnumOptions(string enumTypeName)
@@ -611,7 +605,6 @@ namespace WCMS.SysCore.Library
                 return attr?.Description ?? value.ToString();
             }
         }
-
         public static string LocalhostIp
         {
             get

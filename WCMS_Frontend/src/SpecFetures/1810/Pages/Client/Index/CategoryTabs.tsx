@@ -13,6 +13,7 @@ import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Ca
 import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
 import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
 import { DefaultLang } from '@/SysCore/i18n/lang';
+import { ProgId } from '@/Features/Hooks/Common/ProgId';
 
 
 
@@ -114,7 +115,7 @@ const useTagList = () => {
                 `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
                 `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
             ],
-            Condition: `${SchemaFields.TagDataFields.ProgId} = Announcement`,
+            Condition: `${SchemaFields.TagDataFields.ProgId} = ${ProgId.Announcement}`,
             PageNumber: 0,
             PageSize: 0,
         }),

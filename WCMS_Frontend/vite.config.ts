@@ -1,8 +1,10 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import path from 'path';
 
 export default defineConfig(({ mode }) => {
-   const isSSR = mode === 'ssr';
+  const env = loadEnv(mode, process.cwd())
+  const isSSR = mode === 'ssr';
+  const spec = env.VITE_SPEC_CODE || '_default' // 沒設就走預設包
 
   return {
         base:'/',
@@ -34,6 +36,7 @@ export default defineConfig(({ mode }) => {
         resolve: {
           alias: {
             '@': path.resolve(__dirname, 'src'),  // 這裡設定 @ = /src
+            'SpecFeature': path.resolve(__dirname, `./src/SpecFetures/${spec}`),
           },
         },
         ssr: {

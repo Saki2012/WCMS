@@ -3,7 +3,6 @@ import type { components } from '@/types/api';
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
 import * as SchemaFields from "@/types/SchemaFields";
-import { type EventData } from './Event_Data'
 import { Link } from 'react-router-dom';
 import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api';
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
@@ -13,6 +12,17 @@ import { useEffect, useRef } from 'react';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import { FormatDate } from '@/SysCore/Utils/Library/LibData';
 import defaulteventpic from '@/Assets/1810/DefaultEventPic_940x1330.jpg'
+
+interface EventData {
+    Id: string;
+    Title: string; // 標題
+    ImgSrc: string; // 圖片來源
+    Url: string; // 連結
+    Tags: string; //
+    date: string;
+    contentStatus: number;
+}
+
 const useAnnouncementList = () => {
     const provider = AnnouncementProvider();
     return useFetchGridListData<AnnouncementSet>({

@@ -1,15 +1,5 @@
-export const NewsData = () => {
+export const NewsCalendarData = () => {
 	return (
-
-
-
-
-
-
-
-
-
-
 		<div className="col-xxl-4 col-xl-4 col-lg-5 col-md-12 col-sm-12 col-12 + offset-xxl-1 offset-xl-1 + order-xxl-2 order-xl-2 order-lg-2 order-md-1 order-sm-1  order-1">
 			<div className="Opening_hours_DIV">
 				<div className="Opening-content">

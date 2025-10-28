@@ -3,17 +3,7 @@ import { NewsCalendarData } from '@/SpecFetures/1816/Pages/Client/Index/NewsCale
 
 export const NewsData = () => {
 	return (
-
-
-
-
-
-
-
-
-
 		<div>
-
 			<section
 				style={{
 					height: "0px",

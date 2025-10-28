@@ -22,7 +22,10 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "SpecFeature/*": [
+        "src/SpecFetures/_default/*"
+      ]
     }
   },
   "ts-node": {
