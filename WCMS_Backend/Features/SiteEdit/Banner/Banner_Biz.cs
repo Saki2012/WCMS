@@ -7,12 +7,39 @@ using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.SystemFunc.FileManagement;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Banner
 {
     [ProgId("Banner")]
     public class BannerBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<BannerSet>(repo, message), IBizService<BannerSet> 
     {
+        #region Protected
+        protected override async Task BeforeUpdate(BannerSet set, FuncAction act)
+        {
+            await base.BeforeUpdate(set, act);
+            switch (act)
+            {
+                case FuncAction.Create:
+                case FuncAction.Update:
+                    SetData(set);
+                    break;
+            }
+
+        }
+        #endregion
+        #region Private
+        private static void SetData(BannerSet set)
+        {
+            ResetBannerSort(set.BannerDetail);
+        }
+        private static void ResetBannerSort(List<BannerDetail> dt)
+        {
+            if (!LibData.HasData(dt)) return;
+            List<BannerDetail> sorted = [.. dt.OrderBy(p => p.Sort).ThenByDescending(p => p.RowId)];
+            for (int i = 0; i < sorted.Count; i++) sorted[i].Sort = (ushort)(i + 1);
+        }
+        #endregion
 
         #region Migration Old Data
         public async Task Migrate(string importFileLabel = "1810", IList<FileManageSet> srcFileSets = default)

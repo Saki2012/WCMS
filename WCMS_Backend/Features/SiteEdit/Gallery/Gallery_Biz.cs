@@ -3,6 +3,7 @@ using System.Data;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using WCMS.Features.SiteEdit.Announcement;
+using WCMS.Features.SiteEdit.Banner;
 using WCMS.Features.SiteEdit.Gallery;
 using WCMS.Features.SiteEdit.WebResource;
 using WCMS.SysCore;
@@ -158,20 +159,23 @@ namespace WCMS.Features.SiteEdit.Gallery
                 case SysEnum.FuncAction.Create:
                 case SysEnum.FuncAction.Update:
                     CheckData(set);
-                    DoRemergeData(set.Gallery);
+                    SetData(set);
                     break;
             }
         }
         #endregion
-
-
-
 
         #region Private
         private void CheckData(GallerySet set)
         {
             CheckIsEmpty(set);
             AACheck(set);
+        }
+
+        private void SetData(GallerySet set)
+        {
+            DoRemergeData(set.Gallery);
+            ResetPhotoSort(set.GalleryPhotos);
         }
         private void CheckIsEmpty(GallerySet set)
         {
@@ -193,6 +197,12 @@ namespace WCMS.Features.SiteEdit.Gallery
         {
             header.Categories = header.Categories.Remerge(",");
             header.Tags = header.Tags.Remerge(",");
+        }
+        private static void ResetPhotoSort(List<GalleryPhotos> dt)
+        {
+            if (!LibData.HasData(dt)) return;
+            List<GalleryPhotos> sorted = [.. dt.OrderBy(p => p.Sort).ThenByDescending(p => p.RowId)];
+            for (int i = 0; i < sorted.Count; i++) sorted[i].Sort = (ushort)(i + 1);
         }
         #endregion
 
