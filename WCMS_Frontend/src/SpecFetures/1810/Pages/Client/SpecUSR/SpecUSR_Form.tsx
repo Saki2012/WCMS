@@ -20,43 +20,44 @@ import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 import { useState } from 'react';
+import { SpecUSRDetailFields, SpecUSRModelFields, SpecUSRSetFields } from '@/types/SchemaFields';
 
 
 const emptyData: SpecUSRSet = {}
 
 const useSpecUSRList = (internalId: string) => {
-    const condition = `${SchemaFields.SpecUSRModelFields.InternalId} = ${internalId}`;
+    const condition = `${SpecUSRModelFields.InternalId} = ${internalId}`;
     const provider = SpecUSRProvider();
     return useFetchGridListData<SpecUSRSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
         fetchListCount: (cond) => provider.fetchListCount(cond),
         visibleKeys: [
-            [SchemaFields.SpecUSRSetFields.SpecUSR, SchemaFields.SpecUSRModelFields.PictureId],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Year],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.AcademicYear],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Courses],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.PracticeField],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ProjectName],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ExternalCooperationUnit],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Department],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.PlanAmount],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.DuringExecution],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ExecutionStrategy],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ContentIntroduction],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ProjectConcept],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ProjectHighlights],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ProjectLeader],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Cohost1],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Cohost2],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Commissioned],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Remark],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.ProjectItem],
-            [SchemaFields.SpecUSRSetFields.SpecUSRDetail, SchemaFields.SpecUSRDetailFields.Url],
+            [SpecUSRSetFields.SpecUSR, SpecUSRModelFields.PictureId],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Year],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.AcademicYear],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Courses],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.PracticeField],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectName],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ExternalCooperationUnit],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Department],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.PlanAmount],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.DuringExecution],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ExecutionStrategy],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ContentIntroduction],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectConcept],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectHighlights],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectLeader],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Cohost1],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Cohost2],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Commissioned],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Remark],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectItem],
+            [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Url],
         ],
         buildQueryCondition: () => ({
             Fields: [
-                SchemaFields.SpecUSRModelFields.InternalId,
+                SpecUSRModelFields.InternalId,
             ],
             Condition: condition,
             PageNumber: 0,
@@ -92,10 +93,11 @@ export const SpecUSRFormComp = (props: ISpecUSRFormProps) => {
 
 const SpecUSRForm = ({ lang, rawData, showColumns, showColTitle }: { lang: string | Lang; rawData: SpecUSRSet; showColumns: string[]; showColTitle: ColumnConfig[]; }) => {
 
-    const allCols = ["Year", "AcademicYear", "Courses", "ProjectLeader", "PracticeField", "ProjectName",
-        "ExternalCooperationUnit", "Department", "ProjectItem", "PlanAmount", "DuringExecution", "ExecutionStrategy",
-        "ContentIntroduction", "ProjectConcept", "ProjectHighlights", "Cohost1",
-        "Cohost2", "Commissioned", "Remark"]
+    const allCols = [SpecUSRDetailFields.Year, SpecUSRDetailFields.AcademicYear, SpecUSRDetailFields.Courses, SpecUSRDetailFields.ProjectLeader,
+    SpecUSRDetailFields.PracticeField, SpecUSRDetailFields.ProjectName, SpecUSRDetailFields.ExternalCooperationUnit,
+    SpecUSRDetailFields.Department, SpecUSRDetailFields.ProjectItem, SpecUSRDetailFields.PlanAmount, SpecUSRDetailFields.DuringExecution,
+    SpecUSRDetailFields.ExecutionStrategy, SpecUSRDetailFields.ContentIntroduction, SpecUSRDetailFields.ProjectConcept, SpecUSRDetailFields.ProjectHighlights,
+    SpecUSRDetailFields.Cohost1, SpecUSRDetailFields.Cohost2, SpecUSRDetailFields.Commissioned, SpecUSRDetailFields.Remark]
     const header = rawData.SpecUSR;
     const detail = rawData.SpecUSRDetail?.find(p => p.Lang === lang);
     const [open, setOpen] = useState(false);
@@ -115,9 +117,9 @@ const SpecUSRForm = ({ lang, rawData, showColumns, showColTitle }: { lang: strin
                     <div className="card_content_2">
 
                         {allCols.map((colId) => {
-                            if (!showColumns || showColumns.length === 0 || !showColumns.includes(colId)) return (<></>)
                             const title = showColTitle.find(p => p.key === colId)?.title ?? ""
                             const data = detail ? (detail as Record<string, any>)[colId] ?? "" : "";
+                            if (!showColumns || showColumns.length === 0 || !showColumns.includes(colId) || !data) return (<></>)
                             return (
                                 <div className="tr__Box">
                                     <div className="td__ col-sm-2 col-12 before_line d-flex justify-content-end align-content-center p-0">
