@@ -1,0 +1,452 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+/* ==  activity_student_section  ======== */
+/* ====================================== */
+.slick-box {
+	display: block;
+	position: relative;
+	min-height: 1px;
+	
+	/*background-color: var(--color-custom-ff);*/
+	/*background-image: url(../../images/gallery/gallery_section_bg.png);*/
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.content-box {
+	display: block;
+	position: relative;
+	/*padding: 0 15px;*/
+}
+
+/*------------------------------*/
+.slider {
+	width: 100%;
+	margin: auto !important;
+	/*margin: 50px auto !important;*/
+}
+
+.slick-slide {
+    display: none;
+    float: left;
+    height: auto;
+    min-height: 1px;
+	padding: 0 10px;
+}
+
+@media (max-width: 576px) {
+	.slick-slide {
+		padding: 0 15px;
+	}
+}
+
+.slick-slide img {
+	width: 100%;
+}
+
+.slick-box .box {
+	padding: 0;
+}
+
+.slick-box .box a .img-box {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-pack: center;
+	-ms-flex-pack: center;
+	justify-content: center;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+	background-color: transparent;	
+}
+
+.slick-box .box a .img-box img {
+	width: 100%;
+}
+
+.slick-box .box a .detail-box {
+	padding: 15px 20px 15px 20px;
+	background-color: #FFFFFF;
+}
+
+.slick-box .box a .detail-box h4 {
+	position: relative;
+	font-size: inherit;
+	font-weight: 600;
+	color: #333333;
+	text-align: center;
+	
+	display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 45px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */	
+}
+
+.slick-box .box a .detail-box h4:hover {
+	color: red;
+}
+
+.slick-box .box a .detail-box p {	
+	position: relative;
+	color: #333333;
+	text-align: left;
+	margin-bottom: 0rem;
+	
+	display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 55px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+}
+
+
+/* ============================= */
+/* ==  左右選擇鍵  ============== */
+/* ============================= */
+.slick-box button.slick-prev,
+.slick-box button.slick-next {
+    font-size: 0;
+    line-height: 0;
+    position: absolute;
+	top: 115%;    
+    display: block;
+    width: 45px;
+    height: 45px;
+    padding: 0;
+    -webkit-transform: translate(0, -50%);
+    -ms-transform: translate(0, -50%);
+    transform: translate(0, -50%);
+    cursor: pointer;
+    color: transparent;
+    border: none;
+    outline: none;
+    background-color: #FFFFFF;
+	border-radius: 100%;
+	z-index: 1;
+}
+
+.slick-box .slick-prev {
+    left: 40%;
+}
+
+.slick-box .slick-next {
+    right: 40%;
+}
+
+.slick-box .slick-prev:before {
+    font-family: none !important;
+	font-size: 0 !important;
+	line-height: normal !important;
+	content: url("../../images/gallery/prev.png");
+	
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+	
+    border: none;
+}
+
+.slick-box .slick-next:before {
+    font-family: none !important;
+	font-size: 0 !important;
+	line-height: normal !important;
+	content: url("../../images/gallery/next.png");
+	
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    border: none;
+}
+
+.slick-box .slick-prev:hover:before {
+    font-family: none !important;
+	font-size: 0 !important;
+	line-height: normal !important;
+	content: url("../../images/gallery/prev-hover.png");
+	
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+	
+    border: none;
+}
+
+.slick-box .slick-next:hover:before {
+    font-family: none !important;
+	font-size: 0 !important;
+	line-height: normal !important;
+	content: url("../../images/gallery/next-hover.png");
+	
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    border: none;
+}
+
+.slick-box .slick-prev:hover,
+.slick-box .slick-prev:focus,
+.slick-box .slick-next:hover,
+.slick-box .slick-next:focus {
+	background-color: #aa210f;
+}
+
+.slick-box .slick-slide {
+	transition: all ease-in-out .3s;
+	opacity: .2;
+}
+
+.slick-box .slick-active {
+	opacity: 1;  /*(( 0.5 ))--左2右2 ， 兩邊顯示的透明度*/
+}
+
+.slick-box .slick-current {
+	opacity: 1;  /*中間顯示那個的透明度*/
+}
+
+@media (max-width: 768px) {
+	.slick-box .slick-prev {
+		left: 37%;
+	} 
+	.slick-box .slick-next {
+		right: 37%;
+	}
+}
+/* ============================= */
+/* ==  左右選擇鍵  ============== */
+/* ============================= */
+
+
+/* ============================= */
+/* ==  Dots 豆豆選擇  =========== */
+/* ============================= */
+.slick-box .slick-dotted.slick-slider {
+    margin-bottom: 30px;
+}
+
+.slick-box .slick-dots {
+    position: absolute;
+    bottom: -25px;
+
+    display: none !important;  /*block*/
+
+    width: 100%;
+    padding: 0;
+    margin: 0;
+
+    list-style: none;
+
+    text-align: center;
+}
+
+.slick-box .slick-dots li {
+    position: relative;
+
+    display: inline-block;
+
+    width: 12px;
+    height: 12px;
+    margin: 0 5px;
+    padding: 0;
+
+    cursor: pointer;
+}
+
+.slick-box .slick-dots li button {
+    font-size: 0;
+    line-height: 0;
+
+    display: block;
+
+    width: 12px;
+    height: 12px;
+    padding: 5px;
+
+    cursor: pointer;
+
+    color: transparent;
+    border: 0;
+    outline: none;
+    background: transparent;
+}
+
+.slick-box .slick-dots li button:hover,
+.slick-box .slick-dots li button:focus {
+    outline: none;
+}
+
+.slick-box .slick-dots li button:hover:before,
+.slick-box .slick-dots li button:focus:before {
+    opacity: 1;
+}
+
+.slick-box .slick-dots li button:before {
+    font-family: 'slick';
+    font-size: 0.375em; /*6px*/
+    line-height: 20px;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 12px;
+    height: 12px;
+
+    content: '•';
+    text-align: center;
+
+    opacity: .09;
+    color: transparent; /*black*/
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+	
+	background: var(--color-custom-c1);
+	border-radius: 100%;
+}
+
+.slick-box .slick-dots li.slick-active button:before {
+    opacity: .75;
+    color: transparent; /*black*/
+}
+/* ============================= */
+/* ==  Dots 豆豆選擇  =========== */
+/* ============================= */
+
+
+/* ==================================== */
+/* ==  AA 需求 控制撥放按鈕 CSS START  == */
+/* ==================================== */
+
+/* -- SILDER 控制 START -- */
+
+.slick-slide-control-right {
+    position: relative;
+    z-index: 15;
+    display: inherit; /*block*/
+    -webkit-box-pack: right; /*center*/
+    justify-content: right; /*center*/
+    padding-left: 0;
+    list-style: none;
+	
+	padding: 0 15px;
+}
+
+.glyphicon-slick {
+    position: relative;
+    top: 20%;
+    display: inline-block;
+    font-family: 'Glyphicons Halflings';
+	font-size: 1.5em;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* --------- 播放 -------- */
+.start-slick-slide a {
+	display:inline-block;
+    padding: 7px;
+    background-color: rgba(0,0,0,0.25);
+	border: 1px solid var(--color-custom-ff);
+	color: var(--color-custom-ff); /*c33c70*/
+}
+
+.start-slick-slide a:hover {    
+	text-decoration: none;
+	outline: 0;
+	opacity: .9;
+	color: var(--color-custom-ff);
+	background-color: rgba(0,0,0,.75);
+}
+
+.start-slick-slide a:focus {    
+	text-decoration: none;
+	outline: 0;
+	opacity: .9;
+	color: var(--color-custom-ff);
+	background-color: rgba(0,0,0,.75);
+}
+
+.start-slick-slide i {
+    position: relative;
+    font-size: 1em;
+    list-style: none;
+    font-weight: 400;
+    line-height: 1.2;
+    vertical-align: middle;
+}
+
+/*.pause-slide i:focus {
+    color: #ff0000;
+}*/
+
+/* --------- 暫停 -------- */
+.pause-slick-slide a {
+	display:inline-block;
+    padding: 7px;
+    background-color: rgba(0,0,0,0.25);
+	border: 1px solid var(--color-custom-ff);
+	color: var(--color-custom-ff); /*c33c70*/
+}
+
+.pause-slick-slide a:hover {    
+	text-decoration: none;
+	outline: 0;
+	opacity: .9;
+	color: var(--color-custom-ff);
+	background-color: rgba(0,0,0,.75);
+}
+
+.pause-slick-slide a:focus {    
+	text-decoration: none;
+	outline: 0;
+	opacity: .9;
+	color: var(--color-custom-ff);
+	background-color: rgba(0,0,0,.75);
+}
+
+.pause-slick-slide i {
+    position: relative;
+    font-size: 1em;
+    list-style: none;
+    font-weight: 400;
+    line-height: 1.2;
+    vertical-align: middle;
+}
+
+/*.pause-slide i:focus {
+    color: #ff0000;
+}*/
+
+@media (max-width: 320px) {
+	.slick-slide-control-right {
+		position: absolute;
+		/*right: 6%;*/
+		/*bottom: 15%;*/
+	}
+}
+/*.slick-next:hover::before, .slick-next:focus::before {
+    display: block;
+    width: 40px;
+    height: 40px;
+    opacity: 1;
+    border: 1px solid #fff;
+    background-color: rgba(0,0,0,.75);
+}*/
+
+/* -- SILDER 控制 END -- */

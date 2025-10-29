@@ -1,0 +1,48 @@
+﻿@charset "utf-8";
+/* CSS Document */
+
+/* --------- /// 瀏覽人數 CSS START /// ----------*/
+
+.visitor-bg {
+    padding: 0px 30px;
+    background: #FFFFFF;
+    border-top: 1px solid #FFFFFF;
+}
+.visitor-left {
+	position: relative;
+	min-height: 1px;
+	width: 100%;
+	
+	text-align: left;
+}
+.visitor-center {
+	position: relative;
+	min-height: 1px;
+	width: 100%;
+	
+	text-align: center;
+}
+.visitor-right {
+	position: relative;
+	min-height: 1px;
+	width: 100%;
+	
+	text-align: right;
+}
+.visitor-bg .visitor_text {
+	display: inline-block;
+	font-size: 0.9167em;
+	padding: 10px;
+	background-color: transparent; /*透明*/
+	text-decoration: none;
+	color: #333;
+}
+
+@media(max-width:992px) {
+	.visitor-left  {
+		padding: 0px 5px;
+	}
+}
+
+/* --------- /// 瀏覽人數 CSS END /// ----------*/
+
