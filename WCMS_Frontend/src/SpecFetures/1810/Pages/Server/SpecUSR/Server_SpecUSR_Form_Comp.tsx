@@ -1,5 +1,4 @@
 import { LibCheckBox, LibTextBox, LibTextArea, LibFile, LibDropList, LibPicture } from "@/SysCore/Components/FormField/LibFormField";
-import * as SchemaFields from "@/types/SchemaFields";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";

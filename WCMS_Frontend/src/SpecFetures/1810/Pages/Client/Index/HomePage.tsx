@@ -5,25 +5,6 @@ import { EventSession } from '@/SpecFetures/1810/Pages/Client/Index/EventSession
 import { GallerySession } from '@/SpecFetures/1810/Pages/Client/Index/GallerySession'
 import { VideoSession } from '@/SpecFetures/1810/Pages/Client/Index/VideoSession'
 import { GoTopButton } from '@/Features/Pages/Client/BizFunc/MainPage/SubPages'
-import { LEGACY_JS, LEGACY_CSS } from "./LegacySrc.ts";
-
-LEGACY_CSS.forEach((href) => {
-  if (!document.querySelector(`link[rel="stylesheet"][href="${href}"]`)) {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = href;
-    document.head.appendChild(link);
-  }
-});
-
-LEGACY_JS.forEach((src) => {
-  if (!document.querySelector(`script[src="${src}"]`)) {
-    const script = document.createElement("script");
-    script.src = src;
-    script.defer = true;         // 用 defer，避免阻塞、又保留順序
-    document.body.appendChild(script);
-  }
-});
 
 const HomePage = () => {
   return (

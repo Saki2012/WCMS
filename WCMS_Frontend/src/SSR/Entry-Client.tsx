@@ -1,14 +1,15 @@
 import { useEffect, useMemo } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
-import type { IRouteModule } from "../SysCore/Interface/IBaseRouter.ts";
-import { createClientRouter } from "../SysCore/Utils/Route/Routes.tsx";
+import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter.ts";
+import { createClientRouter } from "@/SysCore/Utils/Route/Routes.tsx";
 import { SpecRouteModule } from "../SpecFetures/1810/SpecRouter.tsx";
 import { RouterProvider } from "react-router-dom";
 import { LEGACY_JS, LEGACY_CSS } from "./LegacySrc.ts";
-import { MessageProvider } from "../SysCore/Components/Message/Dialog/Dialog_Comp.tsx";
-import { HeaderMetaComp } from "../SysCore/Components/HeaderMeta/HeaderMeta_Comp.tsx";
-import api, { type BrowserApiWithInit } from "../SysCore/Utils/API/APIBase.ts"
+// import "SpecFeature/Assets/Client/Content/Style.css"
+import { MessageProvider } from "@/SysCore/Components/Message/Dialog/Dialog_Comp.tsx";
+import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp.tsx";
+import api, { type BrowserApiWithInit } from "@/SysCore/Utils/API/APIBase.ts"
 if (typeof window !== "undefined") {
   // CSR：初始化一次 XSRF；SSR：這個屬性不存在，呼叫也不會發生
   (api as BrowserApiWithInit).__initXsrfOnce?.();
