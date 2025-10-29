@@ -1,11 +1,13 @@
 ﻿using Azure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO.Compression;
+using System.Text.RegularExpressions;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
@@ -124,8 +126,8 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                     contentType = "application/octet-stream";
             }
             // === 6) inline + 同時提供 filename / filename*（處理中文/相容性） ===
-            var dispo = $"inline; filename=\"{safeFileName.Replace("\"", "")}\"; filename*=UTF-8''{Uri.EscapeDataString(safeFileName)}";
-            Response.Headers.ContentDisposition = dispo;
+            var asciiFallback = Regex.Replace(safeFileName, @"[^\x20-\x7E]", "_").Replace("\"", "'");
+            Response.Headers.ContentDisposition = $"inline; filename=\"{asciiFallback}\"; filename*=UTF-8''{Uri.EscapeDataString(safeFileName)}";
             Response.Headers.XContentTypeOptions = "nosniff";
             // 不必手動寫 Response.Headers.ContentType；讓 File(...) 幫你設定即可
             return PhysicalFile(physicalPath, contentType, enableRangeProcessing: true);
