@@ -35,8 +35,8 @@ const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string, 
     if (now.isoLocal) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
     if (query.keyword) condition = LibMerge(" And ", false, condition, `${AnnouncementSetFields.AnnouncementDetail}.${AnnouncementDetailFields.Title} Like ${query.keyword}`)
     if (query.tag) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Tags} HasAny ${query.tag}`)
-    if (categoryIds) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Categories} In (${categoryIds})`)
-    if (tagIds) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Tags} In (${tagIds})`)
+    if (categoryIds) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Categories} HasAny (${categoryIds})`)
+    if (tagIds) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Tags} HasAny (${tagIds})`)
     condition = LibMerge(" And ", false, condition, `${AnnouncementFields.ContentStatus} !& 4`)//不包含隱藏的資料
 
     const provider = AnnouncementProvider();
