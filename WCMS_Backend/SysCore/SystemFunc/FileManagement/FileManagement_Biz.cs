@@ -348,6 +348,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 FileExtensions.PPTX,
                 FileExtensions.TXT,
                 FileExtensions.CSV,
+                FileExtensions.ODT,
                 #endregion
                 #region 圖片
                 FileExtensions.JPG,
