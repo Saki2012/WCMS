@@ -3,6 +3,7 @@ import { NewsCalendarData } from '@/SpecFetures/1816/Pages/Client/Index/NewsCale
 
 export const NewsData = () => {
 	return (
+
 		<div>
 			<section
 				style={{
@@ -124,21 +125,13 @@ export const NewsData = () => {
 																		<div className="a-left">
 																			<div className="card_cat">
 																				<div className="card_cat_link">
-																					<span className="cat_title">
-																						館務公告
-																					</span>
+																					<span className="cat_title">館務公告</span>
 																				</div>
 																			</div>
 																			<div className="CustomState">
-																				<div className="icon-small top-bg">
-																					置頂
-																				</div>
-																				<div className="icon-small hot-bg">
-																					熱門
-																				</div>
-																				<div className="icon-small new-bg">
-																					最新
-																				</div>
+																				<div className="icon-small top-bg">置頂</div>
+																				<div className="icon-small hot-bg">熱門</div>
+																				<div className="icon-small new-bg">最新</div>
 																			</div>
 																		</div>
 																		<div className="a-right">
@@ -155,104 +148,7 @@ export const NewsData = () => {
 																		</div>
 																	</div>
 																	<div className="card_titleDiv">
-																		<div className="card_title" >
-																			2025/7/26（六）【 開閉館 】 -
-																			為公職人員選舉罷免投票日，圖書館閉館一日，不便之處敬請見諒。
-																			/ 2025/7/26（六）【 開閉館 】 -
-																			為公職人員選舉罷免投票日，圖書館閉館一日，不便之處敬請見諒。
-																		</div>
-																	</div>
-																</div>
-															</a>
-														</li>
-														<li className="News_item">
-															<a
-																className="item-inner"
-																href="javascript:void(0);"
-																tabIndex={0}
-																target="_self"
-																title="">
-																<div className="rightBox">
-																	<div className="card_catDiv">
-																		<div className="a-left">
-																			<div className="card_cat">
-																				<div className="card_cat_link">
-																					<span className="cat_title">
-																						館務公告
-																					</span>
-																				</div>
-																			</div>
-																			<div className="CustomState">
-																				<div className="icon-small top-bg">
-																					置頂
-																				</div>
-																				<div className="icon-small hot-bg">
-																					熱門
-																				</div>
-																			</div>
-																		</div>
-																		<div className="a-right">
-																			<div className="card_time">
-																				<i
-																					aria-hidden="true"
-																					className="fa fa-clock-o"
-																					style={{
-																						marginRight: "3px",
-																					}}
-																				/>
-																				2023-11-10
-																			</div>
-																		</div>
-																	</div>
-																	<div className="card_titleDiv">
-																		<div className="card_title" >
-																			2025/7/26（六）【 開閉館 】 -
-																			為公職人員選舉罷免投票日，圖書館閉館一日，不便之處敬請見諒。
-																			/ 2025/7/26（六）【 開閉館 】 -
-																			為公職人員選舉罷免投票日，圖書館閉館一日，不便之處敬請見諒。
-																		</div>
-																	</div>
-																</div>
-															</a>
-														</li>
-														<li className="News_item">
-															<a
-																className="item-inner"
-																href="javascript:void(0);"
-																tabIndex={0}
-																target="_self"
-																title="">
-																<div className="rightBox">
-																	<div className="card_catDiv">
-																		<div className="a-left">
-																			<div className="card_cat">
-																				<div className="card_cat_link">
-																					<span className="cat_title">
-																						館務公告
-																					</span>
-																				</div>
-																			</div>
-																			<div className="CustomState">
-																				<div className="icon-small new-bg">
-																					最新
-																				</div>
-																			</div>
-																		</div>
-																		<div className="a-right">
-																			<div className="card_time">
-																				<i
-																					aria-hidden="true"
-																					className="fa fa-clock-o"
-																					style={{
-																						marginRight: "3px",
-																					}}
-																				/>
-																				2023-11-10
-																			</div>
-																		</div>
-																	</div>
-																	<div className="card_titleDiv">
-																		<div className="card_title" >
+																		<div className="card_title" /*href="#" */ >
 																			2025/7/26（六）【 開閉館 】 -
 																			為公職人員選舉罷免投票日，圖書館閉館一日，不便之處敬請見諒。
 																			/ 2025/7/26（六）【 開閉館 】 -
@@ -301,21 +197,13 @@ export const NewsData = () => {
 																		<div className="a-left">
 																			<div className="card_cat">
 																				<div className="card_cat_link">
-																					<span className="cat_title">
-																						電子資源
-																					</span>
+																					<span className="cat_title">電子資源</span>
 																				</div>
 																			</div>
 																			<div className="CustomState">
-																				<div className="icon-small top-bg">
-																					至頂
-																				</div>
-																				<div className="icon-small hot-bg">
-																					熱門
-																				</div>
-																				<div className="icon-small new-bg">
-																					最新
-																				</div>
+																				<div className="icon-small top-bg">至頂</div>
+																				<div className="icon-small hot-bg">熱門</div>
+																				<div className="icon-small new-bg">最新</div>
 																			</div>
 																		</div>
 																		<div className="a-right">
@@ -332,104 +220,7 @@ export const NewsData = () => {
 																		</div>
 																	</div>
 																	<div className="card_titleDiv">
-																		<div className="card_title" >
-																			2025/7/26（六）【 開閉館 】 -
-																			為公職人員選舉罷免投票日，圖書館閉館一日，不便之處敬請見諒。
-																			/ 2025/7/26（六）【 開閉館 】 -
-																			為公職人員選舉罷免投票日，圖書館閉館一日，不便之處敬請見諒。
-																		</div>
-																	</div>
-																</div>
-															</a>
-														</li>
-														<li className="News_item">
-															<a
-																className="item-inner"
-																href="javascript:void(0);"
-																tabIndex={0}
-																target="_self"
-																title="">
-																<div className="rightBox">
-																	<div className="card_catDiv">
-																		<div className="a-left">
-																			<div className="card_cat">
-																				<div className="card_cat_link">
-																					<span className="cat_title">
-																						電子資源
-																					</span>
-																				</div>
-																			</div>
-																			<div className="CustomState">
-																				<div className="icon-small top-bg">
-																					至頂
-																				</div>
-																				<div className="icon-small hot-bg">
-																					熱門
-																				</div>
-																			</div>
-																		</div>
-																		<div className="a-right">
-																			<div className="card_time">
-																				<i
-																					aria-hidden="true"
-																					className="fa fa-clock-o"
-																					style={{
-																						marginRight: "3px",
-																					}}
-																				/>
-																				2023-11-10
-																			</div>
-																		</div>
-																	</div>
-																	<div className="card_titleDiv">
-																		<div className="card_title" >
-																			2025/7/26（六）【 開閉館 】 -
-																			為公職人員選舉罷免投票日，圖書館閉館一日，不便之處敬請見諒。
-																			/ 2025/7/26（六）【 開閉館 】 -
-																			為公職人員選舉罷免投票日，圖書館閉館一日，不便之處敬請見諒。
-																		</div>
-																	</div>
-																</div>
-															</a>
-														</li>
-														<li className="News_item">
-															<a
-																className="item-inner"
-																href="javascript:void(0);"
-																tabIndex={0}
-																target="_self"
-																title="">
-																<div className="rightBox">
-																	<div className="card_catDiv">
-																		<div className="a-left">
-																			<div className="card_cat">
-																				<div className="card_cat_link">
-																					<span className="cat_title">
-																						電子資源
-																					</span>
-																				</div>
-																			</div>
-																			<div className="CustomState">
-																				<div className="icon-small new-bg">
-																					最新
-																				</div>
-																			</div>
-																		</div>
-																		<div className="a-right">
-																			<div className="card_time">
-																				<i
-																					aria-hidden="true"
-																					className="fa fa-clock-o"
-																					style={{
-																						marginRight: "3px",
-																					}}
-																				/>
-																				2023-11-10
-																			</div>
-																		</div>
-																	</div>
-																	<div className="card_titleDiv">
-																		<div className="card_title" >
+																		<div className="card_title" /* href="#" */ >
 																			2025/7/26（六）【 開閉館 】 -
 																			為公職人員選舉罷免投票日，圖書館閉館一日，不便之處敬請見諒。
 																			/ 2025/7/26（六）【 開閉館 】 -
@@ -478,21 +269,13 @@ export const NewsData = () => {
 																		<div className="a-left">
 																			<div className="card_cat">
 																				<div className="card_cat_link">
-																					<span className="cat_title">
-																						活動訊息
-																					</span>
+																					<span className="cat_title">活動訊息</span>
 																				</div>
 																			</div>
 																			<div className="CustomState">
-																				<div className="icon-small top-bg">
-																					至頂
-																				</div>
-																				<div className="icon-small hot-bg">
-																					熱門
-																				</div>
-																				<div className="icon-small new-bg">
-																					最新
-																				</div>
+																				<div className="icon-small top-bg">至頂</div>
+																				<div className="icon-small hot-bg">熱門</div>
+																				<div className="icon-small new-bg">最新</div>
 																			</div>
 																		</div>
 																		<div className="a-right">
@@ -509,7 +292,7 @@ export const NewsData = () => {
 																		</div>
 																	</div>
 																	<div className="card_titleDiv">
-																		<div className="card_title" >
+																		<div className="card_title" /* href="#" */ >
 																			2025/7/26（六）【 開閉館 】 -
 																			為公職人員選舉罷免投票日，圖書館閉館一日，不便之處敬請見諒。
 																			/ 2025/7/26（六）【 開閉館 】 -
@@ -519,104 +302,9 @@ export const NewsData = () => {
 																</div>
 															</a>
 														</li>
-														<li className="News_item">
-															<a
-																className="item-inner"
-																href="javascript:void(0);"
-																tabIndex={0}
-																target="_self"
-																title="">
-																<div className="rightBox">
-																	<div className="card_catDiv">
-																		<div className="a-left">
-																			<div className="card_cat">
-																				<div className="card_cat_link">
-																					<span className="cat_title">
-																						活動訊息
-																					</span>
-																				</div>
-																			</div>
-																			<div className="CustomState">
-																				<div className="icon-small top-bg">
-																					至頂
-																				</div>
-																				<div className="icon-small hot-bg">
-																					熱門
-																				</div>
-																			</div>
-																		</div>
-																		<div className="a-right">
-																			<div className="card_time">
-																				<i
-																					aria-hidden="true"
-																					className="fa fa-clock-o"
-																					style={{
-																						marginRight: "3px",
-																					}}
-																				/>
-																				2023-11-10
-																			</div>
-																		</div>
-																	</div>
-																	<div className="card_titleDiv">
-																		<div className="card_title" >
-																			2025/7/26（六）【 開閉館 】 -
-																			為公職人員選舉罷免投票日，圖書館閉館一日，不便之處敬請見諒。
-																			/ 2025/7/26（六）【 開閉館 】 -
-																			為公職人員選舉罷免投票日，圖書館閉館一日，不便之處敬請見諒。
-																		</div>
-																	</div>
-																</div>
-															</a>
-														</li>
-														<li className="News_item">
-															<a
-																className="item-inner"
-																href="javascript:void(0);"
-																tabIndex={0}
-																target="_self"
-																title="">
-																<div className="rightBox">
-																	<div className="card_catDiv">
-																		<div className="a-left">
-																			<div className="card_cat">
-																				<div className="card_cat_link">
-																					<span className="cat_title">
-																						活動訊息
-																					</span>
-																				</div>
-																			</div>
-																			<div className="CustomState">
-																				<div className="icon-small new-bg">
-																					最新
-																				</div>
-																			</div>
-																		</div>
-																		<div className="a-right">
-																			<div className="card_time">
-																				<i
-																					aria-hidden="true"
-																					className="fa fa-clock-o"
-																					style={{
-																						marginRight: "3px",
-																					}}
-																				/>
-																				2023-11-10
-																			</div>
-																		</div>
-																	</div>
-																	<div className="card_titleDiv">
-																		<div className="card_title" >
-																			2025/7/26（六）【 開閉館 】 -
-																			為公職人員選舉罷免投票日，圖書館閉館一日，不便之處敬請見諒。
-																			/ 2025/7/26（六）【 開閉館 】 -
-																			為公職人員選舉罷免投票日，圖書館閉館一日，不便之處敬請見諒。
-																		</div>
-																	</div>
-																</div>
-															</a>
-														</li>
+														\\
 													</ul>
+													\
 													<div className="btn-w100-wrapper justify-content-start">
 														<div className="customize_btn mr-4">
 															<a
@@ -655,21 +343,13 @@ export const NewsData = () => {
 																		<div className="a-left">
 																			<div className="card_cat">
 																				<div className="card_cat_link">
-																					<span className="cat_title">
-																						講習課程
-																					</span>
+																					<span className="cat_title">講習課程</span>
 																				</div>
 																			</div>
 																			<div className="CustomState">
-																				<div className="icon-small top-bg">
-																					至頂
-																				</div>
-																				<div className="icon-small hot-bg">
-																					熱門
-																				</div>
-																				<div className="icon-small new-bg">
-																					最新
-																				</div>
+																				<div className="icon-small top-bg">至頂</div>
+																				<div className="icon-small hot-bg">熱門</div>
+																				<div className="icon-small new-bg">最新</div>
 																			</div>
 																		</div>
 																		<div className="a-right">
@@ -686,104 +366,7 @@ export const NewsData = () => {
 																		</div>
 																	</div>
 																	<div className="card_titleDiv">
-																		<div className="card_title" >
-																			2025/7/26（六）【 開閉館 】 -
-																			為公職人員選舉罷免投票日，圖書館閉館一日，不便之處敬請見諒。
-																			/ 2025/7/26（六）【 開閉館 】 -
-																			為公職人員選舉罷免投票日，圖書館閉館一日，不便之處敬請見諒。
-																		</div>
-																	</div>
-																</div>
-															</a>
-														</li>
-														<li className="News_item">
-															<a
-																className="item-inner"
-																href="javascript:void(0);"
-																tabIndex={0}
-																target="_self"
-																title="">
-																<div className="rightBox">
-																	<div className="card_catDiv">
-																		<div className="a-left">
-																			<div className="card_cat">
-																				<div className="card_cat_link">
-																					<span className="cat_title">
-																						講習課程
-																					</span>
-																				</div>
-																			</div>
-																			<div className="CustomState">
-																				<div className="icon-small top-bg">
-																					至頂
-																				</div>
-																				<div className="icon-small hot-bg">
-																					熱門
-																				</div>
-																			</div>
-																		</div>
-																		<div className="a-right">
-																			<div className="card_time">
-																				<i
-																					aria-hidden="true"
-																					className="fa fa-clock-o"
-																					style={{
-																						marginRight: "3px",
-																					}}
-																				/>
-																				2023-11-10
-																			</div>
-																		</div>
-																	</div>
-																	<div className="card_titleDiv">
-																		<div className="card_title" >
-																			2025/7/26（六）【 開閉館 】 -
-																			為公職人員選舉罷免投票日，圖書館閉館一日，不便之處敬請見諒。
-																			/ 2025/7/26（六）【 開閉館 】 -
-																			為公職人員選舉罷免投票日，圖書館閉館一日，不便之處敬請見諒。
-																		</div>
-																	</div>
-																</div>
-															</a>
-														</li>
-														<li className="News_item">
-															<a
-																className="item-inner"
-																href="javascript:void(0);"
-																tabIndex={0}
-																target="_self"
-																title="">
-																<div className="rightBox">
-																	<div className="card_catDiv">
-																		<div className="a-left">
-																			<div className="card_cat">
-																				<div className="card_cat_link">
-																					<span className="cat_title">
-																						講習課程
-																					</span>
-																				</div>
-																			</div>
-																			<div className="CustomState">
-																				<div className="icon-small new-bg">
-																					最新
-																				</div>
-																			</div>
-																		</div>
-																		<div className="a-right">
-																			<div className="card_time">
-																				<i
-																					aria-hidden="true"
-																					className="fa fa-clock-o"
-																					style={{
-																						marginRight: "3px",
-																					}}
-																				/>
-																				2023-11-10
-																			</div>
-																		</div>
-																	</div>
-																	<div className="card_titleDiv">
-																		<div className="card_title" >
+																		<div className="card_title" /* href="#" */ >
 																			2025/7/26（六）【 開閉館 】 -
 																			為公職人員選舉罷免投票日，圖書館閉館一日，不便之處敬請見諒。
 																			/ 2025/7/26（六）【 開閉館 】 -
@@ -816,7 +399,10 @@ export const NewsData = () => {
 										</div>
 									</div>
 								</div>
-								<NewsCalendarData></NewsCalendarData>
+
+								<NewsCalendarData />
+
+
 							</div>
 						</div>
 					</div>

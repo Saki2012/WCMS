@@ -70,102 +70,6 @@ export const CollectionsData = () => {
 													</div>
 												</a>
 											</div>
-											<div className="item">
-												<a
-													href="javascript:void(0);"
-													//onclick="js_method();return false;"
-													tabIndex={0}
-													target="_self"
-													title="">
-													<div className="wrapper_box">
-														<figure className="card_figure">
-															<div className="card_image_link">
-																<picture>
-																	<img
-																		alt=""
-																		className="card_image"
-																		src="/images/collections/collections_IMG_06.jpg"
-																	/>
-																</picture>
-															</div>
-														</figure>
-														<div className="txtarea">
-															<div className="card_catinfo">
-																<span className="card_catname">
-																	<span className="mx-1">資源指南</span>
-																</span>
-															</div>
-															<div className="card_info">
-																<span className="card_title">電子書架</span>
-															</div>
-														</div>
-													</div>
-												</a>
-											</div>
-											<div className="item">
-												<a
-													href="javascript:void(0);"
-													//onclick="js_method();return false;"
-													tabIndex={0}
-													target="_self"
-													title="">
-													<div className="wrapper_box">
-														<figure className="card_figure">
-															<div className="card_image_link">
-																<picture>
-																	<img
-																		alt=""
-																		className="card_image"
-																		src="/images/collections/collections_IMG_04.jpg"
-																	/>
-																</picture>
-															</div>
-														</figure>
-														<div className="txtarea">
-															<div className="card_catinfo">
-																<span className="card_catname">
-																	<span className="mx-1">新進館藏</span>
-																</span>
-															</div>
-															<div className="card_info">
-																<span className="card_title">新進期刊雜誌</span>
-															</div>
-														</div>
-													</div>
-												</a>
-											</div>
-											<div className="item">
-												<a
-													href="javascript:void(0);"
-													//onclick="js_method();return false;"
-													tabIndex={0}
-													target="_self"
-													title="">
-													<div className="wrapper_box">
-														<figure className="card_figure">
-															<div className="card_image_link">
-																<picture>
-																	<img
-																		alt=""
-																		className="card_image"
-																		src="/images/collections/collections_IMG_07.jpg"
-																	/>
-																</picture>
-															</div>
-														</figure>
-														<div className="txtarea">
-															<div className="card_catinfo">
-																<span className="card_catname">
-																	<span className="mx-1">新進館藏</span>
-																</span>
-															</div>
-															<div className="card_info">
-																<span className="card_title">新進圖書視聽</span>
-															</div>
-														</div>
-													</div>
-												</a>
-											</div>
 										</div>
 										<div
 											className="customize_btn mr-4 d-none"
@@ -198,7 +102,7 @@ export const CollectionsData = () => {
 			<script
 				dangerouslySetInnerHTML={{
 					__html:
-						"        $(document).ready(function() {          var owl = $('#Collections_owl_carousel');          var isPlaying = true; // 🔧 補上這一行          owl.owlCarousel({            items: 4,            loop: false, //true or false            dots: false,            nav: true,            margin: 30,            autoplay: false, //true or false            autoplayTimeout: 5000,            autoplayHoverPause: true,            responsive: {              0: { items: 2 },              575: { items: 2 },              767: { items: 2 },              991: { items: 3 },              1199: { items: 4 }            }          });          // 播放 / 暫停切換按鈕邏輯          $('#Collections_toggle').click(function() {            if (isPlaying) {              owl.trigger('stop.owl.autoplay');              isPlaying = false;            } else {              owl.trigger('play.owl.autoplay', [5000]);              isPlaying = true;            }            updateToggleButton();          });          function updateToggleButton() {            const $toggle = $('#Collections_toggle');            const $iconBox = $toggle.find('.control-toggle');            const $srText = $toggle.find('.sr-only');            // 先清空可能存在的 class            $iconBox.removeClass('control-play-icon control-pause-icon');            if (isPlaying) {              $toggle.attr('aria-pressed', 'true').attr('aria-label', '圖片輪播播放中，點擊暫停');              $iconBox.addClass('control-pause-icon');              $srText.text('圖片輪播播放中，點擊暫停');            } else {              $toggle.attr('aria-pressed', 'false').attr('aria-label', '圖片輪播已暫停，點擊播放');              $iconBox.addClass('control-play-icon');              $srText.text('圖片輪播已暫停，點擊播放');            }          }          // 初始化狀態          updateToggleButton();        });      ",
+						"        $(document).ready(function() {          var owl = $('#Collections_owl_carousel');          var isPlaying = true;           owl.owlCarousel({            items: 4,            loop: false,             dots: false,            nav: true,            margin: 30,            autoplay: false,             autoplayTimeout: 5000,            autoplayHoverPause: true,            responsive: {              0: { items: 2 },              575: { items: 2 },              767: { items: 2 },              991: { items: 3 },              1199: { items: 4 }            }          });          $('#Collections_toggle').click(function() {            if (isPlaying) {              owl.trigger('stop.owl.autoplay');              isPlaying = false;            } else {              owl.trigger('play.owl.autoplay', [5000]);              isPlaying = true;            }            updateToggleButton();          });          function updateToggleButton() {            const $toggle = $('#Collections_toggle');            const $iconBox = $toggle.find('.control-toggle');            const $srText = $toggle.find('.sr-only');            $iconBox.removeClass('control-play-icon control-pause-icon');            if (isPlaying) {              $toggle.attr('aria-pressed', 'true').attr('aria-label', '圖片輪播播放中，點擊暫停');              $iconBox.addClass('control-pause-icon');              $srText.text('圖片輪播播放中，點擊暫停');            } else {              $toggle.attr('aria-pressed', 'false').attr('aria-label', '圖片輪播已暫停，點擊播放');              $iconBox.addClass('control-play-icon');              $srText.text('圖片輪播已暫停，點擊播放');            }          }          updateToggleButton();        });      ",
 				}}
 				type="text/javascript"
 			/>
