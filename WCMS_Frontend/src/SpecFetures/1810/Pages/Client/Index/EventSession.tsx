@@ -12,6 +12,8 @@ import { useEffect, useRef } from 'react';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import { FormatDate } from '@/SysCore/Utils/Library/LibData';
 import defaulteventpic from '@/Assets/1810/DefaultEventPic_940x1330.jpg'
+import { useNow } from '@/SysCore/Utils/Library/LibHook';
+import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
 
 interface EventData {
     Id: string;
@@ -25,6 +27,13 @@ interface EventData {
 
 const useAnnouncementList = () => {
     const provider = AnnouncementProvider();
+    let cdt: string = "";
+    //因時程關係，暫時用前端來判斷有效日期時間，多少會有客戶端修改時間的風險。之後再改到後端開新的api寫死抓系統時間為依據。
+    const now = useNow({ startPaused: true });
+    if (now.isoLocal) cdt = LibMerge(" And ", false, cdt, `${SchemaFields.AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
+    cdt = LibMerge(" And ", false, cdt, `${SchemaFields.AnnouncementFields.Categories} HasAny (8,10)`)
+    cdt = LibMerge(" And ", false, cdt, `${SchemaFields.AnnouncementFields.ContentStatus} !&4`)
+
     return useFetchGridListData<AnnouncementSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
@@ -43,13 +52,13 @@ const useAnnouncementList = () => {
                 `${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
                 SchemaFields.AnnouncementFields.ViewCount,
             ],
-            Condition: `${SchemaFields.AnnouncementFields.Categories} HasAny (8,10) And ${SchemaFields.AnnouncementFields.ContentStatus} !&4`,
+            Condition: cdt,
             OrderBy: [{ Col: SchemaFields.AnnouncementFields.Validate_Start, Desc: true }],
             PageNumber: 1,
             PageSize: 6,
         }),
         enabled: true,
-        deps: [],
+        deps: [cdt],
     });
 };
 

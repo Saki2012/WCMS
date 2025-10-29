@@ -14,6 +14,7 @@ import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
 import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
 import { DefaultLang } from '@/SysCore/i18n/lang';
 import { ProgId } from '@/Features/Hooks/Common/ProgId';
+import { useNow } from '@/SysCore/Utils/Library/LibHook';
 
 
 
@@ -21,6 +22,9 @@ import { ProgId } from '@/Features/Hooks/Common/ProgId';
 const useTopAnnouncementList = (categories?: string) => {
     const provider = AnnouncementProvider();
     let cdt = `${SchemaFields.AnnouncementFields.ContentStatus} & 1`;
+    //因時程關係，暫時用前端來判斷有效日期時間，多少會有客戶端修改時間的風險。之後再改到後端開新的api寫死抓系統時間為依據。
+    const now = useNow({ startPaused: true });
+    if (now.isoLocal) cdt = LibMerge(" And ", false, cdt, `${SchemaFields.AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
     cdt = LibMerge(" And ", false, cdt, categories ? `${SchemaFields.AnnouncementFields.Categories} HasAny ${categories}` : "");
     return useFetchGridListData<AnnouncementSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
@@ -54,6 +58,9 @@ const useTopAnnouncementList = (categories?: string) => {
 const useAnnouncementList = (categories?: string) => {
     const provider = AnnouncementProvider();
     let cdt = `${SchemaFields.AnnouncementFields.ContentStatus} !& 4 And ${SchemaFields.AnnouncementFields.ContentStatus} !& 1`;
+    //因時程關係，暫時用前端來判斷有效日期時間，多少會有客戶端修改時間的風險。之後再改到後端開新的api寫死抓系統時間為依據。
+    const now = useNow({ startPaused: true });
+    if (now.isoLocal) cdt = LibMerge(" And ", false, cdt, `${SchemaFields.AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
     cdt = LibMerge(" And ", false, cdt, categories ? `${SchemaFields.AnnouncementFields.Categories} HasAny ${categories}` : "");
     return useFetchGridListData<AnnouncementSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
@@ -397,7 +404,7 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
                                         {item.contentStatus != 0 && (
                                             <>
                                                 {Boolean(item.contentStatus & 1) && (<div className="icon-small top-bg">置頂</div>)}
-                                                {Boolean(item.contentStatus & 1) && (<div className="icon-small hot-bg">熱門</div>)}
+                                                {Boolean(item.contentStatus & 2) && (<div className="icon-small hot-bg">熱門</div>)}
                                             </>
                                         )}
                                     </div>

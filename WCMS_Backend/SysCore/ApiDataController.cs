@@ -207,7 +207,7 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="pk"></param>
         /// <returns></returns>
-        [HttpGet(nameof(QueryData)), OutputCache(PolicyName = "DetailJson"), AllowAnonymous, IgnoreAntiforgeryToken]
+        [HttpGet(nameof(QueryData)),/* OutputCache(PolicyName = "DetailJson"),*/ AllowAnonymous, IgnoreAntiforgeryToken]
         public virtual async Task<IActionResult> QueryData([FromQuery] string internalId, CancellationToken ct)
         {
             if (!Guid.TryParse(internalId, out var guid)) { return BadRequest("Invalid internalId format."); }
@@ -221,7 +221,7 @@ namespace WCMS.SysCore
         /// 查詢清單
         /// </summary>
         /// <returns></returns>
-        [HttpPost(nameof(QueryList)), OutputCache(PolicyName = "ListJson"), AllowAnonymous, IgnoreAntiforgeryToken]
+        [HttpPost(nameof(QueryList)), /*OutputCache(PolicyName = "ListJson"),*/ AllowAnonymous, IgnoreAntiforgeryToken]
         public virtual async Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition, CancellationToken ct)
         {
             if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
@@ -237,7 +237,7 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="queryCondition"></param>
         /// <returns></returns>
-        [HttpPost(nameof(GetTotalCounts)), OutputCache(PolicyName = "ListJson"), AllowAnonymous, IgnoreAntiforgeryToken]
+        [HttpPost(nameof(GetTotalCounts)),/* OutputCache(PolicyName = "ListJson"),*/ AllowAnonymous, IgnoreAntiforgeryToken]
         public virtual async Task<IActionResult> GetTotalCounts([FromBody] QueryListParam? queryCondition, CancellationToken ct)
         {
             if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");

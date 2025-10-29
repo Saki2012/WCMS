@@ -36,7 +36,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 標籤 (多個) 
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Tag)] public string? Tags { get; set; } = string.Empty;
+        [LibDesc(ModelDisplayName.Spec1810_Tag)] public string? Tags { get; set; } = string.Empty;
         /// <summary>
         /// 狀態 (多個)
         /// </summary>
