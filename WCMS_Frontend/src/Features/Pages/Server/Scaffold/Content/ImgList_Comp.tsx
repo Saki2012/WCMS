@@ -1,10 +1,7 @@
 import type { ListCompProp } from "./Content_Data";
-import { DividerComp } from "../../../../../SysCore/Components/Divider/Divider_Comp";
-import { List_Toolbar } from "../Toolbar/Toolbar_Comp";
-import { SearchComp } from "../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
-import { Grid } from "../../../../../SysCore/Components/Grid/Grid_Comp";
-import type { SearchBarProps } from "../../../../../SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
-import LoadingErrorHandler from "../../../../../SysCore/Components/LoadingErrorHandler";
+import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
+import { List_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp";
+import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 
 
 
@@ -23,10 +20,10 @@ export const ImgListComp = ({ prop, children }: { prop: ListCompProp; children: 
                                     <div className="panel">
                                         <div className="panel-body">
                                             <div className="form">
-                                                <SearchComp prop={prop.SearchBar}></SearchComp>
+                                                {/* <SearchComp prop={prop.SearchBar}></SearchComp> */}
                                                 <DividerComp></DividerComp>
                                                 {/* <Form_Toolbar items={prop.Toolbar}></Form_Toolbar> */}
-                                                <List_Toolbar items={prop.Actions} ></List_Toolbar>
+                                                <List_Toolbar action={prop.Actions} ></List_Toolbar>
                                                 <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList} >
                                                     {children}
                                                 </LoadingErrorHandler>

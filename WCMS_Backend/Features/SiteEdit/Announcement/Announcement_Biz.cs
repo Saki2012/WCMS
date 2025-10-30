@@ -2,6 +2,7 @@
 using System.Data;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using WCMS.Features.SiteEdit.PageManagement;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
@@ -142,15 +143,15 @@ namespace WCMS.Features.SiteEdit.Announcement
         #endregion
 
         #region Protected
-        protected override void BeforeUpdate(AnnouncementSet set, FuncAction act)
+        protected override async Task BeforeUpdate(AnnouncementSet set, FuncAction act)
         {
-            base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act);
             switch (act)
             {
                 case FuncAction.Create:
                 case FuncAction.Update:
                     CheckData(set);
-                    DoRemergeData(set.Announcement);
+                    SetData(set);
                     break;
             }
         }
@@ -159,19 +160,20 @@ namespace WCMS.Features.SiteEdit.Announcement
         #region Private
         private void CheckData(AnnouncementSet set)
         {
-            CheckDate(set.Announcement);
+            CheckDateIsEmpty(set);
         }
 
-        private void CheckDate(Announcement header)
+        private void SetData(AnnouncementSet set)
         {
+            DoRemergeData(set.Announcement);
+        }
 
-            if (header.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Announcement>(x => x.Validate_Start));
-            //if (header.Validate_End == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Announcement>(x => x.Validate_End));
-            if (header.Validate_End != null && header.Validate_Start > header.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, I18nCache.GetLabel<Announcement>(x => x.Validate_End), I18nCache.GetLabel<Announcement>(x => x.Validate_Start));
-
-            if (header.Categories == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Announcement>(x => x.Categories));
-
-
+        private void CheckDateIsEmpty(AnnouncementSet set)
+        {
+            if (set.Announcement.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Announcement_DTO>(x => x.Validate_Start));
+            if (set.Announcement.Validate_End != null && set.Announcement.Validate_Start >= set.Announcement.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, I18nCache.GetLabel<Announcement_DTO>(x => x.Validate_End), I18nCache.GetLabel<Announcement_DTO>(x => x.Validate_Start));
+            if (set.Announcement.Categories == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Announcement_DTO>(x => x.Categories));
+            if(set.AnnouncementDetail.FirstOrDefault(p=>p.Lang.Equals("zh-tw")) == null || set.AnnouncementDetail.FirstOrDefault(p => p.Lang.Equals("zh-tw")).Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, "繁體中文", I18nCache.GetLabel<AnnouncementDetail_DTO>(x => x.Title));
         }
 
         /// <summary>

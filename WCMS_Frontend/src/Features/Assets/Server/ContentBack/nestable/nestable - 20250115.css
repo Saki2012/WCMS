@@ -1,0 +1,666 @@
+@charset "utf-8";
+/* CSS Document */
+
+/* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
+/* ---// nestable 原設定 //---------------- */
+.dd {
+    position: relative;
+    display: block;
+    margin: 0;
+    padding: 0;
+    max-width: 600px;
+    max-width: 100%;
+    list-style: none;
+    
+    font-size: 81.25%;
+    line-height: 20px;
+}
+
+.dd-list {
+    display: block;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.dd-list .dd-list {
+    padding-left: 30px;
+}
+
+.dd-collapsed .dd-list {
+    display: none;
+}
+
+.dd-item,
+.dd-empty,
+.dd-placeholder {
+    display: block;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    min-height: 20px;
+    
+    font-size: 81.25%;
+    line-height: 20px;
+}
+
+.dd-handle {
+    display: block;
+    height: 30px;
+    margin: 5px 0;
+    padding: 5px 10px;
+    color: var(--G333color);
+    text-decoration: none;
+    font-weight: bold;
+    border: 1px solid var(--GCCCcolor);
+    /*background: #fafafa;*/
+    /*background: -webkit-linear-gradient(top, #fafafa 0%, #eee 100%);*/
+   /* background: -moz-linear-gradient(top, #fafafa 0%, #eee 100%);*/
+    /*background: linear-gradient(top, #fafafa 0%, #eee 100%);*/
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+}
+
+.dd-handle:hover {
+    color: #2ea8e5;
+    background-color: var(--FFFcolor);
+}
+
+.dd-item > button {
+    display: block;
+    position: relative;
+    cursor: pointer;
+    float: left;
+    width: 25px;
+    height: 20px;
+    margin: 5px 0;
+    padding: 0;
+    text-indent: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    border: 0;
+    background-color: transparent;
+    
+    font-size: 75%;
+    line-height: 1;
+    text-align: center;
+    font-weight: bold;
+}
+
+.dd-item > button:before {
+    content: '+';
+    display: block;
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    text-indent: 0;
+}
+
+.dd-item > button[data-action="collapse"]:before {
+    content: '-';
+}
+
+.dd-placeholder,
+.dd-empty {
+    margin: 5px 0;
+    padding: 0;
+    min-height: 30px;
+    background-color: #f2fbff;
+    border: 1px dashed #b6bcbf;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+}
+
+.dd-empty {
+    border: 1px dashed #bbb;
+    min-height: 100px;
+    background-color: #e5e5e5;
+    background-image: -webkit-linear-gradient(45deg, var(--FFFcolor) 25%, transparent 25%, transparent 75%, var(--FFFcolor) 75%, var(--FFFcolor)),
+        -webkit-linear-gradient(45deg, var(--FFFcolor) 25%, transparent 25%, transparent 75%, var(--FFFcolor) 75%, var(--FFFcolor));
+    background-image: -moz-linear-gradient(45deg, var(--FFFcolor) 25%, transparent 25%, transparent 75%, var(--FFFcolor) 75%, var(--FFFcolor)),
+        -moz-linear-gradient(45deg, var(--FFFcolor) 25%, transparent 25%, transparent 75%, var(--FFFcolor) 75%, var(--FFFcolor));
+    background-image: linear-gradient(45deg, var(--FFFcolor) 25%, transparent 25%, transparent 75%, var(--FFFcolor) 75%, var(--FFFcolor)),
+        linear-gradient(45deg, var(--FFFcolor) 25%, transparent 25%, transparent 75%, var(--FFFcolor) 75%, var(--FFFcolor));
+    background-size: 60px 60px;
+    background-position: 0 0, 30px 30px;
+}
+
+.dd-dragel {
+    position: absolute;
+    pointer-events: none;/* *********  重要 滑鼠作用 ********* */
+    z-index: 9999;
+}
+
+.dd-dragel > .dd-item .dd-handle {
+    margin-top: 0;
+}
+
+.dd-dragel .dd-handle {
+    -webkit-box-shadow: 2px 4px 6px 0 rgba(0, 0, 0, .1);
+    box-shadow: 2px 4px 6px 0 rgba(0, 0, 0, .1);
+}
+
+/**
+ * Nestable Extras
+ */
+
+.nestable-lists {
+    display: block;
+    clear: both;
+    padding: 30px 0;
+    width: 100%;
+    border: 0;
+    border-top: 2px solid #dddddd;
+    border-bottom: 2px solid #dddddd;
+}
+
+#nestable-menu {
+    padding: 0;
+    margin: 0;
+}
+
+#nestable-output,
+#nestable2-output {
+    width: 100%;
+    height: 7em;
+    font-size: 75%;
+    line-height: 1.333333em;
+    font-family: Consolas, monospace;
+    padding: 5px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+}
+
+#nestable2 .dd-handle {
+    color: var(--FFFcolor);
+    border: 1px solid var(--G999color);
+    background-color: #bbbbbb;
+    background-color: -webkit-linear-gradient(top, #bbbbbb 0%, var(--G999color) 100%);
+    background-color: -moz-linear-gradient(top, #bbbbbb 0%, var(--G999color) 100%);
+    background-color: linear-gradient(top, #bbbbbb 0%, var(--G999color) 100%);
+}
+
+#nestable2 .dd-handle:hover {
+    background-color: #bbbbbb;
+}
+
+#nestable2 .dd-item > button:before {
+    color: var(--FFFcolor);
+}
+
+@media only screen and (min-width: 700px) {
+    .dd {
+        float: left;
+        width: 48%;
+    }
+
+    .dd+.dd {
+        margin-left: 2%;
+    }
+}
+
+.dd-hover > .dd-handle {
+    background-color: #2ea8e5 !important;
+}
+
+/**
+ * Nestable Draggable Handles
+ */
+
+.dd3-content {
+    display: block;
+    height: 30px;
+    margin: 5px 0;
+    padding: 5px 10px 5px 40px;
+    text-decoration: none;
+    font-weight: bold;
+    border: 1px solid var(--GCCCcolor);
+    /*background: #fafafa;*/
+    /*background: -webkit-linear-gradient(top, #fafafa 0%, #eee 100%);*/
+    /*background: -moz-linear-gradient(top, #fafafa 0%, #eee 100%);*/
+    /*background: linear-gradient(top, #fafafa 0%, #eee 100%);*/
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+}
+
+.dd3-content:hover {
+    color: #2ea8e5;
+    background-color: var(--FFFcolor);
+}
+
+.dd-dragel > .dd3-item > .dd3-content {
+    margin: 0;
+}
+
+.dd3-item > button {
+    margin-left: 30px;
+}
+
+.dd3-handle {
+    position: absolute;
+    margin: 0;
+    left: 0;
+    top: 0;
+    cursor: pointer;
+    width: 30px;
+    text-indent: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    border: 1px solid #aaaaaa;
+    /*background: #ddd;*/
+    /*background: -webkit-linear-gradient(top, #ddd 0%, #bbb 100%);*/
+    /*background: -moz-linear-gradient(top, #ddd 0%, #bbb 100%);*/
+    /*background: linear-gradient(top, #ddd 0%, #bbb 100%);*/
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.dd3-handle:before {
+    content: '≡';
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 3px;
+    width: 100%;    
+    
+    font-size: 125.0%;
+    font-weight: normal;
+    text-align: center;
+    text-indent: 0;
+    color: var(--FFFcolor);
+}
+
+.dd3-handle:hover {
+    background: #ddd;
+}
+
+/**
+ * Socialite
+ */
+
+.socialite {
+    display: block;
+    float: left;
+    height: 35px;
+}
+/* ---// nestable 原設定 //---------------- */
+/* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
+
+
+
+
+/* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
+/* ---// JESS 新設定 取代 原設定 //---------- */
+
+:root {
+    --Customize_dd3-height: 56.8px;
+}
+
+
+.dd {
+    position: relative;
+    display: block;
+    margin: 0;
+    padding: 0;
+    max-width: 600px;
+    max-width: 100%;
+    list-style: none;
+    /*font-size: 93.75%;*/ /*13px*/
+    font-size: inherit;
+    line-height: 20px;
+}
+@media only screen and (min-width: 700px) {
+    .dd {
+        float: left;
+        width: 100%;
+    }
+}
+/* ============================================ */
+
+/* ============================================ */
+/* 項目 ITEM 文字級數大小 設定 */
+.dd-item,
+.dd-empty,
+.dd-placeholder {
+    font-size: 100%; /*13px*/
+    font-size: inherit;
+}
+/* 項目 ITEM 文字級數大小 設定 */
+/* ============================================ */
+
+/* ============================================ */
+/* 左邊項目 ITEM ( dd-handle + dd3-handle ) 區塊顏色 */
+.dd-handle {
+    display: block;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    
+    color: initial;
+    font-weight: bold;    
+    text-decoration: none;
+    
+    height: 30px;
+    
+    margin: 5px 0;
+    padding: 5px 10px;
+    
+    border: 1px solid var(--GCCCcolor);
+    background: var(--FFFcolor);
+    
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.dd-list .dd3-handle {
+    position: absolute;
+    margin: 0;
+    left: 0;
+    top: 0;
+    cursor: pointer;    
+    text-indent: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    
+    width: 30px;
+    height: 40px;
+    border: 1px solid #1f77b4;
+    background-color: #1f77b4;
+}
+@media only screen and (min-width: 700px) {
+    .dd-list .dd3-handle {
+        height: 56.8px;
+        height: var(--Customize_dd3-height);
+    }
+}
+
+/* 第一層 */
+.dd-list .dd-item .dd3-content .dd3-handle {
+    border: 1px solid #1f77b4;
+    background-color: #1f77b4;
+}
+/* 第二層 */
+.dd-list .dd-item > .dd-list .dd-item > .dd3-content .dd3-handle {
+    border: 1px solid #ff7f0e;
+    background-color: #ff7f0e;
+}
+/* 第三層 */
+.dd-list .dd-item > .dd-list .dd-item > .dd-list .dd-item > .dd3-content .dd3-handle {
+    border: 1px solid #3bb33b;
+    background-color: #3bb33b;
+}
+/* 第四層 */
+.dd-list .dd-item > .dd-list .dd-item > .dd-list .dd-item > .dd-list .dd-item > .dd3-content .dd3-handle {
+    border: 1px solid #dc3545;
+    background-color: #dc3545;
+}
+/* 第五層 */
+.dd-list .dd-item > .dd-list .dd-item > .dd-list .dd-item > .dd-list .dd-item > .dd-list .dd-item > .dd3-content .dd3-handle {
+    border: 1px solid #bf46ac;
+    background-color: #bf46ac;
+}
+/* -------------------------------------------- */
+/* -------------------------------------------- */
+.dd-list .dd3-handle:hover {
+    border: 1px solid var(--Customize_HRcolor);
+    background-color: var(--Customize_HRcolor);
+}
+
+.dd-list .dd3-handle::before {
+    content: '≡';
+    /*display: block;*/
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    text-indent: 0;
+    
+    color: var(--FFFcolor);
+    font-size: 125.0%;
+    font-weight: normal;    
+}
+/* 左邊項目 ITEM ( dd-handle + dd3-handle ) 區塊顏色 */
+/* ============================================ */
+
+/* ============================================ */
+/* 按下 移動 原位置 及 移動至區域目標位置 底色 */
+.dd-placeholder,
+.dd-empty {
+    margin: 5px 0;
+    padding: 0;
+    min-height: 30px;
+    background-color: rgba(11, 98, 227, 0.25); /*#0B62E3 rgba(11, 98, 227, 1)*/
+    border: 1px dashed #b6bcbf;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+}
+/* 按下 移動 原位置 及 移動至區域目標位置 底色 */
+/* ============================================ */
+
+/* ============================================ */
+/* 項目 ITEM ( dd3-content ) 顏色 */
+.dd3-content {
+    display: block;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    
+    height: auto;
+    min-height: 56.9px;
+    
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;    
+    
+    text-decoration: none;
+    font-weight: normal;
+    
+    margin: 5px 0;
+    padding: 5px 15px 5px 65px;
+    
+    border: 1px solid var(--GCCCcolor);
+    background-color: var(--FFFcolor);
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+}
+
+.dd3-content:hover {
+    color: var(--Customize_HRcolor);
+    background: var(--FFFcolor);
+}
+/* 項目 ITEM ( dd3-content ) 顏色 */
+/* ============================================ */
+
+/* ============================================ */
+/* ---// 加號 + 減號 //--- */
+.dd-item > button {
+    display: block;
+    position: absolute;
+    cursor: pointer;
+    float: left;
+    
+    font-size: 112.5%;
+    line-height: 1;
+    text-align: center;
+    font-weight: bold;
+    text-indent: 100%;
+    white-space: nowrap;
+    
+    margin: 0;
+    padding: 0;
+    
+    overflow: hidden;
+    border: 0;
+    background: transparent;    
+    
+    width: 30px;
+    height: 40px;
+}
+@media only screen and (min-width: 700px) {
+    .dd-item > button {
+        height: 56.8px;
+        height: var(--Customize_dd3-height);
+    }
+}
+
+.dd3-item > button {
+  margin-left: 30px;
+}
+.dd-item > button:before {
+    content: '＋';
+    display: block;
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    text-indent: 0;
+}
+.dd-item > button[data-action="collapse"]:before {
+    content: '–';
+}
+/* ---// 加號 + 減號 //--- */
+/* ============================================ */
+
+/* ============================================ */
+/* ---// 自訂Button //------------------------- */
+.dd-list .all-btn {
+    position: relative;
+    display: inline-block;
+}
+@media only screen and (max-width: 700px) {
+    .dd-list .all-btn {
+        margin-left: -30px;
+        margin-top: 10px;
+        width: calc(100% + 30px);
+    }
+}
+
+.dd-list .all-btn a.icon {
+    position: relative;
+    display: inline-block;
+    margin: 2.5px 5px;
+}
+.dd-list .all-btn a.icon:first-child {
+    margin-left: 0;
+}
+.dd-list .all-btn a.icon:last-child {
+    margin-right: 0;
+}
+
+.dd-list .all-btn a.icon:last-child {
+    margin-right: 0;
+}
+
+.dd-list .all-btn a.icon > .btn.btn-ctm {
+	/*font-size: 87.5%;*/
+	color: var(--G777color);
+    height: 36px;
+    width: 36px;
+    padding: 0;
+    border-radius: .25rem;
+    border: 1px solid var(--GCCCcolor);    
+}
+@media (max-width: 1024px) {
+    .dd-list .all-btn a.icon > .btn.btn-ctm  {
+        height: 30px;
+        width: 30px;
+    }
+}
+
+/* ---// 自訂Button HOVER //------------------- */
+.dd-list .btn.Ieye {
+    color: #8373f0 !important;
+}
+.dd-list a:hover .btn.Ieye {
+	color: var(--FFFcolor) !important;
+    background-color: #8373f0 !important;
+	border-color: #8373f0 !important;
+}
+
+.dd-list .btn.Icogs {
+    color: #f77f37 !important;
+}
+.dd-list a:hover .btn.Icogs {
+	color: var(--FFFcolor) !important;
+    background-color: #f77f37 !important;
+	border-color: #f77f37 !important;
+}
+
+.dd-list .btn.Ilink {
+	color: #39bf67 !important;
+}
+.dd-list a:hover .btn.Ilink {
+	color: var(--FFFcolor) !important;
+    background-color: #39bf67 !important;
+	border-color: #39bf67 !important;
+}
+
+.dd-list .btn.Ipencil {
+	color: #4689f2 !important;
+}
+.dd-list a:hover .btn.Ipencil {
+	color: var(--FFFcolor) !important;
+	background-color: #4689f2 !important;
+	border-color: #4689f2 !important;
+}
+
+.dd-list .btn.Iwindow {
+	color: #059cb5 !important;
+}
+.dd-list a:hover .btn.Iwindow {
+	color: var(--FFFcolor) !important;
+	background-color: #059cb5 !important;
+	border-color: #059cb5 !important;
+}
+
+.dd-list .btn.Itrash {
+	color: #d9534f !important;
+}
+.dd-list a:hover .btn.Itrash {
+	color: var(--FFFcolor) !important;
+    background-color: #d9534f !important;
+	border-color: #d9534f !important;
+}
+/*.btn.customhover-trash:not(:disabled):not(.disabled):hover {
+}*/
+/* ---// 自訂Button HOVER //------------------- */
+
+/* ---// 自訂Button //------------------------- */
+/* ============================================ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -3,7 +3,6 @@ import type { components } from '@/types/api';
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
 import * as SchemaFields from "@/types/SchemaFields";
-import { type EventData } from './Event_Data'
 import { Link } from 'react-router-dom';
 import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api';
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
@@ -13,8 +12,28 @@ import { useEffect, useRef } from 'react';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import { FormatDate } from '@/SysCore/Utils/Library/LibData';
 import defaulteventpic from '@/Assets/1810/DefaultEventPic_940x1330.jpg'
+import { useNow } from '@/SysCore/Utils/Library/LibHook';
+import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
+
+interface EventData {
+    Id: string;
+    Title: string; // 標題
+    ImgSrc: string; // 圖片來源
+    Url: string; // 連結
+    Tags: string; //
+    date: string;
+    contentStatus: number;
+}
+
 const useAnnouncementList = () => {
     const provider = AnnouncementProvider();
+    let cdt: string = "";
+    //因時程關係，暫時用前端來判斷有效日期時間，多少會有客戶端修改時間的風險。之後再改到後端開新的api寫死抓系統時間為依據。
+    const now = useNow({ startPaused: true });
+    if (now.isoLocal) cdt = LibMerge(" And ", false, cdt, `${SchemaFields.AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
+    cdt = LibMerge(" And ", false, cdt, `${SchemaFields.AnnouncementFields.Categories} HasAny (8,10)`)
+    cdt = LibMerge(" And ", false, cdt, `${SchemaFields.AnnouncementFields.ContentStatus} !&4`)
+
     return useFetchGridListData<AnnouncementSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
@@ -29,17 +48,17 @@ const useAnnouncementList = () => {
                 SchemaFields.AnnouncementFields.PictureId,
                 SchemaFields.AnnouncementFields.PicDescription,
                 SchemaFields.AnnouncementFields.ContentStatus,
-                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
-                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
+                `${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
+                `${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
                 SchemaFields.AnnouncementFields.ViewCount,
             ],
-            Condition: `${SchemaFields.AnnouncementFields.Categories} HasAny (8,10) And ${SchemaFields.AnnouncementFields.ContentStatus} !&4`,
+            Condition: cdt,
             OrderBy: [{ Col: SchemaFields.AnnouncementFields.Validate_Start, Desc: true }],
             PageNumber: 1,
             PageSize: 6,
         }),
         enabled: true,
-        deps: [],
+        deps: [cdt],
     });
 };
 
@@ -53,8 +72,8 @@ const useTagList = () => {
         buildQueryCondition: () => ({
             Fields: [
                 SchemaFields.TagDataFields.TagId,
-                `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
-                `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
+                `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
+                `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
             ],
             Condition: `${SchemaFields.TagDataFields.ProgId} = Announcement`,
             PageNumber: 0,
@@ -188,7 +207,7 @@ export const EventSession = () => {
                                                                             {item.contentStatus != 0 && (
                                                                                 <>
                                                                                     {Boolean(item.contentStatus & 1) && (<div className="icon-small top-bg">置頂</div>)}
-                                                                                    {(item.contentStatus & 2 && <div className="icon-small hot-bg">熱門</div>)}
+                                                                                    {Boolean(item.contentStatus & 2) && (<div className="icon-small hot-bg">熱門</div>)}
                                                                                 </>
                                                                             )}
                                                                         </div>

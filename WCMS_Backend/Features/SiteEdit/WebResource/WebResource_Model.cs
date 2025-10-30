@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.Features.SiteEdit.Tag;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
@@ -20,15 +22,15 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// <summary>
         /// 檔案分類ID
         /// </summary>
-        [LibDesc, Required, Key, StringLength(SysLengthParam.ID)] public string WebResourceId { get; set; }
+        [Required, Key, StringLength(SysLengthParam.ID)] public string WebResourceId { get; set; }
         /// <summary>
         /// 類別ID(多個)
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.Title)] public string Categories { get; set; }
+        [StringLength(SysLengthParam.Title)] public string Categories { get; set; }
         /// <summary>
         /// 標籤ID(多個)
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.Title)] public string Tags { get; set; }
+        [StringLength(SysLengthParam.Title)] public string Tags { get; set; }
         /// <summary>
         /// 狀態:置頂/熱門/隱藏
         /// </summary>
@@ -36,14 +38,16 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// <summary>
         /// 圖片顯示
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.InternalId)] public string? PicId { get; set; }
+        [StringLength(SysLengthParam.InternalId)] public string? PicId { get; set; }
         /// <summary>
         /// 圖片顯示描述
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.Memo)] public string PicDescription { get; set; }
+        [StringLength(SysLengthParam.Memo)] public string PicDescription { get; set; }
 
-        public List<WebResourceInfo> WebResourceInfo { get; set; } = [];
 
+        #region 主子表關聯
+        [InverseProperty(nameof(WebResourceInfo._WebResource))] public List<WebResourceInfo> _WebResourceInfo { get; set; }
+        #endregion
     }
     /// <summary>
     /// 網路資源資訊
@@ -53,15 +57,15 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// <summary>
         /// 檔案分類ID
         /// </summary>
-        [LibDesc, Required, Key, StringLength(SysLengthParam.ID)] public string WebResourceId { get; set; }
+        [Required, Key, StringLength(SysLengthParam.ID)] public string WebResourceId { get; set; }
         /// <summary>
         /// 行主鍵
         /// </summary>
-        [LibDesc, Key] public int RowId { get; set; }
+        [Key] public int RowId { get; set; }
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.Lang)] public string Lang { get; set; }
+        [StringLength(SysLengthParam.Lang)] public string Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>
@@ -78,5 +82,9 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// 超連結開啟方式
         /// </summary>
         [StringLength(SysLengthParam.ID)] public WindowTarget Url_OpenType { get; set; }
+
+        #region 主子表關聯
+        [ForeignKey(nameof(WebResourceId))] public WebResource _WebResource { get; set; }
+        #endregion
     }
 }

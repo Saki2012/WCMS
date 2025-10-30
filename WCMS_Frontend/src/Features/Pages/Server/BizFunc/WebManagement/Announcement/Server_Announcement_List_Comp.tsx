@@ -1,34 +1,39 @@
-import type { SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme"
 import type { GridProps, ColumnConfig, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useLocation } from 'react-router-dom';
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp"
-import type { ListCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data"
 import type { components } from "@/types/api";
-import * as SchemaFields from "@/types/SchemaFields";
 import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
-import { useAnnouncementList } from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Hook";
 import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions";
-import { GridCol_Toolbar } from "../../../Scaffold/Toolbar/Toolbar_Comp";
+import { GridCol_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp";
 import AnnouncementProvider from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api";
 import type { Lang } from "@/SysCore/i18n/lang";
+import type { SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
+import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
+import { FormatDate, FormatDateTime } from "@/SysCore/Utils/Library/LibData";
+import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
+import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { AnnouncementDetailFields, AnnouncementFields, AnnouncementSetFields, UserModelFields } from "@/types/SchemaFields";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 /** 公告列表
  * @returns 
  */
 export const Server_AnnouncementListComp = (prop: { title: string; theme: IBETheme; lang: Lang }) => {
-    const dirUrl = useLocation().pathname.replace(/\/List$/, `/Form`);
-    const useCategory = useCategoryListData("Announcement", "zh-tw");
-    const useAnnounceList = useAnnouncementList();
-    const actions = useActions(dirUrl, AnnouncementProvider(), undefined, undefined, useAnnounceList.refetchCurrent)
+    const [kw, setKw] = useState<string>("");
+    const pathname = useLocation().pathname;
+    const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
+    const provider = useMemo(() => AnnouncementProvider(), []);
+    const useCategory = useCategoryListData(ProgId.Announcement, prop.lang);
+    const useAnnounceList = useAnnouncementList(provider, prop.lang, kw);
+    const actions = useActions(dirUrl, provider, undefined, undefined, useAnnounceList.refetchCurrent)
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, actions); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, actions]);
-    const isLoading = [useAnnounceList.isLoading, useCategory.isLoading];
-    const errors = [useAnnounceList.error, useCategory.error];
-    const searchCompProp: SearchBarProps = { title: "公告搜尋", subTitle: "搜尋公告 ...", settingTitle: "搜尋設定", }
-    const compProp: ListCompProp = { Title: prop.title, Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions, GridData: adjustedGrid, SearchBar: searchCompProp }
-    return (<ListComp prop={compProp}></ListComp>);
+    const isLoading = useMemo(() => [useAnnounceList.isLoading, useCategory.isLoading], [useAnnounceList.isLoading, useCategory.isLoading]);
+    const errors = useMemo(() => [useAnnounceList.error, useCategory.error], [useAnnounceList.error, useCategory.error]);
+    const searchCompProp: SearchBarProps = { title: "公告搜尋", subTitle: "搜尋公告 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
+    return (<ListComp Title={prop.title} Theme={prop.theme} LoadingList={isLoading} ErrorList={errors} Actions={actions} GridData={adjustedGrid} SearchBar={searchCompProp}></ListComp>);
 }
 
 /** 動態添加每行的動作功能 */
@@ -40,9 +45,9 @@ const SetAdjustFunction = (gridProps: GridProps, rawData: AnnouncementSet[], cat
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
     const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
-        const statusCell = row.cells.find(cell => cell.col.key === SchemaFields.AnnouncementFields.ContentStatus);
+        const statusCell = row.cells.find(cell => cell.col.key === AnnouncementFields.ContentStatus);
         if (statusCell && typeof statusCell.content === 'number') { statusCell.content = GetDataStatusContent(statusCell.content); }
-        const categoryCell = row.cells.find(p => p.col.key === SchemaFields.AnnouncementFields.Categories);
+        const categoryCell = row.cells.find(p => p.col.key === AnnouncementFields.Categories);
         const rawCatId = rawData?.[index]?.Announcement?.Categories ?? categoryCell?.content?.toString() ?? "";
         if (categoryCell) { categoryCell.content = useFormatCategoriesName(rawCatId, categoryData); }
         const internalId = rawData?.[index]?.Announcement?.InternalId ?? "";
@@ -62,4 +67,75 @@ const GetDataStatusContent = (contentStatus: number): React.ReactNode => {
     if (contentStatus & 2) { statusItems.push(<div className="icon-small hot-bg">熱門</div>); }
     if (contentStatus & 4) { statusItems.push(<div className="icon-small hide-bg">隱藏</div>); }
     return <div className="CustomState">{statusItems}</div>
+};
+
+const useAnnouncementList = (provider: IDataProvider<AnnouncementSet>, lang: Lang, query: string) => {
+    let condition: string = `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang} = ${lang}`;
+    if (!!query) condition = LibMerge(" And ", false, condition, `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} Like ${query}`)
+    return useFetchGridListData<AnnouncementSet>({
+        getModelDisplayName: () => provider.getModelDisplayName(),
+        fetchList: (cond) => provider.fetchList(cond),
+        fetchListCount: (cond) => provider.fetchListCount(cond),
+        visibleKeys: [
+            [AnnouncementSetFields.Announcement, AnnouncementFields.Categories],
+            [AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.Title],
+            [AnnouncementSetFields.Announcement, AnnouncementFields.ContentStatus],
+            [AnnouncementSetFields.Announcement, AnnouncementFields.Validate_Start],
+            [AnnouncementSetFields.Announcement, AnnouncementFields.CreateTime],
+            [AnnouncementSetFields.Announcement, AnnouncementFields.ModifyUserId],
+            [AnnouncementFields.ModifyUser, UserModelFields.UserName],
+            [AnnouncementSetFields.Announcement, AnnouncementFields.ModifyTime],
+        ],
+        buildQueryCondition: (page) => ({
+            Fields: [
+                AnnouncementFields.AnnouncementId,
+                AnnouncementFields.Categories,
+                AnnouncementFields.ContentStatus,
+                `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
+                `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
+                AnnouncementFields.Validate_Start,
+                AnnouncementFields.ModifyUserId,
+                `${AnnouncementFields.ModifyUser}.${UserModelFields.UserName}`,
+                AnnouncementFields.CreateTime,
+                AnnouncementFields.ModifyTime,
+                AnnouncementFields.InternalId,
+            ],
+            Condition: condition,
+            OrderBy: [
+                { Col: AnnouncementFields.CreateTime, Desc: true },
+            ],
+            PageNumber: page,
+            PageSize: 10,
+        }),
+        parseRow: (item, columns) => {
+            const data = item.Announcement ?? {};
+            const cells: RowCell[] = columns.map(col => {
+                let content = "";
+
+                switch (col.key) {
+                    case AnnouncementDetailFields.Title:
+                        content = item.AnnouncementDetail?.find(d => d.Lang === "zh-tw")?.Title ?? "";
+                        break;
+                    case AnnouncementFields.Validate_Start:
+                        content = FormatDate((data as any)[col.key]);
+                        break;
+                    case AnnouncementFields.CreateTime:
+                    case AnnouncementFields.ModifyTime:
+                        content = FormatDateTime((data as any)[col.key]);
+                        break;
+
+                    case AnnouncementFields.ModifyUserId:
+                        content = item.Announcement?.ModifyUser?.UserName ?? "";
+                        break;
+                    default:
+                        content = (data as any)[col.key] ?? "";
+                        break;
+                }
+                return { col, content };
+            });
+            return { cells };
+        },
+        enabled: true,
+        deps: [lang, query],
+    });
 };

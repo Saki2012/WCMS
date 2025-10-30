@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
@@ -107,20 +109,35 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
         #endregion
 
         #region Protected
-        protected override void BeforeUpdate(SpecResearchSet set, SysEnum.FuncAction act)
+        protected override async Task BeforeUpdate(SpecResearchSet set, SysEnum.FuncAction act)
         {
-            base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act);
             switch (act)
             {
                 case SysEnum.FuncAction.Create:
                 case SysEnum.FuncAction.Update:
-                    DoRemergeData(set.SpecResearch);
+                    CheckData(set);
+                    SetData(set);
                     break;
             }
         }
         #endregion
 
         #region Private
+        private void CheckData(SpecResearchSet set)
+        {
+            CheckIsEmpty(set);
+        }
+        private void SetData(SpecResearchSet set)
+        {
+            DoRemergeData(set.SpecResearch);
+        }
+
+
+        private void CheckIsEmpty(SpecResearchSet set)
+        {
+            if(set.SpecResearch.CategoryId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecResearchModel>(x => x.CategoryId));
+        }
         /// <summary>
         /// 重新組合多筆資料(類別、狀態、標籤)
         /// </summary>

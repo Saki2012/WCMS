@@ -1,0 +1,862 @@
+@charset "utf-8";
+/* CSS Document */
+/* @media (max-width: 1024px) {} --> (max-width: 1399px) */
+/* @media (min-width: 1025px) {} --> (min-width: 1400px) */
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* ===== [ PC-HEADER ] ===== // 以下 // =========================== */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+.pc-header {
+    background-color: rgba(244, 247, 250, 0.7);
+    color: #5b6b79;
+    min-height: 74px;
+    box-shadow: none;
+    -webkit-backdrop-filter: blur(7px);
+    backdrop-filter: blur(7px);
+    position: fixed;
+    left: 264px;
+    right: 0;
+    z-index: 1025;
+    display: flex;
+    font-size: 93.75%;
+}
+@media (max-width: 1024px) {
+    .pc-header {
+        top: 0;
+        left: 0;
+        transition: all 0.15s ease-in-out;
+		background-color: var(--Customize_LMBGcolor);
+    }
+}
+@media (min-width: 1025px) {
+    .pc-sidebar ~ .pc-header {
+        transition: left 0.2s ease;
+    }
+}
+/* =============================================================== */
+/* =============================================================== */
+.pc-header .header-wrapper {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    padding: 0 25px;
+    flex-grow: 1;
+}
+
+@media (max-width: 575.98px) {
+    .pc-header .header-wrapper {
+        padding: 0 15px;
+    }
+}
+/* =============================================================== */
+/* =============================================================== */
+.pc-header .header-wrapper .me-auto {
+    margin-right: auto !important;
+}
+@media (max-width: 575.98px) {
+	.pc-header .header-wrapper .mobile-logo {
+		width: calc(100% - 44px - 15px);
+	}
+	.pc-header .header-wrapper .mobile-logo a.mblogo {
+		display: -webkit-box;
+		display: -ms-flexbox;
+		display: flex;
+		flex-direction: row;
+		-ms-flex-wrap: wrap;
+		flex-wrap: wrap;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+	}
+}	
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* ===== [ 上方右邊 功能列項目 ] ==================================== */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+.pc-header ul {
+    /*display: inline-flex;*/
+    margin-bottom: 0;    
+}
+/* =============================================================== */
+/* =============================================================== */
+.pc-header .pc-h-item {
+    min-height: 74px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+@media (max-width: 575.98px) {
+    .pc-header .pc-h-item {
+        position: static;
+    }
+}
+@media (max-width: 991px) {
+    .pc-header .pc-h-item.pc-sidebar-collapse {
+        display: none;
+    }
+    .pc-header .pc-mob-drp.mob-drp-active .pc-h-item {
+        display: block;
+        min-height: auto;
+        position: relative;
+    }
+}
+/* =============================================================== */
+/* =============================================================== */
+.pc-header .m-header {
+    height: 74px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 264px;
+    padding: 16px 10px 16px 24px;
+}
+@media (max-width: 991px) {
+    .pc-header .m-header {
+        display: none;
+    }
+}
+/* =============================================================== */
+/* =============================================================== */
+.pc-header .pc-head-link {
+    margin: 0 4px;
+    position: relative;
+    font-weight: 500;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 4px;
+    color: var(--G333color);
+    overflow: hidden;
+    text-decoration: none;
+}
+@media (max-width: 575.98px) {
+    .pc-header .pc-head-link {
+        padding: 0.65rem;
+        margin: 0 5px;
+    }
+}
+/* ------------------------------- */
+.pc-header .pc-head-link::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    background: #f3f5f7;
+    border-radius: 50%;
+    transform: scale(0);
+    transition: all 0.08s cubic-bezier(0.37, 0.24, 0.53, 0.99);
+}
+
+.pc-header .pc-head-link.active::before,
+.pc-header .pc-head-link:active::before,
+.pc-header .pc-head-link:focus::before,
+.pc-header .pc-head-link:hover::before {
+    border-radius: 0;
+    transform: scale(1);
+}
+
+/* =============================================================== */
+/* ===== [ 左邊 搜尋列 ] =========================================== */
+.pc-header .header-search {
+    position: relative;
+}
+
+.pc-header .header-search .form-control {
+    border-radius: 4px;
+    padding: 0.344rem 1.8rem;
+    width: 200px;
+    max-width: 100%;
+}
+@media (max-width: 991px) {
+    .pc-header .header-search .form-control {
+        width: 100%;
+    }
+}
+
+.pc-header .header-search .icon-search {
+    position: absolute;
+    top: 11px;
+    left: 11px;
+    width: 12px;
+    height: 12px;
+}
+
+.pc-header .header-search .btn-search {
+    position: absolute;
+    top: 7px;
+    right: 9px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 4px;
+}
+/* ===== [ 左邊 搜尋列 ] =========================================== */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ 左邊 漢堡 ] ============================================ */
+.pc-header .pc-head-link > svg,
+.pc-header .pc-head-link > i {
+    position: relative;
+    z-index: 5;
+    color: var(--G555color);
+    transition: all 0.08s cubic-bezier(0.37, 0.24, 0.53, 0.99);
+}
+@media (max-width: 1024px) {
+    .pc-header .pc-head-link > svg,
+	.pc-header .pc-head-link > i {
+        color: var(--FFFcolor);
+    }
+}
+.pc-header .pc-head-link > i {
+    font-size: 150%;
+}
+.pc-header .pc-head-link > svg {
+    width: 20px;
+    height: 20px;
+}
+/* =============================================================== */
+/* =============================================================== */
+.pc-header .pc-head-link.active,
+.pc-header .pc-head-link:active,
+.pc-header .pc-head-link:focus,
+.pc-header .pc-head-link:hover {
+    text-decoration: none;
+    color: var(--Customize_HRcolor);
+}
+/* =============================================================== */
+/* =============================================================== */
+.pc-header .pc-head-link.active > svg,
+.pc-header .pc-head-link.active > i,
+.pc-header .pc-head-link:active > svg,
+.pc-header .pc-head-link:active > i,
+.pc-header .pc-head-link:focus > svg,
+.pc-header .pc-head-link:focus > i,
+.pc-header .pc-head-link:hover > svg,
+.pc-header .pc-head-link:hover > i {
+    color: var(--Customize_HRcolor);
+}
+/* =============================================================== */
+/* =============================================================== */
+.pc-header .pc-head-link.active .hamburger .hamburger-inner,
+.pc-header .pc-head-link:active .hamburger .hamburger-inner,
+.pc-header .pc-head-link:focus .hamburger .hamburger-inner,
+.pc-header .pc-head-link:hover .hamburger .hamburger-inner {
+    background-color: #5b6b79;
+}
+/* ------------------------------- */
+.pc-header .pc-head-link.active .hamburger .hamburger-inner::after,
+.pc-header .pc-head-link.active .hamburger .hamburger-inner::before,
+.pc-header .pc-head-link:active .hamburger .hamburger-inner::after,
+.pc-header .pc-head-link:active .hamburger .hamburger-inner::before,
+.pc-header .pc-head-link:focus .hamburger .hamburger-inner::after,
+.pc-header .pc-head-link:focus .hamburger .hamburger-inner::before,
+.pc-header .pc-head-link:hover .hamburger .hamburger-inner::after,
+.pc-header .pc-head-link:hover .hamburger .hamburger-inner::before {
+    background-color: #5b6b79;
+}
+/* ------------------------------- */
+.pc-header .pc-head-link.active i.material-icons-two-tone,
+.pc-header .pc-head-link:active i.material-icons-two-tone,
+.pc-header .pc-head-link:focus i.material-icons-two-tone,
+.pc-header .pc-head-link:hover i.material-icons-two-tone {
+    background-color: #5b6b79;
+}
+/* ===== [ 左邊 漢堡 ] ============================================ */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ MOBILE LOGO ] ========================================= */
+@media (max-width: 991px) {
+    .pc-header img.pcm-logo {
+        margin-left: 30px;
+    }
+      .pc-header img.pcm-logo {
+        max-width: 250px;
+    }
+    
+    .pc-header .pc-md-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 1;
+        background-color: rgba(0, 0, 0, 0.2);
+    }
+}
+@media (max-width: 575px) {
+    .pc-header img.pcm-logo {
+        margin-left: 30px;
+    }
+      .pc-header img.pcm-logo {
+        max-width: 225px;
+    }
+}
+@media (max-width: 479px) {
+    .pc-header img.pcm-logo {
+        margin-left: 15px;
+    }
+      .pc-header img.pcm-logo {
+        max-width: 200px;
+    }
+}
+@media (max-width: 368px) {
+    .pc-header img.pcm-logo {
+        margin-left: 5px;
+    }
+      .pc-header img.pcm-logo {
+        max-width: 180px;
+    }
+}
+/* ===== [ MOBILE LOGO ] ========================================= */
+/* =============================================================== */
+
+/* =============================================================== */
+#pc-noti-home > .media:hover {
+    margin: -15px;
+    padding: 15px;
+    background: rgba(4, 169, 245, 0.1);
+}
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* ===== [ 上方右邊 功能列項目 ] ==================================== */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* ===== [ 上方右邊 MOBILE 功能列項目 ] ============================= */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+.pc-header .navbar {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0;
+    /*min-height: 74px;*/
+}
+/* =============================================================== */
+/* ===== [ 上方右邊 MOBILE 漢堡 ] ================================== */
+.pc-header .navbar-toggler {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	
+	position: relative;
+    font-size: 150%;
+    line-height: 1;
+	font-weight: 500;
+	
+    width: 44px;
+    height: 44px;
+	margin: 0 4px;
+    padding: 0.65rem;
+    color: var(--G333color);
+    text-decoration: none;
+    border: none;
+    background-color: transparent;
+    border-radius: 4px;
+	
+	overflow: hidden;
+    transition: box-shadow .15s ease-in-out;
+}
+@media (min-width: 1025px) {
+    .navbar-expand-lg .navbar-toggler {
+        display: none;
+    }
+}
+
+.navbar-expand-lg .navbar-toggler:hover {
+	color: var(--Customize_HRcolor);
+}
+
+.navbar-expand-lg .navbar-toggler i {
+	position: relative;
+	z-index: 5;
+	color: var(--FFFcolor);
+	transition: all 0.08s cubic-bezier(0.37, 0.24, 0.53, 0.99);
+}
+.navbar-expand-lg .navbar-toggler.active i,
+.navbar-expand-lg .navbar-toggler:active i,
+.navbar-expand-lg .navbar-toggler:focus i,
+.navbar-expand-lg .navbar-toggler:hover i {
+	color: var(--Customize_HRcolor);
+}
+
+.navbar-expand-lg .navbar-toggler::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    background: #f3f5f7;
+    border-radius: 50%;
+    transform: scale(0);
+    transition: all 0.08s cubic-bezier(0.37, 0.24, 0.53, 0.99);
+}
+.navbar-expand-lg .navbar-toggler.active::before,
+.navbar-expand-lg .navbar-toggler:active::before,
+.navbar-expand-lg .navbar-toggler:focus::before,
+.navbar-expand-lg .navbar-toggler:hover::before {
+    border-radius: 0;
+    transform: scale(1);
+}
+
+/* ===== [ 上方右邊 MOBILE 漢堡 ] ================================== */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ 上方右邊 MOBILE 下拉框 ] ================================ */
+.pc-header .Customize_collapse {
+    position: relative; 
+	padding-left: 15px;  
+    padding-right: 15px;    
+}
+@media (max-width: 1024px) {
+    .pc-header .Customize_collapse {
+        position: fixed;
+        top: 74px;
+        left: 0;
+        /*padding: 30px;*/
+        width: 100%;
+		/*min-height: 1px;*/
+        border-top-left-radius: 0px;
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 20px;
+        border-bottom-left-radius: 20px;
+        background-color: var(--FFFcolor);
+        box-shadow: 0px 10px 15px -10px rgba(0,0,0,0.3);
+		
+		/* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#f4f7fa+0,ffffff+62 */
+		background: -webkit-linear-gradient(rgba(244,247,250,1) 0%, rgba(255,255,255,1) 62%);
+		background: -o-linear-gradient(rgba(244,247,250,1) 0%, rgba(255,255,255,1) 62%);
+		background: linear-gradient(rgba(244,247,250,1) 0%, rgba(255,255,255,1) 62%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+
+    }
+    .navbar-expand-lg .navbar-collapse {
+        /*display: none !important;*/
+        flex-basis: auto;
+    }
+	.navbar-expand-lg .collapse:not(.show) {
+		display: none !important;
+	}
+    .navbar-expand-lg .navbar-collapse.show {
+        transition: height 0.35s ease;
+    }
+}
+@media (min-width: 1025px) {
+    .navbar-expand-lg .navbar-collapse {
+        display: flex !important;
+        flex-basis: auto;
+    }
+}
+
+.pc-header .Customize_collapse.collapsing {
+    height: 0;
+    overflow: hidden;
+    transition: height .35s ease-in-out;
+    /*transition: all 0.5s ease-in-out;*/
+}
+/* ===== [ 上方右邊 MOBILE 下拉框 ] ================================ */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ 上方右邊 MOBILE 下拉列表 ] =============================== */
+.pc-header .Customize_collapse .navbar-nav {
+    display: flex;
+    flex-direction: column;
+    padding-left: 0;
+    margin-bottom: 0;
+    list-style: none;
+}
+@media (max-width: 1024px) {
+	.pc-header .Customize_collapse .navbar-nav {
+		padding-top: 24px;
+		padding-right: 20px;
+		padding-bottom: 20px;
+		padding-left: 24px;
+	}
+}
+@media (min-width: 1025px) {
+    .pc-header .Customize_collapse .navbar-nav {
+        flex-direction: row;
+    }
+}
+/* =============================================================== */
+.pc-header .Customize_collapse .navbar-nav .nav-item {
+    position: relative;
+}
+
+/* ===== [ 原始 BS nav-link ] ===== */
+.pc-header .Customize_collapse .navbar-light .navbar-nav .nav-link {
+    color: rgba(0, 0, 0, .55);
+}
+
+@media (min-width: 992px) {
+    .pc-header .Customize_collapse .navbar-expand-lg .navbar-nav .nav-link {
+        padding-right: .5rem;
+        padding-left: .5rem;
+    }
+}
+
+.pc-header .Customize_collapse .navbar-nav .nav-link {
+    padding-right: 0;
+    padding-left: 0;
+}
+
+.pc-header .Customize_collapse .nav-link {
+    display: block;
+    padding: .5rem 1rem;
+    color: #0d6efd;
+    text-decoration: none;
+    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out;
+}
+/* ===== [ 原始 BS nav-link ] ===== */
+
+/* ===== [ 上方右邊 MOBILE 下拉列表 ] =============================== */
+/* =============================================================== */
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* ===== [ 上方右邊 MOBILE 功能列項目 ] ============================= */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* ===== [ 上方右邊 功能列項目 - DROPDOWN 下拉 ] ===================== */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+/* ===== [ 原始 BS nav-link ] ===== */
+.dropdown, .dropend, .dropstart, .dropup {
+    position: relative;
+}
+.dropdown-toggle::after {
+    display: inline-block;
+    margin-left: .255em;
+    vertical-align: .255em;
+    content: "";
+    border-top: .3em solid;
+    border-right: .3em solid transparent;
+    border-bottom: 0;
+    border-left: .3em solid transparent;
+}
+
+.dropdown-menu {
+    position: absolute;
+    z-index: 1000;
+    display: none;
+    min-width: 10rem;
+    padding: .5rem 0;
+    margin: 0;
+    font-size: 100%;
+    color: var(--G333color);
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, .15);
+    border-radius: .25rem;
+}
+.dropdown-menu[data-bs-popper] {
+    top: 100%;
+    left: 0;
+    margin-top: .125rem;
+}
+.dropdown-menu.show {
+    display: block;
+}
+
+.navbar-nav .dropdown-menu {
+    position: static;
+}
+@media (min-width: 992px) {
+    .navbar-expand-lg .navbar-nav .dropdown-menu {
+        position: absolute;
+    }
+}
+/* ===== [ 原始 BS nav-link ] ===== */
+
+/* =============================================================== */
+/* =============================================================== */
+
+/* ===== [ 取代原始 BS nav-link ] ===== */
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item .nav-link {    
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    
+    font-size: inherit;
+    
+    padding: 0;
+}
+
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item .nav-link h2,
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item a.nav-link h2 {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    
+    font-size: inherit;
+    font-weight: 500;
+	text-align: center;
+    
+    line-height: 100%;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    color: var(--G333color);
+}
+@media (max-width: 1399px) {
+    .pc-header .Customize_collapse ul.navbar-nav li.nav-item .nav-link h2,
+	.pc-header .Customize_collapse ul.navbar-nav li.nav-item a.nav-link h2 {
+        justify-content: center;	
+    }
+}
+
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item .nav-link h2,
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item a.nav-link h2 {
+    width: auto;
+    color: var(--G333color);
+    padding: 0 15px;
+}
+
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item a.nav-link.active,
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item a:active.nav-link,
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item a.active.nav-link,
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item a:focus.nav-link,
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item a:hover.nav-link,
+    
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item a.nav-link.active h2,
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item a:active.nav-link h2,
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item a.active.nav-link h2,
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item a:focus.nav-link h2,
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item a:hover.nav-link h2 {
+    color: var(--Customize_HRcolor);
+}
+
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item .nav-link h2 span,
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item a.nav-link h2 span {
+    color: var(--Customize_ACcolor);
+}
+
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item .nav-link h2 i,
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item a.nav-link h2 i {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: column;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    font-size: 106.25% ;    
+    width: 20px;
+    height: 20px;
+    margin-right: 4px;
+}
+@media (max-width: 1399px) {
+    .pc-header .Customize_collapse ul.navbar-nav li.nav-item .nav-link h2 i,
+	.pc-header .Customize_collapse ul.navbar-nav li.nav-item a.nav-link h2 i {
+        margin-bottom: 3px;	
+    }
+}
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ dropdown-toggle ] ===================================== */
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item > .dropdown-toggle::after {
+    position: relative;
+    display: inline-block;
+    right: 5px;
+    margin-left: 0; /*0.255em*/
+    vertical-align: .255em;
+    content: "";
+    border-top: .3em solid;
+    border-right: .3em solid transparent;
+    border-bottom: 0;
+    border-left: .3em solid transparent;
+    
+    color: var(--G333color);
+}
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item a.nav-link.active.dropdown-toggle::after,
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item a:active.nav-link.dropdown-toggle::after,
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item a.active.nav-link.dropdown-toggle::after,
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item a:focus.nav-link.dropdown-toggle::after,
+.pc-header .Customize_collapse ul.navbar-nav li.nav-item a:hover.nav-link.dropdown-toggle::after {
+    color: var(--Customize_HRcolor);
+}
+/* ===== [ dropdown-toggle ] ===================================== */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ dropdown-menu ] ======================================= */
+.pc-header .navbar-expand-lg .navbar-nav .dropdown-menu {
+    position: absolute;
+    z-index: 1000;
+    display: none;
+    min-width: 10rem;
+    padding: .5rem 0;
+    margin: 0;
+    font-size: 100%;
+    color: var(--G333color);
+    text-align: left;
+    list-style: none;
+    background-color: rgba(244, 247, 250, 0.85);
+    background-color: var(--FFFcolor);
+    
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, .15);
+    border-radius: .25rem;
+}
+@media (max-width: 1024px) {
+    .pc-header .navbar-expand-lg .navbar-nav .dropdown-menu {
+        position: relative;
+        width: 100%;
+        background-color: transparent;
+        border: none;
+        border-radius: 0; 
+        padding: 2.5px 12.5px 12.5px 12.5px;
+    }
+}
+/* ===== [ dropdown-menu ] ======================================= */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ data-bs-popper ] ====================================== */
+.pc-header .navbar-expand-lg .navbar-nav li.nav-item .dropdown-menu[data-bs-popper] {
+    top: 100%;    
+    margin-top: .125rem;
+}
+@media (max-width: 1024px) {
+    .pc-header .navbar-expand-lg .navbar-nav li.nav-item .dropdown-menu[data-bs-popper] {
+        left: 0;
+    }
+}
+@media (min-width: 1025px) {
+    .pc-header .navbar-expand-lg .navbar-nav li.nav-item .dropdown-menu[data-bs-popper] {
+        left: 0;
+    }
+}
+/* ===== [ data-bs-popper ] ====================================== */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ li:last-child.dropdown-menu ] ========================= */
+@media (max-width: 1025px) {
+    .pc-header .navbar-expand-lg .navbar-nav li:last-child.nav-item .dropdown-menu[data-bs-popper] {
+        left: 0;
+    }
+}
+@media (min-width: 1025px) {
+    .pc-header .navbar-expand-lg .navbar-nav li:last-child.nav-item .dropdown-menu[data-bs-popper] {
+        left: -50%;
+        right: 0;
+    }
+}
+/* ===== [ li:last-child.dropdown-menu ] ========================= */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ dropdown-item  ] ====================================== */
+.pc-header .navbar-expand-lg .navbar-nav .dropdown-menu a.dropdown-item {
+    display: block;
+    width: 100%;    
+    clear: both;
+    font-weight: 400;
+    color: var(--G333color);
+    text-align: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+    padding: 9px 16px;
+}
+.pc-header .navbar-expand-lg .navbar-nav .dropdown-menu a:hover.dropdown-item,
+.pc-header .navbar-expand-lg .navbar-nav .dropdown-menu a:focus.dropdown-item,
+.pc-header .navbar-expand-lg .navbar-nav .dropdown-menu a.active.dropdown-item {
+    color: var(--Customize_HRcolor);
+    background-color: transparent;
+}
+@media (max-width: 1024px) {
+    .pc-header .navbar-expand-lg .navbar-nav .dropdown-menu a.dropdown-item {
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        flex-direction: row;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        align-items: center;
+        font-size: inherit;
+        font-weight: 500;
+        line-height: 100%;
+        width: auto;
+        height: auto;
+        padding: 12.5px;
+        margin-bottom: 1.5px;
+        color: var(--G333color);
+        background-color: transparent;
+        border-bottom: 1px solid rgba(0, 0, 0, .15);        
+    }
+    .pc-header .navbar-expand-lg .navbar-nav .dropdown-menu a.dropdown-item {
+        padding-left: 24px;
+    }
+}
+/* ===== [ dropdown-item  ] ====================================== */
+/* =============================================================== */
+
+/* =============================================================== */
+.pc-header .navbar-expand-lg .navbar-nav .dropdown-menu.show {
+    display: block;
+}
+/* =============================================================== */
+/* =============================================================== */
+@media (min-width: 992px) {
+    .pc-header .navbar-expand-lg .navbar-nav .dropdown-menu {
+        position: absolute;
+    }
+}
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* ===== [ 上方右邊 功能列項目 - DROPDOWN 下拉 ] ===================== */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* ===== [ PC-HEADER ] ===== // 以下 // =========================== */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+
+
+
+
+
+
+
+
+
+
+

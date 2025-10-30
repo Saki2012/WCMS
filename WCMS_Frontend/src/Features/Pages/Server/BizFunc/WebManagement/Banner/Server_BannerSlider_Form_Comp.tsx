@@ -25,7 +25,7 @@ export const BannerSliderFormComp = (prop: { theme: IBETheme; lang: Lang }) => {
     const { internalId } = useParams();
     const formData = useFetchFormData<BannerSet>(BannerSliderProvider(), internalId, emptyData)
     useEnsureLangDetails(formData, { headerName: SchemaFields.BannerSetFields.BannerDetail, detailName: SchemaFields.BannerSetFields.BannerDetailInfo, parentKeys: [SchemaFields.BannerDetailInfoFields.BannerId, SchemaFields.BannerDetailInfoFields.ParentRowId], preferFirstLang: prop.lang });
-    const actions = useActions(BannerSliderProvider(), formData.data as BannerSet, internalId ?? "")
+    const actions = useActions("", BannerSliderProvider(), formData.data as BannerSet, internalId ?? "")
     const isLoading = [formData.isLoading]
     const errors = [formData.error]
     const formProp: FormCompProp = { Title: "設定輪播", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }

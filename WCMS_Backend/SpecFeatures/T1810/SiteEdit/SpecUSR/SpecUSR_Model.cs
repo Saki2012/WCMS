@@ -1,7 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
@@ -38,7 +41,10 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// 圖片描述
         /// </summary>
         [LibDesc, StringLength(SysLengthParam.Memo)] public string? PicDescription { get; set; } = string.Empty;
-        public List<SpecUSRDetail> SpecUSRDetail { get; set; } = [];
+
+        #region 主子表關聯
+        [InverseProperty(nameof(SpecUSRDetail._SpecUSR))] public List<SpecUSRDetail> _SpecUSRDetail { get; set; }
+        #endregion
     }
 
     public class SpecUSRDetail:DetailRowModel
@@ -60,6 +66,8 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         [StringLength(1000)] public string? ProjectConcept { get; set; }
         [StringLength(4000)] public string? ProjectHighlights { get; set; }
         [StringLength(1000)] public string? ProjectLeader { get; set; }
+        [StringLength(1000)] public string? ProjectSubLeader { get; set; }
+        [StringLength(1000)] public string? AttendTeam { get; set; }
         [StringLength(1000)] public string? Cohost1 { get; set; }
         [StringLength(1000)] public string? Cohost2 { get; set; }
         [StringLength(1000)] public string? Commissioned { get; set; }
@@ -67,5 +75,9 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         [StringLength(500)] public string? ProjectItem { get; set; }
         [StringLength(SysLengthParam.Url)] public string? Url { get; set; }
         [StringLength(SysLengthParam.Url)] public string? UrlDescription { get; set; }
+
+        #region 主子表關聯
+        [ForeignKey(nameof(USRId))] public SpecUSRModel _SpecUSR { get; set; }
+        #endregion
     }
 }

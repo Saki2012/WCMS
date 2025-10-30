@@ -85,13 +85,13 @@ class APIProvider extends INaviProvider {
   protected doFetchList(condition?: QueryListParam): Promise<ApiResponse<NaviData[]>> {
     const data: NaviData[] = [
       { Id: "A", SrcData: "Admin", Url: "", },
-      { Id: "B", SrcData: "排版板模", Url: "/Server/WebManagement", },
-      { Id: "C", SrcData: "教師管理", Url: "/PageManage", },
-      { Id: "D", SrcData: "會員管理", Url: "/PageList", },
-      { Id: "E", SrcData: "產品管理", Url: "/PageList", },
+      // { Id: "B", SrcData: "排版板模", Url: "/Server/WebManagement", },
+      // { Id: "C", SrcData: "教師管理", Url: "/PageManage", },
+      // { Id: "D", SrcData: "會員管理", Url: "/PageList", },
+      // { Id: "E", SrcData: "產品管理", Url: "/PageList", },
       { Id: "F", SrcData: "網站功能", Url: "/Server/Dashboard/SiteMenu", },
-      { Id: "G", SrcData: "帳號管理", Url: "/Server/AccountManage", },
-      { Id: "H", SrcData: "系統設定", Url: "/PageList", },
+      // { Id: "G", SrcData: "帳號管理", Url: "/Server/AccountManage", },
+      // { Id: "H", SrcData: "系統設定", Url: "/PageList", },
       { Id: "I", SrcData: "登出系統", Url: "/Server/Logout", },
     ];
     return Promise.resolve({ IsSuccess: true, SysMessage: [], Data: data, });

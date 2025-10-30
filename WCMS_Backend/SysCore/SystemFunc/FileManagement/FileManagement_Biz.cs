@@ -8,6 +8,7 @@ using System.Reflection;
 using WCMS.SysCore.AppSettingsOptions;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.SystemFunc.FileManagement
@@ -33,6 +34,9 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 set.FileManage.FileStatus = FileStatus.Pending;
             }
             await (isNew ? BizCreateSetAsync(set) : BizUpdateSetAsync(set.FileManage.InternalId, set));
+            //更新完DB後再把Message訊息加回，避免MessageError時無法正常保存
+            var syncInfo = set.FileManage_SyncInfo.LastOrDefault();
+            if (!syncInfo.ErrorCode.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00025, syncInfo.ErrorMessage);
             return set.FileManage.InternalId;
         }
         /// <summary>
@@ -139,12 +143,14 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <param name="file"></param>
         /// <param name="set"></param>
         /// <returns></returns>
-        private static bool CheckFileLegal(IFormFile file, FileManageSet set)
+        private bool CheckFileLegal(IFormFile file, FileManageSet set)
         {
             if (file == null || file.Length == 0) return false;
-            if (CheckFileExist(set)) return false;
-            if (!CheckFileExtension(set)) return false;
-            if (!CheckFileSize(set)) return false;
+            var filemanage = set.FileManage;
+            var syncInfo = set.FileManage_SyncInfo.LastOrDefault();
+            if (CheckFileExist(filemanage, syncInfo)) return false;
+            if (!CheckFileExtension(filemanage, syncInfo)) return false;
+            if (!CheckFileSize(filemanage, syncInfo)) return false;
             return true;
         }
         /// <summary>
@@ -274,22 +280,22 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <param name="file"></param>
         /// <param name="set"></param>
         /// <returns></returns>
-        private static bool CheckFileExtension(FileManageSet set)
+        private  bool CheckFileExtension(FileManageModel filemanage, FileManage_SyncInfoModel syncInfo)
         {
-            var header = set.FileManage;
-            var syncInfo = set.FileManage_SyncInfo.LastOrDefault();
-            if (!CheckExtension(header.FileExtension))
+            if (!CheckExtension(filemanage.FileExtension))
             {
-                header.FileStatus = FileStatus.Failed;
+                filemanage.FileStatus = FileStatus.Failed;
                 syncInfo.FileStatus = FileStatus.Failed;
-                syncInfo.ErrorMessage = $"實際的網際網路媒體類型為【{header.FileExtension}】不允許上傳";
+                syncInfo.ErrorCode = SysMessageCode.BECode00023;
+                syncInfo.ErrorMessage = ResxMsg.Msg(SysMessageCode.BECode00023, filemanage.FileExtension);
                 return false;
             }
-            if (!CheckMimeType(header.MimeType))
+            if (!CheckMimeType(filemanage.MimeType))
             {
-                header.FileStatus = FileStatus.Failed;
+                filemanage.FileStatus = FileStatus.Failed;
                 syncInfo.FileStatus = FileStatus.Failed;
-                syncInfo.ErrorMessage = $"實際的網際網路媒體類型為【{header.MimeType}】，不允許上傳";
+                syncInfo.ErrorCode = SysMessageCode.BECode00022;
+                syncInfo.ErrorMessage = ResxMsg.Msg(SysMessageCode.BECode00022, filemanage.MimeType);
                 return false;
             }
             return true;
@@ -300,12 +306,14 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <param name="file"></param>
         /// <param name="set"></param>
         /// <returns></returns>
-        private static bool CheckFileSize(FileManageSet set)
+        private bool CheckFileSize(FileManageModel filemanage, FileManage_SyncInfoModel syncInfo)
         {
-            const long MaxFileSize = 20 * 1024 * 1024;
-            if (set.FileManage.FileSize > MaxFileSize)
+            const int mb = 20;
+            const long maxFileSize = mb * 1024 * 1024;
+            if (filemanage.FileSize > maxFileSize)
             {
-                set.FileManage_SyncInfo.FirstOrDefault().ErrorMessage = "檔案大小超過 20MB，請重新上傳";
+                syncInfo.ErrorCode = SysMessageCode.BECode00024;
+                syncInfo.ErrorMessage = ResxMsg.Msg(SysMessageCode.BECode00024,mb);
                 return false;
             }
             return true;
@@ -315,12 +323,12 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// </summary>
         /// <param name="set"></param>
         /// <returns></returns>
-        private static bool CheckFileExist(FileManageSet set)
+        private bool CheckFileExist(FileManageModel filemanage, FileManage_SyncInfoModel syncInfo)
         {
-            string fullPath = Path.Combine(set.FileManage.Path, $"{set.FileManage.InternalId}.{set.FileManage.FileExtension}");
-            if (set.FileManage.FileStatus.In(FileStatus.Pending, FileStatus.Success) || File.Exists(fullPath))
+            string fullPath = Path.Combine(filemanage.Path, $"{filemanage.InternalId}.{filemanage.FileExtension}");
+            if (filemanage.FileStatus.In(FileStatus.Pending, FileStatus.Success) || File.Exists(fullPath))
             {
-                set.FileManage_SyncInfo.LastOrDefault().FileStatus = FileStatus.Skipped;
+                syncInfo.FileStatus = FileStatus.Skipped;
                 return true;
             }
             return false;
@@ -340,6 +348,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 FileExtensions.PPTX,
                 FileExtensions.TXT,
                 FileExtensions.CSV,
+                FileExtensions.ODT,
                 #endregion
                 #region 圖片
                 FileExtensions.JPG,

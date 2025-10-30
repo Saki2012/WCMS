@@ -34,7 +34,7 @@ export const MainMenu = (prop: { lang: Lang; site: INormSite; style: IFETheme })
     },
     {
       Id: "", SrcData: "", Url: "",
-      DOMContent: <Link className="nav-link" to="https://www.ntua.edu.tw/" target="_self" title="臺藝校首頁" onClick={() => closeMenu()}>臺藝校首頁</Link>
+      DOMContent: <Link className="nav-link" to="https://www.ntua.edu.tw/" target="_self" title="臺藝大校首頁" onClick={() => closeMenu()}>臺藝校首頁</Link>
     },
     {
       Id: "", SrcData: "", Url: "",
@@ -49,17 +49,14 @@ export const MainMenu = (prop: { lang: Lang; site: INormSite; style: IFETheme })
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-
     const scriptId = 'google-translate-script';
     const exist = document.getElementById(scriptId);
     if (exist) return;
-
     const script = document.createElement('script');
     script.id = scriptId;
     script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
     script.async = true;
     document.body.appendChild(script);
-
     window.googleTranslateElementInit = () => {
       if (translateRef.current) {
         new window.google.translate.TranslateElement({

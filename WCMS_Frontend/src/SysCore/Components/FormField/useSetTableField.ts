@@ -33,7 +33,7 @@ const coerce = (mode: CoerceMode, val: unknown) =>
         }
         case "string":
         default:
-            return String(val ?? "").trim();
+            return val;
     }
 };
 

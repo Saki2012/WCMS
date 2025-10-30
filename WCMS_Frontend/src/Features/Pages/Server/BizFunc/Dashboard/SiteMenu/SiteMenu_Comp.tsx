@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Nestable from "react-nestable";
 import type { RenderItem } from "react-nestable";
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
@@ -22,7 +22,7 @@ import { useCategoryListData } from "@/Features/Hooks/BizFunc/WebManagement/Cate
 import { useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 import { usePageListData } from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Hook";
 import { useSpecCateListData } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Hook";
-import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions";
+import { useActions, useWrapAfter, type UseActionsResult } from "@/Features/Hooks/Common/useActions";
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"]
 type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"]
 type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title_DTO"]
@@ -37,8 +37,6 @@ type CategorySet = components["schemas"]["CategoryDataSet_DTO"]
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
 type PageSet = components["schemas"]["PageManagementSet_DTO"]
-
-
 
 const emptyData: SiteMenuSet = {}
 
@@ -56,7 +54,6 @@ const moduleOptionsDefaults: ModuleOptionsJson = {
   Style: 1
 };
 type ModelKey = '' | 'Announcement' | 'FileArchive' | 'Gallery' | 'PageManagement' | 'SpecResearch' | 'SpecUSR' | 'WebResource'
-
 
 interface Item {
   id: number;
@@ -131,12 +128,10 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
   const [selectedItemEdit, setSelectedItemEdit] = useState<Item | null>(null);
   const provider = React.useMemo(() => SiteMenuProvider(), []);
   const useSiteList = useFetchGridListData<SiteMenuSet>(GetSiteMenuListOpt());
-
   const internalId = React.useMemo<string | null>(() => {
     const first = (useSiteList.rawData ?? []).find(x => x?.SiteMenu_Index?.InternalId)?.SiteMenu_Index?.InternalId;
     return first ?? null;
   }, [useSiteList.rawData]);
-
   const useSiteInfo = useFetchFormData<SiteMenuSet>(provider, internalId, emptyData)
   const windowTarget = useFetchEnumOptions("WindowTarget")
   const menuUrlType = useFetchEnumOptions("MenuUrlType")
@@ -146,7 +141,21 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
   const usetagList = useTagListData("", prop.lang)
   const usePageList = usePageListData()
   const useSpecCateDatas = useSpecCateListData("", prop.lang)
-  const actions = useActions(provider, useSiteInfo.data as SiteMenuSet, internalId as string)
+  const actions = useActions("", provider, useSiteInfo.data as SiteMenuSet, internalId as string)
+  const actionsEx = React.useMemo(() => {
+    return {
+      ...actions,
+      onSave: useWrapAfter(actions.onSave, async (ok) => {
+        if (ok !== false) {
+          useSiteInfo.refetch();
+        }
+      }),
+      onCancelBack: useCallback(() => {
+        void useSiteInfo.refetch();
+        setSelectedItemEdit(null);
+      }, [useSiteInfo.refetch, setSelectedItemEdit])
+    };
+  }, [actions, useSiteInfo.refetch]);
   const useBannerList = useFetchGridListData<BannerSet>(GetBannerListOpt());
   const bannerDict = useMemo<Record<string, string>>(() => {
     const src = useBannerList.rawData ?? [];
@@ -157,19 +166,17 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
       return acc;
     }, { "": "請選擇" }); // << 預設空白選項
   }, [useBannerList.rawData]);
-
   useEnsureLangDetails(useSiteInfo, { headerName: SchemaFields.SiteMenuSetFields.SiteMenu_Index, detailName: SchemaFields.SiteMenuSetFields.SiteMenu_IndexInfo, parentKeys: [SchemaFields.SiteMenu_IndexInfoFields.SiteIndex], preferFirstLang: prop.lang });
   useEnsureLangDetails(useSiteInfo, { headerName: SchemaFields.SiteMenuSetFields.SiteMenu_Item, detailName: SchemaFields.SiteMenuSetFields.SiteMenu_Item_Title, parentKeys: [SchemaFields.SiteMenu_Item_TitleFields.SiteIndex, SchemaFields.SiteMenu_Item_TitleFields.ItemRowId], preferFirstLang: prop.lang });
-
   const isLoading: any[] = [useSiteList.isLoading, useSiteInfo.isLoading, windowTarget.isLoading, menuUrlType.isLoading, modulePageType.isLoading, useBannerList.isLoading, useCateList.isLoading, usetagList.isLoading, usePageList.isLoading, useSpecCateDatas.isLoading]
   const errors: any[] = [useSiteList.error, useSiteInfo.error, windowTarget.error, menuUrlType.error, modulePageType.error, useBannerList.error, useCateList.error, usetagList.error, usePageList.error, useSpecCateDatas.error]
-  const formProp: FormCompProp = { Title: "網站功能", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
+  const formProp: FormCompProp = { Title: "網站功能", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actionsEx }
   return (
     <FormComp prop={formProp}>
       <div className="row">
-        <RenderLeftBox setSelectedItemEdit={setSelectedItemEdit} sitemenuSet={useSiteInfo.data} lang={prop.lang} formData={useSiteInfo} action={actions} />
+        <RenderLeftBox setSelectedItemEdit={setSelectedItemEdit} sitemenuSet={useSiteInfo.data} lang={prop.lang} formData={useSiteInfo} action={actionsEx} />
         <MenuSettingBox theme={prop.theme} selectedItemEdit={selectedItemEdit} formData={useSiteInfo} windowTarget={windowTarget.data} menuUrlType={menuUrlType.data} modulePageType={modulePageType.data}
-          bannerDict={bannerDict} moduleDisplayStyle={moduleDisplayStyle.data} categoryDatas={useCateList.rawData} tagDatas={usetagList.rawData} pageList={usePageList.rawData} specCateDatas={useSpecCateDatas.rawData} action={actions}
+          bannerDict={bannerDict} moduleDisplayStyle={moduleDisplayStyle.data} categoryDatas={useCateList.rawData} tagDatas={usetagList.rawData} pageList={usePageList.rawData} specCateDatas={useSpecCateDatas.rawData} action={actionsEx}
         />
       </div>
     </FormComp>
@@ -238,10 +245,10 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
       if (!prev) return prev;
       const next = { ...(prev ?? {}) } as SiteMenuSet;
 
-      next.SiteMenu_Item = (next.SiteMenu_Item ?? []).filter(x => !idsToRemove.has(Number((x as any).RowId)));
-      next.SiteMenu_Item_Title = (next.SiteMenu_Item_Title ?? []).filter(t => !idsToRemove.has(Number((t as any).ParentRowId)));
-      next.SiteMenu_Item_Module = (next.SiteMenu_Item_Module ?? []).filter(m => !idsToRemove.has(Number((m as any).ItemRowId)));
-      next.SiteMenu_Item_Url = (next.SiteMenu_Item_Url ?? []).filter(u => !idsToRemove.has(Number((u as any).ItemRowId)));
+      next.SiteMenu_Item = (next.SiteMenu_Item ?? []).filter(x => !idsToRemove.has(Number((x as SiteMenu_Item).RowId)));
+      next.SiteMenu_Item_Title = (next.SiteMenu_Item_Title ?? []).filter(t => !idsToRemove.has(Number((t as SiteMenu_Item_Title).ItemRowId)));
+      next.SiteMenu_Item_Module = (next.SiteMenu_Item_Module ?? []).filter(m => !idsToRemove.has(Number((m as SiteMenu_Item_Module).ItemRowId)));
+      next.SiteMenu_Item_Url = (next.SiteMenu_Item_Url ?? []).filter(u => !idsToRemove.has(Number((u as SiteMenu_Item_Url).ItemRowId)));
 
       return next;
     });
@@ -293,7 +300,7 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
           ItemRowId: nextRowId,
           RowId: nextTitleRowId,
           Lang: prop.lang,
-          Title: "未命名",
+          Title: "",
         } as any
       ];
 
@@ -303,7 +310,7 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
     // 4) 把新節點加到左側樹狀（主層或對應父層的最後）
     const newNode: Item = {
       id: nextRowId,
-      text: "未命名",
+      text: "",
       MenuItem: {
         Item: {
           SiteIndex: sampleSiteIndex,
@@ -322,7 +329,7 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
           ItemRowId: nextRowId,
           RowId: nextTitleRowId,
           Lang: prop.lang,
-          Title: "未命名",
+          Title: "",
         } as any],
         Module: {} as any,
         Url: {} as any,
@@ -369,7 +376,7 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
     });
   };
 
-
+  const getIconClass = (it: Item) => Number(it?.MenuItem?.Item?.ItemType ?? 1) === 1 ? "fa fa-link mr-2" : "far fa-cogs mr-2";
 
   useEffect(() => { setItems(siteMenuInfo(prop.sitemenuSet, prop.lang ?? DefaultLang)); }, [prop.sitemenuSet, prop.lang]);
   const renderItem: RenderItem = ({ item, handler, collapseIcon }) => {
@@ -381,7 +388,7 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
           {handler}
           {collapseIcon}
           <span style={{ flex: 1, padding: "0 10px 0 3px" }}>
-            <i className="far fa-cogs mr-2"></i>
+            <i className={getIconClass(typedItem)}></i>
             {typedItem.text}
           </span>
           <div className="all-btn Edit Icon">
@@ -568,6 +575,8 @@ const MenuSettingBox = (prop: {
   categoryDatas: CategorySet[]; tagDatas: TagSet[]; pageList: PageSet[]; specCateDatas: SpecCategorySet[];
   action: UseActionsResult;
 }) => {
+  const [tabResetSeed, setTabResetSeed] = React.useState(0);
+
 
   React.useEffect(() => {
     const it = prop.selectedItemEdit?.MenuItem?.Item as any;
@@ -582,7 +591,9 @@ const MenuSettingBox = (prop: {
   const [linkType, setLinkType] = React.useState<MenuUrlType>(1);
   const [modelKey, setModelKey] = React.useState<ModelKey>('');
   const [navType, setNavType] = React.useState<MenuUrlType>(1);
-
+  React.useEffect(() => {
+    setTabResetSeed(s => s + 1);
+  }, [prop.selectedItemEdit?.MenuItem?.Item?.RowId, linkType]);
   // ---- 1) 依「功能 / 連結」決定主 Tabs ----
   const LibTabsPropA: LibTabsProp = React.useMemo(() => {
     const base = { basic: '基本' } as const;
@@ -619,11 +630,11 @@ const MenuSettingBox = (prop: {
               </h3>
             </div>
             <div className="mt-4 overflow-scroll-customize">
-              <TabContentComp tabInfos={LibTabsPropA} components={componentsA} />
+              <TabContentComp key={`tabs-${tabResetSeed}`} tabInfos={LibTabsPropA} components={componentsA} />
             </div>
             <div className="d-flex justify-content-center">
               <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" onClick={prop.action.onSave}>儲存</button>
-              <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">取消</button>
+              <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" onClick={prop.action.onCancelBack}>取消</button>
             </div>
           </div>
         </div>
@@ -682,17 +693,28 @@ const BasicSettingTab = (prop: {
 }) => {
   const setField = useSetTableField<SiteMenuSet>(prop.formData);
   const rawDetails = prop.formData.data?.SiteMenu_Item_Title?.filter(p => p.SiteIndex === prop.selectedItemEdit?.MenuItem.Item.SiteIndex && p.ItemRowId === prop.selectedItemEdit?.MenuItem.Item.RowId) ?? [];
+  const dedupDetails = React.useMemo(() => {
+    const seen = new Set<string>();
+    const out: typeof rawDetails = [];
+    for (const d of rawDetails) {
+      const k = String((d as any).Lang ?? '').toLowerCase();
+      if (seen.has(k)) continue;
+      seen.add(k);
+      out.push(d);
+    }
+    return out;
+  }, [rawDetails]);
   const curRowKeys = { [SchemaFields.SiteMenu_ItemFields.SiteIndex]: prop.selectedItemEdit?.MenuItem.Item.SiteIndex, [SchemaFields.SiteMenu_ItemFields.RowId]: prop.selectedItemEdit?.MenuItem.Item.RowId }
   const itemTypeBind = setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item, SchemaFields.SiteMenu_ItemFields.ItemType, "number", curRowKeys);
   const tabInfo: LibTabsProp = {
     Style: prop.theme.Tabs,
-    item: rawDetails.reduce<Record<string, string>>((tabItems, info) => {
+    item: dedupDetails.reduce<Record<string, string>>((tabItems, info) => {
       const langKey = LibMerge("_", true, info.SiteIndex, info.ItemRowId, info.RowId, info.Lang)
       tabItems[langKey] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
       return tabItems;
     }, {})
   }
-  const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>(
+  const tabContent: Record<string, React.ReactNode[]> = dedupDetails.reduce<Record<string, React.ReactNode[]>>(
     (compMap, info) => {
       const langKey = LibMerge("_", true, info.SiteIndex, info.ItemRowId, info.RowId, info.Lang)
       const rowKeys = { [SchemaFields.SiteMenu_Item_TitleFields.SiteIndex]: info.SiteIndex, [SchemaFields.SiteMenu_Item_TitleFields.ItemRowId]: info.ItemRowId, [SchemaFields.SiteMenu_Item_TitleFields.RowId]: info.RowId, }
@@ -786,12 +808,12 @@ const ModuleSettingTab = (prop: {
   const moduleKeyBind = setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Module, SchemaFields.SiteMenu_Item_ModuleFields.ModuleProgId, "string", curRowKeys);
   const moduleNodes: React.ReactNode[] = React.useMemo(() => {
     const nodes: React.ReactNode[] = [
-      <LibCheckBox Style={prop.theme.RadioBox} options={prop.modulePageType} {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Module, SchemaFields.SiteMenu_Item_ModuleFields.PageType, "number", curRowKeys)} />,
+      <LibSelectCard key="basic_Setting" ColDisplayName="基礎設定" components={[<LibCheckBox Style={prop.theme.RadioBox} options={prop.modulePageType} {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Module, SchemaFields.SiteMenu_Item_ModuleFields.PageType, "number", curRowKeys)} />,
+      <Module_Banner_Comp theme={prop.theme} formData={prop.formData} selectedItemEdit={prop.selectedItemEdit} bannerDict={prop.bannerDict} />,
       <LibDropList key="model" Style={prop.theme.DropList} Options={ModuleOpts}
         ColumnDisplayName={moduleKeyBind.ColumnDisplayName}
         InputValue={moduleKeyBind.InputValue}
-        onChange={(v) => { moduleKeyBind.onChange?.(v); prop.setModelKey(v as ModelKey); }} />,
-      <LibSelectCard key="banner" ColDisplayName="輪播設定" components={[<Module_Banner_Comp theme={prop.theme} formData={prop.formData} selectedItemEdit={prop.selectedItemEdit} bannerDict={prop.bannerDict} />]} />,
+        onChange={(v) => { moduleKeyBind.onChange?.(v); prop.setModelKey(v as ModelKey); }} />,]} />,
     ];
     const map: Record<Exclude<ModelKey, null>, React.ReactNode> = {
       Announcement: <Module_Announcement_Comp theme={prop.theme} formData={prop.formData} selectedItemEdit={prop.selectedItemEdit} styleDict={filteredStyleDict} categoryDatas={prop.categoryDatas} tagDatas={prop.tagDatas} lang={DefaultLang} />,
@@ -947,7 +969,7 @@ const Module_SpecResearch_Comp = (prop: {
     curRowKeys,
     moduleOptionsDefaults
   );
-  const catBind = binder.bind("Category", "csv");
+  const catBind = binder.bind("Category", "string");
   const tagBind = binder.bind("Tag", "csv");
   const cateDic = useSpecCategoryDict(prop.categoryDatas, prop.lang, "SpecResearch")
   const tagDic = useTagDict(prop.tagDatas, prop.lang, "SpecResearch")
@@ -968,7 +990,7 @@ const Module_SpecUSR_Comp = (prop: {
     curRowKeys,
     moduleOptionsDefaults
   );
-  const catBind = binder.bind("Category", "csv");
+  const catBind = binder.bind("Category", "string");
   const tagBind = binder.bind("Tag", "csv");
   const cateDic = useSpecCategoryDict(prop.categoryDatas, prop.lang, "SpecUSR")
   const tagDic = useTagDict(prop.tagDatas, prop.lang, "SpecUSR")

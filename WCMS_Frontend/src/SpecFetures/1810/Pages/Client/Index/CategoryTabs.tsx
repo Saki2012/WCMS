@@ -13,6 +13,8 @@ import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Ca
 import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
 import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
 import { DefaultLang } from '@/SysCore/i18n/lang';
+import { ProgId } from '@/Features/Hooks/Common/ProgId';
+import { useNow } from '@/SysCore/Utils/Library/LibHook';
 
 
 
@@ -20,6 +22,9 @@ import { DefaultLang } from '@/SysCore/i18n/lang';
 const useTopAnnouncementList = (categories?: string) => {
     const provider = AnnouncementProvider();
     let cdt = `${SchemaFields.AnnouncementFields.ContentStatus} & 1`;
+    //因時程關係，暫時用前端來判斷有效日期時間，多少會有客戶端修改時間的風險。之後再改到後端開新的api寫死抓系統時間為依據。
+    const now = useNow({ startPaused: true });
+    if (now.isoLocal) cdt = LibMerge(" And ", false, cdt, `${SchemaFields.AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
     cdt = LibMerge(" And ", false, cdt, categories ? `${SchemaFields.AnnouncementFields.Categories} HasAny ${categories}` : "");
     return useFetchGridListData<AnnouncementSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
@@ -34,8 +39,8 @@ const useTopAnnouncementList = (categories?: string) => {
                 SchemaFields.AnnouncementFields.Tags,
                 SchemaFields.AnnouncementFields.ContentStatus,
                 SchemaFields.AnnouncementFields.Validate_Start,
-                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
-                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
+                `${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
+                `${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
                 SchemaFields.AnnouncementFields.ViewCount,
             ],
             Condition: cdt,
@@ -53,6 +58,9 @@ const useTopAnnouncementList = (categories?: string) => {
 const useAnnouncementList = (categories?: string) => {
     const provider = AnnouncementProvider();
     let cdt = `${SchemaFields.AnnouncementFields.ContentStatus} !& 4 And ${SchemaFields.AnnouncementFields.ContentStatus} !& 1`;
+    //因時程關係，暫時用前端來判斷有效日期時間，多少會有客戶端修改時間的風險。之後再改到後端開新的api寫死抓系統時間為依據。
+    const now = useNow({ startPaused: true });
+    if (now.isoLocal) cdt = LibMerge(" And ", false, cdt, `${SchemaFields.AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
     cdt = LibMerge(" And ", false, cdt, categories ? `${SchemaFields.AnnouncementFields.Categories} HasAny ${categories}` : "");
     return useFetchGridListData<AnnouncementSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
@@ -67,8 +75,8 @@ const useAnnouncementList = (categories?: string) => {
                 SchemaFields.AnnouncementFields.Tags,
                 SchemaFields.AnnouncementFields.ContentStatus,
                 SchemaFields.AnnouncementFields.Validate_Start,
-                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
-                `${SchemaFields.AnnouncementSetFields.AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
+                `${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
+                `${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
                 SchemaFields.AnnouncementFields.ViewCount,
             ],
             Condition: cdt,
@@ -90,8 +98,8 @@ const useCategoryList = () => {
         buildQueryCondition: () => ({
             Fields: [
                 SchemaFields.CategoryFields.CategoryId,
-                `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
-                `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
+                `${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
+                `${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
             ],
             Condition: `${SchemaFields.CategoryFields.ProgId} = Announcement`,
             PageNumber: 0,
@@ -111,10 +119,10 @@ const useTagList = () => {
         buildQueryCondition: () => ({
             Fields: [
                 SchemaFields.TagDataFields.TagId,
-                `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
-                `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
+                `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
+                `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
             ],
-            Condition: `${SchemaFields.TagDataFields.ProgId} = Announcement`,
+            Condition: `${SchemaFields.TagDataFields.ProgId} = ${ProgId.Announcement}`,
             PageNumber: 0,
             PageSize: 0,
         }),
@@ -396,7 +404,7 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
                                         {item.contentStatus != 0 && (
                                             <>
                                                 {Boolean(item.contentStatus & 1) && (<div className="icon-small top-bg">置頂</div>)}
-                                                {(item.contentStatus & 2 && <div className="icon-small hot-bg">熱門</div>)}
+                                                {Boolean(item.contentStatus & 2) && (<div className="icon-small hot-bg">熱門</div>)}
                                             </>
                                         )}
                                     </div>

@@ -1,8 +1,5 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Security.AccessControl;
-using WCMS.Features.SiteEdit.PageManagement;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
@@ -52,8 +49,8 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// 觀看次數
         /// </summary>
         [LibDesc] public int? ViewCount { get; set; } = 0;
-        #region Detail關聯
-        [ForeignKey(nameof(AnnouncementId))] public virtual ICollection<AnnouncementDetail>? AnnouncementDetail { get; set; }
+        #region 主子表關聯
+        [InverseProperty(nameof(AnnouncementDetail._Announcement))] public List<AnnouncementDetail> _AnnouncementDetail { get; set; }
         #endregion
     }
     /// <summary>
@@ -90,6 +87,10 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// </summary>
         [StringLength(SysLengthParam.Url)] public string Url { get; set; } = string.Empty;
         [StringLength(SysLengthParam.Memo)] public string UrlDescription { get; set; } = string.Empty;
+        #region 主子表關聯
+        [ForeignKey(nameof(AnnouncementId))] public Announcement _Announcement { get; set; } = null!;
+        [InverseProperty(nameof(AnnouncementDetailFile._AnnouncementDetail))] public List<AnnouncementDetailFile> _AnnouncementDetailFile { get; set; }
+        #endregion
     }
     /// <summary>
     /// 明細檔案關聯
@@ -101,7 +102,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// </summary>
         [Key, StringLength(SysLengthParam.ID)] public string AnnouncementId { get; set; }
         /// <summary>
-        /// 父行代碼 - (AnnouncementDetail)
+        /// 父行代碼
         /// </summary>
         [Key] public int ParentRowId { get; set; }
         /// <summary>
@@ -113,5 +114,8 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// </summary>
         [StringLength(SysLengthParam.InternalId)] public string FileId { get; set; }
         [StringLength(SysLengthParam.Title)] public string FileName { get; set; }
+        #region 主子表關聯
+        [ForeignKey($@"{nameof(AnnouncementId)},{nameof(ParentRowId)}")] public AnnouncementDetail _AnnouncementDetail { get; set; }
+        #endregion
     }
 }

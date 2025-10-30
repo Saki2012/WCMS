@@ -51,6 +51,10 @@ namespace WCMS.SysCore.Library
             var dict = _propertyDictCache.GetOrAdd(type, t => t.GetProperties(BindingFlags.Public | BindingFlags.Instance).ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase));
             return dict.TryGetValue(name, out var prop) ? prop : null;
         }
+        public static PropertyInfo[] GetProperties(PropertyInfo prop)
+        {
+            return _propertyCache.GetOrAdd(prop.PropertyType, t => t.GetProperties());
+        }
         public static PropertyInfo[] GetProperties(Type type)
         {
             return _propertyCache.GetOrAdd(type, t => t.GetProperties());

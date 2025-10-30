@@ -19,14 +19,7 @@ import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import { useCallback } from 'react';
 
-const buildInList = (csv?: string) =>
-    (csv ?? "")
-        .split(",")
-        .map(s => s.trim())
-        .filter(Boolean)
-        .map(s => `${s}`)
-        .join(",");
-
+const buildInList = (csv?: string) => (csv ?? "").split(",").map(s => s.trim()).filter(Boolean).map(s => `${s}`).join(",");
 const useGetCategories = (lang: string, categoryIds: string) => {
     const inList = buildInList(categoryIds);
     var condition: string = `${SchemaFields.CategoryFields.CategoryId} HasAny (${inList}) And ${SchemaFields.CategoryDetailFields.Lang} = ${lang}`;
@@ -43,8 +36,8 @@ const useGetCategories = (lang: string, categoryIds: string) => {
         buildQueryCondition: () => ({
             Fields: [
                 SchemaFields.CategoryFields.CategoryId,
-                `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
-                `${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
+                `${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
+                `${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
             ],
             Condition: condition,
             PageNumber: 0,
@@ -54,7 +47,6 @@ const useGetCategories = (lang: string, categoryIds: string) => {
         deps: [lang, categoryIds],        // ids/lang 改變就 refetch
     });
 };
-
 const useGetTags = (lang: string, tagIds: string) => {
     const inList = buildInList(tagIds);
     var condition: string = `${SchemaFields.TagDataFields.TagId} In (${inList}) And ${SchemaFields.TagDetailFields.Lang} = ${lang}`;
@@ -71,8 +63,8 @@ const useGetTags = (lang: string, tagIds: string) => {
         buildQueryCondition: () => ({
             Fields: [
                 SchemaFields.TagDataFields.TagId,
-                `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
-                `${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
+                `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
+                `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
             ],
             Condition: condition,
             PageNumber: 0,
@@ -120,7 +112,6 @@ const Content = (prop: { lang: string; theme: IFETheme; data: AnnouncementSet; c
     const content = parseContent.html ? parse(parseContent.html) : null;
     const cats = (prop.catData ?? []).flatMap(item => (item.CategoryDetail ?? []).filter(detail => detail.Lang === prop.lang).map(detail => detail.CategoryName)) as string[];
     const tags = (prop.tagData ?? []).flatMap(item => (item.TagDetail ?? []).filter(detail => detail.Lang === prop.lang).map(detail => detail.TagName)) as string[];
-
     return (<>
         <div className="page-header mb-3">
             <h3>{title}</h3>

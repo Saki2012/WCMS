@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System.Data;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using WCMS.Features.SiteEdit.Banner;
 using WCMS.Features.SiteEdit.PageManagement;
 using WCMS.SpecFeatures.T1810.SystemSetting;
@@ -10,6 +11,7 @@ using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
@@ -314,13 +316,15 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         #endregion
 
         #region Protected
-        protected override void BeforeUpdate(SiteMenuSet set, FuncAction act)
+        protected override async Task BeforeUpdate(SiteMenuSet set, FuncAction act)
         {
-            base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act);
             switch (act)
             {
                 case FuncAction.Create:
                 case FuncAction.Update:
+                    CheckData(set);
+                    if (Message.HasError) return;
                     SetData(set);
                     break;
             }
@@ -330,13 +334,28 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         #region Private
         private void CheckData(SiteMenuSet set)
         {
-
+            CheckSiteUrlHasEmpty(set);
         }
-        private static void SetData(SiteMenuSet set)
+        private void CheckSiteUrlHasEmpty(SiteMenuSet set)
+        {
+            Regex menuIdRegex = new Regex(@"^[A-Za-z0-9_-]+$", RegexOptions.Compiled);
+            foreach (var dt in set.SiteMenu_Item)
+            {
+                dt.ItemSiteUrl = dt.ItemSiteUrl.Trim();//防呆，清空前後空白
+                if (dt.ItemSiteUrl.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SiteMenu_Item>(x => x.ItemSiteUrl));
+                else if (!menuIdRegex.IsMatch(dt.ItemSiteUrl)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00016, string.Format("{0}:{1}", I18nCache.GetLabel<SiteMenu_Item>(x => x.ItemSiteUrl), dt.ItemSiteUrl));
+            }
+            foreach(var dt in set.SiteMenu_Item_Title)
+            {   
+                //暫時寫死zh-tw跟繁體中文
+                if (dt.Lang.Equals("zh-tw")&&dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, "繁體中文", I18nCache.GetLabel<SiteMenu_Item_Title>(x => x.Title));
+            }
+        }
+        private void SetData(SiteMenuSet set)
         {
             SetItemFullUrl(set);
         }
-        private static void SetItemFullUrl(SiteMenuSet set)
+        private void SetItemFullUrl(SiteMenuSet set)
         {
             if (set?.SiteMenu_Item == null || set.SiteMenu_Item.Count == 0) return;
             var byId = set.SiteMenu_Item.ToDictionary(x => x.RowId);
@@ -347,6 +366,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
                 var s = Normalize(segment);
                 return "/" + (string.IsNullOrEmpty(p) ? s : $"{p}/{s}");
             }
+            List<string> fullUrl = [];
             foreach (var item in set.SiteMenu_Item.OrderBy(i => i.Level))
             {
                 var seg = Normalize(item.ItemSiteUrl);
@@ -356,6 +376,8 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
                     continue;
                 }
                 item.FullUrl = Combine(parent.FullUrl, seg);
+                if (!fullUrl.Contains(item.FullUrl)) fullUrl.Add(item.FullUrl);
+                else Message.AddMessage(MessageStatus.Error,SysMessageCode.BECode00026, set.SiteMenu_Item_Title.Find(p=>p.Lang.Equals("zh-tw")&&p.ItemRowId.Equals(item.RowId)).Title,item.ItemSiteUrl);
             }
         }
         #endregion

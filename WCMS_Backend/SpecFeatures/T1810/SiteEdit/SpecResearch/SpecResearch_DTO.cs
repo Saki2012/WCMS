@@ -31,7 +31,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
         /// </summary>
         [LibDesc(ModelDisplayName.SpecResearch_Tags)] public string? Tags { get; set; } = string.Empty;
 
-        public List<SpecResearchDetailModel_DTO> SpecResearchDetail { get; set; } = [];
+        public List<SpecResearchDetailModel_DTO>? _SpecResearchDetail { get; set; } = [];
     }
     public class SpecResearchDetailModel_DTO
     {

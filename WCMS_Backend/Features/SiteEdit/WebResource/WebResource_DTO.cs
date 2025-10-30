@@ -1,4 +1,5 @@
-﻿using WCMS.SysCore.Library;
+﻿using WCMS.Features.SiteEdit.Tag;
+using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
@@ -40,7 +41,9 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// </summary>
         [LibDesc(ModelDisplayName.WebResource_PicDescription)] public string?  PicDescription { get; set; }
 
-        public List<WebResourceInfo_DTO> WebResourceInfo { get; set; } = [];
+        #region 主子表關聯
+        public List<WebResourceInfo_DTO>? _WebResourceInfo { get; set; }
+        #endregion
     }
     /// <summary>
     /// 網路資源資訊

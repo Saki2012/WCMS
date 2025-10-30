@@ -4,6 +4,45 @@
  */
 
 export interface paths {
+    "/Service/Announcement/QueryByValidate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Announcement/Create": {
         parameters: {
             query?: never;
@@ -3695,6 +3734,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/SpecCategory/GetShowColumnItems": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    progId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/SpecCategory/Create": {
         parameters: {
             query?: never;
@@ -6401,6 +6475,7 @@ export interface components {
              * @description 下架日期
              */
             Validate_End?: string | null;
+            _AnnouncementDetail?: components["schemas"]["AnnouncementDetail_DTO"][] | null;
         };
         BannerDetailInfo_DTO: {
             /** @description 橫幅廣告 */
@@ -6493,12 +6568,12 @@ export interface components {
             BannerCategoryName?: string | null;
             /**
              * Format: int32
-             * @description 轉換間隔
+             * @description 轉換間隔(s)
              */
             Interval?: number;
             /**
              * Format: int32
-             * @description 轉換速度
+             * @description 轉換速度(ms)
              */
             Speed?: number;
             /**
@@ -6511,7 +6586,7 @@ export interface components {
              * @description 圖片寬度(px)
              */
             Width?: number;
-            BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
+            _BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
         };
         CategoryDataSet_DTO: {
             Category?: components["schemas"]["Category_DTO"];
@@ -6562,6 +6637,7 @@ export interface components {
             CategoryId?: string | null;
             /** @description 功能模塊代碼 */
             ProgId?: string | null;
+            _CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
         };
         /**
          * Format: int32
@@ -6615,16 +6691,37 @@ export interface components {
             Lang?: string | null;
             /** @description 標題 */
             Title?: string | null;
-            FileArchiveDetail?: components["schemas"]["FileArchiveDetail_DTO"][] | null;
+            _FileArchiveDetail?: components["schemas"]["FileArchiveDetail_DTO"][] | null;
+            _FileArchiveUrlDetail?: components["schemas"]["FileArchiveUrlDetail_DTO"][] | null;
         };
         FileArchiveSet_DTO: {
             FileArchive?: components["schemas"]["FileArchive_DTO"];
             FileArchiveInfo?: components["schemas"]["FileArchiveInfo_DTO"][] | null;
             FileArchiveDetail?: components["schemas"]["FileArchiveDetail_DTO"][] | null;
+            FileArchiveUrlDetail?: components["schemas"]["FileArchiveUrlDetail_DTO"][] | null;
         };
         FileArchiveSet_DTOApiRequest: {
             InternalId?: string | null;
             Data?: components["schemas"]["FileArchiveSet_DTO"];
+        };
+        FileArchiveUrlDetail_DTO: {
+            /** @description 檔案室代碼 */
+            FileArchiveId?: string | null;
+            /**
+             * Format: int32
+             * @description 父行代碼
+             */
+            ParentRowId?: number;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number;
+            /** @description 網址 */
+            Url?: string | null;
+            /** @description 網址描述 */
+            UrlDescription?: string | null;
+            WindowTarget?: components["schemas"]["WindowTarget"];
         };
         FileArchive_DTO: {
             /**
@@ -6662,7 +6759,7 @@ export interface components {
              * @description 下載次數
              */
             DownloadCount?: number;
-            FileArchiveInfo?: components["schemas"]["FileArchiveInfo_DTO"][] | null;
+            _FileArchiveInfo?: components["schemas"]["FileArchiveInfo_DTO"][] | null;
         };
         FileManageModel_DTO: {
             /**
@@ -6846,8 +6943,8 @@ export interface components {
              * @description 上架日期
              */
             Validate_Start?: string | null;
-            GalleryInfo?: components["schemas"]["GalleryInfo_DTO"][] | null;
-            GalleryPhotos?: components["schemas"]["GalleryPhotos_DTO"][] | null;
+            _GalleryInfo?: components["schemas"]["GalleryInfo_DTO"][] | null;
+            _GalleryPhotos?: components["schemas"]["GalleryPhotos_DTO"][] | null;
         };
         LoginDto: {
             Account: string;
@@ -6923,6 +7020,7 @@ export interface components {
              * @description 瀏覽次數
              */
             ViewCount?: number | null;
+            _PageManagementDetail?: components["schemas"]["PageManagementDetail_DTO"][] | null;
         };
         PermissionModel: {
             /** Format: date-time */
@@ -7012,13 +7110,15 @@ export interface components {
              * Format: int32
              * @description 行代碼
              */
-            RowId?: number;
+            RowId?: number | null;
             /** @description 語系 */
             Lang?: string | null;
             /** @description 選單名稱 */
             Title?: string | null;
             /** @description [SiteMenu_SiteDescription] */
             Description?: string | null;
+            /** @description 橫幅廣告 */
+            BannerId?: string | null;
             /** @description [SiteMenu_SiteHeader] */
             SiteHeader?: string | null;
             /** @description [SiteMenu_SiteFooter] */
@@ -7064,7 +7164,7 @@ export interface components {
              * Format: int32
              * @description 行代碼
              */
-            RowId?: number;
+            RowId?: number | null;
             /** Format: int32 */
             ParentRowId?: number | null;
             /** @description 選單ID */
@@ -7133,7 +7233,6 @@ export interface components {
             RedirectUrl?: string | null;
         };
         SpecCategoryDetailModel_DTO: {
-            /** @description 計畫類別代碼 */
             CategoryId?: string | null;
             /**
              * Format: int32
@@ -7169,13 +7268,12 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
-            /** @description 計畫類別代碼 */
             CategoryId?: string | null;
             /** @description 功能模塊代碼 */
             ProgId?: string | null;
             /** @description 顯示欄位 */
             ShowColumnItems?: string | null;
-            SpecCategoryDetail?: components["schemas"]["SpecCategoryDetailModel_DTO"][] | null;
+            _SpecCategoryDetail?: components["schemas"]["SpecCategoryDetailModel_DTO"][] | null;
         };
         SpecCategorySet_DTO: {
             SpecCategory?: components["schemas"]["SpecCategoryModel_DTO"];
@@ -7289,7 +7387,7 @@ export interface components {
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 標籤 */
             Tags?: string | null;
-            SpecResearchDetail?: components["schemas"]["SpecResearchDetailModel_DTO"][] | null;
+            _SpecResearchDetail?: components["schemas"]["SpecResearchDetailModel_DTO"][] | null;
         };
         SpecResearchSet_DTO: {
             SpecResearch?: components["schemas"]["SpecResearchModel_DTO"];
@@ -7324,13 +7422,13 @@ export interface components {
             ProjectName?: string | null;
             /** @description 外部合作單位 */
             ExternalCooperationUnit?: string | null;
-            /** @description 本校合作系所/單位 */
+            /** @description 本校執行系所/單位 */
             Department?: string | null;
             /** @description 執行期間 */
             DuringExecution?: string | null;
             /**
              * Format: double
-             * @description 計劃金額
+             * @description 計畫金額
              */
             PlanAmount?: number | null;
             /** @description 外部合作單位 */
@@ -7343,6 +7441,10 @@ export interface components {
             ProjectHighlights?: string | null;
             /** @description 計畫主持人 */
             ProjectLeader?: string | null;
+            /** @description 子計畫主持人 */
+            ProjectSubLeader?: string | null;
+            /** @description 參與之師生或團隊 */
+            AttendTeam?: string | null;
             /** @description 共同主持人 */
             Cohost1?: string | null;
             /** @description 協同主持人 */
@@ -7351,7 +7453,7 @@ export interface components {
             Commissioned?: string | null;
             /** @description 備註 */
             Remark?: string | null;
-            /** @description 計畫項目 */
+            /** @description 計畫類別 */
             ProjectItem?: string | null;
             /** @description 相關網址 */
             Url?: string | null;
@@ -7389,11 +7491,11 @@ export interface components {
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 標籤 */
             Tags?: string | null;
-            /** @description 活動圖片 */
+            /** @description 成果照片 */
             PictureId?: string | null;
             /** @description 圖片說明 */
             PicDescription?: string | null;
-            SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"][] | null;
+            _SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"][] | null;
         };
         SpecUSRSet_DTO: {
             SpecUSR?: components["schemas"]["SpecUSRModel_DTO"];
@@ -7431,6 +7533,7 @@ export interface components {
             TagId?: string | null;
             /** @description 功能模塊代碼 */
             ProgId?: string | null;
+            _TagDetail?: components["schemas"]["TagDetail_DTO"][] | null;
         };
         TagDetail_DTO: {
             /** @description 標籤功能 */
@@ -7595,7 +7698,7 @@ export interface components {
             PicId?: string | null;
             /** @description 圖片說明 */
             PicDescription?: string | null;
-            WebResourceInfo?: components["schemas"]["WebResourceInfo_DTO"][] | null;
+            _WebResourceInfo?: components["schemas"]["WebResourceInfo_DTO"][] | null;
         };
         /**
          * Format: int32

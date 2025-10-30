@@ -1,4 +1,6 @@
 // src/hooks/TinyMCE_Hook.ts
+import { useToast } from "@/Features/Hooks/Common/useToastCenter";
+import { MessageStatus, type SysMessageModel } from "@/SysCore/Interface/IApiProvider";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useMemo, useRef } from "react";
 import type { Editor as TinyMCEEditor } from "tinymce";
@@ -21,11 +23,60 @@ export interface TinyMceHookOptions
     baseUrl?: string; // "/tinymce"
     initExtras?: Record<string, any>;
 }
+const pickSandboxForUrl = (rawUrl: string) =>
+{
+    // 讓相對網址也能被解析（SSR 也安全）
+    const base = "https://example.com";
+    let host = "";
+    try
+    {
+        host = new URL(rawUrl, base).hostname.toLowerCase(); // ← 只拿主機名
+    } catch
+    {
+        return "allow-same-origin"; // 解析失敗就保守處理
+    }
 
+    // google.*（含 maps.google.com、google.com.tw 等）
+    if (/^(?:[\w-]+\.)*google\.[a-z.]+$/i.test(host))
+    {
+        return "allow-same-origin allow-scripts allow-popups";
+    }
+
+    // YouTube / Vimeo（舉例）
+    if (
+        host === "youtu.be"
+        || /^(?:[\w-]+\.)*youtube\.com$/i.test(host)
+        || /^(?:[\w-]+\.)*vimeo\.com$/i.test(host)
+    )
+    {
+        return "allow-same-origin allow-scripts allow-presentation";
+    }
+
+    return "allow-same-origin";
+};
+const normalizeWidth = (raw?: string) =>
+{
+    const x = (raw ?? "").trim();
+    if (!x) return "100%";
+    if (/^\d+%$/i.test(x)) return x;
+    if (/^\d+(px)?$/i.test(x)) return x.replace(/px$/i, "") + "px";
+    return "100%";
+};
+
+/* 🟢 新增：height 空白→"360"；禁止百分比；接受數字或 123px（轉為 "123"） */
+const normalizeHeight = (raw?: string) =>
+{
+    const x = (raw ?? "").trim();
+    if (!x) return "360";
+    if (/^\d+%$/i.test(x)) return "360";
+    if (/^\d+$/i.test(x)) return x;
+    if (/^\d+px$/i.test(x)) return x.replace(/px$/i, "");
+    return "360";
+};
 export const useTinyMCE = (p: TinyMceHookOptions) =>
 {
     const editorRef = useRef<TinyMCEEditor | null>(null);
-
+    const { publish } = useToast();
     // 1) 掛上內容轉換（prefix 可自訂；不給就用預設）
     const { toDb, toEditor } = useContentTransform({
         previewPrefix: `${FileManagementAPI.PREVIEW_URL}`,
@@ -41,11 +92,17 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
         if (!res.ok) throw new Error("Upload failed");
         // 後端請回傳 { internalId: "xxx", name: "filename.ext" }
         const json = await res.json();
-        if (!json.IsSuccess) throw new Error("No internalId");
-        return {
-            internalId: json.Data[0],
-            name: file.name,
-        } as { internalId: string; name: string; };
+        if (!json.IsSuccess)
+        {
+            (json.SysMessage as SysMessageModel[]).forEach((msg) =>
+            {
+                if (msg.Status === 3)
+                {
+                    publish({ level: MessageStatus.Error, title: msg.MessageCode, text: msg.Message });
+                }
+            });
+        }
+        return { isSuccess: json.IsSuccess, internalId: json.Data[0], name: file.name };
     };
 
     const toUrl = (id: string, kind: "file" | "image") =>
@@ -83,8 +140,8 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
             onSubmit(api)
             {
                 const data: any = api.getData();
-                const width = (data.width || "100%").trim();
-                const height = (data.height || "360").trim();
+                const width = normalizeWidth(data.width);
+                const height = normalizeHeight(data.height);
                 const title = (data.title || "").trim();
                 const url = (data.url || "").trim();
                 if (!url)
@@ -92,11 +149,17 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     ed.windowManager.alert("請輸入 URL");
                     return;
                 }
-                const html = `<iframe src="${ed.dom.encode(url)}" title="${ed.dom.encode(title)}" width="${
-                    ed.dom.encode(width)
-                }" height="${
-                    ed.dom.encode(height)
-                }" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen style="max-width:100%;border:0;"></iframe>`;
+                const sandbox = pickSandboxForUrl(url);
+
+                const html = `<iframe src="${ed.dom.encode(url)}"
+                    title="${ed.dom.encode(title)}"
+                    width="${ed.dom.encode(width)}"
+                    height="${ed.dom.encode(height)}"
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"  
+                    sandbox="${sandbox}"                      
+                    allowfullscreen
+                    style="max-width:100%;border:0;"></iframe>`;
                 ed.insertContent(html);
                 api.close();
             },
@@ -113,6 +176,8 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
             height: 450,
             menubar: false,
             convert_urls: false,
+            relative_urls: false,
+            remove_script_host: false,
             plugins: [
                 "advlist",
                 "autolink",
@@ -142,7 +207,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 "table |",
                 "copyformat applyformat removeformat | insertiframe | hr |",
                 "togglePBlocks toggleDivBlocks |",
-                "fullscreen code preview",
+                "fullscreen code",
             ].join(" "),
             contextmenu: "link image table",
             visualblocks_default_state: true,
@@ -226,14 +291,21 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 {
                     try
                     {
-                        const { internalId, name } = await uploadAndReturn(file);
+                        const { isSuccess, internalId, name } = await uploadAndReturn(file);
+                        if (!isSuccess) return;
                         if (meta.filetype === "file")
                         {
                             const href = toUrl(internalId, "file");
                             // 插入可下載連結 + data-internal
-                            callback(href, { text: name ?? file.name, [INTERNAL_ATTR]: internalId });
-                            // 直接把當前選取轉成 <a>
                             const ed = editorRef.current!;
+                            applyFileLinkToSelection(ed, {
+                                href,
+                                title: name ?? file.name,
+                                internalId,
+                                download: true,
+                                // targetBlank: true, // 若你想讓下載另開視窗可打開這行
+                            });
+                            // 直接把當前選取轉成 <a>
                             const anchor = ed.dom.select("a[href=\"" + href + "\"]").pop();
                             if (anchor) ed.dom.setAttrib(anchor, "download", "");
                         } else if (meta.filetype === "image")
@@ -565,13 +637,15 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                         {
                             try
                             {
-                                const { internalId, name } = await uploadAndReturn(file);
+                                const { isSuccess, internalId, name } = await uploadAndReturn(file);
+                                if (!isSuccess) return;
                                 const href = toUrl(internalId, "file");
-                                editor.insertContent(
-                                    `<a href="${editor.dom.encode(href)}" ${INTERNAL_ATTR}="${
-                                        editor.dom.encode(internalId)
-                                    }" download>${editor.dom.encode(name ?? file.name)}</a>`,
-                                );
+                                applyFileLinkToSelection(editor, {
+                                    href,
+                                    title: name ?? file.name,
+                                    internalId,
+                                    download: true,
+                                });
                             } catch
                             {
                                 alert("上傳失敗");
@@ -650,6 +724,58 @@ export interface UseTinyMceInternalImageResult
 
 export const INTERNAL_ATTR = "data-internalid";
 
+const applyFileLinkToSelection = (
+    ed: TinyMCEEditor,
+    opts: { href: string; title?: string; internalId?: string; download?: boolean; targetBlank?: boolean; },
+) =>
+{
+    const { href, title, internalId, download, targetBlank } = opts;
+    const sel = ed.selection;
+    if (!sel) return;
+
+    const setAttrs = (a: HTMLElement) =>
+    {
+        // TinyMCE 的 setAttribs 不吃運算子鍵名，因此用逐一設定避免型別衝突
+        ed.dom.setAttrib(a, "href", href);
+        ed.dom.setAttrib(a, "title", title ?? "");
+        if (internalId) ed.dom.setAttrib(a, INTERNAL_ATTR, internalId);
+        if (download) ed.dom.setAttrib(a, "download", "");
+        if (targetBlank)
+        {
+            ed.dom.setAttrib(a, "target", "_blank");
+            // AA & 安全性
+            ed.dom.setAttrib(a, "rel", "noopener");
+        }
+    };
+
+    // 未選取 → 直接插入一個連結（用 title 或檔名當文字）
+    if (sel.isCollapsed())
+    {
+        const linkText = title || href.split("/").pop() || "download";
+        const a = ed.dom.create("a", {}) as HTMLElement;
+        a.textContent = linkText;
+        setAttrs(a);
+        ed.insertContent((a as any).outerHTML);
+        ed.nodeChanged();
+        return;
+    }
+
+    // 有選取 → 優先修改既有 <a>；若沒有 <a>，用 mceInsertLink 包起來
+    const start = sel.getStart();
+    const existing = ed.dom.getParent(start, "a");
+    if (existing)
+    {
+        setAttrs(existing as HTMLElement);
+        ed.nodeChanged();
+        return;
+    }
+
+    // 包成連結（不會改文字內容）
+    ed.execCommand("mceInsertLink", false, { href, title: title ?? "" });
+    const wrapped = ed.dom.getParent(ed.selection.getStart(), "a");
+    if (wrapped) setAttrs(wrapped as HTMLElement);
+    ed.nodeChanged();
+};
 const doTransformForEditor = (html: string, makeSrc: (id: string) => string) =>
 {
     const doc = new DOMParser().parseFromString(html, "text/html");
@@ -704,7 +830,252 @@ export const useTinyMceInternalImage = (
                 e.content = transformForDb(e.content);
             }
         });
+        editor.on("DblClick", (e: any) =>
+        {
+            const el = e?.target as HTMLElement | null;
+            const img = el?.closest?.("img");
+            if (img)
+            {
+                editor.selection.select(img); // 🟢 先選到該 <img>，對話框才能帶入現值
+                editor.execCommand("mceImage"); // 🟢 呼叫內建圖片編輯對話框
+            }
+            const a = el?.closest?.("a[href]");
+            if (a)
+            {
+                editor.selection.select(a);
+                editor.execCommand("mceLink", false, { dialog: true });
+                return;
+            }
+        });
+        editor.on("PreInit", () =>
+        {
+            const ser = (editor as any).serializer;
+            if (ser?.addNodeFilter)
+            {
+                ser.addNodeFilter("iframe", (nodes: any[]) =>
+                {
+                    nodes.forEach((node: any) =>
+                    {
+                        const src = String(node.attr("src") || "");
+                        // 與你現成的函式一致
+                        const sb = pickSandboxForUrl(src) || "allow-same-origin";
+
+                        node.attr("sandbox", sb);
+                        node.attr("loading", "lazy");
+                        node.attr("referrerpolicy", "no-referrer-when-downgrade");
+                        node.attr("allowfullscreen", "");
+
+                        // 一起把 wrapper 的快取欄位補齊，避免被蓋回空值
+                        const wrap = node.parent;
+                        if (wrap)
+                        {
+                            wrap.attr("data-mce-p-sandbox", sb);
+                            wrap.attr("data-mce-p-loading", "lazy");
+                            wrap.attr("data-mce-p-referrerpolicy", "no-referrer-when-downgrade");
+                            wrap.attr("data-mce-p-allowfullscreen", "");
+                        }
+                    });
+                });
+            }
+        });
     };
 
     return { setup, transformForEditor, transformForDb } as const;
+};
+
+export type TinySetup = { setup: (editor: any) => void; };
+export const useTinyMceIframeEdit = (): TinySetup =>
+{
+    const resolveIframeElm = (editor: any, node: Node | null): HTMLIFrameElement | null =>
+    {
+        if (!node) return null;
+        // a) 自己就是 <iframe>
+        if ((node as HTMLElement).nodeName === "IFRAME") return node as HTMLIFrameElement;
+        const el = node as HTMLElement;
+        // b) 往下找：常見結構 figure/div.mce-object-iframe > iframe
+        const down1 = el.querySelector?.("iframe");
+        if (down1) return down1 as HTMLIFrameElement;
+        // c) 往上找祖先：有時選到的是內層的裝飾元素
+        const up = editor.dom.getParent(el, "iframe");
+        if (up) return up as HTMLIFrameElement;
+        // d) 再保險：如果選到 wrapper（figure/div.mce-object-iframe），從 wrapper 內找
+        if (el.matches?.("figure.mce-object-iframe, div.mce-object-iframe, figure, div"))
+        {
+            const inner = el.querySelector?.("iframe");
+            if (inner) return inner as HTMLIFrameElement;
+        }
+        return null;
+    };
+    const openDialog = (editor: any, node: HTMLIFrameElement) =>
+    {
+        const ifr = resolveIframeElm(editor, node);
+        const dom = editor.dom;
+        const wrapper = ifr
+            ? dom.getParent(ifr, (n: any) =>
+                dom.hasClass(n, "mce-preview-object")
+                || dom.hasClass(n, "mce-object")
+                || dom.hasClass(n, "mce-object-iframe")
+                || n.nodeName === "FIGURE")
+            : null;
+
+        const data = {
+            src: node.getAttribute("src") || "",
+            "data-mce-src": node.getAttribute("src") || "",
+            title: (ifr?.getAttribute("title") || "") || (wrapper ? dom.getAttrib(wrapper, "data-mce-p-title") : "")
+                || (ifr?.getAttribute("aria-label") || ""),
+            width: node.getAttribute("width") || dom.getStyle(node, "width") || "", // 可能是屬性或 style
+            height: node.getAttribute("height") || dom.getStyle(node, "height") || "",
+        };
+
+        editor.windowManager.open({
+            title: "編輯 iFrame",
+            size: "normal",
+            body: {
+                type: "panel",
+                items: [
+                    { type: "input", name: "src", label: "來源網址 (src)" },
+                    { type: "input", name: "title", label: "替代文字 / 描述 (AA)" },
+                    { type: "input", name: "width", label: "寬度 (留空=100%, 例: 640, 640px, 80%)" },
+                    { type: "input", name: "height", label: "高度 (例: 360, 360px)" },
+                ],
+            },
+            initialData: data,
+            buttons: [
+                { type: "cancel", text: "取消" },
+                { type: "submit", text: "套用", primary: true },
+            ],
+
+            onSubmit: (api: any) =>
+            {
+                const v = api.getData() as typeof data;
+                const ifr = resolveIframeElm(editor, node);
+                if (!ifr)
+                {
+                    api.close();
+                    return;
+                } // 找不到就先跳出，避免誤改 wrapper
+
+                // 依 URL 決定 sandbox（沿用你原本的判斷）
+                const sandbox = pickSandboxForUrl(v.src);
+
+                const nw = normalizeWidth(v.width);
+                const nh = normalizeHeight(v.height);
+
+                editor.undoManager.transact(() =>
+                {
+                    const dom = editor.dom;
+
+                    // 1) 直接在同一顆 <iframe> 上改屬性（null 代表移除）
+                    dom.setAttrib(ifr, "src", v.src || null);
+                    dom.setAttrib(ifr, "title", v.title || null);
+                    dom.setAttrib(ifr, "width", nw);
+                    dom.setAttrib(ifr, "height", nh);
+                    dom.setAttrib(ifr, "sandbox", sandbox || null);
+                    dom.setAttrib(ifr, "loading", "lazy");
+                    dom.setAttrib(ifr, "referrerpolicy", "no-referrer-when-downgrade");
+                    dom.setAttrib(ifr, "allowfullscreen", "");
+
+                    // 3) 補保險：清狀況外的 "width/height='null'" 殘留
+                    if (ifr.getAttribute("width") === "null") dom.setAttrib(ifr, "width", null);
+                    if (ifr.getAttribute("height") === "null") dom.setAttrib(ifr, "height", null);
+
+                    // 4) 你原本就有的
+                    dom.setStyle(ifr, "max-width", "100%");
+                    dom.setStyle(ifr, "border", "0");
+
+                    // 2) 找到 wrapper，更新「序列化會參考的快取屬性」
+                    const wrapper = dom.getParent(ifr, (n: any) =>
+                        dom.hasClass(n, "mce-preview-object")
+                        || dom.hasClass(n, "mce-object")
+                        || dom.hasClass(n, "mce-object-iframe")
+                        || n.nodeName === "FIGURE");
+
+                    if (wrapper)
+                    {
+                        // 這幾個欄位視 TinyMCE/插件版本而定，能找到就一起同步
+                        const setWrap = (k: string, val: string | null) => dom.setAttrib(wrapper, k, val);
+                        // 主要：保證 data-mce-p-src 與各類 URL 欄位是新值
+                        setWrap("data-mce-p-src", v.src || null);
+                        setWrap("data-mce-url", v.src || null);
+                        setWrap("data-ephox-embed-iri", v.src || null);
+
+                        // 如需更完整，其他屬性也能補上 data-mce-p-*
+                        const cacheAttrs: Record<string, string | null> = {
+                            "data-mce-p-title": v.title || null,
+                            "data-mce-p-width": (typeof nw === "string" ? nw : String(nw)) || null,
+                            "data-mce-p-height": (typeof nh === "string" ? nh : String(nh)) || null,
+                            "data-mce-p-sandbox": sandbox || null,
+                            "data-mce-p-loading": "lazy",
+                            "data-mce-p-referrerpolicy": "no-referrer-when-downgrade",
+                            "data-mce-p-allowfullscreen": "", // boolean attr
+                        };
+                        Object.entries(cacheAttrs).forEach(([k, val]) => setWrap(k, val));
+                    }
+
+                    editor.nodeChanged();
+                });
+                // 4) 通知變更（確保 getContent / 外層 onChange 都拿到新字串）
+                editor.setDirty(true);
+                editor.fire("input");
+                editor.fire("change");
+                editor.fire("wcms-iframe-updated");
+                api.close();
+            },
+        });
+    };
+
+    const setup = (editor: any) =>
+    {
+        // 🟢 1) 追蹤滑鼠位置（相對於視窗座標）
+        let lastPos = { x: 0, y: 0 };
+        editor.on("MouseMove", (e: any) =>
+        {
+            // TinyMCE 事件有 clientX/clientY
+            if (typeof e?.clientX === "number" && typeof e?.clientY === "number")
+            {
+                lastPos = { x: e.clientX, y: e.clientY };
+            }
+        });
+
+        // 🟢 2) 透過座標找目前滑鼠下的 iframe
+        const getIframeAtPoint = (): HTMLIFrameElement | null =>
+        {
+            const iframes = editor.dom.select("iframe") as HTMLIFrameElement[];
+            if (!iframes?.length) return null;
+            for (const node of iframes)
+            {
+                const r = node.getBoundingClientRect?.();
+                if (!r) continue;
+                if (lastPos.x >= r.left && lastPos.x <= r.right && lastPos.y >= r.top && lastPos.y <= r.bottom)
+                {
+                    return node;
+                }
+            }
+            return null;
+        };
+
+        // 🟢 3) 自訂右鍵選單項目
+        editor.ui.registry.addMenuItem("iframeedit", {
+            text: "編輯 iFrame",
+            onAction: () =>
+            {
+                const node = getIframeAtPoint();
+                if (node) openDialog(editor, node);
+            },
+        });
+
+        // 🟢 4) 只有在滑鼠正壓在 iframe 上時才顯示選單
+        editor.ui.registry.addContextMenu("wcms-iframe-menu", {
+            update: () => (getIframeAtPoint() ? ["iframeedit"] : []),
+        });
+
+        // 🟢 5) 雙擊也能開（同樣用座標判斷）
+        editor.on("DblClick", () =>
+        {
+            const node = getIframeAtPoint();
+            if (node) openDialog(editor, node);
+        });
+    };
+
+    return { setup };
 };

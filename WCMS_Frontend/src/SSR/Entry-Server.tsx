@@ -1,12 +1,12 @@
-import type { IRouteModule } from "../SysCore/Interface/IBaseRouter";
-import { SpecRouteModule } from "../SpecFetures/1810/SpecRouter";
-import { createServerRouter } from "../SysCore/Utils/Route/Routes";
+import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
+import { SpecRouteModule } from "@/SpecFetures/1810/SpecRouter";
+import { createServerRouter } from "@/SysCore/Utils/Route/Routes";
 import { renderToString } from "react-dom/server";
 import * as HelmetAsync from "react-helmet-async";
 import { StaticRouterProvider } from "react-router-dom/server";
-import { MessageProvider } from "../SysCore/Components/Message/Dialog/Dialog_Comp";
-import { HeaderMetaComp } from "../SysCore/Components/HeaderMeta/HeaderMeta_Comp";
-import type { Lang } from "../SysCore/i18n/lang";
+import { MessageProvider } from "@/SysCore/Components/Message/Dialog/Dialog_Comp";
+import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
+import type { Lang } from "@/SysCore/i18n/lang";
 
 const HelmetProvider = (HelmetAsync as any).HelmetProvider ?? (HelmetAsync as any).default?.HelmetProvider ??
   // 萬一還是取不到，就用 no-op provider 避免 SSR 直接當掉

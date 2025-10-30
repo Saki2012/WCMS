@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using WCMS.Features.SiteEdit.Announcement;
 using WCMS.Features.SiteEdit.WebResource;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
@@ -115,36 +117,69 @@ namespace WCMS.Features.SiteEdit.FileArchive
         #endregion
 
         #region Protected
-        protected override void BeforeUpdate(FileArchiveSet set, SysEnum.FuncAction act)
+        protected override async Task BeforeUpdate(FileArchiveSet set, SysEnum.FuncAction act)
         {
-            base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act);
             switch (act)
             {
                 case SysEnum.FuncAction.Create:
                 case SysEnum.FuncAction.Update:
                     CheckData(set);
-                    DoRemergeData(set.FileArchive);
+                    SetData(set);
                     break;
             }
         }
         #endregion
 
+        #region Private
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="set"></param>
         private void CheckData(FileArchiveSet set)
         {
-            CheckDate(set.FileArchive);
+            CheckDataIsEmpty(set);
+            foreach (var urlDt in set.FileArchiveUrlDetail)
+            {
+                CheckRegularUrl(urlDt);
+                CheckUrlIsEmpty(urlDt);
+            }
         }
-
-
-        private void CheckDate(FileArchive header)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="set"></param>
+        private static void SetData(FileArchiveSet set)
         {
-            //if (header.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchive>(x => x.Validate_Start));
-            //if (header.Validate_End == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchive>(x => x.Validate_End));
-            //if (header.Validate_End != null && header.Validate_Start > header.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, I18nCache.GetLabel<FileArchive>(x => x.Validate_End) , I18nCache.GetLabel<FileArchive>(x => x.Validate_Start));
-            if (header.CategoriesId == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchive>(x => x.CategoriesId));
-
+            DoRemergeData(set.FileArchive);
+            RemoveEmptyFileSrcData(set.FileArchiveDetail);
+            RemoveEmptyUrlSrcData(set.FileArchiveUrlDetail);
         }
-
-        #region Private
+        /// <summary>
+        /// 檢查類別是否為空
+        /// </summary>
+        /// <param name="header"></param>
+        private void CheckDataIsEmpty(FileArchiveSet set)
+        {
+            if (set.FileArchive.CategoriesId == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchive>(x => x.CategoriesId));
+            if (set.FileArchiveInfo.FirstOrDefault(p => p.Lang.Equals("zh-tw")) == null || set.FileArchiveInfo.FirstOrDefault(p => p.Lang.Equals("zh-tw")).Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, "繁體中文", I18nCache.GetLabel<AnnouncementDetail_DTO>(x => x.Title));
+        }
+        /// <summary>
+        /// 如果沒有上傳檔案成功的項目，就移除該項目防呆
+        /// </summary>
+        /// <param name="fileArchiveDetail"></param>
+        private static void RemoveEmptyFileSrcData(List<FileArchiveDetail> fileArchiveDetail)
+        {
+            for (int i = fileArchiveDetail.Count - 1; i >= 0; i--) if (fileArchiveDetail[i].FileSrcId.IsNullOrEmpty()) fileArchiveDetail.RemoveAt(i);
+        }
+        /// <summary>
+        /// 如果沒有輸入網址和網址說明的，就移除該項目防呆
+        /// </summary>
+        /// <param name="fileArchiveDetail"></param>
+        private static void RemoveEmptyUrlSrcData(List<FileArchiveUrlDetail> detail)
+        {
+            for (int i = detail.Count - 1; i >= 0; i--) if (detail[i].Url.IsNullOrEmpty()&& detail[i].UrlDescription.IsNullOrEmpty()) detail.RemoveAt(i);
+        }
         /// <summary>
         /// 重新組合多筆資料(類別、狀態、標籤)
         /// </summary>
@@ -153,6 +188,20 @@ namespace WCMS.Features.SiteEdit.FileArchive
         {
             header.CategoriesId = header.CategoriesId.Remerge(",");
             header.TagsId = header.TagsId.Remerge(",");
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dt"></param>
+        private void CheckRegularUrl(FileArchiveUrlDetail dt)
+        {
+            if (!dt.Url.IsNullOrEmpty() && !LibData.UrlChecks.IsHttpOrRelativeUrl(dt.Url)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00027, dt.Url);
+        }
+
+        private void CheckUrlIsEmpty(FileArchiveUrlDetail dt)
+        {
+            if (!dt.Url.IsNullOrEmpty() && dt.UrlDescription.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchiveUrlDetail_DTO>(x => x.UrlDescription));
+            if (dt.Url.IsNullOrEmpty() && !dt.UrlDescription.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchiveUrlDetail_DTO>(x => x.Url));
         }
         #endregion
     }

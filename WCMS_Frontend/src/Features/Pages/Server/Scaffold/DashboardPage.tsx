@@ -1,12 +1,16 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useMatches } from 'react-router-dom'
 import SidebarMenu from "@/Features/Pages/Server/Scaffold/Menu/SideMenu/SideMenu_Comp"
 import NavibarMenu from "@/Features/Pages/Server/Scaffold/Menu/NaviBar/NaviBar_Comp"
 import BreadCrumb from "@/Features/Pages/Server/Scaffold/Menu/BreadCrumb/BreadCrumb_Comp"
 import FooterComp from "@/Features/Pages/Server/Scaffold/Footer/Footer_Comp"
 import type { IBETheme } from '@/Features/Pages/Server/Theme/ITheme'
 import { ToastViewport_Comp } from '@/Features/Pages/Server/Scaffold/Toast/ToastViewport_Comp'
+import { resolveTitle, type RouteHandleMeta } from '@/Features/Pages/Server/ServerRouter'
 
 export const DashboardPage = ({ theme }: { theme: IBETheme }) => {
+  const matches = useMatches();
+  const last = [...matches].reverse().find(m => (m.handle as RouteHandleMeta | undefined)?.title);
+  const pageTitle = resolveTitle(last?.handle as RouteHandleMeta, last);
   return (
     <>
       <SidebarMenu theme={theme} />
@@ -18,7 +22,7 @@ export const DashboardPage = ({ theme }: { theme: IBETheme }) => {
               <div className="row align-items-center">
                 <div className="col-md-12">
                   <div className="page-header-title">
-                    <h3 className="tit mb-0">關鍵字設定</h3>{/**title 在動態塞入 */}
+                    <h3 className="tit mb-0" aria-live="polite">{pageTitle || "　"}</h3>
                   </div>
                 </div>
                 <div className="col-md-12">

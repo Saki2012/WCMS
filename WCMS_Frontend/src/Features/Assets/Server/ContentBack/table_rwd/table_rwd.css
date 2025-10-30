@@ -1,0 +1,315 @@
+@charset "utf-8";
+/* CSS Document */
+/* 表格RWD */
+
+/* --------------- RWD TABLE CSS CODE START -------------------*/
+
+.table-rwd { }
+/*這是額外做顏色，沒有什麼意義*/
+
+/* --- 標題TR底色設定 ---*/
+tr.tr-only-hide { 
+	font-size: 1em;
+	line-height: 1.42857143;
+	font-weight: normal;
+	color: var(--G333color);
+	background-color: #e7e7e7!important;
+}
+
+/* --- 以下標準bootstrap.min table CSS --- */
+.table-bordered {
+    border: 1px solid #ddd;
+}
+.table-striped tbody tr:nth-of-type(2n+1) {
+	background-color: transparent;
+    /*background-color: rgba(0, 0, 0, 0.05);*/
+}
+.table-striped tbody tr:nth-of-type(2n) {
+    background-color: rgba(0, 0, 0, 0.0125);
+}
+.table {
+    width: 100%;
+    max-width: 100%;
+    color: var(--G333color);
+    margin-bottom: 24px;
+}
+
+table {    
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+table {
+    background-color: transparent;
+}
+
+.table > tbody {
+    border-top: 1px solid transparent !important;
+}
+
+.table-bordered > tbody > tr > td,
+.table-bordered > tbody > tr > th,
+.table-bordered > tfoot > tr > td,
+.table-bordered > tfoot > tr > th,
+.table-bordered > thead > tr > td,
+.table-bordered > thead > tr > th {    
+    border: 1px solid rgba(0,0,0,.125);
+    border-bottom: none;
+}
+
+.table > tbody > tr > th {
+	padding: .5rem .9rem;
+    vertical-align: top;
+    border-top: 1px solid rgba(0,0,0,.125);
+}
+
+.table > tbody > tr > td {
+	font-size: 1em;
+	line-height: 1.42857143;
+	font-weight: inherit;
+	color: inherit;
+
+	padding: .5rem .9rem;
+    vertical-align: top;
+    border-top: 1px solid rgba(0,0,0,.125);
+	word-break: break-all; /*自動折行*/
+}
+.table_list {
+	font-size: inherit !important;
+}
+.table_td_vertical_align {
+	font-size: inherit!important;
+	vertical-align: middle !important;
+}
+.table_td_vertical_align a {	
+	color: inherit;
+}
+.table > tbody > tr > td a {
+	font-weight: normal;
+	color: inherit !important;
+}
+
+.table > tbody > tr > td i {
+	color: inherit;
+}
+
+.table > tbody > tr > td a:hover {
+	color: var(--Customize_HRcolor) !important;
+}
+
+th {
+    text-align: left;
+}
+
+td, th {
+    padding: 0;
+	word-break: break-all;
+}
+
+/*-------------------------------------*/
+tr.tr-only-hide-titlebar { 
+	font-size: inherit;
+	line-height: 1.42857143;
+	font-weight: normal;
+	color: inherit;
+    border-bottom: none;
+	background-color: rgba(0,0,0,.075) !important;
+}
+
+.table > tbody > tr.transparent > td, 
+.table > tbody > tr.transparent > th, 
+.table > tbody > tr > td.transparent, 
+.table > tbody > tr > th.transparent, 
+.table > tfoot > tr.transparent > td, 
+.table > tfoot > tr.transparent > th, 
+.table > tfoot > tr > td.transparent, 
+.table > tfoot > tr > th.transparent, 
+.table > thead > tr.transparent > td, 
+.table > thead > tr.transparent > th, 
+.table > thead > tr > td.transparent, 
+.table > thead > tr > th.transparent {
+    background-color: transparent;
+}
+
+.table > tbody > tr.gray > td, 
+.table > tbody > tr.gray > th, 
+.table > tbody > tr > td.gray, 
+.table > tbody > tr > th.gray, 
+.table > tfoot > tr.gray > td, 
+.table > tfoot > tr.gray > th, 
+.table > tfoot > tr > td.gray, 
+.table > tfoot > tr > th.gray, 
+.table > thead > tr.gray > td, 
+.table > thead > tr.gray > th, 
+.table > thead > tr > td.gray, 
+.table > thead > tr > th.gray {
+    background-color: rgba(0,0,0,.0125);
+}
+
+/* 取消TR底色設定 bootstrap.min 等都要取消
+.table-striped > tbody > tr:nth-of-type(2n+1) {
+    background-color: #f9f9f9;
+}
+*/
+
+/* --- 以上標準bootstrap.min table CSS --- */
+/*-- @media (max-width: 736px) --*/
+/*-- @media (max-width: 768px) --*/
+/*-- @media (max-width: 992px) --*/
+@media (max-width: 1139px) {
+	.table-rwd {
+		min-width: 100%;
+	}
+	
+	/*針對tr去做隱藏*/
+	tr.tr-only-hide {
+		display: none !important;
+	}
+	
+	/*讓tr變成區塊主要讓他有個區塊*/
+	tr.tr-only-hide-titlebar {
+		display: none !important;
+	}
+	
+	.table-rwd tr {
+		display: block;
+		border: 1px solid rgba(0,0,0,.125);
+		margin-top: 5px;
+	}
+	
+	.table-rwd td {
+		text-align: left;
+		font-size: inherit;
+		overflow: hidden;
+		width: 100%;
+		display: block;
+	}
+	
+	.table-rwd td:before {
+		/*最重要的就是這串*/
+		content: attr(data-th) " : ";
+		/*最重要的就是這串*/
+		/*display: inline-block;*/    /*單獨一列顯示*/
+		text-transform: uppercase;
+		font-weight: bold;
+		margin-right: 10px;
+		color: inherit;             /*RWD 標題顏色*/
+		
+		padding: 8px 0;
+		/*border-bottom: 1px solid #ddd;*/
+		width: 100%;
+		margin-bottom: 5px;
+		/*background:#e7e7e7;*/
+		/*background:#f6f6f6;*/
+	}
+	
+	/*當RWD縮小的時候.table-bordered 會有兩條線，所以針對.table-bordered去做修正*/
+	.table-rwd.table-bordered td,
+	.table-rwd.table-bordered th,
+	.table-rwd.table-bordered {
+		border:0;
+	}
+}
+/* --------------- RWD TABLE CSS CODE END -------------------*/
+
+/* --------------- JESS 新增 CSS CODE START ------------------*/
+.RWD-TABLE-BOX {
+    padding: 0;
+}
+
+.table > :not(caption) > * > * {
+    font-weight: normal;
+    padding: .5rem .9rem;
+    background-color: var(--bs-table-bg);
+    border-bottom-width: 1px;
+    box-shadow: none;
+}
+/* --------------- JESS 新增 CSS CODE END ------------------*/
+
+/* --------------- // 狀態 至頂標籤 // -----------------------*/
+.CustomState {
+	position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+	min-width: 168px;
+}
+
+.CustomState .icon-small {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+	font-size: 68.75%;
+	line-height: 1.5;
+	font-weight: 900;	
+	padding: 2px 8px;
+	border-radius: 5px;
+	margin: 2px;
+	margin-right: 5px;
+}
+.CustomState .icon-small:last-child {
+	margin-right: 0;
+}
+.CustomState .icon-small.hot-bg {
+	color: var(--FFFcolor);
+	background: #ce1800;
+}
+.CustomState .icon-small.top-bg {
+	color: var(--FFFcolor);
+	background-color: #004aa5;
+}
+.CustomState .icon-small.new-bg {
+	color: var(--G333color);
+	background-color: #fda601;
+}
+.CustomState .icon-small.hide-bg {
+	color: var(--FFFcolor);
+	background-color: var(--G777color);
+}
+
+/*已經出貨*//*已經送達*//*已經簽收*/
+.CustomState .icon-small.already-bg{
+	color: var(--FFFcolor);
+	background-color: #64737a;
+}
+/*出貨中*/
+.CustomState .icon-small.shipping-bg {
+	color: var(--FFFcolor);
+	background-color: #004deb;
+}
+/*準備中*/
+.CustomState .icon-small.preparation-bg {
+	color: var(--FFFcolor);
+	background-color: #ff3f3f;
+}
+/* --------------- // 狀態 至頂標籤 // -----------------------*/
+
+/* --------------- // 輪播 BannerCarousel // ----------------*/
+.BannerCarousel-wrapper .carousel-caption {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	right: 0;
+	bottom: 0;
+	height: 100px;
+	transform: translate(-50%, -50%);
+	padding-top: 1.25rem;
+	padding-bottom: 1.25rem;
+	color: var(--FFFcolor);
+	text-align: center;
+}
+.BannerCarousel-wrapper .carousel-caption h4, 
+.BannerCarousel-wrapper .carousel-caption .h4 {
+	font-size: 112.5%;
+	font-weight: bold;
+}
+/* --------------- // 輪播 BannerCarousel // ----------------*/

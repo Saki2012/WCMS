@@ -1,0 +1,545 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* ===== [ 左邊 Sidebar 選單列 ] ===== // 以下 // ================== */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+.pc-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;    
+    width: 264px;    
+    border-right: none;
+    z-index: 1026;
+    overflow: hidden;
+    background-color: var(--Customize_LMBGcolor);
+    box-shadow: 1px 0 10px 0 var(--G777color);
+    
+    font-size: 93.75%;
+}
+
+.pc-sidebar .navbar-wrapper {
+    width: 264px;
+    background: inherit;
+}
+
+.pc-header .m-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 74px;    
+    width: 264px;
+    padding: 16px 10px 16px 24px;
+}
+
+/* =============================================================== */
+/* ===== [ b-brand logo ] ======================================== */
+.b-brand {
+    display: flex;
+    align-items: center;
+}
+
+.b-brand .b-bg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    
+    width: 35px;
+    height: 35px;
+    border-radius: 10px;
+}
+
+.b-brand .b-bg svg {
+    stroke: var(--FFFcolor);
+}
+
+.b-brand .b-bg i {
+    color: var(--FFFcolor);
+}
+
+.b-brand .b-title {
+    margin-left: 10px;
+    font-weight: 100;
+    color: var(--FFFcolor);
+    font-size: 112.5%;
+}
+
+.pc-sidebar .m-header {
+    display: flex;
+    align-items: center;
+    height: 74px;    
+    padding-top: 16px;
+    padding-right: 30px;
+    padding-bottom: 16px;
+    padding-left: 24px;
+    border-bottom: 1px solid rgba(13, 110, 253, 1);
+    background-color: transparent;
+    /*background-color: var(--Customize_ITcolor);*/
+}
+.pc-sidebar .m-header h1 {
+    margin: 0;
+    font-weight: inherit;
+    line-height: inherit;
+}
+
+.pc-sidebar .m-header .logo-sm {
+    display: none;
+}
+/* ===== [ b-brand logo ] ======================================== */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ MENU 選單 ALL ] ======================================== */
+.pc-sidebar ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+/* =============================================================== */
+/* =============================================================== */
+.pc-sidebar .pc-caption {    
+    position: relative;
+    display: block;
+    font-size: 93.75%;
+    line-height: 1.66;
+    font-weight: 500;
+    color: var(--FFFcolor);
+    text-transform: uppercase;
+    padding: 10px 20px !important;
+}
+.pc-sidebar .pc-caption:first-child {
+    padding-top: 10px !important;
+}
+.pc-sidebar .pc-caption:first-child::after {
+    display: none;
+}
+/* =============================================================== */
+/* =============================================================== */
+.pc-sidebar .pc-caption.Left_line::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0%;
+    transform: translate(0%, -50%);
+    width: 2.5%;
+    height: 50%;
+    background-color: var(--Customize_HRcolor);
+}
+/* =============================================================== */
+/* =============================================================== */
+.pc-sidebar .pc-caption svg,
+.pc-sidebar .pc-caption i {
+    display: inline-block;
+    
+}
+.pc-sidebar .pc-caption label {
+    font-size: 106.25%;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+/*.pc-sidebar .pc-caption span:not(.badge) {
+    *display: block;*
+    color: #67758a;
+    font-size: 87.5%;
+    font-weight: 500;
+}*/
+/* =============================================================== */
+/* =============================================================== */
+.pc-sidebar .pc-micon {
+    margin-right: 4px;
+    height: 24px;
+    width: 24px;
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+}
+.pc-sidebar .pc-micon i {
+    font-size: 100%;
+    vertical-align: super;
+    height: 20px;
+    width: 20px;
+}
+.pc-sidebar .pc-micon i::before {
+    height: 20px;
+    width: 20px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.pc-sidebar .pc-micon i.material-icons-two-tone {
+    font-size: 137.5%;
+    display: inline-block;
+}
+
+.pc-sidebar .pc-micon > svg {
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+}
+
+/* =============================================================== */
+/* ===== [ ALL a pc-link ] ======================================= */
+.pc-sidebar .pc-link {
+    position: relative;
+    display: block;
+    font-size: 93.75%;
+    font-weight: 500;
+    text-decoration: none; 
+    color: var(--FFFcolor);
+    padding: 12px 20px; 
+}
+.pc-sidebar .pc-link:focus,
+.pc-sidebar .pc-link.active,
+.pc-sidebar .pc-link:hover {
+    text-decoration: none;
+}
+/* ===== [ ALL a pc-link ] ======================================= */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ 第一層 ] =============================================== */
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) {
+    position: relative;
+}
+
+/* ===== [ 第一層 HOVER + ACTIVE --> ::before ::after ] =========== */
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption)::before {
+    content: "";
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    width: 3px;
+    z-index: 1;
+}
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption):hover::before,
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption).active::before,
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption).open-trigger::before {
+    background-color: var(--Customize_H-green_color); /*#22FF00*/
+}
+/* ------------------------------ */
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption):hover > .pc-link {
+    background-color: var(--Customize_HRcolor);
+}
+
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption):focus > .pc-link,
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption).active > .pc-link,
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption).open-trigger > .pc-link {   
+    background-color: var(--Customize_OPACcolor);
+}
+/* ===== [ 第一層 HOVER + ACTIVE --> ::before ::after ] =========== */
+
+/* ===== [ 第一層 ] =============================================== */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ 第二 / 三 / 四層 HOVER + ACTIVE ] ======================= */
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-item.open-trigger > .pc-link,
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-item.active > .pc-link {    
+    color: var(--FFFcolor);
+}
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-item.open-trigger > .pc-link,
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-item:hover > .pc-link {
+    background-color: var(--Customize_HRcolor);
+}
+
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-item.active > .pc-link,
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-item:focus > .pc-link {
+    background-color: var(--Customize_ACcolor);
+}
+/* ------------------------------ */
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-item > .pc-link::after {
+    content: "";
+    border-radius: 50%;
+    position: absolute;
+    top: 22px;
+    width: 5px;
+    height: 5px;
+    background-color: transparent;
+    opacity: 0;
+    transition: all 0.08s cubic-bezier(0.37, 0.24, 0.53, 0.99);
+}
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-item.open-trigger > .pc-link::after,
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-item.active > .pc-link::after,
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-item:focus > .pc-link::after,
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-item:hover > .pc-link::after {
+    opacity: 1;
+    transform: scale(1.75);
+    background-color: var(--Customize_H-green_color); /*#22FF00*/
+}
+/* ===== [ 第二 / 三 / 四層 HOVER + ACTIVE ] ======================= */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ 第二層 藍色點點 ] ======================================= */
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-link {
+    padding: 12px 20px 12px 52px;
+}
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-link::after {
+    left: 30px;
+}
+/* ===== [ 第二層 藍色點點 ] ======================================= */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ 第三層 藍色點點 ] ======================================= */
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-submenu .pc-link {
+    padding: 12px 20px 12px 66px;
+}
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-submenu .pc-link::after {
+    left: 44px;
+}
+/* ===== [ 第三層 藍色點點 ] ======================================= */
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ 第四層 藍色點點 ] ======================================= */
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-submenu .pc-submenu .pc-link {
+    padding: 12px 20px 12px 95px;
+}
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-submenu .pc-submenu .pc-link::after {
+    left: 73px;
+}
+/* ===== [ 第四層 藍色點點 ] ======================================= */
+/* =============================================================== */
+
+/* =============================================================== */
+.pc-sidebar .pc-item.pc-hasmenu.open-trigger ul.pc-submenu {
+    background-color: rgba(0, 34, 66, 0.5);
+    box-shadow: inset 10px 10px 15px -3px rgba(0,0,0,0.2);
+}
+.pc-sidebar .pc-item.pc-hasmenu.open-trigger ul.pc-submenu ul.pc-submenu {
+    background-color: rgba(0, 34, 66, 0.75);
+    box-shadow: inset 10px 10px 15px -3px rgba(0,0,0,0.2);
+}
+
+.pc-sidebar .pc-item.pc-hasmenu.open-trigger ul.pc-submenu ul.pc-submenu ul.pc-submenu {
+    background-color: rgba(0, 34, 66, 0.95);
+    box-shadow: inset 10px 10px 15px -3px rgba(0,0,0,0.2);
+}
+/* =============================================================== */
+
+/* =============================================================== */
+.pc-sidebar .pc-item.disabled a {
+    cursor: not-allowed;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+/* =============================================================== */
+/* =============================================================== */
+.pc-sidebar .pc-arrow {
+    float: right;
+    display: inline-block;   
+    
+    position: relative;
+    right: 16px;
+}
+.pc-sidebar .pc-arrow i {
+    font-size: 75%;
+    transition: all 0.2s ease-in-out;
+}
+.pc-sidebar .pc-hasmenu.open-trigger > .pc-link > .pc-arrow i {
+    transform: rotate(90deg);
+}
+/* =============================================================== */
+/* =============================================================== */
+.pc-sidebar .pc-badge {
+    margin-right: 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--FFFcolor);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 62.5%;
+    line-height: 1;
+    float: right;
+    background-color: var(--Customize_HRcolor);
+}
+/* =============================================================== */
+/* =============================================================== */
+.pc-sidebar .navbar-content {
+    position: relative;
+    height: calc(100vh - 74px);
+    padding: 10px 0;
+    padding-bottom: 50px;
+}
+
+.pc-sidebar .card {
+    box-shadow: 0 1px 20px 0 rgba(69, 90, 100, .08);
+    margin: 15px;
+}
+
+.pc-sidebar .pc-hasmenu:not(.open-trigger) > .pc-submenu {
+    display: none;
+}
+
+.pc-sidebar .pc-hasmenu.open-trigger > .pc-submenu {
+    display: block;
+}
+/* =============================================================== */
+
+/* =============================================================== */
+/* ===== [ MOBILE 選單遮罩 ] ====================================== */
+.pc-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    background: rgba(0, 0, 0, 0.15);
+}
+
+[data-pc-sidebar-caption=false] .pc-sidebar .pc-caption {
+    display: none;
+}
+
+[data-pc-navimg*=preset-] .pc-sidebar {
+    background-size: cover;
+}
+
+[data-pc-navimg*=preset-] .pc-sidebar .navbar-wrapper {
+    background: rgba(0, 0, 0, 0.5);
+}
+/* ===== [ MOBILE 選單遮罩 ] ====================================== */
+/* =============================================================== */
+
+/* =============================================================== */
+@media (min-width: 1025px) {
+    .navbar-overlay .pc-sidebar.pc-over-menu-active .navbar-wrapper {
+        position: relative;
+        z-index: 5;
+    }
+
+    .navbar-overlay .pc-sidebar:not(.pc-over-menu-active) {
+        left: -264px;
+        box-shadow: none;
+    }
+
+    .pc-sidebar {
+        transition: width 0.2s ease;
+    }
+
+    .pc-sidebar~.pc-header {
+        transition: left 0.2s ease;
+    }
+
+    .pc-sidebar~.pc-footer,
+    .pc-sidebar~.pc-container {
+        transition: margin-left 0.2s ease;
+    }
+
+    .pc-sidebar.pc-sidebar-hide {
+        width: 0;
+        border: none;
+    }
+
+    .pc-sidebar.pc-sidebar-hide~.pc-header {
+        left: 0;
+    }
+
+    .pc-sidebar.pc-sidebar-hide~.pc-footer,
+    .pc-sidebar.pc-sidebar-hide~.pc-container {
+        margin-left: 0px;
+    }
+
+    .pc-header .pc-h-item.pc-sidebar-popup {
+        display: none;
+    }
+}
+/* =============================================================== */
+/* =============================================================== */
+@media (max-width: 1024px) {
+    .pc-header .pc-h-item.pc-sidebar-collapse {
+        display: none;
+    }
+
+    .pc-sidebar {
+        left: -264px;
+        box-shadow: none;
+        top: 0;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .pc-sidebar.mob-sidebar-active {
+        left: 0;
+    }
+
+    .pc-sidebar.mob-sidebar-active .navbar-wrapper {
+        position: relative;
+        z-index: 5;
+        background: inherit;
+    }
+}
+/* =============================================================== */
+
+/* ===== [ MENU 選單 ALL ] ======================================== */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* ===== [ 如不要卷軸，移除以下 CSS ] =============================== */
+
+/* ===== [ pc-sidebar 側選單 卷軸 需增加以下 CSS ] ================== */
+.pc-sidebar .simplebar-wrapper {
+    overflow-y: scroll;
+    height: calc(100vh - 74px);
+}
+
+/* 定義滾動條樣式（高寬及背景）*/ 
+.pc-sidebar .simplebar-wrapper::-webkit-scrollbar { 
+    width: 6px;   /* 滾動條寬度， width：對應垂直滾動條的寬度 height：對應橫滾動條的高度 */
+    background-color: #e9ecef;
+} 
+/* 定義滾動條軌道（凹槽）樣式 */
+.pc-sidebar .simplebar-wrapper::-webkit-scrollbar-track { 
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);    /* 较少使用 */
+    border-radius: 3px; 
+} 
+/* 定義滑桿 樣式 */
+.pc-sidebar .simplebar-wrapper::-webkit-scrollbar-thumb { 
+    border-radius: 3px; 
+    height: 100px;    /* 捲軸滑桿長度 */    
+    background-color: #007acc;
+}
+/* === // 重要 // === */
+.pc-sidebar .simplebar-placeholder {
+    /*display: none;*/
+    height: auto !important;
+    min-height: 1px !important;
+}
+/* === // 重要 // === */
+/* ===== [ pc-sidebar 側選單 卷軸 需增加以下 CSS ] ================== */
+/* =============================================================== */
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* ===== [ 左邊 Sidebar 選單列 ] ===== // 以上 // ================== */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

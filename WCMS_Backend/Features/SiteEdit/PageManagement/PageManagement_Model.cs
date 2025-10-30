@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.SiteEdit.Category;
+using WCMS.Features.SiteEdit.Gallery;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using static WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.ModuleOptions;
 
 namespace WCMS.Features.SiteEdit.PageManagement
 {
@@ -28,8 +30,8 @@ namespace WCMS.Features.SiteEdit.PageManagement
         /// </summary>
         [LibDesc] public int? ViewCount { get; set; }
 
-        #region Detail關聯
-        [ForeignKey(nameof(PageId))] public virtual ICollection<PageManagementDetail>? PageManagementDetail { get; set; }
+        #region 主子表關聯
+        [InverseProperty(nameof(PageManagementDetail._PageManagement))] public List<PageManagementDetail>? _PageManagementDetail { get; set; }
         #endregion
     }
     public class PageManagementDetail:DetailRowModel
@@ -54,5 +56,9 @@ namespace WCMS.Features.SiteEdit.PageManagement
         /// 內容
         /// </summary>
         [LibDesc] public string? Content { get; set; }
+
+        #region 主子表關聯
+        [ForeignKey(nameof(PageId))] public PageManagement _PageManagement { get; set; }
+        #endregion
     }
 }

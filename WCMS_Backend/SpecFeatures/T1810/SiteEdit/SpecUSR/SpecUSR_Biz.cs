@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using WCMS.Features.SiteEdit.Announcement;
+using WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 
@@ -20,10 +23,10 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task Migrate(string importFileLabel = "1810", IList<FileManageSet> srcFileSets=default)
         {
-            SpecUSRSet[] datas = await ConvertToApiModel(importFileLabel, srcFileSets);
+            SpecUSRSet[] datas = ConvertToApiModel(importFileLabel, srcFileSets);
             await BizInitCreateSetsAsync(datas);
         }
-        private async Task<SpecUSRSet[]> ConvertToApiModel(string importFileLabel, IList<FileManageSet> srcFileSets)
+        private SpecUSRSet[] ConvertToApiModel(string importFileLabel, IList<FileManageSet> srcFileSets)
         {
             List<SpecUSRSet> result = [];
             Dictionary<string, string> sqls = new()
@@ -32,7 +35,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
                 { "USRProject_Lang", "SELECT * FROM USRProject_Lang" },
             };
             DataSet ds = MigrateOldData.GetOldData(sqls);
-            
+
             var fileSrcIdDic = srcFileSets.SelectMany(s => s.FileManage_SyncInfo).GroupBy(d => d.SrcFullPath).ToDictionary(g => g.Key, g => g.First().InternalId);
             List<FileManageSet> updateFileSets = [];
 
@@ -44,8 +47,8 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
                 set.SpecUSR.CategoryId = $"USR_{row["Category"]}";
                 set.SpecUSR.ContentStatus = GetContentStatus(row["Status"].ToString());
                 set.SpecUSR.Tags = row["Tag"].ToString();
-                set.SpecUSR.CreateTime= row["CreateTime"].ToString().ToDateTime();
-                set.SpecUSR.ModifyTime= row["UpdateTime"].ToString().ToDateTime();
+                set.SpecUSR.CreateTime = row["CreateTime"].ToString().ToDateTime();
+                set.SpecUSR.ModifyTime = row["UpdateTime"].ToString().ToDateTime();
                 string picFileName = row["Pic"].ToString();
                 string picDescription = row["PicDescription"].ToString();
                 if (!picFileName.IsNullOrEmpty())
@@ -130,20 +133,33 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         #endregion
 
         #region Protected
-        protected override void BeforeUpdate(SpecUSRSet set, SysEnum.FuncAction act)
+        protected override async Task BeforeUpdate(SpecUSRSet set, SysEnum.FuncAction act)
         {
-            base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act);
             switch (act)
             {
                 case SysEnum.FuncAction.Create:
                 case SysEnum.FuncAction.Update:
-                    DoRemergeData(set.SpecUSR);
+                    CheckData(set);
+                    SetData(set);
                     break;
             }
         }
         #endregion
 
         #region Private
+        private void CheckData(SpecUSRSet set)
+        {
+            CheckIsEmpty(set);
+        }
+        private void SetData(SpecUSRSet set)
+        {
+            DoRemergeData(set.SpecUSR);
+        }
+        private void CheckIsEmpty(SpecUSRSet set)
+        {
+            if (set.SpecUSR.CategoryId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecUSRModel>(x => x.CategoryId));
+        }
         /// <summary>
         /// 重新組合多筆資料(類別、狀態、標籤)
         /// </summary>

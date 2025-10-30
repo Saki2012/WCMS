@@ -19,7 +19,7 @@ import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useMemo } from "react";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { Prog } from "@/Features/Hooks/Common/Prog";
+import { ProgId } from "@/Features/Hooks/Common/ProgId";
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"]
 const emptyData: WebResourceSet = { WebResource: {}, WebResourceInfo: [] }
 /** 網路資源表單
@@ -29,8 +29,8 @@ export const WebResourceFormComp = (prop: { theme: IBETheme; lang: Lang }) => {
     const { internalId } = useParams()
     const dirUrl = useLocation().pathname.replace(/\/Form$/, `/Form`);
     const formData = useFetchFormData<WebResourceSet>(WebResourceProvider(), internalId, emptyData)
-    const useCategory = useGetCategoryListByProgId(Prog.WebResource, prop.lang);
-    const useTag = useGetTagListByProgId(Prog.WebResource, prop.lang);
+    const useCategory = useGetCategoryListByProgId(ProgId.WebResource, prop.lang);
+    const useTag = useGetTagListByProgId(ProgId.WebResource, prop.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
     const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
     const windowTarget = useFetchEnumOptions("WindowTarget")

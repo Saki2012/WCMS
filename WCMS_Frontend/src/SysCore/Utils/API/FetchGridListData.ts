@@ -47,7 +47,6 @@ export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
             // 取得欄位名稱與顯示設定
             const cols = await BuildVisibleColumns(props.getModelDisplayName, props.visibleKeys);
             setColumns(cols);
-
             const condition = props.buildQueryCondition(page);
             const countRes = await props.fetchListCount(condition);
             if (!countRes.IsSuccess)
@@ -88,7 +87,13 @@ export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
             setBump(v => v + 1);
         } else if (o.mode === "first")
         {
-            setCurrentPage(1); // 改 page → 由 effect 觸發抓取
+            if (currentPage === 1 || currentPage === 0)
+            {
+                setBump(v => v + 1);
+            } else
+            {
+                setCurrentPage(1); // 改 page → 由 effect 觸發抓取
+            }
         } else if (o.mode === "page")
         {
             setCurrentPage(o.page);
@@ -96,7 +101,11 @@ export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
     }, []);
     useEffect(() =>
     {
-        if (!props.enabled || props.initialData) return;
+        if (!props.enabled || props.initialData)
+        {
+            setIsLoading(false);
+            return;
+        }
         fetchData(currentPage);
     }, [currentPage, props.enabled, ...props.deps ?? [], bump]);
     const gridProps: GridProps = useMemo(

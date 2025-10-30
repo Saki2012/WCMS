@@ -76,26 +76,15 @@ export default function LoginPage() {
                 <div className="inner-wrap">
                   <div className="+ animate__animated animate__fadeInUp delay__05">
                     {/* LOGO：若要內部導向可改 <Link>；此處保留外部連結 */}
-                    <a href="../Front_stage/Front_Page_00_index.html" className="logo" title="國際暢行科技 LOGO" target="_blank" rel="noreferrer">
+                    <Link to="/" className="logo" title="國際暢行科技 LOGO" target="_blank" rel="noreferrer">
                       <h1 id="loginTitle"><img src="/Legacy/Server/images/logo/logo_PC_640x192.svg" alt="國際暢行科技 LOGO" /></h1>
-                    </a>
+                    </Link>
                   </div>
 
                   <div className="+ animate__animated animate__fadeInUp delay__075">
                     <h2 className="main-title">後台管理系統</h2>
-                    <div className="main-title-en">We are a website design management company.</div>
                   </div>
 
-                  <div className="login-option">
-                    <ul>
-                      <li className="+ animate__animated animate__fadeInUp delay__1">
-                        <a href="../Front_stage/Front_Page_05_理念簡介_頁面.html" title="了解監控管理系統方案" target="_blank" rel="noreferrer">了解監控管理系統方案</a>
-                      </li>
-                      <li className="+ animate__animated animate__fadeInUp delay__125">
-                        <a href="https://www.it-easygo.com/" title="國際暢行官網" target="_blank" rel="noreferrer">國際暢行官網</a>
-                      </li>
-                    </ul>
-                  </div>
                 </div>
               </div>
 
@@ -104,7 +93,7 @@ export default function LoginPage() {
                   <div className="page-title mr-3 + animate__animated animate__fadeInRight delay__15">會員登入 Login</div>
                   <ul className="switcher-wrap + animate__animated animate__fadeInRight delay__175">
                     {/* 內部路由導向註冊頁（之後我們會實作 /Server/Register） */}
-                    <li><Link to="/Server/Register" className="switcher-btn">會員註冊 Register</Link></li>
+                    {/* <li><Link to="/Server/Register" className="switcher-btn">會員註冊 Register</Link></li> */}
                   </ul>
                 </div>
 
@@ -211,15 +200,9 @@ export default function LoginPage() {
         <section className="loginRegister-footer + animate__animated animate__fadeInUp delay__275">
           <div className="container px-0">
             <div className="content-wrap">
-              <div className="col-12 d-flex justify-content-sm-center justify-content-start px-3 my-2">
-                <ul className="nav">
-                  <li className="nav-item mr-3">聯絡電話：02-2222-8888</li>
-                  <li className="nav-item">信箱：abc@gmail.com</li>
-                </ul>
-              </div>
               <div className="col-12 d-flex justify-content-sm-center justify-content-start px-3">
                 <p className="mb-2">
-                  Copyright © 2024 - 後台管理系統　|　design by <a href="#">it-easygo.</a>　|　 <a href="#">管理者登入</a>
+                  Copyright © 2025 - 後台管理系統　|　design by <a href="#">it-easygo.</a>
                 </p>
               </div>
             </div>

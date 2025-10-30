@@ -1,8 +1,7 @@
 // src/components/TinyMCE_Comp.tsx
 import { Editor } from '@tinymce/tinymce-react';
-import { INTERNAL_ATTR, useTinyMCE, useTinyMceInternalImage } from './TinyMCE_Hook';
-import { useContentTransform } from './useContentTransform';
-import { useCallback, useMemo } from 'react';
+import { useTinyMCE, useTinyMceInternalImage, useTinyMceIframeEdit } from './TinyMCE_Hook';
+import { useMemo } from 'react';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import { DefaultLang } from '@/SysCore/i18n/lang';
 
@@ -48,21 +47,69 @@ const TinyMCE_Comp = ({ args }: Props) => {
     enforceAlt: args.enforceAlt ?? true,
   });
 
+  const iframe = useTinyMceIframeEdit();
+
   // ✅ 不覆蓋、不修改你原本 init：只是在外層包一個 setup，串上 image.setup
   const init = useMemo(() => {
     const existingInit = tiny.init as any;
     const originalSetup: ((editor: any) => void) | undefined = existingInit?.setup;
-
+    const mergedContentStyle = (existingInit?.content_style ? existingInit.content_style + '\n' : '') +
+      `
+   /* 讓 iFrame 在編輯器內可被右鍵/雙擊（事件回到 TinyMCE） */
+   iframe {
+     pointer-events: none;     /* 右鍵/點擊不進入內嵌頁面 */
+     display: block;
+     max-width: 100%;
+   }
+   `;
+    const mergedContextMenu =
+      (existingInit?.contextmenu ? existingInit.contextmenu + ' ' : '') +
+      'wcms-iframe-menu';
     return {
       ...existingInit,
-      // 只做前後串接：先跑原本的 setup（如果有），再跑我們的 image.setup
+      content_style: mergedContentStyle,
+      extended_valid_elements: [
+        existingInit?.extended_valid_elements || "",
+        // ⬇️ 多了 sandbox
+        "iframe[src|title|width|height|style|allow|loading|referrerpolicy|frameborder|allowfullscreen|sandbox]"
+      ].filter(Boolean).join(","),
+      contextmenu: mergedContextMenu,
       setup: (editor: any) => {
-
         if (typeof originalSetup === 'function') originalSetup(editor);
         image.setup(editor);
+        iframe.setup(editor);
+        let composing = false;
+        let rafId = 0;
+        const setComposing = (v: boolean) => {
+          composing = v;
+          (editor as any)._wcmsComposing = v;
+        };
+        const pushUpstreamNow = () => {
+          if (composing) return; // 🟢 組字中不回推
+          const html = editor.getContent({ format: 'html' });
+          if (html !== tiny.value) tiny.onChange?.(html);
+        };
+        const pushUpstream = () => {
+          if (composing) return; // 🟢 組字中不回推
+          cancelAnimationFrame(rafId);
+          rafId = requestAnimationFrame(pushUpstreamNow); // 🟢 以 RAF 微節流，降低 re-render 次數
+        };
+        editor.on('compositionstart compositionupdate', () => setComposing(true));
+        editor.on('compositionend', () => { setComposing(false); pushUpstreamNow(); });
+
+        editor.on('input', pushUpstream);
+        editor.on('change', pushUpstream);
+        editor.on('SetContent', pushUpstream);
+        editor.on('ObjectResized', pushUpstream);
+        editor.on('Undo', pushUpstream);
+        editor.on('Redo', pushUpstream);
+        editor.on('NodeChange', pushUpstream);
+        editor.on('Dirty', pushUpstream);
+        editor.on('Blur', pushUpstream);
+        editor.on('wcms-iframe-updated', pushUpstream);
       },
     } as const;
-  }, [tiny.init, image]);
+  }, [tiny.init, image, iframe]);
 
   return (
     <>

@@ -236,15 +236,36 @@ namespace WCMS.SysCore.Library
         /// Convert
         public static short ToInt16(this object val)
         {
-            return Convert.ToInt16(val);
+            try
+            {
+                return Convert.ToInt16(val);
+            }
+            catch
+            {
+                return 0;
+            }
         }
         public static int ToInt32(this object val)
         {
-            return Convert.ToInt32(val);
+            try 
+            {
+                return Convert.ToInt32(val);
+            }
+            catch
+            {
+                return 0;
+            }
         }
         public static long ToInt64(this object val)
         {
-            return Convert.ToInt64(val);
+            try
+            {
+                return Convert.ToInt64(val);
+            }
+            catch
+            {
+                return 0;
+            }
         }
         public static string ToString(this object val)
         {
@@ -515,7 +536,6 @@ namespace WCMS.SysCore.Library
                 return x; // 原樣回傳，如 string/int 等
             }).ToArray();
         }
-
         /// <summary>
         /// 獲取SHA256值
         /// </summary>
@@ -528,20 +548,17 @@ namespace WCMS.SysCore.Library
             ms.Position = 0;
             return GetFileSHA256(ms);
         }
-
         public static string GetFileSHA256(string filePath)
         {
             using var hashStream = File.OpenRead(filePath);
             hashStream.Position = 0;
             return GetFileSHA256(hashStream);
         }
-
         public static string GetFileSHA256(Stream stream)
         {
             var hashBytes = SHA256.HashData(stream);
             return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
         }
-
         public static string GetFileExtenstion(Stream stream)
         {
             stream.Position = 0;
@@ -560,13 +577,11 @@ namespace WCMS.SysCore.Library
             if (fileType != null) return fileType.MimeType.ToLowerInvariant();
             return string.Empty;
         }
-
         public class EnumOption
         {
             public int Key { get; set; }
             public string DisplayName { get; set; }
         }
-
         public static class EnumHelper
         {
             public static List<EnumOption> GetEnumOptions(string enumTypeName)
@@ -590,7 +605,6 @@ namespace WCMS.SysCore.Library
                 return attr?.Description ?? value.ToString();
             }
         }
-
         public static string LocalhostIp
         {
             get
@@ -712,6 +726,29 @@ namespace WCMS.SysCore.Library
             return RemergeSortMode.String;
         }
         #endregion
+
+        public static class UrlChecks
+        {
+            // 僅允許 http/https 的絕對 URL
+            public static bool IsAbsoluteHttpUrl(string? input)
+                => Uri.TryCreate(input, UriKind.Absolute, out var uri)
+                   && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
+
+            // 安全的站內相對路徑（可含 query/fragment），拒絕 // 開頭（scheme-relative）
+            public static bool IsSafeRelativeUrl(string? input)
+            {
+                if (string.IsNullOrWhiteSpace(input)) return false;
+                var s = input.Trim();
+                if (s.StartsWith("//")) return false; // e.g. //evil.com
+                if (s.StartsWith("javascript:", StringComparison.OrdinalIgnoreCase)) return false;
+                if (s.StartsWith("data:", StringComparison.OrdinalIgnoreCase)) return false;
+                // 用基底 URI 嘗試解析；成功且結果不是絕對，就視為合法相對 URL
+                return Uri.TryCreate(s, UriKind.Relative, out _);
+            }
+
+            // 同時接受「絕對 http/https」或「站內相對路徑」
+            public static bool IsHttpOrRelativeUrl(string? input) => IsAbsoluteHttpUrl(input) || IsSafeRelativeUrl(input);
+        }
     }
     
 }

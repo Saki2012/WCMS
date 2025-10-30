@@ -239,6 +239,7 @@ namespace WCMS.SysCore.Enum
             #region 文字檔案
             public const string PDF = "pdf";
             public const string DOCX = "docx";
+            public const string ODT = "odt";
             public const string XLSX = "xlsx";
             public const string PPTX = "pptx";
             public const string TXT = "txt";
@@ -301,7 +302,6 @@ namespace WCMS.SysCore.Enum
             public const string VIDEO_MP4 = "video/mp4";
             public const string VIDEO_QUICKTIME = "video/quicktime";
             #endregion
-            
         }
         /// 內文項目狀態
         /// 目前提供至 公告/檔案室/網路資源/相簿 功能用到

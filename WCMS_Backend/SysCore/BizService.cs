@@ -1,21 +1,18 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Collections;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.UserRolePermission.User;
-using static GraphQL.Validation.Rules.OverlappingFieldsCanBeMerged;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.QueryListParam;
 
@@ -31,7 +28,8 @@ namespace WCMS.SysCore
         /// <summary>
         /// 
         /// </summary>
-        protected Dictionary<string, object> RepoDict { get; } = [];
+        protected Dictionary<string, object> RepoDict { get; }
+        protected IRepositoryMapProvider RepoMapProvider { get; }
         /// <summary>
         /// 
         /// </summary>
@@ -39,10 +37,7 @@ namespace WCMS.SysCore
         /// <summary>
         /// 功能Id
         /// </summary>
-        public string ProgId { get {
-                if (_ProgId == null) _ProgId = GetType().GetCustomAttribute<ProgIdAttribute>(inherit: true)?.Value;
-                return _ProgId;
-            } }
+        public string ProgId { get { _ProgId ??= GetType().GetCustomAttribute<ProgIdAttribute>(inherit: true)?.Value; return _ProgId; } }
         /// <summary>
         /// 流水編號前綴碼
         /// </summary>
@@ -86,6 +81,7 @@ namespace WCMS.SysCore
         public BizService(IRepositoryMapProvider repoMapProvider, IErrorHelper message)
         {
             //SysChangeLog = new SysChangeLog(repo.DataAccess);
+            RepoMapProvider = repoMapProvider;
             RepoDict = repoMapProvider.GetRepoDict<TSet>();
             DataAccess = ((dynamic)RepoDict.FirstOrDefault().Value).DataAccess;
             Message = message;
@@ -93,7 +89,6 @@ namespace WCMS.SysCore
         #endregion
 
         #region Public
-
         public async Task BizInitCreateSetsAsync(TSet[] sets)
         {
             foreach (var set in sets)
@@ -104,7 +99,6 @@ namespace WCMS.SysCore
                 await BizCreateSetAsync(set);
             }
         }
-
         public async Task<TSet> BizCreateSetAsync(TSet set)
         {
             try
@@ -113,17 +107,14 @@ namespace WCMS.SysCore
                 GetModelType(set, out BasicDataModel header, out Dictionary<string, IList> details);
                 SetCreateInfo(header);
                 await AutoGenerateId(header, details);
-                BeforeUpdate(set, FuncAction.Create);
+                await BeforeUpdate(set, FuncAction.Create);
                 if(Message.HasError) return set;
-                //Response.ThrowIfFailed();
                 await DoCreateAsync(set);
                 AfterUpdate(default, set, FuncAction.Create, TransStatus.Increase);
-                //Response.ThrowIfFailed();
-                //await CommitDataAsync();
+                if (Message.HasError) return set;
                 await DataAccess.SaveChangesAsync();      
                 AfterSaveChanges(FuncAction.Create);
                 Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00002);
-                //Response.Data.Add(set);
                 return set;
             }
             catch
@@ -140,18 +131,16 @@ namespace WCMS.SysCore
                 GetModelType(newSet, out BasicDataModel header, out Dictionary<string, IList> details);
                 SetModifyInfo(header);
                 await AutoGenerateId(header, details);
-                BeforeUpdate(newSet, FuncAction.Update);
+                await BeforeUpdate(newSet, FuncAction.Update);
                 if (Message.HasError) return newSet;
-                //Response.ThrowIfFailed();
                 TSet oldSet = await DoQuerySetAsync(internalId);
                 TSet oldSet_Cache = oldSet.DeepClone();
                 await DoUpdateAsync(oldSet, newSet);
                 AfterUpdate(oldSet_Cache, oldSet, FuncAction.Update, TransStatus.Difference);//oldSet已經進入DataAccess，修改完會跟著修正至DB
-                //Response.ThrowIfFailed();
+                if (Message.HasError) return newSet;
                 await CommitDataAsync();
                 AfterSaveChanges(FuncAction.Update);
-                Message.AddMessage(MessageStatus.Green,"BECode00006");
-                //Response.Data.Add(oldSet);
+                Message.AddMessage(MessageStatus.Green,SysMessageCode.BECode00006);
                 return oldSet;
             }
             catch
@@ -168,15 +157,14 @@ namespace WCMS.SysCore
                 CheckIsUsed();
                 TSet oldSet = await DoQuerySetAsync(internalId);
                 TSet oldSet_Cache = oldSet.DeepClone();
-                BeforeUpdate(oldSet, FuncAction.Delete);
-                //Response.ThrowIfFailed();
+                await BeforeUpdate(oldSet, FuncAction.Delete);
+                if (Message.HasError) return oldSet;
                 await DoDeleteAsync(oldSet);
                 AfterUpdate(oldSet_Cache, oldSet, FuncAction.Delete, TransStatus.Difference);
-                //Response.ThrowIfFailed();
+                if (Message.HasError) return oldSet;
                 await CommitDataAsync();
                 AfterSaveChanges(FuncAction.Update);
-                //Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00004);
-                //Response.Data.Add(oldSet);
+                Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00004);
                 return oldSet;
             }
             catch
@@ -194,15 +182,14 @@ namespace WCMS.SysCore
                 TSet oldSet_Cache = oldSet.DeepClone();
                 TSet newSet = oldSet.DeepClone();
                 DoInvalidSet(newSet, status);
-                BeforeUpdate(oldSet, FuncAction.Invalid);
-                //Response.ThrowIfFailed();
+                await BeforeUpdate(oldSet, FuncAction.Invalid);
+                if (Message.HasError) return newSet;
                 await DoUpdateAsync(oldSet, newSet);
                 AfterUpdate(oldSet_Cache, oldSet, FuncAction.Invalid, TransStatus.Difference);//oldSet已經進入DataAccess，修改完會跟著修正至DB
-                //Response.ThrowIfFailed();
+                if (Message.HasError) return newSet;
                 await CommitDataAsync();
                 AfterSaveChanges(FuncAction.Update);
-                //Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00008);
-                //Response.Data.Add(oldSet);
+                Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00008);
                 return oldSet;
             }
             catch
@@ -214,10 +201,6 @@ namespace WCMS.SysCore
         public async Task<TSet> BizQuerySetAsync(string internalId)
         {
             var data = await DoQuerySetAsync(internalId);
-            //Response.AddMessage(MessageStatus.Error, SysMessageCode.BECode00001);
-            //Response.ThrowIfFailed();
-            //Response.AddMessage(MessageStatus.Green, SysMessageCode.BECode00010);
-            //Response.Data.Add(data);
             return data;
         }
         public async Task<IList<TSet>> BizQueryListAsync(QueryListParam param)
@@ -232,16 +215,7 @@ namespace WCMS.SysCore
             var datas = (await DoQueryListAsync(headerProp, selectFields, condition, OrderBy, pageNumber, pageSize)).ToDynamicList();
             foreach (var data in datas)
             {
-                TSet srcData = PropertyAccessorCache.CreateInstance<TSet>();
-                PropertyAccessorCache.Set(srcData, headerProp.Name, data);
-                PropertyInfo[] dataProps = PropertyAccessorCache.GetProperties(data.GetType());
-                foreach(PropertyInfo prop in dataProps.Where(p => p.IsListPropertyType()))
-                {
-                    if (!PropertyAccessorCache.GetProperties<TSet>().Select(p => p.Name).Contains(prop.Name)) continue;
-                    var dstData = PropertyAccessorCache.Get(data, prop.Name);
-                    PropertyAccessorCache.Set(srcData, prop.Name, dstData);
-                }
-
+                var srcData = BuildSetFromData(headerProp, data);
                 result.Add(srcData);
             }
             return result;
@@ -322,6 +296,9 @@ namespace WCMS.SysCore
                 if (!LibData.IsListPropertyType(prop))
                 {
                     repoDictPropName = prop.PropertyType.Name;
+                    //TODO:此處暫時這樣寫，之後看如何調整較好
+                    PropertyAccessorCache.Set(newModel, nameof(BasicDataModel.CreateUserId), PropertyAccessorCache.Get(oldModel, nameof(BasicDataModel.CreateUserId)));
+                    PropertyAccessorCache.Set(newModel, nameof(BasicDataModel.CreateTime), PropertyAccessorCache.Get(oldModel, nameof(BasicDataModel.CreateTime)));
                     await ((dynamic)RepoDict[repoDictPropName]).UpdateAsync((dynamic)oldModel, (dynamic)newModel);
                 }
                 else if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && prop.PropertyType != typeof(string))
@@ -358,8 +335,8 @@ namespace WCMS.SysCore
                     if (newItems.Count > 0)
                     {
                         //這邊要獲取RowId的最大int值，但是是為了應急處理，之後要改演算法
-                        int? TryGetRowId(object x) =>x is Dictionary<string, object> map && map.TryGetValue("RowId", out var v) && v is int i? i : null;
-                        var maxRowId =oldDict.Values.Concat(newDict.Values).Select(TryGetRowId).Where(id => id.HasValue).Select(id => id.Value).DefaultIfEmpty(0)                                          .Max() + 1;
+                        var keysNew = new HashSet<string>(newDict.Keys, StringComparer.Ordinal);
+                        var maxRowId = oldDict.Where(kv => keysNew.Contains(kv.Key)).Select(kv => TryGetRowId(kv.Value) ?? 0).DefaultIfEmpty(0).Max() + 1;
                         await repo.CreateAsync(newItems, maxRowId);
                     }
                 }
@@ -416,6 +393,10 @@ namespace WCMS.SysCore
             }
             return result;
         }
+        protected async Task<IList> DoQueryListAsync<TModel>(string[] selectFields, string condition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt)
+        {
+            return await DoQueryListAsync(typeof(TModel), selectFields, condition, orderBy, pageCt, takeCt);
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -429,8 +410,13 @@ namespace WCMS.SysCore
         {
             var selectExpr = GetSelectFieldsExpr(type, selectFields);
             var whereExpr = GetConditionExpr(type, condition);
-            var data = await ((dynamic)RepoDict[type.Name]).QueryListAsync(selectExpr, whereExpr,orderBy, pageCt, takeCt);
+            var repo = (dynamic)GetRepoByType(type);
+            var data = await repo.QueryListAsync(selectExpr, whereExpr,orderBy, pageCt, takeCt);
             return data;
+        }
+        protected async Task<int> DoQueryListCountAsync<TModel>(string[] selectFields, string condition)
+        {
+            return await DoQueryListCountAsync(typeof(TModel), selectFields, condition);
         }
         /// <summary>
         /// 查詢清單總筆數
@@ -445,7 +431,8 @@ namespace WCMS.SysCore
         {
             var selectExpr = GetSelectFieldsExpr(type, selectFields);
             var whereExpr = GetConditionExpr(type, condition);
-            var data = await ((dynamic)RepoDict[type.Name]).QueryListCountAsync(selectExpr, whereExpr);
+            var repo = (dynamic)GetRepoByType(type);
+            var data = await repo.QueryListCountAsync(selectExpr, whereExpr);
             return data;
         }
         /// <summary>
@@ -478,7 +465,7 @@ namespace WCMS.SysCore
         /// 保存前
         /// </summary>
         /// <param name="set"></param>
-        protected virtual void BeforeUpdate(TSet set, FuncAction act) { }
+        protected virtual Task BeforeUpdate(TSet set, FuncAction act) => Task.CompletedTask;
         /// <summary>
         /// 更新之後，尚未提交 (供過帳使用)
         /// </summary>
@@ -571,7 +558,6 @@ namespace WCMS.SysCore
             protected override Expression VisitParameter(ParameterExpression node)
                 => node == _from ? _to : base.VisitParameter(node);
         }
-
         private LambdaExpression GetSelectFieldsExpr(Type modelType, string[] selectFields)
         {
             if (selectFields == null || selectFields.Length == 0) return null;
@@ -664,7 +650,6 @@ namespace WCMS.SysCore
             var delegateType = typeof(Func<,>).MakeGenericType(modelType, modelType);
             return Expression.Lambda(delegateType, body, param);
         }
-
         /// <summary>
         /// 獲取要搜尋的條件表達式
         /// </summary>
@@ -680,7 +665,6 @@ namespace WCMS.SysCore
             var lambda = DynamicExpressionParser.ParseLambda(config, [param], typeof(bool), normalized, args);
             return lambda;
         }
-
         private string NormalizeCondition(Type modelType, string rawCondition, out object[] args)
         {
             List<object> argList = [];
@@ -718,7 +702,6 @@ namespace WCMS.SysCore
             args = argList.ToArray(); // ← 回傳給外部
             return string.Join(" ", result);
         }
-
         private string? BuildNestedClause(Type type, string[] pathParts, string op, string? val, ref List<object> args, int index = 0)
         {
             if (index >= pathParts.Length) return null;
@@ -906,7 +889,6 @@ namespace WCMS.SysCore
             string thisLevel = current;
             return isEnumerable ? $"{thisLevel}.Any({inner})" : $"{thisLevel}.{inner}";
         }
-
         /// <summary>
         /// 獲取表頭明細模型
         /// </summary>
@@ -965,6 +947,179 @@ namespace WCMS.SysCore
             Expression body = propertyAccess.Type == typeof(string) ? (Expression)propertyAccess : Expression.Call(propertyAccess, "ToString", Type.EmptyTypes);
             var delegateType = typeof(Func<,>).MakeGenericType(modelType, typeof(string));
             return Expression.Lambda(delegateType, body, param);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="modelType"></param>
+        /// <returns></returns>
+        private object GetRepoByType(Type modelType)
+        {
+            if (RepoDict.TryGetValue(modelType.Name, out var repo)) return repo;
+            return RepoMapProvider.EnsureRepo<TSet>(modelType);
+        }
+        private static int? TryGetRowId(object? obj)
+        {
+            if (obj == null) return null;
+            var p = obj.GetType().GetProperty("RowId");
+            if (p == null) return null;
+            var v = p.GetValue(obj);
+            if (v is int i) return i;
+            return null;
+        }
+        /// <summary>
+        /// 將搜尋的結果扁平化成TSet型
+        /// </summary>
+        /// <param name="headerProp"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        private static TSet BuildSetFromData(PropertyInfo headerProp, object data)
+        {
+            // 建 TSet 實例 + 先塞回 header（data1）
+            var set = PropertyAccessorCache.CreateInstance<TSet>();
+            PropertyAccessorCache.Set(set, headerProp.Name, data);
+            // 快取 TSet 的屬性字典（O(1) 查找）
+            var setProps = PropertyAccessorCache.GetProperties<TSet>();
+            var setPropDict = setProps.ToDictionary(p => p.Name, p => p, StringComparer.Ordinal);
+            // 迭代 DFS：避免深層遞迴與 StackOverflow
+            var visited = new HashSet<int>();
+            var stack = new Stack<object>();
+            stack.Push(data);
+            while (stack.Count > 0)
+            {
+                var node = stack.Pop();
+                if (node == null) continue;
+
+                // 參考等值去重
+                var id = RuntimeHelpers.GetHashCode(node);
+                if (!visited.Add(id)) continue;
+
+                var nodeType = node.GetType();
+                var nodeProps = PropertyAccessorCache.GetProperties(nodeType);
+
+                foreach (var p in nodeProps)
+                {
+                    if (IsListPropertyType(p))
+                    {
+                        var raw = PropertyAccessorCache.Get(node, p.Name) as IEnumerable;
+                        if (raw == null) continue;
+
+                        // 把清單中的子項推進 stack（讓下一層的清單也能被處理）
+                        foreach (var item in raw)
+                        {
+                            if (item != null) stack.Push(item);
+                        }
+
+                        // 規則 1：用屬性名（去底線）直配 TSet
+                        var targetName = p.Name.Trim('_');
+                        if (!AssignToSet(targetName, raw))
+                        {
+                            // 規則 2：用元素型別名或型別名+List
+                            var elemType = GetEnumerableElementType(p.PropertyType);
+                            if (elemType != null)
+                            {
+                                if (!AssignToSet(elemType.Name, raw))
+                                {
+                                    AssignToSet(elemType.Name + "List", raw);
+                                }
+                            }
+                        }
+                    }
+                    else if (ShouldDescendInto(p))
+                    {
+                        var child = PropertyAccessorCache.Get(node, p.Name);
+                        if (child != null) stack.Push(child);
+                    }
+                }
+            }
+            return set;
+            // ====== local functions ======
+            bool AssignToSet(string name, IEnumerable raw)
+            {
+                if (!setPropDict.TryGetValue(name, out var dstProp)) return false;
+
+                var targetType = dstProp.PropertyType;
+                var elemType = GetEnumerableElementType(targetType) ?? typeof(object);
+
+                // 1) 先拿現在 TSet 上的清單（若沒有就新建一個 List<T>）
+                var currentObj = PropertyAccessorCache.Get(set!, dstProp.Name);
+                IList targetList;
+
+                if (currentObj is IList existingList
+                    && existingList.GetType().IsGenericType
+                    && existingList.GetType().GetGenericArguments()[0].IsAssignableFrom(elemType))
+                {
+                    // 已有同型別/相容清單 → 直接累加
+                    targetList = existingList;
+                }
+                else
+                {
+                    // 沒有或型別不相容 → 建新的 List<TElem>
+                    var listType = typeof(List<>).MakeGenericType(elemType);
+                    targetList = (IList)Activator.CreateInstance(listType)!;
+                }
+
+                // 2) 累加來源（必要時做元素型別轉換）
+                foreach (var item in raw)
+                {
+                    targetList.Add(ChangeIfNeeded(item, elemType));
+                }
+
+                // 3) 若是新建的清單或原本為 null，指回 TSet
+                if (!ReferenceEquals(targetList, currentObj))
+                {
+                    PropertyAccessorCache.Set(set!, dstProp.Name, targetList);
+                }
+
+                return true;
+            }
+            static object? ChangeIfNeeded(object? item, Type targetElem)
+            {
+                if (item == null) return null;
+                var t = item.GetType();
+                if (targetElem.IsAssignableFrom(t)) return item;
+
+                try { return Convert.ChangeType(item, targetElem); }
+                catch { return item; }
+            }
+            static bool IsListPropertyType(PropertyInfo p)
+            {
+                if (p.PropertyType == typeof(string)) return false;
+                return typeof(IEnumerable).IsAssignableFrom(p.PropertyType);
+            }
+            static bool ShouldDescendInto(PropertyInfo p)
+            {
+                var t = p.PropertyType;
+                if (t == typeof(string)) return false;
+                if (typeof(IEnumerable).IsAssignableFrom(t)) return false; // 清單在上面處理
+                return !t.IsValueType && !t.IsPrimitive;
+            }
+            static Type? GetEnumerableElementType(Type t)
+            {
+                if (t.IsGenericType)
+                {
+                    var g = t.GetGenericTypeDefinition();
+                    if (g == typeof(IEnumerable<>) || g == typeof(IList<>) ||
+                        g == typeof(ICollection<>) || g == typeof(IReadOnlyList<>) ||
+                        g == typeof(List<>))
+                    {
+                        return t.GetGenericArguments()[0];
+                    }
+                }
+                var i = t.GetInterfaces().FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+                return i?.GetGenericArguments()[0];
+            }
+            static object? ConvertEnumerableToTarget(IEnumerable src, Type targetType)
+            {
+                var elemType = GetEnumerableElementType(targetType) ?? typeof(object);
+                var listType = typeof(List<>).MakeGenericType(elemType);
+                var list = (IList)Activator.CreateInstance(listType)!;
+                foreach (var item in src) list.Add(item);
+                if (targetType.IsAssignableFrom(listType)) return list;
+                var ctor = targetType.GetConstructor([listType]);
+                if (ctor != null) return ctor.Invoke([list]);
+                return null;
+            }
         }
         #endregion
     }

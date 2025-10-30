@@ -44,8 +44,8 @@ export const Server_SpecCategoryListFormComp = (prop: { progId: string; title: s
                 setColsLoading(true);
                 setColsError(null);
                 const res = await SpecCategoryProvider().getShowColumnItems(prop.progId);
-                if (!alive) return;
-                setShowCols(res.Data[0] ?? {});   // 依你的 ApiResponse 結構
+                if (!alive || res.Data === null) return;
+                setShowCols((res.Data[0] as unknown as Record<string, string>) ?? {});   // 依你的 ApiResponse 結構
             } catch (err) {
                 if (!alive) return;
                 setColsError(err);

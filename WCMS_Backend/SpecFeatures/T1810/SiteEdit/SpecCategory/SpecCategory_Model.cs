@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
@@ -13,7 +15,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
 
     public class SpecCategoryModel : MasterDataModel
     {
-        [LibDesc, Key, StringLength(SysLengthParam.ID)] public string CategoryId { get; set; }
+        [Key, StringLength(SysLengthParam.ID)] public string CategoryId { get; set; }
         /// <summary>
         /// 功能Id
         /// </summary>
@@ -22,7 +24,10 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
         /// 顯示欄位
         /// </summary>
         public string ShowColumnItems { get; set; }
-        public List<SpecCategoryDetailModel> SpecCategoryDetail { get; set; } = [];
+
+        #region 主子表關聯
+        [InverseProperty(nameof(SpecCategoryDetailModel._SpecCategory))] public List<SpecCategoryDetailModel> _SpecCategoryDetail { get; set; }
+        #endregion
     }
 
     public class SpecCategoryDetailModel : DetailRowModel
@@ -30,10 +35,14 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
         /// <summary>
         /// 
         /// </summary>
-        [LibDesc, Key, StringLength(SysLengthParam.ID)] public string CategoryId { get;set; }
-        [LibDesc, Key] public int RowId { get; set; }
-        [LibDesc, StringLength(SysLengthParam.Lang)] public string Lang { get; set; }
+        [Key, StringLength(SysLengthParam.ID)] public string CategoryId { get;set; }
+        [Key] public int RowId { get; set; }
+        [StringLength(SysLengthParam.Lang)] public string Lang { get; set; }
         [StringLength(SysLengthParam.Name)] public string CategoryName { get; set; }
+
+        #region 主子表關聯
+        [ForeignKey(nameof(CategoryId))] public SpecCategoryModel _SpecCategory { get; set; }
+        #endregion
     }
 
 }

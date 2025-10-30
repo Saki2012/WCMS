@@ -1,14 +1,25 @@
-import type { ListCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
 import { List_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp";
-import { SearchComp } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
+import { LibSearchBar, type SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import type { GridProps } from "@/SysCore/Components/Grid/Grid_Data";
+import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
+import type { UseActionsResult } from "@/Features/Hooks/Common/useActions";
 
 
+interface ListCompProp {
+    Title: string;
+    Theme: IBETheme;
+    LoadingList: boolean[];
+    ErrorList: (string | null | undefined)[];
+    SearchBar?: SearchBarProps;
+    Actions: UseActionsResult;
+    GridType?: string;
+    GridData?: GridProps;
+}
 
-export const ListComp = ({ prop }: { prop: ListCompProp; }) => {
+export const ListComp = (prop: ListCompProp) => {
     return (
         <div className="Form-Main-Content">
             <div className="row">
@@ -23,9 +34,8 @@ export const ListComp = ({ prop }: { prop: ListCompProp; }) => {
                                     <div className="panel">
                                         <div className="panel-body">
                                             <div className="form">
-                                                <SearchComp prop={prop.SearchBar}></SearchComp>
+                                                {prop.SearchBar && <LibSearchBar {...prop.SearchBar}></LibSearchBar>}
                                                 <DividerComp></DividerComp>
-                                                {/* <Form_Toolbar items={prop.Toolbar}></Form_Toolbar> */}
                                                 <List_Toolbar action={prop.Actions} ></List_Toolbar>
                                                 <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList} >
                                                     <Grid gridData={prop.GridData as GridProps} style={prop.Theme.GridView} pageStyle={prop.Theme.Paginator}></Grid>

@@ -2,7 +2,6 @@
 import type { components } from "@/types/api";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import * as SchemaFields from "@/types/SchemaFields";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { Lang } from "@/SysCore/i18n/lang";
 import WebResourceProvider from "@/Features/Hooks/BizFunc/WebManagement/WebResource/WebResource_Api";
@@ -10,13 +9,17 @@ import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { SubPageTitle } from "@/Features/Pages/Client/Scaffold/Header/SubPageTitle_Comp";
 import DefaultImg from "@/Assets/1810/WebResource_Default.png"
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { WebResourceFields, WebResourceInfoFields } from "@/types/SchemaFields";
+import type { GridProps } from "@/SysCore/Components/Grid/Grid_Data";
+import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
+import { useMemo } from "react";
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 
 const useWebResourceList = (categoryIds: string, tagIds: string) => {
     var condition: string = "";
-    if (categoryIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.WebResourceFields.Categories} HasAny (${categoryIds})`)
-    if (tagIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.WebResourceFields.Tags} HasAny (${tagIds})`)
-    condition = LibMerge(" And ", false, condition, `${SchemaFields.WebResourceFields.ContentStatus} !& 4`)//不包含隱藏的資料
+    if (categoryIds) condition = LibMerge(" And ", false, condition, `${WebResourceFields.Categories} HasAny (${categoryIds})`)
+    if (tagIds) condition = LibMerge(" And ", false, condition, `${WebResourceFields.Tags} HasAny (${tagIds})`)
+    condition = LibMerge(" And ", false, condition, `${WebResourceFields.ContentStatus} !& 4`)//不包含隱藏的資料
     const provider = WebResourceProvider();
     return useFetchGridListData<WebResourceSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
@@ -26,16 +29,17 @@ const useWebResourceList = (categoryIds: string, tagIds: string) => {
         ],
         buildQueryCondition: () => ({
             Fields: [
-                SchemaFields.WebResourceFields.InternalId,
-                SchemaFields.WebResourceFields.WebResourceId,
-                SchemaFields.WebResourceFields.PicId,
-                SchemaFields.WebResourceFields.PicDescription,
-                `${SchemaFields.WebResourceSetFields.WebResourceInfo}.${SchemaFields.WebResourceInfoFields.Lang}`,
-                `${SchemaFields.WebResourceSetFields.WebResourceInfo}.${SchemaFields.WebResourceInfoFields.Title}`,
-                `${SchemaFields.WebResourceSetFields.WebResourceInfo}.${SchemaFields.WebResourceInfoFields.Content}`,
-                `${SchemaFields.WebResourceSetFields.WebResourceInfo}.${SchemaFields.WebResourceInfoFields.ResUrl}`,
+                WebResourceFields.InternalId,
+                WebResourceFields.WebResourceId,
+                WebResourceFields.PicId,
+                WebResourceFields.PicDescription,
+                `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang}`,
+                `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Title}`,
+                `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Content}`,
+                `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.ResUrl}`,
             ],
             Condition: condition,
+            OrderBy: [{ Col: WebResourceFields.CreateTime, Desc: true }],
             PageNumber: 0,
             PageSize: 0,
         }),
@@ -52,29 +56,25 @@ export const WebResourceListComp = (props: IWebResourceListProps) => {
     const useWebResList = useWebResourceList(props.Options?.Category ?? "", props.Options?.Tag ?? "");
     const isLoading = [useWebResList.isLoading];
     const errors = [useWebResList.error];
-
-
-
-    const content = (() => {
+    const content = useMemo(() => {
         switch (props.Options?.Style) {
             case 7:
-                return <YoutubeContent lang={props.Lang} datas={useWebResList.rawData ?? []} />;
+                return <YoutubeContent key="yt" lang={props.Lang} datas={useWebResList.rawData ?? []} />;
             case 2:
-                return <PictureListContent lang={props.Lang} datas={useWebResList.rawData ?? []} />;
+                return <PictureListContent key="pic" lang={props.Lang} datas={useWebResList.rawData ?? []} />;
             case 1:
             default:
-                return null;
+                return <GridList_Comp key="grid" GridData={useWebResList.gridProps} Theme={props.Theme} />;
         }
-    })();
+    }, [useWebResList, props.Lang, props.Options]);
 
     return (
-        <>
-            <LoadingErrorHandler loadingList={isLoading} errorList={errors} >
-                <SubPageTitle title={props.title} />
-                {content}
-                {/* <Paginator {...prop.PaginatorProp}></Paginator> */}
-            </LoadingErrorHandler>
-        </>);
+        <LoadingErrorHandler loadingList={isLoading} errorList={errors} >
+            <SubPageTitle title={props.title} />
+            {content}
+            {/* <Paginator {...prop.PaginatorProp}></Paginator> */}
+        </LoadingErrorHandler>
+    );
 };
 
 const YoutubeContent = (prop: { lang: string, datas: WebResourceSet[] }) => {
@@ -125,4 +125,7 @@ const PictureListContent = (prop: { lang: string, datas: WebResourceSet[] }) => 
             })}
         </div>
     </>)
+}
+const GridList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
+    return (<Grid gridData={prop.GridData} style={prop.Theme.GridView} pageStyle={prop.Theme.Paginator}></Grid>)
 }

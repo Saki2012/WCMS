@@ -1,0 +1,70 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* ===== [ Main FOOTER ] ===== // 以下 // ========================= */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+.pc-footer {
+    position: relative;
+    font-size: 93.75%;
+    z-index: 995;
+    margin-top: 24px;
+    padding-left: 40px;
+    padding-right: 40px;
+}
+@media (max-width: 575.98px) {
+    .pc-footer {
+        margin-top: 20px;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+@media (max-width: 1024px) {
+    .pc-footer {
+        margin-top: 30px;
+    }
+}
+/* =============================================================== */
+.pc-footer a,
+.pc-footer p {
+    font-size: 87.5%;
+    color: var(--G333color);
+}
+.pc-footer a:hover {
+    color: var(--Customize_HRcolor);
+}
+/* =============================================================== */
+.pc-footer .footer-wrapper {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+@media (max-width: 1024px) {
+    .pc-footer .footer-wrapper {
+        padding-left: 30px;
+        padding-right: 30px;
+    }
+}
+@media (max-width: 575.98px) {
+    .pc-footer .footer-wrapper {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+/* =============================================================== */
+.pc-footer .footer-link .list-inline-item:not(:last-child) {
+    margin-right: 0.9rem;
+}
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* ===== [ Main FOOTER ] ===== // 以上 // ========================= */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+
+
+
+
+
+
+
+
+

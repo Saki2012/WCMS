@@ -1,11 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
@@ -13,14 +15,13 @@ using static WCMS.SysCore.QueryListParam;
 
 namespace WCMS.SysCore
 {
-    public class BasicRepository<TModel>(ApplicationDbContext dataAccess, IErrorHelper message) : IBasicRepository<TModel> where TModel : class
+    public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRepository<TModel> where TModel : class
     {
         #region Property
         /// <summary>
         /// 
         /// </summary>
         public ApplicationDbContext DataAccess { get; } = dataAccess;
-        protected IErrorHelper Message { get; } = message;
         #endregion
 
         #region Public
@@ -81,7 +82,8 @@ namespace WCMS.SysCore
                 throw new InvalidOperationException("Primary key cannot be changed during update.");
 
             // 3) 欄位差異套用到 oldData（跳過集合/Key/NotMapped/併發欄位）
-            bool IsScalar(Type t) => !(typeof(IEnumerable).IsAssignableFrom(t)) || t == typeof(string);
+            var ef = EfMetaCache.Get(DataAccess, typeof(TModel));
+
             bool IsConcurrency(PropertyInfo p) =>
                 p.GetCustomAttribute<TimestampAttribute>() != null ||
                 p.GetCustomAttribute<ConcurrencyCheckAttribute>() != null ||
@@ -91,7 +93,9 @@ namespace WCMS.SysCore
             foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TModel)))
             {
                 if (!prop.CanWrite) continue;
-                if (!IsScalar(prop.PropertyType)) continue;                     // 跳過集合型別（string 例外）
+                // 導航（參考/集合）或複雜型別 → 一律跳過
+                if (ef.IsNav(prop.Name)) continue;        // 🟢 只跳過關聯
+                if (!ef.IsScalar(prop.Name)) continue;    // 🟢 非 EF scalar 就略過
                 if (prop.GetCustomAttribute<KeyAttribute>() != null) continue;  // 跳過主鍵
                 if (prop.GetCustomAttribute<NotMappedAttribute>() != null) continue; // 跳過 NotMapped
                 if (IsConcurrency(prop)) continue;                               // 跳過併發欄位
@@ -103,13 +107,12 @@ namespace WCMS.SysCore
                 if (!Equals(oldVal, newVal))
                 {
                     PropertyAccessorCache.Set(oldData, prop.Name, newVal);
-                    oldEntry.Property(prop.Name).IsModified = true;
+                    DataAccess.Entry(oldData).Property(prop.Name).IsModified = true;
                 }
             }
             // 這個方法只負責把變更標記好；真正 SaveChanges 在上層 CommitDataAsync
             await Task.CompletedTask;
         }
-
         /// <summary>
         /// 刪除(非同步)
         /// </summary>
@@ -148,6 +151,11 @@ namespace WCMS.SysCore
             if (selectExpr != null) includes.UnionWith(ExpressionIncludeHelper.ExtractIncludePaths(selectExpr));
             // ✅ 執行 Include
             foreach (var path in includes) query = query.Include(path);  // 支援多層如 A.B.C
+
+#if DEBUG
+            var sqlStr = selectExpr == null ? query.ToQueryString() : query.Select((Expression<Func<TModel, TModel>>)selectExpr).ToQueryString();
+            Console.WriteLine(sqlStr);
+#endif
             // ✅ Select
             var result = selectExpr == null? await query.Cast<TModel>().ToListAsync() : await query.Select((Expression<Func<TModel, TModel>>)selectExpr).Cast<TModel>().ToListAsync();
             return result;
@@ -171,8 +179,6 @@ namespace WCMS.SysCore
             var result = selectExpr == null ? await query.Cast<TModel>().CountAsync() : await query.Select((Expression<Func<TModel, TModel>>)selectExpr).Cast<TModel>().CountAsync();
             return result;
         }
-
-
         /// <summary>
         /// 自動產生流水號ID
         /// </summary>
@@ -298,10 +304,10 @@ namespace WCMS.SysCore
                     if (node.Object != null)
                         Visit(node.Object);
 
-                    // ✅ 額外補：如果 method chain 是 CategoryDetail.AsQueryable().Select(...)
+                    // ✅ 額外補：如果 method chain 是 _CategoryDetail.AsQueryable().Select(...)
                     if (node.Method.Name == "Select" && node.Arguments.Count == 2)
                     {
-                        // 目標物件為 AsQueryable(CategoryDetail)
+                        // 目標物件為 AsQueryable(_CategoryDetail)
                         var source = node.Arguments[0];
                         if (source is MethodCallExpression asQueryableCall &&
                             asQueryableCall.Method.Name == "AsQueryable" &&
@@ -450,5 +456,48 @@ namespace WCMS.SysCore
             // GC.SuppressFinalize(this);
         }
         #endregion
+    }
+
+    static class EfMetaCache
+    {
+        public sealed class Map
+        {
+            public readonly HashSet<string> Scalars;
+            public readonly HashSet<string> Navs;
+            public readonly HashSet<string> SkipNavs;
+            public readonly HashSet<string> Complex;
+
+            public Map(HashSet<string> s, HashSet<string> n, HashSet<string> k, HashSet<string> c)
+            { Scalars = s; Navs = n; SkipNavs = k; Complex = c; }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool IsNav(string name) => Navs.Contains(name) || SkipNavs.Contains(name) || Complex.Contains(name);
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool IsScalar(string name) => Scalars.Contains(name);
+        }
+
+        static readonly ConcurrentDictionary<Type, Map> _cache = new();
+
+        public static Map Get(DbContext db, Type clr)
+            => _cache.GetOrAdd(clr, t =>
+            {
+                var et = db.Model.FindEntityType(t)
+                         ?? throw new InvalidOperationException($"EF entity not found: {t.Name}");
+
+                var scalars = et.GetProperties().Select(p => p.Name)
+                                .ToHashSet(StringComparer.Ordinal);
+                var navs = et.GetNavigations().Select(n => n.Name)
+                                .ToHashSet(StringComparer.Ordinal);
+                var skips = et.GetSkipNavigations().Select(n => n.Name)
+                                .ToHashSet(StringComparer.Ordinal);
+#if NET8_0_OR_GREATER
+                var complex = et.GetComplexProperties().Select(c => c.Name)
+                                .ToHashSet(StringComparer.Ordinal);
+#else
+            var complex = new HashSet<string>();
+#endif
+                return new Map(scalars, navs, skips, complex);
+            });
     }
 }

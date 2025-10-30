@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
@@ -35,7 +36,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 標籤 (多個) 
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Tag)] public string? Tags { get; set; } = string.Empty;
+        [LibDesc(ModelDisplayName.Spec1810_Tag)] public string? Tags { get; set; } = string.Empty;
         /// <summary>
         /// 狀態 (多個)
         /// </summary>
@@ -55,15 +56,14 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 資料有效日期-起
         /// </summary>
-        [LibDesc(ModelDisplayName.Announcement_StartDate)]public DateTime? Validate_Start { get; set; }
+        [LibDesc(ModelDisplayName.Announcement_StartDate)] public DateTime? Validate_Start { get; set; }
         /// <summary>
         /// 資料有效日期-迄
         /// </summary>
-        [LibDesc(ModelDisplayName.Announcement_EndDate)]
-        public DateTime? Validate_End { get; set; }
+        [LibDesc(ModelDisplayName.Announcement_EndDate)] public DateTime? Validate_End { get; set; }
 
-        #region Detail關聯
-        [JsonIgnore] public virtual ICollection<AnnouncementDetail_DTO>? AnnouncementDetail { get; set; }
+        #region 主子表關聯
+        public List<AnnouncementDetail_DTO>? _AnnouncementDetail { get; set; }
         #endregion
     }
     /// <summary>
@@ -100,6 +100,9 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// 網址
         /// </summary>
         [LibDesc(ModelDisplayName.Common_Url)] public string? Url { get; set; }
+        /// <summary>
+        /// 網址描述
+        /// </summary>
         [LibDesc(ModelDisplayName.Common_UrlDescription)] public string? UrlDescription { get; set; }
     }
     /// <summary>
@@ -113,7 +116,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// </summary>
         [LibDesc(ModelDisplayName.AnnouncementId)] public string? AnnouncementId { get; set; }
         /// <summary>
-        /// 父行代碼 - (AnnouncementDetail)
+        /// 父行代碼
         /// </summary>
         [LibDesc(ModelDisplayName.Common_ParentRowId)] public int ParentRowId { get; set; }
         /// <summary>
@@ -124,6 +127,9 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// 檔案來源
         /// </summary>
         [LibDesc(ModelDisplayName.Announcement_FileId)] public string? FileId { get; set; }
+        /// <summary>
+        /// 檔案名稱
+        /// </summary>
         [LibDesc(ModelDisplayName.Announcement_FileName)] public string? FileName { get; set; }
     }
 }
