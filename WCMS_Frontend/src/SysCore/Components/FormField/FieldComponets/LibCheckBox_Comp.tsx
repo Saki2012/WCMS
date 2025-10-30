@@ -42,7 +42,7 @@ const LibCheckBox = (prop: ILibCheckBoxProp) => {
           }
 
           return (
-            <div key={uid} className="col-sm-3 col-6 float-left p-0">
+            <div key={uid} className="col-sm-4 col-6 float-left p-0">
               <div className="custom-control form-check">
                 <input
                   id={uid}
