@@ -24,7 +24,7 @@ export const Paginator = ({ currentPage, totalPages, onPageChange, style }: Pagi
                         </a>
                     </li>
                     {visiblePages.map((page) => (
-                        <li key={page} className={clsx(style.aLink, page === currentPage ? "active" : "")}>
+                        <li key={page} className={clsx(style.li, page === currentPage ? "active" : "")}>
                             <a onClick={() => onPageChange(page)} className={clsx(style.aLink, page === currentPage ? "active" : "")}>{page}</a>
                         </li>
                     ))}
