@@ -93,7 +93,7 @@ export default function LoginPage() {
                   <div className="page-title mr-3 + animate__animated animate__fadeInRight delay__15">會員登入 Login</div>
                   <ul className="switcher-wrap + animate__animated animate__fadeInRight delay__175">
                     {/* 內部路由導向註冊頁（之後我們會實作 /Server/Register） */}
-                    {/* <li><Link to="/Server/Register" className="switcher-btn">會員註冊 Register</Link></li> */}
+                    <li><Link to="/Server/Register" className="switcher-btn">會員註冊 Register</Link></li>
                   </ul>
                 </div>
 
