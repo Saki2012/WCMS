@@ -85,8 +85,8 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
     const makeNodes = (rowKeys: Record<string, any>) => {
         const t = prop.theme;
         const nodes: Record<FieldKey, React.ReactNode> = {
-            Year: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Year, "string", rowKeys)} />,
-            AcademicYear: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.AcademicYear, "string", rowKeys)} />,
+            Year: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Year, "number", rowKeys)} />,
+            AcademicYear: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.AcademicYear, "number", rowKeys)} />,
             Semester: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Semester, "string", rowKeys)} />,
             ClassTime: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.ClassTime, "string", rowKeys)} />,
             Courses: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Courses, "string", rowKeys)} />,
@@ -99,7 +99,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
             Cohost1: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Cohost1, "string", rowKeys)} />,
             Cohost2: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Cohost2, "string", rowKeys)} />,
             ApprovalNumber: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.ApprovalNumber, "string", rowKeys)} />,
-            ApprovedAmount: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.ApprovedAmount, "string", rowKeys)} />,
+            ApprovedAmount: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.ApprovedAmount, "number", rowKeys)} />,
             DuringExecution: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.DuringExecution, "string", rowKeys)} />,
             ContractPeriod: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.ContractPeriod, "string", rowKeys)} />,
             College: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.College, "string", rowKeys)} />,

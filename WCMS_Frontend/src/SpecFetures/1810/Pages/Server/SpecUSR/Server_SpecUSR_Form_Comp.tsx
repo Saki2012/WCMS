@@ -117,7 +117,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
     const makeNodes = (rowKeys: Record<string, any>) => {
         const nodes: Record<FieldKey, React.ReactNode> = {
             Year: <LibTextBox parentClass="col-md-6 col-12" Style={prop.theme.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Year, "string", rowKeys)} />,
-            AcademicYear: <LibTextBox parentClass="col-md-6 col-12" Style={prop.theme.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.AcademicYear, "string", rowKeys)} />,
+            AcademicYear: <LibTextBox parentClass="col-md-6 col-12" Style={prop.theme.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.AcademicYear, "number", rowKeys)} />,
             Courses: <LibTextBox parentClass="col-md-6 col-12" Style={prop.theme.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Courses, "string", rowKeys)} />,
             PracticeField: <LibTextBox parentClass="col-md-6 col-12" Style={prop.theme.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.PracticeField, "string", rowKeys)} />,
             ProjectName: <LibTextBox parentClass="col-md-6 col-12" Style={prop.theme.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectName, "string", rowKeys)} />,

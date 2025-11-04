@@ -3,13 +3,10 @@ import { useId, useMemo, useState } from "react";
 import type { ColumnConfig, GridProps } from "@/SysCore/Components/Grid/Grid_Data";
 import type { components } from "@/types/api";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
-type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"];
-type TagSet = components["schemas"]["TagSet_DTO"];
 import type { GridRow } from "@/SysCore/Components/Grid/Grid_Data";
 import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import { FileArchiveSetFields, FileArchiveFields, FileArchiveInfoFields, FileArchiveDetailFields, FileManageModelFields } from "@/types/SchemaFields";
+import { FileArchiveSetFields, FileArchiveFields, FileArchiveInfoFields, FileArchiveDetailFields, FileManageModelFields, FileArchiveUrlDetailFields } from "@/types/SchemaFields";
 import type { Lang } from "@/SysCore/i18n/lang";
 import FileArchiveProvider from "@/Features/Hooks/BizFunc/WebManagement/FileArchive/FileArchive_Api";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
@@ -18,6 +15,11 @@ import { SearchBarComp, type ISearchQuery } from "@/SysCore/Components/SearchBar
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
+type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
+type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"];
+type FileArchiveUrlDetail = components["schemas"]["FileArchiveUrlDetail_DTO"];
+type TagSet = components["schemas"]["TagSet_DTO"];
+type WindowTarget = components["schemas"]["WindowTarget"]
 
 const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string, tagSets: TagSet[], query: ISearchQuery) => {
     var condition: string = "";
@@ -51,7 +53,13 @@ const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string
                 `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrcId}`,
                 `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileName}`,
                 `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrc}.${FileManageModelFields.InternalId}`,
-                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrc}.${FileManageModelFields.FileExtension}`
+                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrc}.${FileManageModelFields.FileExtension}`,
+                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.FileArchiveId}`,
+                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.ParentRowId}`,
+                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.Url}`,
+                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.UrlDescription}`,
+                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.WindowTarget}`,
+
             ],
             Condition: condition,
             OrderBy: [{ Col: FileArchiveFields.CreateTime, Desc: true }],
@@ -141,6 +149,7 @@ const SetAdjustFunction = (lang: string, gridProps: GridProps, rawData: FileArch
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
         const fileInfoRowId = rawData?.[index].FileArchiveInfo?.find(p => p.Lang === lang)?.RowId;
         const fileRows = rawData[index].FileArchiveDetail?.filter(p => p.ParentRowId === fileInfoRowId) as FileArchiveDetail[];
+        const urlRows = rawData[index].FileArchiveUrlDetail?.filter(p => p.ParentRowId === fileInfoRowId) as FileArchiveUrlDetail[];
         // 產生「下載」內容
         let downloadFileContent = <></>;
         fileRows?.forEach(item => {
@@ -150,6 +159,12 @@ const SetAdjustFunction = (lang: string, gridProps: GridProps, rawData: FileArch
                     {SetDownloadIcon(item.FileSrcId ?? '', item.FileSrc?.FileExtension ?? 'docx', item.FileName ?? '')}
                 </>
             );
+        });
+        urlRows?.forEach(item => {
+            downloadFileContent = <>
+                {downloadFileContent}
+                {SetUrlIcon(item.Url ?? "", item.UrlDescription ?? "", item.WindowTarget ?? 0)}
+            </>
         });
         const cells = row.cells.map(cell => {
             if (cell.col?.key !== FileArchiveFields.TagsId) return cell;
@@ -187,6 +202,15 @@ const SetDownloadIcon = (fileInternalId: string, fileExtName: string, fileTitle:
     }
     return (<a href={`${FileManagementAPI.DOWNLOAD_URL}/${fileInternalId}`} target="_blank" rel="noopener noreferrer"
         className="btn btn-default" title={`${fileTitle}(另開視窗)`} > {div}</ a>)
+}
+
+const SetUrlIcon = (url: string, descript: string, target: WindowTarget) => {
+    const t = target === 0 ? "_self" : "_blank"
+    const alt = `${descript}${target === 0 ? "" : "｜[另開視窗]"}`
+    return (
+        <a href={url} target={t} rel="noopener noreferrer" className="btn btn-default" title={alt}>
+            <div className="link">Link</div>
+        </a>)
 }
 /** 清單式 */
 const List_Comp = (prop: { gridData: GridProps; theme: IFETheme }) => {
