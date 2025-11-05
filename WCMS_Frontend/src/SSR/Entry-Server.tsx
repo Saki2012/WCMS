@@ -6,6 +6,9 @@ import * as HelmetAsync from "react-helmet-async";
 import { StaticRouterProvider } from "react-router-dom/server";
 import { MessageProvider } from "@/SysCore/Components/Message/Dialog/Dialog_Comp";
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
+import '@/Features/Assets/LoadFeaturesCss.ts'
+import 'SpecFeature/Assets/LoadSpecCss.ts'
+
 import type { Lang } from "@/SysCore/i18n/lang";
 
 const HelmetProvider = (HelmetAsync as any).HelmetProvider ?? (HelmetAsync as any).default?.HelmetProvider ??

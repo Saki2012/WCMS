@@ -15,7 +15,7 @@ import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
 import { DefaultLang } from '@/SysCore/i18n/lang';
 import { ProgId } from '@/Features/Hooks/Common/ProgId';
 import { useNow } from '@/SysCore/Utils/Library/LibHook';
-
+import bgImg from "@/SpecFetures/1810/Assets/Client/Images/bg/background-transparent-image_1920x600.png"
 
 
 /** 找置頂公告 */
@@ -189,7 +189,7 @@ export const CategoryTabs = () => {
     return (
         <LoadingErrorHandler loadingList={loadingList} errorList={errorList} >
 
-            <section className="Newsbox-section" style={{ backgroundImage: "url(/Legacy/Client/Images/bg/background-transparent-image_1920x600.png)" }}>
+            <section className="Newsbox-section" style={{ backgroundImage: `url(${bgImg})` }}>
                 <div className="Mask-DivBox layout_padding2 bg-white">
                     <div className="customizeBox">
                         <div className="container-customize1">

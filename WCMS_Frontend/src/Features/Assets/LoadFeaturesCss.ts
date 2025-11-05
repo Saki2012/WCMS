@@ -1,0 +1,17 @@
+import "./Server/ContentBack/bootstrap-5.1.1/css/bootstrap.min.css";
+import "./Server/ContentBack/bootstrap-5.1.1/css/docs.css";
+import "./Server/fonts/tabler/tabler-icons.min.css";
+import "./Server/fonts/feather/feather.css";
+import "./Server/fonts/font-awesome-pro-5/css/all.css";
+import "./Server/css/Header.css";
+import "./Server/css/Sidebar-Menu.css";
+import "./Server/css/Footer.css";
+import "./Server/css/style_Admin_All.css";
+import "./Server/css/style_class_kit.css";
+import "./Server/css/style_background_color.css";
+import "./Server/ContentBack/nestable/nestable.css";
+import "./Server/ContentBack/table_rwd/table_rwd.css";
+import "./Server/ContentBack/login/login_NewDesige.css";
+import "./Server/ContentBack/register/register_NewDesige.css";
+import "./Server/ContentBack/bg_dynamic/login-Particles.css";
+import "./Server/ContentBack/chart_c3_0.7.20/css/c3.css";

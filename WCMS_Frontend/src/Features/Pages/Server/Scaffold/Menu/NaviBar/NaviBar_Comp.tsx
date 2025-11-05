@@ -3,6 +3,8 @@ import type { NaviData } from '@/SysCore/Components/NaviBar/NaviBar_Data'
 import NaviBarComp from '@/SysCore/Components/NaviBar/NaviBar_Comp'
 import type { IBETheme } from '@/Features/Pages/Server/Theme/ITheme'
 import NaviProvider from '@/Features/Pages/Server/Scaffold/Menu/NaviBar/NaviBar_Api'
+import logImg from '@/Features/Assets/Server/images/logo/logo_PC_210x63.svg'
+
 
 const NavibarMenu = ({ theme }: { theme: IBETheme }) => {
     const [items, setItems] = useState<NaviData[]>([])
@@ -31,7 +33,7 @@ const NavibarMenu = ({ theme }: { theme: IBETheme }) => {
                                 <i className="fas fa-bars"></i>
                             </a>
                             <a className="mblogo" href="#" onClick={(e) => { e.preventDefault(); }}>
-                                <img src="/Legacy/Server/images/logo/logo_PC_210x63.svg" className="pcm-logo img-fluid logo-lg" alt="logo" />
+                                <img src={logImg} className="pcm-logo img-fluid logo-lg" alt="logo" />
                             </a>
                         </li>
                     </ul>

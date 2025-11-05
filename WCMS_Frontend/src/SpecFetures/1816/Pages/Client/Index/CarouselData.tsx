@@ -1,15 +1,9 @@
+import bgImg from '@/SpecFetures/1816/Assets/Client/images/bg/background-transparent-image_1920x600.png'
+
 export const CarouselData = () => {
 	return (
-
-
-
 		<div>
-			<section
-				className="Link-icons_section Layout_Padding_4_bottom"
-				style={{
-					backgroundImage:
-						"url(/images/bg/background-transparent-image_1920x600.png)",
-				}}>
+			<section className="Link-icons_section Layout_Padding_4_bottom" style={{ backgroundImage: `url(${bgImg})` }}>
 				<div className="Mask-DivBox">
 					<div className="customizeBox">
 						<div className="container-customize2">

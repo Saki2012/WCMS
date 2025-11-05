@@ -9,7 +9,7 @@ import type { ColumnConfig } from "@/SysCore/Components/Grid/Grid_Data";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import SpecCategoryProvider from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Api";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-import DefaultPic from "@/Assets/1810/images_960x960.jpg"
+import DefaultPic from "@/SpecFetures/1810/Assets/Custom/images_960x960.jpg"
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { SpecCategoryModelFields, SpecUSRDetailFields, SpecUSRModelFields, SpecUSRSetFields } from "@/types/SchemaFields";
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];

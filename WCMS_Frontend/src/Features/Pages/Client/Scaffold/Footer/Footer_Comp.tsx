@@ -3,6 +3,7 @@ export type NavItem = {
     Title: string;
     URL: string;
 };
+import logImg from '@/SpecFetures/1810/Assets/Client/images/logo/logo_Footer_W_225x125.svg'
 
 const Footer = () => {
     return (
@@ -16,7 +17,7 @@ const Footer = () => {
                                 <div className="col-sm-3 col-12">
                                     <div className="row">
                                         <div className="col-12">
-                                            <div className="footer-widget about-widget mb-3"><img alt="國立臺灣藝術大學_研究發展處 LOGO" src="/Legacy/Client/images/logo/logo_Footer_W_225x125.svg" /></div>
+                                            <div className="footer-widget about-widget mb-3"><img alt="國立臺灣藝術大學_研究發展處 LOGO" src={logImg} /></div>
                                         </div>
                                     </div>
                                 </div>

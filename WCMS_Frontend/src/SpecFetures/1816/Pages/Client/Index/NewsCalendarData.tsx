@@ -7,8 +7,8 @@ export const NewsCalendarData = () => {
 						<div className="DateTitleBox">
 							<div className="date_black">
 								<div className="today-date-box">
-									<div className="MM">Month月份</div>
-									<div className="DD">Date日期</div>
+									<div className="MM">11月</div>
+									<div className="DD">5</div>
 								</div>
 							</div>
 							<div className="text_black">

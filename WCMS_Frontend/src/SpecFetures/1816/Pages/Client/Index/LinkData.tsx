@@ -1,15 +1,17 @@
+import bgImg from "@/SpecFetures/1816/Assets/Client/images/bg/background-transparent-image_1920x600.png"
+import img1 from "@/SpecFetures/1816/Assets/Client/images/links/Area_Links_icon/links_01_W_100x100_icon.svg"
+import img2 from "@/SpecFetures/1816/Assets/Client/images/links/Area_Links_icon/links_02_W_100x100_icon.svg"
+import img4 from "@/SpecFetures/1816/Assets/Client/images/links/Area_Links_icon/links_04_W_100x100_icon.svg"
+import img5 from "@/SpecFetures/1816/Assets/Client/images/links/Area_Links_icon/links_05_W_100x100_icon.svg"
+import img6 from "@/SpecFetures/1816/Assets/Client/images/links/Area_Links_icon/links_06_W_100x100_icon.svg"
+import img7 from "@/SpecFetures/1816/Assets/Client/images/links/Area_Links_icon/links_07_W_100x100_icon.svg"
+
+
+
 export const LinkData = () => {
 	return (
-
-
-
 		<div>
-			<section
-				className="Link-icons_section Layout_Padding_4_bottom"
-				style={{
-					backgroundImage:
-						"url(/images/bg/background-transparent-image_1920x600.png)",
-				}}>
+			<section className="Link-icons_section Layout_Padding_4_bottom" style={{ backgroundImage: `url(${bgImg})` }}>
 				<div className="Mask-DivBox">
 					<div className="customizeBox">
 						<div className="container-customize2">
@@ -30,7 +32,7 @@ export const LinkData = () => {
 																<div className="icon-type-image">
 																	<img
 																		alt=""
-																		src="/images/links/Area_Links_icon/links_01_W_100x100_icon.svg"
+																		src={img1}
 																	/>
 																</div>
 															</div>
@@ -54,7 +56,7 @@ export const LinkData = () => {
 																<div className="icon-type-image">
 																	<img
 																		alt=""
-																		src="/images/links/Area_Links_icon/links_02_W_100x100_icon.svg"
+																		src={img2}
 																	/>
 																</div>
 															</div>
@@ -78,7 +80,7 @@ export const LinkData = () => {
 																<div className="icon-type-image">
 																	<img
 																		alt=""
-																		src="/images/links/Area_Links_icon/links_04_W_100x100_icon.svg"
+																		src={img4}
 																	/>
 																</div>
 															</div>
@@ -104,7 +106,7 @@ export const LinkData = () => {
 																<div className="icon-type-image">
 																	<img
 																		alt=""
-																		src="/images/links/Area_Links_icon/links_05_W_100x100_icon.svg"
+																		src={img5}
 																	/>
 																</div>
 															</div>
@@ -128,7 +130,7 @@ export const LinkData = () => {
 																<div className="icon-type-image">
 																	<img
 																		alt=""
-																		src="/images/links/Area_Links_icon/links_07_W_100x100_icon.svg"
+																		src={img7}
 																	/>
 																</div>
 															</div>
@@ -152,7 +154,7 @@ export const LinkData = () => {
 																<div className="icon-type-image">
 																	<img
 																		alt=""
-																		src="/images/links/Area_Links_icon/links_06_W_100x100_icon.svg"
+																		src={img6}
 																	/>
 																</div>
 															</div>

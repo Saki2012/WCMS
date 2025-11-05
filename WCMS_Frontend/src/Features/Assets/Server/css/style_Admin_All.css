@@ -1001,6 +1001,7 @@ a:hover .btn.Itrash {
 	font-size: 112.5%;
     height: 100%;
     padding: .375rem .75rem;
+    cursor: pointer; /*cara20251030*/
 }
 
 .Form-Main-Content .pagination .page-link.active,
@@ -1507,7 +1508,8 @@ a:hover .btn.Itrash {
 
 .form-check .form-check-input {
 	position: relative;
-	top: -0.125rem;
+	/* top: -0.125rem; */
+	top: -0.8rem; /* 20251030cara */
 	float: left;
 	margin-left: -1.75rem;
 	margin-right: 0.25rem;
@@ -1547,12 +1549,14 @@ a:hover .btn.Itrash {
 
 label.form-check-label {
 	display: inline-block;
+    width: 100%; /* 20251030cara */
 }
 
 span.check-txt {
 	position: relative;
 	font-size: inherit;
-	height: 20px;
+	/* height: 20px; */
+	height: 40px; /* 20251030cara */
 	display: inline-block;
 	display: -webkit-box;
 	display: -ms-flexbox;
@@ -1561,7 +1565,8 @@ span.check-txt {
 	-ms-flex-wrap: wrap;
 	flex-wrap: wrap;
 	justify-content: flex-start;
-	align-items: center;
+	/* align-items: center; */
+	align-items: start; /* 20251030cara */
 }
 /* ===== [ checkbox + radiobox 共用 ] ===== */
 
@@ -3651,3 +3656,15 @@ span.check-txt span.Iicon.on {
 /* ========================================================================= */
 
 
+/* 20251015 cara新增 網站功能 右邊固定 */
+.Form-Main-Content .right-box{
+    position: sticky;
+    top: 100px;
+    align-self: flex-start;
+    height: fit-content;
+}
+.Form-Main-Content .right-box .edit-box .overflow-scroll-customize > .panel > .panel-body > .form{
+    height: calc(100vh - 370px);
+    overflow-y: scroll;
+    overflow-x: hidden;
+}

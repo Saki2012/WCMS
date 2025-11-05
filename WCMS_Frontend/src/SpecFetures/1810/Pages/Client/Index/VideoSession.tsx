@@ -3,12 +3,15 @@ import 'swiper/swiper-bundle.css';
 import { BaseCarousel } from '@/SysCore/Components/BaseCarousel'
 import { Link } from 'react-router-dom';
 import type { components } from '@/types/api';
-type WebResourceSet = components["schemas"]["WebResourceSet_DTO"]
 import * as SchemaFields from "@/types/SchemaFields";
 import WebResourceProvider from '@/Features/Hooks/BizFunc/WebManagement/WebResource/WebResource_Api';
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import { useEffect, useRef } from 'react';
+import bgImg from '@/SpecFetures/1810/Assets/Client/images/bg/background-image_video_2000x1500.jpg'
+
+
+type WebResourceSet = components["schemas"]["WebResourceSet_DTO"]
 
 interface DataProp { internalId: string; title: string; ResUrl: string; }
 
@@ -118,7 +121,7 @@ export const VideoSession = () => {
     return (
         <LoadingErrorHandler loadingList={isLoading} errorList={errors}>
 
-            <section className="Video-section owl-box" style={{ backgroundImage: "url(/Legacy/Client/Images/bg/background-image_video_2000x1500.jpg)" }}>
+            <section className="Video-section owl-box" style={{ backgroundImage: `url(${bgImg})` }}>
                 <div className="Mask-DivBox layout_padding1">
                     <div className="customizeBox">
                         <div className="container">

@@ -5,7 +5,6 @@ import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter.ts";
 import { createClientRouter } from "@/SysCore/Utils/Route/Routes.tsx";
 import { SpecRouteModule } from "../SpecFetures/1810/SpecRouter.tsx";
 import { RouterProvider } from "react-router-dom";
-import { LEGACY_JS, LEGACY_CSS } from "./LegacySrc.ts";
 // import "SpecFeature/Assets/Client/Content/Style.css"
 import { MessageProvider } from "@/SysCore/Components/Message/Dialog/Dialog_Comp.tsx";
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp.tsx";
@@ -14,24 +13,11 @@ if (typeof window !== "undefined") {
   // CSR：初始化一次 XSRF；SSR：這個屬性不存在，呼叫也不會發生
   (api as BrowserApiWithInit).__initXsrfOnce?.();
 }
+import '@/Features/Assets/LoadFeaturesCss.ts'
+import 'SpecFeature/Assets/LoadSpecCss.ts'
+import '@/Features/Assets/LoadFeaturesJs.ts'
+import 'SpecFeature/Assets/LoadSpecJs.ts'
 
-LEGACY_CSS.forEach((href) => {
-  if (!document.querySelector(`link[rel="stylesheet"][href="${href}"]`)) {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = href;
-    document.head.appendChild(link);
-  }
-});
-
-LEGACY_JS.forEach((src) => {
-  if (!document.querySelector(`script[src="${src}"]`)) {
-    const script = document.createElement("script");
-    script.src = src;
-    script.defer = true;         // 用 defer，避免阻塞、又保留順序
-    document.body.appendChild(script);
-  }
-});
 
 declare global { interface Window { __INITIAL_STATE__?: { lang?: string;[k: string]: unknown }; } }
 const SUPPORTED_LANGS = ["zh-tw", "en-us"] as const;

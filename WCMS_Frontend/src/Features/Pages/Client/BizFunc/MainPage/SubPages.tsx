@@ -15,6 +15,8 @@ import { ThirdMenuComp } from '@/Features/Pages/Client/Scaffold/Menu/ThirdMenu'
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData'
 import BannerSliderProvider from '@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api'
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient'
+import gototopImg from 'SpecFeature/Assets/Client/images/go-to-top/gototop_40x40.svg'//暫時先這樣寫
+
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 interface ISubPagesProps { Style: IFETheme; Lang: Lang; site: INormSite; node: INormNode; backHref?: string; }
 const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode): ReactNode[] => {
@@ -221,7 +223,7 @@ export const GoTopButton: React.FC<GoTopButtonProps> = (props) => {
   const {
     threshold = 300,
     durationMs = 800,
-    iconSrc = "/Legacy/Client/images/go-to-top/gototop_40x40.svg",
+    iconSrc = gototopImg,
     style,
     ariaLabel = "回到頂端",
     title = "置頂",

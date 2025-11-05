@@ -1,6 +1,5 @@
 import { NewsCalendarData } from '@/SpecFetures/1816/Pages/Client/Index/NewsCalendarData'
-
-
+import bgImg from '@/SpecFetures/1816/Assets/Client/images/bg/background-transparent-image_1920x600.png'
 export const NewsData = () => {
 	return (
 
@@ -25,8 +24,8 @@ export const NewsData = () => {
 			<section
 				className="Newsii_section Layout_Padding_1_top Layout_Padding_5_bottom"
 				style={{
-					backgroundImage:
-						"url(/images/bg/background-transparent-image_1920x600.png)",
+					backgroundImage: `url(${bgImg})`
+					,
 				}}>
 				<div className="Mask-DivBox">
 					<div className="customizeBox">

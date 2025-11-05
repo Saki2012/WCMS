@@ -1,0 +1,672 @@
+@charset "utf-8";
+/* CSS Document */
+
+.Login_body {
+    position: relative;
+    width: 100%;
+    max-width: 100% !important;
+    margin: 0 auto;
+    overflow-y: hidden;
+}
+
+.LoginBOX {
+    position: relative;
+    width: 100%;
+    padding: 0 !important;
+    background-color: var(--FFFcolor);
+    min-height: 100vh;
+    overflow: hidden;
+}
+@media (max-width: 870px) {
+    .LoginBOX {
+        min-height: 800px;
+        height: 100vh;
+    }
+}
+@media (max-width: 570px) {
+    .LoginBOX {
+        padding: 1.5rem;
+    }
+}
+
+.LoginBOX:before {
+    content: "";
+    position: absolute;
+    height: 2000px;
+    width: 2000px;
+    top: -10%;
+    right: 48%;
+    transform: translateY(-50%);
+    background-image: linear-gradient(-45deg, #4481eb 0%, #04befe 100%);
+    transition: 0.8s ease-in-out;
+    border-radius: 50%;
+    z-index: 0;
+    
+    /* gradient-editor/#f55925+0,db5021+100 */
+    background: -webkit-linear-gradient(#f55925 0%, #db5021 100%);
+    background: -o-linear-gradient(#f55925 0%, #db5021 100%);
+    background: linear-gradient(#f55925 0%, #db5021 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+}
+@media (max-width: 870px) {
+    .LoginBOX:before {
+        width: 1500px;
+        height: 1500px;
+        transform: translateX(-50%);
+        left: 30%;
+        bottom: 68%;
+        right: initial;
+        top: initial;
+        transition: 2s ease-in-out;
+    }
+}
+@media (max-width: 570px) {
+    .LoginBOX:before {
+        bottom: 63%;
+        left: 50%;
+    }
+}
+/*----------------------------------------------*/
+/* ------- 第一內容區 -------- */
+.BOX_ALL_CONTENT {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+/*----------------------------------------------*/
+.BOX_ALL_CONTENT .signin-signup {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    left: 75%;
+    width: 50%;
+    
+    display: grid;
+    grid-template-columns: 1fr;
+    
+    /*transition: 1s 0.7s ease-in-out;*/
+    transition-property: all;
+    transition-duration: 1s;
+    transition-timing-function: ease-in-out;
+    /*transition-delay: 0.2s;*/ /*0.7s*/
+    
+    z-index: 5;
+}
+@media (max-width: 870px) {
+    .BOX_ALL_CONTENT .signin-signup {
+        width: 100%;
+        top: 90%;
+        transform: translate(-50%, -100%);
+        /*transition: 1s 0.8s ease-in-out;*/
+        transition-property: all;
+        transition-duration: 1s;
+        transition-timing-function: ease-in-out;
+        /*transition-delay: 0.2s;*/ /*0.8s*/
+    }
+    .BOX_ALL_CONTENT .signin-signup {
+        left: 50%;
+    }
+}
+
+/*----------------------------------------------*/
+.BOX_ALL_CONTENT .form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    
+    /*transition: all 0.2s 0.7s;*/
+    transition-property: all;
+    transition-duration: 0.2s;
+    transition-timing-function: ease;
+    transition-delay: 0.1s;
+    
+    overflow: hidden;
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+}
+@media (max-width: 570px) {
+    .BOX_ALL_CONTENT .form {
+        padding: 0 1.5rem;
+    }
+}
+/*----------------------------------------------*/
+.BOX_ALL_CONTENT .form.sign-up-form {
+    opacity: 0;
+    z-index: 1;
+}
+
+.BOX_ALL_CONTENT .form.sign-in-form {
+    z-index: 2;
+}
+
+/*----------------------------------------------*/
+.BOX_ALL_CONTENT .title {
+    font-size: 175%;
+    font-weight: 600;
+    color: var(--blackcolor);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    padding: 5px 50px;
+    border-radius: 26px;
+    background-color: var(--FFFcolor);
+}
+@media (max-width: 570px) {
+    .BOX_ALL_CONTENT .title {
+        font-size: 150;
+    }
+}
+/*----------------------------------------------*/
+.BOX_ALL_CONTENT .input-field {
+    max-width: 380px;
+    width: 100%;
+    background-color: #f0f0f0;
+    margin: 0 0 10px 0;    
+    border-radius: 0.5rem;
+    display: grid;
+    grid-template-columns: 15% 85%;
+    padding: 0 0.4rem;
+    position: relative;
+}
+
+.BOX_ALL_CONTENT .input-field i {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    color: #acacac;
+    transition: 0.5s;
+    font-size: 112.5%;
+}
+
+.BOX_ALL_CONTENT .input-field input {
+    background: none;
+    outline: none;
+    border: none;
+    line-height: 1;
+    font-weight: 600;
+    font-size: 112.5%;
+    color: var(--blackcolor);
+}
+
+.BOX_ALL_CONTENT .input-field input::placeholder {
+    color: #aaaaaa;
+    font-weight: 500;
+}
+
+/*----------------------------------------------*/
+.BOX_ALL_CONTENT .checkbox-div,
+.BOX_ALL_CONTENT .buttonbox-div,
+.BOX_ALL_CONTENT .socialbox-div,
+.BOX_ALL_CONTENT .annotationbox-div {
+    position: relative;
+    max-width: 380px;
+    width: 100%;
+    margin: 0 0 10px 0;    
+    padding: 0 0.4rem;
+    text-align: center;
+}
+
+/*----------------------------------------------*/
+.BOX_ALL_CONTENT .social-media {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+.BOX_ALL_CONTENT .social-text {    
+    font-size: 100%;
+    padding: 0.7rem 0 0.7rem 0;
+    margin: 0;
+}
+
+.BOX_ALL_CONTENT .social-icon {
+    height: 46px;
+    width: 46px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 0.45rem;
+    color: var(--blackcolor);
+    border-radius: 50%;
+    border: 1px solid var(--blackcolor);
+    text-decoration: none;
+    font-size: 112.5%;
+    transition: 0.3s;
+}
+
+.BOX_ALL_CONTENT .social-icon:hover {
+    color: #DB3700;
+    border-color: #DB3700;
+}
+
+/*----------------------------------------------*/
+/* ------- 按鈕 -------- */
+.BOX_ALL_CONTENT .btn.transparent,
+.BOX_ALL_CONTENT-2 .btn.transparent {
+    font-size: 81.25%;
+    font-weight: 600;
+    margin: 0;
+    background: none;
+    border: 2px solid var(--FFFcolor);  
+}
+@media (max-width: 870px) {
+    .BOX_ALL_CONTENT .btn.transparent,
+    .BOX_ALL_CONTENT-2 .btn.transparent {
+        font-size: 100%;
+    }
+}
+
+/*----------------------------------------------*/
+/* ------- 第二內容區 -------- */
+.BOX_ALL_CONTENT-2 {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+@media (max-width: 870px) {
+    .BOX_ALL_CONTENT-2 {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 2fr 1fr;
+    }
+}
+
+/*----------------------------------------------*/
+.BOX_ALL_CONTENT-2 .image {
+    width: 100%;
+    /*transition: transform 1.1s ease-in-out;*/
+    transition-property: transform;
+    transition-duration: 0.75s; /*1.1*/
+    transition-timing-function: ease-in-out;
+    
+    /*transition-delay: 0.1s;*/ /*0.4s*/
+}
+@media (max-width: 870px) {
+    .BOX_ALL_CONTENT-2 .image {
+        width: 200px;
+        /*transition: transform 0.9s ease-in-out;*/
+        transition-property: transform;
+        transition-duration: 0.65s; /*0.9s*/
+        transition-timing-function: ease-in-out;
+        
+        /*transition-delay: 0.3s;*/ /*0.6s*/
+    }
+}
+@media (max-width: 570px) {
+    .BOX_ALL_CONTENT-2 .image {
+        display: none;
+    }
+}
+
+/*----------------------------------------------*/
+.BOX_ALL_CONTENT-2 .panel {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-around;
+    text-align: center;
+    z-index: 6;
+}
+@media (max-width: 870px) {
+    .BOX_ALL_CONTENT-2 .panel {
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        padding: 2.5rem 8%;
+        grid-column: 1 / 2;
+    }
+}
+
+/*----------------------------------------------*/
+.BOX_ALL_CONTENT-2 .left-panel {
+    pointer-events: all;
+    padding: 7rem 17% 3rem 12%;
+}
+.BOX_ALL_CONTENT-2 .right-panel {
+    pointer-events: none;
+    padding: 7rem 12% 3rem 17%;
+}
+@media (max-width: 870px) {
+    .BOX_ALL_CONTENT-2 .left-panel {
+        grid-row: 1 / 2;
+        padding: 7rem 12% 3rem 12%;
+    }
+    .BOX_ALL_CONTENT-2 .right-panel {
+        grid-row: 3 / 4;
+        padding: 3rem 12% 3rem 12%;
+    }
+}
+
+/*----------------------------------------------*/
+.BOX_ALL_CONTENT-2 .panel .content {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    color: #FFFFFF;
+    transition: transform 0.9s ease-in-out;
+    /*transition-delay: 0.6s;*/
+}
+@media (max-width: 870px) {
+    .BOX_ALL_CONTENT-2 .panel .content {
+        padding-right: 15%;
+        transition: transform 0.9s ease-in-out;
+        /*transition-delay: 0.8s;*/
+    }
+}
+@media (max-width: 570px) {
+    .BOX_ALL_CONTENT-2 .panel .content {
+        padding: 0.5rem 1rem;
+    }
+}
+/*----------------------------------------------*/
+.BOX_ALL_CONTENT-2 .panel .tl-text {
+    font-weight: 600;
+    line-height: 1;
+    font-size: 125%;
+}
+@media (max-width: 870px) {
+    .BOX_ALL_CONTENT-2 .panel .tl-text {
+        font-size: 112.5%;
+    }
+}
+.BOX_ALL_CONTENT-2 .panel p {
+    font-size: 100%;
+    padding: 0.7rem 0;
+}
+@media (max-width: 870px) {
+    .BOX_ALL_CONTENT-2 .panel p {
+        font-size: 93.75%;
+        padding: 0.5rem 0;
+    }
+}
+
+/*----------------------------------------------*/
+.right-panel .image,
+.right-panel .content {
+    transform: translateX(800px);
+}
+@media (max-width: 870px) {
+    .right-panel .image,
+    .right-panel .content {
+        transform: translateY(300px);
+    }
+}
+
+/*----------------------------------------------*/
+/* ===== 自訂 ANIMATION ====== */
+.LoginBOX.sign-up-mode:before {
+    transform: translate(100%, -50%);
+    right: 52%;
+}
+@media (max-width: 870px) {
+    .LoginBOX.sign-up-mode:before {
+        transform: translate(-50%, 100%);
+        bottom: 32%;
+        right: initial;
+    }
+}
+@media (max-width: 570px) {
+    .LoginBOX.sign-up-mode:before {
+        bottom: 29%;
+        left: 50%;
+    }
+}
+/*----------------------------------------------*/
+.LoginBOX.sign-up-mode .left-panel .image,
+.LoginBOX.sign-up-mode .left-panel .content {
+    transform: translateX(-800px);
+}
+@media (max-width: 870px) {
+    .LoginBOX.sign-up-mode .left-panel .image,
+    .LoginBOX.sign-up-mode .left-panel .content {
+        transform: translateY(-300px);
+    }
+}
+
+/*----------------------------------------------*/
+.LoginBOX.sign-up-mode .signin-signup {
+    left: 25%;
+}
+@media (max-width: 870px) {
+    .LoginBOX.sign-up-mode .signin-signup {
+        left: 50%;
+        top: 12%;
+        transform: translate(-50%, 0);
+    }
+}
+/*----------------------------------------------*/
+.LoginBOX.sign-up-mode .form.sign-up-form {
+    opacity: 1;
+    z-index: 2;
+}
+
+/*----------------------------------------------*/
+.LoginBOX.sign-up-mode .form.sign-in-form {
+    opacity: 0;
+    z-index: 1;
+}
+
+/*----------------------------------------------*/
+.LoginBOX.sign-up-mode .right-panel .image,
+.LoginBOX.sign-up-mode .right-panel .content {
+    transform: translateX(0%);
+}
+@media (max-width: 870px) {
+    .LoginBOX.sign-up-mode .right-panel .image,
+    .LoginBOX.sign-up-mode .right-panel .content {
+        transform: translateY(0px);
+    }
+}
+
+/*----------------------------------------------*/
+.LoginBOX.sign-up-mode .left-panel {
+    pointer-events: none;
+}
+
+/*----------------------------------------------*/
+.LoginBOX.sign-up-mode .right-panel {
+    pointer-events: all;
+}
+/* ===== 自訂 ANIMATION ====== */
+/*----------------------------------------------*/
+/* ===== 自訂 勾選開關 ====== */
+/* Size : md */
+.BOX_ALL_CONTENT .remember-checkbox {
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    
+    margin-bottom: 12px;    
+}
+
+.BOX_ALL_CONTENT .remember-checkbox .custom-check-input-md {
+	position: absolute;
+	z-index: -1;
+	opacity: 0
+}
+
+.BOX_ALL_CONTENT .remember-checkbox .custom-check-input-md:checked~.custom-check-label-md::before {
+	color: var(--FFFcolor);
+	border-color: var(--Customize_color);    /* 需換色 */
+	background-color: var(--Customize_color);     /* 需換色 */
+}
+
+/* 選取選 光暈 */
+.BOX_ALL_CONTENT .remember-checkbox .custom-check-input-md:focus~.custom-check-label-md::before {
+	box-shadow: 0 0 0 .2rem rgba(219, 55, 0, 0.25); /*RGB->#DB3700 x 0.25透明*/     /* 需換RGB色 */
+}
+.BOX_ALL_CONTENT .remember-checkbox .custom-check-input-md:focus:not(:checked)~.custom-check-label-md::before {
+	border-color: rgba(219, 55, 0, 0.25); /*RGB->#DB3700 x 0.25透明*/     /* 需換RGB色 */
+}
+/* 選取選 光暈 */
+
+/*----------------------------------------------*/
+/* 勾選 active 顏色 */
+.BOX_ALL_CONTENT .remember-checkbox .custom-check-input-md:not(:disabled):active~.custom-check-label-md::before {
+	color: var(--FFFcolor);
+	background-color: var(--Customize_color);     /* 需換色 */
+	border-color: var(--Customize_color);     /* 需換色 */
+}
+/* 勾選 active 顏色 */
+/*----------------------------------------------*/
+/* 勾選 checked 顏色 */
+.BOX_ALL_CONTENT .remember-checkbox.custom-checkbox-warning .custom-check-input-md:checked ~ .custom-check-label-md::before {
+	background-color: var(--Customize_color);     /* 需換色 */
+	border-color: var(--Customize_color);     /* 需換色 */
+}
+/* 勾選 active 顏色 */
+/*----------------------------------------------*/
+.BOX_ALL_CONTENT .remember-checkbox .custom-check-input-md:disabled~.custom-check-label-md {
+	color: #6c757d
+}
+
+.BOX_ALL_CONTENT .remember-checkbox .custom-check-input-md:disabled~.custom-check-label-md::before {
+	background-color: #e9ecef
+}
+
+.BOX_ALL_CONTENT .remember-checkbox .custom-check-label-md {
+	position: relative;
+	margin-bottom: 0;
+	vertical-align: top;
+    border-radius: .25rem;    
+}
+
+/* 選取框 位置 */
+.BOX_ALL_CONTENT .remember-checkbox .custom-check-label-md::before {
+	position: absolute;
+	top: 0; /*.25rem*/
+	left: 0;
+	display: block;
+	width: 1.25rem; /*1rem*/
+	height: 1.25rem; /*1rem*/
+	pointer-events: none;
+	content: "";
+	background-color: var(--FFFcolor);
+	border: solid 1px #adb5bd;         /* 選取框 線條顏色 */
+    border-radius: .25rem;
+}
+/* 選取框 位置 */
+
+/* 選取框 勾勾位置 */
+.BOX_ALL_CONTENT .remember-checkbox .custom-check-label-md::after {
+	position: absolute;
+	top: 0; /*.25rem*/
+	left: 0;
+	display: block;
+	width: 1.25rem; /*1rem*/
+	height: 1.25rem; /*1rem*/
+	content: "";
+	background: no-repeat 50%/50% 50%; 
+    border-radius: .25rem;
+}
+/* 選取框 勾勾位置 */
+
+.BOX_ALL_CONTENT .remember-checkbox .remember-checkbox .custom-check-label-md::before {
+	border-radius: .25rem
+}
+
+/* 選取框 勾勾ICON */
+.BOX_ALL_CONTENT .remember-checkbox .custom-check-input-md:checked~.custom-check-label-md::after {
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23fff' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z'/%3e%3c/svg%3e")
+}
+/* 選取框 勾勾ICON */
+
+/* 未選 光暈 */
+.BOX_ALL_CONTENT .remember-checkbox .custom-check-input-md:indeterminate~.custom-check-label-md::before {
+	border-color: var(--Customize_color);     /* 需換色 */
+	background-color: var(--Customize_color);     /* 需換色 */
+}
+/* 未選 光暈 */
+
+
+.BOX_ALL_CONTENT .remember-checkbox .custom-check-input-md:indeterminate~.custom-check-label-md::after {
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 4'%3e%3cpath stroke='%23fff' d='M0 2h4'/%3e%3c/svg%3e")
+}
+
+.BOX_ALL_CONTENT .remember-checkbox .custom-check-input-md:disabled:checked~.custom-check-label-md::before {
+	background-color: rgba(219, 55, 0, 0.5); /*RGB->#DB3700 x 0.5透明*/     /* 需換RGB色 */
+}
+
+.BOX_ALL_CONTENT .remember-checkbox .custom-check-input-md:disabled:indeterminate~.custom-check-label-md::before {
+	background-color: rgba(219, 55, 0, 0.5); /*RGB->#DB3700 x 0.5透明*/     /* 需換RGB色 */
+}
+
+.BOX_ALL_CONTENT .remember-checkbox .custom-check-label-md span.check-txt {
+	position: relative;
+	display: inline-block;
+	margin-left: 28px;
+	top: -2px;
+}
+
+.BOX_ALL_CONTENT .remember-checkbox .forget-txt {
+	position: relative;
+	display: inline-block;
+	margin-left: 28px;
+	top: -2px;
+}
+.BOX_ALL_CONTENT .remember-checkbox .forget-txt a {
+    color: var(--Customize_color);
+}
+.BOX_ALL_CONTENT .remember-checkbox .forget-txt a:hover {
+    color: var(--Customize_color);
+}
+/* ======================== */
+
+.BOX_ALL_CONTENT .remember-checkbox .form-control:focus {
+    text-decoration: none;
+    outline: 1px solid var(--Customize_color) !important;     /* 需換色 */
+    box-shadow: 0 0 0 .2rem rgba(219, 55, 0, 0.25); /*RGB->#DB3700 x 0.25透明*/     /* 需換RGB色 */
+}
+.BOX_ALL_CONTENT .remember-checkbox .fill-in-info-wrap .info-block input:focus,
+.BOX_ALL_CONTENT .remember-checkbox .fill-in-info-wrap .info-block textarea:focus {
+    text-decoration: none;
+    outline: 1px solid var(--Customize_color) !important;     /* 需換色 */
+    box-shadow: 0 0 0 .2rem rgba(219, 55, 0, 0.25); /*RGB->#DB3700 x 0.25透明*/     /* 需換RGB色 */
+}
+/* ===== 自訂 勾選開關 ====== */
+/*----------------------------------------------*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

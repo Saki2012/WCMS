@@ -7,7 +7,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import WebResourceProvider from "@/Features/Hooks/BizFunc/WebManagement/WebResource/WebResource_Api";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { SubPageTitle } from "@/Features/Pages/Client/Scaffold/Header/SubPageTitle_Comp";
-import DefaultImg from "@/Assets/1810/WebResource_Default.png"
+import DefaultImg from "@/SpecFetures/1810/Assets/Custom/WebResource_Default.png"
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { WebResourceFields, WebResourceInfoFields } from "@/types/SchemaFields";
 import type { GridProps } from "@/SysCore/Components/Grid/Grid_Data";

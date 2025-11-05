@@ -18,12 +18,14 @@ import { useFormatTagsName, useTagListData } from "@/Features/Hooks/BizFunc/WebM
 import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { Paginator } from "@/SysCore/Components/Paginator/Paginator_Comp";
-import DefaultEventImg from "@/Assets/1810/DefaultEventPic_940x1330.jpg"
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
 import { ProgId } from "@/Features/Hooks/Common/ProgId";
 import { useNow } from "@/SysCore/Utils/Library/LibHook";
+
+import DefaultEventImg from "@/SpecFetures/1810/Assets/Custom/DefaultEventPic_940x1330.jpg"
+
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 type TagSet = components["schemas"]["TagSet_DTO"];

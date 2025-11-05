@@ -1,0 +1,151 @@
+@charset "utf-8";
+/* CSS Document */
+
+/*** 
+
+====================================================================
+	Page Title Style
+====================================================================
+
+***/
+
+.page-title {
+	position: relative;
+	text-align: center;
+	height: 350px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	/*background:url(../images/resource/page-title-bg.jpg) repeat;*/
+}
+
+.page-title h2 {
+	position: relative;
+	font-size: 300%; /*3em*/ /*48px*/
+	font-weight: 700;
+	margin-top: 35px;
+	color: #FFFFFF;
+	line-height: 1.5em;
+	text-transform: capitalize;
+}
+
+.page-title h3 {
+	position: relative;
+	font-size: 175%; /*1.75em*/ /*28px*/
+	font-weight: 700;
+	color: #FFFFFF;
+	line-height: 1.5em;
+	letter-spacing: 1rem;
+	text-transform: capitalize;
+}
+
+.page-title .text {
+	position: relative;
+	color: #FFFFFF;
+	font-size: 100%; /*1em*/ /*16px*/
+	font-weight: 400;
+	text-align: center;
+}
+
+.page-info {
+	position: relative;
+	
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
+	flex-direction: column;
+
+	color: #333333;
+	z-index: 9;
+		
+	background: #eee;
+}
+
+.page-info .flex-box-five {
+	/*border-bottom: 1px solid #eeeeee;*/
+}
+
+.page-info h3 {
+	font-size: 100%; /*1em*/ /*16px*/
+	color: #333333;
+	line-height: 24px;
+	font-weight: 700;
+}
+
+.page-info .bread-crumb {
+	position: relative;
+	display: inline-block;
+	font-size: 87.5%; /*0.875em*/ /*14px*/
+	padding: 15px 0px 15px 0;
+	margin-bottom: 0;
+}
+
+.page-info .bread-crumb li {
+	position: relative;
+	display: inline-block;
+	font-size: 93.75%; /*0.9375em*/ /*15px*/
+	margin-right: 24px;
+	color: #333333;
+	font-weight: 400;
+	line-height: 24px;
+	text-transform: capitalize;
+	font-family: 'Poppins', sans-serif;
+}
+
+.page-info .bread-crumb li:last-child {
+	margin-right: 0px;
+}
+
+.page-info .bread-crumb li:after {
+	content: '\f105';
+	font-family: 'FontAwesome';
+	position: absolute;
+	right: -21px;
+	width: 10px;
+	line-height: 24px;
+	font-size: 100%; /*1.0em*/ /*16px*/
+	color: #333333;
+}
+
+.page-info .bread-crumb li:last-child:after {
+	display: none;
+}
+
+.page-info .bread-crumb li a {
+	color: #333333;
+	transition: all 0.3s ease;
+	-moz-transition: all 0.3s ease;
+	-webkit-transition: all 0.3s ease;
+	-ms-transition: all 0.3s ease;
+	-o-transition: all 0.3s ease;
+}
+
+.page-info .bread-crumb li a:hover {
+	color: #ff8c04;		/* == // ******* 選擇 HOVER 顏色 ****** // == */
+}
+
+.page-info .share-link {
+	position: relative;
+	display: inline-block;
+	font-size: 93.75%; /*0.9375em*/ /*15px*/
+	padding: 15px 0px 15px 0;
+	color: #333333;
+}
+
+.page-info .share-link a {
+	color: #333333;
+}
+
+.page-info .share-link a:hover {
+	color: #ff8c04;		/* == // ******* 選擇 HOVER 顏色 ****** // == */
+}
+
+.page-info .share-link a i {
+	margin-left: 7px;
+	color: #333333;
+	margin-right: 7px;
+	font-size: 93.75%; /*0.9375em*/ /*15px*/
+}

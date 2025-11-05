@@ -11,10 +11,10 @@ import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import { useEffect, useRef } from 'react';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import { FormatDate } from '@/SysCore/Utils/Library/LibData';
-import defaulteventpic from '@/Assets/1810/DefaultEventPic_940x1330.jpg'
+import defaulteventpic from '@/SpecFetures/1810/Assets/Custom/DefaultEventPic_940x1330.jpg'
 import { useNow } from '@/SysCore/Utils/Library/LibHook';
 import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
-
+import bgImg from '@/SpecFetures/1810/Assets/Client/Images/bg/background-transparent-image_1920x600.png'
 interface EventData {
     Id: string;
     Title: string; // 標題
@@ -157,7 +157,7 @@ export const EventSession = () => {
 
     return (
         <LoadingErrorHandler loadingList={isLoading} errorList={errors}>
-            <section className="Event-section owl-box" style={{ backgroundImage: "url(/Legacy/Client/Images/bg/background-transparent-image_1920x600.png)" }}>
+            <section className="Event-section owl-box" style={{ backgroundImage: `url(${bgImg})` }}>
                 <div className="Mask-DivBox layout_padding2">
                     <div className="customizeBox">
                         <div className="container-customize1">

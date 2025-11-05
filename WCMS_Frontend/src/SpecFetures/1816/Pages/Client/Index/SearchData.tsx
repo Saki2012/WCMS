@@ -1,14 +1,10 @@
-
+import bgimg from "@/SpecFetures/1816/Assets/Client/images/bg/background-transparent-image_1920x600.png"
 
 
 export const SearchData = () => {
 	return (
 
-		<section
-			className="ResourceSearch_section Layout_Padding_4"
-			style={{
-				backgroundImage: "url(images/bg/background-transparent-image_1920x600.png)",
-			}}>
+		<section className="ResourceSearch_section Layout_Padding_4" style={{ backgroundImage: `url(${bgimg})` }}>
 			<div className="Mask-DivBox">
 				<div className="customizeBox">
 					<div className="circle-1 iMG-Shape-0" />

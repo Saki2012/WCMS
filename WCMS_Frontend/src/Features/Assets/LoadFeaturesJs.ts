@@ -1,0 +1,16 @@
+window.$ = window.jQuery;
+// import "./Server/js/jquery-1.9.1.min.js";
+// import "./Server/js/jquery-3.6.0.min.js";
+import "./Server/ContentBack/jquery-3.7.1/jquery-3.7.1.min.js";
+// import "./Server/ContentBack/jquery-3.7.1/bootstrap.js";
+// import "./Server/ContentBack/bootstrap-5.1.1/js/bootstrap.bundle.min.js";
+// import "./Server/fonts/feather/feather.min.js";
+import "./Server/js/simplebarv6.2.5.min.js";
+import "./Server/js/Custompcoded.js";
+// import "./Server/js/bootstrap-multiselect.js";
+// import "./Server/js/bootstrap-switch.min.js";
+// import "./Server/js/bootstrap-toggle.min.js";
+// import "./Server/js/bootstrap.js";
+// import "./Server/js/jquery.nestable.js";
+// import "./Server/js/morris-0.5.1.min.js";
+// import "./Server/js/raphael-min.js";

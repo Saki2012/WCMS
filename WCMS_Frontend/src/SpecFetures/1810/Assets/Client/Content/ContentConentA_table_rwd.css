@@ -1,0 +1,316 @@
+@charset "utf-8";
+/* CSS Document */
+/* #ContentPlaceContent_ContentConentA 表格RWD */
+
+/* --------------- RWD TABLE CSS CODE START -------------------*/
+
+#ContentPlaceContent_ContentConentA .table-rwd { }
+/*這是額外做顏色，沒有什麼意義*/
+
+/* --- 標題TR底色設定 ---*/
+#ContentPlaceContent_ContentConentA tr.tr-only-hide { 
+	font-size: 93.75%;
+	line-height: 1.42857143;
+	font-weight: 500;
+	color: var(--blackcolor);
+	background-color: #e7e7e7!important;
+}
+
+/* --- 以下標準bootstrap.min table CSS --- */
+#ContentPlaceContent_ContentConentA .table-bordered {
+    border: 1px solid #ddd;
+}
+#ContentPlaceContent_ContentConentA .table-striped tbody tr:nth-of-type(2n+1) {
+	background-color: transparent;
+    /*background-color: rgba(0, 0, 0, 0.05);*/
+}
+#ContentPlaceContent_ContentConentA .table-striped tbody tr:nth-of-type(2n) {
+    background-color: rgba(0, 0, 0, 0.0125);
+}
+#ContentPlaceContent_ContentConentA .table-striped tbody tr:hover:nth-of-type(2n+1),
+#ContentPlaceContent_ContentConentA .table-striped tbody tr:hover:nth-of-type(2n) {
+	background-color: rgba(138, 243, 255, 0.5);
+}
+
+#ContentPlaceContent_ContentConentA .table {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 10px;
+}
+
+#ContentPlaceContent_ContentConentA table {
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+#ContentPlaceContent_ContentConentA table {
+    background-color: transparent;
+}
+
+tbody, td, tfoot, th, thead, tr {
+    border-width: 1px;
+}
+
+#ContentPlaceContent_ContentConentA .table > tbody {
+    border-top: 1px solid transparent !important;
+    background-color: var(--FFFcolor) !important;
+}
+
+#ContentPlaceContent_ContentConentA .table-bordered > tbody > tr > td,
+#ContentPlaceContent_ContentConentA .table-bordered > tbody > tr > th,
+#ContentPlaceContent_ContentConentA .table-bordered > tfoot > tr > td,
+#ContentPlaceContent_ContentConentA .table-bordered > tfoot > tr > th,
+#ContentPlaceContent_ContentConentA .table-bordered > thead > tr > td,
+#ContentPlaceContent_ContentConentA .table-bordered > thead > tr > th {
+    border: 1px solid #ddd;
+}
+
+#ContentPlaceContent_ContentConentA .table > tbody > tr > th {
+    /*padding: 8px 25px;*/
+	padding: 8px 10px;
+    vertical-align: top;
+    border-top: 1px solid #ddd;    
+}
+
+#ContentPlaceContent_ContentConentA .table > tbody > tr > td {
+	font-size: 93.75%;
+	line-height: 1.42857143;
+	font-weight: 500;
+	color: var(--blackcolor);
+
+    /*padding: 8px 25px;*/
+	padding: 8px 10px;
+    vertical-align: top;
+    border-top: 1px solid #ddd;
+	word-break: break-word; /*自動折行*/
+}
+#ContentPlaceContent_ContentConentA .table_list {
+	font-size: 112.5% !important;
+}
+#ContentPlaceContent_ContentConentA .table_td_vertical_align {
+	/*font-size: inherit !important;*/
+	vertical-align: middle !important;
+}
+#ContentPlaceContent_ContentConentA .table_td_vertical_align a {	
+	color: var(--blackcolor);
+}
+#ContentPlaceContent_ContentConentA .table > tbody > tr > td a {
+	font-weight: 500;
+	color: var(--blackcolor) !important;
+}
+
+#ContentPlaceContent_ContentConentA .table > tbody > tr > td i {
+	margin-left: 10px;
+	color: var(--blackcolor);
+}
+
+#ContentPlaceContent_ContentConentA .table > tbody > tr > td a:hover {
+	color: #097782 !important;
+}
+
+#ContentPlaceContent_ContentConentA th {
+    text-align: center;
+}
+
+#ContentPlaceContent_ContentConentA td, th {
+  padding: 5px;
+	word-break: break-all;
+}
+
+/*-------------------------------------*/
+#ContentPlaceContent_ContentConentA tr.tr-only-hide-titlebar { 
+	font-size: 93.75%;
+	line-height: 1.42857143;
+	font-weight: 500;
+	color: var(--FFFcolor);
+	/*background-color: rgba(0,0,0,.075) !important;*/
+    background-color: var(--Customize_color) !important;
+}
+
+#ContentPlaceContent_ContentConentA .table > tbody > tr.transparent > td, 
+#ContentPlaceContent_ContentConentA .table > tbody > tr.transparent > th, 
+#ContentPlaceContent_ContentConentA .table > tbody > tr > td.transparent, 
+#ContentPlaceContent_ContentConentA .table > tbody > tr > th.transparent, 
+#ContentPlaceContent_ContentConentA .table > tfoot > tr.transparent > td, 
+#ContentPlaceContent_ContentConentA .table > tfoot > tr.transparent > th, 
+#ContentPlaceContent_ContentConentA .table > tfoot > tr > td.transparent, 
+#ContentPlaceContent_ContentConentA .table > tfoot > tr > th.transparent, 
+#ContentPlaceContent_ContentConentA .table > thead > tr.transparent > td, 
+#ContentPlaceContent_ContentConentA .table > thead > tr.transparent > th, 
+#ContentPlaceContent_ContentConentA .table > thead > tr > td.transparent, 
+#ContentPlaceContent_ContentConentA .table > thead > tr > th.transparent {
+    background-color: transparent;
+}
+
+#ContentPlaceContent_ContentConentA .table > tbody > tr.gray > td, 
+#ContentPlaceContent_ContentConentA .table > tbody > tr.gray > th, 
+#ContentPlaceContent_ContentConentA .table > tbody > tr > td.gray, 
+#ContentPlaceContent_ContentConentA .table > tbody > tr > th.gray, 
+#ContentPlaceContent_ContentConentA .table > tfoot > tr.gray > td, 
+#ContentPlaceContent_ContentConentA .table > tfoot > tr.gray > th, 
+#ContentPlaceContent_ContentConentA .table > tfoot > tr > td.gray, 
+#ContentPlaceContent_ContentConentA .table > tfoot > tr > th.gray, 
+#ContentPlaceContent_ContentConentA .table > thead > tr.gray > td, 
+#ContentPlaceContent_ContentConentA .table > thead > tr.gray > th, 
+#ContentPlaceContent_ContentConentA .table > thead > tr > td.gray, 
+#ContentPlaceContent_ContentConentA .table > thead > tr > th.gray {
+    background-color: rgba(0,0,0,.0125);
+}
+
+/* 取消TR底色設定 bootstrap.min 等都要取消
+.table-striped > tbody > tr:nth-of-type(2n+1) {
+    background-color: #f9f9f9;
+}
+*/
+
+/* --- 以上標準bootstrap.min table CSS --- */
+/*-- @media (max-width: 736px) --*/
+@media (max-width: 768px) {
+	#ContentPlaceContent_ContentConentA .table-rwd {
+		min-width: 100%;
+	}
+	
+	/*針對tr去做隱藏*/
+	#ContentPlaceContent_ContentConentA tr.tr-only-hide {
+		display: none !important;
+	}
+	
+	/*讓tr變成區塊主要讓他有個區塊*/
+	#ContentPlaceContent_ContentConentA tr.tr-only-hide-titlebar {
+		display: none !important;
+	}
+	
+	#ContentPlaceContent_ContentConentA .table-rwd tr{
+		display: block;
+		border: 1px solid #ddd;
+		margin-top: 5px;
+	}
+	
+	#ContentPlaceContent_ContentConentA .table-rwd td {
+		text-align: left;
+		font-size: 93.75%;
+		overflow: hidden;
+		width: 100%;
+		display: block;
+	}
+	
+	#ContentPlaceContent_ContentConentA .table-rwd td:before {
+		/*最重要的就是這串*/
+		content: attr(data-th) " : ";
+		/*最重要的就是這串*/
+		/*display: inline-block;*/    /*單獨一列顯示*/
+		text-transform: uppercase;
+		font-weight: bold;
+		margin-right: 10px;
+		color: var(--blackcolor);             /*RWD 標題顏色*/
+		
+		padding: 8px 0;
+		/*border-bottom: 1px solid #ddd;*/
+		width: 100%;
+		margin-bottom: 5px;
+		/*background:#e7e7e7;*/
+		/*background:#f6f6f6;*/
+	}
+	
+	/*當RWD縮小的時候.table-bordered 會有兩條線，所以針對.table-bordered去做修正*/
+	#ContentPlaceContent_ContentConentA .table-rwd.table-bordered td,
+	#ContentPlaceContent_ContentConentA .table-rwd.table-bordered th,
+	#ContentPlaceContent_ContentConentA .table-rwd.table-bordered {
+		border:0;
+	}
+}
+
+/* --------------- RWD TABLE CSS CODE END -------------------*/
+
+/* ========================================================= */
+/* ===== // 至頂標籤 ======================================== */
+#ContentPlaceContent_ContentConentA table td .customstyle-hotop {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: center;
+	
+	position: relative;
+}
+
+#ContentPlaceContent_ContentConentA table td .customstyle-hotop .icon-small,
+#ContentPlaceContent_ContentConentA table td span.label {
+	font-size: 75%; /*0.9375em*/
+	line-height: 1.25;
+	font-weight: 900;	
+	/*width: 100%;*/
+	/*width: 80px;*/
+	text-align: center;
+	padding: 2px 8px;
+	border-radius: 4px;
+    margin-left: 5px;
+	margin-right: 5px;
+}
+#ContentPlaceContent_ContentConentA table td .customstyle-hotop .icon-small.top-bg,
+#ContentPlaceContent_ContentConentA table td span.label.label-success {
+	color: var(--FFFcolor);
+	background-color: #004aa5;
+}
+#ContentPlaceContent_ContentConentA table td .customstyle-hotop .icon-small.hot-bg,
+#ContentPlaceContent_ContentConentA table td span.label.label-danger {
+	color: var(--FFFcolor);
+	background-color: #ce1800;
+}
+#ContentPlaceContent_ContentConentA table td .customstyle-hotop .icon-small.new-bg,
+#ContentPlaceContent_ContentConentA table td span.label.label-warning {
+	color: var(--blackcolor);
+	background-color: #fda601;
+}
+#ContentPlaceContent_ContentConentA table td .customstyle-hotop .icon-small.new-bg,
+#ContentPlaceContent_ContentConentA table td span.label.label-default {
+	color: var(--FFFcolor);
+	background-color: #5e5e5e;
+}
+@media (max-width: 768px) {
+	/*#ContentPlaceContent_ContentConentA .table-rwd td:nth-of-type(2)::before,
+	#ContentPlaceContent_ContentConentA .table-rwd td:nth-of-type(3)::before {*/
+		/*最重要的就是這串*/
+		/*content: none;
+	}*/
+}
+/* ===== // 至頂標籤 ======================================== */
+/* ========================================================= */
+
+
+#ContentPlaceContent_ContentConentA .panel-heading {
+    font-size: 112.5%;
+	font-weight: 900;
+    margin-bottom: 1rem
+}
+#ContentPlaceContent_ContentConentA .panel-heading::before {
+    content: " ";
+    width: 4px;
+    height: 24px;
+    display: inline-block;
+    background-color: var(--color_007069);
+    vertical-align: text-top;
+    margin-right: 6px;
+}
+/* ========================================================= */
+/* ========================================================= */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
