@@ -2,6 +2,7 @@
 using System.Collections;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 namespace WCMS.SysCore
@@ -22,55 +23,20 @@ namespace WCMS.SysCore
         public bool ThrowOnNoPermission { get; set; } = false;
     }
 
-
     public static class DTOHelper
     {
         public static TSet MapToSet<TSet, TSetDto>(TSetDto srcDTO) where TSet : ITSet where TSetDto : ITSet_DTO
         {
-            TSet set = PropertyAccessorCache.CreateInstance<TSet>();
-            foreach(var prop in PropertyAccessorCache.GetProperties<TSetDto>())
-            {
-                if (!prop.IsListPropertyType())
-                {
-                    var srcHeader = PropertyAccessorCache.Get(srcDTO, prop.Name);
-                    var dstHeader = PropertyAccessorCache.Get(set, prop.Name);
-                    var dtoProps = PropertyAccessorCache.GetProperties(prop.PropertyType);
-                    MapToHeader(srcHeader, dstHeader, dtoProps,true);
-                }
-                else
-                {
-                    var srcDetails = PropertyAccessorCache.Get(srcDTO, prop.Name) as IList;
-                    if (srcDetails == null) continue;
-                    var dstDetails = PropertyAccessorCache.Get(set, prop.Name) as IList;
-                    var dtoProps = PropertyAccessorCache.GetProperties(srcDetails.GetType().GenericTypeArguments.FirstOrDefault());
-                    MapToDetail(srcDetails, dstDetails, dtoProps,true);
-                }
-            }
+            var set = PropertyAccessorCache.CreateInstance<TSet>();
+            CopyObject(srcDTO!, set!, toSet: true, ctx: new MapCtx());
             return set;
         }
 
         public static TSetDto MapToDTO<TSet, TSetDto>(TSet srcSet) where TSet : ITSet where TSetDto : ITSet_DTO
         {
-            TSetDto set = PropertyAccessorCache.CreateInstance<TSetDto>();
-            foreach (var prop in PropertyAccessorCache.GetProperties<TSetDto>())
-            {
-                if (!prop.IsListPropertyType())
-                {
-                    var srcHeader = PropertyAccessorCache.Get(srcSet, prop.Name);
-                    var dstHeader = PropertyAccessorCache.Get(set, prop.Name);
-                    var dtoProps = PropertyAccessorCache.GetProperties(prop.PropertyType);
-                    MapToHeader(srcHeader, dstHeader, dtoProps,false);
-                }
-                else
-                {
-                    var srcDetails = PropertyAccessorCache.Get(srcSet, prop.Name) as IList;
-                    if (srcDetails == null) continue;
-                    var dstDetails = PropertyAccessorCache.Get(set, prop.Name) as IList;
-                    var dtoProps = PropertyAccessorCache.GetProperties(dstDetails.GetType().GenericTypeArguments.FirstOrDefault());
-                    MapToDetail(srcDetails, dstDetails, dtoProps,false);
-                }
-            }
-            return set;
+            var dto = PropertyAccessorCache.CreateInstance<TSetDto>();
+            CopyObject(srcSet!, dto!, toSet: false, ctx: new MapCtx());
+            return dto;
         }
 
         public static bool CheckQueryParam<TSetDTO>(QueryListParam param)
@@ -78,76 +44,102 @@ namespace WCMS.SysCore
             var fields = GetDTOFields<TSetDTO>();
             return CheckFields<TSetDTO>(fields, param.Fields) && CheckCondition<TSetDTO>(fields, param.Condition);
         }
-
         #region Private
+
         /// <summary>
-        /// 
+        /// 物件對物件：以「目的端屬性」為主，名稱對得上才拷貝；遇到複合型別與 List 會遞迴
         /// </summary>
-        /// <param name="srcHeader"></param>
-        /// <param name="dstHeader"></param>
-        /// <param name="dtoProps"></param>
-        private static void MapToHeader(dynamic srcHeader,dynamic dstHeader, PropertyInfo[] dtoProps,bool isReadOnly)
+        /// <param name="src"></param>
+        /// <param name="dst"></param>
+        /// <param name="toSet"></param>
+        private static void CopyObject(object? src, object? dst, bool toSet, MapCtx ctx)
         {
-            foreach (var fieldProp in dtoProps)
+            if (src is null || dst is null) return;
+            if (!ctx.Enter(src, dst.GetType())) return;
+            try
             {
-                if (fieldProp.IsListPropertyType()) continue;
-                if (isReadOnly&&PropertyAccessorCache.TryGetAttribute<DTOReadOnlyAttribute>(fieldProp,out _)) continue;
-                if (PropertyAccessorCache.TryGetAttribute<NotMappedAttribute>(fieldProp, out _)) continue;
-                object field = PropertyAccessorCache.Get(srcHeader, fieldProp.Name);
-                if (field != null)
+                foreach (var dp in PropertyAccessorCache.GetProperties(dst.GetType()))
                 {
-                    if (fieldProp.PropertyType != typeof(string) && fieldProp.PropertyType.IsClass)
-                    {
-                        object dstRelModel = PropertyAccessorCache.CreateInstance(fieldProp.PropertyType);
-                        foreach(var relColProp in PropertyAccessorCache.GetProperties(fieldProp.PropertyType))
-                        {
-                            if (PropertyAccessorCache.TryGetAttribute<NotMappedAttribute>(relColProp, out _)) continue;
-                            var value = PropertyAccessorCache.Get(field, relColProp.Name);
-                            PropertyAccessorCache.Set(dstRelModel, relColProp.Name, value);
-                        }
-                        PropertyAccessorCache.Set(dstHeader, fieldProp.Name, dstRelModel);
-                    }
-                    else PropertyAccessorCache.Set(dstHeader, fieldProp.Name, field);
+                    if (!dp.CanWrite) continue;
+                    var sp = PropertyAccessorCache.GetProperty(src.GetType(), dp.Name);
+                    if (sp is null || ShouldSkip(sp, dp, toSet)) continue;
+                    var sv = PropertyAccessorCache.Get(src, dp.Name);
+                    AssignValue(dst, dp, sv, toSet, ctx);
                 }
             }
+            finally { ctx.Exit(src, dst.GetType()); }
+        }
+        private static void AssignValue(object dst, PropertyInfo dp, object? sv, bool toSet, MapCtx ctx)
+        {
+            if (sv is null) { PropertyAccessorCache.Set(dst, dp.Name, null); return; }
+            var dt = dp.PropertyType;
+            if (IsListType(dt)) PropertyAccessorCache.Set(dst, dp.Name, MapList(sv as IEnumerable, dt, toSet, ctx));
+            else if (IsComplexType(dt)) PropertyAccessorCache.Set(dst, dp.Name, MapComplex(sv, dt, toSet, ctx));
+            else PropertyAccessorCache.Set(dst, dp.Name, ConvertSimple(sv, dt));
+        }
+
+        private static object MapList(IEnumerable? srcEnum, Type dstListType, bool toSet, MapCtx ctx)
+        {
+            var elemType = GetElementType(dstListType) ?? typeof(object);
+            var list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(elemType))!;
+            foreach (var it in srcEnum ?? Array.Empty<object>())
+                list.Add(it is null ? null :
+                         IsComplexType(elemType) ? MapComplex(it, elemType, toSet, ctx)
+                                                 : ConvertSimple(it, elemType));
+            if (dstListType.IsArray) { var a = Array.CreateInstance(elemType, list.Count); list.CopyTo(a, 0); return a; }
+            return list;
+        }
+
+        private static object MapComplex(object src, Type dstType, bool toSet, MapCtx ctx)
+        {
+            var dst = PropertyAccessorCache.CreateInstance(dstType);
+            CopyObject(src, dst, toSet, ctx);
+            return dst!;
+        }
+
+        /// <summary>
+        /// 是否略過：NotMapped；DTO->Set 時尊重 DTOReadOnly
+        /// </summary>
+        /// <param name="sp"></param>
+        /// <param name="dp"></param>
+        /// <param name="toSet"></param>
+        /// <returns></returns>
+        private static bool ShouldSkip(PropertyInfo sp, PropertyInfo dp, bool toSet)
+        {
+            if (PropertyAccessorCache.TryGetAttribute<NotMappedAttribute>(sp, out _) || PropertyAccessorCache.TryGetAttribute<NotMappedAttribute>(dp, out _)) return true;
+            return toSet && PropertyAccessorCache.TryGetAttribute<DTOReadOnlyAttribute>(sp, out _);
+        }
+
+        /// <summary>
+        /// 識別類型
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        private static bool IsComplexType(Type t) => t.IsClass && t != typeof(string) && !IsListType(t);
+        private static bool IsListType(Type t) => t != typeof(string) && (typeof(IList).IsAssignableFrom(t) || t.IsArray || t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)));
+        private static Type? GetElementType(Type t)
+        {
+            if (t.IsArray) return t.GetElementType();
+            if (t.IsGenericType) return t.GetGenericArguments().FirstOrDefault();
+            var ie = t.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+            return ie?.GetGenericArguments().FirstOrDefault();
         }
         /// <summary>
-        /// 
+        /// 簡單型別轉換（含 Nullable/Enum/Guid/DateTime/字串布林）
         /// </summary>
-        /// <param name="srcDetails"></param>
-        /// <param name="dstDetails"></param>
+        /// <param name="value"></param>
         /// <param name="dstType"></param>
-        /// <param name="dtoProps"></param>
-        private static void MapToDetail(IList srcDetails,IList dstDetails,PropertyInfo[] dtoProps,bool isReadOnly)
+        /// <returns></returns>
+        private static object ConvertSimple(object value, Type dstType)
         {
-            var dstType = dstDetails.GetType().GetGenericArguments().FirstOrDefault();
-            foreach (var srcData in srcDetails)
-            {
-                var dstData = PropertyAccessorCache.CreateInstance(dstType);
-                dstDetails.Add(dstData);
-                foreach(var fieldProp in dtoProps)
-                {
-                    if (fieldProp.IsListPropertyType()) continue;
-                    if (isReadOnly&&PropertyAccessorCache.TryGetAttribute<DTOReadOnlyAttribute>(fieldProp, out _)) continue;
-                    if (PropertyAccessorCache.TryGetAttribute<NotMappedAttribute>(fieldProp, out _)) continue;
-                    var field = PropertyAccessorCache.Get(srcData, fieldProp.Name);
-                    if (field != null)
-                    {
-                        if (fieldProp.PropertyType != typeof(string) && fieldProp.PropertyType.IsClass)
-                        {
-                            object dstRelModel = PropertyAccessorCache.CreateInstance(fieldProp.PropertyType);
-                            foreach (var relColProp in PropertyAccessorCache.GetProperties(fieldProp.PropertyType))
-                            {
-                                if (PropertyAccessorCache.TryGetAttribute<NotMappedAttribute>(relColProp, out _)) continue;
-                                var value = PropertyAccessorCache.Get(field, relColProp.Name);
-                                PropertyAccessorCache.Set(dstRelModel, relColProp.Name, value);
-                            }
-                            PropertyAccessorCache.Set(dstData, fieldProp.Name, dstRelModel);
-                        }
-                        else PropertyAccessorCache.Set(dstData, fieldProp.Name, field);
-                    }
-                }
-            }
+            var t = Nullable.GetUnderlyingType(dstType) ?? dstType;
+            if (t.IsInstanceOfType(value)) return value;
+            if (t.IsEnum) return System.Enum.Parse(t, value.ToString()!, true);
+            if (t == typeof(Guid)) return Guid.Parse(value.ToString()!);
+            if (t == typeof(DateTime)) return Convert.ToDateTime(value);
+            if (t == typeof(bool) && value is string s)
+                return s == "1" || s.Equals("true", StringComparison.OrdinalIgnoreCase);
+            return Convert.ChangeType(value, t);
         }
 
         /// <summary>
@@ -209,6 +201,21 @@ namespace WCMS.SysCore
         private static bool CheckCondition<TSetDTO>(Dictionary<string, List<string>> dictFields,string condition)
         {
             return true;
+        }
+
+        private sealed class MapCtx
+        {
+            private readonly HashSet<(object src, Type dst)> _seen = new(new RefPairCmp());
+            public bool Enter(object src, Type dstType) => _seen.Add((src, dstType));
+            public void Exit(object src, Type dstType) => _seen.Remove((src, dstType));
+
+            private sealed class RefPairCmp : IEqualityComparer<(object, Type)>
+            {
+                public bool Equals((object, Type) x, (object, Type) y) =>
+                    ReferenceEquals(x.Item1, y.Item1) && x.Item2 == y.Item2;
+                public int GetHashCode((object, Type) o) =>
+                    HashCode.Combine(RuntimeHelpers.GetHashCode(o.Item1), o.Item2);
+            }
         }
         #endregion
     }

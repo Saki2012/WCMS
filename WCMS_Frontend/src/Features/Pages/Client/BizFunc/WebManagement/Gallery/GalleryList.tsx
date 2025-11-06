@@ -19,8 +19,8 @@ import { Paginator } from "@/SysCore/Components/Paginator/Paginator_Comp";
 
 const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
     var condition: string = "";
-    if (categoryIds) condition = LibMerge(" And ", false, condition, `${GalleryFields.Categories} HasAny (${categoryIds})`)
-    if (tagIds) condition = LibMerge(" And ", false, condition, `${GalleryFields.Tags} HasAny (${tagIds})`)
+    if (categoryIds) condition = LibMerge(" And ", false, condition, `${GalleryFields.Categories} HasAny [${categoryIds}]`)
+    if (tagIds) condition = LibMerge(" And ", false, condition, `${GalleryFields.Tags} HasAny [${tagIds}]`)
     condition = LibMerge(" And ", false, condition, `${GalleryFields.ContentStatus} !& 4`)//不包含隱藏的資料
     const provider = GalleryProvider();
     return useFetchGridListData<GallerySet>({

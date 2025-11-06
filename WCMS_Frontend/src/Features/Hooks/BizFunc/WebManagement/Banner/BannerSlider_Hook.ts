@@ -18,7 +18,7 @@ export const useBannerListData = (condition?: string) =>
             [SchemaFields.BannerSetFields.Banner, SchemaFields.BannerFields.BannerCategoryName],
             [SchemaFields.BannerSetFields.Banner, SchemaFields.BannerFields.CreateTime],
             [SchemaFields.BannerSetFields.Banner, SchemaFields.BannerFields.ModifyUserId],
-            [SchemaFields.BannerFields.ModifyUser, SchemaFields.UserModelFields.UserName],
+            [SchemaFields.BannerFields.ModifyUser, SchemaFields.AccountFields.AccountName],
             [SchemaFields.BannerSetFields.Banner, SchemaFields.BannerFields.ModifyTime],
         ],
         buildQueryCondition: (page) => ({

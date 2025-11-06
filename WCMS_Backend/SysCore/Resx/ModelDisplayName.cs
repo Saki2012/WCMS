@@ -24,10 +24,14 @@ namespace WCMS.SysCore.Resx
         public const string Common_UrlOpen = "Common_UrlOpen";
         public const string Common_ProgId = "Common_ProgId";
         public const string Common_ContentStatus = "Common_ContentStatus";
-        /// <summary>
-        /// 無
-        /// </summary>
+        public const string Common_Email = "Common_Email";
+        public const string Common_MobilePhone = "Common_MobilePhone";
+        public const string Common_HomePhone = "Common_HomePhone";
         public const string Common_None = "Common_None";
+        public const string Common_Password = "Common_Password";
+        public const string Common_OldPassword = "Common_OldPassword";
+        public const string Common_NewPassword = "Common_NewPassword";
+        public const string Common_CheckNewPassword = "Common_CheckNewPassword";
         #endregion
 
         #region Enums
@@ -47,6 +51,17 @@ namespace WCMS.SysCore.Resx
         public const string Enum_WindowTarget_Blank = "Enum_WindowTarget_Blank";
         public const string Enum_TwoColumn = "Enum_TwoColumn";
         public const string Enum_Vertical = "Enum_Vertical";
+        public const string Enum_Gender = "Enum_Gender";
+        public const string Enum_Gender_NotKnown= "Enum_Gender_NotKnown";
+        public const string Enum_Gender_Male="Enum_Gender_Male";
+        public const string Enum_Gender_Female = "Enum_Gender_Female";
+
+        public const string Enum_AccountStatus = "Enum_AccountStatus";
+        public const string Enum_AccountStatus_Unable = "Enum_AccountStatus_Unable";
+        public const string Enum_AccountStatus_Enable = "Enum_AccountStatus_Enable";
+        public const string Enum_AccountStatus_Freeze = "Enum_AccountStatus_Freeze";
+        public const string Enum_AccountStatus_Expired = "Enum_AccountStatus_Expired";
+        public const string Enum_AccountStatus_HostDefault = "Enum_AccountStatus_HostDefault";
         #endregion
 
 
@@ -74,6 +89,7 @@ namespace WCMS.SysCore.Resx
         public const string SiteMenu_ModuleOptions = "SiteMenu_ModuleOptions";
         #endregion
 
+        #region 網站管理功能
         #region 公告
         public const string AnnouncementId="AnnouncementId";
         public const string Announcement_SubTitle="Announcement_SubTitle";
@@ -240,10 +256,29 @@ namespace WCMS.SysCore.Resx
         public const string SpecUSR_Url = "SpecUSR_Url";
         public const string SpecUSR_UrlDescription = "SpecUSR_UrlDescription";
         #endregion
-        #region 使用者帳戶
+        #endregion
+
+        #region 人員管理
+
+        #region 帳號
+        public const string Account_AccountId = "Account_AccountId";
+        public const string Account_AccountName = "Account_AccountName";
+        #endregion
+
+        #region 人員基本資料
+        public const string Person_PersonSet = "Person_PersonSet"; //人員基本資料表
+        public const string Person_PersonModel = "Person_PersonModel";//人員基本資料
+        public const string Person_PersonId = "Person_PersonId";
+        public const string Person_PersonName = "Person_PersonName";
+        public const string Person_PersonImgId = "Person_PersonImgId";
+        #endregion
+
+        #region 登入用戶資訊
         public const string User_UserID = "User_UserID";
         public const string User_UserName = "User_UserName";
         public const string User_AccountStatus = "User_AccountStatus";
+        #endregion
+
         #endregion
 
         #region 1810調整的東西

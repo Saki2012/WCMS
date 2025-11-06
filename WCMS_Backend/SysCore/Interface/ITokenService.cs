@@ -1,5 +1,4 @@
-﻿using WCMS.SysCore.SystemFunc.UserRolePermission.User;
-using static WCMS.SysCore.SystemFunc.Auth.AuthController;
+﻿using WCMS.Features.SystemSetting.Auth;
 
 namespace WCMS.SysCore.Interface
 {

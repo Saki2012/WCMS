@@ -17,7 +17,7 @@ using static WCMS.SysCore.Library.LibData;
 namespace WCMS.Features.SiteEdit.Announcement
 {
     [ProgId("Announcement")]
-    public class AnnouncementBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<AnnouncementSet>(repo, message), IBizService<AnnouncementSet>
+    public class AnnouncementBiz(BizDeps bizDeps) : BizService<AnnouncementSet>(bizDeps), IBizService<AnnouncementSet>
     {
         #region Migration Old Data
         public async Task Migrate(string importFileLabel = "1810",IList<FileManageSet> srcFileSets = default)

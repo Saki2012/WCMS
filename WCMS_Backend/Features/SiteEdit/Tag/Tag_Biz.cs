@@ -11,7 +11,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.SiteEdit.Tag
 {
     [ProgId("Tag")]
-    public class TagBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<TagSet>(repo, message), IBizService<TagSet> {
+    public class TagBiz(BizDeps bizDeps) : BizService<TagSet>(bizDeps), IBizService<TagSet> {
 
         #region Protected
         protected override async Task BeforeUpdate(TagSet set, SysEnum.FuncAction act)

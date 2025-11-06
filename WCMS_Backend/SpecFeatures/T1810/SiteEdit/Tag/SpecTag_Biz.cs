@@ -11,7 +11,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.SpecFeatures.T1810.SiteEdit.Tag
 {
     [ProgId("Tag")]
-    public class SpecTag_Biz(IRepositoryMapProvider repo, IErrorHelper message) : TagBiz(repo, message)
+    public class SpecTag_Biz(BizDeps bizDeps) : TagBiz(bizDeps)
     {
         #region Protected
         protected override async Task SpecCheckIsUsed(string progId, string tagId, string tagName)

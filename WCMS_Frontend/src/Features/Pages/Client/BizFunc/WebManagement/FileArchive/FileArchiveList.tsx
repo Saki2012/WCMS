@@ -24,9 +24,9 @@ type WindowTarget = components["schemas"]["WindowTarget"]
 const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string, tagSets: TagSet[], query: ISearchQuery) => {
     var condition: string = "";
     if (query.keyword) condition = LibMerge(" And ", false, condition, `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Title} Like ${query.keyword}`)
-    if (query.tag) condition = LibMerge(" And ", false, condition, `${FileArchiveFields.TagsId} HasAny ${query.tag}`)
-    if (categoryIds) condition = LibMerge(" And ", false, condition, `${FileArchiveFields.CategoriesId} HasAny (${categoryIds})`)
-    if (tagIds) condition = LibMerge(" And ", false, condition, `${FileArchiveFields.TagsId} HasAny (${tagIds})`)
+    if (query.tag) condition = LibMerge(" And ", false, condition, `${FileArchiveFields.TagsId} HasAny [${query.tag}]`)
+    if (categoryIds) condition = LibMerge(" And ", false, condition, `${FileArchiveFields.CategoriesId} HasAny [${categoryIds}]`)
+    if (tagIds) condition = LibMerge(" And ", false, condition, `${FileArchiveFields.TagsId} HasAny [${tagIds}]`)
     condition = LibMerge(" And ", false, condition, `${FileArchiveFields.ContentStatus} !& 4`)//不包含隱藏的資料
     const provider = FileArchiveProvider();
     return useFetchGridListData<FileArchiveSet>({

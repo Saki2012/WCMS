@@ -2,15 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
-using WCMS.SysCore.Library;
-using WCMS.SysCore.Resx;
-using static WCMS.SysCore.Enum.SysEnum;
 
-namespace WCMS.SysCore.SystemFunc.Auth
+namespace WCMS.Features.SystemSetting.Auth
 {
     [ApiController, Route(SysParam.ServiceRoute)]
     public class AuthController(IMemoryCache cache, ITokenService tokenSvc, IConfiguration cfg, IAuthService authBiz) : ControllerBase
@@ -22,6 +19,9 @@ namespace WCMS.SysCore.SystemFunc.Auth
         private readonly IMemoryCache _cache = cache;
         protected IOperateLog OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IOperateLog>();
         private IOperateLog? _OperateLog;
+        private ICurrentUserAccessor _Current;
+        protected ICurrentUserAccessor Current => _Current ??= HttpContext.RequestServices.GetRequiredService<ICurrentUserAccessor>();
+        public User_DTO OperateUser { get { return Current.User; } }
         #endregion
 
         #region Public
@@ -174,7 +174,7 @@ namespace WCMS.SysCore.SystemFunc.Auth
 
             OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = nameof(Logout);
-            followInfo.UserId = "SysOperator";
+            followInfo.UserId = OperateUser.UserId;
             followInfo.followingDT = JsonConvert.SerializeObject(delOpt);
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
             OperateLog.AddMoveFollow(followInfo);
@@ -214,36 +214,6 @@ namespace WCMS.SysCore.SystemFunc.Auth
         }
         #endregion
 
-        #region DTO
-        public sealed class LoginDto
-        {
-            [Required]
-            [StringLength(20, MinimumLength = 3, ErrorMessage = "account 長度需介於 3~20。")]
-            [RegularExpression(@"^[A-Za-z0-9._\-@]+$", ErrorMessage = "account 僅允許英數、. _ - @。")]
-            public string Account { get; set; } = "";
-            [Required]
-            [StringLength(64, MinimumLength = 3, ErrorMessage = "password 長度需介於 3~64。")]
-            public string Password { get; set; } = "";
-        }
-        public sealed class User_DTO
-        {
-            /// <summary>
-            /// 使用者編號
-            /// </summary>
-            [LibDesc(ModelDisplayName.User_UserID)] public string UserId { get; set; }
-            /// <summary>
-            /// 使用者名稱
-            /// </summary>
-            [LibDesc(ModelDisplayName.User_UserName)] public string UserName { get; set; }
-            /// <summary>
-            /// 
-            /// </summary>
-            public string InternalId { get; set; } = string.Empty;
-            /// <summary>
-            /// 帳戶狀態
-            /// </summary>
-            [LibDesc] public AccountStatus AccountStatus { get; set; }
-        }
-        #endregion
+
     }
 }

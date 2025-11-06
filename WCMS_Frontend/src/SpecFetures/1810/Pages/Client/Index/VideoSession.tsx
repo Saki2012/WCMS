@@ -32,7 +32,7 @@ const useWebResourceList = () => {
                 `${SchemaFields.WebResourceFields._WebResourceInfo}.${SchemaFields.WebResourceInfoFields.ResUrl}`,
                 `${SchemaFields.WebResourceFields._WebResourceInfo}.${SchemaFields.WebResourceInfoFields.Url_OpenType}`,
             ],
-            Condition: `${SchemaFields.WebResourceFields.Categories} HasAny 29,30,31,32`,
+            Condition: `${SchemaFields.WebResourceFields.Categories} HasAny [29,30,31,32]`,
             OrderBy: [{ Col: SchemaFields.WebResourceFields.CreateTime, Desc: true }],
             PageNumber: 1,
             PageSize: 10,

@@ -1,6 +1,5 @@
-﻿using System.Collections;
-using WCMS.SysCore.Model;
-using WCMS.SysCore.SystemFunc.UserRolePermission.User;
+﻿using WCMS.Features.Member.Account;
+using WCMS.Features.SystemSetting.Auth;
 using static WCMS.SysCore.QueryListParam;
 
 namespace WCMS.SysCore.Interface
@@ -11,7 +10,7 @@ namespace WCMS.SysCore.Interface
         /// <summary>
         /// 操作人員
         /// </summary>
-        public UserModel OperateUser { get; set; }
+        public User_DTO OperateUser { get; set; }
         /// <summary>
         /// 資料異動及操作日誌系統
         /// </summary>

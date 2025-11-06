@@ -30,7 +30,7 @@ export const useGetCategoryListByProgId = (progId: string, lang: string, pageSiz
                     `${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
                 ],
                 Condition:
-                    `${SchemaFields.CategoryFields.ProgId} = \"${progId}\" And ${SchemaFields.CategoryDataSetFields.CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang} = \"zh-TW\"`,
+                    `${SchemaFields.CategoryFields.ProgId} = \"${progId}\" And ${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang} = \"zh-TW\"`,
                 OrderBy: [{ Col: SchemaFields.CategoryFields.ModifyTime, Desc: true }],
                 PageNumber: page,
                 PageSize: pageSize,

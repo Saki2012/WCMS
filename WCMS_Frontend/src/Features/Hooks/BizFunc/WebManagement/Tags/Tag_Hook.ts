@@ -32,7 +32,7 @@ export const useGetTagListByProgId = (progId: string, lang: string, pageSize: nu
                     `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
                 ],
                 Condition:
-                    `${SchemaFields.TagDataFields.ProgId} = \"${progId}\" And ${SchemaFields.TagSetFields.TagDetail}.${SchemaFields.TagDetailFields.Lang} = \"zh-tw\"`,
+                    `${SchemaFields.TagDataFields.ProgId} = \"${progId}\" And ${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang} = \"zh-tw\"`,
                 OrderBy: [{ Col: SchemaFields.TagDataFields.CreateTime, Desc: false }],
                 PageNumber: page,
                 PageSize: pageSize,

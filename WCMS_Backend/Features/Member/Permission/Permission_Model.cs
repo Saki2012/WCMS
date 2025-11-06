@@ -1,11 +1,10 @@
-﻿using StackExchange.Redis;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using WCMS.Features.Member.Account;
+using WCMS.Features.Member.Role;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.SystemFunc.UserRolePermission.Role;
-using WCMS.SysCore.SystemFunc.UserRolePermission.User;
 
-namespace WCMS.SysCore.SystemFunc.UserRolePermission.Permission
+namespace WCMS.Features.Member.Permission
 {
     public class PermissionSet
     {
@@ -16,8 +15,5 @@ namespace WCMS.SysCore.SystemFunc.UserRolePermission.Permission
     {
         [Key, StringLength(SysLengthParam.ID)] public string UserId { get; set; } = default!;
         [Key, StringLength(SysLengthParam.ID)] public string RoleId { get; set; } = default!;
-        // Nav
-        public UserModel User { get; set; } = default!;
-        public RoleModel Role { get; set; } = default!;
     }
 }

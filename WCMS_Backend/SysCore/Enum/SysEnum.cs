@@ -24,29 +24,29 @@ namespace WCMS.SysCore.Enum
         /// <summary>
         /// 帳戶狀態
         /// </summary>
-        [LibDesc]
+        [LibDesc(ModelDisplayName.Enum_AccountStatus)]
         public enum AccountStatus : byte
         {
             /// <summary>
             /// 停用
             /// </summary>
-            [LibDesc] Unable = 0,
+            [LibDesc(ModelDisplayName.Enum_AccountStatus_Unable)] Unable = 0,
             /// <summary>
             /// 啟用
             /// </summary>
-            [LibDesc] Enable = 1,
+            [LibDesc(ModelDisplayName.Enum_AccountStatus_Enable)] Enable = 1,
             /// <summary>
             /// 凍結
             /// </summary>
-            [LibDesc] Freeze = 2,
+            [LibDesc(ModelDisplayName.Enum_AccountStatus_Freeze)] Freeze = 2,
             /// <summary>
             /// 密碼過期
             /// </summary>
-            [LibDesc] PasuwadoExpired = 3,
+            [LibDesc(ModelDisplayName.Enum_AccountStatus_Expired)] Expired = 3,
             /// <summary>
             /// 主機預設密碼
             /// </summary>
-            [LibDesc] HostDefault = 4,
+            [LibDesc(ModelDisplayName.Enum_AccountStatus_HostDefault)] HostDefault = 4,
         }
         /// <summary>
         /// 功能權限動作
@@ -347,10 +347,27 @@ namespace WCMS.SysCore.Enum
         {
             [LibDesc(ModelDisplayName.Enum_WindowTarget_Self)] Self = 0,   // _self (當前頁面)
             [LibDesc(ModelDisplayName.Enum_WindowTarget_Blank)] Blank = 1,  // _blank (新開分頁/視窗)
-
             //Parent = 2, // _parent (父層框架)
             //Top = 3,    // _top (最上層框架)
             //Named = 4   // 自訂視窗名稱
+        }
+        /// <summary>
+        /// 性別
+        /// </summary>
+        [LibDesc(ModelDisplayName.Enum_Gender)] public enum Gender : byte
+        {
+            /// <summary>
+            /// 未知
+            /// </summary>
+            [LibDesc(ModelDisplayName.Enum_Gender_NotKnown)] NotKnown = 0,
+            /// <summary>
+            /// 男性
+            /// </summary>
+            [LibDesc(ModelDisplayName.Enum_Gender_Male)] Male = 1,
+            /// <summary>
+            /// 女性
+            /// </summary>
+            [LibDesc(ModelDisplayName.Enum_Gender_Female)] Female = 2,
         }
 
         /// <summary>

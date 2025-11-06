@@ -40,7 +40,7 @@ const buildInList = (csv?: string) =>
         .join(",");
 const useGetCategories = (lang: string, categoryIds: string) => {
     const inList = buildInList(categoryIds);
-    var condition: string = `${SchemaFields.CategoryFields.CategoryId} HasAny (${inList}) And ${SchemaFields.CategoryDetailFields.Lang} = ${lang}`;
+    var condition: string = `${SchemaFields.CategoryFields.CategoryId} HasAny [${inList}] And ${SchemaFields.CategoryDetailFields.Lang} = ${lang}`;
     const provider = CategoryProvider();
     return useFetchGridListData<CategoryDataSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),

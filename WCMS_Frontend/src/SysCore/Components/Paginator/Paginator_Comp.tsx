@@ -9,6 +9,7 @@ export const Paginator = ({ currentPage, totalPages, onPageChange, style }: Pagi
     let end = start + maxVisible - 1;
     if (end > totalPages) { end = totalPages; start = Math.max(end - maxVisible + 1, 1); }
     const visiblePages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
+    if (currentPage <= 1 && totalPages <= 1) return;
     return (
         <div className="row mx-0 px-0">
             <nav className="d-flex align-content-center w-100 px-0" aria-label="Page navigation">

@@ -15,7 +15,7 @@ import { FormatDate, FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
 import { ProgId } from "@/Features/Hooks/Common/ProgId";
-import { AnnouncementDetailFields, AnnouncementFields, AnnouncementSetFields, UserModelFields } from "@/types/SchemaFields";
+import { AnnouncementDetailFields, AnnouncementFields, AnnouncementSetFields, AccountFields } from "@/types/SchemaFields";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 /** 公告列表
@@ -83,7 +83,7 @@ const useAnnouncementList = (provider: IDataProvider<AnnouncementSet>, lang: Lan
             [AnnouncementSetFields.Announcement, AnnouncementFields.Validate_Start],
             [AnnouncementSetFields.Announcement, AnnouncementFields.CreateTime],
             [AnnouncementSetFields.Announcement, AnnouncementFields.ModifyUserId],
-            [AnnouncementFields.ModifyUser, UserModelFields.UserName],
+            [AnnouncementFields.ModifyUser, AccountFields.AccountName],
             [AnnouncementSetFields.Announcement, AnnouncementFields.ModifyTime],
         ],
         buildQueryCondition: (page) => ({
@@ -95,7 +95,7 @@ const useAnnouncementList = (provider: IDataProvider<AnnouncementSet>, lang: Lan
                 `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
                 AnnouncementFields.Validate_Start,
                 AnnouncementFields.ModifyUserId,
-                `${AnnouncementFields.ModifyUser}.${UserModelFields.UserName}`,
+                `${AnnouncementFields.ModifyUser}.${AccountFields.AccountName}`,
                 AnnouncementFields.CreateTime,
                 AnnouncementFields.ModifyTime,
                 AnnouncementFields.InternalId,
@@ -125,7 +125,7 @@ const useAnnouncementList = (provider: IDataProvider<AnnouncementSet>, lang: Lan
                         break;
 
                     case AnnouncementFields.ModifyUserId:
-                        content = item.Announcement?.ModifyUser?.UserName ?? "";
+                        content = item.Announcement?.ModifyUser?.AccountName ?? "";
                         break;
                     default:
                         content = (data as any)[col.key] ?? "";

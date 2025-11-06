@@ -22,7 +22,7 @@ export interface ILibTextBoxProp
 {
     Style: ILibTextBoxStyle;
     ColumnDisplayName: string;
-    DefaultInputDisplay: string;
+    DefaultInputDisplay?: string;
     InputValue?: string | number | null | undefined;
     OnChange?: (value: string) => void;
     disabled?: boolean;

@@ -17,7 +17,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
 {
     [ProgId("SiteMenu")]
-    public class SiteMenuBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<SiteMenuSet>(repo, message), IBizService<SiteMenuSet>
+    public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenuSet>(bizDeps), IBizService<SiteMenuSet>
     {
         #region Migration Old Data
         [HttpPost(nameof(Migrate)), LocalhostOnly]

@@ -84,7 +84,12 @@ export const useActions = <T>(
             }
         } catch (err: any)
         {
-            publish({ level: MessageStatus.Error, title: "保存失敗", text: err.response.data.message });
+            const data = err.response.data;
+            publish({
+                level: MessageStatus.Error,
+                title: "保存失敗",
+                text: JSON.stringify(data, null, 2),
+            });
             return false;
         } finally
         {

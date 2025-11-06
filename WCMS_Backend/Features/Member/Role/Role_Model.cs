@@ -1,24 +1,16 @@
-﻿using Microsoft.OpenApi.Any;
-using StackExchange.Redis;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Security.AccessControl;
+﻿using System.ComponentModel.DataAnnotations;
+using WCMS.Features.Member.Permission;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.SystemFunc.UserRolePermission.Permission;
-using WCMS.SysCore.SystemFunc.UserRolePermission.User;
 using static WCMS.SysCore.Enum.SysEnum;
 
-namespace WCMS.SysCore.SystemFunc.UserRolePermission.Role
+namespace WCMS.Features.Member.Role
 {
-
     [LibDesc] public class RoleSet
     {
         public RoleModel Role { get; set; } = new();
     }
-
     /// <summary>
     /// 角色權限資料
     /// </summary>
@@ -40,8 +32,6 @@ namespace WCMS.SysCore.SystemFunc.UserRolePermission.Role
         /// 是否為管理者
         /// </summary>
         [LibDesc] public bool IsAdmin { get; set; }
-        // Nav
-        public ICollection<PermissionModel> UserRoles { get; set; } = [];
     }
 
 }

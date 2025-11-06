@@ -1,4 +1,4 @@
-// src/Features/Scaffold/TemplateHub.tsx
+/**預覽功能模組 */
 import { SubPageShell } from "@/Features/Pages/Client/BizFunc/MainPage/SubPages";
 import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx";
 import { useEffect, useState } from "react";

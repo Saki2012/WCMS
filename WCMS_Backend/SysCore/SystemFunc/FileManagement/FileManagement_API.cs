@@ -1,18 +1,9 @@
-﻿using Azure;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.IO.Compression;
 using System.Text.RegularExpressions;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.Interface;
-using WCMS.SysCore.Library;
-using WCMS.SysCore.Model;
-using WCMS.SysCore.SystemFunc.UserRolePermission.User;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.SystemFunc.FileManagement
@@ -27,27 +18,27 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             4. 同步資料
          */
         private readonly IWebHostEnvironment Env = env;
-        [HttpPost(nameof(UploadTemp))]
+        [HttpPost(nameof(UploadTemp)), AllowAnonymous, IgnoreAntiforgeryToken]
         [RequestSizeLimit(200L * 1024 * 1024)] // 200 MB
         public async Task<IActionResult> UploadTemp(IFormFile file)
         {
-            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(UploadTemp)}", "SysOperator", JsonConvert.SerializeObject(file), Request.Headers["HTTP_CLIENT_IP"].ToString());
+            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(UploadTemp)}", OperateUser.UserId, JsonConvert.SerializeObject(file), Request.Headers["HTTP_CLIENT_IP"].ToString());
             var internalId = await ((FileManagementBiz)Service).UploadTemp(file);
             var response = new ApiResponse<string>() { Data = [internalId], SysMessage = Message.Messages };
             return Ok(response);
         }
-        [HttpPost(nameof(MoveToPermanent))]
+        [HttpPost(nameof(MoveToPermanent)), AllowAnonymous, IgnoreAntiforgeryToken]
         public async Task<IActionResult> MoveToPermanent(string[] internalIds)
         {
-            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(MoveToPermanent)}","SysOperator",JsonConvert.SerializeObject(internalIds),Request.Headers["HTTP_CLIENT_IP"].ToString());
+            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(MoveToPermanent)}", OperateUser.UserId, JsonConvert.SerializeObject(internalIds),Request.Headers["HTTP_CLIENT_IP"].ToString());
             await ((FileManagementBiz)Service).MoveToPermanent(internalIds);
             var response = new ApiResponse<string>() { Data = internalIds, SysMessage = Message.Messages };
             return Ok(response);
         }
-        [HttpPost(nameof(CancelUploadFiles))]
+        [HttpPost(nameof(CancelUploadFiles)), AllowAnonymous, IgnoreAntiforgeryToken]
         public async Task<IActionResult> CancelUploadFiles(string[] internalIds)
         {
-            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(CancelUploadFiles)}", "SysOperator", JsonConvert.SerializeObject(internalIds), Request.Headers["HTTP_CLIENT_IP"].ToString());
+            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(CancelUploadFiles)}", OperateUser.UserId, JsonConvert.SerializeObject(internalIds), Request.Headers["HTTP_CLIENT_IP"].ToString());
             await ((FileManagementBiz)Service).CancelUploadFiles(internalIds);
             var response = new ApiResponse<string>() { Data = internalIds,SysMessage = Message.Messages };
             return Ok(response);
@@ -57,9 +48,9 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// </summary>
         /// <param name="internalId"></param>
         /// <returns></returns>
-        [HttpGet($"{nameof(Download)}/{{internalId}}")] public async Task<IActionResult> Download(string internalId, CancellationToken ct)
+        [HttpGet($"{nameof(Download)}/{{internalId}}"), AllowAnonymous, IgnoreAntiforgeryToken] public async Task<IActionResult> Download(string internalId, CancellationToken ct)
         {
-            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(Download)}", "SysOperator", JsonConvert.SerializeObject(internalId), Request.Headers["HTTP_CLIENT_IP"].ToString());
+            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(Download)}", OperateUser.UserId, JsonConvert.SerializeObject(internalId), Request.Headers["HTTP_CLIENT_IP"].ToString());
             var result = await ((FileManagementBiz)Service).GetDownloadFileInfo([internalId]);
             if (result.Count == 0) return NotFound();
             else if (result.Count == 1) 
@@ -89,8 +80,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 return new EmptyResult();
             }
         }
-        [HttpGet($@"{nameof(Preview)}/{{internalId}}")]
-        public async Task<IActionResult> Preview(string internalId, CancellationToken ct)
+        [HttpGet($@"{nameof(Preview)}/{{internalId}}"), AllowAnonymous, IgnoreAntiforgeryToken] public async Task<IActionResult> Preview(string internalId, CancellationToken ct)
         {
             // === 1) 取檔案 ===
             QueryListParam param = new()

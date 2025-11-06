@@ -34,7 +34,7 @@ const useGalleryList = () => {
                 `${SchemaFields.GalleryFields._GalleryInfo}.${SchemaFields.GalleryInfoFields.Lang}`,
                 `${SchemaFields.GalleryFields._GalleryInfo}.${SchemaFields.GalleryInfoFields.Title}`,
             ],
-            Condition: `${SchemaFields.GalleryFields.Categories} In (25,26,27,28)`,
+            Condition: `${SchemaFields.GalleryFields.Categories} In [25,26,27,28]`,
             OrderBy: [{ Col: SchemaFields.GalleryFields.Validate_Start, Desc: true }],
             PageNumber: 1,
             PageSize: 10,

@@ -14,7 +14,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.SiteEdit.WebResource
 {
     [ProgId("WebResource")]
-    public class WebResourceBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<WebResourceSet>(repo, message), IBizService<WebResourceSet> 
+    public class WebResourceBiz(BizDeps bizDeps) : BizService<WebResourceSet>(bizDeps), IBizService<WebResourceSet> 
     {
 
         #region Migration Old Data

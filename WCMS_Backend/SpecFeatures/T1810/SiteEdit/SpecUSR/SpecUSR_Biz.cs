@@ -17,7 +17,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
 {
     [ProgId("SpecUSR")]
-    public class SpecUSRBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<SpecUSRSet>(repo, message), IBizService<SpecUSRSet> 
+    public class SpecUSRBiz(BizDeps bizDeps) : BizService<SpecUSRSet>(bizDeps), IBizService<SpecUSRSet> 
     {
         #region Migration Old Data
         [HttpPost(nameof(Migrate)), LocalhostOnly]

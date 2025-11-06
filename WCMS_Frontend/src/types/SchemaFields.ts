@@ -1,5 +1,47 @@
 // ✅ 自動產生，請勿手動修改
 
+export const AccountModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InvalidUser: 'InvalidUser',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  IsIniData: 'IsIniData',
+  Validate_Start: 'Validate_Start',
+  Validate_End: 'Validate_End',
+  AccountId: 'AccountId',
+  AccountName: 'AccountName',
+  Person: 'Person',
+  PersonId: 'PersonId',
+  PasswordHash: 'PasswordHash',
+  PasswordSalt: 'PasswordSalt',
+  PasswordAlgoVer: 'PasswordAlgoVer',
+  AccountStatus: 'AccountStatus',
+} as const;
+
+export type AccountModelFieldKey = keyof typeof AccountModelFields;
+
+export const AccountSetFields = {
+  Account: 'Account',
+} as const;
+
+export type AccountSetFieldKey = keyof typeof AccountSetFields;
+
+export const AccountSet_DTOApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type AccountSet_DTOApiRequestFieldKey = keyof typeof AccountSet_DTOApiRequestFields;
+
 export const AccountStatusFields = {
   toString: 'toString',
   toFixed: 'toFixed',
@@ -10,6 +52,28 @@ export const AccountStatusFields = {
 } as const;
 
 export type AccountStatusFieldKey = keyof typeof AccountStatusFields;
+
+export const AccountFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  AccountId: 'AccountId',
+  AccountName: 'AccountName',
+  Person: 'Person',
+  PersonId: 'PersonId',
+  Password: 'Password',
+  AccountStatus: 'AccountStatus',
+} as const;
+
+export type AccountFieldKey = keyof typeof AccountFields;
 
 export const AnnouncementDetailFileFields = {
   AnnouncementId: 'AnnouncementId',
@@ -192,15 +256,6 @@ export const ContentStatusFields = {
 
 export type ContentStatusFieldKey = keyof typeof ContentStatusFields;
 
-export const CreateUserDtoFields = {
-  UserId: 'UserId',
-  UserName: 'UserName',
-  Password: 'Password',
-  Email: 'Email',
-} as const;
-
-export type CreateUserDtoFieldKey = keyof typeof CreateUserDtoFields;
-
 export const DataStatusFields = {
   toString: 'toString',
   toFixed: 'toFixed',
@@ -211,17 +266,6 @@ export const DataStatusFields = {
 } as const;
 
 export type DataStatusFieldKey = keyof typeof DataStatusFields;
-
-export const EndTypeFields = {
-  toString: 'toString',
-  toFixed: 'toFixed',
-  toExponential: 'toExponential',
-  toPrecision: 'toPrecision',
-  valueOf: 'valueOf',
-  toLocaleString: 'toLocaleString',
-} as const;
-
-export type EndTypeFieldKey = keyof typeof EndTypeFields;
 
 export const FileArchiveDetailFields = {
   FileArchiveId: 'FileArchiveId',
@@ -301,10 +345,10 @@ export const FileManageModelFields = {
   ModifyTime: 'ModifyTime',
   ModifyUserId: 'ModifyUserId',
   ModifyUser: 'ModifyUser',
-  FormStatus: 'FormStatus',
-  DataStatus: 'DataStatus',
-  InvalidTime: 'InvalidTime',
-  InvalidUserId: 'InvalidUserId',
+  OrgLvId: 'OrgLvId',
+  IsIniData: 'IsIniData',
+  Validate_Start: 'Validate_Start',
+  Validate_End: 'Validate_End',
   InternalId: 'InternalId',
   Path: 'Path',
   FileName: 'FileName',
@@ -317,6 +361,8 @@ export const FileManageModelFields = {
   ImportLabel: 'ImportLabel',
   FileStatus: 'FileStatus',
   DownloadCount: 'DownloadCount',
+  _FileManage_DownloadInfo: '_FileManage_DownloadInfo',
+  _FileManage_SyncInfo: '_FileManage_SyncInfo',
 } as const;
 
 export type FileManageModelFieldKey = keyof typeof FileManageModelFields;
@@ -337,6 +383,7 @@ export const FileManageSet_DTOApiRequestFields = {
 export type FileManageSet_DTOApiRequestFieldKey = keyof typeof FileManageSet_DTOApiRequestFields;
 
 export const FileManage_DownloadInfoModelFields = {
+  RowState: 'RowState',
   InternalId: 'InternalId',
   RowId: 'RowId',
   DownloadUserIP: 'DownloadUserIP',
@@ -344,11 +391,13 @@ export const FileManage_DownloadInfoModelFields = {
   RefererURL: 'RefererURL',
   DownloadStatus: 'DownloadStatus',
   DownloadTime: 'DownloadTime',
+  _FileManage: '_FileManage',
 } as const;
 
 export type FileManage_DownloadInfoModelFieldKey = keyof typeof FileManage_DownloadInfoModelFields;
 
 export const FileManage_SyncInfoModelFields = {
+  RowState: 'RowState',
   InternalId: 'InternalId',
   RowId: 'RowId',
   FileStatus: 'FileStatus',
@@ -361,6 +410,7 @@ export const FileManage_SyncInfoModelFields = {
   ErrorCode: 'ErrorCode',
   ErrorMessage: 'ErrorMessage',
   ExecuteTime: 'ExecuteTime',
+  _FileManage: '_FileManage',
 } as const;
 
 export type FileManage_SyncInfoModelFieldKey = keyof typeof FileManage_SyncInfoModelFields;
@@ -457,6 +507,17 @@ export const GalleryFields = {
 
 export type GalleryFieldKey = keyof typeof GalleryFields;
 
+export const GenderFields = {
+  toString: 'toString',
+  toFixed: 'toFixed',
+  toExponential: 'toExponential',
+  toPrecision: 'toPrecision',
+  valueOf: 'valueOf',
+  toLocaleString: 'toLocaleString',
+} as const;
+
+export type GenderFieldKey = keyof typeof GenderFields;
+
 export const LoginDtoFields = {
   Account: 'Account',
   Password: 'Password',
@@ -537,7 +598,7 @@ export const PageManagementFields = {
 
 export type PageManagementFieldKey = keyof typeof PageManagementFields;
 
-export const PermissionModelFields = {
+export const PersonModelFields = {
   CreateTime: 'CreateTime',
   CreateUserId: 'CreateUserId',
   CreateUser: 'CreateUser',
@@ -554,13 +615,30 @@ export const PermissionModelFields = {
   IsIniData: 'IsIniData',
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
-  UserId: 'UserId',
-  RoleId: 'RoleId',
-  User: 'User',
-  Role: 'Role',
+  PersonId: 'PersonId',
+  PersonName: 'PersonName',
+  PersonImg: 'PersonImg',
+  PersonImgId: 'PersonImgId',
+  Gender: 'Gender',
+  Email: 'Email',
+  MobilePhone: 'MobilePhone',
+  HomePhone: 'HomePhone',
 } as const;
 
-export type PermissionModelFieldKey = keyof typeof PermissionModelFields;
+export type PersonModelFieldKey = keyof typeof PersonModelFields;
+
+export const PersonSetFields = {
+  Person: 'Person',
+} as const;
+
+export type PersonSetFieldKey = keyof typeof PersonSetFields;
+
+export const PersonSet_DTOApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type PersonSet_DTOApiRequestFieldKey = keyof typeof PersonSet_DTOApiRequestFields;
 
 export const QueryListParamFields = {
   Fields: 'Fields',
@@ -571,32 +649,6 @@ export const QueryListParamFields = {
 } as const;
 
 export type QueryListParamFieldKey = keyof typeof QueryListParamFields;
-
-export const RoleModelFields = {
-  CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
-  CreateUser: 'CreateUser',
-  ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
-  ModifyUser: 'ModifyUser',
-  FormStatus: 'FormStatus',
-  DataStatus: 'DataStatus',
-  InvalidTime: 'InvalidTime',
-  InvalidUserId: 'InvalidUserId',
-  InvalidUser: 'InvalidUser',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
-  IsIniData: 'IsIniData',
-  Validate_Start: 'Validate_Start',
-  Validate_End: 'Validate_End',
-  RoleId: 'RoleId',
-  RoleName: 'RoleName',
-  EndType: 'EndType',
-  IsAdmin: 'IsAdmin',
-  UserRoles: 'UserRoles',
-} as const;
-
-export type RoleModelFieldKey = keyof typeof RoleModelFields;
 
 export const RowStateFields = {
   toString: 'toString',
@@ -925,60 +977,6 @@ export const TagSet_DTOApiRequestFields = {
 } as const;
 
 export type TagSet_DTOApiRequestFieldKey = keyof typeof TagSet_DTOApiRequestFields;
-
-export const UserInfoFields = {
-  RowState: 'RowState',
-  UserId: 'UserId',
-  RowId: 'RowId',
-  Lang: 'Lang',
-  UserName: 'UserName',
-} as const;
-
-export type UserInfoFieldKey = keyof typeof UserInfoFields;
-
-export const UserModelFields = {
-  CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
-  CreateUser: 'CreateUser',
-  ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
-  ModifyUser: 'ModifyUser',
-  FormStatus: 'FormStatus',
-  DataStatus: 'DataStatus',
-  InvalidTime: 'InvalidTime',
-  InvalidUserId: 'InvalidUserId',
-  InvalidUser: 'InvalidUser',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
-  IsIniData: 'IsIniData',
-  Validate_Start: 'Validate_Start',
-  Validate_End: 'Validate_End',
-  UserId: 'UserId',
-  UserName: 'UserName',
-  UserImageId: 'UserImageId',
-  Email: 'Email',
-  PasswordHash: 'PasswordHash',
-  PasswordSalt: 'PasswordSalt',
-  PasswordAlgoVer: 'PasswordAlgoVer',
-  AccountStatus: 'AccountStatus',
-  UserRoles: 'UserRoles',
-  UserInfo: 'UserInfo',
-} as const;
-
-export type UserModelFieldKey = keyof typeof UserModelFields;
-
-export const UserSetFields = {
-  User: 'User',
-} as const;
-
-export type UserSetFieldKey = keyof typeof UserSetFields;
-
-export const UserSet_DTOApiRequestFields = {
-  InternalId: 'InternalId',
-  Data: 'Data',
-} as const;
-
-export type UserSet_DTOApiRequestFieldKey = keyof typeof UserSet_DTOApiRequestFields;
 
 export const WebResourceInfoFields = {
   WebResourceId: 'WebResourceId',

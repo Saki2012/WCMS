@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using Microsoft.EntityFrameworkCore;
+using NLog;
 using System.Text.Json;
 using WCMS.SysCore.Resx;
 using static GraphQL.Validation.Rules.OverlappingFieldsCanBeMerged;
@@ -21,6 +22,10 @@ namespace WCMS.SysCore.Middleware
             {
                  await _next(context); // 執行下個 middleware 或 controller
             }
+            //catch (DbUpdateException)
+            //{
+
+            //}
             catch (Exception ex)
             {
                 await HandleExceptionAsync(context, ex, message);

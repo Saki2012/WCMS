@@ -14,7 +14,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
 {
     [ProgId("SpecResearch")]
-    public class SpecResearchBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<SpecResearchSet>(repo, message), IBizService<SpecResearchSet> {
+    public class SpecResearchBiz(BizDeps bizDeps) : BizService<SpecResearchSet>(bizDeps), IBizService<SpecResearchSet> {
 
         #region Migration Old Data
         [HttpPost(nameof(Migrate)), LocalhostOnly]

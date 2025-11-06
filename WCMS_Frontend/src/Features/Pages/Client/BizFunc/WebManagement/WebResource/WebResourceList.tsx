@@ -17,8 +17,8 @@ type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 
 const useWebResourceList = (categoryIds: string, tagIds: string) => {
     var condition: string = "";
-    if (categoryIds) condition = LibMerge(" And ", false, condition, `${WebResourceFields.Categories} HasAny (${categoryIds})`)
-    if (tagIds) condition = LibMerge(" And ", false, condition, `${WebResourceFields.Tags} HasAny (${tagIds})`)
+    if (categoryIds) condition = LibMerge(" And ", false, condition, `${WebResourceFields.Categories} HasAny [${categoryIds}]`)
+    if (tagIds) condition = LibMerge(" And ", false, condition, `${WebResourceFields.Tags} HasAny [${tagIds}]`)
     condition = LibMerge(" And ", false, condition, `${WebResourceFields.ContentStatus} !& 4`)//不包含隱藏的資料
     const provider = WebResourceProvider();
     return useFetchGridListData<WebResourceSet>({

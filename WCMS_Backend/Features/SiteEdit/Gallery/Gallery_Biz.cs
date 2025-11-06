@@ -18,7 +18,7 @@ using static WCMS.SysCore.Library.LibData;
 namespace WCMS.Features.SiteEdit.Gallery
 {
     [ProgId("Gallery")]
-    public class GalleryBiz(IRepositoryMapProvider repoMapProvider, IErrorHelper message) : BizService<GallerySet>(repoMapProvider, message), IBizService<GallerySet> {
+    public class GalleryBiz(BizDeps bizDeps) : BizService<GallerySet>(bizDeps), IBizService<GallerySet> {
 
 
         #region Migration Old Data

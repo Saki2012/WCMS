@@ -90,7 +90,7 @@ class APIProvider extends INaviProvider {
       // { Id: "D", SrcData: "會員管理", Url: "/PageList", },
       // { Id: "E", SrcData: "產品管理", Url: "/PageList", },
       { Id: "F", SrcData: "網站功能", Url: "/Server/Dashboard/SiteMenu", },
-      // { Id: "G", SrcData: "帳號管理", Url: "/Server/AccountManage", },
+      { Id: "G", SrcData: "帳號管理", Url: "/Server/AccountManage", },
       // { Id: "H", SrcData: "系統設定", Url: "/PageList", },
       { Id: "I", SrcData: "登出系統", Url: "/Server/Logout", },
     ];

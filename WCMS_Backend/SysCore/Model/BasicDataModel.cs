@@ -2,10 +2,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using WCMS.Features.Member.Account;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Resx;
-using WCMS.SysCore.SystemFunc.UserRolePermission.User;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.Model
@@ -21,38 +20,38 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 創建時間
         /// </summary>
-        [LibDesc] public DateTime? CreateTime { get; set; }
+        public DateTime? CreateTime { get; set; }
         /// <summary>
         /// 創建人ID
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.ID)] public string? CreateUserId { get; set; }
-        [ForeignKey(nameof(CreateUserId))] public UserModel? CreateUser { get; set; }
+        [ForeignKey(nameof(CreateUserId))] public AccountModel? CreateUser { get; set; }
+        [StringLength(SysLengthParam.ID)] public string? CreateUserId { get; set; }
         /// <summary>
         /// 修改時間
         /// </summary>
-        [LibDesc] public DateTime? ModifyTime { get; set; }
+        public DateTime? ModifyTime { get; set; }
         /// <summary>
         /// 修改人ID
         /// </summary>
+        [ForeignKey(nameof(ModifyUserId))] public AccountModel? ModifyUser { get; set; }
         [LibDesc, StringLength(SysLengthParam.ID)] public string? ModifyUserId { get; set; }
-        [ForeignKey(nameof(ModifyUserId))] public UserModel? ModifyUser { get; set; }
         /// <summary>
         /// 單據狀態
         /// </summary>
-        [LibDesc] public FormStatus FormStatus { get; set; }
+        public FormStatus FormStatus { get; set; }
         /// <summary>
         /// 資料狀態
         /// </summary>
-        [LibDesc] public DataStatus DataStatus { get; set; }
+        public DataStatus DataStatus { get; set; }
         /// <summary>
         /// 作廢時間
         /// </summary>
-        [LibDesc] public DateTime? InvalidTime { get; set; }
+        public DateTime? InvalidTime { get; set; }
         /// <summary>
         /// 作廢人ID
         /// </summary>
+        [ForeignKey(nameof(InvalidUserId))] public AccountModel? InvalidUser { get; set; }
         [LibDesc, StringLength(SysLengthParam.ID)] public string? InvalidUserId { get; set; }
-        [ForeignKey(nameof(InvalidUserId))] public UserModel? InvalidUser { get; set; }
         /// <summary>
         /// 系統內部唯一標識號
         /// </summary>
@@ -64,7 +63,7 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// // 是否為初始化資料
         /// </summary>
-        [LibDesc] public bool IsIniData { get; set; } = false;
+        public bool IsIniData { get; set; } = false;
         /// <summary>
         /// 資料版本-併發控制
         /// </summary>
@@ -97,6 +96,6 @@ namespace WCMS.SysCore.Model
     /// </summary>
     public class DetailRowModel
     {
-        [LibDesc, NotMapped] public RowState RowState { get; set; }
+        [NotMapped] public RowState RowState { get; set; }
     }
 }

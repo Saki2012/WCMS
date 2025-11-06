@@ -12,7 +12,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.SiteEdit.Banner
 {
     [ProgId("Banner")]
-    public class BannerBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<BannerSet>(repo, message), IBizService<BannerSet> 
+    public class BannerBiz(BizDeps bizDeps) : BizService<BannerSet>(bizDeps), IBizService<BannerSet> 
     {
         #region Protected
         protected override async Task BeforeUpdate(BannerSet set, FuncAction act)

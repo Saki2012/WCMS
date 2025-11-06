@@ -59,20 +59,24 @@
 		<Folder Include="Features\SystemSetting\SiteInfo\EnvConfig\" />
 		<Folder Include="Features\SystemSetting\SiteInfo\SiteArch\" />
 		<Folder Include="Features\SystemSetting\SiteInfo\SEO\" />
-		<Folder Include="Features\SystemSetting\DataChangeLog\" />
-		<Folder Include="Features\SystemSetting\AccountManage\" />
-		<Folder Include="Features\SystemSetting\RolePermission\" />
-		<Folder Include="Features\SystemSetting\OperateLog\" />
-		<Folder Include="Features\SystemSetting\UserAccount\" />
 		<Folder Include="SysCore\NLogger\DataChange\" />
 		<Folder Include="SysCore\NLogger\Operate\" />
 		<Folder Include="SysCore\NLogger\Sys\" />
+		<Folder Include="SysCore\SystemFunc\UserRolePermission\" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<Content Update="NLog.config">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</Content>
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <!-- 將 UDF 腳本複製到輸出與發佈資料夾 -->
+	  <None Include="SysCore\UDF\**\*.sql">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<CopyToPublishDirectory>Always</CopyToPublishDirectory>
+	  </None>
 	</ItemGroup>
   
   

@@ -14,7 +14,7 @@ import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, showColumns: string[]) => {
     var condition: string = "";
     if (categoryIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.CategoryId} = ${categoryIds}`)
-    if (tagIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.Tags} HasAllOf ${tagIds}`)
+    if (tagIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.Tags} HasAllOf [${tagIds}]`)
     condition = LibMerge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.ContentStatus} !& 4`)//不包含隱藏的資料
     type VisibleKey = [string, string];
     //調整前台欄位顯示順序(目前需手動調整)

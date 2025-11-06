@@ -13,6 +13,7 @@ using WCMS.Features.SiteEdit.PageManagement;
 using WCMS.Features.SiteEdit.SpecCategory;
 using WCMS.Features.SiteEdit.Tag;
 using WCMS.Features.SiteEdit.WebResource;
+using WCMS.Features.SystemSetting.Auth;
 using WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting;
 using WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory;
 using WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch;
@@ -27,7 +28,12 @@ using static WCMS.SysCore.Library.LibData;
 
 namespace WCMS.SysCore
 {
-    public abstract class ApiBaseController<TSet, TSet_DTO> : ControllerBase where TSet : ITSet where TSet_DTO : ITSet_DTO
+    /// <summary>
+    /// API基礎入口
+    /// </summary>
+    /// <typeparam name="TSet"></typeparam>
+    /// <typeparam name="TSet_DTO"></typeparam>
+    [Authorize] public abstract class ApiBaseController<TSet, TSet_DTO> : ControllerBase where TSet : ITSet where TSet_DTO : ITSet_DTO
     {
         #region Property
         private IBizService<TSet>? _service;
@@ -51,7 +57,11 @@ namespace WCMS.SysCore
         }
         protected IOperateLog OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IOperateLog>();
         private IOperateLog? _OperateLog;
+        private ICurrentUserAccessor _Current;
+        protected ICurrentUserAccessor Current => _Current ??= HttpContext.RequestServices.GetRequiredService<ICurrentUserAccessor>();
+        public User_DTO OperateUser { get { return Current.User; } }
         #endregion
+
         #region Tag helpers
         // 型別級（list/detail）tag
         private static string ListTag => $"set:list:{typeof(TSet).Name}";
@@ -79,11 +89,12 @@ namespace WCMS.SysCore
             await CacheStore.EvictByTagAsync("set:detail", ct);
         }
         #endregion
+
         /// <summary>
         /// 獲取功能的欄位顯示名稱
         /// </summary>
         /// <returns></returns>
-        [HttpGet(nameof(GetModelDisplayName))/*, OutputCache(PolicyName = "PermanentJson") 暫時不用快取，不知如何重啟後清理*/]
+        [HttpGet(nameof(GetModelDisplayName))/*, OutputCache(PolicyName = "PermanentJson") 暫時不用快取，不知如何重啟後清理*/, AllowAnonymous, IgnoreAntiforgeryToken]
         public async Task<IActionResult> GetModelDisplayName()
         {
             return Ok(await Task.Run(() => ModelDescription));
@@ -104,21 +115,29 @@ namespace WCMS.SysCore
         [HttpPost(nameof(Create))]
         public virtual async Task<IActionResult> Create(TSet_DTO set, CancellationToken ct)
         {
-            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(Create)}", "SysOperator",  JsonConvert.SerializeObject(set),Request.Headers["HTTP_CLIENT_IP"].ToString());
+            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(Create)}", OperateUser.UserId,  JsonConvert.SerializeObject(set),Request.Headers["HTTP_CLIENT_IP"].ToString());
             TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(set);
+            SpecDoMapToSet(entity, set);
             var createResult = await Service.BizCreateSetAsync(entity);
             await EvictForSetAsync(ct);
             TSet_DTO result = DTOHelper.MapToDTO<TSet, TSet_DTO>(createResult);
-            var response = new ApiResponse<TSet_DTO>() { Data = [result],SysMessage=Message.Messages };
+            SpecDoMapToDTO(createResult, result);
+            var response = new ApiResponse<TSet_DTO>() { Data = [result],SysMessage = Message.Messages };
             if (ct == CancellationToken.None) { followInfo.ExcStatus = ExcStatus.CancelExc; }
             if (!response.IsSuccess) followInfo.ExcStatus = ExcStatus.Fail;
             else followInfo.ExcStatus = ExcStatus.OK;
             return Ok(response);
         }
+        /// <summary>
+        /// 初始資料建立匯入
+        /// </summary>
+        /// <param name="sets"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
         [HttpPost(nameof(InitialCreateData))]
         public virtual async Task<IActionResult> InitialCreateData(TSet_DTO[] sets, CancellationToken ct)
         {
-            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(InitialCreateData)}","SysOperator", JsonConvert.SerializeObject(sets),Request.Headers["HTTP_CLIENT_IP"].ToString() );
+            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(InitialCreateData)}", OperateUser.UserId, JsonConvert.SerializeObject(sets),Request.Headers["HTTP_CLIENT_IP"].ToString() );
             await Service.BeginTransactionAsync();
             try
             {
@@ -128,7 +147,7 @@ namespace WCMS.SysCore
                     TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(set);
                     entitySets.Add(entity);
                 }
-                await Service.BizInitCreateSetsAsync(entitySets.ToArray());
+                await Service.BizInitCreateSetsAsync([.. entitySets]);
                 return Ok();
             }
             catch (Exception ex)
@@ -146,12 +165,14 @@ namespace WCMS.SysCore
         [HttpPut(nameof(Update))]
         public virtual async Task<IActionResult> Update(ApiRequest<TSet_DTO> data, CancellationToken ct)
         {
-            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(Update)}","SysOperator", JsonConvert.SerializeObject(data), Request.Headers["HTTP_CLIENT_IP"].ToString());
+            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(Update)}", OperateUser.UserId, JsonConvert.SerializeObject(data), Request.Headers["HTTP_CLIENT_IP"].ToString());
             TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(data.Data);
+            SpecDoMapToSet(entity, data.Data);
             var updateResult = await Service.BizUpdateSetAsync(data.InternalId, entity);
             await EvictForSetAsync(ct, data.InternalId);
             if (ct == CancellationToken.None) { followInfo.ExcStatus = ExcStatus.CancelExc; }
             TSet_DTO result = DTOHelper.MapToDTO<TSet, TSet_DTO>(updateResult);
+            SpecDoMapToDTO(updateResult, result);
             var response = new ApiResponse<TSet_DTO>() { Data = [result], SysMessage = Message.Messages };
             if (!response.IsSuccess) followInfo.ExcStatus = ExcStatus.Fail;
             else followInfo.ExcStatus = ExcStatus.OK;
@@ -166,7 +187,7 @@ namespace WCMS.SysCore
         [HttpPatch($"{nameof(Invalid)}/{{pk}}")]
         public virtual async Task<IActionResult> Invalid(string internalId, bool isInvalid, CancellationToken ct)
         {
-            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(Invalid)}", "SysOperator", JsonConvert.SerializeObject(internalId), Request.Headers["HTTP_CLIENT_IP"].ToString());
+            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(Invalid)}", OperateUser.UserId, JsonConvert.SerializeObject(internalId), Request.Headers["HTTP_CLIENT_IP"].ToString());
             if (!Guid.TryParse(internalId, out var guid)) { return BadRequest("Invalid internalId format."); }
             var invalidResult = await Service.BizInvalidSetAsync(internalId, isInvalid);
             var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(invalidResult);
@@ -188,7 +209,7 @@ namespace WCMS.SysCore
         [HttpDelete(nameof(Delete))]
         public virtual async Task<IActionResult> Delete(string internalId, CancellationToken ct)
         {
-            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(Delete)}", "SysOperator", JsonConvert.SerializeObject(internalId), Request.Headers["HTTP_CLIENT_IP"].ToString());
+            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(Delete)}", OperateUser.UserId, JsonConvert.SerializeObject(internalId), Request.Headers["HTTP_CLIENT_IP"].ToString());
             if (!Guid.TryParse(internalId, out var guid)) { return BadRequest("Invalid internalId format."); }
             var deleteResult = await Service.BizDeleteSetAsync(internalId);
             var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(deleteResult);
@@ -246,6 +267,11 @@ namespace WCMS.SysCore
             var response = new ApiResponse<int>() { Data = [result], SysMessage = Message.Messages };
             return Ok(response);
         }
+        #endregion
+
+        #region Protected
+        protected virtual void SpecDoMapToSet(TSet set,TSet_DTO dto){}
+        protected virtual void SpecDoMapToDTO(TSet set, TSet_DTO dto) { }
         #endregion
 
         #region Private

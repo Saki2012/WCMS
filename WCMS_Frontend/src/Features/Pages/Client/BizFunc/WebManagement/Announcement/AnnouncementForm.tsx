@@ -22,7 +22,7 @@ import { useCallback } from 'react';
 const buildInList = (csv?: string) => (csv ?? "").split(",").map(s => s.trim()).filter(Boolean).map(s => `${s}`).join(",");
 const useGetCategories = (lang: string, categoryIds: string) => {
     const inList = buildInList(categoryIds);
-    var condition: string = `${SchemaFields.CategoryFields.CategoryId} HasAny (${inList}) And ${SchemaFields.CategoryDetailFields.Lang} = ${lang}`;
+    var condition: string = `${SchemaFields.CategoryFields.CategoryId} HasAny [${inList}] And ${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang} = ${lang}`;
     const provider = CategoryProvider();
     return useFetchGridListData<CategoryDataSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
@@ -49,7 +49,7 @@ const useGetCategories = (lang: string, categoryIds: string) => {
 };
 const useGetTags = (lang: string, tagIds: string) => {
     const inList = buildInList(tagIds);
-    var condition: string = `${SchemaFields.TagDataFields.TagId} In (${inList}) And ${SchemaFields.TagDetailFields.Lang} = ${lang}`;
+    var condition: string = `${SchemaFields.TagDataFields.TagId} HasAny [${inList}] And ${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang} = ${lang}`;
     const provider = TagProvider();
     return useFetchGridListData<TagSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),

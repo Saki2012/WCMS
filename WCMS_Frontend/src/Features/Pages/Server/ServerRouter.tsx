@@ -25,12 +25,16 @@ import { Server_ResearchProjListComp } from "@/SpecFetures/1810/Pages/Server/Spe
 import { Server_USRProjFormComp } from "@/SpecFetures/1810/Pages/Server/SpecUSR/Server_SpecUSR_Form_Comp";
 import { USRProjListComp } from "@/SpecFetures/1810/Pages/Server/SpecUSR/Server_SpecUSR_List_Comp";
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
-import { UserManageList_Comp } from "@/Features/Pages/Server/BizFunc/UserDTs/UserInfo_List_Comp";
 import { UserManage_Comp } from "@/Features/Pages/Server/BizFunc/UserDTs/UserManage_Comp";
 import { SiteMenu_Comp } from "@/Features/Pages/Server/BizFunc/Dashboard/SiteMenu/SiteMenu_Comp";
 import { DefaultLang } from "@/SysCore/i18n/lang";
 import { Server_SpecCategoryListFormComp } from "@/SpecFetures/1810/Pages/Server/SpecCategory/Server_SpecCategory_ListForm_Comp";
 import type { UIMatch } from "react-router-dom";
+import { Server_ResetPassword_Comp } from "@/Features/Pages/Server/BizFunc/AccountManage/Account/Server_ResetPassword_Comp";
+import { Server_Account_List_Comp } from "./BizFunc/AccountManage/Account/Server_Account_List_Comp";
+import { Server_Account_Form_Comp } from "./BizFunc/AccountManage/Account/Server_Account_Form_Comp";
+import { Server_Person_List_Comp } from "./BizFunc/AccountManage/Person/Server_Person_List_Comp";
+import { Server_Person_Form_Comp } from "./BizFunc/AccountManage/Person/Server_Person_Form_Comp";
 
 export type RouteTitle = | string | ((m: UIMatch) => string);
 export type RouteCrumb = | string | ((m: UIMatch) => React.ReactNode);
@@ -77,14 +81,24 @@ export class BackendRouteModule implements IRouteModule {
           //#region 帳號管理
           {
             path: 'AccountManage',
+            handle: { title: "帳號管理", breadcrumb: "帳號管理" } as RouteHandleMeta,
             children: [
-              { index: true, element: <AutoRedirect to="UserDTs/Form" replace />, },
+              { index: true, element: <AutoRedirect to="Account/Form" replace />, },
               {
-                path: 'UserDTs',
+                path: 'Account',
                 children: [
                   { index: true, element: <AutoRedirect to="Form" replace /> },
-                  { path: 'List', element: <UserManageList_Comp theme={Classic_BETheme} /> },
-                  { path: 'Form/:internalId?', element: <UserManage_Comp theme={Classic_BETheme} /> },
+                  { path: 'List', element: <Server_Account_List_Comp theme={Classic_BETheme} /> },
+                  { path: 'Form/:internalId?', element: <Server_Account_Form_Comp theme={Classic_BETheme} /> },
+                  { path: 'ResetPassword', element: <Server_ResetPassword_Comp theme={Classic_BETheme} /> },
+                ],
+              },
+              {
+                path: 'Person',
+                children: [
+                  { index: true, element: <AutoRedirect to="Form" replace /> },
+                  { path: 'List', element: <Server_Person_List_Comp theme={Classic_BETheme} /> },
+                  { path: 'Form/:internalId?', element: <Server_Person_Form_Comp theme={Classic_BETheme} /> },
                 ],
               },
             ]

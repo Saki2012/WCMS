@@ -35,10 +35,11 @@ const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string, 
     var condition: string = "";
     //因時程關係，暫時用前端來判斷有效日期時間，多少會有客戶端修改時間的風險。之後再改到後端開新的api寫死抓系統時間為依據。
     if (now.isoLocal) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
-    if (query.keyword) condition = LibMerge(" And ", false, condition, `${AnnouncementSetFields.AnnouncementDetail}.${AnnouncementDetailFields.Title} Like ${query.keyword}`)
-    if (query.tag) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Tags} HasAny ${query.tag}`)
-    if (categoryIds) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Categories} HasAny (${categoryIds})`)
-    if (tagIds) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Tags} HasAny (${tagIds})`)
+    if (now.isoLocal) condition = LibMerge(" And ", false, condition, `(${AnnouncementFields.Validate_End} >= ${now.isoLocal} Or ${AnnouncementFields.Validate_End} is null)`);
+    if (query.keyword) condition = LibMerge(" And ", false, condition, `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} Like ${query.keyword}`)
+    if (query.tag) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Tags} HasAny [${query.tag}]`)
+    if (categoryIds) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Categories} HasAny [${categoryIds}]`)
+    if (tagIds) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Tags} HasAny [${tagIds}]`)
     condition = LibMerge(" And ", false, condition, `${AnnouncementFields.ContentStatus} !& 4`)//不包含隱藏的資料
 
     const provider = AnnouncementProvider();
@@ -106,17 +107,14 @@ export interface IAnnouncementListOptions { Category?: string; Tag?: string; Sty
 interface IAnnouncementListProps { Theme: IFETheme; Lang: Lang; Options?: IAnnouncementListOptions; }
 
 export const AnnouncementList = (props: IAnnouncementListProps) => {
-
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
     const [queryDraft, setQueryDraft] = useState<ISearchQuery>({});
     const [query, setQuery] = useState<ISearchQuery>({});
     const useAnnounceList = useAnnouncementList(props.Lang, props.Options?.Category ?? "", props.Options?.Tag ?? "", query);
     const useCategory = useCategoryListData(ProgId.Announcement, props.Lang);
-
     const useTagData = useTagListData(ProgId.Announcement, props.Lang);
     const tags = (useTagData.rawData ?? []).map(t => ({ id: t.TagData?.TagId ?? "", name: t.TagDetail?.find(p => p.Lang === props.Lang)?.TagName ?? "" }));
     const searchSlot = <SearchBarComp value={queryDraft} tags={tags} onChange={(k, v) => setQueryDraft(prev => ({ ...prev, [k]: v }))} onSubmit={() => setQuery(queryDraft)} onReset={() => { setQueryDraft({}); setQuery({}); }} />;
-
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData]);
     const isLoading = [useAnnounceList.isLoading, useTagData.isLoading];
     const errors = [useAnnounceList.error, useTagData.error];

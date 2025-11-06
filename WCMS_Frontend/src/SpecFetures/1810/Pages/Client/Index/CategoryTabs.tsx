@@ -25,7 +25,7 @@ const useTopAnnouncementList = (categories?: string) => {
     //因時程關係，暫時用前端來判斷有效日期時間，多少會有客戶端修改時間的風險。之後再改到後端開新的api寫死抓系統時間為依據。
     const now = useNow({ startPaused: true });
     if (now.isoLocal) cdt = LibMerge(" And ", false, cdt, `${SchemaFields.AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
-    cdt = LibMerge(" And ", false, cdt, categories ? `${SchemaFields.AnnouncementFields.Categories} HasAny ${categories}` : "");
+    cdt = LibMerge(" And ", false, cdt, categories ? `${SchemaFields.AnnouncementFields.Categories} HasAny [${categories}]` : "");
     return useFetchGridListData<AnnouncementSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
@@ -61,7 +61,7 @@ const useAnnouncementList = (categories?: string) => {
     //因時程關係，暫時用前端來判斷有效日期時間，多少會有客戶端修改時間的風險。之後再改到後端開新的api寫死抓系統時間為依據。
     const now = useNow({ startPaused: true });
     if (now.isoLocal) cdt = LibMerge(" And ", false, cdt, `${SchemaFields.AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
-    cdt = LibMerge(" And ", false, cdt, categories ? `${SchemaFields.AnnouncementFields.Categories} HasAny ${categories}` : "");
+    cdt = LibMerge(" And ", false, cdt, categories ? `${SchemaFields.AnnouncementFields.Categories} HasAny [${categories}]` : "");
     return useFetchGridListData<AnnouncementSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
