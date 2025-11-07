@@ -1746,6 +1746,35 @@ namespace WCMS.Migrations
                     b.ToTable("SpecUSRDetail", (string)null);
                 });
 
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRFile", b =>
+                {
+                    b.Property<string>("USRId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("ParentRowId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RowId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("FileSrcId")
+                        .IsRequired()
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.HasKey("USRId", "ParentRowId", "RowId");
+
+                    b.HasIndex("FileSrcId");
+
+                    b.ToTable("SpecUSRFile", (string)null);
+                });
+
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRModel", b =>
                 {
                     b.Property<string>("USRId")
@@ -1835,6 +1864,85 @@ namespace WCMS.Migrations
                     b.HasIndex("ModifyUserId");
 
                     b.ToTable("SpecUSR", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRPhoto", b =>
+                {
+                    b.Property<string>("USRId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("RowId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PicSrcId")
+                        .IsRequired()
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<int>("Sort")
+                        .HasColumnType("int");
+
+                    b.HasKey("USRId", "RowId");
+
+                    b.ToTable("SpecUSRPhoto", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRPhotoInfo", b =>
+                {
+                    b.Property<string>("USRId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("ParentRowId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RowId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Lang")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.HasKey("USRId", "ParentRowId", "RowId");
+
+                    b.ToTable("SpecUSRPhotoInfo", (string)null);
+                });
+
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRUrl", b =>
+                {
+                    b.Property<string>("USRId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("ParentRowId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RowId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("UrlDescription")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<byte>("WindowTarget")
+                        .HasColumnType("tinyint");
+
+                    b.HasKey("USRId", "ParentRowId", "RowId");
+
+                    b.ToTable("SpecUSRUrl", (string)null);
                 });
 
             modelBuilder.Entity("WCMS.SysCore.ApplicationDbContext+SplitStringRow", b =>
@@ -2843,6 +2951,25 @@ namespace WCMS.Migrations
                     b.Navigation("_SpecUSR");
                 });
 
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRFile", b =>
+                {
+                    b.HasOne("WCMS.SysCore.SystemFunc.FileManagement.FileManageModel", "FileSrc")
+                        .WithMany()
+                        .HasForeignKey("FileSrcId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRDetail", "_SpecUSRDetail")
+                        .WithMany("_SpecUSRFile")
+                        .HasForeignKey("USRId", "ParentRowId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FileSrc");
+
+                    b.Navigation("_SpecUSRDetail");
+                });
+
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRModel", b =>
                 {
                     b.HasOne("WCMS.SysCore.SystemFunc.UserRolePermission.User.UserModel", "CreateUser")
@@ -2862,6 +2989,39 @@ namespace WCMS.Migrations
                     b.Navigation("InvalidUser");
 
                     b.Navigation("ModifyUser");
+                });
+
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRPhoto", b =>
+                {
+                    b.HasOne("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRModel", "_SpecUSR")
+                        .WithMany("_SpecUSRPhoto")
+                        .HasForeignKey("USRId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("_SpecUSR");
+                });
+
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRPhotoInfo", b =>
+                {
+                    b.HasOne("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRPhoto", "_SpecUSRPhoto")
+                        .WithMany("_SpecUSRPhotoInfo")
+                        .HasForeignKey("USRId", "ParentRowId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("_SpecUSRPhoto");
+                });
+
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRUrl", b =>
+                {
+                    b.HasOne("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRDetail", "_SpecUSRDetail")
+                        .WithMany("_SpecUSRUrl")
+                        .HasForeignKey("USRId", "ParentRowId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("_SpecUSRDetail");
                 });
 
             modelBuilder.Entity("WCMS.SysCore.OperateLogModel", b =>
@@ -3090,9 +3250,23 @@ namespace WCMS.Migrations
                     b.Navigation("_SpecResearchDetail");
                 });
 
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRDetail", b =>
+                {
+                    b.Navigation("_SpecUSRFile");
+
+                    b.Navigation("_SpecUSRUrl");
+                });
+
             modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRModel", b =>
                 {
                     b.Navigation("_SpecUSRDetail");
+
+                    b.Navigation("_SpecUSRPhoto");
+                });
+
+            modelBuilder.Entity("WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR.SpecUSRPhoto", b =>
+                {
+                    b.Navigation("_SpecUSRPhotoInfo");
                 });
 
             modelBuilder.Entity("WCMS.SysCore.SystemFunc.FileManagement.FileManageModel", b =>

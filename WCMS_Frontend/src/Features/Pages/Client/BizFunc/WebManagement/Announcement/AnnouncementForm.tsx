@@ -1,9 +1,5 @@
 import type { IFETheme } from '@/Features/Pages/Client/Theme/ITheme';
 import type { components } from '@/types/api';
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
-type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"]
-type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
-type TagSet = components["schemas"]["TagSet_DTO"]
 import * as SchemaFields from "@/types/SchemaFields";
 import { useNavigate, useParams } from 'react-router-dom';
 import { FormatDate } from '@/SysCore/Utils/Library/LibData';
@@ -18,6 +14,10 @@ import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
 import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import { useCallback } from 'react';
+type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
+type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"]
+type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
+type TagSet = components["schemas"]["TagSet_DTO"]
 
 const buildInList = (csv?: string) => (csv ?? "").split(",").map(s => s.trim()).filter(Boolean).map(s => `${s}`).join(",");
 const useGetCategories = (lang: string, categoryIds: string) => {

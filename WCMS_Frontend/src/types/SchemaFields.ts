@@ -301,10 +301,10 @@ export const FileManageModelFields = {
   ModifyTime: 'ModifyTime',
   ModifyUserId: 'ModifyUserId',
   ModifyUser: 'ModifyUser',
-  FormStatus: 'FormStatus',
-  DataStatus: 'DataStatus',
-  InvalidTime: 'InvalidTime',
-  InvalidUserId: 'InvalidUserId',
+  OrgLvId: 'OrgLvId',
+  IsIniData: 'IsIniData',
+  Validate_Start: 'Validate_Start',
+  Validate_End: 'Validate_End',
   InternalId: 'InternalId',
   Path: 'Path',
   FileName: 'FileName',
@@ -317,6 +317,8 @@ export const FileManageModelFields = {
   ImportLabel: 'ImportLabel',
   FileStatus: 'FileStatus',
   DownloadCount: 'DownloadCount',
+  _FileManage_DownloadInfo: '_FileManage_DownloadInfo',
+  _FileManage_SyncInfo: '_FileManage_SyncInfo',
 } as const;
 
 export type FileManageModelFieldKey = keyof typeof FileManageModelFields;
@@ -337,6 +339,7 @@ export const FileManageSet_DTOApiRequestFields = {
 export type FileManageSet_DTOApiRequestFieldKey = keyof typeof FileManageSet_DTOApiRequestFields;
 
 export const FileManage_DownloadInfoModelFields = {
+  RowState: 'RowState',
   InternalId: 'InternalId',
   RowId: 'RowId',
   DownloadUserIP: 'DownloadUserIP',
@@ -344,11 +347,13 @@ export const FileManage_DownloadInfoModelFields = {
   RefererURL: 'RefererURL',
   DownloadStatus: 'DownloadStatus',
   DownloadTime: 'DownloadTime',
+  _FileManage: '_FileManage',
 } as const;
 
 export type FileManage_DownloadInfoModelFieldKey = keyof typeof FileManage_DownloadInfoModelFields;
 
 export const FileManage_SyncInfoModelFields = {
+  RowState: 'RowState',
   InternalId: 'InternalId',
   RowId: 'RowId',
   FileStatus: 'FileStatus',
@@ -361,6 +366,7 @@ export const FileManage_SyncInfoModelFields = {
   ErrorCode: 'ErrorCode',
   ErrorMessage: 'ErrorMessage',
   ExecuteTime: 'ExecuteTime',
+  _FileManage: '_FileManage',
 } as const;
 
 export type FileManage_SyncInfoModelFieldKey = keyof typeof FileManage_SyncInfoModelFields;
@@ -847,6 +853,18 @@ export const SpecUSRDetailFields = {
 
 export type SpecUSRDetailFieldKey = keyof typeof SpecUSRDetailFields;
 
+export const SpecUSRFileFields = {
+  USRId: 'USRId',
+  ParentRowId: 'ParentRowId',
+  RowId: 'RowId',
+  FileSrc: 'FileSrc',
+  FileSrcId: 'FileSrcId',
+  FileName: 'FileName',
+  _SpecUSRDetail: '_SpecUSRDetail',
+} as const;
+
+export type SpecUSRFileFieldKey = keyof typeof SpecUSRFileFields;
+
 export const SpecUSRModelFields = {
   CreateTime: 'CreateTime',
   CreateUserId: 'CreateUserId',
@@ -866,13 +884,40 @@ export const SpecUSRModelFields = {
   PictureId: 'PictureId',
   PicDescription: 'PicDescription',
   _SpecUSRDetail: '_SpecUSRDetail',
+  _SpecUSRPhoto: '_SpecUSRPhoto',
 } as const;
 
 export type SpecUSRModelFieldKey = keyof typeof SpecUSRModelFields;
 
+export const SpecUSRPhotoInfoFields = {
+  USRId: 'USRId',
+  ParentRowId: 'ParentRowId',
+  RowId: 'RowId',
+  Lang: 'Lang',
+  Title: 'Title',
+  _SpecUSRPhotoInfo: '_SpecUSRPhotoInfo',
+} as const;
+
+export type SpecUSRPhotoInfoFieldKey = keyof typeof SpecUSRPhotoInfoFields;
+
+export const SpecUSRPhotoFields = {
+  USRId: 'USRId',
+  RowId: 'RowId',
+  PicSrcId: 'PicSrcId',
+  Sort: 'Sort',
+  _SpecUSR: '_SpecUSR',
+  _SpecUSRPhotoInfo: '_SpecUSRPhotoInfo',
+} as const;
+
+export type SpecUSRPhotoFieldKey = keyof typeof SpecUSRPhotoFields;
+
 export const SpecUSRSetFields = {
   SpecUSR: 'SpecUSR',
   SpecUSRDetail: 'SpecUSRDetail',
+  SpecUSRPhoto: 'SpecUSRPhoto',
+  SpecUSRPhotoInfo: 'SpecUSRPhotoInfo',
+  SpecUSRFile: 'SpecUSRFile',
+  SpecUSRUrl: 'SpecUSRUrl',
 } as const;
 
 export type SpecUSRSetFieldKey = keyof typeof SpecUSRSetFields;
@@ -883,6 +928,18 @@ export const SpecUSRSet_DTOApiRequestFields = {
 } as const;
 
 export type SpecUSRSet_DTOApiRequestFieldKey = keyof typeof SpecUSRSet_DTOApiRequestFields;
+
+export const SpecUSRUrlFields = {
+  USRId: 'USRId',
+  ParentRowId: 'ParentRowId',
+  RowId: 'RowId',
+  Url: 'Url',
+  UrlDescription: 'UrlDescription',
+  WindowTarget: 'WindowTarget',
+  _SpecUSRDetail: '_SpecUSRDetail',
+} as const;
+
+export type SpecUSRUrlFieldKey = keyof typeof SpecUSRUrlFields;
 
 export const TagDataFields = {
   CreateTime: 'CreateTime',

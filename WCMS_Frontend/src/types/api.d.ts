@@ -6453,7 +6453,7 @@ export interface components {
             AnnouncementId?: string | null;
             /** @description 類別 */
             Categories?: string | null;
-            /** @description 標籤 */
+            /** @description 組別 */
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 封面圖片 */
@@ -6761,6 +6761,38 @@ export interface components {
             DownloadCount?: number;
             _FileArchiveInfo?: components["schemas"]["FileArchiveInfo_DTO"][] | null;
         };
+        FileManageModel: {
+            /** Format: date-time */
+            CreateTime?: string | null;
+            CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["UserModel"];
+            /** Format: date-time */
+            ModifyTime?: string | null;
+            ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["UserModel"];
+            OrgLvId?: string | null;
+            IsIniData?: boolean;
+            /** Format: date-time */
+            Validate_Start?: string | null;
+            /** Format: date-time */
+            Validate_End?: string | null;
+            InternalId?: string | null;
+            Path?: string | null;
+            FileName?: string | null;
+            FileExtension?: string | null;
+            FileDescription?: string | null;
+            MimeType?: string | null;
+            FileSHA256?: string | null;
+            /** Format: int64 */
+            FileSize?: number;
+            ProgId?: string | null;
+            ImportLabel?: string | null;
+            FileStatus?: components["schemas"]["FileStatus"];
+            /** Format: int32 */
+            readonly DownloadCount?: number;
+            _FileManage_DownloadInfo?: components["schemas"]["FileManage_DownloadInfoModel"][] | null;
+            _FileManage_SyncInfo?: components["schemas"]["FileManage_SyncInfoModel"][] | null;
+        };
         FileManageModel_DTO: {
             /**
              * Format: date-time
@@ -6808,6 +6840,19 @@ export interface components {
             InternalId?: string | null;
             Data?: components["schemas"]["FileManageSet_DTO"];
         };
+        FileManage_DownloadInfoModel: {
+            RowState?: components["schemas"]["RowState"];
+            InternalId?: string | null;
+            /** Format: int32 */
+            RowId?: number | null;
+            DownloadUserIP?: string | null;
+            UserAgent?: string | null;
+            RefererURL?: string | null;
+            DownloadStatus?: boolean;
+            /** Format: date-time */
+            DownloadTime?: string;
+            _FileManage?: components["schemas"]["FileManageModel"];
+        };
         FileManage_DownloadInfoModel_DTO: {
             InternalId?: string | null;
             /** Format: int32 */
@@ -6818,6 +6863,24 @@ export interface components {
             DownloadStatus?: string | null;
             /** Format: date-time */
             DownloadTime?: string;
+        };
+        FileManage_SyncInfoModel: {
+            RowState?: components["schemas"]["RowState"];
+            InternalId?: string | null;
+            /** Format: int32 */
+            RowId?: number | null;
+            FileStatus?: components["schemas"]["FileStatus"];
+            SrcIP?: string | null;
+            SrcNode?: string | null;
+            SrcFullPath?: string | null;
+            DestIP?: string | null;
+            DestNode?: string | null;
+            DestFullPath?: string | null;
+            ErrorCode?: string | null;
+            ErrorMessage?: string | null;
+            /** Format: date-time */
+            ExecuteTime?: string;
+            _FileManage?: components["schemas"]["FileManageModel"];
         };
         FileManage_SyncInfoModel_DTO: {
             InternalId?: string | null;
@@ -7431,7 +7494,7 @@ export interface components {
              * @description 計畫金額
              */
             PlanAmount?: number | null;
-            /** @description 外部合作單位 */
+            /** @description 執行策略 */
             ExecutionStrategy?: string | null;
             /** @description 計畫內容簡介 */
             ContentIntroduction?: string | null;
@@ -7455,10 +7518,36 @@ export interface components {
             Remark?: string | null;
             /** @description 計畫類別 */
             ProjectItem?: string | null;
-            /** @description 相關網址 */
+            /**
+             * @deprecated
+             * @description 相關網址
+             */
             Url?: string | null;
-            /** @description 相關網址說明 */
+            /**
+             * @deprecated
+             * @description 相關網址說明
+             */
             UrlDescription?: string | null;
+        };
+        SpecUSRFile_DTO: {
+            /** @description USR計畫 */
+            USRId?: string | null;
+            /**
+             * Format: int32
+             * @description 父行代碼
+             */
+            ParentRowId?: number;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number;
+            FileSrc?: components["schemas"]["FileManageModel"];
+            /** @description 檔案來源 */
+            FileSrcId?: string | null;
+            /** @description 檔案名稱 */
+            FileName?: string | null;
+            _SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"];
         };
         SpecUSRModel_DTO: {
             /**
@@ -7493,17 +7582,81 @@ export interface components {
             Tags?: string | null;
             /** @description 成果照片 */
             PictureId?: string | null;
-            /** @description 圖片說明 */
+            /**
+             * @deprecated
+             * @description 圖片說明
+             */
             PicDescription?: string | null;
             _SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"][] | null;
+            _SpecUSRPhoto?: components["schemas"]["SpecUSRPhoto_DTO"][] | null;
+        };
+        SpecUSRPhotoInfo_DTO: {
+            /** @description USR計畫 */
+            USRId?: string | null;
+            /**
+             * Format: int32
+             * @description 父行代碼
+             */
+            ParentRowId?: number;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number;
+            /** @description 語系 */
+            Lang?: string | null;
+            /** @description 標題 */
+            Title?: string | null;
+            _SpecUSRPhotoInfo?: components["schemas"]["SpecUSRPhoto_DTO"];
+        };
+        SpecUSRPhoto_DTO: {
+            /** @description USR計畫 */
+            USRId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number;
+            PicSrcId?: string | null;
+            /**
+             * Format: int32
+             * @description 排序編號
+             */
+            Sort?: number;
+            _SpecUSR?: components["schemas"]["SpecUSRModel_DTO"];
+            _SpecUSRPhotoInfo?: components["schemas"]["SpecUSRPhotoInfo_DTO"][] | null;
         };
         SpecUSRSet_DTO: {
             SpecUSR?: components["schemas"]["SpecUSRModel_DTO"];
             SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"][] | null;
+            SpecUSRPhoto?: components["schemas"]["SpecUSRPhoto_DTO"][] | null;
+            SpecUSRPhotoInfo?: components["schemas"]["SpecUSRPhotoInfo_DTO"][] | null;
+            SpecUSRFile?: components["schemas"]["SpecUSRFile_DTO"][] | null;
+            SpecUSRUrl?: components["schemas"]["SpecUSRUrl_DTO"][] | null;
         };
         SpecUSRSet_DTOApiRequest: {
             InternalId?: string | null;
             Data?: components["schemas"]["SpecUSRSet_DTO"];
+        };
+        SpecUSRUrl_DTO: {
+            /** @description USR計畫 */
+            USRId?: string | null;
+            /**
+             * Format: int32
+             * @description 父行代碼
+             */
+            ParentRowId?: number;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number;
+            /** @description 網址 */
+            Url?: string | null;
+            /** @description 網址描述 */
+            UrlDescription?: string | null;
+            WindowTarget?: components["schemas"]["WindowTarget"];
+            _SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"];
         };
         TagData_DTO: {
             /**
