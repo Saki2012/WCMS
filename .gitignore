@@ -1,18 +1,23 @@
-WCMS_Frontend/public/Legacy/
-WCMS_Frontend/dist-ssr/
-WCMS_Frontend/dist-csr/
+# Backend
 WCMS_Backend/.vs/
 WCMS_Backend/Migrations/
 WCMS_Backend/obj/
 WCMS_Backend/bin/
-WCMS_Frontend/WCMS_Frontend.zip
 WCMS_Backend/publish/
 WCMS_Backend/FileManage/
-*.zip
-*.rar
-*.7z
 WCMS_Backend/appsettings.json
 WCMS_Backend/appsettings.Development.json
 WCMS_Backend/appsettings.Production.json
-/WCMS_Frontend/src/SpecFetures/3001
+WCMS_Backend/Migrations/*.*
+# Frontend
+WCMS_Frontend/public/Legacy/
+WCMS_Frontend/dist-ssr/
+WCMS_Frontend/dist-csr/
+WCMS_Frontend/src/SpecFetures/3001
+
+# Common
+*.zip
+*.rar
+*.7z
 *.html
+
