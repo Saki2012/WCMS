@@ -117,7 +117,7 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// </summary>
         [StringLength(SysLengthParam.Url)] public string Url { get; set; }
         /// <summary>
-        /// 語系 SysEnum.Lang
+        /// 網址描述
         /// </summary>
         [StringLength(SysLengthParam.Title)] public string UrlDescription { get; set; }
         /// <summary>

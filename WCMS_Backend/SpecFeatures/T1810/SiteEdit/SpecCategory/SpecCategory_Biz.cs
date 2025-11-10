@@ -114,16 +114,16 @@ namespace WCMS.Features.SiteEdit.SpecCategory
             switch (progId)
             {
                 case "SpecResearch":
-                    foreach(var prop in PropertyAccessorCache.GetProperties< SpecResearchDetailModel_DTO>())
+                    foreach(var prop in PropertyAccessorCache.GetProperties< SpecResearchDetailModel>())
                     {
-                        if (prop.Name is nameof(SpecResearchDetailModel_DTO.ResearchId) or nameof(SpecResearchDetailModel_DTO.RowId) or nameof(SpecResearchDetailModel_DTO.Lang)) continue;
+                        if (prop.Name is nameof(SpecResearchDetailModel.ResearchId) or nameof(SpecResearchDetailModel.RowId) or nameof(SpecResearchDetailModel.Lang)) continue;
                         result.Add(prop.Name, I18nCache.GetLabel(prop));
                     }
                     break;
                 case "SpecUSR":
-                    foreach (var prop in PropertyAccessorCache.GetProperties<SpecUSRDetail_DTO>())
+                    foreach (var prop in PropertyAccessorCache.GetProperties<SpecUSRDetail>())
                     {
-                        if (prop.Name is nameof(SpecUSRDetail_DTO.USRId) or nameof(SpecUSRDetail_DTO.RowId) or nameof(SpecUSRDetail_DTO.Lang)) continue;
+                        if (prop.Name is nameof(SpecUSRDetail.USRId) or nameof(SpecUSRDetail.RowId) or nameof(SpecUSRDetail.Lang)) continue;
                         result.Add(prop.Name, I18nCache.GetLabel(prop));
                     }
                     break;

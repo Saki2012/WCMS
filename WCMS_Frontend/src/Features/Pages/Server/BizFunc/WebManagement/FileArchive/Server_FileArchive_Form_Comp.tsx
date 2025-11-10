@@ -11,7 +11,7 @@ import FileArchiveProvider from "@/Features/Hooks/BizFunc/WebManagement/FileArch
 import { useGetTagListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
-import { FileArchiveDetailFields, FileArchiveSetFields, FileArchiveFields, FileArchiveInfoFields, FileArchiveUrlDetailFields } from "@/types/SchemaFields";
+import { FileArchiveDetailFields, FileArchiveSetFields, FileArchiveFields, FileArchiveInfoFields } from "@/types/SchemaFields";
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useActions } from "@/Features/Hooks/Common/useActions";

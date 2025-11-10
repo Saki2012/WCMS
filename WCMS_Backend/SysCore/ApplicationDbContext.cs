@@ -55,9 +55,7 @@ namespace WCMS.SysCore
         /// <param name="builder"></param>
         private void ModelDbSetting(ModelBuilder builder)
         {
-            Type[] modelTypes = Assembly.GetExecutingAssembly().GetTypes().Where(p =>
-                p.BaseType == typeof(DetailRowModel) || p.BaseType == typeof(MasterDataModel) || p.BaseType == typeof(BillDataModel)
-            ).ToArray();
+            Type[] modelTypes = [.. Assembly.GetExecutingAssembly().GetTypes().Where(p => p.BaseType == typeof(DetailRowModel) || p.BaseType == typeof(MasterDataModel) || p.BaseType == typeof(BillDataModel))];
             foreach (Type type in modelTypes)
             {
                 string tableName = type.Name;

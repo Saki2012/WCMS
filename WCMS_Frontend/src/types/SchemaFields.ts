@@ -899,6 +899,18 @@ export const SpecUSRDetailFields = {
 
 export type SpecUSRDetailFieldKey = keyof typeof SpecUSRDetailFields;
 
+export const SpecUSRFileFields = {
+  USRId: 'USRId',
+  ParentRowId: 'ParentRowId',
+  RowId: 'RowId',
+  FileSrc: 'FileSrc',
+  FileSrcId: 'FileSrcId',
+  FileName: 'FileName',
+  _SpecUSRDetail: '_SpecUSRDetail',
+} as const;
+
+export type SpecUSRFileFieldKey = keyof typeof SpecUSRFileFields;
+
 export const SpecUSRModelFields = {
   CreateTime: 'CreateTime',
   CreateUserId: 'CreateUserId',
@@ -918,13 +930,40 @@ export const SpecUSRModelFields = {
   PictureId: 'PictureId',
   PicDescription: 'PicDescription',
   _SpecUSRDetail: '_SpecUSRDetail',
+  _SpecUSRPhoto: '_SpecUSRPhoto',
 } as const;
 
 export type SpecUSRModelFieldKey = keyof typeof SpecUSRModelFields;
 
+export const SpecUSRPhotoInfoFields = {
+  USRId: 'USRId',
+  ParentRowId: 'ParentRowId',
+  RowId: 'RowId',
+  Lang: 'Lang',
+  Title: 'Title',
+  _SpecUSRPhotoInfo: '_SpecUSRPhotoInfo',
+} as const;
+
+export type SpecUSRPhotoInfoFieldKey = keyof typeof SpecUSRPhotoInfoFields;
+
+export const SpecUSRPhotoFields = {
+  USRId: 'USRId',
+  RowId: 'RowId',
+  PicSrcId: 'PicSrcId',
+  Sort: 'Sort',
+  _SpecUSR: '_SpecUSR',
+  _SpecUSRPhotoInfo: '_SpecUSRPhotoInfo',
+} as const;
+
+export type SpecUSRPhotoFieldKey = keyof typeof SpecUSRPhotoFields;
+
 export const SpecUSRSetFields = {
   SpecUSR: 'SpecUSR',
   SpecUSRDetail: 'SpecUSRDetail',
+  SpecUSRPhoto: 'SpecUSRPhoto',
+  SpecUSRPhotoInfo: 'SpecUSRPhotoInfo',
+  SpecUSRFile: 'SpecUSRFile',
+  SpecUSRUrl: 'SpecUSRUrl',
 } as const;
 
 export type SpecUSRSetFieldKey = keyof typeof SpecUSRSetFields;
@@ -935,6 +974,18 @@ export const SpecUSRSet_DTOApiRequestFields = {
 } as const;
 
 export type SpecUSRSet_DTOApiRequestFieldKey = keyof typeof SpecUSRSet_DTOApiRequestFields;
+
+export const SpecUSRUrlFields = {
+  USRId: 'USRId',
+  ParentRowId: 'ParentRowId',
+  RowId: 'RowId',
+  Url: 'Url',
+  UrlDescription: 'UrlDescription',
+  WindowTarget: 'WindowTarget',
+  _SpecUSRDetail: '_SpecUSRDetail',
+} as const;
+
+export type SpecUSRUrlFieldKey = keyof typeof SpecUSRUrlFields;
 
 export const TagDataFields = {
   CreateTime: 'CreateTime',
