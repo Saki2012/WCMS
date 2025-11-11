@@ -738,4 +738,7 @@
   <data name="Account_AccountName" xml:space="preserve">
     <value>使用者名稱</value>
   </data>
+  <data name="SpecResearch_Professor" xml:space="preserve">
+    <value>指導教授</value>
+  </data>
 </root>

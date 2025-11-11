@@ -1,13 +1,13 @@
-import type { MenuItemData } from '../../../../../../SysCore/Components/MenuList/MenuList_Data';
-import { IApiProvider, IDataProvider } from '../../../../../../SysCore/Interface/IApiProvider'
-import { BaseCssIcon1 } from "../../../../../../SysCore/Constants/icon/Base"
-import { EnumMap } from "../../../../../../SysCore/Utils/Library/LibData"
-import type { EnumGetValueFunc } from "../../../../../../SysCore/Utils/Library/LibData"
+import type { MenuItemData } from '@/SysCore/Components/MenuList/MenuList_Data';
+import { IApiProvider, IDataProvider } from '@/SysCore/Interface/IApiProvider'
+import { BaseCssIcon1 } from "@/SysCore/Constants/icon/Base"
+import { EnumMap } from "@/SysCore/Utils/Library/LibData"
+import type { EnumGetValueFunc } from "@/SysCore/Utils/Library/LibData"
 import type { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
-import type { ApiResponse } from '../../../../../../SysCore/Interface/IApiProvider';
-import type { ModelDisplaySchema } from '../../../../../../types/IApiSchema';
-import type { components } from '../../../../../../types/api';
+import { NavLink } from 'react-router-dom';
+import type { ApiResponse } from '@/SysCore/Interface/IApiProvider';
+import type { ModelDisplaySchema } from '@/types/IApiSchema';
+import type { components } from '@/types/api';
 type QueryListParam = components["schemas"]["QueryListParam"];
 
 abstract class ISideMenuProvider extends IDataProvider<MenuItemData> {
@@ -57,7 +57,7 @@ abstract class ISideMenuProvider extends IDataProvider<MenuItemData> {
   }
   protected SetSubDetail = (subItem: MenuItemData): ReactNode => {
     return (
-      <Link to={subItem.Url} className="pc-link">{subItem.SrcData}</Link>
+      <NavLink to={subItem.Url} className="pc-link">{subItem.SrcData}</NavLink>
     )
   }
   //#endregion

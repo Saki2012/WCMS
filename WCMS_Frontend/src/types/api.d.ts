@@ -4,6 +4,45 @@
  */
 
 export interface paths {
+    "/Service/Account/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Account/Create": {
         parameters: {
             query?: never;
@@ -303,45 +342,6 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/Account/QueryList": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
         delete?: never;
         options?: never;
         head?: never;
@@ -3734,6 +3734,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/Person/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Person/Create": {
         parameters: {
             query?: never;
@@ -4033,45 +4072,6 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/Person/QueryList": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
         delete?: never;
         options?: never;
         head?: never;
@@ -6791,18 +6791,18 @@ export interface components {
         AccountModel: {
             /** Format: date-time */
             CreateTime?: string | null;
-            CreateUserId?: string | null;
             CreateUser?: components["schemas"]["AccountModel"];
+            CreateUserId?: string | null;
             /** Format: date-time */
             ModifyTime?: string | null;
-            ModifyUserId?: string | null;
             ModifyUser?: components["schemas"]["AccountModel"];
+            ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
             InvalidTime?: string | null;
-            InvalidUserId?: string | null;
             InvalidUser?: components["schemas"]["AccountModel"];
+            InvalidUserId?: string | null;
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
@@ -6858,10 +6858,14 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            /** @description 帳號 */
             AccountId?: string | null;
+            /** @description 使用者名稱 */
             AccountName?: string | null;
             Person?: components["schemas"]["PersonModel"];
+            /** @description 人員編號 */
             PersonId?: string | null;
+            /** @description 密碼 */
             Password?: string | null;
             AccountStatus?: components["schemas"]["AccountStatus"];
         };
@@ -7241,12 +7245,12 @@ export interface components {
         FileManageModel: {
             /** Format: date-time */
             CreateTime?: string | null;
-            CreateUserId?: string | null;
             CreateUser?: components["schemas"]["AccountModel"];
+            CreateUserId?: string | null;
             /** Format: date-time */
             ModifyTime?: string | null;
-            ModifyUserId?: string | null;
             ModifyUser?: components["schemas"]["AccountModel"];
+            ModifyUserId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
             /** Format: date-time */
@@ -7570,18 +7574,18 @@ export interface components {
         PersonModel: {
             /** Format: date-time */
             CreateTime?: string | null;
-            CreateUserId?: string | null;
             CreateUser?: components["schemas"]["AccountModel"];
+            CreateUserId?: string | null;
             /** Format: date-time */
             ModifyTime?: string | null;
-            ModifyUserId?: string | null;
             ModifyUser?: components["schemas"]["AccountModel"];
+            ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
             InvalidTime?: string | null;
-            InvalidUserId?: string | null;
             InvalidUser?: components["schemas"]["AccountModel"];
+            InvalidUserId?: string | null;
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
@@ -7924,6 +7928,8 @@ export interface components {
             PlanAmount?: number | null;
             /** @description 計畫內容簡介 */
             PlanContent?: string | null;
+            /** @description 委辦/補助單位 */
+            Professor?: string | null;
         };
         SpecResearchModel_DTO: {
             /**
@@ -8024,10 +8030,36 @@ export interface components {
             Remark?: string | null;
             /** @description 計畫類別 */
             ProjectItem?: string | null;
-            /** @description 相關網址 */
+            /**
+             * @deprecated
+             * @description 相關網址
+             */
             Url?: string | null;
-            /** @description 相關網址說明 */
+            /**
+             * @deprecated
+             * @description 相關網址說明
+             */
             UrlDescription?: string | null;
+        };
+        SpecUSRFile_DTO: {
+            /** @description USR計畫 */
+            USRId?: string | null;
+            /**
+             * Format: int32
+             * @description 父行代碼
+             */
+            ParentRowId?: number | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            FileSrc?: components["schemas"]["FileManageModel"];
+            /** @description 檔案來源 */
+            FileSrcId?: string | null;
+            /** @description 檔案名稱 */
+            FileName?: string | null;
+            _SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"];
         };
         SpecUSRModel_DTO: {
             /**
@@ -8062,17 +8094,81 @@ export interface components {
             Tags?: string | null;
             /** @description 成果照片 */
             PictureId?: string | null;
-            /** @description 圖片說明 */
+            /**
+             * @deprecated
+             * @description 圖片說明
+             */
             PicDescription?: string | null;
             _SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"][] | null;
+            _SpecUSRPhoto?: components["schemas"]["SpecUSRPhoto_DTO"][] | null;
+        };
+        SpecUSRPhotoInfo_DTO: {
+            /** @description USR計畫 */
+            USRId?: string | null;
+            /**
+             * Format: int32
+             * @description 父行代碼
+             */
+            ParentRowId?: number | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            /** @description 語系 */
+            Lang?: string | null;
+            /** @description 標題 */
+            Title?: string | null;
+            _SpecUSRPhoto?: components["schemas"]["SpecUSRPhoto_DTO"];
+        };
+        SpecUSRPhoto_DTO: {
+            /** @description USR計畫 */
+            USRId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number;
+            PicSrcId?: string | null;
+            /**
+             * Format: int32
+             * @description 排序編號
+             */
+            Sort?: number;
+            _SpecUSR?: components["schemas"]["SpecUSRModel_DTO"];
+            _SpecUSRPhotoInfo?: components["schemas"]["SpecUSRPhotoInfo_DTO"][] | null;
         };
         SpecUSRSet_DTO: {
             SpecUSR?: components["schemas"]["SpecUSRModel_DTO"];
             SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"][] | null;
+            SpecUSRPhoto?: components["schemas"]["SpecUSRPhoto_DTO"][] | null;
+            SpecUSRPhotoInfo?: components["schemas"]["SpecUSRPhotoInfo_DTO"][] | null;
+            SpecUSRFile?: components["schemas"]["SpecUSRFile_DTO"][] | null;
+            SpecUSRUrl?: components["schemas"]["SpecUSRUrl_DTO"][] | null;
         };
         SpecUSRSet_DTOApiRequest: {
             InternalId?: string | null;
             Data?: components["schemas"]["SpecUSRSet_DTO"];
+        };
+        SpecUSRUrl_DTO: {
+            /** @description USR計畫 */
+            USRId?: string | null;
+            /**
+             * Format: int32
+             * @description 父行代碼
+             */
+            ParentRowId?: number | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            /** @description 網址 */
+            Url?: string | null;
+            /** @description 網址描述 */
+            UrlDescription?: string | null;
+            WindowTarget?: components["schemas"]["WindowTarget"];
+            _SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"];
         };
         TagData_DTO: {
             /**

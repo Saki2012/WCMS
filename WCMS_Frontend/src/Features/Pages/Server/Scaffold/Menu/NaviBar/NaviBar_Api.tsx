@@ -1,10 +1,12 @@
-import type { NaviData } from '../../../../../../SysCore/Components/NaviBar/NaviBar_Data';
-import { IApiProvider, IDataProvider } from '../../../../../../SysCore/Interface/IApiProvider'
-import { BaseCssIcon2 } from "../../../../../../SysCore/Constants/icon/Base"
-import { EnumMap } from "../../../../../../SysCore/Utils/Library/LibData"
-import type { ApiResponse } from '../../../../../../SysCore/Interface/IApiProvider';
-import type { ModelDisplaySchema } from '../../../../../../types/IApiSchema';
-import type { components } from '../../../../../../types/api';
+import type { NaviData } from '@/SysCore/Components/NaviBar/NaviBar_Data';
+import { IApiProvider, IDataProvider } from '@/SysCore/Interface/IApiProvider'
+import { BaseCssIcon2 } from "@/SysCore/Constants/icon/Base"
+import { EnumMap } from "@/SysCore/Utils/Library/LibData"
+import type { ApiResponse } from '@/SysCore/Interface/IApiProvider';
+import type { ModelDisplaySchema } from '@/types/IApiSchema';
+import type { components } from '@/types/api';
+import { AuthAPI } from '@/SysCore/Utils/API/AuthClient';
+import { Link } from 'react-router-dom';
 type QueryListParam = components["schemas"]["QueryListParam"];
 
 //#region Construct
@@ -13,7 +15,9 @@ abstract class INaviProvider extends IDataProvider<NaviData> {
   //#region Public
   async fetchList(condition?: QueryListParam): Promise<ApiResponse<NaviData[]>> {
     const srcData = await super.fetchList(condition);
-    const processedData = this.setDOMContent(srcData.Data as NaviData[])
+    const userInfo = await AuthAPI.me()
+    const userData: NaviData = { Id: 'A', SrcData: userInfo.data.Name, Url: "" }
+    const processedData = this.setDOMContent([userData, ...srcData.Data ?? []])
     return { ...srcData, Data: processedData };
   }
   //#endregion
@@ -32,7 +36,7 @@ abstract class INaviProvider extends IDataProvider<NaviData> {
       else {
         item.DOMContent =
           <>
-            <a className="nav-link" href={item.Url}><h2><i className={`far ${getValue(item.Id)}`}></i>{item.SrcData}</h2></a>
+            <Link className="nav-link" to={item.Url}><h2><i className={`far ${getValue(item.Id)}`}></i>{item.SrcData}</h2></Link>
           </>
       }
     })
@@ -84,7 +88,7 @@ class APIProvider extends INaviProvider {
   }
   protected doFetchList(condition?: QueryListParam): Promise<ApiResponse<NaviData[]>> {
     const data: NaviData[] = [
-      { Id: "A", SrcData: "Admin", Url: "", },
+      // { Id: "A", SrcData: "Admin", Url: "", },
       // { Id: "B", SrcData: "排版板模", Url: "/Server/WebManagement", },
       // { Id: "C", SrcData: "教師管理", Url: "/PageManage", },
       // { Id: "D", SrcData: "會員管理", Url: "/PageList", },

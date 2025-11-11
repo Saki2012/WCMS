@@ -1,9 +1,6 @@
 ﻿using WCMS.Features.Member.Account;
-using WCMS.Features.Member.Personnel;
-using WCMS.Features.Member.Role;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library.Security;
-using static WCMS.Features.SystemSetting.Auth.AuthController;
 
 namespace WCMS.Features.SystemSetting.Auth
 {

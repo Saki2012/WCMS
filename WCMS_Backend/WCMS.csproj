@@ -62,7 +62,6 @@
 		<Folder Include="SysCore\NLogger\DataChange\" />
 		<Folder Include="SysCore\NLogger\Operate\" />
 		<Folder Include="SysCore\NLogger\Sys\" />
-		<Folder Include="SysCore\SystemFunc\UserRolePermission\" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -95,5 +94,11 @@
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		  <CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
+	</ItemGroup>
+	<ItemGroup>
+	  <Compile Remove="SysCore\SystemFunc\UserRolePermission\**" />
+	  <Content Remove="SysCore\SystemFunc\UserRolePermission\**" />
+	  <EmbeddedResource Remove="SysCore\SystemFunc\UserRolePermission\**" />
+	  <None Remove="SysCore\SystemFunc\UserRolePermission\**" />
 	</ItemGroup>
 </Project>

@@ -222,6 +222,7 @@ namespace WCMS.SysCore.Resx
         public const string SpecResearch_Sort="SpecResearch_Sort";
         public const string SpecResearch_PictureId="SpecResearch_PictureId";
         public const string SpecResearch_PicDescription="SpecResearch_PicDescription";
+        public const string SpecResearch_Professor = "SpecResearch_Professor";
         #endregion
         #region SpecUSR
         public const string SpecUSRId="SpecUSRId";
@@ -267,7 +268,7 @@ namespace WCMS.SysCore.Resx
 
         #region 人員基本資料
         public const string Person_PersonSet = "Person_PersonSet"; //人員基本資料表
-        public const string Person_PersonModel = "Person_PersonModel";//人員基本資料
+        public const string Person_PersonModel = "Person_PersonModel"; //人員基本資料
         public const string Person_PersonId = "Person_PersonId";
         public const string Person_PersonName = "Person_PersonName";
         public const string Person_PersonImgId = "Person_PersonImgId";

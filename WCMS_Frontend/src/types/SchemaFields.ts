@@ -2,16 +2,16 @@
 
 export const AccountModelFields = {
   CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
   CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
   ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
   ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
   FormStatus: 'FormStatus',
   DataStatus: 'DataStatus',
   InvalidTime: 'InvalidTime',
-  InvalidUserId: 'InvalidUserId',
   InvalidUser: 'InvalidUser',
+  InvalidUserId: 'InvalidUserId',
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
   IsIniData: 'IsIniData',
@@ -340,11 +340,11 @@ export type FileArchiveFieldKey = keyof typeof FileArchiveFields;
 
 export const FileManageModelFields = {
   CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
   CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
   ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
   ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
   OrgLvId: 'OrgLvId',
   IsIniData: 'IsIniData',
   Validate_Start: 'Validate_Start',
@@ -600,16 +600,16 @@ export type PageManagementFieldKey = keyof typeof PageManagementFields;
 
 export const PersonModelFields = {
   CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
   CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
   ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
   ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
   FormStatus: 'FormStatus',
   DataStatus: 'DataStatus',
   InvalidTime: 'InvalidTime',
-  InvalidUserId: 'InvalidUserId',
   InvalidUser: 'InvalidUser',
+  InvalidUserId: 'InvalidUserId',
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
   IsIniData: 'IsIniData',
@@ -829,6 +829,7 @@ export const SpecResearchDetailModelFields = {
   Commissioned: 'Commissioned',
   PlanAmount: 'PlanAmount',
   PlanContent: 'PlanContent',
+  Professor: 'Professor',
 } as const;
 
 export type SpecResearchDetailModelFieldKey = keyof typeof SpecResearchDetailModelFields;
@@ -941,7 +942,7 @@ export const SpecUSRPhotoInfoFields = {
   RowId: 'RowId',
   Lang: 'Lang',
   Title: 'Title',
-  _SpecUSRPhotoInfo: '_SpecUSRPhotoInfo',
+  _SpecUSRPhoto: '_SpecUSRPhoto',
 } as const;
 
 export type SpecUSRPhotoInfoFieldKey = keyof typeof SpecUSRPhotoInfoFields;
