@@ -8,7 +8,6 @@ WCMS_Backend/FileManage/
 WCMS_Backend/appsettings.json
 WCMS_Backend/appsettings.Development.json
 WCMS_Backend/appsettings.Production.json
-WCMS_Backend/Migrations/*.*
 # Frontend
 WCMS_Frontend/public/Legacy/
 WCMS_Frontend/dist-ssr/
