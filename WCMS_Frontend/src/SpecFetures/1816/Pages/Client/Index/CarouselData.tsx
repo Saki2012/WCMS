@@ -1,198 +1,187 @@
 import bgImg from '@/SpecFetures/1816/Assets/Client/images/bg/background-transparent-image_1920x600.png'
 
+
+
+import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
+import { useBannerListData } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Hook";
+import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
+import type { components } from "@/types/api";
+import clsx from "clsx";
+import * as SchemaFields from "@/types/SchemaFields";
+import { useMemo } from "react";
+import { useEffect, useRef } from 'react';
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+type BannerSet = components["schemas"]["BannerSet_DTO"]
+const emptyData: BannerSet = {
+	Banner: {},
+	BannerDetail: [
+		{
+			RowId: 1,
+			Validate_Start: "",
+			Validate_End: "",
+			PicSrcId: "",
+			FontColor: "",
+		}
+	],
+	BannerDetailInfo: [
+		{
+			ParentRowId: 1,
+			RowId: 1,
+			Lang: "zh-tw",
+			Title: "",
+			Content: "",
+			URL: "",
+			URL_Open: 1,
+		},
+		{
+			ParentRowId: 1,
+			RowId: 2,
+			Lang: "en",
+			Title: "",
+			Content: "",
+			URL: "",
+			URL_Open: 1,
+		}
+	]
+}
+
+
 export const CarouselData = () => {
+
+	const usebannerList = useBannerListData(`${SchemaFields.BannerFields.BannerId} = Banner20251106004`)
+	const bannerInternal = usebannerList.rawData?.[0]?.Banner?.InternalId ?? ""
+	const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), bannerInternal, emptyData)
+	const loadingList = [useBanner.isLoading, usebannerList.isLoading]
+	const errorList = [useBanner.error, usebannerList.error]
+	const sortedDetails = useMemo(() => {
+		const list = useBanner.data?.BannerDetail ?? [];
+		// 依 Detail.Sort 由小到大
+		return [...list].sort((a, b) => {
+			const as = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
+			const bs = Number.isFinite(b?.Sort) ? Number(b.Sort) : Number.MAX_SAFE_INTEGER;
+			// 次排序：RowId，確保順序穩定
+			return as - bs || (a.RowId ?? 0) - (b.RowId ?? 0);
+		});
+	}, [useBanner.data?.BannerDetail]);
+
+
+
+
 	return (
-		<div>
-			<section className="Link-icons_section Layout_Padding_4_bottom" style={{ backgroundImage: `url(${bgImg})` }}>
-				<div className="Mask-DivBox">
-					<div className="customizeBox">
-						<div className="container-customize2">
-							<div className="Link-icons-pos">
-								<div className="content-box px-0">
-									<div className="swiper" id="icon_area">
-										<div className="swiper-wrapper">
-											<div className="swiper-slide">
-												<div className="item">
-													<a
-														href="javascript:void(0);"
-														//onclick="js_method();return false;"
-														tabIndex={0}
-														target="_blank"
-														title="">
-														<div className="icon-wrapper">
-															<div className="icon-area">
-																<div className="icon-type-image">
-																	<img
-																		alt=""
-																		src="/images/links/Area_Links_icon/links_01_W_100x100_icon.svg"
-																	/>
-																</div>
-															</div>
-															<div className="tit-contents">
-																<div className="Link-icons-title">借閱紀錄</div>
-															</div>
-														</div>
-													</a>
-												</div>
-											</div>
-											<div className="swiper-slide">
-												<div className="item">
-													<a
-														href="javascript:void(0);"
-														//onclick="js_method();return false;"
-														tabIndex={0}
-														target="_blank"
-														title="">
-														<div className="icon-wrapper">
-															<div className="icon-area">
-																<div className="icon-type-image">
-																	<img
-																		alt=""
-																		src="/images/links/Area_Links_icon/links_02_W_100x100_icon.svg"
-																	/>
-																</div>
-															</div>
-															<div className="tit-contents">
-																<div className="Link-icons-title">館際合作</div>
-															</div>
-														</div>
-													</a>
-												</div>
-											</div>
-											<div className="swiper-slide">
-												<div className="item">
-													<a
-														href="javascript:void(0);"
-														//onclick="js_method();return false;"
-														tabIndex={0}
-														target="_blank"
-														title="">
-														<div className="icon-wrapper">
-															<div className="icon-area">
-																<div className="icon-type-image">
-																	<img
-																		alt=""
-																		src="/images/links/Area_Links_icon/links_04_W_100x100_icon.svg"
-																	/>
-																</div>
-															</div>
-															<div className="tit-contents">
-																<div className="Link-icons-title">
-																	論文比對/上傳
-																</div>
-															</div>
-														</div>
-													</a>
-												</div>
-											</div>
-											<div className="swiper-slide">
-												<div className="item">
-													<a
-														href="javascript:void(0);"
-														//onclick="js_method();return false;"
-														tabIndex={0}
-														target="_blank"
-														title="">
-														<div className="icon-wrapper">
-															<div className="icon-area">
-																<div className="icon-type-image">
-																	<img
-																		alt=""
-																		src="/images/links/Area_Links_icon/links_05_W_100x100_icon.svg"
-																	/>
-																</div>
-															</div>
-															<div className="tit-contents">
-																<div className="Link-icons-title">利用教學</div>
-															</div>
-														</div>
-													</a>
-												</div>
-											</div>
-											<div className="swiper-slide">
-												<div className="item">
-													<a
-														href="javascript:void(0);"
-														//onclick="js_method();return false;"
-														tabIndex={0}
-														target="_blank"
-														title="">
-														<div className="icon-wrapper">
-															<div className="icon-area">
-																<div className="icon-type-image">
-																	<img
-																		alt=""
-																		src="/images/links/Area_Links_icon/links_07_W_100x100_icon.svg"
-																	/>
-																</div>
-															</div>
-															<div className="tit-contents">
-																<div className="Link-icons-title">電子資源</div>
-															</div>
-														</div>
-													</a>
-												</div>
-											</div>
-											<div className="swiper-slide">
-												<div className="item">
-													<a
-														href="javascript:void(0);"
-														//onclick="js_method();return false;"
-														tabIndex={0}
-														target="_blank"
-														title="">
-														<div className="icon-wrapper">
-															<div className="icon-area">
-																<div className="icon-type-image">
-																	<img
-																		alt=""
-																		src="/images/links/Area_Links_icon/links_06_W_100x100_icon.svg"
-																	/>
-																</div>
-															</div>
-															<div className="tit-contents">
-																<div className="Link-icons-title">常見問題</div>
-															</div>
-														</div>
-													</a>
-												</div>
-											</div>
-										</div>
-										<div className="swiper-nav mt-1">
-											<button
-												className="swiper-prev"
-												role="presentation"
-												tabIndex={0}
-												type="button">
-												<span aria-label="Previous" title="上一張">
-													<span className="d-none">上一張</span>
-												</span>
-											</button>
-											<button
-												className="swiper-next"
-												role="presentation"
-												tabIndex={0}
-												type="button">
-												<span aria-label="Next" title="下一張">
-													<span className="d-none">下一張</span>
-												</span>
-											</button>
-										</div>
-									</div>
+
+		<section className="Carousel_slide_section">
+			<div className="Mask-DivBox">
+				<div className="customizeBox">
+					<div className="circle-1 iMG-Shape-3" />
+					<div className="container-customize2">
+						<div className="carousel slide" id="B5_default_carousel">
+							<div className="control-singlebox">
+								<div className="control-toggle">
+									<a
+										aria-label="暫停"
+										aria-pressed="true"
+										className="carousel-toggle-btn"
+										href="javascript:void(0);"
+										id="toggleCarousel"
+										role="button"
+										tabIndex={0}
+										title="暫停"
+										type="button">
+										<span className="control-icon pause" />
+										<span className="sr-only">暫停</span>
+									</a>
 								</div>
+							</div>
+							<div className="carousel-inner">
+								{sortedDetails.map((p, i) => {
+									const alt = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.Title ?? ""
+									return (
+										<div key={i} className={clsx("carousel-item", i === 0 ? "active" : "")} data-bs-interval="5000">
+											<img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`}
+												className="d-block w-100"
+												alt={alt}
+											/>
+										</div>
+									)
+								})}
+
+
+
+							</div>
+							<div className="carousel-indicators">
+								<a href="javascript:void(0);" tabIndex={0} title="上一張">
+									<button
+										aria-current="true"
+										aria-label="Slide 1"
+										className="active"
+										data-bs-slide-to="0"
+										data-bs-target="#B5_default_carousel"
+										type="button"
+									/>
+								</a>
+								<a href="javascript:void(0);" tabIndex={0} title="上一張">
+									<button
+										aria-label="Slide 2"
+										className=""
+										data-bs-slide-to="1"
+										data-bs-target="#B5_default_carousel"
+										type="button"
+									/>
+								</a>
+								<a href="javascript:void(0);" tabIndex={0} title="上一張">
+									<button
+										aria-label="Slide 3"
+										className=""
+										data-bs-slide-to="2"
+										data-bs-target="#B5_default_carousel"
+										type="button"
+									/>
+								</a>
+							</div>
+							<div className="carousel_btn-icon-prev">
+								<a
+									data-bs-slide="prev"
+									data-bs-target="#B5_default_carousel"
+									href="javascript:void(0);"
+									role="button"
+									tabIndex={0}
+									title="上一張"
+									type="button">
+									<div className="carousel-control-prev">
+										<span
+											aria-hidden="true"
+											className="carousel-control-prev-icon"
+										/>
+										<span className="sr-only">Previous</span>
+									</div>
+								</a>
+							</div>
+							<div className="carousel_btn-icon-next">
+								<a
+									data-bs-slide="next"
+									data-bs-target="#B5_default_carousel"
+									href="javascript:void(0);"
+									role="button"
+									tabIndex={0}
+									title="上一張"
+									type="buttson">
+									<div className="carousel-control-next">
+										<span
+											aria-hidden="true"
+											className="carousel-control-next-icon"
+										/>
+										<span className="sr-only">Next</span>
+									</div>
+								</a>
 							</div>
 						</div>
 					</div>
 				</div>
-			</section>
-			<script
-				dangerouslySetInnerHTML={{
-					__html:
-						"        var Eventswiper = new Swiper('#icon_area', {          direction: 'horizontal',   // 水平顯示          //loop: true,                // 允許循環切換          //autoplay: {            //delay: 1000,             // 每5秒自動播放            //disableOnInteraction: false,  // 用戶互動後，仍然繼續自動播放            //pauseOnMouseEnter: false, // Hover 時暫停 autoplay，離開時繼續          //},                      slidesPerView: 6,          // 預設顯示2個項目          spaceBetween: 0,          // 項目之間的間距          breakpoints: {            768: {              slidesPerView: 6,      // 當寬度大於768px時顯示3個項目            },            576: {              slidesPerView: 5,      // 當寬度大於0px時顯示2個項目            },            480: {              slidesPerView: 4,      // 當寬度大於0px時顯示2個項目            },            0: {              slidesPerView: 3,      // 當寬度大於0px時顯示2個項目            }          },          navigation: {            nextEl: '.swiper-next',  // 下一個按鈕            prevEl: '.swiper-prev',  // 上一個按鈕          },          pagination: {            el: '.swiper-pagination',            clickable: false,          // 允許點擊小點來跳轉          },          draggable: true,            // 允許拖曳        });        //const Linkswiper = document.querySelector('#Links').swiper        // 繼續自動播放        //document.querySelector('#icon_area_start').addEventListener('click', function () {          //Linkswiper.autoplay.start(); // Start autoplay        //});        // 停止自動播放        //document.querySelector('#icon_area_pause').addEventListener('click', function () {          //Linkswiper.autoplay.stop(); // Stop autoplay        //});      ",
-				}}
-				type="text/javascript"
-			/>
-		</div>
+			</div>
+		</section>
+
+
 
 	);
 };
