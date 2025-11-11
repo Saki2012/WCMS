@@ -783,6 +783,7 @@ export const SpecResearchDetailModelFields = {
   Commissioned: 'Commissioned',
   PlanAmount: 'PlanAmount',
   PlanContent: 'PlanContent',
+  Professor: 'Professor',
 } as const;
 
 export type SpecResearchDetailModelFieldKey = keyof typeof SpecResearchDetailModelFields;
@@ -895,7 +896,7 @@ export const SpecUSRPhotoInfoFields = {
   RowId: 'RowId',
   Lang: 'Lang',
   Title: 'Title',
-  _SpecUSRPhotoInfo: '_SpecUSRPhotoInfo',
+  _SpecUSRPhoto: '_SpecUSRPhoto',
 } as const;
 
 export type SpecUSRPhotoInfoFieldKey = keyof typeof SpecUSRPhotoInfoFields;

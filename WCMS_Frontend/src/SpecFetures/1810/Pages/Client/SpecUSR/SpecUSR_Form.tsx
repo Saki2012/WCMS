@@ -220,34 +220,16 @@ const GalleryOpenButton: React.FC<GalleryOpenButtonProps> = ({ count, onOpen }) 
         flexBasis: "100%",       // 在 flex 容器裡強制換行到下一列
         alignSelf: "stretch",    // 撐滿交叉軸
         marginTop: 8,
-        // 讓本項目貼左（父層 justify-content-end 被抵銷）
         marginRight: "auto",
         textAlign: "left"
     };
-
-    const btnStyle: React.CSSProperties = {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 10,
-        borderRadius: 9999,
-        padding: "10px 14px",
-        border: "1px solid #d1e9ff",
-        background: "linear-gradient(135deg,#f3f9ff 0%,#eef7ff 100%)",
-        color: "#0a58ca",
-        fontWeight: 600,
-        boxShadow: "0 2px 8px rgba(13,110,253,.08)",
-        cursor: "pointer"
-    };
-    const countStyle: React.CSSProperties = { marginLeft: 6, color: "#0b5ed7", fontWeight: 600 };
     return (
         <div style={wrapStyle}>
-            <button type="button" onClick={onOpen} aria-haspopup="dialog" aria-label={`瀏覽全部相片（${count} 張）`} title={`瀏覽全部相片（${count} 張）`} style={btnStyle}>
-                <span>
-                    <i className="fa fa-images" aria-hidden="true" style={{ marginRight: 6 }} />
-                    瀏覽相簿
-                    <span style={countStyle}>（{count} 張）</span>
-                </span>
-            </button>
-        </div >
+            <div className="customize_btn my-3">
+                <button type="button" className="Btn_s1" onClick={onOpen} aria-haspopup="dialog" aria-label={`瀏覽全部相片（${count} 張）`} title={`瀏覽全部相片（${count} 張）`}>
+                    VIEW ALL<span className="ml-2">+</span>
+                </button>
+            </div >
+        </div>
     );
 };

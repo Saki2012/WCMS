@@ -12,7 +12,6 @@ import { useGetSpecCategoryListByProgId } from "@/SpecFetures/1810/Hooks/SpecCat
 import { useGetTagListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { useActions } from "@/Features/Hooks/Common/useActions";
-import * as SchemaFields from "@/types/SchemaFields";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import { useMemo } from "react";
@@ -78,7 +77,15 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
     };
 
     // ★ 1) 欄位代碼順序（要與 ShowColumnItems 內的字串一致）
-    const orderedKeys = [SpecResearchDetailModelFields.Year, SpecResearchDetailModelFields.AcademicYear, SpecResearchDetailModelFields.Semester, SpecResearchDetailModelFields.ClassTime, SpecResearchDetailModelFields.Courses, SpecResearchDetailModelFields.TeachingStaffOfOurSchool, SpecResearchDetailModelFields.ProjectLeader, SpecResearchDetailModelFields.PlanAmount, SpecResearchDetailModelFields.ProjectName, SpecResearchDetailModelFields.PlanContent, SpecResearchDetailModelFields.Commissioned, SpecResearchDetailModelFields.Cohost1, SpecResearchDetailModelFields.Cohost2, SpecResearchDetailModelFields.ApprovalNumber, SpecResearchDetailModelFields.ApprovedAmount, SpecResearchDetailModelFields.DuringExecution, SpecResearchDetailModelFields.ContractPeriod, SpecResearchDetailModelFields.College, SpecResearchDetailModelFields.Department, SpecResearchDetailModelFields.Name, SpecResearchDetailModelFields.GraduationDegree, SpecResearchDetailModelFields.PaperTitle, SpecResearchDetailModelFields.CooperationProject, SpecResearchDetailModelFields.CooperatingUnits, SpecResearchDetailModelFields.Remark,] as const;
+    const orderedKeys = [SpecResearchDetailModelFields.Year, SpecResearchDetailModelFields.AcademicYear, SpecResearchDetailModelFields.Semester,
+    SpecResearchDetailModelFields.ClassTime, SpecResearchDetailModelFields.Courses,
+    SpecResearchDetailModelFields.TeachingStaffOfOurSchool, SpecResearchDetailModelFields.ProjectLeader,
+    SpecResearchDetailModelFields.PlanAmount, SpecResearchDetailModelFields.ProjectName, SpecResearchDetailModelFields.PlanContent,
+    SpecResearchDetailModelFields.Commissioned, SpecResearchDetailModelFields.Cohost1, SpecResearchDetailModelFields.Cohost2,
+    SpecResearchDetailModelFields.ApprovalNumber, SpecResearchDetailModelFields.ApprovedAmount, SpecResearchDetailModelFields.DuringExecution,
+    SpecResearchDetailModelFields.ContractPeriod, SpecResearchDetailModelFields.College, SpecResearchDetailModelFields.Department,
+    SpecResearchDetailModelFields.Professor, SpecResearchDetailModelFields.Name, SpecResearchDetailModelFields.GraduationDegree, SpecResearchDetailModelFields.PaperTitle,
+    SpecResearchDetailModelFields.CooperationProject, SpecResearchDetailModelFields.CooperatingUnits, SpecResearchDetailModelFields.Remark,] as const;
     type FieldKey = typeof orderedKeys[number];
 
     // ★ 2) 為每個欄位建立 node（維持你原本的元件用法）
@@ -104,6 +111,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
             ContractPeriod: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.ContractPeriod, "string", rowKeys)} />,
             College: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.College, "string", rowKeys)} />,
             Department: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Department, "string", rowKeys)} />,
+            Professor: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Professor, "string", rowKeys)} />,
             Name: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Name, "string", rowKeys)} />,
             GraduationDegree: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.GraduationDegree, "string", rowKeys)} />,
             PaperTitle: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.PaperTitle, "string", rowKeys)} />,

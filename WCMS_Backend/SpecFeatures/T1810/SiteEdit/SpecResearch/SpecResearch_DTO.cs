@@ -63,5 +63,6 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
         [LibDesc(ModelDisplayName.SpecResearch_Commissioned), StringLength(200)] public string? Commissioned { get; set; }
         [LibDesc(ModelDisplayName.SpecResearch_PlanAmount)] public decimal? PlanAmount { get; set; }
         [LibDesc(ModelDisplayName.SpecResearch_PlanContent)] public string? PlanContent { get; set; }
+        [LibDesc(ModelDisplayName.SpecResearch_Professor), StringLength(200)] public string? Professor { get; set; }
     }
 }

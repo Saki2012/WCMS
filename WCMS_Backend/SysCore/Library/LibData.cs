@@ -199,12 +199,7 @@ namespace WCMS.SysCore.Library
         public static bool In(this object val, params dynamic[] elements)
         {
             foreach (dynamic element in elements)
-            {
-                if (element.GetType() == val.GetType() && string.Compare(element.ToString(), val.ToString()) == 0)
-                {
-                    return true;
-                }
-            }
+                if (element.GetType() == val.GetType() && string.Compare(element.ToString(), val.ToString()) == 0) return true;
             return false;
         }
         /// <summary>

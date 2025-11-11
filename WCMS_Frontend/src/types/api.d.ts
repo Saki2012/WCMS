@@ -7418,6 +7418,8 @@ export interface components {
             PlanAmount?: number | null;
             /** @description 計畫內容簡介 */
             PlanContent?: string | null;
+            /** @description 計畫內容簡介 */
+            Professor?: string | null;
         };
         SpecResearchModel_DTO: {
             /**
@@ -7536,12 +7538,12 @@ export interface components {
              * Format: int32
              * @description 父行代碼
              */
-            ParentRowId?: number;
+            ParentRowId?: number | null;
             /**
              * Format: int32
              * @description 行代碼
              */
-            RowId?: number;
+            RowId?: number | null;
             FileSrc?: components["schemas"]["FileManageModel"];
             /** @description 檔案來源 */
             FileSrcId?: string | null;
@@ -7597,17 +7599,17 @@ export interface components {
              * Format: int32
              * @description 父行代碼
              */
-            ParentRowId?: number;
+            ParentRowId?: number | null;
             /**
              * Format: int32
              * @description 行代碼
              */
-            RowId?: number;
+            RowId?: number | null;
             /** @description 語系 */
             Lang?: string | null;
             /** @description 標題 */
             Title?: string | null;
-            _SpecUSRPhotoInfo?: components["schemas"]["SpecUSRPhoto_DTO"];
+            _SpecUSRPhoto?: components["schemas"]["SpecUSRPhoto_DTO"];
         };
         SpecUSRPhoto_DTO: {
             /** @description USR計畫 */
@@ -7645,12 +7647,12 @@ export interface components {
              * Format: int32
              * @description 父行代碼
              */
-            ParentRowId?: number;
+            ParentRowId?: number | null;
             /**
              * Format: int32
              * @description 行代碼
              */
-            RowId?: number;
+            RowId?: number | null;
             /** @description 網址 */
             Url?: string | null;
             /** @description 網址描述 */

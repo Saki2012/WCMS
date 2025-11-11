@@ -50,7 +50,7 @@ export const Server_USRProjFormComp = (prop: { theme: IBETheme; lang: Lang }) =>
     }, [selectedCateId, useCategory.cols]);
 
 
-    const formProp: FormCompProp = { Title: "新增USR計畫", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
+    const formProp: FormCompProp = { Title: "新增計畫成果版型", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
     return (
         <FormComp prop={formProp}>
             <HeaderComp theme={prop.theme} formData={formData} cateOpts={useCategory.data} statusOpts={status} tagOpts={useTag.data} />
@@ -116,7 +116,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
     SpecUSRDetailFields.ProjectSubLeader,
     SpecUSRDetailFields.Cohost1, SpecUSRDetailFields.Cohost2, SpecUSRDetailFields.Commissioned,
     SpecUSRDetailFields.AttendTeam,
-    SpecUSRDetailFields.Remark, SpecUSRDetailFields.Url, SpecUSRDetailFields.UrlDescription] as const;
+    SpecUSRDetailFields.Remark] as const;
     type FieldKey = typeof orderedKeys[number];
 
     // ★ 2) 產生各欄位的 node 工廠（避免用 function 宣告）
@@ -143,8 +143,8 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
             Commissioned: <LibTextBox parentClass="col-md-6 col-12" Style={prop.theme.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Commissioned, "string", rowKeys)} />,
             AttendTeam: <LibTextBox parentClass="col-md-6 col-12" Style={prop.theme.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.AttendTeam, "string", rowKeys)} />,
             Remark: <LibTextArea Style={prop.theme.TextArea} DefaultInputDisplay="請輸入" {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Remark, "string", rowKeys)} />,
-            Url: <LibTextBox parentClass="col-md-6 col-12" Style={prop.theme.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Url, "string", rowKeys)} />,
-            UrlDescription: <LibTextBox parentClass="col-md-6 col-12" Style={prop.theme.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.UrlDescription, "string", rowKeys)} />,
+            // Url: <LibTextBox parentClass="col-md-6 col-12" Style={prop.theme.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Url, "string", rowKeys)} />,
+            // UrlDescription: <LibTextBox parentClass="col-md-6 col-12" Style={prop.theme.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.UrlDescription, "string", rowKeys)} />,
         };
         return nodes;
     };

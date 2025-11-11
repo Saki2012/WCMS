@@ -206,6 +206,7 @@ namespace WCMS.SysCore.Resx
         public const string SpecResearch_Sort="SpecResearch_Sort";
         public const string SpecResearch_PictureId="SpecResearch_PictureId";
         public const string SpecResearch_PicDescription="SpecResearch_PicDescription";
+        public const string SpecResearch_Professor = "SpecResearch_Professor";
         #endregion
         #region SpecUSR
         public const string SpecUSRId="SpecUSRId";

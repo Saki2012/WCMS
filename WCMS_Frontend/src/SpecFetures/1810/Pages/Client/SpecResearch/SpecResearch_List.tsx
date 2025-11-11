@@ -10,28 +10,30 @@ import SpecResearchProvider from "@/SpecFetures/1810/Hooks/SpecResearch/SpecRese
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { useGetShowColumnItems } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Hook";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
+import { SpecResearchDetailModelFields, SpecResearchModelFields } from "@/types/SchemaFields";
 
 const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, showColumns: string[]) => {
     var condition: string = "";
-    if (categoryIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.CategoryId} = ${categoryIds}`)
-    if (tagIds) condition = LibMerge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.Tags} HasAllOf ${tagIds}`)
-    condition = LibMerge(" And ", false, condition, `${SchemaFields.SpecResearchModelFields.ContentStatus} !& 4`)//不包含隱藏的資料
+    if (categoryIds) condition = LibMerge(" And ", false, condition, `${SpecResearchModelFields.CategoryId} = ${categoryIds}`)
+    if (tagIds) condition = LibMerge(" And ", false, condition, `${SpecResearchModelFields.Tags} HasAllOf ${tagIds}`)
+    condition = LibMerge(" And ", false, condition, `${SpecResearchModelFields.ContentStatus} !& 4`)//不包含隱藏的資料
     type VisibleKey = [string, string];
     //調整前台欄位顯示順序(目前需手動調整)
     const ORDER: string[] = [
-        SchemaFields.SpecResearchDetailModelFields.Year, SchemaFields.SpecResearchDetailModelFields.AcademicYear,
-        SchemaFields.SpecResearchDetailModelFields.Semester, SchemaFields.SpecResearchDetailModelFields.CooperatingUnits,
-        SchemaFields.SpecResearchDetailModelFields.Courses, SchemaFields.SpecResearchDetailModelFields.CooperationProject,
-        SchemaFields.SpecResearchDetailModelFields.ClassTime, SchemaFields.SpecResearchDetailModelFields.TeachingStaffOfOurSchool,
-        SchemaFields.SpecResearchDetailModelFields.Department, SchemaFields.SpecResearchDetailModelFields.ProjectLeader,
-        SchemaFields.SpecResearchDetailModelFields.College, SchemaFields.SpecResearchDetailModelFields.ProjectName,
-        SchemaFields.SpecResearchDetailModelFields.ApprovalNumber, SchemaFields.SpecResearchDetailModelFields.ApprovedAmount,
-        SchemaFields.SpecResearchDetailModelFields.DuringExecution, SchemaFields.SpecResearchDetailModelFields.ContractPeriod,
-        SchemaFields.SpecResearchDetailModelFields.Name, SchemaFields.SpecResearchDetailModelFields.GraduationDegree,
-        SchemaFields.SpecResearchDetailModelFields.PaperTitle, SchemaFields.SpecResearchDetailModelFields.Cohost1,
-        SchemaFields.SpecResearchDetailModelFields.Cohost2, SchemaFields.SpecResearchDetailModelFields.Commissioned,
-        SchemaFields.SpecResearchDetailModelFields.PlanAmount, SchemaFields.SpecResearchDetailModelFields.PlanContent,
-        SchemaFields.SpecResearchDetailModelFields.Remark];
+        SpecResearchDetailModelFields.Year, SpecResearchDetailModelFields.AcademicYear,
+        SpecResearchDetailModelFields.Semester, SpecResearchDetailModelFields.CooperatingUnits,
+        SpecResearchDetailModelFields.Courses, SpecResearchDetailModelFields.CooperationProject,
+        SpecResearchDetailModelFields.ClassTime, SpecResearchDetailModelFields.TeachingStaffOfOurSchool,
+        SpecResearchDetailModelFields.Department, SpecResearchDetailModelFields.Professor,
+        SpecResearchDetailModelFields.ProjectLeader,
+        SpecResearchDetailModelFields.College, SpecResearchDetailModelFields.ProjectName,
+        SpecResearchDetailModelFields.ApprovalNumber, SpecResearchDetailModelFields.ApprovedAmount,
+        SpecResearchDetailModelFields.DuringExecution, SpecResearchDetailModelFields.ContractPeriod,
+        SpecResearchDetailModelFields.Name, SpecResearchDetailModelFields.GraduationDegree,
+        SpecResearchDetailModelFields.PaperTitle, SpecResearchDetailModelFields.Cohost1,
+        SpecResearchDetailModelFields.Cohost2, SpecResearchDetailModelFields.Commissioned,
+        SpecResearchDetailModelFields.PlanAmount, SpecResearchDetailModelFields.PlanContent,
+        SpecResearchDetailModelFields.Remark];
     const buildVisibleKeys = (cols?: string[]): VisibleKey[] => {
         const { SpecResearchSetFields, SpecResearchDetailModelFields } = SchemaFields;
         const seen = new Set<string>();
@@ -56,39 +58,41 @@ const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, 
         visibleKeys: buildVisibleKeys(showColumns),
         buildQueryCondition: (page) => ({
             Fields: [
-                SchemaFields.SpecResearchModelFields.InternalId,
-                SchemaFields.SpecResearchModelFields.ResearchId,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Year}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.AcademicYear}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Semester}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.ClassTime}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.ProjectLeader}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.College}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Department}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.ProjectName}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.TeachingStaffOfOurSchool}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.ApprovalNumber}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.ApprovedAmount}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.DuringExecution}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.ContractPeriod}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Name}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.GraduationDegree}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.PaperTitle}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.CooperatingUnits}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.CooperationProject}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Courses}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Cohost1}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Cohost2}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Commissioned}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.PlanAmount}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.PlanContent}`,
-                `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Remark}`,
+                SpecResearchModelFields.InternalId,
+                SpecResearchModelFields.ResearchId,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Lang}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Year}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.AcademicYear}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Semester}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.ClassTime}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.ProjectLeader}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.College}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Department}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.ProjectName}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.TeachingStaffOfOurSchool}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.ApprovalNumber}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.ApprovedAmount}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.DuringExecution}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.ContractPeriod}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Name}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.GraduationDegree}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.PaperTitle}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.CooperatingUnits}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.CooperationProject}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Courses}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Cohost1}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Cohost2}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Commissioned}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.PlanAmount}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.PlanContent}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Remark}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Remark}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Professor}`,
             ],
             Condition: condition,
             OrderBy: [
-                { Col: `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.Year}`, Desc: true },
-                { Col: `${SchemaFields.SpecResearchModelFields._SpecResearchDetail}.${SchemaFields.SpecResearchDetailModelFields.AcademicYear}`, Desc: true },
+                { Col: `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Year}`, Desc: true },
+                { Col: `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.AcademicYear}`, Desc: true },
             ],
             PageNumber: page,
             PageSize: 15,
@@ -98,8 +102,8 @@ const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, 
                 let content = "";
                 if (showColumns.includes(col.key)) {
                     const detail = item.SpecResearchDetail?.find(p => p.Lang === lang);
-                    if (col.key === SchemaFields.SpecResearchDetailModelFields.ApprovedAmount ||
-                        col.key === SchemaFields.SpecResearchDetailModelFields.PlanAmount) {
+                    if (col.key === SpecResearchDetailModelFields.ApprovedAmount ||
+                        col.key === SpecResearchDetailModelFields.PlanAmount) {
                         let val = detail ? (detail as Record<string, any>)[col.key] ?? "" : "";
                         content = new Intl.NumberFormat("zh-TW", { style: "decimal", }).format(val)
                     }
