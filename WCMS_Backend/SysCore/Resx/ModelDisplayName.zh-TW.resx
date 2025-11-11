@@ -451,7 +451,7 @@
     <value>排序編號</value>
   </data>
   <data name="SpecResearch_PictureId" xml:space="preserve">
-    <value>封面圖片</value>
+    <value>成果照片</value>
   </data>
   <data name="SpecResearch_PicDescription" xml:space="preserve">
     <value>圖片說明</value>
@@ -740,5 +740,56 @@
   </data>
   <data name="SpecResearch_Professor" xml:space="preserve">
     <value>指導教授</value>
+  </data>
+  <data name="SiteMenu_SiteIndex" xml:space="preserve">
+    <value>首頁代碼</value>
+  </data>
+  <data name="SiteMenu_GoogleAnalytics" xml:space="preserve">
+    <value>Google分析碼</value>
+  </data>
+  <data name="SiteMenu_Enable" xml:space="preserve">
+    <value>是否啟用站台</value>
+  </data>
+  <data name="SiteMenu_SiteDescription" xml:space="preserve">
+    <value>網站描述</value>
+  </data>
+  <data name="SiteMenu_SiteHeader" xml:space="preserve">
+    <value>網站標頭</value>
+  </data>
+  <data name="SiteMenu_SiteFooter" xml:space="preserve">
+    <value>網站標尾</value>
+  </data>
+  <data name="SiteMenu_Level" xml:space="preserve">
+    <value>網頁項目層級</value>
+  </data>
+  <data name="SiteMenu_DisplayOrder" xml:space="preserve">
+    <value>網頁項目排序</value>
+  </data>
+  <data name="SiteMenu_MenuTitle" xml:space="preserve">
+    <value>網頁項目標題</value>
+  </data>
+  <data name="SiteMenu_ModuleOptions" xml:space="preserve">
+    <value>網頁模型參數</value>
+  </data>
+  <data name="Banner" xml:space="preserve">
+    <value>橫幅</value>
+  </data>
+  <data name="FormStatus" xml:space="preserve">
+    <value>表單狀態</value>
+  </data>
+  <data name="DataStatus" xml:space="preserve">
+    <value>資料狀態</value>
+  </data>
+  <data name="InvalidTime" xml:space="preserve">
+    <value>作廢時間</value>
+  </data>
+  <data name="InvalidUserId" xml:space="preserve">
+    <value>作廢人</value>
+  </data>
+  <data name="BannerDetail" xml:space="preserve">
+    <value>橫幅明細</value>
+  </data>
+  <data name="BannerDetailInfo" xml:space="preserve">
+    <value>橫幅明細說明</value>
   </data>
 </root>

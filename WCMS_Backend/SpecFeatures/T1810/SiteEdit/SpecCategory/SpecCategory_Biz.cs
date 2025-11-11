@@ -114,19 +114,26 @@ namespace WCMS.Features.SiteEdit.SpecCategory
             switch (progId)
             {
                 case "SpecResearch":
-                    foreach(var prop in PropertyAccessorCache.GetProperties< SpecResearchDetailModel>())
                     {
-                        if (prop.Name is nameof(SpecResearchDetailModel.ResearchId) or nameof(SpecResearchDetailModel.RowId) or nameof(SpecResearchDetailModel.Lang)) continue;
-                        result.Add(prop.Name, I18nCache.GetLabel(prop));
+                        string[] notmapFields = [nameof(SpecResearchDetailModel_DTO.ResearchId), nameof(SpecResearchDetailModel_DTO.RowId), nameof(SpecResearchDetailModel_DTO.Lang)];
+                        foreach (var prop in PropertyAccessorCache.GetProperties<SpecResearchDetailModel_DTO>())
+                        {
+                            if (notmapFields.Contains(prop.Name)) continue;
+                            result.Add(prop.Name, I18nCache.GetLabel(prop));
+                        }
+                        break;
                     }
-                    break;
                 case "SpecUSR":
-                    foreach (var prop in PropertyAccessorCache.GetProperties<SpecUSRDetail>())
                     {
-                        if (prop.Name is nameof(SpecUSRDetail.USRId) or nameof(SpecUSRDetail.RowId) or nameof(SpecUSRDetail.Lang)) continue;
-                        result.Add(prop.Name, I18nCache.GetLabel(prop));
+                        string[] notmapFields = [nameof(SpecUSRDetail_DTO.USRId), nameof(SpecUSRDetail_DTO.RowId), nameof(SpecUSRDetail_DTO.Lang)
+                            , nameof(SpecUSRDetail_DTO.Url), nameof(SpecUSRDetail_DTO.UrlDescription)];
+                        foreach (var prop in PropertyAccessorCache.GetProperties<SpecUSRDetail_DTO>())
+                        {
+                            if (notmapFields.Contains(prop.Name)) continue;
+                            result.Add(prop.Name, I18nCache.GetLabel(prop));
+                        }
+                        break;
                     }
-                    break;
             }
             return result;
         }

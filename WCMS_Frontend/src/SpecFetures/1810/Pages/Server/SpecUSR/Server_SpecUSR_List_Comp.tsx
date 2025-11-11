@@ -32,7 +32,7 @@ export const USRProjListComp = (prop: { title: string; theme: IBETheme; lang: La
     const useTag = useTagListData(SpecProgId.SpecUSR, prop.lang);
     const actions = useActions(dirUrl, provider, undefined, undefined, usePageList.refetchCurrent)
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(usePageList.gridProps, usePageList.rawData, useCategory.rawData, useTag.rawData, actions); }, [usePageList.gridProps, usePageList.rawData, useCategory.rawData, useTag.rawData, actions]);
-    const searchCompProp: SearchBarProps = { title: "USR計畫搜尋", subTitle: "搜尋USR計畫 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
+    const searchCompProp: SearchBarProps = { title: "計畫成果版型搜尋", subTitle: "搜尋計畫成果版型 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
     const isLoading = [usePageList.isLoading, useCategory.isLoading, useTag.isLoading];
     const errors = [usePageList.error, useCategory.error, useTag.error];
     return (<ListComp Title={prop.title} Theme={prop.theme} LoadingList={isLoading} ErrorList={errors} Actions={actions} GridData={adjustedGrid} ></ListComp>);

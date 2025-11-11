@@ -169,7 +169,7 @@ class APIProvider extends ISideMenuProvider {
         ]
       },
       {
-        Id: "USR", SrcData: "USR計畫", Url: "WebManagement/USR", SubItem: [
+        Id: "USR", SrcData: "計畫成果版型", Url: "WebManagement/USR", SubItem: [
           { Id: "11-1", SrcData: "新增", Url: "WebManagement/USR/Form", SubItem: [] },
           { Id: "11-2", SrcData: "列表", Url: "WebManagement/USR/List", SubItem: [] },
           { Id: "11-3", SrcData: "類別", Url: "WebManagement/USR/SpecCategory", SubItem: [] },

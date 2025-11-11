@@ -42,7 +42,8 @@ namespace WCMS.SysCore.Library
                 }
                 catch
                 {
-                    Console.WriteLine("Resx資料辨識異常");
+                    Console.WriteLine($"Resx資料【{_resourceKey}】辨識異常");
+                    return localized;
                 }
                 return localized;
             }

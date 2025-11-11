@@ -19,7 +19,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
     [ApiController, Route(SysParam.ServiceRoute)]
     public class SpecCategoryController : ApiDataController<SpecCategorySet,SpecCategorySet_DTO>
     {
-        [HttpGet(nameof(GetShowColumnItems)), OutputCache(PolicyName = "PermanentJson")]
+        [HttpGet(nameof(GetShowColumnItems))/*, OutputCache(PolicyName = "PermanentJson")*/]
         public IActionResult GetShowColumnItems(string progId)
         {
             AddDetailTags(progId);

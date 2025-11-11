@@ -66,7 +66,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
         [StringLength(200)] public string? Commissioned { get; set; }
         public decimal? PlanAmount { get; set; }
         public string? PlanContent { get; set; }
-        [StringLength(200)] public string Professor { get; set; }
+        [StringLength(200)] public string? Professor { get; set; }
 
         #region 主子表關聯
         [ForeignKey(nameof(ResearchId))] public SpecResearchModel _SpecResearch { get; set; }
