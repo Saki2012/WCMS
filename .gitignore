@@ -12,7 +12,7 @@ WCMS_Backend/appsettings.Production.json
 WCMS_Frontend/public/Legacy/
 WCMS_Frontend/dist-ssr/
 WCMS_Frontend/dist-csr/
-WCMS_Frontend/src/SpecFetures/3001
+# WCMS_Frontend/src/SpecFetures/3001
 
 # Common
 *.zip
