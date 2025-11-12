@@ -3,7 +3,7 @@ import bgImg from '@/SpecFetures/1816/Assets/Client/images/bg/background-transpa
 
 
 
-
+import { Link } from 'react-router-dom';
 import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api';
 
 import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api';
@@ -224,10 +224,10 @@ export const NewsData = () => {
 
 
 
-	const allNews1 = getNewsDataProps(allNewsRawData1, lang, "/Allnews/All-announcement", "", categoryDict, tagDict);
-	const allNews2 = getNewsDataProps(allNewsRawData2, lang, "/Allnews/All-announcement", "", categoryDict, tagDict);
-	const allNews3 = getNewsDataProps(allNewsRawData3, lang, "/Allnews/All-announcement", "", categoryDict, tagDict);
-	const allNews4 = getNewsDataProps(allNewsRawData4, lang, "/Allnews/All-announcement", "", categoryDict, tagDict);
+	const allNews1 = getNewsDataProps(allNewsRawData1, lang, "/News/News-01", "", categoryDict, tagDict);
+	const allNews2 = getNewsDataProps(allNewsRawData2, lang, "/News/News-02", "", categoryDict, tagDict);
+	const allNews3 = getNewsDataProps(allNewsRawData3, lang, "/News/News-03", "", categoryDict, tagDict);
+	const allNews4 = getNewsDataProps(allNewsRawData4, lang, "/News/News-04", "", categoryDict, tagDict);
 
 	return (
 
@@ -454,7 +454,7 @@ export const NewsData = () => {
 
 
 
-interface getDataProp { redir: string; announceInternalId: string; title: string; date: string; month: string; year: string; monthNum: number; tagName: string; categoryName: string; contentStatus: number }
+interface getDataProp { redir: string; announceInternalId: string; title: string; date: string; month: string; year: string; monthNum: number; tagName: string; categoryName: string; contentStatus: number; internalId: string }
 
 const getNewsDataProps = (newsData: AnnouncementSet[], lang: string, redir: string, targetCategoryId: string, categoryDict: Record<string, string>, tagDict: Record<string, string>) => {
 	const top6 = pickNewsByCategories(newsData, targetCategoryId, 6, 'any');
@@ -467,6 +467,7 @@ const getNewsDataProps = (newsData: AnnouncementSet[], lang: string, redir: stri
 		const contentStatus = item.Announcement?.ContentStatus ?? 0;
 		const date = formatDate(item.Announcement?.Validate_Start ?? "");
 		const monthNum = Number(new Date(item.Announcement?.Validate_Start ?? "").getUTCMonth() + 1);
+		const InternalId = item.Announcement?.InternalId ?? "";
 		resultProps.push({
 			redir: redir,
 			announceInternalId: item.Announcement?.InternalId ?? "",
@@ -478,6 +479,7 @@ const getNewsDataProps = (newsData: AnnouncementSet[], lang: string, redir: stri
 			contentStatus: contentStatus,
 			tagName: tagsName,
 			categoryName: categoryName,
+			internalId: InternalId,
 		})
 	})
 	return resultProps;
@@ -514,12 +516,10 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 
 
 					<li className="News_item" key={item.announceInternalId} >
-						<a
-							className="item-inner"
-							href={`${item.redir}/${item.announceInternalId}`}
-							tabIndex={0}
-							target="_self"
-							title={item.title}>
+
+						<Link to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
+
+
 							<div className="rightBox">
 								<div className="card_catDiv">
 									<div className="a-left">
@@ -561,7 +561,8 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 									</div>
 								</div>
 							</div>
-						</a>
+
+						</Link>
 					</li>
 
 
