@@ -1,11 +1,9 @@
 import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
 import { useBannerListData } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Hook";
-import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
-import clsx from "clsx";
 import * as SchemaFields from "@/types/SchemaFields";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 type BannerSet = components["schemas"]["BannerSet_DTO"]
 const emptyData: BannerSet = {
@@ -41,8 +39,6 @@ const emptyData: BannerSet = {
 	]
 }
 
-
-
 export const CollectionsData = () => {
 	const usebannerList = useBannerListData(`${SchemaFields.BannerFields.BannerId} = Banner20251106003`)
 	const bannerInternal = usebannerList.rawData?.[0]?.Banner?.InternalId ?? ""
@@ -60,9 +56,101 @@ export const CollectionsData = () => {
 		});
 	}, [useBanner.data?.BannerDetail]);
 
+
+	const carouselRef = useRef<HTMLDivElement | null>(null);
+	const toggleRef = useRef<HTMLAnchorElement | null>(null);
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+		if (!carouselRef.current) return;
+	}, []);
+
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+		const root = carouselRef.current;
+		if (!root) return;
+		let cleanup: (() => void) | undefined;
+		(async () => {
+			const $ = await ensureOwl();
+			if (!$) return;
+			const $owl = $(root);
+			try {
+				if ($owl.data("owl.carousel")) {
+					$owl.trigger("destroy.owl.carousel");
+				}
+			} catch { }
+			// 與你原始腳本一致的參數
+			const opts = {
+				items: 4,
+				loop: false,
+				dots: false,
+				nav: true,
+				margin: 30,
+				autoplay: false,
+				autoplayTimeout: 5000,
+				autoplayHoverPause: true,
+				responsive: {
+					0: { items: 2 },
+					575: { items: 2 },
+					767: { items: 2 },
+					991: { items: 3 },
+					1199: { items: 4 },
+				},
+			};
+			let isPlaying = !!opts.autoplay;
+			$owl.owlCarousel(opts);
+			// 播放/暫停切換（A11y）
+			const $toggle = $(toggleRef.current ?? document.getElementById("Collections_toggle"));
+			const updateToggleButton = () => {
+				if (!$toggle.length) return;
+				const $iconBox = $toggle.find(".control-toggle");
+				const $srText = $toggle.find(".sr-only");
+				$iconBox.removeClass("control-play-icon control-pause-icon");
+				if (isPlaying) {
+					$toggle
+						.attr("aria-pressed", "true")
+						.attr("aria-label", "圖片輪播播放中，點擊暫停");
+					$iconBox.addClass("control-pause-icon");
+					$srText.text("圖片輪播播放中，點擊暫停");
+				} else {
+					$toggle
+						.attr("aria-pressed", "false")
+						.attr("aria-label", "圖片輪播已暫停，點擊播放");
+					$iconBox.addClass("control-play-icon");
+					$srText.text("圖片輪播已暫停，點擊播放");
+				}
+			};
+
+			const onToggle = (ev: any) => {
+				ev.preventDefault?.();
+				if (isPlaying) {
+					$owl.trigger("stop.owl.autoplay");
+					isPlaying = false;
+				} else {
+					$owl.trigger("play.owl.autoplay", [opts.autoplayTimeout]);
+					isPlaying = true;
+				}
+				updateToggleButton();
+			};
+
+			// 綁事件與初始化按鈕狀態
+			$toggle.on("click", onToggle);
+			updateToggleButton();
+
+			cleanup = () => {
+				try {
+					$toggle.off("click", onToggle);
+					if ($owl.data("owl.carousel")) {
+						$owl.trigger("destroy.owl.carousel");
+					}
+				} catch { }
+			};
+		})();
+
+		return () => cleanup?.();
+		// 每次 slides 資料量變更才重建，避免每 render 都初始化
+	}, [sortedDetails.length]);
+
 	return (
-
-
 		<section className="Collections_section owl-box Layout_Padding_3_top Layout_Padding_5_bottom">
 			<div className="Mask-DivBox">
 				<div className="customizeBox">
@@ -80,6 +168,7 @@ export const CollectionsData = () => {
 									<div className="DIV-singleBox d-none">
 										<div className="control-singlebox">
 											<a
+												ref={toggleRef}
 												aria-label="圖片輪播播放中，點擊暫停"
 												aria-pressed="true"
 												className="toggle ms-1"
@@ -95,7 +184,9 @@ export const CollectionsData = () => {
 									</div>
 									<div
 										className="owl-carousel owl-theme"
-										id="Collections_owl_carousel">
+										id="Collections_owl_carousel"
+										ref={carouselRef}
+									>
 										{sortedDetails.map((p, i) => {
 											const detail = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw");
 											const alt = detail?.Title ?? ""
@@ -172,3 +263,63 @@ export const CollectionsData = () => {
 
 	);
 };
+
+const ensureJQuery = (() => {
+	let p: Promise<any> | null = null;
+	return () => {
+		if (typeof window === "undefined") return Promise.resolve(null);
+		if ((window as any).jQuery) return Promise.resolve((window as any).jQuery);
+		if (!p) {
+			p = (async () => {
+				const { default: jqUrl } = await import("@/SpecFetures/1816/Assets/Client/Content/jquery-3.7.1/jquery-3.7.1.min.js?url");
+				await new Promise<void>((resolve, reject) => {
+					const s = document.createElement("script");
+					s.src = jqUrl;
+					s.async = true;
+					s.onload = () => resolve();
+					s.onerror = () => reject(new Error("load jQuery failed"));
+					document.head.appendChild(s);
+				});
+				// 保險：確保 $ / jQuery 都在 window
+				(window as any).$ = (window as any).jQuery = (window as any).jQuery || (window as any).$;
+				return (window as any).jQuery;
+			})();
+		}
+		return p;
+	};
+})();
+
+const ensureOwl = (() => {
+	let p: Promise<any> | null = null;
+	return async () => {
+		if (typeof window === "undefined") return null;
+		if ((window as any).jQuery?.fn?.owlCarousel) return (window as any).jQuery;
+		if (!p) {
+			p = (async () => {
+				const $ = await ensureJQuery();
+				const [{ default: cssUrl }, { default: jsUrl }] = await Promise.all([
+					import("https://owlcarousel2.github.io/OwlCarousel2/assets/owlcarousel/owl.carousel.js?url"),
+					import("https://owlcarousel2.github.io/OwlCarousel2/assets/owlcarousel/assets/owl.carousel.min.css?url"),
+				]);
+				// 先掛 CSS（若尚未）
+				if (!document.querySelector(`link[href="${cssUrl}"]`)) {
+					const link = document.createElement("link");
+					link.rel = "stylesheet";
+					link.href = cssUrl;
+					document.head.appendChild(link);
+				}
+				// 再掛 JS
+				await new Promise<void>((resolve, reject) => {
+					const s = document.createElement("script");
+					s.src = jsUrl;
+					s.async = true;
+					s.onload = () => resolve();
+					s.onerror = () => reject(new Error("load Owl failed"));
+					document.head.appendChild(s);
+				});
+				return $;
+			})();
+		}
+		return p;
+	};
+})();
