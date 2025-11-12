@@ -48,7 +48,6 @@ const emptyData: BannerSet = {
 
 
 export const CarouselData = () => {
-
 	const usebannerList = useBannerListData(`${SchemaFields.BannerFields.BannerId} = Banner20251106004`)
 	const bannerInternal = usebannerList.rawData?.[0]?.Banner?.InternalId ?? ""
 	const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), bannerInternal, emptyData)
@@ -65,11 +64,7 @@ export const CarouselData = () => {
 		});
 	}, [useBanner.data?.BannerDetail]);
 
-
-
-
 	return (
-
 		<section className="Carousel_slide_section">
 			<div className="Mask-DivBox">
 				<div className="customizeBox">

@@ -44,7 +44,6 @@ const emptyData: BannerSet = {
 
 
 export const CollectionsData = () => {
-
 	const usebannerList = useBannerListData(`${SchemaFields.BannerFields.BannerId} = Banner20251106003`)
 	const bannerInternal = usebannerList.rawData?.[0]?.Banner?.InternalId ?? ""
 	const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), bannerInternal, emptyData)
@@ -97,12 +96,12 @@ export const CollectionsData = () => {
 									<div
 										className="owl-carousel owl-theme"
 										id="Collections_owl_carousel">
-
 										{sortedDetails.map((p, i) => {
-											const alt = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.Title ?? ""
-											const url = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.URL ?? ""
-											const content = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.Content ?? ""
-											const urlopen = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.URL_Open ?? ""
+											const detail = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw");
+											const alt = detail?.Title ?? ""
+											const url = detail?.URL ?? ""
+											const content = detail?.Content ?? ""
+											const urlopen = detail?.URL_Open ?? ""
 											return (
 
 
