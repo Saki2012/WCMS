@@ -23,6 +23,7 @@ using System.Threading.RateLimiting;
 using WCMS.Features.Member.Account;
 using WCMS.Features.Member.Personnel;
 using WCMS.Features.SystemSetting.Auth;
+using WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting;
 using WCMS.SysCore;
 using WCMS.SysCore.AppSettingsOptions;
 using WCMS.SysCore.Interface;
@@ -654,6 +655,8 @@ namespace WCMS
                 var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 await RegistUDFAsync(cfg, env, db);
                 await RegistSysAccountAsync(cfg, db);
+                await RegistSysAccountAsync(cfg, db);
+                await RegistSiteIndex(cfg, db);
             }
             /// <summary>
             /// 註冊UDF
@@ -778,6 +781,49 @@ namespace WCMS
                     await db.Set<AccountModel>().AddAsync(account);
                 }
                 await db.SaveChangesAsync();
+            }
+
+            /// <summary>
+            /// 註冊網站資訊
+            /// </summary>
+            private static async Task RegistSiteIndex(IConfiguration cfg, ApplicationDbContext db)
+            {
+                var site = await db.Set<SiteMenu_IndexModel>().FirstOrDefaultAsync(p => p.SiteIndex == string.Empty);
+                if (site != null) return;
+                var section = cfg.GetSection("DbInit:Account:SysOperator");
+                var SysOperator = section.Get<Account_DTO>();
+                await using var tx = await db.Database.BeginTransactionAsync();
+                var now = DateTime.Now;
+                var root = new SiteMenu_IndexModel
+                {
+                    SiteIndex = string.Empty,
+                    GoogleAnalytics=string.Empty,
+                    Enable=true,
+                    FormStatus= FormStatus.Saved,
+                    DataStatus= DataStatus.Valid,
+                    OrgLvId=string.Empty,
+                    IsIniData = true,
+                    CreateTime = now,
+                    ModifyTime = now,
+                    CreateUserId = SysOperator.AccountId,
+                    ModifyUserId = SysOperator.AccountId,
+                };
+                var rootDetail = new SiteMenu_IndexInfoModel
+                {
+                    // 這裡的屬性名稱請依你實際的 Model 調整
+                    SiteIndex = root.SiteIndex,
+                    RowId = 1,
+                    Lang = Lang.zhTW,          // = "zh-TW"
+                    Title = string.Empty,       // 其他文字欄位建議在 Model 預設為 string.Empty
+                    Description=string.Empty,
+                    SiteHeader=string.Empty,
+                    SiteFooter=string.Empty,
+                    Keyword=string.Empty
+                };
+                db.Set<SiteMenu_IndexModel>().Add(root);
+                db.Set<SiteMenu_IndexInfoModel>().Add(rootDetail);
+                await db.SaveChangesAsync();
+                await tx.CommitAsync();
             }
             #endregion
         }

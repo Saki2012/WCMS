@@ -1103,11 +1103,7 @@ const HyperlinkSettingTab = (prop: {
         nodes.push(<LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="請輸入數字或英文，不可使用空白的" {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Url, SchemaFields.SiteMenu_Item_UrlFields.RedirectUrl, "string", curRowKeys)} />);
         break;
       case 2:
-        nodes.push(<LibDropList Style={prop.theme.DropList} Options={internalUrlOptions} {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Url, SchemaFields.SiteMenu_Item_UrlFields.RedirectUrl, "string", curRowKeys)} />
-
-
-
-        );
+        nodes.push(<LibDropList Style={prop.theme.DropList} Options={internalUrlOptions} {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Url, SchemaFields.SiteMenu_Item_UrlFields.RedirectUrl, "string", curRowKeys)} />);
         break;
     }
     return nodes;

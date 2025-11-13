@@ -171,13 +171,13 @@ namespace WCMS.SysCore.Enum
         public static class Lang
         {
             // 中文系
-            public const string zhTW = "zh-TW"; // 繁體中文（台灣）
-            public const string zhCN = "zh-CN"; // 簡體中文（中國）
-            public const string zhHK = "zh-HK"; // 繁體中文（香港）
+            public const string zhTW = "zh-tw"; // 繁體中文（台灣）
+            public const string zhCN = "zh-cn"; // 簡體中文（中國）
+            public const string zhHK = "zh-hk"; // 繁體中文（香港）
 
             // 英文系
-            public const string enUS = "en-US"; // 英文（美國）
-            public const string enGB = "en-GB"; // 英文（英國）
+            public const string enUS = "en-us"; // 英文（美國）
+            public const string enGB = "en-gb"; // 英文（英國）
 
             // 歐洲語系
             public const string deDE = "de-DE"; // 德文（德國）
