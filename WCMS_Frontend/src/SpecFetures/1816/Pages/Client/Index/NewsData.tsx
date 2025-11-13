@@ -331,7 +331,7 @@ export const NewsData = () => {
 													<div className="customize_btn mr-4">
 														<a
 															className="Btn_a"
-															href="javascript:void(0);"
+															href="/News/News-01"
 															role="button"
 															tabIndex={0}
 															target="_self"
@@ -362,7 +362,7 @@ export const NewsData = () => {
 													<div className="customize_btn mr-4">
 														<a
 															className="Btn_a"
-															href="javascript:void(0);"
+															href="/News/News-02"
 															role="button"
 															tabIndex={0}
 															target="_self"
@@ -393,7 +393,7 @@ export const NewsData = () => {
 													<div className="customize_btn mr-4">
 														<a
 															className="Btn_a"
-															href="javascript:void(0);"
+															href="/News/News-03"
 															role="button"
 															tabIndex={0}
 															target="_self"
@@ -423,7 +423,7 @@ export const NewsData = () => {
 													<div className="customize_btn mr-4">
 														<a
 															className="Btn_a"
-															href="javascript:void(0);"
+															href="/News/News-04"
 															role="button"
 															tabIndex={0}
 															target="_self"
