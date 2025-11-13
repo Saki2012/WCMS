@@ -3,6 +3,19 @@
 /* color: var(--Customize_color); */
 /* hover color: #0534a1;*/
 
+.container-customize1 {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+@media screen and (min-width: 1200px) {
+    .container-customize1 {
+        max-width: 1470px;
+    }
+}
 
 /* ============================================= */
 /* ------ 登入頁 原本 header 區 ------------------ */
@@ -35,7 +48,7 @@
 .shape-left {
     height: 100%;
     width: calc((100vw + 220px)/4);
-    background-color: #00305c;
+    background-color: var(--Customize__shape_color);
     content: "";
     left: 0;
     top: 0;
@@ -220,12 +233,13 @@
 .Login-section .heading-content:before {
     height: 100%;
     width: 100%;
-    background-color: rgba(0, 71, 133, 0.9);
+    background-color: var(--Customize_color);
     content: "";
     left: 0;
     top: 0;
     z-index: -1;
     position: absolute;
+    opacity: 0.9;
 }
 @media only screen and (max-width: 991px) {
     .Login-section .heading-content {

@@ -13,10 +13,22 @@ if (typeof window !== "undefined") {
   // CSR：初始化一次 XSRF；SSR：這個屬性不存在，呼叫也不會發生
   (api as BrowserApiWithInit).__initXsrfOnce?.();
 }
-import '@/Features/Assets/LoadFeaturesCss.ts'
-import 'SpecFeature/Assets/LoadSpecCss.ts'
-import '@/Features/Assets/LoadFeaturesJs.ts'
-import 'SpecFeature/Assets/LoadSpecJs.ts'
+
+if (typeof window !== "undefined") {
+  // CSR：初始化一次 XSRF
+  (api as BrowserApiWithInit).__initXsrfOnce?.();
+  const path = window.location.pathname.toLowerCase();
+  if (path.startsWith("/server")) {
+    // ✅ 後台：/Server/... → 載入 Features（後台）CSS / JS
+    await import("@/Features/Assets/LoadFeaturesCss.ts");
+    await import("SpecFeature/Assets/LoadSpecCss_Server.ts");
+    await import("@/Features/Assets/LoadFeaturesJs.ts");
+  } else {
+    // ✅ 前台：其他路徑 → 載入 Spec（前台）CSS / JS
+    await import("SpecFeature/Assets/LoadSpecCss.ts");
+    await import("SpecFeature/Assets/LoadSpecJs.ts");
+  }
+}
 
 
 declare global { interface Window { __INITIAL_STATE__?: { lang?: string;[k: string]: unknown }; } }
