@@ -496,13 +496,15 @@ namespace WCMS.SysCore
         /// </summary>
         private async Task AutoGenerateId(BasicDataModel header, Dictionary<string, IList> details)
         {
-            if (!IsAutoGenerateId) return;
             var keyProp = PropertyAccessorCache.GetProperties(header.GetType()).Where(p => p.IsDefined(typeof(KeyAttribute), inherit: true)).LastOrDefault();
             if (keyProp == null) return;
-            var idSelector = BuildIdSelectorLambda(header.GetType(),keyProp);
             string id = PropertyAccessorCache.Get(header, keyProp.Name)?.ToString();
-            id = !string.IsNullOrEmpty(id) ? id : await ((Task<string>)((dynamic)RepoDict[header.GetType().Name]).GenerateIdAsync(idSelector, PrefixId));
-            PropertyAccessorCache.Set(header, keyProp.Name, id);
+            if (IsAutoGenerateId)
+            {
+                var idSelector = BuildIdSelectorLambda(header.GetType(), keyProp);
+                id = !string.IsNullOrEmpty(id) ? id : await ((Task<string>)((dynamic)RepoDict[header.GetType().Name]).GenerateIdAsync(idSelector, PrefixId));
+                PropertyAccessorCache.Set(header, keyProp.Name, id);
+            }
             foreach(var detail in details) foreach(var row in detail.Value) PropertyAccessorCache.Set(row, keyProp.Name, id);
         }
         /// <summary>

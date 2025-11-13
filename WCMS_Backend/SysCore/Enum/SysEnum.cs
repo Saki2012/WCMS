@@ -176,6 +176,7 @@ namespace WCMS.SysCore.Enum
             public const string zhHK = "zh-hk"; // 繁體中文（香港）
 
             // 英文系
+            public const string en = "en"; // 英文
             public const string enUS = "en-us"; // 英文（美國）
             public const string enGB = "en-gb"; // 英文（英國）
 

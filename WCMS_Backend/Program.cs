@@ -802,13 +802,14 @@ namespace WCMS
                     FormStatus= FormStatus.Saved,
                     DataStatus= DataStatus.Valid,
                     OrgLvId=string.Empty,
+                    InternalId = Guid.NewGuid().ToString(),
                     IsIniData = true,
                     CreateTime = now,
                     ModifyTime = now,
                     CreateUserId = SysOperator.AccountId,
                     ModifyUserId = SysOperator.AccountId,
                 };
-                var rootDetail = new SiteMenu_IndexInfoModel
+                var rootDetail1 = new SiteMenu_IndexInfoModel
                 {
                     // 這裡的屬性名稱請依你實際的 Model 調整
                     SiteIndex = root.SiteIndex,
@@ -820,8 +821,21 @@ namespace WCMS
                     SiteFooter=string.Empty,
                     Keyword=string.Empty
                 };
-                db.Set<SiteMenu_IndexModel>().Add(root);
-                db.Set<SiteMenu_IndexInfoModel>().Add(rootDetail);
+
+                var rootDetail2 = new SiteMenu_IndexInfoModel
+                {
+                    // 這裡的屬性名稱請依你實際的 Model 調整
+                    SiteIndex = root.SiteIndex,
+                    RowId = 2,
+                    Lang = Lang.en,       
+                    Title = string.Empty,     
+                    Description = string.Empty,
+                    SiteHeader = string.Empty,
+                    SiteFooter = string.Empty,
+                    Keyword = string.Empty
+                };
+                await db.Set<SiteMenu_IndexModel>().AddAsync(root);
+                await db.Set<SiteMenu_IndexInfoModel>().AddRangeAsync([rootDetail1, rootDetail2]);
                 await db.SaveChangesAsync();
                 await tx.CommitAsync();
             }
