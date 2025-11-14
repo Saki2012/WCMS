@@ -108,10 +108,17 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
     const toUrl = (id: string, kind: "file" | "image") =>
         (p.makeFileUrl?.(id, { kind })) ?? `${FileManagementAPI.PREVIEW_URL}/${id}`;
 
-    const pickLocalFile = (cb: (file: File) => void) =>
+    const pickLocalFile = (cb: (file: File) => void, opt?: { accept?: string; }) =>
     {
         const input = document.createElement("input");
         input.type = "file";
+
+        // 若有指定檔案類型，設定到 input.accept
+        if (opt?.accept)
+        {
+            input.accept = opt.accept; // 例如 ".pdf,application/pdf"
+        }
+
         input.onchange = () =>
         {
             const f = input.files?.[0];
@@ -149,7 +156,6 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     ed.windowManager.alert("請輸入 URL");
                     return;
                 }
-                const sandbox = pickSandboxForUrl(url);
 
                 const html = `<iframe src="${ed.dom.encode(url)}"
                     title="${ed.dom.encode(title)}"
@@ -157,7 +163,6 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     height="${ed.dom.encode(height)}"
                     loading="lazy"
                     referrerpolicy="no-referrer-when-downgrade"  
-                    sandbox="${sandbox}"                      
                     allowfullscreen
                     style="max-width:100%;border:0;"></iframe>`;
                 ed.insertContent(html);
@@ -205,7 +210,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 "bullist numlist outdent indent |",
                 "link unlink | image filepicker |",
                 "table |",
-                "copyformat applyformat removeformat | insertiframe | hr |",
+                "copyformat applyformat removeformat | insertiframe insertpdfiframe | hr |",
                 "togglePBlocks toggleDivBlocks |",
                 "fullscreen code",
             ].join(" "),
@@ -452,6 +457,56 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     icon: "embed",
                     tooltip: "插入 IFrame（YouTube / Google Map）",
                     onAction: () => insertIframeDialog(editor),
+                });
+                // 🆕 上傳 PDF 並插入 iframe
+                editor.ui.registry.addButton("insertpdfiframe", {
+                    icon: "export-pdf",
+                    tooltip: "上傳 PDF 並插入 iFrame",
+                    onAction: () =>
+                    {
+                        // 用既有的本機檔案挑選工具
+                        pickLocalFile(async (file) =>
+                        {
+                            // 只接受 pdf
+                            if (!/\.pdf$/i.test(file.name))
+                            {
+                                alert("請選擇 PDF 檔案");
+                                return;
+                            }
+
+                            try
+                            {
+                                const { isSuccess, internalId, name } = await uploadAndReturn(file);
+                                if (!isSuccess) return;
+
+                                // 用預覽 API 當 src（可視需要改成 toUrl(internalId, 'file')）
+                                const src = `${FileManagementAPI.PREVIEW_URL}/${internalId}`;
+                                const title = (name ?? file.name).replace(/\.[^.]+$/, "");
+                                const attrName = INTERNAL_ATTR; // data-internalid
+
+                                const html = `<p>`
+                                    + `<iframe`
+                                    + ` title="${editor.dom.encode(title)}"`
+                                    + ` width="100%"`
+                                    + ` height="1000"`
+                                    + ` loading="lazy"`
+                                    + ` referrerpolicy="no-referrer-when-downgrade"`
+                                    + ` frameborder="0"`
+                                    + ` allowfullscreen`
+                                    // + ` sandbox="allow-same-origin"`
+                                    + ` src="${src}"`
+                                    + ` ${attrName}="${internalId}"` // 🔴 關鍵：把 internalId 寫進 data-internalid
+                                    + `></iframe>`
+                                    + `</p>`;
+
+                                editor.insertContent(html);
+                                editor.nodeChanged();
+                            } catch
+                            {
+                                alert("上傳失敗");
+                            }
+                        }, { accept: "application/pdf" });
+                    },
                 });
 
                 // format-painter
@@ -856,11 +911,8 @@ export const useTinyMceInternalImage = (
                 {
                     nodes.forEach((node: any) =>
                     {
-                        const src = String(node.attr("src") || "");
                         // 與你現成的函式一致
-                        const sb = pickSandboxForUrl(src) || "allow-same-origin";
-
-                        node.attr("sandbox", sb);
+                        node.attr("sandbox", null);
                         node.attr("loading", "lazy");
                         node.attr("referrerpolicy", "no-referrer-when-downgrade");
                         node.attr("allowfullscreen", "");
@@ -869,7 +921,7 @@ export const useTinyMceInternalImage = (
                         const wrap = node.parent;
                         if (wrap)
                         {
-                            wrap.attr("data-mce-p-sandbox", sb);
+                            wrap.attr("data-mce-p-sandbox", null);
                             wrap.attr("data-mce-p-loading", "lazy");
                             wrap.attr("data-mce-p-referrerpolicy", "no-referrer-when-downgrade");
                             wrap.attr("data-mce-p-allowfullscreen", "");
@@ -956,7 +1008,7 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                 } // 找不到就先跳出，避免誤改 wrapper
 
                 // 依 URL 決定 sandbox（沿用你原本的判斷）
-                const sandbox = pickSandboxForUrl(v.src);
+                // const sandbox = pickSandboxForUrl(v.src);
 
                 const nw = normalizeWidth(v.width);
                 const nh = normalizeHeight(v.height);
@@ -970,7 +1022,7 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                     dom.setAttrib(ifr, "title", v.title || null);
                     dom.setAttrib(ifr, "width", nw);
                     dom.setAttrib(ifr, "height", nh);
-                    dom.setAttrib(ifr, "sandbox", sandbox || null);
+                    // dom.setAttrib(ifr, "sandbox", sandbox || null);
                     dom.setAttrib(ifr, "loading", "lazy");
                     dom.setAttrib(ifr, "referrerpolicy", "no-referrer-when-downgrade");
                     dom.setAttrib(ifr, "allowfullscreen", "");
@@ -1004,7 +1056,7 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                             "data-mce-p-title": v.title || null,
                             "data-mce-p-width": (typeof nw === "string" ? nw : String(nw)) || null,
                             "data-mce-p-height": (typeof nh === "string" ? nh : String(nh)) || null,
-                            "data-mce-p-sandbox": sandbox || null,
+                            // "data-mce-p-sandbox": sandbox || null,
                             "data-mce-p-loading": "lazy",
                             "data-mce-p-referrerpolicy": "no-referrer-when-downgrade",
                             "data-mce-p-allowfullscreen": "", // boolean attr
