@@ -528,7 +528,7 @@ namespace WCMS
                 app.Use(async (ctx, next) =>
                 {
                     ctx.Response.Headers.XContentTypeOptions = "nosniff";
-                    ctx.Response.Headers.XFrameOptions = "DENY";
+                    ctx.Response.Headers.XFrameOptions = "SAMEORIGIN";
                     ctx.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
                     ctx.Response.Headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=(), fullscreen=(self)";
                     ctx.Response.Headers.StrictTransportSecurity = "max-age=31536000";
