@@ -26,10 +26,7 @@ export const SearchData = () => {
 					<div className="circle-1 iMG-Shape-0" />
 					<div className="container-customize2">
 						<div className="Form_Search_DIV">
-							<ul
-								className="tablist_nav nav nav-tabs nav-fill"
-								id="findTab"
-								role="tablist">
+							<ul className="tablist_nav nav nav-tabs nav-fill" id="findTab" role="tablist">
 								<li className="li_item nav-item">
 									<a aria-controls="search_01" aria-selected="true" className="alink nav-link active show" data-bs-toggle="tab" href="#search_01" id="search_tab_01" role="tab" tabIndex={0}>
 										館藏整合查詢
