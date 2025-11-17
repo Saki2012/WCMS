@@ -275,6 +275,7 @@ namespace WCMS.SysCore.Enum
             #region 文字檔案
             public const string APPLICATION_PDF = "application/pdf";
             public const string APPLICATION_MSWORD = "application/msword";
+            public const string APPLICATION_ODT = "application/vnd.oasis.opendocument.text";
             public const string APPLICATION_VND_OPENXML_WORD = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
             public const string APPLICATION_VND_EXCEL = "application/vnd.ms-excel";
             public const string APPLICATION_VND_OPENXML_EXCEL = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
