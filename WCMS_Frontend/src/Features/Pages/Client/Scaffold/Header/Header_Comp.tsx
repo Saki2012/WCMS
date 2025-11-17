@@ -18,7 +18,6 @@ export const Header = ({ lang, site, style }: { lang: Lang; site: INormSite; sty
                 <div style={{ color: 'red' }}>{"您的瀏覽器不支援 JavaScript，請開啟 Javascript 功能。"}</div>
             </noscript>
             <a href="#content" id="gotocenter" title="跳到頁面主要內容區" tabIndex={1} className="sr-only sr-only-focusable">跳到頁面主要內容區</a>
-
             <div id="site-header" className="LL_Header_DivBar main-header w-100">
                 <section className="header_section">
                     <header className="header_Box" ref={headerRef}>

@@ -9,10 +9,6 @@ import { RouterProvider } from "react-router-dom";
 import { MessageProvider } from "@/SysCore/Components/Message/Dialog/Dialog_Comp.tsx";
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp.tsx";
 import api, { type BrowserApiWithInit } from "@/SysCore/Utils/API/APIBase.ts"
-if (typeof window !== "undefined") {
-  // CSR：初始化一次 XSRF；SSR：這個屬性不存在，呼叫也不會發生
-  (api as BrowserApiWithInit).__initXsrfOnce?.();
-}
 
 if (typeof window !== "undefined") {
   // CSR：初始化一次 XSRF
@@ -21,8 +17,8 @@ if (typeof window !== "undefined") {
   if (path.startsWith("/server")) {
     // ✅ 後台：/Server/... → 載入 Features（後台）CSS / JS
     await import("@/Features/Assets/LoadFeaturesCss.ts");
-    await import("SpecFeature/Assets/LoadSpecCss_Server.ts");
     await import("@/Features/Assets/LoadFeaturesJs.ts");
+    await import("SpecFeature/Assets/LoadSpecCss_Server.ts");
   } else {
     // ✅ 前台：其他路徑 → 載入 Spec（前台）CSS / JS
     await import("SpecFeature/Assets/LoadSpecCss.ts");
