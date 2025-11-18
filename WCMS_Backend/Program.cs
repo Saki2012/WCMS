@@ -27,6 +27,7 @@ using WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting;
 using WCMS.SysCore;
 using WCMS.SysCore.AppSettingsOptions;
 using WCMS.SysCore.Interface;
+using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.Security;
 using WCMS.SysCore.Middleware;
 using static WCMS.SysCore.Enum.SysEnum;
@@ -38,6 +39,7 @@ namespace WCMS
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            SpecSettings.Init(builder.Configuration);
             // ① 基礎主機/效能/安全 – 最小化 API 伺服器足跡
             AppSetup.BasicSetting(builder);
             // ② 連線性（Connection）– 全集中在這裡修改
@@ -528,7 +530,7 @@ namespace WCMS
                 app.Use(async (ctx, next) =>
                 {
                     ctx.Response.Headers.XContentTypeOptions = "nosniff";
-                    ctx.Response.Headers.XFrameOptions = "DENY";
+                    ctx.Response.Headers.XFrameOptions = "SAMEORIGIN";
                     ctx.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
                     ctx.Response.Headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=(), fullscreen=(self)";
                     ctx.Response.Headers.StrictTransportSecurity = "max-age=31536000";

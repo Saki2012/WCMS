@@ -390,6 +390,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 MimeTypes.APPLICATION_VND_EXCEL         ,
                 MimeTypes.APPLICATION_VND_OPENXML_EXCEL ,
                 MimeTypes.APPLICATION_VND_POWERPOINT ,
+                MimeTypes.APPLICATION_ODT,
                 MimeTypes.APPLICATION_VND_OPENXML_POWERPOINT ,
                 MimeTypes.TEXT_PLAIN ,
                 MimeTypes.TEXT_CSV ,

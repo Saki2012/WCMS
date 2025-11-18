@@ -175,6 +175,10 @@ namespace WCMS.SysCore
             if (selectExpr != null) includes.UnionWith(ExpressionIncludeHelper.ExtractIncludePaths(selectExpr));
             // ✅ 執行 Include
             foreach (var path in includes) query = query.Include(path);  // 支援多層如 A.B.C
+#if DEBUG
+            var sqlStr = selectExpr == null ? query.ToQueryString() : query.Select((Expression<Func<TModel, TModel>>)selectExpr).ToQueryString();
+            Console.WriteLine(sqlStr);
+#endif
             // ✅ Select
             var result = selectExpr == null ? await query.Cast<TModel>().CountAsync() : await query.Select((Expression<Func<TModel, TModel>>)selectExpr).Cast<TModel>().CountAsync();
             return result;

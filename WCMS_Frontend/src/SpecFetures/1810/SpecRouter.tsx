@@ -11,6 +11,7 @@ import { SpecResearchListComp, type ISpecResearchListOptions } from "./Pages/Cli
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 import { SpecUSRFormComp } from "@/SpecFetures/1810/Pages/Client/SpecUSR/SpecUSR_Form";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { SubPage } from "../1816/Pages/Client/Scaffold/SubPages/SubPage";
 
 
 export class SpecRouteModule implements IRouteModule {
@@ -26,7 +27,7 @@ export const specClientEntries: Record<string, ModuleEntry> = {
   SpecUSR: {
     kind: "routes",
     element: (lang: Lang, site: INormSite, node: INormNode) => (
-      <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
+      <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
     ),
     children: (opts: unknown, lang: string) => [
       { index: true, element: <AutoRedirect to="List" replace /> },
@@ -37,7 +38,7 @@ export const specClientEntries: Record<string, ModuleEntry> = {
   SpecResearch: {
     kind: "routes",
     element: (lang: Lang, site: INormSite, node: INormNode) => (
-      <SubContent Style={Classic_FETheme} Lang={lang} site={site} node={node}></SubContent>
+      <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
     ),
     children: (opts: unknown, lang: string) => [
       { index: true, element: <SpecResearchListComp Theme={Classic_FETheme} Lang={lang} Options={opts as ISpecResearchListOptions} /> },

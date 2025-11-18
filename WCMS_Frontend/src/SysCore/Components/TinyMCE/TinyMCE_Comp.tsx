@@ -71,7 +71,7 @@ const TinyMCE_Comp = ({ args }: Props) => {
       extended_valid_elements: [
         existingInit?.extended_valid_elements || "",
         // ⬇️ 多了 sandbox
-        "iframe[src|title|width|height|style|allow|loading|referrerpolicy|frameborder|allowfullscreen|sandbox]"
+        "iframe[src|title|width|height|style|allow|loading|referrerpolicy|frameborder|allowfullscreen]"
       ].filter(Boolean).join(","),
       contextmenu: mergedContextMenu,
       setup: (editor: any) => {

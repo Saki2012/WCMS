@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import { useGetSideMenuItem, useSideMenuToggle } from './SlideMenu_Hook'
 import { useState } from 'react';
 
-import logImg from '@/Features/Assets/Server/images/logo/logo_PC_210x63.svg'
+import logImg from 'SpecFeature/Assets/Server/menu_logo_PC.svg'
+// import logImg from '@/Features/Assets/Server/images/logo/logo_PC_210x63.svg'
 
 const SidebarMenu = ({ theme }: { theme: IBETheme }) => {
     const items = useGetSideMenuItem();

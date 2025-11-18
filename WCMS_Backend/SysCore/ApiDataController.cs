@@ -46,15 +46,7 @@ namespace WCMS.SysCore
         private IOutputCacheFeature? Ocf => _Ocf ??= HttpContext.Features.Get<IOutputCacheFeature>();
         private IBizService<FileManageSet> _fileService;
         protected FileManagementBiz FileService => (FileManagementBiz)(_fileService ??= HttpContext.RequestServices.GetRequiredService<IBizService<FileManageSet>>());
-        private ModelDisplay<TSet_DTO>.ModelMetadata _modelDisplayName;
-        protected ModelDisplay<TSet_DTO>.ModelMetadata ModelDescription
-        {
-            get
-            {
-                _modelDisplayName ??= new ModelDisplay<TSet_DTO>().Model;
-                return _modelDisplayName;
-            }
-        }
+        protected ModelDisplay<TSet_DTO>.ModelMetadata ModelDescription{ get { return new ModelDisplay<TSet_DTO>().Model; } }
         protected IOperateLog OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IOperateLog>();
         private IOperateLog? _OperateLog;
         private ICurrentUserAccessor _Current;

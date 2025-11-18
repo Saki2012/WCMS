@@ -6,10 +6,6 @@ import * as HelmetAsync from "react-helmet-async";
 import { StaticRouterProvider } from "react-router-dom/server";
 import { MessageProvider } from "@/SysCore/Components/Message/Dialog/Dialog_Comp";
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
-import '@/Features/Assets/LoadFeaturesCss.ts'
-import 'SpecFeature/Assets/LoadSpecCss.ts'
-
-import type { Lang } from "@/SysCore/i18n/lang";
 
 const HelmetProvider = (HelmetAsync as any).HelmetProvider ?? (HelmetAsync as any).default?.HelmetProvider ??
   // 萬一還是取不到，就用 no-op provider 避免 SSR 直接當掉
@@ -18,6 +14,15 @@ const HelmetProvider = (HelmetAsync as any).HelmetProvider ?? (HelmetAsync as an
 type RenderResult = { appHtml: string; headTags: string, initialState: string };
 
 export const SSR_Render = async (url: string, headers: Record<string, string> = {}): Promise<RenderResult> => {
+
+  const lowerUrl = url.toLowerCase();
+  if (lowerUrl.startsWith("/server")) {
+    await import("@/Features/Assets/LoadFeaturesCss.ts");
+    await import("SpecFeature/Assets/LoadSpecCss_Server.ts");
+  } else {
+    await import("SpecFeature/Assets/LoadSpecCss.ts");
+  }
+
 
   const boot = {
     module: new SpecRouteModule() as IRouteModule,

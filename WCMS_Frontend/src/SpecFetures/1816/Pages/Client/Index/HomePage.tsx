@@ -1,11 +1,11 @@
 import { GoTopButton } from '@/Features/Pages/Client/BizFunc/MainPage/SubPages'
-import { SearchData } from '@/SpecFetures/1816/Pages/Client/Index/SearchData'
-import { LinkData } from '@/SpecFetures/1816/Pages/Client/Index/LinkData'
-import { CarouselData } from '@/SpecFetures/1816/Pages/Client/Index/CarouselData'
-import { NewsData } from '@/SpecFetures/1816/Pages/Client/Index/NewsData'
-import { CollectionsData } from '@/SpecFetures/1816/Pages/Client/Index/CollectionsData'
-import { SpecialLinkData } from '@/SpecFetures/1816/Pages/Client/Index/SpecialLinkData'
-import { QuickLinksData } from '@/SpecFetures/1816/Pages/Client/Index/QuickLinksData'
+import { SearchData } from '@/SpecFetures/1816/Pages/Client/Index/Section/SearchData'
+import { LinkData } from '@/SpecFetures/1816/Pages/Client/Index/Section/LinkData'
+import { CarouselData } from '@/SpecFetures/1816/Pages/Client/Index/Section/CarouselData'
+import { NewsData } from '@/SpecFetures/1816/Pages/Client/Index/Section/NewsData'
+import { CollectionsData } from '@/SpecFetures/1816/Pages/Client/Index/Section/CollectionsData'
+import { SpecialLinkData } from '@/SpecFetures/1816/Pages/Client/Index/Section/SpecialLinkData'
+import { QuickLinksData } from '@/SpecFetures/1816/Pages/Client/Index/Section/QuickLinksData'
 
 const HomePage = () => {
   return (

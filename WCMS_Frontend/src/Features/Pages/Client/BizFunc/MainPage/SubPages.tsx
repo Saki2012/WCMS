@@ -18,28 +18,6 @@ import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient'
 import gototopImg from 'SpecFeature/Assets/Client/images/go-to-top/gototop_40x40.svg'//暫時先這樣寫
 
 type BannerSet = components["schemas"]["BannerSet_DTO"];
-interface ISubPagesProps { Style: IFETheme; Lang: Lang; site: INormSite; node: INormNode; backHref?: string; }
-const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode): ReactNode[] => {
-  const result: ReactNode[] = [<Link to={`/${site.siteIndex}`} title='首頁'>首頁</Link>];
-  var curNodes = site.treeByLang[lang]
-  node.absIds?.forEach(id => {
-    var curNode = curNodes?.find((n: INormNode) => n.id === id);
-    if (curNode?.id === node.id) {
-      result.push(<>{curNode.title}</>)
-    }
-    else {
-      result.push(<Link to={curNode?.redirectTo ?? ""} title={curNode?.title}>{curNode?.title}</Link>)
-    }
-    curNodes = curNode?.children ?? []
-  });
-  return result;
-}
-const GetMenuData = (lang: Lang, site: INormSite, node: INormNode, maxDepth: number = Infinity): MenuItemData[] => {
-  const roots = site.treeByLang?.[lang] ?? [];
-  const rootNode = roots.find(n => n.id === (node.rootId ?? roots[0]?.id));
-  if (!rootNode) return [];
-  return buildMenuItems(rootNode.children ?? [], node.id, 1, maxDepth);
-};
 const useBannerPic = (bannerId: string) => {
   const provider = BannerSliderProvider();
   return useFetchGridListData<BannerSet>({
@@ -63,6 +41,28 @@ const useBannerPic = (bannerId: string) => {
     deps: [bannerId],
   });
 }
+const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode): ReactNode[] => {
+  const result: ReactNode[] = [<Link to={`/${site.siteIndex}`} title='首頁'>首頁</Link>];
+  var curNodes = site.treeByLang[lang]
+  node.absIds?.forEach(id => {
+    var curNode = curNodes?.find((n: INormNode) => n.id === id);
+    if (curNode?.id === node.id) {
+      result.push(<>{curNode.title}</>)
+    }
+    else {
+      result.push(<Link to={curNode?.redirectTo ?? ""} title={curNode?.title}>{curNode?.title}</Link>)
+    }
+    curNodes = curNode?.children ?? []
+  });
+  return result;
+}
+const GetMenuData = (lang: Lang, site: INormSite, node: INormNode, maxDepth: number = Infinity): MenuItemData[] => {
+  const roots = site.treeByLang?.[lang] ?? [];
+  const rootNode = roots.find(n => n.id === (node.rootId ?? roots[0]?.id));
+  if (!rootNode) return [];
+  return buildMenuItems(rootNode.children ?? [], node.id, 1, maxDepth);
+};
+
 export const buildMenuItems = (nodes: INormNode[] = [], activeId: number, currentDepth: number = 1, maxDepth: number = Infinity): MenuItemData[] => {
   return nodes
     .filter(n => n.isShowOnMenu !== false) // 過濾掉不顯示的
@@ -119,6 +119,7 @@ const getAncestorAtLevel = (lang: Lang, site: INormSite, node: INormNode, level:
   // 若實際深度不夠，回傳最接近的（最後找到的）節點
   return undefined;
 };
+interface ISubPagesProps { Style: IFETheme; Lang: Lang; site: INormSite; node: INormNode; backHref?: string; }
 const SubPageBase = (props: ISubPagesProps & { renderMain: () => React.ReactNode }) => {
   const title: string = props.node.title;
   const breadCrumbData: ReactNode[] = GetBreadCrumbData(props.Lang, props.site, props.node);
@@ -191,7 +192,6 @@ const SubPageBase = (props: ISubPagesProps & { renderMain: () => React.ReactNode
     </>
   );
 };
-
 // 🟢 2) 既有的路由外殼：用 Outlet（保持相容）
 const SubContent = (props: ISubPagesProps) => (
   <SubPageBase {...props} renderMain={() => <Outlet />} />

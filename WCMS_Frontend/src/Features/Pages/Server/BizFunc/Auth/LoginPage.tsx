@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { AuthAPI } from '@/SysCore/Utils/API/AuthClient';
-import logImg from '@/Features/Assets/Server/images/logo/logo_PC_640x192.svg'
+import logImg from 'SpecFeature/Assets/Server/login_logo_PC.svg'
 
 export default function LoginPage() {
   const [account, setAccount] = useState('');      // HTML 的 email 欄位 -> 後端 account

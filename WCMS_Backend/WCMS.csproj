@@ -119,4 +119,14 @@
 	  <EmbeddedResource Remove="SysCore\SystemFunc\UserRolePermission\**" />
 	  <None Remove="SysCore\SystemFunc\UserRolePermission\**" />
 	</ItemGroup>
+
+	
+	<ItemGroup>
+	  <EmbeddedResource Update="SpecFeatures\T1810\Resx\SpecModelDisplayName.zh-TW.resx">
+	    <SubType>Designer</SubType>
+	  </EmbeddedResource>
+	  <EmbeddedResource Update="SpecFeatures\T1810\Resx\SysMessageCode.zh-TW.resx">
+	    <SubType>Designer</SubType>
+	  </EmbeddedResource>
+	</ItemGroup>
 </Project>

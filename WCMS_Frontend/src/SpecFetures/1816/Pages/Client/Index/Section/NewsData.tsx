@@ -1,4 +1,4 @@
-import { NewsCalendarData } from '@/SpecFetures/1816/Pages/Client/Index/NewsCalendarData'
+import { NewsCalendarData } from '@/SpecFetures/1816/Pages/Client/Index/Section/NewsCalendarData'
 import bgImg from '@/SpecFetures/1816/Assets/Client/images/bg/background-transparent-image_1920x600.png'
 
 
