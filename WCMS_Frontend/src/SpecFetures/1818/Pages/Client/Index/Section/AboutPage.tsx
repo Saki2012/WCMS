@@ -1,6 +1,6 @@
 
 
-import { AdmissionsCarouselData } from '@/SpecFetures/1818/Pages/Client/Index/AdmissionsCarouselData'
+import { AdmissionsCarouselData } from '@/SpecFetures/1818/Pages/Client/Index/Section/AdmissionsCarouselData'
 
 //import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
 //import { useBannerListData } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Hook";

@@ -1,11 +1,11 @@
 import { GoTopButton } from '@/Features/Pages/Client/BizFunc/MainPage/SubPages'
-import { CarouselData } from '@/SpecFetures/1818/Pages/Client/Index/CarouselData'
-import { LinkData } from '@/SpecFetures/1818/Pages/Client/Index/LinkData'
-import { AboutPage } from '@/SpecFetures/1818/Pages/Client/Index/AboutPage'
+import { CarouselData } from '@/SpecFetures/1818/Pages/Client/Index/Section/CarouselData'
+import { LinkData } from '@/SpecFetures/1818/Pages/Client/Index/Section/LinkData'
+import { AboutPage } from '@/SpecFetures/1818/Pages/Client/Index/Section/AboutPage'
 
-import { NewsData } from '@/SpecFetures/1818/Pages/Client/Index/NewsData'
+import { NewsData } from '@/SpecFetures/1818/Pages/Client/Index/Section/NewsData'
 
-import { ActivityPhotoData } from '@/SpecFetures/1818/Pages/Client/Index/ActivityPhotoData'
+import { ActivityPhotoData } from '@/SpecFetures/1818/Pages/Client/Index/Section/ActivityPhotoData'
 
 
 

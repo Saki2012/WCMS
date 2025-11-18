@@ -1,33 +1,12 @@
-import { NewsCalendarData } from '@/SpecFetures/1816/Pages/Client/Index/NewsCalendarData'
-import bgImg from '@/SpecFetures/1816/Assets/Client/images/bg/background-transparent-image_1920x600.png'
-
-
-
 import { Link } from 'react-router-dom';
-
-
-
-//import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api';
-
 import GalleryProvider from '@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api';
-
-
 import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api';
 import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
-//import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
-
-//import { useBannerListData } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Hook";
-
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
-
-
-
 //import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import type { components } from "@/types/api";
-import clsx from "clsx";
 import * as SchemaFields from "@/types/SchemaFields";
-import { useMemo } from "react";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 //type BannerSet = components["schemas"]["BannerSet_DTO"]
 //type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
