@@ -9,6 +9,8 @@ export const ThirdMenu_Comp = (props: { lang: Lang; site: INormSite; node: INorm
     const SIDE_MAX_DEPTH = 3;
     const anchor = getAncestorAtLevel(props.lang, props.site, props.node, SIDE_MAX_DEPTH);
     const topMenuData: MenuItemData[] = buildMenuItems(anchor?.children ?? [], props.node.id);
+    const tar = props.node.windowTarget === 0 ? "_self" : "_blank"
+
     const menuContainerRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
         const container = menuContainerRef.current;
@@ -41,7 +43,7 @@ export const ThirdMenu_Comp = (props: { lang: Lang; site: INormSite; node: INorm
                 <ul className="Rightlist-group">
                     {topMenuData && topMenuData.map((i) => {
                         return (
-                            <li><NavLink className="list-group-item" to={i.Url} title={i.SrcData}>{i.SrcData}</NavLink></li>
+                            <li><NavLink className="list-group-item" to={i.Url} title={i.SrcData} target={tar}>{i.SrcData}</NavLink></li>
                         )
                     })}
                 </ul>

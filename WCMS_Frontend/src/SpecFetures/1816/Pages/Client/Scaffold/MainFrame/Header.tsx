@@ -429,9 +429,10 @@ const DropdownMenuItem = (props: { menuItem: MenuItemData; }) => {
 
 /** 3. Mega 選項：明細動態渲染 */
 const MegaMenuItem = (props: { menuItem: MenuItemData; }) => {
+    const tar = props.menuItem.URL_Open === "1" ? "_self" : "_blank"
     return (
         <li className="nav-item dropdown dropdown-mega position-static">
-            <NavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside">
+            <NavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside" target={tar}>
                 {props.menuItem.SrcData}
             </NavLink>
 
@@ -446,11 +447,14 @@ const MegaMenuItem = (props: { menuItem: MenuItemData; }) => {
 
                                     {/* 每一欄底下的連結列表 */}
                                     <div className="list-group">
-                                        {(col.SubItem ?? []).map((link, linkIndex) => (
-                                            <NavLink key={linkIndex} className="list-group-item" to={link.Url || "#"} tabIndex={0}>
-                                                {link.SrcData}
-                                            </NavLink>
-                                        ))}
+                                        {(col.SubItem ?? []).map((link, linkIndex) => {
+                                            const subTar = link.URL_Open === "1" ? "_self" : "_blank"
+                                            return (
+                                                <NavLink key={linkIndex} className="list-group-item" to={link.Url || "#"} tabIndex={0} target={subTar}>
+                                                    {link.SrcData}
+                                                </NavLink>
+                                            )
+                                        })}
                                     </div>
                                 </div>
                             ))}
