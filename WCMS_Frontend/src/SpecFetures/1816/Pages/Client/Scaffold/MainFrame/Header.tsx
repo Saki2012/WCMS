@@ -15,28 +15,52 @@ export const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) 
         if (typeof window === "undefined") return;
         const header = headerRef.current;
         if (!header) return;
+
+        const BREAKPOINT = 992; // lg 斷點
+
         const setOpen = (open: boolean) => {
-            header.classList.toggle("active", open);           // 等同 jQuery add/removeClass
+            header.classList.toggle("active", open);
             document.body.style.overflow = open ? "hidden" : "auto";
         };
+
         const onClick = (ev: MouseEvent) => {
             const el = ev.target as Element;
 
-            // 1) 點到 .navbar-toggler → 開/關
+            // 1) 點到 .navbar-toggler → 只有在「小於 lg」才切換 active
             const toggler = el.closest(".navbar-toggler");
             if (toggler && header.contains(toggler)) {
+                if (window.innerWidth >= BREAKPOINT) {
+                    // 桌機寬度交給 Bootstrap 自己處理，不再用 active 控制
+                    return;
+                }
                 const open = !header.classList.contains("active");
                 setOpen(open);
                 return;
             }
-            // 2) 若你有 overlayer：點 overlayer → 關閉
+
+            // 2) 點遮罩 → 關閉（這個只會在 mobile 寬度時有用）
             const overlay = el.closest(".overlayer");
             if (overlay && header.contains(overlay)) {
                 setOpen(false);
             }
         };
+
+        // ✅ 視窗放大到桌機寬時，強制清除 mobile 狀態
+        const handleResize = () => {
+            if (window.innerWidth >= BREAKPOINT) {
+                setOpen(false); // 清掉 header.active + 還原 body scroll
+            }
+        };
+
         header.addEventListener("click", onClick);
-        return () => header.removeEventListener("click", onClick);
+        window.addEventListener("resize", handleResize);
+        handleResize(); // 初始化跑一次
+
+        return () => {
+            header.removeEventListener("click", onClick);
+            window.removeEventListener("resize", handleResize);
+            document.body.style.overflow = "auto";
+        };
     }, []);
 
     return (
@@ -99,9 +123,6 @@ const NavBar = () => {
             </li>
             <li className="nav-item">
                 <a className="nav-link" href="00_page_login_(BS.5_New).html" tabIndex={0} target="_self" title="北藝大首頁">北藝大首頁</a>
-            </li>
-            <li className="nav-item">
-                <a className="nav-link" href="../Back_stage/00_Index.html" tabIndex={0} target="_self" title="後台管理">後台管理</a>
             </li>
             <li className="nav-item">
                 <a className="nav-link" href="javascript:void(0);" tabIndex={0} target="_self" title="網站導覽">網站導覽</a>
@@ -200,8 +221,11 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
         };
         navbarToggler?.addEventListener("click", onBurgerClick);
 
-        // ---------- 4) Mega menu：hover/點擊互斥顯示，點外面關閉 ----------
+        // ---------- 4) Mega menu：桌機 hover、手機只用點擊，點外面關閉 ----------
+        const BREAKPOINT = 992; // 跟 navbar-expand-lg 對齊
+
         const megaEls = Array.from(root.querySelectorAll<HTMLElement>(".dropdown-mega"));
+
         const closeAllExcept = (keep?: HTMLElement) => {
             megaEls.forEach(d => {
                 if (keep && d === keep) return;
@@ -211,18 +235,30 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
             });
         };
 
-        const onMegaEnter = (e: Event) => {
-            const d = e.currentTarget as HTMLElement;
+        const openMega = (d: HTMLElement) => {
             closeAllExcept(d);
             d.classList.add("show");
             d.querySelector<HTMLElement>(".dropdown-menu")?.classList.add("show");
             d.querySelector<HTMLElement>(".dropdown-toggle")?.setAttribute("aria-expanded", "true");
         };
-        const onMegaLeave = (e: Event) => {
-            const d = e.currentTarget as HTMLElement;
+
+        const closeMega = (d: HTMLElement) => {
             d.classList.remove("show");
             d.querySelector<HTMLElement>(".dropdown-menu")?.classList.remove("show");
             d.querySelector<HTMLElement>(".dropdown-toggle")?.setAttribute("aria-expanded", "false");
+        };
+
+        // 桌機寬度才吃 hover
+        const onMegaEnter = (e: Event) => {
+            if (window.innerWidth < BREAKPOINT) return; // 手機寬 → 忽略 hover
+            const d = e.currentTarget as HTMLElement;
+            openMega(d);
+        };
+
+        const onMegaLeave = (e: Event) => {
+            if (window.innerWidth < BREAKPOINT) return; // 手機寬 → 忽略 hover
+            const d = e.currentTarget as HTMLElement;
+            closeMega(d);
         };
 
         // 個別 toggle 的 click handler 需要保存以便清掉
@@ -230,19 +266,25 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
 
         megaEls.forEach(d => {
             const t = d.querySelector<HTMLElement>(".dropdown-toggle");
+
+            // 桌機：仍然綁 hover
             d.addEventListener("mouseenter", onMegaEnter);
             d.addEventListener("mouseleave", onMegaLeave);
+
             if (t) {
                 const h = (e: Event) => {
-                    e.preventDefault();
-                    if (d.classList.contains("show")) onMegaLeave(e);
-                    else onMegaEnter(e);
+                    e.preventDefault(); // 避免直接導頁
+                    const isOpen = d.classList.contains("show");
+                    if (isOpen) {
+                        closeMega(d);
+                    } else {
+                        openMega(d);
+                    }
                 };
                 t.addEventListener("click", h);
                 toggleClickMap.set(t, h);
             }
         });
-
         const onDocClick = (e: MouseEvent) => {
             if (!root.contains(e.target as Node)) closeAllExcept();
         };
@@ -322,19 +364,20 @@ const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
 
     const menuItems = GetMenuData(props.lang, props.site)
 
-    return (<div id="navbar-content">
-        <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
-
-            {menuItems.map((item) => {
-                return (
-                    <>
-                        {/* <SingleMenuItem menuItem={item} />
+    return (
+        <div id="navbar-content" className="collapse navbar-collapse overflow-scroll-Y">
+            <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
+                {menuItems.map((item) => {
+                    return (
+                        <>
+                            {/* <SingleMenuItem menuItem={item} />
                         <DropdownMenuItem menuItem={item} /> */}
-                        <MegaMenuItem menuItem={item} />
-                    </>)
-            })}
-        </ul>
-    </div>)
+                            <MegaMenuItem menuItem={item} />
+                        </>)
+                })}
+            </ul>
+        </div>
+    )
 }
 const PCBtn = () => {
     return (

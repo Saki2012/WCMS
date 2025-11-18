@@ -101,9 +101,6 @@ const NavBar = () => {
                 <a className="nav-link" href="00_page_login_(BS.5_New).html" tabIndex={0} target="_self" title="北藝大首頁">北藝大首頁</a>
             </li>
             <li className="nav-item">
-                <a className="nav-link" href="../Back_stage/00_Index.html" tabIndex={0} target="_self" title="後台管理">後台管理</a>
-            </li>
-            <li className="nav-item">
                 <a className="nav-link" href="javascript:void(0);" tabIndex={0} target="_self" title="網站導覽">網站導覽</a>
             </li>
         </ul>

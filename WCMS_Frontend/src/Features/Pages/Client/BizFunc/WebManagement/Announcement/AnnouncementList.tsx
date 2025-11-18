@@ -326,7 +326,7 @@ const parseDateTimeToEpochMs = (input: string, assumeOffsetMinutes: number = 0):
     return Number.isNaN(fallback) ? null : fallback;
 };
 
-const isWithinLastNDaysFromString = (dateTimeStr?: string, n: number = 8, opts?: WithinLastOptions): boolean => {
+export const isWithinLastNDaysFromString = (dateTimeStr?: string, n: number = 8, opts?: WithinLastOptions): boolean => {
     if (!dateTimeStr) return false;
 
     const assumeOffsetMinutes = opts?.assumeOffsetMinutes ?? 0;

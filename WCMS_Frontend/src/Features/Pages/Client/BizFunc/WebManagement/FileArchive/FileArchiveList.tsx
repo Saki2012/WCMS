@@ -21,7 +21,7 @@ type FileArchiveUrlDetail = components["schemas"]["FileArchiveUrlDetail_DTO"];
 type TagSet = components["schemas"]["TagSet_DTO"];
 type WindowTarget = components["schemas"]["WindowTarget"]
 
-const useFileArchive = (lang: string | Lang, categoryIds: string, tagIds: string, tagSets: TagSet[], query: ISearchQuery) => {
+const useFileArchive = (lang: Lang, categoryIds: string, tagIds: string, tagSets: TagSet[], query: ISearchQuery) => {
     var condition: string = "";
     if (query.keyword) condition = LibMerge(" And ", false, condition, `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Title} Like ${query.keyword}`)
     if (query.tag) condition = LibMerge(" And ", false, condition, `${FileArchiveFields.TagsId} HasAny [${query.tag}]`)
@@ -131,7 +131,7 @@ export const FileArchiveList = (props: FileArchiveProps) => {
         </>
     )
 };
-const SetAdjustFunction = (lang: string, gridProps: GridProps, rawData: FileArchiveSet[], tagMap: Map<string, string>): GridProps => {
+const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: FileArchiveSet[], tagMap: Map<string, string>): GridProps => {
     const downloadColName = '__Download__';
     if (gridProps.columns.some(col => col.key === downloadColName)) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;

@@ -88,9 +88,9 @@ const RowRender = ({
 }) => {
     return (
         <tbody>
-            {rows.map((row, idx) => (
+            {rows && rows.map((row, idx) => (
                 <tr key={idx} className={idx % 2 === 1 ? style.Odd : style.Even}>
-                    {row.cells.map((data, cellIdx) => (
+                    {(row.cells ?? []).map((data, cellIdx) => (
                         <td
                             key={cellIdx}
                             headers={data.col.key}
@@ -107,11 +107,7 @@ const RowRender = ({
 };
 
 
-export const Grid = ({
-    gridData,
-    style,
-    pageStyle,
-}: {
+export const Grid = ({ gridData, style, pageStyle, }: {
     gridData: GridProps;
     style: IGridView_Style;
     pageStyle: IPaginator_Style;

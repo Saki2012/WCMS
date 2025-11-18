@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
 
 export const ThirdMenu_Comp = (props: { lang: Lang; site: INormSite; node: INormNode; backHref?: string; }) => {
-    const SIDE_MAX_DEPTH = 2;
+    const SIDE_MAX_DEPTH = 3;
     const anchor = getAncestorAtLevel(props.lang, props.site, props.node, SIDE_MAX_DEPTH);
     const topMenuData: MenuItemData[] = buildMenuItems(anchor?.children ?? [], props.node.id);
     const menuContainerRef = useRef<HTMLDivElement | null>(null);

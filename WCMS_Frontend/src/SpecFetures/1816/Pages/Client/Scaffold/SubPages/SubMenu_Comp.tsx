@@ -18,7 +18,7 @@ const GetMenuData = (lang: Lang, site: INormSite, node: INormNode, maxDepth: num
 
 export const SubMenu_Comp = (props: { lang: Lang; site: INormSite; node: INormNode; backHref?: string; }) => {
 
-    const SIDE_MAX_DEPTH = 2;
+    const SIDE_MAX_DEPTH = 3;
     const sideMenuData: MenuItemData[] = GetMenuData(props.lang, props.site, props.node, SIDE_MAX_DEPTH);
 
     const sidebarRef = useRef<HTMLDivElement | null>(null);
@@ -87,7 +87,7 @@ const renderSubMenuItems = (items: MenuItemData[]): React.ReactNode =>
         const key = `${item.Id}-${idx}`;
         return (
             <li key={key} className={clsx("nav-item", `${hasChildren ? "has-submenu" : ""}`)}>
-                <NavLink className="list-group-item" to={item.Url ?? ""}>{item.SrcData}</NavLink>
+                {hasChildren ? <div className="list-group-item">{item.SrcData}</div> : <NavLink className="list-group-item" to={item.Url ?? ""}>{item.SrcData}</NavLink>}
                 {hasChildren && (<ul className="submenu collapse">{renderSubMenuItems(item.SubItem!)}</ul>)}
             </li>
         );
