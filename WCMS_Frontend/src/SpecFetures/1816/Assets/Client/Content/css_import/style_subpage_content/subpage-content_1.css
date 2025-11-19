@@ -551,6 +551,7 @@
 }
 .sidebar ul li ul.submenu .nav-item a::before{
 	content: "》";
+	font-size: 85%;
 }
 /* ------  第二.三.四.五.六層 ul.submenu --------- */
 /* ============================================= */
@@ -591,7 +592,7 @@
 .sidebar .list-group-item {
 	position: relative;
 	cursor: pointer;
-	font-size: 93.75%;
+	font-size: 89.3%;
 	color: var(--blackcolor);
 	width: 100%;	
 	border: 1px solid #ddd;
@@ -599,7 +600,7 @@
 }
 @media screen and (min-width: 320px) and (max-width: 991px) {
 	.sidebar .list-group-item {
-		font-size: 87.5%;
+		font-size: 85%;
 		width: 100%;
 	}
 }
@@ -619,9 +620,9 @@
 .sidebar .has-submenu > .list-group-item::after {
 	content: "⌵";
 	position: absolute;
-	top: 23%;
+	top: 29%;
 	right: 0.5rem;
-	font-size: 105%;
+	font-size: 90%;
 	transition: transform 0.2s ease;
 	transform: rotate(-90deg);
 }
@@ -629,7 +630,7 @@
 .sidebar .has-submenu > .list-group-item.active::after {
 	content: "⌵";
 	transform: rotate(0deg);
-	top: 18%;
+	top: 21%;
 }
 /* ------ a class="list-group-item ------------- */
 /* ============================================= */
@@ -637,7 +638,7 @@
 /* ============================================= */
 /* ------ 第一層 ITEM ul li.nav-item ------------ */
 .sidebar ul > li > .list-group-item {
-	padding: 0.75rem 1.25rem 0.75rem 0.75rem;
+	padding: 0.75rem 1rem 0.75rem 0.5rem;
 }
 /* ------ 第一層 ITEM ul li.nav-item ------------ */
 /* ============================================= */
@@ -645,19 +646,19 @@
 /* ============================================= */
 /* ------  第二.三.四.五.六層 ul.submenu --------- */
 .sidebar ul > li > ul.submenu > li > .list-group-item {
-	padding: 0.75rem 1.25rem 0.75rem 1.25rem;
+	padding: 0.75rem 1rem 0.75rem 0.75rem;
 }
 .sidebar ul > li > ul.submenu > li > ul.submenu > li .list-group-item {
-	padding: 0.75rem 1.25rem 0.75rem 1.5rem;
+	padding: 0.75rem 1rem 0.75rem 1rem;
 }
 .sidebar ul > li > ul.submenu > li > ul.submenu > li > ul.submenu > li .list-group-item {
-	padding: 0.75rem 1.25rem 0.75rem 1.75rem;
+	padding: 0.75rem 1rem 0.75rem 1.25rem;
 }
 .sidebar ul > li > ul.submenu > li > ul.submenu > li > ul.submenu > li > ul.submenu > li .list-group-item {
-	padding: 0.75rem 1.25rem 0.75rem 2rem;
+	padding: 0.75rem 1rem 0.75rem 1.5rem;
 }
 .sidebar ul > li > ul.submenu > li > ul.submenu > li > ul.submenu > li > ul.submenu > li > ul.submenu > li .list-group-item {
-	padding: 0.75rem 1.25rem 0.75rem 2.25rem;
+	padding: 0.75rem 1rem 0.75rem 1.75rem;
 }
 /* ------  第二.三.四.五.六層 ul.submenu --------- */
 /* ============================================= */
