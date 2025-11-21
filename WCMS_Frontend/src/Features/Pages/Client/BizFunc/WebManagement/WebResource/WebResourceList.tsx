@@ -86,7 +86,7 @@ const YoutubeContent = (prop: { lang: string, datas: WebResourceSet[] }) => {
                     <div className="col-lg-4 col-md-6 col-sm-6 col-12 photo_standardbox">
                         <a className="venobox vbox-item" data-autoplay="true" data-vbtype="video" href={detail?.ResUrl ?? ""} title={`${detail?.Title ?? ""} (另開新視窗)`} target="_blank" rel="noopener noreferrer">
                             <div className="img-box">
-                                <iframe width="100%" height="275" src={detail?.ResUrl ?? ""}
+                                <iframe width="100%" height="100%" src={detail?.ResUrl ?? ""}
                                     title={detail?.Title ?? ""} style={{ border: 'none' }}
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowFullScreen>
