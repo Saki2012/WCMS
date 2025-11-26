@@ -4,15 +4,10 @@ import 'react-datepicker/dist/react-datepicker.css';
 import type { ILibCalendarProp } from './LibCalendar_Data';
 import { format, isSameDay, parse, isValid } from "date-fns";
 
-const SUPPORTED_FORMATS = [
-    "yyyy/MM/dd",
-    "yyyy/M/d",
-    "yyyy-MM-dd",
-    "yyyy-M-d",
-    "yyyy.MM.dd",
-    "yyyy.M.d",
-    "yyyyMMdd",
-] as const;
+
+
+
+const SUPPORTED_FORMATS = ["yyyy/MM/dd", "yyyy/M/d", "yyyy-MM-dd", "yyyy-M-d", "yyyy.MM.dd", "yyyy.M.d", "yyyyMMdd",] as const;
 const parseUserDate = (raw: string): Date | null => {
     const v = (raw || "").trim();
     if (!v) return null;
@@ -93,7 +88,8 @@ const LibCalendar = (prop: ILibCalendarProp) => {
                         placeholderText="YYYY / MM / DD"
                         autoComplete="off"
                         className="start-date form-control dateicon"
-                        calendarClassName="shadow-lg rounded-md border border-gray-300 p-2"
+                        calendarClassName="wcms-datepicker"
+
                         dayClassName={(date) => {
                             let className = "";
                             if (isSameDay(date, new Date())) {
@@ -102,10 +98,97 @@ const LibCalendar = (prop: ILibCalendarProp) => {
                             return className.trim();
                         }}
                         isClearable
+                        popperClassName="wcms-datepicker-popper"
                     />
                     {invalid && (<span id={`${inputId}-err`} className="invalid-feedback d-block"> 日期格式不正確。 </span>)}
                 </div>
             </div>
+            <style>{`
+  /* 讓浮層蓋過 TinyMCE */
+  .react-datepicker-popper.wcms-datepicker-popper {
+    z-index: 9999;
+  }
+
+  /* 整個日曆的卡片外觀 */
+  .react-datepicker.wcms-datepicker {
+    border-radius: 10px;
+    border: 1px solid #d0e7ff;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15);
+    padding: 4px 8px 8px;
+    font-size: 14px;
+  }
+
+  /* 上方的月份 + 星期列區塊：用淡色區分 */
+  .wcms-datepicker .react-datepicker__header {
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding-top: 8px;
+    padding-bottom: 4px;
+  }
+
+  .wcms-datepicker .react-datepicker__current-month {
+    font-weight: 600;
+  }
+
+  .wcms-datepicker .react-datepicker__day-names {
+    margin-top: 4px;
+  }
+
+  /* 星期列 / 日期格子的尺寸 */
+  .wcms-datepicker .react-datepicker__day-name,
+  .wcms-datepicker .react-datepicker__day {
+    width: 32px;
+    line-height: 32px;
+    margin: 2px;
+  }
+
+  .wcms-datepicker .react-datepicker__day {
+    border-radius: 999px;
+  }
+
+  /* 今天的樣式（藍色圓點） */
+  .wcms-datepicker .wcms-datepicker__day--today {
+    background-color: #0d6efd;
+    color: #fff;
+  }
+
+  /* 滑過去時的 hover 效果 */
+  .wcms-datepicker
+    .react-datepicker__day:not(.react-datepicker__day--disabled):hover {
+    background-color: #e0f2fe;
+  }
+
+  /* header 的 Su / Sa 變紅字 */
+  .wcms-datepicker .react-datepicker__day-name:nth-child(1),
+  .wcms-datepicker .react-datepicker__day-name:nth-child(7) {
+    color: #e11d48;
+  }
+
+  /* 週末的日期數字（每一週的第 1、7 欄）預設紅字 */
+  .wcms-datepicker .react-datepicker__week .react-datepicker__day:nth-child(1),
+  .wcms-datepicker .react-datepicker__week .react-datepicker__day:nth-child(7) {
+    color: #e11d48;
+  }
+
+  /* 之後要從萬年曆標記的假日，可以在 dayClassName 加這個 class */
+  .wcms-datepicker .react-datepicker__day.wcms-datepicker__day--holiday {
+    color: #e11d48;
+  }
+
+  /* 非本月日期：灰字（優先，覆蓋週末 / 假日設定） */
+  .wcms-datepicker .react-datepicker__day--outside-month {
+    color: #cbd5e1 !important;
+  }
+
+  /* 選中的日期（覆蓋週末 / 灰字），保持藍底白字 */
+  .wcms-datepicker .react-datepicker__day--selected,
+  .wcms-datepicker .react-datepicker__day--keyboard-selected {
+    background-color: #0d6efd;
+    color: #fff !important;
+  }
+`}</style>
         </>
     );
 };
