@@ -1,5 +1,5 @@
-﻿using Microsoft.Identity.Client;
-using WCMS.SysCore.SystemFunc.UserRolePermission.User;
+﻿using WCMS.Features.Member.Account;
+using WCMS.Features.SystemSetting.Auth;
 
 namespace WCMS.SysCore.Enum
 {
@@ -47,7 +47,7 @@ namespace WCMS.SysCore.Enum
         /// <summary>
         /// 系統操作
         /// </summary>
-        public static readonly UserModel SysOperator = new() { UserId = "SysOperator"};
+        public static readonly User_DTO SysOperator = new() { UserId= "SysOperator"};
 
     }
 }

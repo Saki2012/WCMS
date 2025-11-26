@@ -1,0 +1,395 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+/* ==  activity_student_section  ======== */
+/* ====================================== */
+.owl-box {
+	display: block;
+	position: relative;
+	min-height: 1px;
+}
+
+.owl-carousel.owl-drag .owl-item {
+	/*margin-right: 10px !important;*/
+}
+
+.content-box {
+	display: block;
+	position: relative;
+	padding: 0 15px;
+}
+
+.owl-box .item {
+    margin: 0;
+}
+
+.owl-box .box {
+	padding: 0;
+}
+
+.owl-box .box a:focus {
+	display: block;
+    text-decoration: none;
+	outline: 2px solid #43B5FC;
+	outline-offset: -2px;
+}
+
+.owl-box .box a .img-box {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-pack: center;
+	-ms-flex-pack: center;
+	justify-content: center;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+	background-color: transparent;	
+}
+
+.owl-box .box a .img-box img {
+	width: 100%;
+}
+
+.owl-box .box a .detail-box {
+	padding: 20px 40px 15px 40px;
+	background-color: #c8b170;
+}
+
+.owl-box .box a .detail-box h4 {
+	position: relative;
+	font-size: inherit;
+	font-weight: 600;
+	color: var(--blackcolor);
+	text-align: center;
+	background-color: var(--FFFcolor);
+	border: 1px solid #bbbbbb;
+	padding: 8px 20px;
+	line-height: 1.65;
+	display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 68px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */	
+}
+
+.owl-box .box a .detail-box h4:hover {
+	color: #b6162a;
+}
+
+.owl-box .box a .detail-box p {	
+	position: relative;
+	color: var(--blackcolor);
+	text-align: left;
+	margin-bottom: 0rem;
+	
+	display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 55px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+}
+
+/* ============================= */
+/* ==  循環豆豆  ================ */
+/* ============================= */
+.owl-carousel button.owl-dot {
+    background: 0 0;
+    color: inherit;
+    border: none;
+    padding: 0 !important;
+    font: inherit;
+	
+	cursor: pointer;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.owl-carousel .owl-dots,
+.owl-carousel button.owl-dot {
+	display: none;
+}
+/* ============================= */
+/* ==  循環豆豆  ================ */
+/* ============================= */
+
+
+/* ============================= */
+/* ==  左右選擇鍵 中間  ========== */
+/* ============================= */
+
+.owl-box .owl-nav {
+	margin-top: 15px;
+}
+
+.owl-box .owl-carousel .owl-nav button.owl-prev,
+.owl-box .owl-carousel .owl-nav button.owl-next {
+    cursor: pointer;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.owl-box .owl-carousel .owl-nav button.owl-prev,
+.owl-box .owl-carousel .owl-nav button.owl-next {    
+    font: inherit;
+	color: inherit;	
+	padding: 0 !important;
+    background: 0 0;
+	border: none;   
+	
+	position: absolute; 
+	top: 45%;
+	z-index: 1;
+}
+
+.owl-box .owl-carousel .owl-nav button.owl-prev,
+.owl-box .owl-carousel .owl-nav button.owl-next {
+	width: 45px;
+    height: 45px;
+	border-radius: 100%;
+}
+
+.owl-box .owl-carousel .owl-nav button.owl-prev {
+	left: -15px;
+	margin-right: 7.5px;
+	
+}
+.owl-box .owl-carousel .owl-nav button.owl-next {
+	right: -15px;
+	margin-left: 7.5px;
+} 
+
+.owl-box .owl-carousel .owl-nav button.owl-prev span,
+.owl-box .owl-carousel .owl-nav button.owl-next span {
+	width: 45px;
+    height: 45px;
+	/* border: 1px solid var(--FFFcolor) !important; */
+	/* background-color: rgba(255,255,255,0.8) !important; */
+	border-radius: 100%;
+} 
+.owl-box .owl-carousel .owl-nav button.owl-prev span {
+	content: url("../../images/owl-carousel/prev.svg");
+}
+.owl-box .owl-carousel .owl-nav button.owl-next span {
+	content: url("../../images/owl-carousel/next.svg");
+} 
+
+.owl-box .owl-carousel .owl-nav button.owl-prev span:hover {
+	content: url("../../images/owl-carousel/prev-hover.svg");
+	/* border: 1px solid var(--FFFcolor) !important; */
+	/* background-color: var(--color_006d66) !important; */
+}
+.owl-box .owl-carousel .owl-nav button.owl-next span:hover {
+	content: url("../../images/owl-carousel/next -hover.svg");
+	/* border: 1px solid var(--FFFcolor) !important; */
+	/* background-color: var(--color_006d66) !important; */
+} 
+/*.owl-box .owl-carousel .owl-nav button.owl-prev:focus,
+.owl-box .owl-carousel .owl-nav button.owl-next:focus,
+.owl-box .owl-carousel .owl-nav button.owl-prev span:focus,
+.owl-box .owl-carousel .owl-nav button.owl-next span:focus {
+	display: block;
+	width: 45px;
+    height: 45px;
+	border-radius: 100%;
+	background-color: var(--FFFcolor) !important;
+	outline: 2px solid #43B5FC !important;
+}
+*/
+/* ============================= */
+/* ==  左右選擇鍵 中間  ========== */
+/* ============================= */
+
+
+
+/* ============================= */
+/* ==  左右選擇鍵 下方  ========== */
+/* ============================= */
+
+/* .owl-box .owl-nav {
+	text-align: center;
+	margin-top: 15px;
+}
+
+.owl-box .owl-carousel .owl-nav button.owl-prev,
+.owl-box .owl-carousel .owl-nav button.owl-next {
+    cursor: pointer;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.owl-box .owl-carousel .owl-nav button.owl-prev,
+.owl-box .owl-carousel .owl-nav button.owl-next {    
+    font: inherit;
+	color: inherit;		
+	padding: 0 !important;
+	background: 0 0;
+	border: none;
+}
+
+.owl-box .owl-carousel .owl-nav button.owl-prev {
+	margin-right: 7.5px;
+	
+}
+.owl-box .owl-carousel .owl-nav button.owl-next {
+	margin-left: 7.5px;
+} 
+
+.owl-box .owl-carousel .owl-nav button.owl-prev span,
+.owl-box .owl-carousel .owl-nav button.owl-next span {
+	width: 48px;
+	height: 48px;
+	border-radius: 8px !important;
+	border: 1px solid var(--color_006d66);
+	background-color: transparent !important;
+} 
+.owl-box .owl-carousel .owl-nav button.owl-prev span {
+	content: url("../../images/owl-carousel/prev.svg");
+}
+.owl-box .owl-carousel .owl-nav button.owl-next span {
+	content: url("../../images/owl-carousel/next.svg");
+} 
+
+.owl-box .owl-carousel .owl-nav button.owl-prev span:hover {
+	content: url("../../images/owl-carousel/prev-hover.svg");
+	border: transparent !important;
+	background-color: var(--color_006d66) !important;
+}
+.owl-box .owl-carousel .owl-nav button.owl-next span:hover {
+	content: url("../../images/owl-carousel/next -hover.svg");
+	border: transparent !important;
+	background-color: var(--color_006d66) !important;
+}  */
+
+/* ============================= */
+/* ==  左右選擇鍵 下方  ========== */
+/* ============================= */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ==================================== */
+/* ==  AA 需求 控制撥放按鈕 CSS START  == */
+/* ==================================== */
+.contrl_box {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	padding-right: 15px;
+	z-index: 2;
+}
+
+.contrl_box .custom_contrl_play,
+.contrl_box .custom_contrl_stop {
+	position: relative;	
+	display: inline-block;
+	top: 0; /*5.5px*/
+	width: 45px;
+    height: 45px;
+	color: #FFFFFF;
+	border: transparent !important;
+	background-color: rgba(0,0,0,0.25);
+	border-radius: 100%;
+	
+	background-position-x: 50%;
+	background-position-y: center;
+	background-repeat: no-repeat;
+	background-attachment: scroll;
+	background-image: none;
+	background-size: 100% 100%;
+	background-origin: padding-box;
+	background-clip: border-box;
+}
+
+.contrl_box .custom_contrl_play {
+	content: url(../../images/gallery/control-play-icon-W.svg);
+}
+.contrl_box .custom_contrl_stop {
+	content: url(../../images/gallery/control-pause-icon-W.svg);
+}
+
+.contrl_box .custom_contrl_play:hover,
+.contrl_box .custom_contrl_stop:hover,
+.contrl_box .custom_contrl_play:focus,
+.contrl_box .custom_contrl_stop:focus,
+.contrl_box .custom_contrl_play:active,
+.contrl_box .custom_contrl_stop:active {
+	background-color: #4c39e0;
+}
+/* ==================================== */
+/* ==  AA 需求 控制撥放按鈕 CSS START  == */
+/* ==================================== */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -3,13 +3,10 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using WCMS.Features.SiteEdit.Announcement;
-using WCMS.Features.SiteEdit.PageManagement;
+using WCMS.Features.Member.Account;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.SystemFunc.UserRolePermission.User;
-using static WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.ModuleOptions;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.SystemFunc.FileManagement
@@ -90,7 +87,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         [NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public new DataStatus DataStatus { get; }
         [NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public new DateTime? InvalidTime { get; }
         [NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public new string? InvalidUserId { get; }
-        [NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public new UserModel? InvalidUser { get; set; }
+        [NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public new AccountModel? InvalidUser { get; set; }
         #endregion
     }
     /// <summary>

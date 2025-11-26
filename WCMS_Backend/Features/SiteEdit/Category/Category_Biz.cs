@@ -13,7 +13,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.SiteEdit.Category
 {
     [ProgId("Category")]
-    public class CategoryBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<CategoryDataSet>(repo,message), IBizService<CategoryDataSet> 
+    public class CategoryBiz(BizDeps bizDeps) : BizService<CategoryDataSet>(bizDeps), IBizService<CategoryDataSet> 
     {
         #region Migration Old Data
         [HttpPost(nameof(Migrate)), LocalhostOnly]

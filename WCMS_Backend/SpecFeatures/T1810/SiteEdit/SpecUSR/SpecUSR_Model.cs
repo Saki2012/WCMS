@@ -48,7 +48,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// <summary>
         /// 圖片描述
         /// </summary>
-        [Obsolete, StringLength(SysLengthParam.Memo)] public string? PicDescription { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.Memo)] public string? PicDescription { get; set; } = string.Empty;
 
         #region 主子表關聯
         [InverseProperty(nameof(SpecUSRDetail._SpecUSR))] public List<SpecUSRDetail> _SpecUSRDetail { get; set; }

@@ -1,0 +1,3021 @@
+@charset "utf-8";
+/* CSS Document */
+
+/* ======================================================== */
+/* --------------------------------------------------------
+**  首頁 展開收合登入BAR
+**	標準標題 STYLE-0
+**	自訂標題 STYLE-1
+**	自訂標題 STYLE-2
+**	首頁 快速連結區 quick_link_section
+----------------------------------------------------------- */
+/* ======================================================== */
+
+
+
+/* ========================================================================= */
+/* ------ 首頁 CSS 目前沒有用到的 所有內容設定開始 ---- 以下 START ------- */
+/* ========================================================================= */
+
+/* =================================================== */
+/* ------ 首頁 展開收合登入BAR -------------------------- */
+/* =================================================== */
+.Div-boxbar {
+    position: absolute;
+    display: block;    
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 102;    
+}
+.Div-boxbar .Nav-content {
+    padding: 0px 0px 0px 0px;
+    transform: translateY(-70px);
+    height: 0;   
+    background: rgba(255, 255, 255, 0.9);
+}
+.Div-boxbar .btn {
+    box-shadow: none;
+}
+.Div-boxbar .open-btn {
+    position: absolute;
+    top: 0;
+    right: 0;    
+    color: #DB3700;
+    
+    padding-top: 0rem;
+    padding-right: 0.375rem;
+    padding-bottom: 0.375rem;
+    padding-left: 0.375rem;
+    border-radius: 0;
+    background-color: transparent;
+    z-index: 102;
+}
+.Div-boxbar .open-btn:hover{
+    color: #DB0000;
+    background-color: transparent;
+}
+
+.Div-boxbar .bottom-line {
+    position: relative;
+    width: 100%;
+    height: 1px;
+    overflow: hidden;
+    background-color: #DB3700;
+}
+
+.Nav-bar_section {
+    position: relative;    
+    /*background: rgba(0,0,0,0.35);*/
+}
+@media (max-width: 767px) {
+    .Nav-bar_section {
+        padding: 10px 15px 10px 15px;
+    }
+}
+@media (min-width: 768px) {
+    .Nav-bar_section {
+        padding: 10px 100px 10px 100px;
+    }
+}
+/*----------------------------------------------*/
+/* --// 內容 //--------------------------------- */
+.Nav-bar_section .navsBox {
+    position: relative;
+    display: block;
+}
+
+.Nav-bar_section .custom_nav {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+	border-radius: 0;	
+    background: transparent;
+}
+
+.Nav-bar_section .justify-content-start {
+	-webkit-box-pack: start!important;
+	-ms-flex-pack: start!important;
+	justify-content: flex-start!important;
+}
+
+.Nav-bar_section .justify-content-end {
+	-webkit-box-pack: end!important;
+	-ms-flex-pack: end!important;
+	justify-content: flex-end!important;
+}
+
+.Nav-bar_section .nav-item+.nav-item::before {
+	float: left;
+    color: rgba(30,45,64,0.35); /* #1e2d40 */
+	content: "/";
+	/*padding-top: .5rem;
+	padding-bottom: .5rem;*/
+}
+
+.Nav-bar_section .nav-item {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	/*height: 30px;*/
+}
+
+.Nav-bar_section .nav-link {
+	font-size: 87.5%; /*0.875rem*/
+    display: block;
+	
+	padding-top: 0.25rem 0.375rem;	
+}
+
+@media (max-width: 992px) {	
+	.Nav-bar_section .nav-link {
+        font-size: 85%; /*0.75rem*/
+		padding: 0.125rem 0.35rem; /*0.125rem 0.75rem*/
+	}
+}
+
+.Nav-bar_section .nav-item a.nav-link,
+.Nav-bar_section .nav-item+.nav-item a.nav-link,
+.Nav-bar_section .nav-item+.nav-item a.nav-link.disabled {
+    color: inherit;
+    padding: 0rem 1rem;
+    /*pointer-events: none;*/ /*滑鼠無作用*/
+    /*cursor: default;*/ /*預設-滑鼠無作用*/
+}
+
+.Nav-bar_section .nav-item a:hover.nav-link,
+.Nav-bar_section .nav-item+.nav-item a:hover.nav-link,
+.Nav-bar_section .nav-item+.nav-item a:hover.nav-link.disabled {
+    color: #DB3700;
+    /*pointer-events: none;*/ /*滑鼠無作用*/
+    /*cursor: default;*/ /*預設-滑鼠無作用*/
+}
+.Nav-bar_section .nav-item a.nav-link.active,
+.Nav-bar_section .nav-item a:hover.nav-link.active {
+    color: #DB3700;
+}
+
+.Nav-bar_section .nav-item a.nav-link i {
+	margin-right: 5px;
+}
+/* --// 內容 //--------------------------------- */
+/*----------------------------------------------*/
+/* =================================================== */
+/* ------ 首頁 展開收合登入BAR -------------------------- */
+/* =================================================== */ 
+
+
+
+/* ============================================= */
+/* ------ 標準標題 STYLE-0 ---------------------- */
+/* ============================================= */
+.customstyle-title {
+	display: inline-block;
+	/*border-bottom: 1px solid rgba(0,0,0,0.25);*/
+	padding-bottom: 8px;
+	width: 100%;
+}
+
+.customstyle-title .language-tw {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: row;
+	flex-direction: row;
+	
+	justify-content: center;
+	align-items: center;
+}
+
+.customstyle-title .language-tw .tle-size {
+    font-size: 165%;
+    font-weight: 900;
+	letter-spacing: 0.085em;
+	color: #333333;
+	text-transform: uppercase;
+}
+
+.customstyle-title .language-tw a .more {
+	font-size: 90%;
+	font-weight: 600;
+	letter-spacing: normal;
+	text-transform: uppercase;
+}
+
+.customstyle-title .language-tw a .more i {
+	position: relative;
+	font-size: 68.8%; /*0.688em/*11*/
+	margin-left: 5px;
+	bottom: 1.5px;
+}
+
+.customstyle-title .language-tw a {
+	color: #333333;
+	text-decoration: none;
+}
+.customstyle-title .language-tw a:hover {
+	color: #007bff;
+	text-decoration: underline;
+}
+
+.customstyle-title .language-en {
+    margin: auto; /*auto auto 50px*/
+    position: relative;
+    text-align: center;
+    width: 100%;
+}
+
+.customstyle-title .language-en .en-word { 
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    justify-content: flex-start ;
+    align-items: center;
+}
+
+.customstyle-title .language-en .en-word { 
+    font-size: 100%;
+	font-weight: 600;
+	letter-spacing: 0.1em;
+    text-align: left;
+    text-transform: capitalize;
+	color: #0a0a0a;
+}
+
+.customstyle-title .language-en .tle-size-2 {
+    font-size: 100%;
+    font-weight: normal;
+	letter-spacing: 0.085em;
+	color: #333333;
+	text-transform: uppercase;
+}
+
+.customstyle-title .language-en > .en-word::before {
+	display: inline-block;
+	position: relative; /*原本沒有，須加才能調整 線條位置*/
+	content: " ";
+	width: 40px;
+	height: 32px;
+	top: 0; /*19*/
+	z-index: 0;
+	background-image: url("../images/title_icon/title_icon.svg");
+	/* [disabled]background: #8a8a8a none repeat scroll 0 0; */
+}
+.customstyle-title .language-en > .en-word::before {
+    margin-right: 10px;
+}
+
+@media (max-width:320px) {
+	.customstyle-title .language-en > .en-word::after, 
+	.customstyle-title .language-en > .en-word::before {
+		width: 35px;
+	}
+}
+/* ============================================= */
+/* ------ 標準標題 STYLE-0 ---------------------- */
+/* ============================================= */
+
+
+/* ============================================= */
+/* ------ 自訂標題 STYLE-1 ---------------------- */
+/* ============================================= */
+.customstyle1-title {
+	position: relative;
+}
+
+.customstyle1-title h3 {
+	font-size: 175%; /*1.75em*/
+	line-height: 1.5;
+	font-weight: 600;
+    color: #333333;
+	margin-bottom: 0;
+}
+
+.customstyle1-title .separator_line {
+    bottom: 0;
+    clear: both;
+    display: inline-block;
+    height: 3px;
+    position: relative;
+    width: 150px; /*264px*/
+	background: #ff7004;
+}
+
+.customstyle1-title .separator_line::before {
+    /*background: #ffffff none repeat scroll 0 0;*/
+    content: "";
+    height: 30px;
+    left: 0;
+    margin: auto;
+    position: absolute;
+    right: 0;
+    width: 46px;
+}
+
+.customstyle1-title .separator_line span {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	
+    border-radius: 50%;
+    bottom: -15px;
+    height: 30px;
+    left: 0;
+    line-height: 29px;
+    margin: auto;
+    position: absolute;
+    right: 0;
+    width: 30px;
+}
+
+.customstyle1-title .separator_line span {
+	background: #800000;
+}
+
+.customstyle1-title .mt-20 {
+    margin-top: 20px;
+}
+
+.customstyle1-title .mb-20 {
+    margin-bottom: 20px;
+}
+
+.customstyle1-title h4 {
+	font-size: 112.5%; /*1.125em*/
+	line-height: 1.5;
+	font-weight: 600;
+    color: #959595; /*777777*/
+	margin-bottom: 0;
+	text-transform: uppercase;
+}
+
+@media (max-width: 767px) {
+	.customstyle1-title h3 {
+		font-size: 150%; /*1.5em*/
+	} 
+	.customstyle1-title h4 {
+		font-size: 100%; /*1em*/
+	}
+}
+/* ============================================= */
+/* ------ 自訂標題 STYLE-1 ---------------------- */
+/* ============================================= */
+
+
+/* ============================================= */
+/* ------ 自訂標題 STYLE-2 ---------------------- */
+/* ============================================= */
+.customstyle2-title {
+	position: relative;
+}
+
+.customstyle2-title h3 {
+	font-size: 175%; /*1.75em*/
+	line-height: 1.5;
+	font-weight: 600;
+    color: #FFFFFF;
+	margin-bottom: 0;
+}
+
+.customstyle2-title .separator_line {
+    bottom: 0;
+    clear: both;
+    display: inline-block;
+    height: 3px;
+    position: relative;
+    width: 264px;
+	background: #FFFFFF;
+}
+
+.customstyle2-title .separator_line::before {
+    /*background: #ffffff none repeat scroll 0 0;*/
+    content: "";
+    height: 30px;
+    left: 0;
+    margin: auto;
+    position: absolute;
+    right: 0;
+    width: 46px;
+}
+
+.customstyle2-title .separator_line span {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	
+    border-radius: 50%;
+    bottom: -15px;
+    height: 30px;
+    left: 0;
+    line-height: 29px;
+    margin: auto;
+    position: absolute;
+    right: 0;
+    width: 30px;
+}
+
+.customstyle2-title .separator_line span {
+	background: #FFFFFF;
+}
+
+.customstyle2-title .mt-20 {
+    margin-top: 20px;
+}
+
+.customstyle2-title .mb-20 {
+    margin-bottom: 20px;
+}
+
+.customstyle2-title h4 {
+	font-size: 112.5%; /*1.125em*/
+	line-height: 1.5;
+	font-weight: 600;
+    color: #FFFFFF;
+	margin-bottom: 0;
+	text-transform: uppercase;
+}
+
+@media (max-width: 767px) {
+	.customstyle2-title h3 {
+		font-size: 150%; /*1.5em*/
+	} 
+	.customstyle2-title h4 {
+		font-size: 100%; /*1em*/
+	}
+}
+/* ============================================= */
+/* ------ 自訂標題 STYLE-2 ---------------------- */
+/* ============================================= */
+
+
+
+/* =================================================== */
+/* ------ 首頁 快速連結區 quick_link_section ----------- */
+/* =================================================== */
+.faq-section {
+    /*background-color: #FFFFFF;*/
+    /*background-image: url("../images/bg/background-image_1903x600.png");*/
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #011e38;
+}
+
+.faq-section .faqbox_block {
+	clear: both;
+	float: left;
+    width: 100%;
+}
+
+.faq-section ul.faqbox_block-info {
+	list-style: none;
+	padding: 0;
+    margin: 0;
+}
+
+.faq-section ul.faqbox_block-info li {
+	float: left;
+    width: 100%;
+}
+
+.faq-section ul.faqbox_block-info li.info_li_box {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	/*align-items: center;*/
+    
+    float: left;
+	width: 100%;
+}
+
+/*----------------------------------------------*/
+/* --// 標題 //--------------------------------- */
+.title-panel-body {
+    position: relative;
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+
+	border-top: none;
+}
+.faq-section ul.faqbox_block-info li.info_li_box .title-panel-body::before {    
+    content: "";
+    position: absolute;    
+    width: 5px;
+    height: 50%;
+    background-color: #d7a975;
+    
+    top: 50%;
+    left: 3px;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+.faq-section ul.faqbox_block-info li.info_li_box .title-panel-body::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: #d7a975;
+}
+
+
+.faq-section ul.faqbox_block-info li.info_li_box .info_title {
+    position: relative;
+    font-size: 112.5%;
+    font-weight: 600;
+    color: inherit;
+    text-transform: uppercase;
+    word-break: break-all;
+    
+    width: 100%;
+    color: #FFFFFF;
+    padding: 12px 0 12px 18px;
+}
+@media(max-width: 575px) {
+    .faq-section ul.faqbox_block-info li.info_li_box .info_title {
+        font-size: 93.75%;
+    }
+}
+@media(min-width: 576px) {
+    .faq-section ul.faqbox_block-info li.info_li_box .info_title {
+        font-size: 112.5%;         
+    }
+}
+/* --// 標題 //--------------------------------- */
+/*----------------------------------------------*/
+
+/*----------------------------------------------*/
+/* --// panel-body //-------------------------- */
+.faq-section .faqbox_block-info .panel-body {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+
+	border-top: none;
+}
+.faq-section .faqbox_block-info .panel-body .ss-box {
+    position: relative;
+    display: block;
+    padding: 12px 0 0 0;
+}
+.faq-section .faqbox_block-info .panel-body .ss-box ul {
+	list-style: none;
+	padding-left: 0;
+}
+
+.faq-section .faqbox_block-info .panel-body .ss-box ul li a {
+	position: relative;
+	display: block;
+	padding: 5px 0;
+    padding: 4px 0 4px 0;
+    margin: 0 18px 0 18px;
+	color: #FFFFFF;
+}
+
+.faq-section .faqbox_block-info .panel-body .ss-box ul li:hover a::before {    
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+    height: 1px;
+    content: '';
+    left: 0;
+    bottom: 0;
+	background-color: #d7a975;
+    opacity: 1 !important;
+}
+.faq-section .faqbox_block-info .panel-body .ss-box ul li a:hover {
+	color: #d7a975;
+}
+/* --// panel-body //-------------------------- */
+/*----------------------------------------------*/
+
+/* =================================================== */
+/* ------ 首頁 快速連結區 quick_link_section ----------- */
+/* =================================================== */
+
+
+
+/* ========================================================================= */
+/* ------ 首頁 CSS 目前沒有用到的 所有內容設定開始 ---- 以上 END ------- */
+/* ========================================================================= */
+
+
+
+
+
+
+
+
+
+
+
+/* ============================================= */
+/* =====  首頁 新聞公告 Newsbox-section  ========= */
+/* ============================================= */
+.Newsbox-section {
+	position: relative; 
+	display: block;
+    
+    background-color: transparent;
+    /*background-color: var(--global-background-transparent);*/
+    
+	/*background-image: url(images/bg/.....);*/
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center top;
+}
+/* ------ Mask-DivBox --------------------------- */
+.Newsbox-section .Mask-DivBox {
+    position: relative;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    
+    /*background-attachment: fixed;*/
+    /*background-image: url("../images/news/background-news-image_1920x1281.jpg");*/
+    background-blend-mode: multiply; 	/* 設置背景混和模式為相乘模式*/
+    
+    width: 100%;
+    margin: 0 auto;
+    
+    border: 1px solid #ccc;
+}   
+.Newsbox-section .Mask-DivBox::before {
+    position: absolute;
+    content: "";
+    top: 0;
+    right: 0;
+    width: 225px;
+    height: 164px;
+    background-image: url(../images/bg/bg_225x164.svg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center top;
+    z-index: 0;
+    display: none;
+}
+@media (max-width: 575px) {
+	.Newsbox-section .Mask-DivBox::before {
+		display: none;
+	}
+}
+
+.Newsbox-section .Mask-DivBox::after {
+    content: '';
+	position: absolute;	
+    top: 0;
+	left: 0;
+	height: 100%;	
+    background-color: #f5f5f5;
+    z-index: -1;
+}
+@media (max-width: 991px) {
+	.Newsbox-section .Mask-DivBox::after {
+		width: 100%;
+	}
+}
+@media (min-width: 992px) {
+	.Newsbox-section .Mask-DivBox::after {
+        width:  calc(50% + 15px);
+	}
+}
+@media (min-width: 1200px) {
+	.Newsbox-section .Mask-DivBox::after {
+        width: calc(50% - 0px);
+	}
+}
+/*------------------------------------------------*/
+.Newsbox-section .customizeBox {  
+    position: relative; 
+	display: block;
+    z-index: 1;
+}
+/*------------------------------------------------*/
+.Newsbox-section .row {
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	margin-right: -15px;
+	margin-left: -15px;
+}
+/*----------------------------------------------*/
+
+/* ........................................... */
+/* ==   標籤 tab Li   ==========================*/
+.Newsbox-section .tabs-vertical {
+    position: relative;
+    display: block;
+}
+/*----------------------------------------------*/
+.Newsbox-section .tabs-vertical .tabs-nav {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+@media (max-width: 575px) {
+    .Newsbox-section .tabs-vertical .tabs-nav {
+        -webkit-box-orient: horizontal !important; /*水平的*/
+        -webkit-box-direction: normal !important;
+        -ms-flex-direction: row !important;
+        flex-direction: row !important;
+        
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+@media (min-width: 576px) and (max-width: 991px) {
+    .Newsbox-section .tabs-vertical .tabs-nav {
+        -webkit-box-orient: horizontal !important; /*水平的*/
+        -webkit-box-direction: normal !important;
+        -ms-flex-direction: row !important;
+        flex-direction: row !important;
+        
+        width: 100%;
+        justify-content: space-around;
+    }
+}
+@media (min-width: 992px) {
+    .Newsbox-section .tabs-vertical .tabs-nav {
+        -webkit-box-orient: vertical !important; /*垂直的*/
+        -webkit-box-direction: normal !important;
+        -ms-flex-direction: column !important;
+        flex-direction: column !important; 
+    }
+}
+/*----------------------------------------------*/
+.Newsbox-section .tabs-vertical .tabs-nav li {
+    position: relative;
+    display: block;
+    border-bottom: 1px solid #CCCCCC;
+}
+/*----------------------------------------------*/
+.Newsbox-section .tabs-vertical .tabs-nav li a.item-heading-large { 
+
+    display: block;
+    
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--blackcolor);  
+    text-align: center;
+    
+    width: 100%;
+    border: none;
+    padding: 1.25rem 1rem;
+    
+    /*transform: none;*/
+    transform: translateX(0);
+    transition: all 0.2s;
+}
+@media (max-width: 991px) {
+    .Newsbox-section .tabs-vertical .tabs-nav li a.item-heading-large { 
+        font-size: 100%; 
+    }
+}
+@media (min-width: 992px) {
+    .Newsbox-section .tabs-vertical .tabs-nav li a.item-heading-large { 
+        font-size: 112.5%;  
+    }
+}
+.Newsbox-section .tabs-vertical .tabs-nav li a:hover,
+.Newsbox-section .tabs-vertical .tabs-nav li a:focus,
+.Newsbox-section .tabs-vertical .tabs-nav a.nav-link.active, 
+.Newsbox-section .tabs-vertical .tabs-nav .show > a.nav-link {
+    color: var(--Customize_color);
+    background-color: transparent;
+}
+.Newsbox-section .tabs-vertical .tabs-nav li a:focus {
+    text-decoration: none;
+    outline: none;
+}
+/*----------------------------------------------*/
+/*................................................*/
+.Newsbox-section .tabs-vertical .tabs-nav li a::before {
+    content: "";
+    position: absolute;
+    right: 0rem;
+    top: 50%;
+    width: 30px;
+    height: 2px;
+    margin-top: -1px;
+    transform: scaleX(0);
+    transform-origin: left center;
+    background-color: var(--Customize_color);
+    transition: all 0.3s;
+}
+.Newsbox-section .tabs-vertical .tabs-nav li a.active::before {
+    transform: scaleX(1);
+}
+@media (max-width: 991px) {
+    .Newsbox-section .tabs-vertical .tabs-nav li a.active::before {
+        display: none;
+    }
+}
+
+@media (max-width: 991px) {
+    .Newsbox-section .tabs-vertical .tabs-nav li a::after {
+        color: var(--Customize_color);    
+        content: '';
+        width: 100%;
+        position: absolute;
+        bottom: 0px;
+        height: 1px;
+        right: 50%;
+
+        background-color: currentColor;
+
+        -webkit-transform: scale(0, 0) translate(-50%, 0);
+        transform: scale(0, 0) translate(-50%, 0);
+        transition: color .0s ease-in-out, -webkit-transform .2s ease-in-out;
+        transition: transform .2s ease-in-out, color .0s ease-in-out;
+        transition: transform .2s ease-in-out, color .0s ease-in-out, -webkit-transform .2s ease-in-out;
+    }
+    .Newsbox-section .tabs-vertical .tabs-nav li a:hover::after {
+        -webkit-transform: scale(1, 1) translate(50%, 0);
+        transform: scale(1, 1) translate(50%, 0);
+    }
+    .Newsbox-section .tabs-vertical .tabs-nav li a::after {
+        width: calc( 100% - 1.2em);
+    }
+}
+/* ==   標籤 tab Li   ==========================*/
+/* ........................................... */
+
+/*----------------------------------------------*/
+
+/* ........................................... */
+/* ==   內容區 tab-content   ===================*/
+@media (max-width: 991px) {
+    .Newsbox-section .tab-content {
+        margin-top: 30px
+    }
+}
+/*----------------------------------------------*/
+.Newsbox-section ul.ListNews {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+.Newsbox-section ul.ListNews li.News_item {
+    display: inline-block;
+    border-bottom: 1px solid #CCCCCC;
+    margin-bottom: 30px;
+}
+@media (max-width: 991px) {
+    .Newsbox-section ul.ListNews li.News_item {
+        margin-top: 15px
+    }
+}
+/*----------------------------------------------*/
+.Newsbox-section a.item-inner {
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    
+    padding: 0 0 30px 0;
+} 
+/*----------------------------------------------*/
+.Newsbox-section a.item-inner .card_catDiv {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+/*------------------------------------------------*/
+/* ==   TOP/HOT/NEW 標籤   ========================*/
+.Newsbox-section .customstyle-hotop {
+	position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.Newsbox-section .customstyle-hotop .icon-small {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+	font-size: 62.5%;
+	line-height: 1.5;
+	font-weight: 600;	
+	padding: 4px 16px;
+    border-radius: 99em;
+	margin-right: 24px;
+}
+@media (max-width: 991px) {
+    .Newsbox-section .customstyle-hotop .icon-small {
+        margin-right: 12.5px;
+    }
+}
+.Newsbox-section .customstyle-hotop .icon-small.hot-bg {
+	color: var(--FFFcolor);
+	background: #ce1800;
+}
+.Newsbox-section .customstyle-hotop .icon-small.top-bg {
+	color: var(--FFFcolor);
+	background-color: #004aa5;
+}
+.Newsbox-section .customstyle-hotop .icon-small.new-bg {
+	color: var(--blackcolor);
+	background-color: #fda601;
+}
+/* ==   TOP/HOT/NEW 標籤   ========================*/
+/*------------------------------------------------*/
+.Newsbox-section a.item-inner .card_cat {
+    text-align: right
+}
+/*----------------------------------------------*/
+.Newsbox-section a.item-inner .card_cat_link {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    color: var(--Customize_color);
+    font-size: 87.5%;
+    font-weight: 600;
+    padding: 5px 24px;
+    border: 1px solid var(--Customize_color);
+    border-radius: 99em;
+    
+    transition-duration: .3s;
+    transition-property: color;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+.Newsbox-section a.item-inner .card_cat_link span.s-line,
+.Newsbox-section a.item-inner .card_cat_link span.s-tle {
+    position: relative;
+}
+.Newsbox-section a.item-inner .card_cat_link span.s-tle {
+    margin-right: 3px;
+}
+/*----------------------------------------------*/
+.Newsbox-section a.item-inner .card_titleDiv { 
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    
+    margin-top: 8px;
+}
+/*----------------------------------------------*/
+.Newsbox-section a.item-inner .card_title {
+    font-size: 106.25%;
+    color: var(--blackcolor);
+    font-weight: bold;
+    display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 54px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+    
+    margin-right: 50px;
+    
+    transition-duration: .3s;
+    transition-property: color;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+@media (max-width: 991px) {
+    .Newsbox-section a.item-inner .card_title {
+        font-size: 93.75%;
+        margin-right: 0px;
+    }
+}
+.Newsbox-section a.item-inner .card_title:hover,
+.Newsbox-section a.item-inner .card_title:focus,
+.Newsbox-section a.item-inner .card_title:active {
+    color: var(--Customize_color);
+}
+/*----------------------------------------------*/
+.Newsbox-section a.item-inner .card_time {
+    display: inline-block;
+    color: var(--G777color);
+    font-weight: 400;
+    font-size: 87.5%;
+    margin-right: 50px;
+}
+/*----------------------------------------------*/
+.Newsbox-section a.item-inner .News_item-icon {
+    display: block;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+    position: relative;
+    width: 20px;
+    height: 20px;
+    background-color: #da3734;
+    border-radius: 50%;
+    overflow: hidden;
+}
+.Newsbox-section a.item-inner .News_item-icon::after {
+    content: "";
+    background: url(../images/ico_circle_arrow.svg) no-repeat center/20px;
+    display: block;
+    width: 20px;
+    height: 20px;
+}
+/* ==   內容區 tab-content   ===================*/
+/* ........................................... */
+
+/* ============================================= */
+/* =====  首頁 新聞公告 Newsbox-section  ========= */
+/* ============================================= */
+
+
+
+
+/* =================================================== */
+/* =====  首頁 簡介介紹 Introduction-section  ========== */
+/* =================================================== */
+/*... 共用 block_row ...*/
+.block_row {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+@media (max-width: 991px) {
+    .block_row {
+        flex-direction: column-reverse;
+        margin-right: 15px;
+        margin-left: 15px;
+    }
+}
+@media (min-width: 992px) {
+    .block_row {
+        flex-direction: row;
+        margin-right: 0px;
+        margin-left: 0px;
+    }
+}
+/*... 共用 block_row ...*/
+/* ...................................... */
+/* ...................................... */
+.Introduction-section .LRcolumn_Div {
+    position: relative;
+}
+.Introduction-section .LRcolumn_Div.BGbox_right,
+.Introduction-section .LRcolumn_Div.BGbox_left {
+    position: relative;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    background-attachment: fixed;
+    
+    width: 100%;
+    margin: 0 auto;
+    overflow: hidden;
+} 
+.Introduction-section .LRcolumn_Div.BGbox_right::before,
+.Introduction-section .LRcolumn_Div.BGbox_left::before {
+    content: '';
+    position: absolute;
+    /*left: 47.75%;*/ /*50%*/
+    top: 0;
+    width: 110%;
+    height: 100%;
+    background: rgba(94, 75, 42, 0.65);
+    opacity: 0.85;
+    z-index: 0;
+}
+@media (max-width: 991px) {
+    .Introduction-section .LRcolumn_Div.BGbox_right::before {
+        right: 0; /*50%*/
+    }
+    .Introduction-section .LRcolumn_Div.BGbox_left::before {
+        left: 0; /*50%*/
+    }
+}
+@media (min-width: 992px) {
+    .Introduction-section .LRcolumn_Div.BGbox_right::before {
+        right: 50%;
+    }
+    .Introduction-section .LRcolumn_Div.BGbox_left::before {
+        left: 50%;
+    }
+}
+/*----------------------------------------------*/
+.Introduction-section .LRcolumn_Div .left-column,
+.Introduction-section .LRcolumn_Div .right-column {
+    position: relative;
+}
+@media (max-width: 991px) {
+    .Introduction-section .LRcolumn_Div .left-column,
+    .Introduction-section .LRcolumn_Div .right-column {
+        display: block;
+    }
+}
+@media (min-width: 992px) {
+    .Introduction-section .LRcolumn_Div .left-column,
+    .Introduction-section .LRcolumn_Div .right-column {
+        display: flex;
+    }
+}
+/*----------------------------------------------*/
+.Introduction-section .content-box {
+    display: block;
+    position: relative;
+    padding: 0 10px;
+}
+.Introduction-section .InfoWrapDiv {}
+@media screen and (max-width: 991px) {
+    .Introduction-section .InfoWrapDiv {
+        flex-direction: column;
+        margin-bottom: 40px;
+    }
+}
+@media screen and (min-width: 992px) {
+    .Introduction-section .InfoWrapDiv {
+        margin-right: calc(50% - 50vw); /* 一半 1/2 面積*/
+    }
+}
+/*----------------------------------------------*/
+.Introduction-section .InfoWrap-img {
+    flex-shrink: 0;
+    width: 50vw;
+}
+@media screen and (max-width: 991px) {
+    .Introduction-section .InfoWrap-img {
+        width: 100%;
+        margin: 0 auto 20px auto;
+    }    
+}
+@media screen and (min-width: 992px) {
+    .Introduction-section .InfoWrap-img {
+        padding-left: 140px;
+        order: 1;
+    }
+}
+/*----------------------------------------------*/
+.Introduction-section .InfoWrap-img img {
+    width: 100%;  
+    overflow: hidden;
+    border-top-left-radius: 40px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 40px;
+}
+@media screen and (max-width: 991px) {
+    .Introduction-section .InfoWrap-img img {
+        border-top-left-radius: 40px;
+        border-top-right-radius: 40px;
+        border-bottom-right-radius: 40px;
+        border-bottom-left-radius: 40px;
+    }
+}
+/*----------------------------------------------*/
+.Introduction-section .InfoWrap-text {
+    position: relative;
+    display: block;
+}
+
+.Introduction-section .box-text {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    z-index: 2;
+}
+/*----------------------------------------------*/
+.Introduction-section .b-text-tw {
+    position: relative;
+    font-family: "Noto Sans TC";
+    color: var(--blackcolor);
+    font-weight: bold;
+    letter-spacing: 2;
+}
+@media (max-width: 575px) {
+    .Introduction-section .b-text-tw {
+        font-size: 150%;
+    }
+}
+@media (min-width: 576px) {
+    .Introduction-section .b-text-tw {
+        font-size: 250%;
+    }
+}
+/*----------------------------------------------*/
+.Introduction-section .s-text-tw {
+    position: relative;
+    font-family: "Noto Sans TC";
+    color: var(--FFFcolor);
+    font-weight: bold;
+    letter-spacing: 2;
+    text-shadow: rgba(0, 0, 0, 0.35) 2px 3px;
+}
+@media (max-width: 575px) {
+    .Introduction-section .s-text-tw {
+        font-size: 125%;
+    }
+}
+@media (min-width: 576px) {
+    .Introduction-section .s-text-tw {
+        font-size: 175%;
+    }
+}
+/*----------------------------------------------*/
+.Introduction-section .Description {
+    position: relative;    
+    color: var(--FFFcolor);
+    text-shadow: rgba(0, 0, 0, 0.35) 2px 3px;
+}
+@media (max-width: 575px) {
+    .Introduction-section .Description {
+        font-size: 100%;
+    }
+}
+@media (min-width: 576px) {
+    .Introduction-section .Description {
+        font-size: 112.5%;
+    }
+}
+/*----------------------------------------------*/
+.Introduction-section .Ycolor {
+    color: #ffbf00;
+}
+.Introduction-section .Fcolor {
+    color: var(--FFFcolor);
+}
+/*----------------------------------------------*/
+/* =================================================== */
+/* =====  首頁 簡介介紹 Introduction-section  ========== */
+/* =================================================== */
+
+
+
+/* ================================================== */
+/* =====  首頁 活動與講座 ActivityLecture-section  ==== */
+/* ================================================== */
+.ActivityLecture-section {
+	position: relative; 
+	display: block;
+    
+    background-color: transparent;
+    /*background-color: var(--global-background-transparent);*/
+    
+	/*background-image: url(images/bg/.....);*/
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center top;
+}
+/*------------------------------------------------*/
+/* ------ Mask-DivBox --------------------------- */
+.ActivityLecture-section .Mask-DivBox {
+    position: relative;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    
+    /*background-attachment: fixed;*/
+    /*background-image: url("../images/news/background-news-image_1920x1281.jpg");*/
+    background-blend-mode: multiply; 	/* 設置背景混和模式為相乘模式*/
+    
+    width: 100%;
+    margin: 0 auto;
+    
+    border: 1px solid #ccc;
+}   
+.ActivityLecture-section .Mask-DivBox::before {
+    position: absolute;
+    content: "";
+    bottom: 0;
+    left: 0;
+    width: 225px;
+    height: 164px;
+    background-image: url(../images/bg/bg_367x240.svg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center top;
+    z-index: 0;
+}
+@media (max-width: 575px) {
+	.ActivityLecture-section .Mask-DivBox::before {
+		display: none;
+	}
+}
+
+.ActivityLecture-section .Mask-DivBox::after {
+    content: '';
+	position: absolute;	
+    top: 0;
+	left: 0;
+	height: 100%;	
+    background-color: #f5f5f5;
+    z-index: -1;
+}
+@media (max-width: 991px) {
+	.ActivityLecture-section .Mask-DivBox::after {
+		width: 100%;
+	}
+}
+@media (min-width: 992px) {
+	.ActivityLecture-section .Mask-DivBox::after {
+        width:  calc(50% + 15px);
+	}
+}
+@media (min-width: 1200px) {
+	.ActivityLecture-section .Mask-DivBox::after {
+        width: calc(50% - 0px);
+	}
+}
+/* ------ Mask-DivBox --------------------------- */
+/*------------------------------------------------*/
+
+/*------------------------------------------------*/
+.ActivityLecture-section .customizeBox {  
+    position: relative; 
+	display: block;
+    z-index: 1;
+}
+/*------------------------------------------------*/
+.ActivityLecture-section .row {
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	margin-right: -15px;
+	margin-left: -15px;
+}
+
+/*------------------------------------------------*/
+/* ==   標籤 tab Li   =============================*/
+.ActivityLecture-section .tabs-vertical {
+    position: relative;
+    display: block;
+}
+/*------------------------------------------------*/
+.ActivityLecture-section .tabs-vertical .tabs-nav {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+@media (max-width: 575px) {
+    .ActivityLecture-section .tabs-vertical .tabs-nav {
+        -webkit-box-orient: horizontal !important; /*水平的*/
+        -webkit-box-direction: normal !important;
+        -ms-flex-direction: row !important;
+        flex-direction: row !important;
+        
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+@media (min-width: 576px) and (max-width: 991px) {
+    .ActivityLecture-section .tabs-vertical .tabs-nav {
+        -webkit-box-orient: horizontal !important; /*水平的*/
+        -webkit-box-direction: normal !important;
+        -ms-flex-direction: row !important;
+        flex-direction: row !important;
+        
+        width: 100%;
+        justify-content: space-around;
+    }
+}
+@media (min-width: 992px) {
+    .ActivityLecture-section .tabs-vertical .tabs-nav {
+        -webkit-box-orient: vertical !important; /*垂直的*/
+        -webkit-box-direction: normal !important;
+        -ms-flex-direction: column !important;
+        flex-direction: column !important; 
+    }
+}
+/*------------------------------------------------*/
+.ActivityLecture-section .tabs-vertical .tabs-nav li {
+    position: relative;
+    display: block;
+    border-bottom: 1px solid #CCCCCC;
+}
+/*------------------------------------------------*/
+.ActivityLecture-section .tabs-vertical .tabs-nav li a.item-heading-large { 
+    display: block;
+    
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--blackcolor);   
+    text-align: center;
+    
+    width: 100%;
+    border: none;
+    padding: 1.25rem 1rem;
+    
+    /*transform: none;*/
+    transform: translateX(0);
+    transition: all 0.2s;
+}
+@media (max-width: 991px) {
+    .ActivityLecture-section .tabs-vertical .tabs-nav li a.item-heading-large { 
+        font-size: 100%; 
+    }
+}
+@media (min-width: 992px) {
+    .ActivityLecture-section .tabs-vertical .tabs-nav li a.item-heading-large { 
+        font-size: 112.5%;  
+    }
+}
+.ActivityLecture-section .tabs-vertical .tabs-nav li a:hover,
+.ActivityLecture-section .tabs-vertical .tabs-nav li a:focus,
+.ActivityLecture-section .tabs-vertical .tabs-nav a.nav-link.active, 
+.ActivityLecture-section .tabs-vertical .tabs-nav .show > a.nav-link {
+    color: var(--Customize_color);
+    background-color: transparent;
+}
+.ActivityLecture-section .tabs-vertical .tabs-nav li a:focus {
+    text-decoration: none;
+    outline: none;
+}
+/*------------------------------------------------*/
+.ActivityLecture-section .tabs-vertical .tabs-nav li a::before {
+    content: "";
+    position: absolute;
+    right: 0rem;
+    top: 50%;
+    width: 30px;
+    height: 2px;
+    margin-top: -1px;
+    transform: scaleX(0);
+    transform-origin: left center;
+    background-color: var(--Customize_color);
+    transition: all 0.3s;
+}
+.ActivityLecture-section .tabs-vertical .tabs-nav li a.active::before {
+    transform: scaleX(1);
+}
+@media (max-width: 991px) {
+    .ActivityLecture-section .tabs-vertical .tabs-nav li a.active::before {
+        display: none;
+    }
+}
+/*------------------------------------------------*/
+@media (max-width: 991px) {
+    .ActivityLecture-section .tabs-vertical .tabs-nav li a::after {
+        color: var(--Customize_color);
+        content: '';
+        width: 100%;
+        position: absolute;
+        bottom: 0px;
+        height: 1px;
+        right: 50%;
+
+        background-color: currentColor;
+
+        -webkit-transform: scale(0, 0) translate(-50%, 0);
+        transform: scale(0, 0) translate(-50%, 0);
+        transition: color .0s ease-in-out, -webkit-transform .2s ease-in-out;
+        transition: transform .2s ease-in-out, color .0s ease-in-out;
+        transition: transform .2s ease-in-out, color .0s ease-in-out, -webkit-transform .2s ease-in-out;
+    }
+    .ActivityLecture-section .tabs-vertical .tabs-nav li a:hover::after {
+        -webkit-transform: scale(1, 1) translate(50%, 0);
+        transform: scale(1, 1) translate(50%, 0);
+    }
+    .ActivityLecture-section .tabs-vertical .tabs-nav li a::after {
+        width: calc( 100% - 1.2em);
+    }
+}
+/* ==   標籤 tab Li   =============================*/
+/*------------------------------------------------*/
+
+/*------------------------------------------------*/
+/* ==   內容區 tab-content   ======================*/
+@media (max-width: 991px) {
+    .ActivityLecture-section .tab-content {
+        margin-top: 30px
+    }
+}
+/*------------------------------------------------*/
+.ActivityLecture-section .articles_itemBoxs {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    
+    margin-right: -15px;
+    margin-left: -15px;
+}
+/*------------------------------------------------*/
+.ActivityLecture-section .a_link_item {
+    display: block;
+    background-color: var(--FFFcolor);    
+    -webkit-box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.0625);
+    box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.0625);
+}
+@media (max-width: 991px) {
+    .ActivityLecture-section .a_link_item {
+        margin-bottom: 15px
+    }
+}
+@media (min-width: 992px) {
+    .ActivityLecture-section .a_link_item {
+        margin-bottom: 30px
+    }
+}
+/*------------------------------------------------*/
+.ActivityLecture-section .Picture_Div {
+    position: relative;
+    overflow: hidden;
+}
+/*------------------------------------------------*/
+.ActivityLecture-section .figure_wrapper {
+    position: relative;
+    width: 100%;
+}
+/*------------------------------------------------*/
+.ActivityLecture-section .figure_wrapper:hover img.img_class,
+.ActivityLecture-section .figure_wrapper:focus img.img_class,
+.ActivityLecture-section .figure_wrapper:active img.img_class {
+    -webkit-transform: scale(1.05);
+    transform: scale(1.05);
+}
+.ActivityLecture-section img.img_class {    
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    -o-object-fit: cover;
+    
+    transition-duration: .7s;
+    transition-property: -webkit-transform;
+    transition-property: transform;
+    transition-property: transform, -webkit-transform;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+/*------------------------------------------------*/
+.ActivityLecture-section .right_link_btn {
+    position: absolute;
+    top: 24px; 
+    right: 32px; 
+    bottom: inherit;
+    border-radius: 50%;
+    
+    width: 32px; /*32*/
+    height: 32px; /*32*/
+
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    -moz-transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+}
+.ActivityLecture-section .right_link_btn {
+    display: none;
+}
+
+.ActivityLecture-section .button_icon {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    font-size: 75%;
+    line-height: 32px;
+    width: 32px;
+    height: 32px;
+    color: FF0000;
+    border-radius: 50%;
+    background-color: var(--FFFcolor);
+    
+    transform: translate3d(0, 0, 0) rotateZ(0);
+    transform-style: preserve-3d;    
+    transition: all .5s ease-in-out 0s;
+}
+.ActivityLecture-section .button_icon {
+    -webkit-transition: all 0.5s ease 0s;
+    -moz-transition: all 0.5s ease 0s;
+    -ms-transition: all 0.5s ease 0s;
+    -o-transition: all 0.5s ease 0s;
+    transition: all 0.5s ease 0s;
+}
+.ActivityLecture-section a:hover .button_icon  {
+    background-color: #da3734;
+}
+/*------------------------------------------------*/
+.ActivityLecture-section .button_icon i {
+    color: var(--blackcolor);
+}
+.ActivityLecture-section a:hover i {
+    color: var(--FFFcolor);
+}
+/*------------------------------------------------*/
+.ActivityLecture-section .TxtBoxDiv {
+    display: block; 
+    padding: 20px 20px;
+}
+/*------------------------------------------------*/
+.ActivityLecture-section .TxtBoxDiv .card_catDiv {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+/*----------------------------------------------*/
+.ActivityLecture-section .card_cat {
+    text-align: right
+}
+/*----------------------------------------------*/
+.ActivityLecture-section .card_cat_link {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    color: var(--Customize_color);
+    font-size: 87.5%;
+    font-weight: 600;
+    padding: 5px 24px;
+    border: 1px solid var(--Customize_color);
+    border-radius: 99em;
+    
+    transition-duration: .3s;
+    transition-property: color;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+.ActivityLecture-section .card_cat_link span.s-line,
+.Newsbox-section a.item-inner .card_cat_link span.s-tle {
+    position: relative;
+}
+.ActivityLecture-section .card_cat_link span.s-tle {
+    margin-right: 3px;
+}
+/*----------------------------------------------*/
+.ActivityLecture-section .card_titleDiv { 
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    
+    margin-top: 10px;
+}
+/*----------------------------------------------*/
+.ActivityLecture-section .card_title {
+    font-size: 106.25%;
+    color: var(--blackcolor);
+    font-weight: bold;
+    display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 54px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+    
+    margin-right: 50px;
+    
+    transition-duration: .3s;
+    transition-property: color;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+@media (max-width: 991px) {
+    .ActivityLecture-section .card_title {
+        font-size: 93.75%;
+        margin-right: 0px;
+    }
+}
+.ActivityLecture-section .card_title:hover,
+.ActivityLecture-section .card_title:focus,
+.ActivityLecture-section .card_title:active {
+    color: var(--Customize_color);
+}
+/*----------------------------------------------*/
+.ActivityLecture-section .card_time {
+    display: inline-block;
+    color: var(--G777color);
+    font-weight: 400;
+    font-size: 87.5%;
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+.ActivityLecture-section .card_time i {
+    font-size: 112.5%;
+    margin-right: 5px;
+}
+
+/*------------------------------------------------*/
+/* ==   TOP/HOT/NEW 標籤   ========================*/
+.ActivityLecture-section .customstyle-hotop {
+	position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+/*------------------------------------------------*/
+.ActivityLecture-section .customstyle-hotop .icon-small {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+	font-size: 68.75%;
+	line-height: 1.5;
+	font-weight: 600;	
+	padding: 4px 12px;
+    border-radius: 99em;
+}
+@media (max-width: 991px) {
+    .ActivityLecture-section .customstyle-hotop .icon-small {
+        margin-left: 1px;
+        margin-right: 1px;
+    }
+}
+@media (min-width: 992px) {
+    .ActivityLecture-section .customstyle-hotop .icon-small {
+        margin-left: 2px;
+        margin-right: 2px;
+    }
+}
+.ActivityLecture-section .customstyle-hotop .icon-small.hot-bg {
+	color: var(--FFFcolor);
+	background: #ce1800;
+}
+.ActivityLecture-section .customstyle-hotop .icon-small.top-bg {
+	color: var(--FFFcolor);
+	background-color: #004aa5;
+}
+.ActivityLecture-section .customstyle-hotop .icon-small.new-bg {
+	color: var(--blackcolor);
+	background-color: #fda601;
+}
+/* ==   TOP/HOT/NEW 標籤   ========================*/
+/*------------------------------------------------*/
+
+/*------------------------------------------------*/
+.ActivityLecture-section .item-inner .card_cat_link {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    color: var(--G777color);
+    font-size: 81.25%;
+    font-weight: 600;
+    padding: 3px 20px;
+    border: 1px solid var(--G777color);
+    border-radius: 99em;
+    
+    transition-duration: .3s;
+    transition-property: color;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1);
+
+	margin-right: 16px;
+}
+@media (max-width: 991px) {
+    .ActivityLecture-section .item-inner .card_cat_link {
+        margin-right: 8px;
+    }
+}
+.ActivityLecture-section .item-inner .card_cat_link span.s-line,
+.ActivityLecture-section .item-inner .card_cat_link span.s-tle {
+    position: relative;
+}
+/*------------------------------------------------*/
+.ActivityLecture-section .item-inner .card_titleDiv { 
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    
+    margin-top: 12px;
+}
+@media (max-width: 991px) {
+    .ActivityLecture-section .item-inner .card_titleDiv { 
+        margin-top: 8px;
+    }
+}
+/*------------------------------------------------*/
+.ActivityLecture-section .item-inner .card_title {
+    font-size: 106.25%;
+    color: var(--blackcolor);
+    font-weight: bold;
+    display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 54px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+    
+    transition-duration: .3s;
+    transition-property: color;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+@media (max-width: 991px) {
+    .ActivityLecture-section .item-inner .card_title {
+        font-size: 93.75%;
+        margin-right: 0px;
+    }
+}
+.ActivityLecture-section .item-inner .card_title:hover,
+.ActivityLecture-section .item-inner .card_title:focus,
+.ActivityLecture-section .item-inner .card_title:active {
+    color: var(--Customize_color);
+}
+/*------------------------------------------------*/
+.ActivityLecture-section .item-inner .card_time {
+    display: inline-block;
+    color: var(--G777color);
+    font-weight: 400;
+    font-size: 87.5%;
+    margin-right: 50px;
+}
+/*------------------------------------------------*/
+.ActivityLecture-section .item-inner .News_item-icon {
+    display: block;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+    position: relative;
+    width: 20px;
+    height: 20px;
+    background-color: #da3734;
+    border-radius: 50%;
+    overflow: hidden;
+}
+.ActivityLecture-section .item-inner .News_item-icon::after {
+    content: "";
+    background: url(../images/ico_circle_arrow.svg) no-repeat center/20px;
+    display: block;
+    width: 20px;
+    height: 20px;
+}
+/*------------------------------------------------*/
+/* ================================================== */
+/* =====  首頁 活動與講座 ActivityLecture-section  ==== */
+/* ================================================== */
+
+
+
+/* ================================================== */
+/* =====  首頁 影音專區 Video-area-section  =========== */
+/* ================================================== */
+.Video-area-section {
+	position: relative; 
+	display: block;
+    
+    background-color: transparent;
+    /*background-color: var(--global-background-transparent);*/
+    
+	/*background-image: url(images/bg/.....);*/
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center top;
+}
+/*------------------------------------------------*/
+/* ------ Mask-DivBox --------------------------- */
+.Video-area-section .Mask-DivBox {
+    position: relative;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    
+    /*background-attachment: fixed;*/
+    /*background-image: url("../images/news/background-news-image_1920x1281.jpg");*/
+    background-blend-mode: multiply; 	/* 設置背景混和模式為相乘模式*/
+    
+    width: 100%;
+    margin: 0 auto;
+    
+    border: 1px solid #ccc;
+}   
+.Video-area-section .Mask-DivBox::after {
+    content: '';
+	position: absolute;	
+    top: 0;
+	right: 0;
+	height: 100%;	
+    background-color: #f7e9d0;
+    z-index: -1;
+}
+@media (max-width: 991px) {
+	.Video-area-section .Mask-DivBox::after {
+		width: 100%;
+	}
+}
+@media (min-width: 992px) {
+	.Video-area-section .Mask-DivBox::after {
+        width:  calc(50% + 15px);
+	}
+}
+@media (min-width: 1200px) {
+	.Video-area-section .Mask-DivBox::after {
+        width: calc(50% - 0px);
+	}
+}
+/* ------ Mask-DivBox --------------------------- */
+/*------------------------------------------------*/
+
+/*------------------------------------------------*/
+.Video-area-section .customizeBox {  
+    position: relative; 
+	display: block;
+    z-index: 1;
+}
+/*------------------------------------------------*/
+.Video-area-section .row {
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	margin-right: -15px;
+	margin-left: -15px;
+}
+/*------------------------------------------------*/
+.Video-area-section .DIV_leftBox,
+.Video-area-section .DIV_rightBox {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+/*------------------------------------------------*/
+.Video-area-section .articles_itemBoxs {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    
+    margin-right: -15px;
+    margin-left: -15px;
+}
+/*------------------------------------------------*/
+.Video-area-section .v_itemBOX {
+    display: block;
+    background-color: var(--FFFcolor);
+    -webkit-box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.0625);
+    box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.0625);
+}
+@media (max-width: 991px) {
+    .Video-area-section .v_itemBOX {
+        margin-bottom: 15px
+    }
+}
+@media (min-width: 992px) {
+    .Video-area-section .v_itemBOX {
+        margin-bottom: 30px
+    }
+}
+/*------------------------------------------------*/
+.Video-area-section .Picture_Div {
+    position: relative;
+    overflow: hidden;
+}
+/*------------------------------------------------*/
+
+
+.Video-area-section .video-wrap {
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    z-index: 0;
+    height: 100%;
+    /*height: calc(100vh - 9rem);*/
+}
+.Video-area-section .video-wrap::after {
+    position: absolute;
+    display: block;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    
+    width: 100%;
+    height: 100%;
+    content: "";
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, .45), #000);
+    opacity: .65
+}
+/*-------------------------------------------*/
+.Video-area-section .video_tag {
+    transition-timing-function: ease;
+    transition-duration: 1s;
+    transition-property: transform;
+    transform: translate3d(-50%, -50%, 0) scale(1.5);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    height: 100%
+}
+.Video-area-section .video_tag {
+    transform: translate3d(-50%, -50%, 0) scale(1)
+}
+/*-------------------------------------------*/
+/*------------------------------------------------*/
+.Video-area-section .figure_wrapper {
+    position: relative;
+    width: 100%;
+}
+/*------------------------------------------------*/
+.Video-area-section .figure_wrapper:hover img.img_class,
+.Video-area-section .figure_wrapper:focus img.img_class,
+.Video-area-section .figure_wrapper:active img.img_class {
+    -webkit-transform: scale(1.05);
+    transform: scale(1.05);
+}
+.Video-area-section img.img_class {    
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    -o-object-fit: cover;
+    
+    transition-duration: .7s;
+    transition-property: -webkit-transform;
+    transition-property: transform;
+    transition-property: transform, -webkit-transform;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+/*------------------------------------------------*/
+.Video-area-section .L-TxtBoxDiv {
+    position: absolute;
+    bottom: 0;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    
+    align-items: flex-start;
+    
+    padding: 20px 30px;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+.Video-area-section .R-TxtBoxDiv {
+    display: block; 
+    padding: 20px 30px;
+    background-color: var(--FFFcolor);
+}
+/*------------------------------------------------*/
+.Video-area-section .L-TxtBoxDiv .card_catDiv,
+.Video-area-section .R-TxtBoxDiv .card_catDiv {    
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+/*------------------------------------------------*/
+.Video-area-section .card_cat {
+    text-align: right
+}
+/*----------------------------------------------*/
+.Video-area-section .card_cat_link {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    color: var(--Customize_color);
+    font-size: 87.5%;
+    font-weight: 600;
+    padding: 5px 24px;
+    border: 1px solid var(--Customize_color);
+    border-radius: 99em;
+    
+    transition-duration: .3s;
+    transition-property: color;
+
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+.Video-area-section .card_cat_link span.s-line,
+.Newsbox-section a.item-inner .card_cat_link span.s-tle {
+    position: relative;
+}
+.Video-area-section .card_cat_link span.s-tle {
+    margin-right: 3px;
+}
+/*----------------------------------------------*/
+.Video-area-section .card_titleDiv { 
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    
+    margin-top: 5px;
+}
+/*----------------------------------------------*/
+.Video-area-section .card_title {
+    font-size: 106.25%;
+    color: var(--blackcolor);
+    font-weight: bold;
+    display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 54px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+    
+    transition-duration: .3s;
+    transition-property: color;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+@media (max-width: 991px) {
+    .Video-area-section .card_title {
+        font-size: 93.75%;
+        margin-right: 0px;
+    }
+}
+.Video-area-section .card_title:hover,
+.Video-area-section .card_title:focus,
+.Video-area-section .card_title:active {
+    color: var(--Customize_color);
+}
+/*----------------------------------------------*/
+/*----------------------------------------------*/
+.Video-area-section .L-TxtBoxDiv .card_title {
+    color: var(--FFFcolor);
+}
+/*----------------------------------------------*/
+.Video-area-section .card_time {
+    display: inline-block;
+    color: var(--G777color);
+    font-weight: 400;
+    font-size: 87.5%;
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+.Video-area-section .card_time i {
+    font-size: 112.5%;
+    margin-right: 5px;
+}
+/*----------------------------------------------*/
+.Video-area-section .L-TxtBoxDiv .card_time {
+    color: var(--FFFcolor);
+}
+/*------------------------------------------------*/
+
+/*------------------------------------------------*/
+/*------  類別標籤  -------------------------------*/
+.Video-area-section .item-inner .card_cat_link {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    color: var(--G777color);
+    font-size: 81.25%;
+    font-weight: 600;
+    padding: 3px 20px;
+    border: 1px solid var(--G777color);
+    border-radius: 99em;
+    
+    transition-duration: .3s;
+    transition-property: color;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1);
+
+	margin-right: 16px;
+}
+@media (max-width: 991px) {
+    .Video-area-section .item-inner .card_cat_link {
+        margin-right: 8px;
+    }
+
+}
+.Video-area-section .item-inner .card_cat_link span.s-line,
+.Video-area-section .item-inner .card_cat_link span.s-tle {
+    position: relative;
+}
+/*------------------------------------------------*/
+.Video-area-section .item-inner .card_titleDiv { 
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    
+    margin-top: 12px;
+}
+@media (max-width: 991px) {
+    .Video-area-section .item-inner .card_titleDiv { 
+        margin-top: 8px;
+    }
+}
+/*------  類別標籤  -------------------------------*/
+/*------------------------------------------------*/
+
+/*------------------------------------------------*/
+.Video-area-section .item-inner .card_title {
+    font-size: 106.25%;
+    color: var(--blackcolor);
+    font-weight: bold;
+    display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 54px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+    
+    transition-duration: .3s;
+    transition-property: color;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+@media (max-width: 991px) {
+    .Video-area-section .item-inner .card_title {
+        font-size: 93.75%;
+        margin-right: 0px;
+    }
+}
+.Video-area-section .item-inner .card_title:hover,
+.Video-area-section .item-inner .card_title:focus,
+.Video-area-section .item-inner .card_title:active {
+    color: var(--Customize_color);
+}
+/*------------------------------------------------*/
+.Video-area-section .item-inner .card_time {
+    display: inline-block;
+    color: var(--G777color);
+    font-weight: 400;
+    font-size: 87.5%;
+    margin-right: 50px;
+}
+/*------------------------------------------------*/
+.Video-area-section .item-inner .News_item-icon {
+    display: block;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+    position: relative;
+    width: 20px;
+    height: 20px;
+    background-color: #da3734;
+    border-radius: 50%;
+    overflow: hidden;
+}
+.Video-area-section .item-inner .News_item-icon::after {
+    content: "";
+    background: url(../images/ico_circle_arrow.svg) no-repeat center/20px;
+    display: block;
+    width: 20px;
+    height: 20px;
+}
+/* ================================================== */
+/* =====  首頁 影音專區 Video-area-section  =========== */
+/* ================================================== */
+
+
+
+/* ================================================== */
+/* =====  首頁 活動花絮 GalleryCZ-section  =========== */
+/* ================================================== */
+.GalleryCZ-section {
+	position: relative; 
+	display: block;
+    
+    background-color: transparent;
+    /*background-color: var(--global-background-transparent);*/
+    
+	/*background-image: url(images/bg/.....);*/
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center top;
+}
+/*------------------------------------------------*/
+/* ------ Mask-DivBox --------------------------- */
+.GalleryCZ-section .Mask-DivBox {
+    position: relative;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    
+    /*background-attachment: fixed;*/
+    /*background-image: url("../images/news/background-news-image_1920x1281.jpg");*/
+    background-blend-mode: multiply; 	/* 設置背景混和模式為相乘模式*/
+    
+    width: 100%;
+    margin: 0 auto;
+    
+    border: 1px solid #ccc;
+}   
+/*.GalleryCZ-section .Mask-DivBox::after {
+    content: '';
+	position: absolute;	
+    top: 0;
+	right: 0;
+	height: 100%;	
+    background-color: #f7e9d0;
+    z-index: -1;
+}
+@media (max-width: 991px) {
+	.GalleryCZ-section .Mask-DivBox::after {
+		width: 100%;
+	}
+}
+@media (min-width: 992px) {
+	.GalleryCZ-section .Mask-DivBox::after {
+        width:  calc(50% + 15px);
+	}
+}
+@media (min-width: 1200px) {
+	.GalleryCZ-section .Mask-DivBox::after {
+        width: calc(50% - 0px);
+	}
+}*/
+/* ------ Mask-DivBox --------------------------- */
+/*------------------------------------------------*/
+
+/*------------------------------------------------*/
+.GalleryCZ-section .customizeBox {  
+    position: relative; 
+	display: block;
+    z-index: 1;
+}
+/*------------------------------------------------*/
+.GalleryCZ-section .row {
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	margin-right: -15px;
+	margin-left: -15px;
+}
+/*------------------------------------------------*/
+.GalleryCZ-section .DIV_leftBox,
+.GalleryCZ-section .DIV_rightBox {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+/*------------------------------------------------*/
+.GalleryCZ-section .articles_itemBoxs {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    
+    margin-right: -15px;
+    margin-left: -15px;
+}
+/*------------------------------------------------*/
+.GalleryCZ-section .TxtBOX {
+    display: block;
+    /*background-color: #FFFFFF;    
+    -webkit-box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.0625);
+    box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.0625);*/
+}
+@media (max-width: 991px) {
+    .GalleryCZ-section .TxtBOX {
+        margin-bottom: 15px
+    }
+}
+@media (min-width: 992px) {
+    .GalleryCZ-section .TxtBOX {
+        margin-bottom: 30px
+    }
+}
+/*------------------------------------------------*/
+.GalleryCZ-section .Picture_Div {
+    position: relative;
+    overflow: hidden;
+}
+/*------------------------------------------------*/
+.GalleryCZ-section .figure_wrapper {
+    position: relative;
+    width: 100%;
+}
+/*------------------------------------------------*/
+.GalleryCZ-section .figure_wrapper:hover img.img_class,
+.GalleryCZ-section .figure_wrapper:focus img.img_class,
+.GalleryCZ-section .figure_wrapper:active img.img_class {
+    -webkit-transform: scale(1.05);
+    transform: scale(1.05);
+}
+.GalleryCZ-section img.img_class {    
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    -o-object-fit: cover;
+    
+    transition-duration: .7s;
+    transition-property: -webkit-transform;
+    transition-property: transform;
+    transition-property: transform, -webkit-transform;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+/*------------------------------------------------*/
+.GalleryCZ-section .L-TxtBoxDiv {
+    position: absolute;
+    bottom: 0;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    
+    align-items: flex-start;
+    
+    padding: 20px 30px;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+.GalleryCZ-section .R-TxtBoxDiv {
+    display: block; 
+    padding: 20px 30px;
+    background-color: var(--FFFcolor);
+}
+/*------------------------------------------------*/
+.GalleryCZ-section .L-TxtBoxDiv .card_catDiv,
+.GalleryCZ-section .R-TxtBoxDiv .card_catDiv {    
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+/*------------------------------------------------*/
+.GalleryCZ-section .card_cat {
+    text-align: right
+}
+/*----------------------------------------------*/
+.GalleryCZ-section .card_cat_link {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    color: var(--Customize_color);
+    font-size: 87.5%;
+    font-weight: 600;
+    padding: 5px 24px;
+    border: 1px solid var(--Customize_color);
+    border-radius: 99em;
+    
+    transition-duration: .3s;
+    transition-property: color;
+
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+.GalleryCZ-section .card_cat_link span.s-line,
+.Newsbox-section a.item-inner .card_cat_link span.s-tle {
+    position: relative;
+}
+.GalleryCZ-section .card_cat_link span.s-tle {
+    margin-right: 3px;
+}
+/*----------------------------------------------*/
+.GalleryCZ-section .card_titleDiv { 
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    
+    margin-top: 5px;
+}
+/*----------------------------------------------*/
+.GalleryCZ-section .card_title {
+    font-size: 106.25%;
+    color: var(--blackcolor);
+    font-weight: bold;
+    display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 54px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+    
+    transition-duration: .3s;
+    transition-property: color;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+@media (max-width: 991px) {
+    .GalleryCZ-section .card_title {
+        font-size: 93.75%;
+        margin-right: 0px;
+    }
+}
+.GalleryCZ-section .card_title:hover,
+.GalleryCZ-section .card_title:focus,
+.GalleryCZ-section .card_title:active {
+    color: var(--blackcolor);
+}
+/*----------------------------------------------*/
+/*----------------------------------------------*/
+.GalleryCZ-section .L-TxtBoxDiv .card_title {
+    color: var(--FFFcolor);
+}
+/*----------------------------------------------*/
+.GalleryCZ-section .card_time {
+    display: inline-block;
+    color: var(--G777color);
+    font-weight: 400;
+    font-size: 87.5%;
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+.GalleryCZ-section .card_time i {
+    font-size: 112.5%;
+    margin-right: 5px;
+}
+/*----------------------------------------------*/
+.GalleryCZ-section .L-TxtBoxDiv .card_time {
+    color: var(--FFFcolor);
+}
+/*------------------------------------------------*/
+
+/*------------------------------------------------*/
+/*------  類別標籤  -------------------------------*/
+.GalleryCZ-section .item-inner .card_cat_link {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    color: var(--Customize_color);
+    font-size: 81.25%;
+    font-weight: 600;
+    padding: 3px 20px;
+    border: 1px solid var(--Customize_color);
+    border-radius: 99em;
+    
+    transition-duration: .3s;
+    transition-property: color;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1);
+
+
+	margin-right: 16px;
+}
+@media (max-width: 991px) {
+    .GalleryCZ-section .item-inner .card_cat_link {
+        margin-right: 8px;
+    }
+
+}
+.GalleryCZ-section .item-inner .card_cat_link span.s-line,
+.GalleryCZ-section .item-inner .card_cat_link span.s-tle {
+    position: relative;
+}
+/*------------------------------------------------*/
+.GalleryCZ-section .item-inner .card_titleDiv { 
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    
+    margin-top: 12px;
+}
+@media (max-width: 991px) {
+    .GalleryCZ-section .item-inner .card_titleDiv { 
+        margin-top: 8px;
+    }
+}
+/*------  類別標籤  -------------------------------*/
+/*------------------------------------------------*/
+
+/*------------------------------------------------*/
+.GalleryCZ-section .item-inner .card_title {
+    font-size: 106.25%;
+    color: var(--blackcolor);
+    font-weight: bold;
+    display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 54px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+    
+    transition-duration: .3s;
+    transition-property: color;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+@media (max-width: 991px) {
+    .GalleryCZ-section .item-inner .card_title {
+        font-size: 93.75%;
+        margin-right: 0px;
+    }
+}
+.GalleryCZ-section .item-inner .card_title:hover,
+.GalleryCZ-section .item-inner .card_title:focus,
+.GalleryCZ-section .item-inner .card_title:active {
+    color: var(--Customize_color);
+}
+/*------------------------------------------------*/
+.GalleryCZ-section .item-inner .card_time {
+    display: inline-block;
+    color: var(--G777color);
+    font-weight: 400;
+    font-size: 87.5%;
+    margin-right: 50px;
+}
+/*------------------------------------------------*/
+.GalleryCZ-section .item-inner .News_item-icon {
+    display: block;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+    position: relative;
+    width: 20px;
+    height: 20px;
+    background-color: #da3734;
+    border-radius: 50%;
+    overflow: hidden;
+}
+.GalleryCZ-section .item-inner .News_item-icon::after {
+    content: "";
+    background: url(../images/ico_circle_arrow.svg) no-repeat center/20px;
+    display: block;
+    width: 20px;
+    height: 20px;
+}
+
+/*=============================================*/
+/* ==   左右選擇鍵 下方 RIGHT右邊 right: 0;   ====*/
+/*=============================================*/
+.GalleryCZ-section.owl-box .owl-nav {
+    position: absolute;
+    right: 8px;
+    bottom: 0;
+	margin-top: 0px;
+}
+
+.GalleryCZ-section.owl-box .owl-carousel .owl-nav button.owl-prev,
+.GalleryCZ-section.owl-box .owl-carousel .owl-nav button.owl-next {
+    cursor: pointer;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.GalleryCZ-section.owl-box .owl-carousel .owl-nav button.owl-prev,
+.GalleryCZ-section.owl-box .owl-carousel .owl-nav button.owl-next {    
+    font: inherit;
+	color: inherit;	
+	padding: 0 !important;
+    background: 0 0;
+	border: none;   
+	
+	position: absolute; 
+	top: 45%;
+	z-index: 1;
+}
+.GalleryCZ-section.owl-box .owl-carousel .owl-nav button.owl-prev,
+.GalleryCZ-section.owl-box .owl-carousel .owl-nav button.owl-next {
+	width: 45px;
+    height: 45px;
+	border-radius: 100%;
+}
+/*..............................................................................*/
+.GalleryCZ-section.owl-box .owl-carousel .owl-nav button.owl-prev {
+	left: -105px;
+	margin-right: 7.5px;	
+}
+/*..............................................................................*/
+.GalleryCZ-section.owl-box .owl-carousel .owl-nav button.owl-next {
+	right: 0px;
+	margin-left: 7.5px;
+}
+
+/*..............................................................................*/
+.GalleryCZ-section.owl-box .owl-carousel .owl-nav button.owl-prev span,
+.GalleryCZ-section.owl-box .owl-carousel .owl-nav button.owl-next span {
+	width: 45px;
+    height: 45px;
+	border: 1px solid transparent !important;        /*★★★ 重要 未滑過 底邊色 ★★★*/ 
+	background-color: transparent !important;        /*★★★ 重要 未滑過 底色 ★★★*/
+	border-radius: 100%;
+} 
+/*@media(max-width: 991px) {
+	.GalleryCZ-section.owl-box .owl-carousel .owl-nav button.owl-prev span,
+    .GalleryCZ-section.owl-box .owl-carousel .owl-nav button.owl-next span {
+		border: 1px solid transparent !important;
+	    background-color: transparent !important;
+	}
+}*/
+/*..............................................................................*/
+.GalleryCZ-section.owl-box .owl-carousel .owl-nav button.owl-prev span {
+	content: url("../images/owl-carousel/prev-Brown.svg");
+}
+.GalleryCZ-section.owl-box .owl-carousel .owl-nav button.owl-next span {
+	content: url("../images/owl-carousel/next-Brown.svg");
+}
+/*..............................................................................*/
+.GalleryCZ-section.owl-box .owl-carousel .owl-nav button.owl-prev span:hover {
+	content: url("../images/owl-carousel/prev.svg");
+	border: 1px solid var(--Customize_color) !important;        /*★★★ 重要 滑過 底邊色 ★★★*/ 
+	background-color: var(--Customize_color) !important;        /*★★★ 重要 滑過 底色 ★★★*/
+}
+.GalleryCZ-section.owl-box .owl-carousel .owl-nav button.owl-next span:hover {
+	content: url("../images/owl-carousel/next.svg");
+	border: 1px solid var(--Customize_color) !important;        /*★★★ 重要 滑過 底邊色 ★★★*/ 
+	background-color: var(--Customize_color) !important;        /*★★★ 重要 滑過 底色 ★★★*/
+} 
+.GalleryCZ-section.owl-box .owl-carousel .owl-nav button.owl-prev:focus,
+.GalleryCZ-section.owl-box .owl-carousel .owl-nav button.owl-next:focus {
+	display: block;
+	width: 45px;
+    height: 45px;
+	border-radius: 100%;
+	background-color: var(--Customize_color) !important;        /*★★★ 重要 焦點變色 ★★★*/
+	outline: 2px solid #43B5FC !important;
+    background-color: #ffa700 !important;
+}
+/*=============================================*/
+/* ==   左右選擇鍵 下方 RIGHT右邊 right: 0;   ====*/
+/*=============================================*/
+
+/*=============================================*/
+/* ==   輪播 暫停/撥放   ========================*/
+/*=============================================*/
+.GalleryCZ-section .DIV-Box {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    width: 150px;
+}
+/*.GalleryCZ-section .DIV-Box::before {
+    content: "";
+    position: relative;
+    height: 1px;
+    width: 75%;
+    background-color: #006d66;
+    left: 0;
+    top: 24px;
+}*/
+
+.GalleryCZ-section .control-box {	
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+    
+	position: absolute;
+    bottom: -48px;
+    left: 20px;
+    z-index: 2;
+        
+    color: var(--FFFcolor);
+    text-align: center;
+    padding: 0 0.5rem;
+}
+/*..............................................................................*/
+.GalleryCZ-section .control-start,
+.GalleryCZ-section .control-pause {
+	position: relative;
+	/*width: 48px;*/
+	/*height: 48px;*/
+	
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	z-index: 2; /*999*/
+}
+.GalleryCZ-section .control-start {
+	right: calc(1.5% - 20px + 10px);
+}
+.GalleryCZ-section .control-pause {
+	right: calc(1.5% - 20px);
+}
+/*..............................................................................*/
+.GalleryCZ-section .control-start-icon,
+.GalleryCZ-section .control-pause-icon {
+	display: inline-block;
+	width: 48px;
+	height: 48px;
+	background-position-x: 50%;
+	background-position-y: center;
+	background-repeat: no-repeat;
+	background-attachment: scroll;
+	background-image: none;
+	background-size: 100% 100%;
+	background-origin: padding-box;
+	background-clip: border-box;
+    
+    border-radius: 100%;
+    border: 1px solid transparent !important;        /*★★★ 重要 未滑過 底邊色 ★★★*/ 
+	background-color: transparent !important;        /*★★★ 重要 未滑過 底色 ★★★*/
+}
+.GalleryCZ-section .control-start-icon:hover,
+.GalleryCZ-section .control-pause-icon:hover {
+	opacity: 1;
+    border-radius: 100%;
+    border: 1px solid var(--Customize_color) !important;        /*★★★ 重要 滑過底邊色 ★★★*/
+	background-color: var(--Customize_color) !important;        /*★★★ 重要 滑過底色 ★★★*/
+}
+/*..............................................................................*/
+.GalleryCZ-section .control-start-icon {
+    background-image: url(../images/owl-carousel/control-start-Brown-icon.svg);
+    opacity: .85;
+}
+/*..............................................................................*/
+.GalleryCZ-section .control-pause-icon {
+    background-image: url(../images/owl-carousel/control-pause-Brown-icon.svg);
+    opacity: .85;
+}
+/*..............................................................................*/
+.GalleryCZ-section .control-start-icon:hover,
+.GalleryCZ-section .control-start-icon:focus {
+    background-image: url(../images/owl-carousel/control-start-icon.svg);
+    opacity: .85;
+}
+.GalleryCZ-section .control-pause-icon:hover,
+.GalleryCZ-section .control-pause-icon:focus {
+    background-image: url(../images/owl-carousel/control-pause-icon.svg);
+    opacity: .85;
+}
+/*..............................................................................*/
+
+.GalleryCZ-section .control-start:focus, 
+.GalleryCZ-section .control-pause:focus {
+    text-decoration: none;
+    outline: 2px solid #43B5FC;
+	outline-offset: -2px;
+	background-color: var(--Customize_color);        /*★★★ 重要 焦點變色 ★★★*/
+}
+/*..............................................................................*/
+@media (max-width:768px) {
+	.GalleryCZ-section .control-start-icon,
+	.GalleryCZ-section .control-pause-icon {
+        width: 45px;
+        height: 45px;
+	}
+	/*...................................*/
+	.GalleryCZ-section .control-box {	
+		padding: 0px; 
+	}
+    /*...................................*/
+	.GalleryCZ-section .control-start {
+		right: calc(1.5% + 5px);
+	}
+	.GalleryCZ-section .control-pause {
+		right: 1.5%;
+	}
+}
+/*=============================================*/
+/* ==   輪播 暫停/撥放   ========================*/
+/*=============================================*/
+/* ================================================== */
+/* =====  首頁 活動花絮 GalleryCZ-section  =========== */
+/* ================================================== */
+
+
+
+
+
+
+
+
+

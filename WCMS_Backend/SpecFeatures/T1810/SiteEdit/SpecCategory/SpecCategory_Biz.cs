@@ -18,7 +18,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.SiteEdit.SpecCategory
 {
     [ProgId("SpecCategory")]
-    public class SpecCategoryBiz(IRepositoryMapProvider repo, IErrorHelper message) : BizService<SpecCategorySet>(repo, message), IBizService<SpecCategorySet> 
+    public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategorySet>(bizDeps), IBizService<SpecCategorySet> 
     {
         #region Migration Old Data
         public async Task Migrate()

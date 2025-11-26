@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthAPI, UserAPI } from '../../../../../SysCore/Utils/API/AuthClient';
 
@@ -14,16 +14,7 @@ export interface IRegisterForm {
   confirmPassword: string;
 }
 
-/** 確保 legacy 背景腳本載入一次（若你已在 index.html 全域載入，可刪掉這段） */
-const ensureLegacyBgLoaded = (): void => {
-  if (document.getElementById('legacy-bg-script')) return;
-  const s = document.createElement('script');
-  // ↓ 請改成你實際打包後的 legacy 路徑
-  s.src = '/Legacy/ContentBack/bg_dynamic/login-particles.js';
-  s.id = 'legacy-bg-script';
-  s.defer = true;
-  document.body.appendChild(s);
-};
+
 
 export const RegisterPage: React.FC = () => {
   const nav = useNavigate();
@@ -58,12 +49,6 @@ export const RegisterPage: React.FC = () => {
     (key: keyof IRegisterForm) =>
       (e: React.ChangeEvent<HTMLInputElement>) =>
         setForm((s) => ({ ...s, [key]: e.target.value }));
-
-  useEffect(() => {
-    // 有 #particles-js 才會啟動背景；確保 legacy 腳本有載到
-    ensureLegacyBgLoaded();
-  }, []);
-
 
   const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();

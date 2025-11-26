@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections;
+﻿using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
@@ -7,24 +6,28 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using WCMS.Features.Member.Account;
+using WCMS.Features.SystemSetting.Auth;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.Resx;
-using WCMS.SysCore.SystemFunc.UserRolePermission.User;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.QueryListParam;
 
 namespace WCMS.SysCore
 {
+    
+    public sealed record BizDeps(IRepositoryMapProvider repoMapProvider, IErrorHelper message, ICurrentUserAccessor currentUser);
+
     public class BizService<TSet> : IBizService<TSet> where TSet : class
     {
         #region Property
         /// <summary>
         /// 
         /// </summary>
-        public UserModel OperateUser { get; set; } = SysParam.SysOperator;
+        public User_DTO OperateUser { get; set; }
         /// <summary>
         /// 
         /// </summary>
@@ -74,17 +77,17 @@ namespace WCMS.SysCore
         /// </summary>
         private ApplicationDbContext DataAccess { get; }
         protected IErrorHelper Message { get; }
-
         #endregion
 
         #region Construct
-        public BizService(IRepositoryMapProvider repoMapProvider, IErrorHelper message)
+        public BizService(BizDeps bizDeps)
         {
             //SysChangeLog = new SysChangeLog(repo.DataAccess);
-            RepoMapProvider = repoMapProvider;
-            RepoDict = repoMapProvider.GetRepoDict<TSet>();
+            RepoMapProvider = bizDeps.repoMapProvider;
+            RepoDict = bizDeps.repoMapProvider.GetRepoDict<TSet>();
             DataAccess = ((dynamic)RepoDict.FirstOrDefault().Value).DataAccess;
-            Message = message;
+            Message = bizDeps.message;
+            OperateUser = string.IsNullOrWhiteSpace(OperateUser?.UserId) ? bizDeps.currentUser.User : OperateUser;
         }
         #endregion
 
@@ -110,7 +113,7 @@ namespace WCMS.SysCore
                 await BeforeUpdate(set, FuncAction.Create);
                 if(Message.HasError) return set;
                 await DoCreateAsync(set);
-                AfterUpdate(default, set, FuncAction.Create, TransStatus.Increase);
+                await AfterUpdate(default, set, FuncAction.Create, TransStatus.Increase);
                 if (Message.HasError) return set;
                 await DataAccess.SaveChangesAsync();      
                 AfterSaveChanges(FuncAction.Create);
@@ -136,7 +139,7 @@ namespace WCMS.SysCore
                 TSet oldSet = await DoQuerySetAsync(internalId);
                 TSet oldSet_Cache = oldSet.DeepClone();
                 await DoUpdateAsync(oldSet, newSet);
-                AfterUpdate(oldSet_Cache, oldSet, FuncAction.Update, TransStatus.Difference);//oldSet已經進入DataAccess，修改完會跟著修正至DB
+                await AfterUpdate(oldSet_Cache, oldSet, FuncAction.Update, TransStatus.Difference);//oldSet已經進入DataAccess，修改完會跟著修正至DB
                 if (Message.HasError) return newSet;
                 await CommitDataAsync();
                 AfterSaveChanges(FuncAction.Update);
@@ -160,7 +163,7 @@ namespace WCMS.SysCore
                 await BeforeUpdate(oldSet, FuncAction.Delete);
                 if (Message.HasError) return oldSet;
                 await DoDeleteAsync(oldSet);
-                AfterUpdate(oldSet_Cache, oldSet, FuncAction.Delete, TransStatus.Difference);
+                await AfterUpdate(oldSet_Cache, oldSet, FuncAction.Delete, TransStatus.Difference);
                 if (Message.HasError) return oldSet;
                 await CommitDataAsync();
                 AfterSaveChanges(FuncAction.Update);
@@ -185,7 +188,7 @@ namespace WCMS.SysCore
                 await BeforeUpdate(oldSet, FuncAction.Invalid);
                 if (Message.HasError) return newSet;
                 await DoUpdateAsync(oldSet, newSet);
-                AfterUpdate(oldSet_Cache, oldSet, FuncAction.Invalid, TransStatus.Difference);//oldSet已經進入DataAccess，修改完會跟著修正至DB
+                await AfterUpdate(oldSet_Cache, oldSet, FuncAction.Invalid, TransStatus.Difference);//oldSet已經進入DataAccess，修改完會跟著修正至DB
                 if (Message.HasError) return newSet;
                 await CommitDataAsync();
                 AfterSaveChanges(FuncAction.Update);
@@ -472,7 +475,7 @@ namespace WCMS.SysCore
         /// <param name="oldSet"></param>
         /// <param name="newSet"></param>
         /// <param name="status"></param>
-        protected virtual void AfterUpdate(TSet? oldSet, TSet? newSet, FuncAction act, TransStatus status) { }
+        protected virtual Task AfterUpdate(TSet? oldSet, TSet? newSet, FuncAction act, TransStatus status) => Task.CompletedTask;
         /// <summary>
         /// 執行SaveChanges後
         /// </summary>
@@ -493,13 +496,15 @@ namespace WCMS.SysCore
         /// </summary>
         private async Task AutoGenerateId(BasicDataModel header, Dictionary<string, IList> details)
         {
-            if (!IsAutoGenerateId) return;
             var keyProp = PropertyAccessorCache.GetProperties(header.GetType()).Where(p => p.IsDefined(typeof(KeyAttribute), inherit: true)).LastOrDefault();
             if (keyProp == null) return;
-            var idSelector = BuildIdSelectorLambda(header.GetType(),keyProp);
             string id = PropertyAccessorCache.Get(header, keyProp.Name)?.ToString();
-            id = !string.IsNullOrEmpty(id) ? id : await ((Task<string>)((dynamic)RepoDict[header.GetType().Name]).GenerateIdAsync(idSelector, PrefixId));
-            PropertyAccessorCache.Set(header, keyProp.Name, id);
+            if (IsAutoGenerateId)
+            {
+                var idSelector = BuildIdSelectorLambda(header.GetType(), keyProp);
+                id = !string.IsNullOrEmpty(id) ? id : await ((Task<string>)((dynamic)RepoDict[header.GetType().Name]).GenerateIdAsync(idSelector, PrefixId));
+                PropertyAccessorCache.Set(header, keyProp.Name, id);
+            }
             foreach(var detail in details) foreach(var row in detail.Value) PropertyAccessorCache.Set(row, keyProp.Name, id);
         }
         /// <summary>
@@ -665,42 +670,132 @@ namespace WCMS.SysCore
             var lambda = DynamicExpressionParser.ParseLambda(config, [param], typeof(bool), normalized, args);
             return lambda;
         }
+        // 1) 取代原本的 NormalizeCondition
         private string NormalizeCondition(Type modelType, string rawCondition, out object[] args)
         {
-            List<object> argList = [];
+            var argList = new List<object>();
 
-            // 預處理原始條件字串
+            // 與你原本相同的前置清理：補空白、統一運算子
             rawCondition = Regex.Replace(rawCondition, @"(?<=[^!\s<>!=])=(?=[^=])", " == ");
             rawCondition = Regex.Replace(rawCondition, @"(?<=[^\s])(?<op>==|!=|>=|<=|>|<)(?=[^\s])", " ${op} ");
 
-            var tokens = Regex.Split(rawCondition, @"\s+(and|or)\s+", RegexOptions.IgnoreCase);
-            var result = new List<string>();
+            string normalized = NormalizeRec(modelType, rawCondition, argList);
+            args = argList.ToArray();
+            return normalized;
+        }
+        // 2) 遞迴解析：保留括號分組，只在頂層切 and/or
+        private string NormalizeRec(Type modelType, string input, List<object> args)
+        {
+            var (chunks, connectors) = SplitTopLevelByAndOr(input);
+            var pieces = new List<string>();
 
-            for (int i = 0; i < tokens.Length; i += 2)
+            for (int i = 0; i < chunks.Count; i++)
             {
-                string clause = tokens[i].Trim();
-                string? connector = (i > 0 && i - 1 < tokens.Length) ? tokens[i - 1].Trim().ToLower() : null;
-                var match = Regex.Match(clause, @"^(?<fullPath>[\w.]+)\s*(?<op>=|&|!&|==|!=|>=|<=|>|<|in|not in|like|is null|is not null|hasany|hasallof|hasall)\s*(?<val>.+)?$", RegexOptions.IgnoreCase);
-                if (!match.Success) continue;
+                string seg = chunks[i].Trim();
+                if (string.IsNullOrEmpty(seg)) continue;
 
-                string fullPath = match.Groups["fullPath"].Value;
-                string op = match.Groups["op"].Value.ToLower();
-                string? val = match.Groups["val"].Success ? match.Groups["val"].Value.Trim('\'', '"') : null;
+                // ( ... ) → 遞迴處理後再包回括號
+                if (seg.StartsWith("(") && seg.EndsWith(")") && IsBalanced(seg))
+                {
+                    string inner = seg.Substring(1, seg.Length - 2);
+                    string innerNorm = NormalizeRec(modelType, inner, args);
+                    pieces.Add("(" + innerNorm + ")");
+                }
+                else
+                {
+                    // 單一子句 → 沿用你原本的子句規則交給 BuildNestedClause
+                    var m = Regex.Match(seg,
+                        @"^(?<fullPath>[\w.]+)\s*(?<op>=|&|!&|==|!=|>=|<=|>|<|in|not in|like|is null|is not null|hasany|hasallof|hasall)\s*(?<val>.+)?$",
+                        RegexOptions.IgnoreCase);
 
-                var parts = fullPath.Split('.');
-                if (parts.Length == 0) continue;
+                    if (!m.Success) continue; // 或可視需要丟回錯誤
 
-                string? clauseStr = BuildNestedClause(modelType, parts, op, val, ref argList);
-                if (string.IsNullOrEmpty(clauseStr)) continue;
+                    string fullPath = m.Groups["fullPath"].Value;
+                    string op = m.Groups["op"].Value;
+                    string? val = m.Groups["val"].Success ? m.Groups["val"].Value.Trim('\'', '"') : null;
 
-                if (!string.IsNullOrEmpty(connector) && result.Count > 0)
-                    result.Add(connector);
+                    string? clause = BuildNestedClause(modelType, fullPath.Split('.'), op, val, ref args);
+                    if (!string.IsNullOrEmpty(clause)) pieces.Add(clause);
+                }
 
-                result.Add(clauseStr);
+                if (i < connectors.Count) pieces.Add(connectors[i]); // "and" / "or"
             }
 
-            args = argList.ToArray(); // ← 回傳給外部
-            return string.Join(" ", result);
+            return string.Join(" ", pieces);
+        }
+        // 3) 只在「括號深度為 0」時，辨識 and / or 作為分隔
+        private static (List<string> chunks, List<string> connectors) SplitTopLevelByAndOr(string s)
+        {
+            var chunks = new List<string>();
+            var connectors = new List<string>();
+            var sb = new System.Text.StringBuilder();
+            int depth = 0;
+
+            for (int i = 0; i < s.Length;)
+            {
+                char ch = s[i];
+
+                if (ch == '(') { depth++; sb.Append(ch); i++; continue; }
+                if (ch == ')') { depth = Math.Max(0, depth - 1); sb.Append(ch); i++; continue; }
+
+                if (depth == 0 && TryReadConnector(s, i, out string? conn, out int adv))
+                {
+                    chunks.Add(sb.ToString());
+                    sb.Clear();
+                    connectors.Add(conn!); // "and" or "or"
+                    i += adv;
+                    continue;
+                }
+
+                sb.Append(ch);
+                i++;
+            }
+
+            chunks.Add(sb.ToString());
+            return (chunks, connectors);
+        }
+        // 4) 辨識 and / or（允許左右空白）
+        private static bool TryReadConnector(string s, int index, out string? conn, out int advance)
+        {
+            int i = index;
+            while (i < s.Length && char.IsWhiteSpace(s[i])) i++;
+            int start = i;
+
+            bool match(string w)
+            {
+                if (i + w.Length > s.Length) return false;
+                if (!s.AsSpan(i, w.Length).Equals(w, StringComparison.OrdinalIgnoreCase)) return false;
+                int j = i + w.Length;
+                // 右邊需為邊界（空白/括號/結束）
+                if (j < s.Length && !char.IsWhiteSpace(s[j]) && s[j] != '(' && s[j] != ')') return false;
+                // 左邊也需為邊界（正規化後，基本會成立）
+                return true;
+            }
+
+            if (match("and"))
+            {
+                int j = i + 3; while (j < s.Length && char.IsWhiteSpace(s[j])) j++;
+                conn = "and"; advance = j - index; return true;
+            }
+
+            if (match("or"))
+            {
+                int j = i + 2; while (j < s.Length && char.IsWhiteSpace(s[j])) j++;
+                conn = "or"; advance = j - index; return true;
+            }
+
+            conn = null; advance = 0; return false;
+        }
+        // 5) 檢查括號是否平衡
+        private static bool IsBalanced(string s)
+        {
+            int d = 0;
+            foreach (var c in s)
+            {
+                if (c == '(') d++;
+                else if (c == ')') { d--; if (d < 0) return false; }
+            }
+            return d == 0;
         }
         private string? BuildNestedClause(Type type, string[] pathParts, string op, string? val, ref List<object> args, int index = 0)
         {

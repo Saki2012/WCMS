@@ -1,0 +1,181 @@
+@charset "utf-8";
+/* CSS Document */
+
+.count_section {
+	text-align: center;	
+	/*background-color: #FFFFFF;*/	
+	/*background-image: url(../../images/news/news_section_bg.png);*/
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center;
+	
+	overflow: hidden;
+	position: relative;
+	z-index: 1;
+	/*opacity: 0.75;*/
+}
+
+.count_section.shadow.dark::after {
+    background: rgba(255,255,255,1) none repeat scroll 0 0;
+    content: "";
+    height: 100%;
+    left: 0;
+    opacity: 0.5;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: -1;
+}
+
+.count_section .milestone-counter {
+	display: inline-block;
+	width: 100%;
+    border: 0;
+    color: var(--blackcolor);
+    padding: 10px;
+    margin: 0 0 5px;
+	border-radius: 20px;
+	
+	/*border-bottom: 2px dashed #dddddd;*/
+}
+
+.count_section .milestone-counter.c0 {
+    background: transparent !important;
+}
+
+.count_section .milestone-counter.c1 {
+    background: #37bdc5 !important;
+}
+
+.count_section .milestone-counter.c2 {
+    background: #2795b7 !important;
+}
+
+.count_section .milestone-counter.c3 {
+    background: #1a75ab !important;
+}
+
+.count_section .milestone-counter .img-box {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	
+	width: 96px;
+	height: 96px;
+	margin: 0 auto;
+	line-height: 70px;
+	text-align: center;
+	background: #4c39e0;
+	border-radius: 30px;
+	color: var(--FFFcolor);
+	/*border: 1px dashed #dddddd;*/
+	padding: 8px;
+}
+
+.count_section .milestone-counter img {
+    margin-top: 0px;
+}
+
+.count_section .alignleft {
+    float: left;
+    /*margin: 10px 20px 20px 0;*/
+}
+
+.count_section .milestone-counter .sc-box {
+	margin-top: 12px;
+	padding: 0 20px;
+	text-align: center;
+}
+
+.count_section .milestone-counter h3 {
+    font-size: 2em; /*32*/
+	font-weight: 900;
+    margin-bottom: 0px;
+    color: var(--blackcolor);
+	text-align: center;
+	padding: 0 10px 0 12px;	
+}
+
+.count_section .milestone-counter .stat-count-no-animate {
+	position: relative;
+	display: inline-block;
+}
+
+.count_section .milestone-counter .stat-count {
+	position: relative;
+	display: inline-block;
+}
+
+.count_section .milestone-counter .percent {
+	position: relative;
+	display: inline-block;
+    font-size: 1.25em; /*14*/
+	font-weight: 600;
+    color: var(--blackcolor);
+    text-transform: uppercase;
+	text-align: center;
+	padding: 0;
+}
+
+.count_section .milestone-counter p {
+    font-size: 1.25em; /*14*/
+	font-weight: 600;
+    color: var(--blackcolor);
+    text-transform: uppercase;
+	text-align: center;
+	padding: 0 20px;
+		
+	display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 1;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 45px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

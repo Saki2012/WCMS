@@ -1,10 +1,8 @@
-﻿using Azure.Core;
-using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.Features.Member.Account;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
-using WCMS.SysCore.SystemFunc.UserRolePermission.User;
 
 namespace WCMS.SysCore
 {
@@ -13,8 +11,8 @@ namespace WCMS.SysCore
     {
         [Key]public int Id { get; set; }
         [StringLength(SysLengthParam.Name)] public string APIName { get; set; } = string.Empty;
+        [ForeignKey(nameof(UserId))] public AccountModel? User { get; set; }
         [StringLength(SysLengthParam.ID)] public string? UserId { get; set; }
-        [ForeignKey(nameof(UserId))] public UserModel? User { get; set; }
         public string followingDT { get; set; } = string.Empty;
         [StringLength(SysLengthParam.Memo)]public string Browser { get; set; } = string.Empty;
         [StringLength(SysLengthParam.IP)]public string IP { get; set; } = string.Empty;

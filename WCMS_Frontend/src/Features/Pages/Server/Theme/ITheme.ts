@@ -1,10 +1,10 @@
-import type { IBreadCrumbStyle } from "../../../../SysCore/Components/BreadCrumb/BreadCrumb_Clsx";
+import type { IBreadCrumbStyle } from "@/SysCore/Components/BreadCrumb/BreadCrumb_Clsx";
+import type { ILibDropListStyle } from "@/SysCore/Components/FormField/FieldComponets/LibDropList_Comp";
+import type { ILibTabsStyle } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import type {
     ILibCheckBoxStyle,
-    ILibDropListStyle,
     ILibFileInputStyle,
     ILibFileStyle,
-    ILibTabsStyle,
     ILibTextAreaStyle,
     ILibTextAreaStyle2,
     ILibTextBoxStyle,
@@ -12,11 +12,12 @@ import type {
     ILibTextBoxStyle3,
     ILibTinyMCEStyle,
     ILibUserCardStyle,
-} from "../../../../SysCore/Components/FormField/LibFormField";
-import type { IGridView_Style } from "../../../../SysCore/Components/Grid/Grid_Clsx";
-import type { IMenu_Style } from "../../../../SysCore/Components/MenuList/MenuList_Clsx";
-import type { INaviBarStyle } from "../../../../SysCore/Components/NaviBar/NaviBar_Clsx";
-import type { IPaginator_Style } from "../../../../SysCore/Components/Paginator/Paginator_Clsx";
+} from "@/SysCore/Components/FormField/LibFormField";
+
+import type { IGridView_Style } from "@/SysCore/Components/Grid/Grid_Clsx";
+import type { IMenu_Style } from "@/SysCore/Components/MenuList/MenuList_Clsx";
+import type { INaviBarStyle } from "@/SysCore/Components/NaviBar/NaviBar_Clsx";
+import type { IPaginator_Style } from "@/SysCore/Components/Paginator/Paginator_Clsx";
 
 /** 後台主題設定 */
 export interface IBETheme
@@ -40,6 +41,8 @@ export interface IBETheme
     TinyMCE: ILibTinyMCEStyle;
     File: ILibFileStyle;
     FileInput: ILibFileInputStyle;
+    UserEditCard: ILibUserCardStyle;
+    UserImageUploadCard: ILibUserCardStyle;
     UserCard: ILibUserCardStyle;
     CheckBox: ILibCheckBoxStyle;
     RadioBox: ILibCheckBoxStyle;

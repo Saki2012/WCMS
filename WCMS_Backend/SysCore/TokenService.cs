@@ -4,9 +4,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using WCMS.Features.SystemSetting.Auth;
 using WCMS.SysCore.Interface;
-using WCMS.SysCore.SystemFunc.UserRolePermission.User;
-using static WCMS.SysCore.SystemFunc.Auth.AuthController;
 
 namespace WCMS.SysCore
 {

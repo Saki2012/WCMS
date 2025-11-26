@@ -114,8 +114,17 @@ export const Classic_LibFileInput: ILibFileInputStyle = {
     InputStyle: clsx("form-control"),
 };
 
+export const Classic_LibUserEditCard: ILibUserCardStyle = {
+    Bgstyle: clsx(""),
+    LinkType: "Edit",
+};
+export const Classic_LibUserImageUploadCard: ILibUserCardStyle = {
+    Bgstyle: clsx(""),
+    LinkType: "ImageUpload",
+};
 export const Classic_LibUserCard: ILibUserCardStyle = {
-    Bgstyle: clsx("bg-custom-gray"),
+    Bgstyle: clsx(""),
+    LinkType: "None",
 };
 
 /** Grid表樣式 */
@@ -177,6 +186,8 @@ export const Classic_BETheme: IBETheme = {
     TinyMCE: Classic_LibTinyMCE,
     File: Classic_LibFile,
     FileInput: Classic_LibFileInput,
+    UserEditCard: Classic_LibUserEditCard,
+    UserImageUploadCard: Classic_LibUserImageUploadCard,
     UserCard: Classic_LibUserCard,
     CheckBox: Classic_CheckBox,
     RadioBox: Classic_RadioBox,

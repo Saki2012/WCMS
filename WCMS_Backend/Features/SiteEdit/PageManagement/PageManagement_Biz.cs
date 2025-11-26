@@ -13,7 +13,7 @@ using static WCMS.SysCore.Library.LibData;
 namespace WCMS.Features.SiteEdit.PageManagement
 {
     [ProgId("PageManagement")]
-    public class PageManagementBiz(IRepositoryMapProvider repoMapProvider, IErrorHelper message) : BizService<PageManagementSet>(repoMapProvider, message), IBizService<PageManagementSet>
+    public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagementSet>(bizDeps), IBizService<PageManagementSet>
     {
         #region Migration Old Data
         public async Task Migrate(string importFileLabel = "1810", IList<FileManageSet> srcFileSets = default)

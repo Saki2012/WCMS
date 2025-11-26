@@ -24,29 +24,29 @@ namespace WCMS.SysCore.Enum
         /// <summary>
         /// 帳戶狀態
         /// </summary>
-        [LibDesc]
+        [LibDesc(ModelDisplayName.Enum_AccountStatus)]
         public enum AccountStatus : byte
         {
             /// <summary>
             /// 停用
             /// </summary>
-            [LibDesc] Unable = 0,
+            [LibDesc(ModelDisplayName.Enum_AccountStatus_Unable)] Unable = 0,
             /// <summary>
             /// 啟用
             /// </summary>
-            [LibDesc] Enable = 1,
+            [LibDesc(ModelDisplayName.Enum_AccountStatus_Enable)] Enable = 1,
             /// <summary>
             /// 凍結
             /// </summary>
-            [LibDesc] Freeze = 2,
+            [LibDesc(ModelDisplayName.Enum_AccountStatus_Freeze)] Freeze = 2,
             /// <summary>
             /// 密碼過期
             /// </summary>
-            [LibDesc] PasuwadoExpired = 3,
+            [LibDesc(ModelDisplayName.Enum_AccountStatus_Expired)] Expired = 3,
             /// <summary>
             /// 主機預設密碼
             /// </summary>
-            [LibDesc] HostDefault = 4,
+            [LibDesc(ModelDisplayName.Enum_AccountStatus_HostDefault)] HostDefault = 4,
         }
         /// <summary>
         /// 功能權限動作
@@ -171,13 +171,14 @@ namespace WCMS.SysCore.Enum
         public static class Lang
         {
             // 中文系
-            public const string zhTW = "zh-TW"; // 繁體中文（台灣）
-            public const string zhCN = "zh-CN"; // 簡體中文（中國）
-            public const string zhHK = "zh-HK"; // 繁體中文（香港）
+            public const string zhTW = "zh-tw"; // 繁體中文（台灣）
+            public const string zhCN = "zh-cn"; // 簡體中文（中國）
+            public const string zhHK = "zh-hk"; // 繁體中文（香港）
 
             // 英文系
-            public const string enUS = "en-US"; // 英文（美國）
-            public const string enGB = "en-GB"; // 英文（英國）
+            public const string en = "en"; // 英文
+            public const string enUS = "en-us"; // 英文（美國）
+            public const string enGB = "en-gb"; // 英文（英國）
 
             // 歐洲語系
             public const string deDE = "de-DE"; // 德文（德國）
@@ -348,10 +349,27 @@ namespace WCMS.SysCore.Enum
         {
             [LibDesc(ModelDisplayName.Enum_WindowTarget_Self)] Self = 0,   // _self (當前頁面)
             [LibDesc(ModelDisplayName.Enum_WindowTarget_Blank)] Blank = 1,  // _blank (新開分頁/視窗)
-
             //Parent = 2, // _parent (父層框架)
             //Top = 3,    // _top (最上層框架)
             //Named = 4   // 自訂視窗名稱
+        }
+        /// <summary>
+        /// 性別
+        /// </summary>
+        [LibDesc(ModelDisplayName.Enum_Gender)] public enum Gender : byte
+        {
+            /// <summary>
+            /// 未知
+            /// </summary>
+            [LibDesc(ModelDisplayName.Enum_Gender_NotKnown)] NotKnown = 0,
+            /// <summary>
+            /// 男性
+            /// </summary>
+            [LibDesc(ModelDisplayName.Enum_Gender_Male)] Male = 1,
+            /// <summary>
+            /// 女性
+            /// </summary>
+            [LibDesc(ModelDisplayName.Enum_Gender_Female)] Female = 2,
         }
 
         /// <summary>
@@ -376,33 +394,34 @@ namespace WCMS.SysCore.Enum
             /// <summary>
             /// 清單列表式
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_List)] List =1,
+            [LibDesc(ModelDisplayName.Enum_List)] List = 1,
             /// <summary>
             /// 圖文式
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_PictureList)] PictureList =2,
+            [LibDesc(ModelDisplayName.Enum_PictureList)] PictureList = 2,
             /// <summary>
             /// QA列表式
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_QAList)] QAList =3,
+            [LibDesc(ModelDisplayName.Enum_QAList)] QAList = 3,
+
+
             /// <summary>
             /// 瀑布式
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_Waterfall)] Waterfall =4,
+            [Obsolete, LibDesc(ModelDisplayName.Enum_Waterfall)] Waterfall = 4,
             /// <summary>
             /// 展開式(類別)
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_Expand_Category)] Expand_Category =5,
+            [Obsolete, LibDesc(ModelDisplayName.Enum_Expand_Category)] Expand_Category = 5,
             /// <summary>
             /// 展開式(標籤)
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_Expand_Tag)] Expand_Tag =6,
+            [Obsolete, LibDesc(ModelDisplayName.Enum_Expand_Tag)] Expand_Tag = 6,
             /// <summary>
             /// Youtube
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_Youtube)] Youtube =7
+            [Obsolete, LibDesc(ModelDisplayName.Enum_Youtube)] Youtube = 7
         }
-
 
     }
 }

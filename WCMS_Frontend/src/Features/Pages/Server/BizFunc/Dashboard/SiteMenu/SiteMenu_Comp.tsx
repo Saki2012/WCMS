@@ -142,6 +142,11 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
   const usePageList = usePageListData()
   const useSpecCateDatas = useSpecCateListData("", prop.lang)
   const actions = useActions("", provider, useSiteInfo.data as SiteMenuSet, internalId as string)
+  // ✅ 先在頂層定義 hook
+  const onCancelBack = useCallback(() => {
+    void useSiteInfo.refetch();
+    setSelectedItemEdit(null);
+  }, [useSiteInfo.refetch, setSelectedItemEdit]);
   const actionsEx = React.useMemo(() => {
     return {
       ...actions,
@@ -150,12 +155,9 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
           useSiteInfo.refetch();
         }
       }),
-      onCancelBack: useCallback(() => {
-        void useSiteInfo.refetch();
-        setSelectedItemEdit(null);
-      }, [useSiteInfo.refetch, setSelectedItemEdit])
+      onCancelBack,   // 直接用上面那個 callback
     };
-  }, [actions, useSiteInfo.refetch]);
+  }, [actions, onCancelBack, useSiteInfo.refetch]);
   const useBannerList = useFetchGridListData<BannerSet>(GetBannerListOpt());
   const bannerDict = useMemo<Record<string, string>>(() => {
     const src = useBannerList.rawData ?? [];
@@ -725,18 +727,14 @@ const BasicSettingTab = (prop: {
     }, {}
   );
   // ---- 基本分頁：把「功能連結」做成 radio，切換時會改變主 Tabs ----
-  const basicNodes: React.ReactNode[] = React.useMemo(() => ([
-    <LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="請輸入數字或英文，不可使用空白的"  {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item, SchemaFields.SiteMenu_ItemFields.ItemSiteUrl, "string", curRowKeys)} />,
-    <LibTextBox disabled={true} Style={prop.theme.TextBox} DefaultInputDisplay="" {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item, SchemaFields.SiteMenu_ItemFields.FullUrl, "string", curRowKeys)} />,
-    <LibCheckBox Style={prop.theme.RadioBox} options={prop.itemType}
-      ColumnDisplayName={itemTypeBind.ColumnDisplayName}
-      InputValue={itemTypeBind.InputValue}
-      onChange={(v) => { itemTypeBind.onChange?.(v); prop.setLinkType(Number(v) as MenuUrlType); }}
-    />,
-    <LibCheckBox Style={prop.theme.RadioBox} options={prop.windowTarget} {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item, SchemaFields.SiteMenu_ItemFields.WindowTarget, "number", curRowKeys)} />,
-    <LibCheckBox Style={prop.theme.CheckBox} options={{ [SchemaFields.SiteMenu_ItemFields.IsShowOnMenu]: "" }}{...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item, SchemaFields.SiteMenu_ItemFields.IsShowOnMenu, "boolean", curRowKeys)} />,
-    <TabContentComp tabInfos={tabInfo} components={tabContent} />,
-  ]), [prop.theme, prop.formData, prop.selectedItemEdit]);
+  const basicNodes: React.ReactNode = React.useMemo(() => (<>
+    <LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="請輸入數字或英文，不可使用空白的"  {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item, SchemaFields.SiteMenu_ItemFields.ItemSiteUrl, "string", curRowKeys)} />
+    <LibTextBox disabled={true} Style={prop.theme.TextBox} DefaultInputDisplay="" {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item, SchemaFields.SiteMenu_ItemFields.FullUrl, "string", curRowKeys)} />
+    <LibCheckBox Style={prop.theme.RadioBox} options={prop.itemType} ColumnDisplayName={itemTypeBind.ColumnDisplayName} InputValue={itemTypeBind.InputValue} onChange={(v) => { itemTypeBind.onChange?.(v); prop.setLinkType(Number(v) as MenuUrlType); }} />
+    <LibCheckBox Style={prop.theme.RadioBox} options={prop.windowTarget} {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item, SchemaFields.SiteMenu_ItemFields.WindowTarget, "number", curRowKeys)} />
+    <LibCheckBox Style={prop.theme.CheckBox} options={{ [SchemaFields.SiteMenu_ItemFields.IsShowOnMenu]: "" }}{...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item, SchemaFields.SiteMenu_ItemFields.IsShowOnMenu, "boolean", curRowKeys)} />
+    <TabContentComp tabInfos={tabInfo} components={tabContent} />
+  </>), [prop.theme, prop.formData, prop.selectedItemEdit]);
   return basicNodes
 }
 //#endregion
@@ -780,10 +778,7 @@ const ModuleSettingTab = (prop: {
     }
     return dict;
   };
-  const filteredStyleDict = React.useMemo(
-    () => getStyleOptionsByModule(prop.modelKey, prop.moduleDisplayStyle),
-    [prop.modelKey, prop.moduleDisplayStyle]
-  );
+  const filteredStyleDict = React.useMemo(() => getStyleOptionsByModule(prop.modelKey, prop.moduleDisplayStyle), [prop.modelKey, prop.moduleDisplayStyle]);
   const curRowKeys = React.useMemo(() => ({
     [SchemaFields.SiteMenu_Item_ModuleFields.SiteIndex]: siteIndex,
     [SchemaFields.SiteMenu_Item_ModuleFields.ItemRowId]: rowId
@@ -1103,11 +1098,7 @@ const HyperlinkSettingTab = (prop: {
         nodes.push(<LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="請輸入數字或英文，不可使用空白的" {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Url, SchemaFields.SiteMenu_Item_UrlFields.RedirectUrl, "string", curRowKeys)} />);
         break;
       case 2:
-        nodes.push(<LibDropList Style={prop.theme.DropList} Options={internalUrlOptions} {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Url, SchemaFields.SiteMenu_Item_UrlFields.RedirectUrl, "string", curRowKeys)} />
-
-
-
-        );
+        nodes.push(<LibDropList Style={prop.theme.DropList} Options={internalUrlOptions} {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Url, SchemaFields.SiteMenu_Item_UrlFields.RedirectUrl, "string", curRowKeys)} />);
         break;
     }
     return nodes;

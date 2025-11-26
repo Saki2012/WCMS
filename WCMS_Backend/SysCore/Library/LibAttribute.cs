@@ -17,35 +17,53 @@ namespace WCMS.SysCore.Library
     [AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = false)]
     public sealed class LibDescAttribute : DescriptionAttribute
     {
-        private readonly ResourceManager _resourceManager;
+        private readonly ResourceManager _coreResourceManager;
+        private readonly ResourceManager? _specResourceManager;
         private string? _resourceKey;
-
+        private readonly string CurrentSpecCode = SpecSettings.SpecCode; // 之後換成從 appsettings / 環境變數讀
         public LibDescAttribute(string resKey="")
         {
             if(!resKey.IsNullOrEmpty()) _resourceKey = resKey;
             // 可以改成從 DI 注入或集中設定資源路徑
-            _resourceManager = new ResourceManager("WCMS.SysCore.Resx.ModelDisplayName", Assembly.GetExecutingAssembly());
+            _coreResourceManager = new ResourceManager("WCMS.SysCore.Resx.ModelDisplayName", Assembly.GetExecutingAssembly());
+            if (!string.IsNullOrEmpty(CurrentSpecCode))
+            {
+                var specBaseName = $"WCMS.SpecFeatures.{CurrentSpecCode}.Resx.SpecModelDisplayName";
+                _specResourceManager = new ResourceManager(specBaseName, Assembly.GetExecutingAssembly());
+            }
         }
-
         public void SetResourceKey(string key) => _resourceKey = key;
-
         public override string Description
         {
             get
             {
-                if (string.IsNullOrEmpty(_resourceKey)) return "";
+                if (string.IsNullOrEmpty(_resourceKey)) return string.Empty;
                 var culture = CultureInfo.CurrentUICulture;
-                var localized = $"[{_resourceKey}]";
-                try
+                string? value = null;
+                if (_specResourceManager != null)
                 {
-                    localized = _resourceManager.GetString(_resourceKey, culture) ?? _resourceManager.GetString(_resourceKey, new CultureInfo("zh-TW"));
+                    try
+                    {
+                        value = _specResourceManager.GetString(_resourceKey, culture) ?? _specResourceManager.GetString(_resourceKey, new CultureInfo("zh-TW"));
+                    }
+                    catch (MissingManifestResourceException)
+                    {
+                        value = null;
+                    }
                 }
-                catch
+                if (string.IsNullOrEmpty(value))
                 {
-                    Console.WriteLine($"Resx資料【{_resourceKey}】辨識異常");
-                    return localized;
+                    try
+                    {
+                        value = _coreResourceManager.GetString(_resourceKey, culture) ?? _coreResourceManager.GetString(_resourceKey, new CultureInfo("zh-TW"));
+                    }
+                    catch (MissingManifestResourceException)
+                    {
+                        value = null;
+                    }
                 }
-                return localized;
+                // ③ 都找不到就回傳 [Key] 方便 debug
+                return string.IsNullOrEmpty(value) ? $"[{_resourceKey}]" : value;
             }
         }
     }

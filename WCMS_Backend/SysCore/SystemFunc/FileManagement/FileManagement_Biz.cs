@@ -13,7 +13,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.SystemFunc.FileManagement
 {
-    public class FileManagementBiz(IRepositoryMapProvider repoMapProvider, IOptions<FilePathOptions> options, IErrorHelper message) : BizService<FileManageSet>(repoMapProvider, message), IBizService<FileManageSet>
+    public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> options) : BizService<FileManageSet>(bizDeps), IBizService<FileManageSet>
     {
         #region Property
         private readonly FilePathOptions FilePath = options.Value;

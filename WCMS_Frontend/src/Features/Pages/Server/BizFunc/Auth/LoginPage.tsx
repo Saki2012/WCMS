@@ -1,7 +1,8 @@
 // Features/Server/Pages/LoginPage.tsx
 import { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { AuthAPI } from '../../../../../SysCore/Utils/API/AuthClient';
+import { AuthAPI } from '@/SysCore/Utils/API/AuthClient';
+import logImg from 'SpecFeature/Assets/Server/login_logo_PC.svg'
 
 export default function LoginPage() {
   const [account, setAccount] = useState('');      // HTML 的 email 欄位 -> 後端 account
@@ -77,7 +78,7 @@ export default function LoginPage() {
                   <div className="+ animate__animated animate__fadeInUp delay__05">
                     {/* LOGO：若要內部導向可改 <Link>；此處保留外部連結 */}
                     <Link to="/" className="logo" title="國際暢行科技 LOGO" target="_blank" rel="noreferrer">
-                      <h1 id="loginTitle"><img src="/Legacy/Server/images/logo/logo_PC_640x192.svg" alt="國際暢行科技 LOGO" /></h1>
+                      <h1 id="loginTitle"><img src={logImg} alt="國際暢行科技 LOGO" /></h1>
                     </Link>
                   </div>
 

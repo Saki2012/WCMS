@@ -5,7 +5,7 @@ import { useMemo, useState } from "react"
 import { useLocation } from 'react-router-dom';
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp"
 import type { components } from "@/types/api";
-import { BannerSetFields, BannerFields, BannerDetailFields, UserModelFields } from "@/types/SchemaFields";
+import { BannerSetFields, BannerFields, BannerDetailFields, AccountFields } from "@/types/SchemaFields";
 import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions"
 import { GridCol_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp"
 import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api"
@@ -64,7 +64,7 @@ const useBannerListData = (provider: IDataProvider<BannerSet>, query: string) =>
             [BannerSetFields.Banner, BannerFields.BannerCategoryName],
             [BannerSetFields.Banner, BannerFields.CreateTime],
             [BannerSetFields.Banner, BannerFields.ModifyUserId],
-            [BannerFields.ModifyUser, UserModelFields.UserName],
+            [BannerFields.ModifyUser, AccountFields.AccountName],
             [BannerSetFields.Banner, BannerFields.ModifyTime],
         ],
         buildQueryCondition: (page) => ({

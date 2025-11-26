@@ -6,31 +6,40 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO.Compression;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization.Metadata;
+using System.Text.RegularExpressions;
 using System.Threading.RateLimiting;
+using WCMS.Features.Member.Account;
+using WCMS.Features.Member.Personnel;
+using WCMS.Features.SystemSetting.Auth;
+using WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting;
 using WCMS.SysCore;
 using WCMS.SysCore.AppSettingsOptions;
 using WCMS.SysCore.Interface;
+using WCMS.SysCore.Library;
+using WCMS.SysCore.Library.Security;
 using WCMS.SysCore.Middleware;
-using WCMS.SysCore.SystemFunc.Auth;
-
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            SpecSettings.Init(builder.Configuration);
             // ① 基礎主機/效能/安全 – 最小化 API 伺服器足跡
             AppSetup.BasicSetting(builder);
             // ② 連線性（Connection）– 全集中在這裡修改
@@ -51,6 +60,7 @@ namespace WCMS
             ///啟動時自動建立資料夾
             //builder.Services.AddHostedService<EnsureStorageFoldersHostedService>();
 
+
             var app = builder.Build();
             // 全域錯誤攔截（你原本已有）
             app.UseMiddleware<ErrorHandlingMiddleware>();
@@ -65,6 +75,10 @@ namespace WCMS
             // 安全標頭（弱掃友好）
             AppSetup.UseSecurityHeaders(app, builder.Configuration);
             AppSetup.UseSecurityXSRF(app, builder.Configuration);
+
+            // 系統啟用時初始註冊必須設定
+            await AppSetup.InitDbSettingsAsync(app.Services, builder.Configuration, app.Environment);
+
             // Swagger 僅開發期
             if (app.Environment.IsDevelopment())
             {
@@ -135,7 +149,6 @@ namespace WCMS
             // CORS Policy 名稱統一放這裡
             public const string CorsPolicyName = "AllowLocalhostWildcard";
             #region Services
-
             /// <summary>
             /// 
             /// </summary>
@@ -174,12 +187,13 @@ namespace WCMS
                 //暫時先不用Redis，等開始能架Docker包Linux後再來
                 //services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(cfg.GetConnectionString("RedisConnection")));
 
+                var cs = cfg.GetConnectionString("SqlConnection");
+                if (string.IsNullOrWhiteSpace(cs)) throw new InvalidOperationException("Missing ConnectionStrings:SqlConnection. 請在 appsettings.* 或使用環境變數/Secrets 設定。");
                 services.AddDbContextPool<ApplicationDbContext>(opt =>
                 {
-                    opt.UseSqlServer(cfg.GetConnectionString("SqlConnection"));
-                    opt.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking); // 讀取預設不追蹤
+                    opt.UseSqlServer(cs);
+                    opt.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
                 });
-
             }
             /// <summary>
             /// 核心服務/DI（Controller、Biz、Repository）
@@ -205,8 +219,10 @@ namespace WCMS
                 services.AddScoped<IRepositoryMapProvider, RepositoryMapProvider>();
                 services.AddScoped<IErrorHelper, ErrorHelper>();
                 services.AddScoped<IOperateLog, OperateLog>();
+                services.AddScoped<BizDeps>();
+                services.AddHttpContextAccessor();
+                services.AddScoped<ICurrentUserAccessor, HttpContextCurrentUserAccessor>();
 
-                
                 RegisterBizServices(services);
 
                 // 暫時先不用Redis，等開始能架Docker包Linux後再來
@@ -348,7 +364,6 @@ namespace WCMS
                     //opt.Cookie.Domain = "wcms.it-easygoapp.com"; // 同網域可省略，但建議固定
                 });
             }
-
             /// <summary>
             /// 反射註冊 BizService
             /// </summary>
@@ -418,7 +433,10 @@ namespace WCMS
                 });
                 //}
             }
-
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="builder"></param>
             public static void AddCookiePolicyOptions(WebApplicationBuilder builder)
             {
                 builder.Services.Configure<CookiePolicyOptions>(opt =>
@@ -434,7 +452,10 @@ namespace WCMS
                     };
                 });
             }
-
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="services"></param>
             public static void APIBehavior(IServiceCollection services)
             {
                 services.Configure<ApiBehaviorOptions>(opt =>
@@ -457,13 +478,20 @@ namespace WCMS
                     };
                 });
             }
-
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="services"></param>
+            /// <param name="cfg"></param>
             public static void AddAppSettingsOptions(IServiceCollection services, IConfiguration cfg)
             {
                 services.Configure<FilePathOptions>(cfg.GetSection("FilePaths"));
                 services.Configure<WhitelistOptions>(cfg.GetSection("Whitelist"));
             }
-
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="services"></param>
             public static void AddRateLimit(IServiceCollection services)
             {
                 services.AddRateLimiter(options =>
@@ -506,7 +534,6 @@ namespace WCMS
                     ctx.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
                     ctx.Response.Headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=(), fullscreen=(self)";
                     ctx.Response.Headers.StrictTransportSecurity = "max-age=31536000";
-
                     if (ctx.Request.Path.StartsWithSegments("/Service"))
                     {
                         // API：超嚴 CSP（不影響 JSON/檔案傳輸）
@@ -533,11 +560,14 @@ namespace WCMS
                             return;
                         }
                     }
-
                     await next();
                 });
             }
-
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="app"></param>
+            /// <param name="cfg"></param>
             public static void UseSecurityXSRF(WebApplication app, IConfiguration cfg)
             {
                 var feHosts = (cfg.GetSection("Whitelist:Frontend").Get<string[]>() ?? []).Select(HostOnly).ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -560,18 +590,11 @@ namespace WCMS
                         return;
                     }
                     // === B) 從「本機 Swagger」發出的寫入型請求：暫時略過 XSRF 驗證（僅限本機） ===
-                    bool isWrite =
-                        HttpMethods.IsPost(ctx.Request.Method) || HttpMethods.IsPut(ctx.Request.Method) ||
-                        HttpMethods.IsDelete(ctx.Request.Method) || HttpMethods.IsPatch(ctx.Request.Method);
-
+                    bool isWrite = HttpMethods.IsPost(ctx.Request.Method) || HttpMethods.IsPut(ctx.Request.Method) || HttpMethods.IsDelete(ctx.Request.Method) || HttpMethods.IsPatch(ctx.Request.Method);
                     // 來源判斷：Referer 指向本機 swagger，或 Origin 是 http://127.0.0.1
                     string referer = ctx.Request.Headers.Referer.ToString();
                     string origin = ctx.Request.Headers.Origin.ToString();
-                    bool fromLocalSwagger =
-                        isLocal &&
-                        (referer.Contains("http://127.0.0.1/swagger", StringComparison.OrdinalIgnoreCase) ||
-                         origin.Equals("http://127.0.0.1", StringComparison.OrdinalIgnoreCase));
-
+                    bool fromLocalSwagger = isLocal && (referer.Contains("http://127.0.0.1/swagger", StringComparison.OrdinalIgnoreCase) || origin.Equals("http://127.0.0.1", StringComparison.OrdinalIgnoreCase));
                     if (isWrite && fromLocalSwagger)
                     {
                         await next(); // ← 本機用 Swagger 測試 POST/PUT/DELETE/PATCH：不驗 XSRF
@@ -618,8 +641,208 @@ namespace WCMS
                 });
             }
             #endregion
-        }
 
+            #region Initial Data
+            /// <summary>
+            /// 啟動時初始化系統所需設定
+            /// 如UDF、SysOperator系統用戶註冊等
+            /// </summary>
+            /// <param name="cfg"></param>
+            public static async Task InitDbSettingsAsync(IServiceProvider services, IConfiguration cfg, IWebHostEnvironment env)
+            {
+                // 有需要可讀開關：DbInit:Enabled（預設 true）
+                var enabled = cfg.GetValue("DbInit:Enabled", true);
+                if (!enabled) return;
+                using var scope = services.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                await RegistUDFAsync(cfg, env, db);
+                await RegistSysAccountAsync(cfg, db);
+                await RegistSysAccountAsync(cfg, db);
+                await RegistSiteIndex(cfg, db);
+            }
+            /// <summary>
+            /// 註冊UDF
+            /// 讀取 SysCore/UDF 內所有 .sql 並逐檔（依檔名排序）執行；支援 GO 斷批。
+            /// 每檔各自交易，任一檔失敗就中止並拋例外（避免上線半套狀態）。
+            /// </summary>
+            private static async Task RegistUDFAsync(IConfiguration cfg, IWebHostEnvironment env,ApplicationDbContext db)
+            {
+                // 1) 解析 UDF 目錄
+                var udfPath = cfg["DbInit:UdfPath"];
+                if (string.IsNullOrWhiteSpace(udfPath)) udfPath = Path.Combine(env.ContentRootPath, "SysCore", "UDF");
+                if (!Directory.Exists(udfPath)) return;
+                // 2) 找出所有 .sql（遞迴），以檔名排序（含子資料夾層級）
+                var files = Directory.EnumerateFiles(udfPath, "*.sql", SearchOption.AllDirectories).OrderBy(p => p, StringComparer.OrdinalIgnoreCase).ToArray();
+                if (files.Length == 0) return;
+                // 3) 逐檔執行（每檔一交易）
+                var swAll = System.Diagnostics.Stopwatch.StartNew();
+                var conn = (SqlConnection)db.Database.GetDbConnection();
+                await conn.OpenAsync();
+                try
+                {
+                    foreach (var file in files)
+                    {
+                        var sqlText = await File.ReadAllTextAsync(file, Encoding.UTF8);
+                        var lines = Regex.Split(sqlText, @"^\s*GO\s*(?:--.*)?$\r?$", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+                        var batches = lines.Select(s => s.Trim()).Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
+                        var sw = System.Diagnostics.Stopwatch.StartNew();
+                        using var tx = conn.BeginTransaction();
+                        try
+                        {
+                            foreach (var batch in batches)
+                            {
+                                if (string.IsNullOrWhiteSpace(batch)) continue;
+                                using var cmd = new SqlCommand(batch, conn, tx){CommandType = CommandType.Text};
+                                await cmd.ExecuteNonQueryAsync();
+                            }
+                            await tx.CommitAsync();
+                        }
+                        catch (Exception)
+                        {
+                            await tx.RollbackAsync();
+                            // 若要不中止啟動，把下行改為 continue；建議產線預設中止避免半套
+                            throw;
+                        }
+                    }
+                }
+                finally
+                {
+                    await conn.CloseAsync();
+                }
+            }
+            private static string MakeRelative(string path, string root)
+            {
+                try
+                {
+                    var p = Path.GetFullPath(path);
+                    var r = Path.GetFullPath(root);
+                    if (p.StartsWith(r, StringComparison.OrdinalIgnoreCase)) return p[r.Length..].TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                    return path;
+                }
+                catch { return path; }
+            }
+            private sealed class AccountsSeedRoot
+            {
+                public Account_DTO SysOperator { get; init; } = new();
+                public Account_DTO Admin { get; init; } = new();
+            }
+            /// <summary>
+            /// 註冊系統用戶
+            /// </summary>
+            private static async Task RegistSysAccountAsync(IConfiguration cfg, ApplicationDbContext db)
+            {
+                var section = cfg.GetSection("DbInit:Account");
+                var opt = section.Get<AccountsSeedRoot>();
+                if (opt is null) return;
+                // 以交易確保帳戶/人員/角色與橋接綁定一致
+                await using var tx = await db.Database.BeginTransactionAsync();
+                // 1) 角色確保存在
+                //var roleAdmin = await FindOrCreateRoleAsync(db, opt.SysOperator.RoleId, logger);
+                //var roleAdmin2 = await FindOrCreateRoleAsync(db, opt.Admin.RoleId, logger); // 允許不同設定
+                //await db.SaveChangesAsync();
+                // 2) SysOperator：不可登入、不設密碼
+                await UpsertPersonAndAccountAsync(db,user: opt.SysOperator,canLogin: false);
+                // 3) Admin：可登入；只有「新建時」才設定密碼；存在就不覆蓋
+                await UpsertPersonAndAccountAsync(db,user: opt.Admin,canLogin: true);
+                await db.SaveChangesAsync();
+                await tx.CommitAsync();
+            }
+            // ---- 輔助：人員 + 帳號 Upsert（依你實體命名替換）----
+            private static async Task UpsertPersonAndAccountAsync(ApplicationDbContext db, Account_DTO user, bool canLogin)
+            {
+                // 2-1) Person：以 UserId（或 UserName）對應一個人員；如你有別的映射規則請替換
+                var person = await db.Set<PersonModel>().FirstOrDefaultAsync(p => p.PersonId == user.AccountId);
+                if (person == null)
+                {
+                    person = new PersonModel
+                    {
+                        PersonId = user.AccountId,
+                        PersonName = string.IsNullOrWhiteSpace(user.AccountName) ? user.AccountId : user.AccountName,
+                        Email = string.Empty,
+                        MobilePhone = string.Empty,
+                        HomePhone = string.Empty,
+                        InternalId = Guid.NewGuid().ToString(),
+                    };
+                    await db.Set<PersonModel>().AddAsync(person);
+                }
+                await db.SaveChangesAsync(); // 先保存以確保 Person.Id 可用
+                // 2-2) Account：以 UserId 唯一識別
+                var account = await db.Set<AccountModel>().FirstOrDefaultAsync(a => a.AccountId == user.AccountId);
+                var isNew = account == null;
+                if (isNew)
+                {
+                    (byte[] hash, byte[] salt, int ver) = canLogin? PasswordHasher.Hash(user.Password):(Array.Empty<byte>(), Array.Empty<byte>(),0);
+                    account = new AccountModel { 
+                        AccountId = user.AccountId, 
+                        AccountName = user.AccountName,
+                        PersonId = person.PersonId,
+                        PasswordHash = hash,PasswordSalt = salt,
+                        PasswordAlgoVer = ver,AccountStatus = AccountStatus.Enable,
+                        InternalId = Guid.NewGuid().ToString(),
+                    };
+                    await db.Set<AccountModel>().AddAsync(account);
+                }
+                await db.SaveChangesAsync();
+            }
+
+            /// <summary>
+            /// 註冊網站資訊
+            /// </summary>
+            private static async Task RegistSiteIndex(IConfiguration cfg, ApplicationDbContext db)
+            {
+                var site = await db.Set<SiteMenu_IndexModel>().FirstOrDefaultAsync(p => p.SiteIndex == string.Empty);
+                if (site != null) return;
+                var section = cfg.GetSection("DbInit:Account:SysOperator");
+                var SysOperator = section.Get<Account_DTO>();
+                await using var tx = await db.Database.BeginTransactionAsync();
+                var now = DateTime.Now;
+                var root = new SiteMenu_IndexModel
+                {
+                    SiteIndex = string.Empty,
+                    GoogleAnalytics=string.Empty,
+                    Enable=true,
+                    FormStatus= FormStatus.Saved,
+                    DataStatus= DataStatus.Valid,
+                    OrgLvId=string.Empty,
+                    InternalId = Guid.NewGuid().ToString(),
+                    IsIniData = true,
+                    CreateTime = now,
+                    ModifyTime = now,
+                    CreateUserId = SysOperator.AccountId,
+                    ModifyUserId = SysOperator.AccountId,
+                };
+                var rootDetail1 = new SiteMenu_IndexInfoModel
+                {
+                    // 這裡的屬性名稱請依你實際的 Model 調整
+                    SiteIndex = root.SiteIndex,
+                    RowId = 1,
+                    Lang = Lang.zhTW,          // = "zh-TW"
+                    Title = string.Empty,       // 其他文字欄位建議在 Model 預設為 string.Empty
+                    Description=string.Empty,
+                    SiteHeader=string.Empty,
+                    SiteFooter=string.Empty,
+                    Keyword=string.Empty
+                };
+
+                var rootDetail2 = new SiteMenu_IndexInfoModel
+                {
+                    // 這裡的屬性名稱請依你實際的 Model 調整
+                    SiteIndex = root.SiteIndex,
+                    RowId = 2,
+                    Lang = Lang.en,       
+                    Title = string.Empty,     
+                    Description = string.Empty,
+                    SiteHeader = string.Empty,
+                    SiteFooter = string.Empty,
+                    Keyword = string.Empty
+                };
+                await db.Set<SiteMenu_IndexModel>().AddAsync(root);
+                await db.Set<SiteMenu_IndexInfoModel>().AddRangeAsync([rootDetail1, rootDetail2]);
+                await db.SaveChangesAsync();
+                await tx.CommitAsync();
+            }
+            #endregion
+        }
         /// <summary>
         /// 取得「對外實際主機」：優先 X-Forwarded-Host，否則用 Request.Host
         /// </summary>
@@ -631,6 +854,11 @@ namespace WCMS
             var raw = !string.IsNullOrWhiteSpace(fwd) ? fwd : ctx.Request.Host.Value;
             return HostOnly(raw);
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hostPort"></param>
+        /// <returns></returns>
         private static string HostOnly(string? hostPort)
         {
             if (string.IsNullOrWhiteSpace(hostPort)) return string.Empty;
@@ -638,6 +866,5 @@ namespace WCMS
             var i = h.IndexOf(':');
             return i >= 0 ? h[..i] : h;
         }
-        private static Uri? TryParseUri(string? s) => !string.IsNullOrWhiteSpace(s) && Uri.TryCreate(s, UriKind.Absolute, out var u) ? u : null;
     }
 }

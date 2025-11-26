@@ -5,33 +5,27 @@ import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter.ts";
 import { createClientRouter } from "@/SysCore/Utils/Route/Routes.tsx";
 import { SpecRouteModule } from "../SpecFetures/1810/SpecRouter.tsx";
 import { RouterProvider } from "react-router-dom";
-import { LEGACY_JS, LEGACY_CSS } from "./LegacySrc.ts";
 // import "SpecFeature/Assets/Client/Content/Style.css"
 import { MessageProvider } from "@/SysCore/Components/Message/Dialog/Dialog_Comp.tsx";
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp.tsx";
 import api, { type BrowserApiWithInit } from "@/SysCore/Utils/API/APIBase.ts"
+
 if (typeof window !== "undefined") {
-  // CSR：初始化一次 XSRF；SSR：這個屬性不存在，呼叫也不會發生
+  // CSR：初始化一次 XSRF
   (api as BrowserApiWithInit).__initXsrfOnce?.();
+  const path = window.location.pathname.toLowerCase();
+  if (path.startsWith("/server")) {
+    // ✅ 後台：/Server/... → 載入 Features（後台）CSS / JS
+    await import("@/Features/Assets/LoadFeaturesCss.ts");
+    await import("@/Features/Assets/LoadFeaturesJs.ts");
+    await import("SpecFeature/Assets/LoadSpecCss_Server.ts");
+  } else {
+    // ✅ 前台：其他路徑 → 載入 Spec（前台）CSS / JS
+    await import("SpecFeature/Assets/LoadSpecCss.ts");
+    await import("SpecFeature/Assets/LoadSpecJs.ts");
+  }
 }
 
-LEGACY_CSS.forEach((href) => {
-  if (!document.querySelector(`link[rel="stylesheet"][href="${href}"]`)) {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = href;
-    document.head.appendChild(link);
-  }
-});
-
-LEGACY_JS.forEach((src) => {
-  if (!document.querySelector(`script[src="${src}"]`)) {
-    const script = document.createElement("script");
-    script.src = src;
-    script.defer = true;         // 用 defer，避免阻塞、又保留順序
-    document.body.appendChild(script);
-  }
-});
 
 declare global { interface Window { __INITIAL_STATE__?: { lang?: string;[k: string]: unknown }; } }
 const SUPPORTED_LANGS = ["zh-tw", "en-us"] as const;
@@ -118,6 +112,10 @@ const ClientBootstrap: React.FC<{ router: any }> = ({ router }) => {
           title={"國立臺灣藝術大學_研究發展處"}
           description={"國立臺灣藝術大學_研究發展處 / 國立臺灣藝術大學_研究發展處 / 國立臺灣藝術大學_研究發展處"}
           keywords={"國立臺灣藝術大學_研究發展處"}
+
+        // title={"國立臺北藝術大學圖書館"}
+        // description={"國立臺北藝術大學圖書館"}
+        // keywords={"國立臺北藝術大學圖書館"}
         />
         <RouterProvider router={router} />
       </HelmetProvider>

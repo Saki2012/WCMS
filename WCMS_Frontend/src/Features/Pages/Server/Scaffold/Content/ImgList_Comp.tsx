@@ -1,11 +1,12 @@
-import type { ListCompProp } from "./Content_Data";
+import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
 import { List_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import { LibSearchBar } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
 
 
 
-export const ImgListComp = ({ prop, children }: { prop: ListCompProp; children: React.ReactNode }) => {
+export const ImgListComp = ({ prop, children }: { prop: FormCompProp; children: React.ReactNode }) => {
     return (
         <div className="Form-Main-Content">
             <div className="row">
@@ -20,7 +21,7 @@ export const ImgListComp = ({ prop, children }: { prop: ListCompProp; children: 
                                     <div className="panel">
                                         <div className="panel-body">
                                             <div className="form">
-                                                {/* <SearchComp prop={prop.SearchBar}></SearchComp> */}
+                                                {prop.SearchBar && <LibSearchBar {...prop.SearchBar}></LibSearchBar>}
                                                 <DividerComp></DividerComp>
                                                 {/* <Form_Toolbar items={prop.Toolbar}></Form_Toolbar> */}
                                                 <List_Toolbar action={prop.Actions} ></List_Toolbar>

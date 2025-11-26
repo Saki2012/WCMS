@@ -15,7 +15,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.SiteEdit.FileArchive
 {
     [ProgId("FileArchive")]
-    public class FileArchiveBiz(IRepositoryMapProvider repoMapProvider, IErrorHelper message) : BizService<FileArchiveSet>(repoMapProvider, message), IBizService<FileArchiveSet> {
+    public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchiveSet>(bizDeps), IBizService<FileArchiveSet> {
 
         #region Migration Old Data
         public async Task Migrate(string importFileLabel = "1810", IList<FileManageSet> srcFileSets = default)

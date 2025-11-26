@@ -6,7 +6,6 @@ import * as HelmetAsync from "react-helmet-async";
 import { StaticRouterProvider } from "react-router-dom/server";
 import { MessageProvider } from "@/SysCore/Components/Message/Dialog/Dialog_Comp";
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
-import type { Lang } from "@/SysCore/i18n/lang";
 
 const HelmetProvider = (HelmetAsync as any).HelmetProvider ?? (HelmetAsync as any).default?.HelmetProvider ??
   // 萬一還是取不到，就用 no-op provider 避免 SSR 直接當掉
@@ -15,6 +14,15 @@ const HelmetProvider = (HelmetAsync as any).HelmetProvider ?? (HelmetAsync as an
 type RenderResult = { appHtml: string; headTags: string, initialState: string };
 
 export const SSR_Render = async (url: string, headers: Record<string, string> = {}): Promise<RenderResult> => {
+
+  const lowerUrl = url.toLowerCase();
+  if (lowerUrl.startsWith("/server")) {
+    await import("@/Features/Assets/LoadFeaturesCss.ts");
+    await import("SpecFeature/Assets/LoadSpecCss_Server.ts");
+  } else {
+    await import("SpecFeature/Assets/LoadSpecCss.ts");
+  }
+
 
   const boot = {
     module: new SpecRouteModule() as IRouteModule,
@@ -33,6 +41,10 @@ export const SSR_Render = async (url: string, headers: Record<string, string> = 
           title={"國立臺灣藝術大學_研究發展處"}
           description={"國立臺灣藝術大學_研究發展處 / 國立臺灣藝術大學_研究發展處 / 國立臺灣藝術大學_研究發展處"}
           keywords={"國立臺灣藝術大學_研究發展處"}
+
+        // title={"國立臺北藝術大學圖書館"}
+        // description={"國立臺北藝術大學圖書館"}
+        // keywords={"國立臺北藝術大學圖書館"}
         />
         <StaticRouterProvider router={router} context={context} />
       </HelmetProvider>

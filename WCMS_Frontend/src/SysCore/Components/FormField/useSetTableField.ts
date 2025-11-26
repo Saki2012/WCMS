@@ -5,6 +5,50 @@ import type { ModelDisplaySchema } from "../../../types/IApiSchema";
 import type { UseFetchFormDataResult } from "../../Utils/API/FetchFormData";
 type CoerceMode = "string" | "number" | "boolean" | "datetime" | ((v: unknown) => any);
 
+const upsertRow = (
+    currentTable: any,
+    rowKeys: Record<string, any> | undefined,
+    field: string | number | symbol,
+    value: any,
+) =>
+{
+    // 如果沒有 rowKeys，就照原本的邏輯處理（非明細）
+    if (!rowKeys)
+    {
+        if (Array.isArray(currentTable))
+        {
+            // 沒 rowKeys 時不建議亂改全部列，所以直接回傳原本陣列
+            return currentTable;
+        }
+        return { ...(currentTable ?? {}), [field]: value };
+    }
+
+    // 有 rowKeys：一定當「明細陣列」處理
+    const rows: RowLike[] = Array.isArray(currentTable)
+        ? (currentTable as RowLike[])
+        : currentTable
+        ? [currentTable as RowLike] // 若之前誤塞成物件，就把它包成一列
+        : [];
+
+    let found = false;
+    const nextRows = rows.map(r =>
+    {
+        if (matchRowKeys(r, rowKeys))
+        {
+            found = true;
+            return { ...r, [field]: value };
+        }
+        return r;
+    });
+
+    // 若沒找到那一筆，代表是第一次寫入，幫他 push 一筆新的
+    if (!found)
+    {
+        nextRows.push({ ...rowKeys, [field]: value });
+    }
+
+    return nextRows;
+};
 const coerce = (mode: CoerceMode, val: unknown) =>
 {
     switch (typeof mode === "function" ? "function" : mode)
@@ -256,14 +300,8 @@ export const useSetTableField = <T>(form: UseFetchFormDataResult<T>) =>
                             : strategy === "csv"
                             ? String(dv ?? "")
                             : coerce(mode, dv);
-                        if (Array.isArray(currentTable))
-                        {
-                            const nextRows = (currentTable as any[]).map(r =>
-                                matchRowKeys(r, rowKeys) ? { ...r, [field as any]: nextCellValue } : r
-                            );
-                            return { ...prev, [table]: nextRows };
-                        }
-                        return { ...prev, [table]: { ...(currentTable ?? {}), [field as any]: nextCellValue } };
+                        const nextTable = upsertRow(currentTable, rowKeys, field as any, nextCellValue);
+                        return { ...prev, [table]: nextTable };
                     });
                 },
             });
@@ -283,17 +321,8 @@ export const useSetTableField = <T>(form: UseFetchFormDataResult<T>) =>
                         ? (Array.isArray(v) ? (v as string[]).join(csvDelimiter) : String(v ?? ""))
                         : coerce(mode, v);
 
-                    // 陣列表（需 rowKeys 來定位）
-                    if (Array.isArray(currentTable))
-                    {
-                        const nextRows = (currentTable as RowLike[]).map(r =>
-                            matchRowKeys(r, rowKeys) ? { ...r, [field as any]: nextCellValue } : r
-                        );
-
-                        return { ...prev, [table]: nextRows };
-                    }
-                    // 單一物件
-                    return { ...prev, [table]: { ...(currentTable ?? {}), [field as any]: nextCellValue } };
+                    const nextTable = upsertRow(currentTable, rowKeys, field as any, nextCellValue);
+                    return { ...prev, [table]: nextTable };
                 });
             };
             const bind = {

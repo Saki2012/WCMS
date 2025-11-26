@@ -59,11 +59,6 @@
 		<Folder Include="Features\SystemSetting\SiteInfo\EnvConfig\" />
 		<Folder Include="Features\SystemSetting\SiteInfo\SiteArch\" />
 		<Folder Include="Features\SystemSetting\SiteInfo\SEO\" />
-		<Folder Include="Features\SystemSetting\DataChangeLog\" />
-		<Folder Include="Features\SystemSetting\AccountManage\" />
-		<Folder Include="Features\SystemSetting\RolePermission\" />
-		<Folder Include="Features\SystemSetting\OperateLog\" />
-		<Folder Include="Features\SystemSetting\UserAccount\" />
 		<Folder Include="SysCore\NLogger\DataChange\" />
 		<Folder Include="SysCore\NLogger\Operate\" />
 		<Folder Include="SysCore\NLogger\Sys\" />
@@ -74,22 +69,61 @@
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
+	
+	<ItemGroup>
+	  <!-- 將 UDF 腳本複製到輸出與發佈資料夾 -->
+	  <None Include="SysCore\UDF\**\*.sql">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<CopyToPublishDirectory>Always</CopyToPublishDirectory>
+	  </None>
+	</ItemGroup>
   
   
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
     <!-- 不要自動產生/轉換 web.config（避免發布時又長出一份預設檔） -->
     <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
 	</PropertyGroup>
+	
 	<ItemGroup Condition="'$(Configuration)'=='Release'">
-		<!-- 阻止 appsettings.json / appsettings.{Env}.json 出現在 Publish -->
-		<Content Update="appsettings*.json">
-		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		  <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-		</Content>
-		<!-- 阻止專案內現有的 web.config 被帶去 Publish -->
-		<Content Update="web.config">
-		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		  <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-		</Content>
+  <!-- 只發佈 appsettings.json -->
+  <None Update="appsettings.json">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+  </None>
+  <Content Update="appsettings.json">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+  </Content>
+
+  <!-- 禁止發佈/輸出 appsettings.{Env}.json（Dev/Prod/Staging…） -->
+  <None Update="appsettings.*.json">
+    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+  </None>
+  <Content Update="appsettings.*.json">
+    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+  </Content>
+
+  <!-- 你的 web.config 保持發佈 -->
+  <Content Update="web.config">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+  </Content>
+</ItemGroup>
+
+	
+	<ItemGroup>
+	  <Compile Remove="SysCore\SystemFunc\UserRolePermission\**" />
+	  <Content Remove="SysCore\SystemFunc\UserRolePermission\**" />
+	  <EmbeddedResource Remove="SysCore\SystemFunc\UserRolePermission\**" />
+	  <None Remove="SysCore\SystemFunc\UserRolePermission\**" />
+	</ItemGroup>
+
+	
+	<ItemGroup>
+	  <EmbeddedResource Update="SpecFeatures\T1810\Resx\SysMessageCode.zh-TW.resx">
+	    <SubType>Designer</SubType>
+	  </EmbeddedResource>
 	</ItemGroup>
 </Project>

@@ -7,14 +7,13 @@ import https from "node:https";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import serveStatic from "serve-static";
-import { LEGACY_CSS, LEGACY_JS } from "./LegacySrc";
 
 // 基本參數
 const PORT = Number(import.meta.env.PORT ?? 5174);
 const isProd = import.meta.env.NODE_ENV === "production";
 if (!isProd) process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 // 需排除進 SSR 的固定前綴（你的 public 內資料夾）
-const STATIC_PREFIXES = ["/Legacy/", "/tinymce", "/tinymce-i18n", "/.well-known/", "/@vite", "/vite"] as const;
+const STATIC_PREFIXES = ["/tinymce", "/tinymce-i18n", "/.well-known/", "/@vite", "/vite"] as const;
 
 // 判斷「這個請求是否該進 SSR」
 const shouldSSR = (req: Request): boolean =>
@@ -94,17 +93,8 @@ const setupDevSSR = async (app: express.Express) =>
 
             const { appHtml, headTags, initialState } = toPayload(result);
 
-            const legacyCss = LEGACY_CSS
-                .map((href: any) => `<link rel="stylesheet" href="${href}" />`)
-                .join("");
-
-            const legacyJs = LEGACY_JS
-                .map((src: any) => `<script src="${src}" defer></script>`)
-                .join("");
             const nonce = crypto.randomUUID().toString();
             const html = template
-                .replace("<!--Legacy-Css-->", legacyCss ?? "")
-                .replace("<!--Legacy-Js-->", legacyJs ?? "")
                 .replace("<!--app-head-->", headTags ?? "")
                 .replace("<!--app-html-->", appHtml ?? "")
                 .replace(

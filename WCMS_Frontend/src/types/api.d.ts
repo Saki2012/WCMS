@@ -4,6 +4,422 @@
  */
 
 export interface paths {
+    "/Service/Account/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Account/Create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AccountSet_DTO"];
+                    "text/json": components["schemas"]["AccountSet_DTO"];
+                    "application/*+json": components["schemas"]["AccountSet_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Account/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AccountSet_DTO"][];
+                    "text/json": components["schemas"]["AccountSet_DTO"][];
+                    "application/*+json": components["schemas"]["AccountSet_DTO"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Account/Update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AccountSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["AccountSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["AccountSet_DTOApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Account/Invalid/{pk}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
+                header?: never;
+                path: {
+                    pk: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/Account/BatchInvalid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    isInvalid?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/Account/Delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Account/BatchDelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Account/QueryData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Account/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Account/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Announcement/QueryByValidate": {
         parameters: {
             query?: never;
@@ -3318,6 +3734,422 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/Person/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Person/Create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["PersonSet_DTO"];
+                    "text/json": components["schemas"]["PersonSet_DTO"];
+                    "application/*+json": components["schemas"]["PersonSet_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Person/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["PersonSet_DTO"][];
+                    "text/json": components["schemas"]["PersonSet_DTO"][];
+                    "application/*+json": components["schemas"]["PersonSet_DTO"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Person/Update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["PersonSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["PersonSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["PersonSet_DTOApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Person/Invalid/{pk}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
+                header?: never;
+                path: {
+                    pk: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/Person/BatchInvalid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    isInvalid?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/Person/Delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Person/BatchDelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Person/QueryData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Person/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Person/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/SiteMenu/Create": {
         parameters: {
             query?: never;
@@ -5536,422 +6368,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/User/Create": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["CreateUserDto"];
-                    "text/json": components["schemas"]["CreateUserDto"];
-                    "application/*+json": components["schemas"]["CreateUserDto"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/User/InitialCreateData": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["UserSet_DTO"][];
-                    "text/json": components["schemas"]["UserSet_DTO"][];
-                    "application/*+json": components["schemas"]["UserSet_DTO"][];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/User/Update": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["UserSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["UserSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["UserSet_DTOApiRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/User/Invalid/{pk}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: {
-                    internalId?: string;
-                    isInvalid?: boolean;
-                };
-                header?: never;
-                path: {
-                    pk: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/Service/User/BatchInvalid": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: {
-                    isInvalid?: boolean;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": string[];
-                    "text/json": string[];
-                    "application/*+json": string[];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/Service/User/Delete": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: {
-                    internalId?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/User/BatchDelete": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": string[];
-                    "text/json": string[];
-                    "application/*+json": string[];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/User/QueryData": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: {
-                    internalId?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/User/QueryList": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/User/GetTotalCounts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/User/GetModelDisplayName": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/Service/WebResource/Create": {
         parameters: {
             query?: never;
@@ -6372,11 +6788,87 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AccountModel: {
+            /** Format: date-time */
+            CreateTime?: string | null;
+            CreateUser?: components["schemas"]["AccountModel"];
+            CreateUserId?: string | null;
+            /** Format: date-time */
+            ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["AccountModel"];
+            ModifyUserId?: string | null;
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["AccountModel"];
+            InvalidUserId?: string | null;
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            IsIniData?: boolean;
+            /** Format: date-time */
+            Validate_Start?: string | null;
+            /** Format: date-time */
+            Validate_End?: string | null;
+            AccountId?: string | null;
+            AccountName?: string | null;
+            Person?: components["schemas"]["PersonModel"];
+            PersonId?: string | null;
+            /** Format: byte */
+            PasswordHash?: string | null;
+            /** Format: byte */
+            PasswordSalt?: string | null;
+            /** Format: int32 */
+            PasswordAlgoVer?: number;
+            AccountStatus?: components["schemas"]["AccountStatus"];
+        };
+        AccountSet_DTO: {
+            Account?: components["schemas"]["Account_DTO"];
+        };
+        AccountSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["AccountSet_DTO"];
+        };
         /**
          * Format: int32
          * @enum {integer}
          */
         AccountStatus: 0 | 1 | 2 | 3 | 4;
+        Account_DTO: {
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
+            CreateTime?: string | null;
+            /** @description 創建人 */
+            CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["Account_DTO"];
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
+            ModifyTime?: string | null;
+            /** @description 修改人 */
+            ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["Account_DTO"];
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
+            InternalId?: string | null;
+            /** @description 帳號 */
+            AccountId?: string | null;
+            /** @description 使用者名稱 */
+            AccountName?: string | null;
+            Person?: components["schemas"]["PersonModel"];
+            /** @description 人員編號 */
+            PersonId?: string | null;
+            /** @description 密碼 */
+            Password?: string | null;
+            AccountStatus?: components["schemas"]["AccountStatus"];
+        };
         AnnouncementDetailFile_DTO: {
             /** @description 公告代碼 */
             AnnouncementId?: string | null;
@@ -6433,7 +6925,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人 */
             CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["UserModel_DTO"];
+            CreateUser?: components["schemas"]["Account_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -6441,7 +6933,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人 */
             ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["UserModel_DTO"];
+            ModifyUser?: components["schemas"]["Account_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -6546,7 +7038,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人 */
             CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["UserModel_DTO"];
+            CreateUser?: components["schemas"]["Account_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -6554,7 +7046,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人 */
             ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["UserModel_DTO"];
+            ModifyUser?: components["schemas"]["Account_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -6617,7 +7109,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人 */
             CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["UserModel_DTO"];
+            CreateUser?: components["schemas"]["Account_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -6625,7 +7117,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人 */
             ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["UserModel_DTO"];
+            ModifyUser?: components["schemas"]["Account_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -6644,22 +7136,11 @@ export interface components {
          * @enum {integer}
          */
         ContentStatus: 0 | 1 | 2 | 4;
-        CreateUserDto: {
-            UserId?: string | null;
-            UserName?: string | null;
-            Password?: string | null;
-            Email?: string | null;
-        };
         /**
          * Format: int32
          * @enum {integer}
          */
         DataStatus: 0 | 1;
-        /**
-         * Format: int32
-         * @enum {integer}
-         */
-        EndType: 0 | 1;
         FileArchiveDetail_DTO: {
             /** @description 檔案室代碼 */
             FileArchiveId?: string | null;
@@ -6731,7 +7212,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人 */
             CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["UserModel_DTO"];
+            CreateUser?: components["schemas"]["Account_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -6739,7 +7220,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人 */
             ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["UserModel_DTO"];
+            ModifyUser?: components["schemas"]["Account_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -6764,12 +7245,12 @@ export interface components {
         FileManageModel: {
             /** Format: date-time */
             CreateTime?: string | null;
+            CreateUser?: components["schemas"]["AccountModel"];
             CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["UserModel"];
             /** Format: date-time */
             ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["AccountModel"];
             ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["UserModel"];
             OrgLvId?: string | null;
             IsIniData?: boolean;
             /** Format: date-time */
@@ -6801,7 +7282,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人 */
             CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["UserModel_DTO"];
+            CreateUser?: components["schemas"]["Account_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -6809,7 +7290,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人 */
             ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["UserModel_DTO"];
+            ModifyUser?: components["schemas"]["Account_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -6976,7 +7457,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人 */
             CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["UserModel_DTO"];
+            CreateUser?: components["schemas"]["Account_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -6984,7 +7465,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人 */
             ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["UserModel_DTO"];
+            ModifyUser?: components["schemas"]["Account_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -7009,6 +7490,11 @@ export interface components {
             _GalleryInfo?: components["schemas"]["GalleryInfo_DTO"][] | null;
             _GalleryPhotos?: components["schemas"]["GalleryPhotos_DTO"][] | null;
         };
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
+        Gender: 0 | 1 | 2;
         LoginDto: {
             Account: string;
             Password: string;
@@ -7058,7 +7544,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人 */
             CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["UserModel_DTO"];
+            CreateUser?: components["schemas"]["Account_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -7066,7 +7552,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人 */
             ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["UserModel_DTO"];
+            ModifyUser?: components["schemas"]["Account_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -7085,21 +7571,21 @@ export interface components {
             ViewCount?: number | null;
             _PageManagementDetail?: components["schemas"]["PageManagementDetail_DTO"][] | null;
         };
-        PermissionModel: {
+        PersonModel: {
             /** Format: date-time */
             CreateTime?: string | null;
+            CreateUser?: components["schemas"]["AccountModel"];
             CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["UserModel"];
             /** Format: date-time */
             ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["AccountModel"];
             ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["UserModel"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
             InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["AccountModel"];
             InvalidUserId?: string | null;
-            InvalidUser?: components["schemas"]["UserModel"];
             InternalId?: string | null;
             OrgLvId?: string | null;
             IsIniData?: boolean;
@@ -7107,10 +7593,60 @@ export interface components {
             Validate_Start?: string | null;
             /** Format: date-time */
             Validate_End?: string | null;
-            UserId?: string | null;
-            RoleId?: string | null;
-            User?: components["schemas"]["UserModel"];
-            Role?: components["schemas"]["RoleModel"];
+            PersonId?: string | null;
+            PersonName?: string | null;
+            PersonImg?: components["schemas"]["FileManageModel"];
+            PersonImgId?: string | null;
+            Gender?: components["schemas"]["Gender"];
+            Email?: string | null;
+            MobilePhone?: string | null;
+            HomePhone?: string | null;
+        };
+        PersonModel_DTO: {
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
+            CreateTime?: string | null;
+            /** @description 創建人 */
+            CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["Account_DTO"];
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
+            ModifyTime?: string | null;
+            /** @description 修改人 */
+            ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["Account_DTO"];
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
+            InternalId?: string | null;
+            /** @description 人員編號 */
+            PersonId?: string | null;
+            /** @description 人員名稱 */
+            PersonName?: string | null;
+            PersonImg?: components["schemas"]["FileManageModel"];
+            /** @description 大頭貼 */
+            PersonImgId?: string | null;
+            Gender?: components["schemas"]["Gender"];
+            /** @description 常用Email */
+            Email?: string | null;
+            /** @description 手機號碼 */
+            MobilePhone?: string | null;
+            /** @description 聯絡電話 */
+            HomePhone?: string | null;
+        };
+        PersonSet_DTO: {
+            Person?: components["schemas"]["PersonModel_DTO"];
+        };
+        PersonSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["PersonSet_DTO"];
         };
         QueryListParam: {
             Fields?: string[] | null;
@@ -7120,34 +7656,6 @@ export interface components {
             PageNumber?: number;
             /** Format: int32 */
             PageSize?: number;
-        };
-        RoleModel: {
-            /** Format: date-time */
-            CreateTime?: string | null;
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["UserModel"];
-            /** Format: date-time */
-            ModifyTime?: string | null;
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["UserModel"];
-            FormStatus?: components["schemas"]["FormStatus"];
-            DataStatus?: components["schemas"]["DataStatus"];
-            /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            InvalidUser?: components["schemas"]["UserModel"];
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
-            /** Format: date-time */
-            Validate_Start?: string | null;
-            /** Format: date-time */
-            Validate_End?: string | null;
-            RoleId?: string | null;
-            RoleName?: string | null;
-            EndType?: components["schemas"]["EndType"];
-            IsAdmin?: boolean;
-            UserRoles?: components["schemas"]["PermissionModel"][] | null;
         };
         /**
          * Format: int32
@@ -7197,7 +7705,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人 */
             CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["UserModel_DTO"];
+            CreateUser?: components["schemas"]["Account_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -7205,7 +7713,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人 */
             ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["UserModel_DTO"];
+            ModifyUser?: components["schemas"]["Account_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -7296,6 +7804,7 @@ export interface components {
             RedirectUrl?: string | null;
         };
         SpecCategoryDetailModel_DTO: {
+            /** @description 類別代號 */
             CategoryId?: string | null;
             /**
              * Format: int32
@@ -7315,7 +7824,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人 */
             CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["UserModel_DTO"];
+            CreateUser?: components["schemas"]["Account_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -7323,7 +7832,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人 */
             ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["UserModel_DTO"];
+            ModifyUser?: components["schemas"]["Account_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -7331,6 +7840,7 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            /** @description 類別代號 */
             CategoryId?: string | null;
             /** @description 功能模塊代碼 */
             ProgId?: string | null;
@@ -7418,7 +7928,7 @@ export interface components {
             PlanAmount?: number | null;
             /** @description 計畫內容簡介 */
             PlanContent?: string | null;
-            /** @description 計畫內容簡介 */
+            /** @description 委辦/補助單位 */
             Professor?: string | null;
         };
         SpecResearchModel_DTO: {
@@ -7429,7 +7939,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人 */
             CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["UserModel_DTO"];
+            CreateUser?: components["schemas"]["Account_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -7437,7 +7947,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人 */
             ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["UserModel_DTO"];
+            ModifyUser?: components["schemas"]["Account_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -7559,7 +8069,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人 */
             CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["UserModel_DTO"];
+            CreateUser?: components["schemas"]["Account_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -7567,7 +8077,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人 */
             ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["UserModel_DTO"];
+            ModifyUser?: components["schemas"]["Account_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -7668,7 +8178,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人 */
             CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["UserModel_DTO"];
+            CreateUser?: components["schemas"]["Account_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -7676,7 +8186,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人 */
             ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["UserModel_DTO"];
+            ModifyUser?: components["schemas"]["Account_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
@@ -7710,87 +8220,6 @@ export interface components {
         TagSet_DTOApiRequest: {
             InternalId?: string | null;
             Data?: components["schemas"]["TagSet_DTO"];
-        };
-        UserInfo: {
-            RowState?: components["schemas"]["RowState"];
-            UserId?: string | null;
-            /** Format: int32 */
-            RowId?: number;
-            Lang?: string | null;
-            UserName?: string | null;
-        };
-        UserModel: {
-            /** Format: date-time */
-            CreateTime?: string | null;
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["UserModel"];
-            /** Format: date-time */
-            ModifyTime?: string | null;
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["UserModel"];
-            FormStatus?: components["schemas"]["FormStatus"];
-            DataStatus?: components["schemas"]["DataStatus"];
-            /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            InvalidUser?: components["schemas"]["UserModel"];
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
-            /** Format: date-time */
-            Validate_Start?: string | null;
-            /** Format: date-time */
-            Validate_End?: string | null;
-            UserId?: string | null;
-            /** @deprecated */
-            UserName?: string | null;
-            UserImageId?: string | null;
-            Email?: string | null;
-            /** Format: byte */
-            PasswordHash?: string | null;
-            /** Format: byte */
-            PasswordSalt?: string | null;
-            /** Format: int32 */
-            PasswordAlgoVer?: number;
-            AccountStatus?: components["schemas"]["AccountStatus"];
-            UserRoles?: components["schemas"]["PermissionModel"][] | null;
-            UserInfo?: components["schemas"]["UserInfo"][] | null;
-        };
-        UserModel_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["UserModel_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["UserModel_DTO"];
-            FormStatus?: components["schemas"]["FormStatus"];
-            DataStatus?: components["schemas"]["DataStatus"];
-            /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            UserId?: string | null;
-            UserName?: string | null;
-            Email?: string | null;
-            UserRoles?: components["schemas"]["PermissionModel"][] | null;
-        };
-        UserSet_DTO: {
-            User?: components["schemas"]["UserModel"];
-        };
-        UserSet_DTOApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["UserSet_DTO"];
         };
         WebResourceInfo_DTO: {
             /** @description 網路資源 */
@@ -7826,7 +8255,7 @@ export interface components {
             CreateTime?: string | null;
             /** @description 創建人 */
             CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["UserModel_DTO"];
+            CreateUser?: components["schemas"]["Account_DTO"];
             /**
              * Format: date-time
              * @description 修改時間
@@ -7834,7 +8263,7 @@ export interface components {
             ModifyTime?: string | null;
             /** @description 修改人 */
             ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["UserModel_DTO"];
+            ModifyUser?: components["schemas"]["Account_DTO"];
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */

@@ -1,0 +1,881 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+/* ======================= */
+/* -------------------------
+**	首頁 Site-Header
+**	首頁 main-fullpage-wraper
+**	首頁 sticky-header
+
+**	內頁  H1~H6
+**	內頁  HR
+**	標準 BS col-1~12 ( sm + md + lg + xl )
+-------------------------- */
+/* ======================= */
+
+
+
+
+/* ========================================================================== */
+/* 所有 預設內容 CSS 設定 ( 以下 )  OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO */
+/* ========================================================================== */
+
+
+
+
+/* ====================================================== */
+/* =====  首頁 Site-Header =============================== */
+/* ====================================================== */
+#Site-Header {
+	display: block;
+}
+
+#Site-Header.main-header {
+	position: sticky;
+	visibility: visible;
+	opacity: 1;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	padding: 0px 0px;
+    z-index: 99901;	
+	background-color: transparent;
+
+	/*-webkit-box-shadow: 0 0 15px rgba(0,0,0,0.10);
+	-moz-box-shadow: 0 0 15px rgba(0,0,0,0.10);
+	-ms-box-shadow: 0 0 15px rgba(0,0,0,0.10);
+	-o-box-shadow: 0 0 15px rgba(0,0,0,0.10);
+	box-shadow: 0 0 15px rgba(0,0,0,0.10);*/
+    
+	-webkit-transition: top 300ms ease;
+	-moz-transition: top 300ms ease;
+	-ms-transition: top 300ms ease;
+	-o-transition: top 300ms ease;
+	transition: top 300ms ease;
+}
+
+.Line_section {
+    position: relative;
+    display: block;
+    width: 100%;        
+	/*display: none;*/
+}
+.Line_section.TOP {
+	height: 8px;
+	background-color: var(--Customize_HRcolor);
+}
+.Line_section.BOTTOM {
+	height: 2px;
+	background-color: var(--Customize_HRcolor);
+}
+/* ====================================================== */
+/* =====  首頁 Site-Header =============================== */
+/* ====================================================== */
+
+
+
+/* ====================================================== */
+/* =====  首頁 main-fullpage-wraper ====================== */
+/* ====================================================== */
+.main-fullpage-wraper {
+	position: relative;
+	width: 100%;
+	height: auto;
+}
+
+.background_area {
+	position: relative; 
+	z-index: 0;     
+	background-color: transparent;
+	background-size: auto; 
+	background-repeat: no-repeat; 
+	/*background-position: bottom;*/
+	/*background-image: url(images/bg/background-transparent-image_1920x600.png)*/
+}
+
+/* for life_theme_section 作用 */
+.life_theme {
+	position: relative;
+    top: -176px; /*-183px;*/
+}
+
+@media screen and (max-width: 991px) {
+	.life_theme {
+		position: relative;
+		top: 15px;
+	}
+}
+/* ====================================================== */
+/* =====  首頁 main-fullpage-wraper ====================== */
+/* ====================================================== */
+
+
+
+/* ====================================================== */
+/* =====  首頁 sticky-header ============================= */
+/* ====================================================== */
+.fixed-header .sticky-header .logo {
+	padding: 10px 0px;
+}
+
+.fixed-header .sticky-header .logo img {
+	height: 50px;
+}
+
+.sticky-header .main-menu {
+	position: relative;
+	float: left;
+}
+
+.sticky-header .main-menu .navigation > li {
+	margin-left: 30px !important;
+	padding: 0;
+	margin-right: 0 !important;
+	background-color: transparent;
+}
+
+.sticky-header .main-menu .navigation > li.dropdown > a:after,
+.sticky-header .main-menu .navigation > li:before {
+	display: none;
+}
+
+.sticky-header .main-menu .navigation > li > a {
+	font-size: 100%;
+    line-height: 30px;
+	font-weight: 600;    
+	text-transform: capitalize;
+    
+    color: #090a0c;
+    padding: 21px 0px !important;
+    
+	-webkit-transition: all 300ms ease;
+	-moz-transition: all 300ms ease;
+	-ms-transition: all 300ms ease;
+	-o-transition: all 300ms ease;
+	transition: all 300ms ease;
+}
+
+.sticky-header .main-menu .navigation > li > ul > li > ul {
+	left: auto;
+	right: 100%;
+	margin-right: 10px;	
+}
+
+.sticky-header .main-menu .navigation > li > ul > li > ul:before {
+	left: auto;
+	right: -10px;
+}
+
+.sticky-header .main-menu .navigation > li:hover > a,
+.sticky-header .main-menu .navigation > li.current > a,
+.sticky-header .main-menu .navigation > li.current-menu-item > a {
+	opacity:1;
+}
+
+.sticky-header .booking-link {
+	position: relative;
+	float: left;
+	margin-left: 25px;
+	padding-top: 15px;
+}
+
+.sticky-header .search-btn {
+	position:relative;
+	float:left;
+	margin-left: 30px;
+	margin-top: 22px;
+}
+
+.sticky-header .search-btn button {
+	position: relative;
+	display: block;
+	padding: 0;
+	margin: 0;
+	background: none;
+	line-height: 30px;
+	color: #b5c0cf;
+	font-size: 112.5%;
+	cursor: pointer;
+}
+
+.sticky-header .search-btn button .icon {
+	vertical-align: middle;
+}
+/* ====================================================== */
+/* =====  首頁 sticky-header ============================= */
+/* ====================================================== */
+
+
+
+/* ============================================= */
+/* ------ 內頁  H1~H6 --------------------------- */
+/* ============================================= */
+#ContentPlaceContent_ContentSubMenu .h1, #ContentPlaceContent_ContentSubMenu h1,
+#ContentPlaceContent_ContentSubMenu .h2, #ContentPlaceContent_ContentSubMenu h2,
+#ContentPlaceContent_ContentSubMenu .h3, #ContentPlaceContent_ContentSubMenu h3,
+#ContentPlaceContent_ContentSubMenu .h4, #ContentPlaceContent_ContentSubMenu h4,
+#ContentPlaceContent_ContentSubMenu .h5, #ContentPlaceContent_ContentSubMenu h5,
+#ContentPlaceContent_ContentSubMenu .h6, #ContentPlaceContent_ContentSubMenu h6,
+
+#ContentPlaceContent_ContentConentA .h1, #ContentPlaceContent_ContentConentA h1,
+#ContentPlaceContent_ContentConentA .h2, #ContentPlaceContent_ContentConentA h2,
+#ContentPlaceContent_ContentConentA .h3, #ContentPlaceContent_ContentConentA h3,
+#ContentPlaceContent_ContentConentA .h4, #ContentPlaceContent_ContentConentA h4,
+#ContentPlaceContent_ContentConentA .h5, #ContentPlaceContent_ContentConentA h5,
+#ContentPlaceContent_ContentConentA .h6, #ContentPlaceContent_ContentConentA h6 {
+	margin-bottom: .5rem;
+	font-weight: 500;
+	line-height: 1.2;
+	color: var(--blackcolor);
+}
+
+#ContentPlaceContent_ContentSubMenu .h1, #ContentPlaceContent_ContentSubMenu h1,
+#ContentPlaceContent_ContentConentA .h1, #ContentPlaceContent_ContentConentA h1
+ {
+	font-size: 200%; /*2em*/
+}
+
+#ContentPlaceContent_ContentSubMenu .h2, #ContentPlaceContent_ContentSubMenu h2,
+#ContentPlaceContent_ContentConentA .h2, #ContentPlaceContent_ContentConentA h2 {
+	font-size: 175%; /*1.755em*/
+}
+
+#ContentPlaceContent_ContentSubMenu .h3, #ContentPlaceContent_ContentSubMenu h3,
+#ContentPlaceContent_ContentConentA .h3, #ContentPlaceContent_ContentConentA h3 {
+	font-size: 150%; /*1.5em*/
+}
+
+#ContentPlaceContent_ContentSubMenu .h4, #ContentPlaceContent_ContentSubMenu h4,
+#ContentPlaceContent_ContentConentA .h4, #ContentPlaceContent_ContentConentA h4 {
+	font-size: 125%; /*1.25em*/
+}
+
+#ContentPlaceContent_ContentSubMenu .h5, #ContentPlaceContent_ContentSubMenu h5,
+#ContentPlaceContent_ContentConentA .h5, #ContentPlaceContent_ContentConentA h5 {
+	font-size: 100%; /*1.0em*/
+}
+
+#ContentPlaceContent_ContentSubMenu .h6, #ContentPlaceContent_ContentSubMenu h6,
+#ContentPlaceContent_ContentConentA .h6, #ContentPlaceContent_ContentConentA h6 {
+	font-size: 93.75%; /*0.9375em*/
+}
+/* ============================================= */
+/* ------ 內頁  H1~H6 --------------------------- */
+/* ============================================= */
+
+
+
+/* ====================================================== */
+/* =====  內頁  HR  ====================================== */
+/* ====================================================== */
+/* ====================================================== */
+/* 標準預設 */
+hr.hr-my-1 {
+	box-sizing: content-box;	
+	margin-top: 0.25rem;
+	margin-bottom: 0.25rem;
+	border: 0;
+	border-top: 1px solid rgba(0, 0, 0, 0.75);
+}
+hr.hr-my-2 {
+	box-sizing: content-box;	
+	margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+	border: 0;
+	border-top: 1px solid rgba(0, 0, 0, 0.75);
+}
+hr.hr-my-3 {
+	box-sizing: content-box;	
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+	border: 0;
+	border-top: 1px solid rgba(0, 0, 0, 0.75);
+}
+hr.hr-my-4 {
+	box-sizing: content-box;	
+	margin-top: 1.5rem;
+	margin-bottom: 1.5rem;
+	border: 0;
+	border-top: 1px solid rgba(0, 0, 0, 0.75);
+}
+hr.hr-my-5 {
+	box-sizing: content-box;	
+	margin-top: 2rem;
+	margin-bottom: 2rem;
+	border: 0;
+	border-top: 1px solid rgba(0, 0, 0, 0.75);
+}
+hr.hr-my-6 {
+	box-sizing: content-box;	
+	margin-top: 3rem;
+	margin-bottom: 3rem;
+	border: 0;
+	border-top: 1px solid rgba(0, 0, 0, 0.75);
+}
+/* 標準預設 */
+/* ====================================================== */
+
+/* ====================================================== */
+/* 標準 虛線預設 */
+
+hr.hr-dotted-my-1 {
+	box-sizing: content-box;	
+	margin-top: 0.25rem;
+	margin-bottom: 0.25rem;
+	border: 0;
+	border-top: 2px dotted rgba(0, 0, 0, 1);
+}
+hr.hr-dotted-my-2 {
+	box-sizing: content-box;	
+	margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+	border: 0;
+	border-top: 2px dotted rgba(0, 0, 0, 1);
+}
+hr.hr-dotted-my-3 {
+	box-sizing: content-box;	
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+	border: 0;
+	border-top: 2px dotted rgba(0, 0, 0, 1);
+}
+hr.hr-dotted-my-4 {
+	box-sizing: content-box;	
+	margin-top: 1.5rem;
+	margin-bottom: 1.5rem;
+	border: 0;
+	border-top: 2px dotted rgba(0, 0, 0, 1);
+}
+hr.hr-dotted-my-5 {
+	box-sizing: content-box;	
+	margin-top: 2rem;
+	margin-bottom: 2rem;
+	border: 0;
+	border-top: 2px dotted rgba(0, 0, 0, 1);
+}
+hr.hr-dotted-my-6 {
+	box-sizing: content-box;	
+	margin-top: 3rem;
+	margin-bottom: 3rem;
+	border: 0;
+	border-top: 2px dotted rgba(0, 0, 0, 1);
+}
+/* 標準 虛線預設 */
+/* ====================================================== */
+/* ====================================================== */
+/* =====  內頁  HR  ====================================== */
+/* ====================================================== */
+
+
+
+/* ====================================================== */
+/* =====  標準  BS col-1~12 ( sm + md + lg + xl ) ======== */
+/* ====================================================== */
+.col, .col-1, .col-10, .col-11, .col-12, .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9, .col-auto, 
+.col-sm, .col-sm-1, .col-sm-10, .col-sm-11, .col-sm-12, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-auto, 
+.col-md, .col-md-1, .col-md-10, .col-md-11, .col-md-12, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-md-auto, 
+.col-lg, .col-lg-1, .col-lg-10, .col-lg-11, .col-lg-12, .col-lg-2, .col-lg-3, .col-lg-4, .col-lg-5, .col-lg-6, .col-lg-7, .col-lg-8, .col-lg-9, .col-lg-auto, 
+.col-xl, .col-xl-1, .col-xl-10, .col-xl-11, .col-xl-12, .col-xl-2, .col-xl-3, .col-xl-4, .col-xl-5, .col-xl-6, .col-xl-7, .col-xl-8, .col-xl-9, .col-xl-auto {
+	position: relative;
+	width: 100%;
+	padding-right: 12px; /*15*/
+	padding-left: 12px;  /*15*/
+	padding-right: calc(var(--bs-gutter-x) * .5);
+	padding-left: calc(var(--bs-gutter-x) * .5);
+}
+
+.col-auto {
+	-ms-flex: 0 0 auto;
+	flex: 0 0 auto;
+	width: auto;
+	max-width: 100%
+}
+.col-1 {
+	-ms-flex: 0 0 8.333333%;
+	flex: 0 0 8.333333%;
+	max-width: 8.333333%
+}
+.col-2 {
+	-ms-flex: 0 0 16.666667%;
+	flex: 0 0 16.666667%;
+	max-width: 16.666667%
+}
+.col-3 {
+	-ms-flex: 0 0 25%;
+	flex: 0 0 25%;
+	max-width: 25%
+}
+.col-4 {
+	-ms-flex: 0 0 33.333333%;
+	flex: 0 0 33.333333%;
+	max-width: 33.333333%
+}
+.col-5 {
+	-ms-flex: 0 0 41.666667%;
+	flex: 0 0 41.666667%;
+	max-width: 41.666667%
+}
+.col-6 {
+	-ms-flex: 0 0 50%;
+	flex: 0 0 50%;
+	max-width: 50%
+}
+.col-7 {
+	-ms-flex: 0 0 58.333333%;
+	flex: 0 0 58.333333%;
+	max-width: 58.333333%
+}
+.col-8 {
+	-ms-flex: 0 0 66.666667%;
+	flex: 0 0 66.666667%;
+	max-width: 66.666667%
+}
+.col-9 {
+	-ms-flex: 0 0 75%;
+	flex: 0 0 75%;
+	max-width: 75%
+}
+.col-10 {
+	-ms-flex: 0 0 83.333333%;
+	flex: 0 0 83.333333%;
+	max-width: 83.333333%
+}
+.col-11 {
+	-ms-flex: 0 0 91.666667%;
+	flex: 0 0 91.666667%;
+	max-width: 91.666667%
+}
+.col-12 {
+	-ms-flex: 0 0 100%;
+	flex: 0 0 100%;
+	max-width: 100%
+}
+@media (min-width:576px) {
+	.col-sm {
+		-ms-flex-preferred-size: 0;
+		flex-basis: 0;
+		-ms-flex-positive: 1;
+		flex-grow: 1;
+		max-width: 100%
+	}
+	.col-sm-auto {
+		-ms-flex: 0 0 auto;
+		flex: 0 0 auto;
+		width: auto;
+		max-width: 100%
+	}
+	.col-sm-1 {
+		-ms-flex: 0 0 8.333333%;
+		flex: 0 0 8.333333%;
+		max-width: 8.333333%
+	}
+	.col-sm-2 {
+		-ms-flex: 0 0 16.666667%;
+		flex: 0 0 16.666667%;
+		max-width: 16.666667%
+	}
+	.col-sm-3 {
+		-ms-flex: 0 0 25%;
+		flex: 0 0 25%;
+		max-width: 25%
+	}
+	.col-sm-4 {
+		-ms-flex: 0 0 33.333333%;
+		flex: 0 0 33.333333%;
+		max-width: 33.333333%
+	}
+	.col-sm-5 {
+		-ms-flex: 0 0 41.666667%;
+		flex: 0 0 41.666667%;
+		max-width: 41.666667%
+	}
+	.col-sm-6 {
+		-ms-flex: 0 0 50%;
+		flex: 0 0 50%;
+		max-width: 50%
+	}
+	.col-sm-7 {
+		-ms-flex: 0 0 58.333333%;
+		flex: 0 0 58.333333%;
+		max-width: 58.333333%
+	}
+	.col-sm-8 {
+		-ms-flex: 0 0 66.666667%;
+		flex: 0 0 66.666667%;
+		max-width: 66.666667%
+	}
+	.col-sm-9 {
+		-ms-flex: 0 0 75%;
+		flex: 0 0 75%;
+		max-width: 75%
+	}
+	.col-sm-10 {
+		-ms-flex: 0 0 83.333333%;
+		flex: 0 0 83.333333%;
+		max-width: 83.333333%
+	}
+	.col-sm-11 {
+		-ms-flex: 0 0 91.666667%;
+		flex: 0 0 91.666667%;
+		max-width: 91.666667%
+	}
+	.col-sm-12 {
+		-ms-flex: 0 0 100%;
+		flex: 0 0 100%;
+		max-width: 100%
+	}
+}
+@media (min-width:768px) {
+	.col-md {
+		-ms-flex-preferred-size: 0;
+		flex-basis: 0;
+		-ms-flex-positive: 1;
+		flex-grow: 1;
+		max-width: 100%
+	}	
+	.col-md-auto {
+		-ms-flex: 0 0 auto;
+		flex: 0 0 auto;
+		width: auto;
+		max-width: 100%
+	}
+	.col-md-1 {
+		-ms-flex: 0 0 8.333333%;
+		flex: 0 0 8.333333%;
+		max-width: 8.333333%
+	}
+	.col-md-2 {
+		-ms-flex: 0 0 16.666667%;
+		flex: 0 0 16.666667%;
+		max-width: 16.666667%
+	}
+	.col-md-3 {
+		-ms-flex: 0 0 25%;
+		flex: 0 0 25%;
+		max-width: 25%
+	}
+	.col-md-4 {
+		-ms-flex: 0 0 33.333333%;
+		flex: 0 0 33.333333%;
+		max-width: 33.333333%
+	}
+	.col-md-5 {
+		-ms-flex: 0 0 41.666667%;
+		flex: 0 0 41.666667%;
+		max-width: 41.666667%
+	}
+	.col-md-6 {
+		-ms-flex: 0 0 50%;
+		flex: 0 0 50%;
+		max-width: 50%
+	}
+	.col-md-7 {
+		-ms-flex: 0 0 58.333333%;
+		flex: 0 0 58.333333%;
+		max-width: 58.333333%
+	}
+	.col-md-8 {
+		-ms-flex: 0 0 66.666667%;
+		flex: 0 0 66.666667%;
+		max-width: 66.666667%
+	}
+	.col-md-9 {
+		-ms-flex: 0 0 75%;
+		flex: 0 0 75%;
+		max-width: 75%
+	}
+	.col-md-10 {
+		-ms-flex: 0 0 83.333333%;
+		flex: 0 0 83.333333%;
+		max-width: 83.333333%
+	}
+	.col-md-11 {
+		-ms-flex: 0 0 91.666667%;
+		flex: 0 0 91.666667%;
+		max-width: 91.666667%
+	}
+	.col-md-12 {
+		-ms-flex: 0 0 100%;
+		flex: 0 0 100%;
+		max-width: 100%
+	}
+}
+@media (min-width:992px) {
+	.col-lg {
+		-ms-flex-preferred-size: 0;
+		flex-basis: 0;
+		-ms-flex-positive: 1;
+		flex-grow: 1;
+		max-width: 100%
+	}	
+	.col-lg-auto {
+		-ms-flex: 0 0 auto;
+		flex: 0 0 auto;
+		width: auto;
+		max-width: 100%
+	}
+	.col-lg-1 {
+		-ms-flex: 0 0 8.333333%;
+		flex: 0 0 8.333333%;
+		max-width: 8.333333%
+	}
+	.col-lg-2 {
+		-ms-flex: 0 0 16.666667%;
+		flex: 0 0 16.666667%;
+		max-width: 16.666667%
+	}
+	.col-lg-3 {
+		-ms-flex: 0 0 25%;
+		flex: 0 0 25%;
+		max-width: 25%
+	}
+	.col-lg-4 {
+		-ms-flex: 0 0 33.333333%;
+		flex: 0 0 33.333333%;
+		max-width: 33.333333%
+	}
+	.col-lg-5 {
+		-ms-flex: 0 0 41.666667%;
+		flex: 0 0 41.666667%;
+		max-width: 41.666667%
+	}
+	.col-lg-6 {
+		-ms-flex: 0 0 50%;
+		flex: 0 0 50%;
+		max-width: 50%
+	}
+	.col-lg-7 {
+		-ms-flex: 0 0 58.333333%;
+		flex: 0 0 58.333333%;
+		max-width: 58.333333%
+	}
+	.col-lg-8 {
+		-ms-flex: 0 0 66.666667%;
+		flex: 0 0 66.666667%;
+		max-width: 66.666667%
+	}
+	.col-lg-9 {
+		-ms-flex: 0 0 75%;
+		flex: 0 0 75%;
+		max-width: 75%
+	}
+	.col-lg-10 {
+		-ms-flex: 0 0 83.333333%;
+		flex: 0 0 83.333333%;
+		max-width: 83.333333%
+	}
+	.col-lg-11 {
+		-ms-flex: 0 0 91.666667%;
+		flex: 0 0 91.666667%;
+		max-width: 91.666667%
+	}
+	.col-lg-12 {
+		-ms-flex: 0 0 100%;
+		flex: 0 0 100%;
+		max-width: 100%
+	}
+}
+@media (min-width:1200px) {
+	.col-xl {
+		-ms-flex-preferred-size: 0;
+		flex-basis: 0;
+		-ms-flex-positive: 1;
+		flex-grow: 1;
+		max-width: 100%
+	}
+	.col-xl-auto {
+		-ms-flex: 0 0 auto;
+		flex: 0 0 auto;
+		width: auto;
+		max-width: 100%
+	}
+	.col-xl-1 {
+		-ms-flex: 0 0 8.333333%;
+		flex: 0 0 8.333333%;
+		max-width: 8.333333%
+	}
+	.col-xl-2 {
+		-ms-flex: 0 0 16.666667%;
+		flex: 0 0 16.666667%;
+		max-width: 16.666667%
+	}
+	.col-xl-3 {
+		-ms-flex: 0 0 25%;
+		flex: 0 0 25%;
+		max-width: 25%
+	}
+	.col-xl-4 {
+		-ms-flex: 0 0 33.333333%;
+		flex: 0 0 33.333333%;
+		max-width: 33.333333%
+	}
+	.col-xl-5 {
+		-ms-flex: 0 0 41.666667%;
+		flex: 0 0 41.666667%;
+		max-width: 41.666667%
+	}
+	.col-xl-6 {
+		-ms-flex: 0 0 50%;
+		flex: 0 0 50%;
+		max-width: 50%
+	}
+	.col-xl-7 {
+		-ms-flex: 0 0 58.333333%;
+		flex: 0 0 58.333333%;
+		max-width: 58.333333%
+	}
+	.col-xl-8 {
+		-ms-flex: 0 0 66.666667%;
+		flex: 0 0 66.666667%;
+		max-width: 66.666667%
+	}
+	.col-xl-9 {
+		-ms-flex: 0 0 75%;
+		flex: 0 0 75%;
+		max-width: 75%
+	}
+	.col-xl-10 {
+		-ms-flex: 0 0 83.333333%;
+		flex: 0 0 83.333333%;
+		max-width: 83.333333%
+	}
+	.col-xl-11 {
+		-ms-flex: 0 0 91.666667%;
+		flex: 0 0 91.666667%;
+		max-width: 91.666667%
+	}
+	.col-xl-12 {
+		-ms-flex: 0 0 100%;
+		flex: 0 0 100%;
+		max-width: 100%
+	}
+}
+/* ====================================================== */
+/* =====  標準  BS col-1~12 ( sm + md + lg + xl ) ======== */
+/* ====================================================== */
+
+
+
+/* ====================================================== */
+/* =====  內頁  404錯誤  ================================= */
+/* ====================================================== */
+.error-area {
+	position: relative;
+}
+/*----------------------------------------------*/
+.error-area .space {
+	padding-top: 120px;
+}
+@media (max-width: 991px) {
+	.error-area .space {
+		padding-top: 80px;
+	}
+}
+/*----------------------------------------------*/
+.error-area .error-thumb {
+	margin-bottom: 60px;
+}
+.error-area .error-thumb img {
+	max-width: 50%;
+	height: auto;
+	object-fit: cover;
+}
+@media (max-width: 991px) {
+	.error-area .error-thumb img {
+		max-width: 75%;
+	}
+}
+/*----------------------------------------------*/
+.error-area .title-area {
+	position: relative;
+	margin-bottom: calc(60px - 17px);	
+	z-index: 2;
+}
+/*----------------------------------------------*/
+.error-area .tw-title,
+.error-area .en-title {
+	position: relative;
+	display: inline-block;		
+	font-weight: 600;
+	overflow: hidden;
+	width: 100%;
+	margin-bottom: 0.5rem;
+	margin-top: 0.5rem;
+	gap: 30px;
+}
+.error-area .tw-title {
+	font-size: 300%;
+}
+@media (max-width: 1399px) {
+	.error-area .tw-title {
+		font-size: 262.5%;
+	}
+}
+@media (max-width: 1199px) {
+	.error-area .tw-title {
+		font-size: 225.0%;
+	}
+}
+@media (max-width: 767px) {
+	.error-area .tw-title {
+		font-size: 200%;
+	}
+}
+@media (max-width: 390px) {
+	.error-area .tw-title {
+		font-size: 175.0%;
+	}
+}
+/*----------------------------------------------*/
+.error-area .en-title {
+	font-size: 250%;
+}
+@media (max-width: 1399px) {
+	.error-area .en-title {
+		font-size: 212.5%;
+	}
+}
+@media (max-width: 1199px) {
+	.error-area .en-title {
+		font-size: 225.0%;
+	}
+}
+@media (max-width: 767px) {
+	.error-area .en-title {
+		font-size: 187.5%;
+	}
+}
+@media (max-width: 390px) {
+	.error-area .en-title {
+		font-size: 162.5%;
+	}
+}
+/*----------------------------------------------*/
+.error-area a.btn.btn-primary {
+	font-size: 112.5%;
+	font-weight: 900;
+	border-radius: 50px !important;
+	margin-top: 3rem;
+}
+.error-area a.btn.btn-error-color {
+	color: var(--FFFcolor) !important;
+	background-color: var(--Customize_color) !important;
+}
+
+.error-area a:hover.btn.btn-primary {
+	background-color: var(--Customize_HRcolor) !important;
+}
+/* ====================================================== */
+/* =====  內頁  404錯誤  ================================= */
+/* ====================================================== */
+
+
+
+
+/* ========================================================================== */
+/* 所有 預設內容 CSS 設定 ( 以上 )  OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO */
+/* ========================================================================== */
+
+
+

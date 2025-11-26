@@ -1,0 +1,319 @@
+@charset "utf-8";
+/* CSS Document */
+
+/* //====== 相本輪播 START ======// */
+
+.slick-box {
+	display: block;
+	position: relative;
+	min-height: 1px;
+	background: #ddd;
+	padding-top: 1rem;
+	padding-bottom: 1rem;
+}
+
+.slick-box .container {
+	width: 100%;
+	padding-right: 0px;
+	padding-left: 0px;
+	margin-right: auto;
+	margin-left: auto
+}
+
+@media (min-width:576px) {
+	.slick-box .container {
+		max-width: 540px
+	}
+}
+
+@media (min-width:768px) {
+	.slick-box .container {
+		max-width: 720px
+	}
+}
+
+@media (min-width:992px) {
+	.slick-box .container {
+		max-width: 960px
+	}
+}
+
+@media (min-width:1200px) {
+	.slick-box .container {
+		max-width: 1140px
+	}
+}
+
+.slider {
+	width: 100%;
+	margin: auto !important;
+	/*margin: 50px auto !important;*/
+}
+
+.slick-slide {
+    display: none;
+    float: left;
+    height: auto;
+    min-height: 1px;
+	padding: 0 15px;
+	/*margin: 0px 20px;*/
+}
+
+.slick-slide img {
+	width: 100%;
+}
+
+#slick .slick-item figcaption {
+	padding: 10px 10px 30px 10px;
+    position: relative;
+    border: 1px solid #dddddd;
+    transition: all linear 0.4s;
+    -webkit-transition: all linear 0.4s;
+    -moz-transition: all linear 0.4s;
+    -ms-transition: all linear 0.4s;
+    -o-transition: all linear 0.4s;
+}
+
+#slick h3.title {  
+  	font-size: 100%; /*1em*/ /*16px*/
+	line-height: 1.314;	
+	font-weight: 600;	
+	letter-spacing: .1em;
+	text-align: left;	
+	text-transform: uppercase;	
+	vertical-align: middle;
+	color: #5a5a5a;
+	
+	display: -webkit-box;/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/ 
+	-webkit-line-clamp: 2;/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height:45px;/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+}
+
+#slick h4.p_text {  
+  	font-size: 87.5%; /*0875em*/ /*14px*/
+	line-height: 1.314;	
+	letter-spacing: .1em;
+	text-align: left;	
+	text-transform: uppercase;	
+	vertical-align: middle;
+	color: #5a5a5a;
+	margin-bottom: 0;
+	
+	display: -webkit-box;/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/ 
+	-webkit-line-clamp: 2;/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height:40px;/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+}
+
+#slick h3.title:hover { 
+	color: #1d2088;
+}
+
+/*#slick h4.p_text:hover { 
+	color: #c33c70;
+}*/
+
+.slick-prev:before {
+    font-family: 'slick';
+    font-size: 287.5%; /*2.875em*/ /*原20*/ /*16=1rem*/
+    line-height: 1;
+	content: url("../images/slick-prev.png");
+	
+    /*opacity: 0.5;*/ /*0.75*/
+    /*color: #1d2088;*/ /*FFFFFFF*/
+	border: 1px solid #fff;
+	background-color: rgba(0,0,0,0.25);
+	
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+	
+	display: block;
+	width: 40px;
+	height: 40px
+}
+
+.slick-next:before {
+    font-family: 'slick';
+    font-size: 287.5%; /*2.875em*/ /*原20*/ /*16=1rem*/
+    line-height: 1;	
+	content: url("../images/slick-next.png");
+	
+    /*opacity: 0.5;*/ /*0.75*/
+    /*color: #1d2088;*/ /*FFFFFFF*/
+	border: 1px solid #fff;
+	background-color: rgba(0,0,0,0.25);
+	
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+	
+	display: block;
+	width: 40px;
+	height: 40px
+}
+
+.slick-prev:hover,
+.slick-prev:focus,
+.slick-next:hover,
+.slick-next:focus {
+	/*display: block;
+	width: 40px;
+	height: 40px*/;
+    color: transparent;
+    outline: none;
+    background: transparent;
+}
+.slick-prev:hover:before,
+.slick-prev:focus:before,
+.slick-next:hover:before,
+.slick-next:focus:before {
+	/*display: block;
+	width: 40px;
+	height: 40px;*/
+    opacity: 1;
+	border: 1px solid #fff;
+	background-color: rgba(0,0,0,.75);
+}
+
+
+
+.slick-slide {
+	transition: all ease-in-out .3s;
+	opacity: .2;
+}
+
+.slick-active {
+	opacity: 1;  /*(( 0.5 ))--左2右2 ， 兩邊顯示的透明度*/
+}
+
+.slick-current {
+	opacity: 1;  /*中間顯示那個的透明度*/
+}
+
+
+/* //====== 相本輪播 END ======// */
+
+/* // ------------- AA 需求 控制撥放按鈕 CSS START  ------------- // */
+
+/* -- SILDER 控制 START -- */
+
+.slick-slide-control-right {
+    position: relative;
+    z-index: 15;
+    display: inherit; /*block*/
+    -webkit-box-pack: right; /*center*/
+    justify-content: right; /*center*/
+    padding-left: 0;
+    list-style: none;
+	
+	padding: 0 15px;
+}
+
+.glyphicon-slick {
+    position: relative;
+    top: 20%;
+    display: inline-block;
+    font-family: 'Glyphicons Halflings';
+	font-size: 150%; /*1.5em*/ /*24px*/
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* --------- 播放 -------- */
+.start-slick-slide a {
+	display:inline-block;
+    padding: 7px;
+    background-color: rgba(0,0,0,0.25);
+	border: 1px solid #fff;
+	color: #FFFFFF; /*c33c70*/
+}
+
+.start-slick-slide a:hover {    
+	text-decoration: none;
+	outline: 0;
+	opacity: .9;
+	color: #FFFFFF;
+	background-color: rgba(0,0,0,.75);
+}
+
+.start-slick-slide a:focus {    
+	text-decoration: none;
+	outline: 0;
+	opacity: .9;
+	color: #FFFFFF;
+	background-color: rgba(0,0,0,.75);
+}
+
+.start-slick-slide i {
+    position: relative;
+    font-size: 100%; /*1em*/ /*16px*/
+    list-style: none;
+    font-weight: 400;
+    line-height: 1.2;
+    vertical-align: middle;
+}
+
+/*.pause-slide i:focus {
+    color: #ff0000;
+}*/
+
+/* --------- 暫停 -------- */
+.pause-slick-slide a {
+	display:inline-block;
+    padding: 7px;
+    background-color: rgba(0,0,0,0.25);
+	border: 1px solid #fff;
+	color: #FFFFFF; /*c33c70*/
+}
+
+.pause-slick-slide a:hover {    
+	text-decoration: none;
+	outline: 0;
+	opacity: .9;
+	color: #FFFFFF;
+	background-color: rgba(0,0,0,.75);
+}
+
+.pause-slick-slide a:focus {    
+	text-decoration: none;
+	outline: 0;
+	opacity: .9;
+	color: #FFFFFF;
+	background-color: rgba(0,0,0,.75);
+}
+
+.pause-slick-slide i {
+    position: relative;
+    font-size: 100%; /*1em*/ /*16px*/
+    list-style: none;
+    font-weight: 400;
+    line-height: 1.2;
+    vertical-align: middle;
+}
+
+/*.pause-slide i:focus {
+    color: #ff0000;
+}*/
+
+@media (max-width: 320px) {
+	.slick-slide-control-right {
+		position: absolute;
+		/*right: 6%;*/
+		/*bottom: 15%;*/
+}
+
+/*.slick-next:hover::before, .slick-next:focus::before {
+    display: block;
+    width: 40px;
+    height: 40px;
+    opacity: 1;
+    border: 1px solid #fff;
+    background-color: rgba(0,0,0,.75);
+}*/
+
+/* -- SILDER 控制 END -- */

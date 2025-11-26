@@ -31,20 +31,16 @@ const formatLocalIso = (d: Date): string =>
 export const useNow = (opts?: UseNowOptions): NowState =>
 {
     const tickMs = opts?.tickMs ?? 1000;
-
     const [hydrated, setHydrated] = useState(false);
     const [ms, setMs] = useState<number | null>(null);
-
     const baseMsRef = useRef(0);
     const perfStartRef = useRef(0);
-
     useEffect(() =>
     {
         setHydrated(true);
         // 只在瀏覽器端初始化（SSR 不會跑到這裡）
         baseMsRef.current = Date.now();
         perfStartRef.current = performance.now();
-
         // 只要條件判斷、不用「走秒」的話，可以 startPaused=true，省 re-render
         if (opts?.startPaused)
         {
@@ -52,23 +48,18 @@ export const useNow = (opts?: UseNowOptions): NowState =>
             setMs(baseMsRef.current + elapsed);
             return;
         }
-
         const id = setInterval(() =>
         {
             const elapsed = performance.now() - perfStartRef.current;
             setMs(baseMsRef.current + elapsed);
         }, tickMs);
-
         // 先立即計一次
         const elapsed = performance.now() - perfStartRef.current;
         setMs(baseMsRef.current + elapsed);
-
         return () => clearInterval(id);
     }, []);
-
     const now = useMemo(() => (ms == null ? null : new Date(ms)), [ms]);
     const isoUtc = useMemo(() => (now ? now.toISOString() : null), [now]);
     const isoLocal = useMemo(() => (now ? formatLocalIso(now) : null), [now]);
-
     return { now, nowMs: ms, isoUtc, isoLocal, hydrated };
 };

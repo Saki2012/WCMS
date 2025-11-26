@@ -16,6 +16,7 @@
         public const int Url = 300;
         public const int CodeMessage = 100;
         public const int Email= 100;
+        public const int Phone = 30;
         public const int Lang= 10;
     }
 }

@@ -1,13 +1,15 @@
-
-export interface ILibUserCardStyle{
-    Bgstyle:string,
+export interface ILibUserCardStyle
+{
+    Bgstyle: string;
+    LinkType: "Edit" | "ImageUpload" | "None";
 }
 
-export interface ILibUserCardProp{
-    Style?:ILibUserCardStyle,
-    DisplayNameEN:string,
-    DisplayNameTW:string,
-    DisplayRole:string,
-    PicSrc:string,
-    dirUrl?: string
+export interface ILibUserCardProp
+{
+    Style?: ILibUserCardStyle;
+    DisplayNameEN: string;
+    DisplayNameTW: string;
+    DisplayRole: string;
+    PicSrc: string;
+    dirUrl?: string;
 }

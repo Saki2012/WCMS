@@ -24,10 +24,14 @@ namespace WCMS.SysCore.Resx
         public const string Common_UrlOpen = "Common_UrlOpen";
         public const string Common_ProgId = "Common_ProgId";
         public const string Common_ContentStatus = "Common_ContentStatus";
-        /// <summary>
-        /// 無
-        /// </summary>
+        public const string Common_Email = "Common_Email";
+        public const string Common_MobilePhone = "Common_MobilePhone";
+        public const string Common_HomePhone = "Common_HomePhone";
         public const string Common_None = "Common_None";
+        public const string Common_Password = "Common_Password";
+        public const string Common_OldPassword = "Common_OldPassword";
+        public const string Common_NewPassword = "Common_NewPassword";
+        public const string Common_CheckNewPassword = "Common_CheckNewPassword";
         #endregion
 
         #region Enums
@@ -47,9 +51,18 @@ namespace WCMS.SysCore.Resx
         public const string Enum_WindowTarget_Blank = "Enum_WindowTarget_Blank";
         public const string Enum_TwoColumn = "Enum_TwoColumn";
         public const string Enum_Vertical = "Enum_Vertical";
+        public const string Enum_Gender = "Enum_Gender";
+        public const string Enum_Gender_NotKnown= "Enum_Gender_NotKnown";
+        public const string Enum_Gender_Male="Enum_Gender_Male";
+        public const string Enum_Gender_Female = "Enum_Gender_Female";
+
+        public const string Enum_AccountStatus = "Enum_AccountStatus";
+        public const string Enum_AccountStatus_Unable = "Enum_AccountStatus_Unable";
+        public const string Enum_AccountStatus_Enable = "Enum_AccountStatus_Enable";
+        public const string Enum_AccountStatus_Freeze = "Enum_AccountStatus_Freeze";
+        public const string Enum_AccountStatus_Expired = "Enum_AccountStatus_Expired";
+        public const string Enum_AccountStatus_HostDefault = "Enum_AccountStatus_HostDefault";
         #endregion
-
-
 
         #region 網站結構設定
         public const string SiteMenu_SiteIndex = "SiteMenu_SiteIndex";
@@ -74,6 +87,7 @@ namespace WCMS.SysCore.Resx
         public const string SiteMenu_ModuleOptions = "SiteMenu_ModuleOptions";
         #endregion
 
+        #region 網站管理功能
         #region 公告
         public const string AnnouncementId="AnnouncementId";
         public const string Announcement_SubTitle="Announcement_SubTitle";
@@ -164,87 +178,30 @@ namespace WCMS.SysCore.Resx
         public const string WebResource_PicDescription="WebResource_PicDescription";
         public const string WebResource_Content="WebResource_Content";
         #endregion
-        #region SpecCategory
-        public const string SpecCategoryId="SpecCategoryId";
-        public const string SpecCategory_Detail="SpecCategory_Detail"; 
-        public const string SpecCategory_Module="SpecCategory_Module";
-        public const string SpecCategory_ShowColumn="SpecCategory_ShowColumn";
-        public const string SpecCategory_Name="SpecCategory_Name";
-        public const string SpecCategory_DetailModule="SpecCategory_DetailModule";
+        
         #endregion
-        #region SpecResearch
-        public const string SpecResearchId="SpecResearchId";
-        public const string SpecResearch_Detail="SpecResearch_Detail";
-        public const string SpecResearch_Categories="SpecResearch_Categories";
-        public const string SpecResearch_ContentStatus="SpecResearch_ContentStatus";
-        public const string SpecResearch_Tags="SpecResearch_Tags";
-        public const string SpecResearch_Year="SpecResearch_Year";
-        public const string SpecResearch_AcademicYear="SpecResearch_AcademicYear";
-        public const string SpecResearch_Semester="SpecResearch_Semester";
-        public const string SpecResearch_DuringExecution="SpecResearch_DuringExecution";
-        public const string SpecResearch_ContractPeriod="SpecResearch_ContractPeriod";
-        public const string SpecResearch_ClassTime="SpecResearch_ClassTime";
-        public const string SpecResearch_ProjectLeader="SpecResearch_ProjectLeader";
-        public const string SpecResearch_Name="SpecResearch_Name";
-        public const string SpecResearch_TeachingStaffOfOurSchool="SpecResearch_TeachingStaffOfOurSchool";
-        public const string SpecResearch_ApprovalNumber="SpecResearch_ApprovalNumber";
-        public const string SpecResearch_ApprovedAmount="SpecResearch_ApprovedAmount";
-        public const string SpecResearch_College="SpecResearch_College";
-        public const string SpecResearch_Department="SpecResearch_Department";
-        public const string SpecResearch_Degree="SpecResearch_Degree";
-        public const string SpecResearch_CoUnits="SpecResearch_CoUnits"; 
-        public const string SpecResearch_CoProject="SpecResearch_CoProject";
-        public const string SpecResearch_Courses="SpecResearch_Courses";
-        public const string SpecResearch_ProjectName="SpecResearch_ProjectName";
-        public const string SpecResearch_PaperTitle="SpecResearch_PaperTitle";
-        public const string SpecResearch_Remark="SpecResearch_Remark";
-        public const string SpecResearch_Cohost1="SpecResearch_Cohost1";
-        public const string SpecResearch_Cohost2="SpecResearch_Cohost2";
-        public const string SpecResearch_Commissioned="SpecResearch_Commissioned";
-        public const string SpecResearch_PlanAmount="SpecResearch_PlanAmount";
-        public const string SpecResearch_PlanContent="SpecResearch_PlanContent";
-        public const string SpecResearch_Sort="SpecResearch_Sort";
-        public const string SpecResearch_PictureId="SpecResearch_PictureId";
-        public const string SpecResearch_PicDescription="SpecResearch_PicDescription";
-        public const string SpecResearch_Professor = "SpecResearch_Professor";
+
+        #region 人員管理
+
+        #region 帳號
+        public const string Account_AccountId = "Account_AccountId";
+        public const string Account_AccountName = "Account_AccountName";
         #endregion
-        #region SpecUSR
-        public const string SpecUSRId="SpecUSRId";
-        public const string SpecUSR_Detail="SpecUSR_Detail";
-        public const string SpecUSR_Categories="SpecUSR_Categories";
-        public const string SpecUSR_Tags="SpecUSR_Tags";
-        public const string SpecUSR_PictureId="SpecUSR_PictureId";
-        public const string SpecUSR_PicDescription="SpecUSR_PicDescription";
-        public const string SpecUSR_Year="SpecUSR_Year";
-        public const string SpecUSR_AcademicYear="SpecUSR_AcademicYear";
-        public const string SpecUSR_Courses="SpecUSR_Courses";
-        public const string SpecUSR_PracticeField="SpecUSR_PracticeField";
-        public const string SpecUSR_ProjectName="SpecUSR_ProjectName";
-        public const string SpecUSR_ExternalCoUnits="SpecUSR_ExternalCoUnits";
-        public const string SpecUSR_ExecutionStrategy = "SpecUSR_ExecutionStrategy";
-        public const string SpecUSR_Department="SpecUSR_Department";
-        public const string SpecUSR_DuringExecution="SpecUSR_DuringExecution";
-        public const string SpecUSR_PlanAmount="SpecUSR_PlanAmount";
-        public const string SpecUSR_ExecStrategy="SpecUSR_ExecStrategy";
-        public const string SpecUSR_ContentIntro="SpecUSR_ContentIntro";
-        public const string SpecUSR_ProjectConcept="SpecUSR_ProjectConcept";
-        public const string SpecUSR_KeyHighlights="SpecUSR_KeyHighlights";
-        public const string SpecUSR_ProjectLeader = "SpecUSR_ProjectLeader";
-        public const string SpecUSR_ProjectSubLeader = "SpecUSR_ProjectSubLeader";
-        public const string SpecUSR_AttendTeam = "SpecUSR_AttendTeam";
-        public const string SpecUSR_Cohost1="SpecUSR_Cohost1";
-        public const string SpecUSR_Cohost2="SpecUSR_Cohost2";
-        public const string SpecUSR_Commissioned="SpecUSR_Commissioned";
-        public const string SpecUSR_Remark="SpecUSR_Remark";
-        public const string SpecUSR_Sort = "SpecUSR_Sort";
-        public const string SpecUSR_ProjectItem = "SpecUSR_ProjectItem";
-        public const string SpecUSR_Url = "SpecUSR_Url";
-        public const string SpecUSR_UrlDescription = "SpecUSR_UrlDescription";
+
+        #region 人員基本資料
+        public const string Person_PersonSet = "Person_PersonSet"; //人員基本資料表
+        public const string Person_PersonModel = "Person_PersonModel"; //人員基本資料
+        public const string Person_PersonId = "Person_PersonId";
+        public const string Person_PersonName = "Person_PersonName";
+        public const string Person_PersonImgId = "Person_PersonImgId";
         #endregion
-        #region 使用者帳戶
+
+        #region 登入用戶資訊
         public const string User_UserID = "User_UserID";
         public const string User_UserName = "User_UserName";
         public const string User_AccountStatus = "User_AccountStatus";
+        #endregion
+
         #endregion
 
         #region 1810調整的東西

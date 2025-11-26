@@ -44,13 +44,12 @@ const SetAdjustFunction = (gridProps: GridProps, rawData: GallerySet[], actions:
         const pic = row.cells.find(cell => cell.col.key === GalleryFields.CoverPicSrcId);
         const title = row.cells.find(cell => cell.col.key === GalleryInfoFields.Title)?.content?.toString();
         if (pic) {
-            const coverPicId = pic.content?.toString(); // 轉成字串
-            pic.content = (
-                <>
-                    <img src={`${FileManagementAPI.PREVIEW_URL}/${coverPicId}`} alt={title} style={{ width: "80px", height: "80px", objectFit: "cover" }} />
-                </>
-            );
+            pic.content = <img src={`${FileManagementAPI.PREVIEW_URL}/${pic.content?.toString()}`} alt={title} style={{ width: "80px", height: "80px", objectFit: "cover" }} />;
         }
+
+        const curData = rawData?.[index]
+        const titleCell = row.cells.find(cell => cell.col.key === GalleryInfoFields.Title)
+        if (titleCell) { titleCell.content = (<>{titleCell.content}{GetDataStatusContent(curData?.Gallery?.ContentStatus ?? 0)}</>); }
         const newCell: RowCell = {
             col: adjustCol,
             content: (<GridCol_Toolbar key={internalId} action={actions} internalId={internalId} />)
@@ -59,6 +58,15 @@ const SetAdjustFunction = (gridProps: GridProps, rawData: GallerySet[], actions:
     });
     return { ...gridProps, columns: newColumns, rows: newRows };
 }
+
+/** 目前說只有公告/檔案室/網路資源/相簿會用到 */
+const GetDataStatusContent = (contentStatus: number): React.ReactNode => {
+    const statusItems: React.ReactNode[] = [];
+    if (contentStatus & 1) { statusItems.push(<div className="icon-small top-bg">置頂</div>); }
+    if (contentStatus & 2) { statusItems.push(<div className="icon-small hot-bg">熱門</div>); }
+    if (contentStatus & 4) { statusItems.push(<div className="icon-small hide-bg">隱藏</div>); }
+    return <div className="CustomState">{statusItems}</div>
+};
 
 const useGalleryListData = (provider: IDataProvider<GallerySet>, lang: Lang, query: string) => {
     let condition: string = `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang} = ${lang}`;
@@ -70,6 +78,7 @@ const useGalleryListData = (provider: IDataProvider<GallerySet>, lang: Lang, que
         visibleKeys: [
             [GallerySetFields.Gallery, GalleryFields.CoverPicSrcId],
             [GallerySetFields.GalleryInfo, GalleryInfoFields.Title],
+            [GallerySetFields.Gallery, GalleryFields.Validate_Start],
             [GallerySetFields.Gallery, GalleryFields.CreateTime],
             [GallerySetFields.Gallery, GalleryFields.ModifyTime],
             [GallerySetFields.Gallery, GalleryFields.ModifyUserId],
@@ -81,6 +90,8 @@ const useGalleryListData = (provider: IDataProvider<GallerySet>, lang: Lang, que
                 GalleryFields.CoverPicSrcId,
                 `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title}`,
                 `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang}`,
+                GalleryFields.ContentStatus,
+                GalleryFields.Validate_Start,
                 GalleryFields.CreateTime,
                 GalleryFields.ModifyTime,
                 GalleryFields.ModifyUserId,

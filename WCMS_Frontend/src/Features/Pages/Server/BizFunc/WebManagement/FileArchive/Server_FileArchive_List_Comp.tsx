@@ -5,7 +5,7 @@ import { useMemo, useState } from "react"
 import { useLocation } from 'react-router-dom';
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp"
 import type { components } from "@/types/api";
-import { FileArchiveSetFields, FileArchiveFields, FileArchiveInfoFields, FileArchiveDetailFields } from "@/types/SchemaFields";
+import { FileArchiveSetFields, FileArchiveFields, FileArchiveInfoFields } from "@/types/SchemaFields";
 import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook"
 import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions"
 import FileArchiveProvider from "@/Features/Hooks/BizFunc/WebManagement/FileArchive/FileArchive_Api"
@@ -39,20 +39,31 @@ export const Server_FileArchiveListComp = (prop: { title: string; theme: IBEThem
 
 /** 動態添加每行的動作功能 */
 const SetAdjustFunction = (gridProps: GridProps, rawData: FileArchiveSet[], categoryData: CategoryDataSet[], actions: UseActionsResult): GridProps => {
-    if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
-    const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
-    const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
+    const hasAdjustCol = gridProps.columns.some(col => col.key === '__adjust__');
+    const adjustCol: ColumnConfig = hasAdjustCol ? (gridProps.columns.find(col => col.key === '__adjust__') as ColumnConfig) : { key: '__adjust__', title: '動作' };
+    const newColumns: ColumnConfig[] = hasAdjustCol ? gridProps.columns : [...gridProps.columns, adjustCol];
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
-        const statusCell = row.cells.find(cell => cell.col.key === FileArchiveFields.ContentStatus);
-        if (statusCell && typeof statusCell.content === 'number') { statusCell.content = GetContentStatus(statusCell.content); }
-        const categoryCell = row.cells.find(p => p.col.key === FileArchiveFields.CategoriesId);
-        const rawCatId = rawData?.[index]?.FileArchive?.CategoriesId ?? categoryCell?.content?.toString() ?? "";
-        if (categoryCell) { categoryCell.content = useFormatCategoriesName(rawCatId, categoryData); }
-        const internalId = rawData?.[index]?.FileArchive?.InternalId ?? "";
-        const newCell: RowCell = { col: adjustCol, content: (<GridCol_Toolbar key={internalId} action={actions} internalId={internalId} />) };
-        return { ...row, cells: [...row.cells, newCell] };
+        const curData = rawData?.[index];
+        const internalId = curData?.FileArchive?.InternalId ?? "";
+        const baseCells: RowCell[] = row.cells.map(cell => {
+            if (cell.col.key === FileArchiveInfoFields.Title) {
+                return { ...cell, content: (<>{cell.content}{GetContentStatus(curData?.FileArchive?.ContentStatus ?? 0)}</>), };
+            }
+            if (cell.col.key === FileArchiveFields.CategoriesId) {
+                const rawCatId =
+                    curData?.FileArchive?.CategoriesId ?? cell.content?.toString() ?? "";
+                return { ...cell, content: useFormatCategoriesName(rawCatId, categoryData), };
+            }
+            return cell;
+        });
+        const toolbarCell: RowCell = {
+            col: adjustCol,
+            content: (<GridCol_Toolbar key={internalId} action={actions} internalId={internalId} />),
+        };
+        return { ...row, cells: [...baseCells, toolbarCell] };
     });
+
     return { ...gridProps, columns: newColumns, rows: newRows };
 };
 
@@ -73,7 +84,6 @@ const useFileArchiveList = (provider: IDataProvider<FileArchiveSet>, lang: Lang,
         fetchListCount: (cond) => provider.fetchListCount(cond),
         visibleKeys: [
             [FileArchiveSetFields.FileArchive, FileArchiveFields.CategoriesId],
-            [FileArchiveSetFields.FileArchive, FileArchiveFields.ContentStatus],
             [FileArchiveSetFields.FileArchiveInfo, FileArchiveInfoFields.Title],
             [FileArchiveSetFields.FileArchive, FileArchiveFields.CreateTime],
             [FileArchiveSetFields.FileArchive, FileArchiveFields.ModifyUserId],

@@ -40,6 +40,14 @@ namespace WCMS.Features.SiteEdit.WebResource
         /// 圖片顯示描述
         /// </summary>
         [LibDesc(ModelDisplayName.WebResource_PicDescription)] public string?  PicDescription { get; set; }
+        /// <summary>
+        /// 資料有效日期-起
+        /// </summary>
+        [LibDesc(ModelDisplayName.FileArchive_StartDate)] public DateTime? Validate_Start { get; set; }
+        /// <summary>
+        /// 資料有效日期-迄
+        /// </summary>
+        [LibDesc(ModelDisplayName.FileArchive_EndDate)] public DateTime? Validate_End { get; set; }
 
         #region 主子表關聯
         public List<WebResourceInfo_DTO>? _WebResourceInfo { get; set; }

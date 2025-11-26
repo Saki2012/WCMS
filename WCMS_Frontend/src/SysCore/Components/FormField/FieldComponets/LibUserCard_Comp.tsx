@@ -1,7 +1,8 @@
 import { useId } from 'react';
 import type { ILibUserCardProp } from './LibUserCard_Data';
+import { Link } from 'react-router-dom';
+import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 // import { Link } from 'react-router-dom';
-
 
 const LibUserCard = (prop: ILibUserCardProp) => {
     const inputFileId = useId();
@@ -20,21 +21,24 @@ const LibUserCard = (prop: ILibUserCardProp) => {
                                                     <div className="avatar_box">
                                                         <label htmlFor={inputFileId}>
                                                             <figure className="avatar-figure custom-lg mb-0" >
-                                                                <img src={prop.PicSrc} className="rounded-circle" alt="..." />
+                                                                <img src={prop.PicSrc} className="rounded-circle" />
                                                             </figure>
                                                         </label>
-                                                        {/* 需判斷avatar-photo使用inputfile還是Link */}
-                                                        <div className="avatar-photo">
-                                                            <div className="PiconBox">
-                                                                <input type="file" className="avatar-input" id={inputFileId} />
-                                                                <i className="far fa-camera-alt camera"></i>
-                                                            </div>
-                                                        </div>
-                                                        {/* <div className="avatar-photo">
-                                                            <div className="PiconBox">
-                                                                <Link to={prop.dirUrl ?? ""} className="avatar-input" title={prop.DisplayNameTW} target="_self"><i className="far fa-user-edit"></i></Link>
-                                                            </div>
-                                                        </div> */}
+                                                        {
+                                                            prop.Style?.LinkType === "ImageUpload" ?
+                                                                <div className="avatar-photo">
+                                                                    <div className="PiconBox">
+                                                                        <input type="file" className="avatar-input" id={inputFileId} /><i className="far fa-camera-alt camera"></i>
+                                                                    </div>
+                                                                </div>
+                                                                : prop.Style?.LinkType === "Edit" ?
+                                                                    <div className="avatar-photo">
+                                                                        <div className="PiconBox">
+                                                                            <Link to={prop.dirUrl ?? ""} className="avatar-input" title={prop.DisplayNameTW} target="_self"><i className="far fa-user-edit"></i></Link>
+                                                                        </div>
+                                                                    </div>
+                                                                    : <></>
+                                                        }
                                                     </div>
                                                     <div className="avatar_name_box m-t-30">
                                                         <p className="nickname text-black-50"><span className="mx-2">—</span>{prop.DisplayNameEN}<span className="mx-2">—</span></p>

@@ -2,41 +2,42 @@ import { useParams } from 'react-router-dom';
 import { FormComp } from '@/Features/Pages/Server/Scaffold/Content/Form_Comp';
 import type { FormCompProp } from '@/Features/Pages/Server/Scaffold/Content/Content_Data';
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { LibTextBox, LibSwitch, LibDropList, LibUserCard, type LibTabsProp, type ILibSwitchItemProp } from "@/SysCore/Components/FormField/LibFormField"
+import { LibTextBox, LibSwitch, LibDropList, LibUserCard, type ILibSwitchItemProp } from "@/SysCore/Components/FormField/LibFormField"
 import TabContentComp from '@/SysCore/Components/TabContent/TabContent';
 import type { components } from "@/types/api";
 import { useFetchFormData } from '@/SysCore/Utils/API/FetchFormData';
 import UserProvider from '@/Features/Pages/Server/BizFunc/UserDTs/UserManage_Api';
 import { useActions } from '@/Features/Hooks/Common/useActions';
-type UserSet = components["schemas"]["UserSet_DTO"]
-const emptyData: UserSet = {
-    User: {},
-}
+import { useMemo } from 'react';
+type AccountSet = components["schemas"]["AccountSet_DTO"]
+
+const emptyData: AccountSet = {}
 
 export const UserManage_Comp = ({ theme }: { theme: IBETheme }) => {
     // console.log("theme.Tabs:", theme.Tabs);
     const { internalId } = useParams();
-    const formData = useFetchFormData<UserSet>(UserProvider(), internalId, emptyData)
+    // const Provider = useMemo(return "";,[])
+    const formData = useFetchFormData<AccountSet>(UserProvider(), internalId, emptyData)
     const isLoading: boolean[] = [formData.isLoading]
     const errors: (string | null | undefined)[] = [formData.error]
     const c: ILibSwitchItemProp[] = [{ itemId: "1", itemDisplayName: "選擇封面" }];
     const str: string[] = ["value"];
-    const useToolbar = useActions(UserProvider(), formData.data as UserSet, internalId as string, () => formData.refetch())
-    const LibTabsPropA: LibTabsProp = {
-        Style: theme.Tabs,
-        item: {
-            "Data": "管理者資料",
-        }
-    }
+    // const useToolbar = useActions(UserProvider(), formData.data as AccountSet, internalId as string, () => formData.refetch())
+    // const LibTabsPropA: LibTabsProp = {
+    //     Style: theme.Tabs,
+    //     item: {
+    //         "Data": "管理者資料",
+    //     }
+    // }
 
     const componentsA: Record<string, React.ReactNode[]> = {
         Data: [
             <LibTextBox Style={theme.TextBox} ColumnDisplayName="管理者帳號" DefaultInputDisplay="請輸入"></LibTextBox>,
             <LibTextBox Style={theme.TextBox} ColumnDisplayName="中文名稱" DefaultInputDisplay="請輸入"></LibTextBox>,
             <LibTextBox Style={theme.TextBox} ColumnDisplayName="英文名稱" DefaultInputDisplay="請輸入"></LibTextBox>,
-            <LibDropList Style={theme.DropList} ColumnDisplayName="管理者性別" ></LibDropList>,
+            // <LibDropList Style={theme.DropList} ColumnDisplayName="管理者性別" ></LibDropList>,
             <LibTextBox Style={theme.TextBox} ColumnDisplayName="電子信箱" DefaultInputDisplay="請輸入" disabled></LibTextBox>,
-            <LibDropList Style={theme.DropList} ColumnDisplayName="使用者權限" ></LibDropList>,
+            // <LibDropList Style={theme.DropList} ColumnDisplayName="使用者權限" ></LibDropList>,
             <LibSwitch colDisplayName="帳號啟用" checkboxStyle="checkbox" value={str} options={c}></LibSwitch>
         ],
     }
@@ -49,7 +50,7 @@ export const UserManage_Comp = ({ theme }: { theme: IBETheme }) => {
                     <LibUserCard DisplayNameEN="Emma" DisplayNameTW="系統管理者名稱" DisplayRole="Administrator" PicSrc="../../../../../../../public/Legacy/Server/images/avatar/avatar_W_480x480.jpg"></LibUserCard>
                 </div>
                 <div className="col-xl-9 col-lg-8 col-md-8 col-sm-8 col-12">
-                    <TabContentComp libTabsProp={LibTabsPropA} components={componentsA}></TabContentComp>
+                    {/* <TabContentComp libTabsProp={LibTabsPropA} components={componentsA}></TabContentComp> */}
                 </div>
             </div>
         </FormComp>

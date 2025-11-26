@@ -1,0 +1,115 @@
+<section id="site-header" class="header_section"> <!--  fixed-top -->
+
+            <header class="header_Box pt-3">
+            
+                <div class="navsBox">
+                    <div class="container-custom">
+                        
+                        <ul class="nav custom_nav justify-content-end">
+                        	<a accesskey="U" href="#U" class="accesskey_header U" title="上方主選單連結區(U)" tabindex="1">:::</a>
+                            
+                            <li class="nav-item">
+                                <a class="nav-link active" href="https://www.ntin.edu.tw/" target="_blank" tabindex="1">台南護專校首頁</a>
+                            </li>     
+                          	<li class="nav-item">
+                                <a class="nav-link" href="#" tabindex="1">登入</a>
+                            </li>               
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" tabindex="1">登出</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" tabindex="1">後台管理</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" tabindex="1">網站導覽</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" tabindex="1">English</a>
+                            </li>
+                            
+                            <div class="col-lg-4 col-12 search-box form-inline justify-content-end my-lg-0 my-sm-1 pr-lg-0 pr-sm-2">
+                                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" tabindex="1">
+                                <button class="btn btn-custom-0 btn-rounded my-2 my-sm-0" type="submit" tabindex="1">Search</button>
+                            </div>
+                            
+                        </ul>                        
+                    </div>
+                </div>
+                
+            </header>
+            
+        </section>
+        
+        <section class="menu_section"> <!--  fixed-top -->
+
+            <div class="customMENU_Box">
+                
+                <div class="menuBox bg-custom-s0">
+                    <div class="container-custom">  
+                    
+                        <div class="navbar navbar-expand-lg navbar-dark pt-0 pl-0 pr-0 pb-1 ">                        	
+							
+                            <h1 class="logo">
+                            	<!--<a class="navbar-brand" href="#">LOGO name</a>-->
+                            	<a class="navbar-brand" href="index.html"><img src="images/logo/LOGO_350x72.svg" alt="國立臺南護專_研究發展處"></a>
+                            </h1>
+                            
+                            <!-- toggler button 漢堡 -->
+                            <button class="navbar-toggler navbar-toggler-right collapsed" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                               <span class="close">X</span>
+                               <span class="navbar-toggler-icon"></span>
+                            </button>
+                            <!-- toggler button 漢堡 -->
+                                                   
+                            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            
+                            	<div class="d-flex flex-column flex-lg-row align-items-center ml-auto">
+                                	
+                                    <nav id="main-nav" class="w-100">
+                                        <ul id="main-menu" class="sm sm-clean w-100">
+                                            <li><h2><a href="#" tabindex="1">組織介紹</a></h2></li>
+                                            
+                                            <li><h2><a href="#" tabindex="1">最新消息</a></h2></li>
+                                            
+                                            <li><h2><a href="#" tabindex="1">推廣課程</a></h2>
+                                                <ul>
+                                                    <li><a href="#" tabindex="1">Second floor more...</a>
+                                                        <ul>
+                                                            <li><a href="#" tabindex="1">The third floor more...</a>
+                                                                <ul>
+                                                                    <li><a href="#" tabindex="1">Fourth floor more...</a>
+                                                                        <ul>
+                                                                            <li><a href="#" tabindex="1">Fifth floor</a></li>
+                                                                            <li><a href="#" tabindex="1">10em</a></li>
+                                                                            <li><a href="#" tabindex="1">forced.</a></li>
+                                                                        </ul>
+                                                                    </li>
+                                                                </ul>
+                                                            </li>
+                                                        </ul>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            
+                                            <li><h2><a href="#" tabindex="1">計畫申請</a></h2></li>
+                                            
+                                            <li><h2><a href="#" tabindex="1">專利技轉</a></h2></li>
+                                            
+                                            <li><h2><a href="#" tabindex="1">研究資源</a></h2></li>
+                                            
+                                            <li><h2><a href="#" tabindex="1">補助獎項</a></h2></li>
+                                            
+                                            <li><h2><a href="#" tabindex="1">會員專區</a></h2></li>
+                                        </ul>
+                                    </nav>
+                                    
+								</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                
+            </div>
+            
+        </section>
