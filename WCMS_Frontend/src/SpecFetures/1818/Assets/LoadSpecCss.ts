@@ -1,6 +1,6 @@
 import "./Client/Content/bootstrap-5.3.3/css/bootstrap.min.css";
 import "./Client/Content/Style.css";
-import "./Client/Content/StyleCustomize.css";
+// import "./Client/Content/StyleCustomize.css";
 import "./Client/Content/css_import/assets/owlcarousel_2/custom_owlcarousel_style.css";
 import "./Client/Content/css_import/assets/owlcarousel_2/owl.carousel_v2.3.4.min.css";
 import "./Client/Content/css_import/assets/swiper-11.1.14/swiper-bundle.min.css";
