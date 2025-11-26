@@ -5,7 +5,7 @@ import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
 import clsx from "clsx";
 import * as SchemaFields from "@/types/SchemaFields";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 type BannerSet = components["schemas"]["BannerSet_DTO"]
 const emptyData: BannerSet = {
@@ -40,7 +40,7 @@ const emptyData: BannerSet = {
         }
     ]
 }
-
+const SLIDE_INTERVAL = 5000;
 export const BannerSlider = () => {
     const usebannerList = useBannerListData(`${SchemaFields.BannerFields.BannerId} = 1`)
     const bannerInternal = usebannerList.rawData?.[0]?.Banner?.InternalId ?? ""
@@ -57,7 +57,46 @@ export const BannerSlider = () => {
             return as - bs || (a.RowId ?? 0) - (b.RowId ?? 0);
         });
     }, [useBanner.data?.BannerDetail]);
+    const handleCarouselControl = (id: string, action: "play" | "pause") => {
+        if (typeof window === "undefined") return;
 
+        const root = document.getElementById(id);
+        const anyWindow = window as any;
+        const Carousel = anyWindow.bootstrap?.Carousel;
+
+        if (!root || !Carousel) return;
+
+        const instance = Carousel.getOrCreateInstance(root);
+        if (action === "play") {
+            instance.cycle();
+        } else {
+            instance.pause();
+        }
+    };
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        if (!sortedDetails.length) return;
+
+        const anyWindow = window as any;
+        const Carousel = anyWindow.bootstrap?.Carousel;
+        if (!Carousel) return;
+
+        const pc = document.getElementById("carousel-Controls");
+        if (pc) {
+            const instPc = Carousel.getOrCreateInstance(pc, {
+                interval: SLIDE_INTERVAL,
+            });
+            instPc.cycle();
+        }
+
+        const mb = document.getElementById("carousel-Controls_MB");
+        if (mb) {
+            const instMb = Carousel.getOrCreateInstance(mb, {
+                interval: SLIDE_INTERVAL,
+            });
+            instMb.cycle();
+        }
+    }, [sortedDetails.length]);
     return (
         <LoadingErrorHandler loadingList={loadingList} errorList={errorList} >
             <section className="carousel_slide_section">
@@ -72,7 +111,7 @@ export const BannerSlider = () => {
                             {sortedDetails.map((p, i) => {
                                 const alt = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.Title ?? ""
                                 return (
-                                    <div key={i} className={clsx("carousel-item", i === 0 ? "active" : "")} data-bs-interval="5000">
+                                    <div key={i} className={clsx("carousel-item", i === 0 ? "active" : "")} data-bs-interval={SLIDE_INTERVAL}>
                                         <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`}
                                             className="d-block w-100"
                                             alt={alt}
@@ -86,7 +125,7 @@ export const BannerSlider = () => {
                             <div className="carousel_btn-icon-prev">
                                 <a
                                     className="carousel-control-prev"
-                                    href="#"
+                                    href="#carousel-Controls"
                                     data-bs-target="#carousel-Controls"
                                     role="button"
                                     data-bs-slide="prev"
@@ -100,7 +139,7 @@ export const BannerSlider = () => {
                             <div className="carousel_btn-icon-next">
                                 <a
                                     className="carousel-control-next"
-                                    href="#"
+                                    href="#carousel-Controls"
                                     data-bs-target="#carousel-Controls"
                                     role="button"
                                     data-bs-slide="next"
@@ -114,7 +153,7 @@ export const BannerSlider = () => {
                             <div id="cycleCarousel" className="control-start">
                                 <a
                                     type="button"
-                                    href="#" onClick={(e) => { e.preventDefault(); }}
+                                    href="#" onClick={(e) => { e.preventDefault(); handleCarouselControl("carousel-Controls", "play"); }}
                                     data-bs-target="#carousel-Controls"
                                     title="播放"
                                     tabIndex={1}
@@ -126,7 +165,7 @@ export const BannerSlider = () => {
                             <div id="pauseCarousel" className="control-pause">
                                 <a
                                     type="button"
-                                    href="#" onClick={(e) => { e.preventDefault(); }}
+                                    href="#" onClick={(e) => { e.preventDefault(); handleCarouselControl("carousel-Controls", "pause"); }}
                                     data-bs-target="#carousel-Controls"
                                     title="暫停"
                                     tabIndex={1}
@@ -147,7 +186,7 @@ export const BannerSlider = () => {
                             {sortedDetails.map((p, i) => {
                                 const alt = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.Title ?? ""
                                 return (
-                                    <div key={i} className={clsx("carousel-item", i === 0 ? "active" : "")} data-bs-interval="5000">
+                                    <div key={i} className={clsx("carousel-item", i === 0 ? "active" : "")} data-bs-interval={SLIDE_INTERVAL}>
                                         <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`}
                                             className="d-block w-100"
                                             alt={alt}
@@ -162,7 +201,7 @@ export const BannerSlider = () => {
                             <div className="carousel_btn-icon-prev">
                                 <a
                                     className="carousel-control-prev"
-                                    href="#"
+                                    href="#carousel-Controls_MB"
                                     type="button"
                                     data-bs-target="#carousel-Controls_MB"
                                     data-bs-slide="prev"
@@ -176,7 +215,7 @@ export const BannerSlider = () => {
                             <div className="carousel_btn-icon-next">
                                 <a
                                     className="carousel-control-next"
-                                    href="#"
+                                    href="#carousel-Controls_MB"
                                     type="button"
                                     data-bs-target="#carousel-Controls_MB"
                                     data-bs-slide="next"
@@ -191,7 +230,7 @@ export const BannerSlider = () => {
                                 <a
                                     type="button"
                                     href="#carousel-Controls_MB"
-                                    onClick={(e) => e.preventDefault()}
+                                    onClick={(e) => { e.preventDefault(); handleCarouselControl("carousel-Controls_MB", "play"); }}
                                     title="播放"
                                     tabIndex={1}
                                 >
@@ -203,7 +242,7 @@ export const BannerSlider = () => {
                                 <a
                                     type="button"
                                     href="#carousel-Controls_MB"
-                                    onClick={(e) => e.preventDefault()}
+                                    onClick={(e) => { e.preventDefault(); handleCarouselControl("carousel-Controls_MB", "pause"); }}
                                     title="暫停"
                                     tabIndex={1}
                                 >

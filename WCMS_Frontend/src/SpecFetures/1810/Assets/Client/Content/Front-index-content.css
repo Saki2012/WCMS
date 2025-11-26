@@ -1886,11 +1886,11 @@ body .subpage_body_bg {
 /* ==   carousel-fade 淡入淡出   ============== */
 /*=============================================*/
 .carousel-item {
-  transition: transform 5s ease-in-out;
+  transition: transform 0.6s ease-in-out;
 }
 .carousel-fade .active.carousel-item-start,
 .carousel-fade .active.carousel-item-end {
-  transition: opacity 0s 5s;
+  transition: opacity 0.6s ease-in-out 0s;
 }
 /*=============================================*/
 /* ==   carousel-fade 淡入淡出   ============== */
