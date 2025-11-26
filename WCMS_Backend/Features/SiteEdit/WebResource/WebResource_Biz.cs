@@ -1,8 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Data;
+﻿using System.Data;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
@@ -16,7 +13,6 @@ namespace WCMS.Features.SiteEdit.WebResource
     [ProgId("WebResource")]
     public class WebResourceBiz(BizDeps bizDeps) : BizService<WebResourceSet>(bizDeps), IBizService<WebResourceSet> 
     {
-
         #region Migration Old Data
         public async Task Migrate(string importFileLabel = "1810", IList<FileManageSet> srcFileSets = default)
         {
@@ -124,7 +120,7 @@ namespace WCMS.Features.SiteEdit.WebResource
                 case SysEnum.FuncAction.Create:
                 case SysEnum.FuncAction.Update:
                     CheckData(set);
-                    DoRemergeData(set.WebResource);
+                    SetData(set);
                     break;
             }
         }
@@ -148,6 +144,22 @@ namespace WCMS.Features.SiteEdit.WebResource
         {
             header.Categories = header.Categories.Remerge(",");
             header.Tags = header.Tags.Remerge(",");
+        }
+        private static void SetData(WebResourceSet set)
+        {
+            DoRemergeData(set.WebResource);
+            foreach (var dt in set.WebResourceInfo)
+            {
+                SetYoutubeUrl(dt);
+            }
+        }
+        /// <summary>
+        /// 自動轉譯Youtube短網址
+        /// </summary>
+        /// <param name="set"></param>
+        private static void SetYoutubeUrl(WebResourceInfo dt)
+        {
+            dt.ResUrl= YouTubeUrlHelper.NormalizeToShortUrlOrOriginal(dt.ResUrl);
         }
         #endregion
     }

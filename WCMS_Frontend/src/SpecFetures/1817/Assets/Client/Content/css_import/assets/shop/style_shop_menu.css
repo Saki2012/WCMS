@@ -1,0 +1,624 @@
+@charset "utf-8";
+/* CSS Document */
+
+/* ================================================== */
+/* == 重要 JESS 新增 購物MENU 20210714 ================ */
+/* ================================================== */
+
+@media screen and (min-width: 1200px) {
+  .container-custom {
+    max-width: 1720px; /*1170*/
+  }
+}
+
+.container-custom {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+/* == //PC模式 設定 // == */
+/* --------------------------------- */
+@media screen and (min-width: 768px) {
+    .sm-clean ul.mega-menu {
+        position: fixed;
+		width: calc(100% - 200px) !important;
+		left: 100px !important;
+		padding: 20px;
+    }
+	
+	.sm-clean ul.mega-menu li {
+		float: left;
+	}	
+	
+	
+	.sm-clean ul.mega-menu li a {
+		color: inherit;
+		border: 0 !important;
+		padding: 0 !important;
+	}
+	
+	.sm-clean ul.mega-menu li h2 {
+		font-size: 112.5%; /*1.125em*/ /*18px*/
+		font-weight: 600;
+		line-height: 17px;
+		text-decoration: none;
+		text-align: left;
+		
+		border-top: 0px !important;
+		border-left: 0px !important;
+		border-right: 0px !important;
+		border-bottom: 1px solid #d7d6d6 !important;
+
+		padding: 10px 20px;
+		color: var(--blackcolor);
+	}
+	
+	.sm-clean ul.mega-menu li a.text-item {
+		border: 0 !important;
+		padding: 10px 20px !important;
+		color: var(--blackcolor);
+	}
+	
+	.sm-clean > li > ul.mega-menu::before, .sm-clean > li > ul.mega-menu::after {
+		content: '';
+		position: absolute;
+		top: -18px;
+		left: 69%;
+		width: 0;
+		height: 0;
+		overflow: hidden;
+		border-width: 9px;
+		border-style: dashed dashed solid dashed;
+		border-color: transparent transparent #bbbbbb transparent;
+	}	
+	
+	.sm-clean > li >  ul.mega-menu::after {	
+		top: -16px;
+		left: 69.1%;
+		border-width: 8px;
+		border-color: transparent transparent var(--FFFcolor) transparent;	
+	}
+}
+
+/* == //手機模式 設定 // == */
+/* --------------------------------- */
+.sm-clean ul.mega-menu li a {
+	padding: 13px 20px 10px 20px;
+}
+
+.sm-clean ul.mega-menu li a h2, 
+.sm-clean ul.mega-menu li a h2:hover, 
+.sm-clean ul.mega-menu li a h2:focus, 
+.sm-clean ul.mega-menu li a h2:active {
+    color: inherit;
+    font-size: 112.5%; /*1.125em*/ /*18px*/
+    text-decoration: none;
+    text-align: left;
+	
+	margin-bottom: 0;
+	padding-bottom: 5px;
+	border-bottom: 1px solid #d7d6d6 !important;
+}
+
+/* ================================================== */
+/* == 重要 JESS 新增 購物MENU 20210714 ================ */
+/* ================================================== */
+
+
+
+
+/* ================================== */
+/* == 下拉式 商品購物清單 ============= */
+/* ================================= */
+.header_section .right-widget .dropdown-form {
+	padding: 0;
+	width: 100%;
+	height: 100%;
+}
+
+@media screen and (min-width: 991px) {
+	.header_section .right-widget .dropdown-form {
+		padding: 0;
+	}
+}
+
+.header_section .right-widget .dropdown-form::before, 
+.header_section .right-widget .dropdown-form::after {
+	content: '';
+	position: absolute;
+	top: -18px;
+	right: 3%;
+	width: 0;
+	height: 0;
+	overflow: hidden;
+	border-width: 9px;
+	border-style: dashed dashed solid dashed;
+	border-color: transparent transparent #bbbbbb transparent;
+}	
+
+.header_section .right-widget .dropdown-form::after {	
+	top: -16px;
+	right: 3.1%;
+	border-width: 8px;
+	border-color: transparent transparent #fff transparent;	
+}
+
+@media screen and (min-width: 320px) and (max-width: 990px) {
+	.header_section .right-widget .dropdown-form::before, 
+	.header_section .right-widget .dropdown-form::after {
+		right: 15%;
+	}	
+	
+	.header_section .right-widget .dropdown-form::after {	
+		right: 15.1%;
+	}
+}
+
+.header_section .mincart-list-box {
+	position: relative;
+	display: block;
+	height: 50vh;
+	padding: 20px 25px;
+	overflow-y: scroll; 
+}
+/*----------------------------------*/
+/* scrollbar 樣式 ------------------*/
+/*Firefox 用*/
+.header_section .mincart-list-box {
+	scrollbar-width: thin; /*auto | thin | none | <length> 這幾種選項*/
+	scrollbar-border: 1px solid #FFFFFF;
+	/*scrollbar-color: var(--color_007069) var(--blackcolor);*/
+	scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.8);	
+}
+/*Firefox 用*/
+/*Chrome 用*/
+.header_section .mincart-list-box::-webkit-scrollbar-track {
+	background: var(--blackcolor); /*transparent;*/       /* color of the 滾動區塊 */
+}
+.header_section .mincart-list-box::-webkit-scrollbar {
+	width: 8px;               /* width of the 滾動條寬度 */
+}
+.header_section .mincart-list-box::-webkit-scrollbar-thumb {
+	background-color: var(--color_007069);    /* color of the 滾動條顏色 */
+	border-radius: 20px;       /* roundness of the 滾動條寬度圓角 */
+	/*border: 1px solid #FFFFFF;*/  /* creates padding around 滾動條邊框+顏色 */
+}
+/*Chrome 用*/
+/* scrollbar 樣式 ------------------*/
+/*----------------------------------*/
+
+.header_section .mincart-list-box .minicart-product-list {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+	margin-bottom: 15px;
+}
+
+.header_section .mincart-list-box .minicart-product-list li {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ebebeb
+}
+
+.header_section .mincart-list-box .minicart-product-list li .image {
+    flex: 1 0 75px
+}
+
+.header_section .mincart-list-box .minicart-product-list li .image img {
+    max-width: 100%;
+    border: 1px solid #ebebeb
+}
+
+@media only screen and (max-width:575px) {
+    .header_section .mincart-list-box .minicart-product-list li .image {
+        flex: 1 0 50px
+    }
+}
+
+.header_section .mincart-list-box .minicart-product-list li .content {
+    position: relative;
+    flex: 1 0 calc(100% - 100px); /* 1 0 calc(100% - 150px)*/
+    padding-left: 15px
+}
+
+.header_section .mincart-list-box .minicart-product-list li .content .title {
+    color: var(--blackcolor);
+    font-weight: 400;
+	display: block;
+}
+
+.header_section .mincart-list-box .minicart-product-list li .content .title:hover {
+    color: var(--color_007069);
+}
+
+.quantity-price-box {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+
+.header_section .mincart-list-box .minicart-product-list li .content .quantity-price {
+    font-size: 87.5%; /*0.875em*/ /*14px*/
+    /*display: block;*/
+    margin-top: 10px
+}
+
+.header_section .mincart-list-box .minicart-product-list li .content span.quantity {
+    display: inline-block;
+	font-size: 87.5%; /*0.875em*/ /*14px*/
+}
+
+.header_section .mincart-list-box .minicart-product-list li .content span.take {
+    display: inline-block;
+	font-size: 87.5%; /*0.875em*/ /*14px*/
+	margin: 12px 15px 0 15px;
+}
+
+.header_section .mincart-list-box .minicart-product-list li .content span.amount {
+    color: var(--color_007069);
+    font-weight: 500;
+    font-size: 112.5%; /*1.125em*/ /*18px*/
+	margin: 13px 0 0 0;
+}
+
+.header_section .mincart-list-box .minicart-product-list li .content .remove {
+    line-height: 1.5;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0 3px;
+    color: var(--blackcolor);
+    font-size: 100%; /*1em*/ /*16px*/
+}
+
+.header_section .mincart-list-box .minicart-product-list li .content .remove:hover {
+    color: #eb2606
+}
+
+@media only screen and (max-width:575px) {
+    .header_section .mincart-list-box .minicart-product-list li .content {
+        flex: 1 0 calc(100% - 75px)
+    }
+}
+
+.header_section .mincart-list-box .minicart-product-list li:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: 0
+}
+
+
+/* == 數量選擇 == */
+.header_section .mincart-list-box .cart-plus-minus {
+    border: 1px solid #ebebeb;
+    display: inline-block;
+    height: 50px;
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+    width: 115px;
+}
+
+.header_section .mincart-list-box .cart-plus-minus .qtybutton {
+    color: var(--blackcolor);
+    cursor: pointer;
+    float: inherit;
+    font-size: 112.5%; /*1.125em*/ /*18px*/
+    font-weight: 500;
+    line-height: 20px;
+    margin: 0;
+    position: absolute;
+    text-align: center;
+    transition: all .3s ease 0s;
+    width: 40px;
+}
+
+.header_section .mincart-list-box .cart-plus-minus input.cart-plus-minus-box {
+    background: transparent none repeat scroll 0 0;
+    border: medium none;
+    color: var(--blackcolor);
+    float: left;
+    font-size: 87.5%; /*0.875em*/ /*14px*/
+    height: 50px;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    width: 115px;
+    outline: 0
+}
+
+/*移除 input type="number" 时浏览器自带的上下箭头*/
+.header_section .mincart-list-box .cart-plus-minus input::-webkit-outer-spin-button, 
+.header_section .mincart-list-box .cart-plus-minus input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+}
+
+.header_section .mincart-list-box .cart-plus-minus input[type='number'] {
+	-moz-appearance: textfield;
+}
+/*移除 input type="number" 时浏览器自带的上下箭头*/
+
+.header_section .mincart-list-box .cart-plus-minus .inc.qtybutton {
+    height: 50px;
+    padding-top: 14px;
+    right: 0;
+    top: 0
+}
+
+.header_section .mincart-list-box .cart-plus-minus .dec.qtybutton {
+    height: 50px;
+	padding-top: 14px;
+    left: 0;    
+    top: 0
+}
+/* == 數量選擇 == */
+
+
+/* ===== STYLE 01 Cart Total 購物車 結算總計 區塊 ====== */
+.header_section .mincart-list-box .custom-totall {
+    background-color: #ebebeb;
+    border: 1px solid #ebebeb;
+    border-radius: 0;
+    padding: 15px 15px;
+}
+
+.header_section .mincart-list-box .custom-totall .title-wrap {
+    position: relative;
+}
+
+.header_section .mincart-list-box .custom-totall .title-wrap::before {
+    background-color: #e3e1e1;
+    content: "";
+    height: 1px;
+    left: 0;
+    position: absolute;
+    top: 13px;
+    transition: all .4s ease 0s;
+    width: 100%;
+    z-index: 1;
+}
+
+.header_section .mincart-list-box .custom-totall .title-wrap .cart-bottom-title.h4,
+.header_section .mincart-list-box .custom-totall .title-wrap h4.cart-bottom-title {
+    display: inline-block;
+    font-size: 112.5%; /*1.125em*/ /*18px*/
+    font-weight: 700;
+    margin: 0;
+    padding-right: 18px;
+    background-color: #ebebeb;
+    position: relative;
+    z-index: 1;
+    color: var(--blackcolor);
+}
+
+.header_section .mincart-list-box .custom-totall .tax-wrapper {
+    margin-top: 22px;
+}
+
+.header_section .mincart-list-box .custom-totall .h5,
+.header_section .mincart-list-box .custom-totall h5 {
+    font-size: 87.5%; /*0.875em*/ /*15px*/
+    margin: 20px 0 27px 0;
+    font-weight: 400;
+}
+
+.header_section .mincart-list-box .custom-totall .h5 span,
+.header_section .mincart-list-box .custom-totall h5 span {
+    float: right;
+    font-size: 112.5%; /*1.125em*/ /*18px*/
+    font-weight: 700;
+}
+
+.header_section .mincart-list-box .custom-totall .total-shipping {
+    border-bottom: 1px solid #ebebeb;
+    border-top: 1px solid #ebebeb;
+    margin: 0 0 27px;
+    /*padding: 28px 0;*/
+}
+
+.header_section .mincart-list-box .custom-totall .total-shipping .h5,
+.header_section .mincart-list-box .custom-totall .total-shipping h5 {
+    font-size: 93.75%; /*0.9375em*/ /*15px*/
+    margin: 0;
+}
+
+.header_section .mincart-list-box .custom-totall .total-shipping .h5 span,
+.header_section .mincart-list-box .custom-totall .total-shipping h5 span {
+    float: right;
+    font-size: 112.5%; /*1.125em*/ /*18px*/
+    font-weight: 700;
+}
+
+.header_section .mincart-list-box .custom-totall .custom-totall-title {
+    color: var(--color_007069);
+    font-size: 125%; /*1.25em*/ /*20px*/
+    font-weight: 700;
+    margin: 0 0 25px;
+}
+
+.header_section .mincart-list-box .custom-totall .custom-totall-title span {
+    float: right;
+}
+
+.header_section .mincart-list-box .custom-totall a {
+    display: block;
+    font-size: 93.75%; /*0.9375em*/ /*15px*/
+    font-weight: 700;
+    line-height: 1;
+	color: var(--FFFcolor);
+	
+    padding: 18px 10px 17px;
+    text-align: center;
+    text-transform: uppercase;
+    transition: all .3s ease 0s;
+	
+	border-radius: 99rem;
+	background-color: var(--color_007069);
+}
+
+.header_section .mincart-list-box .custom-totall a:hover {
+    background-color: var(--color_007069)
+}
+
+.header_section .mincart-list-box .totall-button {
+    background-color: #ebebeb;
+    border: 1px solid #ebebeb;
+    border-radius: 0;
+    padding: 0px 30px 30px 30px;
+}
+
+.header_section .mincart-list-box .totall-button a {
+    display: block;
+    font-size: 125%; /*1.25em*/ /*20*/
+    font-weight: 700;
+    line-height: 1;
+    color: var(--FFFcolor);
+    padding: 18px 10px 17px;
+    text-align: center;
+    text-transform: uppercase;
+    transition: all .3s ease 0s;
+    border-radius: 99rem;
+    background-color: var(--color_007069);
+}
+
+.header_section .mincart-list-box .totall-button a:hover {
+    background-color: var(--color_007069);
+}
+/* ===== STYLE 01 Cart Total 購物車 結算總計 區塊 ====== */
+
+/* ================================== */
+/* == 下拉式 商品購物清單 ============= */
+/* ================================= */
+
+
+
+
+
+/* ================================== */
+/* == 側邊選單列 ===================== */
+/* ================================= */
+.shop_member_center_section {
+    text-align: center;
+    background-color: var(--FFFcolor);
+    background-image: url(../../images/shop/shop_product-detail_section_bg.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.shop_member_center_section .shop-sidebar-menu {
+	text-align: left;
+}
+
+/*== shop-sidebar-menu 標題 H3 ==*/
+.shop_member_center_section .shop-sidebar-menu .h3,
+.shop_member_center_section .shop-sidebar-menu h3 {
+	position: relative;
+    display: block;
+	
+    color: var(--blackcolor);
+    font-size: 100%; /*1em*/ /*16px*/
+	font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+	
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    margin-top: 5px;
+    
+    border-bottom: 1px solid #ebebeb;
+	
+	text-align: left;
+}
+
+.shop_member_center_section .shop-sidebar-menu .h3:before,
+.shop_member_center_section .shop-sidebar-menu h3:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 120px; /*60*/
+    height: 2px;
+    background: var(--color_007069);
+}
+/*== shop-sidebar-menu 標題 H3 ==*/
+
+/* ******************************************* */
+/* ******************************************* */
+/*== shop-sidebar-menu UL / LI ==*/
+.shop_member_center_section .shop-sidebar-menu .menulist-box ul {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.shop_member_center_section .shop-sidebar-menu .menulist-box ul.nav-tabs {
+    border-bottom: none;
+}
+
+.shop_member_center_section .shop-sidebar-menu .menulist-box ul li {
+	width: 100%;
+	margin-bottom: 10px; 
+	border-bottom: 2px solid #ebebeb;
+}
+.shop_member_center_section .shop-sidebar-menu .menulist-box li a {
+	display: block;
+    color: var(--blackcolor);
+    font-size: 100%; /*1em*/ /*16px*/
+	font-weight: 600;    
+	padding: 0.75rem 0rem;   
+}
+
+.shop_member_center_section .shop-sidebar-menu .menulist-box li a.active {
+    color: var(--color_007069);
+	background-color: var(--FFFcolor);
+	border-bottom: 2px solid var(--color_007069);
+}
+
+.shop_member_center_section .shop-sidebar-menu .menulist-box li a:hover,
+.shop_member_center_section .shop-sidebar-menu .menulist-box li a:focus {
+    color: var(--color-v2-hover);
+}
+
+.shop_member_center_section .shop-sidebar-menu .menulist-box li a::before {
+	content: '';
+    position: absolute;
+    right: 0;
+    width: 0;
+    height: 0;
+	margin-top: 5px;
+    overflow: hidden;
+    border-width: 8px;
+    border-style: dashed dashed solid dashed;
+    border-color: transparent transparent transparent #dfdfdf;
+}
+
+.shop_member_center_section .shop-sidebar-menu .menulist-box li a.active::before  {
+    border-color: transparent transparent transparent var(--color-v2-hover);
+}
+
+.shop_member_center_section .shop-sidebar-menu .menulist-box li a:hover::before {
+    border-color: transparent transparent transparent var(--color-v2-hover);
+}
+/* ================================== */
+/* == 側邊選單列 ===================== */
+/* ================================= */
+
+
+
+
+
+
+
+
+
+
+

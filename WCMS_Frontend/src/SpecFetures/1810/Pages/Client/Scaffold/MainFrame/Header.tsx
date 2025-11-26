@@ -1,423 +1,73 @@
+
 /*Header模塊*/
-import type { INormSite } from "@/Features/Pages/Client/Site-Routing";
+import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import { useEffect, useRef } from 'react'
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import { A11yContent } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Header";
-import { Link, NavLink } from "react-router-dom";
-import LogoImg from '@/SpecFetures/1816/Assets/Client/images/logo/LOGO_525x60.svg'
-import { useCallback, useEffect, useRef } from "react";
+import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
-import { buildMenuItems } from "@/Features/Pages/Client/BizFunc/MainPage/SubPages";
+import { Link } from "react-router-dom";
+import type { NaviData } from "@/SysCore/Components/NaviBar/NaviBar_Data";
+import NaviBarComp from "@/SysCore/Components/NaviBar/NaviBar_Comp";
+import MenuListComp from "@/SysCore/Components/MenuList/MenuList_Comp";
+import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
+import logImg from "@/SpecFetures/1810/Assets/Client/images/logo/logo_450x80.svg";
+import subLogImg from "@/SpecFetures/1810/Assets/Client/images/logo/logo_M320_191x60.svg";
 
-export const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
-    const headerRef = useRef<HTMLDivElement | null>(null);
-    useEffect(() => {
-        if (typeof window === "undefined") return;
-        const header = headerRef.current;
-        if (!header) return;
-        const setOpen = (open: boolean) => {
-            header.classList.toggle("active", open);           // 等同 jQuery add/removeClass
-            document.body.style.overflow = open ? "hidden" : "auto";
-        };
-        const onClick = (ev: MouseEvent) => {
-            const el = ev.target as Element;
 
-            // 1) 點到 .navbar-toggler → 開/關
-            const toggler = el.closest(".navbar-toggler");
-            if (toggler && header.contains(toggler)) {
-                const open = !header.classList.contains("active");
-                setOpen(open);
-                return;
-            }
-            // 2) 若你有 overlayer：點 overlayer → 關閉
-            const overlay = el.closest(".overlayer");
-            if (overlay && header.contains(overlay)) {
-                setOpen(false);
-            }
-        };
-        header.addEventListener("click", onClick);
-        return () => header.removeEventListener("click", onClick);
-    }, []);
-
+export const Header = ({ lang, site, style }: { lang: Lang; site: INormSite; style: IFETheme }) => {
+    const data = { Title: "國立臺灣藝術大學_研究發展處 LOGO", SrcImg: logImg, SubSrcImg: subLogImg }
+    const headerRef = useRef<HTMLElement>(null);
+    useHeaderBehaviorRef(headerRef);
     return (
         <>
-            <A11yContent />
-            <div id="Site-Header" className="ALL_Header_DivBar main-header" ref={headerRef}>
-                <Header_Section />
-                <Menu_Section {...props} />
-                <div className="overlayer" aria-hidden="true" />
+            <noscript>
+                <div style={{ color: 'red' }}>{"您的瀏覽器不支援 JavaScript，請開啟 Javascript 功能。"}</div>
+            </noscript>
+            <a href="#content" id="gotocenter" title="跳到頁面主要內容區" tabIndex={1} className="sr-only sr-only-focusable">跳到頁面主要內容區</a>
+            <div id="site-header" className="LL_Header_DivBar main-header w-100">
+                <section className="header_section">
+                    <header className="header_Box" ref={headerRef}>
+                        <div className="container-fluid-customize h-100 mr-0 pr-0">
+                            <div className="HeaderDivBox">
+                                <div className="leftBox">
+                                    <div className="logo">
+                                        <h1>
+                                            <a className="P_logo" href="/" title={data.Title} tabIndex={1}>
+                                                <img src={data.SrcImg} alt={data.Title} />
+                                            </a>
+                                            <a className="M320_logo" href="/" title={data.Title} tabIndex={1}>
+                                                <img src={data.SubSrcImg} alt={data.Title} />
+                                            </a>
+                                        </h1>
+                                    </div>
+                                </div>
+                                <MainMenu lang={lang} site={site} style={style}></MainMenu>
+                                <div className="overlayer"></div>
+                                <div className="rightBox">
+                                    <button className="main bg-custom-s5" type="button">
+                                        <div><i className="fa customize-bars" aria-hidden="true"></i></div>
+                                        <span>MENU</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+                </section>
             </div>
+            <GoTopButton />
         </>
     );
 }
 
-const Header_Section = () => {
-    const sizeGroupRef = useRef<HTMLUListElement | null>(null);
-    useEffect(() => {
-        const root = sizeGroupRef.current;
-        if (!root) return;
-        const onClick = (ev: MouseEvent) => {
-            const target = (ev.target as Element).closest(".A-LMS") as HTMLElement | null;
-            if (!target || !root.contains(target)) return;      // 只處理這一組
-            if (target.tagName === "A") ev.preventDefault();    // 你現在是 <a>，避免跳轉
-            // 先清掉同組 active / aria-pressed
-            root.querySelectorAll<HTMLElement>(".A-LMS").forEach(btn => {
-                btn.classList.remove("active");
-                btn.setAttribute("aria-pressed", "false");
-            });
-            // 再把被點到的那顆設為 active
-            target.classList.add("active");
-            target.setAttribute("aria-pressed", "true");
-        };
-        root.addEventListener("click", onClick);
-        return () => root.removeEventListener("click", onClick);
-    }, []);
-    return (<section className="header_section">
-        <header className="header_Box bg-white">
-            <div className="navsBox">
-                <div className="container-customize2">
-                    <ul className="nav custom_nav justify-content-xl-end justify-content-center">
-                        <NavBar />
-                        <li>
-                            <ul className="nav custom_nav py-0 justify-content-center my-1" ref={sizeGroupRef}>
-                                <LangChange />
-                                <SizeChange />
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </header>
-    </section>)
+export default Header
+
+declare global {
+    interface Window {
+        google: any;
+        googleTranslateElementInit: () => void;
+    }
 }
-const NavBar = () => {
-    return (<li>
-        <ul className="nav custom_nav py-0 justify-content-center my-1">
-            <a accessKey="U" href="#U" className="accesskey_header U" title="上方導覽區(U)" tabIndex={0}>:::</a>
-            <li className="nav-item">
-                <a className="nav-link" href="/" tabIndex={0} target="_self" title="圖書館首頁">圖書館首頁</a>
-            </li>
-            <li className="nav-item">
-                <a className="nav-link" href="00_page_login_(BS.5_New).html" tabIndex={0} target="_self" title="北藝大首頁">北藝大首頁</a>
-            </li>
-            <li className="nav-item">
-                <a className="nav-link" href="../Back_stage/00_Index.html" tabIndex={0} target="_self" title="後台管理">後台管理</a>
-            </li>
-            <li className="nav-item">
-                <a className="nav-link" href="javascript:void(0);" tabIndex={0} target="_self" title="網站導覽">網站導覽</a>
-            </li>
-        </ul>
-    </li>
-    )
-}
-const LangChange = () => {
-    return (<li>
-        <div className="icons">
-            <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
-                <a id="linkE" href="javascript:void(0);" type="button" role="button" title="英文版" tabIndex={0}>
-                    <div className="link-text">English</div>
-                </a>
-            </div>
-        </div>
-    </li>)
-}
-const SizeChange = () => {
-    const doZoom = useCallback((px: number) => { document.documentElement.style.fontSize = `${px}px`; localStorage.setItem('font-zoom', String(px)); }, []);
-    useEffect(() => { const saved = +localStorage.getItem('font-zoom')!; if (saved) doZoom(saved); }, [doZoom]);
-    return (<>
-        <li>
-            <div className="icons">
-                <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
-                    <a className="A-LMS" href="javascript:void(0);" onClick={() => { doZoom(20) }} type="button" role="button" title="字型-大" tabIndex={0} data-size="20">
-                        <div className="LMS-text">大</div>
-                    </a>
-                </div>
-            </div>
-        </li>
-        <li>
-            <div className="icons">
-                <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
-                    <a className="A-LMS" href="javascript:void(0);" onClick={() => { doZoom(18) }} type="button" role="button" title="字型-中" tabIndex={0} data-size="18">
-                        <div className="LMS-text">中</div>
-                    </a>
-                </div>
-            </div>
-        </li>
-        <li>
-            <div className="icons">
-                <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-0">
-                    <a className="A-LMS active" href="javascript:void(0);" onClick={() => { doZoom(16) }} type="button" role="button" title="字型-小" tabIndex={0} data-size="16">
-                        <div className="LMS-text">小</div>
-                    </a>
-                </div>
-            </div>
-        </li>
-    </>)
-}
-const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
-
-    const menuRef = useRef<HTMLDivElement | null>(null);
-    useEffect(() => {
-        if (typeof window === "undefined") return;
-        const root = menuRef.current;
-        if (!root) return;
-
-        // ---------- 1) submenu 超出右緣 → 切換 show-left ----------
-        const updateDir = (hostEl: HTMLElement) => {
-            const submenu = hostEl.querySelector<HTMLElement>(".dropdown-menu");
-            if (!submenu) return;
-            const rect = submenu.getBoundingClientRect();
-            const winW = window.innerWidth || document.documentElement.clientWidth;
-            hostEl.classList.toggle("show-left", rect.right > winW);
-        };
-
-        const submenuEls = Array.from(root.querySelectorAll<HTMLElement>(".submenu"));
-        const onMouseEnter = (e: Event) => updateDir(e.currentTarget as HTMLElement);
-        const onKeyEnter = (e: KeyboardEvent) => {
-            if (e.key === "Enter") updateDir(e.currentTarget as HTMLElement);
-        };
-        submenuEls.forEach(el => {
-            el.addEventListener("mouseenter", onMouseEnter);
-            el.addEventListener("keydown", onKeyEnter);
-        });
-
-        // ---------- 2) Enter 可切換 Bootstrap Dropdown ----------
-        const toggleKeyHandler = (e: KeyboardEvent) => {
-            if (e.key !== "Enter") return;
-            e.preventDefault();
-            const bs = (window as any).bootstrap;
-            if (bs?.Dropdown) new bs.Dropdown(e.currentTarget).toggle();
-        };
-        const toggleEls = Array.from(root.querySelectorAll<HTMLElement>(".dropdown-toggle"));
-        toggleEls.forEach(el => el.addEventListener("keydown", toggleKeyHandler));
-
-        // ---------- 3) Hamburger 動畫（點 .navbar-toggler） ----------
-        const navbarToggler = root.querySelector<HTMLElement>(".navbar-toggler");
-        const onBurgerClick = (e: Event) => {
-            const btn = e.currentTarget as HTMLElement;
-            // 找到裡面的 .hamburger，切換 active（比原本 e.target.children[0] 安全）
-            btn.querySelector<HTMLElement>(".hamburger")?.classList.toggle("active");
-        };
-        navbarToggler?.addEventListener("click", onBurgerClick);
-
-        // ---------- 4) Mega menu：hover/點擊互斥顯示，點外面關閉 ----------
-        const megaEls = Array.from(root.querySelectorAll<HTMLElement>(".dropdown-mega"));
-        const closeAllExcept = (keep?: HTMLElement) => {
-            megaEls.forEach(d => {
-                if (keep && d === keep) return;
-                d.classList.remove("show");
-                d.querySelector<HTMLElement>(".dropdown-menu")?.classList.remove("show");
-                d.querySelector<HTMLElement>(".dropdown-toggle")?.setAttribute("aria-expanded", "false");
-            });
-        };
-
-        const onMegaEnter = (e: Event) => {
-            const d = e.currentTarget as HTMLElement;
-            closeAllExcept(d);
-            d.classList.add("show");
-            d.querySelector<HTMLElement>(".dropdown-menu")?.classList.add("show");
-            d.querySelector<HTMLElement>(".dropdown-toggle")?.setAttribute("aria-expanded", "true");
-        };
-        const onMegaLeave = (e: Event) => {
-            const d = e.currentTarget as HTMLElement;
-            d.classList.remove("show");
-            d.querySelector<HTMLElement>(".dropdown-menu")?.classList.remove("show");
-            d.querySelector<HTMLElement>(".dropdown-toggle")?.setAttribute("aria-expanded", "false");
-        };
-
-        // 個別 toggle 的 click handler 需要保存以便清掉
-        const toggleClickMap = new Map<HTMLElement, (e: Event) => void>();
-
-        megaEls.forEach(d => {
-            const t = d.querySelector<HTMLElement>(".dropdown-toggle");
-            d.addEventListener("mouseenter", onMegaEnter);
-            d.addEventListener("mouseleave", onMegaLeave);
-            if (t) {
-                const h = (e: Event) => {
-                    e.preventDefault();
-                    if (d.classList.contains("show")) onMegaLeave(e);
-                    else onMegaEnter(e);
-                };
-                t.addEventListener("click", h);
-                toggleClickMap.set(t, h);
-            }
-        });
-
-        const onDocClick = (e: MouseEvent) => {
-            if (!root.contains(e.target as Node)) closeAllExcept();
-        };
-        document.addEventListener("click", onDocClick);
-
-        // ---------- cleanup ----------
-        return () => {
-            submenuEls.forEach(el => {
-                el.removeEventListener("mouseenter", onMouseEnter);
-                el.removeEventListener("keydown", onKeyEnter);
-            });
-            toggleEls.forEach(el => el.removeEventListener("keydown", toggleKeyHandler));
-            navbarToggler?.removeEventListener("click", onBurgerClick);
-            megaEls.forEach(d => {
-                d.removeEventListener("mouseenter", onMegaEnter);
-                d.removeEventListener("mouseleave", onMegaLeave);
-            });
-            toggleClickMap.forEach((h, el) => el.removeEventListener("click", h));
-            document.removeEventListener("click", onDocClick);
-        };
-    }, []);
-    return (
-        <section className="menu_section">
-            <div className="customMENU_Box bg-white">
-                <div className="menuBox">
-                    <div className="container-customize2">
-                        <div className="navbar navbar-expand-lg navbar-dark px-0 py-0" ref={menuRef}>
-                            <LogoComp />
-                            <MobileBtn />
-                            <MainMenu {...props} />
-                            <PCBtn />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    )
-}
-const LogoComp = () => {
-    return (
-        <h1 className="logo">
-            <Link className="navbar-brand" to="/" tabIndex={0} title="">
-                <img src={LogoImg} alt=" LOGO" />
-            </Link>
-        </h1>
-    )
-}
-const MobileBtn = () => {
-    return (<>
-        <div className="mobile-box">
-            <div className="icons">
-                <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-1 mx-0 d-inline-block">
-                    <a href="javascript:void(0);" className="search-button" type="button" role="button" title="搜尋" id="mobile-sss" data-bs-toggle="dropdown" aria-expanded="false" tabIndex={0}>
-                        <i className="far fa-search" aria-hidden="true"></i>
-                        <span className="sr-only">搜尋</span>
-                    </a>
-                    <div className="searchdropdown dropdown-menu search-input-dropdown" aria-labelledby="mobile-sss">
-                        <input type="search" id="mobile-search-box" placeholder="search here..." tabIndex={0} />
-                        <button className="far fa-search" type="button" tabIndex={0}></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <a className="navbar-toggler collapsed" type="button" role="button" data-bs-toggle="collapse" data-bs-target="#navbar-content" tabIndex={0} aria-expanded="false">
-            <div className="hamburger-toggle">
-                <div className="hamburger">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
-        </a>
-    </>);
-}
-const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
-
-    const menuItems = GetMenuData(props.lang, props.site)
-
-    return (<div id="navbar-content">
-        <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
-
-            {menuItems.map((item) => {
-                return (
-                    <>
-                        {/* <SingleMenuItem menuItem={item} />
-                        <DropdownMenuItem menuItem={item} /> */}
-                        <MegaMenuItem menuItem={item} />
-                    </>)
-            })}
-        </ul>
-    </div>)
-}
-const PCBtn = () => {
-    return (
-        <div className="pc-box">
-            <div className="icons">
-                <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1 d-inline-block">
-                    <a href="javascript:void(0);" className="search-button" type="button" role="button" title="搜尋" id="pc-sss" data-bs-toggle="dropdown" aria-expanded="false" tabIndex={0}>
-                        <i className="far fa-search" aria-hidden="true"></i>
-                        <span className="sr-only">搜尋</span>
-                    </a>
-                    <div className="searchdropdown dropdown-menu search-input-dropdown" aria-labelledby="pc-sss">
-                        <input type="search" id="pc-search-box" placeholder="search here..." tabIndex={0} />
-                        <button className="far fa-search" type="button" tabIndex={0}></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
-}
-
-
-
-/** 1. 一般單選 */
-const SingleMenuItem = (props: { menuItem: MenuItemData }) => {
-    return (
-        <li className="nav-item">
-            <NavLink className="nav-link" aria-current="page" to={props.menuItem.Url} role="button" tabIndex={0} title={props.menuItem.SrcData} aria-label={props.menuItem.SrcData}>
-                {props.menuItem.SrcData}
-            </NavLink>
-        </li>
-    );
-};
-
-/** 2. 多層下拉 */
-const DropdownMenuItem = (props: { menuItem: MenuItemData; }) => {
-    return (
-        <li className="nav-item dropdown">
-            <NavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} role="button" tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                {props.menuItem.SrcData}
-            </NavLink>
-            {/* 第二層（原本的 <ul className="dropdown-menu">） */}
-            <ul className="dropdown-menu">
-                {renderDropdownItems(props.menuItem.SubItem, 0)}
-            </ul>
-        </li>
-    );
-};
-
-
-/** 3. Mega 選項：明細動態渲染 */
-const MegaMenuItem = (props: { menuItem: MenuItemData; }) => {
-    return (
-        <li className="nav-item dropdown dropdown-mega position-static">
-            <NavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                {props.menuItem.SrcData}
-            </NavLink>
-
-            <div className="dropdown-menu">
-                <div className="mega-content">
-                    <div className="container-customize2">
-                        <div className="row">
-                            {props.menuItem.SubItem.map((col, colIndex) => (
-                                <div key={colIndex} className="col-12 col-sm-4 col-md-3">
-                                    {/* 每一欄的標題 */}
-                                    <div className="mega-item-tilte">{col.SrcData}</div>
-
-                                    {/* 每一欄底下的連結列表 */}
-                                    <div className="list-group">
-                                        {(col.SubItem ?? []).map((link, linkIndex) => (
-                                            <NavLink key={linkIndex} className="list-group-item" to={link.Url || "#"} tabIndex={0}>
-                                                {link.SrcData}
-                                            </NavLink>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </li>
-    );
-};
 
 const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] => {
     const roots = site.treeByLang?.[lang] ?? [];
@@ -425,39 +75,246 @@ const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] => {
     return buildMenuItems(roots, 0);
 };
 
-/**
- * 遞迴渲染多層選單
- * parentDepth = 0 代表「第二層」，對應原本的 className 設計：
- * - 第二層 parent 的子層 <ul> 用 "dropdown-menu"
- * - 再往下（第四層以後）用 "dropdown-menu dropdown-submenu"
- */
-const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.Element[] => {
-    return items.map((item, index) => {
-        const hasChildren = (item.SubItem ?? []).length > 0;
-        const key = `${parentDepth}-${index}`;
+const MainMenu = (prop: { lang: Lang; site: INormSite; style: IFETheme }) => {
+    const translateRef = useRef<HTMLDivElement>(null);
+    const navsRef = useRef<HTMLDivElement>(null);
+    const menuItems = GetMenuData(prop.lang, prop.site)
+    const Mock_naviData: NaviData[] = [
+        {
+            Id: "", SrcData: "", Url: "",
+            DOMContent: <Link className="nav-link" to="/" target="_self" title="首頁" onClick={() => closeMenu()}>首頁</Link>
+        },
+        {
+            Id: "", SrcData: "", Url: "",
+            DOMContent: <Link className="nav-link" to="https://www.ntua.edu.tw/" target="_self" title="臺藝大校首頁" onClick={() => closeMenu()}>臺藝校首頁</Link>
+        },
+        {
+            Id: "", SrcData: "", Url: "",
+            DOMContent: <Link className="nav-link" to="Sitemap" target="_self" title="網站導覽" onClick={() => closeMenu()}>網站導覽</Link>
+        },
+    ]
 
-        if (!hasChildren) {
-            // 純連結項目
-            return (
-                <li key={key}>
-                    <NavLink className="dropdown-item" to={item.Url || "#"} role="button" tabIndex={0}>
-                        {item.SrcData}
-                    </NavLink>
-                </li>
-            );
-        }
-        // 有子項目 -> dropend submenu 結構
-        const submenuClassName = parentDepth === 0 ? "dropdown-menu" : "dropdown-menu dropdown-submenu";
-        return (
-            <li key={key} className="dropend submenu">
-                <NavLink to={item.Url || "#"} role="button" tabIndex={0} className="dropdown-item dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                    {item.SrcData}
-                </NavLink>
 
-                <ul className={submenuClassName}>
-                    {renderDropdownItems(item.SubItem ?? [], parentDepth + 1)}
-                </ul>
-            </li>
-        );
-    });
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const scriptId = 'google-translate-script';
+        const exist = document.getElementById(scriptId);
+        if (exist) return;
+        const script = document.createElement('script');
+        script.id = scriptId;
+        script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+        script.async = true;
+        document.body.appendChild(script);
+        window.googleTranslateElementInit = () => {
+            if (translateRef.current) {
+                new window.google.translate.TranslateElement({
+                    pageLanguage: 'zh-TW',
+                }, translateRef.current);
+            }
+        };
+    }, []);
+
+    const menuRef = useRef<HTMLUListElement>(null);
+    useLegacyMenuDOM(menuRef);
+
+    return (
+        <div className="menulayer">
+            <button type="button" className="closemain" tabIndex={1}>
+                <div><i className="fa customize-close" aria-hidden="true"></i></div>
+                <span>CLOSE</span>
+            </button>
+            {/* // contentmenu // */}
+            <div className="contentmenu" >
+                <div className="google_box" ref={translateRef}>
+                    <div className="container-custom">
+                        <div id="google_translate_element" tabIndex={1}></div>
+                    </div>
+                </div>
+                {/* // topBox上方選單 // */}
+                <div className="topBox">
+                    <div className="navsBox" ref={navsRef}>
+                        <NaviBarComp items={Mock_naviData} style={prop.style.NaviBarMenu} />
+                    </div>
+                </div>
+                {/* // topBox上方選單 end // */}
+                <div className="SearchBar">
+                    <div className="search_DivBox">
+                        <input className="search_input" type="text" placeholder="Search" id="search-box" onKeyUp={() => { "Search(event)" }} tabIndex={1} title="Search" />
+                    </div>
+                </div>
+                {/* // menuBox // */}
+                <nav className="menuBox">
+                    <ul id="menu" ref={menuRef}>
+                        <MenuListComp items={menuItems} Style={prop.style.MainMenu} />
+                    </ul>
+                </nav>
+                {/* // down-social // */}
+                <div className="down-social">
+                    <a href="#" onClick={(e) => { e.preventDefault(); }} className="Facebook" title="Facebook(另開新視窗)" rel="noopener noreferrer" target="_blank" tabIndex={1}>
+                        <i className="fa Customize-facebook" aria-hidden="true"></i><span className="sr-only">Facebook</span>
+                    </a>
+
+                    <a href="#" onClick={(e) => { e.preventDefault(); }} className="Instagram" title="Instagram(另開新視窗)" rel="noopener noreferrer" target="_blank" tabIndex={1}>
+                        <i className="fa Customize-instagram" aria-hidden="true"></i><span className="sr-only">Instagram</span>
+                    </a>
+
+                    <a href="#" onClick={(e) => { e.preventDefault(); }} className="LINE" title="LINE(另開新視窗)" rel="noopener noreferrer" target="_blank" tabIndex={1}>
+                        <i className="fa Customize-line" aria-hidden="true"></i><span className="sr-only">LINE</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    );
 };
+
+
+/** 這邊雖然是模擬js，但應該可以再看如何轉換成原本吃js的動作，來移除該功能 */
+export const useLegacyMenuDOM = (menuRef: React.RefObject<HTMLUListElement>) => {
+
+    useEffect(() => {
+        if (typeof window === "undefined") return; // SSR guard
+        const root = menuRef.current;
+        if (!root) return;
+
+        const getIcon = (li: HTMLElement) => li.querySelector(":scope > a i");
+        const setArrow = (li: HTMLElement, open: boolean) => {
+            const icon = getIcon(li);
+            if (!icon) return;
+            icon.classList.toggle("fa-angle-right", !open);
+            icon.classList.toggle("fa-angle-down", open);
+        };
+
+        const closeBranch = (li: HTMLElement) => {
+            const childUl = li.querySelector(":scope > ul") as HTMLElement | null;
+
+            if (childUl) childUl.classList.remove("in");
+            li.classList.remove("active");
+            setArrow(li, false);
+            // 也把後代全部收掉（避免留下展開殘影）
+            childUl?.querySelectorAll("li").forEach(n => {
+                const h = n as HTMLElement;
+                h.classList.remove("active");
+                const sub = h.querySelector(":scope > ul") as HTMLElement | null;
+                if (sub) sub.classList.remove("in");
+                setArrow(h, false);
+            });
+        };
+
+        const closeAllMenu = (root: HTMLElement) => {
+            root.querySelectorAll(":scope li").forEach(node => {
+                closeBranch(node as HTMLElement);
+            });
+        };
+
+        const onClick = (e: Event) => {
+            const target = e.target as Element;
+            const link = target.closest("a");
+
+            if (!link || !root.contains(link)) return;
+
+            const li = link.closest("li") as HTMLElement | null;
+            if (!li) return;
+
+            const childUl = li.querySelector(":scope > ul") as HTMLElement | null;
+
+
+            // 沒子層 = 正常導頁並關閉menu；若要只設 active 可在這裡加 li.classList.add("active")
+            if (!childUl) return closeMenu();
+
+
+            // 有子層：阻止導頁，改為展開/收合
+            e.preventDefault();
+
+            const isOpen = childUl.classList.contains("in");
+
+            // 只關閉「同層」兄弟的直屬子層與箭頭
+            const parentUl = li.parentElement as HTMLElement | null; // li 的父層 ul
+            const siblings = parentUl ? Array.from(parentUl.children) : [];
+            siblings.forEach(node => {
+                const sib = node as HTMLElement;
+                if (sib !== li) closeBranch(sib);
+            });
+
+            if (isOpen) {
+                // ✅ 目前已展開 → 縮回
+                closeBranch(li);
+            } else {
+                // ✅ 目前收合 → 展開
+                childUl.classList.add("in");
+                li.classList.add("active");
+                setArrow(li, true);
+            }
+        };
+        root.addEventListener("click", onClick);
+
+        // 監聽 header_Box 的 active class
+        const headerBox = document.querySelector(".header_Box");
+        let observer: MutationObserver | null = null;
+        if (headerBox) {
+            observer = new MutationObserver(() => {
+                if (headerBox.classList.contains("active")) {
+                    closeAllMenu(root); // header_Box 再次 active → 收掉全部展開的 menu
+                }
+            });
+            observer.observe(headerBox, { attributes: true, attributeFilter: ["class"] });
+        }
+
+        return () => {
+            root.removeEventListener("click", onClick);
+            if (observer) observer.disconnect();
+        }
+    }, [menuRef]);
+}
+
+const closeMenu = () => {
+    const headerBox = document.querySelector(".header_Box");
+    if (headerBox) {
+        document.body.style.overflow = "auto";
+        headerBox.classList.remove("active");
+    }
+};
+
+function useHeaderBehaviorRef(headerRef: React.RefObject<HTMLElement | null>) {
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const headerEl = headerRef.current;
+        if (!headerEl) return;
+
+        const toggleActive = () => {
+            if (!headerEl.classList.contains('active')) {
+                headerEl.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            } else {
+                headerEl.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        };
+
+        const btnMain = headerEl.querySelector('button.main');
+        const btnClose = headerEl.querySelector('button.closemain');
+        const overlay = headerEl.querySelector('div.overlayer');
+
+        btnMain?.addEventListener('click', toggleActive);
+        btnClose?.addEventListener('click', toggleActive);
+        overlay?.addEventListener('click', toggleActive);
+
+        const handleScroll = () => {
+            const scroll = window.scrollY;
+            const logos = document.querySelectorAll('.logo');
+            const mains = document.querySelectorAll('.main');
+
+            logos.forEach((el) => el.classList.toggle('hide', scroll >= 100));
+            mains.forEach((el) => el.classList.toggle('bg-custom-s5', scroll >= 100));
+        };
+
+        window.addEventListener('scroll', handleScroll);
+
+        return () => {
+            btnMain?.removeEventListener('click', toggleActive);
+            btnClose?.removeEventListener('click', toggleActive);
+            overlay?.removeEventListener('click', toggleActive);
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, [headerRef]);
+}
+

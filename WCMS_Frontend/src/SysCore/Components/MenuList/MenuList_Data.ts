@@ -12,7 +12,7 @@ export interface MenuItemData
     /** 超連結 */
     Url: string;
     /** 另開or當前 */
-    URL_Open?: "1" | "2"; // 1:_self,2:_blank 之後處理
+    URL_Open?: "_self" | "_blank" | "";
     /** 子項目 */
     SubItem: MenuItemData[];
     /** 動態DOM欄位資料處理與渲染。取得資料後在此做動態邏輯渲染 */

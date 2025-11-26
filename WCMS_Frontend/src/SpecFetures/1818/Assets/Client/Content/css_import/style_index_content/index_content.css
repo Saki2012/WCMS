@@ -146,6 +146,9 @@
 	background-color: var(--FFFcolor);
 	z-index: -1;
 }
+.headDiv-txt-3::after {
+	width: 110px;
+}
 .headDiv-txt-4::before {
 	content: "";
 	position: relative;
@@ -2252,6 +2255,7 @@
 	overflow: hidden;
 	max-height: 362px;
 	font-weight: 600;
+	text-align: justify;
 }
 @media (max-width:1199px) {
 	.About_section .about-txt{

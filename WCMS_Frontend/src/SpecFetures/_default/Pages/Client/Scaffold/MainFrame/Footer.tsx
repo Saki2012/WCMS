@@ -1,2 +1,4 @@
 
-export const Footer = () => { return (<footer className="Footer_section"></footer>) }
+const Footer = () => { return (<footer className="Footer_section"></footer>) }
+
+export default Footer

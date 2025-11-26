@@ -1,5 +1,5 @@
 /**預覽功能模組 */
-import { SubPageShell } from "@/Features/Pages/Client/BizFunc/MainPage/SubPages";
+import { SubPageShell } from "@/SpecFetures/1810/Pages/Client/Scaffold/SubPages/SubPage";
 import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx";
 import { useEffect, useState } from "react";
 

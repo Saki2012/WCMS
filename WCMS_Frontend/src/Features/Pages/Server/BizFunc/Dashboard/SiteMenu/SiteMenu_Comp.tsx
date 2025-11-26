@@ -778,10 +778,7 @@ const ModuleSettingTab = (prop: {
     }
     return dict;
   };
-  const filteredStyleDict = React.useMemo(
-    () => getStyleOptionsByModule(prop.modelKey, prop.moduleDisplayStyle),
-    [prop.modelKey, prop.moduleDisplayStyle]
-  );
+  const filteredStyleDict = React.useMemo(() => getStyleOptionsByModule(prop.modelKey, prop.moduleDisplayStyle), [prop.modelKey, prop.moduleDisplayStyle]);
   const curRowKeys = React.useMemo(() => ({
     [SchemaFields.SiteMenu_Item_ModuleFields.SiteIndex]: siteIndex,
     [SchemaFields.SiteMenu_Item_ModuleFields.ItemRowId]: rowId

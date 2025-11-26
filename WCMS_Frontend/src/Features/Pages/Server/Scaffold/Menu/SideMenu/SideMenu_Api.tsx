@@ -1,3 +1,5 @@
+/** 後台的這一塊應該考慮不再用api去撈資料，而是直接提供功能及路徑? */
+
 import type { MenuItemData } from '@/SysCore/Components/MenuList/MenuList_Data';
 import { IApiProvider, IDataProvider } from '@/SysCore/Interface/IApiProvider'
 import { BaseCssIcon1 } from "@/SysCore/Constants/icon/Base"

@@ -1,4 +1,3 @@
-import { GoTopButton } from '@/Features/Pages/Client/BizFunc/MainPage/SubPages'
 import { SearchData } from '@/SpecFetures/1816/Pages/Client/Index/Section/SearchData'
 import { LinkData } from '@/SpecFetures/1816/Pages/Client/Index/Section/LinkData'
 import { CarouselData } from '@/SpecFetures/1816/Pages/Client/Index/Section/CarouselData'
@@ -28,7 +27,6 @@ const HomePage = () => {
           <QuickLinksData></QuickLinksData>
         </div>
       </div>
-      <GoTopButton />
     </main>
   );
 };

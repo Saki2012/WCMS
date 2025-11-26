@@ -342,195 +342,6 @@
   <data name="WebResource_Content" xml:space="preserve">
     <value>內容</value>
   </data>
-  <data name="SpecCategoryId" xml:space="preserve">
-    <value>類別代號</value>
-  </data>
-  <data name="SpecCategory_Detail" xml:space="preserve">
-    <value>規格類別明細</value>
-  </data>
-  <data name="SpecCategory_Module" xml:space="preserve">
-    <value>規格類別對應模組</value>
-  </data>
-  <data name="SpecCategory_DetailModule" xml:space="preserve">
-    <value>規格類別明細對應模組</value>
-  </data>
-  <data name="SpecCategory_ShowColumn" xml:space="preserve">
-    <value>顯示欄位</value>
-  </data>
-  <data name="SpecCategory_Name" xml:space="preserve">
-    <value>計畫類別名稱</value>
-  </data>
-  <data name="SpecResearchId" xml:space="preserve">
-    <value>研究計畫</value>
-  </data>
-  <data name="SpecResearch_Detail" xml:space="preserve">
-    <value>計畫明細</value>
-  </data>
-  <data name="SpecResearch_Categories" xml:space="preserve">
-    <value>計畫類別</value>
-  </data>
-  <data name="SpecResearch_Tags" xml:space="preserve">
-    <value>標籤</value>
-  </data>
-  <data name="SpecResearch_Year" xml:space="preserve">
-    <value>年度</value>
-  </data>
-  <data name="SpecResearch_AcademicYear" xml:space="preserve">
-    <value>學年度</value>
-  </data>
-  <data name="SpecResearch_Semester" xml:space="preserve">
-    <value>學期</value>
-  </data>
-  <data name="SpecResearch_DuringExecution" xml:space="preserve">
-    <value>執行期間</value>
-  </data>
-  <data name="SpecResearch_ContractPeriod" xml:space="preserve">
-    <value>合約期間</value>
-  </data>
-  <data name="SpecResearch_ClassTime" xml:space="preserve">
-    <value>上課時間</value>
-  </data>
-  <data name="SpecResearch_ProjectLeader" xml:space="preserve">
-    <value>計畫主持人</value>
-  </data>
-  <data name="SpecResearch_Name" xml:space="preserve">
-    <value>姓名</value>
-  </data>
-  <data name="SpecResearch_TeachingStaffOfOurSchool" xml:space="preserve">
-    <value>本校教學人員</value>
-  </data>
-  <data name="SpecResearch_ApprovalNumber" xml:space="preserve">
-    <value>核定編號</value>
-  </data>
-  <data name="SpecResearch_ApprovedAmount" xml:space="preserve">
-    <value>核定金額</value>
-  </data>
-  <data name="SpecResearch_College" xml:space="preserve">
-    <value>學院</value>
-  </data>
-  <data name="SpecResearch_Department" xml:space="preserve">
-    <value>系所</value>
-  </data>
-  <data name="SpecResearch_Degree" xml:space="preserve">
-    <value>學位</value>
-  </data>
-  <data name="SpecResearch_CoUnits" xml:space="preserve">
-    <value>合作單位/學校</value>
-  </data>
-  <data name="SpecResearch_CoProject" xml:space="preserve">
-    <value>合作項目</value>
-  </data>
-  <data name="SpecResearch_Courses" xml:space="preserve">
-    <value>課程/社團</value>
-  </data>
-  <data name="SpecResearch_ProjectName" xml:space="preserve">
-    <value>計畫名稱</value>
-  </data>
-  <data name="SpecResearch_PaperTitle" xml:space="preserve">
-    <value>論文名稱</value>
-  </data>
-  <data name="SpecResearch_Remark" xml:space="preserve">
-    <value>備註</value>
-  </data>
-  <data name="SpecResearch_Cohost1" xml:space="preserve">
-    <value>共同主持人</value>
-  </data>
-  <data name="SpecResearch_Cohost2" xml:space="preserve">
-    <value>協同主持人</value>
-  </data>
-  <data name="SpecResearch_Commissioned" xml:space="preserve">
-    <value>委辦/補助單位</value>
-  </data>
-  <data name="SpecResearch_PlanAmount" xml:space="preserve">
-    <value>計畫金額</value>
-  </data>
-  <data name="SpecResearch_PlanConten" xml:space="preserve">
-    <value>計畫內容</value>
-  </data>
-  <data name="SpecResearch_Sort" xml:space="preserve">
-    <value>排序編號</value>
-  </data>
-  <data name="SpecResearch_PictureId" xml:space="preserve">
-    <value>成果照片</value>
-  </data>
-  <data name="SpecResearch_PicDescription" xml:space="preserve">
-    <value>圖片說明</value>
-  </data>
-  <data name="SpecUSRId" xml:space="preserve">
-    <value>USR計畫</value>
-  </data>
-  <data name="SpecUSR_Detail" xml:space="preserve">
-    <value>計畫明細</value>
-  </data>
-  <data name="SpecUSR_Categories" xml:space="preserve">
-    <value>類別</value>
-  </data>
-  <data name="SpecUSR_Tags" xml:space="preserve">
-    <value>標籤</value>
-  </data>
-  <data name="SpecUSR_PictureId" xml:space="preserve">
-    <value>成果照片</value>
-  </data>
-  <data name="SpecUSR_PicDescription" xml:space="preserve">
-    <value>圖片說明</value>
-  </data>
-  <data name="SpecUSR_Year" xml:space="preserve">
-    <value>年度</value>
-  </data>
-  <data name="SpecUSR_AcademicYear" xml:space="preserve">
-    <value>學年度</value>
-  </data>
-  <data name="SpecUSR_Courses" xml:space="preserve">
-    <value>課程/活動名稱</value>
-  </data>
-  <data name="SpecUSR_PracticeField" xml:space="preserve">
-    <value>實踐領域</value>
-  </data>
-  <data name="SpecUSR_ProjectName" xml:space="preserve">
-    <value>計畫名稱</value>
-  </data>
-  <data name="SpecUSR_ExternalCoUnits" xml:space="preserve">
-    <value>外部合作單位</value>
-  </data>
-  <data name="SpecUSR_Department" xml:space="preserve">
-    <value>本校執行系所/單位</value>
-  </data>
-  <data name="SpecUSR_DuringExecution" xml:space="preserve">
-    <value>執行期間</value>
-  </data>
-  <data name="SpecUSR_ExecStrategy" xml:space="preserve">
-    <value>執行策略</value>
-  </data>
-  <data name="SpecUSR_PlanAmount" xml:space="preserve">
-    <value>計畫金額</value>
-  </data>
-  <data name="SpecUSR_ContentIntro" xml:space="preserve">
-    <value>計畫內容簡介</value>
-  </data>
-  <data name="SpecUSR_ProjectConcept" xml:space="preserve">
-    <value>計畫理念</value>
-  </data>
-  <data name="SpecUSR_KeyHighlights" xml:space="preserve">
-    <value>計畫亮點</value>
-  </data>
-  <data name="SpecUSR_ProjectLeader" xml:space="preserve">
-    <value>計畫主持人</value>
-  </data>
-  <data name="SpecUSR_Cohost1" xml:space="preserve">
-    <value>共同主持人</value>
-  </data>
-  <data name="SpecUSR_Cohost2" xml:space="preserve">
-    <value>協同主持人</value>
-  </data>
-  <data name="SpecUSR_Commissioned" xml:space="preserve">
-    <value>委辦/補助單位</value>
-  </data>
-  <data name="SpecUSR_Remark" xml:space="preserve">
-    <value>備註</value>
-  </data>
-  <data name="SpecUSR_Sort" xml:space="preserve">
-    <value>排序編號</value>
-  </data>
   <data name="Common_CreateTime" xml:space="preserve">
     <value>創建時間</value>
   </data>
@@ -561,9 +372,7 @@
   <data name="User_AccountStatus" xml:space="preserve">
     <value>帳戶狀態</value>
   </data>
-  <data name="SpecResearch_PlanContent" xml:space="preserve">
-    <value>計畫內容簡介</value>
-  </data>
+
   <data name="AnnouncementId" xml:space="preserve">
     <value>公告代碼</value>
   </data>
@@ -606,9 +415,6 @@
   <data name="Common_UrlDescription" xml:space="preserve">
     <value>網址描述</value>
   </data>
-  <data name="Spec1810_Tag" xml:space="preserve">
-    <value>組別</value>
-  </data>
   <data name="Enum_WindowTarget_Self" xml:space="preserve">
     <value>當前視窗開啟</value>
   </data>
@@ -648,24 +454,7 @@
   <data name="SiteMenu_ModuleProgId" xml:space="preserve">
     <value>模型功能</value>
   </data>
-  <data name="SpecUSR_Url" xml:space="preserve">
-    <value>相關網址</value>
-  </data>
-  <data name="SpecUSR_UrlDescription" xml:space="preserve">
-    <value>相關網址說明</value>
-  </data>
-  <data name="SpecUSR_ProjectItem" xml:space="preserve">
-    <value>計畫類別</value>
-  </data>
-  <data name="SpecUSR_ProjectSubLeader" xml:space="preserve">
-    <value>子計畫主持人</value>
-  </data>
-  <data name="SpecUSR_AttendTeam" xml:space="preserve">
-    <value>參與之師生或團隊</value>
-  </data>
-  <data name="SpecUSR_ExecutionStrategy" xml:space="preserve">
-    <value>執行策略</value>
-  </data>
+
   <data name="Enum_Gender" xml:space="preserve">
     <value>性別</value>
   </data>
@@ -737,9 +526,6 @@
   </data>
   <data name="Account_AccountName" xml:space="preserve">
     <value>使用者名稱</value>
-  </data>
-  <data name="SpecResearch_Professor" xml:space="preserve">
-    <value>指導教授</value>
   </data>
   <data name="SiteMenu_SiteIndex" xml:space="preserve">
     <value>首頁代碼</value>

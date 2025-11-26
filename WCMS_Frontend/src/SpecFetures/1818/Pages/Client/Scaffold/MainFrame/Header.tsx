@@ -1,15 +1,16 @@
 /*Header模塊*/
-import type { INormSite } from "@/Features/Pages/Client/Site-Routing";
+import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { A11yContent } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Header";
 import { Link, NavLink } from "react-router-dom";
-import LogoImg from '@/SpecFetures/1816/Assets/Client/images/logo/LOGO_525x60.svg'
 import { useCallback, useEffect, useRef } from "react";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
-import { buildMenuItems } from "@/Features/Pages/Client/BizFunc/MainPage/SubPages";
+import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 
-export const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
+import LogoImg from '@/SpecFetures/1818/Assets/Client/images/logo/LOGO_300x100.svg'
+
+const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
     const headerRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
         if (typeof window === "undefined") return;
@@ -50,6 +51,8 @@ export const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) 
         </>
     );
 }
+export default Header
+
 
 const Header_Section = () => {
     const sizeGroupRef = useRef<HTMLUListElement | null>(null);
@@ -73,15 +76,15 @@ const Header_Section = () => {
         return () => root.removeEventListener("click", onClick);
     }, []);
     return (<section className="header_section">
-        <header className="header_Box bg-white">
+        <header className="header_Box bg-customize-op09">
             <div className="navsBox">
-                <div className="container-customize2">
+                <div className="container-customize4">
                     <ul className="nav custom_nav justify-content-xl-end justify-content-center">
                         <NavBar />
                         <li>
                             <ul className="nav custom_nav py-0 justify-content-center my-1" ref={sizeGroupRef}>
                                 <LangChange />
-                                <SizeChange />
+                                <SearchBar />
                             </ul>
                         </li>
                     </ul>
@@ -108,51 +111,37 @@ const NavBar = () => {
     )
 }
 const LangChange = () => {
-    return (<li>
-        <div className="icons">
-            <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
-                <a id="linkE" href="javascript:void(0);" type="button" role="button" title="英文版" tabIndex={0}>
-                    <div className="link-text">English</div>
-                </a>
+    return (
+        <li>
+            <div className="icons">
+                <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
+                    <a id="linkE" href="#" type="button" role="button" title="英文版" tabIndex={0}>
+                        <div className="link-text">English</div>
+                    </a>
+                </div>
             </div>
-        </div>
-    </li>)
+        </li>
+    )
 }
-const SizeChange = () => {
+const SearchBar = () => {
     const doZoom = useCallback((px: number) => { document.documentElement.style.fontSize = `${px}px`; localStorage.setItem('font-zoom', String(px)); }, []);
     useEffect(() => { const saved = +localStorage.getItem('font-zoom')!; if (saved) doZoom(saved); }, [doZoom]);
-    return (<>
+    return (
         <li>
-            <div className="icons">
-                <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
-                    <a className="A-LMS" href="javascript:void(0);" onClick={() => { doZoom(20) }} type="button" role="button" title="字型-大" tabIndex={0} data-size="20">
-                        <div className="LMS-text">大</div>
-                    </a>
-                </div>
+            <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1 d-sm-inline-block d-none">
+                <a className="search-button" id="top-sss" data-bs-toggle="dropdown" >
+                    <i className="far fa-search"></i>
+                    <span className="sr-only">Search</span>
+                </a>
+            </div>
+            <div className="searchdropdown dropdown-menu search-input-dropdown" aria-labelledby="top-sss">
+                <input type="search" id="search-box" placeholder="Search..." />
+                <button className="far fa-search" type="button"></button>
             </div>
         </li>
-        <li>
-            <div className="icons">
-                <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
-                    <a className="A-LMS" href="javascript:void(0);" onClick={() => { doZoom(18) }} type="button" role="button" title="字型-中" tabIndex={0} data-size="18">
-                        <div className="LMS-text">中</div>
-                    </a>
-                </div>
-            </div>
-        </li>
-        <li>
-            <div className="icons">
-                <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-0">
-                    <a className="A-LMS active" href="javascript:void(0);" onClick={() => { doZoom(16) }} type="button" role="button" title="字型-小" tabIndex={0} data-size="16">
-                        <div className="LMS-text">小</div>
-                    </a>
-                </div>
-            </div>
-        </li>
-    </>)
+    )
 }
 const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
-
     const menuRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
         if (typeof window === "undefined") return;
@@ -263,9 +252,9 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
     }, []);
     return (
         <section className="menu_section">
-            <div className="customMENU_Box bg-white">
+            <div className="customMENU_Box bg-customize-op09">
                 <div className="menuBox">
-                    <div className="container-customize2">
+                    <div className="container-customize4">
                         <div className="navbar navbar-expand-lg navbar-dark px-0 py-0" ref={menuRef}>
                             <LogoComp />
                             <MobileBtn />
@@ -281,7 +270,7 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
 const LogoComp = () => {
     return (
         <h1 className="logo">
-            <Link className="navbar-brand" to="/" tabIndex={0} title="">
+            <Link className="navbar-brand my-0" to="/" tabIndex={0} title="">
                 <img src={LogoImg} alt=" LOGO" />
             </Link>
         </h1>
@@ -289,17 +278,17 @@ const LogoComp = () => {
 }
 const MobileBtn = () => {
     return (<>
-        <div className="mobile-box">
+        <div className="mobile-box ml-auto me-2">
             <div className="icons">
-                <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-1 mx-0 d-inline-block">
-                    <a href="javascript:void(0);" className="search-button" type="button" role="button" title="搜尋" id="mobile-sss" data-bs-toggle="dropdown" aria-expanded="false" tabIndex={0}>
+                <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-1 mx-0 d-inline-block d-sm-none">
+                    {/* <a href="javascript:void(0);" className="search-button" type="button" role="button" title="搜尋" id="mobile-sss" data-bs-toggle="dropdown" aria-expanded="false" tabIndex={0}>
                         <i className="far fa-search" aria-hidden="true"></i>
                         <span className="sr-only">搜尋</span>
                     </a>
                     <div className="searchdropdown dropdown-menu search-input-dropdown" aria-labelledby="mobile-sss">
                         <input type="search" id="mobile-search-box" placeholder="search here..." tabIndex={0} />
                         <button className="far fa-search" type="button" tabIndex={0}></button>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </div>
@@ -319,33 +308,35 @@ const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
 
     const menuItems = GetMenuData(props.lang, props.site)
 
-    return (<div id="navbar-content">
-        <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
+    return (
+        <div id="navbar-content" className="collapse navbar-collapse overflow-scroll-Y mt-lg-5 mt-0">
+            <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
 
-            {menuItems.map((item) => {
-                return (
-                    <>
-                        {/* <SingleMenuItem menuItem={item} />
-                        <DropdownMenuItem menuItem={item} /> */}
-                        <MegaMenuItem menuItem={item} />
-                    </>)
-            })}
-        </ul>
-    </div>)
+                {menuItems.map((item) => {
+                    return (
+                        <>
+                            {/* <SingleMenuItem menuItem={item} /> */}
+                            <DropdownMenuItem menuItem={item} />
+                            {/* <MegaMenuItem menuItem={item} /> */}
+                        </>)
+                })}
+            </ul>
+        </div>
+    )
 }
 const PCBtn = () => {
     return (
         <div className="pc-box">
             <div className="icons">
                 <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1 d-inline-block">
-                    <a href="javascript:void(0);" className="search-button" type="button" role="button" title="搜尋" id="pc-sss" data-bs-toggle="dropdown" aria-expanded="false" tabIndex={0}>
+                    {/* <a href="javascript:void(0);" className="search-button" type="button" role="button" title="搜尋" id="pc-sss" data-bs-toggle="dropdown" aria-expanded="false" tabIndex={0}>
                         <i className="far fa-search" aria-hidden="true"></i>
                         <span className="sr-only">搜尋</span>
                     </a>
                     <div className="searchdropdown dropdown-menu search-input-dropdown" aria-labelledby="pc-sss">
                         <input type="search" id="pc-search-box" placeholder="search here..." tabIndex={0} />
                         <button className="far fa-search" type="button" tabIndex={0}></button>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </div>
@@ -391,7 +382,7 @@ const MegaMenuItem = (props: { menuItem: MenuItemData; }) => {
 
             <div className="dropdown-menu">
                 <div className="mega-content">
-                    <div className="container-customize2">
+                    <div className="container-customize4">
                         <div className="row">
                             {props.menuItem.SubItem.map((col, colIndex) => (
                                 <div key={colIndex} className="col-12 col-sm-4 col-md-3">

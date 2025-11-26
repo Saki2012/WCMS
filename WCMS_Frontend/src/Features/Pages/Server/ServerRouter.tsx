@@ -23,11 +23,11 @@ import { WebResourceFormComp } from "@/Features/Pages/Server/BizFunc/WebManageme
 import { Server_ResearchProjFormComp } from "@/SpecFetures/1810/Pages/Server/SpecResearch/Server_SpecResearch_Form_Comp";
 import { Server_ResearchProjListComp } from "@/SpecFetures/1810/Pages/Server/SpecResearch/Server_SpecResearch_List_Comp";
 import { Server_USRProjFormComp } from "@/SpecFetures/1810/Pages/Server/SpecUSR/Server_SpecUSR_Form_Comp";
-import { USRProjListComp } from "@/SpecFetures/1810/Pages/Server/SpecUSR/Server_SpecUSR_List_Comp";
+import { Server_SpecCategoryListFormComp } from "@/SpecFetures/1810/Pages/Server/SpecCategory/Server_SpecCategory_ListForm_Comp";
+import { Server_SpecUSR_List_Comp } from "@/SpecFetures/1810/Pages/Server/SpecUSR/Server_SpecUSR_List_Comp";
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 import { SiteMenu_Comp } from "@/Features/Pages/Server/BizFunc/Dashboard/SiteMenu/SiteMenu_Comp";
 import { DefaultLang } from "@/SysCore/i18n/lang";
-import { Server_SpecCategoryListFormComp } from "@/SpecFetures/1810/Pages/Server/SpecCategory/Server_SpecCategory_ListForm_Comp";
 import type { UIMatch } from "react-router-dom";
 import { Server_ResetPassword_Comp } from "@/Features/Pages/Server/BizFunc/AccountManage/Account/Server_ResetPassword_Comp";
 import { Server_Account_List_Comp } from "./BizFunc/AccountManage/Account/Server_Account_List_Comp";
@@ -199,7 +199,7 @@ export class BackendRouteModule implements IRouteModule {
                 children: [
                   { index: true, element: <AutoRedirect to="List" replace /> },
                   { path: 'Form/:internalId?', element: <Server_USRProjFormComp theme={Classic_BETheme} lang={DefaultLang} /> },
-                  { path: 'List', element: <USRProjListComp title="USR列表" theme={Classic_BETheme} lang={DefaultLang} /> },
+                  { path: 'List', element: <Server_SpecUSR_List_Comp title="USR列表" theme={Classic_BETheme} lang={DefaultLang} /> },
                   { path: 'SpecCategory/:internalId?', element: <Server_SpecCategoryListFormComp progId="SpecUSR" title="類別" theme={Classic_BETheme} lang={DefaultLang} /> },
                   { path: 'Tag/:internalId?', element: <TagListFormComp progId="SpecUSR" title="標籤" theme={Classic_BETheme} lang={DefaultLang} /> },
                 ],

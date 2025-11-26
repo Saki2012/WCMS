@@ -1,4 +1,3 @@
-import type { SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme"
 import type { GridProps, ColumnConfig, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data"
 import { useMemo, useState } from "react"
@@ -22,7 +21,7 @@ type TagSet = components["schemas"]["TagSet_DTO"]
 /** USR計畫清單
  * @returns 
  */
-export const USRProjListComp = (prop: { title: string; theme: IBETheme; lang: Lang }) => {
+export const Server_SpecUSR_List_Comp = (prop: { title: string; theme: IBETheme; lang: Lang }) => {
     const [kw, setKw] = useState<string>("");
     const pathname = useLocation().pathname;
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
@@ -32,7 +31,7 @@ export const USRProjListComp = (prop: { title: string; theme: IBETheme; lang: La
     const useTag = useTagListData(SpecProgId.SpecUSR, prop.lang);
     const actions = useActions(dirUrl, provider, undefined, undefined, usePageList.refetchCurrent)
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(usePageList.gridProps, usePageList.rawData, useCategory.rawData, useTag.rawData, actions); }, [usePageList.gridProps, usePageList.rawData, useCategory.rawData, useTag.rawData, actions]);
-    const searchCompProp: SearchBarProps = { title: "計畫成果版型搜尋", subTitle: "搜尋計畫成果版型 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
+    // const searchCompProp: SearchBarProps = { title: "計畫成果版型搜尋", subTitle: "搜尋計畫成果版型 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
     const isLoading = [usePageList.isLoading, useCategory.isLoading, useTag.isLoading];
     const errors = [usePageList.error, useCategory.error, useTag.error];
     return (<ListComp Title={prop.title} Theme={prop.theme} LoadingList={isLoading} ErrorList={errors} Actions={actions} GridData={adjustedGrid} ></ListComp>);

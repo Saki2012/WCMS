@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export const NewsCalendarData = () => {
 	return (
 		<div className="col-xxl-4 col-xl-4 col-lg-5 col-md-12 col-sm-12 col-12 + offset-xxl-1 offset-xl-1 + order-xxl-2 order-xl-2 order-lg-2 order-md-1 order-sm-1  order-1">
@@ -19,14 +21,10 @@ export const NewsCalendarData = () => {
 								</div>
 							</div>
 							<div className="open_btn_black mt-xl-3 mt-lg-3 mt-md-3 mt-sm-2 mt-2">
-								<a
-									className="Open_btn"
-									href="javascript:void(0);"
-									tabIndex={0}
-									target="_self"
-									title="詳細開館時間">
+								<Link className="Open_btn" to={"/services/services-loan/services-loan-01"}
+									tabIndex={0} target="_self" title="詳細開館時間">
 									詳細開館時間
-								</a>
+								</Link>
 							</div>
 						</div>
 					</div>

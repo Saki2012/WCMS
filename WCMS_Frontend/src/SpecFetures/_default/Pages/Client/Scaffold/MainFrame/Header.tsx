@@ -1,13 +1,12 @@
 /*Header模塊*/
-import type { INormSite } from "@/Features/Pages/Client/Site-Routing";
+import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 
-export const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
-    return (
-        <A11yContent />
-    );
+const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
+    return (<A11yContent />);
 }
+export default Header
 
 export const A11yContent = () => {
     return (

@@ -1,8 +1,6 @@
 import AAImg from "@/SpecFetures/1816/Assets/Client/images/footer/small_icon/accessibility_badge_2.1AA_88x31.svg"
 
-
-
-export const Footer = () => {
+const Footer = () => {
     return (
         <footer className="Footer_section">
             <section className="footer-black Layout_Padding_5_top">
@@ -126,3 +124,4 @@ export const Footer = () => {
         </footer>
     )
 }
+export default Footer

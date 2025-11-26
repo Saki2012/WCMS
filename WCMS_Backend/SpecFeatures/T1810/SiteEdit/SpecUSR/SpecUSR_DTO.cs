@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.SpecFeatures.T1810.Resx;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
@@ -29,11 +30,11 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// <summary>
         /// USR Id
         /// </summary>
-        [LibDesc(ModelDisplayName.SpecUSRId),StringLength(SysLengthParam.ID), Key] public string? USRId { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSRId),StringLength(SysLengthParam.ID), Key] public string? USRId { get; set; }
         /// <summary>
         /// 類別ID
         /// </summary>
-        [LibDesc(ModelDisplayName.SpecResearch_Categories)] public string? CategoryId { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecResearch_Categories)] public string? CategoryId { get; set; }
         /// <summary>
         /// 狀態 (多個)
         /// </summary>
@@ -41,16 +42,16 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// <summary>
         /// 標籤 (多個) 
         /// </summary>
-        [LibDesc(ModelDisplayName.SpecResearch_Tags)] public string? Tags { get; set; } = string.Empty;
+        [LibDesc(SpecModelDisplayName.SpecResearch_Tags)] public string? Tags { get; set; } = string.Empty;
         /// <summary>
         /// 圖片 (關聯檔案資料)
         /// 注:後續應改關聯SpecUSRPhoto的RowId去指向對應的相片，以及SpecUSRPhotoInfo的Title
         /// </summary>
-        [LibDesc(ModelDisplayName.SpecUSR_PictureId)] public string? PictureId { get; set; } = string.Empty;
+        [LibDesc(SpecModelDisplayName.SpecUSR_PictureId)] public string? PictureId { get; set; } = string.Empty;
         /// <summary>
         /// 圖片描述
         /// </summary>
-        [Obsolete, LibDesc(ModelDisplayName.SpecUSR_PicDescription)] public string? PicDescription { get; set; } = string.Empty;
+        [LibDesc(SpecModelDisplayName.SpecUSR_PicDescription)] public string? PicDescription { get; set; } = string.Empty;
 
         #region 主子表關聯
         public List<SpecUSRDetail_DTO>? _SpecUSRDetail { get; set; }
@@ -62,32 +63,32 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
     /// </summary>
     public class SpecUSRDetail_DTO
     {
-        [LibDesc(ModelDisplayName.SpecUSRId),StringLength(SysLengthParam.ID), Key] public string? USRId { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSRId),StringLength(SysLengthParam.ID), Key] public string? USRId { get; set; }
         [LibDesc(ModelDisplayName.Common_RowId), Key] public int RowId { get; set; }
         [LibDesc(ModelDisplayName.Common_Lang), Required, StringLength(5)] public string? Lang { get; set; } = default!;
-        [LibDesc(ModelDisplayName.SpecUSR_Year), StringLength(10)] public string? Year { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_AcademicYear)] public int? AcademicYear { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_Courses), StringLength(200)] public string? Courses { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_PracticeField), StringLength(200)] public string? PracticeField { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_ProjectName), StringLength(200)] public string? ProjectName { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_ExternalCoUnits), StringLength(200)] public string? ExternalCooperationUnit { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_Department), StringLength(200)] public string? Department { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_DuringExecution), StringLength(200)] public string? DuringExecution { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_PlanAmount)] public decimal? PlanAmount { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_ExecutionStrategy)] public string? ExecutionStrategy { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_ContentIntro)] public string? ContentIntroduction { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_ProjectConcept)] public string? ProjectConcept { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_KeyHighlights)] public string? ProjectHighlights { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_ProjectLeader), StringLength(200)] public string? ProjectLeader { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_ProjectSubLeader), StringLength(1000)] public string? ProjectSubLeader { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_AttendTeam), StringLength(1000)] public string? AttendTeam { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_Cohost1), StringLength(200)] public string? Cohost1 { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_Cohost2), StringLength(200)] public string? Cohost2 { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_Commissioned), StringLength(200)] public string? Commissioned { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_Remark)] public string? Remark { get; set; }
-        [LibDesc(ModelDisplayName.SpecUSR_ProjectItem)] public string? ProjectItem { get; set; }
-        [Obsolete, LibDesc(ModelDisplayName.SpecUSR_Url)] public string? Url { get; set; }
-        [Obsolete,LibDesc(ModelDisplayName.SpecUSR_UrlDescription)] public string? UrlDescription { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_Year), StringLength(10)] public string? Year { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_AcademicYear)] public int? AcademicYear { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_Courses), StringLength(200)] public string? Courses { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_PracticeField), StringLength(200)] public string? PracticeField { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_ProjectName), StringLength(200)] public string? ProjectName { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_ExternalCoUnits), StringLength(200)] public string? ExternalCooperationUnit { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_Department), StringLength(200)] public string? Department { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_DuringExecution), StringLength(200)] public string? DuringExecution { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_PlanAmount)] public decimal? PlanAmount { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_ExecutionStrategy)] public string? ExecutionStrategy { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_ContentIntro)] public string? ContentIntroduction { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_ProjectConcept)] public string? ProjectConcept { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_KeyHighlights)] public string? ProjectHighlights { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_ProjectLeader), StringLength(200)] public string? ProjectLeader { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_ProjectSubLeader), StringLength(1000)] public string? ProjectSubLeader { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_AttendTeam), StringLength(1000)] public string? AttendTeam { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_Cohost1), StringLength(200)] public string? Cohost1 { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_Cohost2), StringLength(200)] public string? Cohost2 { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_Commissioned), StringLength(200)] public string? Commissioned { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_Remark)] public string? Remark { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSR_ProjectItem)] public string? ProjectItem { get; set; }
+        [Obsolete, LibDesc(SpecModelDisplayName.SpecUSR_Url)] public string? Url { get; set; }
+        [Obsolete,LibDesc(SpecModelDisplayName.SpecUSR_UrlDescription)] public string? UrlDescription { get; set; }
     }
 
     /// <summary>
@@ -98,7 +99,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// <summary>
         /// 檔案分類ID
         /// </summary>
-        [LibDesc(ModelDisplayName.SpecUSRId),  StringLength(SysLengthParam.ID), Key] public string? USRId { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSRId),  StringLength(SysLengthParam.ID), Key] public string? USRId { get; set; }
         /// <summary>
         /// 行主鍵
         /// </summary>
@@ -125,7 +126,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// <summary>
         /// 
         /// </summary>
-        [LibDesc(ModelDisplayName.SpecUSRId), StringLength(SysLengthParam.ID), Key] public string? USRId { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSRId), StringLength(SysLengthParam.ID), Key] public string? USRId { get; set; }
         /// <summary>
         /// 父行主鍵
         /// </summary>
@@ -155,7 +156,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// <summary>
         /// 
         /// </summary>
-        [LibDesc(ModelDisplayName.SpecUSRId), StringLength(SysLengthParam.ID), Key] public string? USRId { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSRId), StringLength(SysLengthParam.ID), Key] public string? USRId { get; set; }
         /// <summary>
         /// 父行主鍵
         /// </summary>
@@ -186,7 +187,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// <summary>
         /// 靜態客製頁面ID
         /// </summary>
-        [LibDesc(ModelDisplayName.SpecUSRId),StringLength(SysLengthParam.ID), Key] public string? USRId { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecUSRId),StringLength(SysLengthParam.ID), Key] public string? USRId { get; set; }
         /// <summary>
         /// 父行主鍵
         /// </summary>

@@ -1,15 +1,15 @@
-/*Header模塊*/
-import type { INormSite } from "@/Features/Pages/Client/Site-Routing";
+import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { A11yContent } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Header";
 import { Link, NavLink } from "react-router-dom";
 import LogoImg from '@/SpecFetures/1816/Assets/Client/images/logo/LOGO_525x60.svg'
-import { useCallback, useEffect, useRef } from "react";
+import { Fragment, useCallback, useEffect, useRef } from "react";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
-import { buildMenuItems } from "@/Features/Pages/Client/BizFunc/MainPage/SubPages";
+import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
+import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";
 
-export const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
+const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
     const headerRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
         if (typeof window === "undefined") return;
@@ -42,6 +42,19 @@ export const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) 
             const overlay = el.closest(".overlayer");
             if (overlay && header.contains(overlay)) {
                 setOpen(false);
+                return;
+            }
+
+            // 3) 在 mobile 版，點到「真的導頁的 nav-link」時，把 header.active 關掉
+            if (window.innerWidth < BREAKPOINT) {
+                const navLink = el.closest("#navbar-content .nav-link") as HTMLElement | null;
+                if (navLink && header.contains(navLink)) {
+                    // 避免點到 dropdown-toggle（只是展開 dropdown，不是要換頁）
+                    const isDropdownToggle = navLink.getAttribute("data-bs-toggle") === "dropdown";
+                    if (!isDropdownToggle) {
+                        setOpen(false);
+                    }
+                }
             }
         };
 
@@ -63,6 +76,7 @@ export const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) 
         };
     }, []);
 
+
     return (
         <>
             <A11yContent />
@@ -71,9 +85,11 @@ export const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) 
                 <Menu_Section {...props} />
                 <div className="overlayer" aria-hidden="true" />
             </div>
+            <GoTopButton />
         </>
     );
 }
+export default Header
 
 const Header_Section = () => {
     const sizeGroupRef = useRef<HTMLUListElement | null>(null);
@@ -182,7 +198,6 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
         if (typeof window === "undefined") return;
         const root = menuRef.current;
         if (!root) return;
-
         // ---------- 1) submenu 超出右緣 → 切換 show-left ----------
         const updateDir = (hostEl: HTMLElement) => {
             const submenu = hostEl.querySelector<HTMLElement>(".dropdown-menu");
@@ -191,7 +206,6 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
             const winW = window.innerWidth || document.documentElement.clientWidth;
             hostEl.classList.toggle("show-left", rect.right > winW);
         };
-
         const submenuEls = Array.from(root.querySelectorAll<HTMLElement>(".submenu"));
         const onMouseEnter = (e: Event) => updateDir(e.currentTarget as HTMLElement);
         const onKeyEnter = (e: KeyboardEvent) => {
@@ -201,7 +215,6 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
             el.addEventListener("mouseenter", onMouseEnter);
             el.addEventListener("keydown", onKeyEnter);
         });
-
         // ---------- 2) Enter 可切換 Bootstrap Dropdown ----------
         const toggleKeyHandler = (e: KeyboardEvent) => {
             if (e.key !== "Enter") return;
@@ -211,7 +224,6 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
         };
         const toggleEls = Array.from(root.querySelectorAll<HTMLElement>(".dropdown-toggle"));
         toggleEls.forEach(el => el.addEventListener("keydown", toggleKeyHandler));
-
         // ---------- 3) Hamburger 動畫（點 .navbar-toggler） ----------
         const navbarToggler = root.querySelector<HTMLElement>(".navbar-toggler");
         const onBurgerClick = (e: Event) => {
@@ -220,12 +232,9 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
             btn.querySelector<HTMLElement>(".hamburger")?.classList.toggle("active");
         };
         navbarToggler?.addEventListener("click", onBurgerClick);
-
         // ---------- 4) Mega menu：桌機 hover、手機只用點擊，點外面關閉 ----------
         const BREAKPOINT = 992; // 跟 navbar-expand-lg 對齊
-
         const megaEls = Array.from(root.querySelectorAll<HTMLElement>(".dropdown-mega"));
-
         const closeAllExcept = (keep?: HTMLElement) => {
             megaEls.forEach(d => {
                 if (keep && d === keep) return;
@@ -234,43 +243,35 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
                 d.querySelector<HTMLElement>(".dropdown-toggle")?.setAttribute("aria-expanded", "false");
             });
         };
-
         const openMega = (d: HTMLElement) => {
             closeAllExcept(d);
             d.classList.add("show");
             d.querySelector<HTMLElement>(".dropdown-menu")?.classList.add("show");
             d.querySelector<HTMLElement>(".dropdown-toggle")?.setAttribute("aria-expanded", "true");
         };
-
         const closeMega = (d: HTMLElement) => {
             d.classList.remove("show");
             d.querySelector<HTMLElement>(".dropdown-menu")?.classList.remove("show");
             d.querySelector<HTMLElement>(".dropdown-toggle")?.setAttribute("aria-expanded", "false");
         };
-
         // 桌機寬度才吃 hover
         const onMegaEnter = (e: Event) => {
             if (window.innerWidth < BREAKPOINT) return; // 手機寬 → 忽略 hover
             const d = e.currentTarget as HTMLElement;
             openMega(d);
         };
-
         const onMegaLeave = (e: Event) => {
             if (window.innerWidth < BREAKPOINT) return; // 手機寬 → 忽略 hover
             const d = e.currentTarget as HTMLElement;
             closeMega(d);
         };
-
         // 個別 toggle 的 click handler 需要保存以便清掉
         const toggleClickMap = new Map<HTMLElement, (e: Event) => void>();
-
         megaEls.forEach(d => {
             const t = d.querySelector<HTMLElement>(".dropdown-toggle");
-
             // 桌機：仍然綁 hover
             d.addEventListener("mouseenter", onMegaEnter);
             d.addEventListener("mouseleave", onMegaLeave);
-
             if (t) {
                 const h = (e: Event) => {
                     e.preventDefault(); // 避免直接導頁
@@ -289,7 +290,6 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
             if (!root.contains(e.target as Node)) closeAllExcept();
         };
         document.addEventListener("click", onDocClick);
-
         // ---------- cleanup ----------
         return () => {
             submenuEls.forEach(el => {
@@ -361,7 +361,6 @@ const MobileBtn = () => {
     </>);
 }
 const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
-
     const menuItems = GetMenuData(props.lang, props.site)
 
     return (
@@ -369,11 +368,11 @@ const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
             <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
                 {menuItems.map((item) => {
                     return (
-                        <>
+                        <Fragment key={item.Id} >
                             {/* <SingleMenuItem menuItem={item} />
                         <DropdownMenuItem menuItem={item} /> */}
                             <MegaMenuItem menuItem={item} />
-                        </>)
+                        </Fragment >)
                 })}
             </ul>
         </div>
@@ -397,9 +396,6 @@ const PCBtn = () => {
         </div>
     )
 }
-
-
-
 /** 1. 一般單選 */
 const SingleMenuItem = (props: { menuItem: MenuItemData }) => {
     return (
@@ -410,7 +406,6 @@ const SingleMenuItem = (props: { menuItem: MenuItemData }) => {
         </li>
     );
 };
-
 /** 2. 多層下拉 */
 const DropdownMenuItem = (props: { menuItem: MenuItemData; }) => {
     return (
@@ -425,11 +420,9 @@ const DropdownMenuItem = (props: { menuItem: MenuItemData; }) => {
         </li>
     );
 };
-
-
 /** 3. Mega 選項：明細動態渲染 */
 const MegaMenuItem = (props: { menuItem: MenuItemData; }) => {
-    const tar = props.menuItem.URL_Open === "1" ? "_self" : "_blank"
+    const tar = props.menuItem.URL_Open
     return (
         <li className="nav-item dropdown dropdown-mega position-static">
             <NavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside" target={tar}>
@@ -448,7 +441,7 @@ const MegaMenuItem = (props: { menuItem: MenuItemData; }) => {
                                     {/* 每一欄底下的連結列表 */}
                                     <div className="list-group">
                                         {(col.SubItem ?? []).map((link, linkIndex) => {
-                                            const subTar = link.URL_Open === "1" ? "_self" : "_blank"
+                                            const subTar = link.URL_Open
                                             return (
                                                 <NavLink key={linkIndex} className="list-group-item" to={link.Url || "#"} tabIndex={0} target={subTar}>
                                                     {link.SrcData}

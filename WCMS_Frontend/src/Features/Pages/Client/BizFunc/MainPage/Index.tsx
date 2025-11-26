@@ -1,9 +1,9 @@
 
-import { Header } from "SpecFeature/Pages/Client/Scaffold/MainFrame/Header"
-import { Footer } from "SpecFeature/Pages/Client/Scaffold/MainFrame/Footer"
+import Header from "SpecFeature/Pages/Client/Scaffold/MainFrame/Header"
+import Footer from "SpecFeature/Pages/Client/Scaffold/MainFrame/Footer"
 import { Outlet } from 'react-router-dom'
 import { useLocation } from 'react-router-dom';
-import type { INormSite } from "@/Features/Pages/Client/Site-Routing";
+import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 

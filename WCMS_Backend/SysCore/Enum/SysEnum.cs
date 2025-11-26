@@ -394,33 +394,34 @@ namespace WCMS.SysCore.Enum
             /// <summary>
             /// 清單列表式
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_List)] List =1,
+            [LibDesc(ModelDisplayName.Enum_List)] List = 1,
             /// <summary>
             /// 圖文式
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_PictureList)] PictureList =2,
+            [LibDesc(ModelDisplayName.Enum_PictureList)] PictureList = 2,
             /// <summary>
             /// QA列表式
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_QAList)] QAList =3,
+            [LibDesc(ModelDisplayName.Enum_QAList)] QAList = 3,
+
+
             /// <summary>
             /// 瀑布式
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_Waterfall)] Waterfall =4,
+            [Obsolete, LibDesc(ModelDisplayName.Enum_Waterfall)] Waterfall = 4,
             /// <summary>
             /// 展開式(類別)
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_Expand_Category)] Expand_Category =5,
+            [Obsolete, LibDesc(ModelDisplayName.Enum_Expand_Category)] Expand_Category = 5,
             /// <summary>
             /// 展開式(標籤)
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_Expand_Tag)] Expand_Tag =6,
+            [Obsolete, LibDesc(ModelDisplayName.Enum_Expand_Tag)] Expand_Tag = 6,
             /// <summary>
             /// Youtube
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_Youtube)] Youtube =7
+            [Obsolete, LibDesc(ModelDisplayName.Enum_Youtube)] Youtube = 7
         }
-
 
     }
 }
