@@ -289,7 +289,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
             language_url: p.languageUrl ?? "/tinymce-i18n/langs5/zh_TW.js",
 
             // ★01/02 本機檔案與圖片上傳（插入 data-internal）
-            file_picker_types: "file image",
+            file_picker_types: "image",
             file_picker_callback: (callback: any, _value: any, meta: any) =>
             {
                 pickLocalFile(async (file) =>
