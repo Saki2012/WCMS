@@ -1,4 +1,3 @@
-/* Banner */
 import 'swiper/swiper-bundle.css';
 import { BaseCarousel } from '@/SysCore/Components/BaseCarousel'
 import { Link } from 'react-router-dom';
@@ -10,7 +9,6 @@ import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import { useEffect, useRef } from 'react';
 import bgImg from '@/SpecFetures/1810/Assets/Client/images/bg/background-image_video_2000x1500.jpg'
 import { resolveYoutubeEmbedUrl } from '@/Features/Pages/Client/BizFunc/WebManagement/WebResource/WebResourceList';
-
 
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"]
 
@@ -67,6 +65,7 @@ export const VideoSession = () => {
     const errors = [useData.error]
 
     const carouselRef = useRef<HTMLDivElement>(null);
+    const venoboxInstanceRef = useRef<any | null>(null);
 
     useEffect(() => {
         if (result.length > 0 && carouselRef.current) {
@@ -77,8 +76,8 @@ export const VideoSession = () => {
                 $owl.trigger('destroy.owl.carousel');
             }
 
-            // Init carousel
             setTimeout(() => {
+                // 初始化 owl carousel
                 $owl.owlCarousel({
                     items: 3,
                     loop: true,
@@ -107,6 +106,26 @@ export const VideoSession = () => {
                 $('#Video_pause').on('click', () => {
                     $owl.trigger('stop.owl.autoplay');
                 });
+
+                // ★ 初始化 VenoBox（燈箱）
+                if (typeof window !== 'undefined' && (window as any).VenoBox) {
+                    // 先清掉舊的 instance，避免重複 bind
+                    if (venoboxInstanceRef.current &&
+                        typeof venoboxInstanceRef.current.destroy === 'function') {
+                        venoboxInstanceRef.current.destroy();
+                    }
+
+                    venoboxInstanceRef.current = new (window as any).VenoBox({
+                        selector: '#Video .venobox',
+                        autoplay: true,
+                        maxWidth: '1200px',
+                        border: '0px',
+                        titleattr: 'title',
+                        numeration: true,
+                        infinigall: true,
+                        share: true,
+                    });
+                }
             }, 0);
 
             return () => {
@@ -114,6 +133,12 @@ export const VideoSession = () => {
                 $('#Video_pause').off();
                 if ($owl.hasClass('owl-loaded')) {
                     $owl.trigger('destroy.owl.carousel');
+                }
+
+                if (venoboxInstanceRef.current &&
+                    typeof venoboxInstanceRef.current.destroy === 'function') {
+                    venoboxInstanceRef.current.destroy();
+                    venoboxInstanceRef.current = null;
                 }
             };
         }
@@ -130,31 +155,76 @@ export const VideoSession = () => {
                                 <div className="col-12 + p-0">
                                     <div className="content-box + animate__animated animate__slow wow animate__zoomIn" data-wow-delay="0.15s">
                                         <div id="Video" className="owl-carousel owl-theme px-2" ref={carouselRef}>
-                                            {/* <asp:Literal ID="Lit_Video" runat="server" /> */}
                                             {result.map((item) => {
-                                                const urlRaw = item?.ResUrl ?? ""
-                                                const { url } = resolveYoutubeEmbedUrl(urlRaw);
-                                                return item && (
+                                                const urlRaw = item?.ResUrl ?? "";
+                                                const { url } = resolveYoutubeEmbedUrl(urlRaw); // 這裡是 embed 版
+                                                if (!url) return null;
+                                                // 用短網址算出縮圖
+                                                const thumbUrl = getYoutubeThumbnailFromShort(urlRaw);
+
+                                                return (
                                                     <div className="item" key={item.internalId}>
                                                         <div className="wrapper_box">
                                                             <div className="MV-item mb-3 w-100">
-                                                                {/* <a className="venobox vbox-item" data-autoplay="true" data-vbtype="video" href={item.ResUrl} tabIndex={14} title={`${item.title} (另開視窗)`} target="_blank" rel="noopener noreferrer"> */}
-                                                                <div className="img_wrapper">
-                                                                    <div className="figure_wrapper">
-                                                                        <iframe width="100%" height="315" src={url} allowFullScreen
-                                                                            title={item.title} style={{ border: "0" }}
-                                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                                                            referrerPolicy="strict-origin-when-cross-origin">
-                                                                        </iframe>
-                                                                        <span className="sr-only">{item.title}</span>
+                                                                {/* venobox 只吃 href，真正影片在燈箱裡播 */}
+                                                                <a
+                                                                    className="venobox"
+                                                                    data-autoplay="true"
+                                                                    data-vbtype="video"
+                                                                    href={url}
+                                                                    tabIndex={14}
+                                                                    title={item.title}
+                                                                // target="_blank"
+                                                                // rel="noopener noreferrer"
+                                                                >
+                                                                    <div className="img_wrapper">
+                                                                        <div className="figure_wrapper">
+                                                                            {/* 縮圖區塊：16:9 比例 */}
+                                                                            <div
+                                                                                style={{
+                                                                                    position: "relative",
+                                                                                    width: "100%",
+                                                                                    paddingTop: "56.25%", // 16:9
+                                                                                    overflow: "hidden",
+                                                                                }}
+                                                                            >
+                                                                                {thumbUrl && (
+                                                                                    <img
+                                                                                        src={thumbUrl}
+                                                                                        alt={`${item.title} 預覽圖`}
+                                                                                        style={{
+                                                                                            position: "absolute",
+                                                                                            inset: 0,
+                                                                                            width: "100%",
+                                                                                            height: "100%",
+                                                                                            objectFit: "cover",
+                                                                                        }}
+                                                                                    />
+                                                                                )}
+
+                                                                                {/* 播放按鈕覆蓋在縮圖上，對齊 prototype 的寫法 */}
+                                                                                <div
+                                                                                    className="popup-video play-btn style1"
+                                                                                    style={{
+                                                                                        position: "absolute",
+                                                                                        inset: 0,
+                                                                                        display: "flex",
+                                                                                        alignItems: "center",
+                                                                                        justifyContent: "center",
+                                                                                    }}
+                                                                                >
+                                                                                    <i className="fa fa-play" aria-hidden="true" />
+                                                                                    <span className="sr-only">播放 {item.title}</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                                {/* </a> */}
+                                                                </a>
                                                             </div>
                                                         </div>
-                                                    </div>)
+                                                    </div>
+                                                );
                                             })}
-
                                         </div>
                                         {/*// Banner 控制 暫停 / 播放 按鈕 START // */}
                                         <div className="control-box">
@@ -183,4 +253,16 @@ export const VideoSession = () => {
             </section>
         </LoadingErrorHandler >
     )
+};
+
+const getYoutubeThumbnailFromShort = (shortUrl?: string | null): string | null => {
+    if (!shortUrl) return null;
+
+    const cleanUrl = shortUrl.replace(/&amp;/g, "&");
+    // 只處理 https://youtu.be/{id} 這種
+    const match = cleanUrl.match(/youtu\.be\/([^?&#/]+)/i);
+    if (!match) return null;
+
+    const videoId = match[1];
+    return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`; // 官方縮圖
 };

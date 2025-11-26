@@ -4,6 +4,7 @@
 import bootstrapUrl from "./Client/Content/bootstrap-5.3.3/js/bootstrap.bundle.min.js?url";
 import jqueryUrl from "./Client/Content/jquery-3.4.1/jquery-3.7.1.min.js?url";
 import owlUrl from "./Client/Content/owlcarousel_2/owl.carousel_v2.3.4.js?url";
+import venobox from "./Client/Content/venobox-master/dist/venobox.min.js?url";
 
 /** 共用：用 <script> 動態掛載一支 JS（以同步順序載入） */
 const loadScript = (src: string) =>
@@ -39,6 +40,7 @@ const loadJQueryAndPlugins = async () =>
 
     await Promise.all([
         loadScript(owlUrl),
+        loadScript(venobox), // ★ 新增：venobox
     ]);
 };
 

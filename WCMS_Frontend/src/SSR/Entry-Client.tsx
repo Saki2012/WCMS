@@ -113,9 +113,9 @@ const ClientBootstrap: React.FC<{ router: any }> = ({ router }) => {
           description={"國立臺灣藝術大學_研究發展處 / 國立臺灣藝術大學_研究發展處 / 國立臺灣藝術大學_研究發展處"}
           keywords={"國立臺灣藝術大學_研究發展處"}
 
-        // title={"國立臺北藝術大學_圖書館"}
-        // description={"國立臺北藝術大學_圖書館"}
-        // keywords={"國立臺北藝術大學_圖書館"}
+        // title={"國立臺北藝術大學圖書館"}
+        // description={"國立臺北藝術大學圖書館"}
+        // keywords={"國立臺北藝術大學圖書館"}
         />
         <RouterProvider router={router} />
       </HelmetProvider>

@@ -5,7 +5,7 @@ import { useMemo, useState } from "react"
 import { useLocation } from 'react-router-dom';
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp"
 import type { components } from "@/types/api";
-import { FileArchiveSetFields, FileArchiveFields, FileArchiveInfoFields, FileArchiveDetailFields } from "@/types/SchemaFields";
+import { FileArchiveSetFields, FileArchiveFields, FileArchiveInfoFields } from "@/types/SchemaFields";
 import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook"
 import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions"
 import FileArchiveProvider from "@/Features/Hooks/BizFunc/WebManagement/FileArchive/FileArchive_Api"
@@ -16,7 +16,6 @@ import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-import { file } from "zod";
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 

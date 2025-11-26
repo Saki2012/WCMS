@@ -11,7 +11,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { WebResourceFields, WebResourceInfoFields, WebResourceSetFields } from "@/types/SchemaFields";
 import type { GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
 import { isWithinLastNDaysFromString } from "../Announcement/AnnouncementList";
 import { ProgId } from "@/Features/Hooks/Common/ProgId";
@@ -116,6 +116,28 @@ const WebResourceListComp = (props: IWebResourceListProps) => {
 export default WebResourceListComp
 
 const YoutubeContent = (prop: { lang: string, datas: WebResourceSet[] }) => {
+    const venoboxInstanceRef = useRef<any | null>(null);
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const win = window as any;
+        if (!win.VenoBox) return; // venobox JS 還沒載到就先跳過
+        // 先把舊的 instance 清掉，避免重複綁定
+        if (venoboxInstanceRef.current &&
+            typeof venoboxInstanceRef.current.destroy === "function") {
+            venoboxInstanceRef.current.destroy();
+        }
+        // 只針對這一區塊的 .venobox 綁燈箱
+        venoboxInstanceRef.current = new win.VenoBox({
+            selector: ".photo_standardbox .venobox", autoplay: true, maxWidth: "1200px",
+            border: "0px", titleattr: "title", numeration: true, infinigall: true, share: true,
+        });
+        return () => {
+            if (venoboxInstanceRef.current && typeof venoboxInstanceRef.current.destroy === "function") {
+                venoboxInstanceRef.current.destroy();
+                venoboxInstanceRef.current = null;
+            }
+        };
+    }, [prop.datas, prop.lang]);
     return (<>
         <div className="row margin_0">
             {prop.datas.map((item) => {
@@ -126,7 +148,7 @@ const YoutubeContent = (prop: { lang: string, datas: WebResourceSet[] }) => {
                 const { url } = resolveYoutubeEmbedUrl(urlRaw);
                 return (
                     <div className="col-lg-4 col-md-6 col-sm-6 col-12 photo_standardbox">
-                        <a className="venobox vbox-item" data-autoplay="true" data-vbtype="video" href={detail?.ResUrl ?? ""} title={`${detail?.Title ?? ""} (另開新視窗)`} target={tar} rel="noopener noreferrer">
+                        <a className="venobox" data-autoplay="true" data-vbtype="video" href={detail?.ResUrl ?? ""} title={`${detail?.Title ?? ""} (另開新視窗)`} target={tar} rel="noopener noreferrer">
                             <div className="img-box">
                                 <iframe width="100%" height="100%" src={url}
                                     title={title} style={{ border: 'none' }}
