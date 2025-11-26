@@ -45,12 +45,13 @@ const SetAdjustFunction = (gridProps: GridProps, rawData: AnnouncementSet[], cat
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
     const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
-        const statusCell = row.cells.find(cell => cell.col.key === AnnouncementFields.ContentStatus);
-        if (statusCell && typeof statusCell.content === 'number') { statusCell.content = GetDataStatusContent(statusCell.content); }
+        const curData = rawData?.[index]
+        const titleCell = row.cells.find(cell => cell.col.key === AnnouncementDetailFields.Title)
+        if (titleCell) { titleCell.content = (<>{titleCell.content}{GetDataStatusContent(curData?.Announcement?.ContentStatus ?? 0)}</>); }
         const categoryCell = row.cells.find(p => p.col.key === AnnouncementFields.Categories);
-        const rawCatId = rawData?.[index]?.Announcement?.Categories ?? categoryCell?.content?.toString() ?? "";
+        const rawCatId = curData?.Announcement?.Categories ?? categoryCell?.content?.toString() ?? "";
         if (categoryCell) { categoryCell.content = useFormatCategoriesName(rawCatId, categoryData); }
-        const internalId = rawData?.[index]?.Announcement?.InternalId ?? "";
+        const internalId = curData?.Announcement?.InternalId ?? "";
         const newCell: RowCell = {
             col: adjustCol,
             content: (<GridCol_Toolbar key={internalId} action={actions} internalId={internalId} />)
@@ -79,7 +80,6 @@ const useAnnouncementList = (provider: IDataProvider<AnnouncementSet>, lang: Lan
         visibleKeys: [
             [AnnouncementSetFields.Announcement, AnnouncementFields.Categories],
             [AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.Title],
-            [AnnouncementSetFields.Announcement, AnnouncementFields.ContentStatus],
             [AnnouncementSetFields.Announcement, AnnouncementFields.Validate_Start],
             [AnnouncementSetFields.Announcement, AnnouncementFields.CreateTime],
             [AnnouncementSetFields.Announcement, AnnouncementFields.ModifyUserId],

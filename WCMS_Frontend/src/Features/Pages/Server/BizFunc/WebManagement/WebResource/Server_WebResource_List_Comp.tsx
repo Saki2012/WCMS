@@ -44,10 +44,9 @@ const SetAdjustFunction = (gridProps: GridProps, rawData: WebResourceSet[], cate
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
     const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
-        const statusCell = row.cells.find(cell => cell.col.key === WebResourceFields.ContentStatus);
-        if (statusCell && typeof statusCell.content === 'number') {
-            statusCell.content = GetDataStatusContent(statusCell.content);
-        }
+        const curData = rawData?.[index];
+        const titleCell = row.cells.find(cell => cell.col.key === WebResourceInfoFields.Title);
+        if (titleCell) { titleCell.content = (<>{titleCell.content}{GetDataStatusContent(curData?.WebResource?.ContentStatus ?? 0)}</>); }
         const categoryCell = row.cells.find(p => p.col.key === WebResourceFields.Categories);
         const rawCatId = rawData?.[index]?.WebResource?.Categories ?? categoryCell?.content?.toString() ?? "";
         if (categoryCell) { categoryCell.content = useFormatCategoriesName(rawCatId, categoryData); }
@@ -79,7 +78,6 @@ const useWebResourceListData = (provider: IDataProvider<WebResourceSet>, lang: L
         fetchListCount: (cond) => provider.fetchListCount(cond),
         visibleKeys: [
             [WebResourceSetFields.WebResource, WebResourceFields.Categories],
-            [WebResourceSetFields.WebResource, WebResourceFields.ContentStatus],
             [WebResourceSetFields.WebResourceInfo, WebResourceInfoFields.Title],
             [WebResourceSetFields.WebResource, WebResourceFields.CreateTime],
             [WebResourceSetFields.WebResource, WebResourceFields.ModifyUserId],
