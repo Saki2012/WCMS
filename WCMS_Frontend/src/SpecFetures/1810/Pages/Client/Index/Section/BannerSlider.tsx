@@ -98,163 +98,163 @@ export const BannerSlider = () => {
         }
     }, [sortedDetails.length]);
     return (
-        <LoadingErrorHandler loadingList={loadingList} errorList={errorList} >
-            <section className="carousel_slide_section">
-                <div className="sidebar">
-                    <div className="scroll_Down">
-                        <a href="#content" className="eng_font">SCROLL</a>
-                    </div>
+        // <LoadingErrorHandler loadingList={loadingList} errorList={errorList} >
+        <section className="carousel_slide_section">
+            <div className="sidebar">
+                <div className="scroll_Down">
+                    <a href="#content" className="eng_font">SCROLL</a>
                 </div>
-                <div className="customize_visualBox + animate__animated animate__slow wow fadeInRight d-xl-block d-lg-block d-md-block d-sm-none d-none" data-wow-delay="0.05s">
-                    <div id="carousel-Controls" className="carousel carousel-dark slide carousel-fade" data-bs-ride="carousel">
-                        <div className="carousel-inner">
-                            {sortedDetails.map((p, i) => {
-                                const alt = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.Title ?? ""
-                                return (
-                                    <div key={i} className={clsx("carousel-item", i === 0 ? "active" : "")} data-bs-interval={SLIDE_INTERVAL}>
-                                        <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`}
-                                            className="d-block w-100"
-                                            alt={alt}
-                                        />
-                                    </div>
-                                )
-                            })}
-                        </div>
-
-                        <div className="control-box">
-                            <div className="carousel_btn-icon-prev">
-                                <a
-                                    className="carousel-control-prev"
-                                    href="#carousel-Controls"
-                                    data-bs-target="#carousel-Controls"
-                                    role="button"
-                                    data-bs-slide="prev"
-                                    title="上一張"
-                                    tabIndex={1}
-                                >
-                                    <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-                                    <span className="sr-only">Previous</span>
-                                </a>
-                            </div>
-                            <div className="carousel_btn-icon-next">
-                                <a
-                                    className="carousel-control-next"
-                                    href="#carousel-Controls"
-                                    data-bs-target="#carousel-Controls"
-                                    role="button"
-                                    data-bs-slide="next"
-                                    title="下一張"
-                                    tabIndex={1}
-                                >
-                                    <span className="carousel-control-next-icon" aria-hidden="true"></span>
-                                    <span className="sr-only">Next</span>
-                                </a>
-                            </div>
-                            <div id="cycleCarousel" className="control-start">
-                                <a
-                                    type="button"
-                                    href="#" onClick={(e) => { e.preventDefault(); handleCarouselControl("carousel-Controls", "play"); }}
-                                    data-bs-target="#carousel-Controls"
-                                    title="播放"
-                                    tabIndex={1}
-                                >
-                                    <span className="control-start-icon"></span>
-                                    <span className="sr-only">播放</span>
-                                </a>
-                            </div>
-                            <div id="pauseCarousel" className="control-pause">
-                                <a
-                                    type="button"
-                                    href="#" onClick={(e) => { e.preventDefault(); handleCarouselControl("carousel-Controls", "pause"); }}
-                                    data-bs-target="#carousel-Controls"
-                                    title="暫停"
-                                    tabIndex={1}
-                                >
-                                    <span className="control-pause-icon"></span>
-                                    <span className="sr-only">暫停</span>
-                                </a>
-                            </div>
-                        </div>
+            </div>
+            <div className="customize_visualBox + animate__animated animate__slow wow fadeInRight d-xl-block d-lg-block d-md-block d-sm-none d-none" data-wow-delay="0.05s">
+                <div id="carousel-Controls" className="carousel carousel-dark slide carousel-fade" data-bs-ride="carousel">
+                    <div className="carousel-inner">
+                        {sortedDetails.map((p, i) => {
+                            const alt = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.Title ?? ""
+                            return (
+                                <div key={i} className={clsx("carousel-item", i === 0 ? "active" : "")} data-bs-interval={SLIDE_INTERVAL}>
+                                    <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`}
+                                        className="d-block w-100"
+                                        alt={alt}
+                                    />
+                                </div>
+                            )
+                        })}
                     </div>
-                </div>
-                <div className="customize_visualBox + animate__animated animate__slow wow fadeInRight d-xl-none d-lg-none d-md-none d-sm-block " data-wow-delay="0.05s">
-                    <div id="carousel-Controls_MB" className="carousel carousel-dark slide carousel-fade" data-bs-ride="carousel">
 
-                        {/* <asp:Literal ID="Lit_Banner_MB" runat="server" /> */}
-                        <div className="carousel-inner">
-
-                            {sortedDetails.map((p, i) => {
-                                const alt = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.Title ?? ""
-                                return (
-                                    <div key={i} className={clsx("carousel-item", i === 0 ? "active" : "")} data-bs-interval={SLIDE_INTERVAL}>
-                                        <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`}
-                                            className="d-block w-100"
-                                            alt={alt}
-                                        />
-                                    </div>
-                                )
-                            })}
-
+                    <div className="control-box">
+                        <div className="carousel_btn-icon-prev">
+                            <a
+                                className="carousel-control-prev"
+                                href="#carousel-Controls"
+                                data-bs-target="#carousel-Controls"
+                                role="button"
+                                data-bs-slide="prev"
+                                title="上一張"
+                                tabIndex={1}
+                            >
+                                <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span className="sr-only">Previous</span>
+                            </a>
                         </div>
-
-                        <div className="control-box">
-                            <div className="carousel_btn-icon-prev">
-                                <a
-                                    className="carousel-control-prev"
-                                    href="#carousel-Controls_MB"
-                                    type="button"
-                                    data-bs-target="#carousel-Controls_MB"
-                                    data-bs-slide="prev"
-                                    title="上一張"
-                                    tabIndex={1}
-                                >
-                                    <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-                                    <span className="sr-only">Previous</span>
-                                </a>
-                            </div>
-                            <div className="carousel_btn-icon-next">
-                                <a
-                                    className="carousel-control-next"
-                                    href="#carousel-Controls_MB"
-                                    type="button"
-                                    data-bs-target="#carousel-Controls_MB"
-                                    data-bs-slide="next"
-                                    title="下一張"
-                                    tabIndex={1}
-                                >
-                                    <span className="carousel-control-next-icon" aria-hidden="true"></span>
-                                    <span className="sr-only">Next</span>
-                                </a>
-                            </div>
-                            <div id="cycleCarousel_MB" className="control-start">
-                                <a
-                                    type="button"
-                                    href="#carousel-Controls_MB"
-                                    onClick={(e) => { e.preventDefault(); handleCarouselControl("carousel-Controls_MB", "play"); }}
-                                    title="播放"
-                                    tabIndex={1}
-                                >
-                                    <span className="control-start-icon"></span>
-                                    <span className="sr-only">播放</span>
-                                </a>
-                            </div>
-                            <div id="pauseCarousel_MB" className="control-pause">
-                                <a
-                                    type="button"
-                                    href="#carousel-Controls_MB"
-                                    onClick={(e) => { e.preventDefault(); handleCarouselControl("carousel-Controls_MB", "pause"); }}
-                                    title="暫停"
-                                    tabIndex={1}
-                                >
-                                    <span className="control-pause-icon"></span>
-                                    <span className="sr-only">暫停</span>
-                                </a>
-                            </div>
+                        <div className="carousel_btn-icon-next">
+                            <a
+                                className="carousel-control-next"
+                                href="#carousel-Controls"
+                                data-bs-target="#carousel-Controls"
+                                role="button"
+                                data-bs-slide="next"
+                                title="下一張"
+                                tabIndex={1}
+                            >
+                                <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span className="sr-only">Next</span>
+                            </a>
+                        </div>
+                        <div id="cycleCarousel" className="control-start">
+                            <a
+                                type="button"
+                                href="#" onClick={(e) => { e.preventDefault(); handleCarouselControl("carousel-Controls", "play"); }}
+                                data-bs-target="#carousel-Controls"
+                                title="播放"
+                                tabIndex={1}
+                            >
+                                <span className="control-start-icon"></span>
+                                <span className="sr-only">播放</span>
+                            </a>
+                        </div>
+                        <div id="pauseCarousel" className="control-pause">
+                            <a
+                                type="button"
+                                href="#" onClick={(e) => { e.preventDefault(); handleCarouselControl("carousel-Controls", "pause"); }}
+                                data-bs-target="#carousel-Controls"
+                                title="暫停"
+                                tabIndex={1}
+                            >
+                                <span className="control-pause-icon"></span>
+                                <span className="sr-only">暫停</span>
+                            </a>
                         </div>
                     </div>
                 </div>
-            </section>
-        </LoadingErrorHandler>
+            </div>
+            <div className="customize_visualBox + animate__animated animate__slow wow fadeInRight d-xl-none d-lg-none d-md-none d-sm-block " data-wow-delay="0.05s">
+                <div id="carousel-Controls_MB" className="carousel carousel-dark slide carousel-fade" data-bs-ride="carousel">
+
+                    {/* <asp:Literal ID="Lit_Banner_MB" runat="server" /> */}
+                    <div className="carousel-inner">
+
+                        {sortedDetails.map((p, i) => {
+                            const alt = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.Title ?? ""
+                            return (
+                                <div key={i} className={clsx("carousel-item", i === 0 ? "active" : "")} data-bs-interval={SLIDE_INTERVAL}>
+                                    <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`}
+                                        className="d-block w-100"
+                                        alt={alt}
+                                    />
+                                </div>
+                            )
+                        })}
+
+                    </div>
+
+                    <div className="control-box">
+                        <div className="carousel_btn-icon-prev">
+                            <a
+                                className="carousel-control-prev"
+                                href="#carousel-Controls_MB"
+                                type="button"
+                                data-bs-target="#carousel-Controls_MB"
+                                data-bs-slide="prev"
+                                title="上一張"
+                                tabIndex={1}
+                            >
+                                <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span className="sr-only">Previous</span>
+                            </a>
+                        </div>
+                        <div className="carousel_btn-icon-next">
+                            <a
+                                className="carousel-control-next"
+                                href="#carousel-Controls_MB"
+                                type="button"
+                                data-bs-target="#carousel-Controls_MB"
+                                data-bs-slide="next"
+                                title="下一張"
+                                tabIndex={1}
+                            >
+                                <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span className="sr-only">Next</span>
+                            </a>
+                        </div>
+                        <div id="cycleCarousel_MB" className="control-start">
+                            <a
+                                type="button"
+                                href="#carousel-Controls_MB"
+                                onClick={(e) => { e.preventDefault(); handleCarouselControl("carousel-Controls_MB", "play"); }}
+                                title="播放"
+                                tabIndex={1}
+                            >
+                                <span className="control-start-icon"></span>
+                                <span className="sr-only">播放</span>
+                            </a>
+                        </div>
+                        <div id="pauseCarousel_MB" className="control-pause">
+                            <a
+                                type="button"
+                                href="#carousel-Controls_MB"
+                                onClick={(e) => { e.preventDefault(); handleCarouselControl("carousel-Controls_MB", "pause"); }}
+                                title="暫停"
+                                tabIndex={1}
+                            >
+                                <span className="control-pause-icon"></span>
+                                <span className="sr-only">暫停</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        // </LoadingErrorHandler >
     );
 };
 

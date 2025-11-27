@@ -145,104 +145,102 @@ export const VideoSession = () => {
     }, [result]);
 
     return (
-        <LoadingErrorHandler loadingList={isLoading} errorList={errors}>
+        // <LoadingErrorHandler loadingList={isLoading} errorList={errors}>
+        <section className="Video-section owl-box" style={{ backgroundImage: `url(${bgImg})` }}>
+            <div className="Mask-DivBox layout_padding1">
+                <div className="customizeBox">
+                    <div className="container">
+                        <div className="row">
+                            <div className="col-12 + p-0">
+                                <div className="content-box + animate__animated animate__slow wow animate__zoomIn" data-wow-delay="0.15s">
+                                    <div id="Video" className="owl-carousel owl-theme px-2" ref={carouselRef}>
+                                        {result.map((item) => {
+                                            const urlRaw = item?.ResUrl ?? "";
+                                            const { url } = resolveYoutubeEmbedUrl(urlRaw); // 這裡是 embed 版
+                                            if (!url) return null;
+                                            // 用短網址算出縮圖
+                                            const thumbUrl = getYoutubeThumbnailFromShort(urlRaw);
 
-            <section className="Video-section owl-box" style={{ backgroundImage: `url(${bgImg})` }}>
-                <div className="Mask-DivBox layout_padding1">
-                    <div className="customizeBox">
-                        <div className="container">
-                            <div className="row">
-                                <div className="col-12 + p-0">
-                                    <div className="content-box + animate__animated animate__slow wow animate__zoomIn" data-wow-delay="0.15s">
-                                        <div id="Video" className="owl-carousel owl-theme px-2" ref={carouselRef}>
-                                            {result.map((item) => {
-                                                const urlRaw = item?.ResUrl ?? "";
-                                                const { url } = resolveYoutubeEmbedUrl(urlRaw); // 這裡是 embed 版
-                                                if (!url) return null;
-                                                // 用短網址算出縮圖
-                                                const thumbUrl = getYoutubeThumbnailFromShort(urlRaw);
-
-                                                return (
-                                                    <div className="item" key={item.internalId}>
-                                                        <div className="wrapper_box">
-                                                            <div className="MV-item mb-3 w-100">
-                                                                {/* venobox 只吃 href，真正影片在燈箱裡播 */}
-                                                                <a
-                                                                    className="venobox"
-                                                                    data-autoplay="true"
-                                                                    data-vbtype="video"
-                                                                    href={url}
-                                                                    tabIndex={14}
-                                                                    title={item.title}
-                                                                // target="_blank"
-                                                                // rel="noopener noreferrer"
-                                                                >
-                                                                    <div className="img_wrapper">
-                                                                        <div className="figure_wrapper">
-                                                                            {/* 縮圖區塊：16:9 比例 */}
-                                                                            <div
-                                                                                style={{
-                                                                                    position: "relative",
-                                                                                    width: "100%",
-                                                                                    paddingTop: "56.25%", // 16:9
-                                                                                    overflow: "hidden",
-                                                                                }}
-                                                                            >
-                                                                                {thumbUrl && (
-                                                                                    <img
-                                                                                        src={thumbUrl}
-                                                                                        alt={`${item.title} 預覽圖`}
-                                                                                        style={{
-                                                                                            position: "absolute",
-                                                                                            inset: 0,
-                                                                                            width: "100%",
-                                                                                            height: "100%",
-                                                                                            objectFit: "cover",
-                                                                                        }}
-                                                                                    />
-                                                                                )}
-
-                                                                                {/* 播放按鈕覆蓋在縮圖上，對齊 prototype 的寫法 */}
-                                                                                <div
-                                                                                    className="popup-video play-btn style1"
+                                            return (
+                                                <div className="item" key={item.internalId}>
+                                                    <div className="wrapper_box">
+                                                        <div className="MV-item mb-3 w-100">
+                                                            {/* venobox 只吃 href，真正影片在燈箱裡播 */}
+                                                            <a
+                                                                className="venobox"
+                                                                data-autoplay="true"
+                                                                data-vbtype="video"
+                                                                href={url}
+                                                                tabIndex={14}
+                                                                title={item.title}
+                                                            // target="_blank"
+                                                            // rel="noopener noreferrer"
+                                                            >
+                                                                <div className="img_wrapper">
+                                                                    <div className="figure_wrapper">
+                                                                        {/* 縮圖區塊：16:9 比例 */}
+                                                                        <div
+                                                                            style={{
+                                                                                position: "relative",
+                                                                                width: "100%",
+                                                                                paddingTop: "56.25%", // 16:9
+                                                                                overflow: "hidden",
+                                                                            }}
+                                                                        >
+                                                                            {thumbUrl && (
+                                                                                <img
+                                                                                    src={thumbUrl}
+                                                                                    alt={`${item.title} 預覽圖`}
                                                                                     style={{
                                                                                         position: "absolute",
                                                                                         inset: 0,
-                                                                                        display: "flex",
-                                                                                        alignItems: "center",
-                                                                                        justifyContent: "center",
+                                                                                        width: "100%",
+                                                                                        height: "100%",
+                                                                                        objectFit: "cover",
                                                                                     }}
-                                                                                >
-                                                                                    <i className="fa fa-play" aria-hidden="true" />
-                                                                                    <span className="sr-only">播放 {item.title}</span>
-                                                                                </div>
+                                                                                />
+                                                                            )}
+
+                                                                            {/* 播放按鈕覆蓋在縮圖上，對齊 prototype 的寫法 */}
+                                                                            <div
+                                                                                className="popup-video play-btn style1"
+                                                                                style={{
+                                                                                    position: "absolute",
+                                                                                    inset: 0,
+                                                                                    display: "flex",
+                                                                                    alignItems: "center",
+                                                                                    justifyContent: "center",
+                                                                                }}
+                                                                            >
+                                                                                <i className="fa fa-play" aria-hidden="true" />
+                                                                                <span className="sr-only">播放 {item.title}</span>
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                </a>
-                                                            </div>
+                                                                </div>
+                                                            </a>
                                                         </div>
                                                     </div>
-                                                );
-                                            })}
-                                        </div>
-                                        {/*// Banner 控制 暫停 / 播放 按鈕 START // */}
-                                        <div className="control-box">
-                                            <a id="Video_start" href="#" onClick={(e) => { e.preventDefault(); }} className="play" tabIndex={14} title="播放">
-                                                <div className="control_start">
-                                                    <span className="control-start-icon"><span className="d-none">播放</span></span>
                                                 </div>
-                                            </a>
-                                            <a id="Video_pause" href="#" onClick={(e) => { e.preventDefault(); }} className="stop" tabIndex={14} title="暫停">
-                                                <div className="control_pause">
-                                                    <span className="control-pause-icon"><span className="d-none">暫停</span></span>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div className="btn_Div justify-content-end px-2">
-                                            <div className="customize_btn my-3">
-                                                <Link to="/EventHighlights/Event-video" className="Btn_s1" tabIndex={14} title="更多影音">VIEW ALL<span className="ml-2">+</span></Link>
+                                            );
+                                        })}
+                                    </div>
+                                    {/*// Banner 控制 暫停 / 播放 按鈕 START // */}
+                                    <div className="control-box">
+                                        <a id="Video_start" href="#" onClick={(e) => { e.preventDefault(); }} className="play" tabIndex={14} title="播放">
+                                            <div className="control_start">
+                                                <span className="control-start-icon"><span className="d-none">播放</span></span>
                                             </div>
+                                        </a>
+                                        <a id="Video_pause" href="#" onClick={(e) => { e.preventDefault(); }} className="stop" tabIndex={14} title="暫停">
+                                            <div className="control_pause">
+                                                <span className="control-pause-icon"><span className="d-none">暫停</span></span>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div className="btn_Div justify-content-end px-2">
+                                        <div className="customize_btn my-3">
+                                            <Link to="/EventHighlights/Event-video" className="Btn_s1" tabIndex={14} title="更多影音">VIEW ALL<span className="ml-2">+</span></Link>
                                         </div>
                                     </div>
                                 </div>
@@ -250,8 +248,9 @@ export const VideoSession = () => {
                         </div>
                     </div>
                 </div>
-            </section>
-        </LoadingErrorHandler >
+            </div>
+        </section>
+        // </LoadingErrorHandler >
     )
 };
 
