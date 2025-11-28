@@ -344,6 +344,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 #region 文字檔案
                 FileExtensions.PDF,
                 FileExtensions.DOCX,
+                FileExtensions.DOC,
                 FileExtensions.XLSX,
                 FileExtensions.PPTX,
                 FileExtensions.TXT,

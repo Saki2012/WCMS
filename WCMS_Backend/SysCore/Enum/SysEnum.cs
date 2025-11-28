@@ -240,6 +240,7 @@ namespace WCMS.SysCore.Enum
             #region 文字檔案
             public const string PDF = "pdf";
             public const string DOCX = "docx";
+            public const string DOC = "doc";
             public const string ODT = "odt";
             public const string XLSX = "xlsx";
             public const string PPTX = "pptx";
