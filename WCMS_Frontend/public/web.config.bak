@@ -1,51 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<configuration>
-  <system.webServer>
-
-    <rewrite>
-      <rules>
-		<rule name="ServiceProxy" stopProcessing="true">
-			<match url="^Service/(.*)" />
-			<conditions logicalGrouping="MatchAll" trackAllCaptures="false" />
-			<serverVariables>
-				<set name="HTTP_X_FORWARDED_PROTO" value="https" />
-				<set name="HTTP_X_FORWARDED_HOST" value="{HTTP_HOST}" />
-			</serverVariables>
-			<action type="Rewrite" url="http://127.0.0.1:XXXX/Service/{R:1}" />
-		</rule>
-	  
-	  
-        <!-- 1) 先把 /Service/* 代理到本機 Kestrel -->
-        <rule name="Proxy Service to Kestrel" stopProcessing="true">
-          <match url="^Service/(.*)" />
-          <action type="Rewrite" url="http://127.0.0.1:XXXX/{R:1}" />
-          <serverVariables>
-            <!-- 轉給後端的協定/主機，方便它產生正確的絕對網址 -->
-            <set name="HTTP_X_FORWARDED_PROTO" value="https" />
-            <set name="HTTP_X_FORWARDED_HOST" value="{HTTP_HOST}" />
-          </serverVariables>
-        </rule>
-
-        <!-- 2) 其餘走 SPA：讓前端路由接手 -->
-        <rule name="SPA Redirect" stopProcessing="true">
-          <match url=".*" />
-          <conditions logicalGrouping="MatchAll">
-            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
-            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
-          </conditions>
-          <action type="Rewrite" url="/index.html" />
-        </rule>
-      </rules>
-    </rewrite>
+<configuration> 
+  <system.webServer> 
+    <rewrite> 
+      <rules> 
+        <rule name="ServiceProxy" stopProcessing="true"> 
+          <match url="^Service/(.*)"/>  
+          <conditions logicalGrouping="MatchAll" trackAllCaptures="false"/>  
+          <serverVariables> 
+            <set name="HTTP_X_FORWARDED_PROTO" value="https"/>  
+            <set name="HTTP_X_FORWARDED_HOST" value="{HTTP_HOST}"/> 
+          </serverVariables>  
+          <action type="Rewrite" url="http://127.0.0.1:XXXX/Service/{R:1}"/> 
+        </rule>  
+        <!-- 1) 先把 /Service/* 代理到本機 Kestrel -->  
+        <rule name="Proxy Service to Kestrel" stopProcessing="true"> 
+          <match url="^Service/(.*)"/>  
+          <action type="Rewrite" url="http://127.0.0.1:XXXX/{R:1}"/>  
+          <serverVariables> 
+            <!-- 轉給後端的協定/主機，方便它產生正確的絕對網址 -->  
+            <set name="HTTP_X_FORWARDED_PROTO" value="https"/>  
+            <set name="HTTP_X_FORWARDED_HOST" value="{HTTP_HOST}"/> 
+          </serverVariables> 
+        </rule>  
+        <!-- 2) 其餘走 SPA：讓前端路由接手 -->  
+        <rule name="SPA Redirect" stopProcessing="true"> 
+          <match url=".*"/>  
+          <conditions logicalGrouping="MatchAll"> 
+            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true"/>  
+            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true"/> 
+          </conditions>  
+          <action type="Rewrite" url="/index.html"/> 
+        </rule> 
+      </rules> 
+    </rewrite> 
 	
-    <proxy reverseProxy="true" />
+    <proxy reverseProxy="true"/>  
+	
+    <defaultDocument> 
+      <files> 
+        <clear/>  
+        <add value="index.html"/> 
+      </files> 
+    </defaultDocument>  
+	
+    <httpProtocol> 
+      <customHeaders> 
+        <!-- Anti-clickjacking -->  
+        <add name="X-Frame-Options" value="SAMEORIGIN"/>  
+        <!-- 基本安全 -->  
+        <add name="X-Content-Type-Options" value="nosniff"/>  
+        <add name="Referrer-Policy" value="strict-origin-when-cross-origin"/>  
+        <add name="Permissions-Policy" value="geolocation=(), microphone=(), camera=(), fullscreen=(self)"/>  
+        <!-- 若確定前端站只走 HTTPS，再開 HSTS；目前不確定的話可以先註解掉
+        <add name="Strict-Transport-Security" value="max-age=31536000" />
+        -->  
+        <!-- CSP：偏寬鬆版本，避免擋掉編輯器 iframe -->  
+        <add name="Content-Security-Policy" 
+		 value="default-src 'self'; 
+				script-src 'self' 'unsafe-inline' 'unsafe-eval'; 
+				style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
+				style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; 
+				img-src 'self' data: blob:; 
+				font-src 'self' data: https://fonts.gstatic.com; 
+				connect-src 'self'; 
+				frame-ancestors 'self'; 
+				frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://w.soundcloud.com;" />
 
-    <defaultDocument>
-      <files>
-        <clear />
-        <add value="index.html" />
-      </files>
-    </defaultDocument>
-
-  </system.webServer>
+      </customHeaders> 
+    </httpProtocol> 
+	
+  </system.webServer> 
 </configuration>
