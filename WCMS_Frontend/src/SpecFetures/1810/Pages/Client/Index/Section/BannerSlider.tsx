@@ -109,13 +109,16 @@ export const BannerSlider = () => {
                     <div id="carousel-Controls" className="carousel carousel-dark slide carousel-fade" data-bs-ride="carousel">
                         <div className="carousel-inner">
                             {sortedDetails.map((p, i) => {
-                                const alt = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.Title ?? ""
+                                const info = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")
+                                const alt = info?.Title ?? ""
+                                const url = info?.URL ?? ""
+                                const tar = info?.URL_Open === 0 ? "_self" : "_blank"
                                 return (
                                     <div key={i} className={clsx("carousel-item", i === 0 ? "active" : "")} data-bs-interval={SLIDE_INTERVAL}>
-                                        <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`}
-                                            className="d-block w-100"
-                                            alt={alt}
-                                        />
+                                        {url === "" ? <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} className="d-block w-100" alt={alt} /> :
+                                            <a href={url} target={tar} rel="noopener noreferrer">
+                                                <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} className="d-block w-100" alt={alt} />
+                                            </a>}
                                     </div>
                                 )
                             })}
