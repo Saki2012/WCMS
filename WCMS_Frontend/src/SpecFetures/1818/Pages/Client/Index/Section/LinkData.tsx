@@ -42,7 +42,7 @@ const emptyData: BannerSet = {
 
 
 export const LinkData = () => {
-	const usebannerList = useBannerListData(`${SchemaFields.BannerFields.BannerId} = Banner20251106004`)
+	const usebannerList = useBannerListData(`${SchemaFields.BannerFields.BannerId} = Banner20251119001`)
 	const bannerInternal = usebannerList.rawData?.[0]?.Banner?.InternalId ?? ""
 	const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), bannerInternal, emptyData)
 	const loadingList = [useBanner.isLoading, usebannerList.isLoading]
@@ -79,7 +79,7 @@ export const LinkData = () => {
 											const url = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.URL ?? ""
 											const urlopen = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.URL_Open ?? ""
 											return (
-												<div key={i} className={clsx("item", i === 0 ? "active" : "")} >
+												<div key={i} className={clsx("item", i === 0 ? "active" : "")}  >
 													<a
 														href={url}
 														tabIndex={0}

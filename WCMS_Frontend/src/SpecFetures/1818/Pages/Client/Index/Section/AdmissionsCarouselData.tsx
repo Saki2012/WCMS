@@ -42,7 +42,7 @@ const emptyData: BannerSet = {
 
 
 export const AdmissionsCarouselData = () => {
-  const usebannerList = useBannerListData(`${SchemaFields.BannerFields.BannerId} = Banner20251106004`)
+  const usebannerList = useBannerListData(`${SchemaFields.BannerFields.BannerId} = Banner20251119002`)
   const bannerInternal = usebannerList.rawData?.[0]?.Banner?.InternalId ?? ""
   const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), bannerInternal, emptyData)
   const loadingList = [useBanner.isLoading, usebannerList.isLoading]
