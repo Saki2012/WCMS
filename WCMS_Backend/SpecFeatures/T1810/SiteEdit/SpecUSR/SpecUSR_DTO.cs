@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SpecFeatures.T1810.Resx;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;

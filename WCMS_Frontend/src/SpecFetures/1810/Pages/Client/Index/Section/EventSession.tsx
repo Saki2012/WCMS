@@ -1,7 +1,4 @@
 /* Banner */
-import type { components } from '@/types/api';
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
-type TagSet = components["schemas"]["TagSet_DTO"]
 import * as SchemaFields from "@/types/SchemaFields";
 import { Link } from 'react-router-dom';
 import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api';
@@ -15,6 +12,9 @@ import defaulteventpic from '@/SpecFetures/1810/Assets/Custom/DefaultEventPic_94
 import { useNow } from '@/SysCore/Utils/Library/LibHook';
 import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
 import bgImg from '@/SpecFetures/1810/Assets/Client/Images/bg/background-transparent-image_1920x600.png'
+import type { components } from '@/types/api';
+type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
+type TagSet = components["schemas"]["TagSet_DTO"]
 interface EventData {
     Id: string;
     Title: string; // 標題

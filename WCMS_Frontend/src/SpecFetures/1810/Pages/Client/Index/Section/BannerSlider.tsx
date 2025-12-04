@@ -59,41 +59,28 @@ export const BannerSlider = () => {
     }, [useBanner.data?.BannerDetail]);
     const handleCarouselControl = (id: string, action: "play" | "pause") => {
         if (typeof window === "undefined") return;
-
         const root = document.getElementById(id);
         const anyWindow = window as any;
         const Carousel = anyWindow.bootstrap?.Carousel;
-
         if (!root || !Carousel) return;
-
         const instance = Carousel.getOrCreateInstance(root);
-        if (action === "play") {
-            instance.cycle();
-        } else {
-            instance.pause();
-        }
+        if (action === "play") instance.cycle();
+        else instance.pause();
     };
     useEffect(() => {
         if (typeof window === "undefined") return;
         if (!sortedDetails.length) return;
-
         const anyWindow = window as any;
         const Carousel = anyWindow.bootstrap?.Carousel;
         if (!Carousel) return;
-
         const pc = document.getElementById("carousel-Controls");
         if (pc) {
-            const instPc = Carousel.getOrCreateInstance(pc, {
-                interval: SLIDE_INTERVAL,
-            });
+            const instPc = Carousel.getOrCreateInstance(pc, { interval: SLIDE_INTERVAL });
             instPc.cycle();
         }
-
         const mb = document.getElementById("carousel-Controls_MB");
         if (mb) {
-            const instMb = Carousel.getOrCreateInstance(mb, {
-                interval: SLIDE_INTERVAL,
-            });
+            const instMb = Carousel.getOrCreateInstance(mb, { interval: SLIDE_INTERVAL, });
             instMb.cycle();
         }
     }, [sortedDetails.length]);
@@ -109,13 +96,16 @@ export const BannerSlider = () => {
                 <div id="carousel-Controls" className="carousel carousel-dark slide carousel-fade" data-bs-ride="carousel">
                     <div className="carousel-inner">
                         {sortedDetails.map((p, i) => {
-                            const alt = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.Title ?? ""
+                            const info = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")
+                            const alt = info?.Title ?? ""
+                            const url = info?.URL ?? ""
+                            const tar = info?.URL_Open === 0 ? "_self" : "_blank"
                             return (
                                 <div key={i} className={clsx("carousel-item", i === 0 ? "active" : "")} data-bs-interval={SLIDE_INTERVAL}>
-                                    <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`}
-                                        className="d-block w-100"
-                                        alt={alt}
-                                    />
+                                    {url === "" ? <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} className="d-block w-100" alt={alt} /> :
+                                        <a href={url} target={tar} rel="noopener noreferrer">
+                                            <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} className="d-block w-100" alt={alt} />
+                                        </a>}
                                 </div>
                             )
                         })}
@@ -123,29 +113,15 @@ export const BannerSlider = () => {
 
                     <div className="control-box">
                         <div className="carousel_btn-icon-prev">
-                            <a
-                                className="carousel-control-prev"
-                                href="#carousel-Controls"
-                                data-bs-target="#carousel-Controls"
-                                role="button"
-                                data-bs-slide="prev"
-                                title="上一張"
-                                tabIndex={1}
-                            >
+                            <a className="carousel-control-prev" href="#carousel-Controls" data-bs-target="#carousel-Controls" role="button" data-bs-slide="prev"
+                                title="上一張" tabIndex={1}>
                                 <span className="carousel-control-prev-icon" aria-hidden="true"></span>
                                 <span className="sr-only">Previous</span>
                             </a>
                         </div>
                         <div className="carousel_btn-icon-next">
-                            <a
-                                className="carousel-control-next"
-                                href="#carousel-Controls"
-                                data-bs-target="#carousel-Controls"
-                                role="button"
-                                data-bs-slide="next"
-                                title="下一張"
-                                tabIndex={1}
-                            >
+                            <a className="carousel-control-next" href="#carousel-Controls" data-bs-target="#carousel-Controls"
+                                role="button" data-bs-slide="next" title="下一張" tabIndex={1}>
                                 <span className="carousel-control-next-icon" aria-hidden="true"></span>
                                 <span className="sr-only">Next</span>
                             </a>
