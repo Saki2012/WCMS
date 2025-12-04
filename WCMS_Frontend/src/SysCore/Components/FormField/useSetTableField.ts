@@ -629,3 +629,49 @@ export const useSetJsonField = <TSet, TJson extends Record<string, any>>(
 
     return { get, set, bind };
 };
+
+// /SysCore/Components/FormField/useSetDateRangeField.ts
+import type { ILibDatetimeRangeProp } from "@/SysCore/Components/FormField/FieldComponets/LibDatetimeRange_Comp";
+
+type RangeBind = Omit<ILibDatetimeRangeProp, "Style" | "valueType" | "disabled">;
+
+// 跟 useSetTableField 一樣綁在 formData 上
+export const useSetDateRangeField = <TSet>(formData: UseFetchFormDataResult<TSet>) =>
+{
+    const setField = useSetTableField<TSet>(formData);
+
+    return (
+        table: keyof NonNullable<TSet> | string,
+        startField: string,
+        endField: string,
+        mode: "string" | "number" | "boolean" | "datetime" | ((v: unknown) => any) = "datetime",
+        rowKeys?: Record<string, any>,
+    ): RangeBind =>
+    {
+        const start = setField(table as any, startField as any, mode as any, rowKeys);
+        const end = setField(table as any, endField as any, mode as any, rowKeys);
+
+        // 共用一個 normalize：空字串 / null / undefined 都轉成 null
+        const normalize = (val: string | null | undefined) =>
+        {
+            if (val == null) return null;
+            const s = String(val).trim();
+            return s === "" ? null : s;
+        };
+
+        return {
+            ColumnDisplayName: start.ColumnDisplayName,
+            // 給 UI 顯示的值：null 就顯示成 ""，避免 uncontrolled warning
+            StartValue: ((start.InputValue ?? "") as string),
+            EndValue: ((end.InputValue ?? "") as string),
+            onChangeStart: (val) =>
+            {
+                start.onChange?.(normalize(val));
+            },
+            onChangeEnd: (val) =>
+            {
+                end.onChange?.(normalize(val));
+            },
+        };
+    };
+};

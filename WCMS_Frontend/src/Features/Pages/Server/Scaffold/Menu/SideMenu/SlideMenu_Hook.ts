@@ -1,6 +1,6 @@
 import SideMenuProvider from "@/Features/Pages/Server/Scaffold/Menu/SideMenu/SideMenu_Api";
+import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import { useEffect, useState } from "react";
-import type { MenuItemData } from "../../../../../../SysCore/Components/MenuList/MenuList_Data";
 
 /** 獲取左邊Menu的欄位資料 */
 export const useGetSideMenuItem = () =>

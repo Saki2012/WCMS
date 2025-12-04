@@ -96,6 +96,7 @@
 3. 務必區分出公開的API時機(Public)、業務流程(Protect)、以及實作過程(Private)
 4. 有寫到Try-catch時，除非真的異常結果需要無視後繼續往下走之外，一律throw給ErrorHandlingMiddleware處理
 5. 有關時區存儲一律寫UTC作為依據，以作為之後跨區需求
+6. Spec的Model/API層用Partial來追加Feature客製需求/Biz用繼承
 
 前端程式架構
 - src

@@ -13,7 +13,7 @@ export const DashboardPage = ({ theme }: { theme: IBETheme }) => {
   const pageTitle = resolveTitle(last?.handle as RouteHandleMeta, last);
   return (
     <>
-      <SidebarMenu theme={theme} />
+      <SidebarMenu moduleCode='WebManagement' />
       <NavibarMenu theme={theme} />
       <div className="pc-container">
         <div className="pc-content">

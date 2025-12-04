@@ -203,6 +203,58 @@ export const BannerFields = {
 
 export type BannerFieldKey = keyof typeof BannerFields;
 
+export const CalendarDetailFields = {
+  Year: 'Year',
+  Date: 'Date',
+  DayOfWeek: 'DayOfWeek',
+  IsHoliday: 'IsHoliday',
+  HolidayName: 'HolidayName',
+  Description: 'Description',
+  IsEdit: 'IsEdit',
+  _Calendar: '_Calendar',
+  Spec_AcademicYear: 'Spec_AcademicYear',
+  Spec_AcademicYearId: 'Spec_AcademicYearId',
+  Spec_OpenTime: 'Spec_OpenTime',
+  Spec_CloseTime: 'Spec_CloseTime',
+  Spec_ModifyMemo: 'Spec_ModifyMemo',
+} as const;
+
+export type CalendarDetailFieldKey = keyof typeof CalendarDetailFields;
+
+export const CalendarSetFields = {
+  Calendar: 'Calendar',
+  CalendarDetail: 'CalendarDetail',
+} as const;
+
+export type CalendarSetFieldKey = keyof typeof CalendarSetFields;
+
+export const CalendarSet_DTOApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type CalendarSet_DTOApiRequestFieldKey = keyof typeof CalendarSet_DTOApiRequestFields;
+
+export const CalendarFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  Year: 'Year',
+  ImportSrc: 'ImportSrc',
+  LastImportTime: 'LastImportTime',
+  _CalendarDetail: '_CalendarDetail',
+} as const;
+
+export type CalendarFieldKey = keyof typeof CalendarFields;
+
 export const CategoryDataSetFields = {
   Category: 'Category',
   CategoryDetail: 'CategoryDetail',
@@ -266,6 +318,17 @@ export const DataStatusFields = {
 } as const;
 
 export type DataStatusFieldKey = keyof typeof DataStatusFields;
+
+export const DayOfWeekFields = {
+  toString: 'toString',
+  toFixed: 'toFixed',
+  toExponential: 'toExponential',
+  toPrecision: 'toPrecision',
+  valueOf: 'valueOf',
+  toLocaleString: 'toLocaleString',
+} as const;
+
+export type DayOfWeekFieldKey = keyof typeof DayOfWeekFields;
 
 export const FileArchiveDetailFields = {
   FileArchiveId: 'FileArchiveId',
@@ -536,6 +599,17 @@ export const MenuUrlTypeFields = {
 
 export type MenuUrlTypeFieldKey = keyof typeof MenuUrlTypeFields;
 
+export const MessageStatusFields = {
+  toString: 'toString',
+  toFixed: 'toFixed',
+  toExponential: 'toExponential',
+  toPrecision: 'toPrecision',
+  valueOf: 'valueOf',
+  toLocaleString: 'toLocaleString',
+} as const;
+
+export type MessageStatusFieldKey = keyof typeof MessageStatusFields;
+
 export const ModulePageTypeFields = {
   toString: 'toString',
   toFixed: 'toFixed',
@@ -800,6 +874,84 @@ export const SpecCategorySet_DTOApiRequestFields = {
 
 export type SpecCategorySet_DTOApiRequestFieldKey = keyof typeof SpecCategorySet_DTOApiRequestFields;
 
+export const SpecCurrentOpenTimeFields = {
+  Date: 'Date',
+  DayOfWeek: 'DayOfWeek',
+  HolidayName: 'HolidayName',
+  Spec_OpenTime: 'Spec_OpenTime',
+  Spec_CloseTime: 'Spec_CloseTime',
+} as const;
+
+export type SpecCurrentOpenTimeFieldKey = keyof typeof SpecCurrentOpenTimeFields;
+
+export const SpecCurrentOpenTime_DTOApiResponseFields = {
+  IsSuccess: 'IsSuccess',
+  SysMessage: 'SysMessage',
+  Data: 'Data',
+} as const;
+
+export type SpecCurrentOpenTime_DTOApiResponseFieldKey = keyof typeof SpecCurrentOpenTime_DTOApiResponseFields;
+
+export const SpecOpenScheduleRuleModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
+  ModifyTime: 'ModifyTime',
+  ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUser: 'InvalidUser',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  IsIniData: 'IsIniData',
+  Validate_Start: 'Validate_Start',
+  Validate_End: 'Validate_End',
+  AcademicYearId: 'AcademicYearId',
+  AcademicStart: 'AcademicStart',
+  AcademicEnd: 'AcademicEnd',
+  Weekday_OpenTime: 'Weekday_OpenTime',
+  Weekday_CloseTime: 'Weekday_CloseTime',
+  Sat_OpenTime: 'Sat_OpenTime',
+  Sat_CloseTime: 'Sat_CloseTime',
+  Sun_OpenTime: 'Sun_OpenTime',
+  Sun_CloseTime: 'Sun_CloseTime',
+  WinterStart: 'WinterStart',
+  WinterEnd: 'WinterEnd',
+  Winter_Weekday_OpenTime: 'Winter_Weekday_OpenTime',
+  Winter_Weekday_CloseTime: 'Winter_Weekday_CloseTime',
+  Winter_Sat_OpenTime: 'Winter_Sat_OpenTime',
+  Winter_Sat_CloseTime: 'Winter_Sat_CloseTime',
+  Winter_Sun_OpenTime: 'Winter_Sun_OpenTime',
+  Winter_Sun_CloseTime: 'Winter_Sun_CloseTime',
+  SummerStart: 'SummerStart',
+  SummerEnd: 'SummerEnd',
+  Summer_Weekday_OpenTime: 'Summer_Weekday_OpenTime',
+  Summer_Weekday_CloseTime: 'Summer_Weekday_CloseTime',
+  Summer_Sat_OpenTime: 'Summer_Sat_OpenTime',
+  Summer_Sat_CloseTime: 'Summer_Sat_CloseTime',
+  Summer_Sun_OpenTime: 'Summer_Sun_OpenTime',
+  Summer_Sun_CloseTime: 'Summer_Sun_CloseTime',
+  ModifyMemo: 'ModifyMemo',
+} as const;
+
+export type SpecOpenScheduleRuleModelFieldKey = keyof typeof SpecOpenScheduleRuleModelFields;
+
+export const SpecOpenScheduleRuleSetFields = {
+  SpecOpenScheduleRule: 'SpecOpenScheduleRule',
+} as const;
+
+export type SpecOpenScheduleRuleSetFieldKey = keyof typeof SpecOpenScheduleRuleSetFields;
+
+export const SpecOpenScheduleRuleSet_DTOApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SpecOpenScheduleRuleSet_DTOApiRequestFieldKey = keyof typeof SpecOpenScheduleRuleSet_DTOApiRequestFields;
+
 export const SpecResearchDetailModelFields = {
   ResearchId: 'ResearchId',
   RowId: 'RowId',
@@ -988,6 +1140,14 @@ export const SpecUSRUrlFields = {
 
 export type SpecUSRUrlFieldKey = keyof typeof SpecUSRUrlFields;
 
+export const SysMessageModelFields = {
+  Status: 'Status',
+  MessageCode: 'MessageCode',
+  Message: 'Message',
+} as const;
+
+export type SysMessageModelFieldKey = keyof typeof SysMessageModelFields;
+
 export const TagDataFields = {
   CreateTime: 'CreateTime',
   CreateUserId: 'CreateUserId',
@@ -1074,6 +1234,8 @@ export const WebResourceFields = {
   ContentStatus: 'ContentStatus',
   PicId: 'PicId',
   PicDescription: 'PicDescription',
+  Validate_Start: 'Validate_Start',
+  Validate_End: 'Validate_End',
   _WebResourceInfo: '_WebResourceInfo',
 } as const;
 

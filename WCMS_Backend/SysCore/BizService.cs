@@ -18,7 +18,12 @@ using static WCMS.SysCore.QueryListParam;
 
 namespace WCMS.SysCore
 {
-    
+    /// <summary>
+    /// Biz服務所需注入參數
+    /// </summary>
+    /// <param name="repoMapProvider"></param>
+    /// <param name="message"></param>
+    /// <param name="currentUser"></param>
     public sealed record BizDeps(IRepositoryMapProvider repoMapProvider, IErrorHelper message, ICurrentUserAccessor currentUser);
 
     public class BizService<TSet> : IBizService<TSet> where TSet : class
@@ -345,6 +350,7 @@ namespace WCMS.SysCore
                 }
             }
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -409,7 +415,7 @@ namespace WCMS.SysCore
         {
             return await DoQueryListAsync(prop.PropertyType, selectFields, condition, orderBy, pageCt, takeCt);
         }
-        protected async Task<IList> DoQueryListAsync(Type type, string[] selectFields, string condition, IReadOnlyList<OrderBySpec> orderBy, int pageCt, int takeCt)
+        protected async Task<IList> DoQueryListAsync(Type type, string[] selectFields, string condition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt)
         {
             var selectExpr = GetSelectFieldsExpr(type, selectFields);
             var whereExpr = GetConditionExpr(type, condition);
@@ -498,11 +504,11 @@ namespace WCMS.SysCore
         {
             var keyProp = PropertyAccessorCache.GetProperties(header.GetType()).Where(p => p.IsDefined(typeof(KeyAttribute), inherit: true)).LastOrDefault();
             if (keyProp == null) return;
-            string id = PropertyAccessorCache.Get(header, keyProp.Name)?.ToString();
-            if (IsAutoGenerateId)
+            object id = PropertyAccessorCache.Get(header, keyProp.Name);
+            if (IsAutoGenerateId&& keyProp.PropertyType == typeof(string))
             {
                 var idSelector = BuildIdSelectorLambda(header.GetType(), keyProp);
-                id = !string.IsNullOrEmpty(id) ? id : await ((Task<string>)((dynamic)RepoDict[header.GetType().Name]).GenerateIdAsync(idSelector, PrefixId));
+                id = !string.IsNullOrEmpty(id.ToString()) ? id : await ((Task<string>)((dynamic)RepoDict[header.GetType().Name]).GenerateIdAsync(idSelector, PrefixId));
                 PropertyAccessorCache.Set(header, keyProp.Name, id);
             }
             foreach(var detail in details) foreach(var row in detail.Value) PropertyAccessorCache.Set(row, keyProp.Name, id);
@@ -1025,7 +1031,7 @@ namespace WCMS.SysCore
                 {
                     string resultCondition = string.Empty;
                     var pkProps = PropertyAccessorCache.GetProperties(prop.PropertyType).Where(p => p.IsDefined(typeof(KeyAttribute), inherit: true)).ToArray();
-                    var condition = $"InternalId = \"{internalId}\"";
+                    var condition = $"{nameof(BasicDataModel.InternalId)} = \"{internalId}\"";
                     var fieldNames = pkProps.Select(p => p.Name).ToArray();
                     var headerData = (await DoQueryListAsync(prop, fieldNames, condition,default, 0, 0)).ToDynamicList().FirstOrDefault();
                     if (headerData == null) return resultCondition;

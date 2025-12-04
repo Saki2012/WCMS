@@ -1431,6 +1431,494 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/Calendar/SyncFromNtpc": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: {
+                    year?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/Spec_GetCurrentOpenTime": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["SpecCurrentOpenTime_DTOApiResponse"];
+                        "application/json": components["schemas"]["SpecCurrentOpenTime_DTOApiResponse"];
+                        "text/json": components["schemas"]["SpecCurrentOpenTime_DTOApiResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/Create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CalendarSet_DTO"];
+                    "text/json": components["schemas"]["CalendarSet_DTO"];
+                    "application/*+json": components["schemas"]["CalendarSet_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CalendarSet_DTO"][];
+                    "text/json": components["schemas"]["CalendarSet_DTO"][];
+                    "application/*+json": components["schemas"]["CalendarSet_DTO"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/Update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CalendarSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["CalendarSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["CalendarSet_DTOApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/Invalid/{pk}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
+                header?: never;
+                path: {
+                    pk: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/Calendar/BatchInvalid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    isInvalid?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/Calendar/Delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/BatchDelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/QueryData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Category/Create": {
         parameters: {
             query?: never;
@@ -5017,6 +5505,422 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/SpecOpenScheduleRule/Create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
+                    "text/json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
+                    "application/*+json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"][];
+                    "text/json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"][];
+                    "application/*+json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/Update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecOpenScheduleRuleSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["SpecOpenScheduleRuleSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["SpecOpenScheduleRuleSet_DTOApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/Invalid/{pk}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
+                header?: never;
+                path: {
+                    pk: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/BatchInvalid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    isInvalid?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/Delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/BatchDelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/QueryData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/SpecResearch/Create": {
         parameters: {
             query?: never;
@@ -6945,7 +7849,7 @@ export interface components {
             AnnouncementId?: string | null;
             /** @description 類別 */
             Categories?: string | null;
-            /** @description 組別 */
+            /** @description 標籤 */
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 封面圖片 */
@@ -7080,6 +7984,64 @@ export interface components {
             Width?: number;
             _BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
         };
+        CalendarDetail_DTO: {
+            /** Format: int32 */
+            Year?: number;
+            /** Format: date */
+            Date?: string;
+            DayOfWeek?: components["schemas"]["DayOfWeek"];
+            IsHoliday?: boolean;
+            HolidayName?: string | null;
+            Description?: string | null;
+            IsEdit?: boolean;
+            _Calendar?: components["schemas"]["Calendar_DTO"];
+            Spec_AcademicYear?: components["schemas"]["SpecOpenScheduleRuleModel"];
+            Spec_AcademicYearId?: string | null;
+            /** Format: time */
+            Spec_OpenTime?: string | null;
+            /** Format: time */
+            Spec_CloseTime?: string | null;
+            Spec_ModifyMemo?: string | null;
+        };
+        CalendarSet_DTO: {
+            Calendar?: components["schemas"]["Calendar_DTO"];
+            CalendarDetail?: components["schemas"]["CalendarDetail_DTO"][] | null;
+        };
+        CalendarSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["CalendarSet_DTO"];
+        };
+        Calendar_DTO: {
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
+            CreateTime?: string | null;
+            /** @description 創建人 */
+            CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["Account_DTO"];
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
+            ModifyTime?: string | null;
+            /** @description 修改人 */
+            ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["Account_DTO"];
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
+            InternalId?: string | null;
+            /** Format: int32 */
+            Year?: number;
+            ImportSrc?: string | null;
+            /** Format: date-time */
+            LastImportTime?: string;
+            _CalendarDetail?: components["schemas"]["CalendarDetail_DTO"][] | null;
+        };
         CategoryDataSet_DTO: {
             Category?: components["schemas"]["Category_DTO"];
             CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
@@ -7141,6 +8103,11 @@ export interface components {
          * @enum {integer}
          */
         DataStatus: 0 | 1;
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
+        DayOfWeek: 0 | 1 | 2 | 3 | 4 | 5 | 6;
         FileArchiveDetail_DTO: {
             /** @description 檔案室代碼 */
             FileArchiveId?: string | null;
@@ -7233,7 +8200,7 @@ export interface components {
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 類別 */
             CategoriesId?: string | null;
-            /** @description 組別 */
+            /** @description 標籤 */
             TagsId?: string | null;
             /**
              * Format: int32
@@ -7508,6 +8475,11 @@ export interface components {
          * Format: int32
          * @enum {integer}
          */
+        MessageStatus: 0 | 1 | 2 | 3;
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
         ModulePageType: 0 | 1;
         OrderBySpec: {
             Col?: string | null;
@@ -7675,7 +8647,7 @@ export interface components {
             Data?: components["schemas"]["SiteMenuSet_DTO"];
         };
         SiteMenu_IndexInfo_DTO: {
-            /** @description [SiteMenu_SiteIndex] */
+            /** @description 首頁代碼 */
             SiteIndex?: string | null;
             /**
              * Format: int32
@@ -7686,15 +8658,15 @@ export interface components {
             Lang?: string | null;
             /** @description 選單名稱 */
             Title?: string | null;
-            /** @description [SiteMenu_SiteDescription] */
+            /** @description 網站描述 */
             Description?: string | null;
             /** @description 橫幅廣告 */
             BannerId?: string | null;
-            /** @description [SiteMenu_SiteHeader] */
+            /** @description 網站標頭 */
             SiteHeader?: string | null;
-            /** @description [SiteMenu_SiteFooter] */
+            /** @description 網站標尾 */
             SiteFooter?: string | null;
-            /** @description [SiteMenu_SiteFooter] */
+            /** @description 網站標尾 */
             Keyword?: string | null;
         };
         SiteMenu_Index_DTO: {
@@ -7721,15 +8693,15 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
-            /** @description [SiteMenu_SiteIndex] */
+            /** @description 首頁代碼 */
             SiteIndex?: string | null;
-            /** @description [SiteMenu_GoogleAnalytics] */
+            /** @description Google分析碼 */
             GoogleAnalytics?: string | null;
-            /** @description [SiteMenu_Enable] */
+            /** @description 是否啟用站台 */
             Enable?: boolean;
         };
         SiteMenu_Item_DTO: {
-            /** @description [SiteMenu_SiteIndex] */
+            /** @description 首頁代碼 */
             SiteIndex?: string | null;
             /**
              * Format: int32
@@ -7744,12 +8716,12 @@ export interface components {
             FullUrl?: string | null;
             /**
              * Format: int32
-             * @description [SiteMenu_Level]
+             * @description 網頁項目層級
              */
             Level?: number;
             /**
              * Format: int32
-             * @description [SiteMenu_DisplayOrder]
+             * @description 網頁項目排序
              */
             DisplayOrder?: number;
             ItemType?: components["schemas"]["MenuUrlType"];
@@ -7758,7 +8730,7 @@ export interface components {
             IsShowOnMenu?: boolean;
         };
         SiteMenu_Item_Module_DTO: {
-            /** @description [SiteMenu_SiteIndex] */
+            /** @description 首頁代碼 */
             SiteIndex?: string | null;
             /**
              * Format: int32
@@ -7770,11 +8742,11 @@ export interface components {
             PageType?: components["schemas"]["ModulePageType"];
             /** @description 模型功能 */
             ModuleProgId?: string | null;
-            /** @description [SiteMenu_ModuleOptions] */
+            /** @description 網頁模型參數 */
             ModuleOptions?: string | null;
         };
         SiteMenu_Item_Title_DTO: {
-            /** @description [SiteMenu_SiteIndex] */
+            /** @description 首頁代碼 */
             SiteIndex?: string | null;
             /**
              * Format: int32
@@ -7788,11 +8760,11 @@ export interface components {
             RowId?: number | null;
             /** @description 語系 */
             Lang?: string | null;
-            /** @description [SiteMenu_MenuTitle] */
+            /** @description 網頁項目標題 */
             Title?: string | null;
         };
         SiteMenu_Item_Url_DTO: {
-            /** @description [SiteMenu_SiteIndex] */
+            /** @description 首頁代碼 */
             SiteIndex?: string | null;
             /**
              * Format: int32
@@ -7804,7 +8776,7 @@ export interface components {
             RedirectUrl?: string | null;
         };
         SpecCategoryDetailModel_DTO: {
-            /** @description 類別代號 */
+            /** @description [SpecCategoryId] */
             CategoryId?: string | null;
             /**
              * Format: int32
@@ -7813,7 +8785,7 @@ export interface components {
             RowId?: number;
             /** @description 語系 */
             Lang?: string | null;
-            /** @description 計畫類別名稱 */
+            /** @description [SpecCategory_Name] */
             CategoryName?: string | null;
         };
         SpecCategoryModel_DTO: {
@@ -7840,11 +8812,11 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
-            /** @description 類別代號 */
+            /** @description [SpecCategoryId] */
             CategoryId?: string | null;
             /** @description 功能模塊代碼 */
             ProgId?: string | null;
-            /** @description 顯示欄位 */
+            /** @description [SpecCategory_ShowColumn] */
             ShowColumnItems?: string | null;
             _SpecCategoryDetail?: components["schemas"]["SpecCategoryDetailModel_DTO"][] | null;
         };
@@ -7856,8 +8828,252 @@ export interface components {
             InternalId?: string | null;
             Data?: components["schemas"]["SpecCategorySet_DTO"];
         };
+        SpecCurrentOpenTime_DTO: {
+            /** Format: date */
+            Date?: string;
+            DayOfWeek?: components["schemas"]["DayOfWeek"];
+            HolidayName?: string | null;
+            /** Format: time */
+            Spec_OpenTime?: string | null;
+            /** Format: time */
+            Spec_CloseTime?: string | null;
+        };
+        SpecCurrentOpenTime_DTOApiResponse: {
+            readonly IsSuccess?: boolean;
+            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
+            Data?: components["schemas"]["SpecCurrentOpenTime_DTO"][] | null;
+        };
+        SpecOpenScheduleRuleModel: {
+            /** Format: date-time */
+            CreateTime?: string | null;
+            CreateUser?: components["schemas"]["AccountModel"];
+            CreateUserId?: string | null;
+            /** Format: date-time */
+            ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["AccountModel"];
+            ModifyUserId?: string | null;
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["AccountModel"];
+            InvalidUserId?: string | null;
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            IsIniData?: boolean;
+            /** Format: date-time */
+            Validate_Start?: string | null;
+            /** Format: date-time */
+            Validate_End?: string | null;
+            AcademicYearId?: string | null;
+            /** Format: date */
+            AcademicStart?: string;
+            /** Format: date */
+            AcademicEnd?: string;
+            /** Format: time */
+            Weekday_OpenTime?: string | null;
+            /** Format: time */
+            Weekday_CloseTime?: string | null;
+            /** Format: time */
+            Sat_OpenTime?: string | null;
+            /** Format: time */
+            Sat_CloseTime?: string | null;
+            /** Format: time */
+            Sun_OpenTime?: string | null;
+            /** Format: time */
+            Sun_CloseTime?: string | null;
+            /** Format: date */
+            WinterStart?: string;
+            /** Format: date */
+            WinterEnd?: string;
+            /** Format: time */
+            Winter_Weekday_OpenTime?: string | null;
+            /** Format: time */
+            Winter_Weekday_CloseTime?: string | null;
+            /** Format: time */
+            Winter_Sat_OpenTime?: string | null;
+            /** Format: time */
+            Winter_Sat_CloseTime?: string | null;
+            /** Format: time */
+            Winter_Sun_OpenTime?: string | null;
+            /** Format: time */
+            Winter_Sun_CloseTime?: string | null;
+            /** Format: date */
+            SummerStart?: string;
+            /** Format: date */
+            SummerEnd?: string;
+            /** Format: time */
+            Summer_Weekday_OpenTime?: string | null;
+            /** Format: time */
+            Summer_Weekday_CloseTime?: string | null;
+            /** Format: time */
+            Summer_Sat_OpenTime?: string | null;
+            /** Format: time */
+            Summer_Sat_CloseTime?: string | null;
+            /** Format: time */
+            Summer_Sun_OpenTime?: string | null;
+            /** Format: time */
+            Summer_Sun_CloseTime?: string | null;
+            ModifyMemo?: string | null;
+        };
+        SpecOpenScheduleRuleModel_DTO: {
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
+            CreateTime?: string | null;
+            /** @description 創建人 */
+            CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["Account_DTO"];
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
+            ModifyTime?: string | null;
+            /** @description 修改人 */
+            ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["Account_DTO"];
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
+            InternalId?: string | null;
+            /** @description 學年度 */
+            AcademicYearId?: string | null;
+            /**
+             * Format: date
+             * @description 學年度開始日
+             */
+            AcademicStart?: string | null;
+            /**
+             * Format: date
+             * @description 學年度結束日
+             */
+            AcademicEnd?: string | null;
+            /**
+             * Format: time
+             * @description 平日開館時間
+             */
+            Weekday_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 平日閉館時間
+             */
+            Weekday_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description 週六開館時間
+             */
+            Sat_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 週六閉館時間
+             */
+            Sat_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description 週日開館時間
+             */
+            Sun_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 週日閉館時間
+             */
+            Sun_CloseTime?: string | null;
+            /**
+             * Format: date
+             * @description 寒假開始日
+             */
+            WinterStart?: string | null;
+            /**
+             * Format: date
+             * @description 寒假結束日
+             */
+            WinterEnd?: string | null;
+            /**
+             * Format: time
+             * @description 寒假平日開館時間
+             */
+            Winter_Weekday_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 寒假平日閉館時間
+             */
+            Winter_Weekday_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description 寒假週六開館時間
+             */
+            Winter_Sat_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 寒假週六閉館時間
+             */
+            Winter_Sat_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description 寒假週日開館時間
+             */
+            Winter_Sun_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 寒假週日閉館時間
+             */
+            Winter_Sun_CloseTime?: string | null;
+            /**
+             * Format: date
+             * @description 暑假開始日
+             */
+            SummerStart?: string | null;
+            /**
+             * Format: date
+             * @description 暑假結束日
+             */
+            SummerEnd?: string | null;
+            /**
+             * Format: time
+             * @description 暑假平日開館時間
+             */
+            Summer_Weekday_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 暑假平日閉館時間
+             */
+            Summer_Weekday_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description 暑假週六開館時間
+             */
+            Summer_Sat_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 暑假週六閉館時間
+             */
+            Summer_Sat_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description 暑假週日開館時間
+             */
+            Summer_Sun_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 暑假週日閉館時間
+             */
+            Summer_Sun_CloseTime?: string | null;
+            /** @description [Common_Memo] */
+            ModifyMemo?: string | null;
+        };
+        SpecOpenScheduleRuleSet_DTO: {
+            SpecOpenScheduleRule?: components["schemas"]["SpecOpenScheduleRuleModel_DTO"];
+        };
+        SpecOpenScheduleRuleSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
+        };
         SpecResearchDetailModel_DTO: {
-            /** @description 研究計畫 */
+            /** @description [SpecResearchId] */
             ResearchId?: string | null;
             /**
              * Format: int32
@@ -7868,67 +9084,67 @@ export interface components {
             Lang?: string | null;
             /**
              * Format: int32
-             * @description 年度
+             * @description [SpecResearch_Year]
              */
             Year?: number | null;
             /**
              * Format: int32
-             * @description 學年度
+             * @description [SpecResearch_AcademicYear]
              */
             AcademicYear?: number | null;
-            /** @description 學期 */
+            /** @description [SpecResearch_Semester] */
             Semester?: string | null;
-            /** @description 執行期間 */
+            /** @description [SpecResearch_DuringExecution] */
             DuringExecution?: string | null;
-            /** @description 合約期間 */
+            /** @description [SpecResearch_ContractPeriod] */
             ContractPeriod?: string | null;
-            /** @description 上課時間 */
+            /** @description [SpecResearch_ClassTime] */
             ClassTime?: string | null;
-            /** @description 計畫主持人 */
+            /** @description [SpecResearch_ProjectLeader] */
             ProjectLeader?: string | null;
-            /** @description 姓名 */
+            /** @description [SpecResearch_Name] */
             Name?: string | null;
-            /** @description 本校教學人員 */
+            /** @description [SpecResearch_TeachingStaffOfOurSchool] */
             TeachingStaffOfOurSchool?: string | null;
-            /** @description 核定編號 */
+            /** @description [SpecResearch_ApprovalNumber] */
             ApprovalNumber?: string | null;
             /**
              * Format: double
-             * @description 核定金額
+             * @description [SpecResearch_ApprovedAmount]
              */
             ApprovedAmount?: number | null;
-            /** @description 學院 */
+            /** @description [SpecResearch_College] */
             College?: string | null;
-            /** @description 系所 */
+            /** @description [SpecResearch_Department] */
             Department?: string | null;
-            /** @description 學位 */
+            /** @description [SpecResearch_Degree] */
             GraduationDegree?: string | null;
-            /** @description 合作單位/學校 */
+            /** @description [SpecResearch_CoUnits] */
             CooperatingUnits?: string | null;
-            /** @description 合作項目 */
+            /** @description [SpecResearch_CoProject] */
             CooperationProject?: string | null;
-            /** @description 課程/社團 */
+            /** @description [SpecResearch_Courses] */
             Courses?: string | null;
-            /** @description 計畫名稱 */
+            /** @description [SpecResearch_ProjectName] */
             ProjectName?: string | null;
-            /** @description 論文名稱 */
+            /** @description [SpecResearch_PaperTitle] */
             PaperTitle?: string | null;
-            /** @description 備註 */
+            /** @description [SpecResearch_Remark] */
             Remark?: string | null;
-            /** @description 共同主持人 */
+            /** @description [SpecResearch_Cohost1] */
             Cohost1?: string | null;
-            /** @description 協同主持人 */
+            /** @description [SpecResearch_Cohost2] */
             Cohost2?: string | null;
-            /** @description 委辦/補助單位 */
+            /** @description [SpecResearch_Commissioned] */
             Commissioned?: string | null;
             /**
              * Format: double
-             * @description 計畫金額
+             * @description [SpecResearch_PlanAmount]
              */
             PlanAmount?: number | null;
-            /** @description 計畫內容簡介 */
+            /** @description [SpecResearch_PlanContent] */
             PlanContent?: string | null;
-            /** @description 委辦/補助單位 */
+            /** @description [SpecResearch_Professor] */
             Professor?: string | null;
         };
         SpecResearchModel_DTO: {
@@ -7955,12 +9171,12 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
-            /** @description 研究計畫 */
+            /** @description [SpecResearchId] */
             ResearchId?: string | null;
-            /** @description 計畫類別 */
+            /** @description [SpecResearch_Categories] */
             CategoryId?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
-            /** @description 標籤 */
+            /** @description [SpecResearch_Tags] */
             Tags?: string | null;
             _SpecResearchDetail?: components["schemas"]["SpecResearchDetailModel_DTO"][] | null;
         };
@@ -7973,7 +9189,7 @@ export interface components {
             Data?: components["schemas"]["SpecResearchSet_DTO"];
         };
         SpecUSRDetail_DTO: {
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
             /**
              * Format: int32
@@ -7982,67 +9198,67 @@ export interface components {
             RowId?: number;
             /** @description 語系 */
             Lang: string;
-            /** @description 年度 */
+            /** @description [SpecUSR_Year] */
             Year?: string | null;
             /**
              * Format: int32
-             * @description 學年度
+             * @description [SpecUSR_AcademicYear]
              */
             AcademicYear?: number | null;
-            /** @description 課程/活動名稱 */
+            /** @description [SpecUSR_Courses] */
             Courses?: string | null;
-            /** @description 實踐領域 */
+            /** @description [SpecUSR_PracticeField] */
             PracticeField?: string | null;
-            /** @description 計畫名稱 */
+            /** @description [SpecUSR_ProjectName] */
             ProjectName?: string | null;
-            /** @description 外部合作單位 */
+            /** @description [SpecUSR_ExternalCoUnits] */
             ExternalCooperationUnit?: string | null;
-            /** @description 本校執行系所/單位 */
+            /** @description [SpecUSR_Department] */
             Department?: string | null;
-            /** @description 執行期間 */
+            /** @description [SpecUSR_DuringExecution] */
             DuringExecution?: string | null;
             /**
              * Format: double
-             * @description 計畫金額
+             * @description [SpecUSR_PlanAmount]
              */
             PlanAmount?: number | null;
-            /** @description 執行策略 */
+            /** @description [SpecUSR_ExecutionStrategy] */
             ExecutionStrategy?: string | null;
-            /** @description 計畫內容簡介 */
+            /** @description [SpecUSR_ContentIntro] */
             ContentIntroduction?: string | null;
-            /** @description 計畫理念 */
+            /** @description [SpecUSR_ProjectConcept] */
             ProjectConcept?: string | null;
-            /** @description 計畫亮點 */
+            /** @description [SpecUSR_KeyHighlights] */
             ProjectHighlights?: string | null;
-            /** @description 計畫主持人 */
+            /** @description [SpecUSR_ProjectLeader] */
             ProjectLeader?: string | null;
-            /** @description 子計畫主持人 */
+            /** @description [SpecUSR_ProjectSubLeader] */
             ProjectSubLeader?: string | null;
-            /** @description 參與之師生或團隊 */
+            /** @description [SpecUSR_AttendTeam] */
             AttendTeam?: string | null;
-            /** @description 共同主持人 */
+            /** @description [SpecUSR_Cohost1] */
             Cohost1?: string | null;
-            /** @description 協同主持人 */
+            /** @description [SpecUSR_Cohost2] */
             Cohost2?: string | null;
-            /** @description 委辦/補助單位 */
+            /** @description [SpecUSR_Commissioned] */
             Commissioned?: string | null;
-            /** @description 備註 */
+            /** @description [SpecUSR_Remark] */
             Remark?: string | null;
-            /** @description 計畫類別 */
+            /** @description [SpecUSR_ProjectItem] */
             ProjectItem?: string | null;
             /**
              * @deprecated
-             * @description 相關網址
+             * @description [SpecUSR_Url]
              */
             Url?: string | null;
             /**
              * @deprecated
-             * @description 相關網址說明
+             * @description [SpecUSR_UrlDescription]
              */
             UrlDescription?: string | null;
         };
         SpecUSRFile_DTO: {
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
             /**
              * Format: int32
@@ -8085,25 +9301,22 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
-            /** @description 計畫類別 */
+            /** @description [SpecResearch_Categories] */
             CategoryId?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
-            /** @description 標籤 */
+            /** @description [SpecResearch_Tags] */
             Tags?: string | null;
-            /** @description 成果照片 */
+            /** @description [SpecUSR_PictureId] */
             PictureId?: string | null;
-            /**
-             * @deprecated
-             * @description 圖片說明
-             */
+            /** @description [SpecUSR_PicDescription] */
             PicDescription?: string | null;
             _SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"][] | null;
             _SpecUSRPhoto?: components["schemas"]["SpecUSRPhoto_DTO"][] | null;
         };
         SpecUSRPhotoInfo_DTO: {
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
             /**
              * Format: int32
@@ -8122,7 +9335,7 @@ export interface components {
             _SpecUSRPhoto?: components["schemas"]["SpecUSRPhoto_DTO"];
         };
         SpecUSRPhoto_DTO: {
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
             /**
              * Format: int32
@@ -8151,7 +9364,7 @@ export interface components {
             Data?: components["schemas"]["SpecUSRSet_DTO"];
         };
         SpecUSRUrl_DTO: {
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
             /**
              * Format: int32
@@ -8169,6 +9382,11 @@ export interface components {
             UrlDescription?: string | null;
             WindowTarget?: components["schemas"]["WindowTarget"];
             _SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"];
+        };
+        SysMessageModel: {
+            Status?: components["schemas"]["MessageStatus"];
+            MessageCode?: string | null;
+            Message?: string | null;
         };
         TagData_DTO: {
             /**
@@ -8282,6 +9500,16 @@ export interface components {
             PicId?: string | null;
             /** @description 圖片說明 */
             PicDescription?: string | null;
+            /**
+             * Format: date-time
+             * @description 上架日期
+             */
+            Validate_Start?: string | null;
+            /**
+             * Format: date-time
+             * @description 下架日期
+             */
+            Validate_End?: string | null;
             _WebResourceInfo?: components["schemas"]["WebResourceInfo_DTO"][] | null;
         };
         /**

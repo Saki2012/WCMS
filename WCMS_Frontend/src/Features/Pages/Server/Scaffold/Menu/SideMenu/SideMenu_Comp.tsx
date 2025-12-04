@@ -1,54 +1,116 @@
-import MenuListComp from '@/SysCore/Components/MenuList/MenuList_Comp'
-import type { IBETheme } from '@/Features/Pages/Server/Theme/ITheme'
-import { Link } from 'react-router-dom';
-import { useGetSideMenuItem, useSideMenuToggle } from './SlideMenu_Hook'
-import { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 
-import logImg from 'SpecFeature/Assets/Server/menu_logo_PC.svg'
-// import logImg from '@/Features/Assets/Server/images/logo/logo_PC_210x63.svg'
+import logImg from 'SpecFeature/Assets/Server/menu_logo_PC.svg';
+import {
+    ServerModuleRoutes,
+    type IModuleMeta,
+} from '@/Features/Pages/Server/BizFunc/ServerModuleRoutes';
+import { useEffect } from 'react';
 
-const SidebarMenu = ({ theme }: { theme: IBETheme }) => {
-    const items = useGetSideMenuItem();
-    const { isOpen, toggleSideMenu } = useSideMenuToggle();
+const buildActionPath = (moduleCode: string, progId: string, actionCode: string) => `/Server/${moduleCode}/${progId}/${actionCode}`;
 
-    const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
-    const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-
-    const toggleItem = (index: number) => { setExpandedIndex(prev => (prev === index ? null : index)); };
-    const toggleKey = (key: string) => {
-        setExpandedKeys(prev => { const newSet = new Set(prev); if (newSet.has(key)) newSet.delete(key); else newSet.add(key); return newSet; });
-    };
+const SidebarMenu = (prop: { moduleCode: IModuleMeta['ModuleCode'] }) => {
+    const module = ServerModuleRoutes.find((p) => p.ModuleCode === prop.moduleCode);
+    if (!module) return null;
+    useEffect(() => {
+        if (!module) return;
+        if (typeof window === 'undefined') return;
+        // 只在後台 SideMenu 範圍內處理
+        const sidebar = document.querySelector('.pc-sidebar .navbar-content');
+        if (!sidebar) return;
+        const items = Array.from(sidebar.querySelectorAll<HTMLLIElement>('.pc-item.pc-hasmenu'),);
+        // 先把舊的顯示狀態清掉（避免殘留）
+        items.forEach((li) => {
+            li.classList.remove('pc-trigger');
+            const sub = li.querySelector<HTMLElement>(':scope > .pc-submenu');
+            if (sub) sub.style.display = 'none';
+        });
+        type HandlerInfo = { link: HTMLAnchorElement; handler: (e: Event) => void };
+        const handlers: HandlerInfo[] = [];
+        items.forEach((li) => {
+            const link = li.querySelector<HTMLAnchorElement>(':scope > .pc-link');
+            const submenu = li.querySelector<HTMLElement>(':scope > .pc-submenu');
+            if (!link || !submenu) return;
+            const handler = (e: Event) => {
+                e.preventDefault();
+                const isOpen = li.classList.contains('pc-trigger');
+                // 關閉其他項目（跟 prototype 一樣同層只開一個）
+                items.forEach((otherLi) => {
+                    if (otherLi === li) return;
+                    otherLi.classList.remove('pc-trigger');
+                    const otherSub = otherLi.querySelector<HTMLElement>(':scope > .pc-submenu');
+                    if (otherSub) {
+                        otherSub.style.display = 'none';
+                    }
+                });
+                if (isOpen) {
+                    // 已經開啟 → 收合
+                    li.classList.remove('pc-trigger');
+                    submenu.style.display = 'none';
+                } else {
+                    // 從關閉 → 展開
+                    li.classList.add('pc-trigger');
+                    submenu.style.display = 'block';
+                }
+            };
+            link.addEventListener('click', handler);
+            handlers.push({ link, handler });
+        });
+        // 清除事件監聽，避免重複綁定
+        return () => {
+            handlers.forEach(({ link, handler }) =>
+                link.removeEventListener('click', handler),
+            );
+        };
+    }, [module]);
     return (
-        <>
-            <nav className="pc-sidebar">
-                <div className="navbar-wrapper" style={{ display: "block" }}>
-                    <div className="m-header">
-                        <h1>
-                            <Link to="" title="首頁" target="_self" className="b-brand">
-                                <img src={logImg} className="img-fluid logo-lg" alt="logo" />
-                            </Link>
-                        </h1>
-                        <button type='button' onClick={toggleSideMenu} style={{ marginTop: "10px" }} />
-                    </div>
-                    <div className="navbar-content open-trigger" data-simplebar="init">
-                        <div className="simplebar-wrapper" style={{ margin: "-10px 0px -50px" }}>
-                            <div className="simplebar-height-auto-observer-wrapper">
-                                <div className="simplebar-height-auto-observer"></div>
-                            </div>
-                            <div className="simplebar-mask">
-                                <div className="simplebar-offset" style={{ right: "0px", bottom: "0px" }}>
-                                    <div className="simplebar-content-wrapper" tabIndex={0} role="region" aria-label="scrollable content" style={{ height: "auto", overflow: "hidden" }}>
-                                        <div className="simplebar-content" style={{ padding: "10px 0px 50px" }}>
-                                            <MenuListComp items={items} Style={theme.SidebarMenu} expandedKeys={expandedKeys} onToggleKey={toggleKey} />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <nav className="pc-sidebar">
+            <div className="navbar-wrapper">
+                <div className="m-header">
+                    <h1>
+                        {/* 用後台預設路徑當「首頁」入口，也可以改成固定 /Server */}
+                        <NavLink to={'/Server'} title="首頁" target="_self" className="b-brand">
+                            <img src={logImg} className="img-fluid logo-lg" alt="logo" />
+                        </NavLink>
+                    </h1>
                 </div>
-            </nav>
-        </>
-    )
-}
-export default SidebarMenu
+                <div className="navbar-content">
+                    <ul className="pc-navbar">
+                        <li className="pc-item pc-caption Left_line">
+                            <label>{module.Title}</label>
+                            <span className="pc-micon">
+                                <i className="fas fa-ellipsis-h" />
+                            </span>
+                        </li>
+
+                        {module.Progs.map((prog) => (
+                            <li key={prog.ProgId} className="pc-item pc-hasmenu">
+                                <a className="pc-link" onClick={(e) => { e.preventDefault(); }} role='button'>
+                                    <span className="pc-micon">
+                                        <i className={prog.IconClassName}></i>
+                                    </span>
+                                    <span className="pc-mtext">{prog.Title}</span>
+                                    <span className="pc-arrow">
+                                        <i className="fas fa-chevron-right"></i>
+                                    </span>
+                                </a>
+
+                                <ul className="pc-submenu">
+                                    {prog.Actions.map((act) => (
+                                        <li key={act.ActionCode} className="pc-item">
+                                            <NavLink className="pc-link" to={buildActionPath(prog.ModuleCode, prog.ProgId, act.ActionCode)}>
+                                                {act.Title}
+                                            </NavLink>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    );
+};
+
+export default SidebarMenu;

@@ -5,6 +5,7 @@ export const ProgId = {
     Gallery: "Gallery",
     PageManagement: "PageManagement",
     WebResource: "WebResource",
+    Calendar: "Calendar",
 } as const;
 
 // 👉 "Announcement" | "FileArchive" | ...

@@ -2,7 +2,9 @@
 import { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { AuthAPI } from '@/SysCore/Utils/API/AuthClient';
-import logImg from 'SpecFeature/Assets/Server/login_logo_PC.svg'
+const logoModules = import.meta.glob('SpecFeature/Assets/Server/login_logo_PC.{svg,png,jpg,jpeg,gif,webp}', { eager: true, as: 'url', },) as Record<string, string>;
+// 只拿第一個（實務上這個 pattern 只會 match 一個檔案）
+const logImg = Object.values(logoModules)[0] ?? '';
 
 export default function LoginPage() {
   const [account, setAccount] = useState('');      // HTML 的 email 欄位 -> 後端 account

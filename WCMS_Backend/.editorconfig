@@ -41,3 +41,6 @@ dotnet_diagnostic.CS8981.severity = silent
 
 # CA1041: 提供 ObsoleteAttribute 訊息
 dotnet_diagnostic.CA1041.severity = silent
+
+# CA1822: 將成員標記為靜態
+dotnet_diagnostic.CA1822.severity = silent

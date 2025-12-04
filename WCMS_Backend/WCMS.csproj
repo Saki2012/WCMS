@@ -122,7 +122,10 @@
 
 	
 	<ItemGroup>
-	  <EmbeddedResource Update="SpecFeatures\T1810\Resx\SysMessageCode.zh-TW.resx">
+	  <EmbeddedResource Update="SpecFeatures\Spec1816\Resx\SpecMessageCode.zh-TW.resx">
+	    <SubType>Designer</SubType>
+	  </EmbeddedResource>
+	  <EmbeddedResource Update="SpecFeatures\T1810\Resx\SpecMessageCode.zh-TW.resx">
 	    <SubType>Designer</SubType>
 	  </EmbeddedResource>
 	</ItemGroup>

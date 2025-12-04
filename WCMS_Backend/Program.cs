@@ -23,6 +23,7 @@ using System.Threading.RateLimiting;
 using WCMS.Features.Member.Account;
 using WCMS.Features.Member.Personnel;
 using WCMS.Features.SystemSetting.Auth;
+using WCMS.Features.SystemSetting.Calendar;
 using WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting;
 using WCMS.SysCore;
 using WCMS.SysCore.AppSettingsOptions;
@@ -222,6 +223,7 @@ namespace WCMS
                 services.AddScoped<BizDeps>();
                 services.AddHttpContextAccessor();
                 services.AddScoped<ICurrentUserAccessor, HttpContextCurrentUserAccessor>();
+                services.AddHttpClient();
 
                 RegisterBizServices(services);
 
@@ -659,6 +661,7 @@ namespace WCMS
                 await RegistSysAccountAsync(cfg, db);
                 await RegistSysAccountAsync(cfg, db);
                 await RegistSiteIndex(cfg, db);
+                await RegistCalendar(services);
             }
             /// <summary>
             /// 註冊UDF
@@ -840,6 +843,15 @@ namespace WCMS
                 await db.Set<SiteMenu_IndexInfoModel>().AddRangeAsync([rootDetail1, rootDetail2]);
                 await db.SaveChangesAsync();
                 await tx.CommitAsync();
+            }
+            /// <summary>
+            /// 初始化萬年曆資料（從 NTPC 匯入）
+            /// </summary>
+            public static async Task RegistCalendar(IServiceProvider services)
+            {
+                using var scope = services.CreateScope() ;
+                var svc = scope.ServiceProvider.GetRequiredService<IBizService<CalendarSet>>();
+                if (svc is CalendarBiz calendarBiz) await calendarBiz.InitCalendar(CancellationToken.None);
             }
             #endregion
         }

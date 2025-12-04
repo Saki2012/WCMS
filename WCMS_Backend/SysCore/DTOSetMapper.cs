@@ -71,8 +71,14 @@ namespace WCMS.SysCore
         }
         private static void AssignValue(object dst, PropertyInfo dp, object? sv, bool toSet, MapCtx ctx)
         {
-            if (sv is null) { PropertyAccessorCache.Set(dst, dp.Name, null); return; }
             var dt = dp.PropertyType;
+            if (sv is null)
+            {
+                if (dt.IsValueType && Nullable.GetUnderlyingType(dt) == null)return; // 直接略過，不呼叫 setter
+                // 其他型別（class 或 Nullable<T>）才 Set(null)
+                PropertyAccessorCache.Set(dst, dp.Name, null);
+                return;
+            }
             if (IsListType(dt)) PropertyAccessorCache.Set(dst, dp.Name, MapList(sv as IEnumerable, dt, toSet, ctx));
             else if (IsComplexType(dt)) PropertyAccessorCache.Set(dst, dp.Name, MapComplex(sv, dt, toSet, ctx));
             else PropertyAccessorCache.Set(dst, dp.Name, ConvertSimple(sv, dt));
@@ -83,9 +89,7 @@ namespace WCMS.SysCore
             var elemType = GetElementType(dstListType) ?? typeof(object);
             var list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(elemType))!;
             foreach (var it in srcEnum ?? Array.Empty<object>())
-                list.Add(it is null ? null :
-                         IsComplexType(elemType) ? MapComplex(it, elemType, toSet, ctx)
-                                                 : ConvertSimple(it, elemType));
+                list.Add(it is null ? null : IsComplexType(elemType) ? MapComplex(it, elemType, toSet, ctx) : ConvertSimple(it, elemType));
             if (dstListType.IsArray) { var a = Array.CreateInstance(elemType, list.Count); list.CopyTo(a, 0); return a; }
             return list;
         }

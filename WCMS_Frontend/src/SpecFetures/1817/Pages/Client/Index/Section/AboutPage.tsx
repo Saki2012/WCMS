@@ -185,7 +185,7 @@ export const AboutPage = () => {
 																		frameBorder="no"
 																		height="165"
 																		scrolling="no"
-																		src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/666345588&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"
+																		src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A530105151&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"
 																		width="100%"
 																	/>
 																</div>
@@ -205,7 +205,7 @@ export const AboutPage = () => {
 																		frameBorder="no"
 																		height="165"
 																		scrolling="no"
-																		src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/666345588&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"
+																		src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A530109579&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"
 																		width="100%"
 																	/>
 																</div>

@@ -34,6 +34,9 @@ import { Server_Account_List_Comp } from "./BizFunc/AccountManage/Account/Server
 import { Server_Account_Form_Comp } from "./BizFunc/AccountManage/Account/Server_Account_Form_Comp";
 import { Server_Person_List_Comp } from "./BizFunc/AccountManage/Person/Server_Person_List_Comp";
 import { Server_Person_Form_Comp } from "./BizFunc/AccountManage/Person/Server_Person_Form_Comp";
+import CalendarPageComp from "./BizFunc/Dashboard/Calendar/Server_Calendar_Comp";
+import { Server_ScheduleRule_Form_Comp } from "@/SpecFetures/1816/Pages/Server/BizFunc/SystemSetting/SpecOpenScheduleRule/Server_ScheduleRule_Form_Comp";
+import { Server_ScheduleRule_List_Comp } from "@/SpecFetures/1816/Pages/Server/BizFunc/SystemSetting/SpecOpenScheduleRule/Server_ScheduleRule_List_Comp";
 
 export type RouteTitle = | string | ((m: UIMatch) => string);
 export type RouteCrumb = | string | ((m: UIMatch) => React.ReactNode);
@@ -72,6 +75,24 @@ export class BackendRouteModule implements IRouteModule {
                 handle: { title: "選單管理", breadcrumb: "選單管理" } as RouteHandleMeta,
                 children: [
                   { index: true, element: <SiteMenu_Comp theme={Classic_BETheme} lang={DefaultLang} /> },
+                ],
+              },
+              {
+                path: 'Calendar',
+                handle: { title: "萬年曆", breadcrumb: "萬年曆" } as RouteHandleMeta,
+                children: [
+                  { index: true, element: <CalendarPageComp defaultYear={2025} /> },
+                  { path: 'Form/:internalId?', element: <PageFormComp theme={Classic_BETheme} lang={DefaultLang} /> },
+                  { path: 'List', element: <PageListComp title="頁面列表" theme={Classic_BETheme} lang={DefaultLang} /> },
+                ],
+              },
+              {
+                path: 'SpecOpenScheduleRule',
+                handle: { title: "萬年曆", breadcrumb: "萬年曆" } as RouteHandleMeta,
+                children: [
+                  { index: true, element: <CalendarPageComp defaultYear={2025} /> },
+                  { path: 'Form/:internalId?', element: <Server_ScheduleRule_Form_Comp theme={Classic_BETheme} lang={DefaultLang} /> },
+                  { path: 'List', element: <Server_ScheduleRule_List_Comp title="頁面列表" theme={Classic_BETheme} lang={DefaultLang} /> },
                 ],
               },
             ]
@@ -136,7 +157,7 @@ export class BackendRouteModule implements IRouteModule {
               //#endregion
               //#region 頁面
               {
-                path: 'PageManage',
+                path: 'PageManagement',
                 children: [
                   { index: true, element: <AutoRedirect to="List" replace /> },
                   { path: 'Form/:internalId?', element: <PageFormComp theme={Classic_BETheme} lang={DefaultLang} /> },

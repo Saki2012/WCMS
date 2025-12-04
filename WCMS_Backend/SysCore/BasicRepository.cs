@@ -62,7 +62,6 @@ namespace WCMS.SysCore
         public async Task UpdateAsync(TModel oldData, TModel newData)
         {
             var set = DataAccess.Set<TModel>();
-
             // 1) 確保 oldData 受追蹤（不要 Attach newData）
             var oldEntry = DataAccess.Entry(oldData);
             if (oldEntry.State == EntityState.Detached)
@@ -71,16 +70,11 @@ namespace WCMS.SysCore
                 oldEntry = DataAccess.Entry(oldData);
             }
             oldEntry.State = EntityState.Unchanged; // 以「逐欄位 IsModified」為準
-
             // 2) 取出主鍵，禁止在更新時變更主鍵值
-            var entityType = DataAccess.Model.FindEntityType(typeof(TModel))
-                            ?? throw new InvalidOperationException($"EntityType not found: {typeof(TModel).Name}");
-            var pk = entityType.FindPrimaryKey()
-                     ?? throw new InvalidOperationException($"Primary key not found: {typeof(TModel).Name}");
+            var entityType = DataAccess.Model.FindEntityType(typeof(TModel)) ?? throw new InvalidOperationException($"EntityType not found: {typeof(TModel).Name}");
+            var pk = entityType.FindPrimaryKey() ?? throw new InvalidOperationException($"Primary key not found: {typeof(TModel).Name}");
             object[] GetKeyValues(object entity) => pk.Properties.Select(p => p.PropertyInfo!.GetValue(entity)!).ToArray();
-            if (!GetKeyValues(oldData).SequenceEqual(GetKeyValues(newData)))
-                throw new InvalidOperationException("Primary key cannot be changed during update.");
-
+            if (!GetKeyValues(oldData).SequenceEqual(GetKeyValues(newData))) throw new InvalidOperationException("Primary key cannot be changed during update.");
             // 3) 欄位差異套用到 oldData（跳過集合/Key/NotMapped/併發欄位）
             var ef = EfMetaCache.Get(DataAccess, typeof(TModel));
 
