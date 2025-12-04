@@ -15,6 +15,7 @@ import { useEffect, useMemo, useState } from "react";
 import { isWithinLastNDaysFromString } from "@/SpecFetures/1810/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 import { ColRender, RowRender, STORAGE_KEY } from "@/SysCore/Components/Grid/Grid_Comp";
+import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 // type TagSet = components["schemas"]["TagSet_DTO"];
@@ -184,11 +185,14 @@ const GridList_Comp = (props: { title: string; GridData: GridProps }) => {
         });
     };
     return (
-        <table className={"table table-striped table-bordered table-hover + Files_table + table-rwd"} summary={props.title}>
-            <caption>{props.title}</caption>
-            <ColRender columns={columns} onResize={handleResize} />
-            <RowRender rows={props.GridData.rows} />
-        </table>
+        <>
+            <OperationGuideHelp_Comp />
+            <table className={"table table-striped table-bordered table-hover + table-rwd"} summary={props.title}>
+                <caption>{props.title}</caption>
+                <ColRender columns={columns} onResize={handleResize} />
+                <RowRender rows={props.GridData.rows} />
+            </table>
+        </>
     )
 
 

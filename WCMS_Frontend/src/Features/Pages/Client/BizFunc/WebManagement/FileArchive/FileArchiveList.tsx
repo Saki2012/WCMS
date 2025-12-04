@@ -17,6 +17,7 @@ import { ProgId } from "@/Features/Hooks/Common/ProgId";
 import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
+import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
 type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"];
 type FileArchiveUrlDetail = components["schemas"]["FileArchiveUrlDetail_DTO"];
@@ -82,11 +83,14 @@ const GridList_Comp = (props: { title: string; gridData: GridProps; }) => {
         });
     };
     return (
-        <table className={"table table-striped table-bordered table-hover + table-rwd"} summary={props.title}>
-            <caption>{props.title}</caption>
-            <ColRender columns={columns} onResize={handleResize} />
-            <RowRender rows={props.gridData.rows} />
-        </table>
+        <>
+            <OperationGuideHelp_Comp />
+            <table className={"table table-striped table-bordered table-hover + table-rwd"} summary={props.title}>
+                <caption>{props.title}</caption>
+                <ColRender columns={columns} onResize={handleResize} />
+                <RowRender rows={props.gridData.rows} />
+            </table>
+        </>
     );
 }
 

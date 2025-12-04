@@ -23,6 +23,7 @@ import { ColRender, RowRender, STORAGE_KEY } from "@/SysCore/Components/Grid/Gri
 import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
+import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 type TagSet = components["schemas"]["TagSet_DTO"];
@@ -96,11 +97,14 @@ const GridList_Comp = (props: { title: string; gridData: GridProps }) => {
         });
     };
     return (
-        <table className={"table table-striped table-bordered table-hover + NEWS_table + table-rwd"} summary={props.title}>
-            <caption>{props.title}</caption>
-            <ColRender columns={columns} onResize={handleResize} />
-            <RowRender rows={props.gridData.rows} />
-        </table>
+        <>
+            <OperationGuideHelp_Comp />
+            <table className={"table table-striped table-bordered table-hover + table-rwd"} summary={props.title}>
+                <caption>{props.title}</caption>
+                <ColRender columns={columns} onResize={handleResize} />
+                <RowRender rows={props.gridData.rows} />
+            </table>
+        </>
     )
 }
 const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: AnnouncementSet[] }) => {
