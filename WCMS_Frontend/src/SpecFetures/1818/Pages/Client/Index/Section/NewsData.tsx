@@ -170,7 +170,7 @@ export const NewsData = (props: { lang: Lang }) => {
 
 
 
-	const allNews1 = getNewsDataProps(allNewsRawData1, props.lang, "/News/News-01", "", categoryDict, tagDict);
+	const allNews1 = getNewsDataProps(allNewsRawData1, props.lang, "/announcement/announcement-news", "", categoryDict, tagDict);
 	//	const allNews2 = getNewsDataProps(allNewsRawData2, lang, "/News/News-02", "", categoryDict, tagDict);
 	//	const allNews3 = getNewsDataProps(allNewsRawData3, lang, "/News/News-03", "", categoryDict, tagDict);
 	//	const allNews4 = getNewsDataProps(allNewsRawData4, lang, "/News/News-04", "", categoryDict, tagDict);
