@@ -5,6 +5,7 @@ import { DefaultLang, isSupportedLang, normalizeLang } from "../../i18n/lang";
 import { LangProvider } from "../../i18n/LangContext";
 import { SeoLinks } from "./SeoLinks";
 import { AutoRedirect } from "./AutoRedirect";
+import { ScrollToTop } from "@/SysCore/Components/ScollToTop";
 
 export const LangGuard: React.FC<{ ssrAcceptLang?: string; cookieLang?: string }> = (props) => {
     const { lang: langFromUrl } = useParams();          // 只有在 /:lang 分支才會有值
@@ -26,6 +27,7 @@ export const LangGuard: React.FC<{ ssrAcceptLang?: string; cookieLang?: string }
     return (
         <LangProvider initial={best}>
             <SeoLinks resolvedLang={best} pathname={location.pathname} />
+            <ScrollToTop />
             <Outlet />
         </LangProvider>
     );
