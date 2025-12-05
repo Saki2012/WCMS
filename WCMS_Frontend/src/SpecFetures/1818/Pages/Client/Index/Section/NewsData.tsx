@@ -132,24 +132,9 @@ const useTagList = () => {
 
 
 export const NewsData = (props: { lang: Lang }) => {
-
 	const useTopAllNewsData1 = useTopAnnouncementList("Category20251113009");
-	//	const useTopAllNewsData2 = useTopAnnouncementList("2");
-	//	const useTopAllNewsData3 = useTopAnnouncementList("3");
-	//	const useTopAllNewsData4 = useTopAnnouncementList("4");
-
 	const useAllNewsData1 = useAnnouncementList("Category20251113009");
-	//	const useAllNewsData2 = useAnnouncementList("2");
-	//	const useAllNewsData3 = useAnnouncementList("3");
-	//	const useAllNewsData4 = useAnnouncementList("4");
-
-
-
 	const allNewsRawData1 = takeTopThenFill(useTopAllNewsData1.rawData, useAllNewsData1.rawData, 6);
-	//	const allNewsRawData2 = takeTopThenFill(useTopAllNewsData2.rawData, useAllNewsData2.rawData, 3);
-	//	const allNewsRawData3 = takeTopThenFill(useTopAllNewsData3.rawData, useAllNewsData3.rawData, 3);
-	//	const allNewsRawData4 = takeTopThenFill(useTopAllNewsData4.rawData, useAllNewsData4.rawData, 3);
-
 	const useCategoryData = useCategoryList();
 	const useTagData = useTagList();
 	const categoryDict: Record<string, string> = Object.fromEntries(
@@ -159,7 +144,6 @@ export const NewsData = (props: { lang: Lang }) => {
 			return [id, name];
 		})
 	);
-
 	const tagDict: Record<string, string> = Object.fromEntries(
 		(useTagData.rawData ?? []).map(cat => {
 			const id = cat.TagData?.TagId;
@@ -167,18 +151,8 @@ export const NewsData = (props: { lang: Lang }) => {
 			return [id, name];
 		})
 	);
-
-
-
 	const allNews1 = getNewsDataProps(allNewsRawData1, props.lang, "/announcement/announcement-news", "", categoryDict, tagDict);
-	//	const allNews2 = getNewsDataProps(allNewsRawData2, lang, "/News/News-02", "", categoryDict, tagDict);
-	//	const allNews3 = getNewsDataProps(allNewsRawData3, lang, "/News/News-03", "", categoryDict, tagDict);
-	//	const allNews4 = getNewsDataProps(allNewsRawData4, lang, "/News/News-04", "", categoryDict, tagDict);
-
 	return (
-
-
-
 		<section className="Newsii_section Layout_Padding_1_top Layout_Padding_1_bottom bg-white">
 			<div className="Mask-DivBox">
 				<div className="customizeBox">
@@ -222,11 +196,6 @@ export const NewsData = (props: { lang: Lang }) => {
 				</div>
 			</div>
 		</section>
-
-
-
-
-
 	);
 };
 
@@ -284,8 +253,6 @@ const formatDate = (dateStr: string) => {
 	const year = date.getFullYear().toString();
 	return { day, month, year };
 }
-
-
 
 const GetData = ({ prop }: { prop: getDataProp[] }) => {
 	return (

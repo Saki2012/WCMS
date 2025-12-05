@@ -19,15 +19,10 @@ export const AdmissionsCarouselData = (props: { lang: Lang }) => {
   useEffect(() => {
     // SSR 保護：避免在伺服器端執行到 window / $
     if (typeof window === "undefined") return;
-
     const $: any = (window as any).$ || (window as any).jQuery;
     if (!$) return;
-
     const $owl = $('#Admissions_owl_carousel');
-    if (!$owl.length || typeof $owl.owlCarousel !== "function") {
-      return;
-    }
-
+    if (!$owl.length || typeof $owl.owlCarousel !== "function") return;
     // 初始化 Owl Carousel
     $owl.owlCarousel({
       items: 4,
