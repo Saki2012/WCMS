@@ -3,145 +3,157 @@ import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Ro
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import clsx from "clsx";
-import { useEffect, useRef } from "react";
-import { NavLink } from "react-router-dom";
+import React, { useMemo, useState, useEffect } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 
+type SubMenuProps = { lang: Lang; site: INormSite; node: INormNode; maxDepth?: number; };
 
-const GetMenuData = (lang: Lang, site: INormSite, node: INormNode, maxDepth: number = Infinity): MenuItemData[] => {
+const GetMenuData = (lang: Lang, site: INormSite, node: INormNode, maxDepth: number = Infinity,): MenuItemData[] => {
     const roots = site.treeByLang?.[lang] ?? [];
-    const rootNode = roots.find(n => n.id === (node.rootId ?? roots[0]?.id));
+    const rootNode = roots.find((n) => n.id === (node.rootId ?? roots[0]?.id));
     if (!rootNode) return [];
     return buildMenuItems(rootNode.children ?? [], node.id, 1, maxDepth);
 };
+/** 判斷是不是外部連結（http / https 開頭） */
+const isExternalUrl = (url?: string | null): boolean => {
+    if (!url) return false;
+    return /^https?:\/\//i.test(url) || url.startsWith("//");
+};
+/** 把路徑尾巴的斜線修掉，方便做判斷 */
+const normalizePath = (path: string): string => {
+    if (!path) return "/";
+    try {
+        const clean = path.split("?")[0].split("#")[0];
+        if (clean.length > 1 && clean.endsWith("/")) return clean.slice(0, -1);
+        return clean || "/";
+    }
+    catch {
+        return path;
+    }
+};
+/** 只判斷「完全相等」的路徑，用在 leaf active */
+const isUrlExactlyMatch = (currentPath: string, itemUrl: string | undefined): boolean => {
+    if (!itemUrl) return false;
+    if (isExternalUrl(itemUrl)) return false;
 
-export const SubMenu_Comp = (props: { lang: Lang; site: INormSite; node: INormNode; backHref?: string; }) => {
-    const SIDE_MAX_DEPTH = 3;
-    const sideMenuData: MenuItemData[] = GetMenuData(props.lang, props.site, props.node, SIDE_MAX_DEPTH);
-    const sidebarRef = useRef<HTMLDivElement | null>(null);
-    useEffect(() => {
-        if (typeof window === "undefined") return;
-
-        const root = sidebarRef.current;
-        if (!root) return;
-
-        let cleanup: (() => void) | null = null;
-
-        const bindBootstrapMenu = () => {
-            const bs = (window as any).bootstrap;
-            const CollapseCtor = bs?.Collapse as any;
-            if (!CollapseCtor) {
-                // bootstrap 還沒載好 → 等一下再試
-                return false;
+    const cur = normalizePath(currentPath);
+    const url = normalizePath(itemUrl);
+    return cur === url;
+};
+/** 計算：
+ *  - activeIds：只有「實際匹配路由」的節點才 active（通常是 leaf）
+ *  - expandedIdsByPath：在目前路徑上的父節點，用來自動展開
+ */
+const calcActiveAndExpanded = (items: MenuItemData[], pathname: string) => {
+    const activeIds = new Set<string>();
+    const expandedIdsByPath = new Set<string>();
+    const dfs = (item: MenuItemData): boolean => {
+        const hasChildren = !!(item.SubItem && item.SubItem.length > 0);
+        const selfActive = isUrlExactlyMatch(pathname, item.Url);
+        let hasActiveInSubtree = selfActive;
+        if (hasChildren) {
+            for (const child of item.SubItem) {
+                if (dfs(child)) {
+                    hasActiveInSubtree = true;
+                }
+            }
+        }
+        if (selfActive) activeIds.add(item.Id);
+        if (hasChildren && hasActiveInSubtree) expandedIdsByPath.add(item.Id);
+        return hasActiveInSubtree;
+    };
+    items.forEach(dfs);
+    return { activeIds, expandedIdsByPath };
+};
+export const SubMenu_Comp: React.FC<SubMenuProps> = (props) => {
+    const { lang, site, node, maxDepth = 3 } = props;//暫時默認最多3層，之後看code如何改
+    const location = useLocation();
+    // 依照 lang / site / node 取得當前節點底下的 menu
+    const menuItems = useMemo(() => GetMenuData(lang, site, node, maxDepth), [lang, site, node, maxDepth],);
+    // 根據目前路由計算 active 與「應該展開」的父節點
+    const { activeIds, expandedIdsByPath } = useMemo(() => calcActiveAndExpanded(menuItems, location.pathname), [menuItems, location.pathname],);
+    // 實際展開狀態：預設會包含路徑上要展開的節點，點父層可額外展開/收合
+    const [expandedIds, setExpandedIds] = useState<Set<string>>(expandedIdsByPath);
+    // 當路徑或 menu 改變時，同步一份預設展開狀態
+    useEffect(() => { setExpandedIds(new Set(expandedIdsByPath)); }, [expandedIdsByPath]);
+    const isItemActive = (item: MenuItemData) => activeIds.has(item.Id);
+    const isItemExpanded = (item: MenuItemData, hasChildren: boolean) => hasChildren && expandedIds.has(item.Id);
+    const toggleExpand = (id: string) => {
+        setExpandedIds((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) {
+                next.delete(id);
+            }
+            else {
+                next.add(id);
+            }
+            return next;
+        });
+    };
+    const renderSubMenuItems = (items: MenuItemData[]): React.ReactNode =>
+        items.map((item, idx) => {
+            const hasChildren = !!(item.SubItem && item.SubItem.length > 0);
+            const key = `${item.Id}-${idx}`;
+            const target = item.URL_Open;
+            const active = isItemActive(item);
+            const expanded = isItemExpanded(item, hasChildren);
+            let content: React.ReactNode;
+            if (hasChildren) {
+                // 有子層的父節點：只用來展開/收合，不做導頁（即使有 Url）
+                content = (
+                    <button type="button" className={clsx("list-group-item",)} onClick={() => toggleExpand(item.Id)} aria-expanded={expanded}>
+                        {item.SrcData}
+                    </button>
+                );
+            }
+            else {
+                // 沒子層 → 真的可以導頁的 leaf
+                if (!item.Url) {
+                    // 理論上不太會出現，但保險處理
+                    content = (
+                        <span className={clsx("list-group-item", active && "active")}>
+                            {item.SrcData}
+                        </span>
+                    );
+                }
+                else if (isExternalUrl(item.Url)) {
+                    // 外部連結
+                    content = (
+                        <a href={item.Url} target={target} rel={target === "_blank" ? "noopener noreferrer" : undefined} className={clsx("list-group-item", active && "active")}>
+                            {item.SrcData}
+                        </a>
+                    );
+                }
+                else {
+                    // 內部路由
+                    content = (
+                        <NavLink to={item.Url} target={target} className={clsx("list-group-item", active && "active")} end>
+                            {item.SrcData}
+                        </NavLink>
+                    );
+                }
             }
 
-            // 只抓「有子選單」的那種 list-group-item
-            const items = Array.from(
-                root.querySelectorAll<HTMLElement>(".sidebar .nav-item.has-submenu > .list-group-item")
+            return (
+                <li key={key} className={clsx("nav-item", hasChildren && "has-submenu",)}>
+                    {content}
+                    {hasChildren && (
+                        <ul className={clsx("submenu", "collapse", expanded && "show",)}>
+                            {renderSubMenuItems(item.SubItem!)}
+                        </ul>
+                    )}
+                </li>
             );
-
-            const onItemClick = (e: Event) => {
-                const element = e.currentTarget as HTMLElement;
-                const nextEl = element.nextElementSibling as HTMLElement | null;
-
-                // 處理 active 樣式
-                if (!element.classList.contains("active")) {
-                    root
-                        .querySelectorAll<HTMLElement>(".sidebar .list-group-item.active")
-                        .forEach((el) => el.classList.remove("active"));
-                }
-                element.classList.toggle("active");
-
-                // 有 submenu 的才用 Collapse 做「滑動」展開/收合
-                if (nextEl && nextEl.classList.contains("submenu")) {
-                    e.preventDefault();
-
-                    const isShown = nextEl.classList.contains("show");
-                    const collapse = new CollapseCtor(nextEl, { toggle: false });
-
-                    if (isShown) {
-                        // 已經展開 → 收起
-                        collapse.hide();
-                    } else {
-                        // 沒展開 → 展開
-                        collapse.show();
-
-                        // 關閉同層其它已展開的 submenu
-                        const parent = element.closest("ul");
-                        if (parent) {
-                            parent
-                                .querySelectorAll<HTMLElement>(".submenu.show")
-                                .forEach((openSub) => {
-                                    if (openSub === nextEl) return;
-
-                                    new CollapseCtor(openSub, { toggle: false }).hide();
-
-                                    const openTrigger = openSub.previousElementSibling as HTMLElement | null;
-                                    if (openTrigger && openTrigger.classList.contains("list-group-item")) {
-                                        openTrigger.classList.remove("active");
-                                    }
-                                });
-                        }
-                    }
-                }
-            };
-
-            items.forEach((el) => el.addEventListener("click", onItemClick));
-
-            // 記錄清理函式，unmount 或重新綁時移除事件
-            cleanup = () => {
-                items.forEach((el) => el.removeEventListener("click", onItemClick));
-            };
-
-            return true;
-        };
-
-        // 先試一次，看看 bootstrap 是否已經載好
-        if (!bindBootstrapMenu()) {
-            // 還沒載好 → 每 50ms 檢查一次，等到 bootstrap 掛上來為止
-            const timer = window.setInterval(() => {
-                if (bindBootstrapMenu()) {
-                    window.clearInterval(timer);
-                }
-            }, 50);
-
-            return () => {
-                window.clearInterval(timer);
-                cleanup?.();
-            };
-        }
-
-        return () => {
-            cleanup?.();
-        };
-    }, [props.lang, props.node.id, props.site]);
-
-
+        });
+    if (!menuItems.length) return null;
+    // 外層欄位寬度：SubPage.tsx 已預留右側 col-xl-10，這裡就用 col-xl-2 對齊
     return (
         <div className="col-xl-2 col-lg-3 col-md-12 col-sm-12 col-12">
-            <div id="ContentPlaceContent_ContentSubMenu" className="col-sm-12 col-12 + px-0 + SubPage-leftMenu ">
-                <p className="lead"></p>
-                <h2>{props.node.title}</h2>
-                <div id="SubPage-SidebarMenu" ref={sidebarRef}>
-                    <nav className="sidebar mb-5">
-                        <ul className="nav list-group" id="nav_accordion">
-                            {renderSubMenuItems(sideMenuData)}
-                        </ul>
-                    </nav>
-                </div>
-            </div>
+            <nav className="sidebar">
+                <ul className="list-group">
+                    {renderSubMenuItems(menuItems)}
+                </ul>
+            </nav>
         </div>
-    )
-}
-
-const renderSubMenuItems = (items: MenuItemData[]): React.ReactNode =>
-    items.map((item, idx) => {
-        const hasChildren = !!(item.SubItem && item.SubItem.length > 0);
-        const key = `${item.Id}-${idx}`;
-        const tar = item.URL_Open
-        return (
-            <li key={key} className={clsx("nav-item", `${hasChildren ? "has-submenu" : ""}`)}>
-                {hasChildren ? <a className="list-group-item" onClick={() => { }}>{item.SrcData}</a> : <NavLink className="list-group-item" to={item.Url ?? ""} target={tar}>{item.SrcData}</NavLink>}
-                {hasChildren && (<ul className="submenu collapse">{renderSubMenuItems(item.SubItem!)}</ul>)}
-            </li>
-        );
-    });
+    );
+};
