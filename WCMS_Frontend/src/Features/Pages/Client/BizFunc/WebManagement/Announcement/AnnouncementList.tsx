@@ -276,7 +276,7 @@ const dataFetch = (provider: IDataProvider<AnnouncementSet>, lang: string, categ
         visibleKeys: [
             [AnnouncementSetFields.Announcement, AnnouncementFields.Validate_Start],
             [AnnouncementSetFields.Announcement, AnnouncementFields.Categories],
-            [AnnouncementSetFields.Announcement, AnnouncementFields.Tags],
+            // [AnnouncementSetFields.Announcement, AnnouncementFields.Tags],
             [AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.Title],
             [AnnouncementSetFields.Announcement, AnnouncementFields.ViewCount],
         ],
