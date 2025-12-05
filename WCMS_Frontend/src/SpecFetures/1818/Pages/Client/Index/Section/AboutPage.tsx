@@ -7,13 +7,10 @@ import type { Lang } from '@/SysCore/i18n/lang';
 import { useFetchFormData } from '@/SysCore/Utils/API/FetchFormData';
 import type { components } from "@/types/api";
 import parse from 'html-react-parser';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"]
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"]
-
-
-
 
 export const AboutPage = (props: { lang: Lang }) => {
 	const pvd = useMemo(() => { return { WebPvd: WebResourceProvider(), PagePvd: PageManagementProvider() } }, [])
@@ -23,6 +20,10 @@ export const AboutPage = (props: { lang: Lang }) => {
 	const pageDt = pageData?.PageManagementDetail?.find(p => p.Lang === props.lang);
 	const parseContent = useResolveInternalIds(pageDt?.Content ?? "", { locale: props.lang });
 	const content = parseContent.html ? parse(parseContent.html) : null;
+	const videoRef = useRef<HTMLVideoElement | null>(null);
+	const videoSrc = webSrcDt?.ResUrl ?? "";
+	useEffect(() => { if (videoRef.current && videoSrc) { videoRef.current.load(); } }, [videoSrc]);
+
 	return (
 		<section className="About_section">
 			<div className="Mask-DivBox">
@@ -31,8 +32,8 @@ export const AboutPage = (props: { lang: Lang }) => {
 					<div className="container-customize3">
 						<div className="row Layout_Padding_1_bottom">
 							<div className="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
-								<video autoPlay className="about-video" controls loop playsInline preload="metadata">
-									<source src={webSrcDt?.ResUrl ?? ""} type="video/mp4" />
+								<video ref={videoRef} className="about-video" controls loop playsInline preload="metadata">
+									<source src={videoSrc} type="video/mp4" />
 									<track default kind="subtitles" label="中文" src="subs/zh-TW.vtt" srcLang="zh-TW" />
 									<track kind="subtitles" label="English" src="subs/en.vtt" srcLang="en" />
 									你的瀏覽器不支援 HTML5 視訊，請更新瀏覽器或下載檔案播放。
@@ -64,9 +65,7 @@ export const AboutPage = (props: { lang: Lang }) => {
 					</div>
 				</div>
 			</div>
-
 		</section>
-
 	);
 };
 
