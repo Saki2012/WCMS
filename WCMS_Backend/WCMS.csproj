@@ -125,6 +125,9 @@
 	  <EmbeddedResource Update="SpecFeatures\Spec1816\Resx\SpecMessageCode.zh-TW.resx">
 	    <SubType>Designer</SubType>
 	  </EmbeddedResource>
+	  <EmbeddedResource Update="SpecFeatures\Spec1817\Resx\SpecMessageCode.zh-TW.resx">
+	    <SubType>Designer</SubType>
+	  </EmbeddedResource>
 	  <EmbeddedResource Update="SpecFeatures\T1810\Resx\SpecMessageCode.zh-TW.resx">
 	    <SubType>Designer</SubType>
 	  </EmbeddedResource>

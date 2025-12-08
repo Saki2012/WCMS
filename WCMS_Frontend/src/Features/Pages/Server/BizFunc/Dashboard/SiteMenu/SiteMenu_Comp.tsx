@@ -756,7 +756,7 @@ const ModuleSettingTab = (prop: {
   const rowId = prop.selectedItemEdit?.MenuItem.Item.RowId;
 
   const allowMap: Record<ModelKey, number[]> = {
-    Announcement: [1, 2, 3],
+    Announcement: [1, 2, 3, 8],
     Gallery: [1, 4],
     FileArchive: [1, 5, 6],
     WebResource: [1, 2, 7],

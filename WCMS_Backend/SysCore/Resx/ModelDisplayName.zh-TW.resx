@@ -372,7 +372,6 @@
   <data name="User_AccountStatus" xml:space="preserve">
     <value>帳戶狀態</value>
   </data>
-
   <data name="AnnouncementId" xml:space="preserve">
     <value>公告代碼</value>
   </data>
@@ -454,7 +453,6 @@
   <data name="SiteMenu_ModuleProgId" xml:space="preserve">
     <value>模型功能</value>
   </data>
-
   <data name="Enum_Gender" xml:space="preserve">
     <value>性別</value>
   </data>
@@ -577,5 +575,8 @@
   </data>
   <data name="BannerDetailInfo" xml:space="preserve">
     <value>橫幅明細說明</value>
+  </data>
+  <data name="Enum_TimelineSlider" xml:space="preserve">
+    <value>歷史時間軸</value>
   </data>
 </root>

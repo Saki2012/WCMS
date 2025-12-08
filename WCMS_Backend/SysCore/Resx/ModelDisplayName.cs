@@ -50,6 +50,7 @@ namespace WCMS.SysCore.Resx
         public const string Enum_Expand_Category = "Enum_Expand_Category";
         public const string Enum_Expand_Tag = "Enum_Expand_Tag";
         public const string Enum_Youtube = "Enum_Youtube";
+        public const string Enum_TimelineSlider = "Enum_TimelineSlider";
         public const string Enum_WindowTarget_Self = "Enum_WindowTarget_Self";
         public const string Enum_WindowTarget_Blank = "Enum_WindowTarget_Blank";
         public const string Enum_TwoColumn = "Enum_TwoColumn";

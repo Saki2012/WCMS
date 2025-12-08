@@ -404,8 +404,6 @@ namespace WCMS.SysCore.Enum
             /// QA列表式
             /// </summary>
             [LibDesc(ModelDisplayName.Enum_QAList)] QAList = 3,
-
-
             /// <summary>
             /// 瀑布式
             /// </summary>
@@ -421,7 +419,11 @@ namespace WCMS.SysCore.Enum
             /// <summary>
             /// Youtube
             /// </summary>
-            [Obsolete, LibDesc(ModelDisplayName.Enum_Youtube)] Youtube = 7
+            [Obsolete, LibDesc(ModelDisplayName.Enum_Youtube)] Youtube = 7,
+            /// <summary>
+            /// 歷史時間軸
+            /// </summary>
+            [LibDesc(ModelDisplayName.Enum_TimelineSlider)] TimelineSlider = 8,
         }
 
     }
