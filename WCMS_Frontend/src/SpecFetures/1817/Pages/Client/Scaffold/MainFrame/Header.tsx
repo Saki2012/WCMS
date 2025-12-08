@@ -8,6 +8,7 @@ import { useCallback, useEffect, useRef } from "react";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
+import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";
 
 
 
@@ -49,6 +50,7 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
                 <Menu_Section {...props} />
                 <div className="overlayer" aria-hidden="true" />
             </div>
+            <GoTopButton />
         </>
     );
 }

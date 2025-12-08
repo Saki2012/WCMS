@@ -1,49 +1,7 @@
+import type { Lang } from "@/SysCore/i18n/lang";
 
 
-//import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
-//import { useBannerListData } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Hook";
-//import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
-//import type { components } from "@/types/api";
-//import clsx from "clsx";
-//import * as SchemaFields from "@/types/SchemaFields";
-//import { useMemo } from "react";
-//import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-//type BannerSet = components["schemas"]["BannerSet_DTO"]
-//const emptyData: BannerSet = {
-//	Banner: {},
-//	BannerDetail: [
-//		{
-//			RowId: 1,
-//			Validate_Start: "",
-//			Validate_End: "",
-//			PicSrcId: "",
-//			FontColor: "",
-//		}
-//	],
-//	BannerDetailInfo: [
-//		{
-//			ParentRowId: 1,
-//			RowId: 1,
-//			Lang: "zh-tw",
-//			Title: "",
-//			Content: "",
-//			URL: "",
-//			URL_Open: 1,
-//		},
-//		{
-//			ParentRowId: 1,
-//			RowId: 2,
-//			Lang: "en",
-//			Title: "",
-//			Content: "",
-//			URL: "",
-//			URL_Open: 1,
-//		}
-//	]
-//}
-
-
-export const AboutPage = () => {
+export const AboutPage = (props: { lang: Lang }) => {
 	//	const usebannerList = useBannerListData(`${SchemaFields.BannerFields.BannerId} = Banner20251106004`)
 	//	const bannerInternal = usebannerList.rawData?.[0]?.Banner?.InternalId ?? ""
 	//	const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), bannerInternal, emptyData)
