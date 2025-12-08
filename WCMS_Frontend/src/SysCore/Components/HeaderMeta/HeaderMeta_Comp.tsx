@@ -9,7 +9,6 @@ export interface IHeaderMetaProps {
   /* 可選動態 */
   keywords?: string;
   robots?: "index,follow" | "noindex,nofollow" | string;
-
   /* OG / Twitter */
   ogTitle?: string;
   ogDescription?: string;
@@ -20,7 +19,6 @@ export interface IHeaderMetaProps {
   twitterDescription?: string;
   twitterImage?: string;
   twitterUrl?: string;
-
   /* 多語系 alternate */
   alternates?: Array<{ hrefLang: string; href: string }>;
 }
@@ -34,7 +32,7 @@ interface ISiteDefaults {
 }
 
 /* 由外層（App）決定本站常數；若不傳就不輸出 */
-const siteDefaults: ISiteDefaults = {
+export const siteDefaults: ISiteDefaults = {
   siteName: "WCMS",
   themeColor: "#0a4fff",
   applicationName: "WCMS",
@@ -50,23 +48,19 @@ export const HeaderMetaComp: React.FC<IHeaderMetaProps> = (props) => (
     {siteDefaults.applicationName && (<meta name="application-name" content={siteDefaults.applicationName} />)}
     {siteDefaults.faviconHref && (<link rel="icon" href={siteDefaults.faviconHref} />)}
     {siteDefaults.siteName && (<meta property="og:site_name" content={siteDefaults.siteName} />)}
-
     {/* 每頁動態 */}
     {props.title && <title>{props.title}</title>}
     {props.description && (<meta name="description" content={props.description} />)}
     {props.keywords && <meta name="keywords" content={props.keywords} />}
     {props.canonicalUrl && (<link rel="canonical" href={props.canonicalUrl} />)}
     {props.robots && <meta name="robots" content={props.robots} />}
-
     {/* 多語系 alternate */}
     {props.alternates?.map((a, i) => (<link key={i} rel="alternate" hrefLang={a.hrefLang} href={a.href} />))}
-
     {/* Open Graph */}
     {(props.ogTitle ?? props.title) && (<meta property="og:title" content={props.ogTitle ?? props.title!} />)}
     {(props.ogDescription ?? props.description) && (<meta property="og:description" content={props.ogDescription ?? props.description!} />)}
     {(props.ogUrl ?? props.canonicalUrl) && (<meta property="og:url" content={props.ogUrl ?? props.canonicalUrl!} />)}
     {props.ogImage && <meta property="og:image" content={props.ogImage} />}
-
     {/* Twitter */}
     {(props.twitterCard || props.ogImage) && (<meta name="twitter:card" content={props.twitterCard ?? "summary_large_image"} />)}
     {(props.twitterTitle ?? props.ogTitle ?? props.title) && (<meta name="twitter:title" content={props.twitterTitle ?? props.ogTitle ?? props.title!} />)}

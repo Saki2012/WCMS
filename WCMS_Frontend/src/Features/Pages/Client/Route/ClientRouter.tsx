@@ -13,7 +13,6 @@ import { specClientEntries } from "@/SpecFetures/1810/SpecRouter";
 
 
 
-
 type QueryListParam = components["schemas"]["QueryListParam"];
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"]
 
@@ -54,7 +53,7 @@ export const clientEntries: Record<string, ModuleEntry> = {
       <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
     ),
     children: (opts, lang, node: INormNode) => [
-      { index: true, element: <PageManagementForm lang={lang} options={opts as IPageManagementOptions} /> },
+      { index: true, element: <PageManagementForm lang={lang} options={opts as IPageManagementOptions} node={node} /> },
     ],
   },
   Announcement: {
@@ -65,7 +64,7 @@ export const clientEntries: Record<string, ModuleEntry> = {
     children: (opts, lang, node: INormNode) => [
       { index: true, element: <AutoRedirect to="List" replace /> },
       { path: "List", element: <AnnouncementList theme={Classic_FETheme} lang={lang} options={opts as IAnnouncementListOptions} node={node} /> },
-      { path: ":internalId", element: <AnnouncementForm theme={Classic_FETheme} lang={lang} /> },
+      { path: ":internalId", element: <AnnouncementForm node={node} theme={Classic_FETheme} lang={lang} /> },
     ],
   },
   FileArchive: {
@@ -84,8 +83,8 @@ export const clientEntries: Record<string, ModuleEntry> = {
     ),
     children: (opts, lang, node: INormNode) => [
       { index: true, element: <AutoRedirect to="List" replace /> },
-      { path: "List", element: <GalleryListComp theme={Classic_FETheme} lang={lang} options={opts as IGalleryListOptions} title={node.title} /> },
-      { path: ":internalId", element: <GalleryForm theme={Classic_FETheme} lang={lang} /> },
+      { path: "List", element: <GalleryListComp node={node} theme={Classic_FETheme} lang={lang} options={opts as IGalleryListOptions} title={node.title} /> },
+      { path: ":internalId", element: <GalleryForm node={node} theme={Classic_FETheme} lang={lang} /> },
     ],
   },
   WebResource: {
@@ -94,7 +93,7 @@ export const clientEntries: Record<string, ModuleEntry> = {
       <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
     ),
     children: (opts, lang, node: INormNode) => [
-      { index: true, element: <WebResourceListComp theme={Classic_FETheme} lang={lang} options={opts as IWebResourceListOptions} title={node.title} /> },
+      { index: true, element: <WebResourceListComp node={node} theme={Classic_FETheme} lang={lang} options={opts as IWebResourceListOptions} title={node.title} /> },
     ],
   },
 };

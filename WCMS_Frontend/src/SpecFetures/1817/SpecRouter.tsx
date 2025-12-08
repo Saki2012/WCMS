@@ -23,28 +23,7 @@ export class SpecRouteModule implements IRouteModule {
   }
 }
 
-export const specClientEntries: Record<string, ModuleEntry> = {
-  SpecUSR: {
-    kind: "routes",
-    element: (lang: Lang, site: INormSite, node: INormNode) => (
-      <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
-    ),
-    children: (opts: unknown, lang: string) => [
-      { index: true, element: <AutoRedirect to="List" replace /> },
-      { path: "List", element: <SpecUSRListComp Theme={Classic_FETheme} Lang={lang} Options={opts as ISpecUSRListOptions} /> },
-      { path: ":internalId", element: <SpecUSRFormComp Theme={Classic_FETheme} Lang={lang} /> },
-    ],
-  },
-  SpecResearch: {
-    kind: "routes",
-    element: (lang: Lang, site: INormSite, node: INormNode) => (
-      <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
-    ),
-    children: (opts: unknown, lang: string) => [
-      { index: true, element: <SpecResearchListComp Theme={Classic_FETheme} Lang={lang} Options={opts as ISpecResearchListOptions} /> },
-    ],
-  },
-};
+export const specClientEntries: Record<string, ModuleEntry> = {};
 
 
-export const siteHeaderMeta: IHeaderMetaProps = { title: "國立臺灣藝術大學_研究發展處", description: "國立臺灣藝術大學_研究發展處", keywords: "國立臺灣藝術大學_研究發展處", };
+export const siteHeaderMeta: IHeaderMetaProps = { title: "國立臺北藝術大學_傳統音樂學系", description: "國立臺北藝術大學_傳統音樂學系", keywords: "國立臺北藝術大學_傳統音樂學系", };

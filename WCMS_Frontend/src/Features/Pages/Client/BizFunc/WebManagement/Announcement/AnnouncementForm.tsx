@@ -15,11 +15,12 @@ import ModuleContent, { type SubTitleProps } from '@/Features/Pages/Client/Scaff
 import { useResolveInternalIds } from '@/SysCore/Components/File/useResolveInternalIds';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import { FormatDate } from '@/SysCore/Utils/Library/LibData';
+import type { INormNode } from '@/Features/Pages/Client/Route/Site-Routing';
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
 const emptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [] }
-interface IAnnouncementFormProps { theme: IFETheme; lang: Lang }
+interface IAnnouncementFormProps { node: INormNode; theme: IFETheme; lang: Lang }
 const AnnouncementForm = (props: IAnnouncementFormProps) => {
     const { internalId } = useParams()
     const provider = useMemo(() => { return { announceProvider: AnnouncementProvider(), tagProvider: TagProvider(), categoryProvider: CategoryProvider() } }, []);
@@ -36,7 +37,7 @@ const AnnouncementForm = (props: IAnnouncementFormProps) => {
     const tags = (useTags.rawData ?? []).flatMap(item => (item.TagDetail ?? []).filter(detail => detail.Lang === props.lang).map(detail => detail.TagName)) as string[];
     const subTitle: SubTitleProps = { cat: cats.join('、'), tag: tags.join('、'), date: startDate }
     return (
-        <ModuleContent title={detail?.Title ?? ""} subTitle={subTitle} loadingList={loadingList} errorList={errorList}>
+        <ModuleContent nodeTitle={props.node.title} title={detail?.Title ?? ""} subTitle={subTitle} loadingList={loadingList} errorList={errorList}>
             <Content lang={props.lang} data={useAnnouncementFormData.data} />
         </ModuleContent>
     )

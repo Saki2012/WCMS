@@ -16,12 +16,13 @@ import type { components } from "@/types/api";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { Link } from "react-router-dom";
+import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 
 export interface IGalleryListOptions { Title: string, Category?: string; Tag?: string; Style: number; }
-export interface IGalleryListProps { theme: IFETheme; lang: Lang; options?: IGalleryListOptions; title: string }
+export interface IGalleryListProps { node: INormNode; theme: IFETheme; lang: Lang; options?: IGalleryListOptions; title: string }
 const GalleryList = (props: IGalleryListProps) => {
     // <Gallery {...props} />
     const useCategoryList = useCategoryListData(ProgId.Gallery, props.lang)
@@ -33,7 +34,7 @@ const GalleryList = (props: IGalleryListProps) => {
     const children = useMemo(() => { return <Gallery key="grid" lang={props.lang} data={useListData.rawData} cateData={useCategoryList.rawData} />; }, [useListData.rawData, props.lang, props.options, useCategoryList.rawData]);
 
     return (
-        <ModuleContent title={""} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops}>
+        <ModuleContent nodeTitle={props.node.title} title={""} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops}>
             {children}
         </ModuleContent>
     )

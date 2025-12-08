@@ -66,7 +66,7 @@ const AnnouncementList = (props: IAnnouncementListProps) => {
     const paginprops: PaginatorProps = { currentPage: adjustedGrid.CurrentPage, totalPages: adjustedGrid.TotalPage, onPageChange: adjustedGrid.onPageChange };
 
     return (
-        <ModuleContent loadingList={loadingList} errorList={errorList} paginatorProps={paginprops}>
+        <ModuleContent nodeTitle={props.node.title} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops}>
             {children}
         </ModuleContent>
     )

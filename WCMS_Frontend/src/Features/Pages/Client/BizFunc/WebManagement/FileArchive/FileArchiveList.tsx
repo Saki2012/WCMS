@@ -29,11 +29,7 @@ export interface FileArchiveProps { lang: Lang; theme: IFETheme; options: IFileA
 const FileArchiveList = (props: FileArchiveProps) => {
     const [queryDraft, setQueryDraft] = useState<ISearchQuery>({});
     const [query, setQuery] = useState<ISearchQuery>({});
-
     const pvder = useMemo(() => { return { FileArchive: FileArchiveProvider() } }, []);
-
-
-
     const useTagData = useTagListData(ProgId.FileArchive, props.lang);
     const useFileArchiveList = useFileArchive(pvder.FileArchive, props.lang, props.options.Category, props.options.Tag, useTagData.rawData, query);
     const tags = (useTagData.rawData ?? []).map(t => ({ id: t.TagData?.TagId ?? "", name: t.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "" }));
@@ -52,7 +48,7 @@ const FileArchiveList = (props: FileArchiveProps) => {
     const errorList: (string | null | undefined)[] = [useFileArchiveList.error, useTagData.error];
     const paginprops: PaginatorProps = { currentPage: adjustedGrid.CurrentPage, totalPages: adjustedGrid.TotalPage, onPageChange: adjustedGrid.onPageChange };
     return (
-        <ModuleContent title={""} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops}>
+        <ModuleContent nodeTitle={props.node.title} title={""} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops}>
             <GridList_Comp key="grid" gridData={adjustedGrid} title={props.node.title} />
         </ModuleContent>
     )

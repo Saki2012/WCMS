@@ -1,23 +1,29 @@
+import { HeaderMetaComp, siteDefaults } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { NewPaginator } from "@/SysCore/Components/Paginator/Paginator_Comp"
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import type { ReactNode } from "react";
+import { siteHeaderMeta } from "SpecFeature/SpecRouter"
 
-export interface ModuleContentProps { title?: string; subTitle?: SubTitleProps; paginatorProps?: PaginatorProps; loadingList: boolean[]; errorList: (string | null | undefined)[]; children?: ReactNode; }
+export interface ModuleContentProps { nodeTitle: string; title?: string; subTitle?: SubTitleProps; paginatorProps?: PaginatorProps; loadingList: boolean[]; errorList: (string | null | undefined)[]; children?: ReactNode; }
 
 const ModuleContent = (props: ModuleContentProps) => {
+    const fullTitle = [siteHeaderMeta.title, props.nodeTitle, props.title].filter(Boolean).join("｜");
     return (
-        <LoadingErrorHandler loadingList={props.loadingList} errorList={props.errorList}>
-            <div id="ContentPlaceContent_ContentConentA" className="col-sm-12 col-12 + All_Standard_Content_CSS + my-5">
-                {props.title && <Title title={props.title} subTitle={props.subTitle} />}
-                {/* <SearchBar /> */}
-                <div className="ALL__Information__Display__Area">
-                    {props.children}
+        <>
+            <HeaderMetaComp title={fullTitle} />
+            <LoadingErrorHandler loadingList={props.loadingList} errorList={props.errorList}>
+                <div id="ContentPlaceContent_ContentConentA" className="col-sm-12 col-12 + All_Standard_Content_CSS + my-5">
+                    {props.title && <Title title={props.title} subTitle={props.subTitle} />}
+                    {/* <SearchBar /> */}
+                    <div className="ALL__Information__Display__Area">
+                        {props.children}
+                    </div>
+                    <hr className="hr-my-4" />
+                    {props.paginatorProps && <NewPaginator {...props.paginatorProps} />}
                 </div>
-                <hr className="hr-my-4" />
-                {props.paginatorProps && <NewPaginator {...props.paginatorProps} />}
-            </div>
-        </LoadingErrorHandler>
+            </LoadingErrorHandler>
+        </>
     )
 }
 export default ModuleContent

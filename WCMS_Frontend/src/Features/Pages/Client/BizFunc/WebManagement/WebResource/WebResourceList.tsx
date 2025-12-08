@@ -16,13 +16,14 @@ import { isWithinLastNDaysFromString } from "@/SpecFetures/1810/Pages/Client/Biz
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 import { ColRender, RowRender, STORAGE_KEY } from "@/SysCore/Components/Grid/Grid_Comp";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
+import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 // type TagSet = components["schemas"]["TagSet_DTO"];
 type WindowTarget = components["schemas"]["WindowTarget"]
 
 export interface IWebResourceListOptions { Category?: string; Tag?: string; Style: number; }
-export interface IWebResourceListProps { theme: IFETheme; lang: Lang; options?: IWebResourceListOptions; title: string }
+export interface IWebResourceListProps { node: INormNode; theme: IFETheme; lang: Lang; options?: IWebResourceListOptions; title: string }
 const WebResourceListComp = (props: IWebResourceListProps) => {
     const useWebResList = useWebResourceList(props.options?.Category ?? "", props.options?.Tag ?? "", props.lang);
     const useCategory = useCategoryListData(ProgId.WebResource, props.lang);
@@ -41,7 +42,7 @@ const WebResourceListComp = (props: IWebResourceListProps) => {
     const loadingList = [useWebResList.isLoading, useCategory.isLoading];
     const errorList = [useWebResList.error, useCategory.error];
     return (
-        <ModuleContent loadingList={loadingList} errorList={errorList}>
+        <ModuleContent nodeTitle={props.node.title} loadingList={loadingList} errorList={errorList}>
             {children}
         </ModuleContent>
     )

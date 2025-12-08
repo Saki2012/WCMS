@@ -9,6 +9,8 @@ import { RouterProvider } from "react-router-dom";
 import { MessageProvider } from "@/SysCore/Components/Message/Dialog/Dialog_Comp.tsx";
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp.tsx";
 import api, { type BrowserApiWithInit } from "@/SysCore/Utils/API/APIBase.ts"
+import { siteHeaderMeta } from "SpecFeature/SpecRouter"
+
 
 if (typeof window !== "undefined") {
   // CSR：初始化一次 XSRF
@@ -108,15 +110,7 @@ const ClientBootstrap: React.FC<{ router: any }> = ({ router }) => {
   return (
     <MessageProvider>
       <HelmetProvider>
-        <HeaderMetaComp
-          title={"國立臺灣藝術大學_研究發展處"}
-          description={"國立臺灣藝術大學_研究發展處 / 國立臺灣藝術大學_研究發展處 / 國立臺灣藝術大學_研究發展處"}
-          keywords={"國立臺灣藝術大學_研究發展處"}
-
-        // title={"國立臺北藝術大學圖書館"}
-        // description={"國立臺北藝術大學圖書館"}
-        // keywords={"國立臺北藝術大學圖書館"}
-        />
+        <HeaderMetaComp title={siteHeaderMeta.title} description={siteHeaderMeta.description} keywords={siteHeaderMeta.keywords} />
         <RouterProvider router={router} />
       </HelmetProvider>
     </MessageProvider>
@@ -132,14 +126,8 @@ const rootNode = <ClientBootstrap router={router} />;
 container.innerHTML = "";
 
 const CSR_Render = () => {
-  if (container.hasChildNodes()) {
-    console.log("Exec HydrateRoot")
-    hydrateRoot(container, rootNode);
-  }
-  else {
-    console.log("Exec CreateRoot")
-    createRoot(container).render(rootNode);
-  }
+  if (container.hasChildNodes()) hydrateRoot(container, rootNode);
+  else createRoot(container).render(rootNode);
 };
 
 CSR_Render();
