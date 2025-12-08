@@ -116,7 +116,7 @@ export const AdmissionsCarouselData = (props: { lang: Lang }) => {
           <span className="headDiv-txt-3 tw">招生入學</span>
         </div>
         <p className="headDiv-subtxt">
-          在未來本學程亦將編入規劃成立之國際學院，以現有的合作為基礎，繼續擴大及成長，成為國際學院的亮點之一。
+          本學程招收國內生 6 名，外籍生(春季班與秋季班)皆不限名額，歡迎具國際興趣的同學報名。
         </p>
       </div>
       <div className="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">

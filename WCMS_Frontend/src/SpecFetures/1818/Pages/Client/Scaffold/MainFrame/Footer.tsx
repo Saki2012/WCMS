@@ -21,7 +21,7 @@ const Footer = () => {
                                                 <ul className="list">
                                                     <li>電話：+886-4-2284-0880#598</li>
                                                     <li>E-MAIL：<a href="mailto:tmpgs@dragon.nchu.edu.tw">tmpgs@dragon.nchu.edu.tw</a></li>
-                                                    <li>地址：40227 台中市南區興大路145號（社管大樓5樓542辦公室）</li>
+                                                    <li>地址：40227 台中市南區興大路145號（社管大樓521室）</li>
                                                 </ul>
                                             </div>
                                         </div>

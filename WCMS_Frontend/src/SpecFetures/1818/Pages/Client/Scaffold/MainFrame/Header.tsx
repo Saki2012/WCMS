@@ -98,6 +98,9 @@ const NavBar = () => {
         <ul className="nav custom_nav py-0 justify-content-center my-1">
             <a accessKey="U" href="#U" className="accesskey_header U" title="上方導覽區(U)" tabIndex={0}>:::</a>
             <li className="nav-item">
+                <Link className="nav-link" to="/" tabIndex={0} target="_self" title="回首頁">回首頁</Link>
+            </li>
+            <li className="nav-item">
                 <a className="nav-link" href="https://www.nchu.edu.tw/index1.php" tabIndex={0} target="_self" title="中興大學">中興大學</a>
             </li>
             <li className="nav-item">

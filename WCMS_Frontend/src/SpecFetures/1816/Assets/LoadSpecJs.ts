@@ -1,10 +1,9 @@
-// ⚠️ 1816 專用：用 <script> 載入舊版 JS，確保跑在 global scope
-
 // 先把檔案路徑轉成 URL（讓 Vite 在 build 時幫你處理 hash）
 import bootstrapUrl from "./Client/Content/bootstrap-5.3.3/js/bootstrap.bundle.min.js?url";
 import ekkoUrl from "./Client/Content/css_import/assets/ekko-lightbox/ekko-lightbox.js?url";
 import owlUrl from "./Client/Content/css_import/assets/owlcarousel_2/owl.carousel_v2.3.4.js?url";
 import swiperUrl from "./Client/Content/css_import/assets/swiper-11.1.14/swiper-bundle.min.js?url";
+import venoUrl from "./Client/Content/css_import/assets/venobox-master/dist/venobox.min.js?url";
 import jqueryUrl from "./Client/Content/jquery-3.7.1/jquery-3.7.1.min.js?url";
 
 /** 共用：用 <script> 動態掛載一支 JS（以同步順序載入） */
@@ -43,6 +42,7 @@ const loadJQueryAndPlugins = async () =>
     await Promise.all([
         loadScript(owlUrl),
         loadScript(ekkoUrl),
+        loadScript(venoUrl),
     ]);
 };
 

@@ -176,15 +176,23 @@ body {
 a { color: var(--a_linkcolor); }
 
 a, a:hover { text-decoration: none; }
+/* 1. 一般 focus 清掉背景，只留給鍵盤用 :focus-visible */
 a:focus {
-    text-decoration: none;    
-	outline: thin dotted;
-    outline: 2px solid var(--a_focusbordercolor);
-	outline-offset: 0px;    
-    color: var(--blackcolor) !important;
-	background-color: var(--a_focuscolor) !important;
-    
+    outline: none;
+    background-color: transparent;
+    color: inherit;
 }
+a:focus-visible {
+    outline: 2px solid var(--a_focusbordercolor);
+    outline-offset: 2px;
+    background-color: var(--a_focuscolor);
+    color: var(--blackcolor) !important;
+}
+a:active {
+    background-color: var(--a_focuscolor);
+    transition: background-color 0.15s ease-out;
+}
+
 [tabindex="-1"]:focus:not(:focus-visible) {
 	text-decoration: none;
 	outline: thin dotted !important;
