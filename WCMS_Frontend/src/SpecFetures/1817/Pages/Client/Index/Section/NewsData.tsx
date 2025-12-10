@@ -8,7 +8,7 @@ import * as SchemaFields from "@/types/SchemaFields";
 import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
 import { useNow } from '@/SysCore/Utils/Library/LibHook';
 import { type Lang } from '@/SysCore/i18n/lang';
-import { ProgId } from '@/Features/Hooks/Common/ProgId';
+import { PGID } from '@/Features/Hooks/Common/ProgId';
 import img from "@/SpecFetures/1817/Assets/Client/images/line_title.svg"
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
@@ -123,7 +123,7 @@ const useTagList = () => {
 				`${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
 				`${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
 			],
-			Condition: `${SchemaFields.TagDataFields.ProgId} = ${ProgId.Announcement}`,
+			Condition: `${SchemaFields.TagDataFields.ProgId} = ${PGID.Announcement}`,
 			PageNumber: 0,
 			PageSize: 0,
 		}),
@@ -183,12 +183,12 @@ export const NewsData = (props: { lang: Lang }) => {
 							</div>
 							<div className="btn-w100-wrapper justify-content-center">
 								<div className="customize_btn">
-									<a className="Btn_a" href="/News/News-01" role="button" tabIndex={0} target="_self" title="更多系所公告" type="button">
+									<Link className="Btn_a" to="/News/News-01" role="button" tabIndex={0} target="_self" title="更多系所公告" type="button">
 										<div className="BtnBox">
 											<span>More View</span>
 											<span className="ml-2">+</span>
 										</div>
-									</a>
+									</Link>
 								</div>
 							</div>
 						</div>

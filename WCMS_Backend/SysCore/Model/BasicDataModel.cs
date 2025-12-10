@@ -10,7 +10,6 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.SysCore.Model
 {
     public interface ITSet { }
-
     /// <summary>
     /// 基本資料欄位
     /// </summary>

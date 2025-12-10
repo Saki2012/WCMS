@@ -33,6 +33,7 @@ namespace WCMS.SysCore.Resx
         public const string Common_NewPassword = "Common_NewPassword";
         public const string Common_CheckNewPassword = "Common_CheckNewPassword";
         public const string Common_Memo = "Common_Memo";
+        public const string Common_SoundSrcId = "Common_SoundSrcId";
 
 
         #endregion

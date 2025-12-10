@@ -8,11 +8,13 @@ import * as SchemaFields from "@/types/SchemaFields";
 import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
 import { useNow } from '@/SysCore/Utils/Library/LibHook';
 import { type Lang } from '@/SysCore/i18n/lang';
-import { ProgId } from '@/Features/Hooks/Common/ProgId';
+import { PGID } from '@/Features/Hooks/Common/ProgId';
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import bgImg from "@/SpecFetures/1817/Assets/Client/images/bg/underline_02_Beige_1920x292.svg"
 import lineTitleImg from "@/SpecFetures/1817/Assets/Client/images/line_title.svg"
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
+import maskImg from '@/SpecFetures/1817/Assets/Client/images/exhibition/corner_mask_30x30.svg'
+
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
@@ -125,7 +127,7 @@ const useTagList = () => {
 				`${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
 				`${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
 			],
-			Condition: `${SchemaFields.TagDataFields.ProgId} = ${ProgId.Announcement}`,
+			Condition: `${SchemaFields.TagDataFields.ProgId} = ${PGID.Announcement}`,
 			PageNumber: 0,
 			PageSize: 0,
 		}),
@@ -156,7 +158,7 @@ export const ExhibitionNewsData = (props: { lang: Lang }) => {
 			return [id, name];
 		})
 	);
-	const allNews1 = getNewsDataProps(allNewsRawData1, props.lang, "/News/News-01", "", categoryDict, tagDict);
+	const allNews1 = useMemo(() => getNewsDataProps(allNewsRawData1, props.lang, "/News/News-01", "", categoryDict, tagDict), [allNewsRawData1, props.lang, categoryDict, tagDict]);
 	useEffect(() => {
 		// SSR 防護，避免在 server 端執行到 window / $
 		if (typeof window === "undefined") return;
@@ -279,12 +281,12 @@ export const ExhibitionNewsData = (props: { lang: Lang }) => {
 									</div>
 									<div className="position-absolute + d-flex + btn_right_S1 + btn_bottom_S1 + z-2">
 										<div className="customize_btn">
-											<a className="Btn_a" href="/News/News-01" role="button" tabIndex={0} target="_self" title="更多展演活動" type="button">
+											<Link className="Btn_a" to="/performance/seminar/List" role="button" tabIndex={0} target="_self" title="更多展演活動" type="button">
 												<div className="BtnBox">
 													<span>More View</span>
 													<span className="ml-2">+</span>
 												</div>
-											</a>
+											</Link>
 										</div>
 									</div>
 								</div>
@@ -377,16 +379,10 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 														<span className="sr-only">前往</span>
 													</span>
 													<div className="sticky_corner + top-right-corner">
-														<img src={`${FileManagementAPI.PREVIEW_URL}/${item.pictureId}`}
-															className="card_image"
-															alt=""
-														/>
+														<img src={maskImg} className="card_image" alt="" />
 													</div>
 													<div className="sticky_corner + bottom-left-corner">
-														<img src={`${FileManagementAPI.PREVIEW_URL}/${item.pictureId}`}
-															className="card_image"
-															alt=""
-														/>
+														<img src={maskImg} className="card_image" alt="" />
 													</div>
 												</div>
 											</div>

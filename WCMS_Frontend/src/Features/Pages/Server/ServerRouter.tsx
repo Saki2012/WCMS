@@ -37,6 +37,9 @@ import { Server_Person_Form_Comp } from "./BizFunc/AccountManage/Person/Server_P
 import CalendarPageComp from "./BizFunc/Dashboard/Calendar/Server_Calendar_Comp";
 import { Server_ScheduleRule_Form_Comp } from "@/SpecFetures/1816/Pages/Server/BizFunc/SystemSetting/SpecOpenScheduleRule/Server_ScheduleRule_Form_Comp";
 import { Server_ScheduleRule_List_Comp } from "@/SpecFetures/1816/Pages/Server/BizFunc/SystemSetting/SpecOpenScheduleRule/Server_ScheduleRule_List_Comp";
+import { SpecPGID } from "@/SpecFetures/1817/Hooks/Common/SpecProgId";
+import { Server_SpecMusical_List_Comp } from "@/SpecFetures/1817/Pages/Server/BizFunc/SpecModule/SpecMusical/Server_SpecMusical_List_Comp";
+import { Server_SpecMusical_Form_Comp } from "@/SpecFetures/1817/Pages/Server/BizFunc/SpecModule/SpecMusical/Server_SpecMusical_Form_Comp";
 
 export type RouteTitle = | string | ((m: UIMatch) => string);
 export type RouteCrumb = | string | ((m: UIMatch) => React.ReactNode);
@@ -92,7 +95,7 @@ export class BackendRouteModule implements IRouteModule {
                 children: [
                   { index: true, element: <CalendarPageComp defaultYear={2025} /> },
                   { path: 'Form/:internalId?', element: <Server_ScheduleRule_Form_Comp theme={Classic_BETheme} lang={DefaultLang} /> },
-                  { path: 'List', element: <Server_ScheduleRule_List_Comp title="頁面列表" theme={Classic_BETheme} lang={DefaultLang} /> },
+                  { path: 'List', element: <Server_ScheduleRule_List_Comp title="萬年曆" theme={Classic_BETheme} /> },
                 ],
               },
             ]
@@ -223,6 +226,18 @@ export class BackendRouteModule implements IRouteModule {
                   { path: 'List', element: <Server_SpecUSR_List_Comp title="USR列表" theme={Classic_BETheme} lang={DefaultLang} /> },
                   { path: 'SpecCategory/:internalId?', element: <Server_SpecCategoryListFormComp progId="SpecUSR" title="類別" theme={Classic_BETheme} lang={DefaultLang} /> },
                   { path: 'Tag/:internalId?', element: <TagListFormComp progId="SpecUSR" title="標籤" theme={Classic_BETheme} lang={DefaultLang} /> },
+                ],
+              },
+              //#endregion
+              //#region SpecMusical
+              {
+                path: SpecPGID.SpecMusical,
+                handle: { title: "琵琶介紹", breadcrumb: "琵琶介紹" } as RouteHandleMeta,
+                children: [
+                  { index: true, element: <AutoRedirect to="List" replace /> },
+                  { path: 'Form/:internalId?', element: <Server_SpecMusical_Form_Comp theme={Classic_BETheme} lang={DefaultLang} /> },
+                  { path: 'List', element: <Server_SpecMusical_List_Comp title="研究計劃列表" theme={Classic_BETheme} lang={DefaultLang} /> },
+                  { path: 'Category/:internalId?', element: <Server_CategoryListFormComp progId={SpecPGID.SpecMusical} title="類別" theme={Classic_BETheme} lang={DefaultLang} /> },
                 ],
               },
               //#endregion

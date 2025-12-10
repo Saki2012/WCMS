@@ -4,7 +4,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { useLocation } from "react-router";
 import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
 import { useCategoryListData } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { GalleryFields, GalleryInfoFields, GallerySetFields } from "@/types/SchemaFields";
 import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
@@ -25,7 +25,7 @@ export interface IGalleryListOptions { Title: string, Category?: string; Tag?: s
 export interface IGalleryListProps { node: INormNode; theme: IFETheme; lang: Lang; options?: IGalleryListOptions; title: string }
 const GalleryList = (props: IGalleryListProps) => {
     // <Gallery {...props} />
-    const useCategoryList = useCategoryListData(ProgId.Gallery, props.lang)
+    const useCategoryList = useCategoryListData(PGID.Gallery, props.lang)
     const provider = useMemo(() => { return GalleryProvider() }, [])
     const useListData = useGalleryList(provider, props.lang, props.options?.Category ?? "", props.options?.Tag ?? "");
     const loadingList = [useListData.isLoading, useCategoryList.isLoading, useCategoryList.isLoading];

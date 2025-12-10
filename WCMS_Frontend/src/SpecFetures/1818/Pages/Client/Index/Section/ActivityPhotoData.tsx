@@ -9,7 +9,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
 import { useNow } from '@/SysCore/Utils/Library/LibHook';
 import { type Lang } from '@/SysCore/i18n/lang';
-import { ProgId } from '@/Features/Hooks/Common/ProgId';
+import { PGID } from '@/Features/Hooks/Common/ProgId';
 import { useEffect } from 'react';
 
 type GallerySet = components["schemas"]["GallerySet_DTO"]
@@ -106,7 +106,7 @@ const useCategoryList = () => {
 				`${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
 				`${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
 			],
-			Condition: `${SchemaFields.CategoryFields.ProgId} = ${ProgId.Gallery}`,
+			Condition: `${SchemaFields.CategoryFields.ProgId} = ${PGID.Gallery}`,
 			PageNumber: 0,
 			PageSize: 0,
 		}),
@@ -127,7 +127,7 @@ const useTagList = () => {
 				`${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
 				`${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
 			],
-			Condition: `${SchemaFields.TagDataFields.ProgId} = ${ProgId.Gallery}`,
+			Condition: `${SchemaFields.TagDataFields.ProgId} = ${PGID.Gallery}`,
 			PageNumber: 0,
 			PageSize: 0,
 		}),

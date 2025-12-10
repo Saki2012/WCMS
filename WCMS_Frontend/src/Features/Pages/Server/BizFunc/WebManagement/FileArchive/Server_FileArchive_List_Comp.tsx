@@ -10,7 +10,7 @@ import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/B
 import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions"
 import FileArchiveProvider from "@/Features/Hooks/BizFunc/WebManagement/FileArchive/FileArchive_Api"
 import { GridCol_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp"
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
@@ -28,7 +28,7 @@ export const Server_FileArchiveListComp = (prop: { title: string; theme: IBEThem
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
     const provider = useMemo(() => FileArchiveProvider(), []);
     const usePageList = useFileArchiveList(provider, prop.lang, kw);
-    const useCategory = useCategoryListData(ProgId.FileArchive, prop.lang);
+    const useCategory = useCategoryListData(PGID.FileArchive, prop.lang);
     const actions = useActions(dirUrl, provider, undefined, undefined, usePageList.refetchCurrent);
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions); }, [usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions]);
     const searchCompProp: SearchBarProps = { title: "檔案室搜尋", subTitle: "搜尋檔案室 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };

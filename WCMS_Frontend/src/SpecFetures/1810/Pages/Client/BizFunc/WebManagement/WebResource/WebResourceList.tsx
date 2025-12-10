@@ -14,7 +14,7 @@ import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import { useEffect, useMemo, useRef } from "react";
 import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
 import { isWithinLastNDaysFromString } from "../Announcement/AnnouncementList";
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 import { resolveYoutubeEmbedUrl, type IWebResourceListProps } from "@/Features/Pages/Client/BizFunc/WebManagement/WebResource/WebResourceList";
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
@@ -87,7 +87,7 @@ const useWebResourceList = (categoryIds: string, tagIds: string, lang: Lang) => 
 
 const WebResourceListComp = (props: IWebResourceListProps) => {
     const useWebResList = useWebResourceList(props.options?.Category ?? "", props.options?.Tag ?? "", props.lang);
-    const useCategory = useCategoryListData(ProgId.WebResource, props.lang);
+    const useCategory = useCategoryListData(PGID.WebResource, props.lang);
     const isLoading = [useWebResList.isLoading, useCategory.isLoading];
     const errors = [useWebResList.error, useCategory.error];
     const content = useMemo(() => {

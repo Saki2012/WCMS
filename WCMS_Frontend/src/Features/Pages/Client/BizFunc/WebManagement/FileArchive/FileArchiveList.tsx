@@ -13,7 +13,7 @@ import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { useEffect, useMemo, useState } from "react";
 import { SearchBarComp, type ISearchQuery } from "@/SysCore/Components/SearchBar/SearchBar_Comp";
 import { useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
@@ -30,7 +30,7 @@ const FileArchiveList = (props: FileArchiveProps) => {
     const [queryDraft, setQueryDraft] = useState<ISearchQuery>({});
     const [query, setQuery] = useState<ISearchQuery>({});
     const pvder = useMemo(() => { return { FileArchive: FileArchiveProvider() } }, []);
-    const useTagData = useTagListData(ProgId.FileArchive, props.lang);
+    const useTagData = useTagListData(PGID.FileArchive, props.lang);
     const useFileArchiveList = useFileArchive(pvder.FileArchive, props.lang, props.options.Category, props.options.Tag, useTagData.rawData, query);
     const tags = (useTagData.rawData ?? []).map(t => ({ id: t.TagData?.TagId ?? "", name: t.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "" }));
     const tagMap = useMemo(() => {

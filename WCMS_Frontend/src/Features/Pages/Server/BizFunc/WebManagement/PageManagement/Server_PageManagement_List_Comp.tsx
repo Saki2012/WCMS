@@ -11,7 +11,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions";
 import { GridCol_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp";
 import PageManagementProvider from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Api";
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
@@ -26,7 +26,7 @@ export const PageListComp = (prop: { title: string; theme: IBETheme; lang: Lang 
     const pathname = useLocation().pathname;
     const provider = useMemo(() => PageManagementProvider(), []);
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
-    const useCategory = useCategoryListData(ProgId.PageManagement, prop.lang);
+    const useCategory = useCategoryListData(PGID.PageManagement, prop.lang);
     const usePageList = usePageManagementListData(provider, prop.lang, kw);
     const actions = useActions(dirUrl, PageManagementProvider(), undefined, undefined, usePageList.refetchCurrent)
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions); }, [dirUrl, usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions]);

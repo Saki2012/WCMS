@@ -14,7 +14,7 @@ import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { FormatDate, FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 import { AnnouncementDetailFields, AnnouncementFields, AnnouncementSetFields, AccountFields } from "@/types/SchemaFields";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
@@ -26,7 +26,7 @@ export const Server_AnnouncementListComp = (prop: { title: string; theme: IBEThe
     const pathname = useLocation().pathname;
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
     const provider = useMemo(() => AnnouncementProvider(), []);
-    const useCategory = useCategoryListData(ProgId.Announcement, prop.lang);
+    const useCategory = useCategoryListData(PGID.Announcement, prop.lang);
     const useAnnounceList = useAnnouncementList(provider, prop.lang, kw);
     const actions = useActions(dirUrl, provider, undefined, undefined, useAnnounceList.refetchCurrent)
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, actions); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, actions]);

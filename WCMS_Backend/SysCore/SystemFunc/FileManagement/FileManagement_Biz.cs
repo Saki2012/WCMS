@@ -371,6 +371,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 FileExtensions.MP4,
                 FileExtensions.MOV,
                 FileExtensions.MKV,
+                FileExtensions.M4A,
                 #endregion
             ];
 
@@ -406,8 +407,10 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 MimeTypes.APPLICATION_X_7Z_COMPRESSED ,
                 MimeTypes.AUDIO_MPEG,
                 MimeTypes.AUDIO_WAV,
+                MimeTypes.AUDIO_MP4,
+                MimeTypes.VIDEO_QUICKTIME,
                 MimeTypes.VIDEO_MP4,
-                MimeTypes.VIDEO_QUICKTIME];
+                ];
             return checkList.Contains(fileType.ToLowerInvariant());
         }
         /// <summary>

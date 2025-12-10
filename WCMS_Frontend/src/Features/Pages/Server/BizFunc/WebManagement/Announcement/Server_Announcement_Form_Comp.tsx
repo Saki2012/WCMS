@@ -21,7 +21,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 import { useCallback, useMemo, useState } from "react";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 import { PreviewFrame } from "@/Features/Pages/Server/Scaffold/PreviewFrame/PreviewFrame";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
@@ -36,8 +36,8 @@ export const Server_AnnouncementFormComp = (props: { theme: IBETheme; lang: Lang
     const { internalId } = useParams();
     const dirUrl = useLocation().pathname.replace(/\/Form$/, `/Form`);
     const formData = useFetchFormData<AnnouncementSet>(AnnouncementProvider(), internalId, emptyData)
-    const useCategory = useGetCategoryListByProgId(ProgId.Announcement, props.lang);
-    const useTag = useGetTagListByProgId(ProgId.Announcement, props.lang);
+    const useCategory = useGetCategoryListByProgId(PGID.Announcement, props.lang);
+    const useTag = useGetTagListByProgId(PGID.Announcement, props.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
     const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
     const [open, setOpen] = useState(false);

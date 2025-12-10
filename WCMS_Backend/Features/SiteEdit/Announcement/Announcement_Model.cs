@@ -10,16 +10,16 @@ namespace WCMS.Features.SiteEdit.Announcement
     /// <summary>
     /// 公告功能
     /// </summary>
-    [LibDesc] public class AnnouncementSet:ITSet
+    public class AnnouncementSet:ITSet
     {
-        [LibDesc] public Announcement Announcement { get; set; } = new Announcement();
-        [LibDesc] public List<AnnouncementDetail> AnnouncementDetail { get; set; } = [];
-        [LibDesc] public List<AnnouncementDetailFile> AnnouncementDetailFile { get; set; } = [];
+        public Announcement Announcement { get; set; } = new Announcement();
+        public List<AnnouncementDetail> AnnouncementDetail { get; set; } = [];
+        public List<AnnouncementDetailFile> AnnouncementDetailFile { get; set; } = [];
     }
     /// <summary>
     /// 公告主表
     /// </summary>
-    [LibDesc] public class Announcement: MasterDataModel
+    public class Announcement: MasterDataModel
     {
         /// <summary>
         /// 公告代碼
@@ -36,7 +36,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 狀態 (多個)
         /// </summary>
-        [LibDesc] public ContentStatus ContentStatus { get; set; }
+        public ContentStatus ContentStatus { get; set; }
         /// <summary>
         /// 圖片 (關聯檔案資料)
         /// </summary>
@@ -48,7 +48,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 觀看次數
         /// </summary>
-        [LibDesc] public int? ViewCount { get; set; } = 0;
+        public int? ViewCount { get; set; } = 0;
         #region 主子表關聯
         [InverseProperty(nameof(AnnouncementDetail._Announcement))] public List<AnnouncementDetail> _AnnouncementDetail { get; set; }
         #endregion
@@ -56,7 +56,7 @@ namespace WCMS.Features.SiteEdit.Announcement
     /// <summary>
     /// 公告明細
     /// </summary>
-    [LibDesc] public class AnnouncementDetail : DetailRowModel
+    public class AnnouncementDetail : DetailRowModel
     {
         /// <summary>
         /// 公告代碼
@@ -81,7 +81,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 內文
         /// </summary>
-        [LibDesc] public string? Content { get; set; }
+        public string? Content { get; set; }
         /// <summary>
         /// 網址
         /// </summary>
@@ -95,7 +95,7 @@ namespace WCMS.Features.SiteEdit.Announcement
     /// <summary>
     /// 明細檔案關聯
     /// </summary>
-    [LibDesc] public class AnnouncementDetailFile : DetailRowModel
+    public class AnnouncementDetailFile : DetailRowModel
     {
         /// <summary>
         /// 公告代碼

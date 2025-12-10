@@ -8,7 +8,7 @@ import * as SchemaFields from "@/types/SchemaFields";
 import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
 import { useNow } from '@/SysCore/Utils/Library/LibHook';
 import { type Lang } from '@/SysCore/i18n/lang';
-import { ProgId } from '@/Features/Hooks/Common/ProgId';
+import { PGID } from '@/Features/Hooks/Common/ProgId';
 //type BannerSet = components["schemas"]["BannerSet_DTO"]
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
@@ -121,7 +121,7 @@ const useTagList = () => {
 				`${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
 				`${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
 			],
-			Condition: `${SchemaFields.TagDataFields.ProgId} = ${ProgId.Announcement}`,
+			Condition: `${SchemaFields.TagDataFields.ProgId} = ${PGID.Announcement}`,
 			PageNumber: 0,
 			PageSize: 0,
 		}),

@@ -96,20 +96,20 @@ const NavBar = () => {
             <ul className="nav custom_nav py-0 justify-content-center my-1">
                 <a accessKey="U" href="#U" className="accesskey_header U" title="上方導覽區(U)" tabIndex={0}>:::</a>
                 <li className="nav-item">
-                    <a className="nav-link" href="/" tabIndex={0} target="_self" title="首頁">首頁</a>
+                    <Link className="nav-link" to="/" tabIndex={0} title="首頁">首頁</Link>
                 </li>
                 <li className="nav-item">
-                    <a className="nav-link" href="00_page_login_(BS.5_New).html" tabIndex={0} target="_self" title="登入">北藝大</a>
+                    <a className="nav-link" href="https://w3.tnua.edu.tw/" tabIndex={0} target="_blank" title="北藝大">北藝大</a>
                 </li>
                 <li className="nav-item">
-                    <a className="nav-link" href="00_page_login_(BS.5_New).html" tabIndex={0} target="_self" title="登入">FB粉絲團</a>
+                    <a className="nav-link" href="https://www.facebook.com/TaiwanTraditionalMusic/" tabIndex={0} target="_blank" title="FB粉絲團">FB粉絲團</a>
+                </li>
+                {/* <li className="nav-item">
+                    <a className="nav-link" href="javascript:void(0);" tabIndex={0} target="_blank" title="網站導覽">網站導覽</a>
                 </li>
                 <li className="nav-item">
-                    <a className="nav-link" href="javascript:void(0);" tabIndex={0} target="_self" title="網站導覽">網站導覽</a>
-                </li>
-                <li className="nav-item">
-                    <a className="nav-link" href="javascript:void(0);" tabIndex={0} target="_self" title="English">English</a>
-                </li>
+                    <a className="nav-link" href="javascript:void(0);" tabIndex={0} target="_blank" title="English">English</a>
+                </li> */}
             </ul>
         </li>
     )

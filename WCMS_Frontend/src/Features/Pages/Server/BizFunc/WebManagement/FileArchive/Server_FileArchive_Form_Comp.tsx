@@ -17,7 +17,7 @@ import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useActions } from "@/Features/Hooks/Common/useActions";
 import { useMemo } from "react";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
 import { LibUrlInput } from "@/SysCore/Components/FormField/FieldComponets/LibUrlInput_Comp";
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"]
@@ -33,8 +33,8 @@ export const Server_FileArchiveFormComp = (prop: { theme: IBETheme; lang: Lang }
     const dirUrl = useLocation().pathname.replace(/\/Form$/, `/Form`);
     const provider = useMemo(() => { return FileArchiveProvider() }, [])
     const formData = useFetchFormData<FileArchiveSet>(provider, internalId, emptyData)
-    const useCategory = useGetCategoryListByProgId(ProgId.FileArchive, prop.lang);
-    const useTag = useGetTagListByProgId(ProgId.FileArchive, prop.lang);
+    const useCategory = useGetCategoryListByProgId(PGID.FileArchive, prop.lang);
+    const useTag = useGetTagListByProgId(PGID.FileArchive, prop.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
     const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
     useEnsureLangDetails(formData, { headerName: FileArchiveSetFields.FileArchive, detailName: FileArchiveSetFields.FileArchiveInfo, parentKeys: [FileArchiveFields.FileArchiveId], preferFirstLang: prop.lang });

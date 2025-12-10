@@ -1,3 +1,5 @@
+import { SpecPGID } from "@/SpecFetures/1817/Hooks/Common/SpecProgId";
+
 export interface IModuleMeta
 {
     /** 模組代碼：網站功能 / 帳號管理 / 系統設定… */
@@ -153,47 +155,59 @@ export const ServerModuleRoutes: IModuleMeta[] = [
                     { ProgId: "WebResource", ActionCode: "Tag", Title: "資源標籤" },
                 ],
             },
-
             // 研究計畫 (SpecResearch)
+            // {
+            //     ModuleCode: "WebManagement",
+            //     ProgId: "SpecResearch",
+            //     Title: "研究計畫",
+            //     DefaultActionCode: "List",
+            //     IconClassName: "fas fa-search",
+            //     Actions: [
+            //         { ProgId: "SpecResearch", ActionCode: "List", Title: "研究計畫列表" },
+            //         { ProgId: "SpecResearch", ActionCode: "Form", Title: "研究計畫維護" },
+            //         { ProgId: "SpecResearch", ActionCode: "SpecCategory", Title: "研究計畫類別" },
+            //         { ProgId: "SpecResearch", ActionCode: "Tag", Title: "研究計畫標籤" },
+            //     ],
+            // },
+
+            // // USR (SpecUSR)
+            // {
+            //     ModuleCode: "WebManagement",
+            //     ProgId: "SpecUSR",
+            //     Title: "USR",
+            //     DefaultActionCode: "List",
+            //     IconClassName: "fas fa-university",
+            //     Actions: [
+            //         { ProgId: "SpecUSR", ActionCode: "List", Title: "USR列表" },
+            //         { ProgId: "SpecUSR", ActionCode: "Form", Title: "USR維護" },
+            //         { ProgId: "SpecUSR", ActionCode: "SpecCategory", Title: "USR類別" },
+            //         { ProgId: "SpecUSR", ActionCode: "Tag", Title: "USR標籤" },
+            //     ],
+            // },
+
+            // // 開館時間規則設定(Spec)
+            // {
+            //     ModuleCode: "Dashboard",
+            //     ProgId: "SpecOpenScheduleRule",
+            //     Title: "開館時間規則設定",
+            //     DefaultActionCode: "List",
+            //     IconClassName: "fas fa-university",
+            //     Actions: [
+            //         { ProgId: "SpecOpenScheduleRule", ActionCode: "List", Title: "列表" },
+            //         { ProgId: "SpecOpenScheduleRule", ActionCode: "Form", Title: "新增規則" },
+            //     ],
+            // },
+            // 琵琶介紹(Spec)
             {
                 ModuleCode: "WebManagement",
-                ProgId: "SpecResearch",
-                Title: "研究計畫",
+                ProgId: SpecPGID.SpecMusical,
+                Title: "琵琶介紹",
                 DefaultActionCode: "List",
-                IconClassName: "fas fa-search",
+                IconClassName: "fas fa-music",
                 Actions: [
-                    { ProgId: "SpecResearch", ActionCode: "List", Title: "研究計畫列表" },
-                    { ProgId: "SpecResearch", ActionCode: "Form", Title: "研究計畫維護" },
-                    { ProgId: "SpecResearch", ActionCode: "SpecCategory", Title: "研究計畫類別" },
-                    { ProgId: "SpecResearch", ActionCode: "Tag", Title: "研究計畫標籤" },
-                ],
-            },
-
-            // USR (SpecUSR)
-            {
-                ModuleCode: "WebManagement",
-                ProgId: "SpecUSR",
-                Title: "USR",
-                DefaultActionCode: "List",
-                IconClassName: "fas fa-university",
-                Actions: [
-                    { ProgId: "SpecUSR", ActionCode: "List", Title: "USR列表" },
-                    { ProgId: "SpecUSR", ActionCode: "Form", Title: "USR維護" },
-                    { ProgId: "SpecUSR", ActionCode: "SpecCategory", Title: "USR類別" },
-                    { ProgId: "SpecUSR", ActionCode: "Tag", Title: "USR標籤" },
-                ],
-            },
-
-            // 開館時間規則設定(Spec)
-            {
-                ModuleCode: "Dashboard",
-                ProgId: "SpecOpenScheduleRule",
-                Title: "開館時間規則設定",
-                DefaultActionCode: "List",
-                IconClassName: "fas fa-university",
-                Actions: [
-                    { ProgId: "SpecOpenScheduleRule", ActionCode: "List", Title: "列表" },
-                    { ProgId: "SpecOpenScheduleRule", ActionCode: "Form", Title: "新增規則" },
+                    { ProgId: SpecPGID.SpecMusical, ActionCode: "List", Title: "琵琶列表" },
+                    { ProgId: SpecPGID.SpecMusical, ActionCode: "Form", Title: "新增資料" },
+                    { ProgId: SpecPGID.SpecMusical, ActionCode: "Category", Title: "類別" },
                 ],
             },
         ],

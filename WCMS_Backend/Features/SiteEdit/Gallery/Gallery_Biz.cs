@@ -151,13 +151,13 @@ namespace WCMS.Features.SiteEdit.Gallery
         #endregion
 
         #region Protected
-        protected override async Task BeforeUpdate(GallerySet set, SysEnum.FuncAction act)
+        protected override async Task BeforeUpdate(GallerySet set, FuncAction act)
         {
             await base.BeforeUpdate(set, act);
             switch (act)
             {
-                case SysEnum.FuncAction.Create:
-                case SysEnum.FuncAction.Update:
+                case FuncAction.Create:
+                case FuncAction.Update:
                     CheckData(set);
                     SetData(set);
                     break;

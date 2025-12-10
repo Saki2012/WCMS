@@ -12,8 +12,7 @@ namespace WCMS.Features.SiteEdit.Announcement
     /// <summary>
     /// 公告功能
     /// </summary>
-    [LibDesc]
-    public class AnnouncementSet_DTO : ITSet_DTO
+    [LibDesc] public class AnnouncementSet_DTO : ITSet_DTO
     {
         [LibDesc] public Announcement_DTO Announcement { get; set; } = new();
         [LibDesc] public List<AnnouncementDetail_DTO> AnnouncementDetail { get; set; } = [];
@@ -22,8 +21,7 @@ namespace WCMS.Features.SiteEdit.Announcement
     /// <summary>
     /// 公告主表
     /// </summary>
-    [LibDesc]
-    public class Announcement_DTO : DTOBasicDataModel
+    [LibDesc] public class Announcement_DTO : DTOBasicDataModel
     {
         /// <summary>
         /// 公告代碼
@@ -36,10 +34,9 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 標籤 (多個) 
         /// </summary>
+        [LibDesc(ModelDisplayName.Common_Tag)] public string? Tags { get; set; } = string.Empty;
         /// <summary>
         /// 狀態 (多個)
-        [LibDesc(ModelDisplayName.Common_Tag)] public string? Tags { get; set; } = string.Empty;
-        //[LibDesc(ModelDisplayName.Spec1810_Tag)] public string? Tags { get; set; } = string.Empty;
         /// </summary>
         [LibDesc(ModelDisplayName.Common_ContentStatus)] public ContentStatus ContentStatus { get; set; }
         /// <summary>
@@ -70,8 +67,7 @@ namespace WCMS.Features.SiteEdit.Announcement
     /// <summary>
     /// 公告明細
     /// </summary>
-    [LibDesc]
-    public class AnnouncementDetail_DTO
+    [LibDesc] public class AnnouncementDetail_DTO
     {
         /// <summary>
         /// 公告代碼

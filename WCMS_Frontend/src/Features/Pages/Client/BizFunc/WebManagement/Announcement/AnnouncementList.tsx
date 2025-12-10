@@ -4,7 +4,7 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import ModuleContent, { ContentStatus } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNow } from "@/SysCore/Utils/Library/LibHook";
 import parse from 'html-react-parser';
 import { AnnouncementDetailFields, AnnouncementFields, AnnouncementSetFields } from "@/types/SchemaFields";
@@ -15,7 +15,7 @@ import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import type { components } from "@/types/api";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 import { useFormatTagsName, useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 import { isWithinLastNDaysFromString } from "@/SpecFetures/1810/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList";
 import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
@@ -36,14 +36,20 @@ const AnnouncementList = (props: IAnnouncementListProps) => {
     // <PictureList_Row_Comp {...props} />
     // <PictureList_Col_Comp {...props} />
     // <QAList_Comp {...props} />
-    const pageSize = 10;
+    const pageSize = useMemo(() => {
+        switch (props.options?.Style) {
+            case 8: return 0;//歷史時間軸類型的資料一次全撈
+            default: return 10;
+        }
+    }, [props.options]);
+
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
     const [queryDraft, setQueryDraft] = useState<ISearchQuery>({});
     const [query, setQuery] = useState<ISearchQuery>({});
     const provider = useMemo(() => { return AnnouncementProvider() }, [])
     const useAnnounceList = dataFetch(provider, props.lang, props.options?.Category ?? "", props.options?.Tag ?? "", query, pageSize);
-    const useCategory = useCategoryListData(ProgId.Announcement, props.lang);
-    const useTagData = useTagListData(ProgId.Announcement, props.lang);
+    const useCategory = useCategoryListData(PGID.Announcement, props.lang);
+    const useTagData = useTagListData(PGID.Announcement, props.lang);
     const tags = (useTagData.rawData ?? []).map(t => ({ id: t.TagData?.TagId ?? "", name: t.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "" }));
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData]);
     // const searchSlot = <SearchBarComp value={queryDraft} tags={tags} onChange={(k, v) => setQueryDraft(prev => ({ ...prev, [k]: v }))} onSubmit={() => setQuery(queryDraft)} onReset={() => { setQueryDraft({}); setQuery({}); }} />;

@@ -161,6 +161,7 @@ export const BannerDetailFields = {
   Validate_End: 'Validate_End',
   Sort: 'Sort',
   BannerDetailInfo: 'BannerDetailInfo',
+  SpecShowDate: 'SpecShowDate',
 } as const;
 
 export type BannerDetailFieldKey = keyof typeof BannerDetailFields;
@@ -891,6 +892,75 @@ export const SpecCurrentOpenTime_DTOApiResponseFields = {
 } as const;
 
 export type SpecCurrentOpenTime_DTOApiResponseFieldKey = keyof typeof SpecCurrentOpenTime_DTOApiResponseFields;
+
+export const SpecMusicalModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  MusicalId: 'MusicalId',
+  MusicalName: 'MusicalName',
+  Category: 'Category',
+  CategoryId: 'CategoryId',
+  CoverPicId: 'CoverPicId',
+  Specification: 'Specification',
+  Headstock: 'Headstock',
+  Backboard: 'Backboard',
+  ScaleLength: 'ScaleLength',
+  Bridge: 'Bridge',
+  BodyForm: 'BodyForm',
+  Material: 'Material',
+  Info: 'Info',
+  _SpecMusicalSoundList: '_SpecMusicalSoundList',
+  _SpecMusicalPictureList: '_SpecMusicalPictureList',
+} as const;
+
+export type SpecMusicalModelFieldKey = keyof typeof SpecMusicalModelFields;
+
+export const SpecMusicalPictureListFields = {
+  RowState: 'RowState',
+  MusicalId: 'MusicalId',
+  RowId: 'RowId',
+  PicSrcId: 'PicSrcId',
+  Sort: 'Sort',
+  Info: 'Info',
+  _SpecMusical: '_SpecMusical',
+} as const;
+
+export type SpecMusicalPictureListFieldKey = keyof typeof SpecMusicalPictureListFields;
+
+export const SpecMusicalSetFields = {
+  SpecMusical: 'SpecMusical',
+  SpecMusicalSoundList: 'SpecMusicalSoundList',
+  SpecMusicalPictureList: 'SpecMusicalPictureList',
+} as const;
+
+export type SpecMusicalSetFieldKey = keyof typeof SpecMusicalSetFields;
+
+export const SpecMusicalSet_DTOApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SpecMusicalSet_DTOApiRequestFieldKey = keyof typeof SpecMusicalSet_DTOApiRequestFields;
+
+export const SpecMusicalSoundListFields = {
+  RowState: 'RowState',
+  MusicalId: 'MusicalId',
+  RowId: 'RowId',
+  SoundSrcId: 'SoundSrcId',
+  Info: 'Info',
+  _SpecMusical: '_SpecMusical',
+} as const;
+
+export type SpecMusicalSoundListFieldKey = keyof typeof SpecMusicalSoundListFields;
 
 export const SpecOpenScheduleRuleModelFields = {
   CreateTime: 'CreateTime',

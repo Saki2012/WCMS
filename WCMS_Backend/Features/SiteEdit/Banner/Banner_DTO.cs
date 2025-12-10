@@ -1,19 +1,17 @@
-﻿using System.Text.Json.Serialization;
-using WCMS.Features.SiteEdit.Announcement;
-using WCMS.SysCore.Library;
+﻿using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Banner
 {
-    public class BannerSet_DTO : ITSet_DTO
+    public partial class BannerSet_DTO : ITSet_DTO
     {
         [LibDesc] public Banner_DTO Banner { get; set; } = new();
         [LibDesc] public List<BannerDetail_DTO> BannerDetail { get; set; } = [];
         [LibDesc] public List<BannerDetailInfo_DTO> BannerDetailInfo { get; set; } = [];
     }
-    public class Banner_DTO : DTOBasicDataModel
+    public partial class Banner_DTO : DTOBasicDataModel
     {
         /// <summary>
         /// 橫幅ID
@@ -44,7 +42,7 @@ namespace WCMS.Features.SiteEdit.Banner
         public List<BannerDetail_DTO>? _BannerDetail { get; set; }
         #endregion
     }
-    public class BannerDetail_DTO
+    public partial class BannerDetail_DTO
     {
         /// <summary>
         /// 
@@ -76,7 +74,7 @@ namespace WCMS.Features.SiteEdit.Banner
         [LibDesc(ModelDisplayName.Banner_Sort)] public ushort Sort { get; set; }
         [LibDesc] public List<BannerDetailInfo_DTO> BannerDetailInfo { get; set; } = [];
     }
-    public class BannerDetailInfo_DTO
+    public partial class BannerDetailInfo_DTO
     {
         /// <summary>
         /// 

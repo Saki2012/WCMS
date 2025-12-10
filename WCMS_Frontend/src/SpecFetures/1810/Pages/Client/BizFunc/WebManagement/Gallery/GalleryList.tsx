@@ -16,7 +16,7 @@ import { Link } from "react-router-dom";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { Paginator } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import type { IGalleryListProps } from "@/Features/Pages/Client/BizFunc/WebManagement/Gallery/GalleryList";
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 
 const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
     var condition: string = "";
@@ -80,7 +80,7 @@ const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
 };
 
 const GalleryListComp = (props: IGalleryListProps) => {
-    const useCategoryList = useCategoryListData(ProgId.Gallery, props.lang)
+    const useCategoryList = useCategoryListData(PGID.Gallery, props.lang)
     const useListData = useGalleryList(props.lang, props.options?.Category ?? "", props.options?.Tag ?? "");
     const isLoading = [useListData.isLoading, useCategoryList.isLoading, useCategoryList.isLoading];
     const errors = [useListData.error, useCategoryList.error, useCategoryList.error];

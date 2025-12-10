@@ -23,6 +23,7 @@ import { useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_
 import { usePageListData } from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Hook";
 import { useSpecCateListData } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Hook";
 import { useActions, useWrapAfter, type UseActionsResult } from "@/Features/Hooks/Common/useActions";
+import { SpecPGID } from "@/SpecFetures/1817/Hooks/Common/SpecProgId";
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"]
 type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"]
 type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title_DTO"]
@@ -53,7 +54,7 @@ const moduleOptionsDefaults: ModuleOptionsJson = {
   Tag: "",
   Style: 1
 };
-type ModelKey = '' | 'Announcement' | 'FileArchive' | 'Gallery' | 'PageManagement' | 'SpecResearch' | 'SpecUSR' | 'WebResource'
+type ModelKey = '' | 'Announcement' | 'FileArchive' | 'Gallery' | 'PageManagement' | 'WebResource' | 'SpecResearch' | 'SpecUSR' | 'SpecMusical'
 
 interface Item {
   id: number;
@@ -741,7 +742,12 @@ const BasicSettingTab = (prop: {
 
 
 //#region 模型配置
-const ModuleOpts: Record<string, string> = { '': '請選擇', Announcement: "公告", FileArchive: "檔案室", Gallery: "相簿", PageManagement: "頁面", WebResource: "網路資源", SpecResearch: "研究計劃", SpecUSR: "USR計劃", };
+const ModuleOpts: Record<string, string> = {
+  '': '請選擇', Announcement: "公告", FileArchive: "檔案室", Gallery: "相簿",
+  PageManagement: "頁面", WebResource: "網路資源", SpecResearch: "研究計劃", SpecUSR: "USR計劃",
+  SpecMusical: "琵琶介紹",
+
+};
 
 const ModuleSettingTab = (prop: {
   theme: IBETheme; selectedItemEdit: Item | null; modelKey: ModelKey;
@@ -756,11 +762,13 @@ const ModuleSettingTab = (prop: {
   const rowId = prop.selectedItemEdit?.MenuItem.Item.RowId;
 
   const allowMap: Record<ModelKey, number[]> = {
+    "": [],
     Announcement: [1, 2, 3, 8],
     Gallery: [1, 4],
     FileArchive: [1, 5, 6],
     WebResource: [1, 2, 7],
-    PageManagement: [], SpecResearch: [], SpecUSR: [], "": []
+    PageManagement: [],
+    SpecResearch: [], SpecUSR: [], SpecMusical: []
   };
   const getStyleOptionsByModule = (
     moduleKey: ModelKey,
@@ -818,11 +826,14 @@ const ModuleSettingTab = (prop: {
       WebResource: <Module_WebResource_Comp theme={prop.theme} formData={prop.formData} selectedItemEdit={prop.selectedItemEdit} styleDict={filteredStyleDict} categoryDatas={prop.categoryDatas} tagDatas={prop.tagDatas} lang={DefaultLang} />,
       SpecResearch: <Module_SpecResearch_Comp theme={prop.theme} formData={prop.formData} selectedItemEdit={prop.selectedItemEdit} styleDict={filteredStyleDict} categoryDatas={prop.specCateDatas} tagDatas={prop.tagDatas} lang={DefaultLang} />,
       SpecUSR: <Module_SpecUSR_Comp theme={prop.theme} formData={prop.formData} selectedItemEdit={prop.selectedItemEdit} styleDict={filteredStyleDict} categoryDatas={prop.specCateDatas} tagDatas={prop.tagDatas} lang={DefaultLang} />,
+      SpecMusical: <Module_SpecMusical_Comp theme={prop.theme} formData={prop.formData} selectedItemEdit={prop.selectedItemEdit} styleDict={filteredStyleDict} categoryDatas={prop.categoryDatas} tagDatas={prop.tagDatas} lang={DefaultLang} />,
+
       "": []
     };
     if (prop.modelKey) {
       const label = {
-        Banner: '輪播設定', Announcement: '公告設定', PageManagement: '頁面設定', Gallery: '相簿設定', FileArchive: '檔案室設定', WebResource: '網路資源設定', SpecUSR: 'USR計劃', SpecResearch: '研究計劃',
+        Banner: '輪播設定', Announcement: '公告設定', PageManagement: '頁面設定', Gallery: '相簿設定', FileArchive: '檔案室設定', WebResource: '網路資源設定',
+        SpecUSR: 'USR計劃', SpecResearch: '研究計劃', SpecMusical: '琵琶介紹'
       }[prop.modelKey];
       nodes.push(<LibSelectCard key="onlyOne" ColDisplayName={label ?? ""} components={map[prop.modelKey]} />);
     }
@@ -994,6 +1005,26 @@ const Module_SpecUSR_Comp = (prop: {
     <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />,
   ])
 }
+const Module_SpecMusical_Comp = (prop: {
+  theme: IBETheme; formData: UseFetchFormDataResult<SiteMenuSet>; selectedItemEdit: Item | null; styleDict: Record<string, string>;
+  lang: Lang; categoryDatas: CategorySet[]; tagDatas: TagSet[];
+}): React.ReactNode[] => {
+  const curRowKeys = { [SchemaFields.SiteMenu_Item_ModuleFields.SiteIndex]: prop.selectedItemEdit?.MenuItem.Item.SiteIndex, [SchemaFields.SiteMenu_Item_ModuleFields.ItemRowId]: prop.selectedItemEdit?.MenuItem.Item.RowId }
+  const binder = useSetJsonField<SiteMenuSet, ModuleOptionsJson>(
+    prop.formData,
+    SchemaFields.SiteMenuSetFields.SiteMenu_Item_Module,
+    SchemaFields.SiteMenu_Item_ModuleFields.ModuleOptions,
+    curRowKeys,
+    moduleOptionsDefaults
+  );
+  const catBind = binder.bind("Category", "string");
+  const cateDic = useCategoryDict(prop.categoryDatas, prop.lang, SpecPGID.SpecMusical)
+  return ([
+    <LibDropList Style={prop.theme.DropList} ColumnDisplayName="類別" Options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />,
+  ])
+}
+
+
 const useCategoryDict = (data: CategorySet[], lang: string, progId: string | number) =>
   React.useMemo<Record<string, string>>(() => {
     const src = data ?? [];

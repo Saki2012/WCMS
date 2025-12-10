@@ -38,6 +38,7 @@ namespace WCMS.SysCore
         {
             base.OnModelCreating(builder);
             ModelDbSetting(builder);
+            IgnoreDtoTypes(builder);
             AutoBindRelationships(builder);
             ApplyCascadeDeleteRules(builder);
             builder.Entity<OperateLogModel>().ToTable("OperateLog");
@@ -65,6 +66,18 @@ namespace WCMS.SysCore
                 else builder.Entity(type).ToTable(tableName);
             }
         }
+        /// <summary>
+        /// 排除DTO型別不納入EF追蹤
+        /// </summary>
+        /// <param name="builder"></param>
+        private static void IgnoreDtoTypes(ModelBuilder builder)
+        {
+            // 取得目前執行組件中的所有型別
+            var asm = Assembly.GetExecutingAssembly();
+            var dtoTypes = asm.GetTypes().Where(t => t.IsClass && !t.IsAbstract && (typeof(DTOBasicDataModel).IsAssignableFrom(t)|| t.Name.EndsWith("_DTO", StringComparison.OrdinalIgnoreCase))).ToList();
+            foreach (var t in dtoTypes) builder.Ignore(t);   // 告訴 EF：這些型別不是實體，全部忽略
+        }
+
         /// <summary>
         /// 依慣例自動綁定一對多關聯：
         /// 規則：實體上的「導航屬性 Nav (class 非 string)」

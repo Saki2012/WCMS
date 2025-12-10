@@ -1,4 +1,5 @@
 import bgImg from "@/SpecFetures/1817/Assets/Client/images/bg/underline_01_W_1920x292.svg"
+import type { Lang } from "@/SysCore/i18n/lang";
 export const PerformancesPage = (props: { lang: Lang }) => {
 	return (
 		<section className="Performances_section + Layout_Padding_4_top + Layout_Padding_1_bottom + bg-custom-Customize_color" style={{ backgroundImage: `url(${bgImg})`, }}>

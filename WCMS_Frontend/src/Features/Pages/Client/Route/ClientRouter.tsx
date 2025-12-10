@@ -9,7 +9,7 @@ import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx
 import type { Lang } from "@/SysCore/i18n/lang";
 import { SubPage, PageManagementForm, AnnouncementList, AnnouncementForm, FileArchiveList, GalleryListComp, GalleryForm, WebResourceListComp } from "@/Features/Pages/Client/Route/ClientComponentResolver";
 import { type IPageManagementOptions, type IAnnouncementListOptions, type IFileArchiveOptions, type IGalleryListOptions, type IWebResourceListOptions } from "@/Features/Pages/Client/Route/ClientComponentResolver";
-import { specClientEntries } from "@/SpecFetures/1810/SpecRouter";
+import { specClientEntries } from "SpecFeature/SpecRouter";
 
 
 

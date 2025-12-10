@@ -117,10 +117,40 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="SpecShowDateEnd" xml:space="preserve">
-    <value>展演結束時間</value>
+  <data name="Spec_Backboard" xml:space="preserve">
+    <value>背板</value>
   </data>
-  <data name="SpecShowDateStart" xml:space="preserve">
+  <data name="Spec_BodyForm" xml:space="preserve">
+    <value>形制</value>
+  </data>
+  <data name="Spec_Bridge" xml:space="preserve">
+    <value>覆手長</value>
+  </data>
+  <data name="Spec_Headstock" xml:space="preserve">
+    <value>琴頭</value>
+  </data>
+  <data name="Spec_Material" xml:space="preserve">
+    <value>弦材</value>
+  </data>
+  <data name="Spec_MusicalId" xml:space="preserve">
+    <value>樂器代碼</value>
+  </data>
+  <data name="Spec_MusicalInfo" xml:space="preserve">
+    <value>樂器說明</value>
+  </data>
+  <data name="Spec_MusicalName" xml:space="preserve">
+    <value>樂器名稱</value>
+  </data>
+  <data name="Spec_ScaleLength" xml:space="preserve">
+    <value>弦長</value>
+  </data>
+  <data name="Spec_ShowDate" xml:space="preserve">
     <value>展演時間</value>
+  </data>
+  <data name="Spec_SoundSrcInfo" xml:space="preserve">
+    <value>音檔說明</value>
+  </data>
+  <data name="Spec_Specification" xml:space="preserve">
+    <value>規格</value>
   </data>
 </root>

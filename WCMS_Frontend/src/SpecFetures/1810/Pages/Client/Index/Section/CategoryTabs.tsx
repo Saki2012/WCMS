@@ -13,7 +13,7 @@ import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Ca
 import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
 import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
 import { DefaultLang } from '@/SysCore/i18n/lang';
-import { ProgId } from '@/Features/Hooks/Common/ProgId';
+import { PGID } from '@/Features/Hooks/Common/ProgId';
 import { useNow } from '@/SysCore/Utils/Library/LibHook';
 import bgImg from "@/SpecFetures/1810/Assets/Client/Images/bg/background-transparent-image_1920x600.png"
 
@@ -122,7 +122,7 @@ const useTagList = () => {
                 `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
                 `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
             ],
-            Condition: `${SchemaFields.TagDataFields.ProgId} = ${ProgId.Announcement}`,
+            Condition: `${SchemaFields.TagDataFields.ProgId} = ${PGID.Announcement}`,
             PageNumber: 0,
             PageSize: 0,
         }),

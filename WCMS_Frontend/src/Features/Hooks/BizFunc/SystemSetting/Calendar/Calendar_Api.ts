@@ -1,4 +1,4 @@
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 import { IApiProvider, IDataProvider } from "@/SysCore/Interface/IApiProvider";
 import type { ApiResponse } from "@/SysCore/Interface/IApiProvider";
 import api from "@/SysCore/Utils/API/APIBase";
@@ -59,7 +59,7 @@ class MockProvider extends ICalendarProvider
 }
 class APIProvider extends ICalendarProvider
 {
-    private readonly ModuleName = ProgId.Calendar;
+    private readonly ModuleName = PGID.Calendar;
     private readonly API = new BaseApiService<CalendarSet>(this.ModuleName);
 
     protected async doCreateData(set: CalendarSet): Promise<ApiResponse<CalendarSet>>

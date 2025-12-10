@@ -1,10 +1,6 @@
 import { NavLink } from 'react-router-dom';
-
 import logImg from 'SpecFeature/Assets/Server/menu_logo_PC.svg';
-import {
-    ServerModuleRoutes,
-    type IModuleMeta,
-} from '@/Features/Pages/Server/BizFunc/ServerModuleRoutes';
+import { ServerModuleRoutes, type IModuleMeta, } from '@/Features/Pages/Server/BizFunc/ServerModuleRoutes';
 import { useEffect } from 'react';
 
 const buildActionPath = (moduleCode: string, progId: string, actionCode: string) => `/Server/${moduleCode}/${progId}/${actionCode}`;

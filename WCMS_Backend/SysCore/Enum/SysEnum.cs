@@ -267,6 +267,7 @@ namespace WCMS.SysCore.Enum
             public const string MP4 = "mp4";
             public const string MOV = "mov";
             public const string MKV = "mkv";
+            public const string M4A = "m4a";
             #endregion
         }
         /// <summary>
@@ -302,8 +303,9 @@ namespace WCMS.SysCore.Enum
             #region 影音
             public const string AUDIO_MPEG = "audio/mpeg";
             public const string AUDIO_WAV = "audio/wav";
-            public const string VIDEO_MP4 = "video/mp4";
+            public const string AUDIO_MP4 = "audio/mp4";
             public const string VIDEO_QUICKTIME = "video/quicktime";
+            public const string VIDEO_MP4 = "video/mp4";
             #endregion
         }
         /// 內文項目狀態

@@ -579,4 +579,7 @@
   <data name="Enum_TimelineSlider" xml:space="preserve">
     <value>歷史時間軸</value>
   </data>
+  <data name="Common_SoundSrcId" xml:space="preserve">
+    <value>音源</value>
+  </data>
 </root>

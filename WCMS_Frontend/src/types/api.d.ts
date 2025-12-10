@@ -5505,6 +5505,422 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/SpecMusical/Create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecMusicalSet_DTO"];
+                    "text/json": components["schemas"]["SpecMusicalSet_DTO"];
+                    "application/*+json": components["schemas"]["SpecMusicalSet_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecMusical/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecMusicalSet_DTO"][];
+                    "text/json": components["schemas"]["SpecMusicalSet_DTO"][];
+                    "application/*+json": components["schemas"]["SpecMusicalSet_DTO"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecMusical/Update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecMusicalSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["SpecMusicalSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["SpecMusicalSet_DTOApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecMusical/Invalid/{pk}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
+                header?: never;
+                path: {
+                    pk: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/SpecMusical/BatchInvalid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    isInvalid?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/SpecMusical/Delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecMusical/BatchDelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecMusical/QueryData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecMusical/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecMusical/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecMusical/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/SpecOpenScheduleRule/Create": {
         parameters: {
             query?: never;
@@ -7924,6 +8340,8 @@ export interface components {
              */
             Sort?: number;
             BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
+            /** @description 展演時間 */
+            SpecShowDate?: string | null;
         };
         BannerSet_DTO: {
             Banner?: components["schemas"]["Banner_DTO"];
@@ -8843,6 +9261,101 @@ export interface components {
             SysMessage?: components["schemas"]["SysMessageModel"][] | null;
             Data?: components["schemas"]["SpecCurrentOpenTime_DTO"][] | null;
         };
+        SpecMusicalModel_DTO: {
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
+            CreateTime?: string | null;
+            /** @description 創建人 */
+            CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["Account_DTO"];
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
+            ModifyTime?: string | null;
+            /** @description 修改人 */
+            ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["Account_DTO"];
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
+            InternalId?: string | null;
+            /** @description 樂器代碼 */
+            MusicalId?: string | null;
+            /** @description 樂器名稱 */
+            MusicalName?: string | null;
+            Category?: components["schemas"]["Category_DTO"];
+            CategoryId?: string | null;
+            /** @description 封面圖片 */
+            CoverPicId?: string | null;
+            /** @description 規格 */
+            Specification?: string | null;
+            /** @description 琴頭 */
+            Headstock?: string | null;
+            /** @description 背板 */
+            Backboard?: string | null;
+            /** @description 弦長 */
+            ScaleLength?: string | null;
+            /** @description 覆手 */
+            Bridge?: string | null;
+            /** @description 形制 */
+            BodyForm?: string | null;
+            /** @description 弦材 */
+            Material?: string | null;
+            /** @description 弦材 */
+            Info?: string | null;
+            _SpecMusicalSoundList?: components["schemas"]["SpecMusicalSoundList_DTO"][] | null;
+            _SpecMusicalPictureList?: components["schemas"]["SpecMusicalPictureList_DTO"][] | null;
+        };
+        SpecMusicalPictureList_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description 樂器代碼 */
+            MusicalId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number;
+            /** @description 相片來源 */
+            PicSrcId?: string | null;
+            /**
+             * Format: int32
+             * @description 排序編號
+             */
+            Sort?: number;
+            /** @description 相片說明 */
+            Info?: string | null;
+            _SpecMusical?: components["schemas"]["SpecMusicalModel_DTO"];
+        };
+        SpecMusicalSet_DTO: {
+            SpecMusical?: components["schemas"]["SpecMusicalModel_DTO"];
+            SpecMusicalSoundList?: components["schemas"]["SpecMusicalSoundList_DTO"][] | null;
+            SpecMusicalPictureList?: components["schemas"]["SpecMusicalPictureList_DTO"][] | null;
+        };
+        SpecMusicalSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SpecMusicalSet_DTO"];
+        };
+        SpecMusicalSoundList_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description 樂器代碼 */
+            MusicalId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number;
+            /** @description 音源 */
+            SoundSrcId?: string | null;
+            /** @description 音檔說明 */
+            Info?: string | null;
+            _SpecMusical?: components["schemas"]["SpecMusicalModel_DTO"];
+        };
         SpecOpenScheduleRuleModel: {
             /** Format: date-time */
             CreateTime?: string | null;
@@ -8940,126 +9453,126 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
-            /** @description 學年度 */
+            /** @description [SpecAcademicYearId] */
             AcademicYearId?: string | null;
             /**
              * Format: date
-             * @description 學年度開始日
+             * @description [SpecAcademicStart]
              */
             AcademicStart?: string | null;
             /**
              * Format: date
-             * @description 學年度結束日
+             * @description [SpecAcademicEnd]
              */
             AcademicEnd?: string | null;
             /**
              * Format: time
-             * @description 平日開館時間
+             * @description [SpecWeekday_OpenTime]
              */
             Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 平日閉館時間
+             * @description [SpecWeekday_CloseTime]
              */
             Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description 週六開館時間
+             * @description [SpecSat_OpenTime]
              */
             Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 週六閉館時間
+             * @description [SpecSat_CloseTime]
              */
             Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description 週日開館時間
+             * @description [SpecSun_OpenTime]
              */
             Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 週日閉館時間
+             * @description [SpecSun_CloseTime]
              */
             Sun_CloseTime?: string | null;
             /**
              * Format: date
-             * @description 寒假開始日
+             * @description [SpecWinterStart]
              */
             WinterStart?: string | null;
             /**
              * Format: date
-             * @description 寒假結束日
+             * @description [SpecWinterEnd]
              */
             WinterEnd?: string | null;
             /**
              * Format: time
-             * @description 寒假平日開館時間
+             * @description [SpecWinter_Weekday_OpenTime]
              */
             Winter_Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 寒假平日閉館時間
+             * @description [SpecWinter_Weekday_CloseTime]
              */
             Winter_Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description 寒假週六開館時間
+             * @description [SpecWinter_Sat_OpenTime]
              */
             Winter_Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 寒假週六閉館時間
+             * @description [SpecWinter_Sat_CloseTime]
              */
             Winter_Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description 寒假週日開館時間
+             * @description [SpecWinter_Sun_OpenTime]
              */
             Winter_Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 寒假週日閉館時間
+             * @description [SpecWinter_Sun_CloseTime]
              */
             Winter_Sun_CloseTime?: string | null;
             /**
              * Format: date
-             * @description 暑假開始日
+             * @description [SpecSummerStart]
              */
             SummerStart?: string | null;
             /**
              * Format: date
-             * @description 暑假結束日
+             * @description [SpecSummerEnd]
              */
             SummerEnd?: string | null;
             /**
              * Format: time
-             * @description 暑假平日開館時間
+             * @description [SpecSummer_Weekday_OpenTime]
              */
             Summer_Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 暑假平日閉館時間
+             * @description [SpecSummer_Weekday_CloseTime]
              */
             Summer_Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description 暑假週六開館時間
+             * @description [SpecSummer_Sat_OpenTime]
              */
             Summer_Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 暑假週六閉館時間
+             * @description [SpecSummer_Sat_CloseTime]
              */
             Summer_Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description 暑假週日開館時間
+             * @description [SpecSummer_Sun_OpenTime]
              */
             Summer_Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 暑假週日閉館時間
+             * @description [SpecSummer_Sun_CloseTime]
              */
             Summer_Sun_CloseTime?: string | null;
             /** @description [Common_Memo] */

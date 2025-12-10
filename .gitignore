@@ -23,3 +23,4 @@ WCMS_Frontend/dist-csr/
 Installed/dotnet-hosting-8.0.22-win.exe
 Installed/requestRouter_amd64.msi
 Installed/rewrite_amd64_zh-TW.msi
+*.bak

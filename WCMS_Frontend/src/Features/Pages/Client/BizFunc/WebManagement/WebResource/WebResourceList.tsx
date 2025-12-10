@@ -10,7 +10,7 @@ import { WebResourceFields, WebResourceInfoFields, WebResourceSetFields } from "
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
 import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 import { useEffect, useMemo, useState } from "react";
 import { isWithinLastNDaysFromString } from "@/SpecFetures/1810/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
@@ -26,7 +26,7 @@ export interface IWebResourceListOptions { Category?: string; Tag?: string; Styl
 export interface IWebResourceListProps { node: INormNode; theme: IFETheme; lang: Lang; options?: IWebResourceListOptions; title: string }
 const WebResourceListComp = (props: IWebResourceListProps) => {
     const useWebResList = useWebResourceList(props.options?.Category ?? "", props.options?.Tag ?? "", props.lang);
-    const useCategory = useCategoryListData(ProgId.WebResource, props.lang);
+    const useCategory = useCategoryListData(PGID.WebResource, props.lang);
     const children = useMemo(() => {
         switch (props.options?.Style) {
             case 7:

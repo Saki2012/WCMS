@@ -1,22 +1,20 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
-using static WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.ModuleOptions;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Banner
 {
     [LibDesc]
-    public class BannerSet:ITSet
+    public partial class BannerSet:ITSet
     {
         [LibDesc] public Banner Banner { get; set; } = new Banner();
         [LibDesc] public List<BannerDetail> BannerDetail { get; set; } = [];
         [LibDesc] public List<BannerDetailInfo> BannerDetailInfo { get; set; } = [];
     }
-    public class Banner: MasterDataModel
+    public partial class Banner: MasterDataModel
     {
         /// <summary>
         /// 橫幅ID
@@ -46,7 +44,7 @@ namespace WCMS.Features.SiteEdit.Banner
         [InverseProperty(nameof(BannerDetail._Banner))] public List<BannerDetail> _BannerDetail { get; set; } = [];
         #endregion
     }
-    public class BannerDetail:DetailRowModel
+    public partial class BannerDetail:DetailRowModel
     {
         /// <summary>
         /// 
@@ -81,7 +79,7 @@ namespace WCMS.Features.SiteEdit.Banner
         [InverseProperty(nameof(BannerDetailInfo._BannerDetail))] public List<BannerDetailInfo> _BannerDetailInfo { get; set; }
         #endregion
     }
-    public class BannerDetailInfo : DetailRowModel
+    public partial class BannerDetailInfo : DetailRowModel
     {
         /// <summary>
         /// 

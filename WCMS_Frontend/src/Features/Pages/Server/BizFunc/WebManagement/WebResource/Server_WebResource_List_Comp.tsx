@@ -10,7 +10,7 @@ import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/B
 import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions"
 import { GridCol_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp"
 import WebResourceProvider from "@/Features/Hooks/BizFunc/WebManagement/WebResource/WebResource_Api";
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
@@ -28,7 +28,7 @@ export const WebResourceListComp = (prop: { title: string; theme: IBETheme; lang
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
     const provider = useMemo(() => WebResourceProvider(), []);
     const useListData = useWebResourceListData(provider, prop.lang, kw);
-    const useCategory = useCategoryListData(ProgId.WebResource, prop.lang);
+    const useCategory = useCategoryListData(PGID.WebResource, prop.lang);
     const actions = useActions(dirUrl, WebResourceProvider(), undefined, undefined, useListData.refetchCurrent)
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(useListData.gridProps, useListData.rawData, useCategory.rawData, actions); }, [useListData.gridProps, useListData.rawData, useCategory.rawData, actions]);
     const searchCompProp: SearchBarProps = { title: "網路資源搜尋", subTitle: "搜尋網路資源 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
