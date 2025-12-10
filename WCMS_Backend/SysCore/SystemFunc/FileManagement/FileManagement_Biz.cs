@@ -308,7 +308,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <returns></returns>
         private bool CheckFileSize(FileManageModel filemanage, FileManage_SyncInfoModel syncInfo)
         {
-            const int mb = 20;
+            const int mb = 200;
             const long maxFileSize = mb * 1024 * 1024;
             if (filemanage.FileSize > maxFileSize)
             {
