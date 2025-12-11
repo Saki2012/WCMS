@@ -4533,3 +4533,171 @@
 }
 
 
+/* 關於本處研發長室CSS 測試站有 正式站沒有 cara 20251211 ↓*/
+/* ===== 上方：圖片＋資訊（姓名右上、聯絡右下） =====*/
+#ContentPlaceContent_ContentConentA .profile {
+    display: grid;
+    grid-template-columns: minmax(320px,1fr) minmax(360px,1fr);
+    grid-template-rows: auto 1fr auto;
+    gap: 24px;
+    border: 1px solid #e6e6e6;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    background: #fff;
+}
+#ContentPlaceContent_ContentConentA .profile__img {
+	grid-column: 1;
+	grid-row: 1/4;
+	align-self: start;
+	display: flex;
+	justify-content: center;
+}
+#ContentPlaceContent_ContentConentA .profile__img img {
+	max-width: 100%;
+	height: auto;
+	border-radius: 8px;
+	display: block;
+}
+#ContentPlaceContent_ContentConentA .profile__top {
+	grid-column: 2;
+	grid-row: 1;
+	align-self: start;
+}
+#ContentPlaceContent_ContentConentA .name {
+	margin: 0 0 6px;
+	font-size: 32px;
+	line-height: 1.2;
+	color: var(--Customize_color);
+	font-weight: 700;
+}
+#ContentPlaceContent_ContentConentA .name .title {
+	font-size: 24px;
+	color: #000;
+	font-weight: 700;
+	margin-left: .25em;
+}
+#ContentPlaceContent_ContentConentA .ename {
+	margin: 0;
+	font-size: 20px;
+	color: #666666;
+}
+#ContentPlaceContent_ContentConentA .contact {
+	grid-column: 2;
+	grid-row: 3;
+	align-self: end;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: 6px;
+}
+#ContentPlaceContent_ContentConentA .contact a {
+	color: var(--Customize_color);
+	text-decoration: none;
+}
+#ContentPlaceContent_ContentConentA .contact a:hover {
+	text-decoration: underline;
+}
+/* ===== 下方表格：像圖例的版型 =====*/
+#ContentPlaceContent_ContentConentA .section {
+	margin-top: 28px;
+}
+#ContentPlaceContent_ContentConentA .paper {
+	position: relative;
+	background: #eee;
+	border: 1px solid #e6e6e6;
+	border-radius: 12px;
+	padding: 12px;
+	/* 外卡片感*/
+	box-shadow: 0 4px 18px rgba(0,0,0,.06);
+}
+/* 右上淡淡的斜角高光（可移除）*/
+#ContentPlaceContent_ContentConentA .paper::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 0;
+	height: 0;
+	border-left: 120px solid transparent;
+	border-top: 120px solid rgba(255,255,255,.75);
+	border-top-right-radius: 12px;
+	pointer-events: none;
+	filter: blur(.2px);
+}
+#ContentPlaceContent_ContentConentA .cv-table {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0;
+	background: #fff;
+	border-radius: 10px;
+	overflow: hidden;
+	table-layout: fixed;
+}
+#ContentPlaceContent_ContentConentA .cv-table th, .cv-table td {
+	padding: 14px 16px;
+	text-align: left;
+	word-break: break-word;
+	overflow-wrap: anywhere;
+}
+#ContentPlaceContent_ContentConentA .cv-table th {
+	width: clamp(50px, 7vw, 66px);
+	background: var(--row);
+	vertical-align: middle;
+	/* 左欄置中*/
+	text-align: center;
+	letter-spacing: .25em;
+	/* 字距像圖例*/
+	white-space: nowrap;
+	font-weight: 700;
+}
+#ContentPlaceContent_ContentConentA .cv-table td {
+	vertical-align: middle;
+	/* 右欄上下置中（桌機）*/
+	padding-left: 22px;
+	/* 第一格留白：不貼線*/
+}
+#ContentPlaceContent_ContentConentA .cv-table tr + tr td, .cv-table tr + tr th {
+	border-top: 1px solid #e6e6e6;
+}
+/* 全列細分隔線*/
+#ContentPlaceContent_ContentConentA .cv-table td p {
+	margin: 0;
+}
+/* ===== RWD =====*/
+@media (max-width: 768px) {
+    #ContentPlaceContent_ContentConentA .profile {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+    }
+    #ContentPlaceContent_ContentConentA .profile__img {
+        grid-column: 1;
+        grid-row: 1;
+    }
+    #ContentPlaceContent_ContentConentA .profile__top {
+        grid-column: 1;
+        grid-row: 2;
+    }
+    #ContentPlaceContent_ContentConentA .contact {
+        grid-column: 1;
+        grid-row: 3;
+    }
+    } @media (max-width: 640px) {
+    #ContentPlaceContent_ContentConentA .cv-table th,.cv-table td {
+        vertical-align: top;
+    }
+    /* 手機改頂對齊更易讀*/
+}
+#ContentPlaceContent_ContentConentA .sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0,0,0,0);
+	white-space: nowrap;
+	border: 0;
+}
+/* 關於本處研發長室CSS 測試站有 正式站沒有 cara 20251211 ↑*/
