@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using WCMS.SpecFeatures.Spec1816.Resx;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
 
 namespace WCMS.SpecFeatures.Spec1816.SystemSetting.SpecOpenScheduleRule
 {

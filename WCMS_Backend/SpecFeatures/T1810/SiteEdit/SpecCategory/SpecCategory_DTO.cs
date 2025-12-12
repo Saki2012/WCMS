@@ -1,7 +1,8 @@
 ﻿using WCMS.SpecFeatures.T1810.Resx;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
 
 namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
 {
@@ -33,7 +34,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
         /// </summary>
         [LibDesc(SpecModelDisplayName.SpecCategoryId)] public string CategoryId { get; set; }
         [LibDesc(ModelDisplayName.Common_RowId)] public int RowId { get; set; }
-        [LibDesc(ModelDisplayName.Common_Lang)] public string Lang { get; set; }
+        [LibDesc(ModelDisplayName.Common_Lang)] public LangCode Lang { get; set; }
         [LibDesc(SpecModelDisplayName.SpecCategory_Name)] public string CategoryName { get; set; }
     }
 }

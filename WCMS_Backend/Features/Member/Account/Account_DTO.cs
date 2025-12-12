@@ -2,9 +2,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.Member.Personnel;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.Member.Account

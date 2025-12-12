@@ -8,9 +8,10 @@ using WCMS.Features.SiteEdit.Gallery;
 using WCMS.Features.SiteEdit.WebResource;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Library.LibData;
@@ -18,9 +19,8 @@ using static WCMS.SysCore.Library.LibData;
 namespace WCMS.Features.SiteEdit.Gallery
 {
     [ProgId("Gallery")]
-    public class GalleryBiz(BizDeps bizDeps) : BizService<GallerySet>(bizDeps), IBizService<GallerySet> {
-
-
+    public class GalleryBiz(BizDeps bizDeps) : BizService<GallerySet>(bizDeps), IBizService<GallerySet> 
+    {
         #region Migration Old Data
         public async Task Migrate(string importFileLabel = "1810", IList<FileManageSet> srcFileSets = default)
         {
@@ -64,11 +64,12 @@ namespace WCMS.Features.SiteEdit.Gallery
                     {
                         string contentXml = HtmlInternalIdByFullPath.TransformHtml_ReplaceSrcWithDataInternalId(dRow["Content"].ToString(), fileSrcIdDic, out List<string> usedInternalIds);
                         if (usedInternalIds.Count != 0) updateFileSets.AddRange(srcFileSets.Where(p => usedInternalIds.Contains(p.FileManage.InternalId)));
+                        LangCodeExt.TryParse(dRow["Lang"].ToString(), out LangCode lang);
                         set.GalleryInfo.Add(new GalleryInfo()
                         {
                             GalleryId = set.Gallery.GalleryId,
                             RowId = galleryRowId,
-                            Lang = dRow["Lang"].ToString(),
+                            Lang = lang,
                             Title = dRow["Title"].ToString(),
                             Content = contentXml,
                         });
@@ -100,15 +101,16 @@ namespace WCMS.Features.SiteEdit.Gallery
                     {
                         if (!subDRow["Title"].IsNullOrEmpty())
                         {
+                            LangCodeExt.TryParse(subDRow["Lang"].ToString(), out LangCode lang);
                             set.GalleryPhotosInfo.Add(new GalleryPhotosInfo()
                             {
                                 GalleryId = set.Gallery.GalleryId,
                                 ParentRowId = photoRowId,
                                 RowId = subPhotoRowId,
-                                Lang = subDRow["Lang"].ToString(),
+                                Lang = lang,
                                 Title = subDRow["Title"].ToString(),
                             });
-                            if (subDRow["Lang"].ToString().Equals("zh-tw", StringComparison.InvariantCultureIgnoreCase)) photoSet.FileManage.FileDescription = subDRow["Title"].ToString();
+                            if (lang==LangCode.zhtw) photoSet.FileManage.FileDescription = subDRow["Title"].ToString();
                             subPhotoRowId++;
                         }
                     });
@@ -180,14 +182,13 @@ namespace WCMS.Features.SiteEdit.Gallery
         private void CheckIsEmpty(GallerySet set)
         {
             if (set.Gallery.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Gallery_DTO>(x => x.Validate_Start));
-            if (set.GalleryInfo.FirstOrDefault(p => p.Lang.Equals("zh-tw")) == null || set.GalleryInfo.FirstOrDefault(p => p.Lang.Equals("zh-tw")).Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00019, "繁體中文", I18nCache.GetLabel<GalleryInfo_DTO>(x => x.Title));
+            if (set.GalleryInfo.FirstOrDefault(p => p.Lang==SiteDefaultLang) == null || set.GalleryInfo.FirstOrDefault(p => p.Lang==SiteDefaultLang).Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00019, SiteDefaultLang.ToLabel(), I18nCache.GetLabel<GalleryInfo_DTO>(x => x.Title));
         }
         private void AACheck(GallerySet set)
         {
             return;//有強制要求AA時才檢測該段資料，後續做開關控管
             foreach(GalleryPhotosInfo photos in set.GalleryPhotosInfo)
-            if (photos.Lang.Equals("zh-tw") && photos.Title.IsNullOrEmpty())
-                    Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00020, "繁體中文", I18nCache.GetLabel<GalleryPhotosInfo_DTO>(x => x.Title));
+            if (photos.Lang==SiteDefaultLang && photos.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00020, SiteDefaultLang.ToLabel(), I18nCache.GetLabel<GalleryPhotosInfo_DTO>(x => x.Title));
         }
         /// <summary>
         /// 重新組合多筆資料(類別、狀態、標籤)

@@ -8,9 +8,10 @@ using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 
@@ -70,11 +71,12 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
                 {
                     int.TryParse(dRow["AcademicYear"].ToString(), out int academicYear);
                     decimal.TryParse(dRow["PlanAmount"].ToString().Replace(",", ""), out decimal planAmount);
+                    LangCodeExt.TryParse(dRow["Lang"].ToString(), out LangCode lang);
                     SpecUSRDetail detail = new()
                     {
                         USRId = set.SpecUSR.USRId,
                         RowId = rowId++,
-                        Lang = dRow["Lang"].ToString(),
+                        Lang = lang,
                         Year = dRow["Year"].ToString(),
                         AcademicYear = academicYear,
                         Courses = dRow["Courses"].ToString(),

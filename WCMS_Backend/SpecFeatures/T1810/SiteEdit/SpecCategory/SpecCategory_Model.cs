@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 
@@ -37,7 +38,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
         /// </summary>
         [Key, StringLength(SysLengthParam.ID)] public string CategoryId { get;set; }
         [Key] public int RowId { get; set; }
-        [StringLength(SysLengthParam.Lang)] public string Lang { get; set; }
+        [StringLength(SysLengthParam.Lang)] public LangCode Lang { get; set; }
         [StringLength(SysLengthParam.Name)] public string CategoryName { get; set; }
 
         #region 主子表關聯

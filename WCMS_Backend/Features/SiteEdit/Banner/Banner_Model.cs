@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
@@ -96,7 +97,7 @@ namespace WCMS.Features.SiteEdit.Banner
         /// <summary>
         /// 語系
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.Lang)] public string Lang { get; set; }
+        [LibDesc, StringLength(SysLengthParam.Lang)] public LangCode Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>

@@ -2,10 +2,11 @@
 using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.Security;
-using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.Member.Personnel

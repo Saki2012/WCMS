@@ -9,10 +9,11 @@ using WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch;
 using WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.SpecCategory
@@ -47,11 +48,12 @@ namespace WCMS.Features.SiteEdit.SpecCategory
                 int rowId = 1;
                 foreach (var dRow in ds.Tables["ResearchProjectCategory_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == row["Sn"].ToString()).ToList())
                 {
+                    LangCodeExt.TryParse(dRow["Lang"].ToString(), out LangCode lang);
                     SpecCategoryDetailModel detail = new()
                     {
                         CategoryId = id,
                         RowId = rowId++,
-                        Lang = dRow["Lang"].ToString(),
+                        Lang = lang,
                         CategoryName = dRow["CategoryName"].ToString(),
                     };
                     set.SpecCategoryDetail.Add(detail);
@@ -80,11 +82,12 @@ namespace WCMS.Features.SiteEdit.SpecCategory
                 int rowId = 1;
                 foreach (var dRow in ds.Tables["USRProjectCategory_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == row["Sn"].ToString()).ToList())
                 {
+                    LangCodeExt.TryParse(dRow["Lang"].ToString(), out LangCode lang);
                     SpecCategoryDetailModel detail = new()
                     {
                         CategoryId = id,
                         RowId = rowId++,
-                        Lang = dRow["Lang"].ToString(),
+                        Lang = lang,
                         CategoryName = dRow["CategoryName"].ToString(),
                     };
                     set.SpecCategoryDetail.Add(detail);
@@ -140,17 +143,17 @@ namespace WCMS.Features.SiteEdit.SpecCategory
         #endregion
 
         #region Protected
-        protected override async Task BeforeUpdate(SpecCategorySet set, SysEnum.FuncAction act)
+        protected override async Task BeforeUpdate(SpecCategorySet set, FuncAction act)
         {
             await base.BeforeUpdate(set, act);
             switch (act)
             {
-                case SysEnum.FuncAction.Create:
-                case SysEnum.FuncAction.Update:
+                case FuncAction.Create:
+                case FuncAction.Update:
                     DoRemergeData(set.SpecCategory);
                     break;
-                case SysEnum.FuncAction.Delete:
-                    await CheckIsUsedAsync(set, "zh-tw");
+                case FuncAction.Delete:
+                    await CheckIsUsedAsync(set);
                     break;
             }
         }
@@ -165,11 +168,11 @@ namespace WCMS.Features.SiteEdit.SpecCategory
         {
             header.ShowColumnItems = header.ShowColumnItems.Remerge(",");
         }
-        private async Task CheckIsUsedAsync(SpecCategorySet set, string defaultLang)
+        private async Task CheckIsUsedAsync(SpecCategorySet set)
         {
             string progId = set.SpecCategory.ProgId;
             string cateId = set.SpecCategory.CategoryId;
-            string cateName = set.SpecCategoryDetail.FirstOrDefault(p => p.Lang.Equals(defaultLang)).CategoryName;
+            string cateName = set.SpecCategoryDetail.FirstOrDefault(p => p.Lang==EffectiveLang).CategoryName;
             int useCount = 0;
             switch (progId)
             {

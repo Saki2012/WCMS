@@ -1,6 +1,6 @@
 ﻿using WCMS.SysCore.Library;
 using System.ComponentModel;
-using WCMS.SysCore.Resx;
+using WCMS.SysCore.I18n.Resx;
 
 namespace WCMS.SysCore.Enum
 {
@@ -168,34 +168,6 @@ namespace WCMS.SysCore.Enum
             [LibDesc] Frontend = 1
         }
 
-        public static class Lang
-        {
-            // 中文系
-            public const string zhTW = "zh-tw"; // 繁體中文（台灣）
-            public const string zhCN = "zh-cn"; // 簡體中文（中國）
-            public const string zhHK = "zh-hk"; // 繁體中文（香港）
-
-            // 英文系
-            public const string en = "en"; // 英文
-            public const string enUS = "en-us"; // 英文（美國）
-            public const string enGB = "en-gb"; // 英文（英國）
-
-            // 歐洲語系
-            public const string deDE = "de-DE"; // 德文（德國）
-            public const string frFR = "fr-FR"; // 法文（法國）
-            public const string esES = "es-ES"; // 西班牙文（西班牙）
-            public const string itIT = "it-IT"; // 義大利文（義大利）
-
-            // 東南亞語系
-            public const string thTH = "th-TH"; // 泰文（泰國）
-            public const string viVN = "vi-VN"; // 越南文（越南）
-            public const string idID = "id-ID"; // 印尼文（印尼）
-            public const string msMY = "ms-MY"; // 馬來文（馬來西亞）
-
-            // 東亞語系
-            public const string jaJP = "ja-JP"; // 日文（日本）
-            public const string koKR = "ko-KR"; // 韓文（韓國）
-        }
         /// <summary>
         /// 訊息狀態
         /// </summary>

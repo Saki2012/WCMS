@@ -1,4 +1,4 @@
-﻿namespace WCMS.SysCore.Resx
+﻿namespace WCMS.SysCore.I18n.Resx
 {
     public static class SysMessageCode
     {

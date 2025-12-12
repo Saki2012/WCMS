@@ -9,10 +9,11 @@ using System.Text.RegularExpressions;
 using WCMS.Features.Member.Account;
 using WCMS.Features.SystemSetting.Auth;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.QueryListParam;
 
@@ -82,6 +83,14 @@ namespace WCMS.SysCore
         /// </summary>
         private ApplicationDbContext DataAccess { get; }
         protected IErrorHelper Message { get; }
+        /// <summary>
+        /// //網站預設語系(暫時寫死)
+        /// </summary>
+        protected LangCode SiteDefaultLang { get; set; } = LangCode.zhtw;
+        /// <summary>
+        /// 執行時語系(暫時寫死，為提供當前用戶語系的資料或是訊息)
+        /// </summary>
+        protected LangCode EffectiveLang { get; set; } = LangCode.zhtw;
         #endregion
 
         #region Construct

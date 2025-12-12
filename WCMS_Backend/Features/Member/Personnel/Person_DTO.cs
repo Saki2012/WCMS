@@ -2,9 +2,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.Member.Permission;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 

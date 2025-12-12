@@ -27,6 +27,7 @@ using WCMS.Features.SystemSetting.Calendar;
 using WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting;
 using WCMS.SysCore;
 using WCMS.SysCore.AppSettingsOptions;
+using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.Security;
@@ -804,7 +805,9 @@ namespace WCMS
                     SiteIndex = string.Empty,
                     GoogleAnalytics=string.Empty,
                     Enable=true,
-                    FormStatus= FormStatus.Saved,
+                    DefaultLang = LangCode.zhtw,//初始化一律先默認中文
+                    SupportLangs = LangCodeJson.ToJsonArray(LangCode.zhtw, LangCode.en),
+                    FormStatus = FormStatus.Saved,
                     DataStatus= DataStatus.Valid,
                     OrgLvId=string.Empty,
                     InternalId = Guid.NewGuid().ToString(),
@@ -819,8 +822,8 @@ namespace WCMS
                     // 這裡的屬性名稱請依你實際的 Model 調整
                     SiteIndex = root.SiteIndex,
                     RowId = 1,
-                    Lang = Lang.zhTW,          // = "zh-TW"
-                    Title = string.Empty,       // 其他文字欄位建議在 Model 預設為 string.Empty
+                    Lang = LangCode.zhtw,     
+                    Title = string.Empty,       
                     Description=string.Empty,
                     SiteHeader=string.Empty,
                     SiteFooter=string.Empty,
@@ -832,7 +835,7 @@ namespace WCMS
                     // 這裡的屬性名稱請依你實際的 Model 調整
                     SiteIndex = root.SiteIndex,
                     RowId = 2,
-                    Lang = Lang.en,       
+                    Lang = LangCode.en,       
                     Title = string.Empty,     
                     Description = string.Empty,
                     SiteHeader = string.Empty,

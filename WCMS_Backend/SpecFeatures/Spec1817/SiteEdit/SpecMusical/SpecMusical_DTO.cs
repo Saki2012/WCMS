@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.SiteEdit.Category;
 using WCMS.SpecFeatures.Spec1817.Resx;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
 
 namespace WCMS.SpecFeatures.Spec1817.SiteEdit.SpecMusical
 {

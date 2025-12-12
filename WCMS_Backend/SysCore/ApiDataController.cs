@@ -19,6 +19,7 @@ using WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory;
 using WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch;
 using WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;

@@ -582,4 +582,10 @@
   <data name="Common_SoundSrcId" xml:space="preserve">
     <value>音源</value>
   </data>
+  <data name="Enum_DefaultLang" xml:space="preserve">
+    <value>預設語系</value>
+  </data>
+  <data name="Enum_SupportLang" xml:space="preserve">
+    <value>支援語系</value>
+  </data>
 </root>

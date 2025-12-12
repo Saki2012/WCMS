@@ -3,9 +3,9 @@ using WCMS.Features.SiteEdit.Tag;
 using WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch;
 using WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR;
 using WCMS.SysCore;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SpecFeatures.T1810.SiteEdit.Tag

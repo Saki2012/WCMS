@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NLog;
 using System.Text.Json;
-using WCMS.SysCore.Resx;
+using WCMS.SysCore.I18n.Resx;
 using static GraphQL.Validation.Rules.OverlappingFieldsCanBeMerged;
 using static WCMS.SysCore.Enum.SysEnum;
 

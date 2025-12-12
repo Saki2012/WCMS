@@ -4,6 +4,7 @@ using System.Data;
 using System.Runtime.InteropServices;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.SystemFunc.FileManagement;
@@ -49,11 +50,12 @@ namespace WCMS.Features.SiteEdit.PageManagement
                     if (dRow["Title"].IsNullOrEmpty()) continue;
                     string contentXml = HtmlInternalIdByFullPath.TransformHtml_ReplaceSrcWithDataInternalId(dRow["Content"].ToString(), fileSrcIdDic, out List<string> usedInternalIds);
                     updateFileSets.AddRange(srcFileSets.Where(p => usedInternalIds.Contains(p.FileManage.InternalId)));
+                    LangCodeExt.TryParse(dRow["Lang"].ToString(), out LangCode lang);
                     PageManagementDetail detail = new()
                     {
                         PageId = set.PageManagement.PageId,
                         RowId = rowId++,
-                        Lang = dRow["Lang"].ToString(),
+                        Lang = lang,
                         Title = dRow["Title"].ToString(),
                         Content = contentXml,
                     };

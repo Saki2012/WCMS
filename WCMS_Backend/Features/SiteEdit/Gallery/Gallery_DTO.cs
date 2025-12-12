@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Gallery
@@ -66,7 +67,7 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Lang)] public string? Lang { get; set; }
+        [LibDesc(ModelDisplayName.Common_Lang)] public LangCode? Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>
@@ -120,7 +121,7 @@ namespace WCMS.Features.SiteEdit.Gallery
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Lang)] public string? Lang { get; set; }
+        [LibDesc(ModelDisplayName.Common_Lang)] public LangCode? Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>

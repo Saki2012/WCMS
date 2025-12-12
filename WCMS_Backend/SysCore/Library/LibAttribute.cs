@@ -7,6 +7,7 @@ using System.Net;
 using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
+using WCMS.SysCore.I18n;
 
 namespace WCMS.SysCore.Library
 {
@@ -44,7 +45,7 @@ namespace WCMS.SysCore.Library
                 {
                     try
                     {
-                        value = _specResourceManager.GetString(_resourceKey, culture) ?? _specResourceManager.GetString(_resourceKey, new CultureInfo("zh-TW"));
+                        value = _specResourceManager.GetString(_resourceKey, culture) ?? _specResourceManager.GetString(_resourceKey, new CultureInfo(LangCode.zhtw.ToCode()));
                     }
                     catch (MissingManifestResourceException)
                     {
@@ -55,7 +56,7 @@ namespace WCMS.SysCore.Library
                 {
                     try
                     {
-                        value = _coreResourceManager.GetString(_resourceKey, culture) ?? _coreResourceManager.GetString(_resourceKey, new CultureInfo("zh-TW"));
+                        value = _coreResourceManager.GetString(_resourceKey, culture) ?? _coreResourceManager.GetString(_resourceKey, new CultureInfo(LangCode.zhtw.ToCode()));
                     }
                     catch (MissingManifestResourceException)
                     {

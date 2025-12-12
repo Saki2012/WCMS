@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Resources;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore

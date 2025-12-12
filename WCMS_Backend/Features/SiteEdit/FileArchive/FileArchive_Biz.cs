@@ -6,9 +6,10 @@ using WCMS.Features.SiteEdit.Announcement;
 using WCMS.Features.SiteEdit.WebResource;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 
@@ -54,11 +55,12 @@ namespace WCMS.Features.SiteEdit.FileArchive
                 {
                     if (!dRow["Title"].IsNullOrEmpty())
                     {
+                        LangCodeExt.TryParse(dRow["Lang"].ToString(), out LangCode lang);
                         set.FileArchiveInfo.Add(new FileArchiveInfo()
                         {
                             FileArchiveId = set.FileArchive.FileArchiveId,
                             RowId = rowId,
-                            Lang = dRow["Lang"].ToString(),
+                            Lang = lang,
                             Title = dRow["Title"].ToString(),
                         });
 
@@ -162,7 +164,7 @@ namespace WCMS.Features.SiteEdit.FileArchive
         private void CheckDataIsEmpty(FileArchiveSet set)
         {
             if (set.FileArchive.CategoriesId == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchive>(x => x.CategoriesId));
-            if (set.FileArchiveInfo.FirstOrDefault(p => p.Lang.Equals("zh-tw")) == null || set.FileArchiveInfo.FirstOrDefault(p => p.Lang.Equals("zh-tw")).Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, "繁體中文", I18nCache.GetLabel<AnnouncementDetail_DTO>(x => x.Title));
+            if (set.FileArchiveInfo.FirstOrDefault(p => p.Lang==SiteDefaultLang) == null || set.FileArchiveInfo.FirstOrDefault(p => p.Lang == SiteDefaultLang).Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, SiteDefaultLang.ToLabel(), I18nCache.GetLabel<AnnouncementDetail_DTO>(x => x.Title));
         }
         /// <summary>
         /// 如果沒有上傳檔案成功的項目，就移除該項目防呆

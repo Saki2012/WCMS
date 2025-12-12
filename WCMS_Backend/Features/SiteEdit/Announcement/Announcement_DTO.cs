@@ -2,9 +2,10 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Announcement
@@ -80,7 +81,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 語系
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Lang)] public string? Lang { get; set; }
+        [LibDesc(ModelDisplayName.Common_Lang)] public LangCode? Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>

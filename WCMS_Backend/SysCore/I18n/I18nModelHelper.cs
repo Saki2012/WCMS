@@ -1,7 +1,8 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using WCMS.SysCore.Library;
 
-namespace WCMS.SysCore.Library
+namespace WCMS.SysCore.I18n
 {
     public static class I18nModelHelper
     {

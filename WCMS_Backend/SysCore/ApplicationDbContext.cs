@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Options;
 using SharpCompress.Compressors.RLE90;
 using System.Collections.Generic;
@@ -11,6 +13,7 @@ using System.Reflection.Emit;
 using System.Runtime.Intrinsics.Arm;
 using System.Security.AccessControl;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
 using WCMS.SysCore.Model;
 
 namespace WCMS.SysCore
@@ -38,6 +41,7 @@ namespace WCMS.SysCore
         {
             base.OnModelCreating(builder);
             ModelDbSetting(builder);
+            ApplyEnumStringConversions(builder);
             IgnoreDtoTypes(builder);
             AutoBindRelationships(builder);
             ApplyCascadeDeleteRules(builder);
@@ -287,6 +291,82 @@ namespace WCMS.SysCore
         public static void RegistUDF(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDbFunction(typeof(ApplicationDbContext).GetMethod(nameof(SplitToStringTable), [typeof(string)])!).HasName(nameof(SplitToStringTable)).HasSchema("dbo");
+        }
+        /// <summary>
+        /// 在 EF Model 建置階段掃描所有 Entity 屬性，套用指定 enum 的「存成 nvarchar 字串」轉換規則。
+        /// </summary>
+        private static void ApplyEnumStringConversions(ModelBuilder builder)
+        {
+            var specs = BuildEnumStringConversionSpecs();
+            foreach (var et in builder.Model.GetEntityTypes())
+            {
+                if (et.IsOwned()) continue;
+                foreach (var p in et.GetProperties())
+                {
+                    // non-nullable enum
+                    var spec = specs.FirstOrDefault(s => s.EnumType == p.ClrType);
+                    if (spec != null)
+                    {
+                        ApplySpec(p, spec, isNullable: false);
+                        continue;
+                    }
+
+                    // nullable enum
+                    var under = Nullable.GetUnderlyingType(p.ClrType);
+                    if (under != null)
+                    {
+                        var specNullable = specs.FirstOrDefault(s => s.EnumType == under);
+                        if (specNullable != null)
+                        {
+                            ApplySpec(p, specNullable, isNullable: true);
+                        }
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// 將指定的 enum-string 轉換規則套用到某個 EF Property（含 converter、max length、nvarchar 型別）。
+        /// </summary>
+        private static void ApplySpec(IMutableProperty prop, EnumStringConversionSpec spec, bool isNullable)
+        {
+            prop.SetValueConverter(isNullable ? spec.NullableConverter : spec.Converter);
+            prop.SetMaxLength(spec.MaxLength);
+            prop.SetColumnType($"nvarchar({spec.MaxLength})");
+        }
+        /// <summary>
+        /// 描述某個 enum 存成字串欄位時所需的轉換器與欄位長度設定。
+        /// </summary>
+        private sealed record EnumStringConversionSpec(Type EnumType,ValueConverter Converter,ValueConverter NullableConverter,int MaxLength);
+        /// <summary>
+        /// 建立「需要將 enum 以 nvarchar 字串儲存」的規則清單（可在此集中新增/調整 enum 規則）。
+        /// </summary>
+        private static List<EnumStringConversionSpec> BuildEnumStringConversionSpecs()
+        {
+            var list = new List<EnumStringConversionSpec>
+            {
+                // ✅ LangCode：用你自訂 mapping（ToCode/Normalize）
+                CreateEnumSpec(
+                maxLength: SysLengthParam.Lang,
+                toProvider: (LangCode v) => v.ToCode(),
+                fromProvider: (string v) => LangCodeExt.Normalize(v)
+            )};
+
+            // 之後要加新的 enum（也存字串）就只要再加一筆：
+            // list.Add(CreateEnumSpec(
+            //     maxLength: 20,
+            //     toProvider: (YourEnum v) => v.ToDbCode(),
+            //     fromProvider: (string v) => YourEnumExt.ParseDbCode(v)
+            // ));
+            return list;
+        }
+        /// <summary>
+        /// 建立單一 enum 的「enum ↔ string」轉換規則（含 nullable 與非 nullable 版本）。
+        /// </summary>
+        private static EnumStringConversionSpec CreateEnumSpec<TEnum>(int maxLength,Func<TEnum, string> toProvider,Func<string, TEnum> fromProvider) where TEnum : struct, System.Enum
+        {
+            var converter = new ValueConverter<TEnum, string>(v => toProvider(v),v => fromProvider(v));
+            var nullableConverter = new ValueConverter<TEnum?, string?>(v => v.HasValue ? toProvider(v.Value) : null,v => string.IsNullOrWhiteSpace(v) ? null : fromProvider(v!));
+            return new EnumStringConversionSpec(EnumType: typeof(TEnum),Converter: converter,NullableConverter: nullableConverter,MaxLength: maxLength);
         }
         #endregion
     }

@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using WCMS.SpecFeatures.T1810.Resx;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 
@@ -64,7 +65,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
     {
         [LibDesc(SpecModelDisplayName.SpecUSRId),StringLength(SysLengthParam.ID), Key] public string? USRId { get; set; }
         [LibDesc(ModelDisplayName.Common_RowId), Key] public int RowId { get; set; }
-        [LibDesc(ModelDisplayName.Common_Lang), Required, StringLength(5)] public string? Lang { get; set; } = default!;
+        [LibDesc(ModelDisplayName.Common_Lang), Required, StringLength(5)] public LangCode? Lang { get; set; } = default!;
         [LibDesc(SpecModelDisplayName.SpecUSR_Year), StringLength(10)] public string? Year { get; set; }
         [LibDesc(SpecModelDisplayName.SpecUSR_AcademicYear)] public int? AcademicYear { get; set; }
         [LibDesc(SpecModelDisplayName.SpecUSR_Courses), StringLength(200)] public string? Courses { get; set; }
@@ -137,7 +138,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Lang), StringLength(SysLengthParam.Lang)] public string? Lang { get; set; }
+        [LibDesc(ModelDisplayName.Common_Lang), StringLength(SysLengthParam.Lang)] public LangCode? Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>

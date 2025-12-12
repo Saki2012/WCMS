@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using WCMS.SysCore.Library;
 
-namespace WCMS.SysCore.Resx
+namespace WCMS.SysCore.I18n.Resx
 {
     public static class ModelDisplayName
     {
@@ -67,6 +67,10 @@ namespace WCMS.SysCore.Resx
         public const string Enum_AccountStatus_Freeze = "Enum_AccountStatus_Freeze";
         public const string Enum_AccountStatus_Expired = "Enum_AccountStatus_Expired";
         public const string Enum_AccountStatus_HostDefault = "Enum_AccountStatus_HostDefault";
+
+        public const string Enum_DefaultLang = "Enum_DefaultLang";
+        public const string Enum_SupportLang = "Enum_SupportLang";
+
         #endregion
 
         #region 網站結構設定

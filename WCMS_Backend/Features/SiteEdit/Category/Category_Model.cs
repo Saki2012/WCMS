@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using static WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.ModuleOptions;
@@ -42,7 +43,7 @@ namespace WCMS.Features.SiteEdit.Category
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [StringLength(SysLengthParam.Lang)] public string Lang { get; set; }
+        [StringLength(SysLengthParam.Lang)] public LangCode Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>

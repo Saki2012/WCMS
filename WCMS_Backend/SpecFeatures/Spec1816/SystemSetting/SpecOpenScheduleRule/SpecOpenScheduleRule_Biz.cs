@@ -6,9 +6,10 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using WCMS.Features.SystemSetting.Calendar;
 using WCMS.SysCore;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SpecFeatures.Spec1816.SystemSetting.SpecOpenScheduleRule
