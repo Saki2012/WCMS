@@ -144,21 +144,27 @@ export const ExhibitionNewsData = (props: { lang: Lang }) => {
 	const allNewsRawData1 = takeTopThenFill(useTopAllNewsData1.rawData, useAllNewsData1.rawData, 6);
 	const useCategoryData = useCategoryList();
 	const useTagData = useTagList();
-	const categoryDict: Record<string, string> = Object.fromEntries(
-		(useCategoryData.rawData ?? []).map(cat => {
-			const id = cat.Category?.CategoryId;
-			const name = cat.CategoryDetail?.find(p => p.Lang === props.lang)?.CategoryName ?? "";
-			return [id, name];
-		})
-	);
-	const tagDict: Record<string, string> = Object.fromEntries(
-		(useTagData.rawData ?? []).map(cat => {
-			const id = cat.TagData?.TagId;
-			const name = cat.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "";
-			return [id, name];
-		})
-	);
+	const categoryDict = useMemo(() => {
+		return Object.fromEntries(
+			(useCategoryData.rawData ?? []).map(cat => {
+				const id = cat.Category?.CategoryId;
+				const name = cat.CategoryDetail?.find(p => p.Lang === props.lang)?.CategoryName ?? "";
+				return [id, name];
+			})
+		);
+	}, [useCategoryData.rawData, props.lang]);
+
+	const tagDict = useMemo(() => {
+		return Object.fromEntries(
+			(useTagData.rawData ?? []).map(tag => {
+				const id = tag.TagData?.TagId;
+				const name = tag.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "";
+				return [id, name];
+			})
+		);
+	}, [useTagData.rawData, props.lang]);
 	const allNews1 = useMemo(() => getNewsDataProps(allNewsRawData1, props.lang, "/News/News-01", "", categoryDict, tagDict), [allNewsRawData1, props.lang, categoryDict, tagDict]);
+	const owlKey = useMemo(() => allNews1.map(x => x.announceInternalId).join("|"), [allNews1]);
 	useEffect(() => {
 		// SSR 防護，避免在 server 端執行到 window / $
 		if (typeof window === "undefined") return;
@@ -249,7 +255,7 @@ export const ExhibitionNewsData = (props: { lang: Lang }) => {
 				// ignore
 			}
 		};
-	}, [allNews1]);
+	}, [owlKey]);
 	return (
 		<section className="Exhibition_section + owl-box + Layout_Padding_1_top + Layout_Padding_5_bottom" style={{ backgroundImage: `url(${bgImg})`, }}>
 			<div className="circle-1 iMG-Shape-1" />

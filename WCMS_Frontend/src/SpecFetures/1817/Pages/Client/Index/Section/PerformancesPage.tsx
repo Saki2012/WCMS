@@ -1,6 +1,5 @@
 import bgImg from "@/SpecFetures/1817/Assets/Client/images/bg/underline_01_W_1920x292.svg"
-import type { Lang } from "@/SysCore/i18n/lang";
-export const PerformancesPage = (props: { lang: Lang }) => {
+export const PerformancesPage = (props: { title: string; subTitle: string; showtime: string }) => {
 	return (
 		<section className="Performances_section + Layout_Padding_4_top + Layout_Padding_1_bottom + bg-custom-Customize_color" style={{ backgroundImage: `url(${bgImg})`, }}>
 			<div className="Mask-DivBox">
@@ -19,11 +18,10 @@ export const PerformancesPage = (props: { lang: Lang }) => {
 												</div>
 												<div className="info_TXT">
 													<p className="T-big">
-														李婧慧老師新書發表
-														＿《交織（Kotekan）與得賜（Taksu）：巴里島音樂與社會——以克差（Kecak）為中心的研究》
+														{props.title}
 													</p>
 													<p className="T-small">
-														活動地點 ：臺灣音樂館二樓常設展區
+														{props.subTitle}
 													</p>
 												</div>
 											</div>
@@ -33,11 +31,7 @@ export const PerformancesPage = (props: { lang: Lang }) => {
 												<div className="info_TXT">
 													<p className="T-small + Cmb-0">展演時間 :</p>
 													<p className="T-BBbig">
-														<span className="Date Start">2025.10.12</span>
-														<span className="Week">（日）</span>
-														<span className="~~">～</span>
-														<span className="End Date">2025.10.24</span>
-														<span className="Week">（五）</span>
+														{props.showtime}
 													</p>
 												</div>
 											</div>

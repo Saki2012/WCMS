@@ -6,7 +6,6 @@ import ModuleContent from '@/Features/Pages/Client/Scaffold/SubPages/Section/Mod
 import type { INormNode } from '@/Features/Pages/Client/Route/Site-Routing';
 import SpecMusicalProvider from '@/SpecFetures/1817/Hooks/BizFunc/SpecModule/SpecMusical/SpecMusical_Api';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
-import { data } from 'jquery';
 import type { ModelDisplaySchema } from '@/types/IApiSchema';
 import { SpecMusicalModelFields, SpecMusicalSetFields } from '@/types/SchemaFields';
 
