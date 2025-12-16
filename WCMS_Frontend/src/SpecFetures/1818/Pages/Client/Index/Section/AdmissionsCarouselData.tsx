@@ -4,6 +4,8 @@ import type { components } from "@/types/api";
 import { useEffect, useMemo } from "react";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { IndexLabel } from "@/SpecFetures/1818/Pages/Client//Index/Section/IndexLabelText";
+
 type BannerSet = components["schemas"]["BannerSet_DTO"]
 
 export const AdmissionsCarouselData = (props: { lang: Lang }) => {
@@ -113,10 +115,10 @@ export const AdmissionsCarouselData = (props: { lang: Lang }) => {
     <div className="row Layout_Padding_1_top Layout_Padding_1_bottom">
       <div className="offset-lg-0 offset-md-4 offset-sm-3 offset-2 col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12">
         <div className="headDiv mb-lg-5 mb-4">
-          <span className="headDiv-txt-3 tw">招生入學</span>
+          <span className="headDiv-txt-3 tw">{IndexLabel(props.lang).AdmissionsTitle}</span>
         </div>
         <p className="headDiv-subtxt">
-          本學程招收國內生 6 名，外籍生(春季班與秋季班)皆不限名額，歡迎具國際興趣的同學報名。
+          {IndexLabel(props.lang).AdmissionsContent}
         </p>
       </div>
       <div className="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
@@ -150,7 +152,7 @@ export const AdmissionsCarouselData = (props: { lang: Lang }) => {
                                         <div className="customize_btn">
                                           <div className="Btn_a">
                                             <div className="BtnBox">
-                                              <span>更多資訊</span>
+                                              <span>{IndexLabel(props.lang).MoreInfo}</span>
                                             </div>
                                           </div>
                                         </div>

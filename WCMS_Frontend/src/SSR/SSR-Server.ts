@@ -100,7 +100,7 @@ const setupDevSSR = async (app: express.Express) =>
                 .replace(
                     "<!--initial-state-->",
                     initialState
-                        ? `<script nonce="${nonce}>window.__INITIAL_STATE__=${
+                        ? `<script nonce="${nonce}">window.__INITIAL_STATE__=${
                             JSON.stringify(initialState).replace(/</g, "\\u003c")
                         }</script>`
                         : "",

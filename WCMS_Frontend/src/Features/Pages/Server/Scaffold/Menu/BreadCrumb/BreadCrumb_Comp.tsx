@@ -4,6 +4,7 @@ import { Link, useMatches } from "react-router-dom";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { resolveCrumb, type RouteHandleMeta } from "@/Features/Pages/Server/ServerRouter";
 import BreadCrumbComp from "@/SysCore/Components/BreadCrumb/BreadCrumb_Comp";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 
 const BreadCrumb = ({ theme }: { theme: IBETheme }) => {
     // 1) 從當前匹配到的所有路由收集麵包屑文字
@@ -19,9 +20,9 @@ const BreadCrumb = ({ theme }: { theme: IBETheme }) => {
                     {isLast ? (
                         <span aria-current="page">{label}</span>
                     ) : (
-                        <Link to={m.pathname} aria-label={meta?.ariaLabel || String(label)}>
+                        <LangLink to={m.pathname} aria-label={meta?.ariaLabel || String(label)}>
                             {label}
-                        </Link>
+                        </LangLink>
                     )}
                 </>
             );

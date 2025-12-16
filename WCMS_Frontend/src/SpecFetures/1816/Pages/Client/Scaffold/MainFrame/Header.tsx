@@ -8,6 +8,8 @@ import { Fragment, useCallback, useEffect, useRef } from "react";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";
+import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
+import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
 
 const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
     const headerRef = useRef<HTMLDivElement | null>(null);
@@ -81,7 +83,7 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
         <>
             <A11yContent />
             <div id="Site-Header" className="ALL_Header_DivBar main-header" ref={headerRef}>
-                <Header_Section />
+                <Header_Section site={props.site} />
                 <Menu_Section {...props} />
                 <div className="overlayer" aria-hidden="true" />
             </div>
@@ -91,7 +93,7 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
 }
 export default Header
 
-const Header_Section = () => {
+const Header_Section = (props: { site: INormSite }) => {
     const sizeGroupRef = useRef<HTMLUListElement | null>(null);
     useEffect(() => {
         const root = sizeGroupRef.current;
@@ -120,7 +122,7 @@ const Header_Section = () => {
                         <NavBar />
                         <li>
                             <ul className="nav custom_nav py-0 justify-content-center my-1" ref={sizeGroupRef}>
-                                <LangChange />
+                                <LangSwitchBtn site={props.site} />
                                 <SizeChange />
                             </ul>
                         </li>
@@ -135,7 +137,7 @@ const NavBar = () => {
         <ul className="nav custom_nav py-0 justify-content-center my-1">
             <a accessKey="U" href="#U" className="accesskey_header U" title="上方導覽區(U)" tabIndex={0}>:::</a>
             <li className="nav-item">
-                <Link className="nav-link" to="/" tabIndex={0} target="_self" title="圖書館首頁">圖書館首頁</Link>
+                <LangLink className="nav-link" to="/" tabIndex={0} target="_self" title="圖書館首頁">圖書館首頁</LangLink>
             </li>
             <li className="nav-item">
                 <a className="nav-link" href="00_page_login_(BS.5_New).html" tabIndex={0} target="_self" title="北藝大首頁">北藝大首頁</a>
@@ -147,17 +149,7 @@ const NavBar = () => {
     </li>
     )
 }
-const LangChange = () => {
-    return (<li>
-        <div className="icons">
-            <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
-                <a id="linkE" href="javascript:void(0);" type="button" role="button" title="英文版" tabIndex={0}>
-                    <div className="link-text">English</div>
-                </a>
-            </div>
-        </div>
-    </li>)
-}
+
 const SizeChange = () => {
     const doZoom = useCallback((px: number) => { document.documentElement.style.fontSize = `${px}px`; localStorage.setItem('font-zoom', String(px)); }, []);
     useEffect(() => { const saved = +localStorage.getItem('font-zoom')!; if (saved) doZoom(saved); }, [doZoom]);
@@ -326,9 +318,9 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
 const LogoComp = () => {
     return (
         <h1 className="logo">
-            <Link className="navbar-brand" to="/" tabIndex={0} title="">
+            <LangLink className="navbar-brand" to="/" tabIndex={0} title="">
                 <img src={LogoImg} alt=" LOGO" />
-            </Link>
+            </LangLink>
         </h1>
     )
 }
@@ -400,9 +392,9 @@ const PCBtn = () => {
 const SingleMenuItem = (props: { menuItem: MenuItemData }) => {
     return (
         <li className="nav-item">
-            <NavLink className="nav-link" aria-current="page" to={props.menuItem.Url} role="button" tabIndex={0} title={props.menuItem.SrcData} aria-label={props.menuItem.SrcData}>
+            <LangNavLink className="nav-link" aria-current="page" to={props.menuItem.Url} role="button" tabIndex={0} title={props.menuItem.SrcData} aria-label={props.menuItem.SrcData}>
                 {props.menuItem.SrcData}
-            </NavLink>
+            </LangNavLink>
         </li>
     );
 };
@@ -410,9 +402,9 @@ const SingleMenuItem = (props: { menuItem: MenuItemData }) => {
 const DropdownMenuItem = (props: { menuItem: MenuItemData; }) => {
     return (
         <li className="nav-item dropdown">
-            <NavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} role="button" tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside">
+            <LangNavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} role="button" tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside">
                 {props.menuItem.SrcData}
-            </NavLink>
+            </LangNavLink>
             {/* 第二層（原本的 <ul className="dropdown-menu">） */}
             <ul className="dropdown-menu">
                 {renderDropdownItems(props.menuItem.SubItem, 0)}
@@ -425,9 +417,9 @@ const MegaMenuItem = (props: { menuItem: MenuItemData; }) => {
     const tar = props.menuItem.URL_Open
     return (
         <li className="nav-item dropdown dropdown-mega position-static">
-            <NavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside" target={tar}>
+            <LangNavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside" target={tar}>
                 {props.menuItem.SrcData}
-            </NavLink>
+            </LangNavLink>
 
             <div className="dropdown-menu">
                 <div className="mega-content">
@@ -443,9 +435,9 @@ const MegaMenuItem = (props: { menuItem: MenuItemData; }) => {
                                         {(col.SubItem ?? []).map((link, linkIndex) => {
                                             const subTar = link.URL_Open
                                             return (
-                                                <NavLink key={linkIndex} className="list-group-item" to={link.Url || "#"} tabIndex={0} target={subTar}>
+                                                <LangNavLink key={linkIndex} className="list-group-item" to={link.Url || "#"} tabIndex={0} target={subTar}>
                                                     {link.SrcData}
-                                                </NavLink>
+                                                </LangNavLink>
                                             )
                                         })}
                                     </div>
@@ -480,9 +472,9 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
             // 純連結項目
             return (
                 <li key={key}>
-                    <NavLink className="dropdown-item" to={item.Url || "#"} role="button" tabIndex={0}>
+                    <LangNavLink className="dropdown-item" to={item.Url || "#"} role="button" tabIndex={0}>
                         {item.SrcData}
-                    </NavLink>
+                    </LangNavLink>
                 </li>
             );
         }
@@ -490,9 +482,9 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
         const submenuClassName = parentDepth === 0 ? "dropdown-menu" : "dropdown-menu dropdown-submenu";
         return (
             <li key={key} className="dropend submenu">
-                <NavLink to={item.Url || "#"} role="button" tabIndex={0} className="dropdown-item dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                <LangNavLink to={item.Url || "#"} role="button" tabIndex={0} className="dropdown-item dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                     {item.SrcData}
-                </NavLink>
+                </LangNavLink>
 
                 <ul className={submenuClassName}>
                     {renderDropdownItems(item.SubItem ?? [], parentDepth + 1)}

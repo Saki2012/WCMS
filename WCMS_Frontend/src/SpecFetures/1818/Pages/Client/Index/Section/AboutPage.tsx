@@ -4,11 +4,12 @@ import WebResourceProvider from '@/Features/Hooks/BizFunc/WebManagement/WebResou
 import { AdmissionsCarouselData } from '@/SpecFetures/1818/Pages/Client/Index/Section/AdmissionsCarouselData'
 import { useResolveInternalIds } from '@/SysCore/Components/File/useResolveInternalIds';
 import type { Lang } from '@/SysCore/i18n/lang';
+import { LangNavLink } from '@/SysCore/i18n/LangLink';
 import { useFetchFormData } from '@/SysCore/Utils/API/FetchFormData';
 import type { components } from "@/types/api";
 import parse from 'html-react-parser';
 import { useEffect, useMemo, useRef } from 'react';
-import { NavLink } from 'react-router-dom';
+import { IndexLabel } from "@/SpecFetures/1818/Pages/Client//Index/Section/IndexLabelText";
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"]
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"]
 
@@ -23,7 +24,6 @@ export const AboutPage = (props: { lang: Lang }) => {
 	const videoRef = useRef<HTMLVideoElement | null>(null);
 	const videoSrc = webSrcDt?.ResUrl ?? "";
 	useEffect(() => { if (videoRef.current && videoSrc) { videoRef.current.load(); } }, [videoSrc]);
-
 	return (
 		<section className="About_section">
 			<div className="Mask-DivBox">
@@ -42,7 +42,7 @@ export const AboutPage = (props: { lang: Lang }) => {
 							<div className="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mt-lg-5 pt-lg-5 mt-0 pt-4">
 								<div className="offset-3 col-6">
 									<div className="headDiv mb-lg-5 mb-4">
-										<span className="headDiv-txt-2 tw">關於我們</span>
+										<span className="headDiv-txt-2 tw">{IndexLabel(props.lang).AboutUsTitle}</span>
 									</div>
 								</div>
 								<div className="about-left">
@@ -51,11 +51,11 @@ export const AboutPage = (props: { lang: Lang }) => {
 									</p>
 									<div className="btn-w100-wrapper justify-content-start mt-sm-5 mt-4">
 										<div className="customize_btn">
-											<NavLink className="Btn_a" to="/about/about-01" role="button" tabIndex={0} target="_self" title="MORE INFO" type="button">
+											<LangNavLink className="Btn_a" to="/about/about-01" role="button" tabIndex={0} target="_self" title="MORE INFO" type="button">
 												<div className="BtnBox">
-													<span>更多資訊</span>
+													<span>{IndexLabel(props.lang).MoreInfo}</span>
 												</div>
-											</NavLink>
+											</LangNavLink>
 										</div>
 									</div>
 								</div>

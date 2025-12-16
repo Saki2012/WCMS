@@ -47,4 +47,4 @@ export const specClientEntries: Record<string, ModuleEntry> = {
 };
 
 
-export const siteHeaderMeta: IHeaderMetaProps = { title: "國立臺灣藝術大學_研究發展處", description: "國立臺灣藝術大學_研究發展處", keywords: "國立臺灣藝術大學_研究發展處", };
+export const siteHeaderMeta: IHeaderMetaProps = { title: "國立臺灣藝術大學_研究發展處", description: "國立臺灣藝術大學_研究發展處" };

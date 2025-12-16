@@ -10,6 +10,7 @@ import { MessageProvider } from "@/SysCore/Components/Message/Dialog/Dialog_Comp
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp.tsx";
 import api, { type BrowserApiWithInit } from "@/SysCore/Utils/API/APIBase.ts"
 import { siteHeaderMeta } from "SpecFeature/SpecRouter"
+import { LANG_COOKIE_KEY } from "@/SysCore/Utils/Library/SysParam.ts";
 
 
 if (typeof window !== "undefined") {
@@ -84,7 +85,7 @@ const useNavigatorLang = (): SupportedLang | undefined =>
 
 /** 統一決策語言（單一資料源） */
 const useActiveLang = (opts?: UseLangOpts): SupportedLang => {
-  const cookieName = opts?.cookieName ?? "wcms.lang";
+  const cookieName = opts?.cookieName ?? LANG_COOKIE_KEY;
   const fallback = opts?.fallback ?? "zh-tw";
 
   const fromState = useInitialStateLang();
@@ -110,7 +111,7 @@ const ClientBootstrap: React.FC<{ router: any }> = ({ router }) => {
   return (
     <MessageProvider>
       <HelmetProvider>
-        <HeaderMetaComp title={siteHeaderMeta.title} description={siteHeaderMeta.description} keywords={siteHeaderMeta.keywords} />
+        <HeaderMetaComp title={siteHeaderMeta.title} description={siteHeaderMeta.description} />
         <RouterProvider router={router} />
       </HelmetProvider>
     </MessageProvider>

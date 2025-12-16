@@ -1,11 +1,11 @@
 // src/SysCore/Utils/Routes.tsx
 import { createBrowserRouter, type RouteObject } from "react-router-dom";
 import { createStaticHandler, createStaticRouter, type StaticHandlerContext } from "react-router-dom/server";
-import type { IRouteModule } from "../../Interface/IBaseRouter";
-import { LangGuard } from "./LangGuardRoute";
-import { langGuardLoader } from "./langGuardLoader";
-import type { Lang } from "../../i18n/lang";
-import { AutoRedirect } from "./AutoRedirect";
+import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
+import { LangGuard } from "@/SysCore/Utils/Route/LangGuardRoute";
+import { langGuardLoader } from "@/SysCore/Utils/Route/langGuardLoader";
+import type { Lang } from "@/SysCore/i18n/lang";
+import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 
 // 把模組的絕對子路徑轉相對；"/" 改成 index:true
 const normalizeChildren = (routes: RouteObject[]): RouteObject[] =>
@@ -14,9 +14,7 @@ const normalizeChildren = (routes: RouteObject[]): RouteObject[] =>
         const clone: RouteObject = { ...r };
 
         // 先遞迴處理子層
-        if (hasChildren) {
-            clone.children = normalizeChildren(clone.children!);
-        }
+        if (hasChildren) clone.children = normalizeChildren(clone.children!);
 
         // A) "/"：有 children → 變成路由群組(path:"")；沒有 children → 變成 index
         if (clone.path === "/") {

@@ -14,6 +14,7 @@ import bgImg from "@/SpecFetures/1817/Assets/Client/images/bg/underline_02_Beige
 import lineTitleImg from "@/SpecFetures/1817/Assets/Client/images/line_title.svg"
 import { useEffect, useMemo } from 'react';
 import maskImg from '@/SpecFetures/1817/Assets/Client/images/exhibition/corner_mask_30x30.svg'
+import { LangLink } from '@/SysCore/i18n/LangLink';
 
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
@@ -287,12 +288,12 @@ export const ExhibitionNewsData = (props: { lang: Lang }) => {
 									</div>
 									<div className="position-absolute + d-flex + btn_right_S1 + btn_bottom_S1 + z-2">
 										<div className="customize_btn">
-											<Link className="Btn_a" to="/performance/seminar/List" role="button" tabIndex={0} target="_self" title="更多展演活動" type="button">
+											<LangLink className="Btn_a" to="/performance/seminar/List" role="button" tabIndex={0} target="_self" title="更多展演活動" type="button">
 												<div className="BtnBox">
 													<span>More View</span>
 													<span className="ml-2">+</span>
 												</div>
-											</Link>
+											</LangLink>
 										</div>
 									</div>
 								</div>
@@ -368,7 +369,7 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 			{prop.map((item) => {
 				return (
 					<div className="item" key={item.announceInternalId} >
-						<Link to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
+						<LangLink to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
 							<article className="cardbox">
 								<div className="card_content">
 									<figure className="figure_Box">
@@ -431,7 +432,7 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 									</div>
 								</div>
 							</article>
-						</Link>
+						</LangLink>
 					</div>
 				)
 			})}

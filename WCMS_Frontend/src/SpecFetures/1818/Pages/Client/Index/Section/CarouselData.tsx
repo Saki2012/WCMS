@@ -1,9 +1,7 @@
 import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
-import { useBannerListData } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Hook";
 import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
 import clsx from "clsx";
-import * as SchemaFields from "@/types/SchemaFields";
 import { useMemo } from "react";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -11,11 +9,7 @@ type BannerSet = components["schemas"]["BannerSet_DTO"]
 
 
 export const CarouselData = (props: { lang: Lang }) => {
-  const usebannerList = useBannerListData(`${SchemaFields.BannerFields.BannerId} = Banner20251117001`)
-  const bannerInternal = usebannerList.rawData?.[0]?.Banner?.InternalId ?? ""
-  const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), bannerInternal, {})
-  const loadingList = [useBanner.isLoading, usebannerList.isLoading]
-  const errorList = [useBanner.error, usebannerList.error]
+  const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), "5ec21378-41ae-4921-96b9-66c57f05fe76", {})
   const sortedDetails = useMemo(() => {
     const list = useBanner.data?.BannerDetail ?? [];
     // 依 Detail.Sort 由小到大
@@ -28,8 +22,6 @@ export const CarouselData = (props: { lang: Lang }) => {
   }, [useBanner.data?.BannerDetail]);
 
   return (
-
-
     <section className="Carousel_slide_section">
       <div className="sidebar">
         <div className="scroll_Down">

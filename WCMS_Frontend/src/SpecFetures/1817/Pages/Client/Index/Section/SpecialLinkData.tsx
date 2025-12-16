@@ -6,6 +6,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { Lang } from "@/SysCore/i18n/lang";
 import bgImg from "@/SpecFetures/1817/Assets/Client/images/bg/underline_04_W_1920x292.svg"
 import { Link } from "react-router-dom";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 type BannerSet = components["schemas"]["BannerSet_DTO"]
 
 export const SpecialLinkData = (props: { lang: Lang }) => {
@@ -134,7 +135,7 @@ export const SpecialLinkData = (props: { lang: Lang }) => {
 											const urlopen = info?.URL_Open === 0 ? "_self" : "_blank"
 											return (
 												<div className="item" key={i}>
-													<Link aria-label={alt} to={url} role="button" tabIndex={0} target={urlopen} title={alt} type="button" >
+													<LangLink aria-label={alt} to={url} role="button" tabIndex={0} target={urlopen} title={alt} type="button" >
 														<article className="cardbox">
 															<div className="card_content">
 																<figure className="figure_Box">
@@ -157,7 +158,7 @@ export const SpecialLinkData = (props: { lang: Lang }) => {
 																</div>
 															</div>
 														</article>
-													</Link>
+													</LangLink>
 												</div>
 											)
 										})}

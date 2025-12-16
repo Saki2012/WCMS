@@ -17,6 +17,7 @@ import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Da
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { Link } from "react-router-dom";
 import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
@@ -62,13 +63,13 @@ const Gallery = (props: { lang: Lang; data: GallerySet[]; cateData: CategorySet[
                                 <div className="card_content">
 
                                     <figure className="figure_Box">
-                                        <Link to={linkUrl} className="card_image_link venobox" data-gall="myGallery" title={title}>
+                                        <LangLink to={linkUrl} className="card_image_link venobox" data-gall="myGallery" title={title}>
                                             <div className="card_figure">
                                                 <div className="img-wrapper">
                                                     <img className="card_image" src={coverPicUrl} alt={coverPicDesc} />
                                                 </div>
                                             </div>
-                                        </Link>
+                                        </LangLink>
                                     </figure>
 
                                     <div className="card_catDiv">
@@ -84,9 +85,9 @@ const Gallery = (props: { lang: Lang; data: GallerySet[]; cateData: CategorySet[
                                     </div>
 
                                     <div className="card_titleDiv + mb-md-4 mb-sm-3 mb-2">
-                                        <Link to={linkUrl} className="card_title">
+                                        <LangLink to={linkUrl} className="card_title">
                                             {content}
-                                        </Link>
+                                        </LangLink>
                                     </div>
 
                                     <div className="card_StateDiv">

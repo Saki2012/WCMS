@@ -17,6 +17,7 @@ import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient'
 import { buildMenuItems, getAncestorAtLevel, GetMenuData } from '@/Features/Hooks/Common/BuildMenuItems'
 import { GoTopButton } from '@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton'
 import { useLegacyMenuDOM } from '@/SpecFetures/1810/Pages/Client/Scaffold/MainFrame/Header'
+import { LangLink } from '@/SysCore/i18n/LangLink'
 
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 const useBannerPic = (bannerId: string) => {
@@ -43,7 +44,7 @@ const useBannerPic = (bannerId: string) => {
   });
 }
 const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode): ReactNode[] => {
-  const result: ReactNode[] = [<Link to={`/${site.siteIndex}`} title='首頁'>首頁</Link>];
+  const result: ReactNode[] = [<LangLink to={`/${site.siteIndex}`} title='首頁'>首頁</LangLink>];
   var curNodes = site.treeByLang[lang]
   node.absIds?.forEach(id => {
     var curNode = curNodes?.find((n: INormNode) => n.id === id);
@@ -51,7 +52,7 @@ const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode): ReactN
       result.push(<>{curNode.title}</>)
     }
     else {
-      result.push(<Link to={curNode?.redirectTo ?? ""} title={curNode?.title}>{curNode?.title}</Link>)
+      result.push(<LangLink to={curNode?.redirectTo ?? ""} title={curNode?.title}>{curNode?.title}</LangLink>)
     }
     curNodes = curNode?.children ?? []
   });

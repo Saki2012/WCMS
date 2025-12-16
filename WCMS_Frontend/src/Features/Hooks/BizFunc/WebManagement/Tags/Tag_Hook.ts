@@ -1,6 +1,6 @@
 import TagProvider from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
 import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
+import { type Lang } from "@/SysCore/i18n/lang";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
@@ -133,20 +133,13 @@ export const useTagListData = (progId: string, lang: Lang) =>
     return { ...base, refetch };
 };
 
-export const useFormatTagsName = (
-    content: string,
-    tagData: TagSet[],
-    lang: Lang = DefaultLang,
-): string =>
+export const useFormatTagsName = (content: string, tagData: TagSet[], lang: Lang): string =>
 {
     if (!content) return "";
     return (content.toString() ?? "")
-        .split(",")
-        .map(s => s.trim())
-        .filter(Boolean)
+        .split(",").map(s => s.trim()).filter(Boolean)
         .map(tagId =>
-            tagData?.find(s => String(s.TagData?.TagId) === tagId)
-                ?.TagDetail?.find(d => d.Lang === lang)?.TagName
+            tagData?.find(s => String(s.TagData?.TagId) === tagId)?.TagDetail?.find(d => d.Lang === lang)?.TagName
         )
         .filter((x): x is string => !!x)
         .join("、");

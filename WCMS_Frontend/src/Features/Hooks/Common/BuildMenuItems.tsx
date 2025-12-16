@@ -1,6 +1,7 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
@@ -46,9 +47,9 @@ export const buildMenuItems = (nodes: INormNode[] = [], activeId?: number, curre
         // 內站（module + / 開頭的 redirect-internal）→ 用 Link，走 React Router
         // 外站（redirect-external 或非 / 開頭 redirect）→ 用 <a href=外部網址>
         const content: ReactNode = isInternal ? (
-            <Link to={finalUrl} title={n.title} aria-current={isActiveId ? "page" : undefined}>
+            <LangLink to={finalUrl} title={n.title} aria-current={isActiveId ? "page" : undefined}>
                 {domContent}
-            </Link>
+            </LangLink>
         ) : (
             <a href={finalUrl} title={n.title} rel="noopener" target={target} aria-current={isActiveId ? "page" : undefined}>
                 {domContent}

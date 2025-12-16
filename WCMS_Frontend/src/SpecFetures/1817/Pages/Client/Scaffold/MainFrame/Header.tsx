@@ -9,6 +9,7 @@ import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";
+import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 
 
 
@@ -96,7 +97,7 @@ const NavBar = () => {
             <ul className="nav custom_nav py-0 justify-content-center my-1">
                 <a accessKey="U" href="#U" className="accesskey_header U" title="上方導覽區(U)" tabIndex={0}>:::</a>
                 <li className="nav-item">
-                    <Link className="nav-link" to="/" tabIndex={0} title="首頁">首頁</Link>
+                    <LangLink className="nav-link" to="/" tabIndex={0} title="首頁">首頁</LangLink>
                 </li>
                 <li className="nav-item">
                     <a className="nav-link" href="https://w3.tnua.edu.tw/" tabIndex={0} target="_blank" title="北藝大">北藝大</a>
@@ -245,9 +246,9 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
 const LogoComp = () => {
     return (
         <h1 className="logo">
-            <Link className="navbar-brand" to="/" tabIndex={0} title="">
+            <LangLink className="navbar-brand" to="/" tabIndex={0} title="">
                 <img src={LogoImg} alt=" LOGO" />
-            </Link>
+            </LangLink>
         </h1>
     )
 }
@@ -319,9 +320,9 @@ const PCBtn = () => {
 const SingleMenuItem = (props: { menuItem: MenuItemData }) => {
     return (
         <li className="nav-item">
-            <NavLink className="nav-link" aria-current="page" to={props.menuItem.Url} role="button" tabIndex={0} title={props.menuItem.SrcData} aria-label={props.menuItem.SrcData}>
+            <LangNavLink className="nav-link" aria-current="page" to={props.menuItem.Url} role="button" tabIndex={0} title={props.menuItem.SrcData} aria-label={props.menuItem.SrcData}>
                 {props.menuItem.SrcData}
-            </NavLink>
+            </LangNavLink>
         </li>
     );
 };
@@ -330,9 +331,9 @@ const SingleMenuItem = (props: { menuItem: MenuItemData }) => {
 const DropdownMenuItem = (props: { menuItem: MenuItemData; }) => {
     return (
         <li className="nav-item dropdown">
-            <NavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} role="button" tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside">
+            <LangNavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} role="button" tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside">
                 {props.menuItem.SrcData}
-            </NavLink>
+            </LangNavLink>
             {/* 第二層（原本的 <ul className="dropdown-menu">） */}
             <ul className="dropdown-menu">
                 {renderDropdownItems(props.menuItem.SubItem, 0)}
@@ -344,9 +345,9 @@ const DropdownMenuItem = (props: { menuItem: MenuItemData; }) => {
 const MegaMenuItem = (props: { menuItem: MenuItemData; }) => {
     return (
         <li className="nav-item dropdown dropdown-mega position-static">
-            <NavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside">
+            <LangNavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside">
                 {props.menuItem.SrcData}
-            </NavLink>
+            </LangNavLink>
 
             <div className="dropdown-menu">
                 <div className="mega-content">
@@ -360,9 +361,9 @@ const MegaMenuItem = (props: { menuItem: MenuItemData; }) => {
                                     {/* 每一欄底下的連結列表 */}
                                     <div className="list-group">
                                         {(col.SubItem ?? []).map((link, linkIndex) => (
-                                            <NavLink key={linkIndex} className="list-group-item" to={link.Url || "#"} tabIndex={0}>
+                                            <LangNavLink key={linkIndex} className="list-group-item" to={link.Url || "#"} tabIndex={0}>
                                                 {link.SrcData}
-                                            </NavLink>
+                                            </LangNavLink>
                                         ))}
                                     </div>
                                 </div>
@@ -396,9 +397,9 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
             // 純連結項目
             return (
                 <li key={key}>
-                    <NavLink className="dropdown-item" to={item.Url || "#"} role="button" tabIndex={0}>
+                    <LangNavLink className="dropdown-item" to={item.Url || "#"} role="button" tabIndex={0}>
                         {item.SrcData}
-                    </NavLink>
+                    </LangNavLink>
                 </li>
             );
         }
@@ -406,9 +407,9 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
         const submenuClassName = parentDepth === 0 ? "dropdown-menu" : "dropdown-menu dropdown-submenu";
         return (
             <li key={key} className="dropend submenu">
-                <NavLink to={item.Url || "#"} role="button" tabIndex={0} className="dropdown-item dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                <LangNavLink to={item.Url || "#"} role="button" tabIndex={0} className="dropdown-item dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                     {item.SrcData}
-                </NavLink>
+                </LangNavLink>
 
                 <ul className={submenuClassName}>
                     {renderDropdownItems(item.SubItem ?? [], parentDepth + 1)}

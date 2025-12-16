@@ -10,7 +10,7 @@ namespace WCMS.Features.SiteEdit.Announcement
     [ApiController, Route(SysParam.ServiceRoute)]
     public class AnnouncementController : ApiDataController<AnnouncementSet,AnnouncementSet_DTO>
     {
-        [HttpPost(nameof(QueryByValidate)), OutputCache(PolicyName = "ListJson"), AllowAnonymous, IgnoreAntiforgeryToken]
+        [HttpPost(nameof(QueryByValidate)), OutputCache(PolicyName = SysParam.ListCache), AllowAnonymous, IgnoreAntiforgeryToken]
         public virtual async Task<IActionResult> QueryByValidate([FromBody] QueryListParam? queryCondition, CancellationToken ct)
         {
             queryCondition.Condition = Merge(" And ",false,queryCondition.Condition, $@"{nameof(Announcement.Validate_Start)} <= {DateTime.Today}");

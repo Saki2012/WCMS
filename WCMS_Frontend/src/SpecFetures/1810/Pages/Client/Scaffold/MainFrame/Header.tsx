@@ -13,6 +13,7 @@ import MenuListComp from "@/SysCore/Components/MenuList/MenuList_Comp";
 import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import logImg from "@/SpecFetures/1810/Assets/Client/images/logo/logo_450x80.svg";
 import subLogImg from "@/SpecFetures/1810/Assets/Client/images/logo/logo_M320_191x60.svg";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 
 
 export const Header = ({ lang, site, style }: { lang: Lang; site: INormSite; style: IFETheme }) => {
@@ -82,15 +83,15 @@ const MainMenu = (prop: { lang: Lang; site: INormSite; style: IFETheme }) => {
     const Mock_naviData: NaviData[] = [
         {
             Id: "", SrcData: "", Url: "",
-            DOMContent: <Link className="nav-link" to="/" target="_self" title="首頁" onClick={() => closeMenu()}>首頁</Link>
+            DOMContent: <LangLink className="nav-link" to="/" target="_self" title="首頁" onClick={() => closeMenu()}>首頁</LangLink>
         },
         {
             Id: "", SrcData: "", Url: "",
-            DOMContent: <Link className="nav-link" to="https://www.ntua.edu.tw/" target="_self" title="臺藝大校首頁" onClick={() => closeMenu()}>臺藝校首頁</Link>
+            DOMContent: <LangLink className="nav-link" to="https://www.ntua.edu.tw/" target="_self" title="臺藝大校首頁" onClick={() => closeMenu()}>臺藝校首頁</LangLink>
         },
         {
             Id: "", SrcData: "", Url: "",
-            DOMContent: <Link className="nav-link" to="Sitemap" target="_self" title="網站導覽" onClick={() => closeMenu()}>網站導覽</Link>
+            DOMContent: <LangLink className="nav-link" to="Sitemap" target="_self" title="網站導覽" onClick={() => closeMenu()}>網站導覽</LangLink>
         },
     ]
 

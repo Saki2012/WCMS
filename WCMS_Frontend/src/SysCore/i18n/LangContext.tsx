@@ -13,13 +13,7 @@ const Ctx = React.createContext<LangState | null>(null);
 
 export const LangProvider: React.FC<{ initial: Lang; children: React.ReactNode }> = ({ initial, children }) => {
     const [code, setCode] = React.useState<Lang>(initial);
-
-    const value = React.useMemo<LangState>(() => ({
-        code,
-        label: LangLabelMap[code],
-        setCode,
-    }), [code]);
-
+    const value = React.useMemo<LangState>(() => ({ code, label: LangLabelMap[code], setCode, }), [code]);
     return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 };
 

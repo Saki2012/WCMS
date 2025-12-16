@@ -13,6 +13,7 @@ import { useNow } from '@/SysCore/Utils/Library/LibHook';
 import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
 import bgImg from '@/SpecFetures/1810/Assets/Client/Images/bg/background-transparent-image_1920x600.png'
 import type { components } from '@/types/api';
+import { LangLink } from "@/SysCore/i18n/LangLink";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
 interface EventData {
@@ -185,7 +186,7 @@ export const EventSession = () => {
                                             const { month, day } = getMonthDayNums(item.date);
                                             return item && (
                                                 <div className="item" key={item.Id}>
-                                                    <Link to={`Allnews/Intramural-activities/In-school-activities${item.Url}`} title={item.Title} tabIndex={index + 1}>
+                                                    <LangLink to={`Allnews/Intramural-activities/In-school-activities${item.Url}`} title={item.Title} tabIndex={index + 1}>
                                                         <div className="DivBox_content v_itemBOX">
                                                             <div className="Picture_Div">
                                                                 <div className="img_wrapper">
@@ -226,7 +227,7 @@ export const EventSession = () => {
                                                             </div>
                                                         </div>
 
-                                                    </Link>
+                                                    </LangLink>
                                                 </div>
                                             )
                                         })}
@@ -245,7 +246,7 @@ export const EventSession = () => {
                                     </div>
                                     <div className="btn_Div justify-content-end px-2">
                                         <div className="customize_btn my-3">
-                                            <Link to="/Allnews/Intramural-activities/In-school-activities" className="Btn_s2" tabIndex={12} title="更多活動資訊">VIEW ALL<span className="ml-2">+</span></Link>
+                                            <LangLink to="/Allnews/Intramural-activities/In-school-activities" className="Btn_s2" tabIndex={12} title="更多活動資訊">VIEW ALL<span className="ml-2">+</span></LangLink>
                                         </div>
                                     </div>
                                 </div>

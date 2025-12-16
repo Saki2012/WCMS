@@ -51,5 +51,9 @@ namespace WCMS.Features.Member.Account
         /// 帳戶狀態
         /// </summary>
         public AccountStatus AccountStatus { get; set; }
+        /// <summary>
+        /// 密碼最後修改時間:檢測90天
+        /// </summary>
+        //public DateTime PasswordChangeTime { get; set; }
     }
 }

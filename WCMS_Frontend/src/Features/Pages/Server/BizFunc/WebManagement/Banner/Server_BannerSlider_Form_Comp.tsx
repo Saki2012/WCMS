@@ -103,7 +103,6 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<B
         };
         props.formData.setFormData(updated);
     };
-
     const removeOne = (rowKey: number | string): void => {
         const keyStr = String(rowKey);
         props.formData.setFormData(prev => {
@@ -128,7 +127,6 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<B
             return { ...prev, BannerDetail: nextDetails, BannerDetailInfo: nextInfos };
         });
     };
-
     const tabInfo: LibTabsProp = {
         Style: props.theme.Tabs,
         item: details.reduce<Record<string, string>>((acc, d, idx) => {
@@ -142,7 +140,6 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<B
         // ✅ 這裡要回傳 boolean，寫成表達式最安全
         // isRemovable: (key) => key !== String(details[0]?.RowId ?? "1"),
     };
-
     const tabContent: Record<string, React.ReactNode[]> = details.reduce<Record<string, React.ReactNode[]>>(
         (acc, d, idx) => {
             const detailRowId = d.RowId ?? idx;

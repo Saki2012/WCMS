@@ -2,6 +2,7 @@ import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import clsx from "clsx";
 import React, { useMemo, useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
@@ -127,9 +128,9 @@ export const SubMenu_Comp: React.FC<SubMenuProps> = (props) => {
                 else {
                     // 內部路由
                     content = (
-                        <NavLink to={item.Url} target={target} className={clsx("list-group-item", active && "active")} end>
+                        <LangNavLink to={item.Url} target={target} className={clsx("list-group-item", active && "active")} end>
                             {item.SrcData}
-                        </NavLink>
+                        </LangNavLink>
                     );
                 }
             }

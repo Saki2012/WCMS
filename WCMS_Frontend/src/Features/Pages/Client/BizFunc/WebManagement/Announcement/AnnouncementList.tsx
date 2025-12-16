@@ -1,6 +1,6 @@
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import ModuleContent, { ContentStatus } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
@@ -24,6 +24,7 @@ import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
+import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 type TagSet = components["schemas"]["TagSet_DTO"];
@@ -50,8 +51,7 @@ const AnnouncementList = (props: IAnnouncementListProps) => {
     const useAnnounceList = dataFetch(provider, props.lang, props.options?.Category ?? "", props.options?.Tag ?? "", query, pageSize);
     const useCategory = useCategoryListData(PGID.Announcement, props.lang);
     const useTagData = useTagListData(PGID.Announcement, props.lang);
-    const tags = (useTagData.rawData ?? []).map(t => ({ id: t.TagData?.TagId ?? "", name: t.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "" }));
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData]);
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(props.lang, dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData]);
     // const searchSlot = <SearchBarComp value={queryDraft} tags={tags} onChange={(k, v) => setQueryDraft(prev => ({ ...prev, [k]: v }))} onSubmit={() => setQuery(queryDraft)} onReset={() => { setQueryDraft({}); setQuery({}); }} />;
     // const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData]);
     const children = useMemo(() => {
@@ -154,9 +154,9 @@ const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: Ann
                                     <div className="card_StateDiv">
                                         <ContentStatus />
                                         <div className="More customize_btn">
-                                            <NavLink className="Btn_s1" type="button" role="button" title="觀看更多" to={linkUrl}>
+                                            <LangNavLink className="Btn_s1" type="button" role="button" title="觀看更多" to={linkUrl}>
                                                 VIEW ALL<span className="ml-2">+</span>
-                                            </NavLink>
+                                            </LangNavLink>
                                         </div>
 
                                     </div>
@@ -208,9 +208,9 @@ const PictureList_Col_Comp = (props: { Theme: IFETheme; GridData: GridProps }) =
                                 <div className="card_StateDiv">
                                     <ContentStatus />
                                     <div className="More customize_btn">
-                                        <NavLink to={"內文internalId"} className="Btn_s1" type="button" role="button" title="觀看更多">
+                                        <LangNavLink to={"內文internalId"} className="Btn_s1" type="button" role="button" title="觀看更多">
                                             VIEW ALL<span className="ml-2">+</span>
-                                        </NavLink>
+                                        </LangNavLink>
                                     </div>
                                 </div>
                             </div>
@@ -350,7 +350,7 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
                                 const date = FormatDate(item.Announcement?.Validate_Start)
                                 return (
                                     <div className="item" key={item.Announcement?.InternalId}>
-                                        <Link to={linkUrl} title={title} tabIndex={0}>
+                                        <LangLink to={linkUrl} title={title} tabIndex={0}>
                                             <article className="cardbox">
                                                 <div className="card_content">
                                                     <figure className="figure_Box">
@@ -375,7 +375,7 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
                                                     </div>
                                                 </div>
                                             </article>
-                                        </Link>
+                                        </LangLink>
                                     </div>
                                 )
                             })}
@@ -459,7 +459,7 @@ const dataFetch = (provider: IDataProvider<AnnouncementSet>, lang: string, categ
         deps: [lang, categoryIds, tagIds, query, condition, pageSize],
     });
 };
-const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[], catData: CategorySet[], tagData: TagSet[]): GridProps => {
+const SetAdjustFunction = (lang: Lang, dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[], catData: CategorySet[], tagData: TagSet[]): GridProps => {
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
         const curRow = rawData?.[index];
         const internalId = curRow.Announcement?.InternalId ?? "";
@@ -470,10 +470,10 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: Announ
 
             switch (cell.col.key) {
                 case AnnouncementFields.Categories:
-                    cell.content = useFormatCategoriesName(curRow.Announcement?.Categories ?? "", catData)
+                    cell.content = useFormatCategoriesName(curRow.Announcement?.Categories ?? "", catData, lang)
                     break;
                 case AnnouncementFields.Tags:
-                    cell.content = useFormatTagsName(curRow.Announcement?.Tags ?? "", tagData)
+                    cell.content = useFormatTagsName(curRow.Announcement?.Tags ?? "", tagData, lang)
                     break;
             }
 
@@ -481,10 +481,10 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: Announ
                 ...cell,
                 content: (
                     <>
-                        <Link to={`${dirUrl}/${internalId}`} className="link-cell" id={isTitle ? titleId : undefined}
+                        <LangLink to={`${dirUrl}/${internalId}`} className="link-cell" id={isTitle ? titleId : undefined}
                             aria-labelledby={isTitle ? undefined : titleId}>
                             <span aria-hidden={!isTitle}>{cell.content}</span>
-                        </Link>
+                        </LangLink>
 
                         {isTitle &&
                             <>

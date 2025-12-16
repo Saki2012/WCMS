@@ -7,6 +7,7 @@ import type { ModelDisplaySchema } from '@/types/IApiSchema';
 import type { components } from '@/types/api';
 import { AuthAPI } from '@/SysCore/Utils/API/AuthClient';
 import { Link } from 'react-router-dom';
+import { LangLink } from '@/SysCore/i18n/LangLink';
 type QueryListParam = components["schemas"]["QueryListParam"];
 
 //#region Construct
@@ -36,7 +37,7 @@ abstract class INaviProvider extends IDataProvider<NaviData> {
       else {
         item.DOMContent =
           <>
-            <Link className="nav-link" to={item.Url}><h2><i className={`far ${getValue(item.Id)}`}></i>{item.SrcData}</h2></Link>
+            <LangLink className="nav-link" to={item.Url}><h2><i className={`far ${getValue(item.Id)}`}></i>{item.SrcData}</h2></LangLink>
           </>
       }
     })

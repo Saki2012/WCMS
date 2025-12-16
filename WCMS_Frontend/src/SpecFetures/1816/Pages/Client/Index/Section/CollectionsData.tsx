@@ -1,50 +1,14 @@
 import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
-import { useBannerListData } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Hook";
 import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
-import * as SchemaFields from "@/types/SchemaFields";
 import { useEffect, useMemo, useRef } from "react";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import type { Lang } from "@/SysCore/i18n/lang";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 type BannerSet = components["schemas"]["BannerSet_DTO"]
-const emptyData: BannerSet = {
-	Banner: {},
-	BannerDetail: [
-		{
-			RowId: 1,
-			Validate_Start: "",
-			Validate_End: "",
-			PicSrcId: "",
-			FontColor: "",
-		}
-	],
-	BannerDetailInfo: [
-		{
-			ParentRowId: 1,
-			RowId: 1,
-			Lang: "zh-tw",
-			Title: "",
-			Content: "",
-			URL: "",
-			URL_Open: 1,
-		},
-		{
-			ParentRowId: 1,
-			RowId: 2,
-			Lang: "en",
-			Title: "",
-			Content: "",
-			URL: "",
-			URL_Open: 1,
-		}
-	]
-}
 
-export const CollectionsData = () => {
-	const usebannerList = useBannerListData(`${SchemaFields.BannerFields.BannerId} = Banner20251106003`)
-	const bannerInternal = usebannerList.rawData?.[0]?.Banner?.InternalId ?? ""
-	const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), bannerInternal, emptyData)
-	const loadingList = [useBanner.isLoading, usebannerList.isLoading]
-	const errorList = [useBanner.error, usebannerList.error]
+export const CollectionsData = (props: { lang: Lang }) => {
+	const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), "5db9cbbe-9319-401c-ae40-1580f87b30e5", {})
 	const sortedDetails = useMemo(() => {
 		const list = useBanner.data?.BannerDetail ?? [];
 		// 依 Detail.Sort 由小到大
@@ -55,15 +19,12 @@ export const CollectionsData = () => {
 			return as - bs || (a.RowId ?? 0) - (b.RowId ?? 0);
 		});
 	}, [useBanner.data?.BannerDetail]);
-
-
 	const carouselRef = useRef<HTMLDivElement | null>(null);
 	const toggleRef = useRef<HTMLAnchorElement | null>(null);
 	useEffect(() => {
 		if (typeof window === "undefined") return;
 		if (!carouselRef.current) return;
 	}, []);
-
 	useEffect(() => {
 		if (typeof window === "undefined") return;
 		const root = carouselRef.current;
@@ -159,59 +120,45 @@ export const CollectionsData = () => {
 						<div className="row">
 							<div className="col-12">
 								<div className="headDiv mb-sm-5 mb-4">
-									<span className="headDiv-txt">館藏櫥窗</span>
-									<span className="headDiv-subtxt">Collection Showcase</span>
+									{props.lang === "zh-tw" ?
+										<>
+											<span className="headDiv-txt">館藏櫥窗</span>
+											<span className="headDiv-subtxt">Collection Showcase</span>
+										</> :
+										props.lang === "en" ? <>
+											<span className="headDiv-txt">Collection Showcase</span>
+										</> : ""
+									}
 								</div>
 							</div>
 							<div className="col-12">
 								<div className="content-box px-0 mb-5">
 									<div className="DIV-singleBox d-none">
 										<div className="control-singlebox">
-											<a
-												ref={toggleRef}
-												aria-label="圖片輪播播放中，點擊暫停"
-												aria-pressed="true"
-												className="toggle ms-1"
-												href="javascript:void(0);"
-												id="Collections_toggle"
-												tabIndex={0}
-												title="暫停">
+											<a ref={toggleRef} aria-label="圖片輪播播放中，點擊暫停"
+												aria-pressed="true" className="toggle ms-1" id="Collections_toggle"
+												tabIndex={0} title="暫停">
 												<div className="control-toggle control-pause-icon">
 													<span className="sr-only">圖片輪播播放中，點擊暫停</span>
 												</div>
 											</a>
 										</div>
 									</div>
-									<div
-										className="owl-carousel owl-theme"
-										id="Collections_owl_carousel"
-										ref={carouselRef}
-									>
+									<div className="owl-carousel owl-theme" id="Collections_owl_carousel" ref={carouselRef}>
 										{sortedDetails.map((p, i) => {
-											const detail = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw");
+											const detail = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang);
 											const alt = detail?.Title ?? ""
 											const url = detail?.URL ?? ""
 											const content = detail?.Content ?? ""
 											const urlopen = detail?.URL_Open ?? ""
 											return (
-
-
 												<div key={i} className="item">
-													<a
-														href={url}
-														//onclick="js_method();return false;"
-														tabIndex={0}
-														target={(urlopen === 1 ? "_blank" : "_self")}
-														title="">
+													<LangLink to={url} tabIndex={0} target={(urlopen === 1 ? "_blank" : "_self")} title="">
 														<div className="wrapper_box">
 															<figure className="card_figure">
 																<div className="card_image_link">
 																	<picture>
-																		<img
-																			alt={alt}
-																			className="card_image"
-																			src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`}
-																		/>
+																		<img alt={alt} className="card_image" src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} />
 																	</picture>
 																</div>
 															</figure>
@@ -226,27 +173,13 @@ export const CollectionsData = () => {
 																</div>
 															</div>
 														</div>
-													</a>
+													</LangLink>
 												</div>
-
 											)
 										})}
 									</div>
-									<div
-										className="customize_btn mr-4 d-none"
-										style={{
-											bottom: "-40px",
-											position: "absolute",
-											right: "0",
-										}}>
-										<a
-											className="Btn_a"
-											href="javascript:void(0);"
-											role="button"
-											tabIndex={0}
-											target="_self"
-											title="更多館藏櫥窗"
-											type="button">
+									<div className="customize_btn mr-4 d-none" style={{ bottom: "-40px", position: "absolute", right: "0", }}>
+										<a className="Btn_a" role="button" tabIndex={0} target="_self" title="更多館藏櫥窗" type="button">
 											<div className="BtnBox">
 												<span>更多館藏櫥窗</span>
 												<span className="ml-2">+</span>

@@ -81,7 +81,6 @@ namespace WCMS.SysCore
             var dtoTypes = asm.GetTypes().Where(t => t.IsClass && !t.IsAbstract && (typeof(DTOBasicDataModel).IsAssignableFrom(t)|| t.Name.EndsWith("_DTO", StringComparison.OrdinalIgnoreCase))).ToList();
             foreach (var t in dtoTypes) builder.Ignore(t);   // 告訴 EF：這些型別不是實體，全部忽略
         }
-
         /// <summary>
         /// 依慣例自動綁定一對多關聯：
         /// 規則：實體上的「導航屬性 Nav (class 非 string)」
@@ -159,7 +158,6 @@ namespace WCMS.SysCore
             if (!t.IsGenericType) return typeof(System.Collections.IEnumerable).IsAssignableFrom(t);
             return typeof(System.Collections.IEnumerable).IsAssignableFrom(t);
         }
-
         private static Type? GetEnumerableElementType(Type t)
         {
             if (t.IsArray) return t.GetElementType();

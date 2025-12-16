@@ -997,7 +997,24 @@ namespace WCMS.SysCore
                             expr = $"(({left} & @{pIndex}) {cmp})";
                             break;
                         }
-                    default: expr = $"{fieldExpr} {op} \"{val}\""; break;
+                    default:
+                        {
+                            // 取得欄位型別
+                            var pi = PropertyAccessorCache.GetProperty(type, fieldExpr);
+                            var propType = pi?.PropertyType ?? typeof(string);
+                            var nonNullType = Nullable.GetUnderlyingType(propType) ?? propType;
+                            // op 統一（保險：萬一外面沒換到）
+                            var dynOp = op == "=" ? "==" : op;
+                            object? converted = val;
+                            // ✅ enum：把 "zh-tw" 轉成 LangCode.zhtw（或其他 enum）
+                            if (nonNullType.IsEnum) converted = ParseEnumFromString(nonNullType, val ?? "");
+                            // 其他型別：必要時也可 Convert.ChangeType（先不動，保持最小改動）
+                            // else if (nonNullType != typeof(string)) converted = Convert.ChangeType(val, nonNullType);
+                            int pIndex = args.Count;
+                            args.Add(converted!);
+                            expr = $"{fieldExpr} {dynOp} @{pIndex}";
+                            break;
+                        }
                 }
                 return expr;
             }
@@ -1006,6 +1023,23 @@ namespace WCMS.SysCore
             if (string.IsNullOrEmpty(inner)) return null;
             string thisLevel = current;
             return isEnumerable ? $"{thisLevel}.Any({inner})" : $"{thisLevel}.{inner}";
+        }
+
+        private static readonly Dictionary<Type, Func<string, object>> EnumStringMappers = new()
+        {
+            [typeof(LangCode)] = s => LangCodeExt.Normalize(s),
+        };
+        private static object ParseEnumFromString(Type enumType, string raw)
+        {
+            raw ??= string.Empty;
+            // 1) 專用 mapping（LangCode: zh-tw/en...）
+            if (EnumStringMappers.TryGetValue(enumType, out var map)) return map(raw);
+            // 2) 通用：把 zh-tw -> zhtw 這種格式轉成 enum name 嘗試 parse
+            var normalized = raw.Trim().Replace("-", "").Replace("_", "");
+            try { return System.Enum.Parse(enumType, normalized, ignoreCase: true); } catch { }
+            // 3) 通用：數字（若你有些 enum 仍用數值傳入）
+            if (long.TryParse(raw.Trim(), out var n)) return System.Enum.ToObject(enumType, n);
+            throw new FormatException($"Cannot parse '{raw}' to enum '{enumType.Name}'.");
         }
         /// <summary>
         /// 獲取表頭明細模型

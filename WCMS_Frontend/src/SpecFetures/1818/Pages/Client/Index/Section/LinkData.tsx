@@ -2,20 +2,18 @@ import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/
 import { useBannerListData } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Hook";
 import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
-import * as SchemaFields from "@/types/SchemaFields";
 import { useEffect, useMemo, useRef } from "react";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { type Lang } from "@/SysCore/i18n/lang";
+import { IndexLabel } from "@/SpecFetures/1818/Pages/Client//Index/Section/IndexLabelText";
+import { BannerFields } from "@/types/SchemaFields";
 type BannerSet = components["schemas"]["BannerSet_DTO"]
 
 
 export const LinkData = (props: { lang?: Lang }) => {
-	// props.lang = DefaultLang
-	const usebannerList = useBannerListData(`${SchemaFields.BannerFields.BannerId} = Banner20251119001`)
+	const usebannerList = useBannerListData(`${BannerFields.BannerId} = Banner20251119001`)
 	const bannerInternal = usebannerList.rawData?.[0]?.Banner?.InternalId ?? ""
 	const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), bannerInternal, {})
-	const loadingList = [useBanner.isLoading, usebannerList.isLoading]
-	const errorList = [useBanner.error, usebannerList.error]
 	const sortedDetails = useMemo(() => {
 		const list = useBanner.data?.BannerDetail ?? [];
 		// 依 Detail.Sort 由小到大
@@ -27,6 +25,7 @@ export const LinkData = (props: { lang?: Lang }) => {
 		});
 	}, [useBanner.data?.BannerDetail]);
 	const { carouselRef, pauseRef, startRef } = useLinksCarousel(sortedDetails);
+
 	return (
 		<section className="Links_section owl-box Layout_Padding_1_top Layout_Padding_1_bottom bg-white">
 			<div className="Mask-DivBox">
@@ -35,7 +34,7 @@ export const LinkData = (props: { lang?: Lang }) => {
 						<div className="row">
 							<div className="offset-3 col-9">
 								<div className="headDiv mb-lg-5 mb-4">
-									<span className="headDiv-txt tw">相關連結</span>
+									<span className="headDiv-txt tw">{IndexLabel(props.lang).LinkDataTitle}</span>
 								</div>
 							</div>
 							<div className="col-12">

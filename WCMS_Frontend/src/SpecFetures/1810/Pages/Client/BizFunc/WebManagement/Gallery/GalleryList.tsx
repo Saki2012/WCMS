@@ -17,6 +17,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { Paginator } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import type { IGalleryListProps } from "@/Features/Pages/Client/BizFunc/WebManagement/Gallery/GalleryList";
 import { PGID } from "@/Features/Hooks/Common/ProgId";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 
 const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
     var condition: string = "";
@@ -153,7 +154,7 @@ const MainContent = ({ props, gridProps, theme }: { props: MainGridContentProp[]
             <div className="row margin_0">
                 {props.map((prop, idx) => (
                     <div className="col-xxl-3 col-xl-4 col-lg-6 col-md-6 col-sm-6 col-12 photo_standardbox">
-                        <Link key={idx} to={`${dirUrl}/${prop.galleryInternalId}`} title={prop.Title}>
+                        <LangLink key={idx} to={`${dirUrl}/${prop.galleryInternalId}`} title={prop.Title}>
                             <div className="img-box">
                                 <img className="img-fluid" src={`${FileManagementAPI.PREVIEW_URL}/${prop.CoverPicInternlId}`} alt={prop.Title} />
                             </div>
@@ -173,7 +174,7 @@ const MainContent = ({ props, gridProps, theme }: { props: MainGridContentProp[]
                                     </div>
                                 </div>
                             </figcaption>
-                        </Link>
+                        </LangLink>
                     </div>
                 ))}
             </div>

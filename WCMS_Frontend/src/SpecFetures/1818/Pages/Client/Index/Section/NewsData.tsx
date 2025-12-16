@@ -1,4 +1,3 @@
-import { Link, NavLink } from 'react-router-dom';
 import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api';
 import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api';
 import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
@@ -9,6 +8,9 @@ import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
 import { useNow } from '@/SysCore/Utils/Library/LibHook';
 import { type Lang } from '@/SysCore/i18n/lang';
 import { PGID } from '@/Features/Hooks/Common/ProgId';
+import { LangLink, LangNavLink } from '@/SysCore/i18n/LangLink';
+import { IndexLabel } from "@/SpecFetures/1818/Pages/Client//Index/Section/IndexLabelText";
+
 //type BannerSet = components["schemas"]["BannerSet_DTO"]
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
@@ -152,6 +154,7 @@ export const NewsData = (props: { lang: Lang }) => {
 		})
 	);
 	const allNews1 = getNewsDataProps(allNewsRawData1, props.lang, "/announcement/announcement-news", "", categoryDict, tagDict);
+
 	return (
 		<section className="Newsii_section Layout_Padding_1_top Layout_Padding_1_bottom bg-white">
 			<div className="Mask-DivBox">
@@ -161,29 +164,25 @@ export const NewsData = (props: { lang: Lang }) => {
 						<div className="row">
 							<div className="offset-md-5 offset-sm-3 offset-1 col-md-6 col-sm-6 col-10">
 								<div className="headDiv mb-lg-5 mb-4">
-									<span className="headDiv-txt-4 tw">最新消息</span>
+									<span className="headDiv-txt-4 tw">{IndexLabel(props.lang).NewsTitle}</span>
 								</div>
 							</div>
 							<div className="col-12">
 								<div className="H-nav-tabs-content-box" id="Horizontal">
 									<div className="tab-content" id="H-nav-tabContent">
-										<div
-											aria-labelledby="H-Tabs__01"
-											className="tab-pane fade show active"
-											id="H-navTabs-01"
-											role="tabpanel">
+										<div aria-labelledby="H-Tabs__01" className="tab-pane fade show active" id="H-navTabs-01" role="tabpanel">
 											<div className="News_mainDIV">
 												<ul className="ListNews">
 													<GetData prop={allNews1}></GetData>
 												</ul>
 												<div className="btn-w100-wrapper justify-content-center">
 													<div className="customize_btn">
-														<NavLink className="Btn_a" to="/announcement/announcement-news/List" role="button"
-															tabIndex={0} target="_self" title="MORE INFO" type="button">
+														<LangNavLink className="Btn_a" to="/announcement/announcement-news/List" role="button"
+															tabIndex={0} target="_self" title={IndexLabel(props.lang).MoreInfo} type="button">
 															<div className="BtnBox">
-																<span>更多資訊</span>
+																<span>{IndexLabel(props.lang).MoreInfo}</span>
 															</div>
-														</NavLink>
+														</LangNavLink>
 													</div>
 												</div>
 											</div>
@@ -260,7 +259,7 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 			{prop.map((item) => {
 				return (
 					<li className="News_item" key={item.announceInternalId} >
-						<Link to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
+						<LangLink to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
 							<div className="rightBox">
 								<div className="card_catDiv">
 									<div className="a-left">
@@ -298,7 +297,7 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 									</div>
 								</div>
 							</div>
-						</Link>
+						</LangLink>
 					</li>
 				)
 			})}

@@ -1,4 +1,3 @@
-import { Link, NavLink } from 'react-router-dom';
 import GalleryProvider from '@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api';
 import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api';
 import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
@@ -11,6 +10,8 @@ import { useNow } from '@/SysCore/Utils/Library/LibHook';
 import { type Lang } from '@/SysCore/i18n/lang';
 import { PGID } from '@/Features/Hooks/Common/ProgId';
 import { useEffect } from 'react';
+import { LangLink, LangNavLink } from '@/SysCore/i18n/LangLink';
+import { IndexLabel } from "@/SpecFetures/1818/Pages/Client//Index/Section/IndexLabelText";
 
 type GallerySet = components["schemas"]["GallerySet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
@@ -262,7 +263,7 @@ export const ActivityPhotoData = (props: { lang: Lang }) => {
 						<div className="row">
 							<div className="offset-3 col-6">
 								<div className="headDiv mb-lg-5 mb-4">
-									<span className="headDiv-txt-5 tw">活動相簿</span>
+									<span className="headDiv-txt-5 tw">{IndexLabel(props.lang).AlbumTitle}</span>
 								</div>
 							</div>
 							<div className="col-12">
@@ -295,11 +296,11 @@ export const ActivityPhotoData = (props: { lang: Lang }) => {
 							<div className="offset-6 col-6 mt-customize">
 								<div className="btn-w100-wrapper justify-content-end">
 									<div className="customize_btn">
-										<NavLink className="Btn_a" to="/announcement/announcement-activity/List" role="button" tabIndex={0} target="_self" title="MORE INFO" type="button">
+										<LangNavLink className="Btn_a" to="/announcement/announcement-activity/List" role="button" tabIndex={0} target="_self" title={IndexLabel(props.lang).MoreInfo} type="button">
 											<div className="BtnBox">
-												<span>更多資訊</span>
+												<span>{IndexLabel(props.lang).MoreInfo}</span>
 											</div>
-										</NavLink>
+										</LangNavLink>
 									</div>
 								</div>
 							</div>
@@ -367,15 +368,12 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 			{prop.map((item) => {
 				return (
 					<div className="item" key={item.galleryInternalId} >
-						<Link to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
+						<LangLink to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
 							<div className="wrapper_box">
 								<div className="Qlink-item">
 									<div className="Img_Div w-100">
 										<div className="Qlinkimg-outer">
-											<img
-												alt={item.title}
-												src={`${FileManagementAPI.PREVIEW_URL}/${item.PicSrcId}`}
-											/>
+											<img alt={item.title} src={`${FileManagementAPI.PREVIEW_URL}/${item.PicSrcId}`} />
 										</div>
 									</div>
 									<div className="Content_Div">
@@ -388,7 +386,7 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 									</div>
 								</div>
 							</div>
-						</Link>
+						</LangLink>
 					</div>
 				)
 			})}

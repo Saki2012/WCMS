@@ -10,6 +10,7 @@ import { useNow } from '@/SysCore/Utils/Library/LibHook';
 import { type Lang } from '@/SysCore/i18n/lang';
 import { PGID } from '@/Features/Hooks/Common/ProgId';
 import img from "@/SpecFetures/1817/Assets/Client/images/line_title.svg"
+import { LangLink } from '@/SysCore/i18n/LangLink';
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
@@ -183,12 +184,12 @@ export const NewsData = (props: { lang: Lang }) => {
 							</div>
 							<div className="btn-w100-wrapper justify-content-center">
 								<div className="customize_btn">
-									<Link className="Btn_a" to="/News/News-01" role="button" tabIndex={0} target="_self" title="更多系所公告" type="button">
+									<LangLink className="Btn_a" to="/News/News-01" role="button" tabIndex={0} target="_self" title="更多系所公告" type="button">
 										<div className="BtnBox">
 											<span>More View</span>
 											<span className="ml-2">+</span>
 										</div>
-									</Link>
+									</LangLink>
 								</div>
 							</div>
 						</div>
@@ -260,7 +261,7 @@ const GetData = (prop: { data: getDataProp[]; lang: Lang }) => {
 			{prop.data.map((item) => {
 				return (
 					<li className="News_item" key={item.announceInternalId} >
-						<Link to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
+						<LangLink to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
 							<div className="leftBox">
 								<div className="news-date-box">
 									<div className="year">{item.year}</div>
@@ -305,7 +306,7 @@ const GetData = (prop: { data: getDataProp[]; lang: Lang }) => {
 									</span>
 								</div>
 							</div>
-						</Link>
+						</LangLink>
 					</li>
 				)
 			})}

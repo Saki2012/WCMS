@@ -20,4 +20,4 @@ export class SpecRouteModule implements IRouteModule {
 export const specClientEntries: Record<string, ModuleEntry> = {};
 
 
-export const siteHeaderMeta: IHeaderMetaProps = { title: "國立臺北藝術大學圖書館", description: "國立臺北藝術大學圖書館", keywords: "國立臺北藝術大學圖書館", };
+export const siteHeaderMeta: IHeaderMetaProps = { title: "國立臺北藝術大學圖書館", description: "國立臺北藝術大學圖書館" };

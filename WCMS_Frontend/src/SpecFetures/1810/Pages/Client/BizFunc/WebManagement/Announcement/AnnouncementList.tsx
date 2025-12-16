@@ -26,6 +26,7 @@ import { useNow } from "@/SysCore/Utils/Library/LibHook";
 
 import DefaultEventImg from "@/SpecFetures/1810/Assets/Custom/DefaultEventPic_940x1330.jpg"
 import type { IAnnouncementListProps } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
@@ -166,10 +167,10 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: Announ
                 ...cell,
                 content: (
                     <>
-                        <Link to={`${dirUrl}/${internalId}`} className="link-cell" id={isTitle ? titleId : undefined}
+                        <LangLink to={`${dirUrl}/${internalId}`} className="link-cell" id={isTitle ? titleId : undefined}
                             aria-labelledby={isTitle ? undefined : titleId}>
                             <span aria-hidden={!isTitle}>{cell.content}</span>
-                        </Link>
+                        </LangLink>
 
                         {isTitle &&
                             <>
@@ -209,11 +210,11 @@ const PictureList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
                             <article className="cardbox">
                                 <div className="card_content">
                                     <figure className="card_figure">
-                                        <Link to={internalId} className="card_image_link" title={title}>
+                                        <LangLink to={internalId} className="card_image_link" title={title}>
                                             <picture>
                                                 <img className="card_image" src={picUrl} alt={picDesc} />
                                             </picture>
-                                        </Link>
+                                        </LangLink>
                                     </figure>
                                     <div className="card_catDiv">
                                         <div className="card_cat">
@@ -225,7 +226,7 @@ const PictureList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
                                         <div className="card_time">{date}</div>
                                     </div>
                                     <div className="card_titleDiv">
-                                        <Link to={internalId} className="card_title" title={title}>{title}</Link>
+                                        <LangLink to={internalId} className="card_title" title={title}>{title}</LangLink>
                                         {
                                             <>
                                                 {isWithinLastNDaysFromString(row.Announcement?.Validate_Start ?? "") && (<span className="label label-warning">最新</span>)}
@@ -235,7 +236,7 @@ const PictureList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
                                         }
                                     </div>
                                     <div className="customize_btn mr-auto mt-2">
-                                        <Link to={internalId} className="Btn_s1">VIEW ALL<span className="ml-2">+</span></Link>
+                                        <LangLink to={internalId} className="Btn_s1">VIEW ALL<span className="ml-2">+</span></LangLink>
                                     </div>
                                 </div>
                             </article>

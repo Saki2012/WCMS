@@ -17,6 +17,7 @@ import { useSpecCateListData } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecC
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions";
 import { GridCol_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"]
 const buildEmptySet = (progId: string): SpecCategorySet => ({ SpecCategory: { ProgId: progId }, SpecCategoryDetail: [] });
 
@@ -106,9 +107,9 @@ const SpecCateListComp = (prop: { theme: IBETheme; SpecCateSets: SpecCategorySet
                     <li className="list-group-item" key={`${item.SpecCategory?.InternalId}-${item.SpecCategoryDetail?.find(p => p.Lang === prop.lang)?.RowId}`}>
                         <div className="checkboxDIV my-2">
                             <div className="custom-control form-check">
-                                <Link to={`${dirPath}/${item.SpecCategory?.InternalId}`} className="form-check-label" aria-label={`前往 ${item.SpecCategoryDetail?.find(p => p.Lang === prop.lang)?.CategoryName} 詳細頁`}>
+                                <LangLink to={`${dirPath}/${item.SpecCategory?.InternalId}`} className="form-check-label" aria-label={`前往 ${item.SpecCategoryDetail?.find(p => p.Lang === prop.lang)?.CategoryName} 詳細頁`}>
                                     <span className="check-txt">{item.SpecCategoryDetail?.find(p => p.Lang === prop.lang)?.CategoryName}</span>
-                                </Link>
+                                </LangLink>
                             </div>
                         </div>
                         <div className="form-check form-switch my-2">

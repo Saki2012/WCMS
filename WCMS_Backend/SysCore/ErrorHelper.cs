@@ -30,12 +30,20 @@ namespace WCMS.SysCore
     internal static class ResxMsg
     {
         // "組件的根命名空間.資料夾.檔名前綴"
-        private static readonly ResourceManager RM =
-            new("WCMS.SysCore.Resx.SysMessageCode", typeof(SysMessageCode).Assembly);
+        private static readonly ResourceManager RM = new(typeof(SysMessageCode).FullName, typeof(SysMessageCode).Assembly);
 
         public static string Msg(string code, params object[] args)
         {
-            var text = RM.GetString(code, CultureInfo.CurrentUICulture);
+            string? text = null;
+            try
+            {
+                text = RM.GetString(code, CultureInfo.CurrentUICulture);
+            }
+            catch (MissingManifestResourceException)
+            {
+                // 資源檔沒嵌入 / 沒 neutral 時，避免整包爆掉
+                text = null;
+            }
             if (string.IsNullOrEmpty(text)) return $@"【{code}】";                  // 找不到就回傳 code（方便除錯）
             return (args?.Length > 0) ? string.Format(text, args) : text; // 支援 {0} 參數
         }

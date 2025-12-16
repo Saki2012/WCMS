@@ -8,6 +8,8 @@ import { Index } from "@/Features/Pages/Client/BizFunc/MainPage/Index";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { Classic_FETheme } from "../Theme/ClassicTheme_Clsx";
 import TemplateHub from "@/Features/Pages/Server/Scaffold/PreviewFrame/TemplateHub.tsx";
+import { useLang } from "@/SysCore/i18n/LangContext";
+
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"]
 type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"]
 type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title_DTO"]
@@ -80,21 +82,7 @@ export const normalizeSite = (siteMenu: SiteMenuSet): INormSite => {
     });
 
     // 4) 為每個語系建立樹（正確使用 ItemRowId / ParentRowId）
-    const treeByLang: INormSite["treeByLang"] = {
-        "zh-tw": [], "zh-cn": [], en: [], ja: [], ko: [],
-        fr: [],
-        de: [],
-        es: [],
-        pt: [],
-        ru: [],
-        ar: [],
-        it: [],
-        nl: [],
-        th: [],
-        vi: [],
-        id: [],
-        ms: []
-    };
+    const treeByLang: INormSite["treeByLang"] = { "zh-tw": [], "zh-cn": [], en: [], };
 
     for (const [lang, items] of byLang) {
         // 排序（層級→顯示序→主鍵）
@@ -171,11 +159,7 @@ export const normalizeSite = (siteMenu: SiteMenuSet): INormSite => {
         }
         treeByLang[lang] = roots;
     }
-    return {
-        siteIndex: siteMenu.SiteMenu_Index?.SiteIndex ?? "",
-        indexInfoByLang,
-        treeByLang,
-    };
+    return { siteIndex: siteMenu.SiteMenu_Index?.SiteIndex ?? "", indexInfoByLang, treeByLang, };
 };
 
 const trimSlash = (s: string) => s.replace(/^\/+|\/+$/g, "");
@@ -205,7 +189,7 @@ export const getModuleRegistry = (): ModuleRegistry => resolveRegistry();
 // 2) 模組元件：用 useLang() 把 lang 傳給對應的模組 component
 const ModuleElement: React.FC<{ node: INormNode; site: INormSite }> = ({ node, site }) => {
     // const { code: lang } = useLang();
-    const lang = DefaultLang
+    const lang = (useLang().code ?? DefaultLang) as Lang;
     if (node.type !== "module" || !node.module) return <div>Module not registered</div>;
     const entry = getModuleRegistry()[node.module.progId];
     if (!entry) return <div>Unknown module: {node.module.progId}</div>;
@@ -213,7 +197,19 @@ const ModuleElement: React.FC<{ node: INormNode; site: INormSite }> = ({ node, s
     const el = entry.kind === "element" ? entry.render(lang, site, node) : entry.element(lang, site, node);
     return el;
 };
+/** render 時用 LangContext 覆寫 route.element 裡的 lang / defaultLang（避免 route tree 只能用 DefaultLang 產生） */
+const WithCtxLang: React.FC<{ element: React.ReactElement }> = ({ element }) => {
+    const lang = (useLang().code ?? DefaultLang) as Lang;
+    return React.cloneElement(element, { lang, defaultLang: lang } as any);
+};
 
+const wrapRoutesWithCtxLang = (routes: RouteObject[]): RouteObject[] =>
+    routes.map((r) => {
+        const clone: RouteObject = { ...r };
+        if (r.element && React.isValidElement(r.element)) clone.element = <WithCtxLang element={r.element as React.ReactElement} />;
+        if (r.children?.length) clone.children = wrapRoutesWithCtxLang(r.children);
+        return clone;
+    });
 export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
     const skeletonRoots = site.treeByLang[DefaultLang] ?? Object.values(site.treeByLang)[0] ?? [];
     const toRoute = (n: INormNode): RouteObject => {
@@ -273,8 +269,8 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
         if (!entry) return { path: n.path, element: <div>Unknown module: {n.module.progId}</div> };
         const element = <ModuleElement node={n} site={site} />;
         // routes 型模組的自帶 children；element 型為空
-        const modChildren: RouteObject[] = entry.kind === "routes" ? entry.children(n.module.options, DefaultLang, n) : [];
-        const children = [...modChildren, ...menuChildren];
+        const modChildrenRaw: RouteObject[] = entry.kind === "routes" ? entry.children(n.module.options, DefaultLang, n) : [];
+        const modChildren = wrapRoutesWithCtxLang(modChildrenRaw); const children = [...modChildren, ...menuChildren];
         // pathless 模組：有 children → 當包裹；沒有 → 當 index
         if (!n.path) return children.length > 0 ? { element, children } : { index: true, element };
         // 一般模組
@@ -284,16 +280,17 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
     return [
         {
             path: "/" + site.siteIndex,
-            element: <Index lang={DefaultLang} site={site} style={Classic_FETheme} />,
+            element: <WithCtxLang element={<Index lang={DefaultLang} site={site} style={Classic_FETheme} />} />,
             children:
                 [
-                    { index: true, element: <HomePage /> },
+                    { index: true, element: <WithCtxLang element={<HomePage lang={DefaultLang} />} /> },
                     {
                         path: "Template",
                         element: (
                             <React.Suspense fallback={<div role="status" aria-live="polite">載入預覽頁…</div>}>
-                                <TemplateHub site={site} defaultLang={DefaultLang} />
+                                <WithCtxLang element={<TemplateHub site={site} defaultLang={DefaultLang} />} />
                             </React.Suspense>
+
                         ),
                     },
                     ...skeletonRoots.map(toRoute),

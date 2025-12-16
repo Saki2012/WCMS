@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.RateLimiting;
@@ -9,9 +10,12 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Data;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO.Compression;
 using System.Net;
@@ -27,6 +31,7 @@ using WCMS.Features.SystemSetting.Calendar;
 using WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting;
 using WCMS.SysCore;
 using WCMS.SysCore.AppSettingsOptions;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
@@ -77,6 +82,16 @@ namespace WCMS
             // 安全標頭（弱掃友好）
             AppSetup.UseSecurityHeaders(app, builder.Configuration);
             AppSetup.UseSecurityXSRF(app, builder.Configuration);
+            //處理API支援語系
+            var supported = new[]{new CultureInfo("zh-TW"),new CultureInfo("en")};
+            app.UseRequestLocalization(new RequestLocalizationOptions
+            {
+                DefaultRequestCulture = new RequestCulture("zh-TW"),
+                SupportedCultures = supported,
+                SupportedUICultures = supported,
+                RequestCultureProviders =[new AcceptLanguageHeaderRequestCultureProvider()]
+            });
+
 
             // 系統啟用時初始註冊必須設定
             await AppSetup.InitDbSettingsAsync(app.Services, builder.Configuration, app.Environment);
@@ -132,12 +147,12 @@ namespace WCMS
             
             // CORS 放在 Auth 前
             app.UseCors(AppSetup.CorsPolicyName);
-            app.UseOutputCache();
             app.UseResponseCompression();
 
             //app.UseRateLimiter();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseOutputCache();
             app.MapControllers();
             app.Run();
         }
@@ -241,21 +256,22 @@ namespace WCMS
                     const string LangHeader = "Accept-Language";
 
                     // 清單快取
-                    options.AddPolicy("ListJson", b => b
+                    options.AddPolicy(SysParam.ListCache, b => b
                         .Expire(TimeSpan.FromSeconds(60))
                         .SetVaryByQuery("*")                    // 條件、分頁都影響快取
                         .SetVaryByHeader(LangHeader)
                         .Tag("set:list")                        // 共用 Tag
                     );
                     // 明細快取
-                    options.AddPolicy("DetailJson", b => b
+                    options.AddPolicy(SysParam.DetailCache, b => b
                         .Expire(TimeSpan.FromSeconds(60))
                         .SetVaryByQuery("internalId")           // 按 QueryString 分片
                         .SetVaryByHeader(LangHeader)
                         .Tag("set:detail")                      // 共用 Tag
                     );
                     // 永久參數
-                    options.AddPolicy("PermanentJson", b => b
+                    options.AddPolicy(SysParam.PermanentCache, b => b
+                        .Expire(TimeSpan.FromDays(365))
                         .SetVaryByHeader(LangHeader)
                         .Tag("perm"));
                 });
@@ -406,6 +422,8 @@ namespace WCMS
                 builder.Services.AddEndpointsApiExplorer();
                 builder.Services.AddSwaggerGen(c =>
                 {
+                    c.OperationFilter<AddAcceptLanguageHeaderOperationFilter>();
+
                     c.SwaggerDoc("v1", new OpenApiInfo { Title = "WCMS API", Version = "v1" });
 
                     // 加上這段才會有 Authorize 按鈕
@@ -880,6 +898,30 @@ namespace WCMS
             var h = hostPort.Trim();
             var i = h.IndexOf(':');
             return i >= 0 ? h[..i] : h;
+        }
+
+        private class AddAcceptLanguageHeaderOperationFilter : IOperationFilter
+        {
+            public void Apply(OpenApiOperation operation, OperationFilterContext context)
+            {
+                operation.Parameters ??= [];
+
+                if (operation.Parameters.Any(p => p.In == ParameterLocation.Header && p.Name == "Accept-Language"))
+                    return;
+
+                operation.Parameters.Add(new OpenApiParameter
+                {
+                    Name = "Accept-Language",
+                    In = ParameterLocation.Header,
+                    Required = false,
+                    Description = "i18n language (e.g. zh-TW / en)",
+                    Schema = new OpenApiSchema
+                    {
+                        Type = "string",
+                        Default = new OpenApiString("zh-TW")
+                    }
+                });
+            }
         }
     }
 }

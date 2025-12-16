@@ -1,18 +1,19 @@
 
 import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
-import { useBannerListData } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Hook";
 import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
-import * as SchemaFields from "@/types/SchemaFields";
 import { useEffect, useMemo, useRef } from "react";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { Link } from "react-router-dom";
+import { LangLink } from "@/SysCore/i18n/LangLink";
+import type { Lang } from "@/SysCore/i18n/lang";
+import bgImg from "@/SpecFetures/1816/Assets/Client/images/bg/background-transparent-image_1920x600.png"
+
 
 declare global { interface Window { Swiper?: any } }
 type BannerSet = components["schemas"]["BannerSet_DTO"]
 
 
-export const LinkData = () => {
+export const LinkData = (props: { lang: Lang }) => {
 	const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), "aaf84f7c-3521-4288-9c2e-c75b43f14c56", {})
 	const sortedDetails = useMemo(() => {
 		const list = useBanner.data?.BannerDetail ?? [];
@@ -58,7 +59,7 @@ export const LinkData = () => {
 		return () => { try { instance?.destroy(true, true); } catch { } };
 	}, []);
 	return (
-		<section className="Link-icons_section Layout_Padding_4_bottom" style={{ backgroundImage: "url(/images/bg/background-transparent-image_1920x600.png)", }}>
+		<section className="Link-icons_section Layout_Padding_4_bottom" style={{ backgroundImage: bgImg, }}>
 			<div className="Mask-DivBox">
 				<div className="customizeBox">
 					<div className="container-customize2">
@@ -67,14 +68,14 @@ export const LinkData = () => {
 								<div className="swiper" id="icon_area" ref={swiperRef}>
 									<div className="swiper-wrapper">
 										{sortedDetails.map((p, i) => {
-											const info = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw");
+											const info = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang);
 											const alt = info?.Title ?? ""
 											const url = info?.URL ?? ""
 											const tar = info?.URL_Open === 0 ? "_self" : "_blank"
 											return (
 												<div key={i} className="swiper-slide">
 													<div className="item">
-														<Link to={url} tabIndex={0} target={tar} title={alt}>
+														<LangLink to={url} tabIndex={0} target={tar} title={alt}>
 															<div className="icon-wrapper">
 																<div className="icon-area">
 																	<div className="icon-type-image">
@@ -85,7 +86,7 @@ export const LinkData = () => {
 																	<div className="Link-icons-title">{alt}</div>
 																</div>
 															</div>
-														</Link>
+														</LangLink>
 													</div>
 												</div>
 											)

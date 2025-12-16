@@ -20,4 +20,4 @@ export class SpecRouteModule implements IRouteModule {
 export const specClientEntries: Record<string, ModuleEntry> = {};
 
 
-export const siteHeaderMeta: IHeaderMetaProps = { title: "國立中興大學全球事務研究跨洲碩士學位學程", description: "國立中興大學全球事務研究跨洲碩士學位學程", keywords: "國立中興大學全球事務研究跨洲碩士學位學程", };
+export const siteHeaderMeta: IHeaderMetaProps = { title: "國立中興大學全球事務研究跨洲碩士學位學程", description: "國立中興大學全球事務研究跨洲碩士學位學程" };

@@ -38,4 +38,4 @@ export const specClientEntries: Record<string, ModuleEntry> = {
 };
 
 
-export const siteHeaderMeta: IHeaderMetaProps = { title: "國立臺北藝術大學_傳統音樂學系", description: "國立臺北藝術大學_傳統音樂學系", keywords: "國立臺北藝術大學_傳統音樂學系", };
+export const siteHeaderMeta: IHeaderMetaProps = { title: "國立臺北藝術大學_傳統音樂學系", description: "國立臺北藝術大學_傳統音樂學系" };

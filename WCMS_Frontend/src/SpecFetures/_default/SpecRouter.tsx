@@ -18,4 +18,4 @@ export class SpecRouteModule implements IRouteModule {
 export const specClientEntries: Record<string, ModuleEntry> = {};
 
 //暫時先這樣做，之後將會把這些資訊改從後端設定回傳回來處理
-export const siteHeaderMeta: IHeaderMetaProps = { title: "網站標題", description: "網站標題描述", keywords: "網站關鍵字", };
+export const siteHeaderMeta: IHeaderMetaProps = { title: "網站標題", description: "網站標題描述" };

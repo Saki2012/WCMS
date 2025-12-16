@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 import logImg from 'SpecFeature/Assets/Server/menu_logo_PC.svg';
 import { ServerModuleRoutes, type IModuleMeta, } from '@/Features/Pages/Server/BizFunc/ServerModuleRoutes';
 import { useEffect } from 'react';
+import { LangNavLink } from '@/SysCore/i18n/LangLink';
 
 const buildActionPath = (moduleCode: string, progId: string, actionCode: string) => `/Server/${moduleCode}/${progId}/${actionCode}`;
 
@@ -65,9 +66,9 @@ const SidebarMenu = (prop: { moduleCode: IModuleMeta['ModuleCode'] }) => {
                 <div className="m-header">
                     <h1>
                         {/* 用後台預設路徑當「首頁」入口，也可以改成固定 /Server */}
-                        <NavLink to={'/Server'} title="首頁" target="_self" className="b-brand">
+                        <LangNavLink to={'/Server'} title="首頁" target="_self" className="b-brand">
                             <img src={logImg} className="img-fluid logo-lg" alt="logo" />
-                        </NavLink>
+                        </LangNavLink>
                     </h1>
                 </div>
                 <div className="navbar-content">
@@ -94,9 +95,9 @@ const SidebarMenu = (prop: { moduleCode: IModuleMeta['ModuleCode'] }) => {
                                 <ul className="pc-submenu">
                                     {prog.Actions.map((act) => (
                                         <li key={act.ActionCode} className="pc-item">
-                                            <NavLink className="pc-link" to={buildActionPath(prog.ModuleCode, prog.ProgId, act.ActionCode)}>
+                                            <LangNavLink className="pc-link" to={buildActionPath(prog.ModuleCode, prog.ProgId, act.ActionCode)}>
                                                 {act.Title}
-                                            </NavLink>
+                                            </LangNavLink>
                                         </li>
                                     ))}
                                 </ul>

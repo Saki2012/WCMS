@@ -9,6 +9,7 @@ import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import { useEffect, useRef } from 'react';
 import bgImg from '@/SpecFetures/1810/Assets/Client/images/bg/background-image_video_2000x1500.jpg'
 import { resolveYoutubeEmbedUrl } from '@/Features/Pages/Client/BizFunc/WebManagement/WebResource/WebResourceList';
+import { LangLink } from '@/SysCore/i18n/LangLink';
 
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"]
 
@@ -240,7 +241,7 @@ export const VideoSession = () => {
                                     </div>
                                     <div className="btn_Div justify-content-end px-2">
                                         <div className="customize_btn my-3">
-                                            <Link to="/EventHighlights/Event-video" className="Btn_s1" tabIndex={14} title="更多影音">VIEW ALL<span className="ml-2">+</span></Link>
+                                            <LangLink to="/EventHighlights/Event-video" className="Btn_s1" tabIndex={14} title="更多影音">VIEW ALL<span className="ml-2">+</span></LangLink>
                                         </div>
                                     </div>
                                 </div>

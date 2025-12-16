@@ -13,6 +13,7 @@ import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Ca
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 
 import bgImg from '@/SpecFetures/1810/Assets/Client/Images/bg/background-transparent-image_1920x600.png'
+import { LangLink } from '@/SysCore/i18n/LangLink';
 type GallerySet = components["schemas"]["GallerySet_DTO"]
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"]
 
@@ -184,7 +185,7 @@ export const GallerySession = () => {
                                         {result.map((item) => {
                                             return item && (
                                                 <div className="item" key={item.title}>
-                                                    <Link to={`/EventHighlights/event-album/${item.internalId}`} tabIndex={13} title={item.title}>
+                                                    <LangLink to={`/EventHighlights/event-album/${item.internalId}`} tabIndex={13} title={item.title}>
                                                         <div className="DivBox_content v_itemBOX">
                                                             <div className="Picture_Div">
                                                                 <div className="img_wrapper">
@@ -208,7 +209,7 @@ export const GallerySession = () => {
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </Link>
+                                                    </LangLink>
                                                 </div>
                                             )
                                         })}
@@ -228,7 +229,7 @@ export const GallerySession = () => {
                                     </div>
                                     <div className="btn_Div justify-content-end px-2">
                                         <div className="customize_btn my-3">
-                                            <Link to="/EventHighlights/event-album" className="Btn_s1" tabIndex={13} title="更多活動花絮">VIEW ALL<span className="ml-2">+</span></Link>
+                                            <LangLink to="/EventHighlights/event-album" className="Btn_s1" tabIndex={13} title="更多活動花絮">VIEW ALL<span className="ml-2">+</span></LangLink>
                                         </div>
                                     </div>
                                 </div>

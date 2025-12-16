@@ -10,6 +10,7 @@ import { NavLink } from 'react-router-dom';
 import type { ApiResponse } from '@/SysCore/Interface/IApiProvider';
 import type { ModelDisplaySchema } from '@/types/IApiSchema';
 import type { components } from '@/types/api';
+import { LangNavLink } from '@/SysCore/i18n/LangLink';
 type QueryListParam = components["schemas"]["QueryListParam"];
 
 abstract class ISideMenuProvider extends IDataProvider<MenuItemData> {
@@ -59,7 +60,7 @@ abstract class ISideMenuProvider extends IDataProvider<MenuItemData> {
   }
   protected SetSubDetail = (subItem: MenuItemData): ReactNode => {
     return (
-      <NavLink to={subItem.Url} className="pc-link">{subItem.SrcData}</NavLink>
+      <LangNavLink to={subItem.Url} className="pc-link">{subItem.SrcData}</LangNavLink>
     )
   }
   //#endregion

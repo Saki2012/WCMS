@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using WCMS.Features.SiteEdit.Announcement;
 using WCMS.Features.SiteEdit.Banner;
 using WCMS.Features.SiteEdit.Category;
@@ -20,6 +21,7 @@ using WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch;
 using WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
@@ -87,7 +89,7 @@ namespace WCMS.SysCore
         /// 獲取功能的欄位顯示名稱
         /// </summary>
         /// <returns></returns>
-        [HttpGet(nameof(GetModelDisplayName))/*, OutputCache(PolicyName = "PermanentJson") 暫時不用快取，不知如何重啟後清理*/, AllowAnonymous, IgnoreAntiforgeryToken]
+        [HttpGet(nameof(GetModelDisplayName)), OutputCache(PolicyName = SysParam.PermanentCache), AllowAnonymous, IgnoreAntiforgeryToken]
         public async Task<IActionResult> GetModelDisplayName()
         {
             return Ok(await Task.Run(() => ModelDescription));
@@ -221,7 +223,7 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="pk"></param>
         /// <returns></returns>
-        [HttpGet(nameof(QueryData)),/* OutputCache(PolicyName = "DetailJson"),*/ AllowAnonymous, IgnoreAntiforgeryToken]
+        [HttpGet(nameof(QueryData)),OutputCache(PolicyName = SysParam.DetailCache), AllowAnonymous, IgnoreAntiforgeryToken]
         public virtual async Task<IActionResult> QueryData([FromQuery] string internalId, CancellationToken ct)
         {
             if (!Guid.TryParse(internalId, out var guid)) { return BadRequest("Invalid internalId format."); }
@@ -235,7 +237,7 @@ namespace WCMS.SysCore
         /// 查詢清單
         /// </summary>
         /// <returns></returns>
-        [HttpPost(nameof(QueryList)), /*OutputCache(PolicyName = "ListJson"),*/ AllowAnonymous, IgnoreAntiforgeryToken]
+        [HttpPost(nameof(QueryList)), OutputCache(PolicyName = SysParam.ListCache), AllowAnonymous, IgnoreAntiforgeryToken]
         public virtual async Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition, CancellationToken ct)
         {
             if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
@@ -251,7 +253,7 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="queryCondition"></param>
         /// <returns></returns>
-        [HttpPost(nameof(GetTotalCounts)),/* OutputCache(PolicyName = "ListJson"),*/ AllowAnonymous, IgnoreAntiforgeryToken]
+        [HttpPost(nameof(GetTotalCounts)),OutputCache(PolicyName = SysParam.ListCache),AllowAnonymous, IgnoreAntiforgeryToken]
         public virtual async Task<IActionResult> GetTotalCounts([FromBody] QueryListParam? queryCondition, CancellationToken ct)
         {
             if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
@@ -303,7 +305,7 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="enumName"></param>
         /// <returns></returns>
-        [HttpGet(nameof(GetEnumOptions)), OutputCache(PolicyName = "PermanentJson")]
+        [HttpGet(nameof(GetEnumOptions)), OutputCache(PolicyName = SysParam.PermanentCache)]
         public IActionResult GetEnumOptions([FromQuery, Required] string enumName)
         {
             try

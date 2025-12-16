@@ -1,19 +1,45 @@
 import CalendarProvider from "@/Features/Hooks/BizFunc/SystemSetting/Calendar/Calendar_Api";
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import type { components } from "@/types/api";
+import { LangLink } from "@/SysCore/i18n/LangLink";
+import type { Lang } from "@/SysCore/i18n/lang";
 type CurrentOpenTime = components["schemas"]["SpecCurrentOpenTime_DTO"];
 
-export const NewsCalendarData = () => {
+export const NewsCalendarData = (props: { lang: Lang }) => {
 	const { data, isLoading } = useCurrentOpenTime({ initialData: null, });
 	if (!data) return
-	const month = formatMonth(data.Date ?? "");
+	const month = formatMonthShort(data.Date ?? "", props.lang);
 	const day = formatDay(data.Date ?? "");
-	const weekday = formatWeekday(data.DayOfWeek ?? 0);
+	const weekday = formatWeekday(data.DayOfWeek ?? 0, props.lang);
 	const openTime = formatTimeHHmm(data.Spec_OpenTime);
 	const closeTime = formatTimeHHmm(data.Spec_CloseTime);
 	const holidayName = data.HolidayName
 	const isOpenDay = openTime && closeTime
+	const uiText =
+		props.lang === "zh-tw"
+			? {
+				todayOpen: "今日開館時間",
+				todayClosed: "今日休館",
+				openDetail: "詳細開館時間",
+				openDetailTitle: "詳細開館時間",
+			}
+			: props.lang === "en"
+				? {
+					todayOpen: "Opening Hours",
+					todayClosed: "Closed Today",
+					openDetail: "More Opening Hours",
+					openDetailTitle: "More Opening Hours",
+				}
+				: {
+					todayOpen: "",
+					todayClosed: "",
+					openDetail: "",
+					openDetailTitle: "",
+				};
+
+	const holidayText = formatHolidayName(holidayName, props.lang);
+
+
 	return (
 		<div className="col-xxl-4 col-xl-4 col-lg-5 col-md-12 col-sm-12 col-12 + offset-xxl-1 offset-xl-1 + order-xxl-2 order-xl-2 order-lg-2 order-md-1 order-sm-1  order-1">
 			<div className="Opening_hours_DIV">
@@ -28,16 +54,16 @@ export const NewsCalendarData = () => {
 							</div>
 							<div className="text_black">
 								<div className="text-description-box">
-									<div className="date-week">{weekday}{holidayName ? `（${holidayName}）` : ""}</div>
-									<div className="date-Ptit">{isOpenDay ? "今日開館時間" : "今日休館"}</div>
+									<div className="date-week">	{weekday}{holidayText}</div>
+									<div className="date-Ptit">{isOpenDay ? uiText.todayOpen : uiText.todayClosed}</div>
 									<div className="Input date-time">{isOpenDay ? `${openTime} ~ ${closeTime}` : ""}</div>
 								</div>
 							</div>
 							<div className="open_btn_black mt-xl-3 mt-lg-3 mt-md-3 mt-sm-2 mt-2">
-								<Link className="Open_btn" to={"/services/services-loan/services-loan-01"}
-									tabIndex={0} target="_self" title="詳細開館時間">
-									詳細開館時間
-								</Link>
+								<LangLink className="Open_btn" to={"/services/services-loan/services-loan-01"}
+									tabIndex={0} target="_self" title={uiText.openDetailTitle}>
+									{uiText.openDetailTitle}
+								</LangLink>
 							</div>
 						</div>
 					</div>
@@ -48,18 +74,32 @@ export const NewsCalendarData = () => {
 };
 
 
-const weekdayMap = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
-const formatMonth = (dateStr: string) => {
+const weekdayMapZh = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+const weekdayMapEn = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+const formatMonthShort = (dateStr: string, lang: Lang) => {
 	const d = new Date(dateStr);
-	return `${d.getMonth() + 1}月`;
-}
+	if (lang === 'zh-tw') return `${d.getMonth() + 1}月`;
+	if (Number.isNaN(d.getTime())) return "";
+	return new Intl.DateTimeFormat("en-US", { month: "short" }).format(d);
+};
+
 const formatDay = (dateStr: string) => {
 	const d = new Date(dateStr);
 	return d.getDate();
 }
-const formatWeekday = (dayOfWeek: number) => {
-	return weekdayMap[dayOfWeek];
-}
+const formatWeekday = (dayOfWeek: number, lang: Lang) => {
+	if (dayOfWeek < 0 || dayOfWeek > 6) return "";
+	if (lang === "zh-tw") return weekdayMapZh[dayOfWeek];
+	if (lang === "en") return weekdayMapEn[dayOfWeek];
+	return "";
+};
+const formatHolidayName = (holidayName?: string | null, lang?: Lang) => {
+	if (!holidayName) return "";
+	if (lang === "zh-tw") return `（${holidayName}）`;
+	if (lang === "en") return ` (${holidayName})`;
+	return "";
+};
 const formatTimeHHmm = (timeStr?: string | null) => {
 	if (!timeStr) return "";
 	// 從 "08:30:00" 變成 "08:30"

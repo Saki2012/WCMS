@@ -12,6 +12,7 @@ import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import DefaultPic from "@/SpecFetures/1810/Assets/Custom/images_960x960.jpg"
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { SpecCategoryModelFields, SpecUSRDetailFields, SpecUSRModelFields, SpecUSRSetFields } from "@/types/SchemaFields";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
 const useSpecUSRList = (categoryId: string, tagIds: string) => {
@@ -167,16 +168,16 @@ const SpecUSRList = ({
                                     <div className="card_content_2">
                                         <div className="leftBox d-flex">
                                             <figure className="card_figure w-100 h-100">
-                                                <Link to={pageLink} className="card_image_link">
+                                                <LangLink to={pageLink} className="card_image_link">
                                                     <picture className="w-100 h-100">
                                                         <img className="card_image" src={picUrl} alt={item.SpecUSR?.PicDescription ?? ""} />
                                                     </picture>
-                                                </Link>
+                                                </LangLink>
                                             </figure>
                                         </div>
                                         <div className="rightBox ml-xl-4 ml-lg-4 ml-0">
                                             <div className="card_titleDiv">
-                                                <Link to={pageLink} className="card_title">{detail?.ProjectName}</Link>
+                                                <LangLink to={pageLink} className="card_title">{detail?.ProjectName}</LangLink>
                                             </div>
 
                                             <div className="card_catDiv">

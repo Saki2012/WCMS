@@ -2,6 +2,7 @@ import { useId } from 'react';
 import type { ILibUserCardProp } from './LibUserCard_Data';
 import { Link } from 'react-router-dom';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
+import { LangLink } from '@/SysCore/i18n/LangLink';
 // import { Link } from 'react-router-dom';
 
 const LibUserCard = (prop: ILibUserCardProp) => {
@@ -34,7 +35,7 @@ const LibUserCard = (prop: ILibUserCardProp) => {
                                                                 : prop.Style?.LinkType === "Edit" ?
                                                                     <div className="avatar-photo">
                                                                         <div className="PiconBox">
-                                                                            <Link to={prop.dirUrl ?? ""} className="avatar-input" title={prop.DisplayNameTW} target="_self"><i className="far fa-user-edit"></i></Link>
+                                                                            <LangLink to={prop.dirUrl ?? ""} className="avatar-input" title={prop.DisplayNameTW} target="_self"><i className="far fa-user-edit"></i></LangLink>
                                                                         </div>
                                                                     </div>
                                                                     : <></>

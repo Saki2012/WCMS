@@ -1,6 +1,6 @@
-// import AAImg from "@/SpecFetures/1816/Assets/Client/images/footer/small_icon/accessibility_badge_2.1AA_88x31.svg"
+import type { Lang } from "@/SysCore/i18n/lang"
 
-const Footer = () => {
+const Footer = (props: { lang: Lang }) => {
     return (
         <footer className="Footer_section">
             <section className="footer-black Layout_Padding_5">

@@ -1,77 +1,28 @@
 import { NewsCalendarData } from '@/SpecFetures/1816/Pages/Client/Index/Section/NewsCalendarData'
-import bgImg from '@/SpecFetures/1816/Assets/Client/images/bg/background-transparent-image_1920x600.png'
-
-
-
-import { Link } from 'react-router-dom';
 import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api';
-
 import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api';
 import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
-//import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
-
-//import { useBannerListData } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Hook";
-
-import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
-
-
-
-//import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import type { components } from "@/types/api";
-import clsx from "clsx";
-import * as SchemaFields from "@/types/SchemaFields";
-import { useMemo } from "react";
-import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-//type BannerSet = components["schemas"]["BannerSet_DTO"]
+import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
+import { useNow } from '@/SysCore/Utils/Library/LibHook';
+import { PGID } from '@/Features/Hooks/Common/ProgId';
+import { LangLink } from '@/SysCore/i18n/LangLink';
+import type { Lang } from '@/SysCore/i18n/lang';
+import { AnnouncementDetailFields, AnnouncementFields, CategoryDetailFields, CategoryFields, TagDataFields, TagDetailFields } from '@/types/SchemaFields';
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
-
-import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
-import { useNow } from '@/SysCore/Utils/Library/LibHook';
-import { DefaultLang } from '@/SysCore/i18n/lang';
-import { PGID } from '@/Features/Hooks/Common/ProgId';
-
-const emptyData: AnnouncementSet = {
-	Announcement:
-	{
-		AnnouncementId: "",
-		Validate_Start: "",
-		Validate_End: "",
-		PictureId: "",
-		PicDescription: "",
-	}
-	,
-	AnnouncementDetail: [
-		{
-			RowId: 1,
-			Lang: "zh-tw",
-			Title: "",
-			Content: "",
-			Url: "",
-			UrlDescription: "",
-		},
-		{
-			RowId: 2,
-			Lang: "en",
-			Title: "",
-			Content: "",
-			Url: "",
-			UrlDescription: "",
-		}
-	]
-}
 
 
 /** 找置頂公告 */
 const useTopAnnouncementList = (categories?: string) => {
 	const provider = AnnouncementProvider();
-	let cdt = `${SchemaFields.AnnouncementFields.ContentStatus} & 1`;
+	let cdt = `${AnnouncementFields.ContentStatus} & 1`;
 	//因時程關係，暫時用前端來判斷有效日期時間，多少會有客戶端修改時間的風險。之後再改到後端開新的api寫死抓系統時間為依據。
 	const now = useNow({ startPaused: true });
-	if (now.isoLocal) cdt = LibMerge(" And ", false, cdt, `${SchemaFields.AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
-	cdt = LibMerge(" And ", false, cdt, categories ? `${SchemaFields.AnnouncementFields.Categories} HasAny [${categories}]` : "");
+	if (now.isoLocal) cdt = LibMerge(" And ", false, cdt, `${AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
+	cdt = LibMerge(" And ", false, cdt, categories ? `${AnnouncementFields.Categories} HasAny [${categories}]` : "");
 	return useFetchGridListData<AnnouncementSet>({
 		getModelDisplayName: () => provider.getModelDisplayName(),
 		fetchList: (cond) => provider.fetchList(cond),
@@ -79,18 +30,18 @@ const useTopAnnouncementList = (categories?: string) => {
 		visibleKeys: [],
 		buildQueryCondition: () => ({
 			Fields: [
-				SchemaFields.AnnouncementFields.AnnouncementId,
-				SchemaFields.AnnouncementFields.InternalId,
-				SchemaFields.AnnouncementFields.Categories,
-				SchemaFields.AnnouncementFields.Tags,
-				SchemaFields.AnnouncementFields.ContentStatus,
-				SchemaFields.AnnouncementFields.Validate_Start,
-				`${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
-				`${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
-				SchemaFields.AnnouncementFields.ViewCount,
+				AnnouncementFields.AnnouncementId,
+				AnnouncementFields.InternalId,
+				AnnouncementFields.Categories,
+				AnnouncementFields.Tags,
+				AnnouncementFields.ContentStatus,
+				AnnouncementFields.Validate_Start,
+				`${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
+				`${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
+				AnnouncementFields.ViewCount,
 			],
 			Condition: cdt,
-			OrderBy: [{ Col: SchemaFields.AnnouncementFields.Validate_Start, Desc: true }],
+			OrderBy: [{ Col: AnnouncementFields.Validate_Start, Desc: true }],
 			PageNumber: 1,
 			PageSize: 6,
 		}),
@@ -103,11 +54,11 @@ const useTopAnnouncementList = (categories?: string) => {
 
 const useAnnouncementList = (categories?: string) => {
 	const provider = AnnouncementProvider();
-	let cdt = `${SchemaFields.AnnouncementFields.ContentStatus} !& 4 And ${SchemaFields.AnnouncementFields.ContentStatus} !& 1`;
+	let cdt = `${AnnouncementFields.ContentStatus} !& 4 And ${AnnouncementFields.ContentStatus} !& 1`;
 	//因時程關係，暫時用前端來判斷有效日期時間，多少會有客戶端修改時間的風險。之後再改到後端開新的api寫死抓系統時間為依據。
 	const now = useNow({ startPaused: true });
-	if (now.isoLocal) cdt = LibMerge(" And ", false, cdt, `${SchemaFields.AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
-	cdt = LibMerge(" And ", false, cdt, categories ? `${SchemaFields.AnnouncementFields.Categories} HasAny [${categories}]` : "");
+	if (now.isoLocal) cdt = LibMerge(" And ", false, cdt, `${AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
+	cdt = LibMerge(" And ", false, cdt, categories ? `${AnnouncementFields.Categories} HasAny [${categories}]` : "");
 	return useFetchGridListData<AnnouncementSet>({
 		getModelDisplayName: () => provider.getModelDisplayName(),
 		fetchList: (cond) => provider.fetchList(cond),
@@ -115,18 +66,18 @@ const useAnnouncementList = (categories?: string) => {
 		visibleKeys: [],
 		buildQueryCondition: () => ({
 			Fields: [
-				SchemaFields.AnnouncementFields.AnnouncementId,
-				SchemaFields.AnnouncementFields.InternalId,
-				SchemaFields.AnnouncementFields.Categories,
-				SchemaFields.AnnouncementFields.Tags,
-				SchemaFields.AnnouncementFields.ContentStatus,
-				SchemaFields.AnnouncementFields.Validate_Start,
-				`${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
-				`${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
-				SchemaFields.AnnouncementFields.ViewCount,
+				AnnouncementFields.AnnouncementId,
+				AnnouncementFields.InternalId,
+				AnnouncementFields.Categories,
+				AnnouncementFields.Tags,
+				AnnouncementFields.ContentStatus,
+				AnnouncementFields.Validate_Start,
+				`${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
+				`${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
+				AnnouncementFields.ViewCount,
 			],
 			Condition: cdt,
-			OrderBy: [{ Col: SchemaFields.AnnouncementFields.Validate_Start, Desc: true }],
+			OrderBy: [{ Col: AnnouncementFields.Validate_Start, Desc: true }],
 			PageNumber: 1,
 			PageSize: 6,
 		}),
@@ -144,11 +95,11 @@ const useCategoryList = () => {
 		visibleKeys: [],
 		buildQueryCondition: () => ({
 			Fields: [
-				SchemaFields.CategoryFields.CategoryId,
-				`${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
-				`${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
+				CategoryFields.CategoryId,
+				`${CategoryFields._CategoryDetail}.${CategoryDetailFields.Lang}`,
+				`${CategoryFields._CategoryDetail}.${CategoryDetailFields.CategoryName}`,
 			],
-			Condition: `${SchemaFields.CategoryFields.ProgId} = Announcement`,
+			Condition: `${CategoryFields.ProgId} = Announcement`,
 			PageNumber: 0,
 			PageSize: 0,
 		}),
@@ -165,11 +116,11 @@ const useTagList = () => {
 		visibleKeys: [],
 		buildQueryCondition: () => ({
 			Fields: [
-				SchemaFields.TagDataFields.TagId,
-				`${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
-				`${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
+				TagDataFields.TagId,
+				`${TagDataFields._TagDetail}.${TagDetailFields.Lang}`,
+				`${TagDataFields._TagDetail}.${TagDetailFields.TagName}`,
 			],
-			Condition: `${SchemaFields.TagDataFields.ProgId} = ${PGID.Announcement}`,
+			Condition: `${TagDataFields.ProgId} = ${PGID.Announcement}`,
 			PageNumber: 0,
 			PageSize: 0,
 		}),
@@ -179,65 +130,43 @@ const useTagList = () => {
 };
 
 
-export const NewsData = () => {
-
+export const NewsData = (props: { lang: Lang }) => {
 	const useTopAllNewsData1 = useTopAnnouncementList("1");
 	const useTopAllNewsData2 = useTopAnnouncementList("2");
 	const useTopAllNewsData3 = useTopAnnouncementList("3");
 	const useTopAllNewsData4 = useTopAnnouncementList("4");
-
 	const useAllNewsData1 = useAnnouncementList("1");
 	const useAllNewsData2 = useAnnouncementList("2");
 	const useAllNewsData3 = useAnnouncementList("3");
 	const useAllNewsData4 = useAnnouncementList("4");
-
-
-
 	const allNewsRawData1 = takeTopThenFill(useTopAllNewsData1.rawData, useAllNewsData1.rawData, 3);
 	const allNewsRawData2 = takeTopThenFill(useTopAllNewsData2.rawData, useAllNewsData2.rawData, 3);
 	const allNewsRawData3 = takeTopThenFill(useTopAllNewsData3.rawData, useAllNewsData3.rawData, 3);
 	const allNewsRawData4 = takeTopThenFill(useTopAllNewsData4.rawData, useAllNewsData4.rawData, 3);
-
-
 	const useCategoryData = useCategoryList();
 	const useTagData = useTagList();
-
-
-
-	const lang = DefaultLang
-
 	const categoryDict: Record<string, string> = Object.fromEntries(
 		(useCategoryData.rawData ?? []).map(cat => {
 			const id = cat.Category?.CategoryId;
-			const name = cat.CategoryDetail?.find(p => p.Lang === lang)?.CategoryName ?? "";
+			const name = cat.CategoryDetail?.find(p => p.Lang === props.lang)?.CategoryName ?? "";
 			return [id, name];
 		})
 	);
-
 	const tagDict: Record<string, string> = Object.fromEntries(
 		(useTagData.rawData ?? []).map(cat => {
 			const id = cat.TagData?.TagId;
-			const name = cat.TagDetail?.find(p => p.Lang === lang)?.TagName ?? "";
+			const name = cat.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "";
 			return [id, name];
 		})
 	);
 
-
-
-	const allNews1 = getNewsDataProps(allNewsRawData1, lang, "/News/News-01", "", categoryDict, tagDict);
-	const allNews2 = getNewsDataProps(allNewsRawData2, lang, "/News/News-02", "", categoryDict, tagDict);
-	const allNews3 = getNewsDataProps(allNewsRawData3, lang, "/News/News-03", "", categoryDict, tagDict);
-	const allNews4 = getNewsDataProps(allNewsRawData4, lang, "/News/News-04", "", categoryDict, tagDict);
-
+	const allNews1 = getNewsDataProps(allNewsRawData1, props.lang, "/News/News-01", "", categoryDict, tagDict);
+	const allNews2 = getNewsDataProps(allNewsRawData2, props.lang, "/News/News-02", "", categoryDict, tagDict);
+	const allNews3 = getNewsDataProps(allNewsRawData3, props.lang, "/News/News-03", "", categoryDict, tagDict);
+	const allNews4 = getNewsDataProps(allNewsRawData4, props.lang, "/News/News-04", "", categoryDict, tagDict);
+	const moreTitle = props.lang === "zh-tw" ? "更多" : props.lang === "en" ? "More " : ""
 	return (
-
-
-		<section
-			className="Newsii_section Layout_Padding_1_top Layout_Padding_5_bottom"
-			style={{
-				backgroundImage:
-					"url(/images/bg/background-transparent-image_1920x600.png)",
-			}}>
+		<section className="Newsii_section Layout_Padding_1_top Layout_Padding_5_bottom" style={{ backgroundImage: "url(/images/bg/background-transparent-image_1920x600.png)", }}>
 			<div className="Mask-DivBox">
 				<div className="customizeBox">
 					<div className="circle-1 iMG-Shape-1" />
@@ -246,194 +175,119 @@ export const NewsData = () => {
 							<div className="col-xxl-7 col-xl-7 col-lg-7 col-md-12 col-sm-12 col-12 + order-xxl-1 order-xl-1 order-lg-1 order-md-2 order-sm-2  order-2">
 								<div className="col-12">
 									<div className="headDiv mb-sm-5 mb-4">
-										<span className="headDiv-txt">最新消息</span>
-										<span className="headDiv-subtxt">News</span>
+										{props.lang === "zh-tw" ?
+											<>
+												<span className="headDiv-txt">最新消息</span>
+												<span className="headDiv-subtxt">News</span>
+											</> :
+											props.lang === "en" ? <>
+												<span className="headDiv-txt">News</span>
+											</> : ""
+										}
 									</div>
 								</div>
 								<div className="V-nav-tabs-content-box" id="Vertical">
 									<div className="Vertical nav-tabs-list">
 										<ul className="nav nav-tabs" role="tablist">
 											<li className="nav-item" role="presentation">
-												<a
-													aria-controls="V-navTabs-01"
-													aria-selected="true"
-													className="nav-link active"
-													data-bs-target="#V-navTabs-01"
-													data-bs-toggle="tab"
-													href="#"
-													id="V-Tabs__01"
-													role="tab"
-													tabIndex={0}
-													type="button">
-													館務公告
+												<a aria-controls="V-navTabs-01" aria-selected="true"
+													className="nav-link active" data-bs-target="#V-navTabs-01"
+													data-bs-toggle="tab" href="#" id="V-Tabs__01" role="tab"
+													tabIndex={0} type="button">
+													{categoryDict[1]}
 												</a>
 											</li>
 											<li className="nav-item" role="presentation">
-												<a
-													aria-controls="V-navTabs-02"
-													aria-selected="false"
-													className="nav-link"
-													data-bs-target="#V-navTabs-02"
-													data-bs-toggle="tab"
-													href="#"
-													id="V-Tabs__02"
-													role="tab"
-													tabIndex={0}
-													type="button">
-													電子資源
+												<a aria-controls="V-navTabs-02" aria-selected="false"
+													className="nav-link" data-bs-target="#V-navTabs-02"
+													data-bs-toggle="tab" href="#" id="V-Tabs__02" role="tab"
+													tabIndex={0} type="button">
+													{categoryDict[2]}
 												</a>
 											</li>
 											<li className="nav-item" role="presentation">
-												<a
-													aria-controls="V-navTabs-02"
-													aria-selected="false"
-													className="nav-link"
-													data-bs-target="#V-navTabs-03"
-													data-bs-toggle="tab"
-													href="#"
-													id="V-Tabs__03"
-													role="tab"
-													tabIndex={0}
-													type="button">
-													活動訊息
+												<a aria-controls="V-navTabs-02" aria-selected="false"
+													className="nav-link" data-bs-target="#V-navTabs-03"
+													data-bs-toggle="tab" href="#" id="V-Tabs__03" role="tab"
+													tabIndex={0} type="button">
+													{categoryDict[3]}
 												</a>
 											</li>
 											<li className="nav-item" role="presentation">
-												<a
-													aria-controls="V-navTabs-04"
-													aria-selected="false"
-													className="nav-link"
-													data-bs-target="#V-navTabs-04"
-													data-bs-toggle="tab"
-													href="#"
-													id="V-Tabs__04"
-													role="tab"
-													tabIndex={0}
-													type="button">
-													講習課程
+												<a aria-controls="V-navTabs-04" aria-selected="false"
+													className="nav-link" data-bs-target="#V-navTabs-04"
+													data-bs-toggle="tab" href="#" id="V-Tabs__04" role="tab"
+													tabIndex={0} type="button">
+													{categoryDict[4]}
 												</a>
 											</li>
 										</ul>
 									</div>
 									<div className="tab-content" id="V-nav-tabContent">
-										<div
-											aria-labelledby="V-Tabs__01"
-											className="tab-pane fade show active"
-											id="V-navTabs-01"
-											role="tabpanel">
+										<div aria-labelledby="V-Tabs__01" className="tab-pane fade show active" id="V-navTabs-01" role="tabpanel">
 											<div className="News_mainDIV">
 												<ul className="ListNews">
-
 													<GetData prop={allNews1}></GetData>
-
 												</ul>
 												<div className="btn-w100-wrapper justify-content-start">
 													<div className="customize_btn mr-4">
-														<a
-															className="Btn_a"
-															href="/News/News-01"
-															role="button"
-															tabIndex={0}
-															target="_self"
-															title="更多館務公告"
-															type="button">
+														<LangLink className="Btn_a" to="/News/News-01" role="button" tabIndex={0} target="_self" title={`${moreTitle}${categoryDict[1]}`} type="button">
 															<div className="BtnBox">
-																<span>更多館務公告</span>
+																<span>{`${moreTitle}${categoryDict[1]}`}</span>
 																<span className="ml-2">+</span>
 															</div>
-														</a>
+														</LangLink>
 													</div>
 												</div>
 											</div>
 										</div>
-										<div
-											aria-labelledby="V-Tabs__02"
-											className="tab-pane fade"
-											id="V-navTabs-02"
-											role="tabpanel">
+										<div aria-labelledby="V-Tabs__02" className="tab-pane fade" id="V-navTabs-02" role="tabpanel">
 											<div className="News_mainDIV">
 												<ul className="ListNews">
-
 													<GetData prop={allNews2}></GetData>
-
-
 												</ul>
 												<div className="btn-w100-wrapper justify-content-start">
 													<div className="customize_btn mr-4">
-														<a
-															className="Btn_a"
-															href="/News/News-02"
-															role="button"
-															tabIndex={0}
-															target="_self"
-															title="更多電子資源"
-															type="button">
+														<LangLink className="Btn_a" to="/News/News-02" role="button" tabIndex={0} target="_self" title={`${moreTitle}${categoryDict[2]}`} type="button">
 															<div className="BtnBox">
-																<span>更多電子資源</span>
+																<span>{`${moreTitle}${categoryDict[1]}`}</span>
 																<span className="ml-2">+</span>
 															</div>
-														</a>
+														</LangLink>
 													</div>
 												</div>
 											</div>
 										</div>
-										<div
-											aria-labelledby="V-Tabs__03"
-											className="tab-pane fade"
-											id="V-navTabs-03"
-											role="tabpanel">
+										<div aria-labelledby="V-Tabs__03" className="tab-pane fade" id="V-navTabs-03" role="tabpanel">
 											<div className="News_mainDIV">
 												<ul className="ListNews">
-
 													<GetData prop={allNews3}></GetData>
-
-
 												</ul>
 												<div className="btn-w100-wrapper justify-content-start">
 													<div className="customize_btn mr-4">
-														<a
-															className="Btn_a"
-															href="/News/News-03"
-															role="button"
-															tabIndex={0}
-															target="_self"
-															title="更多活動訊息"
-															type="button">
+														<LangLink className="Btn_a" to="/News/News-03" role="button" tabIndex={0} target="_self" title={`${moreTitle}${categoryDict[3]}`} type="button">
 															<div className="BtnBox">
-																<span>更多活動訊息</span>
+																<span>{`${moreTitle}${categoryDict[3]}`}</span>
 																<span className="ml-2">+</span>
 															</div>
-														</a>
+														</LangLink>
 													</div>
 												</div>
 											</div>
 										</div>
-										<div
-											aria-labelledby="V-Tabs__04"
-											className="tab-pane fade"
-											id="V-navTabs-04"
-											role="tabpanel">
+										<div aria-labelledby="V-Tabs__04" className="tab-pane fade" id="V-navTabs-04" role="tabpanel">
 											<div className="News_mainDIV">
 												<ul className="ListNews">
-
 													<GetData prop={allNews4}></GetData>
-
 												</ul>
 												<div className="btn-w100-wrapper justify-content-start">
 													<div className="customize_btn mr-4">
-														<a
-															className="Btn_a"
-															href="/News/News-04"
-															role="button"
-															tabIndex={0}
-															target="_self"
-															title="更多講習課程"
-															type="button">
+														<LangLink className="Btn_a" to="/News/News-04" role="button" tabIndex={0} target="_self" title={`${moreTitle}${categoryDict[4]}`} type="button">
 															<div className="BtnBox">
-																<span>更多講習課程</span>
+																<span>{`${moreTitle}${categoryDict[4]}`}</span>
 																<span className="ml-2">+</span>
 															</div>
-														</a>
+														</LangLink>
 													</div>
 												</div>
 											</div>
@@ -441,14 +295,12 @@ export const NewsData = () => {
 									</div>
 								</div>
 							</div>
-							<NewsCalendarData />
+							<NewsCalendarData lang={props.lang} />
 						</div>
 					</div>
 				</div>
 			</div>
 		</section>
-
-
 	);
 };
 
@@ -513,13 +365,8 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 		<>
 			{prop.map((item) => {
 				return (
-
-
 					<li className="News_item" key={item.announceInternalId} >
-
-						<Link to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
-
-
+						<LangLink to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
 							<div className="rightBox">
 								<div className="card_catDiv">
 									<div className="a-left">
@@ -561,15 +408,8 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 									</div>
 								</div>
 							</div>
-
-						</Link>
+						</LangLink>
 					</li>
-
-
-
-
-
-
 				)
 			})}
 		</>
@@ -586,10 +426,8 @@ const takeTopThenFill = (
 	limit: number = 3
 ): AnnouncementSet[] => {
 	const getKey = (x: AnnouncementSet) => x.Announcement?.InternalId ?? String(x.Announcement?.AnnouncementId ?? '');
-
 	const seen = new Set<string>();
 	const out: AnnouncementSet[] = [];
-
 	// 先放置頂
 	for (const it of (top ?? [])) {
 		const k = getKey(it);

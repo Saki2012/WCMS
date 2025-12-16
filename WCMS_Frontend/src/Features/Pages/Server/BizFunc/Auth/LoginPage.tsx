@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { AuthAPI } from '@/SysCore/Utils/API/AuthClient';
+import { LangLink } from '@/SysCore/i18n/LangLink';
 const logoModules = import.meta.glob('SpecFeature/Assets/Server/login_logo_PC.{svg,png,jpg,jpeg,gif,webp}', { eager: true, as: 'url', },) as Record<string, string>;
 // 只拿第一個（實務上這個 pattern 只會 match 一個檔案）
 const logImg = Object.values(logoModules)[0] ?? '';
@@ -79,9 +80,9 @@ export default function LoginPage() {
                 <div className="inner-wrap">
                   <div className="+ animate__animated animate__fadeInUp delay__05">
                     {/* LOGO：若要內部導向可改 <Link>；此處保留外部連結 */}
-                    <Link to="/" className="logo" title="國際暢行科技 LOGO" target="_blank" rel="noreferrer">
+                    <LangLink to="/" className="logo" title="國際暢行科技 LOGO" target="_blank" rel="noreferrer">
                       <h1 id="loginTitle"><img src={logImg} alt="國際暢行科技 LOGO" /></h1>
-                    </Link>
+                    </LangLink>
                   </div>
 
                   <div className="+ animate__animated animate__fadeInUp delay__075">
@@ -96,7 +97,7 @@ export default function LoginPage() {
                   <div className="page-title mr-3 + animate__animated animate__fadeInRight delay__15">會員登入 Login</div>
                   <ul className="switcher-wrap + animate__animated animate__fadeInRight delay__175">
                     {/* 內部路由導向註冊頁（之後我們會實作 /Server/Register） */}
-                    <li><Link to="/Server/Register" className="switcher-btn">會員註冊 Register</Link></li>
+                    <li><LangLink to="/Server/Register" className="switcher-btn">會員註冊 Register</LangLink></li>
                   </ul>
                 </div>
 
@@ -190,7 +191,7 @@ export default function LoginPage() {
                     </form>
 
                     <div className="switcher-description + animate__animated animate__fadeInRight delay__275">
-                      沒有帳戶？&nbsp;&nbsp;<Link to="/Server/Register" className="switcher-text ms-1">Register</Link>
+                      沒有帳戶？&nbsp;&nbsp;<LangLink to="/Server/Register" className="switcher-text ms-1">Register</LangLink>
                     </div>
                   </div>
                 </div>

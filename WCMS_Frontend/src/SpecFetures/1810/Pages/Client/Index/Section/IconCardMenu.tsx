@@ -8,6 +8,7 @@ import img1 from "@/SpecFetures/1810/Assets/Client/images/icon/icon_01_256x256.s
 import img2 from "@/SpecFetures/1810/Assets/Client/images/icon/icon_02_256x256.svg"
 import img3 from "@/SpecFetures/1810/Assets/Client/images/icon/icon_03_256x256.svg"
 import img4 from "@/SpecFetures/1810/Assets/Client/images/icon/icon_04_256x256.svg"
+import { LangLink } from '@/SysCore/i18n/LangLink';
 
 
 
@@ -50,7 +51,7 @@ export const IconCardMenu = () => {
                                     <div className="swiper-slide">
                                         <div className="item + animate__animated animate__slow wow bounceInUp" data-wow-delay="0.1s">
                                             <div className="wrapper_box">
-                                                <Link to="/Allnews/Project-solicitation/National-Science-Accounting" tabIndex={1} title="計畫徵件" target="_self">
+                                                <LangLink to="/Allnews/Project-solicitation/National-Science-Accounting" tabIndex={1} title="計畫徵件" target="_self">
                                                     <div className="media-item w-100">
                                                         <div className="Icon-DIV">
                                                             <div className="IMG-Content">
@@ -63,14 +64,14 @@ export const IconCardMenu = () => {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </Link>
+                                                </LangLink>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="swiper-slide">
                                         <div className="item + animate__animated animate__slow wow bounceInUp" data-wow-delay="0.175s">
                                             <div className="wrapper_box">
-                                                <Link to="/RelevantRegulations/DownloadsAll1" tabIndex={1} title="相關法規" target="_self">
+                                                <LangLink to="/RelevantRegulations/DownloadsAll1" tabIndex={1} title="相關法規" target="_self">
                                                     <div className="media-item w-100">
                                                         <div className="Icon-DIV">
                                                             <div className="IMG-Content">
@@ -83,14 +84,14 @@ export const IconCardMenu = () => {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </Link>
+                                                </LangLink>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="swiper-slide">
                                         <div className="item + animate__animated animate__slow wow bounceInUp" data-wow-delay="0.25s">
                                             <div className="wrapper_box">
-                                                <Link to="/All-Downloads/DownloadsAllView" tabIndex={1} title="資料下載" target="_self">
+                                                <LangLink to="/All-Downloads/DownloadsAllView" tabIndex={1} title="資料下載" target="_self">
                                                     <div className="media-item w-100">
                                                         <div className="Icon-DIV">
                                                             <div className="IMG-Content">
@@ -103,14 +104,14 @@ export const IconCardMenu = () => {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </Link>
+                                                </LangLink>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="swiper-slide">
                                         <div className="item + animate__animated animate__slow wow bounceInUp" data-wow-delay="0.25s">
                                             <div className="wrapper_box">
-                                                <Link to="/research-highlights/rh4/List" tabIndex={1} title="研究亮點" target="_self">
+                                                <LangLink to="/research-highlights/rh4/List" tabIndex={1} title="研究亮點" target="_self">
                                                     <div className="media-item w-100">
                                                         <div className="Icon-DIV">
                                                             <div className="IMG-Content">
@@ -123,7 +124,7 @@ export const IconCardMenu = () => {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </Link>
+                                                </LangLink>
                                             </div>
                                         </div>
                                     </div>

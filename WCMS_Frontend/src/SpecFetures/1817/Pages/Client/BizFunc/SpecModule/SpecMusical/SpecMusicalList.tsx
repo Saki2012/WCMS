@@ -10,6 +10,7 @@ import { SpecMusicalModelFields } from "@/types/SchemaFields";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"]
 
 export interface ISpecMusicalOptions { Category?: string; }
@@ -42,7 +43,7 @@ const GridList_Comp = (props: { title: string; data: SpecMusicalSet[] }) => {
                     <div key={internalId} className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-6 + Standard_ItemDiv">
                         <article className="cardbox">
                             <div className="card_content">
-                                <Link to={href} className="card_image_link" title={title}>
+                                <LangLink to={href} className="card_image_link" title={title}>
                                     <figure className="figure_Box">
                                         <div className="card_figure">
                                             <div className="img-wrapper">
@@ -55,13 +56,13 @@ const GridList_Comp = (props: { title: string; data: SpecMusicalSet[] }) => {
                                     </div>
                                     <div className="card_StateDiv + justify-content-center">
                                         <div className="More customize_btn mb-3">
-                                            <Link to={href} className="Btn_s1" type="button" role="button" title="觀看更多">
+                                            <LangLink to={href} className="Btn_s1" type="button" role="button" title="觀看更多">
                                                 VIEW ALL
                                                 <span className="ml-2">+</span>
-                                            </Link>
+                                            </LangLink>
                                         </div>
                                     </div>
-                                </Link>
+                                </LangLink>
                             </div>
                         </article>
                     </div>

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
 type CategoryDetail = components["schemas"]["CategoryDetail_DTO"];
 import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import type { Lang } from "@/SysCore/i18n/lang";
+import { type Lang } from "@/SysCore/i18n/lang";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import * as SchemaFields from "@/types/SchemaFields";
@@ -135,11 +135,7 @@ export const useCategoryListData = (progId: string, lang: Lang) =>
     return { ...base, refetch };
 };
 /** 根據id獲取顯示名稱 */
-export const useFormatCategoriesName = (
-    content: string,
-    categoryData: CategoryDataSet[],
-    lang: string = "zh-tw",
-): string =>
+export const useFormatCategoriesName = (content: string, categoryData: CategoryDataSet[], lang: Lang): string =>
 {
     if (!content) return "";
     return (content.toString() ?? "").split(",").map(s => s.trim()).filter(Boolean)
@@ -147,6 +143,5 @@ export const useFormatCategoriesName = (
             categoryData?.find(s => String(s.Category?.CategoryId) === catId)?.CategoryDetail?.find(d =>
                 d.Lang === lang
             )?.CategoryName
-        )
-        .filter((x): x is string => !!x).join("、");
+        ).filter((x): x is string => !!x).join("、");
 };

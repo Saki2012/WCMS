@@ -582,6 +582,59 @@ export const GenderFields = {
 
 export type GenderFieldKey = keyof typeof GenderFields;
 
+export const LangCodeFields = {
+  toString: 'toString',
+  charAt: 'charAt',
+  charCodeAt: 'charCodeAt',
+  concat: 'concat',
+  indexOf: 'indexOf',
+  lastIndexOf: 'lastIndexOf',
+  localeCompare: 'localeCompare',
+  match: 'match',
+  replace: 'replace',
+  search: 'search',
+  slice: 'slice',
+  split: 'split',
+  substring: 'substring',
+  toLowerCase: 'toLowerCase',
+  toLocaleLowerCase: 'toLocaleLowerCase',
+  toUpperCase: 'toUpperCase',
+  toLocaleUpperCase: 'toLocaleUpperCase',
+  trim: 'trim',
+  length: 'length',
+  substr: 'substr',
+  valueOf: 'valueOf',
+  codePointAt: 'codePointAt',
+  includes: 'includes',
+  endsWith: 'endsWith',
+  normalize: 'normalize',
+  repeat: 'repeat',
+  startsWith: 'startsWith',
+  anchor: 'anchor',
+  big: 'big',
+  blink: 'blink',
+  bold: 'bold',
+  fixed: 'fixed',
+  fontcolor: 'fontcolor',
+  fontsize: 'fontsize',
+  italics: 'italics',
+  link: 'link',
+  small: 'small',
+  strike: 'strike',
+  sub: 'sub',
+  sup: 'sup',
+  padStart: 'padStart',
+  padEnd: 'padEnd',
+  trimEnd: 'trimEnd',
+  trimStart: 'trimStart',
+  trimLeft: 'trimLeft',
+  trimRight: 'trimRight',
+  matchAll: 'matchAll',
+  __@iterator@100: '__@iterator@100',
+} as const;
+
+export type LangCodeFieldKey = keyof typeof LangCodeFields;
+
 export const LoginDtoFields = {
   Account: 'Account',
   Password: 'Password',
@@ -783,6 +836,8 @@ export const SiteMenu_IndexFields = {
   SiteIndex: 'SiteIndex',
   GoogleAnalytics: 'GoogleAnalytics',
   Enable: 'Enable',
+  DefaultLang: 'DefaultLang',
+  SupportLangs: 'SupportLangs',
 } as const;
 
 export type SiteMenu_IndexFieldKey = keyof typeof SiteMenu_IndexFields;

@@ -3,10 +3,10 @@ import { NewsData } from '@/SpecFetures/1817/Pages/Client/Index/Section/NewsData
 import { ExhibitionNewsData } from '@/SpecFetures/1817/Pages/Client/Index/Section/ExhibitionNewsData'
 import { AboutPage } from '@/SpecFetures/1817/Pages/Client/Index/Section/AboutPage'
 import { SpecialLinkData } from '@/SpecFetures/1817/Pages/Client/Index/Section/SpecialLinkData'
-import { DefaultLang } from '@/SysCore/i18n/lang'
+import type { Lang } from '@/SysCore/i18n/lang'
 
-const HomePage = () => {
-  const lang = DefaultLang
+const HomePage = (props: { lang: Lang }) => {
+
   return (
     <main id="fullpage" className="fullpage-wrapper">
       <div className="bg_area">
@@ -17,15 +17,15 @@ const HomePage = () => {
             </div>
           </section>
           {/* // 輪播BANNER //  */}
-          <CarouselData lang={lang} />
+          <CarouselData lang={props.lang} />
           {/* // 最新消息 //  */}
-          <NewsData lang={lang} />
+          <NewsData lang={props.lang} />
           {/* // 最新消息 //  */}
-          <ExhibitionNewsData lang={lang} />
+          <ExhibitionNewsData lang={props.lang} />
           {/* // 相關資料 //  */}
-          <AboutPage lang={lang} />
+          <AboutPage lang={props.lang} />
           {/* // 專區連結 //  */}
-          <SpecialLinkData lang={lang} />
+          <SpecialLinkData lang={props.lang} />
         </div>
       </div>
     </main>

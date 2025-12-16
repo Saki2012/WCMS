@@ -1,50 +1,19 @@
+import type { components } from "@/types/api";
 import { useEffect } from "react";
 
-// src/SysCore/i18n/lang.ts
-export type Lang =
-    | "zh-tw" // 繁體中文（台灣）
-    | "zh-cn" // 簡體中文（中國）
-    | "en" // 英文
-    | "ja" // 日文
-    | "ko" // 韓文
-    | "fr" // 法文
-    | "de" // 德文
-    | "es" // 西班牙文
-    | "pt" // 葡萄牙文
-    | "ru" // 俄文
-    | "ar" // 阿拉伯文
-    | "it" // 義大利文
-    | "nl" // 荷蘭文
-    | "th" // 泰文
-    | "vi" // 越南文
-    | "id" // 印尼文
-    | "ms"; // 馬來文
+export type Lang = components["schemas"]["LangCode"]; // ← 以後端 Swagger 為準
 
+/**應該可以從後端提供顯示名稱，暫時寫死 */
 export const LangLabelMap: Record<Lang, string> = {
     "zh-tw": "繁體中文",
     "zh-cn": "简体中文",
     "en": "English",
-    "ja": "日本語",
-    "ko": "한국어",
-    "fr": "Français",
-    "de": "Deutsch",
-    "es": "Español",
-    "pt": "Português",
-    "ru": "Русский",
-    "ar": "العربية",
-    "it": "Italiano",
-    "nl": "Nederlands",
-    "th": "ไทย",
-    "vi": "Tiếng Việt",
-    "id": "Bahasa Indonesia",
-    "ms": "Bahasa Melayu",
 };
 
+/** 下面這三個應該要從SiteInfo讀出來的結果來處理，後續再看如何移除 */
 export const DefaultLang: Lang = "zh-tw";
-
-export const normalizeLang = (x?: Lang): string => LangLabelMap[x ?? DefaultLang];
-export const isSupportedLang = (x?: string | null): x is Lang => SUPPORTED_LANGS.includes(x as Lang);
 export const SUPPORTED_LANGS: Lang[] = ["zh-tw", "en"]; /** 支援語系，之後做參數設定 */
+export const isSupportedLang = (x?: Lang | string | null): x is Lang => SUPPORTED_LANGS.includes(x as Lang);
 
 export interface EnsureLangSimpleOptions
 {

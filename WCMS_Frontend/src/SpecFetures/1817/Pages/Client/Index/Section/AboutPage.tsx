@@ -1,4 +1,5 @@
 import type { Lang } from "@/SysCore/i18n/lang";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 import { Link } from "react-router-dom";
 
 
@@ -98,12 +99,12 @@ export const AboutPage = (props: { lang: Lang }) => {
 									</div>
 									<div className="col-12 + btn-w100-wrapper justify-content-start mt-5">
 										<div className="customize_btn">
-											<Link className="Btn_a" to="/department/department-intro" role="button" tabIndex={0} target="_self" title="更多系所公告" type="button">
+											<LangLink className="Btn_a" to="/department/department-intro" role="button" tabIndex={0} target="_self" title="更多系所公告" type="button">
 												<div className="BtnBox">
 													<span>More View</span>
 													<span className="ml-2">+</span>
 												</div>
-											</Link>
+											</LangLink>
 										</div>
 									</div>
 									<div className="col-12 + w100-wrapper justify-content-start mt-5">
@@ -138,12 +139,12 @@ export const AboutPage = (props: { lang: Lang }) => {
 									</div>
 									<div className="col-12 + btn-w100-wrapper justify-content-center mt-3">
 										<div className="customize_btn">
-											<Link className="Btn_a" to="/videos/online-msc" role="button" tabIndex={0} target="_self" title="更多系所公告" type="button">
+											<LangLink className="Btn_a" to="/videos/online-msc" role="button" tabIndex={0} target="_self" title="更多系所公告" type="button">
 												<div className="BtnBox">
 													<span>More View</span>
 													<span className="ml-2">+</span>
 												</div>
-											</Link>
+											</LangLink>
 										</div>
 									</div>
 								</div>

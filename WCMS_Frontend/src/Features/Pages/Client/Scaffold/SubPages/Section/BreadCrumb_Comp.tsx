@@ -1,5 +1,6 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { Lang } from "@/SysCore/i18n/lang"
+import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 
@@ -9,7 +10,7 @@ const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode): ReactN
     node.absIds?.forEach(id => {
         var curNode = curNodes?.find((n: INormNode) => n.id === id);
         if (curNode?.id === node.id) { result.push(<>{curNode.title}</>) }
-        else { result.push(<NavLink to={curNode?.redirectTo ?? ""} title={curNode?.title} aria-label={curNode?.title}>{curNode?.title}</NavLink>) }
+        else { result.push(<LangNavLink to={curNode?.redirectTo ?? ""} title={curNode?.title} aria-label={curNode?.title}>{curNode?.title}</LangNavLink>) }
         curNodes = curNode?.children ?? []
     });
     return result;
@@ -27,9 +28,9 @@ export const BreadCrumb_Comp = (props: { lang: Lang; site: INormSite; node: INor
                         <nav className="custom_breadcrumb" aria-label="breadcrumb">
                             <ol className="breadcrumb">
                                 <li className="breadcrumb-item">
-                                    <NavLink to="/" tabIndex={0} aria-label={homepageTitle}>
+                                    <LangNavLink to="/" tabIndex={0} aria-label={homepageTitle}>
                                         <i className="fas fa-home mx-2"></i>{homepageTitle}<span className="sr-only">{homepageTitle}</span>
-                                    </NavLink>
+                                    </LangNavLink>
                                 </li>
                                 {breadCrumbData && breadCrumbData.map((i) => {
                                     return (<>
