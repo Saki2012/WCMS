@@ -2,7 +2,6 @@
 {
     public static class SpecMessageCode
     {
-        public const string SpecShowDateStart = "SpecShowDateStart";
-        public const string SpecShowDateEnd = "SpecShowDateEnd";
+
     }
 }

@@ -113,9 +113,13 @@
 
 	
 	<ItemGroup>
+	  <Compile Remove="Publish\**" />
 	  <Compile Remove="SysCore\SystemFunc\UserRolePermission\**" />
+	  <Content Remove="Publish\**" />
 	  <Content Remove="SysCore\SystemFunc\UserRolePermission\**" />
+	  <EmbeddedResource Remove="Publish\**" />
 	  <EmbeddedResource Remove="SysCore\SystemFunc\UserRolePermission\**" />
+	  <None Remove="Publish\**" />
 	  <None Remove="SysCore\SystemFunc\UserRolePermission\**" />
 	</ItemGroup>
 

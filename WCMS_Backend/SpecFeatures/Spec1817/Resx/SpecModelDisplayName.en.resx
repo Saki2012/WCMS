@@ -118,39 +118,39 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Spec_Backboard" xml:space="preserve">
-    <value>背板</value>
+    <value>Back Plate</value>
   </data>
   <data name="Spec_BodyForm" xml:space="preserve">
-    <value>形制</value>
+    <value>Body Shape</value>
   </data>
   <data name="Spec_Bridge" xml:space="preserve">
-    <value>覆手長</value>
+    <value>Fingerboard Length</value>
   </data>
   <data name="Spec_Headstock" xml:space="preserve">
-    <value>琴頭</value>
+    <value>Headstock</value>
   </data>
   <data name="Spec_Material" xml:space="preserve">
-    <value>弦材</value>
+    <value>String Material</value>
   </data>
   <data name="Spec_MusicalId" xml:space="preserve">
-    <value>樂器代碼</value>
+    <value>Instrument Code</value>
   </data>
   <data name="Spec_MusicalInfo" xml:space="preserve">
-    <value>樂器說明</value>
+    <value>Instrument Description</value>
   </data>
   <data name="Spec_MusicalName" xml:space="preserve">
-    <value>樂器名稱</value>
+    <value>Instrument Name</value>
   </data>
   <data name="Spec_ScaleLength" xml:space="preserve">
-    <value>弦長</value>
+    <value>Scale Length</value>
   </data>
   <data name="Spec_ShowDate" xml:space="preserve">
-    <value>展演時間</value>
+    <value>Performance Time</value>
   </data>
   <data name="Spec_SoundSrcInfo" xml:space="preserve">
-    <value>音檔說明</value>
+    <value>Audio Description</value>
   </data>
   <data name="Spec_Specification" xml:space="preserve">
-    <value>規格</value>
+    <value>Specifications</value>
   </data>
 </root>
