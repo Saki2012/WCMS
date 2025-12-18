@@ -1,10 +1,32 @@
-import { LangLink } from "@/SysCore/i18n/LangLink";
+import { DefaultLang } from "@/SysCore/i18n/lang";
+import { useLang } from "@/SysCore/i18n/LangContext";
+import { buildLangPathname, LangLink } from "@/SysCore/i18n/LangLink";
+import { useMemo } from "react";
 import { Navigate } from "react-router-dom";
 
 /** SSR 首渲染輸出 <Link> 後備；到瀏覽器再自動導向 */
-export const AutoRedirect: React.FC<{ to: string; replace?: boolean; text?: string }> = ({ to, replace, text }) => {
+export const AutoRedirect: React.FC<{
+    to: string;
+    replace?: boolean;
+    text?: string;
+    /** 不加語系前綴（例如你想固定走 /401 這種特殊頁） */
+    noLangPrefix?: boolean;
+}> = ({ to, replace, text, noLangPrefix }) => {
+    const { code } = useLang();
+    const lang = (code ?? DefaultLang);
+
+    const finalTo = useMemo(() => {
+        if (noLangPrefix) return to;
+        return buildLangPathname(to, lang);
+    }, [to, lang, noLangPrefix]);
+
     if (typeof window === "undefined") {
-        return <LangLink to={to}>{text ?? "前往頁面"}</LangLink>;
+        return (
+            <LangLink to={to} noLangPrefix={noLangPrefix}>
+                {text ?? "前往頁面"}
+            </LangLink>
+        );
     }
-    return <Navigate to={to} replace={replace} />;
+
+    return <Navigate to={finalTo} replace={replace} />;
 };
