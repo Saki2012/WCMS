@@ -82,7 +82,7 @@ const Header_Section = (props: { lang: Lang; site: INormSite }) => {
             <div className="navsBox">
                 <div className="container-customize4">
                     <ul className="nav custom_nav justify-content-xl-end justify-content-center">
-                        <NavBar />
+                        <NavBar lang={props.lang} />
                         <li>
                             <ul className="nav custom_nav py-0 justify-content-center my-1" ref={sizeGroupRef}>
                                 <LangSwitchBtn site={props.site} />
@@ -95,18 +95,31 @@ const Header_Section = (props: { lang: Lang; site: INormSite }) => {
         </header>
     </section>)
 }
-const NavBar = () => {
+const NavBar = (props: { lang: Lang; }) => {
+    const title =
+        props.lang === 'zh-tw' ? {
+            Home: "回首頁",
+            NCHU: "中興大學",
+            SiteMap: "網站導覽"
+        } :
+            props.lang === 'en' ? {
+                Home: "Home",
+                NCHU: "NCHU",
+                SiteMap: "SiteMap"
+            } : {}
+
+
     return (<li>
         <ul className="nav custom_nav py-0 justify-content-center my-1">
             <a accessKey="U" href="#U" className="accesskey_header U" title="上方導覽區(U)" tabIndex={0}>:::</a>
             <li className="nav-item">
-                <LangLink className="nav-link" to="/" tabIndex={0} target="_self" title="回首頁">回首頁</LangLink>
+                <LangLink className="nav-link" to="/" tabIndex={0} target="_self" title={title.Home}>{title.Home}</LangLink>
             </li>
             <li className="nav-item">
-                <a className="nav-link" href="https://www.nchu.edu.tw/index1.php" tabIndex={0} target="_self" title="中興大學">中興大學</a>
+                <a className="nav-link" href="https://www.nchu.edu.tw/index1.php" tabIndex={0} target="_self" title={title.NCHU}>{title.NCHU}</a>
             </li>
             <li className="nav-item">
-                <a className="nav-link" href="javascript:void(0);" tabIndex={0} target="_self" title="網站導覽">網站導覽</a>
+                <LangNavLink to="/" className="nav-link" tabIndex={0} target="_self" title={title.SiteMap}>{title.SiteMap}</LangNavLink>
             </li>
         </ul>
     </li>

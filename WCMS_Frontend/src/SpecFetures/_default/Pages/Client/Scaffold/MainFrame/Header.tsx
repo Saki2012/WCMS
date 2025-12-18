@@ -3,7 +3,11 @@ import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 
-const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
+
+export interface HeaderProps { lang: Lang; site: INormSite; style: IFETheme }
+
+
+const Header = (props: HeaderProps) => {
     return (<A11yContent />);
 }
 export default Header

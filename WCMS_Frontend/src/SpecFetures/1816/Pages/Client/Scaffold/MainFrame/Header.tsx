@@ -1,7 +1,7 @@
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import { A11yContent } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Header";
+import { A11yContent, type HeaderProps } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Header";
 import { Link, NavLink } from "react-router-dom";
 import LogoImg from '@/SpecFetures/1816/Assets/Client/images/logo/LOGO_525x60.svg'
 import { Fragment, useCallback, useEffect, useRef } from "react";
@@ -11,7 +11,7 @@ import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopBut
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
 
-const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
+const Header = (props: HeaderProps) => {
     const headerRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
         if (typeof window === "undefined") return;
@@ -83,7 +83,7 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
         <>
             <A11yContent />
             <div id="Site-Header" className="ALL_Header_DivBar main-header" ref={headerRef}>
-                <Header_Section site={props.site} />
+                <Header_Section {...props} />
                 <Menu_Section {...props} />
                 <div className="overlayer" aria-hidden="true" />
             </div>
@@ -93,7 +93,7 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
 }
 export default Header
 
-const Header_Section = (props: { site: INormSite }) => {
+const Header_Section = (props: HeaderProps) => {
     const sizeGroupRef = useRef<HTMLUListElement | null>(null);
     useEffect(() => {
         const root = sizeGroupRef.current;
@@ -119,7 +119,7 @@ const Header_Section = (props: { site: INormSite }) => {
             <div className="navsBox">
                 <div className="container-customize2">
                     <ul className="nav custom_nav justify-content-xl-end justify-content-center">
-                        <NavBar />
+                        <NavBar lang={props.lang} />
                         <li>
                             <ul className="nav custom_nav py-0 justify-content-center my-1" ref={sizeGroupRef}>
                                 <LangSwitchBtn site={props.site} />
@@ -132,21 +132,35 @@ const Header_Section = (props: { site: INormSite }) => {
         </header>
     </section>)
 }
-const NavBar = () => {
-    return (<li>
-        <ul className="nav custom_nav py-0 justify-content-center my-1">
-            <a accessKey="U" href="#U" className="accesskey_header U" title="上方導覽區(U)" tabIndex={0}>:::</a>
-            <li className="nav-item">
-                <LangLink className="nav-link" to="/" tabIndex={0} target="_self" title="圖書館首頁">圖書館首頁</LangLink>
-            </li>
-            <li className="nav-item">
-                <a className="nav-link" href="00_page_login_(BS.5_New).html" tabIndex={0} target="_self" title="北藝大首頁">北藝大首頁</a>
-            </li>
-            <li className="nav-item">
-                <a className="nav-link" href="javascript:void(0);" tabIndex={0} target="_self" title="網站導覽">網站導覽</a>
-            </li>
-        </ul>
-    </li>
+const NavBar = (props: { lang: Lang; }) => {
+
+    const title =
+        props.lang === 'zh-tw' ? {
+            Home: "圖書館首頁",
+            TNUA: "中興大學",
+            SiteMap: "網站導覽"
+        } :
+            props.lang === 'en' ? {
+                Home: "Home",
+                TNUA: "NCHU",
+                SiteMap: "SiteMap"
+            } : {}
+
+    return (
+        <li>
+            <ul className="nav custom_nav py-0 justify-content-center my-1">
+                <a accessKey="U" href="#U" className="accesskey_header U" title="上方導覽區(U)" tabIndex={0}>:::</a>
+                <li className="nav-item">
+                    <LangLink className="nav-link" to="/" tabIndex={0} target="_self" title={title.Home}>{title.Home}</LangLink>
+                </li>
+                <li className="nav-item">
+                    <a className="nav-link" href="00_page_login_(BS.5_New).html" tabIndex={0} target="_self" title={title.TNUA}>{title.TNUA}</a>
+                </li>
+                <li className="nav-item">
+                    <a className="nav-link" href="javascript:void(0);" tabIndex={0} target="_self" title={title.SiteMap}>{title.SiteMap}</a>
+                </li>
+            </ul>
+        </li>
     )
 }
 
