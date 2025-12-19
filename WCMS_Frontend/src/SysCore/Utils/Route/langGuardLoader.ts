@@ -1,11 +1,15 @@
 // src/SysCore/Utils/Route/langGuardLoader.ts
-import { DefaultLang, isSupportedLang, type Lang } from "@/SysCore/i18n/lang";
+import { DefaultLang, isSupportedLang, type Lang, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
 import { LANG_COOKIE_KEY } from "@/SysCore/Utils/Library/SysParam";
 import { type LoaderFunctionArgs, redirect } from "react-router-dom";
 /** 後台路徑前綴：完全不做語系處理 */
 const BYPASS_PREFIXES = new Set(["server"]);
 /** 不合法語系 / 不支援語系時導向的頁面（先挖洞，後續你再做該頁提示） */
 const UNAUTHORIZED_PATH = "/401";
+
+const SUPPORTED_BASE_LANGS = new Set(
+    SUPPORTED_LANGS.map(x => String(x).toLowerCase().split("-")[0]),
+);
 /**
  * 判斷第一段「像不像語系碼」：
  * 只用於：當它像語系碼、但又不在本站支援清單時 => 導到 /401
@@ -17,11 +21,15 @@ const UNAUTHORIZED_PATH = "/401";
 const isPotentialLangSegment = (seg?: string | null): boolean =>
 {
     if (!seg) return false;
-    const s = seg.trim();
-    if (!s) return false;
-
-    // ex: en, en-us, zh-tw, zh-hant-tw（最多 3 段）
-    return /^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8}){0,2}$/.test(s);
+    const raw = seg.trim();
+    if (!raw) return false;
+    const s = raw.toLowerCase().replace(/_/g, "-");
+    // 2-letter：eg / fr / jp... 都視為語系嘗試（避免被當 default）
+    if (/^[a-z]{2}$/.test(s)) return true;
+    // 含 '-' 的 tag：zh-tw / en-us / zh-hant-tw（最多 3 段）
+    if (s.includes("-") && /^[a-z]{2,3}(-[a-z0-9]{2,8}){1,2}$/.test(s)) return true;
+    // 純 3 碼：faq / api / cms... 一律視為一般路由段，避免誤判
+    return false;
 };
 export const langGuardLoader = async ({ request }: LoaderFunctionArgs) =>
 {

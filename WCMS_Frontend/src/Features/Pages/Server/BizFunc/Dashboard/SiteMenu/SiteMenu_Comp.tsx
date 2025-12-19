@@ -746,7 +746,6 @@ const ModuleOpts: Record<string, string> = {
   '': '請選擇', Announcement: "公告", FileArchive: "檔案室", Gallery: "相簿",
   PageManagement: "頁面", WebResource: "網路資源", SpecResearch: "研究計劃", SpecUSR: "USR計劃",
   SpecMusical: "琵琶介紹",
-
 };
 
 const ModuleSettingTab = (prop: {

@@ -148,6 +148,9 @@ export const BannerDetailInfoFields = {
     Content: "Content",
     URL: "URL",
     URL_Open: "URL_Open",
+    SpecLatestShows: "SpecLatestShows",
+    SpecShowLocation: "SpecShowLocation",
+    SpecShowDate: "SpecShowDate",
 } as const;
 
 export type BannerDetailInfoFieldKey = keyof typeof BannerDetailInfoFields;
@@ -161,7 +164,6 @@ export const BannerDetailFields = {
     Validate_End: "Validate_End",
     Sort: "Sort",
     BannerDetailInfo: "BannerDetailInfo",
-    SpecShowDate: "SpecShowDate",
 } as const;
 
 export type BannerDetailFieldKey = keyof typeof BannerDetailFields;
@@ -581,6 +583,58 @@ export const GenderFields = {
 } as const;
 
 export type GenderFieldKey = keyof typeof GenderFields;
+
+export const LangCodeFields = {
+    toString: "toString",
+    charAt: "charAt",
+    charCodeAt: "charCodeAt",
+    concat: "concat",
+    indexOf: "indexOf",
+    lastIndexOf: "lastIndexOf",
+    localeCompare: "localeCompare",
+    match: "match",
+    replace: "replace",
+    search: "search",
+    slice: "slice",
+    split: "split",
+    substring: "substring",
+    toLowerCase: "toLowerCase",
+    toLocaleLowerCase: "toLocaleLowerCase",
+    toUpperCase: "toUpperCase",
+    toLocaleUpperCase: "toLocaleUpperCase",
+    trim: "trim",
+    length: "length",
+    substr: "substr",
+    valueOf: "valueOf",
+    codePointAt: "codePointAt",
+    includes: "includes",
+    endsWith: "endsWith",
+    normalize: "normalize",
+    repeat: "repeat",
+    startsWith: "startsWith",
+    anchor: "anchor",
+    big: "big",
+    blink: "blink",
+    bold: "bold",
+    fixed: "fixed",
+    fontcolor: "fontcolor",
+    fontsize: "fontsize",
+    italics: "italics",
+    link: "link",
+    small: "small",
+    strike: "strike",
+    sub: "sub",
+    sup: "sup",
+    padStart: "padStart",
+    padEnd: "padEnd",
+    trimEnd: "trimEnd",
+    trimStart: "trimStart",
+    trimLeft: "trimLeft",
+    trimRight: "trimRight",
+    matchAll: "matchAll",
+} as const;
+
+export type LangCodeFieldKey = keyof typeof LangCodeFields;
 
 export const LoginDtoFields = {
     Account: "Account",

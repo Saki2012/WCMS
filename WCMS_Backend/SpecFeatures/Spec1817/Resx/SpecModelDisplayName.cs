@@ -5,6 +5,8 @@ namespace WCMS.SpecFeatures.Spec1817.Resx
 {
     public static class SpecModelDisplayName
     {
+        public const string Spec_LatestShows = "Spec_LatestShows";
+        public const string Spec_ShowLocation = "Spec_ShowLocation";
         public const string Spec_ShowDate = "Spec_ShowDate";
         public const string Spec_MusicalId = "Spec_MusicalId";
         public const string Spec_MusicalName = "Spec_MusicalName";
@@ -17,6 +19,5 @@ namespace WCMS.SpecFeatures.Spec1817.Resx
         public const string Spec_Material = "Spec_Material";
         public const string Spec_SoundSrcInfo = "Spec_SoundSrcInfo";
         public const string Spec_MusicalInfo = "Spec_MusicalInfo";
-
     }
 }

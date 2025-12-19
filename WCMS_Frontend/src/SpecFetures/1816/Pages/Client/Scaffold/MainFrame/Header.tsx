@@ -137,12 +137,12 @@ const NavBar = (props: { lang: Lang; }) => {
     const title =
         props.lang === 'zh-tw' ? {
             Home: "圖書館首頁",
-            TNUA: "中興大學",
+            TNUA: "臺北藝術大學",
             SiteMap: "網站導覽"
         } :
             props.lang === 'en' ? {
                 Home: "Home",
-                TNUA: "NCHU",
+                TNUA: "TNUA",
                 SiteMap: "SiteMap"
             } : {}
 
@@ -154,10 +154,10 @@ const NavBar = (props: { lang: Lang; }) => {
                     <LangLink className="nav-link" to="/" tabIndex={0} target="_self" title={title.Home}>{title.Home}</LangLink>
                 </li>
                 <li className="nav-item">
-                    <a className="nav-link" href="00_page_login_(BS.5_New).html" tabIndex={0} target="_self" title={title.TNUA}>{title.TNUA}</a>
+                    <a className="nav-link" href="https://w3.tnua.edu.tw/" tabIndex={0} target="_blank" title={title.TNUA}>{title.TNUA}</a>
                 </li>
                 <li className="nav-item">
-                    <a className="nav-link" href="javascript:void(0);" tabIndex={0} target="_self" title={title.SiteMap}>{title.SiteMap}</a>
+                    <LangLink className="nav-link" to="/" tabIndex={0} target="_self" title={title.SiteMap}>{title.SiteMap}</LangLink>
                 </li>
             </ul>
         </li>

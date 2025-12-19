@@ -43,7 +43,7 @@ namespace WCMS.Features.SiteEdit.Category
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [StringLength(SysLengthParam.Lang)] public LangCode Lang { get; set; }
+        public LangCode Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>

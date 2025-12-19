@@ -1,6 +1,5 @@
-import { NavLink } from 'react-router-dom';
 import logImg from 'SpecFeature/Assets/Server/menu_logo_PC.svg';
-import { ServerModuleRoutes, type IModuleMeta, } from '@/Features/Pages/Server/BizFunc/ServerModuleRoutes';
+import { ServerModuleRoutes, type IModuleMeta, } from '@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData';
 import { useEffect } from 'react';
 import { LangNavLink } from '@/SysCore/i18n/LangLink';
 
@@ -8,6 +7,7 @@ const buildActionPath = (moduleCode: string, progId: string, actionCode: string)
 
 const SidebarMenu = (prop: { moduleCode: IModuleMeta['ModuleCode'] }) => {
     const module = ServerModuleRoutes.find((p) => p.ModuleCode === prop.moduleCode);
+
     if (!module) return null;
     useEffect(() => {
         if (!module) return;
@@ -95,7 +95,7 @@ const SidebarMenu = (prop: { moduleCode: IModuleMeta['ModuleCode'] }) => {
                                 <ul className="pc-submenu">
                                     {prog.Actions.map((act) => (
                                         <li key={act.ActionCode} className="pc-item">
-                                            <LangNavLink className="pc-link" to={buildActionPath(prog.ModuleCode, prog.ProgId, act.ActionCode)}>
+                                            <LangNavLink className="pc-link" to={buildActionPath(prop.moduleCode, prog.ProgId, act.ActionCode)}>
                                                 {act.Title}
                                             </LangNavLink>
                                         </li>

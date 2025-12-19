@@ -42,29 +42,8 @@ namespace WCMS.SysCore.Library
                 if (string.IsNullOrEmpty(_resourceKey)) return string.Empty;
                 var culture = CultureInfo.CurrentUICulture;
                 string? value = null;
-                if (_specResourceManager != null)
-                {
-                    try
-                    {
-                        value = _specResourceManager.GetString(_resourceKey, culture);
-                    }
-                    catch (MissingManifestResourceException)
-                    {
-                        value = null;
-                    }
-                }
-                if (string.IsNullOrEmpty(value))
-                {
-                    try
-                    {
-                        value = _coreResourceManager.GetString(_resourceKey, culture);
-                    }
-                    catch (MissingManifestResourceException)
-                    {
-                        value = null;
-                    }
-                }
-                // ③ 都找不到就回傳 [Key] 方便 debug
+                if (_specResourceManager != null) value = _specResourceManager.GetResourceSet(culture, true, false)?.GetString(_resourceKey);
+                if (string.IsNullOrEmpty(value)) value = _coreResourceManager.GetResourceSet(culture, true, false)?.GetString(_resourceKey);
                 return string.IsNullOrEmpty(value) ? $"[{_resourceKey}]" : value;
             }
         }

@@ -30,7 +30,7 @@ export const WebResourceListComp = (prop: { title: string; theme: IBETheme; lang
     const useListData = useWebResourceListData(provider, prop.lang, kw);
     const useCategory = useCategoryListData(PGID.WebResource, prop.lang);
     const actions = useActions(dirUrl, WebResourceProvider(), undefined, undefined, useListData.refetchCurrent)
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(useListData.gridProps, useListData.rawData, useCategory.rawData, actions); }, [useListData.gridProps, useListData.rawData, useCategory.rawData, actions]);
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(prop.lang, useListData.gridProps, useListData.rawData, useCategory.rawData, actions); }, [useListData.gridProps, useListData.rawData, useCategory.rawData, actions]);
     const searchCompProp: SearchBarProps = { title: "網路資源搜尋", subTitle: "搜尋網路資源 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
     const isLoading = [useListData.isLoading];
     const errors = [useListData.error];
@@ -38,7 +38,7 @@ export const WebResourceListComp = (prop: { title: string; theme: IBETheme; lang
 }
 
 /** 動態添加每行的動作功能 */
-const SetAdjustFunction = (gridProps: GridProps, rawData: WebResourceSet[], categoryData: CategoryDataSet[], actions: UseActionsResult): GridProps => {
+const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: WebResourceSet[], categoryData: CategoryDataSet[], actions: UseActionsResult): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
@@ -49,7 +49,7 @@ const SetAdjustFunction = (gridProps: GridProps, rawData: WebResourceSet[], cate
         if (titleCell) { titleCell.content = (<>{titleCell.content}{GetDataStatusContent(curData?.WebResource?.ContentStatus ?? 0)}</>); }
         const categoryCell = row.cells.find(p => p.col.key === WebResourceFields.Categories);
         const rawCatId = rawData?.[index]?.WebResource?.Categories ?? categoryCell?.content?.toString() ?? "";
-        if (categoryCell) { categoryCell.content = useFormatCategoriesName(rawCatId, categoryData); }
+        if (categoryCell) { categoryCell.content = useFormatCategoriesName(rawCatId, categoryData, lang); }
         const internalId = rawData?.[index]?.WebResource?.InternalId ?? "";
         const newCell: RowCell = {
             col: adjustCol,

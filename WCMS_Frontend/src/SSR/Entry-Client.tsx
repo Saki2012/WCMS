@@ -5,12 +5,12 @@ import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter.ts";
 import { createClientRouter } from "@/SysCore/Utils/Route/Routes.tsx";
 import { SpecRouteModule } from "../SpecFetures/1810/SpecRouter.tsx";
 import { RouterProvider } from "react-router-dom";
-// import "SpecFeature/Assets/Client/Content/Style.css"
 import { MessageProvider } from "@/SysCore/Components/Message/Dialog/Dialog_Comp.tsx";
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp.tsx";
 import api, { type BrowserApiWithInit } from "@/SysCore/Utils/API/APIBase.ts"
 import { siteHeaderMeta } from "SpecFeature/SpecRouter"
 import { LANG_COOKIE_KEY } from "@/SysCore/Utils/Library/SysParam.ts";
+import { SUPPORTED_LANGS } from "@/SysCore/i18n/lang.ts";
 
 
 if (typeof window !== "undefined") {
@@ -31,7 +31,6 @@ if (typeof window !== "undefined") {
 
 
 declare global { interface Window { __INITIAL_STATE__?: { lang?: string;[k: string]: unknown }; } }
-const SUPPORTED_LANGS = ["zh-tw", "en-us"] as const;
 export type SupportedLang = (typeof SUPPORTED_LANGS)[number];
 interface UseCookieResult {
   get: (name: string) => string | undefined;
@@ -46,7 +45,7 @@ const normalizeLang = (raw?: string): SupportedLang | undefined => {
   if (!raw) return;
   const v = raw.toLowerCase();
   if (v.startsWith("zh")) return "zh-tw";
-  if (v.startsWith("en")) return "en-us";
+  if (v.startsWith("en")) return "en";
   return (SUPPORTED_LANGS.find(l => l === v) as SupportedLang | undefined) ?? undefined;
 };
 

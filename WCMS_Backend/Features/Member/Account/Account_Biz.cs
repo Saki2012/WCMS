@@ -16,7 +16,6 @@ namespace WCMS.Features.Member.Account
         protected IBizService<PersonSet> personBiz = biz;
         protected override bool IsAutoGenerateId { get => false; }
         #endregion
-
         #region Protected
         protected override async Task BeforeUpdate(AccountSet set, FuncAction act)
         {

@@ -58,7 +58,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// <summary>
         /// 預設語系
         /// </summary>
-        [LibDesc(ModelDisplayName.Enum_DefaultLang),StringLength(SysLengthParam.Lang)] public LangCode? DefaultLang { get; set; }
+        [LibDesc(ModelDisplayName.Enum_DefaultLang)] public LangCode? DefaultLang { get; set; }
         /// <summary>
         /// 
         /// </summary>

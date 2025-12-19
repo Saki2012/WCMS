@@ -59,7 +59,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// <summary>
         /// 預設語系
         /// </summary>
-        [StringLength(SysLengthParam.Lang)] public LangCode DefaultLang { get; set; }
+        public LangCode DefaultLang { get; set; }
         /// <summary>
         /// 支援語系
         /// </summary>
@@ -86,7 +86,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// <summary>
         /// 語系
         /// </summary>
-        [StringLength(SysLengthParam.Lang)] public LangCode? Lang { get; set; }
+        public LangCode? Lang { get; set; }
         /// <summary>
         /// 網站標題
         /// </summary>

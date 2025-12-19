@@ -19,10 +19,12 @@ export const SpecialLinkData = (props: { lang: Lang }) => {
 			return as - bs || (a.RowId ?? 0) - (b.RowId ?? 0);
 		});
 	}, [useBanner.data?.BannerDetail]);
+
+	const owlKey = useMemo(() => { const ids = sortedDetails.map(x => String(x.RowId ?? x.PicSrcId ?? "")).join("|"); return `${props.lang}|${ids}`; }, [sortedDetails, props.lang]);
 	useEffect(() => {
 		// SSR 防護：server 端不要執行
 		if (typeof window === "undefined") return;
-
+		if (sortedDetails.length === 0) return;
 		const w = window as any;
 		const $ = (w.$ || w.jQuery) as any;
 		if (!$ || !$.fn || !$.fn.owlCarousel) {
@@ -106,7 +108,7 @@ export const SpecialLinkData = (props: { lang: Lang }) => {
 				// ignore
 			}
 		};
-	}, [sortedDetails]);
+	}, [owlKey]);
 
 	return (
 		<section className="Zone_section + owl-box + Layout_Padding_1_top + Layout_Padding_5_bottom + bg-custom-Customize_color" style={{ backgroundImage: `url(${bgImg})`, }}>
@@ -127,7 +129,7 @@ export const SpecialLinkData = (props: { lang: Lang }) => {
 											</a>
 										</div>
 									</div>
-									<div className="owl-carousel owl-theme" id="Zone_owl_carousel">
+									<div className="owl-carousel owl-theme" id="Zone_owl_carousel" key={owlKey}>
 										{sortedDetails.map((p, i) => {
 											const info = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang)
 											const alt = info?.Title ?? ""

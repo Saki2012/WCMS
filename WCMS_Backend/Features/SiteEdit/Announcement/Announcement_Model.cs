@@ -70,7 +70,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 語系
         /// </summary>
-        [StringLength(SysLengthParam.Lang)] public LangCode? Lang { get; set; }
+        public LangCode? Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>

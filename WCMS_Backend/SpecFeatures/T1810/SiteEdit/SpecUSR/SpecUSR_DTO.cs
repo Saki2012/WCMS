@@ -138,7 +138,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Lang), StringLength(SysLengthParam.Lang)] public LangCode? Lang { get; set; }
+        [LibDesc(ModelDisplayName.Common_Lang)] public LangCode? Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>

@@ -29,7 +29,7 @@ export const PageListComp = (prop: { title: string; theme: IBETheme; lang: Lang 
     const useCategory = useCategoryListData(PGID.PageManagement, prop.lang);
     const usePageList = usePageManagementListData(provider, prop.lang, kw);
     const actions = useActions(dirUrl, PageManagementProvider(), undefined, undefined, usePageList.refetchCurrent)
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions); }, [dirUrl, usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions]);
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(prop.lang, usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions); }, [dirUrl, usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions]);
     const searchCompProp: SearchBarProps = { title: "頁面搜尋", subTitle: "搜尋頁面 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
     const isLoading = [usePageList.isLoading, useCategory.isLoading];
     const errors = [usePageList.error, useCategory.error];
@@ -37,7 +37,7 @@ export const PageListComp = (prop: { title: string; theme: IBETheme; lang: Lang 
     return (<ListComp Title={prop.title} Theme={prop.theme} LoadingList={isLoading} ErrorList={errors} Actions={actions} GridData={adjustedGrid} SearchBar={searchCompProp}></ListComp>);
 }
 /** 動態添加每行的動作功能 */
-const SetAdjustFunction = (gridProps: GridProps, rawData: PageManagementSet[], categoryData: CategoryDataSet[], actions: UseActionsResult): GridProps => {
+const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: PageManagementSet[], categoryData: CategoryDataSet[], actions: UseActionsResult): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
@@ -50,7 +50,7 @@ const SetAdjustFunction = (gridProps: GridProps, rawData: PageManagementSet[], c
         const categoryCell = row.cells.find(p => p.col.key === PageManagementFields.CategoryId);
         const rawCatId = rawData?.[index]?.PageManagement?.CategoryId ?? categoryCell?.content?.toString() ?? "";
         if (categoryCell) {
-            categoryCell.content = useFormatCategoriesName(rawCatId, categoryData);
+            categoryCell.content = useFormatCategoriesName(rawCatId, categoryData, lang);
         }
         const internalId = rawData?.[index]?.PageManagement?.InternalId ?? "";
         const newCell: RowCell = {

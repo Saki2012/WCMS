@@ -8953,6 +8953,12 @@ export interface components {
             /** @description 網址 */
             URL?: string | null;
             URL_Open?: components["schemas"]["WindowTarget"];
+            /** @description 最新展演 */
+            SpecLatestShows?: string | null;
+            /** @description 展演地點 */
+            SpecShowLocation?: string | null;
+            /** @description 展演時間 */
+            SpecShowDate?: string | null;
         };
         BannerDetail_DTO: {
             /** @description 橫幅廣告 */
@@ -8982,8 +8988,6 @@ export interface components {
              */
             Sort?: number;
             BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
-            /** @description [Spec_ShowDate] */
-            SpecShowDate?: string | null;
         };
         BannerSet_DTO: {
             Banner?: components["schemas"]["Banner_DTO"];
@@ -9924,37 +9928,37 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
-            /** @description [Spec_MusicalId] */
+            /** @description 樂器代碼 */
             MusicalId?: string | null;
-            /** @description [Spec_MusicalName] */
+            /** @description 樂器名稱 */
             MusicalName?: string | null;
             Category?: components["schemas"]["Category_DTO"];
             /** @description 類別 */
             CategoryId?: string | null;
             /** @description 封面圖片 */
             CoverPicId?: string | null;
-            /** @description [Spec_Specification] */
+            /** @description 規格 */
             Specification?: string | null;
-            /** @description [Spec_Headstock] */
+            /** @description 琴頭 */
             Headstock?: string | null;
-            /** @description [Spec_Backboard] */
+            /** @description 背板 */
             Backboard?: string | null;
-            /** @description [Spec_ScaleLength] */
+            /** @description 弦長 */
             ScaleLength?: string | null;
-            /** @description [Spec_Bridge] */
+            /** @description 覆手長 */
             Bridge?: string | null;
-            /** @description [Spec_BodyForm] */
+            /** @description 形制 */
             BodyForm?: string | null;
-            /** @description [Spec_Material] */
+            /** @description 弦材 */
             Material?: string | null;
-            /** @description [Spec_MusicalInfo] */
+            /** @description 樂器說明 */
             Info?: string | null;
             _SpecMusicalSoundList?: components["schemas"]["SpecMusicalSoundList_DTO"][] | null;
             _SpecMusicalPictureList?: components["schemas"]["SpecMusicalPictureList_DTO"][] | null;
         };
         SpecMusicalPictureList_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_MusicalId] */
+            /** @description 樂器代碼 */
             MusicalId?: string | null;
             /**
              * Format: int32
@@ -9983,7 +9987,7 @@ export interface components {
         };
         SpecMusicalSoundList_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_MusicalId] */
+            /** @description 樂器代碼 */
             MusicalId?: string | null;
             /**
              * Format: int32
@@ -9992,7 +9996,7 @@ export interface components {
             RowId?: number | null;
             /** @description 音源 */
             SoundSrcId?: string | null;
-            /** @description [Spec_SoundSrcInfo] */
+            /** @description 音檔說明 */
             Info?: string | null;
             _SpecMusical?: components["schemas"]["SpecMusicalModel_DTO"];
         };
@@ -10596,8 +10600,7 @@ export interface components {
              * @description 行代碼
              */
             RowId?: number;
-            /** @description 語系 */
-            Lang?: string | null;
+            Lang?: components["schemas"]["LangCode"];
             /** @description 標題 */
             Title?: string | null;
             /** @description 內文 */

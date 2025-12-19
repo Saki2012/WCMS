@@ -1,23 +1,10 @@
-import { useEffect, useState } from 'react'
-import type { NaviData } from '@/SysCore/Components/NaviBar/NaviBar_Data'
-import NaviBarComp from '@/SysCore/Components/NaviBar/NaviBar_Comp'
-import type { IBETheme } from '@/Features/Pages/Server/Theme/ITheme'
-import NaviProvider from '@/Features/Pages/Server/Scaffold/Menu/NaviBar/NaviBar_Api'
+import { ServerModuleRoutes } from '@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData'
+import { LangNavLink } from '@/SysCore/i18n/LangLink'
+import clsx from 'clsx'
 import logImg from '@/Features/Assets/Server/images/logo/logo_PC_210x63.svg'
 
 
-const NavibarMenu = ({ theme }: { theme: IBETheme }) => {
-    const [items, setItems] = useState<NaviData[]>([])
-    useEffect(() => {
-        let cancelled = false;
-        (async () => {
-            const resp = await NaviProvider().fetchList();
-            const list = resp.Data ?? [];
-            if (!cancelled) setItems(list);
-        })().catch(console.error);
-        return () => { cancelled = true; };
-    }, []);
-
+const NavibarMenu = () => {
     return (
         <header className="pc-header">
             <div className="header-wrapper">
@@ -45,7 +32,28 @@ const NavibarMenu = ({ theme }: { theme: IBETheme }) => {
                             <i className="fas fa-grip-horizontal"></i>
                         </a>
                         <div className="Customize_collapse + collapse navbar-collapse" id="navbar_right">
-                            <NaviBarComp items={items} style={theme.NavBarMenu}></NaviBarComp>
+                            <ul className={clsx("navbar-nav", "me-auto", "mb-2", "mb-lg-0")}>
+                                {/* <li className={clsx("nav-item")}>
+                                    <div className="nav-link">
+                                        <h2>
+                                            <i className={`far ${getValue(item.Id)}`} />
+                                            目前使用者 :
+                                            <span className="ml-1">{item.SrcData}</span>
+                                        </h2>
+                                    </div>
+                                </li> */}
+                                {ServerModuleRoutes.map((item) =>
+                                    <li className={clsx("nav-item")} key={item.ModuleCode}>
+                                        <LangNavLink className="nav-link" to={item.DefaultPath}>
+                                            <h2>
+                                                <i className={item.IconClassName} aria-hidden="true" />
+                                                {item.Title}
+                                            </h2>
+                                        </LangNavLink>
+                                    </li>
+                                )}
+                            </ul>
+
                         </div>
                     </nav>
                 </div>

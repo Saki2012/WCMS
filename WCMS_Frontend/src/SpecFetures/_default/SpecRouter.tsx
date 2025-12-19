@@ -1,7 +1,7 @@
 // SpecFeatures/1810/Router.ts
 import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
 import { loadClientChildren } from "@/Features/Pages/Client/Route/ClientRouter";
-import { BackendRouteModule } from "@/Features/Pages/Server/ServerRouter";
+import { BackendRouteModule } from "@/Features/Pages/Server/Scaffold/Routes/ServerRouter";
 import type { RouteObject } from "react-router-dom";
 import { type ModuleEntry } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { IHeaderMetaProps } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";

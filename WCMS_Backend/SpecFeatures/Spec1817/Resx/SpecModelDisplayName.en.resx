@@ -129,6 +129,9 @@
   <data name="Spec_Headstock" xml:space="preserve">
     <value>Headstock</value>
   </data>
+  <data name="Spec_LatestShows" xml:space="preserve">
+    <value>Latest Shows</value>
+  </data>
   <data name="Spec_Material" xml:space="preserve">
     <value>String Material</value>
   </data>
@@ -146,6 +149,9 @@
   </data>
   <data name="Spec_ShowDate" xml:space="preserve">
     <value>Performance Time</value>
+  </data>
+  <data name="Spec_ShowLocation" xml:space="preserve">
+    <value>Show Location</value>
   </data>
   <data name="Spec_SoundSrcInfo" xml:space="preserve">
     <value>Audio Description</value>

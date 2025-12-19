@@ -63,7 +63,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
     {
         [Key, StringLength(SysLengthParam.ID)] public string USRId { get;set; }
         [Key] public int RowId { get; set; }
-        [Required, StringLength(SysLengthParam.Lang)] public LangCode Lang { get; set; } = default!;
+        [Required] public LangCode Lang { get; set; } = default!;
         [StringLength(10)] public string? Year { get; set; }
         public int? AcademicYear { get; set; }
         [StringLength(1000)] public string? Courses { get; set; }
@@ -141,7 +141,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [StringLength(SysLengthParam.Lang)] public LangCode Lang { get; set; }
+        public LangCode Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>

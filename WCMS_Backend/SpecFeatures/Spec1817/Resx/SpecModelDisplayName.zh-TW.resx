@@ -129,6 +129,9 @@
   <data name="Spec_Headstock" xml:space="preserve">
     <value>琴頭</value>
   </data>
+  <data name="Spec_LatestShows" xml:space="preserve">
+    <value>最新展演</value>
+  </data>
   <data name="Spec_Material" xml:space="preserve">
     <value>弦材</value>
   </data>
@@ -146,6 +149,9 @@
   </data>
   <data name="Spec_ShowDate" xml:space="preserve">
     <value>展演時間</value>
+  </data>
+  <data name="Spec_ShowLocation" xml:space="preserve">
+    <value>展演地點</value>
   </data>
   <data name="Spec_SoundSrcInfo" xml:space="preserve">
     <value>音檔說明</value>

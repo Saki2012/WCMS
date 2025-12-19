@@ -165,11 +165,11 @@ export const ExhibitionNewsData = (props: { lang: Lang }) => {
 		);
 	}, [useTagData.rawData, props.lang]);
 	const allNews1 = useMemo(() => getNewsDataProps(allNewsRawData1, props.lang, "/News/News-01", "", categoryDict, tagDict), [allNewsRawData1, props.lang, categoryDict, tagDict]);
-	const owlKey = useMemo(() => allNews1.map(x => x.announceInternalId).join("|"), [allNews1]);
+	const owlKey = useMemo(() => { const ids = allNews1.map(x => x.announceInternalId).join("|"); return `${props.lang}|${ids}`; }, [allNews1, props.lang]);
 	useEffect(() => {
 		// SSR 防護，避免在 server 端執行到 window / $
 		if (typeof window === "undefined") return;
-
+		if (allNews1.length === 0) return;
 		const w = window as any;
 		const $ = (w.$ || w.jQuery) as any;
 		if (!$ || !$.fn || !$.fn.owlCarousel) {
@@ -283,7 +283,7 @@ export const ExhibitionNewsData = (props: { lang: Lang }) => {
 											</a>
 										</div>
 									</div>
-									<div className="owl-carousel owl-theme" id="Exhibition_owl_carousel">
+									<div className="owl-carousel owl-theme" id="Exhibition_owl_carousel" key={owlKey}>
 										<GetData prop={allNews1}></GetData>
 									</div>
 									<div className="position-absolute + d-flex + btn_right_S1 + btn_bottom_S1 + z-2">

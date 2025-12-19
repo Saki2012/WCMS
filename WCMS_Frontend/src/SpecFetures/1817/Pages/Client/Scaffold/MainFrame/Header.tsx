@@ -2,7 +2,6 @@
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { A11yContent } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Header";
-import { Link, NavLink } from "react-router-dom";
 import LogoImg from '@/SpecFetures/1817/Assets/Client/images/logo/LOGO_475x120.svg'
 import { useEffect, useRef } from "react";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
@@ -10,6 +9,7 @@ import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
+import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
 
 
 
@@ -47,7 +47,7 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
         <>
             <A11yContent />
             <div id="Site-Header" className="ALL_Header_DivBar main-header" ref={headerRef}>
-                <Header_Section />
+                <Header_Section {...props} />
                 <Menu_Section {...props} />
                 <div className="overlayer" aria-hidden="true" />
             </div>
@@ -58,7 +58,7 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
 export default Header
 
 
-const Header_Section = () => {
+const Header_Section = (props: { lang: Lang; site: INormSite }) => {
     const sizeGroupRef = useRef<HTMLUListElement | null>(null);
     useEffect(() => {
         const root = sizeGroupRef.current;
@@ -85,6 +85,7 @@ const Header_Section = () => {
                 <div className="container-customize0">
                     <ul className="nav custom_nav justify-content-xl-end justify-content-center">
                         <NavBar />
+                        {/* <LangSwitchBtn site={props.site} /> */}
                     </ul>
                 </div>
             </div>
@@ -162,53 +163,94 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
         };
         navbarToggler?.addEventListener("click", onBurgerClick);
 
-        // ---------- 4) Mega menu：hover/點擊互斥顯示，點外面關閉 ----------
-        const megaEls = Array.from(root.querySelectorAll<HTMLElement>(".dropdown-mega"));
+        // ---------- 4) Header menu：互斥顯示（hover/點擊），點外面或點子項就收合 ----------
+        // 只管「第一層」(navbar-nav > li.dropdown) 的互斥；子層 submenu 仍交給 Bootstrap。
+        const getTopDropdownHosts = (): HTMLElement[] =>
+            Array.from(root.querySelectorAll<HTMLElement>(".navbar-nav > .nav-item.dropdown"));
+
+        const closeHost = (host: HTMLElement) => {
+            // 關閉 host + 它底下所有 .show（包含子層 submenu）
+            host.classList.remove("show");
+            host.querySelectorAll<HTMLElement>(".dropdown-menu.show").forEach(m => m.classList.remove("show"));
+            host.querySelectorAll<HTMLElement>(".dropdown-toggle").forEach(t => t.setAttribute("aria-expanded", "false"));
+        };
+
+        const isHostOpen = (host: HTMLElement): boolean => {
+            // Bootstrap 可能只開 menu / aria-expanded，不一定開到 host.show
+            if (host.classList.contains("show")) return true;
+            if (host.querySelector(".dropdown-menu.show")) return true;
+            if (host.querySelector('[aria-expanded="true"]')) return true;
+            return false;
+        };
+
         const closeAllExcept = (keep?: HTMLElement) => {
-            megaEls.forEach(d => {
-                if (keep && d === keep) return;
-                d.classList.remove("show");
-                d.querySelector<HTMLElement>(".dropdown-menu")?.classList.remove("show");
-                d.querySelector<HTMLElement>(".dropdown-toggle")?.setAttribute("aria-expanded", "false");
+            const hosts = getTopDropdownHosts();
+
+            // 1) 關閉除了 keep 以外所有已開啟的 host
+            hosts.forEach(h => {
+                if (keep && h === keep) return;
+                if (isHostOpen(h)) closeHost(h);
+            });
+
+            // 2) 保險：殘留的 dropdown-menu.show 也清掉
+            root.querySelectorAll<HTMLElement>(".dropdown-menu.show").forEach(m => {
+                if (keep && keep.contains(m)) return;
+                m.classList.remove("show");
             });
         };
 
-        const onMegaEnter = (e: Event) => {
-            const d = e.currentTarget as HTMLElement;
-            closeAllExcept(d);
-            d.classList.add("show");
-            d.querySelector<HTMLElement>(".dropdown-menu")?.classList.add("show");
-            d.querySelector<HTMLElement>(".dropdown-toggle")?.setAttribute("aria-expanded", "true");
-        };
-        const onMegaLeave = (e: Event) => {
-            const d = e.currentTarget as HTMLElement;
-            d.classList.remove("show");
-            d.querySelector<HTMLElement>(".dropdown-menu")?.classList.remove("show");
-            d.querySelector<HTMLElement>(".dropdown-toggle")?.setAttribute("aria-expanded", "false");
+        let lastHoverHost: HTMLElement | null = null;
+
+        const onPointerOver = (e: Event) => {
+            // hover 到別的第一層 menu 時，收合目前被 click 打開的 .show
+            const host = (e.target as Element | null)?.closest?.(".navbar-nav > .nav-item.dropdown") as HTMLElement | null;
+            if (!host || !root.contains(host)) return;
+            if (lastHoverHost === host) return;
+            lastHoverHost = host;
+            closeAllExcept(host);
         };
 
-        // 個別 toggle 的 click handler 需要保存以便清掉
-        const toggleClickMap = new Map<HTMLElement, (e: Event) => void>();
+        const onFocusIn = (e: Event) => {
+            // 鍵盤 tab 切換到別的第一層 menu 時，也要互斥收合（AA 友善）
+            const host = (e.target as Element | null)?.closest?.(".navbar-nav > .nav-item.dropdown") as HTMLElement | null;
+            if (!host || !root.contains(host)) return;
+            closeAllExcept(host);
+        };
 
-        megaEls.forEach(d => {
-            const t = d.querySelector<HTMLElement>(".dropdown-toggle");
-            d.addEventListener("mouseenter", onMegaEnter);
-            d.addEventListener("mouseleave", onMegaLeave);
-            if (t) {
-                const h = (e: Event) => {
-                    e.preventDefault();
-                    if (d.classList.contains("show")) onMegaLeave(e);
-                    else onMegaEnter(e);
-                };
-                t.addEventListener("click", h);
-                toggleClickMap.set(t, h);
+        const onRootClick = (e: MouseEvent) => {
+            const el = e.target as Element | null;
+            if (!el) return;
+
+            // A) 點第一層 toggle：先把其它已開啟的關掉（讓 Bootstrap 只留一個）
+            const topToggle = el.closest(".navbar-nav > .nav-item.dropdown > .dropdown-toggle") as HTMLElement | null;
+            if (topToggle && root.contains(topToggle)) {
+                const host = topToggle.closest(".navbar-nav > .nav-item.dropdown") as HTMLElement | null;
+                if (host) closeAllExcept(host);
+                return;
             }
-        });
 
-        const onDocClick = (e: MouseEvent) => {
+            // B) 點 dropdown-menu 裡的「葉子連結」：導頁後收合全部
+            const insideMenu = el.closest(".dropdown-menu") as HTMLElement | null;
+            const isToggle = !!el.closest(".dropdown-toggle");
+            const isAnchor = !!el.closest("a");
+            if (insideMenu && isAnchor && !isToggle) closeAllExcept();
+        };
+
+        const onDocPointerDown = (e: Event) => {
+            // 點畫面其它地方：收合全部 menu
             if (!root.contains(e.target as Node)) closeAllExcept();
         };
-        document.addEventListener("click", onDocClick);
+
+        const onDocKeyDown = (e: KeyboardEvent) => {
+            // Esc：收合全部 menu
+            if (e.key === "Escape") closeAllExcept();
+        };
+
+        root.addEventListener("pointerover", onPointerOver);
+        root.addEventListener("focusin", onFocusIn);
+        root.addEventListener("click", onRootClick);
+        document.addEventListener("pointerdown", onDocPointerDown);
+        document.addEventListener("keydown", onDocKeyDown);
 
         // ---------- cleanup ----------
         return () => {
@@ -217,13 +259,11 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
                 el.removeEventListener("keydown", onKeyEnter);
             });
             toggleEls.forEach(el => el.removeEventListener("keydown", toggleKeyHandler));
-            navbarToggler?.removeEventListener("click", onBurgerClick);
-            megaEls.forEach(d => {
-                d.removeEventListener("mouseenter", onMegaEnter);
-                d.removeEventListener("mouseleave", onMegaLeave);
-            });
-            toggleClickMap.forEach((h, el) => el.removeEventListener("click", h));
-            document.removeEventListener("click", onDocClick);
+            root.removeEventListener("pointerover", onPointerOver);
+            root.removeEventListener("focusin", onFocusIn);
+            root.removeEventListener("click", onRootClick);
+            document.removeEventListener("pointerdown", onDocPointerDown);
+            document.removeEventListener("keydown", onDocKeyDown);
         };
     }, []);
     return (
@@ -331,7 +371,7 @@ const SingleMenuItem = (props: { menuItem: MenuItemData }) => {
 const DropdownMenuItem = (props: { menuItem: MenuItemData; }) => {
     return (
         <li className="nav-item dropdown">
-            <LangNavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} role="button" tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside">
+            <LangNavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} role="button" tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside" target={props.menuItem.URL_Open}>
                 {props.menuItem.SrcData}
             </LangNavLink>
             {/* 第二層（原本的 <ul className="dropdown-menu">） */}
@@ -397,7 +437,7 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
             // 純連結項目
             return (
                 <li key={key}>
-                    <LangNavLink className="dropdown-item" to={item.Url || "#"} role="button" tabIndex={0}>
+                    <LangNavLink className="dropdown-item" to={item.Url || "#"} role="button" tabIndex={0} target={item.URL_Open}>
                         {item.SrcData}
                     </LangNavLink>
                 </li>
@@ -407,7 +447,7 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
         const submenuClassName = parentDepth === 0 ? "dropdown-menu" : "dropdown-menu dropdown-submenu";
         return (
             <li key={key} className="dropend submenu">
-                <LangNavLink to={item.Url || "#"} role="button" tabIndex={0} className="dropdown-item dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                <LangNavLink to={item.Url || "#"} role="button" tabIndex={0} className="dropdown-item dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" target={item.URL_Open}>
                     {item.SrcData}
                 </LangNavLink>
 

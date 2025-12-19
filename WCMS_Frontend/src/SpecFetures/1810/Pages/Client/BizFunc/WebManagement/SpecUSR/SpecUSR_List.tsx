@@ -39,7 +39,7 @@ const useSpecUSRList = (categoryId: string, tagIds: string) => {
             [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Cohost2],
             [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Commissioned],
         ],
-        buildQueryCondition: (page) => ({
+        buildQueryCondition: () => ({
             Fields: [
                 SpecUSRModelFields.InternalId,
                 SpecUSRModelFields.USRId,
@@ -66,8 +66,8 @@ const useSpecUSRList = (categoryId: string, tagIds: string) => {
                 { Col: `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Year}`, Desc: true },
                 { Col: `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.AcademicYear}`, Desc: true },
             ],
-            PageNumber: page,
-            PageSize: 10,
+            PageNumber: 0,
+            PageSize: 0,
         }),
         enabled: true,
         deps: [],

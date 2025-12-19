@@ -298,7 +298,8 @@ const InfoComp = (props: { info: SpecMusicalModel; displayName: ModelDisplaySche
                 <hr className="hr-my-4" />
 
                 {/* // 上一個 + 回到列表頁 + 下一個 // */}
-                <div className="Button_Area">
+
+                {/* <div className="Button_Area">
                     <div className="block_box">
                         <div className="Buttons_wrapper Order_1">
                             <a href="javascript:void(0);" className="Normal_btn" type="button" role="button" title="上一個" tabIndex={0} >
@@ -322,7 +323,7 @@ const InfoComp = (props: { info: SpecMusicalModel; displayName: ModelDisplaySche
                             </a>
                         </div>
                     </div>
-                </div>
+                </div> */}
 
             </div>
         </div>

@@ -201,6 +201,10 @@ const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
                 <LibTextArea Style={props.theme.TextArea} DefaultInputDisplay="請輸入" {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.Content, "string", rowKeys)} />,
                 <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.URL, "string", rowKeys)} />,
                 <LibDropList Style={props.theme.DropList} Options={windowTarget.data} {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.URL_Open, "number", rowKeys)} />,
+                //以下這個是1817(傳音)所需客製欄位，暫時先寫這，後續做插件抽離
+                <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.SpecLatestShows, "string", rowKeys)} />,
+                <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.SpecShowLocation, "string", rowKeys)} />,
+                <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.SpecShowDate, "string", rowKeys)} />,
             ]
             return compMap;
         }, {}

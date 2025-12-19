@@ -27,11 +27,11 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
         /// <summary>
         /// 狀態 (多個)
         /// </summary>
-        [LibDesc] public ContentStatus ContentStatus { get; set; }
+        public ContentStatus ContentStatus { get; set; }
         /// <summary>
         /// 標籤 (多個) 
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.Title)] public string? Tags { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.Title)] public string? Tags { get; set; } = string.Empty;
 
         #region 主子表關聯
         [InverseProperty(nameof(SpecResearchDetailModel._SpecResearch))] public List<SpecResearchDetailModel> _SpecResearchDetail { get; set; }
@@ -39,9 +39,9 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
     }
     public class SpecResearchDetailModel : DetailRowModel
     {
-        [LibDesc, Key, StringLength(SysLengthParam.ID)] public string ResearchId { get;set; }
-        [LibDesc, Key] public int RowId { get; set; }
-        [StringLength(SysLengthParam.Lang)] public LangCode Lang { get; set; } = default!;
+        [Key, StringLength(SysLengthParam.ID)] public string ResearchId { get;set; }
+        [Key] public int RowId { get; set; }
+        public LangCode Lang { get; set; } = default!;
         public int? Year { get; set; }
         public int? AcademicYear { get; set; }
         [StringLength(10)] public string? Semester { get; set; }

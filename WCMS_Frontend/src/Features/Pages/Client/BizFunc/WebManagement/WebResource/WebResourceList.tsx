@@ -124,7 +124,7 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: WebResourc
             // 只在特定欄位調整內容
             switch (cell.col.key) {
                 case WebResourceFields.Categories:
-                    nextContent = useFormatCategoriesName(curRow?.WebResource?.Categories ?? "", catData);
+                    nextContent = useFormatCategoriesName(curRow?.WebResource?.Categories ?? "", catData, lang);
                     break;
                 case WebResourceInfoFields.ResUrl:
                     nextContent = SetUrlIcon(curDt?.ResUrl ?? "", curDt?.Content ?? "", curDt?.Url_OpenType ?? 0);

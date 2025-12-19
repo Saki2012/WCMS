@@ -83,13 +83,13 @@ namespace WCMS
             AppSetup.UseSecurityHeaders(app, builder.Configuration);
             AppSetup.UseSecurityXSRF(app, builder.Configuration);
             //處理API支援語系
-            var supported = new[]{new CultureInfo("zh-TW"),new CultureInfo("en")};
+            var supported = new[] { new CultureInfo("zh-TW"), new CultureInfo("en") };
             app.UseRequestLocalization(new RequestLocalizationOptions
             {
                 DefaultRequestCulture = new RequestCulture("zh-TW"),
                 SupportedCultures = supported,
                 SupportedUICultures = supported,
-                RequestCultureProviders =[new AcceptLanguageHeaderRequestCultureProvider()]
+                RequestCultureProviders = [new AcceptLanguageHeaderRequestCultureProvider()]
             });
 
 
@@ -105,18 +105,18 @@ namespace WCMS
             else
             {
                 // 只允許本機打 /swagger/*
-                app.UseWhen(ctx => ctx.Request.Path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase),sub => sub.Use(async (ctx, next) =>
+                app.UseWhen(ctx => ctx.Request.Path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase), sub => sub.Use(async (ctx, next) =>
                 {
-                     var ip = ctx.Connection.RemoteIpAddress;
-                     // 僅允許 127.0.0.1/::1，且 Host 必須是 127.0.0.1（防止繞 Host）
-                     if (!(IPAddress.IsLoopback(ip) &&
-                           string.Equals(ctx.Request.Host.Host, "127.0.0.1", StringComparison.OrdinalIgnoreCase)))
-                     {
-                         ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
-                         await ctx.Response.WriteAsync("Swagger is local-only.");
-                         return;
-                     }
-                     await next();
+                    var ip = ctx.Connection.RemoteIpAddress;
+                    // 僅允許 127.0.0.1/::1，且 Host 必須是 127.0.0.1（防止繞 Host）
+                    if (!(IPAddress.IsLoopback(ip) &&
+                          string.Equals(ctx.Request.Host.Host, "127.0.0.1", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        await ctx.Response.WriteAsync("Swagger is local-only.");
+                        return;
+                    }
+                    await next();
                 }));
                 app.UseWhen(ctx =>
                 {
@@ -144,7 +144,7 @@ namespace WCMS
                 cacheStore.EvictByTagAsync("perm", default).GetAwaiter().GetResult();
             }
 
-            
+
             // CORS 放在 Auth 前
             app.UseCors(AppSetup.CorsPolicyName);
             app.UseResponseCompression();
@@ -179,7 +179,7 @@ namespace WCMS
                     o.AddServerHeader = false; // 移除 Server 標頭（弱掃友好）
                     o.Limits.MaxRequestHeadersTotalSize = 64 * 1024;      // 64KB headers
                     o.Limits.RequestHeadersTimeout = TimeSpan.FromSeconds(15);
-                    if(builder.Environment.IsProduction()) o.ListenLocalhost(5624);// 後端只聽本機（IIS/Nginx 反向 Proxy）
+                    if (builder.Environment.IsProduction()) o.ListenLocalhost(5624);// 後端只聽本機（IIS/Nginx 反向 Proxy）
                     // 視流量特性微調
                     // o.Limits.MaxConcurrentConnections = 1000;
                     // o.Limits.MaxRequestBodySize = 100 * 1024 * 1024;   // 若要全域限制上傳
@@ -287,7 +287,7 @@ namespace WCMS
             {
                 services.AddAntiforgery(o =>
                 {
-                    o.Cookie.Name = "XSRF-TOKEN"; 
+                    o.Cookie.Name = "XSRF-TOKEN";
                     o.Cookie.HttpOnly = false;
                     o.HeaderName = "X-XSRF-TOKEN";
                     o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
@@ -395,11 +395,11 @@ namespace WCMS
                                .SelectMany(t => t.GetInterfaces()
                                     .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == ibiz)
                                     .Select(i => new
-                                        {
-                                            Service = i,             
-                                            Impl = t,                 
-                                            Ns = t.Namespace ?? string.Empty
-                                        }
+                                    {
+                                        Service = i,
+                                        Impl = t,
+                                        Ns = t.Namespace ?? string.Empty
+                                    }
                                     )).ToList();
                 // 1) 先註冊 Feature 底下的 Biz（基礎版）
                 foreach (var p in pairs.Where(p => p.Ns.StartsWith("WCMS.Features.", StringComparison.Ordinal))) services.AddScoped(p.Service, p.Impl);
@@ -517,7 +517,7 @@ namespace WCMS
             {
                 services.AddRateLimiter(options =>
                 {
-                    
+
                     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
                     options.OnRejected = async (context, token) =>
                     {
@@ -623,7 +623,7 @@ namespace WCMS
                     }
                     bool isHtml = ctx.Request.Headers.Accept.ToString().Contains("text/html", StringComparison.OrdinalIgnoreCase);
 
-                    if (ctx.Request.IsHttps && !ctx.Request.Path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase) 
+                    if (ctx.Request.IsHttps && !ctx.Request.Path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase)
                         && isHtml && HttpMethods.IsGet(ctx.Request.Method))
                     {
                         var af = ctx.RequestServices.GetRequiredService<IAntiforgery>();
@@ -640,7 +640,7 @@ namespace WCMS
                             });
                         }
                     }
-                    
+
                     if (app.Environment.IsProduction() && (HttpMethods.IsPost(method) || HttpMethods.IsPut(method) || HttpMethods.IsDelete(method) || HttpMethods.IsPatch(method)))
                     {
                         // 來源：優先 Origin，沒有就用 Referer
@@ -687,7 +687,7 @@ namespace WCMS
             /// 讀取 SysCore/UDF 內所有 .sql 並逐檔（依檔名排序）執行；支援 GO 斷批。
             /// 每檔各自交易，任一檔失敗就中止並拋例外（避免上線半套狀態）。
             /// </summary>
-            private static async Task RegistUDFAsync(IConfiguration cfg, IWebHostEnvironment env,ApplicationDbContext db)
+            private static async Task RegistUDFAsync(IConfiguration cfg, IWebHostEnvironment env, ApplicationDbContext db)
             {
                 // 1) 解析 UDF 目錄
                 var udfPath = cfg["DbInit:UdfPath"];
@@ -714,7 +714,7 @@ namespace WCMS
                             foreach (var batch in batches)
                             {
                                 if (string.IsNullOrWhiteSpace(batch)) continue;
-                                using var cmd = new SqlCommand(batch, conn, tx){CommandType = CommandType.Text};
+                                using var cmd = new SqlCommand(batch, conn, tx) { CommandType = CommandType.Text };
                                 await cmd.ExecuteNonQueryAsync();
                             }
                             await tx.CommitAsync();
@@ -763,9 +763,9 @@ namespace WCMS
                 //var roleAdmin2 = await FindOrCreateRoleAsync(db, opt.Admin.RoleId, logger); // 允許不同設定
                 //await db.SaveChangesAsync();
                 // 2) SysOperator：不可登入、不設密碼
-                await UpsertPersonAndAccountAsync(db,user: opt.SysOperator,canLogin: false);
+                await UpsertPersonAndAccountAsync(db, user: opt.SysOperator, canLogin: false);
                 // 3) Admin：可登入；只有「新建時」才設定密碼；存在就不覆蓋
-                await UpsertPersonAndAccountAsync(db,user: opt.Admin,canLogin: true);
+                await UpsertPersonAndAccountAsync(db, user: opt.Admin, canLogin: true);
                 await db.SaveChangesAsync();
                 await tx.CommitAsync();
             }
@@ -793,13 +793,16 @@ namespace WCMS
                 var isNew = account == null;
                 if (isNew)
                 {
-                    (byte[] hash, byte[] salt, int ver) = canLogin? PasswordHasher.Hash(user.Password):(Array.Empty<byte>(), Array.Empty<byte>(),0);
-                    account = new AccountModel { 
-                        AccountId = user.AccountId, 
+                    (byte[] hash, byte[] salt, int ver) = canLogin ? PasswordHasher.Hash(user.Password) : (Array.Empty<byte>(), Array.Empty<byte>(), 0);
+                    account = new AccountModel
+                    {
+                        AccountId = user.AccountId,
                         AccountName = user.AccountName,
                         PersonId = person.PersonId,
-                        PasswordHash = hash,PasswordSalt = salt,
-                        PasswordAlgoVer = ver,AccountStatus = AccountStatus.Enable,
+                        PasswordHash = hash,
+                        PasswordSalt = salt,
+                        PasswordAlgoVer = ver,
+                        AccountStatus = AccountStatus.Enable,
                         InternalId = Guid.NewGuid().ToString(),
                     };
                     await db.Set<AccountModel>().AddAsync(account);
@@ -821,13 +824,13 @@ namespace WCMS
                 var root = new SiteMenu_IndexModel
                 {
                     SiteIndex = string.Empty,
-                    GoogleAnalytics=string.Empty,
-                    Enable=true,
+                    GoogleAnalytics = string.Empty,
+                    Enable = true,
                     DefaultLang = LangCode.zhtw,//初始化一律先默認中文
                     SupportLangs = LangCodeJson.ToJsonArray(LangCode.zhtw, LangCode.en),
                     FormStatus = FormStatus.Saved,
-                    DataStatus= DataStatus.Valid,
-                    OrgLvId=string.Empty,
+                    DataStatus = DataStatus.Valid,
+                    OrgLvId = string.Empty,
                     InternalId = Guid.NewGuid().ToString(),
                     IsIniData = true,
                     CreateTime = now,
@@ -840,12 +843,12 @@ namespace WCMS
                     // 這裡的屬性名稱請依你實際的 Model 調整
                     SiteIndex = root.SiteIndex,
                     RowId = 1,
-                    Lang = LangCode.zhtw,     
-                    Title = string.Empty,       
-                    Description=string.Empty,
-                    SiteHeader=string.Empty,
-                    SiteFooter=string.Empty,
-                    Keyword=string.Empty
+                    Lang = LangCode.zhtw,
+                    Title = string.Empty,
+                    Description = string.Empty,
+                    SiteHeader = string.Empty,
+                    SiteFooter = string.Empty,
+                    Keyword = string.Empty
                 };
 
                 var rootDetail2 = new SiteMenu_IndexInfoModel
@@ -853,8 +856,8 @@ namespace WCMS
                     // 這裡的屬性名稱請依你實際的 Model 調整
                     SiteIndex = root.SiteIndex,
                     RowId = 2,
-                    Lang = LangCode.en,       
-                    Title = string.Empty,     
+                    Lang = LangCode.en,
+                    Title = string.Empty,
                     Description = string.Empty,
                     SiteHeader = string.Empty,
                     SiteFooter = string.Empty,
@@ -870,7 +873,7 @@ namespace WCMS
             /// </summary>
             public static async Task RegistCalendar(IServiceProvider services)
             {
-                using var scope = services.CreateScope() ;
+                using var scope = services.CreateScope();
                 var svc = scope.ServiceProvider.GetRequiredService<IBizService<CalendarSet>>();
                 if (svc is CalendarBiz calendarBiz) await calendarBiz.InitCalendar(CancellationToken.None);
             }

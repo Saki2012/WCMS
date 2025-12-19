@@ -8,7 +8,6 @@ import { LangLink } from "@/SysCore/i18n/LangLink";
 import type { Lang } from "@/SysCore/i18n/lang";
 import bgImg from "@/SpecFetures/1816/Assets/Client/images/bg/background-transparent-image_1920x600.png"
 
-
 declare global { interface Window { Swiper?: any } }
 type BannerSet = components["schemas"]["BannerSet_DTO"]
 

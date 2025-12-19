@@ -97,7 +97,7 @@ namespace WCMS.Features.SiteEdit.Banner
         /// <summary>
         /// 語系
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.Lang)] public LangCode Lang { get; set; }
+        [LibDesc] public LangCode Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>

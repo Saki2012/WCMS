@@ -126,7 +126,7 @@ const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: Ann
                     < div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
                         <article className="cardbox">
                             <div className="card_content">
-                                <a href={linkUrl} className="card_image_link venobox vbox-item" data-gall="myGallery" title={title}>
+                                <LangNavLink to={linkUrl} className="card_image_link venobox vbox-item" data-gall="myGallery" title={title}>
                                     <figure className="figure_Box">
                                         <div className="card_figure">
                                             <div className="img-wrapper">
@@ -160,7 +160,7 @@ const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: Ann
                                         </div>
 
                                     </div>
-                                </a>
+                                </LangNavLink>
                             </div>
                         </article>
                     </div>)

@@ -1,4 +1,4 @@
-import { SpecProgId } from "@/SpecFetures/1816/Hooks/Common/SpecProgId";
+import { SpecPGID } from "@/SpecFetures/1816/Hooks/Common/SpecProgId";
 import { IApiProvider, IDataProvider } from "@/SysCore/Interface/IApiProvider";
 import type { ApiResponse } from "@/SysCore/Interface/IApiProvider";
 import { BaseApiService } from "@/SysCore/Utils/API/APIClient";
@@ -49,7 +49,7 @@ class MockProvider extends ISpecOpenScheduleRuleProvider
 }
 class APIProvider extends ISpecOpenScheduleRuleProvider
 {
-    private readonly ModuleName = SpecProgId.SpecOpenScheduleRule;
+    private readonly ModuleName = SpecPGID.SpecOpenScheduleRule;
     private readonly API = new BaseApiService<SpecOpenScheduleRuleSet>(this.ModuleName);
 
     protected async doCreateData(set: SpecOpenScheduleRuleSet): Promise<ApiResponse<SpecOpenScheduleRuleSet>>

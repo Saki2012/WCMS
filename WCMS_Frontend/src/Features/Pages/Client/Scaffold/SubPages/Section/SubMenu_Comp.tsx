@@ -1,11 +1,11 @@
 import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
-import type { Lang } from "@/SysCore/i18n/lang";
+import { isSupportedLang, type Lang } from "@/SysCore/i18n/lang";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import clsx from "clsx";
 import React, { useMemo, useState, useEffect } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 type SubMenuProps = { lang: Lang; site: INormSite; node: INormNode; maxDepth?: number; };
 
@@ -32,14 +32,30 @@ const normalizePath = (path: string): string => {
         return path;
     }
 };
-/** 只判斷「完全相等」的路徑，用在 leaf active */
-const isUrlExactlyMatch = (currentPath: string, itemUrl: string | undefined): boolean => {
+/** 去掉網址最前面的 /:lang（例如 /en/news... → /news...），讓比對與語系無關 */
+const stripLangPrefixFromPath = (path: string): string => {
+    const p = normalizePath(path);
+    const segs = p.split("/").filter(Boolean);
+    if (segs.length === 0) return "/";
+
+    const first = segs[0]?.toLowerCase();
+    if (!isSupportedLang(first)) return p;
+
+    const rest = segs.slice(1).join("/");
+    return rest ? `/${rest}` : "/";
+};
+
+/** 判斷目前路徑是否落在 itemUrl（支援 /a 與 /a/...，且忽略 /:lang 前綴） */
+const isUrlMatch = (currentPath: string, itemUrl: string | undefined): boolean => {
     if (!itemUrl) return false;
     if (isExternalUrl(itemUrl)) return false;
 
-    const cur = normalizePath(currentPath);
-    const url = normalizePath(itemUrl);
-    return cur === url;
+    const cur = stripLangPrefixFromPath(currentPath);
+    const url = stripLangPrefixFromPath(itemUrl);
+
+    if (cur === url) return true;
+    if (url !== "/" && cur.startsWith(`${url}/`)) return true;
+    return false;
 };
 /** 計算：
  *  - activeIds：只有「實際匹配路由」的節點才 active（通常是 leaf）
@@ -50,7 +66,7 @@ const calcActiveAndExpanded = (items: MenuItemData[], pathname: string) => {
     const expandedIdsByPath = new Set<string>();
     const dfs = (item: MenuItemData): boolean => {
         const hasChildren = !!(item.SubItem && item.SubItem.length > 0);
-        const selfActive = isUrlExactlyMatch(pathname, item.Url);
+        const selfActive = !hasChildren && isUrlMatch(pathname, item.Url);
         let hasActiveInSubtree = selfActive;
         if (hasChildren) {
             for (const child of item.SubItem) {
@@ -128,7 +144,7 @@ export const SubMenu_Comp: React.FC<SubMenuProps> = (props) => {
                 else {
                     // 內部路由
                     content = (
-                        <LangNavLink to={item.Url} target={target} className={clsx("list-group-item", active && "active")} end>
+                        <LangNavLink to={item.Url} target={target} className={({ isActive }) => clsx("list-group-item", (isActive || active) && "active")} aria-current={active ? "page" : undefined}>
                             {item.SrcData}
                         </LangNavLink>
                     );

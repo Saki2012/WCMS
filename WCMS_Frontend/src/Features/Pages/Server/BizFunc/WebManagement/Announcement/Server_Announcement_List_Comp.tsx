@@ -29,7 +29,7 @@ export const Server_AnnouncementListComp = (prop: { title: string; theme: IBEThe
     const useCategory = useCategoryListData(PGID.Announcement, prop.lang);
     const useAnnounceList = useAnnouncementList(provider, prop.lang, kw);
     const actions = useActions(dirUrl, provider, undefined, undefined, useAnnounceList.refetchCurrent)
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, actions); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, actions]);
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(prop.lang, useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, actions); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, actions]);
     const isLoading = useMemo(() => [useAnnounceList.isLoading, useCategory.isLoading], [useAnnounceList.isLoading, useCategory.isLoading]);
     const errors = useMemo(() => [useAnnounceList.error, useCategory.error], [useAnnounceList.error, useCategory.error]);
     const searchCompProp: SearchBarProps = { title: "公告搜尋", subTitle: "搜尋公告 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
@@ -37,7 +37,7 @@ export const Server_AnnouncementListComp = (prop: { title: string; theme: IBEThe
 }
 
 /** 動態添加每行的動作功能 */
-const SetAdjustFunction = (gridProps: GridProps, rawData: AnnouncementSet[], categoryData: CategoryDataSet[],
+const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: AnnouncementSet[], categoryData: CategoryDataSet[],
     actions: UseActionsResult
 ): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
@@ -50,7 +50,7 @@ const SetAdjustFunction = (gridProps: GridProps, rawData: AnnouncementSet[], cat
         if (titleCell) { titleCell.content = (<>{titleCell.content}{GetDataStatusContent(curData?.Announcement?.ContentStatus ?? 0)}</>); }
         const categoryCell = row.cells.find(p => p.col.key === AnnouncementFields.Categories);
         const rawCatId = curData?.Announcement?.Categories ?? categoryCell?.content?.toString() ?? "";
-        if (categoryCell) { categoryCell.content = useFormatCategoriesName(rawCatId, categoryData); }
+        if (categoryCell) { categoryCell.content = useFormatCategoriesName(rawCatId, categoryData, lang); }
         const internalId = curData?.Announcement?.InternalId ?? "";
         const newCell: RowCell = {
             col: adjustCol,

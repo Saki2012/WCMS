@@ -48,7 +48,7 @@ namespace WCMS.Features.SiteEdit.PageManagement
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.Lang)] public LangCode Lang { get;set; }
+        [LibDesc] public LangCode Lang { get;set; }
         /// <summary>
         /// 標題
         /// </summary>

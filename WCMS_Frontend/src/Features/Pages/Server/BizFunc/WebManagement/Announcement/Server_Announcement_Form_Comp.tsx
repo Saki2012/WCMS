@@ -42,10 +42,7 @@ export const Server_AnnouncementFormComp = (props: { theme: IBETheme; lang: Lang
     const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
     const [open, setOpen] = useState(false);
     const [payload, setPayload] = useState<PreviewPayload | undefined>(undefined);
-    const onPreview = useCallback((p?: PreviewPayload) => {
-        setPayload(p);
-        setOpen(true);
-    }, []);
+    const onPreview = useCallback((p?: PreviewPayload) => { setPayload(p); setOpen(true); }, []);
 
     // A) 編輯中預覽（用當前表單 dto）
     const handlePreviewFromDto = useCallback((dto: any) => {

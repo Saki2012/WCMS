@@ -30,7 +30,7 @@ export const Server_FileArchiveListComp = (prop: { title: string; theme: IBEThem
     const usePageList = useFileArchiveList(provider, prop.lang, kw);
     const useCategory = useCategoryListData(PGID.FileArchive, prop.lang);
     const actions = useActions(dirUrl, provider, undefined, undefined, usePageList.refetchCurrent);
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions); }, [usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions]);
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(prop.lang, usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions); }, [usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions]);
     const searchCompProp: SearchBarProps = { title: "檔案室搜尋", subTitle: "搜尋檔案室 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
     const isLoading = [usePageList.isLoading, useCategory.isLoading];
     const errors = [usePageList.error, useCategory.error];
@@ -38,7 +38,7 @@ export const Server_FileArchiveListComp = (prop: { title: string; theme: IBEThem
 }
 
 /** 動態添加每行的動作功能 */
-const SetAdjustFunction = (gridProps: GridProps, rawData: FileArchiveSet[], categoryData: CategoryDataSet[], actions: UseActionsResult): GridProps => {
+const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: FileArchiveSet[], categoryData: CategoryDataSet[], actions: UseActionsResult): GridProps => {
     if (gridProps.rows.length === 0) return gridProps;
     const hasAdjustCol = gridProps.columns.some(col => col.key === '__adjust__');
     const adjustCol: ColumnConfig = hasAdjustCol ? (gridProps.columns.find(col => col.key === '__adjust__') as ColumnConfig) : { key: '__adjust__', title: '動作' };
@@ -53,7 +53,7 @@ const SetAdjustFunction = (gridProps: GridProps, rawData: FileArchiveSet[], cate
             if (cell.col.key === FileArchiveFields.CategoriesId) {
                 const rawCatId =
                     curData?.FileArchive?.CategoriesId ?? cell.content?.toString() ?? "";
-                return { ...cell, content: useFormatCategoriesName(rawCatId, categoryData), };
+                return { ...cell, content: useFormatCategoriesName(rawCatId, categoryData, lang), };
             }
             return cell;
         });
