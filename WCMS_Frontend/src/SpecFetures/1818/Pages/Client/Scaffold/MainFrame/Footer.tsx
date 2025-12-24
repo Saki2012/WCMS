@@ -10,12 +10,10 @@ const Footer = (props: FooterProps) => {
             address: "Address",
             addressValue: "Room 521, College of Social Sciences and Management Building, No. 145, Xingda Rd., South Dist., Taichung City 40227, Taiwan",
             mapTitle: "Map: National Chung Hsing University",
-            copyright:
-                "Copyright © 2025. National Chung Hsing University — Transcontinental Master’s Degree Program in Global Affairs Studies. All rights reserved.",
+            copyright: "Copyright © 2025. National Chung Hsing University — Transcontinental International Master Pgorgam. All rights reserved.",
             viewCount: "Views",
             updateDate: "Last updated",
-            browserHint:
-                "For a better and more stable browsing experience, please update your browser to Microsoft Edge / Google Chrome / Mozilla Firefox or any W3C-compatible browser (recommended screen resolution: 1920×1080).",
+            browserHint: "For a better and more stable browsing experience, please update your browser to Microsoft Edge / Google Chrome / Mozilla Firefox or any W3C-compatible browser (recommended screen resolution: 1920×1080).",
             designByTitle: "IT-EASYGO International Accessibility Technology Co., Ltd.",
             designBy: "Design by it-easygo.",
         }
@@ -26,12 +24,10 @@ const Footer = (props: FooterProps) => {
             address: "地址",
             addressValue: "40227 台中市南區興大路145號（社管大樓521室）",
             mapTitle: "地圖：國立中興大學",
-            copyright:
-                "Copyright © 2025. 國立中興大學 全球事務研究跨洲碩士學位學程 All rights reserved.",
+            copyright: "Copyright © 2025. 國立中興大學 全球事務研究跨洲碩士學位學程 All rights reserved.",
             viewCount: "瀏覽人數",
             updateDate: "更新日期",
-            browserHint:
-                "為提供更為穩定的瀏覽品質與使用體驗，建議更新瀏覽器 Microsoft Edge / Google Chrome / Mozilla Firefox 或相容 W3C 網頁標準之瀏覽器  ( 螢幕最佳瀏覽解析度為1920*1080 )",
+            browserHint: "為提供更為穩定的瀏覽品質與使用體驗，建議更新瀏覽器 Microsoft Edge / Google Chrome / Mozilla Firefox 或相容 W3C 網頁標準之瀏覽器  ( 螢幕最佳瀏覽解析度為1920*1080 )",
             designByTitle: "國際暢行科技有限公司",
             designBy: "Design by it-easygo.",
         } as const)
