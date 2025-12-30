@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.I18n.Resx;
 
-namespace WCMS.SysCore.Library
+namespace WCMS.SysCore.Library.LibAttribute
 {
     /// <summary>
     /// 欄位/Function名稱描述 
@@ -88,4 +88,5 @@ namespace WCMS.SysCore.Library
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class DTOReadOnlyAttribute : Attribute { }
+
 }

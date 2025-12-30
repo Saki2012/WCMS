@@ -1,23 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Data;
-using System.Reflection;
+﻿using System.Data;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using WCMS.Features.SiteEdit.PageManagement;
+using WCMS.Features.BizResx;
 using WCMS.SysCore;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Library.LibData;
 
 namespace WCMS.Features.SiteEdit.Announcement
 {
-    [ProgId("Announcement")]
+    [ProgId(PGID.Announcement)]
     public class AnnouncementBiz(BizDeps bizDeps) : BizService<AnnouncementSet>(bizDeps), IBizService<AnnouncementSet>
     {
         #region Migration Old Data

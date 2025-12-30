@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.OutputCaching;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
-using System.Globalization;
+using System.Security.Claims;
 using WCMS.Features.SiteEdit.Announcement;
 using WCMS.Features.SiteEdit.Banner;
 using WCMS.Features.SiteEdit.Category;
@@ -24,6 +27,7 @@ using WCMS.SysCore.I18n;
 using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
@@ -36,7 +40,7 @@ namespace WCMS.SysCore
     /// </summary>
     /// <typeparam name="TSet"></typeparam>
     /// <typeparam name="TSet_DTO"></typeparam>
-    [Authorize] public abstract class ApiBaseController<TSet, TSet_DTO> : ControllerBase where TSet : ITSet where TSet_DTO : ITSet_DTO
+    [Authorize] public abstract class ApiBaseController<TSet, TSet_DTO> : ControllerBase, IAsyncActionFilter where TSet : ITSet where TSet_DTO : ITSet_DTO
     {
         #region Property
         private IBizService<TSet>? _service;
@@ -85,6 +89,67 @@ namespace WCMS.SysCore
         }
         #endregion
 
+        #region 權限控制
+        Task IAsyncActionFilter.OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        {
+            // 顯式介面實作：避免 MVC 把它當 action endpoint
+            return OnActionExecutionCoreAsync(context, next);
+        }
+        private async Task OnActionExecutionCoreAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        {
+            var ok = await EnsurePermissionAsync(context);
+            if (!ok) return;
+
+            await next();
+        }
+        private async Task<bool> EnsurePermissionAsync(ActionExecutingContext context)
+        {
+            // 1) AllowAnonymous：不檢查權限
+            if (context.Filters.Any(f => f is Microsoft.AspNetCore.Mvc.Authorization.IAllowAnonymousFilter))
+                return true;
+            // 2) 沒登入：交給 [Authorize] 處理（這裡不做 401）
+            if (!Current.IsAuthenticated) return true;
+            // 3) 取出 action 上的 RequiredAct
+            var requiredAct = GetRequiredAct(context);
+            if (requiredAct == FuncAction.None) return true; // 沒標就不管（你之後想改成強制也行）
+            // 4) 取出 controller/action 上的 permission meta（你目前用 LibPermission / LibApiController 都可以）
+            var meta = GetPermissionMeta(context);
+            if (meta == null) return true;
+            // 5) SupportMask 不支援：直接 403
+            if ((meta.SupportFuncActMask & requiredAct) != requiredAct)
+            {
+                context.Result = Forbid();
+                return false;
+            }
+            // 6) RBAC 檢查：查 user 是否有該動作
+            var checker = HttpContext.RequestServices.GetRequiredService<ILibPermissionChecker>();
+            var ok = await checker.HasPermissionAsync(Current.User.UserId, meta.ProgId, requiredAct, context.HttpContext.RequestAborted);
+            if (!ok)
+            {
+                var actionName = EnumHelper.GetEnumDisplayName(requiredAct); 
+                Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00029, actionName);
+                context.Result = new JsonResult(Message.Messages.LastOrDefault().Message) { StatusCode = StatusCodes.Status403Forbidden };
+                return false;
+            }
+            return true;
+        }
+       
+        private static FuncAction GetRequiredAct(ActionExecutingContext context)
+        {
+            if (context.ActionDescriptor is not ControllerActionDescriptor cad) return FuncAction.None;
+            var attr = cad.MethodInfo.GetCustomAttributes(typeof(LibRequireFuncActAttribute), true).OfType<LibRequireFuncActAttribute>().FirstOrDefault();
+            return attr?.RequiredAct ?? FuncAction.None;
+        }
+        private static LibApiControllerAttribute? GetPermissionMeta(ActionExecutingContext context)
+        {
+            if (context.ActionDescriptor is not ControllerActionDescriptor cad) return null;
+            // Action 優先，其次 Controller
+            return cad.MethodInfo.GetCustomAttributes(typeof(LibApiControllerAttribute), true).OfType<LibApiControllerAttribute>().FirstOrDefault()
+                ?? cad.ControllerTypeInfo.GetCustomAttributes(typeof(LibApiControllerAttribute), true).OfType<LibApiControllerAttribute>().FirstOrDefault();
+        }
+        #endregion
+
+
         /// <summary>
         /// 獲取功能的欄位顯示名稱
         /// </summary>
@@ -107,10 +172,10 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="set"></param>
         /// <returns></returns>
-        [HttpPost(nameof(Create))]
+        [HttpPost(nameof(Create)), LibRequireFuncAct(FuncAction.Create)]
         public virtual async Task<IActionResult> Create(TSet_DTO set, CancellationToken ct)
         {
-            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(Create)}", OperateUser.UserId,  JsonConvert.SerializeObject(set),Request.Headers["HTTP_CLIENT_IP"].ToString());
+            OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Create)}", OperateUser.UserId,  JsonConvert.SerializeObject(set),Request.Headers["HTTP_CLIENT_IP"].ToString());
             TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(set);
             SpecDoMapToSet(entity, set);
             var createResult = await Service.BizCreateSetAsync(entity);
@@ -132,7 +197,7 @@ namespace WCMS.SysCore
         [HttpPost(nameof(InitialCreateData))]
         public virtual async Task<IActionResult> InitialCreateData(TSet_DTO[] sets, CancellationToken ct)
         {
-            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(InitialCreateData)}", OperateUser.UserId, JsonConvert.SerializeObject(sets),Request.Headers["HTTP_CLIENT_IP"].ToString() );
+            OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(InitialCreateData)}", OperateUser.UserId, JsonConvert.SerializeObject(sets),Request.Headers["HTTP_CLIENT_IP"].ToString() );
             await Service.BeginTransactionAsync();
             try
             {
@@ -157,10 +222,10 @@ namespace WCMS.SysCore
         /// <param name="pk"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        [HttpPut(nameof(Update))]
+        [HttpPut(nameof(Update)), LibRequireFuncAct(FuncAction.Update)]
         public virtual async Task<IActionResult> Update(ApiRequest<TSet_DTO> data, CancellationToken ct)
         {
-            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(Update)}", OperateUser.UserId, JsonConvert.SerializeObject(data), Request.Headers["HTTP_CLIENT_IP"].ToString());
+            OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Update)}", OperateUser.UserId, JsonConvert.SerializeObject(data), Request.Headers["HTTP_CLIENT_IP"].ToString());
             TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(data.Data);
             SpecDoMapToSet(entity, data.Data);
             var updateResult = await Service.BizUpdateSetAsync(data.InternalId, entity);
@@ -179,10 +244,10 @@ namespace WCMS.SysCore
         /// <param name="pk"></param>
         /// <param name="isInvalid"></param>
         /// <returns></returns>
-        [HttpPatch($"{nameof(Invalid)}/{{pk}}")]
+        [HttpPatch($"{nameof(Invalid)}/{{pk}}"), LibRequireFuncAct(FuncAction.Invalid)]
         public virtual async Task<IActionResult> Invalid(string internalId, bool isInvalid, CancellationToken ct)
         {
-            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(Invalid)}", OperateUser.UserId, JsonConvert.SerializeObject(internalId), Request.Headers["HTTP_CLIENT_IP"].ToString());
+            OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Invalid)}", OperateUser.UserId, JsonConvert.SerializeObject(internalId), Request.Headers["HTTP_CLIENT_IP"].ToString());
             if (!Guid.TryParse(internalId, out var guid)) { return BadRequest("Invalid internalId format."); }
             var invalidResult = await Service.BizInvalidSetAsync(internalId, isInvalid);
             var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(invalidResult);
@@ -195,16 +260,16 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="pks"></param>
         /// <returns></returns>
-        [HttpPatch(nameof(BatchInvalid))] public virtual async Task<IActionResult> BatchInvalid(string[] internalIds, bool isInvalid, CancellationToken ct) => throw new NotImplementedException();
+        [HttpPatch(nameof(BatchInvalid)), LibRequireFuncAct(FuncAction.Invalid)] public virtual async Task<IActionResult> BatchInvalid(string[] internalIds, bool isInvalid, CancellationToken ct) => throw new NotImplementedException();
         /// <summary>
         /// 刪除
         /// </summary>
         /// <param name="pk"></param>
         /// <returns></returns>
-        [HttpDelete(nameof(Delete))]
+        [HttpDelete(nameof(Delete)), LibRequireFuncAct(FuncAction.Delete)]
         public virtual async Task<IActionResult> Delete(string internalId, CancellationToken ct)
         {
-            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(Delete)}", OperateUser.UserId, JsonConvert.SerializeObject(internalId), Request.Headers["HTTP_CLIENT_IP"].ToString());
+            OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Delete)}", OperateUser.UserId, JsonConvert.SerializeObject(internalId), Request.Headers["HTTP_CLIENT_IP"].ToString());
             if (!Guid.TryParse(internalId, out var guid)) { return BadRequest("Invalid internalId format."); }
             var deleteResult = await Service.BizDeleteSetAsync(internalId);
             var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(deleteResult);
@@ -217,9 +282,10 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="pks"></param>
         /// <returns></returns>
-        [HttpDelete(nameof(BatchDelete))] public virtual Task<IActionResult> BatchDelete(string[] internalIds, CancellationToken ct) => throw new NotImplementedException();
+        [HttpDelete(nameof(BatchDelete)), LibRequireFuncAct(FuncAction.Delete)] public virtual Task<IActionResult> BatchDelete(string[] internalIds, CancellationToken ct) => throw new NotImplementedException();
         /// <summary>
         /// 查看表單
+        /// TODO:之後一定要拆分成前台跟後台用的API，後台會需要多一層權限管控
         /// </summary>
         /// <param name="pk"></param>
         /// <returns></returns>
@@ -235,6 +301,7 @@ namespace WCMS.SysCore
         }
         /// <summary>
         /// 查詢清單
+        /// TODO:之後一定要拆分成前台跟後台用的API，後台會需要多一層權限管控
         /// </summary>
         /// <returns></returns>
         [HttpPost(nameof(QueryList)), OutputCache(PolicyName = SysParam.ListCache), AllowAnonymous, IgnoreAntiforgeryToken]
@@ -330,7 +397,7 @@ namespace WCMS.SysCore
             followInfo.APIName = $"{"SystemAPI"}/{nameof(Migration)}";
             followInfo.UserId = "SysOperator";
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
-            OperateLog.AddMoveFollow(followInfo);
+            OperateLog.AddOperateLog(followInfo);
             await fileManagement.ImportZip(labelTag);
             QueryListParam p = new(){Fields=[nameof(FileManageModel.InternalId)], Condition = $"{nameof(FileManageModel.ImportLabel)} = {labelTag}"};
             IList<FileManageSet> fileInternalIds = await fileManagement.BizQueryListAsync(p);

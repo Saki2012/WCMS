@@ -1,11 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WCMS.Features.Member.Permission;
 using WCMS.Features.Member.Personnel;
+using WCMS.Features.Member.RolePermission;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
 
@@ -33,8 +31,13 @@ namespace WCMS.Features.Member.Account
         /// 人員編號
         /// 注: 必填，一個人只能有一個帳號
         /// </summary>
-        [ForeignKey(nameof(PersonId))] public PersonModel Person { get; set; }
-        [StringLength(SysLengthParam.ID)] public string PersonId { get; set; }
+        [ForeignKey(nameof(PersonId))] public PersonModel? Person { get; set; }
+        [StringLength(SysLengthParam.ID)] public string? PersonId { get; set; }
+        /// <summary>
+        /// 角色
+        /// </summary>
+        [ForeignKey(nameof(RoleId))] public RoleDataModel? Role { get; set; }
+        [StringLength(SysLengthParam.ID)] public string? RoleId { get; set; }
         /// <summary>
         /// 雜湊密碼
         /// </summary>
@@ -54,6 +57,6 @@ namespace WCMS.Features.Member.Account
         /// <summary>
         /// 密碼最後修改時間:檢測90天
         /// </summary>
-        //public DateTime PasswordChangeTime { get; set; }
+        public DateOnly PasswordChangeDate { get; set; }
     }
 }

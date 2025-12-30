@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Library.LibAttribute;
 
 namespace WCMS.SysCore.I18n
 {

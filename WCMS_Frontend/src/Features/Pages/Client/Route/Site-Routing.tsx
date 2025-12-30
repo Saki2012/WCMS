@@ -9,6 +9,7 @@ import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { Classic_FETheme } from "../Theme/ClassicTheme_Clsx";
 import TemplateHub from "@/Features/Pages/Server/Scaffold/PreviewFrame/TemplateHub.tsx";
 import { useLang } from "@/SysCore/i18n/LangContext";
+import { SITEMAP_NODE_ID, SITEMAP_SEGMENT, SitemapNode } from "../BizFunc/MainPage/Sitemap";
 
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"]
 type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"]
@@ -137,7 +138,7 @@ export const normalizeSite = (siteMenu: SiteMenuSet): INormSite => {
             if (parent == null) roots.push(n);
             else nodeMap.get(parent)?.children.push(n);
         }
-
+        ensureVirtualRoot(roots, lang);
         const fillMeta = (node: INormNode, parent: INormNode | null, rootId: number, parentSegs: string[], parentIds: number[]) => {
             node.level = (parent?.level ?? -1) + 1;
             node.rootId = rootId;
@@ -170,8 +171,14 @@ const normalizeInternal = (s: string) => {
     return cleaned.replace(/\/{2,}/g, "/");
 };
 
+const ensureVirtualRoot = (roots: INormNode[], lang: Lang): void => {
+    // 若已存在，就不重覆塞
+    const exists = roots.some((r) => r.id === SITEMAP_NODE_ID || (r.path ?? "") === SITEMAP_SEGMENT);
+    if (!exists) roots.push(SitemapNode(lang));
+};
+
 export type ModuleFactory = (lang: Lang, site: INormSite, node: INormNode) => React.ReactElement;
-export type ModuleRoutesFactory = (opts: unknown, lang: Lang, node: INormNode) => RouteObject[];
+export type ModuleRoutesFactory = (opts: unknown, lang: Lang, node: INormNode, site: INormSite) => RouteObject[];
 export type ModuleEntry =
     | { kind: "element"; render: ModuleFactory }
     | { kind: "routes"; element: ModuleFactory; children: ModuleRoutesFactory };
@@ -210,6 +217,7 @@ const wrapRoutesWithCtxLang = (routes: RouteObject[]): RouteObject[] =>
         if (r.children?.length) clone.children = wrapRoutesWithCtxLang(r.children);
         return clone;
     });
+
 export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
     const skeletonRoots = site.treeByLang[DefaultLang] ?? Object.values(site.treeByLang)[0] ?? [];
     const toRoute = (n: INormNode): RouteObject => {
@@ -269,7 +277,7 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
         if (!entry) return { path: n.path, element: <div>Unknown module: {n.module.progId}</div> };
         const element = <ModuleElement node={n} site={site} />;
         // routes 型模組的自帶 children；element 型為空
-        const modChildrenRaw: RouteObject[] = entry.kind === "routes" ? entry.children(n.module.options, DefaultLang, n) : [];
+        const modChildrenRaw: RouteObject[] = entry.kind === "routes" ? entry.children(n.module.options, DefaultLang, n, site) : [];
         const modChildren = wrapRoutesWithCtxLang(modChildrenRaw); const children = [...modChildren, ...menuChildren];
         // pathless 模組：有 children → 當包裹；沒有 → 當 index
         if (!n.path) return children.length > 0 ? { element, children } : { index: true, element };

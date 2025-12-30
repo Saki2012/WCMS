@@ -13,6 +13,7 @@ export const DashboardPage = ({ theme }: { theme: IBETheme }) => {
   const pageTitle = lastHandle?.title;
   const lastModule = [...matches].reverse().find(m => (m.handle as RouteHandleMeta | undefined)?.moduleCode);
   const moduleCode = (lastModule?.handle as RouteHandleMeta | undefined)?.moduleCode ?? "WebManagement"; // 你的預設
+
   return (
     <>
       <SidebarMenu moduleCode={moduleCode} />

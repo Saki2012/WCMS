@@ -12,6 +12,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.Library.LibAttribute;
 using static MimeDetective.Definitions.DefaultDefinitions;
 
 namespace WCMS.SysCore.Library
@@ -593,7 +594,7 @@ namespace WCMS.SysCore.Library
                     })];
             }
 
-            private static string GetEnumDisplayName(System.Enum value)
+            public static string GetEnumDisplayName(System.Enum value)
             {
                 var field =  value.GetType().GetField(value.ToString());
                 var attr = field?.GetCustomAttribute<LibDescAttribute>();

@@ -5,6 +5,7 @@ import clsx from "clsx";
 import { useMemo } from "react";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { LangNavLink } from "@/SysCore/i18n/LangLink";
 type BannerSet = components["schemas"]["BannerSet_DTO"]
 
 
@@ -39,9 +40,17 @@ export const CarouselData = (props: { lang: Lang }) => {
                   const alt = info?.Title ?? ""
                   const date = formatDate(p.Validate_Start || "")
                   const content = info?.Content ?? ""
+                  const url = info?.URL;
+                  const tar = info?.URL_Open === 0 ? "_self" : "_blank"
                   return (
                     <div key={i} className={clsx("carousel-item", i === 0 ? "active" : "")} data-bs-interval="5000">
-                      <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} className="d-block w-100" alt={alt} />
+                      {url ?
+                        <LangNavLink to={url} target={tar} rel={tar === "_blank" ? "noopener noreferrer" : undefined} aria-label={alt || "banner link"}>
+                          <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} className="d-block w-100" alt={alt} />
+                        </LangNavLink>
+                        :
+                        <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} className="d-block w-100" alt={alt} />
+                      }
                       <div className="caption bg-customize-op09">
                         <div className="caption-title mb-sm-3 mb-1">
                           {alt}

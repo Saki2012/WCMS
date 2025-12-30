@@ -177,9 +177,7 @@ export const CarouselData = (props: { lang: Lang }) => {
 
                       <div className="carousel-inner">
                         {sortedDetails.map((p, i) => {
-                          const info = useBanner.data?.BannerDetailInfo?.find(
-                            (x) => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang
-                          );
+                          const info = useBanner.data?.BannerDetailInfo?.find((x) => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang);
                           const alt = info?.Title ?? "";
                           const url = info?.URL;
                           const tar = info?.URL_Open === 0 ? "_self" : "_blank"

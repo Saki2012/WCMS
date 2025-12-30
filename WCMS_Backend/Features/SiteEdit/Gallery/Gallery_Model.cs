@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Library;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
 

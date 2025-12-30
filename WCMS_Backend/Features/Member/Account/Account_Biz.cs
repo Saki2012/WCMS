@@ -1,22 +1,100 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using System.Collections.Generic;
 using WCMS.Features.Member.Personnel;
 using WCMS.SysCore;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Library.Security;
+using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.Member.Account
 {
-
     public class AccountBiz(BizDeps bizDeps, IBizService<PersonSet>biz) : BizService<AccountSet>(bizDeps), IBizService<AccountSet>
     {
         #region Property
         protected IBizService<PersonSet> personBiz = biz;
         protected override bool IsAutoGenerateId { get => false; }
         #endregion
-        #region Protected
+
+        #region Public
+        /// <summary>
+        /// 檢查密碼合法性
+        /// </summary>
+        /// <param name="newPassword"></param>
+        /// <returns></returns>
+        public static bool CheckPasswordLegal(string newPassword,out List<SysMessageModel> messages)
+        {
+            messages = [];
+            return !string.IsNullOrEmpty(newPassword) && newPassword.Length >= 6;
+        }
+        /// <summary>
+        /// 轉換密碼
+        /// </summary>
+        /// <param name="set"></param>
+        /// <param name="dto"></param>
+        public static void ConvertPassword(AccountSet set, string password)
+        {
+            (byte[] hash, byte[] salt, int ver) = PasswordHasher.Hash(password ?? "");
+            set.Account.PasswordHash = hash;
+            set.Account.PasswordSalt = salt;
+            set.Account.PasswordAlgoVer = ver;
+        }
+        /// <summary>
+        /// 執行修改密碼
+        /// </summary>
+        /// <returns></returns>
+        public async Task ChangePassword(string internalId,string oldPassword,string newPassword, CancellationToken ct)
+        {
+            try
+            {
+                await BeginTransactionAsync();
+                if (Message.HasError) return ;
+                AccountSet oldSet = await DoQuerySetAsync(internalId);
+                var ok = PasswordHasher.Verify(oldPassword, oldSet.Account.PasswordHash, oldSet.Account.PasswordSalt, oldSet.Account.PasswordAlgoVer);
+                if (ok) 
+                { 
+                    AccountSet newSet = oldSet.DeepClone();
+                    ConvertPassword(newSet, newPassword);
+                    await DoUpdateAsync(oldSet, newSet);
+                    if (Message.HasError) return ;
+                }
+                await CommitDataAsync();
+            }
+            catch
+            {
+                await RollbackTransactionAsync();
+                throw;
+            }
+        }
+        /// <summary>
+        /// 執行重置密碼
+        /// </summary>
+        /// <returns></returns>
+        public async Task ResetPassword(string internalId, string newPassword, CancellationToken ct)
+        {
+            try
+            {
+                await BeginTransactionAsync();
+                if (Message.HasError) return;
+                AccountSet oldSet = await DoQuerySetAsync(internalId);
+                AccountSet newSet = oldSet.DeepClone();
+                ConvertPassword(newSet, newPassword);
+                await DoUpdateAsync(oldSet, newSet);
+                if (Message.HasError) return;
+                await CommitDataAsync();
+            }
+            catch
+            {
+                await RollbackTransactionAsync();
+                throw;
+            }
+        }
+        #endregion
+
+        #region Protected Virtual
         protected override async Task BeforeUpdate(AccountSet set, FuncAction act)
         {
             await base.BeforeUpdate(set, act);
@@ -44,17 +122,22 @@ namespace WCMS.Features.Member.Account
             }
         }
         #endregion
-        #region Private
-        private void CheckData(AccountSet set)
+
+        #region Protected
+        protected void CheckData(AccountSet set)
         {
             if (set.Account.AccountId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<AccountModel>(x => x.AccountId));
+            if(set.Account.RoleId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<AccountModel>(x => x.RoleId));
         }
-        private void SetData(AccountSet set)
+        protected void SetData(AccountSet set)
         {
             if (set.Account.PersonId.IsNullOrEmpty()) set.Account.PersonId = set.Account.AccountId;
-            //TODO: 這邊得確定Person要有資料，如果沒有的話還是得檢查要輸入名稱，順帶建立人員資料
             if (set.Account.AccountName.IsNullOrEmpty()) set.Account.AccountName = set.Account.Person.PersonName;
         }
+        #endregion
+
+        #region Private
+
         private async Task AutoCreatePersonData(string personId,string personName)
         {
             if(await this.personBiz.BizQueryTotalCounts([nameof(PersonModel.PersonId)], $"{nameof(PersonModel.PersonId)} = {personId}") == 0)

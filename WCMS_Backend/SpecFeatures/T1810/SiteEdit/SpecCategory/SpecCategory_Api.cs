@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using WCMS.Features.BizResx;
 using WCMS.Features.SiteEdit.SpecCategory;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.Library.LibAttribute;
 
 namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
 {
-    [ApiController, Route(SysParam.ServiceRoute)]
+    [LibApiController(ModuleCode.WebManagement, PGID.SpecCategory, SysEnum.FuncAction.MasterData)]
     public class SpecCategoryController : ApiDataController<SpecCategorySet,SpecCategorySet_DTO>
     {
         [HttpGet(nameof(GetShowColumnItems)), OutputCache(PolicyName = SysParam.PermanentCache)]

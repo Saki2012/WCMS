@@ -9,7 +9,7 @@ import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
-import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
+import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap";
 
 
 
@@ -84,7 +84,7 @@ const Header_Section = (props: { lang: Lang; site: INormSite }) => {
             <div className="navsBox">
                 <div className="container-customize0">
                     <ul className="nav custom_nav justify-content-xl-end justify-content-center">
-                        <NavBar />
+                        <NavBar lang={props.lang} />
                         {/* <LangSwitchBtn site={props.site} /> */}
                     </ul>
                 </div>
@@ -92,23 +92,27 @@ const Header_Section = (props: { lang: Lang; site: INormSite }) => {
         </header>
     </section>)
 }
-const NavBar = () => {
+const NavBar = (props: { lang: Lang; }) => {
+    const title =
+        props.lang === 'zh-tw' ? { Home: "首頁", TNUA: "臺北藝術大學", FB: "FB粉絲團", SiteMap: "網站導覽" } :
+            props.lang === 'en' ? { Home: "Home", TNUA: "TNUA", FB: "Facebook", SiteMap: "SiteMap" } : {}
     return (
         <li>
             <ul className="nav custom_nav py-0 justify-content-center my-1">
                 <a accessKey="U" href="#U" className="accesskey_header U" title="上方導覽區(U)" tabIndex={0}>:::</a>
                 <li className="nav-item">
-                    <LangLink className="nav-link" to="/" tabIndex={0} title="首頁">首頁</LangLink>
+                    <LangLink className="nav-link" to="/" tabIndex={0} title={title.Home}>{title.Home}</LangLink>
                 </li>
                 <li className="nav-item">
-                    <a className="nav-link" href="https://w3.tnua.edu.tw/" tabIndex={0} target="_blank" title="北藝大">北藝大</a>
+                    <a className="nav-link" href="https://w3.tnua.edu.tw/" tabIndex={0} target="_blank" title={title.TNUA}>{title.TNUA}</a>
                 </li>
                 <li className="nav-item">
-                    <a className="nav-link" href="https://www.facebook.com/TaiwanTraditionalMusic/" tabIndex={0} target="_blank" title="FB粉絲團">FB粉絲團</a>
+                    <a className="nav-link" href="https://www.facebook.com/TaiwanTraditionalMusic/" tabIndex={0} target="_blank" title={title.FB}>{title.FB}</a>
                 </li>
-                {/* <li className="nav-item">
-                    <a className="nav-link" href="javascript:void(0);" tabIndex={0} target="_blank" title="網站導覽">網站導覽</a>
+                <li className="nav-item">
+                    <LangLink className="nav-link" to={`/${SITEMAP_SEGMENT}`} tabIndex={0} target="_self" title={title.SiteMap}>{title.SiteMap}</LangLink>
                 </li>
+                {/*
                 <li className="nav-item">
                     <a className="nav-link" href="javascript:void(0);" tabIndex={0} target="_blank" title="English">English</a>
                 </li> */}

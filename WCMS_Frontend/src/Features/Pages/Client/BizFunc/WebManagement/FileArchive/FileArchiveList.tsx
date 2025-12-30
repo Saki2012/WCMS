@@ -102,9 +102,9 @@ const useFileArchive = (provider: IDataProvider<FileArchiveSet>, lang: Lang, cat
         fetchList: (cond) => provider.fetchList(cond),
         fetchListCount: (cond) => provider.fetchListCount(cond),
         visibleKeys: [
-            [FileArchiveSetFields.FileArchive, FileArchiveFields.TagsId],
+            // [FileArchiveSetFields.FileArchive, FileArchiveFields.TagsId],
             [FileArchiveSetFields.FileArchiveInfo, FileArchiveInfoFields.Title],
-            [FileArchiveSetFields.FileArchive, FileArchiveFields.DownloadCount]
+            // [FileArchiveSetFields.FileArchive, FileArchiveFields.DownloadCount]
         ],
         buildQueryCondition: (page) => ({
             Fields: [

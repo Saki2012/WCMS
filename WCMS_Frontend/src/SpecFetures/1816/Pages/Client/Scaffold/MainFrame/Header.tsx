@@ -2,14 +2,14 @@ import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { A11yContent, type HeaderProps } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Header";
-import { Link, NavLink } from "react-router-dom";
 import LogoImg from '@/SpecFetures/1816/Assets/Client/images/logo/LOGO_525x60.svg'
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
+import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap";
 
 const Header = (props: HeaderProps) => {
     const headerRef = useRef<HTMLDivElement | null>(null);
@@ -157,7 +157,7 @@ const NavBar = (props: { lang: Lang; }) => {
                     <a className="nav-link" href="https://w3.tnua.edu.tw/" tabIndex={0} target="_blank" title={title.TNUA}>{title.TNUA}</a>
                 </li>
                 <li className="nav-item">
-                    <LangLink className="nav-link" to="/" tabIndex={0} target="_self" title={title.SiteMap}>{title.SiteMap}</LangLink>
+                    <LangLink className="nav-link" to={`/${SITEMAP_SEGMENT}`} tabIndex={0} target="_self" title={title.SiteMap}>{title.SiteMap}</LangLink>
                 </li>
             </ul>
         </li>
@@ -171,7 +171,7 @@ const SizeChange = () => {
         <li>
             <div className="icons">
                 <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
-                    <a className="A-LMS" href="javascript:void(0);" onClick={() => { doZoom(20) }} type="button" role="button" title="字型-大" tabIndex={0} data-size="20">
+                    <a className="A-LMS" onClick={() => { doZoom(20) }} type="button" role="button" title="字型-大" tabIndex={0} data-size="20">
                         <div className="LMS-text">大</div>
                     </a>
                 </div>
@@ -180,7 +180,7 @@ const SizeChange = () => {
         <li>
             <div className="icons">
                 <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
-                    <a className="A-LMS" href="javascript:void(0);" onClick={() => { doZoom(18) }} type="button" role="button" title="字型-中" tabIndex={0} data-size="18">
+                    <a className="A-LMS" onClick={() => { doZoom(18) }} type="button" role="button" title="字型-中" tabIndex={0} data-size="18">
                         <div className="LMS-text">中</div>
                     </a>
                 </div>
@@ -189,7 +189,7 @@ const SizeChange = () => {
         <li>
             <div className="icons">
                 <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-0">
-                    <a className="A-LMS active" href="javascript:void(0);" onClick={() => { doZoom(16) }} type="button" role="button" title="字型-小" tabIndex={0} data-size="16">
+                    <a className="A-LMS active" onClick={() => { doZoom(16) }} type="button" role="button" title="字型-小" tabIndex={0} data-size="16">
                         <div className="LMS-text">小</div>
                     </a>
                 </div>
@@ -204,7 +204,6 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
     const hideNavbarCollapse = useCallback((root: HTMLElement) => {
         const el = document.getElementById("navbar-content");
         if (!el) return;
-
         const bs = (window as any).bootstrap;
         if (bs?.Collapse) {
             bs.Collapse.getOrCreateInstance(el, { toggle: false }).hide();
@@ -311,7 +310,7 @@ const MobileBtn = () => {
         <div className="mobile-box">
             <div className="icons">
                 <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-1 mx-0 d-inline-block">
-                    <a href="javascript:void(0);" className="search-button" type="button" role="button" title="搜尋" id="mobile-sss" data-bs-toggle="dropdown" aria-expanded="false" tabIndex={0}>
+                    <a className="search-button" type="button" role="button" title="搜尋" id="mobile-sss" data-bs-toggle="dropdown" aria-expanded="false" tabIndex={0}>
                         <i className="far fa-search" aria-hidden="true"></i>
                         <span className="sr-only">搜尋</span>
                     </a>
@@ -335,8 +334,8 @@ const MobileBtn = () => {
     </>);
 }
 const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme; onCollapseAll?: () => void; menuRootRef?: React.RefObject<HTMLElement>; }) => {
-    const menuItems = GetMenuData(props.lang, props.site)
     const [openId, setOpenId] = useState<string | null>(null);
+    const menuItems = useMemo(() => { return GetMenuData(props.lang, props.site); }, [props.lang, props.site]);
     const toggleOpen = useCallback((id: string) => { setOpenId(prev => (prev === id ? null : id)); }, []);
     const onLeafClick = useCallback(() => { setOpenId(null); props.onCollapseAll?.(); }, [props]);
     // 點外面自動收合第一層（桌機/手機都適用）
@@ -403,7 +402,7 @@ const PCBtn = () => {
         <div className="pc-box">
             <div className="icons">
                 <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1 d-inline-block">
-                    <a href="javascript:void(0);" className="search-button" type="button" role="button" title="搜尋" id="pc-sss" data-bs-toggle="dropdown" aria-expanded="false" tabIndex={0}>
+                    <a className="search-button" type="button" role="button" title="搜尋" id="pc-sss" data-bs-toggle="dropdown" aria-expanded="false" tabIndex={0}>
                         <i className="far fa-search" aria-hidden="true"></i>
                         <span className="sr-only">搜尋</span>
                     </a>
@@ -498,6 +497,7 @@ const MegaMenuItem = (props: IMegaMenuItemProps) => {
 };
 
 const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] => {
+    if (!site) return [];
     const roots = site.treeByLang?.[lang] ?? [];
     if (!roots) return [];
     return buildMenuItems(roots, 0);

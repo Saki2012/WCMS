@@ -54,7 +54,6 @@
 
 	<ItemGroup>
 		<Folder Include="Features\Finance\" />
-		<Folder Include="Features\SiteEdit\PCS_Sites\" />
 		<Folder Include="Features\SystemSetting\SiteInfo\EnvConfig\" />
 		<Folder Include="Features\SystemSetting\SiteInfo\SiteArch\" />
 		<Folder Include="Features\SystemSetting\SiteInfo\SEO\" />

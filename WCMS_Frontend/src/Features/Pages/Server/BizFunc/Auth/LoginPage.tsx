@@ -142,7 +142,7 @@ export default function LoginPage() {
                               <label className="i-label" htmlFor="password">密碼 Password</label>
 
                               {/* 眼睛按鈕：button + aria-pressed */}
-                              <button
+                              <a
                                 type="button"
                                 className="eye-btn"
                                 aria-label={showPwd ? '隱藏密碼' : '顯示密碼'}
@@ -151,7 +151,7 @@ export default function LoginPage() {
                                 style={{ right: 3, }}
                               >
                                 <span className="material-symbols-outlined">{showPwd ? 'visibility' : 'visibility_off'}</span>
-                              </button>
+                              </a>
                             </div>
                           </div>
 

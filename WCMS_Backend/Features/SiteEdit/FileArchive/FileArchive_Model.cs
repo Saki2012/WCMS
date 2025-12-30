@@ -5,6 +5,7 @@ using WCMS.Features.SiteEdit.Banner;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.ModuleOptions;

@@ -6,6 +6,7 @@ namespace WCMS.SpecFeatures.Spec1816.Resx
     public static class SpecModelDisplayName
     {
         #region SpecOpenScheduleRule
+        public const string SpecOpenScheduleRule = "SpecOpenScheduleRule";
         public const string SpecAcademicYearId = "SpecAcademicYearId";
         public const string SpecAcademicStart = "SpecAcademicStart";
         public const string SpecAcademicEnd = "SpecAcademicEnd";

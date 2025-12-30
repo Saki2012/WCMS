@@ -1,7 +1,7 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { Lang } from "@/SysCore/i18n/lang"
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 
 const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode): ReactNode[] => {
@@ -9,8 +9,8 @@ const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode): ReactN
     var curNodes = site.treeByLang[lang]
     node.absIds?.forEach(id => {
         var curNode = curNodes?.find((n: INormNode) => n.id === id);
-        if (curNode?.id === node.id) { result.push(<>{curNode.title}</>) }
-        else { result.push(<LangNavLink to={curNode?.redirectTo ?? ""} title={curNode?.title} aria-label={curNode?.title}>{curNode?.title}</LangNavLink>) }
+        if (curNode?.id === node.id) { result.push(<Fragment key={id}>{curNode.title}</Fragment>) }
+        else { result.push(<LangNavLink key={id} to={curNode?.redirectTo ?? ""} title={curNode?.title} aria-label={curNode?.title}>{curNode?.title}</LangNavLink>) }
         curNodes = curNode?.children ?? []
     });
     return result;
@@ -32,19 +32,21 @@ export const BreadCrumb_Comp = (props: { lang: Lang; site: INormSite; node: INor
                                         <i className="fas fa-home mx-2"></i>{homepageTitle}<span className="sr-only">{homepageTitle}</span>
                                     </LangNavLink>
                                 </li>
-                                {breadCrumbData && breadCrumbData.map((i) => {
-                                    return (<>
-                                        <li className="breadcrumb-item">
-                                            {i}
-                                        </li>
-                                    </>)
+                                {breadCrumbData && breadCrumbData.map((i, idx) => {
+                                    return (
+                                        <Fragment key={idx}>
+                                            <li className="breadcrumb-item">
+                                                {i}
+                                            </li>
+                                        </Fragment>
+                                    )
                                 })}
                             </ol>
                         </nav>
                     </div>
 
                     <div className="R my-2">
-                        <a href="javascript:void(0)" onClick={() => { "history.back(); return false;" }} role="button" aria-label={gobackTitle} title={gobackTitle}>
+                        <a onClick={() => { "history.back(); return false;" }} role="button" aria-label={gobackTitle} title={gobackTitle}>
                             <div className="return-box">
                                 <i className="fas fa-reply mx-2"></i>{gobackTitle}
                                 <span className="sr-only">{gobackTitle}</span>

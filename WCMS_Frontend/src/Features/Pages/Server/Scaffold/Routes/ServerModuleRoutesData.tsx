@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import type { Lang } from "@/SysCore/i18n/lang";
+import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 
 import { BannerSliderListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Banner/Server_BannerSlider_List_Comp";
 import { BannerSliderFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Banner/Server_BannerSlider_Form_Comp";
@@ -20,9 +20,12 @@ import { WebResourceListComp } from "@/Features/Pages/Server/BizFunc/WebManageme
 import { WebResourceFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/WebResource/Server_WebResource_Form_Comp";
 import { Server_Account_List_Comp } from "@/Features/Pages/Server/BizFunc/AccountManage/Account/Server_Account_List_Comp";
 import { Server_Account_Form_Comp } from "@/Features/Pages/Server/BizFunc/AccountManage/Account/Server_Account_Form_Comp";
-import { Server_ResetPassword_Comp } from "@/Features/Pages/Server/BizFunc/AccountManage/Account/Server_ResetPassword_Comp";
+import { Server_ChangePassword_Comp } from "@/Features/Pages/Server/BizFunc/AccountManage/Account/Server_ChangePassword_Comp";
 import { Server_Person_List_Comp } from "@/Features/Pages/Server/BizFunc/AccountManage/Person/Server_Person_List_Comp";
 import { Server_Person_Form_Comp } from "@/Features/Pages/Server/BizFunc/AccountManage/Person/Server_Person_Form_Comp";
+import { Server_RolePermission_Comp } from "../../BizFunc/AccountManage/RolePermission/Server_RolePermission_List_Comp";
+import { Server_RolePermission_Form_Comp } from "../../BizFunc/AccountManage/RolePermission/Server_RolePermission_Form_Comp";
+import { Server_ResetPassword_Comp } from "../../BizFunc/AccountManage/Account/Server_ResetPassword_Comp";
 
 // #region Interface
 export interface IModuleMeta {
@@ -40,12 +43,6 @@ export interface IProgMeta {
     DefaultActionCode: IActionMeta["ActionCode"];
     Actions: IActionMeta[];
 }
-export interface IServerElementFactoryCtx {
-    theme: IBETheme;
-    lang: Lang;
-    // params?: Record<string, string | undefined>;
-}
-export type ServerElementFactory = (ctx: IServerElementFactoryCtx) => ReactNode;
 export interface IActionMeta {
     ActionCode: string;
     Title: string;
@@ -53,6 +50,20 @@ export interface IActionMeta {
     /** ✅ 給 Router 用：由 data 決定要 render 什麼 element */
     elementFactory?: ServerElementFactory;
 }
+
+export interface IActionHandle {
+    ActionCode: string;
+    Title: string;
+    /** ✅ 給 Router 用：由 data 決定要 render 什麼 element */
+}
+
+export interface IServerElementFactoryCtx {
+    theme: IBETheme;
+    lang: Lang;
+    // params?: Record<string, string | undefined>;
+}
+export type ServerElementFactory = (ctx: IServerElementFactoryCtx) => ReactNode;
+
 // #endregion
 /** 後台功能路由資料 */
 const ServerModuleRoutesData: IModuleMeta[] = [
@@ -226,11 +237,11 @@ const ServerModuleRoutesData: IModuleMeta[] = [
 
     // #region 帳號管理模組
     {
-        ModuleCode: "AccountManage", Title: "帳號管理", DefaultPath: "/Server/AccountManage/Account/Form", IconClassName: "fas fa-users-cog",
+        ModuleCode: "AccountManage", Title: "帳號管理", DefaultPath: "/Server/AccountManage/Account/List", IconClassName: "fas fa-users-cog",
         Progs: [
             // 帳號
             {
-                ProgId: "Account", Title: "帳號", DefaultActionCode: "Form", IconClassName: "",
+                ProgId: "Account", Title: "帳號管理", DefaultActionCode: "Form", IconClassName: "",
                 Actions: [
                     {
                         ActionCode: "List", Title: "帳號列表", RoutePath: "List",
@@ -241,14 +252,19 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                         elementFactory: (ctx) => <Server_Account_Form_Comp theme={ctx.theme} />,
                     },
                     {
-                        ActionCode: "ResetPassword", Title: "重設密碼", RoutePath: "ResetPassword",
+                        ActionCode: "ChangePassword", Title: "修改密碼", RoutePath: "ChangePassword",
+                        elementFactory: (ctx) => <Server_ChangePassword_Comp theme={ctx.theme} />,
+                    },
+                    {
+                        //  這段Route給系統管理員重置其他用戶密碼的功能
+                        ActionCode: "ResetPassword", Title: "重置密碼", RoutePath: "ResetPassword",
                         elementFactory: (ctx) => <Server_ResetPassword_Comp theme={ctx.theme} />,
                     },
                 ],
             },
             // 人員
             {
-                ProgId: "Person", Title: "人員", DefaultActionCode: "Form", IconClassName: "",
+                ProgId: "Person", Title: "人員資料", DefaultActionCode: "Form", IconClassName: "",
                 Actions: [
                     {
                         ActionCode: "List", Title: "人員列表", RoutePath: "List",
@@ -257,6 +273,20 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                     {
                         ActionCode: "Form", Title: "人員維護", RoutePath: "Form/:internalId?",
                         elementFactory: (ctx) => <Server_Person_Form_Comp theme={ctx.theme} />,
+                    },
+                ],
+            },
+            // 角色權限
+            {
+                ProgId: "RolePermission", Title: "角色權限", DefaultActionCode: "List", IconClassName: "",
+                Actions: [
+                    {
+                        ActionCode: "List", Title: "角色列表", RoutePath: "List",
+                        elementFactory: (ctx) => <Server_RolePermission_Comp title={"角色列表"} lang={DefaultLang} theme={ctx.theme} />,
+                    },
+                    {
+                        ActionCode: "Form", Title: "角色維護", RoutePath: "Form/:internalId?",
+                        elementFactory: (ctx) => <Server_RolePermission_Form_Comp theme={ctx.theme} lang={DefaultLang} />,
                     },
                 ],
             },

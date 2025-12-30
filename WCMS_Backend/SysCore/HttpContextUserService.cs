@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using WCMS.Features.SystemSetting.Auth;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.Model;
 
 namespace WCMS.SysCore
 {
@@ -14,7 +15,11 @@ namespace WCMS.SysCore
             {
                 var id = p.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var name = p.FindFirst(ClaimTypes.Name)?.Value;
-                if (!string.IsNullOrWhiteSpace(id)) return new User_DTO { UserId = id, UserName = string.IsNullOrWhiteSpace(name) ? id : name };
+                var interanlId = p.FindFirstValue(nameof(BasicDataModel.InternalId)) ?? "";
+                if (!string.IsNullOrWhiteSpace(id)) return new User_DTO { UserId = id, 
+                    UserName = string.IsNullOrWhiteSpace(name) ? id : name,
+                    InternalId = interanlId,
+                };
             }
             // 未登入（或匿名）：回退系統操作帳
             return SysParam.SysOperator;

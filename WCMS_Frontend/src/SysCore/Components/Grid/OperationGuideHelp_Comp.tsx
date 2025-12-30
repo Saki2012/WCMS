@@ -4,7 +4,7 @@ import img from './GridListOperationGuide.gif'
 
 
 export const OperationGuideHelp_Comp = () => {
-    const label = "可自行調整欄位寬度"
+    const label = "游標移至表格欄位時，可自行調整欄寬"
     const imageSrc = img
     const title = "列表操作示範"
     const description = "示範如何拖曳欄位標題分隔線來調整欄位寬度。"

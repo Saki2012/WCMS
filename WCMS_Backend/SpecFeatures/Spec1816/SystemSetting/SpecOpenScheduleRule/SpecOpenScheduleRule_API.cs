@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Runtime.InteropServices;
+﻿using WCMS.Features.BizResx;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.Library.LibAttribute;
 
 namespace WCMS.SpecFeatures.Spec1816.SystemSetting.SpecOpenScheduleRule
 {
-    [ProgId("SpecOpenScheduleRule")]
-    [ApiController, Route(SysParam.ServiceRoute)]
+    [LibApiController(ModuleCode.SystemSetting, PGID.SpecOpenScheduleRule, SysEnum.FuncAction.BillData)]
     public class SpecOpenScheduleRuleController() : ApiDataController<SpecOpenScheduleRuleSet, SpecOpenScheduleRuleSet_DTO> {}
 }

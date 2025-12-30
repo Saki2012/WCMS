@@ -26,6 +26,7 @@ using System.Text.RegularExpressions;
 using System.Threading.RateLimiting;
 using WCMS.Features.Member.Account;
 using WCMS.Features.Member.Personnel;
+using WCMS.Features.Member.RolePermission;
 using WCMS.Features.SystemSetting.Auth;
 using WCMS.Features.SystemSetting.Calendar;
 using WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting;
@@ -35,6 +36,7 @@ using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Library.Security;
 using WCMS.SysCore.Middleware;
 using static WCMS.SysCore.Enum.SysEnum;
@@ -239,8 +241,8 @@ namespace WCMS
                 services.AddScoped<BizDeps>();
                 services.AddHttpContextAccessor();
                 services.AddScoped<ICurrentUserAccessor, HttpContextCurrentUserAccessor>();
+                services.AddScoped<ILibPermissionChecker, LibPermissionChecker>();
                 services.AddHttpClient();
-
                 RegisterBizServices(services);
 
                 // 暫時先不用Redis，等開始能架Docker包Linux後再來
@@ -762,6 +764,7 @@ namespace WCMS
                 //var roleAdmin = await FindOrCreateRoleAsync(db, opt.SysOperator.RoleId, logger);
                 //var roleAdmin2 = await FindOrCreateRoleAsync(db, opt.Admin.RoleId, logger); // 允許不同設定
                 //await db.SaveChangesAsync();
+                await UpsertRolePermissionAsync(db);
                 // 2) SysOperator：不可登入、不設密碼
                 await UpsertPersonAndAccountAsync(db, user: opt.SysOperator, canLogin: false);
                 // 3) Admin：可登入；只有「新建時」才設定密碼；存在就不覆蓋
@@ -769,7 +772,27 @@ namespace WCMS
                 await db.SaveChangesAsync();
                 await tx.CommitAsync();
             }
-            // ---- 輔助：人員 + 帳號 Upsert（依你實體命名替換）----
+
+            // ---- 初始角色權限資料 ----
+            private static async Task UpsertRolePermissionAsync(ApplicationDbContext db)
+            {
+                var account = await db.Set<RoleDataModel>().FirstOrDefaultAsync(a => a.RoleId == "Admin");
+                var isNew = account == null;
+                if (isNew)
+                {
+                    account = new RoleDataModel
+                    {
+                        RoleId = "Admin",
+                        RoleName = "系統管理員",
+                        IsAdmin = true,
+                        InternalId = Guid.NewGuid().ToString(),
+                    };
+                    await db.Set<RoleDataModel>().AddAsync(account);
+                }
+                await db.SaveChangesAsync();
+            }
+
+            // ---- 初始Admin/SysOperator帳號用戶 ----
             private static async Task UpsertPersonAndAccountAsync(ApplicationDbContext db, Account_DTO user, bool canLogin)
             {
                 // 2-1) Person：以 UserId（或 UserName）對應一個人員；如你有別的映射規則請替換
@@ -799,6 +822,7 @@ namespace WCMS
                         AccountId = user.AccountId,
                         AccountName = user.AccountName,
                         PersonId = person.PersonId,
+                        RoleId = user.RoleId,
                         PasswordHash = hash,
                         PasswordSalt = salt,
                         PasswordAlgoVer = ver,

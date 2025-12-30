@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.SiteEdit.Category;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
 
@@ -10,7 +11,7 @@ namespace WCMS.SpecFeatures.Spec1817.SiteEdit.SpecMusical
 {
     public class SpecMusicalSet:ITSet
     {
-        [LibDesc] public SpecMusicalModel SpecMusical { get; set; } = new SpecMusicalModel();
+        public SpecMusicalModel SpecMusical { get; set; } = new SpecMusicalModel();
         public List<SpecMusicalSoundList> SpecMusicalSoundList { get; set; } = [];
         public List<SpecMusicalPictureList> SpecMusicalPictureList { get; set; } = [];
     }

@@ -1,4 +1,5 @@
 ﻿using WCMS.Features.Member.Account;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library.Security;
 
@@ -49,6 +50,7 @@ namespace WCMS.Features.SystemSetting.Auth
             if (set is null) return (false,default);
             var ok = PasswordHasher.Verify(password, set.Account.PasswordHash, set.Account.PasswordSalt, set.Account.PasswordAlgoVer);
             if (!ok) return (false,default);
+            if (set.Account.AccountStatus != SysEnum.AccountStatus.Enable) return (false, default);
             return (true, new User_DTO
             {
                 UserId = set.Account.AccountId,

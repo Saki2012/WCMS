@@ -10,6 +10,7 @@ import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import LogoImg from '@/SpecFetures/1818/Assets/Client/images/logo/LOGO_300x100.svg'
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
+import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap";
 
 const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
     const headerRef = useRef<HTMLDivElement | null>(null);
@@ -118,7 +119,7 @@ const NavBar = (props: { lang: Lang; }) => {
                 <a className="nav-link" href="https://www.nchu.edu.tw/index1.php" tabIndex={0} target="_self" title={title.NCHU}>{title.NCHU}</a>
             </li>
             <li className="nav-item">
-                <LangNavLink to="/" className="nav-link" tabIndex={0} target="_self" title={title.SiteMap}>{title.SiteMap}</LangNavLink>
+                <LangNavLink to={`/${SITEMAP_SEGMENT}`} className="nav-link" tabIndex={0} target="_self" title={title.SiteMap}>{title.SiteMap}</LangNavLink>
             </li>
         </ul>
     </li>

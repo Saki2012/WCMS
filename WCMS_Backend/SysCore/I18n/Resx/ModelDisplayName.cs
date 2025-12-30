@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WCMS.Features.Member.RolePermission;
 using WCMS.SysCore.Library;
 
 namespace WCMS.SysCore.I18n.Resx
@@ -70,6 +71,27 @@ namespace WCMS.SysCore.I18n.Resx
 
         public const string Enum_DefaultLang = "Enum_DefaultLang";
         public const string Enum_SupportLang = "Enum_SupportLang";
+
+
+        public const string Enum_FuncAction = "Enum_FuncAction";
+        public const string Enum_FuncAction_None = "Enum_FuncAction_None";
+        public const string Enum_FuncAction_Use = "Enum_FuncAction_Use";
+        public const string Enum_FuncAction_Query = "Enum_FuncAction_Query";
+        public const string Enum_FuncAction_View = "Enum_FuncAction_View";
+        public const string Enum_FuncAction_Create = "Enum_FuncAction_Create";
+        public const string Enum_FuncAction_Update = "Enum_FuncAction_Update";
+        public const string Enum_FuncAction_Delete = "Enum_FuncAction_Delete";
+        public const string Enum_FuncAction_Invalid = "Enum_FuncAction_Invalid";
+        public const string Enum_FuncAction_MasterData = "Enum_FuncAction_MasterData";
+        public const string Enum_FuncAction_BillData = "Enum_FuncAction_BillData";
+        public const string Enum_FuncAction_Report = "Enum_FuncAction_Report";
+        public const string Enum_FuncAction_All = "Enum_FuncAction_All";
+
+
+
+
+
+
 
         #endregion
 
@@ -195,6 +217,7 @@ namespace WCMS.SysCore.I18n.Resx
         #region 帳號
         public const string Account_AccountId = "Account_AccountId";
         public const string Account_AccountName = "Account_AccountName";
+        public const string Account_PasswordChangeDate = "Account_PasswordChangeDate";
         #endregion
 
         #region 人員基本資料
@@ -203,6 +226,15 @@ namespace WCMS.SysCore.I18n.Resx
         public const string Person_PersonId = "Person_PersonId";
         public const string Person_PersonName = "Person_PersonName";
         public const string Person_PersonImgId = "Person_PersonImgId";
+        #endregion
+
+        #region 角色權限
+        public const string RolePermission = "RolePermission";
+        public const string RolePermission_RoleId = "RolePermission_RoleId";
+        public const string RolePermission_RoleName = "RolePermission_RoleName";
+        public const string RolePermission_IsAdmin = "RolePermission_IsAdmin";
+        public const string RolePermission_PermissionKey = "RolePermission_PermissionKey";
+        public const string RolePermission_GrantMask = "RolePermission_GrantMask";
         #endregion
 
         #region 登入用戶資訊

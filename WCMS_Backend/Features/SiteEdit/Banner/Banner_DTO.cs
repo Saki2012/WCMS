@@ -1,6 +1,6 @@
 ﻿using WCMS.SysCore.I18n;
 using WCMS.SysCore.I18n.Resx;
-using WCMS.SysCore.Library;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
 

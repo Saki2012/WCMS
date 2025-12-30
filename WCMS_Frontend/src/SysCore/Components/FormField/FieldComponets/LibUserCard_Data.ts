@@ -12,4 +12,5 @@ export interface ILibUserCardProp
     DisplayRole: string;
     PicSrc: string;
     dirUrl?: string;
+    onUploadedTempId?: (internalId: string) => void;
 }

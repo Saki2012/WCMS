@@ -104,16 +104,20 @@ const SubPageBase = (props: ISubPagesProps & { renderMain: () => React.ReactNode
                 </nav>
               </div>
               {/* SideMenu區塊 */}
-              <div className="col-lg-2 col-md-12 col-sm-12 col-12">
-                <div id="ContentPlaceContent_ContentSubMenu" className="col-sm-12 col-12 px-0 page-leftmenu">
-                  <a accessKey="L" href="#" className="accesskey_left L" title="左方選單區(L)">:::</a>
-                  <h2>{title}</h2>
-                  <p></p>
-                  <nav className="Left-Second-navBox" ref={menuRef}>
-                    <MenuListComp items={sideMenuData} Style={props.style.SideMenu}></MenuListComp>
-                  </nav>
+
+              {sideMenuData?.length > 0 ?
+                <div className="col-lg-2 col-md-12 col-sm-12 col-12">
+                  <div id="ContentPlaceContent_ContentSubMenu" className="col-sm-12 col-12 px-0 page-leftmenu">
+                    <a accessKey="L" href="#" className="accesskey_left L" title="左方選單區(L)">:::</a>
+                    <h2>{title}</h2>
+                    <p></p>
+                    <nav className="Left-Second-navBox" ref={menuRef}>
+                      <MenuListComp items={sideMenuData} Style={props.style.SideMenu}></MenuListComp>
+                    </nav>
+                  </div>
                 </div>
-              </div>
+                : null}
+
               {/* 主內容區塊 */}
               <div className="col-lg-10 col-md-12 col-sm-12 col-12" id="div_ThirdMenu">
                 <div className='col-sm-12 col-12 px-0 page-righttopmenu'></div>

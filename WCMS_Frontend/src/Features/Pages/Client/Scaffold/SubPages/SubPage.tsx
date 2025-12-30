@@ -1,5 +1,4 @@
 import type { Lang } from "@/SysCore/i18n/lang";
-import { Banner_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Section/Banner_Comp";
 import { BreadCrumb_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Section/BreadCrumb_Comp";
 import { Toolbar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Section/Toolbar_Comp";
 import { SubMenu_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Section/SubMenu_Comp";
@@ -7,7 +6,6 @@ import { ThirdMenu_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Sectio
 import { Outlet } from "react-router";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-
 
 const SubPage = (props: { style: IFETheme; lang: Lang; site: INormSite; node: INormNode; backHref?: string; }) => {
     return (<>
@@ -41,7 +39,7 @@ const ContentContainer = (props: { style: IFETheme; lang: Lang; site: INormSite;
                         <div className="col-xl-10 col-lg-9 col-md-12 col-sm-12 col-12">
                             <ThirdMenu_Comp lang={props.lang} site={props.site} node={props.node} />
                             <div id="ContentPlaceContent_ContentConentA" className="col-sm-12 col-12 + All_Standard_Content_CSS + my-5">
-                                <Outlet />
+                                <Outlet context={{ lang: props.lang, site: props.site, node: props.node }} />
                             </div>
                         </div>
                     </div>

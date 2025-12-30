@@ -2,9 +2,26 @@ import { ServerModuleRoutes } from '@/Features/Pages/Server/Scaffold/Routes/Serv
 import { LangNavLink } from '@/SysCore/i18n/LangLink'
 import clsx from 'clsx'
 import logImg from '@/Features/Assets/Server/images/logo/logo_PC_210x63.svg'
+import { useEffect, useState } from 'react'
+import { AuthAPI } from '@/SysCore/Utils/API/AuthClient'
+import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
+
 
 
 const NavibarMenu = () => {
+    const operateFileUrl = useOptionalSpecAssetUrl({ relativePath: "Assets/Server/後台操作手冊.pdf", fallbackToDefault: true, }) ?? "";
+    const [userName, setUserName] = useState<string>("");
+    const [userInternalId, setuserInternalId] = useState<string>("");
+    useEffect(() => {
+        const loadUserName = async () => {
+            const res = await AuthAPI.me();
+            const name = (res?.data)?.Name ?? "";
+            const internalId = (res?.data)?.InternalId ?? "";
+            setUserName(name);
+            setuserInternalId(internalId);
+        };
+        void loadUserName();
+    }, []);
     return (
         <header className="pc-header">
             <div className="header-wrapper">
@@ -33,15 +50,27 @@ const NavibarMenu = () => {
                         </a>
                         <div className="Customize_collapse + collapse navbar-collapse" id="navbar_right">
                             <ul className={clsx("navbar-nav", "me-auto", "mb-2", "mb-lg-0")}>
-                                {/* <li className={clsx("nav-item")}>
+                                <li className={clsx("nav-item")}>
                                     <div className="nav-link">
                                         <h2>
-                                            <i className={`far ${getValue(item.Id)}`} />
-                                            目前使用者 :
-                                            <span className="ml-1">{item.SrcData}</span>
+                                            <i className="far fa-user-check" />
+                                            目前使用者 : <span className="ml-1">
+                                                <LangNavLink to={`/Server/AccountManage/Account/Form/${userInternalId}`}>
+                                                    {userName}
+                                                </LangNavLink> </span>
                                         </h2>
                                     </div>
-                                </li> */}
+                                </li>
+                                {operateFileUrl && (
+                                    <li className={clsx("nav-item")}>
+                                        <a className="nav-link" href={operateFileUrl} target="_blank">
+                                            <h2>
+                                                <i className="fa fa-book" aria-hidden="true" />
+                                                操作手冊
+                                            </h2>
+                                        </a>
+                                    </li>
+                                )}
                                 {ServerModuleRoutes.map((item) =>
                                     <li className={clsx("nav-item")} key={item.ModuleCode}>
                                         <LangNavLink className="nav-link" to={item.DefaultPath}>

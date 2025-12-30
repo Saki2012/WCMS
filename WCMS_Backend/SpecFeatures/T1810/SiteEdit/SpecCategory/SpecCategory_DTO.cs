@@ -2,6 +2,7 @@
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 
 namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory

@@ -2,8 +2,8 @@
 {
     public interface IOperateLog
     {
-        public IList<OperateLogModel> MoveFollows { get; set; }
-        public OperateLogModel AddMoveFollow(string apiName, string userId, string jsonData, string ip);
-        public OperateLogModel AddMoveFollow(OperateLogModel _MoveFollows);
+        public IList<OperateLogModel> OperateLogs { get; set; }
+        public OperateLogModel AddOperateLog(string apiName, string userId, string jsonData, string ip);
+        public OperateLogModel AddOperateLog(OperateLogModel log);
     }
 }

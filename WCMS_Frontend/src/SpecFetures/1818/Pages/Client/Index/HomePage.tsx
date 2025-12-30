@@ -3,7 +3,7 @@ import { LinkData } from '@/SpecFetures/1818/Pages/Client/Index/Section/LinkData
 import { AboutPage } from '@/SpecFetures/1818/Pages/Client/Index/Section/AboutPage'
 import { NewsData } from '@/SpecFetures/1818/Pages/Client/Index/Section/NewsData'
 import { ActivityPhotoData } from '@/SpecFetures/1818/Pages/Client/Index/Section/ActivityPhotoData'
-import { DefaultLang, type Lang } from '@/SysCore/i18n/lang'
+import { type Lang } from '@/SysCore/i18n/lang'
 
 const HomePage = (props: { lang: Lang }) => {
   return (

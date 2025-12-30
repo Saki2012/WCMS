@@ -11,7 +11,7 @@ export const buildMenuItems = (nodes: INormNode[] = [], activeId?: number, curre
         const isActiveId = n.id === activeId;
         // 原本就有的 route path（對 module 用）
         const segments = (n.absSegments ?? []).filter(Boolean);
-        const routePath = segments.length > 0 ? "/" + segments.map(s => encodeURIComponent(s.toLowerCase())).join("/") : "#";
+        const routePath = segments.length > 0 ? "/" + segments.map(s => encodeURIComponent(s)).join("/") : "#";
         const redirect = n.redirectTo ?? "";
         const isRedirectInternal = !!redirect && redirect.startsWith("/");
         const isModule = n.type === "module";

@@ -9,20 +9,31 @@ namespace WCMS.SysCore
     public interface IErrorHelper
     {
         public IList<SysMessageModel> Messages { get; set; }
+        public void AddMessage(List<SysMessageModel> messages);
         public void AddMessage(MessageStatus status, string code,params object[] args);
+        public void AddMessage(SysMessageModel message);
         public bool HasError { get { return Messages.Any(m => m.Status == MessageStatus.Error); } }
     }
     public class ErrorHelper:IErrorHelper
     {
         public enum LogType { info, oprate, error }
         public IList<SysMessageModel> Messages { get; set; } = [];
+
+        public void AddMessage(List<SysMessageModel> msgs) 
+        {
+            foreach (var msg in msgs) AddMessage(msg);
+        }
+        public void AddMessage(SysMessageModel msg) 
+        {
+            Messages.Add(msg);
+        }
         public void AddMessage(MessageStatus status, string code, params object[] args)
         {
-            Messages.Add(new SysMessageModel()
+            AddMessage(new SysMessageModel()
             {
-                Status=status,
-                MessageCode=code,
-                Message= ResxMsg.Msg(code,args),
+                Status = status,
+                MessageCode = code,
+                Message = ResxMsg.Msg(code, args),
             });
         }
     }

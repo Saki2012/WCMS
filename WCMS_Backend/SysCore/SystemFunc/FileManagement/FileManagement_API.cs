@@ -22,7 +22,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         [RequestSizeLimit(200L * 1024 * 1024)] // 200 MB
         public async Task<IActionResult> UploadTemp(IFormFile file)
         {
-            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(UploadTemp)}", OperateUser.UserId, JsonConvert.SerializeObject(file), Request.Headers["HTTP_CLIENT_IP"].ToString());
+            OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(UploadTemp)}", OperateUser.UserId, JsonConvert.SerializeObject(file), Request.Headers["HTTP_CLIENT_IP"].ToString());
             var internalId = await ((FileManagementBiz)Service).UploadTemp(file);
             var response = new ApiResponse<string>() { Data = [internalId], SysMessage = Message.Messages };
             return Ok(response);
@@ -30,7 +30,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         [HttpPost(nameof(MoveToPermanent)), AllowAnonymous, IgnoreAntiforgeryToken]
         public async Task<IActionResult> MoveToPermanent(string[] internalIds)
         {
-            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(MoveToPermanent)}", OperateUser.UserId, JsonConvert.SerializeObject(internalIds),Request.Headers["HTTP_CLIENT_IP"].ToString());
+            OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(MoveToPermanent)}", OperateUser.UserId, JsonConvert.SerializeObject(internalIds),Request.Headers["HTTP_CLIENT_IP"].ToString());
             await ((FileManagementBiz)Service).MoveToPermanent(internalIds);
             var response = new ApiResponse<string>() { Data = internalIds, SysMessage = Message.Messages };
             return Ok(response);
@@ -38,7 +38,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         [HttpPost(nameof(CancelUploadFiles)), AllowAnonymous, IgnoreAntiforgeryToken]
         public async Task<IActionResult> CancelUploadFiles(string[] internalIds)
         {
-            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(CancelUploadFiles)}", OperateUser.UserId, JsonConvert.SerializeObject(internalIds), Request.Headers["HTTP_CLIENT_IP"].ToString());
+            OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(CancelUploadFiles)}", OperateUser.UserId, JsonConvert.SerializeObject(internalIds), Request.Headers["HTTP_CLIENT_IP"].ToString());
             await ((FileManagementBiz)Service).CancelUploadFiles(internalIds);
             var response = new ApiResponse<string>() { Data = internalIds,SysMessage = Message.Messages };
             return Ok(response);
@@ -50,7 +50,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <returns></returns>
         [HttpGet($"{nameof(Download)}/{{internalId}}"), AllowAnonymous, IgnoreAntiforgeryToken] public async Task<IActionResult> Download(string internalId, CancellationToken ct)
         {
-            OperateLogModel followInfo = OperateLog.AddMoveFollow($"{Service.ProgId}/{nameof(Download)}", OperateUser.UserId, JsonConvert.SerializeObject(internalId), Request.Headers["HTTP_CLIENT_IP"].ToString());
+            OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Download)}", OperateUser.UserId, JsonConvert.SerializeObject(internalId), Request.Headers["HTTP_CLIENT_IP"].ToString());
             var result = await ((FileManagementBiz)Service).GetDownloadFileInfo([internalId]);
             if (result.Count == 0) return NotFound();
             else if (result.Count == 1) 

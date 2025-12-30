@@ -46,6 +46,90 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/Account/ChangePassword": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ChangePassword"];
+                    "text/json": components["schemas"]["ChangePassword"];
+                    "application/*+json": components["schemas"]["ChangePassword"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Account/ResetPassword": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ResetPassword"];
+                    "text/json": components["schemas"]["ResetPassword"];
+                    "application/*+json": components["schemas"]["ResetPassword"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Account/Create": {
         parameters: {
             query?: never;
@@ -5006,6 +5090,495 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/RolePermission/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/GetPermissionCatalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PermissionCatalogModuleDTOApiResponse"];
+                        "application/json": components["schemas"]["PermissionCatalogModuleDTOApiResponse"];
+                        "text/json": components["schemas"]["PermissionCatalogModuleDTOApiResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/Create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["RolePermissionSet_DTO"];
+                    "text/json": components["schemas"]["RolePermissionSet_DTO"];
+                    "application/*+json": components["schemas"]["RolePermissionSet_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["RolePermissionSet_DTO"][];
+                    "text/json": components["schemas"]["RolePermissionSet_DTO"][];
+                    "application/*+json": components["schemas"]["RolePermissionSet_DTO"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/Update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["RolePermissionSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["RolePermissionSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["RolePermissionSet_DTOApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/Invalid/{pk}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path: {
+                    pk: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/RolePermission/BatchInvalid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    isInvalid?: boolean;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/RolePermission/Delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/BatchDelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/QueryData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/SiteMenu/Create": {
         parameters: {
             query?: never;
@@ -8778,6 +9351,8 @@ export interface components {
             AccountName?: string | null;
             Person?: components["schemas"]["PersonModel"];
             PersonId?: string | null;
+            Role?: components["schemas"]["RoleDataModel"];
+            RoleId?: string | null;
             /** Format: byte */
             PasswordHash?: string | null;
             /** Format: byte */
@@ -8785,6 +9360,8 @@ export interface components {
             /** Format: int32 */
             PasswordAlgoVer?: number;
             AccountStatus?: components["schemas"]["AccountStatus"];
+            /** Format: date */
+            PasswordChangeDate?: string;
         };
         AccountSet_DTO: {
             Account?: components["schemas"]["Account_DTO"];
@@ -8797,7 +9374,7 @@ export interface components {
          * Format: int32
          * @enum {integer}
          */
-        AccountStatus: 0 | 1 | 2 | 3 | 4;
+        AccountStatus: 0 | 1;
         Account_DTO: {
             /**
              * Format: date-time
@@ -8829,9 +9406,17 @@ export interface components {
             Person?: components["schemas"]["PersonModel"];
             /** @description 人員編號 */
             PersonId?: string | null;
+            Role?: components["schemas"]["RoleDataModel"];
+            /** @description 角色代號 */
+            RoleId?: string | null;
             /** @description 密碼 */
             Password?: string | null;
             AccountStatus?: components["schemas"]["AccountStatus"];
+            /**
+             * Format: date
+             * @description 密碼最後修改日
+             */
+            PasswordChangeDate?: string;
         };
         AnnouncementDetailFile_DTO: {
             /** @description 公告代碼 */
@@ -8953,11 +9538,11 @@ export interface components {
             /** @description 網址 */
             URL?: string | null;
             URL_Open?: components["schemas"]["WindowTarget"];
-            /** @description 最新展演 */
+            /** @description [Spec_LatestShows] */
             SpecLatestShows?: string | null;
-            /** @description 展演地點 */
+            /** @description [Spec_ShowLocation] */
             SpecShowLocation?: string | null;
-            /** @description 展演時間 */
+            /** @description [Spec_ShowDate] */
             SpecShowDate?: string | null;
         };
         BannerDetail_DTO: {
@@ -9155,6 +9740,10 @@ export interface components {
             /** @description 功能模塊代碼 */
             ProgId?: string | null;
             _CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
+        };
+        ChangePassword: {
+            OldPassword?: string | null;
+            NewPassword?: string | null;
         };
         /**
          * Format: int32
@@ -9418,6 +10007,11 @@ export interface components {
          * @enum {integer}
          */
         FormStatus: 0 | 1 | 2 | 3;
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
+        FuncAction: 0 | 1 | 2 | 4 | 7 | 8 | 16 | 32 | 63 | 64 | 127;
         GalleryInfo_DTO: {
             /** @description 相簿 */
             GalleryId?: string | null;
@@ -9604,6 +10198,21 @@ export interface components {
             ViewCount?: number | null;
             _PageManagementDetail?: components["schemas"]["PageManagementDetail_DTO"][] | null;
         };
+        PermissionCatalogModuleDTO: {
+            ModuleCode?: string | null;
+            ModuleTitle?: string | null;
+            Progs?: components["schemas"]["PermissionCatalogProgDTO"][] | null;
+        };
+        PermissionCatalogModuleDTOApiResponse: {
+            readonly IsSuccess?: boolean;
+            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
+            Data?: components["schemas"]["PermissionCatalogModuleDTO"][] | null;
+        };
+        PermissionCatalogProgDTO: {
+            ProgId?: string | null;
+            ProgTitle?: string | null;
+            SupportMask?: components["schemas"]["FuncAction"];
+        };
         PersonModel: {
             /** Format: date-time */
             CreateTime?: string | null;
@@ -9689,6 +10298,99 @@ export interface components {
             PageNumber?: number;
             /** Format: int32 */
             PageSize?: number;
+        };
+        ResetPassword: {
+            UserInternalId?: string | null;
+            NewPassword?: string | null;
+        };
+        RoleDataModel: {
+            /** Format: date-time */
+            CreateTime?: string | null;
+            CreateUser?: components["schemas"]["AccountModel"];
+            CreateUserId?: string | null;
+            /** Format: date-time */
+            ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["AccountModel"];
+            ModifyUserId?: string | null;
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["AccountModel"];
+            InvalidUserId?: string | null;
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            IsIniData?: boolean;
+            /** Format: date-time */
+            Validate_Start?: string | null;
+            /** Format: date-time */
+            Validate_End?: string | null;
+            RoleId?: string | null;
+            RoleName?: string | null;
+            IsAdmin?: boolean;
+            _RolePermission?: components["schemas"]["RolePermissionModel"][] | null;
+        };
+        RoleDataModel_DTO: {
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
+            CreateTime?: string | null;
+            /** @description 創建人 */
+            CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["Account_DTO"];
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
+            ModifyTime?: string | null;
+            /** @description 修改人 */
+            ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["Account_DTO"];
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
+            InternalId?: string | null;
+            /** @description 角色代號 */
+            RoleId?: string | null;
+            /** @description 角色名稱 */
+            RoleName?: string | null;
+            /** @description 是否管理員 */
+            IsAdmin?: boolean | null;
+            _RolePermission?: components["schemas"]["RolePermissionModel_DTO"][] | null;
+        };
+        RolePermissionModel: {
+            RowState?: components["schemas"]["RowState"];
+            RoleId?: string | null;
+            /** Format: int32 */
+            RowId?: number | null;
+            PermissionKey?: string | null;
+            GrantMask?: components["schemas"]["FuncAction"];
+            _RoleData?: components["schemas"]["RoleDataModel"];
+        };
+        RolePermissionModel_DTO: {
+            /** @description 角色代號 */
+            RoleId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            /** @description 權限代號 */
+            PermissionKey?: string | null;
+            GrantMask?: components["schemas"]["FuncAction"];
+            _RoleData?: components["schemas"]["RoleDataModel_DTO"];
+        };
+        RolePermissionSet_DTO: {
+            RoleData?: components["schemas"]["RoleDataModel_DTO"];
+            RolePermission?: components["schemas"]["RolePermissionModel_DTO"][] | null;
+        };
+        RolePermissionSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["RolePermissionSet_DTO"];
         };
         /**
          * Format: int32
@@ -9928,37 +10630,37 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
-            /** @description 樂器代碼 */
+            /** @description [Spec_MusicalId] */
             MusicalId?: string | null;
-            /** @description 樂器名稱 */
+            /** @description [Spec_MusicalName] */
             MusicalName?: string | null;
             Category?: components["schemas"]["Category_DTO"];
             /** @description 類別 */
             CategoryId?: string | null;
             /** @description 封面圖片 */
             CoverPicId?: string | null;
-            /** @description 規格 */
+            /** @description [Spec_Specification] */
             Specification?: string | null;
-            /** @description 琴頭 */
+            /** @description [Spec_Headstock] */
             Headstock?: string | null;
-            /** @description 背板 */
+            /** @description [Spec_Backboard] */
             Backboard?: string | null;
-            /** @description 弦長 */
+            /** @description [Spec_ScaleLength] */
             ScaleLength?: string | null;
-            /** @description 覆手長 */
+            /** @description [Spec_Bridge] */
             Bridge?: string | null;
-            /** @description 形制 */
+            /** @description [Spec_BodyForm] */
             BodyForm?: string | null;
-            /** @description 弦材 */
+            /** @description [Spec_Material] */
             Material?: string | null;
-            /** @description 樂器說明 */
+            /** @description [Spec_MusicalInfo] */
             Info?: string | null;
             _SpecMusicalSoundList?: components["schemas"]["SpecMusicalSoundList_DTO"][] | null;
             _SpecMusicalPictureList?: components["schemas"]["SpecMusicalPictureList_DTO"][] | null;
         };
         SpecMusicalPictureList_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 樂器代碼 */
+            /** @description [Spec_MusicalId] */
             MusicalId?: string | null;
             /**
              * Format: int32
@@ -9987,7 +10689,7 @@ export interface components {
         };
         SpecMusicalSoundList_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 樂器代碼 */
+            /** @description [Spec_MusicalId] */
             MusicalId?: string | null;
             /**
              * Format: int32
@@ -9996,7 +10698,7 @@ export interface components {
             RowId?: number | null;
             /** @description 音源 */
             SoundSrcId?: string | null;
-            /** @description 音檔說明 */
+            /** @description [Spec_SoundSrcInfo] */
             Info?: string | null;
             _SpecMusical?: components["schemas"]["SpecMusicalModel_DTO"];
         };
@@ -10097,126 +10799,126 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
-            /** @description [SpecAcademicYearId] */
+            /** @description 學年度 */
             AcademicYearId?: string | null;
             /**
              * Format: date
-             * @description [SpecAcademicStart]
+             * @description 學年度開始日
              */
             AcademicStart?: string | null;
             /**
              * Format: date
-             * @description [SpecAcademicEnd]
+             * @description 學年度結束日
              */
             AcademicEnd?: string | null;
             /**
              * Format: time
-             * @description [SpecWeekday_OpenTime]
+             * @description 平日開館時間
              */
             Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWeekday_CloseTime]
+             * @description 平日閉館時間
              */
             Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSat_OpenTime]
+             * @description 週六開館時間
              */
             Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSat_CloseTime]
+             * @description 週六閉館時間
              */
             Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSun_OpenTime]
+             * @description 週日開館時間
              */
             Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSun_CloseTime]
+             * @description 週日閉館時間
              */
             Sun_CloseTime?: string | null;
             /**
              * Format: date
-             * @description [SpecWinterStart]
+             * @description 寒假開始日
              */
             WinterStart?: string | null;
             /**
              * Format: date
-             * @description [SpecWinterEnd]
+             * @description 寒假結束日
              */
             WinterEnd?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Weekday_OpenTime]
+             * @description 寒假平日開館時間
              */
             Winter_Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Weekday_CloseTime]
+             * @description 寒假平日閉館時間
              */
             Winter_Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Sat_OpenTime]
+             * @description 寒假週六開館時間
              */
             Winter_Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Sat_CloseTime]
+             * @description 寒假週六閉館時間
              */
             Winter_Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Sun_OpenTime]
+             * @description 寒假週日開館時間
              */
             Winter_Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Sun_CloseTime]
+             * @description 寒假週日閉館時間
              */
             Winter_Sun_CloseTime?: string | null;
             /**
              * Format: date
-             * @description [SpecSummerStart]
+             * @description 暑假開始日
              */
             SummerStart?: string | null;
             /**
              * Format: date
-             * @description [SpecSummerEnd]
+             * @description 暑假結束日
              */
             SummerEnd?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Weekday_OpenTime]
+             * @description 暑假平日開館時間
              */
             Summer_Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Weekday_CloseTime]
+             * @description 暑假平日閉館時間
              */
             Summer_Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Sat_OpenTime]
+             * @description 暑假週六開館時間
              */
             Summer_Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Sat_CloseTime]
+             * @description 暑假週六閉館時間
              */
             Summer_Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Sun_OpenTime]
+             * @description 暑假週日開館時間
              */
             Summer_Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Sun_CloseTime]
+             * @description 暑假週日閉館時間
              */
             Summer_Sun_CloseTime?: string | null;
             /** @description [Common_Memo] */

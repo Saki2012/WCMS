@@ -1,6 +1,7 @@
 ﻿using WCMS.SysCore.Library;
 using System.ComponentModel;
 using WCMS.SysCore.I18n.Resx;
+using WCMS.SysCore.Library.LibAttribute;
 
 namespace WCMS.SysCore.Enum
 {
@@ -35,53 +36,66 @@ namespace WCMS.SysCore.Enum
             /// 啟用
             /// </summary>
             [LibDesc(ModelDisplayName.Enum_AccountStatus_Enable)] Enable = 1,
-            /// <summary>
-            /// 凍結
-            /// </summary>
-            [LibDesc(ModelDisplayName.Enum_AccountStatus_Freeze)] Freeze = 2,
-            /// <summary>
-            /// 密碼過期
-            /// </summary>
-            [LibDesc(ModelDisplayName.Enum_AccountStatus_Expired)] Expired = 3,
-            /// <summary>
-            /// 主機預設密碼
-            /// </summary>
-            [LibDesc(ModelDisplayName.Enum_AccountStatus_HostDefault)] HostDefault = 4,
         }
         /// <summary>
         /// 功能權限動作
+        /// 注1:不允許修改規則邏輯，僅能往下擴充
+        /// 注2:若大小不夠，就改其他型別
+        /// byte:8個
+        /// short:16個
+        /// int:32個
+        /// long:64個
         /// </summary>
         [LibDesc, Flags]
         public enum FuncAction : int
         {
+            [LibDesc(ModelDisplayName.Enum_FuncAction_None)] None = 0,
             /// <summary>
             /// 使用
             /// </summary>
-            [LibDesc] Use = 1,
+            [LibDesc(ModelDisplayName.Enum_FuncAction_Use)] Use = 1,
             /// <summary>
-            /// 查詢
+            /// 查詢清單
             /// </summary>
-            [LibDesc] Query = 2,
+            [LibDesc(ModelDisplayName.Enum_FuncAction_Query)] Query = 2,
+            /// <summary>
+            /// 查看資料
+            /// </summary>
+            [LibDesc(ModelDisplayName.Enum_FuncAction_View)] View = 4,
             /// <summary>
             /// 新增
             /// </summary>
-            [LibDesc] Create = 4,
+            [LibDesc(ModelDisplayName.Enum_FuncAction_Create)] Create = 8,
             /// <summary>
             /// 修改
             /// </summary>
-            [LibDesc] Update = 8,
+            [LibDesc(ModelDisplayName.Enum_FuncAction_Update)] Update = 16,
             /// <summary>
             /// 刪除
             /// </summary>
-            [LibDesc] Delete = 16,
+            [LibDesc(ModelDisplayName.Enum_FuncAction_Delete)] Delete = 32,
             /// <summary>
             /// 作廢
             /// </summary>
-            [LibDesc] Invalid = 32,
+            [LibDesc(ModelDisplayName.Enum_FuncAction_Invalid)] Invalid = 64,
+
+            /////////////////////////////////////////////////////////////////
             /// <summary>
-            /// 全部
+            /// 基礎資料權限
             /// </summary>
-            All = 63,
+            [LibDesc(ModelDisplayName.Enum_FuncAction_MasterData)] MasterData =Use|Query|View|Create|Update|Delete,
+            /// <summary>
+            /// 流水單權限
+            /// </summary>
+            [LibDesc(ModelDisplayName.Enum_FuncAction_BillData)] BillData = Use | Query | View | Create | Update | Delete | Invalid,
+            /// <summary>
+            /// 報表權限
+            /// </summary>
+            [LibDesc(ModelDisplayName.Enum_FuncAction_Report)] Report = Use|Query|View,
+            /// <summary>
+            /// 全部權限
+            /// </summary>
+            [LibDesc(ModelDisplayName.Enum_FuncAction_All)] All = Use|Query|View|Create|Update|Delete|Invalid,
         }
         /// <summary>
         /// 單據狀態

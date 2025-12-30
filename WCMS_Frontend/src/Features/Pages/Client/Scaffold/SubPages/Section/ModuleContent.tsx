@@ -26,15 +26,13 @@ const ModuleContent = (props: ModuleContentProps) => {
         <>
             <HeaderMetaComp htmlLang={lang} title={fullTitle} description={siteHeaderMeta.description} canonicalUrl={canonicalUrl} alternates={alternates} />
             <LoadingErrorHandler loadingList={props.loadingList} errorList={props.errorList}>
-                <div id="ContentPlaceContent_ContentConentA" className="col-sm-12 col-12 + All_Standard_Content_CSS + my-5">
-                    {props.title && <Title title={props.title} subTitle={props.subTitle} />}
-                    {/* <SearchBar /> */}
-                    <div className="ALL__Information__Display__Area">
-                        {props.children}
-                    </div>
-                    <hr className="hr-my-4" />
-                    {props.paginatorProps && <NewPaginator {...props.paginatorProps} />}
+                {props.title && <Title title={props.title} subTitle={props.subTitle} />}
+                {/* <SearchBar /> */}
+                <div className="ALL__Information__Display__Area">
+                    {props.children}
                 </div>
+                <hr className="hr-my-4" />
+                {props.paginatorProps && <NewPaginator {...props.paginatorProps} />}
             </LoadingErrorHandler>
         </>
     )

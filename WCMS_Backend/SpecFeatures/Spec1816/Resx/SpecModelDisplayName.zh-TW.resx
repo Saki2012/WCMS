@@ -126,6 +126,9 @@
   <data name="SpecAcademicYearId" xml:space="preserve">
     <value>學年度</value>
   </data>
+  <data name="SpecOpenScheduleRule" xml:space="preserve">
+    <value>開館時間規則設定</value>
+  </data>
   <data name="SpecSat_CloseTime" xml:space="preserve">
     <value>週六閉館時間</value>
   </data>

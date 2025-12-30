@@ -201,4 +201,10 @@
   <data name="BECode00027" xml:space="preserve">
     <value>網址[{0}]輸入錯誤。</value>
   </data>
+  <data name="BECode00028" xml:space="preserve">
+    <value>新密碼不可與舊密碼相同。</value>
+  </data>
+  <data name="BECode00029" xml:space="preserve">
+    <value>您沒有【{0}】權限。</value>
+  </data>
 </root>

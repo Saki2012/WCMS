@@ -1,5 +1,6 @@
 ﻿using WCMS.SpecFeatures.Spec1817.Resx;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Library.LibAttribute;
 
 namespace WCMS.Features.SiteEdit.Banner
 {

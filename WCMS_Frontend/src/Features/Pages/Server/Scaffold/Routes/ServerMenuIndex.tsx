@@ -1,6 +1,6 @@
 import { ServerModuleRoutes } from "@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData";
 import type { RouteHandleMeta } from "@/Features/Pages/Server/Scaffold/Routes/ServerRouter";
-import type { IActionMeta, IModuleMeta, IProgMeta, IServerElementFactoryCtx } from "@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData";
+import type { IActionHandle, IActionMeta, IModuleMeta, IProgMeta, IServerElementFactoryCtx } from "@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData";
 import type { RouteObject, IndexRouteObject, NonIndexRouteObject } from "react-router-dom";
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 
@@ -62,7 +62,7 @@ export const buildProgHandle = (moduleCode: string, progId: string): RouteHandle
 };
 export const buildActionHandle = (moduleCode: string, progId: string, actionCode: string): RouteHandleMeta => {
   const a = findActionMeta(moduleCode, progId, actionCode);
-  return { moduleCode, progId, title: a?.Title ?? actionCode };
+  return { moduleCode, progId, actionCode, title: a?.Title ?? actionCode };
 };
 
 /** 取得 action 的路由片段（優先 RoutePath，否則用 ActionCode） */
@@ -72,23 +72,17 @@ const getActionPath = (a: IActionMeta): string => (a.RoutePath ?? a.ActionCode).
 const buildActionRoute = (a: IActionMeta, ctx: IServerElementFactoryCtx): RouteObject => {
   const path = getActionPath(a);
   const element = a.elementFactory ? a.elementFactory(ctx) : <div>Missing elementFactory</div>;
-
+  const handle = { ActionCode: a.ActionCode, Title: a.Title } as IActionHandle
   // ✅ RoutePath === "" 視為 index route（不能有 children / path）
-  if (path === "") {
-    const r: IndexRouteObject = { index: true, element };
-    return r;
-  }
-
+  if (path === "") return { index: true, handle, element } as IndexRouteObject;
   // ✅ 一般 route
-  const r: NonIndexRouteObject = { path, element };
-  return r;
+  return { path, handle, element } as NonIndexRouteObject;
 };
 
 /** 建 prog route（含 default action redirect + actions） */
 const buildProgRoute = (moduleCode: string, p: IProgMeta, ctx: IServerElementFactoryCtx): NonIndexRouteObject => {
   const defaultAction = p.Actions?.find(a => a.ActionCode === p.DefaultActionCode);
   const defaultPath = defaultAction ? getActionPath(defaultAction) : "List";
-
   const hasIndexAction = defaultPath === "";
 
   return {

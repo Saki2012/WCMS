@@ -21,10 +21,13 @@ export const AccountModelFields = {
     AccountName: "AccountName",
     Person: "Person",
     PersonId: "PersonId",
+    Role: "Role",
+    RoleId: "RoleId",
     PasswordHash: "PasswordHash",
     PasswordSalt: "PasswordSalt",
     PasswordAlgoVer: "PasswordAlgoVer",
     AccountStatus: "AccountStatus",
+    PasswordChangeDate: "PasswordChangeDate",
 } as const;
 
 export type AccountModelFieldKey = keyof typeof AccountModelFields;
@@ -69,8 +72,11 @@ export const AccountFields = {
     AccountName: "AccountName",
     Person: "Person",
     PersonId: "PersonId",
+    Role: "Role",
+    RoleId: "RoleId",
     Password: "Password",
     AccountStatus: "AccountStatus",
+    PasswordChangeDate: "PasswordChangeDate",
 } as const;
 
 export type AccountFieldKey = keyof typeof AccountFields;
@@ -300,6 +306,13 @@ export const CategoryFields = {
 
 export type CategoryFieldKey = keyof typeof CategoryFields;
 
+export const ChangePasswordFields = {
+    OldPassword: "OldPassword",
+    NewPassword: "NewPassword",
+} as const;
+
+export type ChangePasswordFieldKey = keyof typeof ChangePasswordFields;
+
 export const ContentStatusFields = {
     toString: "toString",
     toFixed: "toFixed",
@@ -502,6 +515,17 @@ export const FormStatusFields = {
 } as const;
 
 export type FormStatusFieldKey = keyof typeof FormStatusFields;
+
+export const FuncActionFields = {
+    toString: "toString",
+    toFixed: "toFixed",
+    toExponential: "toExponential",
+    toPrecision: "toPrecision",
+    valueOf: "valueOf",
+    toLocaleString: "toLocaleString",
+} as const;
+
+export type FuncActionFieldKey = keyof typeof FuncActionFields;
 
 export const GalleryInfoFields = {
     GalleryId: "GalleryId",
@@ -727,6 +751,30 @@ export const PageManagementFields = {
 
 export type PageManagementFieldKey = keyof typeof PageManagementFields;
 
+export const PermissionCatalogModuleDTOFields = {
+    ModuleCode: "ModuleCode",
+    ModuleTitle: "ModuleTitle",
+    Progs: "Progs",
+} as const;
+
+export type PermissionCatalogModuleDTOFieldKey = keyof typeof PermissionCatalogModuleDTOFields;
+
+export const PermissionCatalogModuleDTOApiResponseFields = {
+    IsSuccess: "IsSuccess",
+    SysMessage: "SysMessage",
+    Data: "Data",
+} as const;
+
+export type PermissionCatalogModuleDTOApiResponseFieldKey = keyof typeof PermissionCatalogModuleDTOApiResponseFields;
+
+export const PermissionCatalogProgDTOFields = {
+    ProgId: "ProgId",
+    ProgTitle: "ProgTitle",
+    SupportMask: "SupportMask",
+} as const;
+
+export type PermissionCatalogProgDTOFieldKey = keyof typeof PermissionCatalogProgDTOFields;
+
 export const PersonModelFields = {
     CreateTime: "CreateTime",
     CreateUser: "CreateUser",
@@ -778,6 +826,63 @@ export const QueryListParamFields = {
 } as const;
 
 export type QueryListParamFieldKey = keyof typeof QueryListParamFields;
+
+export const ResetPasswordFields = {
+    UserInternalId: "UserInternalId",
+    NewPassword: "NewPassword",
+} as const;
+
+export type ResetPasswordFieldKey = keyof typeof ResetPasswordFields;
+
+export const RoleDataModelFields = {
+    CreateTime: "CreateTime",
+    CreateUser: "CreateUser",
+    CreateUserId: "CreateUserId",
+    ModifyTime: "ModifyTime",
+    ModifyUser: "ModifyUser",
+    ModifyUserId: "ModifyUserId",
+    FormStatus: "FormStatus",
+    DataStatus: "DataStatus",
+    InvalidTime: "InvalidTime",
+    InvalidUser: "InvalidUser",
+    InvalidUserId: "InvalidUserId",
+    InternalId: "InternalId",
+    OrgLvId: "OrgLvId",
+    IsIniData: "IsIniData",
+    Validate_Start: "Validate_Start",
+    Validate_End: "Validate_End",
+    RoleId: "RoleId",
+    RoleName: "RoleName",
+    IsAdmin: "IsAdmin",
+    _RolePermission: "_RolePermission",
+} as const;
+
+export type RoleDataModelFieldKey = keyof typeof RoleDataModelFields;
+
+export const RolePermissionModelFields = {
+    RowState: "RowState",
+    RoleId: "RoleId",
+    RowId: "RowId",
+    PermissionKey: "PermissionKey",
+    GrantMask: "GrantMask",
+    _RoleData: "_RoleData",
+} as const;
+
+export type RolePermissionModelFieldKey = keyof typeof RolePermissionModelFields;
+
+export const RolePermissionSetFields = {
+    RoleData: "RoleData",
+    RolePermission: "RolePermission",
+} as const;
+
+export type RolePermissionSetFieldKey = keyof typeof RolePermissionSetFields;
+
+export const RolePermissionSet_DTOApiRequestFields = {
+    InternalId: "InternalId",
+    Data: "Data",
+} as const;
+
+export type RolePermissionSet_DTOApiRequestFieldKey = keyof typeof RolePermissionSet_DTOApiRequestFields;
 
 export const RowStateFields = {
     toString: "toString",

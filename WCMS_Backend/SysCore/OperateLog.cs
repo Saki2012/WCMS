@@ -32,14 +32,14 @@ namespace WCMS.SysCore
     public class OperateLog(ApplicationDbContext dataAccess): IOperateLog
     {
         private readonly ApplicationDbContext DataAccess = dataAccess;
-        public IList<OperateLogModel> MoveFollows { get; set; } = [];
+        public IList<OperateLogModel> OperateLogs { get; set; } = [];
 
 
-        public OperateLogModel AddMoveFollow(string apiName,string userId,string jsonData,string ip)
+        public OperateLogModel AddOperateLog(string apiName,string userId,string jsonData,string ip)
         {
-            return AddMoveFollow(new(){APIName = apiName,UserId = userId,followingDT = jsonData,IP = ip});
+            return AddOperateLog(new(){APIName = apiName,UserId = userId,followingDT = jsonData,IP = ip});
         }
-        public OperateLogModel AddMoveFollow(OperateLogModel log)
+        public OperateLogModel AddOperateLog(OperateLogModel log)
         {
             DataAccess.Add(log);
             DataAccess.SaveChanges();

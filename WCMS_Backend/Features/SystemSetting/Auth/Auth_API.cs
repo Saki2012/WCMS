@@ -33,7 +33,7 @@ namespace WCMS.Features.SystemSetting.Auth
         [HttpPost(nameof(Login)), AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginDto req)
         {
-            OperateLog.AddMoveFollow(nameof(Login), req.Account, JsonConvert.SerializeObject(req.Account), Request.Headers["HTTP_CLIENT_IP"].ToString());
+            OperateLog.AddOperateLog(nameof(Login), req.Account, JsonConvert.SerializeObject(req.Account), Request.Headers["HTTP_CLIENT_IP"].ToString());
             const string GENERIC_LOGIN_ERROR = "帳號或密碼錯誤";
             var key = $"login_attempts:{req.Account}";
             var attempts = _cache.Get<int>(key);
@@ -177,7 +177,7 @@ namespace WCMS.Features.SystemSetting.Auth
             followInfo.UserId = OperateUser.UserId;
             followInfo.followingDT = JsonConvert.SerializeObject(delOpt);
             followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
-            OperateLog.AddMoveFollow(followInfo);
+            OperateLog.AddOperateLog(followInfo);
 
             Response.Cookies.Delete("rtid", delOpt);
             Response.Cookies.Delete("XSRF-TOKEN", delOpt);
@@ -194,13 +194,15 @@ namespace WCMS.Features.SystemSetting.Auth
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
             var userName = User.FindFirstValue(ClaimTypes.Name) ?? userId;
             var role = User.FindFirstValue(ClaimTypes.Role) ?? "User";
+            var interanlId = User.FindFirstValue(nameof(SysCore.Model.BasicDataModel.InternalId)) ?? ""; 
             // 回傳你前端需要的最小欄位；之後要接 DB 再補充
 
             var dt = new
             {
                 Id = userId,
                 Name = userName,
-                Role = role
+                Role = role,
+                InternalId= interanlId,
             };
 
             //OperateLogModel followInfo = new OperateLogModel();

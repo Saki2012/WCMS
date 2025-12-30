@@ -6,7 +6,6 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
-import { Link } from "react-router-dom";
 import type { NaviData } from "@/SysCore/Components/NaviBar/NaviBar_Data";
 import NaviBarComp from "@/SysCore/Components/NaviBar/NaviBar_Comp";
 import MenuListComp from "@/SysCore/Components/MenuList/MenuList_Comp";
