@@ -25,6 +25,7 @@ import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Da
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
+import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 type TagSet = components["schemas"]["TagSet_DTO"];
@@ -113,12 +114,13 @@ const GridList_Comp = (props: { title: string; gridData: GridProps }) => {
     )
 }
 const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: AnnouncementSet[] }) => {
+    const defaultAnnouncePic = useOptionalSpecAssetUrl({ relativePath: "Assets/Custom/DefaultEventPic.jpg", fallbackToDefault: true, }) ?? "";
     return (
         <div id="Row_Colitem" className="SubPage_Standard_itemBoxs">
             {props.gridData && props.gridData.map((item) => {
                 const linkUrl = `${props.dirUrl}/${item.Announcement?.InternalId}`;
                 const title = item.AnnouncementDetail?.find(p => p.Lang === props.lang)?.Title ?? ""
-                const picUrl = `${FileManagementAPI.PREVIEW_URL}/${item.Announcement?.PictureId}`
+                const picUrl = item.Announcement?.PictureId ? `${FileManagementAPI.PREVIEW_URL}/${item.Announcement?.PictureId}` : defaultAnnouncePic
                 const picDesc = item.Announcement?.PicDescription ?? title
                 const validate = FormatDate(item.Announcement?.Validate_Start)
 

@@ -15,7 +15,7 @@ import lineTitleImg from "@/SpecFetures/1817/Assets/Client/images/line_title.svg
 import { useEffect, useMemo } from 'react';
 import maskImg from '@/SpecFetures/1817/Assets/Client/images/exhibition/corner_mask_30x30.svg'
 import { LangLink } from '@/SysCore/i18n/LangLink';
-
+import defaultPic from '@/SpecFetures/1817/Assets/Custom/DefaultEventPic.jpg'
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
@@ -367,6 +367,7 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 	return (
 		<>
 			{prop.map((item) => {
+				const picUrl = item.pictureId ? `${FileManagementAPI.PREVIEW_URL}/${item.pictureId}` : defaultPic
 				return (
 					<div className="item" key={item.announceInternalId} >
 						<LangLink to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
@@ -375,7 +376,7 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 									<figure className="figure_Box">
 										<div className="card_figure">
 											<div className="img-wrapper">
-												<img alt="" className="card_image" src={`${FileManagementAPI.PREVIEW_URL}/${item.pictureId}`} />
+												<img alt="" className="card_image" src={picUrl} />
 											</div>
 										</div>
 										<div className="Arrow_RD_area">
