@@ -1666,6 +1666,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/Calendar/UpdateDayInfo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CalendarDetail_DTO"];
+                    "text/json": components["schemas"]["CalendarDetail_DTO"];
+                    "application/*+json": components["schemas"]["CalendarDetail_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Calendar/Spec_GetCurrentOpenTime": {
         parameters: {
             query?: never;
@@ -9635,21 +9677,32 @@ export interface components {
         };
         CalendarDetail_DTO: {
             /** Format: int32 */
-            Year?: number;
+            Year?: number | null;
             /** Format: date */
-            Date?: string;
+            Date?: string | null;
             DayOfWeek?: components["schemas"]["DayOfWeek"];
-            IsHoliday?: boolean;
+            IsHoliday?: boolean | null;
             HolidayName?: string | null;
             Description?: string | null;
-            IsEdit?: boolean;
+            IsEdit?: boolean | null;
+            /** Format: date-time */
+            ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["AccountModel"];
+            ModifyUserId?: string | null;
             _Calendar?: components["schemas"]["Calendar_DTO"];
             Spec_AcademicYear?: components["schemas"]["SpecOpenScheduleRuleModel"];
             Spec_AcademicYearId?: string | null;
-            /** Format: time */
+            /**
+             * Format: time
+             * @description 開館時間
+             */
             Spec_OpenTime?: string | null;
-            /** Format: time */
+            /**
+             * Format: time
+             * @description 閉館時間
+             */
             Spec_CloseTime?: string | null;
+            /** @description [Common_Memo] */
             Spec_ModifyMemo?: string | null;
         };
         CalendarSet_DTO: {
@@ -9685,10 +9738,10 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             /** Format: int32 */
-            Year?: number;
+            Year?: number | null;
             ImportSrc?: string | null;
             /** Format: date-time */
-            LastImportTime?: string;
+            LastImportTime?: string | null;
             _CalendarDetail?: components["schemas"]["CalendarDetail_DTO"][] | null;
         };
         CategoryDataSet_DTO: {
@@ -10491,8 +10544,6 @@ export interface components {
             DisplayOrder?: number;
             ItemType?: components["schemas"]["MenuUrlType"];
             WindowTarget?: components["schemas"]["WindowTarget"];
-            /** @description 是否顯示在菜單中 */
-            IsShowOnMenu?: boolean;
         };
         SiteMenu_Item_Module_DTO: {
             /** @description 首頁代碼 */
@@ -10526,6 +10577,8 @@ export interface components {
             Lang?: components["schemas"]["LangCode"];
             /** @description 網頁項目標題 */
             Title?: string | null;
+            /** @description 是否顯示在菜單中 */
+            IsShowOnMenu?: boolean;
         };
         SiteMenu_Item_Url_DTO: {
             /** @description 首頁代碼 */
@@ -10724,55 +10777,129 @@ export interface components {
             Validate_Start?: string | null;
             /** Format: date-time */
             Validate_End?: string | null;
+            /** @description 學年度 */
             AcademicYearId?: string | null;
-            /** Format: date */
+            /**
+             * Format: date
+             * @description 學年度開始日
+             */
             AcademicStart?: string;
-            /** Format: date */
+            /**
+             * Format: date
+             * @description 學年度結束日
+             */
             AcademicEnd?: string;
-            /** Format: time */
+            /**
+             * Format: time
+             * @description 平日開館時間
+             */
             Weekday_OpenTime?: string | null;
-            /** Format: time */
+            /**
+             * Format: time
+             * @description 平日閉館時間
+             */
             Weekday_CloseTime?: string | null;
-            /** Format: time */
+            /**
+             * Format: time
+             * @description 週六開館時間
+             */
             Sat_OpenTime?: string | null;
-            /** Format: time */
+            /**
+             * Format: time
+             * @description 週六閉館時間
+             */
             Sat_CloseTime?: string | null;
-            /** Format: time */
+            /**
+             * Format: time
+             * @description 週日開館時間
+             */
             Sun_OpenTime?: string | null;
-            /** Format: time */
+            /**
+             * Format: time
+             * @description 週日閉館時間
+             */
             Sun_CloseTime?: string | null;
-            /** Format: date */
+            /**
+             * Format: date
+             * @description 寒假開始日
+             */
             WinterStart?: string;
-            /** Format: date */
+            /**
+             * Format: date
+             * @description 寒假結束日
+             */
             WinterEnd?: string;
-            /** Format: time */
+            /**
+             * Format: time
+             * @description 寒假平日開館時間
+             */
             Winter_Weekday_OpenTime?: string | null;
-            /** Format: time */
+            /**
+             * Format: time
+             * @description 寒假平日閉館時間
+             */
             Winter_Weekday_CloseTime?: string | null;
-            /** Format: time */
+            /**
+             * Format: time
+             * @description 寒假週六開館時間
+             */
             Winter_Sat_OpenTime?: string | null;
-            /** Format: time */
+            /**
+             * Format: time
+             * @description 寒假週六閉館時間
+             */
             Winter_Sat_CloseTime?: string | null;
-            /** Format: time */
+            /**
+             * Format: time
+             * @description 寒假週日開館時間
+             */
             Winter_Sun_OpenTime?: string | null;
-            /** Format: time */
+            /**
+             * Format: time
+             * @description 寒假週日閉館時間
+             */
             Winter_Sun_CloseTime?: string | null;
-            /** Format: date */
+            /**
+             * Format: date
+             * @description 暑假開始日
+             */
             SummerStart?: string;
-            /** Format: date */
+            /**
+             * Format: date
+             * @description 暑假結束日
+             */
             SummerEnd?: string;
-            /** Format: time */
+            /**
+             * Format: time
+             * @description 暑假平日開館時間
+             */
             Summer_Weekday_OpenTime?: string | null;
-            /** Format: time */
+            /**
+             * Format: time
+             * @description 暑假平日閉館時間
+             */
             Summer_Weekday_CloseTime?: string | null;
-            /** Format: time */
+            /**
+             * Format: time
+             * @description 暑假週六開館時間
+             */
             Summer_Sat_OpenTime?: string | null;
-            /** Format: time */
+            /**
+             * Format: time
+             * @description 暑假週六閉館時間
+             */
             Summer_Sat_CloseTime?: string | null;
-            /** Format: time */
+            /**
+             * Format: time
+             * @description 暑假週日開館時間
+             */
             Summer_Sun_OpenTime?: string | null;
-            /** Format: time */
+            /**
+             * Format: time
+             * @description 暑假週日閉館時間
+             */
             Summer_Sun_CloseTime?: string | null;
+            /** @description [Common_Memo] */
             ModifyMemo?: string | null;
         };
         SpecOpenScheduleRuleModel_DTO: {

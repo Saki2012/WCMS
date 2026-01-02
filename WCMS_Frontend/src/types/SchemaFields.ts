@@ -220,6 +220,9 @@ export const CalendarDetailFields = {
     HolidayName: "HolidayName",
     Description: "Description",
     IsEdit: "IsEdit",
+    ModifyTime: "ModifyTime",
+    ModifyUser: "ModifyUser",
+    ModifyUserId: "ModifyUserId",
     _Calendar: "_Calendar",
     Spec_AcademicYear: "Spec_AcademicYear",
     Spec_AcademicYearId: "Spec_AcademicYearId",
@@ -958,7 +961,6 @@ export const SiteMenu_ItemFields = {
     DisplayOrder: "DisplayOrder",
     ItemType: "ItemType",
     WindowTarget: "WindowTarget",
-    IsShowOnMenu: "IsShowOnMenu",
 } as const;
 
 export type SiteMenu_ItemFieldKey = keyof typeof SiteMenu_ItemFields;
@@ -980,6 +982,7 @@ export const SiteMenu_Item_TitleFields = {
     RowId: "RowId",
     Lang: "Lang",
     Title: "Title",
+    IsShowOnMenu: "IsShowOnMenu",
 } as const;
 
 export type SiteMenu_Item_TitleFieldKey = keyof typeof SiteMenu_Item_TitleFields;

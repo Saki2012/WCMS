@@ -159,11 +159,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// 開啟分頁方式
         /// </summary>
         public WindowTarget WindowTarget { get; set; }
-        /// <summary>
-        /// 是否顯示在清單上
-        /// </summary>
-        public bool IsShowOnMenu { get; set; }
-
+        
         #region 主子表關聯
         [ForeignKey(nameof(SiteIndex))] public SiteMenu_IndexModel _SiteMenu_Index { get; set; }
         [InverseProperty(nameof(SiteMenu_Item_Title._SiteMenu_Index))] public List<SiteMenu_Item_Title> _SiteMenu_Item_Title { get; set; }
@@ -181,7 +177,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         [Key] public int? RowId { get; set; }
         [StringLength(SysLengthParam.Lang)] public LangCode Lang { get; set; }
         [StringLength(SysLengthParam.Title)] public string Title { get; set; }
-
+        public bool IsShowOnMenu { get; set; }
         #region 主子表關聯
         [ForeignKey($@"{nameof(SiteIndex)},{nameof(ItemRowId)}")] public SiteMenu_Item _SiteMenu_Index { get; set; }
         #endregion

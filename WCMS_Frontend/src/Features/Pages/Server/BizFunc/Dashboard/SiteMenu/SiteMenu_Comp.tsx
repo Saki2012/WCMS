@@ -723,6 +723,7 @@ const BasicSettingTab = (prop: {
       const rowKeys = { [SchemaFields.SiteMenu_Item_TitleFields.SiteIndex]: info.SiteIndex, [SchemaFields.SiteMenu_Item_TitleFields.ItemRowId]: info.ItemRowId, [SchemaFields.SiteMenu_Item_TitleFields.RowId]: info.RowId, }
       compMap[langKey] = [
         <LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Title, SchemaFields.SiteMenu_Item_TitleFields.Title, "string", rowKeys)} />,
+        <LibCheckBox Style={prop.theme.CheckBox} options={{ [SchemaFields.SiteMenu_Item_TitleFields.IsShowOnMenu]: "" }}{...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Title, SchemaFields.SiteMenu_Item_TitleFields.IsShowOnMenu, "boolean", rowKeys)} />
       ]
       return compMap;
     }, {}
@@ -733,7 +734,6 @@ const BasicSettingTab = (prop: {
     <LibTextBox disabled={true} Style={prop.theme.TextBox} DefaultInputDisplay="" {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item, SchemaFields.SiteMenu_ItemFields.FullUrl, "string", curRowKeys)} />
     <LibCheckBox Style={prop.theme.RadioBox} options={prop.itemType} ColumnDisplayName={itemTypeBind.ColumnDisplayName} InputValue={itemTypeBind.InputValue} onChange={(v) => { itemTypeBind.onChange?.(v); prop.setLinkType(Number(v) as MenuUrlType); }} />
     <LibCheckBox Style={prop.theme.RadioBox} options={prop.windowTarget} {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item, SchemaFields.SiteMenu_ItemFields.WindowTarget, "number", curRowKeys)} />
-    <LibCheckBox Style={prop.theme.CheckBox} options={{ [SchemaFields.SiteMenu_ItemFields.IsShowOnMenu]: "" }}{...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item, SchemaFields.SiteMenu_ItemFields.IsShowOnMenu, "boolean", curRowKeys)} />
     <TabContentComp tabInfos={tabInfo} components={tabContent} />
   </>), [prop.theme, prop.formData, prop.selectedItemEdit]);
   return basicNodes

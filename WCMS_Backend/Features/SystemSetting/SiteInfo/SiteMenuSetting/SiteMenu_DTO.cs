@@ -147,10 +147,6 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// 開啟分頁方式
         /// </summary>
         [LibDesc(ModelDisplayName.SiteMenu_WindowTarget)] public WindowTarget WindowTarget { get; set; }
-        /// <summary>
-        /// 是否顯示在清單上
-        /// </summary>
-        [LibDesc(ModelDisplayName.SiteMenu_IsShowOnMenu)] public bool IsShowOnMenu { get; set; }
     }
     /// <summary>
     /// 
@@ -162,6 +158,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         [LibDesc(ModelDisplayName.Common_RowId)] public int? RowId { get; set; }
         [LibDesc(ModelDisplayName.Common_Lang)] public LangCode? Lang { get; set; }
         [LibDesc(ModelDisplayName.SiteMenu_MenuTitle)] public string? Title { get; set; }
+        [LibDesc(ModelDisplayName.SiteMenu_IsShowOnMenu)] public bool IsShowOnMenu { get; set; }
     }
     /// <summary>
     /// 

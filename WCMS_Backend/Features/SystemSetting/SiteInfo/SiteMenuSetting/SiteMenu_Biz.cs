@@ -91,7 +91,6 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
                     foreach (DataRow rl in menuLang.Select($"Sn={sn}"))
                     {
                         item.WindowTarget = rl["URL_Open"].ToByte() == 1 ? WindowTarget.Self : WindowTarget.Blank;
-                        item.IsShowOnMenu = Convert.ToBoolean(rl["MenuDisplay"]);
                         LangCodeExt.TryParse(rl["Lang"].ToString(), out LangCode lang);
                         set.SiteMenu_Item_Title.Add(new SiteMenu_Item_Title()
                         {
@@ -99,9 +98,11 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
                             ItemRowId = item.RowId,
                             RowId = titleRowId++,
                             Lang = lang,
-                            Title = rl["Title"].ToString()
+                            Title = rl["Title"].ToString(),
+                            IsShowOnMenu = Convert.ToBoolean(rl["MenuDisplay"]),
                         });
                     }
+
                     switch (r["Type"].ToString())
                     {
                         case "url":
