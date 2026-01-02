@@ -10,6 +10,7 @@ import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap";
+import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
 
 
 
@@ -85,7 +86,7 @@ const Header_Section = (props: { lang: Lang; site: INormSite }) => {
                 <div className="container-customize0">
                     <ul className="nav custom_nav justify-content-xl-end justify-content-center">
                         <NavBar lang={props.lang} />
-                        {/* <LangSwitchBtn site={props.site} /> */}
+                        <LangSwitchBtn site={props.site} />
                     </ul>
                 </div>
             </div>
@@ -334,8 +335,12 @@ const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
             {menuItems.map((item) => {
                 return (
                     <>
-                        {/* <SingleMenuItem menuItem={item} /> */}
-                        <DropdownMenuItem menuItem={item} />
+                        {
+                            item.SubItem?.length === 0 ?
+                                <SingleMenuItem menuItem={item} /> :
+                                <DropdownMenuItem menuItem={item} />
+                        }
+
                         {/* <MegaMenuItem menuItem={item} /> */}
                     </>)
             })}

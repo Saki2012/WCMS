@@ -167,7 +167,7 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
       if (!key) return acc;
       acc[key] = p.Banner?.BannerCategoryName ?? "";
       return acc;
-    }, { "": "請選擇" }); // << 預設空白選項
+    }, {}); // << 預設空白選項
   }, [useBannerList.rawData]);
   useEnsureLangDetails(useSiteInfo, { headerName: SchemaFields.SiteMenuSetFields.SiteMenu_Index, detailName: SchemaFields.SiteMenuSetFields.SiteMenu_IndexInfo, parentKeys: [SchemaFields.SiteMenu_IndexInfoFields.SiteIndex], preferFirstLang: prop.lang });
   useEnsureLangDetails(useSiteInfo, { headerName: SchemaFields.SiteMenuSetFields.SiteMenu_Item, detailName: SchemaFields.SiteMenuSetFields.SiteMenu_Item_Title, parentKeys: [SchemaFields.SiteMenu_Item_TitleFields.SiteIndex, SchemaFields.SiteMenu_Item_TitleFields.ItemRowId], preferFirstLang: prop.lang });
@@ -292,7 +292,6 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
           FullUrl: "",
           ItemType: 1,
           WindowTarget: 0,
-          IsShowOnMenu: true,
         } as any
       ];
 
@@ -304,6 +303,7 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
           RowId: nextTitleRowId,
           Lang: prop.lang,
           Title: "",
+          IsShowOnMenu: true,
         } as any
       ];
 
@@ -325,7 +325,6 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
           FullUrl: "",
           ItemType: 1,
           WindowTarget: 0,
-          IsShowOnMenu: true,
         } as any,
         Title: [{
           SiteIndex: sampleSiteIndex,
@@ -333,6 +332,7 @@ const RenderLeftBox = (prop: { setSelectedItemEdit: React.Dispatch<React.SetStat
           RowId: nextTitleRowId,
           Lang: prop.lang,
           Title: "",
+          IsShowOnMenu: true,
         } as any],
         Module: {} as any,
         Url: {} as any,
@@ -743,7 +743,7 @@ const BasicSettingTab = (prop: {
 
 //#region 模型配置
 const ModuleOpts: Record<string, string> = {
-  '': '請選擇', Announcement: "公告", FileArchive: "檔案室", Gallery: "相簿",
+  Announcement: "公告", FileArchive: "檔案室", Gallery: "相簿",
   PageManagement: "頁面", WebResource: "網路資源", SpecResearch: "研究計劃", SpecUSR: "USR計劃",
   SpecMusical: "琵琶介紹",
 };
@@ -814,7 +814,7 @@ const ModuleSettingTab = (prop: {
       <Module_Banner_Comp theme={prop.theme} formData={prop.formData} selectedItemEdit={prop.selectedItemEdit} bannerDict={prop.bannerDict} />,
       <LibDropList key="model" Style={prop.theme.DropList} Options={ModuleOpts}
         ColumnDisplayName={moduleKeyBind.ColumnDisplayName}
-        InputValue={moduleKeyBind.InputValue}
+        InputValue={moduleKeyBind.InputValue} AutoDefaultFirst={false}
         onChange={(v) => { moduleKeyBind.onChange?.(v); prop.setModelKey(v as ModelKey); }} />,]} />,
     ];
     const map: Record<Exclude<ModelKey, null>, React.ReactNode> = {
@@ -843,7 +843,7 @@ const ModuleSettingTab = (prop: {
 const Module_Banner_Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SiteMenuSet>; selectedItemEdit: Item | null; bannerDict: Record<string, string> }): React.ReactNode[] => {
   const curRowKeys = { [SchemaFields.SiteMenu_Item_ModuleFields.SiteIndex]: prop.selectedItemEdit?.MenuItem.Item.SiteIndex, [SchemaFields.SiteMenu_Item_ModuleFields.ItemRowId]: prop.selectedItemEdit?.MenuItem.Item.RowId }
   const setField = useSetTableField<SiteMenuSet>(prop.formData);
-  return ([<LibDropList Style={prop.theme.DropList} Options={prop.bannerDict} {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Module, SchemaFields.SiteMenu_Item_ModuleFields.BannerId, "string", curRowKeys)} />])
+  return ([<LibDropList Style={prop.theme.DropList} Options={prop.bannerDict} AutoDefaultFirst={false} {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Module, SchemaFields.SiteMenu_Item_ModuleFields.BannerId, "string", curRowKeys)} />])
 }
 const Module_Announcement_Comp = (prop: {
   theme: IBETheme; formData: UseFetchFormDataResult<SiteMenuSet>; selectedItemEdit: Item | null; styleDict: Record<string, string>;
@@ -860,7 +860,7 @@ const Module_Announcement_Comp = (prop: {
     <>
       <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="類別" options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />
       <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />
-      <LibDropList Style={prop.theme.DropList} ColumnDisplayName="清單樣式" Options={prop.styleDict} InputValue={styleBind.value} onChange={styleBind.onChange} />
+      <LibDropList Style={prop.theme.DropList} ColumnDisplayName="清單樣式" Options={prop.styleDict} InputValue={styleBind.value} onChange={styleBind.onChange} AutoDefaultFirst={false} />
     </>
   )
 }
@@ -890,7 +890,7 @@ const Module_Pagemanagement_Comp = (prop: { theme: IBETheme; formData: UseFetchF
   }, [prop.lang, prop.pageList]);
 
   return ([
-    <LibDropList Style={prop.theme.DropList} ColumnDisplayName="頁面選擇" Options={usePageDict} InputValue={pageBind.value} onChange={pageBind.onChange} />,
+    <LibDropList Style={prop.theme.DropList} ColumnDisplayName="頁面選擇" Options={usePageDict} AutoDefaultFirst={false} InputValue={pageBind.value} onChange={pageBind.onChange} />,
   ])
 }
 const Module_Gallery_Comp = (prop: {
@@ -913,7 +913,7 @@ const Module_Gallery_Comp = (prop: {
   return ([
     <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="類別" options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />,
     <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />,
-    <LibDropList Style={prop.theme.DropList} ColumnDisplayName="清單樣式" Options={prop.styleDict} InputValue={styleBind.value} onChange={styleBind.onChange} />,
+    <LibDropList Style={prop.theme.DropList} ColumnDisplayName="清單樣式" Options={prop.styleDict} InputValue={styleBind.value} onChange={styleBind.onChange} AutoDefaultFirst={false} />,
   ])
 }
 const Module_FileArchive_Comp = (prop: {
@@ -936,7 +936,7 @@ const Module_FileArchive_Comp = (prop: {
   return ([
     <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="類別" options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />,
     <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />,
-    <LibDropList Style={prop.theme.DropList} ColumnDisplayName="清單樣式" Options={prop.styleDict} InputValue={styleBind.value} onChange={styleBind.onChange} />,
+    <LibDropList Style={prop.theme.DropList} ColumnDisplayName="清單樣式" Options={prop.styleDict} InputValue={styleBind.value} onChange={styleBind.onChange} AutoDefaultFirst={false} />,
   ])
 }
 const Module_WebResource_Comp = (prop: {
@@ -959,7 +959,7 @@ const Module_WebResource_Comp = (prop: {
   return ([
     <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="類別" options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />,
     <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />,
-    <LibDropList Style={prop.theme.DropList} ColumnDisplayName="清單樣式" Options={prop.styleDict} InputValue={styleBind.value} onChange={styleBind.onChange} />,
+    <LibDropList Style={prop.theme.DropList} ColumnDisplayName="清單樣式" Options={prop.styleDict} InputValue={styleBind.value} onChange={styleBind.onChange} AutoDefaultFirst={false} />,
   ])
 }
 const Module_SpecResearch_Comp = (prop: {
@@ -979,7 +979,7 @@ const Module_SpecResearch_Comp = (prop: {
   const cateDic = useSpecCategoryDict(prop.categoryDatas, prop.lang, "SpecResearch")
   const tagDic = useTagDict(prop.tagDatas, prop.lang, "SpecResearch")
   return ([
-    <LibDropList Style={prop.theme.DropList} ColumnDisplayName="類別" Options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />,
+    <LibDropList Style={prop.theme.DropList} ColumnDisplayName="類別" Options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} AutoDefaultFirst={false} />,
     <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />,
   ])
 }
@@ -1000,7 +1000,7 @@ const Module_SpecUSR_Comp = (prop: {
   const cateDic = useSpecCategoryDict(prop.categoryDatas, prop.lang, "SpecUSR")
   const tagDic = useTagDict(prop.tagDatas, prop.lang, "SpecUSR")
   return ([
-    <LibDropList Style={prop.theme.DropList} ColumnDisplayName="類別" Options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />,
+    <LibDropList Style={prop.theme.DropList} ColumnDisplayName="類別" Options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} AutoDefaultFirst={false} />,
     <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />,
   ])
 }
@@ -1019,7 +1019,7 @@ const Module_SpecMusical_Comp = (prop: {
   const catBind = binder.bind("Category", "string");
   const cateDic = useCategoryDict(prop.categoryDatas, prop.lang, SpecPGID.SpecMusical)
   return ([
-    <LibDropList Style={prop.theme.DropList} ColumnDisplayName="類別" Options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />,
+    <LibDropList Style={prop.theme.DropList} ColumnDisplayName="類別" Options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} AutoDefaultFirst={false} />,
   ])
 }
 
@@ -1128,7 +1128,7 @@ const HyperlinkSettingTab = (prop: {
         nodes.push(<LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="請輸入數字或英文，不可使用空白的" {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Url, SchemaFields.SiteMenu_Item_UrlFields.RedirectUrl, "string", curRowKeys)} />);
         break;
       case 2:
-        nodes.push(<LibDropList Style={prop.theme.DropList} Options={internalUrlOptions} {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Url, SchemaFields.SiteMenu_Item_UrlFields.RedirectUrl, "string", curRowKeys)} />);
+        nodes.push(<LibDropList Style={prop.theme.DropList} Options={internalUrlOptions} AutoDefaultFirst={false} {...setField(SchemaFields.SiteMenuSetFields.SiteMenu_Item_Url, SchemaFields.SiteMenu_Item_UrlFields.RedirectUrl, "string", curRowKeys)} />);
         break;
     }
     return nodes;

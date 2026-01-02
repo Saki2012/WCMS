@@ -348,7 +348,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
             }
             foreach(var dt in set.SiteMenu_Item_Title)
             {   
-                if (dt.Lang==SiteDefaultLang && dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015,SiteDefaultLang.ToLabel(), I18nCache.GetLabel<SiteMenu_Item_Title_DTO>(x => x.Title));
+                if (dt.IsShowOnMenu && dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015,SiteDefaultLang.ToLabel(), I18nCache.GetLabel<SiteMenu_Item_Title_DTO>(x => x.Title));
             }
         }
         private void SetData(SiteMenuSet set)

@@ -442,7 +442,7 @@
     <value>開啟方式</value>
   </data>
   <data name="SiteMenu_IsShowOnMenu" xml:space="preserve">
-    <value>是否顯示在菜單中</value>
+    <value>是否顯示在選單中</value>
   </data>
   <data name="SiteMenu_SiteTitle" xml:space="preserve">
     <value>選單名稱</value>
