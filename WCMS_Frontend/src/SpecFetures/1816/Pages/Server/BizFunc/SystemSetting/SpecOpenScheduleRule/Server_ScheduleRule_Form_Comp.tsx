@@ -56,13 +56,14 @@ export const Server_ScheduleRule_Form_Comp = (prop: { theme: IBETheme; lang: Lan
     const errors = [formData.error];
     const actions = useActions(dirUrl, pvd, formData.data, internalId as string, undefined)
     const formProp: FormCompProp = { Title: "開館時間設定", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
+    const isAddNew = !internalId
     return (
         <FormComp prop={formProp}>
-            <HeaderComp theme={prop.theme} formData={formData} />
+            <HeaderComp theme={prop.theme} formData={formData} isAddNew={isAddNew} />
         </FormComp>
     )
 }
-const HeaderComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecOpenScheduleRuleSet> }) => {
+const HeaderComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecOpenScheduleRuleSet>; isAddNew: boolean; }) => {
     const setField = useSetTableField<SpecOpenScheduleRuleSet>(props.formData);
     const setDateRangeField = useSetDateRangeField<SpecOpenScheduleRuleSet>(props.formData);
     return (
@@ -70,7 +71,7 @@ const HeaderComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
             <div className="form-group">
                 <div className="row">
                     {/* 學年度 */}
-                    <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SpecOpenScheduleRuleSetFields.SpecOpenScheduleRule, SpecOpenScheduleRuleModelFields.AcademicYearId, "string")} />
+                    <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" disabled={!props.isAddNew} {...setField(SpecOpenScheduleRuleSetFields.SpecOpenScheduleRule, SpecOpenScheduleRuleModelFields.AcademicYearId, "string")} />
                 </div>
             </div>
             <div className="form-group">

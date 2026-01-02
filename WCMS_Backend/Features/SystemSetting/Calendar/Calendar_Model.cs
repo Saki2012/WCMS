@@ -2,8 +2,10 @@
 using Microsoft.VisualBasic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.Features.Member.Account;
 using WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 
 namespace WCMS.Features.SystemSetting.Calendar
@@ -43,6 +45,15 @@ namespace WCMS.Features.SystemSetting.Calendar
         [StringLength(SysLengthParam.Title)] public string HolidayName { get; set; }
         [StringLength(SysLengthParam.Title)] public string Description { get; set; }
         public bool IsEdit { get; set; }
+        /// <summary>
+        /// 修改時間
+        /// </summary>
+        public DateTime? ModifyTime { get; set; }
+        /// <summary>
+        /// 修改人ID
+        /// </summary>
+        [ForeignKey(nameof(ModifyUserId))] public AccountModel? ModifyUser { get; set; }
+        [LibDesc, StringLength(SysLengthParam.ID)] public string? ModifyUserId { get; set; }
 
         #region 主子表關聯
         [ForeignKey(nameof(Year))] public CalendarModel _Calendar { get; set; }

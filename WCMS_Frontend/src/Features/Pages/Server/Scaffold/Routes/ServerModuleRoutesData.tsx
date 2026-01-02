@@ -9,7 +9,7 @@ import { Server_AnnouncementFormComp } from "@/Features/Pages/Server/BizFunc/Web
 import { Server_CategoryListFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Category/Category_ListForm_Comp";
 import { TagListFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Tags/Server_Tag_ListForm_Comp";
 import { SiteMenu_Comp } from "@/Features/Pages/Server/BizFunc/Dashboard/SiteMenu/SiteMenu_Comp";
-import CalendarPageComp from "@/Features/Pages/Server/BizFunc/Dashboard/Calendar/Server_Calendar_Comp";
+import { CalendarPageComp } from "@/Features/Pages/Server/BizFunc/Dashboard/Calendar/Server_Calendar_Comp";
 import { PageFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/PageManagement/Server_PageManagement_Form_Comp";
 import { PageListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/PageManagement/Server_PageManagement_List_Comp";
 import { Server_GalleryListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Gallery/Server_Gallery_List_Comp";
@@ -66,6 +66,8 @@ export type ServerElementFactory = (ctx: IServerElementFactoryCtx) => ReactNode;
 
 // #endregion
 /** 後台功能路由資料 */
+const isSpec1816 = String(import.meta.env.VITE_SPEC_CODE ?? "") === "1816";//暫時寫死
+
 const ServerModuleRoutesData: IModuleMeta[] = [
     // #region Dashboard （網站管理）
     {
@@ -83,23 +85,19 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                     },
                 ],
             },
-            {
-                ProgId: "Calendar", Title: "行事曆", DefaultActionCode: "Index", IconClassName: "",
-                Actions: [
+            ...(isSpec1816
+                ? [
                     {
-                        ActionCode: "Index", Title: "行事曆", RoutePath: "",
-                        elementFactory: () => <CalendarPageComp defaultYear={2025} />,
+                        ProgId: "Calendar", Title: "行事曆", DefaultActionCode: "Index", IconClassName: "",
+                        Actions: [
+                            {
+                                ActionCode: "Index", Title: "行事曆", RoutePath: "Index",
+                                elementFactory: () => <CalendarPageComp defaultYear={new Date().getFullYear()} />,
+                            },
+                        ],
                     },
-                    {
-                        ActionCode: "Form", Title: "維護", RoutePath: "Form/:internalId?",
-                        elementFactory: (ctx) => <PageFormComp theme={ctx.theme} lang={ctx.lang} />,
-                    },
-                    {
-                        ActionCode: "List", Title: "列表", RoutePath: "List",
-                        elementFactory: (ctx) => <PageListComp title="頁面列表" theme={ctx.theme} lang={ctx.lang} />,
-                    },
-                ],
-            },
+                ]
+                : []),
         ],
     },
     // #endregion

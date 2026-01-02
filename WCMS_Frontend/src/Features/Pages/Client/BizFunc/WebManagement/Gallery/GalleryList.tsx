@@ -15,7 +15,6 @@ import GalleryProvider from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gall
 import type { components } from "@/types/api";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { Link } from "react-router-dom";
 import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 
@@ -92,14 +91,16 @@ const Gallery = (props: { lang: Lang; data: GallerySet[]; cateData: CategorySet[
 
                                     <div className="card_StateDiv">
                                         <div className="More customize_btn">
-                                            <a href="javascript:void(0);" className="Btn_s1" type="button" role="button" title="觀看更多">VIEW ALL<span className="ml-2">+</span></a>
+                                            <LangLink to={linkUrl} className="Btn_s1" type="button" role="button" title="觀看更多">
+                                                VIEW ALL<span className="ml-2">+</span>
+                                            </LangLink>
                                         </div>
 
                                         <div className="ZoomIn customize_ZoomIn_btn">
-                                            <a href="images/media_reports/images_960x960.jpg" className="Btn_zm1 venobox" data-gall="myGallery" type="button" role="button" title="放大圖片">
+                                            <LangLink to={linkUrl} className="Btn_zm1 venobox" data-gall="myGallery" type="button" role="button" title="放大圖片">
                                                 <i className="fas fa-expand-alt"></i>
                                                 <span className="sr-only">放大圖片</span>
-                                            </a>
+                                            </LangLink>
                                         </div>
                                     </div>
                                 </div>

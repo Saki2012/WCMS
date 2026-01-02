@@ -125,7 +125,7 @@ const AnnouncementList = (props: IAnnouncementListProps) => {
             case 3:
                 return <QAList_Comp key="qa" GridData={adjustedGrid} Theme={props.theme} />;
             case 2:
-                return <PictureList_Comp key="picture" GridData={adjustedGrid} Theme={props.theme} />;
+                return <PictureList_Comp key="picture" lang={props.lang} GridData={adjustedGrid} Theme={props.theme} />;
             case 1:
             default: // 含 case 1
                 return <GridList_Comp key="grid" GridData={adjustedGrid} Theme={props.theme} />
@@ -192,7 +192,7 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: Announ
 
 
 /** 圖文式公告 */
-const PictureList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
+const PictureList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
     const useCateData = useCategoryListData("Announcement", 'zh-tw');
     return (
@@ -204,7 +204,7 @@ const PictureList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
                     const picDesc = row.Announcement?.PicDescription ?? ""
                     const title = row.AnnouncementDetail?.find(p => p.Lang === 'zh-tw')?.Title ?? ""
                     const date = FormatDate(row.Announcement?.Validate_Start) ?? ""
-                    const catName = useFormatCategoriesName(row.Announcement?.Categories ?? "", useCateData.rawData)
+                    const catName = useFormatCategoriesName(row.Announcement?.Categories ?? "", useCateData.rawData, prop.lang)
                     return (
                         <div key={internalId} className="articles_item col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12">
                             <article className="cardbox">

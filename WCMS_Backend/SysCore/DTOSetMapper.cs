@@ -40,6 +40,33 @@ namespace WCMS.SysCore
             return dto;
         }
 
+        /// <summary>
+        /// 物件對物件：以「目的端屬性」為主，名稱對得上才拷貝；遇到複合型別與 List 會遞迴
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="dst"></param>
+        /// <param name="toSet"></param>
+        public static T CopyObject<T>(object? src, bool toSet)
+        {
+            T? dst = PropertyAccessorCache.CreateInstance<T>();
+            var ctx = new MapCtx();
+            if (src is null || dst is null) return dst;
+            if (!ctx.Enter(src, dst.GetType())) return dst;
+            try
+            {
+                foreach (var dp in PropertyAccessorCache.GetProperties(dst.GetType()))
+                {
+                    if (!dp.CanWrite) continue;
+                    var sp = PropertyAccessorCache.GetProperty(src.GetType(), dp.Name);
+                    if (sp is null || ShouldSkip(sp, dp, toSet)) continue;
+                    var sv = PropertyAccessorCache.Get(src, dp.Name);
+                    AssignValue(dst, dp, sv, toSet, ctx);
+                }
+            }
+            finally { ctx.Exit(src, dst.GetType()); }
+            return dst!;
+        }
+
         public static bool CheckQueryParam<TSetDTO>(QueryListParam param)
         {
             var fields = GetDTOFields<TSetDTO>();

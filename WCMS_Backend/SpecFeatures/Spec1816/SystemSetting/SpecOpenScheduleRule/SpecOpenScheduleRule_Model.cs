@@ -1,5 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WCMS.SpecFeatures.Spec1816.Resx;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n.Resx;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 
 namespace WCMS.SpecFeatures.Spec1816.SystemSetting.SpecOpenScheduleRule
@@ -14,103 +17,103 @@ namespace WCMS.SpecFeatures.Spec1816.SystemSetting.SpecOpenScheduleRule
         /// <summary>
         /// 學年度(Id)
         /// </summary>
-        [Key, StringLength(SysLengthParam.ID)] public string AcademicYearId { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecAcademicYearId), Key, StringLength(SysLengthParam.ID)] public string AcademicYearId { get; set; }
         /// <summary>
         /// 學年度起
         /// </summary>
-        public DateOnly AcademicStart { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecAcademicStart)] public DateOnly AcademicStart { get; set; }
         /// <summary>
         /// 學年度迄
         /// </summary>
-        public DateOnly AcademicEnd { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecAcademicEnd)] public DateOnly AcademicEnd { get; set; }
         /// <summary>
         /// 平日開館時間
         /// </summary>
-        public TimeOnly? Weekday_OpenTime { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecWeekday_OpenTime)] public TimeOnly? Weekday_OpenTime { get; set; }
         /// <summary>
         /// 平日閉館時間
         /// </summary>
-        public TimeOnly? Weekday_CloseTime { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecWeekday_CloseTime)] public TimeOnly? Weekday_CloseTime { get; set; }
         /// <summary>
         /// 週六開館時間
         /// </summary>
-        public TimeOnly? Sat_OpenTime { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecSat_OpenTime)] public TimeOnly? Sat_OpenTime { get; set; }
         /// <summary>
         /// 週六閉館時間
         /// </summary>
-        public TimeOnly? Sat_CloseTime { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecSat_CloseTime)] public TimeOnly? Sat_CloseTime { get; set; }
         /// <summary>
         /// 週日開館時間
         /// </summary>
-        public TimeOnly? Sun_OpenTime { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecSun_OpenTime)] public TimeOnly? Sun_OpenTime { get; set; }
         /// <summary>
         /// 週日閉館時間
         /// </summary>
-        public TimeOnly? Sun_CloseTime { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecSun_CloseTime)] public TimeOnly? Sun_CloseTime { get; set; }
         /// <summary>
         /// 寒假開始日
         /// </summary>
-        public DateOnly WinterStart { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecWinterStart)] public DateOnly WinterStart { get; set; }
         /// <summary>
         /// 寒假結束日
         /// </summary>
-        public DateOnly WinterEnd { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecWinterEnd)] public DateOnly WinterEnd { get; set; }
         /// <summary>
         /// 寒假平日開館時間
         /// </summary>
-        public TimeOnly? Winter_Weekday_OpenTime { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecWinter_Weekday_OpenTime)] public TimeOnly? Winter_Weekday_OpenTime { get; set; }
         /// <summary>
         /// 寒假平日閉館時間
         /// </summary>
-        public TimeOnly? Winter_Weekday_CloseTime { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecWinter_Weekday_CloseTime)] public TimeOnly? Winter_Weekday_CloseTime { get; set; }
         /// <summary>
         /// 寒假週六開館時間
         /// </summary>
-        public TimeOnly? Winter_Sat_OpenTime { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecWinter_Sat_OpenTime)] public TimeOnly? Winter_Sat_OpenTime { get; set; }
         /// <summary>
         /// 寒假週六閉館時間
         /// </summary>
-        public TimeOnly? Winter_Sat_CloseTime { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecWinter_Sat_CloseTime)] public TimeOnly? Winter_Sat_CloseTime { get; set; }
         /// <summary>
         /// 寒假週日開館時間
         /// </summary>
-        public TimeOnly? Winter_Sun_OpenTime { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecWinter_Sun_OpenTime)] public TimeOnly? Winter_Sun_OpenTime { get; set; }
         /// <summary>
         /// 寒假週日閉館時間
         /// </summary>
-        public TimeOnly? Winter_Sun_CloseTime { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecWinter_Sun_CloseTime)] public TimeOnly? Winter_Sun_CloseTime { get; set; }
         /// <summary>
         /// 暑假開始日
         /// </summary>
-        public DateOnly SummerStart { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecSummerStart)] public DateOnly SummerStart { get; set; }
         /// <summary>
         /// 暑假結束日
         /// </summary>
-        public DateOnly SummerEnd { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecSummerEnd)] public DateOnly SummerEnd { get; set; }
         /// <summary>
         /// 暑假平日開館時間
         /// </summary>
-        public TimeOnly? Summer_Weekday_OpenTime { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecSummer_Weekday_OpenTime)] public TimeOnly? Summer_Weekday_OpenTime { get; set; }
         /// <summary>
         /// 暑假平日閉館時間
         /// </summary>
-        public TimeOnly? Summer_Weekday_CloseTime { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecSummer_Weekday_CloseTime)] public TimeOnly? Summer_Weekday_CloseTime { get; set; }
         /// <summary>
         /// 暑假週六開館時間
         /// </summary>
-        public TimeOnly? Summer_Sat_OpenTime { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecSummer_Sat_OpenTime)] public TimeOnly? Summer_Sat_OpenTime { get; set; }
         /// <summary>
         /// 暑假週六閉館時間
         /// </summary>
-        public TimeOnly? Summer_Sat_CloseTime { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecSummer_Sat_CloseTime)] public TimeOnly? Summer_Sat_CloseTime { get; set; }
         /// <summary>
         /// 暑假週日開館時間
         /// </summary>
-        public TimeOnly? Summer_Sun_OpenTime { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecSummer_Sun_OpenTime)] public TimeOnly? Summer_Sun_OpenTime { get; set; }
         /// <summary>
         /// 暑假週日閉館時間
         /// </summary>
-        public TimeOnly? Summer_Sun_CloseTime { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecSummer_Sun_CloseTime)] public TimeOnly? Summer_Sun_CloseTime { get; set; }
         /// <summary>
         /// 修改備註
         /// 注:大備註，每一次輸入完都會記錄成
@@ -118,6 +121,6 @@ namespace WCMS.SpecFeatures.Spec1816.SystemSetting.SpecOpenScheduleRule
         /// 每次紀錄就往下追加一行
         /// 不同步追加到 SpecOpenSchedule_Mode 的 ModifyMemo
         /// </summary>
-        [StringLength(SysLengthParam.Memo)] public string ModifyMemo { get; set; }
+        [LibDesc(ModelDisplayName.Common_Memo), StringLength(SysLengthParam.Memo)] public string ModifyMemo { get; set; }
     }
 }

@@ -198,7 +198,9 @@ namespace WCMS.SysCore
         public virtual async Task<IActionResult> InitialCreateData(TSet_DTO[] sets, CancellationToken ct)
         {
             OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(InitialCreateData)}", OperateUser.UserId, JsonConvert.SerializeObject(sets),Request.Headers["HTTP_CLIENT_IP"].ToString() );
-            await Service.BeginTransactionAsync();
+
+            bool ownsTx = false;
+            ownsTx = await Service.TryBeginTransactionAsync();
             try
             {
                 IList<TSet>entitySets = [];
@@ -212,7 +214,7 @@ namespace WCMS.SysCore
             }
             catch (Exception ex)
             {
-                await Service.RollbackTransactionAsync();
+                await Service.TryRollbackAsync(ownsTx);
                 return BadRequest($"初始化失敗：{ex.Message}");
             }
         }

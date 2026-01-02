@@ -2,9 +2,10 @@ import type { IModuleMeta, IProgMeta } from "@/Features/Pages/Server/Scaffold/Ro
 import { SpecPGID } from "@/SpecFetures/1816/Hooks/Common/SpecProgId";
 import { Server_ScheduleRule_Form_Comp } from "../BizFunc/SystemSetting/SpecOpenScheduleRule/Server_ScheduleRule_Form_Comp";
 import { Server_ScheduleRule_List_Comp } from "../BizFunc/SystemSetting/SpecOpenScheduleRule/Server_ScheduleRule_List_Comp";
+import { ModuleCode } from "@/Features/Hooks/Common/ProgId";
 
 const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] => {
-    const web = modules.find((m) => m.ModuleCode === "WebManagement");
+    const web = modules.find((m) => m.ModuleCode === ModuleCode.Dashboard);
     if (!web) return modules;
     const exists = web.Progs.some((p) => p.ProgId === SpecPGID.SpecOpenScheduleRule);
     if (exists) return modules;

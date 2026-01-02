@@ -195,4 +195,10 @@
   <data name="SpecWinter_Weekday_OpenTime" xml:space="preserve">
     <value>寒假平日開館時間</value>
   </data>
+  <data name="Spec_CloseTime" xml:space="preserve">
+    <value>閉館時間</value>
+  </data>
+  <data name="Spec_OpenTime" xml:space="preserve">
+    <value>開館時間</value>
+  </data>
 </root>

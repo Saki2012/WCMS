@@ -115,6 +115,7 @@ const GridList_Comp = (props: { title: string; gridData: GridProps }) => {
 }
 const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: AnnouncementSet[] }) => {
     const defaultAnnouncePic = useOptionalSpecAssetUrl({ relativePath: "Assets/Custom/DefaultEventPic.jpg", fallbackToDefault: true, }) ?? "";
+    const useCateData = useCategoryListData(PGID.Announcement, props.lang);
     return (
         <div id="Row_Colitem" className="SubPage_Standard_itemBoxs">
             {props.gridData && props.gridData.map((item) => {
@@ -123,6 +124,7 @@ const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: Ann
                 const picUrl = item.Announcement?.PictureId ? `${FileManagementAPI.PREVIEW_URL}/${item.Announcement?.PictureId}` : defaultAnnouncePic
                 const picDesc = item.Announcement?.PicDescription ?? title
                 const validate = FormatDate(item.Announcement?.Validate_Start)
+                const catName = useFormatCategoriesName(item.Announcement?.Categories ?? "", useCateData.rawData, props.lang)
 
                 return (
                     < div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
@@ -141,7 +143,7 @@ const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: Ann
                                         <div className="card_cat">
                                             <div className="card_cat_link">
                                                 <span className="s-line">▍</span>
-                                                <span className="s-tle">{"類別名稱"}</span>
+                                                <span className="s-tle">{catName}</span>
                                             </div>
                                         </div>
                                         <div className="card_time">
@@ -261,7 +263,6 @@ const QAList_Comp = (props: { lang: Lang; gridData: AnnouncementSet[]; currentPa
         </div>
     )
 }
-
 const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementSet[] }) => {
     useEffect(() => {
         // SSR 防護：server 端不要執行

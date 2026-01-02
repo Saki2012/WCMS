@@ -154,6 +154,7 @@ namespace WCMS
             //app.UseRateLimiter();
             app.UseAuthentication();
             app.UseAuthorization();
+            //app.UseMiddleware<OperateLogMiddleware>();//操作日誌紀錄，後續測試
             app.UseOutputCache();
             app.MapControllers();
             app.Run();

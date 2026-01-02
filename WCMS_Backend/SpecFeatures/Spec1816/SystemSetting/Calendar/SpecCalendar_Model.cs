@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WCMS.Features.SystemSetting.Calendar;
+using WCMS.SpecFeatures.Spec1816.Resx;
 using WCMS.SpecFeatures.Spec1816.SystemSetting.SpecOpenScheduleRule;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.Model;
+using WCMS.SysCore.Library.LibAttribute;
 
 namespace WCMS.Features.SystemSetting.Calendar
 {
@@ -18,12 +18,12 @@ namespace WCMS.Features.SystemSetting.Calendar
         /// 開館時間
         /// (為null時代表閉館)
         /// </summary>
-        public TimeOnly? Spec_OpenTime { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_OpenTime)] public TimeOnly? Spec_OpenTime { get; set; }
         /// <summary>
         /// 閉館時間
         /// (為null時代表閉館)
         /// </summary>
-        public TimeOnly? Spec_CloseTime { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_CloseTime)] public TimeOnly? Spec_CloseTime { get; set; }
         /// <summary>
         /// 修改備註
         /// 注:大備註，每一次輸入完都會記錄成

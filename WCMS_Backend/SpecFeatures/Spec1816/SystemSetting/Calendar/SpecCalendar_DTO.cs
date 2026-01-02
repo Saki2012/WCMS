@@ -1,15 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using WCMS.SpecFeatures.Spec1816.Resx;
 using WCMS.SpecFeatures.Spec1816.SystemSetting.SpecOpenScheduleRule;
 using WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n.Resx;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 
 namespace WCMS.Features.SystemSetting.Calendar
 {
-
-
     public partial class CalendarDetail_DTO
     {
         /// <summary>
@@ -21,24 +22,24 @@ namespace WCMS.Features.SystemSetting.Calendar
         /// 開館時間
         /// (為null時代表閉館)
         /// </summary>
-        public TimeOnly? Spec_OpenTime { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_OpenTime)]public TimeOnly? Spec_OpenTime { get; set; }
         /// <summary>
         /// 閉館時間
         /// (為null時代表閉館)
         /// </summary>
-        public TimeOnly? Spec_CloseTime { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_CloseTime)] public TimeOnly? Spec_CloseTime { get; set; }
         /// <summary>
         /// 修改備註
         /// 注:大備註，每一次輸入完都會記錄成
         /// 時間:使用者:備註內容
         /// 每次紀錄就往下追加一行
         /// </summary>
-        [StringLength(SysLengthParam.Memo)] public string? Spec_ModifyMemo { get; set; } = string.Empty;
+        [LibDesc(ModelDisplayName.Common_Memo), StringLength(SysLengthParam.Memo)] public string? Spec_ModifyMemo { get; set; } = string.Empty;
     }
     /// <summary>
     /// 顯示首頁開館時間資訊
     /// </summary>
-    public class SpecCurrentOpenTime_DTO
+    public sealed class SpecCurrentOpenTime_DTO
     {
         /// <summary>
         /// 日期

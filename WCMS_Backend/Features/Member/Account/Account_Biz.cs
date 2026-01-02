@@ -48,9 +48,10 @@ namespace WCMS.Features.Member.Account
         /// <returns></returns>
         public async Task ChangePassword(string internalId,string oldPassword,string newPassword, CancellationToken ct)
         {
+            bool ownsTx = false;
             try
             {
-                await BeginTransactionAsync();
+                ownsTx = await TryBeginTransactionAsync();
                 if (Message.HasError) return ;
                 AccountSet oldSet = await DoQuerySetAsync(internalId);
                 var ok = PasswordHasher.Verify(oldPassword, oldSet.Account.PasswordHash, oldSet.Account.PasswordSalt, oldSet.Account.PasswordAlgoVer);
@@ -61,11 +62,11 @@ namespace WCMS.Features.Member.Account
                     await DoUpdateAsync(oldSet, newSet);
                     if (Message.HasError) return ;
                 }
-                await CommitDataAsync();
+                await TryCommitAsync(ownsTx);
             }
             catch
             {
-                await RollbackTransactionAsync();
+                await TryRollbackAsync(ownsTx);
                 throw;
             }
         }
@@ -75,20 +76,21 @@ namespace WCMS.Features.Member.Account
         /// <returns></returns>
         public async Task ResetPassword(string internalId, string newPassword, CancellationToken ct)
         {
+            bool ownsTx = false;
             try
             {
-                await BeginTransactionAsync();
+                ownsTx = await TryBeginTransactionAsync();
                 if (Message.HasError) return;
                 AccountSet oldSet = await DoQuerySetAsync(internalId);
                 AccountSet newSet = oldSet.DeepClone();
                 ConvertPassword(newSet, newPassword);
                 await DoUpdateAsync(oldSet, newSet);
                 if (Message.HasError) return;
-                await CommitDataAsync();
+                await TryCommitAsync(ownsTx);
             }
             catch
             {
-                await RollbackTransactionAsync();
+                await TryRollbackAsync(ownsTx);
                 throw;
             }
         }

@@ -4,8 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using WCMS.Features.Member.Account;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.Library;
-using WCMS.SysCore.Library.LibAttribute;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.Model
@@ -34,7 +32,7 @@ namespace WCMS.SysCore.Model
         /// 修改人ID
         /// </summary>
         [ForeignKey(nameof(ModifyUserId))] public AccountModel? ModifyUser { get; set; }
-        [LibDesc, StringLength(SysLengthParam.ID)] public string? ModifyUserId { get; set; }
+        [StringLength(SysLengthParam.ID)] public string? ModifyUserId { get; set; }
         /// <summary>
         /// 單據狀態
         /// </summary>
@@ -51,15 +49,15 @@ namespace WCMS.SysCore.Model
         /// 作廢人ID
         /// </summary>
         [ForeignKey(nameof(InvalidUserId))] public AccountModel? InvalidUser { get; set; }
-        [LibDesc, StringLength(SysLengthParam.ID)] public string? InvalidUserId { get; set; }
+        [StringLength(SysLengthParam.ID)] public string? InvalidUserId { get; set; }
         /// <summary>
         /// 系統內部唯一標識號
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.InternalId),] public string InternalId { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.InternalId),] public string InternalId { get; set; } = string.Empty;
         /// <summary>
         /// 主子站層級ID
         /// </summary>
-        [LibDesc, StringLength(SysLengthParam.ID)] public string OrgLvId { get; set; } = string.Empty;
+        [StringLength(SysLengthParam.ID)] public string OrgLvId { get; set; } = string.Empty;
         /// <summary>
         /// // 是否為初始化資料
         /// </summary>
@@ -67,7 +65,7 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 資料版本-併發控制
         /// </summary>
-        [LibDesc, Timestamp, JsonIgnore] public byte[]? DataVersion { get; set; } = default!;
+        [Timestamp, JsonIgnore] public byte[]? DataVersion { get; set; } = default!;
     }
     /// <summary>
     /// 主要資料
@@ -77,12 +75,10 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 資料有效日期-起
         /// </summary>
-        [LibDesc]
         public DateTime? Validate_Start { get; set; }
         /// <summary>
         /// 資料有效日期-迄
         /// </summary>
-        [LibDesc]
         public DateTime? Validate_End { get; set; }
     }
     /// <summary>

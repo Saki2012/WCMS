@@ -1,7 +1,13 @@
 ﻿using System.Globalization;
+using System.Linq.Dynamic.Core;
+using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices;
 using WCMS.SysCore;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
+using WCMS.SysCore.Library;
+using WCMS.SysCore.Model;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SystemSetting.Calendar
 {
@@ -14,6 +20,12 @@ namespace WCMS.Features.SystemSetting.Calendar
         #endregion
 
         #region Public
+        /// <summary>
+        /// 匯入日曆
+        /// </summary>
+        /// <param name="year"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
         public async Task ImportCalendar(int year, CancellationToken ct)
         {
             List<NtpcCalendar> items = await CallNtpcAPIAsync(year,ct);
@@ -24,7 +36,6 @@ namespace WCMS.Features.SystemSetting.Calendar
                 await BizCreateSetAsync(item);
             }
         }
-
         /// <summary>
         /// 初始化匯入新北市政府行政機關辦公日曆表（全部年度）
         /// 只給Program啟動時呼叫一次
@@ -39,9 +50,54 @@ namespace WCMS.Features.SystemSetting.Calendar
             List<CalendarSet> result = FillMissingDate(lst, NtpcCalendar.Code);
             await BizInitCreateSetsAsync([.. result]);
         }
+        /// <summary>
+        /// 更新單日資訊
+        /// </summary>
+        /// <param name="dayInfo"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        public async Task BizUpdateDayInfo(CalendarDetail dayInfo, CancellationToken ct)
+        {
+            bool ownsTx = false;
+            try
+            {
+                ownsTx = await TryBeginTransactionAsync();
+                CalendarSet dbSet = await GetUpdateDayInfoSet(dayInfo, ct);
+                CalendarSet oldCache = dbSet.DeepClone();
+                oldCache.Calendar.DataVersion = dbSet.Calendar.DataVersion;
+                CalendarSet newSet = new() { Calendar = dbSet.Calendar, CalendarDetail = [dbSet.CalendarDetail.FirstOrDefault()] };
+                SetModifyTime(newSet);
+                ApplyDayInfoPatch(newSet.CalendarDetail.FirstOrDefault(), dayInfo);
+                await BeforeUpdate(newSet, FuncAction.Update);
+                if (Message.HasError) return;
+                // 6) 直接用 repo 更新 DB（單日語意）
+                await DoUpdateCalendarInfo(oldCache, newSet, ct);
+                // 7) AfterUpdate：可做差異檢查/Log
+                await AfterUpdate(oldCache, dbSet, FuncAction.Update, TransStatus.Difference);
+                if (Message.HasError) return;
+                // 8) 提交
+                await TryCommitAsync(ownsTx);
+                AfterSaveChanges(FuncAction.Update);
+                Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00006);
+            }
+            catch
+            {
+                await TryRollbackAsync(ownsTx);
+                throw;
+            }
+        }
         #endregion
 
         #region Protected
+        protected override Task BeforeUpdate(CalendarSet set, FuncAction act)
+        {
+            return base.BeforeUpdate(set, act);
+        }
+
+        protected virtual void SpecApplyDayInfoPatch(CalendarDetail target, CalendarDetail src)
+        {
+    
+        }
         #endregion
 
         #region Private
@@ -109,6 +165,55 @@ namespace WCMS.Features.SystemSetting.Calendar
                 result.Add(new CalendarSet{Calendar = new CalendarModel{Year = year,ImportSrc = importSrc,  LastImportTime = now},CalendarDetail = details});
             }
             return result;
+        }
+        /// <summary>
+        /// 獲取更新單日資訊的 CalendarSet
+        /// </summary>
+        /// <param name="dayInfo"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        private async Task<CalendarSet> GetUpdateDayInfoSet(CalendarDetail dayInfo, CancellationToken ct)
+        {
+            var headerData = await DoQueryListAsync<CalendarModel>(null, $"{nameof(CalendarModel.Year)} = {dayInfo.Year}", null, 0, 0);
+            var header =  headerData.ToDynamicList().FirstOrDefault();
+            var infoData = await DoQueryListAsync<CalendarDetail>(null, $"{nameof(CalendarDetail.Year)} = {dayInfo.Year} And {nameof(CalendarDetail.Date)} = {dayInfo.Date}", null, 0, 0);
+            var info = infoData.ToDynamicList().FirstOrDefault();
+            return new() { Calendar = header, CalendarDetail = [info] };
+        }
+        /// <summary>
+        /// 設修改時間
+        /// </summary>
+        /// <param name="set"></param>
+        private void SetModifyTime(CalendarSet set)
+        {
+            DateTime now = DateTime.Now;
+            set.Calendar.ModifyUserId = OperateUser.UserId;
+            set.Calendar.ModifyTime = now;
+            set.CalendarDetail.ForEach(p => { p.ModifyUserId = OperateUser.UserId; p.ModifyTime = now; });
+        }
+
+        private async Task DoUpdateCalendarInfo(CalendarSet oldSet, CalendarSet newSet, CancellationToken ct)
+        {
+            // 取得 repo
+            var headerRepo = (BasicRepository<CalendarModel>)RepoDict[nameof(CalendarModel)];
+            var detailRepo = (BasicRepository<CalendarDetail>)RepoDict[nameof(CalendarDetail)];
+            // 寫入 Header（含 DataVersion 的 oldHeader 做併發條件）
+            await headerRepo.UpdateAsync(oldSet.Calendar, newSet.Calendar);
+            // 寫入 Detail（不含 DataVersion 也 OK）
+            await detailRepo.UpdateAsync(oldSet.CalendarDetail.FirstOrDefault(), newSet.CalendarDetail.FirstOrDefault());
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="src"></param>
+        private void ApplyDayInfoPatch(CalendarDetail target, CalendarDetail src)
+        {
+            target.IsHoliday = src.IsHoliday;
+            target.HolidayName = src.HolidayName ?? string.Empty;
+            target.Description = src.Description ?? string.Empty;
+            target.IsEdit = true;
+            SpecApplyDayInfoPatch(target, src);
         }
         #endregion
     }

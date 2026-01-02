@@ -142,9 +142,10 @@ namespace WCMS.SysCore
         }
         public async Task<TSet> BizUpdateSetAsync(string internalId, TSet newSet)
         {
+            bool ownsTx = false;
             try
             {
-                await BeginTransactionAsync();
+                ownsTx = await TryBeginTransactionAsync();
                 GetModelType(newSet, out BasicDataModel header, out Dictionary<string, IList> details);
                 SetModifyInfo(header);
                 await AutoGenerateId(header, details);
@@ -155,22 +156,23 @@ namespace WCMS.SysCore
                 await DoUpdateAsync(oldSet, newSet);
                 await AfterUpdate(oldSet_Cache, oldSet, FuncAction.Update, TransStatus.Difference);//oldSet已經進入DataAccess，修改完會跟著修正至DB
                 if (Message.HasError) return newSet;
-                await CommitDataAsync();
+                await TryCommitAsync(ownsTx);
                 AfterSaveChanges(FuncAction.Update);
                 Message.AddMessage(MessageStatus.Green,SysMessageCode.BECode00006);
                 return oldSet;
             }
             catch
             {
-                await RollbackTransactionAsync();
+                await TryRollbackAsync(ownsTx);
                 throw;
             }
         }
         public async Task<TSet> BizDeleteSetAsync(string internalId)
         {
+            bool ownsTx = false;
             try
             {
-                await BeginTransactionAsync();
+                ownsTx = await TryBeginTransactionAsync();
                 CheckIsUsed();
                 TSet oldSet = await DoQuerySetAsync(internalId);
                 TSet oldSet_Cache = oldSet.DeepClone();
@@ -179,22 +181,23 @@ namespace WCMS.SysCore
                 await DoDeleteAsync(oldSet);
                 await AfterUpdate(oldSet_Cache, oldSet, FuncAction.Delete, TransStatus.Difference);
                 if (Message.HasError) return oldSet;
-                await CommitDataAsync();
+                await TryCommitAsync(ownsTx);
                 AfterSaveChanges(FuncAction.Update);
                 Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00004);
                 return oldSet;
             }
             catch
             {
-                await RollbackTransactionAsync();
+                await TryRollbackAsync(ownsTx);
                 throw;
             }
         }
         public async Task<TSet> BizInvalidSetAsync(string internalId, bool status)
         {
+            bool ownsTx = false;
             try
             {
-                await BeginTransactionAsync();
+                ownsTx = await TryBeginTransactionAsync();
                 TSet oldSet = await DoQuerySetAsync(internalId);
                 TSet oldSet_Cache = oldSet.DeepClone();
                 TSet newSet = oldSet.DeepClone();
@@ -204,14 +207,14 @@ namespace WCMS.SysCore
                 await DoUpdateAsync(oldSet, newSet);
                 await AfterUpdate(oldSet_Cache, oldSet, FuncAction.Invalid, TransStatus.Difference);//oldSet已經進入DataAccess，修改完會跟著修正至DB
                 if (Message.HasError) return newSet;
-                await CommitDataAsync();
+                await TryCommitAsync(ownsTx);
                 AfterSaveChanges(FuncAction.Update);
                 Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00008);
                 return oldSet;
             }
             catch
             {
-                await RollbackTransactionAsync();
+                await TryRollbackAsync(ownsTx);
                 throw;
             }
         }
@@ -254,25 +257,32 @@ namespace WCMS.SysCore
         /// 啟用交易控制(非同步)
         /// </summary>
         /// <returns></returns>
-        public async Task BeginTransactionAsync()
+        public async Task<bool> TryBeginTransactionAsync()
         {
+            // 已在交易中 → 交給外層負責 commit/rollback
+            if (DataAccess.Database.CurrentTransaction != null) return false;
+
             await DataAccess.Database.BeginTransactionAsync();
+            return true;
         }
         /// <summary>
         /// 回滾交易控制(非同步)
         /// </summary>
         /// <returns></returns>
-        public async Task RollbackTransactionAsync()
+        public async Task TryRollbackAsync(bool ownsTx)
         {
+            if (!ownsTx) return;
             await DataAccess.Database.RollbackTransactionAsync();
         }
         /// <summary>
         /// 執行更新(非同步)
         /// </summary>
         /// <param name="action"></param>
-        public async Task CommitDataAsync()
+        public async Task TryCommitAsync(bool ownsTx)
         {
-            await DataAccess.SaveChangesAsync();
+            await DataAccess.SaveChangesAsync(); // 永遠需要寫入
+
+            if (!ownsTx) return;                // 外層交易中 → 不 commit
             await DataAccess.Database.CommitTransactionAsync();
         }
         #endregion

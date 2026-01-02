@@ -1,5 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using WCMS.Features.Member.Account;
+using WCMS.SysCore.Enum;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 
 namespace WCMS.Features.SystemSetting.Calendar
@@ -16,32 +20,40 @@ namespace WCMS.Features.SystemSetting.Calendar
         /// <summary>
         /// 
         /// </summary>
-        public int Year { get; set; }
+        public int? Year { get; set; }
         /// <summary>
         /// 匯入來源
         /// </summary>
-        public string ImportSrc { get; set; }
+        public string? ImportSrc { get; set; }
         /// <summary>
         /// // 最後匯入時間
         /// </summary>
-        public DateTime LastImportTime { get; set; }
+        public DateTime? LastImportTime { get; set; }
         #region 主子表關聯
-        [InverseProperty(nameof(CalendarDetail_DTO._Calendar))] public List<CalendarDetail_DTO> _CalendarDetail{ get; set; }
+        [InverseProperty(nameof(CalendarDetail_DTO._Calendar))] public List<CalendarDetail_DTO>? _CalendarDetail{ get; set; }
         #endregion
     }
 
     public partial class CalendarDetail_DTO
     {
-        public int Year { get; set; }
-        public DateOnly Date { get; set; }
-        public DayOfWeek DayOfWeek { get; set; }
-        public bool IsHoliday { get; set; }
-        public string HolidayName { get; set; }
-        public string Description { get; set; }
-        public bool IsEdit { get; set; }
-
+        public int? Year { get; set; }
+        public DateOnly? Date { get; set; }
+        public DayOfWeek? DayOfWeek { get; set; }
+        public bool? IsHoliday { get; set; }
+        public string? HolidayName { get; set; }
+        public string? Description { get; set; }
+        public bool? IsEdit { get; set; }
+        /// <summary>
+        /// 修改時間
+        /// </summary>
+        public DateTime? ModifyTime { get; set; }
+        /// <summary>
+        /// 修改人ID
+        /// </summary>
+        [ForeignKey(nameof(ModifyUserId))] public AccountModel? ModifyUser { get; set; }
+        [LibDesc, StringLength(SysLengthParam.ID)] public string? ModifyUserId { get; set; }
         #region 主子表關聯
-        [ForeignKey(nameof(Year))] public Calendar_DTO _Calendar { get; set; }
+        [ForeignKey(nameof(Year))] public Calendar_DTO? _Calendar { get; set; }
         #endregion
     }
 

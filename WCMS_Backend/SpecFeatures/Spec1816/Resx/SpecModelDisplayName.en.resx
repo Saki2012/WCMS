@@ -195,4 +195,10 @@
   <data name="SpecWinter_Weekday_OpenTime" xml:space="preserve">
     <value>Winter Break Weekday Opening Time</value>
   </data>
+  <data name="Spec_CloseTime" xml:space="preserve">
+    <value>Close Time</value>
+  </data>
+  <data name="Spec_OpenTime" xml:space="preserve">
+    <value>Open Time</value>
+  </data>
 </root>

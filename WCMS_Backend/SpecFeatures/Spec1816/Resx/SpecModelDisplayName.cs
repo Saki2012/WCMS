@@ -37,5 +37,10 @@ namespace WCMS.SpecFeatures.Spec1816.Resx
 
         #endregion
 
+        #region Calendar
+        public const string Spec_OpenTime = "Spec_OpenTime";
+        public const string Spec_CloseTime = "Spec_CloseTime";
+        #endregion
+
     }
 }

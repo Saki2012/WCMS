@@ -89,17 +89,17 @@ namespace WCMS.SysCore.Interface
         /// 啟用交易控制(非同步)
         /// </summary>
         /// <returns></returns>
-        public Task BeginTransactionAsync();
+        public Task<bool> TryBeginTransactionAsync();
         /// <summary>
         /// 回滾交易控制(非同步)
         /// </summary>
         /// <returns></returns>
-        public Task RollbackTransactionAsync();
+        public Task TryRollbackAsync(bool ownsTx);
         /// <summary>
         /// 執行更新(非同步)
         /// </summary>
         /// <param name="action"></param>
-        public Task CommitDataAsync();
+        public Task TryCommitAsync(bool ownsTx);
         #endregion
     }
 

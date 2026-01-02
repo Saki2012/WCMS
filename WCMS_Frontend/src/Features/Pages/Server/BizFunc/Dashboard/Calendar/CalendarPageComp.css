@@ -162,7 +162,20 @@
   outline-offset: -2px;
   background-color: #eff6ff;
 }
+/* === 今天（Today）提示 === */
+.calendar-cell.is-today {
+  background-color: #e8f1ffbd; /* 淡藍色 */
+}
 
+/* 今天 + hover（不要被 hover 蓋掉） */
+.calendar-cell.is-today:hover {
+  background-color: #dbeafe;
+}
+
+/* 今天的日期數字稍微強調 */
+.calendar-cell.is-today .calendar-day-number {
+  font-weight: 700;
+}
 /* 日期數字 */
 .calendar-day-number {
   display: inline-flex;
@@ -230,21 +243,29 @@
 
 /* === Dialog 樣式（彈出小視窗）=== */
 
+/* ✅ 置中 + 可捲動 + footer 不會被擠出去 */
 .wcms-dialog-backdrop {
   position: fixed;
   inset: 0;
   background-color: rgba(15, 23, 42, 0.4);
   z-index: 1050;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
 }
 
 .wcms-dialog {
   width: 420px;
   max-width: calc(100% - 32px);
+  max-height: 80vh;
   background-color: #ffffff;
   border-radius: 16px;
   box-shadow: 0 20px 45px rgba(15, 23, 42, 0.35);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .wcms-dialog-header {
@@ -253,6 +274,7 @@
   justify-content: space-between;
   padding: 12px 18px;
   border-bottom: 1px solid #e5e7eb;
+  flex: 0 0 auto;
 }
 
 .wcms-dialog-header h2 {
@@ -269,8 +291,11 @@
   font-size: 1.1rem;
 }
 
+/* ✅ 內容可滾動，避免跑版 */
 .wcms-dialog-body {
   padding: 12px 18px 16px;
+  overflow: auto;
+  flex: 1 1 auto;
 }
 
 .wcms-dialog-body .form-group {
@@ -284,6 +309,7 @@
   color: #374151;
 }
 
+.wcms-dialog-body input[type="text"],
 .wcms-dialog-body select,
 .wcms-dialog-body textarea {
   width: 100%;
@@ -298,8 +324,10 @@
 }
 
 /* checkbox form-group：橫向排 */
-.wcms-dialog-body .form-group > label > input[type="checkbox"] {
-  margin-right: 6px;
+.wcms-dialog-body .form-group > label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .wcms-dialog-footer {
@@ -308,9 +336,10 @@
   gap: 8px;
   padding: 10px 18px 14px;
   border-top: 1px solid #e5e7eb;
+  flex: 0 0 auto;
 }
 
-/* 螢幕閱讀器專用（sr-only）class，如果你專案裡還沒有的話就加上 */
+/* 螢幕閱讀器專用（sr-only）class */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -321,4 +350,30 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* ✅ 假日紅字（強制覆蓋週末灰字，避免被蓋掉） */
+.calendar-cell.is-holiday .calendar-day-number,
+.calendar-cell.is-weekend.is-holiday .calendar-day-number {
+  color: #d32f2f;
+  font-weight: 700;
+}
+
+.calendar-cell.is-holiday .calendar-day-holidayName,
+.calendar-cell.is-weekend.is-holiday .calendar-day-holidayName {
+  color: #d32f2f;
+  font-weight: 600;
+}
+
+/* 假日名稱 */
+.calendar-day-holidayName {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.2;
+
+  /* 避免名稱太長爆版 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

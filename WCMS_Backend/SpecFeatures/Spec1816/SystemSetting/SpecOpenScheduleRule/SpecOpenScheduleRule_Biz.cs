@@ -49,15 +49,15 @@ namespace WCMS.SpecFeatures.Spec1816.SystemSetting.SpecOpenScheduleRule
         #region Protected
         protected void CheckData(SpecOpenScheduleRuleSet set)
         {
-            ValidTimeFor(set.SpecOpenScheduleRule, x => x.Weekday_OpenTime, x => x.Weekday_CloseTime);
-            ValidTimeFor(set.SpecOpenScheduleRule, x => x.Sat_OpenTime, x => x.Sat_CloseTime);
-            ValidTimeFor(set.SpecOpenScheduleRule, x => x.Sun_OpenTime, x => x.Sun_CloseTime);
-            ValidTimeFor(set.SpecOpenScheduleRule, x => x.Winter_Weekday_OpenTime, x => x.Winter_Weekday_CloseTime);
-            ValidTimeFor(set.SpecOpenScheduleRule, x => x.Winter_Sat_OpenTime, x => x.Winter_Sat_CloseTime);
-            ValidTimeFor(set.SpecOpenScheduleRule, x => x.Winter_Sun_OpenTime, x => x.Winter_Sun_CloseTime);
-            ValidTimeFor(set.SpecOpenScheduleRule, x => x.Summer_Weekday_OpenTime, x => x.Summer_Weekday_CloseTime);
-            ValidTimeFor(set.SpecOpenScheduleRule, x => x.Summer_Sat_OpenTime, x => x.Summer_Sat_CloseTime);
-            ValidTimeFor(set.SpecOpenScheduleRule, x => x.Summer_Sun_OpenTime, x => x.Summer_Sun_CloseTime);
+            ValidTimeFor(set.SpecOpenScheduleRule, x => x.Weekday_OpenTime, x => x.Weekday_CloseTime,Message);
+            ValidTimeFor(set.SpecOpenScheduleRule, x => x.Sat_OpenTime, x => x.Sat_CloseTime, Message);
+            ValidTimeFor(set.SpecOpenScheduleRule, x => x.Sun_OpenTime, x => x.Sun_CloseTime, Message);
+            ValidTimeFor(set.SpecOpenScheduleRule, x => x.Winter_Weekday_OpenTime, x => x.Winter_Weekday_CloseTime, Message);
+            ValidTimeFor(set.SpecOpenScheduleRule, x => x.Winter_Sat_OpenTime, x => x.Winter_Sat_CloseTime, Message);
+            ValidTimeFor(set.SpecOpenScheduleRule, x => x.Winter_Sun_OpenTime, x => x.Winter_Sun_CloseTime, Message);
+            ValidTimeFor(set.SpecOpenScheduleRule, x => x.Summer_Weekday_OpenTime, x => x.Summer_Weekday_CloseTime, Message);
+            ValidTimeFor(set.SpecOpenScheduleRule, x => x.Summer_Sat_OpenTime, x => x.Summer_Sat_CloseTime, Message);
+            ValidTimeFor(set.SpecOpenScheduleRule, x => x.Summer_Sun_OpenTime, x => x.Summer_Sun_CloseTime, Message);
             ValidDateRangeFor(set.SpecOpenScheduleRule, x => x.AcademicStart, x => x.AcademicEnd);
             ValidSubRangeFor(set.SpecOpenScheduleRule, x => x.AcademicStart, x => x.AcademicEnd, x => x.WinterStart, x => x.WinterEnd);
             ValidSubRangeFor(set.SpecOpenScheduleRule, x => x.AcademicStart, x => x.AcademicEnd, x => x.SummerStart, x => x.SummerEnd);
@@ -71,7 +71,7 @@ namespace WCMS.SpecFeatures.Spec1816.SystemSetting.SpecOpenScheduleRule
         /// <param name="start"></param>
         /// <param name="end"></param>
         /// <returns></returns>
-        private void ValidTimeFor<TModel>(TModel model, Expression<Func<TModel, object>> startExpr, Expression<Func<TModel, object>> endExpr)
+        public static void ValidTimeFor<TModel>(TModel model, Expression<Func<TModel, object>> startExpr, Expression<Func<TModel, object>> endExpr, IErrorHelper message)
         {
             var start = startExpr.Compile().Invoke(model) as TimeOnly?;
             var end = endExpr.Compile().Invoke(model) as TimeOnly?;
@@ -80,17 +80,17 @@ namespace WCMS.SpecFeatures.Spec1816.SystemSetting.SpecOpenScheduleRule
             if (start == null && end == null) return;
             if (start == null && end != null)
             {
-                Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, startColName);
+                message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, startColName);
                 return;
             }
             if (start != null && end == null)
             {
-                Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, endColName);
+                message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, endColName);
                 return;
             }
             if (start > end)
             {
-                Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, endColName, startColName);
+                message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, endColName, startColName);
                 return;
             }
         }
