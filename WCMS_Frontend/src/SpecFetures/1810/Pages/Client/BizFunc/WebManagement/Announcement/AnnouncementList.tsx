@@ -116,7 +116,7 @@ const AnnouncementList = (props: IAnnouncementListProps) => {
     const useTagData = useTagListData(PGID.Announcement, props.lang);
     const tags = (useTagData.rawData ?? []).map(t => ({ id: t.TagData?.TagId ?? "", name: t.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "" }));
     const searchSlot = <SearchBarComp value={queryDraft} tags={tags} onChange={(k, v) => setQueryDraft(prev => ({ ...prev, [k]: v }))} onSubmit={() => setQuery(queryDraft)} onReset={() => { setQueryDraft({}); setQuery({}); }} />;
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData]);
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(props.lang, dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData]);
     const isLoading = [useAnnounceList.isLoading, useTagData.isLoading];
     const errors = [useAnnounceList.error, useTagData.error];
 
@@ -145,7 +145,7 @@ const AnnouncementList = (props: IAnnouncementListProps) => {
 
 export default AnnouncementList
 
-const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[], catData: CategorySet[], tagData: TagSet[]): GridProps => {
+const SetAdjustFunction = (lang: Lang, dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[], catData: CategorySet[], tagData: TagSet[]): GridProps => {
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
         const curRow = rawData?.[index];
         const internalId = curRow.Announcement?.InternalId ?? "";
@@ -156,10 +156,10 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: Announ
 
             switch (cell.col.key) {
                 case AnnouncementFields.Categories:
-                    cell.content = useFormatCategoriesName(curRow.Announcement?.Categories ?? "", catData)
+                    cell.content = useFormatCategoriesName(curRow.Announcement?.Categories ?? "", catData, lang)
                     break;
                 case AnnouncementFields.Tags:
-                    cell.content = useFormatTagsName(curRow.Announcement?.Tags ?? "", tagData)
+                    cell.content = useFormatTagsName(curRow.Announcement?.Tags ?? "", tagData, lang)
                     break;
             }
 
