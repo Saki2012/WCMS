@@ -5,6 +5,7 @@ import clsx from "clsx";
 import { useMemo } from "react";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { LangNavLink } from "@/SysCore/i18n/LangLink";
 type BannerSet = components["schemas"]["BannerSet_DTO"]
 
 
@@ -30,7 +31,7 @@ export const CarouselData = (props: { lang: Lang }) => {
 						<div className="carousel slide" id="B5_default_carousel">
 							<div className="control-singlebox">
 								<div className="control-toggle">
-									<a aria-label="暫停" aria-pressed="true" className="carousel-toggle-btn" href="javascript:void(0);" id="toggleCarousel" role="button" tabIndex={0} title="暫停" type="button">
+									<a aria-label="暫停" aria-pressed="true" className="carousel-toggle-btn" id="toggleCarousel" role="button" tabIndex={0} title="暫停" type="button">
 										<span className="control-icon pause" />
 										<span className="sr-only">暫停</span>
 									</a>
@@ -38,30 +39,36 @@ export const CarouselData = (props: { lang: Lang }) => {
 							</div>
 							<div className="carousel-inner">
 								{sortedDetails.map((p, i) => {
-									const alt = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang)?.Title ?? ""
+									const info = useBanner.data?.BannerDetailInfo?.find((x) => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang);
+									const alt = info?.Title ?? "";
+									const url = info?.URL;
+									const tar = info?.URL_Open === 0 ? "_self" : "_blank"
 									return (
-										<div key={i} className={clsx("carousel-item", i === 0 ? "active" : "")} data-bs-interval="5000">
-											<img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`}
-												className="d-block w-100"
-												alt={alt}
-											/>
+										<div key={`${p.BannerId}-${p.RowId}-${i}`} className={clsx("carousel-item", i === 0 ? "active" : "")}>
+											{url ?
+												<LangNavLink to={url} target={tar} rel={tar === "_blank" ? "noopener noreferrer" : undefined} aria-label={alt || "banner link"}>
+													<img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} className="d-block w-100" alt={alt} />
+												</LangNavLink>
+												:
+												<img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} className="d-block w-100" alt={alt} />
+											}
 										</div>
-									)
+									);
 								})}
 							</div>
 							<div className="carousel-indicators">
-								<a href="javascript:void(0);" tabIndex={0} title="上一張">
+								<a tabIndex={0} title="上一張">
 									<button aria-current="true" aria-label="Slide 1" className="active" data-bs-slide-to="0" data-bs-target="#B5_default_carousel" type="button" />
 								</a>
-								<a href="javascript:void(0);" tabIndex={0} title="上一張">
+								<a tabIndex={0} title="上一張">
 									<button aria-label="Slide 2" className="" data-bs-slide-to="1" data-bs-target="#B5_default_carousel" type="button" />
 								</a>
-								<a href="javascript:void(0);" tabIndex={0} title="上一張">
+								<a tabIndex={0} title="上一張">
 									<button aria-label="Slide 3" className="" data-bs-slide-to="2" data-bs-target="#B5_default_carousel" type="button" />
 								</a>
 							</div>
 							<div className="carousel_btn-icon-prev">
-								<a data-bs-slide="prev" data-bs-target="#B5_default_carousel" href="javascript:void(0);" role="button" tabIndex={0} title="上一張" type="button">
+								<a data-bs-slide="prev" data-bs-target="#B5_default_carousel" role="button" tabIndex={0} title="上一張" type="button">
 									<div className="carousel-control-prev">
 										<span aria-hidden="true" className="carousel-control-prev-icon" />
 										<span className="sr-only">Previous</span>
@@ -69,7 +76,7 @@ export const CarouselData = (props: { lang: Lang }) => {
 								</a>
 							</div>
 							<div className="carousel_btn-icon-next">
-								<a data-bs-slide="next" data-bs-target="#B5_default_carousel" href="javascript:void(0);" role="button" tabIndex={0} title="上一張" type="buttson">
+								<a data-bs-slide="next" data-bs-target="#B5_default_carousel" role="button" tabIndex={0} title="上一張" type="buttson">
 									<div className="carousel-control-next">
 										<span aria-hidden="true" className="carousel-control-next-icon" />
 										<span className="sr-only">Next</span>
