@@ -121,33 +121,33 @@ const useSpecResearchList = (provider: IDataProvider<SpecResearchSet>, lang: Lan
                 switch (col.key) {
                     case SpecResearchDetailModelFields.Year:
                         {
-                            content = item.SpecResearchDetail?.find(p => p.Lang === "zh-tw")?.Year?.toString() ?? "";
+                            content = item.SpecResearchDetail?.find(p => p.Lang === lang)?.Year?.toString() ?? "";
                             break;
                         }
                     case SpecResearchDetailModelFields.AcademicYear:
                         {
-                            content = item.SpecResearchDetail?.find(p => p.Lang === "zh-tw")?.AcademicYear?.toString()
+                            content = item.SpecResearchDetail?.find(p => p.Lang === lang)?.AcademicYear?.toString()
                                 ?? "";
                             break;
                         }
                     case SpecResearchDetailModelFields.ProjectName:
                         {
-                            content = item.SpecResearchDetail?.find(p => p.Lang === "zh-tw")?.ProjectName ?? "";
+                            content = item.SpecResearchDetail?.find(p => p.Lang === lang)?.ProjectName ?? "";
                             break;
                         }
                     case SpecResearchDetailModelFields.PaperTitle:
                         {
-                            content = item.SpecResearchDetail?.find(p => p.Lang === "zh-tw")?.PaperTitle ?? "";
+                            content = item.SpecResearchDetail?.find(p => p.Lang === lang)?.PaperTitle ?? "";
                             break;
                         }
                     case SpecResearchDetailModelFields.CooperationProject:
                         {
-                            content = item.SpecResearchDetail?.find(p => p.Lang === "zh-tw")?.CooperationProject ?? "";
+                            content = item.SpecResearchDetail?.find(p => p.Lang === lang)?.CooperationProject ?? "";
                             break;
                         }
                     case SpecResearchDetailModelFields.Courses:
                         {
-                            content = item.SpecResearchDetail?.find(p => p.Lang === "zh-tw")?.Courses ?? "";
+                            content = item.SpecResearchDetail?.find(p => p.Lang === lang)?.Courses ?? "";
                             break;
                         }
                     case SpecResearchModelFields.CreateTime:

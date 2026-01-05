@@ -7,6 +7,7 @@ import clsx from "clsx";
 import * as SchemaFields from "@/types/SchemaFields";
 import { useEffect, useMemo } from "react";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import type { Lang } from "@/SysCore/i18n/lang";
 type BannerSet = components["schemas"]["BannerSet_DTO"]
 const emptyData: BannerSet = {
     Banner: {},
@@ -41,7 +42,7 @@ const emptyData: BannerSet = {
     ]
 }
 const SLIDE_INTERVAL = 5000;
-export const BannerSlider = () => {
+export const BannerSlider = (props: { lang: Lang }) => {
     const usebannerList = useBannerListData(`${SchemaFields.BannerFields.BannerId} = 1`)
     const bannerInternal = usebannerList.rawData?.[0]?.Banner?.InternalId ?? ""
     const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), bannerInternal, emptyData)
@@ -96,7 +97,7 @@ export const BannerSlider = () => {
                 <div id="carousel-Controls" className="carousel carousel-dark slide carousel-fade" data-bs-ride="carousel">
                     <div className="carousel-inner">
                         {sortedDetails.map((p, i) => {
-                            const info = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")
+                            const info = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang)
                             const alt = info?.Title ?? ""
                             const url = info?.URL ?? ""
                             const tar = info?.URL_Open === 0 ? "_self" : "_blank"
@@ -160,7 +161,7 @@ export const BannerSlider = () => {
                     <div className="carousel-inner">
 
                         {sortedDetails.map((p, i) => {
-                            const alt = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.Title ?? ""
+                            const alt = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang)?.Title ?? ""
                             return (
                                 <div key={i} className={clsx("carousel-item", i === 0 ? "active" : "")} data-bs-interval={SLIDE_INTERVAL}>
                                     <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`}

@@ -4,7 +4,7 @@ import { useLang } from "@/SysCore/i18n/LangContext";
 import { DefaultLang, isSupportedLang, LangLabelMap, type Lang } from "@/SysCore/i18n/lang";
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 
-export const LangSwitchBtn: React.FC<{ site: INormSite }> = ({ site }) => {
+export const SpecLangSwitchBtn: React.FC<{ site: INormSite }> = ({ site }) => {
   // 取得語系/路由/導頁工具
   const ctx = useLang();
   const location = useLocation();
@@ -36,6 +36,14 @@ export const LangSwitchBtn: React.FC<{ site: INormSite }> = ({ site }) => {
     navigate(buildSwitchTo(target), { replace: true });
   }, [activeLang, buildSwitchTo, navigate]);
 
+  const onBtnKeyDown = (e: React.KeyboardEvent, target: Lang) => {
+    // Enter / Space 觸發
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      go(target);
+    }
+  };
+
   // ★注意：所有 hooks 都已經呼叫完，現在才允許 return（避免 #310）
   const shouldHide =
     supportedLangs.length <= 1 ||
@@ -49,38 +57,31 @@ export const LangSwitchBtn: React.FC<{ site: INormSite }> = ({ site }) => {
     const other = supportedLangs.find(x => x !== activeLang) ?? supportedLangs[1];
 
     return (
-      <li>
-        <div className="icons">
-          <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
-            <a type="button" role="button" title={LangLabelMap?.[other] ?? other} tabIndex={0} onClick={(e) => { e.preventDefault(); go(other); }}>
-              <div className="link-text">{LangLabelMap?.[other] ?? other}</div>
-            </a>
-          </div>
-        </div>
-      </li>
+      <a className="nav-link" role="button" title={LangLabelMap?.[other] ?? other} tabIndex={0} onClick={(e) => { e.preventDefault(); go(other); }} onKeyDown={(e) => onBtnKeyDown(e, other)}>
+        <div className="link-text">{LangLabelMap?.[other] ?? other}</div>
+      </a>
     );
   }
 
   // 三種以上語系：dropdown
   return (
-    <li>
-      <div className="icons">
-        <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1 dropdown">
-          <a className="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" role="button" title="Language" tabIndex={0} onClick={(e) => e.preventDefault()}>
-            <div className="link-text">{LangLabelMap?.[activeLang] ?? activeLang}</div>
-          </a>
+    <div className="icons">
+      <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1 dropdown">
+        <a className="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" role="button" title="Language" tabIndex={0} onClick={(e) => e.preventDefault()}>
+          <div className="link-text">{LangLabelMap?.[activeLang] ?? activeLang}</div>
+        </a>
 
-          <ul className="dropdown-menu">
-            {supportedLangs.map(l => (
-              <li key={l}>
-                <a className={`dropdown-item ${l === activeLang ? "active" : ""}`} onClick={(e) => { e.preventDefault(); go(l); }}>
-                  {LangLabelMap?.[l] ?? l}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ul className="dropdown-menu">
+          {supportedLangs.map(l => (
+            <li key={l}>
+              <a className={`dropdown-item ${l === activeLang ? "active" : ""}`} role="button" tabIndex={0} onClick={(e) => { e.preventDefault(); go(l); }} onKeyDown={(e) => onBtnKeyDown(e, l)}>
+                {LangLabelMap?.[l] ?? l}
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
-    </li>
+    </div>
   );
 };
+

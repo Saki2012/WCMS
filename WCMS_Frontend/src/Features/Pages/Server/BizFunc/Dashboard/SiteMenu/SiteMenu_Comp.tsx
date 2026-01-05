@@ -89,7 +89,6 @@ const siteMenuInfo = (data: SiteMenuSet, lang: Lang): Item[] => {
     const rowId = Number((it as any).RowId);
     const displayOrder = Number((it as any).DisplayOrder ?? 0);
     orderMap.set(rowId, displayOrder);
-    // 取得對應語系標題（fallback: zh-tw -> zh-TW -> 第一個）
     const langMap = titleDict.get(rowId);
     const text = (langMap?.get(lang)) ?? "";
     nodeMap.set(rowId, {
@@ -140,7 +139,7 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
   const moduleDisplayStyle = useFetchEnumOptions("ModuleDisplayStyle")
   const useCateList = useCategoryListData("", prop.lang)
   const usetagList = useTagListData("", prop.lang)
-  const usePageList = usePageListData()
+  const usePageList = usePageListData(prop.lang)
   const useSpecCateDatas = useSpecCateListData("", prop.lang)
   const actions = useActions("", provider, useSiteInfo.data as SiteMenuSet, internalId as string)
   // ✅ 先在頂層定義 hook

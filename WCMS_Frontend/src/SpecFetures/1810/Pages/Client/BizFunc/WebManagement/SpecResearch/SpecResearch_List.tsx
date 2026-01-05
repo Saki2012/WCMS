@@ -105,7 +105,7 @@ const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, 
                     if (col.key === SpecResearchDetailModelFields.ApprovedAmount ||
                         col.key === SpecResearchDetailModelFields.PlanAmount) {
                         let val = detail ? (detail as Record<string, any>)[col.key] ?? "" : "";
-                        content = new Intl.NumberFormat("zh-TW", { style: "decimal", }).format(val)
+                        content = new Intl.NumberFormat(lang, { style: "decimal", }).format(val)
                     }
                     else
                         content = detail ? (detail as Record<string, any>)[col.key] ?? "" : "";

@@ -86,6 +86,9 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<B
                 RowId: 1,
                 Lang: 'zh-tw',
                 Content: "",
+                SpecLatestShows: "",
+                SpecShowDate: "",
+                SpecShowLocation: "",
             },
             {
                 BannerId: props.formData.data.Banner?.BannerId,
@@ -93,6 +96,9 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<B
                 RowId: 2,
                 Lang: 'en',
                 Content: "",
+                SpecLatestShows: "",
+                SpecShowDate: "",
+                SpecShowLocation: "",
             },
         ]
         // 更新 BannerDetailInfo

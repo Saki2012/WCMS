@@ -1,6 +1,5 @@
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data"
 import { LangLink } from "@/SysCore/i18n/LangLink"
-import { Link } from "react-router-dom"
 
 
 export const ThirdMenuComp = (prop: { item: MenuItemData[] }) => {

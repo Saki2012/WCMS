@@ -14,6 +14,7 @@ import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
 import bgImg from '@/SpecFetures/1810/Assets/Client/Images/bg/background-transparent-image_1920x600.png'
 import type { components } from '@/types/api';
 import { LangLink } from "@/SysCore/i18n/LangLink";
+import type { Lang } from "@/SysCore/i18n/lang";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
 interface EventData {
@@ -85,21 +86,21 @@ const useTagList = () => {
     });
 };
 
-export const EventSession = () => {
+export const EventSession = (props: { lang: Lang }) => {
     const useEvent = useAnnouncementList();
     const useTag = useTagList();
     const isLoading = [useEvent.isLoading, useTag.isLoading]
     const errors = [useEvent.error, useTag.error]
-    const lang = 'zh-tw'
+
     const tagDict: Record<string, string> = Object.fromEntries(
         (useTag.rawData ?? []).map(tag => {
             const id = tag.TagData?.TagId;
-            const name = tag.TagDetail?.find(p => p.Lang === lang)?.TagName ?? "";
+            const name = tag.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "";
             return [id, name];
         })
     );
     const rawData = (useEvent.rawData ?? []).sort((a, b) => new Date(b.Announcement?.Validate_Start ?? "").getTime() - new Date(a.Announcement?.Validate_Start ?? "").getTime()).slice(0, 6);
-    const eventList = getData(lang, rawData, tagDict)
+    const eventList = getData(props.lang, rawData, tagDict)
     const carouselRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
         if (eventList.length > 0 && carouselRef.current) {

@@ -10,6 +10,7 @@ import { useEffect, useRef } from 'react';
 import bgImg from '@/SpecFetures/1810/Assets/Client/images/bg/background-image_video_2000x1500.jpg'
 import { resolveYoutubeEmbedUrl } from '@/Features/Pages/Client/BizFunc/WebManagement/WebResource/WebResourceList';
 import { LangLink } from '@/SysCore/i18n/LangLink';
+import type { Lang } from '@/SysCore/i18n/lang';
 
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"]
 
@@ -55,12 +56,11 @@ const getDataProps = (lang: string, rawData: WebResourceSet[]) => {
     return result
 }
 
-export const VideoSession = () => {
+export const VideoSession = (props: { lang: Lang }) => {
 
     BaseCarousel({ selectorId: '#Video', itemCount: 3 });
-    const lang = "zh-tw"
     const useData = useWebResourceList()
-    const result: DataProp[] = getDataProps(lang, useData.rawData);
+    const result: DataProp[] = getDataProps(props.lang, useData.rawData);
 
     const isLoading = [useData.isLoading]
     const errors = [useData.error]

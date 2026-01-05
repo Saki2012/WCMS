@@ -236,7 +236,7 @@ const QAList_Comp = (props: { lang: Lang; gridData: AnnouncementSet[]; currentPa
                             {
                                 props.gridData && props.gridData.map((item, idx) => {
                                     const detail = item.AnnouncementDetail?.find(p => p.Lang === props.lang);
-                                    const parseContent = useResolveInternalIds(detail?.Content ?? "", { locale: 'zh-tw' });
+                                    const parseContent = useResolveInternalIds(detail?.Content ?? "", { locale: props.lang });
                                     const content = parseContent.html ? parse(parseContent.html) : null;
                                     return (
                                         <li>

@@ -114,7 +114,7 @@ const useAnnouncementList = (provider: IDataProvider<AnnouncementSet>, lang: Lan
 
                 switch (col.key) {
                     case AnnouncementDetailFields.Title:
-                        content = item.AnnouncementDetail?.find(d => d.Lang === "zh-tw")?.Title ?? "";
+                        content = item.AnnouncementDetail?.find(d => d.Lang === lang)?.Title ?? "";
                         break;
                     case AnnouncementFields.Validate_Start:
                         content = FormatDate((data as any)[col.key]);

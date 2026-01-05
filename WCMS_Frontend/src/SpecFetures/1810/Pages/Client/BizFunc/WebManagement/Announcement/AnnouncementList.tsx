@@ -123,7 +123,7 @@ const AnnouncementList = (props: IAnnouncementListProps) => {
     const content: React.ReactElement | null = useMemo(() => {
         switch (props.options?.Style) {
             case 3:
-                return <QAList_Comp key="qa" GridData={adjustedGrid} Theme={props.theme} />;
+                return <QAList_Comp key="qa" lang={props.lang} GridData={adjustedGrid} Theme={props.theme} />;
             case 2:
                 return <PictureList_Comp key="picture" lang={props.lang} GridData={adjustedGrid} Theme={props.theme} />;
             case 1:
@@ -194,7 +194,7 @@ const SetAdjustFunction = (lang: Lang, dirUrl: string, gridProps: GridProps, raw
 /** 圖文式公告 */
 const PictureList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
-    const useCateData = useCategoryListData("Announcement", 'zh-tw');
+    const useCateData = useCategoryListData(PGID.Announcement, prop.lang);
     return (
         <>
             <div className="articles_itemBoxs">
@@ -202,7 +202,7 @@ const PictureList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridPro
                     const internalId = `${dirUrl}/${row.Announcement?.InternalId ?? ""}`
                     const picUrl = row.Announcement?.PictureId ? `${FileManagementAPI.PREVIEW_URL}/${row.Announcement?.PictureId ?? ""}` : DefaultEventImg
                     const picDesc = row.Announcement?.PicDescription ?? ""
-                    const title = row.AnnouncementDetail?.find(p => p.Lang === 'zh-tw')?.Title ?? ""
+                    const title = row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Title ?? ""
                     const date = FormatDate(row.Announcement?.Validate_Start) ?? ""
                     const catName = useFormatCategoriesName(row.Announcement?.Categories ?? "", useCateData.rawData, prop.lang)
                     return (
@@ -253,7 +253,7 @@ const GridList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
     return (<Grid gridData={prop.GridData} style={prop.Theme.GridView} pageStyle={prop.Theme.Paginator}></Grid>)
 }
 /** QA列表式 */
-const QAList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
+const QAList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps }) => {
     return (
         <>
             <div className="faq_content">
@@ -261,13 +261,13 @@ const QAList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
                     <div className="col-12">
                         <div id="accordion" className="FAQBar">
                             {prop.GridData && prop.GridData.rawData.map((row: AnnouncementSet, idx: number) => {
-                                const parseContent = useResolveInternalIds(row.AnnouncementDetail?.find(p => p.Lang === 'zh-tw')?.Content ?? "", { locale: 'zh-tw' });
+                                const parseContent = useResolveInternalIds(row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Content ?? "", { locale: prop.lang });
                                 const content = parseContent.html ? parse(parseContent.html) : null;
                                 return (
                                     <div className={`QA${idx} card`}>
                                         <div className="card-header">
                                             <a className="card-link darkcolor collapsed" data-bs-toggle="collapse" href={`#collapse${idx}`} aria-expanded="false">
-                                                {`${(idx + 1).toString().padStart(2, '0')}. ${row.AnnouncementDetail?.find(p => p.Lang === 'zh-tw')?.Title}`}
+                                                {`${(idx + 1).toString().padStart(2, '0')}. ${row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Title}`}
                                             </a>
                                         </div>
                                         <div id={`collapse${idx}`} className="collapse" data-bs-parent="#accordion">

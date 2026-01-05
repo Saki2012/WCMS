@@ -1,17 +1,16 @@
 import CategoryProvider from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
-import type { components } from "@/types/api";
-import { useCallback, useEffect, useState } from "react";
-type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
-type CategoryDetail = components["schemas"]["CategoryDetail_DTO"];
 import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { type Lang } from "@/SysCore/i18n/lang";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
+import type { components } from "@/types/api";
 import * as SchemaFields from "@/types/SchemaFields";
+import { useCallback, useEffect, useState } from "react";
 type QueryListParam = components["schemas"]["QueryListParam"];
-
+type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
+type CategoryDetail = components["schemas"]["CategoryDetail_DTO"];
 /** 獲取類別清單 */
-export const useGetCategoryListByProgId = (progId: string, lang: string, pageSize: number = 0) =>
+export const useGetCategoryListByProgId = (progId: string, lang: Lang, pageSize: number = 0) =>
 {
     const [data, setData] = useState<Record<string, string>>({});
     const [isLoading, setLoading] = useState(false);
@@ -30,7 +29,7 @@ export const useGetCategoryListByProgId = (progId: string, lang: string, pageSiz
                     `${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
                 ],
                 Condition:
-                    `${SchemaFields.CategoryFields.ProgId} = \"${progId}\" And ${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang} = \"zh-TW\"`,
+                    `${SchemaFields.CategoryFields.ProgId} = \"${progId}\" And ${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang} = ${lang}`,
                 OrderBy: [{ Col: SchemaFields.CategoryFields.ModifyTime, Desc: true }],
                 PageNumber: page,
                 PageSize: pageSize,

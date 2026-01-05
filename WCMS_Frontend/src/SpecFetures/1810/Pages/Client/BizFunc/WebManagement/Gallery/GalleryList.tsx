@@ -12,7 +12,6 @@ import GalleryProvider from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gall
 import { useCategoryListData } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { useLocation } from "react-router";
-import { Link } from "react-router-dom";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { Paginator } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import type { IGalleryListProps } from "@/Features/Pages/Client/BizFunc/WebManagement/Gallery/GalleryList";

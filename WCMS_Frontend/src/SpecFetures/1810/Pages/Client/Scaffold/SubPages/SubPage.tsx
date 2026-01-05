@@ -44,7 +44,10 @@ const useBannerPic = (bannerId: string) => {
   });
 }
 const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode): ReactNode[] => {
-  const result: ReactNode[] = [<LangLink to={`/${site.siteIndex}`} title='首頁'>首頁</LangLink>];
+
+  const homepageTitle = lang === "zh-tw" ? "首頁" : lang === "en" ? "Home" : "首頁"
+
+  const result: ReactNode[] = [<LangLink to={`/${site.siteIndex}`} title={homepageTitle}>{homepageTitle}</LangLink>];
   var curNodes = site.treeByLang[lang]
   node.absIds?.forEach(id => {
     var curNode = curNodes?.find((n: INormNode) => n.id === id);
@@ -58,10 +61,22 @@ const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode): ReactN
   });
   return result;
 }
+const findNodeById = (nodes: INormNode[] | undefined, id: number): INormNode | undefined => {
+  if (!nodes?.length) return undefined;
+
+  for (const n of nodes) {
+    if (n.id === id) return n;
+    const hit = findNodeById(n.children, id);
+    if (hit) return hit;
+  }
+
+  return undefined;
+};
 
 interface ISubPagesProps { style: IFETheme; lang: Lang; site: INormSite; node: INormNode; backHref?: string; }
 const SubPageBase = (props: ISubPagesProps & { renderMain: () => React.ReactNode }) => {
-  const title: string = props.node.title;
+  const localizedNode = useMemo(() => { const roots = props.site.treeByLang?.[props.lang]; return findNodeById(roots, props.node.id); }, [props.lang, props.site, props.node.id]);
+  const title: string = localizedNode?.title ?? props.node.title;
   const breadCrumbData: ReactNode[] = GetBreadCrumbData(props.lang, props.site, props.node);
   const SIDE_MAX_DEPTH = 3;
   const sideMenuData: MenuItemData[] = GetMenuData(props.lang, props.site, props.node, SIDE_MAX_DEPTH);
@@ -69,10 +84,11 @@ const SubPageBase = (props: ISubPagesProps & { renderMain: () => React.ReactNode
   const topMenuData: MenuItemData[] = buildMenuItems(anchor?.children ?? [], props.node.id);
   const navigate = useNavigate(); // 🔑 先宣告
   const handleBack = (e: React.MouseEvent<HTMLAnchorElement>) => { e.preventDefault(); navigate(-1); };
+  const gobackTitle = props.lang === "zh-tw" ? "返回上一層" : "Return"
   const back: ReactNode = <div className="pos-relative d-inline-block ml-auto">
     <a href="#" onClick={handleBack}>
       <div className="pos-relative d-inline-block">
-        <div className="return-box"><i className="fa fa-reply" aria-hidden="true" style={{ fontSize: "112.5%", marginRight: "10px" }}></i>返回上一層</div>
+        <div className="return-box"><i className="fa fa-reply" aria-hidden="true" style={{ fontSize: "112.5%", marginRight: "10px" }}></i>{gobackTitle}</div>
       </div>
     </a>
   </div>

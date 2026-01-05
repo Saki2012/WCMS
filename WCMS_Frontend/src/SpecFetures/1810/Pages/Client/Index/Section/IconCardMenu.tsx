@@ -9,10 +9,11 @@ import img2 from "@/SpecFetures/1810/Assets/Client/images/icon/icon_02_256x256.s
 import img3 from "@/SpecFetures/1810/Assets/Client/images/icon/icon_03_256x256.svg"
 import img4 from "@/SpecFetures/1810/Assets/Client/images/icon/icon_04_256x256.svg"
 import { LangLink } from '@/SysCore/i18n/LangLink';
+import type { Lang } from '@/SysCore/i18n/lang';
 
 
 
-export const IconCardMenu = () => {
+export const IconCardMenu = (props: { lang: Lang }) => {
     const iconCardRef = useRef<HTMLElement>(null);
     useEffect(() => {
         // ✅ Swiper 區塊

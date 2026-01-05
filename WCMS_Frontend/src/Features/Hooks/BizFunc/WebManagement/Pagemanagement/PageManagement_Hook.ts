@@ -1,12 +1,13 @@
 import PageManagementProvider from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Api";
 import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import type { Lang } from "@/SysCore/i18n/lang";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import * as SchemaFields from "@/types/SchemaFields";
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
 
-export const usePageListData = () =>
+export const usePageListData = (lang: Lang) =>
 {
     const provider = PageManagementProvider();
     return useFetchGridListData<PageManagementSet>({
@@ -41,8 +42,7 @@ export const usePageListData = () =>
                 let content: any = "";
                 if (col.key === SchemaFields.PageManagementDetailFields.Title)
                 {
-                    // 專處理 PageManagementDetail.Title (lang: zh-tw)
-                    content = item.PageManagementDetail?.find((d: any) => d.Lang === "zh-tw")?.Title ?? "";
+                    content = item.PageManagementDetail?.find((d: any) => d.Lang === lang)?.Title ?? "";
                 } else if (col.key === SchemaFields.PageManagementFields.ModifyTime)
                 {
                     content = FormatDateTime((data as any)[col.key]);

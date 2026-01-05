@@ -14,6 +14,7 @@ import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 
 import bgImg from '@/SpecFetures/1810/Assets/Client/Images/bg/background-transparent-image_1920x600.png'
 import { LangLink } from '@/SysCore/i18n/LangLink';
+import type { Lang } from '@/SysCore/i18n/lang';
 type GallerySet = components["schemas"]["GallerySet_DTO"]
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"]
 
@@ -92,16 +93,15 @@ const getDataProps = (lang: string, galleryData: GallerySet[], catData: Category
     return result
 }
 
-export const GallerySession = () => {
+export const GallerySession = (props: { lang: Lang }) => {
 
     BaseCarousel({ selectorId: '#Gallery', itemCount: 3 });
-    const lang = "zh-tw"
     const gallery = useGalleryList();
     const cate = useCategoryList();
 
     const isLoading = [gallery.isLoading, cate.isLoading]
     const errors = [gallery.error, cate.error]
-    const result: DataProp[] = getDataProps(lang, gallery.rawData, cate.rawData)
+    const result: DataProp[] = getDataProps(props.lang, gallery.rawData, cate.rawData)
     const carouselRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
         if (result.length > 0 && carouselRef.current) {

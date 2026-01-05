@@ -66,7 +66,7 @@ const SidebarMenu = (prop: { moduleCode: IModuleMeta['ModuleCode'] }) => {
                 <div className="m-header">
                     <h1>
                         {/* 用後台預設路徑當「首頁」入口，也可以改成固定 /Server */}
-                        <LangNavLink to={'/Server'} title="首頁" target="_self" className="b-brand">
+                        <LangNavLink to={'/'} title="首頁" target="_self" className="b-brand">
                             <img src={logImg} className="img-fluid logo-lg" alt="logo" />
                         </LangNavLink>
                     </h1>
