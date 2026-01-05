@@ -1,0 +1,1273 @@
+@charset "utf-8";
+/* CSS Document */
+/* color: var(--Customize_color); */
+/* hover color: #0534a1;*/
+
+
+/* ============================================= */
+/* ------ 登入頁 原本 header 區 ------------------ */
+/* ============================================= */
+.top-nav img {
+    /*width: 250px;*/
+    max-width: 100%;
+    height: auto;
+    /* margin: 0 auto; */
+}
+
+.top-nav .signin-btn {
+    background: rgb(0 0 0 / 80%);
+    width: 100px;
+    border-radius: 50px;
+}
+
+.top-nav .signin-btn h6 {
+    color: var(--FFFcolor);
+    font-size: 110%;
+}
+/* ============================================= */
+/* ------ 登入頁 原本 header 區 ------------------ */
+/* ============================================= */
+
+
+/* ============================================= */
+/* ------ 登入頁 滑動色塊 ------------------------- */
+/* ============================================= */
+.shape-left {
+    height: 100%;
+    width: calc((100vw + 220px)/4);
+	background-color: color-mix(in srgb, var(--Customize__shape_color) 100%, transparent); /* 50% 透明 */
+    content: "";
+    left: 0;
+    top: 0;
+    z-index: -1;
+    position: absolute;
+}
+@media only screen and (max-width: 1199px) {
+    .shape-left {
+        width: calc((100vw + 180px)/4);
+    }
+}
+@media only screen and (max-width: 991px) {
+    .shape-left {
+        width: calc((100vw + 140px)/4);
+    }
+}
+@media only screen and (max-width: 767px) {
+    .shape-left {
+        width: calc((100vw + 100px)/4);
+    }
+}
+@media only screen and (max-width: 575px) {
+    .shape-left {
+        width: calc((100vw + 60px)/4);
+    }
+}
+@media only screen and (max-width: 479px) {
+    .shape-left {
+        width: calc((100vw + 30px)/4);
+    }
+}
+/* ============================================= */
+/* ------ 登入頁 滑動色塊 ------------------------- */
+/* ============================================= */
+
+
+/* ============================================= */
+/* ------ 新設計登入頁 --------------------------- */
+/* ============================================= */
+.template-layout {
+    position: relative;
+    display: -ms-grid;
+    display: grid;
+    
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: column;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    
+    width: 100%;
+    min-height: 100vh;
+    padding-top: 150px;
+    padding-right: 110px;
+    padding-bottom: 0;
+    padding-left: 110px;   
+    background-color: transparent;    
+    z-index: 1;
+}
+@media only screen and (max-width: 1199px) {
+    .template-layout {
+        padding-top: 90px;
+        padding-right: 90px;
+        padding-bottom: 0;
+        padding-left: 90px; 
+    }
+}
+@media only screen and (max-width: 991px) {
+    .template-layout {
+        padding-top: 70px;
+        padding-right: 70px;
+        padding-bottom: 0;
+        padding-left: 70px; 
+    }
+}
+@media only screen and (max-width: 767px) {
+    .template-layout {
+        padding-top: 50px;
+        padding-right: 50px;
+        padding-bottom: 0;
+        padding-left: 50px; 
+    }
+}
+@media only screen and (max-width: 575px) {
+    .template-layout {
+        padding-top: 30px;
+        padding-right: 30px;
+        padding-bottom: 0;
+        padding-left: 30px; 
+    }
+}
+@media only screen and (max-width: 479px) {
+    .template-layout {
+        padding-top: 15px;
+        padding-right: 15px;
+        padding-bottom: 0;
+        padding-left: 15px; 
+    }
+}
+/* ------------------------------------------------------ */
+.template-layout ul:not(.list-unstyled) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.template-layout a {
+    color: #007bff;
+    text-decoration: none;
+    background-color: transparent;
+}
+/* ------------------------------------------------------ */
+.Login-section {
+    position: relative;    
+    width: 100%;
+    /*padding-bottom: 110px;*/
+    background-color: transparent;
+}
+@media only screen and (max-width: 1199px) {
+}
+@media only screen and (max-width: 991px) {
+}
+@media only screen and (max-width: 767px) {
+}
+@media only screen and (max-width: 575px) {
+}
+@media only screen and (max-width: 479px) {
+}
+/* ------------------------------------------------------ */
+.Login-section .shape.animation-active {
+    -webkit-transform: translateX(-100%);
+    -ms-transform: translateX(-100%);
+    transform: translateX(-100%);
+}
+.loaded.Login-section .shape.animation-active {
+    -webkit-transform: translateX(0);
+    -ms-transform: translateX(0);
+    transform: translateX(0);
+    -webkit-transition: all 1s ease-in-out;
+    -o-transition: all 1s ease-in-out;
+    transition: all 1s ease-in-out;
+}
+/* ------------------------------------------------------ */
+.Login-section .content-wrap {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    min-height: 100%;
+    width: 100%;
+}
+@media only screen and (max-width: 991px) {
+    .Login-section .content-wrap {
+        display: block;
+    }
+}
+/* ------------------------------------------------------ */
+.Login-section .heading-content {
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    
+    width: 50%;    
+    padding: 50px;
+    overflow: hidden;
+    
+    z-index: 1;
+}
+.Login-section .heading-content:before {
+    height: 100%;
+    width: 100%;
+    background-color: color-mix(in srgb, var(--Customize_color) 90%, transparent);
+    content: "";
+    left: 0;
+    top: 0;
+    z-index: -1;
+    position: absolute;
+}
+@media only screen and (max-width: 991px) {
+    .Login-section .heading-content {
+        width: 100%;
+    }
+}
+@media only screen and (max-width: 575px) {
+    .Login-section .heading-content {
+        padding: 40px 15px;
+    }
+}
+/* ------------------------------------------------------ */
+.Login-section .heading-content .inner-wrap {
+    text-align: center;
+    max-width: 640px;
+    width: 100%;
+}
+/* ------------------------------------------------------ */
+.Login-section .heading-content .logo {
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+    
+    margin-bottom: 35px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 25vw;
+    max-width: 70vw;
+}
+@media only screen and (max-width: 1199px) {
+    .Login-section .heading-content .logo {
+        width: 30.5vw;
+    }
+}
+@media only screen and (max-width: 991px) {
+    .Login-section .heading-content .logo {
+        width: 40vw;
+    }
+}
+@media only screen and (max-width: 767px) {
+    .Login-section .heading-content .logo {
+        width: 47vw;
+    }
+}
+@media only screen and (max-width: 575px) {
+    .Login-section .heading-content .logo {
+        width: 100%;
+    }
+}
+/* ------------------------------------------------------ */
+.Login-section .heading-content .logo img {
+    width: 100%;
+    height: auto;
+    max-width: 100%;	
+	object-fit: cover;
+}
+/* ------------------------------------------------------ */
+.Login-section .heading-content .main-title {
+    font-size: 225%;
+    font-weight: bold;
+    color: var(--FFFcolor);
+    
+    margin-bottom: 40px;
+}
+@media only screen and (max-width: 1199px) {
+    .Login-section .heading-content .main-title {
+        font-size: 212.5%;
+    }
+}
+@media only screen and (max-width: 991px) {
+    .Login-section .heading-content .main-title {
+        font-size: 200%;
+        margin-bottom: 30px;
+    }
+}
+@media only screen and (max-width: 767px) {
+    .Login-section .heading-content .main-title {
+        font-size: 187.5%;
+        margin-bottom: 20px;
+    }
+}
+@media only screen and (max-width: 575px) {
+    .Login-section .heading-content .main-title {
+        font-size: 175%;
+        margin-bottom: 10px;
+    }
+}
+/* ------------------------------------------------------ */
+.Login-section .heading-content .main-title-en {
+    font-size: 150%;
+    font-weight: 500;
+    color: var(--FFFcolor);
+    
+    margin-bottom: 60px;
+}
+@media only screen and (max-width: 1199px) {
+    .Login-section .heading-content .main-title-en {
+        font-size: 137.5%;
+    }
+}
+@media only screen and (max-width: 991px) {
+    .Login-section .heading-content .main-title-en {
+        font-size: 125%;
+        margin-bottom: 50px;
+    }
+}
+@media only screen and (max-width: 767px) {
+    .Login-section .heading-content .main-title-en {
+        font-size: 112.5%;
+        margin-bottom: 40px;
+    }
+}
+@media only screen and (max-width: 575px) {
+    .Login-section .heading-content .main-title-en {
+        font-size: 106.25%;
+        margin-bottom: 30px;
+    }
+}
+/* ------------------------------------------------------ */
+.Login-section .heading-content .login-option {
+    max-width: 400px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.Login-section .heading-content .login-option ul {
+    text-align: center;
+}
+
+.Login-section .heading-content .login-option ul li {
+    margin-bottom: 15px;
+}
+.Login-section .heading-content .login-option ul li:last-child {
+    margin-bottom: 0;
+}
+
+.Login-section .heading-content .login-option ul li a {
+    display: block;
+    font-size: 106.25% ;
+    color: var(--FFFcolor);
+    width: 100%;
+    padding: 15px;
+    border: 1px solid;
+    border-color: var(--FFFcolor);
+    
+    -webkit-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+.Login-section .heading-content .login-option ul li a:hover {
+    background-color: var(--FFFcolor);
+    color: var(--blackcolor);
+}
+@media only screen and (max-width: 1199px) {
+    .Login-section .heading-content .login-option ul li a {
+        font-size: 100%;
+        padding: 14px;
+    }
+}
+@media only screen and (max-width: 991px) {
+    .Login-section .heading-content .login-option ul li a {
+        font-size: 93.75%;
+        padding: 13px;
+    }
+}
+@media only screen and (max-width: 767px) {
+    .Login-section .heading-content .login-option ul li a {
+        font-size: 87.5%;
+        padding: 12px;
+    }
+}
+@media only screen and (max-width: 575px) {
+    .Login-section .heading-content .login-option ul li a {
+        font-size: 87.5%;
+        padding: 11px;
+    }
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;    
+    
+    width: 50%;
+    background-color: rgba(255, 255, 255, 0.9); 
+    -webkit-box-shadow: 0 3px 79px 0 rgba(0, 0, 0, 0.08);
+    box-shadow: 0 3px 79px 0 rgba(0, 0, 0, 0.08);
+}
+@media only screen and (max-width: 991px) {
+    .Login-section .form-content {
+        width: 100%;
+    }
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content .page-switcher {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    
+    padding: 50px 50px 0 50px;    
+}
+@media only screen and (max-width: 575px) {
+    .Login-section .form-content .page-switcher {
+        padding: 40px 15px 0;
+    }
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content .page-switcher .switcher-wrap {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    
+    margin-bottom: 20px;
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content .page-switcher .switcher-wrap li:first-child .switcher-btn {
+    border-left: 1px solid;
+    border-color: var(--blackcolor);
+}
+.Login-section .form-content .page-switcher .switcher-wrap li:first-child .switcher-btn:hover,
+.Login-section .form-content .page-switcher .switcher-wrap li:first-child .switcher-btn.active {
+    border-color: var(--Customize_HRcolor);
+}
+.Login-section .form-content .page-switcher .switcher-wrap li:last-child .switcher-btn {
+    border-right: 1px solid;
+    border-color: var(--blackcolor);
+}
+.Login-section .form-content .page-switcher .switcher-wrap li:last-child .switcher-btn:hover,
+.Login-section .form-content .page-switcher .switcher-wrap li:last-child .switcher-btn.active {
+    border-color: var(--Customize_HRcolor);
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content .page-switcher .switcher-btn {
+    display: block;
+    font-size: 93.75%;
+    color: var(--blackcolor);
+    
+    padding: 9px 27px;
+    border-top: 1px solid;
+    border-bottom: 1px solid;
+    border-color: var(--blackcolor);
+    
+    -webkit-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+.Login-section .form-content .page-switcher .switcher-btn:hover {
+    color: var(--Customize_HRcolor);
+}
+.Login-section .form-content .page-switcher .switcher-btn.active {
+    background-color: var(--Customize_HRcolor);
+    color: var(--FFFcolor);
+    border-color: var(--Customize_HRcolor);
+}
+@media only screen and (max-width: 1199px) {
+    .Login-section .fxt-form-content .page-switcher .switcher-btn {
+        font-size: 93.75%;
+        padding: 8px 25px;
+    }
+}
+@media only screen and (max-width: 991px) {
+    .Login-section .form-content .page-switcher .switcher-btn {
+        font-size: 87.5%;
+        padding: 7px 23px;
+    }
+}
+@media only screen and (max-width: 767px) {
+    .Login-section .form-content .page-switcher .switcher-btn {
+        font-size: 81.25%;
+        padding: 6px 21px;
+    }
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content .page-title {
+    font-size: 200%;
+    font-weight: 700;
+    color: var(--blackcolor);
+    margin-bottom: 15px;    
+}
+@media only screen and (max-width: 1199px) {
+    .Login-section .form-content .page-title {
+        font-size: 187.5%;
+    }
+}
+@media only screen and (max-width: 991px) {
+    .Login-section .form-content .page-title {
+        font-size: 175.0%;
+    }
+}
+@media only screen and (max-width: 767px) {
+    .Login-section .form-content .page-title {
+        font-size: 162.5%;
+    }
+}
+@media only screen and (max-width: 575px) {
+    .Login-section .form-content .page-title {
+        font-size: 150%;
+    }
+}
+@media only screen and (max-width: 479px) {
+    .Login-section .form-content .page-title {
+        font-size: 137.5%;
+    }
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content .description {
+    font-size: 106.25%;
+    font-weight: 500;
+    margin-bottom: 30px;
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content .label {
+    font-size: 112.5%;
+    font-weight: 700;
+    color: #14133b;    
+    margin-bottom: 12px;
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content .main-form {
+    padding: 30px 50px 20px 50px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    height: 100%;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+@media only screen and (max-width: 991px) {
+    .Login-section .form-content .main-form {
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+    }
+}
+@media only screen and (max-width: 575px) {
+    .Login-section .form-content .main-form {
+        padding: 20px 15px 10px;
+    }
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content .inner-wrap {
+    max-width: 440px;
+    width: 100%;
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content .form-group {
+    position: relative;
+    width: 100%;
+    z-index: 1;
+    margin-bottom: 20px;
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content .form-group .field-icon {
+    position: absolute;
+    bottom: 18px;
+    right: 19px;    
+    font-size: 87.5%;
+    color: #a1a1a1;
+    z-index: 1;
+}
+.Login-section .form-content .form-group .field-icon:before {
+    padding: 17px 10px;
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content input.form-control,
+.Login-section .form-content select.form-control {
+    font-size: 93.75%;
+    color: #4d4d4d;
+    /*min-height: 50px;*/
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    border: none;
+    padding: 10px 15px;
+    
+    border-radius: 0;
+    background-color: transparent;
+    border-bottom: 1px solid var(--G777color);    
+    transition: background-color 0.25s ease;
+}
+@media only screen and (max-width: 1199px) {
+    .Login-section .form-content input.form-control,
+    .Login-section .form-content select.form-control {
+        font-size: 93.75%;
+    }
+}
+@media only screen and (max-width: 991px) {
+    .Login-section .form-content input.form-control,
+    .Login-section .form-content select.form-control {
+        font-size: 87.5%;
+    }
+}
+@media only screen and (max-width: 767px) {
+    .Login-section .form-content input.form-control,
+    .Login-section .form-content select.form-control {
+        font-size: 87.5%;
+    }
+}
+@media only screen and (max-width: 575px) {
+    .Login-section .form-content input.form-control,
+    .Login-section .form-content select.form-control {
+        font-size: 87.5%;
+    }
+}
+
+.Login-section .form-content label.i-label {
+    position: relative;
+    top: -36px;
+    font-size: 93.75%;
+    color: #4d4d4d;
+    pointer-events: none;
+    transition: all 0.25s ease;
+    font-weight: 400;
+    margin-bottom: 0;
+}
+@media only screen and (max-width: 1199px) {
+    .Login-section .form-content label.i-label {
+        font-size: 93.75%;
+    }
+}
+@media only screen and (max-width: 991px) {
+    .Login-section .form-content label.i-label {
+        font-size: 87.5%;
+    }
+}
+@media only screen and (max-width: 767px) {
+    .Login-section .form-content label.i-label {
+        top: -36px;
+    }
+}
+@media only screen and (max-width: 575px) {
+    .Login-section .form-content label.i-label {
+        top: -36px;
+    }
+}
+
+/* 輸入框*/
+.Login-section .form-content input.form-control:focus,
+.Login-section .form-content input.form-control:not(:placeholder-shown), 
+.Login-section .form-content input.form-control:-webkit-autofill,
+/* 下拉選項*/
+.Login-section .form-content select.form-control:focus,
+.Login-section .form-content select.form-control:not(:placeholder-shown), 
+.Login-section .form-content select.form-control:-webkit-autofill {
+    border-bottom: 1px solid var(--Customize_color);
+}
+
+/* 輸入框 label 文字 */
+.Login-section .form-content input.form-control:focus + label.i-label,
+.Login-section .form-content input.form-control:not(:placeholder-shown) + label.i-label,
+.Login-section .form-content input.form-control:-webkit-autofill + label.i-label {
+    color: var(--Customize_color);
+    top: -60px;
+}
+@media only screen and (max-width: 1199px) {
+    .Login-section .form-content input.form-control:focus + label.i-label,
+    .Login-section .form-content input.form-control:not(:placeholder-shown) + label.i-label,
+    .Login-section .form-content input.form-control:-webkit-autofill + label.i-label {
+        top: -58px;
+    }
+}
+@media only screen and (max-width: 991px) {
+    .Login-section .form-content input.form-control:focus + label.i-label,
+    .Login-section .form-content input.form-control:not(:placeholder-shown) + label.i-label,
+    .Login-section .form-content input.form-control:-webkit-autofill + label.i-label {
+        top: -53px;
+    }
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content input::-webkit-input-placeholder {
+    color: #acacac;
+    font-size: 100%;
+    font-weight: 400;
+}
+.Login-section .form-content input::-moz-placeholder {
+    color: #acacac;
+    font-size: 100%;
+    font-weight: 400;
+}
+.Login-section .form-content input:-moz-placeholder {
+    color: #acacac;
+    font-size: 100%;
+    font-weight: 400;
+}
+.Login-section .form-content input:-ms-input-placeholder {
+    color: #acacac;
+    font-size: 100%;
+    font-weight: 400;
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content a {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+}
+.Login-section .form-content a .btn-fill {
+    display: inline-block;
+    font-size: 106.25%;
+    font-weight: 500;
+    color: var(--FFFcolor);
+    cursor: pointer;
+    padding: 10px 36px;
+    width: 100%;   
+    
+    /*outline: none;*/
+    border: 1px solid;
+    border-color: var(--Customize_Btn_color);
+    
+    border-radius: 3px;
+    background-color: var(--Customize_Btn_color);
+    -webkit-box-shadow: none;
+    box-shadow: none;
+        
+    -webkit-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+.Login-section .form-content a:hover .btn-fill {
+    background-color: var(--Customize_Btn_HRcolor);
+    border-color: var(--Customize_Btn_HRcolor);
+}
+.Login-section .form-content a:focus .btn-fill {
+	text-decoration: none;    
+	outline: thin dotted;
+    outline: 1px solid var(--a_focusbordercolor);
+	outline-offset: 0px;    
+    color: var(--blackcolor) !important;
+	background-color: var(--a_focuscolor) !important;
+    /*outline: none;*/
+}
+@media only screen and (max-width: 991px) {
+    .Login-section .form-content a .btn-fill {
+        font-size: 100%;
+        padding: 10px 32px;
+    }
+}
+@media only screen and (max-width: 767px) {
+    .Login-section .form-content a .btn-fill {
+        font-size: 93.75%;
+        padding: 9px 28px;
+    }
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content .switcher-description {
+    text-align: center;
+    font-size: 93.75%;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    color: var(--G555color);
+    margin-bottom: 10px;
+}
+@media only screen and (max-width: 1199px) {
+    .Login-section .form-content .switcher-description {
+        font-size: 93.75%;
+    }
+}
+@media only screen and (max-width: 991px) {}
+/* ------------------------------------------------------ */
+.Login-section .form-content .switcher-text {
+    display: inline-block;
+    font-size: 93.75%;
+    font-weight: 500;
+    text-transform: uppercase;
+    text-decoration: underline;
+    color: var(--a_linkcolor);
+    cursor: pointer;
+    
+    padding: 0;
+    margin-bottom: 5px;
+    border: 0;
+    background-color: transparent;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    
+    -webkit-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+@media only screen and (max-width: 1199px) {
+    .Login-section .form-content .switcher-text {
+        font-size: 87.5%;
+    }
+}
+@media only screen and (max-width: 991px) {}
+/* ------------------------------------------------------ */
+.Login-section .form-content .switcher-text:hover {
+    color: var(--a_linkHRcolor);
+}
+.Login-section .form-content .switcher-text:focus {
+    outline: none;
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content .checkbox-wrap {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;    
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;    
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    
+    margin-bottom: 45px;
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content .checkbox-box {
+    margin-bottom: 5px;
+}
+.Login-section .form-content .checkbox-box label {
+    position: relative;
+    font-size: 93.75%;
+    color: var(--G555color);
+    margin-bottom: 0;
+}
+@media only screen and (max-width: 1199px) {
+    .Login-section .form-content .checkbox-box label {
+        font-size: 87.5%;
+    }
+}
+@media only screen and (max-width: 991px) {}
+
+.Login-section .form-content .checkbox-box label:before {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 2px;
+    left: 0;
+    right: 0;
+    border: 1px solid;
+    border-color: var(--G777color);
+    border-radius: 3px;
+    background-color: var(--FFFcolor);
+    
+    -webkit-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+    -o-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+    transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+}
+@media only screen and (max-width: 575px) {
+    .Login-section .form-content .checkbox-box label:before {
+        top: 1px;
+    }
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content .checkbox-box label:after {
+    position: absolute;
+    font-size: 62.5%;
+    color: var(--G555color);
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content .checkbox-box input[type="checkbox"] {
+    display: none;
+}
+.Login-section .form-content .checkbox-box input[type="checkbox"]:checked+label::after {
+    font-family: 'FontAwesome';
+    content: "\f00c";
+    font-weight: 500;
+    color: var(--FFFcolor);
+    left: 0;
+    right: 0;
+    top: 3px;
+    width: 16px;
+    text-align: center;
+}
+.Login-section .form-content .checkbox-box input[type="checkbox"]:checked+label::before {
+    background-color: var(--Customize_color);
+    border-color: var(--Customize_color);
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content .otp-row {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin-bottom: 45px;
+}
+/* ------------------------------------------------------ */
+.Login-section .form-content .otp-row .otp-col {
+    padding: 10px 5px;
+    text-align: center;
+    margin-right: 30px;
+    -ms-flex-preferred-size: 0;
+    flex-basis: 0;
+    -webkit-box-flex: 1;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+}
+.Login-section .form-content .otp-row .otp-col:last-child {
+    margin-right: 0;
+}
+.Login-section .form-content .otp-btn {
+    margin-bottom: 45px;
+}
+/* ------------------------------------------------------ */
+
+/* ------------------------------------------------------ */
+/* ----// Password 眼睛 //-------------------------------- */
+.eye-btn {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    position: absolute;
+    top: 12.5%;
+    right: 0%;
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+i#visibilityBtn {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    width: 24px;
+    height: 24px;
+}
+
+@font-face {
+    font-family: 'Material Symbols Outlined';
+    font-style: normal;
+    font-weight: 100 700;
+    src: url(https://fonts.gstatic.com/s/materialsymbolsoutlined/v222/kJEhBvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oFsI.woff2) format('woff2');
+}
+
+.material-symbols-outlined {
+    display: inline-block;
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 125%;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;    
+    color: var(--G333color);
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -moz-font-feature-settings: 'liga';
+    -moz-osx-font-smoothing: grayscale;
+    
+    padding: 0 12px;
+    background-color: transparent;
+}
+@media only screen and (max-width: 575px) {
+    .material-symbols-outlined {
+        font-size: 112.5%;
+    }
+}
+/* ----// Password 眼睛 //-------------------------------- */
+/* ------------------------------------------------------ */
+
+/* ------------------------------------------------------ */
+/* ----// Footer 區 //----------------------------------- */
+.loginRegister-footer {
+    position: relative;
+    width: 100%;
+    color: var(--blackcolor);
+    font-size: 93.75%;
+    padding: 16px 0 0 0;
+}
+
+.loginRegister-footer .content-wrap {
+    width: 100%;    
+    padding-top: var(--bs-gutter-x, .75rem);
+    padding-right: var(--bs-gutter-x, .75rem);
+    padding-left: var(--bs-gutter-x, .75rem);
+    padding-bottom: var(--bs-gutter-x, .75rem);
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.loginRegister-footer ul.nav {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.loginRegister-footer ul.nav li.nav-item,
+.loginRegister-footer ul.nav li.nav-item > a {
+    font-size: 93.75%;
+    color: var(--blackcolor);
+    list-style-type: none;
+    border: none !important;
+}
+
+.loginRegister-footer p,
+.loginRegister-footer p > a {
+    font-size: 93.75%;
+    color: var(--blackcolor);
+}
+
+@media only screen and (max-width: 575px) {
+    .loginRegister-footer {
+        font-size: 87.5%;
+        color: var(--FFFcolor);        
+    }
+    
+    .loginRegister-footer .content-wrap {
+        background-color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .loginRegister-footer ul.nav li.nav-item,
+    .loginRegister-footer ul.nav li.nav-item > a,
+    .loginRegister-footer p,
+    .loginRegister-footer p > a {
+        font-size: 87.5%;
+        color: var(--blackcolor) !important;
+    }
+}
+/* ----// Footer 區 //----------------------------------- */
+/* ------------------------------------------------------ */
+
+/* ------------------------------------------------------ */
+/* ----// 忘記密碼 彈跳視窗 區 //--------------------------- */
+.forget_password_modal.modal {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 1055;
+	display: none;
+	width: 100%;
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+	outline: 0;
+	z-index: 99902;
+}
+
+.forget_password_modal .modal-content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	color: var(--blackcolor);
+	pointer-events: auto;
+	background-color: var(--FFFcolor);
+	background-clip: padding-box;
+	border: 1px solid rgba(0, 0, 0, 0.175);
+	border-radius: var(--bs-modal-border-radius);
+	outline: 0;
+}
+/* ------------------------------------------------------ */
+.forget_password_modal .modal-header {
+	display: flex;
+	flex-shrink: 0;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem 1.75rem;
+	border-bottom: 1px solid #dee2e6;
+	border-top-left-radius: calc(0.5rem - (1px));
+	border-top-right-radius: calc(0.5rem - (1px));
+}
+
+.forget_password_modal .modal-header > .modal-title {
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: var(--blackcolor);
+	margin-bottom: 0;
+}
+
+.forget_password_modal .modal-header > .btn-close {
+	padding: calc(1rem * 0.5) calc(1rem * 0.5);
+	margin: calc(-.5 * 1rem) calc(-.5 * 1rem) calc(-.5 * 1rem) auto;
+}
+/* ------------------------------------------------------ */
+.forget_password_modal .modal-body {
+	position: relative;
+	flex: 1 1 auto;
+	/*padding: 1rem;*/
+	padding: 1rem 1.75rem;
+}
+/* ------------------------------------------------------ */
+/* 輸入框 ALL */
+.forget_password_modal .modal-body > .form-group {
+	position: relative;
+	width: 100%;
+	z-index: 1;
+	margin-top: 20px;
+	margin-bottom: 0;
+}
+
+
+.forget_password_modal .modal-body > .form-control:not(.form-control-lg):not(.form-control-sm) {
+	height: -webkit-calc(1.5em + .75rem + 3px);
+	height: -moz-calc(1.5em + .75rem + 3px);
+	height: calc(1.5em + .75rem + 3px);
+}
+
+.forget_password_modal .modal-body > .form-group  > input.form-control {
+    font-size: 93.75%;
+    color: #4d4d4d;
+    /*min-height: 50px;*/
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    border: none;
+    padding: 10px 15px;
+    
+    border-radius: 0;
+    background-color: transparent;
+    border-bottom: 1px solid var(--G777color);    
+    transition: background-color 0.25s ease;
+}
+
+.forget_password_modal .modal-body > .form-group  > label.i-label {
+    position: relative;
+    top: -36px;
+    font-size: 93.75%;
+    color: #4d4d4d;
+    pointer-events: none;
+    transition: all 0.25s ease;
+    font-weight: 400;
+    margin-bottom: 0;
+}
+
+/* 輸入框 input */
+.forget_password_modal .modal-body > .form-group  > input.form-control:focus,
+.forget_password_modal .modal-body > .form-group  > input.form-control:not(:placeholder-shown), 
+.forget_password_modal .modal-body > .form-group  > input.form-control:-webkit-autofill {
+    border-bottom: 1px solid var(--Customize_color);
+}
+
+/* 輸入框 label 文字 */
+.forget_password_modal .modal-body > .form-group  > input.form-control:focus + label.i-label,
+.forget_password_modal .modal-body > .form-group  > input.form-control:not(:placeholder-shown) + label.i-label,
+.forget_password_modal .modal-body > .form-group  > input.form-control:-webkit-autofill + label.i-label {
+    color: var(--Customize_color);
+    top: -60px;
+}
+@media only screen and (max-width: 1199px) {
+    .forget_password_modal .modal-body > .form-group  > input.form-control:focus + label.i-label,
+    .forget_password_modal .modal-body > .form-group  > input.form-control:not(:placeholder-shown) + label.i-label,
+    .forget_password_modal .modal-body > .form-group  > input.form-control:-webkit-autofill + label.i-label {
+        top: -58px;
+    }
+}
+@media only screen and (max-width: 991px) {
+    .forget_password_modal .modal-body > .form-group  > input.form-control:focus + label.i-label,
+    .forget_password_modal .modal-body > .form-group  > input.form-control:not(:placeholder-shown) + label.i-label,
+    .forget_password_modal .modal-body > .form-group  > input.form-control:-webkit-autofill + label.i-label {
+        top: -53px;
+    }
+}
+/* 輸入框 ALL */
+/* ------------------------------------------------------ */
+.forget_password_modal .modal-footer {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-shrink: 0;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	/*padding: calc(1rem - 0.5rem * .5);*/
+	padding: calc(1rem - 0.5rem * .5) 1.75rem;
+	background-color: var(--FFFcolor);
+	border-top: 1px solid #dee2e6;
+	border-top-left-radius: calc(0.5rem - (1px));
+	border-top-right-radius: calc(0.5rem - (1px));
+}
+
+.forget_password_modal .modal-footer > * {
+	margin: .25rem;
+}
+
+.forget_password_modal .modal-footer .btn-fill {
+	display: inline-block;
+	font-size: 106.25%;
+	font-weight: 500;
+	color: var(--FFFcolor);
+	cursor: pointer;
+	padding: 0.5rem 1.5rem;
+	width: 100%;
+	outline: none;
+	border: 1px solid;
+	border-color: var(--Customize_color);
+	border-radius: 3px;
+	background-color: var(--Customize_color);
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	-webkit-transition: all 0.3s ease-in-out;
+	-o-transition: all 0.3s ease-in-out;
+	transition: all 0.3s ease-in-out;
+}
+/* ----// 忘記密碼 彈跳視窗 區 //--------------------------- */
+/* ------------------------------------------------------ */
+
+/* ============================================= */
+/* ------ 新設計登入頁 --------------------------- */
+/* ============================================= */
+
+
+
+
