@@ -36,22 +36,22 @@ const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] => {
             ],
         },
         {
-            ProgId: SpecPGID.SpecUSR, Title: "USR", DefaultActionCode: "List", IconClassName: "fas fa-university",
+            ProgId: SpecPGID.SpecUSR, Title: "計畫成果版型", DefaultActionCode: "List", IconClassName: "fas fa-university",
             Actions: [
                 {
-                    ActionCode: "List", Title: "研究計畫列表", RoutePath: "List",
+                    ActionCode: "List", Title: "計畫成果列表", RoutePath: "List",
                     elementFactory: (ctx) => <Server_SpecUSR_List_Comp title="研究計劃列表" theme={ctx.theme} lang={ctx.lang} />,
                 },
                 {
-                    ActionCode: "Form", Title: "研究計畫維護", RoutePath: "Form/:internalId?",
+                    ActionCode: "Form", Title: "計畫成果維護", RoutePath: "Form/:internalId?",
                     elementFactory: (ctx) => <Server_USRProjFormComp theme={ctx.theme} lang={ctx.lang} />,
                 },
                 {
-                    ActionCode: SpecPGID.SpecCategory, Title: "研究計畫類別", RoutePath: `${SpecPGID.SpecCategory}/:internalId?`,
+                    ActionCode: SpecPGID.SpecCategory, Title: "計畫成果類別", RoutePath: `${SpecPGID.SpecCategory}/:internalId?`,
                     elementFactory: (ctx) => <Server_SpecCategoryListFormComp progId={SpecPGID.SpecUSR} title="類別" theme={ctx.theme} lang={ctx.lang} />,
                 },
                 {
-                    ActionCode: "Tag", Title: "研究計畫標籤", RoutePath: "Tag/:internalId?",
+                    ActionCode: "Tag", Title: "計畫成果標籤", RoutePath: "Tag/:internalId?",
                     elementFactory: (ctx) => <TagListFormComp progId={SpecPGID.SpecUSR} title="標籤" theme={ctx.theme} lang={ctx.lang} />,
                 },
             ],

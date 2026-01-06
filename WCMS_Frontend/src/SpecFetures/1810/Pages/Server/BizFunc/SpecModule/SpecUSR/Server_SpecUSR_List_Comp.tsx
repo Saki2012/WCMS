@@ -4,7 +4,7 @@ import { useMemo, useState } from "react"
 import { useLocation } from 'react-router-dom';
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp"
 import type { components } from "@/types/api"
-import { SpecUSRSetFields, SpecUSRModelFields, SpecUSRDetailFields } from "@/types/SchemaFields";
+import { SpecUSRSetFields, SpecUSRModelFields, SpecUSRDetailFields, SpecUSRFileFields } from "@/types/SchemaFields";
 import { useFormatSpecCategoriesName, useSpecCateListData } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Hook"
 import { useFormatTagsName, useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook"
 import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions"
@@ -15,6 +15,8 @@ import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
 import { SpecPGID } from "@/SpecFetures/1810/Hooks/Common/SpecProgId";
+import type { SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
+import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"]
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
@@ -23,22 +25,22 @@ type TagSet = components["schemas"]["TagSet_DTO"]
  */
 export const Server_SpecUSR_List_Comp = (prop: { title: string; theme: IBETheme; lang: Lang }) => {
     const [kw, setKw] = useState<string>("");
+    const searchCompProp: SearchBarProps = { title: "計畫成果搜尋", subTitle: "搜尋計畫成果 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
     const pathname = useLocation().pathname;
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
     const provider = useMemo(() => SpecUSRProvider(), []);
-    const usePageList = useSpecUSRProjList(provider, prop.lang, kw);
+    const useDataList = useSpecUSRProjList(provider, prop.lang, kw);
     const useCategory = useSpecCateListData(SpecPGID.SpecUSR, prop.lang);
     const useTag = useTagListData(SpecPGID.SpecUSR, prop.lang);
-    const actions = useActions(dirUrl, provider, undefined, undefined, usePageList.refetchCurrent)
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(usePageList.gridProps, usePageList.rawData, useCategory.rawData, useTag.rawData, actions); }, [usePageList.gridProps, usePageList.rawData, useCategory.rawData, useTag.rawData, actions]);
-    // const searchCompProp: SearchBarProps = { title: "計畫成果版型搜尋", subTitle: "搜尋計畫成果版型 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
-    const isLoading = [usePageList.isLoading, useCategory.isLoading, useTag.isLoading];
-    const errors = [usePageList.error, useCategory.error, useTag.error];
-    return (<ListComp Title={prop.title} Theme={prop.theme} LoadingList={isLoading} ErrorList={errors} Actions={actions} GridData={adjustedGrid} ></ListComp>);
+    const actions = useActions(dirUrl, provider, undefined, undefined, useDataList.refetchCurrent)
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(prop.lang, useDataList.gridProps, useDataList.rawData, useCategory.rawData, useTag.rawData, actions); }, [prop.lang, useDataList.gridProps, useDataList.rawData, useCategory.rawData, useTag.rawData, actions]);
+    const isLoading = [useDataList.isLoading, useCategory.isLoading, useTag.isLoading];
+    const errors = [useDataList.error, useCategory.error, useTag.error];
+    return (<ListComp Title={prop.title} Theme={prop.theme} LoadingList={isLoading} ErrorList={errors} Actions={actions} GridData={adjustedGrid} SearchBar={searchCompProp}></ListComp>);
 }
 
 /** 動態添加每行的動作功能 */
-const SetAdjustFunction = (gridProps: GridProps, rawData: SpecUSRSet[], cateData: SpecCategorySet[], tagData: TagSet[], actions: UseActionsResult): GridProps => {
+const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: SpecUSRSet[], cateData: SpecCategorySet[], tagData: TagSet[], actions: UseActionsResult): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
@@ -48,10 +50,10 @@ const SetAdjustFunction = (gridProps: GridProps, rawData: SpecUSRSet[], cateData
         if (statusCell && typeof statusCell.content === 'number') { statusCell.content = GetDataStatusContent(statusCell.content); }
         const categoryCell = row.cells.find(p => p.col.key === SpecUSRModelFields.CategoryId);
         const rawCatId = rawData?.[index]?.SpecUSR?.CategoryId ?? categoryCell?.content?.toString() ?? "";
-        if (categoryCell) { categoryCell.content = useFormatSpecCategoriesName(rawCatId, cateData); }
+        if (categoryCell) { categoryCell.content = useFormatSpecCategoriesName(rawCatId, cateData, lang); }
         const tagCell = row.cells.find(p => p.col.key === SpecUSRModelFields.Tags);
         const rawTagId = rawData?.[index]?.SpecUSR?.Tags ?? tagCell?.content?.toString() ?? "";
-        if (tagCell) { tagCell.content = useFormatTagsName(rawTagId, tagData); }
+        if (tagCell) { tagCell.content = useFormatTagsName(rawTagId, tagData, lang); }
         const internalId = rawData?.[index]?.SpecUSR?.InternalId ?? "";
         const newCell: RowCell = { col: adjustCol, content: (<GridCol_Toolbar key={internalId} action={actions} internalId={internalId} />) };
         return { ...row, cells: [...row.cells, newCell] };
@@ -70,8 +72,17 @@ const GetDataStatusContent = (contentStatus: number): React.ReactNode => {
 };
 
 const useSpecUSRProjList = (provider: IDataProvider<SpecUSRSet>, lang: Lang, query: string) => {
-    // let condition: string = `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Lang} = ${lang}`;
-    // if (!!query) condition = LibMerge(" And ", false, condition, `${AnnouncementFields._AnnouncementDetail}.${SpecUSRDetailFields.Title} Like ${query}`)
+    let condition: string = `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Lang} = ${lang}`;
+    if (!!query) {
+        let queryCdt = ''
+        if (/^\d+$/.test(query.trim())) {//如果純數字，就增加條件
+            queryCdt = LibMerge(" Or ", false, queryCdt, `${SpecUSRFileFields._SpecUSRDetail}.${SpecUSRDetailFields.Year} = ${query}`)
+            queryCdt = LibMerge(" Or ", false, queryCdt, `${SpecUSRFileFields._SpecUSRDetail}.${SpecUSRDetailFields.AcademicYear} = ${query}`)
+        }
+        queryCdt = LibMerge(" Or ", false, queryCdt, `${SpecUSRFileFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectName} Like ${query}`)
+        queryCdt = LibMerge(" Or ", false, queryCdt, `${SpecUSRFileFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectConcept} Like ${query}`)
+        condition = LibMerge(" And ", false, condition, `(${queryCdt})`)
+    }
     return useFetchGridListData<SpecUSRSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
@@ -104,7 +115,7 @@ const useSpecUSRProjList = (provider: IDataProvider<SpecUSRSet>, lang: Lang, que
                 SpecUSRModelFields.ModifyTime,
                 SpecUSRModelFields.InternalId,
             ],
-            Condition: "",
+            Condition: condition,
             OrderBy: [{ Col: SpecUSRModelFields.CreateTime, Desc: true }],
             PageNumber: page,
             PageSize: 10,

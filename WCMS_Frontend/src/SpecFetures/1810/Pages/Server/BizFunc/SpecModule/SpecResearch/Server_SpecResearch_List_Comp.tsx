@@ -16,6 +16,7 @@ import { SpecResearchDetailModelFields, SpecResearchModelFields, SpecResearchSet
 import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { SpecPGID } from "@/SpecFetures/1810/Hooks/Common/SpecProgId";
 import { useFormatTagsName, useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
+import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"]
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
@@ -26,18 +27,18 @@ type TagSet = components["schemas"]["TagSet_DTO"]
  */
 export const Server_ResearchProjListComp = (prop: { title: string; theme: IBETheme; lang: Lang }) => {
     const [kw, setKw] = useState<string>("");
+    const searchCompProp: SearchBarProps = { title: "研究計畫搜尋", subTitle: "搜尋研究計畫 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
     const pathname = useLocation().pathname;
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
     const provider = useMemo(() => SpecResearchProvider(), []);
-    const usePageList = useSpecResearchList(provider, prop.lang, kw);
+    const useDataList = useSpecResearchList(provider, prop.lang, kw);
     const useCategory = useSpecCateListData(SpecPGID.SpecResearch, prop.lang);
     const useTagData = useTagListData(SpecPGID.SpecResearch, prop.lang);
-    const actions = useActions(dirUrl, provider, undefined, undefined, usePageList.refetchCurrent)
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(prop.lang, usePageList.gridProps, usePageList.rawData, useCategory.rawData, useTagData.rawData, actions); }, [usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions]);
-    const searchCompProp: SearchBarProps = { title: "研究計畫搜尋", subTitle: "搜尋研究計畫...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
-    const isLoading = [usePageList.isLoading, useCategory.isLoading];
-    const errors = [usePageList.error, useCategory.error];
-    return (<ListComp Title={prop.title} Theme={prop.theme} LoadingList={isLoading} ErrorList={errors} Actions={actions} GridData={adjustedGrid} ></ListComp>);
+    const actions = useActions(dirUrl, provider, undefined, undefined, useDataList.refetchCurrent)
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(prop.lang, useDataList.gridProps, useDataList.rawData, useCategory.rawData, useTagData.rawData, actions); }, [useDataList.gridProps, useDataList.rawData, useCategory.rawData, actions]);
+    const isLoading = [useDataList.isLoading, useCategory.isLoading];
+    const errors = [useDataList.error, useCategory.error];
+    return (<ListComp Title={prop.title} Theme={prop.theme} LoadingList={isLoading} ErrorList={errors} Actions={actions} GridData={adjustedGrid} SearchBar={searchCompProp}></ListComp>);
 }
 
 /** 動態添加每行的動作功能 */
@@ -72,7 +73,21 @@ const GetDataStatusContent = (contentStatus: number): React.ReactNode => {
 };
 
 const useSpecResearchList = (provider: IDataProvider<SpecResearchSet>, lang: Lang, query: string) => {
-    let condition: string = "";
+    let condition: string = `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Lang} = ${lang}`;
+    if (!!query) {
+        let queryCdt = ''
+        if (/^\d+$/.test(query.trim())) {//如果純數字，就增加條件
+            queryCdt = LibMerge(" Or ", false, queryCdt, `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Year} = ${query}`)
+            queryCdt = LibMerge(" Or ", false, queryCdt, `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.AcademicYear} = ${query}`)
+        }
+        queryCdt = LibMerge(" Or ", false, queryCdt, `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.ProjectName} Like ${query}`)
+        queryCdt = LibMerge(" Or ", false, queryCdt, `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.PaperTitle} Like ${query}`)
+        queryCdt = LibMerge(" Or ", false, queryCdt, `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.CooperationProject} Like ${query}`)
+        queryCdt = LibMerge(" Or ", false, queryCdt, `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Courses} Like ${query}`)
+        condition = LibMerge(" And ", false, condition, `(${queryCdt})`)
+    }
+
+
     return useFetchGridListData<SpecResearchSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
