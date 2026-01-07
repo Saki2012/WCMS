@@ -131,9 +131,9 @@ const MainMenu = (prop: { lang: Lang; site: INormSite; style: IFETheme }) => {
                                 <LangLink className="nav-link" to="Sitemap" target="_self" title="網站導覽" onClick={() => closeMenu()}>網站導覽</LangLink>
                             </li>
 
-                            <li className={clsx("nav-item")}>
+                            {/* <li className={clsx("nav-item")}>
                                 <SpecLangSwitchBtn site={prop.site} />
-                            </li>
+                            </li> */}
                         </ul>
 
 

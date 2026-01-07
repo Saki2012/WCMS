@@ -1,9 +1,9 @@
 :root {
-	--Customize_color: #906323;
-	--Customize_HRcolor: #906323;
-	--Customize_ACcolor: #906323;
-	--Customize_FCcolor: #906323;
-	--Customize_Footercolor: #00305c;
+	--Customize_color: #0B4476;
+	--Customize_HRcolor: #0B4476;
+	--Customize_ACcolor: #0B4476;
+	--Customize_FCcolor: #0B4476;
+	--Customize_Footercolor: #0B4476;
 	
 	/* =================================== */
 	
@@ -12,9 +12,9 @@
 	
 	/* =================================== */
 	
-	--Customize_Btn_color: #a05b42;
-	--Customize_Btn_HRcolor: #a05b42;
-	--Customize_border_color: #00305c;
+	--Customize_Btn_color: #0B4476;
+	--Customize_Btn_HRcolor: #0B4476;
+	--Customize_border_color: #0B4476;
 
 	/* =================================== */
 	
@@ -26,5 +26,5 @@
 
 /* 登入 + 註冊 */
 :root {
-	--Customize__shape_color: #75501c;  /*#906323 - HSB-(B減10%)*/
+	--Customize__shape_color: #00305C;  /*#906323 - HSB-(B減10%)*/
 }

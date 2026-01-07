@@ -23,6 +23,7 @@ type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
  */
 export const Server_AnnouncementListComp = (prop: { title: string; theme: IBETheme; lang: Lang }) => {
     const [kw, setKw] = useState<string>("");
+    const searchCompProp: SearchBarProps = { title: "公告搜尋", subTitle: "搜尋公告 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
     const pathname = useLocation().pathname;
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
     const provider = useMemo(() => AnnouncementProvider(), []);
@@ -32,7 +33,6 @@ export const Server_AnnouncementListComp = (prop: { title: string; theme: IBEThe
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(prop.lang, useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, actions); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, actions]);
     const isLoading = useMemo(() => [useAnnounceList.isLoading, useCategory.isLoading], [useAnnounceList.isLoading, useCategory.isLoading]);
     const errors = useMemo(() => [useAnnounceList.error, useCategory.error], [useAnnounceList.error, useCategory.error]);
-    const searchCompProp: SearchBarProps = { title: "公告搜尋", subTitle: "搜尋公告 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
     return (<ListComp Title={prop.title} Theme={prop.theme} LoadingList={isLoading} ErrorList={errors} Actions={actions} GridData={adjustedGrid} SearchBar={searchCompProp}></ListComp>);
 }
 

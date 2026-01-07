@@ -309,10 +309,10 @@
   <data name="SpecUSR_Sort" xml:space="preserve">
     <value>排序編號</value>
   </data>
-	<data name="SpecResearch_PlanContent" xml:space="preserve">
+  <data name="SpecResearch_PlanContent" xml:space="preserve">
     <value>計畫內容簡介</value>
   </data>
-    <data name="SpecUSR_Url" xml:space="preserve">
+  <data name="SpecUSR_Url" xml:space="preserve">
     <value>相關網址</value>
   </data>
   <data name="SpecUSR_UrlDescription" xml:space="preserve">
@@ -330,7 +330,16 @@
   <data name="SpecUSR_ExecutionStrategy" xml:space="preserve">
     <value>執行策略</value>
   </data>
-    <data name="SpecResearch_Professor" xml:space="preserve">
+  <data name="SpecResearch_Professor" xml:space="preserve">
     <value>指導教授</value>
+  </data>
+  <data name="SpecCategory" xml:space="preserve">
+    <value>計畫類別</value>
+  </data>
+  <data name="SpecResearch" xml:space="preserve">
+    <value>研究計畫</value>
+  </data>
+  <data name="SpecUSR" xml:space="preserve">
+    <value>計畫成果版型</value>
   </data>
 </root>

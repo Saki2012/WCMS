@@ -9,7 +9,7 @@ import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { Classic_FETheme } from "../Theme/ClassicTheme_Clsx";
 import TemplateHub from "@/Features/Pages/Server/Scaffold/PreviewFrame/TemplateHub.tsx";
 import { useLang } from "@/SysCore/i18n/LangContext";
-import { SITEMAP_NODE_ID, SITEMAP_SEGMENT, SitemapNode } from "../BizFunc/MainPage/Sitemap";
+import { SITEMAP_NODE_ID, SITEMAP_SEGMENT, SitemapNode } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap";
 
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"]
 type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"]
@@ -304,8 +304,5 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
                     ...skeletonRoots.map(toRoute),
                 ]
         },
-        {
-
-        }
     ];
 };

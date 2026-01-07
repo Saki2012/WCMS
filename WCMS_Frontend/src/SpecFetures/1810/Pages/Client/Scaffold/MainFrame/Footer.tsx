@@ -27,23 +27,22 @@ const getNavByLang = (lang: Lang) => {
 
     const enLeft: NavItem[] = [
         {
-            Title: "About ORD", URL: "/Front/About-ORD-en/Introduction-en/Page.aspx?id=c%2BF93j2hZ7c=", TitleAttr: "About ORD",
+            Title: "About ORD", URL: "/About-ORD-en/Introduction-en", TitleAttr: "About ORD",
         },
         {
-            Title: "Division of Research & Planning", URL: "/Front/Division-Planning-en/Page.aspx?id=wDcP3gM2kwk=", TitleAttr: "Division of Research & Planning",
+            Title: "Division of Research & Planning", URL: "/Division-Planning-en", TitleAttr: "Division of Research & Planning",
         },
         {
-            Title: "Division of Academic Development", URL: "/Front/Division-Academic-en/Page.aspx?id=2n7pweX8HNU=", TitleAttr: "Division of Academic Development",
+            Title: "Division of Academic Development", URL: "/Division-Academic-en", TitleAttr: "Division of Academic Development",
         },
         {
-            Title: "Industry Collaboration and Incubation Center", URL: "/Front/IIC-en/Page.aspx?id=4EHHw0fqnw0=",
-            TitleAttr: "Industry Collaboration and Incubation Center (opens in new tab)", Target: "_blank", Rel: "noopener noreferrer",
+            Title: "Industry Collaboration and Incubation Center", URL: "/IIC-en", TitleAttr: "Industry Collaboration and Incubation Center",
         },
         {
-            Title: "Think Tank for Taiwan Cultural Policy", URL: "/Front/TTTCP-en/Page.aspx?id=AoeUjRvj9t8=", TitleAttr: "Think Tank for Taiwan Cultural Policy",
+            Title: "Think Tank for Taiwan Cultural Policy", URL: "/TTTCP-en", TitleAttr: "Think Tank for Taiwan Cultural Policy",
         },
         {
-            Title: "Office for USR Project Promotion", URL: "/Front/USR-en/Page.aspx?id=Kv%2BpOrwhr4c=", TitleAttr: "Office for USR Project Promotion",
+            Title: "Office for USR Project Promotion", URL: "/USR-en", TitleAttr: "Office for USR Project Promotion",
         },
     ];
     const enRight: NavItem[] = []; // NOTE: 先留空，保持版面結構一致（右欄不塞連結）
@@ -118,16 +117,9 @@ export const Footer = (props: { lang: Lang }) => {
                                                                 {nav.left.map((x) => {
                                                                     const target = x.Target ?? "_self";
                                                                     const rel = x.Rel ?? (target === "_blank" ? "noopener noreferrer" : undefined);
-
                                                                     return (
                                                                         <li key={`${x.Title}-${x.URL}`}>
-                                                                            <LangNavLink
-                                                                                to={x.URL}
-                                                                                tabIndex={5}
-                                                                                title={x.TitleAttr ?? x.Title}
-                                                                                target={target}
-                                                                                rel={rel}
-                                                                            >
+                                                                            <LangNavLink to={x.URL} tabIndex={5} title={x.TitleAttr ?? x.Title} target={target} rel={rel}>
                                                                                 {x.Title}
                                                                             </LangNavLink>
                                                                         </li>
@@ -142,9 +134,9 @@ export const Footer = (props: { lang: Lang }) => {
                                                                 <ul className="list">
                                                                     {nav.right.map((x) => (
                                                                         <li key={`${x.Title}-${x.URL}`}>
-                                                                            <a href={x.URL} tabIndex={5} title={x.TitleAttr ?? x.Title}>
+                                                                            <LangNavLink to={x.URL} tabIndex={5} title={x.TitleAttr ?? x.Title}>
                                                                                 {x.Title}
-                                                                            </a>
+                                                                            </LangNavLink>
                                                                         </li>
                                                                     ))}
                                                                 </ul>
