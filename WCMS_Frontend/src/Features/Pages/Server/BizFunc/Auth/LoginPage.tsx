@@ -1,8 +1,10 @@
 // Features/Server/Pages/LoginPage.tsx
-import { useState } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { AuthAPI } from '@/SysCore/Utils/API/AuthClient';
 import { LangLink } from '@/SysCore/i18n/LangLink';
+import { loadLoginParticles } from '@/Features/Assets/LoadFeaturesJs';
+
 const logoModules = import.meta.glob('SpecFeature/Assets/Server/login_logo_PC.{svg,png,jpg,jpeg,gif,webp}', { eager: true, as: 'url', },) as Record<string, string>;
 // 只拿第一個（實務上這個 pattern 只會 match 一個檔案）
 const logImg = Object.values(logoModules)[0] ?? '';
@@ -58,7 +60,7 @@ export default function LoginPage() {
       setSubmitting(false);
     }
   };
-
+  useEffect(() => void loadLoginParticles(), [])
   return (
     <main id="main" aria-labelledby="loginTitle">
       {/* SEO：登入頁不需索引 */}
