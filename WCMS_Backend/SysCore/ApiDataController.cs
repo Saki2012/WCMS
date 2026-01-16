@@ -133,7 +133,6 @@ namespace WCMS.SysCore
             }
             return true;
         }
-       
         private static FuncAction GetRequiredAct(ActionExecutingContext context)
         {
             if (context.ActionDescriptor is not ControllerActionDescriptor cad) return FuncAction.None;
@@ -327,7 +326,7 @@ namespace WCMS.SysCore
         {
             if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
             AddListTags();
-            var result = await Service.BizQueryTotalCounts(queryCondition.Fields, queryCondition.Condition);
+            var result = await Service.BizQueryTotalCounts(queryCondition.Condition);
             var response = new ApiResponse<int>() { Data = [result], SysMessage = Message.Messages };
             return Ok(response);
         }

@@ -27,6 +27,7 @@ import { useNow } from "@/SysCore/Utils/Library/LibHook";
 import DefaultEventImg from "@/SpecFetures/1810/Assets/Custom/DefaultEventPic_940x1330.jpg"
 import type { IAnnouncementListProps } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList";
 import { LangLink } from "@/SysCore/i18n/LangLink";
+import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
@@ -250,7 +251,11 @@ const PictureList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridPro
 }
 /** 清單式公告 */
 const GridList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
-    return (<Grid gridData={prop.GridData} style={prop.Theme.GridView} pageStyle={prop.Theme.Paginator}></Grid>)
+    return (
+        <>
+            <OperationGuideHelp_Comp />
+            <Grid gridData={prop.GridData} style={prop.Theme.GridView} pageStyle={prop.Theme.Paginator} />
+        </>)
 }
 /** QA列表式 */
 const QAList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps }) => {

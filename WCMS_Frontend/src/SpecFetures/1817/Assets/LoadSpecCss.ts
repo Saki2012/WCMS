@@ -5,3 +5,4 @@ import "./Client/Content/css_import/assets/owlcarousel_2/owl.carousel_v2.3.4.min
 import "./Client/Content/css_import/assets/swiper-11.1.14/swiper-bundle.min.css";
 import "./Client/Content/css_import/assets/ekko-lightbox/ekko-lightbox.css";
 import "./Client/Content/css_import/assets/venobox-master/dist/venobox.min.css";
+import "./Custom/SpecClientCss.css";

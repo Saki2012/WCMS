@@ -182,7 +182,7 @@ namespace WCMS
                     o.AddServerHeader = false; // 移除 Server 標頭（弱掃友好）
                     o.Limits.MaxRequestHeadersTotalSize = 64 * 1024;      // 64KB headers
                     o.Limits.RequestHeadersTimeout = TimeSpan.FromSeconds(15);
-                    if (builder.Environment.IsProduction()) o.ListenLocalhost(5624);// 後端只聽本機（IIS/Nginx 反向 Proxy）
+                    //if (builder.Environment.IsProduction()) o.ListenLocalhost(5624);// 後端只聽本機（IIS/Nginx 反向 Proxy）
                     // 視流量特性微調
                     // o.Limits.MaxConcurrentConnections = 1000;
                     // o.Limits.MaxRequestBodySize = 100 * 1024 * 1024;   // 若要全域限制上傳
@@ -209,10 +209,17 @@ namespace WCMS
 
                 var cs = cfg.GetConnectionString("SqlConnection");
                 if (string.IsNullOrWhiteSpace(cs)) throw new InvalidOperationException("Missing ConnectionStrings:SqlConnection. 請在 appsettings.* 或使用環境變數/Secrets 設定。");
-                services.AddDbContextPool<ApplicationDbContext>(opt =>
+#if DEBUG
+                services.AddSingleton<EfSqlConsoleInterceptor>();
+#endif
+
+                services.AddDbContextPool<ApplicationDbContext>((sp,opt) =>
                 {
                     opt.UseSqlServer(cs);
-                    opt.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+#if DEBUG
+                    opt.AddInterceptors(sp.GetRequiredService<EfSqlConsoleInterceptor>());
+                    opt.EnableDetailedErrors();
+#endif
                 });
             }
             /// <summary>
@@ -568,9 +575,43 @@ namespace WCMS
                     }
                     else
                     {
-                        // 非 API（真的有 HTML 才需要）
-                        // 先保留你現有策略，之後有需要再做 nonce 化
-                        ctx.Response.Headers.ContentSecurityPolicy = "default-src 'self'; img-src 'self' data:; style-src 'self'";
+                        // 非 API（有 HTML/前台頁面）
+                        // NOTE: 用 nonce 放行「你自己寫的 inline script」，避免 script-src 使用 unsafe-inline
+                        var nonceBytes = System.Security.Cryptography.RandomNumberGenerator.GetBytes(16);
+                        var nonce = Convert.ToBase64String(nonceBytes);
+
+                        // NOTE: 讓後續輸出 HTML 的地方可以取到 nonce（例如把它塞到 <script nonce="...">）
+                        ctx.Items["csp-nonce"] = nonce;
+
+                        // NOTE: Google Translate 會用到 translate-pa 子網域
+                        const string googleTranslateScripts =
+                            "https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com";
+
+                        const string googleTranslateConnect =
+                            "https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com";
+
+                        ctx.Response.Headers.ContentSecurityPolicy =
+                            "default-src 'self'; " +
+                            // script：僅允許 self + nonce + Google translate 相關來源
+                            $"script-src 'self' 'nonce-{nonce}' {googleTranslateScripts}; " +
+                            $"script-src-elem 'self' 'nonce-{nonce}' {googleTranslateScripts}; " +
+
+                            // style：先保留 unsafe-inline，避免第三方 widget 插入 inline style 造成爆炸
+                            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com; " +
+                            "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com; " +
+
+                            // img：保留你原本放行的來源（含 data/blob/https）
+                            "img-src 'self' data: blob: https: https://www.gstatic.com https://www.google.com https://i.ytimg.com https://img.youtube.com; " +
+
+                            // font：字型
+                            "font-src 'self' data: https://fonts.gstatic.com; " +
+
+                            // connect：XHR/fetch 需要放行（translate-pa 有機會走這裡）
+                            $"connect-src 'self' {googleTranslateConnect}; " +
+
+                            "frame-ancestors 'self'; " +
+                            "frame-src 'self' https://translate.google.com https://www.youtube.com https://www.youtube-nocookie.com https://w.soundcloud.com; " +
+                            "object-src 'none'; base-uri 'self'; form-action 'self';";
                     }
 
                     if (app.Environment.IsProduction() && beHosts.Count > 0)

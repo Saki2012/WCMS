@@ -1,0 +1,170 @@
+/* ===============================
+   Spec1819 - Layout / Author Cards
+   目標：
+   - PC：3 欄滿版等比例
+   - 平板：2 欄
+   - 手機：1 欄
+   - 卡片寬度不要看起來太窄
+   =============================== */
+
+/* 讓這一段區塊確實吃滿容器寬度（避免外層有寬度限制時看起來很窄） */
+.JJ_main_contentDIV,
+.JJ_main_contentDIV .row_item_group,
+.Uncat {
+  width: 100%;
+}
+
+/* 如果有用到 Uncat_no_ls，保險清掉預設 list 間距 */
+.Uncat_no_ls {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* ===== Grid 容器 ===== */
+.AuthorCardGrid {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* ===== Grid Item（欄位）===== */
+.AuthorCardGrid__item {
+  width: 33.3333%;
+  box-sizing: border-box;
+
+  /* ✅ 這裡是你覺得太窄的關鍵之一：原本 1.25rem 會讓三欄視覺變窄 */
+  padding: 0 0.75rem;
+
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+/* ===== 直分隔線（PC 3 欄）===== */
+.AuthorCardGrid__item::after {
+  content: "";
+  position: absolute;
+  top: 0.5rem;
+  right: 0;
+  width: 1px;
+  height: calc(100% - 1rem);
+  background: #d9d9d9;
+  display: block;
+}
+
+/* 每列第 3 個（3n）不畫右分隔線 */
+.AuthorCardGrid__item:nth-child(3n)::after {
+  display: none;
+}
+
+/* ===== 卡片本體 ===== */
+.AuthorCard {
+  background: #f3f3f3;
+  border-radius: 10px;
+  padding: 1.25rem;
+
+  /* ✅ 同列高度一致（視覺更滿版） */
+  height: 100%;
+}
+
+/* ===== 卡片標題 ===== */
+.AuthorCard__title {
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  line-height: 1.35;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.AuthorCard__nameZh {
+  font-size: 1.1rem;
+}
+
+.AuthorCard__nameEn {
+  font-size: 1.05rem;
+  word-break: break-word;
+}
+
+/* ===== 內容列 ===== */
+.AuthorCard__rows {
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.AuthorCard__label {
+  font-weight: 700;
+}
+
+.AuthorCard__value {
+  word-break: break-word;
+}
+
+/* email 連結基本可讀性 */
+.AuthorCard__rows a {
+  text-decoration: underline;
+}
+
+/* ===== RWD：平板 2 欄 ===== */
+@media (max-width: 992px) {
+  .AuthorCardGrid__item {
+    width: 50%;
+    padding: 0 0.75rem;
+  }
+
+  /* 2 欄時：每列第 2 個不畫右線 */
+  .AuthorCardGrid__item::after {
+    display: block;
+  }
+  .AuthorCardGrid__item:nth-child(2n)::after {
+    display: none;
+  }
+}
+
+/* ===== RWD：手機 1 欄 ===== */
+@media (max-width: 576px) {
+  .AuthorCardGrid__item {
+    width: 100%;
+    padding: 0;
+  }
+
+  /* 手機不需要分隔線 */
+  .AuthorCardGrid__item::after {
+    display: none;
+  }
+}
+
+/* ===============================
+   DOI + QR（右側）
+   =============================== */
+.doiRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.doiText {
+  flex: 1;
+  min-width: 0;
+}
+
+.doiQr {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card_title_en{
+  margin-top: 0.35rem;   /* 與中文標題的距離 */
+  font-size: 0.9rem;     /* ✅ 小一點 */
+  font-weight: 500;      /* 比主標題淡一點 */
+  line-height: 1.4;
+  word-break: break-word; /* 避免長英文溢出 */
+}

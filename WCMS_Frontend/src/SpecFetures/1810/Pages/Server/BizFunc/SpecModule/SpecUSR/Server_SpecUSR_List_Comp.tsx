@@ -4,7 +4,7 @@ import { useMemo, useState } from "react"
 import { useLocation } from 'react-router-dom';
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp"
 import type { components } from "@/types/api"
-import { SpecUSRSetFields, SpecUSRModelFields, SpecUSRDetailFields, SpecUSRFileFields } from "@/types/SchemaFields";
+import { SpecUSRSetFields, SpecUSRModelFields, SpecUSRDetailFields, SpecUSRFileFields, AccountFields } from "@/types/SchemaFields";
 import { useFormatSpecCategoriesName, useSpecCateListData } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Hook"
 import { useFormatTagsName, useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook"
 import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions"
@@ -46,8 +46,8 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: SpecUSRSet
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
     const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
-        const statusCell = row.cells.find(cell => cell.col.key === SpecUSRModelFields.ContentStatus);
-        if (statusCell && typeof statusCell.content === 'number') { statusCell.content = GetDataStatusContent(statusCell.content); }
+        // const statusCell = row.cells.find(cell => cell.col.key === SpecUSRModelFields.ContentStatus);
+        // if (statusCell && typeof statusCell.content === 'number') { statusCell.content = GetDataStatusContent(statusCell.content); }
         const categoryCell = row.cells.find(p => p.col.key === SpecUSRModelFields.CategoryId);
         const rawCatId = rawData?.[index]?.SpecUSR?.CategoryId ?? categoryCell?.content?.toString() ?? "";
         if (categoryCell) { categoryCell.content = useFormatSpecCategoriesName(rawCatId, cateData, lang); }
@@ -90,7 +90,7 @@ const useSpecUSRProjList = (provider: IDataProvider<SpecUSRSet>, lang: Lang, que
         visibleKeys: [
             [SpecUSRSetFields.SpecUSR, SpecUSRModelFields.CategoryId],
             [SpecUSRSetFields.SpecUSR, SpecUSRModelFields.Tags],
-            [SpecUSRSetFields.SpecUSR, SpecUSRModelFields.ContentStatus],
+            // [SpecUSRSetFields.SpecUSR, SpecUSRModelFields.ContentStatus],
             [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Year],
             [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.AcademicYear],
             [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectName],
@@ -112,6 +112,7 @@ const useSpecUSRProjList = (provider: IDataProvider<SpecUSRSet>, lang: Lang, que
                 `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectConcept}`,
                 SpecUSRModelFields.CreateTime,
                 SpecUSRModelFields.ModifyUserId,
+                `${SpecUSRModelFields.ModifyUser}.${AccountFields.AccountName}`,
                 SpecUSRModelFields.ModifyTime,
                 SpecUSRModelFields.InternalId,
             ],
@@ -152,6 +153,9 @@ const useSpecUSRProjList = (provider: IDataProvider<SpecUSRSet>, lang: Lang, que
                             content = FormatDateTime((data as any)[col.key]);
                             break;
                         }
+                    case SpecUSRModelFields.ModifyUserId:
+                        content = item.SpecUSR?.ModifyUser?.AccountName ?? "";
+                        break;
                     default:
                         {
                             content = (data as any)[col.key] ?? "";

@@ -1,4 +1,5 @@
-﻿using WCMS.SysCore.I18n;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.SysCore.I18n;
 using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
@@ -73,7 +74,11 @@ namespace WCMS.Features.SiteEdit.Banner
         /// 播放順序
         /// </summary>
         [LibDesc(ModelDisplayName.Banner_Sort)] public ushort Sort { get; set; }
-        [LibDesc] public List<BannerDetailInfo_DTO> BannerDetailInfo { get; set; } = [];
+
+        #region 主子表關聯
+        public Banner_DTO? _Banner { get; set; }
+        public List<BannerDetailInfo_DTO>? _BannerDetailInfo { get; set; }
+        #endregion
     }
     public partial class BannerDetailInfo_DTO
     {
@@ -107,5 +112,9 @@ namespace WCMS.Features.SiteEdit.Banner
         /// 網址開啟方式
         /// </summary>
         [LibDesc(ModelDisplayName.Common_UrlOpen)] public WindowTarget URL_Open { get; set; }
+
+        #region 主子表關聯
+        public BannerDetail_DTO _BannerDetail { get; set; }
+        #endregion
     }
 }

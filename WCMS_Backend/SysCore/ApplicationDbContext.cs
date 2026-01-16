@@ -220,15 +220,38 @@ namespace WCMS.SysCore
         }
         private static void ApplyGlobalDeleteBehavior(ModelBuilder builder)
         {
-            foreach (var fk in builder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
-            {
-                if (fk.IsOwnership) continue;                    // 跳過 OwnedType
-                if (fk.DeclaringEntityType.IsOwned()) continue;  // 跳過 OwnedType
+            // 先把 FK 按 (Dependent, Principal) 分組，找出「同表多重 FK」
+            var fkGroups = builder.Model.GetEntityTypes()
+                .SelectMany(e => e.GetForeignKeys())
+                .Where(fk =>
+                    !fk.IsOwnership &&
+                    !fk.DeclaringEntityType.IsOwned() &&
+                    !fk.PrincipalEntityType.IsOwned())
+                .GroupBy(fk => new
+                {
+                    Dep = fk.DeclaringEntityType,   // dependent
+                    Pri = fk.PrincipalEntityType    // principal
+                })
+                .ToList();
 
-                if (fk.IsRequired)                                // 🟢 必填 FK
-                    fk.DeleteBehavior = DeleteBehavior.Cascade;   //    → 刪主體會連動刪子項；移除關聯也不會丟例外
-                else                                              //    選填 FK
-                    fk.DeleteBehavior = DeleteBehavior.ClientSetNull; // → 由 EF 把 FK 設 null（DB 不做級聯）
+            foreach (var g in fkGroups)
+            {
+                var fks = g.ToList();
+
+                // ✅ 同一 Dependent 對同一 Principal 有 2+ FK：全部禁用 Cascade
+                if (fks.Count > 1)
+                {
+                    foreach (var fk in fks) fk.DeleteBehavior = DeleteBehavior.NoAction;
+                    continue;
+                }
+
+                // 一般情境：照你原本規則處理
+                var onlyFk = fks[0];
+
+                if (onlyFk.IsRequired)
+                    onlyFk.DeleteBehavior = DeleteBehavior.Cascade;
+                else
+                    onlyFk.DeleteBehavior = DeleteBehavior.ClientSetNull;
             }
         }
         /// <summary>

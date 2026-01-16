@@ -280,7 +280,7 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
                             <LogoComp />
                             <MobileBtn />
                             <MainMenu {...props} />
-                            <PCBtn />
+                            {/* <SearchBtn /> */}
                         </div>
                     </div>
                 </div>
@@ -347,7 +347,7 @@ const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
         </ul>
     </div>)
 }
-const PCBtn = () => {
+const SearchBtn = () => {
     return (
         <div className="pc-box ml-2">
             <div className="icons">

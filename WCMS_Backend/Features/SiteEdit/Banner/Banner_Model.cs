@@ -41,6 +41,7 @@ namespace WCMS.Features.SiteEdit.Banner
         /// 橫幅寬度
         /// </summary>
         public short Width { get; set; }
+
         #region 主子表關聯
         [InverseProperty(nameof(BannerDetail._Banner))] public List<BannerDetail> _BannerDetail { get; set; } = [];
         #endregion
@@ -75,6 +76,7 @@ namespace WCMS.Features.SiteEdit.Banner
         /// 播放順序
         /// </summary>
         [LibDesc] public ushort Sort { get; set; }
+
         #region 主子表關聯
         [ForeignKey(nameof(BannerId))] public Banner _Banner { get; set; }
         [InverseProperty(nameof(BannerDetailInfo._BannerDetail))] public List<BannerDetailInfo> _BannerDetailInfo { get; set; }

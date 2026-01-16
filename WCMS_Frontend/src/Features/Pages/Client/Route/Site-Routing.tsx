@@ -217,31 +217,61 @@ const wrapRoutesWithCtxLang = (routes: RouteObject[]): RouteObject[] =>
         if (r.children?.length) clone.children = wrapRoutesWithCtxLang(r.children);
         return clone;
     });
+// ✅ 遞迴找 node（用 id 對應各語系）
+const findNodeById = (roots: INormNode[], id: number): INormNode | null => {
+    const stack: INormNode[] = [...roots];
+    while (stack.length > 0) {
+        const cur = stack.pop()!;
+        if (cur.id === id) return cur;
+        if (cur.children?.length) stack.push(...cur.children);
+    }
+    return null;
+};
+
+/** ✅ node route guard：若該語系 node 不存在，或 title==="" && isShowOnMenu=false → 回該語系首頁 */
+const NodeRouteGuard: React.FC<{ site: INormSite; nodeId: number; children: React.ReactElement }> = (props) => {
+    const lang = (useLang().code ?? DefaultLang) as Lang;
+
+    const roots = props.site.treeByLang[lang] ?? [];
+    const cur = findNodeById(roots, props.nodeId);
+
+    const isInvalid = !cur || ((cur.title ?? "") === "" && (cur.isShowOnMenu ?? true) === false);
+    if (isInvalid) return <AutoRedirect to="/" replace />;
+
+    return props.children;
+};
 
 export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
     const skeletonRoots = site.treeByLang[DefaultLang] ?? Object.values(site.treeByLang)[0] ?? [];
     const toRoute = (n: INormNode): RouteObject => {
         // 先把菜單樹的 children 算好（第二層/第三層都會遞迴進來）
         const menuChildren = n.children.map(toRoute);
+
+        const wrapGuard = (el: React.ReactElement) => (
+            <NodeRouteGuard site={site} nodeId={n.id}>
+                {el}
+            </NodeRouteGuard>
+        );
+
         // A) 站內 redirect：父層要當「殼」，redirect 放在 index，children 一定要掛回去
         if (n.type === "redirect-internal") {
             if (n.path) {
                 return menuChildren.length > 0
                     ? {
                         path: n.path,
-                        element: <Outlet />,
+                        element: wrapGuard(<Outlet />),
                         children: [
-                            { index: true, element: <AutoRedirect to={n.redirectTo!} replace /> },
+                            { index: true, element: wrapGuard(<AutoRedirect to={n.redirectTo!} replace />) },
                             ...menuChildren,
                         ],
                     }
-                    : { path: n.path, element: <AutoRedirect to={n.redirectTo!} replace /> };
+                    : { path: n.path, element: wrapGuard(<AutoRedirect to={n.redirectTo!} replace />) };
             }
             // pathless redirect（少見）
             return {
-                element: <Outlet />,
+                element: wrapGuard(<Outlet />),
                 children: [
-                    { index: true, element: <AutoRedirect to={n.redirectTo!} replace /> },
+                    { index: true, element: wrapGuard(<AutoRedirect to={n.redirectTo!} replace />) },
                     ...menuChildren,
                 ],
             };
@@ -261,21 +291,21 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
                 return menuChildren.length > 0
                     ? {
                         path: n.path,
-                        element: <Outlet />,
-                        children: [{ index: true, element: <External /> }, ...menuChildren],
+                        element: wrapGuard(<Outlet />),
+                        children: [{ index: true, element: wrapGuard(<External />) }, ...menuChildren],
                     }
-                    : { path: n.path, element: <External /> };
+                    : { path: n.path, element: wrapGuard(<External />) };
             }
             return {
-                element: <Outlet />,
-                children: [{ index: true, element: <External /> }, ...menuChildren],
+                element: wrapGuard(<Outlet />),
+                children: [{ index: true, element: wrapGuard(<External />) }, ...menuChildren],
             };
         }
         // C) 模組節點：一律用 ModuleElement（它內部依 kind 呼叫 render/element；routes 型 element 內需含 <Outlet/>）
         if (!n.module) return { path: n.path, element: <div>Module not registered</div> };
         const entry = getModuleRegistry()[n.module.progId];
         if (!entry) return { path: n.path, element: <div>Unknown module: {n.module.progId}</div> };
-        const element = <ModuleElement node={n} site={site} />;
+        const element = wrapGuard(<ModuleElement node={n} site={site} />);
         // routes 型模組的自帶 children；element 型為空
         const modChildrenRaw: RouteObject[] = entry.kind === "routes" ? entry.children(n.module.options, DefaultLang, n, site) : [];
         const modChildren = wrapRoutesWithCtxLang(modChildrenRaw); const children = [...modChildren, ...menuChildren];

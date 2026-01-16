@@ -152,7 +152,7 @@ namespace WCMS.SysCore
                 await BeforeUpdate(newSet, FuncAction.Update);
                 if (Message.HasError) return newSet;
                 TSet oldSet = await DoQuerySetAsync(internalId);
-                TSet oldSet_Cache = oldSet.DeepClone();
+                TSet oldSet_Cache = oldSet.Snapshot();
                 await DoUpdateAsync(oldSet, newSet);
                 await AfterUpdate(oldSet_Cache, oldSet, FuncAction.Update, TransStatus.Difference);//oldSet已經進入DataAccess，修改完會跟著修正至DB
                 if (Message.HasError) return newSet;
@@ -175,7 +175,7 @@ namespace WCMS.SysCore
                 ownsTx = await TryBeginTransactionAsync();
                 CheckIsUsed();
                 TSet oldSet = await DoQuerySetAsync(internalId);
-                TSet oldSet_Cache = oldSet.DeepClone();
+                TSet oldSet_Cache = oldSet.Snapshot();
                 await BeforeUpdate(oldSet, FuncAction.Delete);
                 if (Message.HasError) return oldSet;
                 await DoDeleteAsync(oldSet);
@@ -199,8 +199,8 @@ namespace WCMS.SysCore
             {
                 ownsTx = await TryBeginTransactionAsync();
                 TSet oldSet = await DoQuerySetAsync(internalId);
-                TSet oldSet_Cache = oldSet.DeepClone();
-                TSet newSet = oldSet.DeepClone();
+                TSet oldSet_Cache = oldSet.Snapshot();
+                TSet newSet = oldSet.Snapshot();
                 DoInvalidSet(newSet, status);
                 await BeforeUpdate(oldSet, FuncAction.Invalid);
                 if (Message.HasError) return newSet;
@@ -240,14 +240,14 @@ namespace WCMS.SysCore
             }
             return result;
         }
-        public async Task<int> BizQueryTotalCounts(string[] selectFields, string condition)
+        public async Task<int> BizQueryTotalCounts(string condition)
         {
             int totalCount = 0;
             foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
             {
                 if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && typeof(BasicDataModel).IsAssignableFrom(prop.PropertyType))
                 {
-                    var count = await DoQueryListCountAsync(prop.PropertyType, selectFields, condition);
+                    var count = await DoQueryListCountAsync(prop.PropertyType, condition);
                     totalCount = count;
                 }
             }
@@ -436,15 +436,19 @@ namespace WCMS.SysCore
         }
         protected async Task<IList> DoQueryListAsync(Type type, string[] selectFields, string condition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt)
         {
-            var selectExpr = GetSelectFieldsExpr(type, selectFields);
+            // ✅ 1) 先建立 whereExpr（已支援括號/and/or）
             var whereExpr = GetConditionExpr(type, condition);
+            // ✅ 2) Step 3：從 whereExpr 抽出「各集合導航」的 predicate（支援 xxx and (xxx or xxx)）
+            var detailPredMap = ExtractDetailPredicateMap(type, whereExpr);
+            // ✅ 3) projection：集合明細套用 Where(predicate)
+            var selectExpr = GetSelectFieldsExpr(type, selectFields, detailPredMap);
             var repo = (dynamic)GetRepoByType(type);
-            var data = await repo.QueryListAsync(selectExpr, whereExpr,orderBy, pageCt, takeCt);
+            var data = await repo.QueryListAsync(selectExpr, whereExpr, orderBy, pageCt, takeCt);
             return data;
         }
-        protected async Task<int> DoQueryListCountAsync<TModel>(string[] selectFields, string condition)
+        protected async Task<int> DoQueryListCountAsync<TModel>(string condition)
         {
-            return await DoQueryListCountAsync(typeof(TModel), selectFields, condition);
+            return await DoQueryListCountAsync(typeof(TModel), condition);
         }
         /// <summary>
         /// 查詢清單總筆數
@@ -455,12 +459,11 @@ namespace WCMS.SysCore
         /// <param name="pageCt"></param>
         /// <param name="takeCt"></param>
         /// <returns></returns>
-        protected async Task<int> DoQueryListCountAsync(Type type, string[] selectFields, string condition)
+        protected async Task<int> DoQueryListCountAsync(Type type, string condition)
         {
-            var selectExpr = GetSelectFieldsExpr(type, selectFields);
             var whereExpr = GetConditionExpr(type, condition);
             var repo = (dynamic)GetRepoByType(type);
-            var data = await repo.QueryListCountAsync(selectExpr, whereExpr);
+            var data = await repo.QueryListCountAsync(whereExpr);
             return data;
         }
         /// <summary>
@@ -596,50 +599,36 @@ namespace WCMS.SysCore
             protected override Expression VisitParameter(ParameterExpression node)
                 => node == _from ? _to : base.VisitParameter(node);
         }
-        private LambdaExpression GetSelectFieldsExpr(Type modelType, string[] selectFields)
+        private LambdaExpression GetSelectFieldsExpr(Type modelType, string[] selectFields, Dictionary<string, LambdaExpression>? detailPredMap = null)
         {
             if (selectFields == null || selectFields.Length == 0) return null;
-
             var param = Expression.Parameter(modelType, "x");
             var newModel = Expression.New(modelType);
             var bindings = new List<MemberBinding>();
-
             // 依最外層屬性分組：e.g. ["CreateUser.UserName", "CreateUser.Email", "CreateTime"]
-            var groups = selectFields
-                .Select(f => f.Split('.', StringSplitOptions.RemoveEmptyEntries))
-                .GroupBy(parts => parts[0]);
-
+            var groups = selectFields.Select(f => f.Split('.', StringSplitOptions.RemoveEmptyEntries)).GroupBy(parts => parts[0]);
             foreach (var g in groups)
             {
                 var propName = g.Key;
                 var propInfo = PropertyAccessorCache.GetProperty(modelType, propName);
                 if (propInfo == null) continue;
-
                 // 單層屬性：直接綁定 x.Prop
                 if (g.All(parts => parts.Length == 1))
                 {
                     bindings.Add(Expression.Bind(propInfo, Expression.Property(param, propName)));
                     continue;
                 }
-
                 // 多層屬性（巢狀物件或集合）
-                var childFields = g.Where(p => p.Length > 1)
-                                   .Select(p => string.Join('.', p.Skip(1)))
-                                   .ToArray();
-
+                var childFields = g.Where(p => p.Length > 1).Select(p => string.Join('.', p.Skip(1))).ToArray();
                 var childType = propInfo.PropertyType;
-
                 // 是否為集合（排除 string）
                 bool isEnumerable = typeof(IEnumerable).IsAssignableFrom(childType) && childType != typeof(string);
-
                 // 取得集合元素型別或子物件型別
                 Type itemType;
                 if (isEnumerable)
                 {
-                    if (childType.IsArray)
-                        itemType = childType.GetElementType()!;
-                    else
-                        itemType = childType.GenericTypeArguments.FirstOrDefault() ?? typeof(object);
+                    if (childType.IsArray) itemType = childType.GetElementType()!;
+                    else itemType = childType.GenericTypeArguments.FirstOrDefault() ?? typeof(object);
                 }
                 else
                 {
@@ -652,25 +641,18 @@ namespace WCMS.SysCore
 
                 if (isEnumerable)
                 {
-                    // x.Child.AsQueryable().Select(inner).ToList()
                     var collExpr = Expression.Property(param, propName);
-
-                    var asQueryable = typeof(Queryable).GetMethods()
-                        .First(m => m.Name == "AsQueryable" && m.IsGenericMethodDefinition)
-                        .MakeGenericMethod(itemType);
-
-                    var select = typeof(Queryable).GetMethods()
-                        .First(m => m.Name == "Select" && m.GetParameters().Length == 2)
-                        .MakeGenericMethod(itemType, ((LambdaExpression)innerSelector).ReturnType);
-
-                    var toList = typeof(Enumerable).GetMethods()
-                        .First(m => m.Name == "ToList" && m.GetParameters().Length == 1)
-                        .MakeGenericMethod(((LambdaExpression)innerSelector).ReturnType);
-
+                    var asQueryable = typeof(Queryable).GetMethods().First(m => m.Name == "AsQueryable" && m.IsGenericMethodDefinition).MakeGenericMethod(itemType);
+                    var select = typeof(Queryable).GetMethods().First(m => m.Name == "Select" && m.GetParameters().Length == 2).MakeGenericMethod(itemType, ((LambdaExpression)innerSelector).ReturnType);
+                    var toList = typeof(Enumerable).GetMethods().First(m => m.Name == "ToList" && m.GetParameters().Length == 1).MakeGenericMethod(((LambdaExpression)innerSelector).ReturnType);
                     var q = Expression.Call(asQueryable, collExpr);
+                    if (detailPredMap != null && detailPredMap.TryGetValue(propName, out var predLambda) && predLambda != null)
+                    {
+                        var where = typeof(Queryable).GetMethods().First(m => m.Name == "Where" && m.GetParameters().Length == 2).MakeGenericMethod(itemType);
+                        q = Expression.Call(where, q, predLambda); // predLambda: Expression<Func<itemType,bool>>
+                    }
                     var s = Expression.Call(select, q, innerSelector);
                     var tl = Expression.Call(toList, s);
-
                     bindings.Add(Expression.Bind(propInfo, tl));
                 }
                 else
@@ -687,6 +669,201 @@ namespace WCMS.SysCore
             var body = Expression.MemberInit(newModel, bindings);
             var delegateType = typeof(Func<,>).MakeGenericType(modelType, modelType);
             return Expression.Lambda(delegateType, body, param);
+        }
+        /// <summary>
+        /// Step 3：從 whereExpr 抽出「集合導航」的 predicate：
+        /// 來源是 whereExpr 裡的：Nav.Any(d => ...)
+        /// 並且保留 and/or/括號（Expression Tree）
+        /// </summary>
+        private static Dictionary<string, LambdaExpression> ExtractDetailPredicateMap(Type rootType, LambdaExpression whereExpr)
+        {
+            var map = new Dictionary<string, LambdaExpression>(StringComparer.Ordinal);
+            if (whereExpr == null || whereExpr.Parameters.Count == 0) return map;
+
+            var rootParam = whereExpr.Parameters[0];
+
+            // 遞迴抽取：回傳每個 nav 的「predicate expression」(帶同一個 detail param)
+            var infoMap = ExtractFromNode(whereExpr.Body, rootParam);
+
+            foreach (var kv in infoMap)
+            {
+                var navName = kv.Key;
+                var info = kv.Value;
+
+                if (info.IsUnsafe || info.Param == null || info.Body == null) continue;
+
+                // 組成 Expression<Func<TDetail,bool>>
+                var lambdaType = typeof(Func<,>).MakeGenericType(info.Param.Type, typeof(bool));
+                map[navName] = Expression.Lambda(lambdaType, info.Body, info.Param);
+            }
+
+            return map;
+        }
+
+        private sealed record DetailPredInfo(ParameterExpression? Param, Expression? Body, bool IsUnsafe);
+
+        private static Dictionary<string, DetailPredInfo> ExtractFromNode(Expression node, ParameterExpression rootParam)
+        {
+            node = StripQuotesAndConverts(node);
+
+            // ✅ match: root.Nav.Any(d => predicate)
+            if (TryMatchAnyOnRootNav(node, rootParam, out var navName, out var detailParam, out var detailBody))
+            {
+                return new Dictionary<string, DetailPredInfo>(StringComparer.Ordinal)
+                {
+                    [navName] = new DetailPredInfo(detailParam, detailBody, IsUnsafe: false)
+                };
+            }
+
+            // ✅ (A && B) / (A || B)
+            if (node is BinaryExpression be &&
+                (be.NodeType == ExpressionType.AndAlso || be.NodeType == ExpressionType.OrElse))
+            {
+                var left = ExtractFromNode(be.Left, rootParam);
+                var right = ExtractFromNode(be.Right, rootParam);
+                return MergeByBoolean(left, right, be.NodeType);
+            }
+
+            // ✅ !(...)
+            if (node is UnaryExpression ue && ue.NodeType == ExpressionType.Not)
+            {
+                var inner = ExtractFromNode(ue.Operand, rootParam);
+                foreach (var k in inner.Keys.ToList())
+                {
+                    var info = inner[k];
+                    if (info.IsUnsafe || info.Body == null)
+                    {
+                        inner[k] = info with { IsUnsafe = true };
+                        continue;
+                    }
+                    inner[k] = info with { Body = Expression.Not(info.Body) };
+                }
+                return inner;
+            }
+
+            // 其他：不屬於明細 Any(...) 條件
+            return new Dictionary<string, DetailPredInfo>(StringComparer.Ordinal);
+        }
+
+        private static Dictionary<string, DetailPredInfo> MergeByBoolean(
+            Dictionary<string, DetailPredInfo> left,
+            Dictionary<string, DetailPredInfo> right,
+            ExpressionType op)
+        {
+            var result = new Dictionary<string, DetailPredInfo>(StringComparer.Ordinal);
+            var keys = left.Keys.Union(right.Keys).ToList();
+
+            foreach (var k in keys)
+            {
+                left.TryGetValue(k, out var l);
+                right.TryGetValue(k, out var r);
+
+                // 只在其中一邊出現：
+                if (l == null && r != null)
+                {
+                    // AND：缺邊視為 true → 保留 r
+                    // OR ：缺邊等同「主表條件 OR 明細條件」→ 不安全，避免錯殺
+                    result[k] = op == ExpressionType.AndAlso ? r : r with { IsUnsafe = true };
+                    continue;
+                }
+                if (r == null && l != null)
+                {
+                    result[k] = op == ExpressionType.AndAlso ? l : l with { IsUnsafe = true };
+                    continue;
+                }
+                if (l == null || r == null) continue;
+
+                // 任一不安全就不安全
+                if (l.IsUnsafe || r.IsUnsafe)
+                {
+                    result[k] = new DetailPredInfo(l.Param ?? r.Param, l.Body ?? r.Body, IsUnsafe: true);
+                    continue;
+                }
+
+                if (l.Param == null || r.Param == null || l.Body == null || r.Body == null)
+                {
+                    result[k] = new DetailPredInfo(l.Param ?? r.Param, l.Body ?? r.Body, IsUnsafe: true);
+                    continue;
+                }
+
+                // 統一 parameter：右邊換成左邊的 param
+                var unifiedParam = l.Param;
+                var rightBody = ReplaceParam(r.Body, r.Param, unifiedParam);
+
+                var mergedBody = op == ExpressionType.AndAlso
+                    ? Expression.AndAlso(l.Body, rightBody)
+                    : Expression.OrElse(l.Body, rightBody);
+
+                result[k] = new DetailPredInfo(unifiedParam, mergedBody, IsUnsafe: false);
+            }
+
+            return result;
+        }
+
+        private static Expression ReplaceParam(Expression body, ParameterExpression from, ParameterExpression to)
+            => new ParamSwapVisitor(from, to).Visit(body)!;
+
+        private sealed class ParamSwapVisitor : ExpressionVisitor
+        {
+            private readonly ParameterExpression _from;
+            private readonly ParameterExpression _to;
+            public ParamSwapVisitor(ParameterExpression from, ParameterExpression to) { _from = from; _to = to; }
+            protected override Expression VisitParameter(ParameterExpression node) => node == _from ? _to : base.VisitParameter(node);
+        }
+
+        private static Expression StripQuotesAndConverts(Expression e)
+        {
+            while (true)
+            {
+                if (e is UnaryExpression ue &&
+                    (ue.NodeType == ExpressionType.Quote || ue.NodeType == ExpressionType.Convert))
+                {
+                    e = ue.Operand;
+                    continue;
+                }
+                return e;
+            }
+        }
+
+        /// <summary>
+        /// 匹配：x.Nav.Any(d => ...)
+        /// 支援 Enumerable.Any / Queryable.Any
+        /// </summary>
+        private static bool TryMatchAnyOnRootNav(
+            Expression node,
+            ParameterExpression rootParam,
+            out string navName,
+            out ParameterExpression detailParam,
+            out Expression detailBody)
+        {
+            navName = "";
+            detailParam = null!;
+            detailBody = null!;
+
+            if (node is not MethodCallExpression mc) return false;
+            if (!string.Equals(mc.Method.Name, "Any", StringComparison.Ordinal)) return false;
+            if (mc.Arguments.Count != 2) return false;
+
+            // arg0: source（允許 Queryable.AsQueryable(x.Nav) 或直接 x.Nav）
+            var source = StripQuotesAndConverts(mc.Arguments[0]);
+
+            if (source is MethodCallExpression aq &&
+                aq.Method.Name == "AsQueryable" &&
+                aq.Arguments.Count == 1)
+            {
+                source = StripQuotesAndConverts(aq.Arguments[0]);
+            }
+
+            if (source is not MemberExpression navExpr) return false;
+            if (navExpr.Expression is not ParameterExpression pe || pe != rootParam) return false;
+
+            var pred = StripQuotesAndConverts(mc.Arguments[1]) as LambdaExpression;
+            if (pred == null || pred.Parameters.Count != 1) return false;
+
+            navName = navExpr.Member.Name;
+            detailParam = pred.Parameters[0];
+            detailBody = pred.Body;
+            return true;
         }
         /// <summary>
         /// 獲取要搜尋的條件表達式
@@ -1034,7 +1211,43 @@ namespace WCMS.SysCore
             string thisLevel = current;
             return isEnumerable ? $"{thisLevel}.Any({inner})" : $"{thisLevel}.{inner}";
         }
-
+        /// <summary>
+        /// 從 rawCondition 抽出「集合導航」的條件：
+        /// e.g. "_Detail.PublishStatus == 1 and _Detail.Year >= 2024"
+        ///  ->  { "_Detail": "PublishStatus == 1 and Year >= 2024" }
+        /// 限制：目前只處理頂層 AND（先不處理 OR/巢狀括號）
+        /// </summary>
+        private static Dictionary<string, string> ExtractDetailConditionMap(Type modelType, string rawCondition)
+        {
+            var map = new Dictionary<string, string>(StringComparer.Ordinal);
+            if (string.IsNullOrWhiteSpace(rawCondition)) return map;
+            var (chunks, connectors) = SplitTopLevelByAndOr(rawCondition);
+            for (int i = 0; i < chunks.Count; i++)
+            {
+                var seg = chunks[i].Trim();
+                if (string.IsNullOrEmpty(seg)) continue;
+                // 只做 AND；遇到 OR 先跳過（避免行為錯）
+                if (i < connectors.Count && connectors[i].Equals("or", StringComparison.OrdinalIgnoreCase)) continue;
+                var m = Regex.Match(seg, @"^(?<fullPath>[\w.]+)\s*(?<op>=|&|!&|==|!=|>=|<=|>|<|in|not in|like|is null|is not null|hasany|hasallof|hasall)\s*(?<val>.+)?$",RegexOptions.IgnoreCase);
+                if (!m.Success) continue;
+                var fullPath = m.Groups["fullPath"].Value;
+                var op = m.Groups["op"].Value;
+                var val = m.Groups["val"].Success ? m.Groups["val"].Value.Trim() : null;
+                var parts = fullPath.Split('.', StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length < 2) continue;
+                var first = parts[0];
+                var p = PropertyAccessorCache.GetProperty(modelType, first);
+                if (p == null) continue;
+                var isEnumerable = typeof(IEnumerable).IsAssignableFrom(p.PropertyType) && p.PropertyType != typeof(string);
+                if (!isEnumerable) continue;
+                // 去掉集合前綴：_Detail.PublishStatus -> PublishStatus
+                var restPath = string.Join('.', parts.Skip(1));
+                var rebuilt = string.IsNullOrWhiteSpace(val)? $"{restPath} {op}": $"{restPath} {op} {val}";
+                // 同集合多條件以 AND 合併
+                map[first] = map.TryGetValue(first, out var exist)? $"{exist} and {rebuilt}": rebuilt;
+            }
+            return map;
+        }
         private static readonly Dictionary<Type, Func<string, object>> EnumStringMappers = new()
         {
             [typeof(LangCode)] = s => LangCodeExt.Normalize(s),

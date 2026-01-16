@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
 import { useMemo } from "react";
 import type { components } from "@/types/api";
@@ -14,8 +14,7 @@ import { LangLink } from "@/SysCore/i18n/LangLink";
 type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"]
 
 export interface ISpecMusicalOptions { Category?: string; }
-export interface ISpecMusicalProps { options?: ISpecMusicalOptions; node: INormNode }
-const SpecMusicalList = (props: ISpecMusicalProps) => {
+const SpecMusicalList = (props: { options?: ISpecMusicalOptions; node: INormNode }) => {
     const pageSize = 9;
     const pvdr = useMemo(() => { return SpecMusicalProvider() }, [])
     const useList = dataFetch(pvdr, props.options?.Category ?? "", pageSize);

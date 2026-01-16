@@ -690,4 +690,10 @@
   <data name="Enum_FuncAction_All" xml:space="preserve">
     <value>全部</value>
   </data>
+  <data name="Common_Country" xml:space="preserve">
+    <value>地區/國家</value>
+  </data>
+  <data name="Common_Memo" xml:space="preserve">
+    <value>摘要</value>
+  </data>
 </root>

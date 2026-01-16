@@ -40,7 +40,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
     {
         [LibDesc(SpecModelDisplayName.SpecResearchId), Key] public string? ResearchId { get; set; }
         [LibDesc(ModelDisplayName.Common_RowId), Key] public int RowId { get; set; }
-        [LibDesc(ModelDisplayName.Common_Lang), StringLength(5)] public LangCode? Lang { get; set; } = default!;
+        [LibDesc(ModelDisplayName.Common_Lang)] public LangCode? Lang { get; set; } = default!;
         [LibDesc(SpecModelDisplayName.SpecResearch_Year)] public int? Year { get; set; }
         [LibDesc(SpecModelDisplayName.SpecResearch_AcademicYear)] public int? AcademicYear { get; set; }
         [LibDesc(SpecModelDisplayName.SpecResearch_Semester), StringLength(10)] public string? Semester { get; set; }

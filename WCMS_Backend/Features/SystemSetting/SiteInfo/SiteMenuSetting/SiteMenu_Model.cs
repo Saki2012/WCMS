@@ -175,7 +175,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         [Key, StringLength(SysLengthParam.ID)] public string? SiteIndex { get; set; }
         [Key] public int? ItemRowId { get; set; }
         [Key] public int? RowId { get; set; }
-        [StringLength(SysLengthParam.Lang)] public LangCode Lang { get; set; }
+        public LangCode Lang { get; set; }
         [StringLength(SysLengthParam.Title)] public string Title { get; set; }
         public bool IsShowOnMenu { get; set; }
         #region 主子表關聯

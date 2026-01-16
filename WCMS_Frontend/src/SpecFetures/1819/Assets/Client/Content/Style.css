@@ -86,7 +86,7 @@
 /* Font Awesome Pro 5.15.4 Icon 字型 */
 
 /* GOOGLE 字型 */
-@import url(http://fonts.googleapis.com/css?family=Roboto);
+@import url(https://fonts.googleapis.com/css?family=Roboto);
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap');
 /*font-family: "Noto Sans TC" */
 /* GOOGLE 字型 */
@@ -248,7 +248,7 @@ img {
 /* ------ Container-Custom0 =100%-100px --------- */
 @media screen and (min-width: 1200px) {
     .container-customize0 {
-        max-width: calc(100% - 200px);
+        max-width: calc(100% - 60px);
     }
 }
 .container-customize0 {

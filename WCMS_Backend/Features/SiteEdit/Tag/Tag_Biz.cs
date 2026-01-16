@@ -51,13 +51,13 @@ namespace WCMS.Features.SiteEdit.Tag
             switch (progId)
             {
                 case "Announcement":
-                    useCount = await DoQueryListCountAsync<Announcement.Announcement>([nameof(BasicDataModel.InternalId)], $@"{nameof(Announcement.Announcement.Tags)} HasAny {tagId}");
+                    useCount = await DoQueryListCountAsync<Announcement.Announcement>($@"{nameof(Announcement.Announcement.Tags)} HasAny {tagId}");
                     break;
                 case "FileArchive":
-                    useCount = await DoQueryListCountAsync<FileArchive.FileArchive>([nameof(BasicDataModel.InternalId)], $@"{nameof(FileArchive.FileArchive.TagsId)} HasAny {tagId}");
+                    useCount = await DoQueryListCountAsync<FileArchive.FileArchive>($@"{nameof(FileArchive.FileArchive.TagsId)} HasAny {tagId}");
                     break;
                 case "Gallery":
-                    useCount = await DoQueryListCountAsync<Gallery.Gallery>([nameof(BasicDataModel.InternalId)], $@"{nameof(Gallery.Gallery.Tags)} HasAny {tagId}");
+                    useCount = await DoQueryListCountAsync<Gallery.Gallery>($@"{nameof(Gallery.Gallery.Tags)} HasAny {tagId}");
                     break;
                 default:
                     await SpecCheckIsUsed(progId, tagId, tagName);

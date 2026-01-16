@@ -430,6 +430,19 @@
 	font-weight: bold;
 	color: var(--Customize_color); /* JESS重要 - 變更顏色*/
 	margin-bottom: 0;
+	
+	display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 1;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 18px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+	
+	max-width: 200px;
 }
 @media screen and (max-width: 575px) {
     .custom_breadcrumb .breadcrumb-item.active h2 {
@@ -3411,6 +3424,12 @@
 #ContentPlaceContent_ContentConentA .CategoryBar .tit-text {
     margin: 0 10px 0 0;
 }
+@media screen and (min-width: 320px) and (max-width: 575px) {
+	.All_Standard_Content_CSS .CategoryBar .tit-text,
+	#ContentPlaceContent_ContentConentA .CategoryBar .tit-text {
+		margin: 0 10px 4px 0;
+	}
+}
 /* =============================================================== */
 .All_Standard_Content_CSS .select-wrap .Customize-select,
 #ContentPlaceContent_ContentConentA .select-wrap .Customize-select {
@@ -3666,20 +3685,24 @@
 /* ===== [ card-link 標題 ] ===== */
 /* =============================================================== */
 /* ===== [ card-link 箭頭 ] ===== */
-.FAQBar .card-header a.card-link:not(.collapsed)::after {
-	content: "\f077";
-	/*transform: rotate(-180deg);*/
-}
+.FAQBar .card-header a.card-link:not(.collapsed)::after {}
+/* 預設：向下 */
 .FAQBar .card-header a.card-link::after {
 	font-family: 'Font Awesome 5 Pro';
+	content: "\f078";
 	font-size: 87.5%;
-	flex-shrink: 0;
 	float: right;
 	width: 1.25rem;
 	height: 1.25rem;
 	margin-left: auto;
-	content: "\f078";
 	transition: transform .2s ease-in-out;
+}
+
+/* 展開時：旋轉 180 度（變向上） */
+.FAQBar .card-header a.card-link:not(.collapsed)::after {
+	font-family: 'Font Awesome 5 Pro';
+	content: "\f077";
+    transform: rotate(0deg);
 }
 /* ===== [ card-link 箭頭 ] ===== */
 /* =============================================================== */
@@ -4725,11 +4748,11 @@
 	
 	display: inline-block;
     width: 100%;
-	margin-bottom: 1rem;
+	margin-bottom: 2rem;
 }
 @media screen and (min-width: 320px) and (max-width: 991px) {
 	.JournalBar ul.Journal_info {
-		margin-bottom: 0.5rem;
+		margin-bottom: 1rem;
 	}
 }
 /*
@@ -4858,10 +4881,14 @@
 	color: var(--Customize_color);
     background-color: #dac25a;  /* 展開改變背景顏色 */
 }
+.JournalBar .card-header a:focus.card-link {
+	color: var(--Customize_TXTHRcolor) !important;
+	background-color: #dac25a !important;
+}
 
 .JournalBar .card-header a:hover.card-link {
-	color: var(--FFFcolor);
-    background-color: #dac25a;
+	color: var(--Customize_TXTHRcolor);
+	background-color: rgb(255, 251, 230);
 }
 /* ===== [ card-link 標題 ] ===== */
 /* =============================================================== */
@@ -4923,8 +4950,8 @@
 
 .JournalBar .card-body ul.Journallist-group li {
 	float: left;
-    width: calc((100% - (2.5px * 4)) / 2);    /* =col4 x 2個 */
-    /*width: calc((100% - (2.5px * 6)) / 3);*/    /* =col4 x 3個 */
+    /*width: calc((100% - (2.5px * 4)) / 2);*/    /* =col4 x 2個 */
+    width: calc((100% - (2.5px * 6)) / 3);    /* =col4 x 3個 */
     /*width: calc((100% - (2.5px * 8)) / 4);*/        /* =col3 x 4個 */
     /*width: calc((100% - (2.5px * 10)) / 5);*/        /* =col-? x 5個 */
     /*width: calc((100% - (2.5px * 12)) / 6);*/        /* =col2 x 5個 */
@@ -4938,17 +4965,17 @@
 	.JournalBar .card-body ul.Journallist-group li {
 		display: flex;
 		align-content: center;
-		margin-left: 2.5px;
+		margin-left: 0px;
         margin-right: 2.5px;
-        width: calc((100% - (2.5px * 4)) / 2);
-        
+        /*width: calc((100% - (2.5px * 4)) / 2);*/    /* =col4 x 2個 */
+        width: 100%;
 		min-height: 1px;
 	}
 }
 
 .JournalBar .card-body ul.Journallist-group li a.list-group-item {
     position: relative;
-    display: block;
+    display: inline-block;
 	/*font-size: 93.75%;*/
 	font-size: inherit;
 	font-weight: bold;
@@ -4958,6 +4985,7 @@
     padding: .75rem 1.25rem;
     background-color: var(--FFFcolor); /*FFFFFF*/
     border: 1px solid #dddddd;
+	border-radius: 0.25rem;
 }
 @media screen and (min-width: 320px) and (max-width: 991px) {
 	.JournalBar .card-body ul.Journallist-group li a.list-group-item {
@@ -5054,8 +5082,8 @@
 		font-size: 125% !important;
 	}
 }
-
-
+/* ------------------------------------------------------------*/
+/* 人名 顯示區 */
 .All_Standard_Content_CSS .custom_Name {
     display: block;
 }
@@ -5124,9 +5152,12 @@
 .All_Standard_Content_CSS .custom_Name .list-item + .list-item:hover::before {
 	text-decoration: none
 }
+/* 人名 顯示區 */
+/* ------------------------------------------------------------*/
 /* ====================================================== */
 /* ====================================================== */
-/* ====================================================== */
+/* ------------------------------------------------------------*/
+/* 編者言 標題條列 顯示區 */
 .JJ_main_contentDIV ul.ListInfo {
     margin: 0;
     padding: 0;
@@ -5174,7 +5205,8 @@
 	background-color: transparent !important;
 }
 /* ---------------------------------------------------- */
-.JJ_main_contentDIV a.Jitem-inner .IItemBox {
+.JJ_main_contentDIV a.Jitem-inner .IItemBox,
+.JJ_main_contentDIV .IItemBox_p0 {
 	position: relative;
 	display: inline-block;
 	width: 100%;
@@ -5193,9 +5225,15 @@
 	border-left: 1px solid #dddddd;
 	border-right: 1px solid #dddddd;
 }
+.JJ_main_contentDIV .IItemBox_content {
+	position: relative;
+	display: inline-block;
+	width: 100%;
+}
 /* ---------------------------------------------------- */
 /* -- 類別 -- */
-.JJ_main_contentDIV a.Jitem-inner .card_catDiv .wrap_box {
+.JJ_main_contentDIV a.Jitem-inner .card_catDiv .wrap_box,
+.JJ_main_contentDIV .card_catDiv .wrap_box {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
@@ -5206,11 +5244,13 @@
     align-items: center;
 }
 
-.JJ_main_contentDIV a.Jitem-inner .card_cat_item {
+.JJ_main_contentDIV a.Jitem-inner .card_cat_item,
+.JJ_main_contentDIV .card_cat_item {
     text-align: right
 }
 /* ---------------------------------------------------- */
-.JJ_main_contentDIV a.Jitem-inner .card_cat_TxT {
+.JJ_main_contentDIV a.Jitem-inner .card_cat_TxT,
+.JJ_main_contentDIV .card_cat_TxT {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
@@ -5235,7 +5275,8 @@
     transition-timing-function: cubic-bezier(.19, 1, .22, 1);
 }
 @media screen and (min-width: 320px) and (max-width: 991px) {
-	.JJ_main_contentDIV a.Jitem-inner .card_cat_TxT {
+	.JJ_main_contentDIV a.Jitem-inner .card_cat_TxT,
+	.JJ_main_contentDIV .card_cat_TxT {
 		font-size: 81.25%;
 		padding: 0.25rem 1.5rem;
 	}
@@ -5243,7 +5284,8 @@
 /* -- 類別 -- */
 /* ---------------------------------------------------- */
 /* -- 標題 -- */
-.JJ_main_contentDIV a.Jitem-inner .card_titleDiv { 
+.JJ_main_contentDIV a.Jitem-inner .card_titleDiv,
+.JJ_main_contentDIV .card_titleDiv { 
     position: relative;
     display: -webkit-box;
     display: -ms-flexbox;
@@ -5255,7 +5297,8 @@
     margin-top: 0.75rem;
 }
 /* ---------------------------------------------------- */
-.JJ_main_contentDIV a.Jitem-inner .card_title {
+.JJ_main_contentDIV a.Jitem-inner .card_title,
+.JJ_main_contentDIV .card_title {
 	/*font-size: max(0.9375vw, 87.5%);*/ /* JESS NEW (約106.25%) 寫法*/
     color: var(--blackcolor);
     font-weight: bold;
@@ -5275,31 +5318,34 @@
     transition-timing-function: cubic-bezier(.19, 1, .22, 1)
 }
 @media screen and (min-width: 320px) and (max-width: 991px) {	
-    .JJ_main_contentDIV a.Jitem-inner .card_title {
+    .JJ_main_contentDIV a.Jitem-inner .card_title,
+	.JJ_main_contentDIV .card_title {
         margin-right: 0px;
     }
 }
 @media screen and (max-width: 575px) {
-	.JJ_main_contentDIV a.Jitem-inner .card_title {
+	.JJ_main_contentDIV a.Jitem-inner .card_title,
+	.JJ_main_contentDIV .card_title {
 		font-size: 100%;
 	}
 }
 @media screen and (min-width: 576px) {
-	.JJ_main_contentDIV a.Jitem-inner .card_title {
-		font-size: 106.25%;
+	.JJ_main_contentDIV a.Jitem-inner .card_title,
+	.JJ_main_contentDIV .card_title {
+		font-size: 112.5%;
 	}
 }
 .JJ_main_contentDIV a:hover.Jitem-inner .card_title,
-.JJ_main_contentDIV a:focus.Jitem-inner .card_title{
+.JJ_main_contentDIV a:focus.Jitem-inner .card_title {
     color: var(--Customize_TXTHRcolor);
 }
 /* -- 標題 -- */
 /* ---------------------------------------------------- */
+/* 編者言 標題條列 顯示區 */
+/* ------------------------------------------------------------*/
 
-
-
-
-
+/* ------------------------------------------------------------*/
+/* 編者言 標題條列 分隔線 */
 .line-my-2 {
 	position: relative;
 	display: inline-block;
@@ -5309,8 +5355,11 @@
 	margin-top: 0.75rem;
 	margin-bottom: 0.75rem;
 }
+/* 編者言 標題條列 分隔線 */
+/* ------------------------------------------------------------*/
 
-/* -- 作者 -- */
+/* ------------------------------------------------------------*/
+/* 編者言 標題條列 作者 */
 .JJ_main_contentDIV .card_authorDiv { 
     position: relative;
     display: -webkit-box;
@@ -5361,18 +5410,11 @@
 .JJ_main_contentDIV .card_author{
     color: var(--Customize_TXTHRcolor);
 }
-/* -- 作者 -- */
-/* ---------------------------------------------------- */
-
-
-
-
-
-
+/* ------------------------------------------------------------*/
 .JJ_main_contentDIV .authorName {
     display: block;
 }
-
+/* ------------------------------------------------------------*/
 .JJ_main_contentDIV .authorName ul.authorName_list {
     display: -ms-flexbox;
     display: flex;
@@ -5414,14 +5456,14 @@
 .JJ_main_contentDIV .authorName .authorlist-item a:hover {
 	color: var(--Customize_TXTHRcolor); /* JESS重要 - 變更顏色*/
 }
-
+/* ------------------------------------------------------------*/
 .JJ_main_contentDIV .authorName .authorlist-item+.list-item {
 	padding-left: .5rem;
 }
 .JJ_main_contentDIV .authorName .authorlist-item+.authorlist-item:last-child {
 	padding-right: .5rem;
 }
-/*----------------------------------------------*/
+/* ------------------------------------------------------------*/
 .JJ_main_contentDIV .authorName .authorlist-item + .authorlist-item::before {
 	float: left;
 	padding: 0 0.5rem;
@@ -5437,24 +5479,521 @@
 .JJ_main_contentDIV .authorName .authorlist-item + .authorlist-item:hover::before {
 	text-decoration: none
 }
+/* 編者言 標題條列 作者 */
+/* ------------------------------------------------------------*/
+
+/* ------------------------------------------------------------*/
+/* 瀏覽次數 */
+.JJ_main_contentDIV .Div_All_BigTitle {
+	font-size: 100%;
+	font-size: 106.25%;
+}
+.JJ_main_contentDIV .Div_All_BigTitle {
+	font-weight: 600;
+}
+@media screen and (min-width: 320px) and (max-width: 991px) {
+	.JJ_main_contentDIV .Div_All_BigTitle {
+  		font-size: 93.75%;
+		font-size: 100%;	
+	}
+}
+/* 瀏覽次數 */
+/* ------------------------------------------------------------*/
+
+/* ------------------------------------------------------------*/
+/* 共用文字 */
+.JJ_main_contentDIV .Div_All_Ttext {
+	font-size: 93.75%;
+	font-size: 100%;
+}
+.JJ_main_contentDIV .Div_All_Ttext {
+	font-weight: 600;
+}
+@media screen and (min-width: 320px) and (max-width: 991px) {
+	.JJ_main_contentDIV .Div_All_Ttext {
+		  font-size: 93.75%;
+	}
+}
+
+.JJ_main_contentDIV .font-SW-normal {
+	font-size: 87.5%;
+	font-weight: normal;
+}
+/* 共用文字 */
+/* ------------------------------------------------------------*/
+
+/* ------------------------------------------------------------*/
+/* 有符號 UL LI */
+.JJ_main_contentDIV .Uncat ul {
+	padding-left: 0.75rem;
+	margin: 0;
+	/*list-style: none;*/
+}
+.JJ_main_contentDIV .Uncat ul li {
+	padding-left: 0.75rem;
+}
+.JJ_main_contentDIV .Uncat ul li::marker {
+	content: "◎";
+	display: block;
+}
+
+.JJ_main_contentDIV .Uncat ul li a {
+	color: var(--blackcolor);
+}
+.JJ_main_contentDIV .Uncat ul li a:hover {
+	color: var(--Customize_TXTHRcolor);
+}
+/* 有符號 UL LI */
+/* ------------------------------------------------------------*/
+
+/* ------------------------------------------------------------*/
+/* 無符號 UL LI */
+.JJ_main_contentDIV .Uncat_no_ls ul {
+	padding-left: 0;
+	margin: 0;
+	list-style: none;
+}
+.JJ_main_contentDIV .Uncat_no_ls ul li {}
+
+.JJ_main_contentDIV .Uncat_no_ls ul li a {
+	color: var(--blackcolor);
+}
+.JJ_main_contentDIV .Uncat_no_ls ul li a:hover {
+	color: var(--Customize_TXTHRcolor);
+}
+
+.JJ_main_contentDIV .G_Vline {
+	margin-left: 0.5rem;
+	margin-right: 0.5rem;
+	color: var(--G777color);
+}
+/* 無符號 UL LI */
+/* ------------------------------------------------------------*/
+
+/* ------------------------------------------------------------*/
+/* 全文可取得 按鈕 */
+.JJ_main_contentDIV ul.fulllist-group {
+	display: inline-block;
+	width: 100%;    
+	list-style: none;	
+	padding-left: 0;
+	margin-top: 0;
+    margin-bottom: 0rem;
+}
+
+.JJ_main_contentDIV ul.fulllist-group li {
+	float: left;
+	/*width: 100%;*/
+    /*width: calc((100% - (2.5px * 4)) / 2);*/    /* =col4 x 2個 */
+    width: calc((100% - (2.5px * 6)) / 3);    /* =col4 x 3個 */
+    /*width: calc((100% - (2.5px * 8)) / 4);*/        /* =col3 x 4個 */
+    /*width: calc((100% - (2.5px * 10)) / 5);*/        /* =col-? x 5個 */
+    /*width: calc((100% - (2.5px * 12)) / 6);*/        /* =col2 x 5個 */
+    margin-left: 2.5px;
+    margin-right: 2.5px;
+    margin-bottom: 5px; 
+    
+    border-radius: 4px;
+}
+@media screen and (min-width: 320px) and (max-width: 991px) {
+	.JJ_main_contentDIV ul.fulllist-group li {
+		display: flex;
+		align-content: center;
+		margin-left: 0px;
+        margin-right: 2.5px;
+        /*width: calc((100% - (2.5px * 4)) / 2);*/    /* =col4 x 2個 */
+        width: 100%;
+		min-height: 1px;
+	}
+}
+/* ------------------------------------------------------------*/
+.DownItem_Box {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+}
+@media screen and (max-width: 575px) {
+	.DownItem_Box {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
+/* ------------------------------------------------------------*/
+.JJ_main_contentDIV a.page-item {
+    position: relative;
+    display: inline-block;
+	font-size: 93.75%;
+	font-weight: 600;
+    color: var(--blackcolor);
+    
+    padding: .75rem 1.25rem;
+    background-color: var(--FFFcolor); /*FFFFFF*/
+    border: 1px solid #dddddd;
+	border-radius: 0.25rem;
+	
+	max-width: calc(100% - 138.333px);
+	max-width: calc(100% - 180px);
+}
+@media screen and (max-width: 575px) {
+	.JJ_main_contentDIV a.page-item {
+		font-size: 87.5%;
+		
+		max-width: calc(100% - 0px);
+	}
+}
+
+.JJ_main_contentDIV a.active.page-item, 
+.JJ_main_contentDIV a:focus.page-item, 
+.JJ_main_contentDIV a:hover.page-item {
+    z-index: 2;
+    color: var(--FFFcolor) !important;
+    background-color: #b7a24d !important;
+    border-color: #b7a24d !important;
+}
+.JJ_main_contentDIV a:focus.page-item {
+    outline: 4px solid var(--a_focusbordercolor) !important;
+	outline-offset: 0px !important;   
+}
+
+/* ------------------------------------------------------------*/
+.JJ_main_contentDIV a.page-item .icontxtbox {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: center;
+	width: 100%;
+}
+@media screen and (max-width: 575px) {
+	.JJ_main_contentDIV a.page-item .icontxtbox {
+		align-items: flex-start;
+	}
+}
+/* ------------------------------------------------------------*/
+.JJ_main_contentDIV a.page-item .page_icon {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	width: var(--Customize_size_32);
+	height: var(--Customize_size_32);
+	border-radius: 0.25rem;
+	background-color: #b7a24d;
+	margin-right: 1rem;
+}
+@media screen and (max-width: 575px) {
+	.JJ_main_contentDIV a.page-item .page_icon {
+		margin-top: 0.25rem;
+	}
+}
+.JJ_main_contentDIV a.page-item .page_icon i {
+	font-size: 112.5%;
+	color: var(--FFFcolor);
+}
+/* ------------------------------------------------------------*/
+/* hover */
+.JJ_main_contentDIV a:hover.page-item .page_icon {
+    color: #b7a24d;
+    background-color: var(--FFFcolor);;
+}
+.JJ_main_contentDIV a:hover.page-item .page_icon i {
+	color: #b7a24d;
+}
+/* hover */
+/* ------------------------------------------------------------*/
+.JJ_main_contentDIV a.page-item .icontxt {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	width: calc(100% - 32px - 1rem);
+	
+	font-size: inherit;
+	font-weight: 600;
+}
+/* ------------------------------------------------------------*/
+.JJ_main_contentDIV a.page-item .icontxtbox .ii_image {
+	max-width: 130px;
+	display: block;
+}
+.JJ_main_contentDIV a:hover.page-item .icontxtbox .ii_image {
+	display: none;
+}
+
+.JJ_main_contentDIV a.page-item .icontxtbox .ii_image_hover {
+	max-width: 130px;
+	display: none;
+}
+.JJ_main_contentDIV a:hover.page-item .icontxtbox .ii_image_hover {
+	display: block;
+}
+/* ------------------------------------------------------------*/
+.JJ_main_contentDIV .G_Vline_Down {
+	margin-left: 0.5rem;
+	margin-right: 0.5rem;
+	color: var(--G777color);
+}
+@media screen and (max-width: 575px) {
+	.JJ_main_contentDIV .G_Vline_Down {		
+		display: none;
+	}
+}
+
+.JJ_main_contentDIV .views {}
+@media screen and (max-width: 575px) {
+	.JJ_main_contentDIV .views {
+		margin-top: 0.75rem;
+	}
+}
+/* 全文可取得 按鈕 */
+/* ------------------------------------------------------------*/
+
+/* ------------------------------------------------------------*/
+/* 開放觀點 */
+.JJ_main_contentDIV .iio_image {
+	max-width: 165px;
+	max-width: 160px;
+}
+
+.JJ_main_contentDIV ul.openlist-group {
+	display: inline-block;
+	width: 100%;    
+	list-style: none;	
+	padding-left: 0;
+	margin-top: 0;
+    margin-bottom: 0rem;
+}
+
+.JJ_main_contentDIV ul.openlist-group li {
+	float: left;
+	width: 100%;
+    /*width: calc((100% - (2.5px * 4)) / 2);*/    /* =col4 x 2個 */
+    /*width: calc((100% - (2.5px * 6)) / 3);*/    /* =col4 x 3個 */
+    /*width: calc((100% - (2.5px * 8)) / 4);*/        /* =col3 x 4個 */
+    /*width: calc((100% - (2.5px * 10)) / 5);*/        /* =col-? x 5個 */
+    /*width: calc((100% - (2.5px * 12)) / 6);*/        /* =col2 x 5個 */
+    margin-left: 2.5px;
+    margin-right: 2.5px;
+    margin-bottom: 5px; 
+    
+    border-radius: 4px;
+}
+@media screen and (min-width: 320px) and (max-width: 991px) {
+	.JJ_main_contentDIV ul.openlist-group li {
+		display: flex;
+		align-content: center;
+		margin-left: 0px;
+        margin-right: 2.5px;
+        /*width: calc((100% - (2.5px * 4)) / 2);*/    /* =col4 x 2個 */
+        width: 100%;
+		min-height: 1px;
+	}
+}
+/* 開放觀點 */
+/* ------------------------------------------------------------*/
+
+/* ------------------------------------------------------------*/
+/* 相關檔案 UL LI */
+.JJ_main_contentDIV ul.filelist-group {
+	display: inline-block;
+	width: 100%;    
+	list-style: none;	
+	padding-left: 0;
+	margin-top: 0;
+    margin-bottom: 0rem;
+}
+
+.JJ_main_contentDIV ul.filelist-group li {
+	float: left;
+    width: calc((100% - (2.5px * 4)) / 2);    /* =col4 x 2個 */
+    /*width: calc((100% - (2.5px * 6)) / 3);*/    /* =col4 x 3個 */
+    /*width: calc((100% - (2.5px * 8)) / 4);*/        /* =col3 x 4個 */
+    /*width: calc((100% - (2.5px * 10)) / 5);*/        /* =col-? x 5個 */
+    /*width: calc((100% - (2.5px * 12)) / 6);*/        /* =col2 x 5個 */
+    margin-left: 2.5px;
+    margin-right: 2.5px;
+    margin-bottom: 5px; 
+    
+    border-radius: 4px;
+}
+@media screen and (min-width: 320px) and (max-width: 991px) {
+	.JJ_main_contentDIV ul.filelist-group li {
+		display: flex;
+		align-content: center;
+		margin-left: 0px;
+        margin-right: 2.5px;
+        /*width: calc((100% - (2.5px * 4)) / 2);*/    /* =col4 x 2個 */
+        width: 100%;
+		min-height: 1px;
+	}
+}
+/* 相關檔案 UL LI */
+/* ------------------------------------------------------------*/
+
+/* ------------------------------------------------------------*/
+/* 標題展開 / 標題收合 ALL Content */
+.Expand_Close_Bar ul.EC_info {
+    padding: 0;
+    margin-bottom: 0;
+    list-style: none;
+    width: 100%;
+}
+/* ------------------------------------------------------------*/
+.Expand_Close_Bar .card {
+    position: relative;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: var(--FFFcolor);
+    background-clip: border-box;
+    border: none;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+.Expand_Close_Bar .card:last-child {
+    margin-bottom: 0;
+}
+/* ------------------------------------------------------------*/
+.Expand_Close_Bar .card .card-header { 
+    font-size: 100%;
+    font-weight: bold;
+    padding: 0;
+    background-color: transparent;
+    border-bottom: none;
+}
+@media screen and (min-width: 320px) and (max-width: 575px) {
+    .Expand_Close_Bar .card .card-header {
+        font-size: 93.75%;
+    }
+}
+/* ------------------------------------------------------------*/
+/* ===== [ card-link 標題 ] ===== */
+.Expand_Close_Bar .card-header a.card-link {
+    display: block;
+    /*font-size: 93.75%;*/
+    font-weight: 600;
+    color: var(--blackcolor);    
+    text-decoration: none;
+    padding: 0.75rem 1.25rem;
+	padding: 1.25rem 0rem;
+    
+    border: none;
+    border-bottom: 1px solid #dddddd;
+    background-color: #efefef;
+    background-color: transparent;
+}
+@media screen and (min-width: 320px) and (max-width: 575px) {
+    .Expand_Close_Bar .card-header a.card-link {
+        /*font-size: 93.75%;*/
+    }
+}
+/* =============================================================== */
+.Expand_Close_Bar .card-header a.card-link[aria-expanded="false"] {
+    color: var(--blackcolor);       /* 未展開文字顏色 */
+    background-color: transparent;  /* 未展開背景顏色 */
+}
+.Expand_Close_Bar .card-header a.card-link[aria-expanded="true"] {
+    color: var(--blackcolor);                  /* 展開改變文字顏色 */
+    background-color: rgb(218, 194, 90);  /* 展開改變背景顏色 */
+	background-color: transparent;  /* 展開改變背景顏色 */
+}
+/* =============================================================== */
+/* =============================================================== */
+.Expand_Close_Bar .card-header a.card-link .Div_All_BigTitle {
+	font-size: 106.25%;
+}
+
+.Expand_Close_Bar .card-header a.card-link .Div_All_BigTitle {
+	font-weight: 600;
+}
+@media screen and (min-width: 320px) and (max-width: 991px) {
+	.Expand_Close_Bar .card-header a.card-link .Div_All_BigTitle {
+		  font-size: 93.75%;
+	}
+}
+/* =============================================================== */
+/* ===== [ card-link 標題 ] ===== */
+/* ------------------------------------------------------------*/
+
+/* ------------------------------------------------------------*/
+/* ===== [ card-link 箭頭 ] ===== */
+.Expand_Close_Bar .card-header a.card-link:not(.collapsed)::after {}
+/* 預設：向下 */
+.Expand_Close_Bar .card-header a.card-link::after {
+	font-family: 'Font Awesome 5 Pro';
+	content: "\f055";
+	font-size: 100%;
+	float: right;
+	width: 1.25rem;
+	height: 1.25rem;
+	margin-left: auto;
+	margin-right: 1.25rem;
+	transition: transform .2s ease-in-out;
+}
+
+/* 展開時：旋轉 180 度（變向上） */
+.Expand_Close_Bar .card-header a.card-link:not(.collapsed)::after {
+	font-family: 'Font Awesome 5 Pro';
+	content: "\f056";
+    transform: rotate(0deg);
+}
+/* ===== [ card-link 箭頭 ] ===== */
+/* ------------------------------------------------------------*/
+
+/* ------------------------------------------------------------*/
+/* 展開_內容顯示  */
+.Expand_Close_Bar .card-body {
+    border-top: 1px solid rgba(0, 0, 0, .1);
+    padding-top: 1.35rem;
+    padding-bottom: 1.35rem;
+	border-left: 1px solid #ffb250;
+}
+
+.Expand_Close_Bar .card-body p.pp_text,
+.Expand_Close_Bar .card-body div.pp_text {
+    font-size: 93.75%;
+	line-height: 2;
+    color: var(--blackcolor);
+}
+@media screen and (min-width: 320px) and (max-width: 575px) {
+    .Expand_Close_Bar .card-body p.pp_text,
+	.Expand_Close_Bar .card-body div.pp_text {
+        font-size: 87.5%;
+    }
+}
+.Expand_Close_Bar .card-body div.pp_text:last-child,
+.Expand_Close_Bar .card-body p.pp_text:last-child {
+    margin-bottom: 0;
+}
 
 
+.Expand_Close_Bar .card-body ul.pp_list {
+	padding: 0;
+	margin: 0;
+	list-style: none;
+	color: var(--blackcolor);
+}
+/* 展開_內容顯示 */
+/* ------------------------------------------------------------*/
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/* 標題展開 / 標題收合 ALL Content */
+/* ------------------------------------------------------------*/
 
 /* =============================================================== */
 /* =====  內頁  客製 年分期數內容顯示  /////  ( 客製化 用 )  ========== */

@@ -5,6 +5,7 @@
         public const int ID = 20;
         public const int Name= 50;
         public const int Title = 200;
+        public const int Title_en = 500;
         public const int Memo= 1000;
         public const int InternalId= 36;
         public const int Path = 100;
@@ -19,6 +20,5 @@
         public const int Phone = 30;
         public const int Lang= 10;
         public const int Info = 50;
-
     }
 }

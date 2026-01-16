@@ -5,7 +5,7 @@ import { useMemo, useState } from "react"
 import { useLocation } from 'react-router-dom';
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp"
 import type { components } from "@/types/api";
-import { FileArchiveSetFields, FileArchiveFields, FileArchiveInfoFields } from "@/types/SchemaFields";
+import { FileArchiveSetFields, FileArchiveFields, FileArchiveInfoFields, AccountFields } from "@/types/SchemaFields";
 import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook"
 import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions"
 import FileArchiveProvider from "@/Features/Hooks/BizFunc/WebManagement/FileArchive/FileArchive_Api"
@@ -87,6 +87,7 @@ const useFileArchiveList = (provider: IDataProvider<FileArchiveSet>, lang: Lang,
             [FileArchiveSetFields.FileArchiveInfo, FileArchiveInfoFields.Title],
             [FileArchiveSetFields.FileArchive, FileArchiveFields.CreateTime],
             [FileArchiveSetFields.FileArchive, FileArchiveFields.ModifyUserId],
+            [FileArchiveFields.ModifyUser, AccountFields.AccountName],
             [FileArchiveSetFields.FileArchive, FileArchiveFields.ModifyTime],
         ],
         buildQueryCondition: (page) => ({
@@ -98,6 +99,7 @@ const useFileArchiveList = (provider: IDataProvider<FileArchiveSet>, lang: Lang,
                 `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Lang}`,
                 `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Title}`,
                 FileArchiveFields.ModifyUserId,
+                `${FileArchiveFields.ModifyUser}.${AccountFields.AccountName}`,
                 FileArchiveFields.CreateTime,
                 FileArchiveFields.ModifyTime,
             ],
@@ -122,6 +124,9 @@ const useFileArchiveList = (provider: IDataProvider<FileArchiveSet>, lang: Lang,
                             content = FormatDateTime((data as any)[col.key]);
                             break;
                         }
+                    case FileArchiveFields.ModifyUserId:
+                        content = item.FileArchive?.ModifyUser?.AccountName ?? "";
+                        break;
                     default:
                         {
                             content = (item.FileArchive as any)[col.key] ?? "";

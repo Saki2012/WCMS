@@ -17,7 +17,7 @@ namespace WCMS.Features.SiteEdit.Tag
     public class TagData : MasterDataModel
     {
         /// <summary>
-        /// 類別ID
+        /// 標籤ID
         /// </summary>
         [Key, StringLength(SysLengthParam.ID)] public string TagId { get; set; } = string.Empty;
         /// <summary>

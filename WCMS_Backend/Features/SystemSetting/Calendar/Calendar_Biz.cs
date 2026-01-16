@@ -44,7 +44,7 @@ namespace WCMS.Features.SystemSetting.Calendar
         /// <returns></returns>
         public async Task InitCalendar(CancellationToken ct)
         {
-            if (await BizQueryTotalCounts([nameof(CalendarModel.Year)], string.Empty) != 0) return;// 已有資料就不再初始化
+            if (await BizQueryTotalCounts(string.Empty) != 0) return;// 已有資料就不再初始化
             List<NtpcCalendar> items = await CallNtpcAPIAsync(null,ct);
             List<CalendarDetail> lst = ConvertNtpcToModel(items);
             List<CalendarSet> result = FillMissingDate(lst, NtpcCalendar.Code);
@@ -63,7 +63,7 @@ namespace WCMS.Features.SystemSetting.Calendar
             {
                 ownsTx = await TryBeginTransactionAsync();
                 CalendarSet dbSet = await GetUpdateDayInfoSet(dayInfo, ct);
-                CalendarSet oldCache = dbSet.DeepClone();
+                CalendarSet oldCache = dbSet.Snapshot();
                 oldCache.Calendar.DataVersion = dbSet.Calendar.DataVersion;
                 CalendarSet newSet = new() { Calendar = dbSet.Calendar, CalendarDetail = [dbSet.CalendarDetail.FirstOrDefault()] };
                 SetModifyTime(newSet);

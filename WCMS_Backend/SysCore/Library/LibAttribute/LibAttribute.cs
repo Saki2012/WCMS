@@ -19,32 +19,24 @@ namespace WCMS.SysCore.Library.LibAttribute
     [AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = false)]
     public sealed class LibDescAttribute : DescriptionAttribute
     {
-        private readonly ResourceManager _coreResourceManager;
-        private readonly ResourceManager? _specResourceManager;
         private string? _resourceKey;
-        private readonly string CurrentSpecCode = SpecSettings.SpecCode; // 之後換成從 appsettings / 環境變數讀
-        public LibDescAttribute(string resKey="")
-        {
-            if(!resKey.IsNullOrEmpty()) _resourceKey = resKey;
-            // 可以改成從 DI 注入或集中設定資源路徑
-            _coreResourceManager = new ResourceManager(typeof(ModelDisplayName).FullName, Assembly.GetExecutingAssembly());
-            if (!string.IsNullOrEmpty(CurrentSpecCode))
-            {
-                var specBaseName = $"WCMS.SpecFeatures.{CurrentSpecCode}.Resx.SpecModelDisplayName";
-                _specResourceManager = new ResourceManager(specBaseName, Assembly.GetExecutingAssembly());
-            }
-        }
+        private readonly string CurrentSpecCode = SpecSettings.SpecCode;
+        public LibDescAttribute(string resKey = ""){if (!resKey.IsNullOrEmpty()) _resourceKey = resKey;}
         public void SetResourceKey(string key) => _resourceKey = key;
         public override string Description
         {
             get
             {
-                if (string.IsNullOrEmpty(_resourceKey)) return string.Empty;
-                var culture = CultureInfo.CurrentUICulture;
-                string? value = null;
-                if (_specResourceManager != null) value = _specResourceManager.GetResourceSet(culture, true, false)?.GetString(_resourceKey);
-                if (string.IsNullOrEmpty(value)) value = _coreResourceManager.GetResourceSet(culture, true, false)?.GetString(_resourceKey);
-                return string.IsNullOrEmpty(value) ? $"[{_resourceKey}]" : value;
+                // 1) 沒 key 就回空
+                if (string.IsNullOrWhiteSpace(_resourceKey)) return string.Empty;
+                // 2) 組 baseName（Spec 可空）
+                var coreBaseName = typeof(ModelDisplayName).FullName!;
+                var specBaseName = string.IsNullOrWhiteSpace(CurrentSpecCode) ? null : $"WCMS.SpecFeatures.{CurrentSpecCode}.Resx.SpecModelDisplayName";
+                // 3) 共用 reader：Spec -> Core
+                var asm = typeof(ModelDisplayName).Assembly;
+                var value = LibResxReader.TryGetSpecOrCore(coreBaseName, specBaseName, asm, _resourceKey, CultureInfo.CurrentUICulture);
+                // 4) 找不到就回 [key]
+                return string.IsNullOrWhiteSpace(value) ? $"[{_resourceKey}]" : value;
             }
         }
     }

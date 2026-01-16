@@ -99,7 +99,7 @@ export default function LoginPage() {
                   <div className="page-title mr-3 + animate__animated animate__fadeInRight delay__15">會員登入 Login</div>
                   <ul className="switcher-wrap + animate__animated animate__fadeInRight delay__175">
                     {/* 內部路由導向註冊頁（之後我們會實作 /Server/Register） */}
-                    <li><LangLink to="/Server/Register" className="switcher-btn">會員註冊 Register</LangLink></li>
+                    {/* <li><LangLink to="/Server/Register" className="switcher-btn">會員註冊 Register</LangLink></li> */}
                   </ul>
                 </div>
 
@@ -192,9 +192,9 @@ export default function LoginPage() {
                       )}
                     </form>
 
-                    <div className="switcher-description + animate__animated animate__fadeInRight delay__275">
+                    {/* <div className="switcher-description + animate__animated animate__fadeInRight delay__275">
                       沒有帳戶？&nbsp;&nbsp;<LangLink to="/Server/Register" className="switcher-text ms-1">Register</LangLink>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>

@@ -28,10 +28,10 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.Tag
             switch (progId)
             {
                 case "SpecUSR":
-                    useCount = await DoQueryListCountAsync<SpecUSRModel>([nameof(BasicDataModel.InternalId)], $@"{nameof(SpecUSRModel.Tags)} HasAny {tagId}");
+                    useCount = await DoQueryListCountAsync<SpecUSRModel>($@"{nameof(SpecUSRModel.Tags)} HasAny {tagId}");
                     break;
                 case "SpecResearch":
-                    useCount = await DoQueryListCountAsync<SpecResearchModel>([nameof(BasicDataModel.InternalId)], $@"{nameof(SpecResearchModel.Tags)} HasAny {tagId}");
+                    useCount = await DoQueryListCountAsync<SpecResearchModel>($@"{nameof(SpecResearchModel.Tags)} HasAny {tagId}");
                     break;
             }
             if (useCount > 0) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00017, tagName);

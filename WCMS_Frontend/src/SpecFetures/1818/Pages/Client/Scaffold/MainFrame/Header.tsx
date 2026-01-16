@@ -86,7 +86,7 @@ const Header_Section = (props: { lang: Lang; site: INormSite }) => {
                         <li>
                             <ul className="nav custom_nav py-0 justify-content-center my-1" ref={sizeGroupRef}>
                                 <LangSwitchBtn site={props.site} />
-                                <SearchBar />
+                                {/* <SearchBar /> */}
                             </ul>
                         </li>
                     </ul>
@@ -360,8 +360,11 @@ const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
                 {menuItems.map((item) => {
                     return (
                         <>
-                            {/* <SingleMenuItem menuItem={item} /> */}
-                            <DropdownMenuItem menuItem={item} />
+                            {
+                                item.SubItem?.length === 0 ?
+                                    <SingleMenuItem menuItem={item} /> :
+                                    <DropdownMenuItem menuItem={item} />
+                            }
                             {/* <MegaMenuItem menuItem={item} /> */}
                         </>)
                 })}

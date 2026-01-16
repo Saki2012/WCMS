@@ -66,7 +66,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
     {
         [LibDesc(SpecModelDisplayName.SpecUSRId),StringLength(SysLengthParam.ID), Key] public string? USRId { get; set; }
         [LibDesc(ModelDisplayName.Common_RowId), Key] public int RowId { get; set; }
-        [LibDesc(ModelDisplayName.Common_Lang), Required, StringLength(5)] public LangCode? Lang { get; set; } = default!;
+        [LibDesc(ModelDisplayName.Common_Lang), Required] public LangCode? Lang { get; set; } = default!;
         [LibDesc(SpecModelDisplayName.SpecUSR_Year), StringLength(10)] public string? Year { get; set; }
         [LibDesc(SpecModelDisplayName.SpecUSR_AcademicYear)] public int? AcademicYear { get; set; }
         [LibDesc(SpecModelDisplayName.SpecUSR_Courses), StringLength(200)] public string? Courses { get; set; }

@@ -130,7 +130,7 @@ const Account_Comp = (props: {
                 <div className="col form-group">
                     <div className="row mx-0">
                         <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(AccountSetFields.Account, AccountFields.AccountId, "string")} disabled={!props.isAddNew} />
-                        <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(AccountSetFields.Account, AccountFields.AccountName, "string")} disabled={!props.isAddNew} />
+                        <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(AccountSetFields.Account, AccountFields.AccountName, "string")} />
                     </div>
                 </div>
             </div>

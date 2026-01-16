@@ -74,6 +74,7 @@ const useBannerListData = (provider: IDataProvider<BannerSet>, query: string) =>
                 BannerFields.BannerCategoryName,
                 // 缺Name
                 BannerFields.ModifyUserId,
+                `${BannerFields.ModifyUser}.${AccountFields.AccountName}`,
                 // 缺Name
                 BannerFields.CreateTime,
                 BannerFields.ModifyTime,
@@ -95,6 +96,9 @@ const useBannerListData = (provider: IDataProvider<BannerSet>, query: string) =>
                             content = FormatDateTime(item.Banner?.ModifyTime) ?? "";
                             break;
                         }
+                    case BannerFields.ModifyUserId:
+                        content = item.Banner?.ModifyUser?.AccountName ?? "";
+                        break;
                     default:
                         {
                             content = (item.Banner as any)[col.key] ?? "";

@@ -1,7 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using WCMS.Features.BizResx;
 using WCMS.SysCore;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using static WCMS.SysCore.Enum.SysEnum;

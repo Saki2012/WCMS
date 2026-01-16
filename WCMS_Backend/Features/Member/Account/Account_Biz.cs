@@ -57,7 +57,7 @@ namespace WCMS.Features.Member.Account
                 var ok = PasswordHasher.Verify(oldPassword, oldSet.Account.PasswordHash, oldSet.Account.PasswordSalt, oldSet.Account.PasswordAlgoVer);
                 if (ok) 
                 { 
-                    AccountSet newSet = oldSet.DeepClone();
+                    AccountSet newSet = oldSet.Snapshot();
                     ConvertPassword(newSet, newPassword);
                     await DoUpdateAsync(oldSet, newSet);
                     if (Message.HasError) return ;
@@ -82,7 +82,7 @@ namespace WCMS.Features.Member.Account
                 ownsTx = await TryBeginTransactionAsync();
                 if (Message.HasError) return;
                 AccountSet oldSet = await DoQuerySetAsync(internalId);
-                AccountSet newSet = oldSet.DeepClone();
+                AccountSet newSet = oldSet.Snapshot();
                 ConvertPassword(newSet, newPassword);
                 await DoUpdateAsync(oldSet, newSet);
                 if (Message.HasError) return;
@@ -142,7 +142,7 @@ namespace WCMS.Features.Member.Account
 
         private async Task AutoCreatePersonData(string personId,string personName)
         {
-            if(await this.personBiz.BizQueryTotalCounts([nameof(PersonModel.PersonId)], $"{nameof(PersonModel.PersonId)} = {personId}") == 0)
+            if(await personBiz.BizQueryTotalCounts($"{nameof(PersonModel.PersonId)} = {personId}") == 0)
             {
                 await personBiz.BizCreateSetAsync(new PersonSet()
                 {

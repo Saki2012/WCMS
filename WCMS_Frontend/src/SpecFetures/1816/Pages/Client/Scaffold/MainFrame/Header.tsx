@@ -288,7 +288,7 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
                             <LogoComp />
                             <MobileBtn />
                             <MainMenu {...props} onCollapseAll={collapseAll} menuRootRef={menuRef} />
-                            <PCBtn />
+                            {/* <SearchBtn /> */}
                         </div>
                     </div>
                 </div>
@@ -397,7 +397,7 @@ const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme; onColla
         </div>
     )
 }
-const PCBtn = () => {
+const SearchBtn = () => {
     return (
         <div className="pc-box">
             <div className="icons">

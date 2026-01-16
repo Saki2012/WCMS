@@ -3519,20 +3519,24 @@
 /* ===== [ card-link 標題 ] ===== */
 /* =============================================================== */
 /* ===== [ card-link 箭頭 ] ===== */
-.FAQBar .card-header a.card-link:not(.collapsed)::after {
-	content: "\f077";
-	/*transform: rotate(-180deg);*/
-}
+.FAQBar .card-header a.card-link:not(.collapsed)::after {}
+/* 預設：向下 */
 .FAQBar .card-header a.card-link::after {
 	font-family: 'Font Awesome 5 Pro';
+	content: "\f078";
 	font-size: 87.5%;
-	flex-shrink: 0;
 	float: right;
 	width: 1.25rem;
 	height: 1.25rem;
 	margin-left: auto;
-	content: "\f078";
 	transition: transform .2s ease-in-out;
+}
+
+/* 展開時：旋轉 180 度（變向上） */
+.FAQBar .card-header a.card-link:not(.collapsed)::after {
+	font-family: 'Font Awesome 5 Pro';
+	content: "\f077";
+    transform: rotate(0deg);
 }
 /* ===== [ card-link 箭頭 ] ===== */
 /* =============================================================== */

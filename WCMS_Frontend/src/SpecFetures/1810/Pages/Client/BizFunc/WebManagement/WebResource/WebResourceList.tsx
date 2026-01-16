@@ -16,6 +16,7 @@ import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/B
 import { isWithinLastNDaysFromString } from "../Announcement/AnnouncementList";
 import { PGID } from "@/Features/Hooks/Common/ProgId";
 import { resolveYoutubeEmbedUrl, type IWebResourceListProps } from "@/Features/Pages/Client/BizFunc/WebManagement/WebResource/WebResourceList";
+import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 // type TagSet = components["schemas"]["TagSet_DTO"];
@@ -191,7 +192,11 @@ const PictureListContent = (prop: { lang: string, datas: WebResourceSet[] }) => 
     </>)
 }
 const GridList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
-    return (<Grid gridData={prop.GridData} style={prop.Theme.GridView} pageStyle={prop.Theme.Paginator}></Grid>)
+    return (
+        <>
+            <OperationGuideHelp_Comp />
+            <Grid gridData={prop.GridData} style={prop.Theme.GridView} pageStyle={prop.Theme.Paginator} />
+        </>)
 }
 
 
@@ -208,7 +213,7 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: WebResourc
             // 只在特定欄位調整內容
             switch (cell.col.key) {
                 case WebResourceFields.Categories:
-                    nextContent = useFormatCategoriesName(curRow?.WebResource?.Categories ?? "", catData);
+                    nextContent = useFormatCategoriesName(curRow?.WebResource?.Categories ?? "", catData, lang);
                     break;
                 case WebResourceInfoFields.ResUrl:
                     nextContent = SetUrlIcon(curDt?.ResUrl ?? "", curDt?.Content ?? "", curDt?.Url_OpenType ?? 0);

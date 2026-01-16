@@ -6,7 +6,7 @@ import { useLocation } from 'react-router-dom';
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp"
 import type { components } from "@/types/api";
 import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
-import { PageManagementSetFields, PageManagementFields, PageManagementDetailFields } from "@/types/SchemaFields";
+import { PageManagementSetFields, PageManagementFields, PageManagementDetailFields, AccountFields } from "@/types/SchemaFields";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions";
 import { GridCol_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp";
@@ -111,6 +111,7 @@ const usePageManagementListData = (provider: IDataProvider<PageManagementSet>, l
                 `${PageManagementFields._PageManagementDetail}.${PageManagementDetailFields.Lang}`,
                 `${PageManagementFields._PageManagementDetail}.${PageManagementDetailFields.Title}`,
                 PageManagementFields.ModifyUserId,
+                `${PageManagementFields.ModifyUser}.${AccountFields.AccountName}`,
                 // 缺Name
                 PageManagementFields.CreateTime,
                 PageManagementFields.ModifyTime,
@@ -135,6 +136,9 @@ const usePageManagementListData = (provider: IDataProvider<PageManagementSet>, l
                     case PageManagementFields.CreateTime:
                     case PageManagementFields.ModifyTime:
                         content = FormatDateTime((data as any)[col.key]);
+                        break;
+                    case PageManagementFields.ModifyUserId:
+                        content = item.PageManagement?.ModifyUser?.AccountName ?? "";
                         break;
                     default:
                         content = (data as any)[col.key] ?? "";

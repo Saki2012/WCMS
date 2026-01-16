@@ -9,7 +9,11 @@ export const LangLabelMap: Record<Lang, string> = {
     "zh-cn": "简体中文",
     "en": "English",
 };
-
+export const getLangLabel = (code?: string) =>
+{
+    const key = (code ?? "").trim() as Lang;
+    return (LangLabelMap as any)[key] ?? (code ?? "");
+};
 /** 下面這三個應該要從SiteInfo讀出來的結果來處理，後續再看如何移除 */
 export const DefaultLang: Lang = "zh-tw";
 export const SUPPORTED_LANGS: Lang[] = ["zh-tw", "en"]; /** 支援語系，之後做參數設定 */

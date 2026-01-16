@@ -83,7 +83,7 @@ namespace WCMS.SysCore.Interface
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public Task<int> BizQueryTotalCounts(string[] selectFields, string condition);
+        public Task<int> BizQueryTotalCounts(string condition);
 
         /// <summary>
         /// 啟用交易控制(非同步)

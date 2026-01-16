@@ -368,6 +368,7 @@ const deriveName = (
 /** 回傳給 <LibFileInput /> 可以直接展開的屬性 */
 export interface FileFieldBindProps
 {
+    ColumnDisplayName: string;
     InputValue: string; // 檔名（可編輯）
     InternalId: string; // 檔案 internalId（唯讀顯示）
     onFileUploaded: (internalId: string, originalName?: string) => void;
@@ -529,8 +530,11 @@ export const useSetTableFileField = <TSet>(formData: UseFetchFormDataResult<TSet
                 if (!fileNameField) return; // 未提供檔名欄位就無動作
                 updateRow((row) => ({ ...row, [fileNameField]: name }));
             };
+            const label = getColumnDisplayName(formData.displayName ?? null, String(tableName), String(fileIdField))
+                || `[${String(fileIdField)}]`;
 
             return {
+                ColumnDisplayName: label,
                 InputValue: fileNameField ? currentName : "", // 若沒提供檔名欄位就回空字串
                 InternalId: currentId,
                 onFileUploaded,

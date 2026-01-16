@@ -50,7 +50,7 @@ export const Classic_SidebarMenu: IMenu_Style = {
 
 /** 頁籤樣式 */
 export const Classic_LibTabs: ILibTabsStyle = {
-    UlStyle: clsx("nav", "nav-tabs"),
+    UlStyle: clsx("nav", "nav-tabs", "wcms-tabs"),
     LiStyle: clsx("nav-item"),
     BtnStyle: clsx("nav-link"),
 };

@@ -62,7 +62,7 @@ export const AboutPage = (props: { lang: Lang }) => {
 								</article>
 								<div className="col-12 + btn-w100-wrapper justify-content-center mt-3 mb-5">
 									<div className="customize_btn">
-										<a className="Btn_a" href="https://www.youtube.com/@taiwantradmus8182?sub_confirmation=1" role="button" tabIndex={0} target="_blank" title="更多系所公告" type="button">
+										<a className="Btn_a" href="https://www.youtube.com/@taiwantradmus8182?sub_confirmation=1" role="button" tabIndex={0} target="_blank" title="更多傳音系影音" type="button">
 											<div className="BtnBox">
 												<span>More View</span>
 												<span className="ml-2">+</span>
@@ -99,7 +99,7 @@ export const AboutPage = (props: { lang: Lang }) => {
 									</div>
 									<div className="col-12 + btn-w100-wrapper justify-content-start mt-5">
 										<div className="customize_btn">
-											<LangLink className="Btn_a" to="/department/department-intro" role="button" tabIndex={0} target="_self" title="更多系所公告" type="button">
+											<LangLink className="Btn_a" to="/department/department-intro" role="button" tabIndex={0} target="_self" title="更多傳音系介紹" type="button">
 												<div className="BtnBox">
 													<span>More View</span>
 													<span className="ml-2">+</span>
@@ -139,7 +139,7 @@ export const AboutPage = (props: { lang: Lang }) => {
 									</div>
 									<div className="col-12 + btn-w100-wrapper justify-content-center mt-3">
 										<div className="customize_btn">
-											<LangLink className="Btn_a" to="/videos/online-msc" role="button" tabIndex={0} target="_self" title="更多系所公告" type="button">
+											<LangLink className="Btn_a" to="/videos/online-msc" role="button" tabIndex={0} target="_self" title="更多音樂線上試聽" type="button">
 												<div className="BtnBox">
 													<span>More View</span>
 													<span className="ml-2">+</span>

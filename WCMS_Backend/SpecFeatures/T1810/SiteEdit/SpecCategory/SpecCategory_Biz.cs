@@ -177,10 +177,10 @@ namespace WCMS.Features.SiteEdit.SpecCategory
             switch (progId)
             {
                 case "SpecUSR":
-                    useCount = await DoQueryListCountAsync<SpecUSRModel>([nameof(BasicDataModel.InternalId)], $@"{nameof(SpecUSRModel.CategoryId)} = {cateId}");
+                    useCount = await DoQueryListCountAsync<SpecUSRModel>($@"{nameof(SpecUSRModel.CategoryId)} = {cateId}");
                     break;
                 case "SpecResearch":
-                    useCount = await DoQueryListCountAsync<SpecResearchModel>([nameof(BasicDataModel.InternalId)], $@"{nameof(SpecResearchModel.CategoryId)} = {cateId}");
+                    useCount = await DoQueryListCountAsync<SpecResearchModel>($@"{nameof(SpecResearchModel.CategoryId)} = {cateId}");
                     break;
             }
             if (useCount > 0) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00018, cateName);

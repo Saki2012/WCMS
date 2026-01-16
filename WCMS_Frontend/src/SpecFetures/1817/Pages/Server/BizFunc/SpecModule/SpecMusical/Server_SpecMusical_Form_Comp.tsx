@@ -327,26 +327,13 @@ const SoundFileComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
     return (
         <>
             <div role="group" className="mt-4">
-                <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-secondary mb-2">新增附件</button>
+                <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-outline-primary mb-2">新增附件</button>
                 {getFiles().map((f, i) => {
                     const rowKeys = { [SpecMusicalSoundListFields.MusicalId]: f.MusicalId, [SpecMusicalSoundListFields.RowId]: f.RowId, }
                     return (
                         <div key={`${f.RowId}`} className="flex items-center gap-2 mb-2">
-                            <LibFileInput
-                                Style={props.theme.FileInput}
-                                DefaultInputDisplay="請輸入附件說明"
-                                // 直接展開！只要給：表名、id欄位、name欄位(可選)、rowKeys(可選)、options(可選)
-                                {...setFileField(
-                                    SpecMusicalSetFields.SpecMusicalSoundList,
-                                    SpecMusicalSoundListFields.SoundSrcId,      // ← internalId 欄位
-                                    SpecMusicalSoundListFields.Info,       // ← 檔名欄位（可省略）
-                                    rowKeys,                               // ← 指定哪一列
-                                    { defaultNameFromOriginal: "basename" }               // ← 第一次上傳自動帶入不含副檔名
-                                )}
-                                // 其他 UI 行為仍由你自己控制
-                                Accept="audio/*,.mp3,.wav,.flac,.m4a,.aac,.ogg"
-                                onDelete={() => removeFileAt(i)}
-                            />
+                            <LibFileInput {...setFileField(SpecMusicalSetFields.SpecMusicalSoundList, SpecMusicalSoundListFields.SoundSrcId, SpecMusicalSoundListFields.Info, rowKeys, { defaultNameFromOriginal: "basename" })}
+                                Accept="audio/*,.mp3,.wav,.flac,.m4a,.aac,.ogg" onDelete={() => removeFileAt(i)} />
                         </div>
                     )
                 })}

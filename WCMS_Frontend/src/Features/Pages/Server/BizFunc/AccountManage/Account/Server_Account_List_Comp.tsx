@@ -9,7 +9,7 @@ import { useActions } from '@/Features/Hooks/Common/useActions';
 import type { FormCompProp } from '@/Features/Pages/Server/Scaffold/Content/Content_Data';
 import type { IDataProvider } from '@/SysCore/Interface/IApiProvider';
 import type { components } from "@/types/api";
-import { AccountFields, PersonModelFields } from "@/types/SchemaFields";
+import { AccountFields, PersonModelFields, RoleDataModelFields, RolePermissionModelFields } from "@/types/SchemaFields";
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
 import AccountProvider from '@/Features/Hooks/BizFunc/AccountManage/Account/Account_Api';
@@ -36,7 +36,7 @@ export const Server_Account_List_Comp = ({ theme }: { theme: IBETheme }) => {
           return (
             <div className="col-xl-3 col-lg-4 col-md-4 col-sm-4 col-12" >
               <LibUserCard DisplayNameEN={item.Account?.AccountId ?? ""} Style={theme.UserEditCard}
-                DisplayNameTW={item.Account?.AccountName ?? ""} DisplayRole={"role"}
+                DisplayNameTW={item.Account?.AccountName ?? ""} DisplayRole={item.Account?.Role?.RoleName ?? ""}
                 PicSrc={picSrc} dirUrl={dir} />
             </div>
           )
@@ -65,7 +65,8 @@ const useAccountList = (provider: IDataProvider<AccountSet>, query: string) => {
         AccountFields.InternalId,
         AccountFields.AccountId,
         AccountFields.AccountName,
-        `${AccountFields.Person}.${PersonModelFields.PersonImgId}`
+        `${AccountFields.Person}.${PersonModelFields.PersonImgId}`,
+        `${AccountFields.Role}.${RoleDataModelFields.RoleName}`
       ],
       Condition: condition,
       OrderBy: [

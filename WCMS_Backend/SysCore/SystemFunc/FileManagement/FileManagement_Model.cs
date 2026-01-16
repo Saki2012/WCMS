@@ -212,6 +212,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// 對應資料主鍵
         /// </summary>
         [StringLength(SysLengthParam.Memo)] public string CompositeKey { get; set; }
+
         #region 主子表關聯
         [ForeignKey(nameof(InternalId))] public FileManageModel _FileManage { get; set; } = null!;
         #endregion

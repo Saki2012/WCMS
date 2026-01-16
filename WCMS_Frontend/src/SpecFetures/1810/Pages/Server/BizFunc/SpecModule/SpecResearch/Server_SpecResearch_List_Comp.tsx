@@ -12,7 +12,7 @@ import SpecResearchProvider from "@/SpecFetures/1810/Hooks/SpecResearch/SpecRese
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import { SpecResearchDetailModelFields, SpecResearchModelFields, SpecResearchSetFields } from "@/types/SchemaFields";
+import { AccountFields, SpecResearchDetailModelFields, SpecResearchModelFields, SpecResearchSetFields } from "@/types/SchemaFields";
 import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { SpecPGID } from "@/SpecFetures/1810/Hooks/Common/SpecProgId";
 import { useFormatTagsName, useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
@@ -48,8 +48,8 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: SpecResear
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
     const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
-        const statusCell = row.cells.find(cell => cell.col.key === SpecResearchModelFields.ContentStatus);
-        if (statusCell && typeof statusCell.content === 'number') { statusCell.content = GetDataStatusContent(statusCell.content); }
+        // const statusCell = row.cells.find(cell => cell.col.key === SpecResearchModelFields.ContentStatus);
+        // if (statusCell && typeof statusCell.content === 'number') { statusCell.content = GetDataStatusContent(statusCell.content); }
         const categoryCell = row.cells.find(p => p.col.key === SpecResearchModelFields.CategoryId);
         const rawCatId = rawData?.[index]?.SpecResearch?.CategoryId ?? categoryCell?.content?.toString() ?? "";
         if (categoryCell) { categoryCell.content = useFormatSpecCategoriesName(rawCatId, cateData, lang); }
@@ -95,9 +95,10 @@ const useSpecResearchList = (provider: IDataProvider<SpecResearchSet>, lang: Lan
         visibleKeys: [
             [SpecResearchSetFields.SpecResearch, SpecResearchModelFields.CategoryId],
             [SpecResearchSetFields.SpecResearch, SpecResearchModelFields.Tags],
-            [SpecResearchSetFields.SpecResearch, SpecResearchModelFields.ContentStatus],
+            // [SpecResearchSetFields.SpecResearch, SpecResearchModelFields.ContentStatus],
             [SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Year],
             [SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.AcademicYear],
+            [SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Semester],
             [SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.ProjectName],
             [SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.PaperTitle],
             [SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.CooperationProject],
@@ -116,12 +117,14 @@ const useSpecResearchList = (provider: IDataProvider<SpecResearchSet>, lang: Lan
                 `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Lang}`,
                 `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Year}`,
                 `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.AcademicYear}`,
+                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Semester}`,
                 `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.ProjectName}`,
                 `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.PaperTitle}`,
                 `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.CooperationProject}`,
                 `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Courses}`,
                 SpecResearchModelFields.CreateTime,
                 SpecResearchModelFields.ModifyUserId,
+                `${SpecResearchModelFields.ModifyUser}.${AccountFields.AccountName}`,
                 SpecResearchModelFields.ModifyTime,
             ],
             Condition: condition,
@@ -165,12 +168,20 @@ const useSpecResearchList = (provider: IDataProvider<SpecResearchSet>, lang: Lan
                             content = item.SpecResearchDetail?.find(p => p.Lang === lang)?.Courses ?? "";
                             break;
                         }
+                    case SpecResearchDetailModelFields.Semester:
+                        {
+                            content = item.SpecResearchDetail?.find(p => p.Lang === lang)?.Semester ?? "";
+                            break;
+                        }
                     case SpecResearchModelFields.CreateTime:
                     case SpecResearchModelFields.ModifyTime:
                         {
                             content = FormatDateTime((data as any)[col.key]);
                             break;
                         }
+                    case SpecResearchModelFields.ModifyUserId:
+                        content = item.SpecResearch?.ModifyUser?.AccountName ?? "";
+                        break;
                     default:
                         content = (data as any)[col.key] ?? "";
                         break;

@@ -287,15 +287,16 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 filemanage.FileStatus = FileStatus.Failed;
                 syncInfo.FileStatus = FileStatus.Failed;
                 syncInfo.ErrorCode = SysMessageCode.BECode00023;
-                syncInfo.ErrorMessage = ResxMsg.Msg(SysMessageCode.BECode00023, filemanage.FileExtension);
+                syncInfo.ErrorMessage = ErrorHelper.GetResxMsg(SysMessageCode.BECode00023, filemanage.FileExtension);
                 return false;
             }
             if (!CheckMimeType(filemanage.MimeType))
             {
+                
                 filemanage.FileStatus = FileStatus.Failed;
                 syncInfo.FileStatus = FileStatus.Failed;
                 syncInfo.ErrorCode = SysMessageCode.BECode00022;
-                syncInfo.ErrorMessage = ResxMsg.Msg(SysMessageCode.BECode00022, filemanage.MimeType);
+                syncInfo.ErrorMessage = ErrorHelper.GetResxMsg(SysMessageCode.BECode00022, filemanage.MimeType);
                 return false;
             }
             return true;
@@ -313,7 +314,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             if (filemanage.FileSize > maxFileSize)
             {
                 syncInfo.ErrorCode = SysMessageCode.BECode00024;
-                syncInfo.ErrorMessage = ResxMsg.Msg(SysMessageCode.BECode00024,mb);
+                syncInfo.ErrorMessage = ErrorHelper.GetResxMsg(SysMessageCode.BECode00024,mb);
                 return false;
             }
             return true;

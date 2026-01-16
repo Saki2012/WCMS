@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ModelDisplaySchema } from "../../../types/IApiSchema";
 import type { ColumnConfig, GridProps, GridRow } from "../../Components/Grid/Grid_Data";
 
@@ -30,6 +30,7 @@ type RefetchOpt =
     | { mode: "page"; page: number; }; // 指定頁碼
 export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
 {
+    const lastFetchKeyRef = useRef<string>("");
     const [rawData, setRawData] = useState<T[]>(props.initialData ?? []);
     const [rows, setRows] = useState<GridRow[]>([]);
     const [columns, setColumns] = useState<ColumnConfig[]>([]);
@@ -106,6 +107,10 @@ export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
             setIsLoading(false);
             return;
         }
+        const cond = props.buildQueryCondition(currentPage);
+        const key = `${currentPage}|${JSON.stringify(cond)}|${JSON.stringify(props.deps ?? [])}`;
+        if (lastFetchKeyRef.current === key) return;
+        lastFetchKeyRef.current = key;
         fetchData(currentPage);
     }, [currentPage, props.enabled, ...props.deps ?? [], bump]);
     const gridProps: GridProps = useMemo(
@@ -135,6 +140,7 @@ const BuildVisibleColumns = async (
     visibleKeys: ReadonlyArray<readonly [string, string]>,
 ): Promise<ColumnConfig[]> =>
 {
+    if (!visibleKeys || visibleKeys.length === 0) return [];
     const schema = await getModelDisplayFn();
     if (!schema?.Tables?.length) return [];
 

@@ -5,7 +5,7 @@ import { useMemo, useState } from "react"
 import { useLocation } from 'react-router-dom';
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp"
 import type { components } from "@/types/api";
-import { WebResourceSetFields, WebResourceFields, WebResourceInfoFields } from "@/types/SchemaFields";
+import { WebResourceSetFields, WebResourceFields, WebResourceInfoFields, AccountFields } from "@/types/SchemaFields";
 import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook"
 import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions"
 import { GridCol_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp"
@@ -92,6 +92,7 @@ const useWebResourceListData = (provider: IDataProvider<WebResourceSet>, lang: L
                 `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang}`,
                 `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Title}`,
                 WebResourceFields.ModifyUserId,
+                `${WebResourceFields.ModifyUser}.${AccountFields.AccountName}`,
                 WebResourceFields.CreateTime,
                 WebResourceFields.ModifyTime,
                 WebResourceFields.InternalId,
@@ -119,6 +120,9 @@ const useWebResourceListData = (provider: IDataProvider<WebResourceSet>, lang: L
                             content = FormatDateTime((data as any)[col.key]);
                             break;
                         }
+                    case WebResourceFields.ModifyUserId:
+                        content = item.WebResource?.ModifyUser?.AccountName ?? "";
+                        break;
                     default:
                         {
                             content = (data as any)[col.key] ?? "";

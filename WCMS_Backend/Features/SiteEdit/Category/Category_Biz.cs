@@ -96,16 +96,16 @@ namespace WCMS.Features.SiteEdit.Category
             switch (progId)
             {
                 case "Announcement":
-                    useCount = await DoQueryListCountAsync<Announcement.Announcement>([nameof(BasicDataModel.InternalId)], $@"{nameof(Announcement.Announcement.Categories)} HasAny {categoryId}");
+                    useCount = await DoQueryListCountAsync<Announcement.Announcement>($@"{nameof(Announcement.Announcement.Categories)} HasAny {categoryId}");
                     break;
                 case "FileArchive":
-                    useCount = await DoQueryListCountAsync<FileArchive.FileArchive>([nameof(BasicDataModel.InternalId)], $@"{nameof(FileArchive.FileArchive.CategoriesId)} HasAny {categoryId}");
+                    useCount = await DoQueryListCountAsync<FileArchive.FileArchive>($@"{nameof(FileArchive.FileArchive.CategoriesId)} HasAny {categoryId}");
                     break;
                 case "Gallery":
-                    useCount = await DoQueryListCountAsync<Gallery.Gallery>([nameof(BasicDataModel.InternalId)], $@"{nameof(Gallery.Gallery.Categories)} HasAny {categoryId}");
+                    useCount = await DoQueryListCountAsync<Gallery.Gallery>($@"{nameof(Gallery.Gallery.Categories)} HasAny {categoryId}");
                     break;
                 case "PageManagement":
-                    useCount = await DoQueryListCountAsync<PageManagement.PageManagement>([nameof(BasicDataModel.InternalId)], $@"{nameof(PageManagement.PageManagement.CategoryId)} = {categoryId}");
+                    useCount = await DoQueryListCountAsync<PageManagement.PageManagement>($@"{nameof(PageManagement.PageManagement.CategoryId)} = {categoryId}");
                     break;
                 default:
                     await SpecCheckIsUsed(progId, categoryId, categoryName);

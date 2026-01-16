@@ -4,9 +4,10 @@ import { ExhibitionNewsData } from '@/SpecFetures/1817/Pages/Client/Index/Sectio
 import { AboutPage } from '@/SpecFetures/1817/Pages/Client/Index/Section/AboutPage'
 import { SpecialLinkData } from '@/SpecFetures/1817/Pages/Client/Index/Section/SpecialLinkData'
 import type { Lang } from '@/SysCore/i18n/lang'
+import { Navigate } from 'react-router'
 
 const HomePage = (props: { lang: Lang }) => {
-
+  if (props.lang === "en") return <Navigate to="/en/about-en/about-us-en" replace />;
   return (
     <main id="fullpage" className="fullpage-wrapper">
       <div className="bg_area">

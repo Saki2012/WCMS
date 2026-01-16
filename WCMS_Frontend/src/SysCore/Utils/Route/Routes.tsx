@@ -5,8 +5,7 @@ import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
 import { LangGuard } from "@/SysCore/Utils/Route/LangGuardRoute";
 import { langGuardLoader } from "@/SysCore/Utils/Route/langGuardLoader";
 import type { Lang } from "@/SysCore/i18n/lang";
-import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
-import { Error401Page } from "@/Features/Pages/Client/Scaffold/MainFrame/ErrorPage";
+import { Error404Page } from "@/Features/Pages/Client/Scaffold/MainFrame/ErrorPage";
 
 // 把模組的絕對子路徑轉相對；"/" 改成 index:true
 const normalizeChildren = (routes: RouteObject[]): RouteObject[] =>
@@ -58,9 +57,9 @@ export const buildRoutes = async (boot: Boot): Promise<RouteObject[]> => {
             loader: langGuardLoader,
             element: <LangGuard ssrAcceptLang={boot.lang} cookieLang={boot.cookieLang} />,      // 元件內只用 useLoaderData 取 resolvedLang；不再 useNavigate 導頁
             children: [
-                { path: "401", element: <Error401Page /> },
+                { path: "404", element: <Error404Page /> },
                 ...children,
-                { path: "*", element: <AutoRedirect to="." replace /> },
+                { path: "*", element: <Error404Page /> },
             ],
         },
         // 根 "/" 家族（不 redirect，只注入語系）
@@ -69,9 +68,9 @@ export const buildRoutes = async (boot: Boot): Promise<RouteObject[]> => {
             loader: langGuardLoader,
             element: <LangGuard ssrAcceptLang={boot.lang} cookieLang={boot.cookieLang} />,
             children: [
-                { path: "401", element: <Error401Page /> },
+                { path: "404", element: <Error404Page /> },
                 ...children,
-                { path: "*", element: <AutoRedirect to="." replace /> },
+                { path: "*", element: <Error404Page /> },
             ],
         },
     ];
