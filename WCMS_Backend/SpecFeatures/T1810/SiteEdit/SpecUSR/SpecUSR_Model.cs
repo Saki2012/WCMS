@@ -176,7 +176,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [StringLength(SysLengthParam.Title)] public string FileName { get; set; }
+        [StringLength(SysLengthParam.FileName)] public string FileName { get; set; }
 
         #region 主子表關聯
         [ForeignKey($@"{nameof(USRId)},{nameof(ParentRowId)}")] public SpecUSRDetail _SpecUSRDetail { get; set; }

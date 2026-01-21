@@ -461,6 +461,10 @@ namespace WCMS
                                 Array.Empty<string>()
                             }
                     });
+
+#if DEBUG
+                    c.SchemaFilter<LoginRequestSchemaFilter>();
+#endif
                 });
                 //}
             }
@@ -990,6 +994,22 @@ namespace WCMS
                         Default = new OpenApiString("zh-TW")
                     }
                 });
+            }
+        }
+
+        private sealed class LoginRequestSchemaFilter : ISchemaFilter
+        {
+            // Swagger 顯示用：預填 Request body
+            public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+            {
+                // ✅ 只針對登入 DTO
+                if (context.Type != typeof(LoginDto)) return;
+
+                schema.Example = new OpenApiObject
+                {
+                    ["Account"] = new OpenApiString("Admin"),
+                    ["Password"] = new OpenApiString("Z7](oRuh98Z3x1$")
+                };
             }
         }
     }

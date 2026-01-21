@@ -15,7 +15,7 @@ import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
 import { SpecPGID } from "@/SpecFetures/1817/Hooks/Common/SpecProgId";
 import SpecJournalIndexProvider from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecMusical/SpecJournalIndex_Api";
-import { AccountFields, SpecJournalIndexModelFields, SpecJournalIndexSetFields } from "@/types/SchemaFields";
+import { AccountFields, SpecJournalIndexDetailFields, SpecJournalIndexModelFields, SpecJournalIndexSetFields } from "@/types/SchemaFields";
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"]
 
 
@@ -36,23 +36,57 @@ export const Server_SpecJournalIndex_List_Comp = (prop: { title: string; theme: 
 
 /** 動態添加每行的動作功能 */
 const SetAdjustFunction = (gridProps: GridProps, rawData: SpecJournalIndexSet[], actions: UseActionsResult): GridProps => {
-    if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
+    const hasAdjust = gridProps.columns.some(col => col.key === '__adjust__');
+    const hasVolIssue = gridProps.columns.some(col => col.key === '__volIssue__');
+    if (hasAdjust && hasVolIssue) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
-    const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
+    const volIssueCol: ColumnConfig = { key: '__volIssue__', title: '卷期' };
+
+
+    const newColumns: ColumnConfig[] = (() => {
+        const cols = [...gridProps.columns];
+        if (!hasVolIssue) {
+            const idx = cols.findIndex(c => c.key === SpecJournalIndexModelFields.IndexName);
+            const insertAt = idx >= 0 ? idx + 1 : cols.length;
+            cols.splice(insertAt, 0, volIssueCol);
+        }
+        if (!hasAdjust) cols.push(adjustCol);
+        return cols;
+    })();
+
+    // 執行：重建 rows cells（依照 newColumns 的順序補齊對應 cell）
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
-        const curData = rawData?.[index]
-        // const pic = row.cells.find(cell => cell.col.key === SpecMusicalModelFields.CoverPicId);
-        // if (pic) { pic.content = <img src={`${FileManagementAPI.PREVIEW_URL}/${curData.SpecMusical?.CoverPicId}`} style={{ width: "80px", height: "80px", objectFit: "cover" }} />; }
-        // const titleCell = row.cells.find(cell => cell.col.key === AnnouncementDetailFields.Title)
-        // if (titleCell) { titleCell.content = (<>{titleCell.content}{GetDataStatusContent(curData?.Announcement?.ContentStatus ?? 0)}</>); }
-        // const categoryCell = row.cells.find(p => p.col.key === AnnouncementFields.Categories);
-        // const rawCatId = curData?.Announcement?.Categories ?? categoryCell?.content?.toString() ?? "";
-        // if (categoryCell) { categoryCell.content = useFormatCategoriesName(rawCatId, categoryData); }
+        const curData = rawData?.[index];
         const internalId = curData?.SpecJournalIndex?.InternalId ?? "";
-        const newCell: RowCell = { col: adjustCol, content: (<GridCol_Toolbar key={internalId} action={actions} internalId={internalId} />) };
-        return { ...row, cells: [...row.cells, newCell] };
+        // 先用「原本 cells」當底，後續補新欄位
+        const cells = [...row.cells];
+        // 卷期：插在 IndexName cell 後面（content 你之後再補）
+        if (!hasVolIssue) {
+            const idx = cells.findIndex(c => c.col.key === SpecJournalIndexModelFields.IndexName);
+            const insertAt = idx >= 0 ? idx + 1 : cells.length;
+            const volume = (<ul>
+                {curData.SpecJournalIndexDetail?.map((dt) => {
+                    return (<li>
+                        {`${dt.Volume}卷${dt.Issue}期`}
+                    </li>)
+                })}
+            </ul>)
+
+            const volIssueCell: RowCell = {
+                col: volIssueCol,
+                content: volume, // TODO: 你之後自行補內容
+            };
+            cells.splice(insertAt, 0, volIssueCell);
+        }
+        // 動作：固定在最後
+        if (!hasAdjust) {
+            const adjustCell: RowCell = { col: adjustCol, content: (<GridCol_Toolbar key={internalId} action={actions} internalId={internalId} />) };
+            cells.push(adjustCell);
+        }
+        return { ...row, cells };
     });
+
     return { ...gridProps, columns: newColumns, rows: newRows };
 };
 
@@ -73,6 +107,8 @@ const useSpecJournalIndexList = (provider: IDataProvider<SpecJournalIndexSet>, l
         buildQueryCondition: (page) => ({
             Fields: [
                 SpecJournalIndexModelFields.IndexId, SpecJournalIndexModelFields.IndexName, SpecJournalIndexModelFields.ModifyUserId,
+                `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
+                `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
                 `${SpecJournalIndexModelFields.ModifyUser}.${AccountFields.AccountName}`, SpecJournalIndexModelFields.CreateTime,
                 SpecJournalIndexModelFields.ModifyTime, SpecJournalIndexModelFields.InternalId,
             ],

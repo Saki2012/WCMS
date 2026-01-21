@@ -6,7 +6,7 @@ import { getLangLabel, type Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
-import { SpecJournalAuthorFields, SpecJournalIndexDetailFields, SpecJournalKeywordsFields, SpecJournalModelFields, SpecJournalTypesFields, TagDataFields, TagDetailFields } from "@/types/SchemaFields";
+import { SpecJournalAuthorFields, SpecJournalBibliographyFields, SpecJournalIndexDetailFields, SpecJournalKeywordsFields, SpecJournalModelFields, SpecJournalTypesFields, TagDataFields, TagDetailFields } from "@/types/SchemaFields";
 import SpecJournalProvider from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecMusical/SpecJournal_Api";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import { useParams } from "react-router";
@@ -35,6 +35,7 @@ export const SpecJournalList = (props: { node: INormNode; lang: Lang; }) => {
             tagName: (sp.get("tagName") ?? "").trim(),
             author: (sp.get("author") ?? "").trim(),
             keyword: (sp.get("keyword") ?? "").trim(),
+            includeRef: (sp.get("includeRef") ?? "").trim(),
         };
     }, [sp]);
 
@@ -84,7 +85,7 @@ export const SpecJournalList = (props: { node: INormNode; lang: Lang; }) => {
 /** SpecJournalListContent：對齊 prototype 的 Journal_List_content DOM 結構 */
 const SpecJournalListContent = (props: {
     lang: Lang; rawData: SpecJournalSet[]; issueSummary: { fileId?: string; fileName?: string };
-    queryFilters: { q?: string; articleLang?: string; tagId?: string; tagName?: string; author?: string; keyword?: string }
+    queryFilters: { q?: string; articleLang?: string; tagId?: string; tagName?: string; author?: string; keyword?: string; includeRef?: string }
 }) => {
     const filters = props.queryFilters;
     const { goExclusive } = useSpecJournalSearchNav(".");
@@ -287,7 +288,7 @@ const IssueSummaryDownload = (props: { fileId?: string; fileName?: string }) => 
 };
 //
 const volumeFetch = (provider: IDataProvider<SpecJournalSet>, indexId: string, rowId: string, pageSize: number,
-    filters: { q?: string; articleLang?: string; tagId?: string; author?: string; keyword?: string }
+    filters: { q?: string; articleLang?: string; tagId?: string; author?: string; keyword?: string; includeRef?: string }
 ) => {
     // 變數宣告
     let condition = "";
@@ -300,8 +301,14 @@ const volumeFetch = (provider: IDataProvider<SpecJournalSet>, indexId: string, r
     // ✅ 關鍵字：Title / Title_en like（不加 %）
     if (filters.q) {
         const kw = filters.q.replace(/'/g, "''");
-        const kwCond = `(${SpecJournalModelFields.Title} like '${kw}' Or ${SpecJournalModelFields.Title_en} like '${kw}')`;
-        condition = LibMerge(" And ", false, condition, kwCond);
+        const baseCond = `(${SpecJournalModelFields.Title} like '${kw}' Or ${SpecJournalModelFields.Title_en} like '${kw}')`;
+        const includeRef = (filters.includeRef ?? "").trim() === "1" || (filters.includeRef ?? "").toLowerCase() === "true";
+        if (!includeRef) {
+            condition = LibMerge(" And ", false, condition, baseCond);
+        } else {
+            const bibCond = `(${SpecJournalModelFields._SpecJournalBibliography}.${SpecJournalBibliographyFields.Title} like '${kw}' Or ${SpecJournalModelFields._SpecJournalBibliography}.${SpecJournalBibliographyFields.Title_en} like '${kw}')`;
+            condition = LibMerge(" And ", false, condition, `(${baseCond} Or ${bibCond})`);
+        }
     }
     // ✅ 語言：字串要加單引號
     if (filters.articleLang) {

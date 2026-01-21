@@ -168,3 +168,144 @@
   line-height: 1.4;
   word-break: break-word; /* 避免長英文溢出 */
 }
+
+.bib-list { margin: 0; padding-left: 1.25rem; }
+.bib-item { margin-bottom: 1rem; }
+
+.bib-zh { margin: 0; font-size: 1rem; }
+.bib-en { margin: 0.35rem 0 0; font-size: 0.95rem; opacity: 0.85; }
+.bib-link:hover { text-decoration: underline; }
+
+
+/* ===============================
+   Spec1819 - Journal Search (統一版)
+   目標：首頁/內頁同一顆元件外觀一致、對齊一致
+   =============================== */
+
+.Spec1819-JournalSearch {
+  /* 統一視覺寬度，不會因為外層容器不同就忽大忽小 */
+  width: 100%;
+  max-width: 560px;
+
+  /* 讓元素彼此有固定間距 */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  /* 可依你想要的位置調整：內頁如果需要靠右可改成 margin-left:auto; */
+  /* margin-left: auto; */
+}
+
+/* 第一列：label + field 同列對齊 */
+.Spec1819-JournalSearch__row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* label 固定寬度：確保首頁/內頁都對齊 */
+.Spec1819-JournalSearch__label {
+  flex: 0 0 8.5rem; /* ✅ 你覺得太寬/太窄就改這裡 */
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* 右側輸入框容器吃滿 */
+.Spec1819-JournalSearch__field {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ✅ 你原本的 searchDIV 在不同頁吃到不同樣式
+   這裡直接把它「收斂成一致」 */
+.Spec1819-JournalSearch .searchDIV {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+/* input 高度統一 */
+.Spec1819-JournalSearch .searchDIV .form-control {
+  height: 40px;
+  line-height: 40px;
+}
+
+/* button 高度、寬度統一，置中 icon */
+.Spec1819-JournalSearch .searchDIV button {
+  height: 40px;
+  width: 44px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* 讓按鈕看起來像 input-group 的右端 */
+  border: 1px solid #ced4da;
+  border-left: 0;
+  background: #fff;
+}
+
+/* input 右側圓角交給 button */
+.Spec1819-JournalSearch .searchDIV .form-control {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.Spec1819-JournalSearch .searchDIV button {
+  border-top-right-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
+}
+
+/* 第二列 checkbox：左邊縮排到「跟輸入框起點一致」 */
+.Spec1819-JournalSearch__checkRow {
+  padding-left: calc(8.5rem + 0.75rem); /* ✅ 要跟 label 寬度 + gap 對應 */
+}
+
+/* checkbox 那一行不要被外層影響 */
+.Spec1819-JournalSearch__checkRow .form-check {
+  margin: 0;
+}
+
+/* RWD：窄螢幕改成直排，checkbox 不縮排 */
+@media (max-width: 576px) {
+  .Spec1819-JournalSearch__row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+  }
+
+  .Spec1819-JournalSearch__label {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .Spec1819-JournalSearch__checkRow {
+    padding-left: 0;
+  }
+}
+
+/* ===============================
+   Spec1819 - Journal Search (對齊修正覆蓋版)
+   只針對內頁 label 偏高：鎖定 label 的高度/對齊方式
+   =============================== */
+
+.Spec1819-JournalSearch__row {
+  align-items: center;
+}
+
+/* ✅ 關鍵：不要讓 label 吃 baseline/line-height 撐高 */
+.Spec1819-JournalSearch__label {
+  display: inline-flex;      /* 用 flex 排除 baseline 問題 */
+  align-items: center;       /* 垂直置中 */
+  height: 40px;              /* 跟 input 同高（你 input 已固定 40px） */
+  line-height: 1 !important; /* 強制不被外層 line-height 撐高 */
+  padding: 0 !important;     /* 避免外層對 label 加 padding */
+}
+
+/* 有些頁面會對 form label 設 position/transform，這裡保險清掉 */
+.Spec1819-JournalSearch__label {
+  position: static !important;
+  transform: none !important;
+}
+.Spec1819-JournalSearch__label { 
+  padding-top: 1px !important; 
+}

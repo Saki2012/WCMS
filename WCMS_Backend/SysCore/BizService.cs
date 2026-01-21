@@ -118,9 +118,10 @@ namespace WCMS.SysCore
         }
         public async Task<TSet> BizCreateSetAsync(TSet set)
         {
+            bool ownsTx = false;
             try
             {
-                //await BeginTransactionAsync();
+                ownsTx = await TryBeginTransactionAsync();
                 GetModelType(set, out BasicDataModel header, out Dictionary<string, IList> details);
                 SetCreateInfo(header);
                 await AutoGenerateId(header, details);
@@ -129,14 +130,15 @@ namespace WCMS.SysCore
                 await DoCreateAsync(set);
                 await AfterUpdate(default, set, FuncAction.Create, TransStatus.Increase);
                 if (Message.HasError) return set;
-                await DataAccess.SaveChangesAsync();      
+                await DataAccess.SaveChangesAsync();
+                await TryCommitAsync(ownsTx);
                 AfterSaveChanges(FuncAction.Create);
                 Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00002);
                 return set;
             }
             catch
             {
-                //await RollbackTransactionAsync();
+                await TryRollbackAsync(ownsTx);
                 throw;
             }
         }

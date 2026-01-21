@@ -16,10 +16,11 @@ import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInter
 import { useLocation, useParams } from "react-router";
 import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import { SpecJournalAuthorFields, SpecJournalIndexDetailFields, SpecJournalKeywordsFields, SpecJournalModelFields, SpecJournalOpenPointFilesFields, SpecJournalRefFilesFields, SpecJournalRefFormatFields, SpecJournalTypesFields, TagDataFields, TagDetailFields } from "@/types/SchemaFields";
+import { SpecJournalAuthorFields, SpecJournalBibliographyFields, SpecJournalIndexDetailFields, SpecJournalKeywordsFields, SpecJournalModelFields, SpecJournalOpenPointFilesFields, SpecJournalRefFilesFields, SpecJournalRefFormatFields, SpecJournalTypesFields, TagDataFields, TagDetailFields } from "@/types/SchemaFields";
 import { useBreadcrumb } from "@/Features/Pages/Client/Scaffold/SubPages/Section/BreadCrumb_Comp";
 import { SpecJournalKeywordSearch_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalKeywordSearchComp";
 import { useSpecJournalSearchNav } from "./SpecJournalSearchUtils";
+import { LangNavLink } from "@/SysCore/i18n/LangLink";
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"]
 
 const joinPath = (base: string, path: string) => {
@@ -81,7 +82,7 @@ const SpecJournalFormContent = (props: { lang: Lang; data: SpecJournalSet }) => 
         <div className="Journal_List_content">
             <div className="row">
                 <div className="CategoryBar w-100">
-                    <SpecJournalKeywordSearch_Comp basePath="../List" />
+                        <SpecJournalKeywordSearch_Comp basePath="../List" />
                 </div>
                 <div className="col row-group">
                     <hr className="hr-my-4" />
@@ -525,7 +526,7 @@ const RefFile_Comp = (props: { lang: Lang; data: SpecJournalSet }) => {
         </div>
     </>)
 }
-/** 摘要+引文格式 */
+/** 摘要+參考文獻+引文格式 */
 const Accordion_Comp = (props: { lang: Lang; data: SpecJournalSet }) => {
     const bodyHr = (<div className="col row-group px-0"><hr className="hr-my-2" /></div>);
     let parseContent = useResolveInternalIds(props.data?.SpecJournal?.Memo ?? "", { locale: props.lang });
@@ -539,15 +540,70 @@ const Accordion_Comp = (props: { lang: Lang; data: SpecJournalSet }) => {
                     <li>
                         <div className={`EC-0 + card`}>
                             <div className="card-header">
-                                <a href={`#${props.data?.SpecJournal?.InternalId}`} className="card-link" data-bs-toggle="collapse" type="button" role="button">
+                                <a href={`#99999999`} className="card-link" data-bs-toggle="collapse" type="button" role="button">
                                     <span className="Div_All_BigTitle">
                                         <i className={clsx("fas", "fa-list-ul", "me-1")} aria-hidden="true"></i>
                                         <span>摘要</span>
                                     </span>
                                 </a>
                             </div>
-                            <div id={`${props.data?.SpecJournal?.InternalId}`} className={`collapse`} data-bs-parent="#accordion">
+                            <div id={"99999999"} className={`collapse`} data-bs-parent="#accordion">
                                 <div className="card-body">{memoContent}{memo_enContent}</div>
+                                {bodyHr}
+                            </div>
+                        </div>
+                    </li>
+
+
+                    <li>
+                        <div className={`EC-0 + card`}>
+                            <div className="card-header">
+                                <a href={`#99999998`} className="card-link" data-bs-toggle="collapse" type="button" role="button">
+                                    <span className="Div_All_BigTitle">
+                                        <i className={clsx("fas", "fa-list-ul", "me-1")} aria-hidden="true"></i>
+                                        <span>參考文獻</span>
+                                    </span>
+                                </a>
+                            </div>
+                            <div id={`99999998`} className={`collapse`} data-bs-parent="#accordion">
+                                <div className="card-body">
+
+                                    <ol className="bib-list">
+                                        {props.data?.SpecJournalBibliography?.map((dt, idx) => {
+                                            const title = (dt.Title ?? "").trim();
+                                            const titleEn = (dt.Title_en ?? "").trim();
+                                            const url = (dt.Url ?? "").trim();
+                                            const hasZh = title.length > 0;
+                                            const hasEn = titleEn.length > 0;
+                                            const hasUrl = url.length > 0;
+                                            if (!hasZh && !hasEn) return null;
+                                            const key = `bib-${dt.RowId ?? idx}`;
+                                            return (
+                                                <li key={key} className="bib-item">
+                                                    {hasZh && (
+                                                        <p className="bib-zh">
+                                                            {hasUrl ? (
+                                                                <LangNavLink className="bib-link" to={url} target="_blank" rel="noopener noreferrer" aria-label="開啟參考文獻連結（另開新視窗）">
+                                                                    {title}
+                                                                </LangNavLink>
+                                                            ) : (title)}
+                                                        </p>
+                                                    )}
+
+                                                    {hasEn && (
+                                                        <p className="bib-en">
+                                                            {hasUrl ? (
+                                                                <LangNavLink className="bib-link" to={url} target="_blank" rel="noopener noreferrer" aria-label="Open bibliography link (opens in a new tab)">
+                                                                    {titleEn}
+                                                                </LangNavLink>
+                                                            ) : (titleEn)}
+                                                        </p>
+                                                    )}
+                                                </li>
+                                            );
+                                        })}
+                                    </ol>
+                                </div>
                                 {bodyHr}
                             </div>
                         </div>
@@ -636,6 +692,9 @@ const dataFetch = (provider: IDataProvider<SpecJournalSet>, journalId: string) =
                 `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en}`, `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.JobTitle}`,
                 `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.Unit}`, `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.Unit_en}`,
                 `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.Email}`, `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.Country}`,
+                //Bibliography
+                `${SpecJournalModelFields._SpecJournalBibliography}.${SpecJournalBibliographyFields.Title}`, `${SpecJournalModelFields._SpecJournalBibliography}.${SpecJournalBibliographyFields.Title_en}`,
+                `${SpecJournalModelFields._SpecJournalBibliography}.${SpecJournalBibliographyFields.Url}`,
                 //RefFormat
                 `${SpecJournalModelFields._SpecJournalRefFormat}.${SpecJournalRefFormatFields.RowId}`, `${SpecJournalModelFields._SpecJournalRefFormat}.${SpecJournalRefFormatFields.Title}`,
                 `${SpecJournalModelFields._SpecJournalRefFormat}.${SpecJournalRefFormatFields.Content}`,

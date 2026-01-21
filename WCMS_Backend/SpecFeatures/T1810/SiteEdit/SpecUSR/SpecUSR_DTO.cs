@@ -174,7 +174,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc(ModelDisplayName.FileArchive_FileName), StringLength(SysLengthParam.Title)] public string? FileName { get; set; }
+        [LibDesc(ModelDisplayName.FileArchive_FileName), StringLength(SysLengthParam.FileName)] public string? FileName { get; set; }
 
         #region 主子表關聯
         public SpecUSRDetail_DTO? _SpecUSRDetail { get; set; }

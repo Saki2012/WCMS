@@ -67,6 +67,10 @@
         /// </summary>
         public const string SpecJournalAuthor = "SpecJournalAuthor";
         /// <summary>
+        /// 參考文獻
+        /// </summary>
+        public const string SpecJournalBibliography = "SpecJournalBibliography";
+        /// <summary>
         /// 期刊引文格式列表
         /// </summary>
         public const string SpecJournalRefFormat = "SpecJournalRefFormat";
@@ -157,6 +161,14 @@
         /// 英文單位
         /// </summary>
         public const string Spec_Unit_en = "Spec_Unit_en";
+        /// <summary>
+        /// 參考文獻
+        /// </summary>
+        public const string Spec_BibliographyTitle = "Spec_BibliographyTitle";
+        /// <summary>
+        /// 參考文獻 (英)
+        /// </summary>
+        public const string Spec_BibliographyTitle_En = "Spec_BibliographyTitle_En";
         /// <summary>
         /// 引文格式標題
         /// </summary>

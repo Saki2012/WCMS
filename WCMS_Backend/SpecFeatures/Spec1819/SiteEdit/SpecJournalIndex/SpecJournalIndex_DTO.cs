@@ -55,7 +55,7 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournalIndex
         /// <summary>
         /// 期數
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_Issue)] public int? Issue { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_Issue), StringLength(SysLengthParam.Name)] public string? Issue { get; set; }
         /// <summary>
         /// 出版狀態
         /// </summary>
@@ -80,7 +80,8 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournalIndex
         /// <summary>
         /// 期刊檔案名稱
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_SummaryFileName), StringLength(SysLengthParam.Name)] public string? SummaryFileName { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_SummaryFileName), StringLength(SysLengthParam.FileName)] public string? SummaryFileName { get; set; }
+
         #region 主子表關聯
         public SpecMusicalModel_DTO? _SpecJournalIndex { get; set; }
         #endregion

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
 import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
@@ -64,9 +64,6 @@ export const SpecJournalIndex = (props: { node: INormNode; lang: Lang; }) => {
 }
 
 const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalIndexSet[]; lang: Lang; }) => {
-    // ===== state =====
-    const [categoryId, setCategoryId] = useState<string>("");
-    const [keyword, setKeyword] = useState<string>("");
     // ===== effects =====
     useEffect(() => {
         // NOTE: 綁定 bootstrap accordion 的鍵盤行為
@@ -76,21 +73,6 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
         return () => unwireBsAccordion(root);
     }, []);
 
-    // ===== handlers =====
-    const onChangeCategory = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        // NOTE: 分類選擇
-        setCategoryId(e.target.value);
-    };
-
-    const onChangeKeyword = (e: React.ChangeEvent<HTMLInputElement>) => {
-        // NOTE: 關鍵字輸入
-        setKeyword(e.target.value);
-    };
-
-    const onSubmitSearch = (e: React.FormEvent) => {
-        // NOTE: 先阻止預設提交；接 API 後再換成 query
-        e.preventDefault();
-    };
 
     // ===== render =====
     return (

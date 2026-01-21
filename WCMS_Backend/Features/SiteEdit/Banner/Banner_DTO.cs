@@ -114,7 +114,7 @@ namespace WCMS.Features.SiteEdit.Banner
         [LibDesc(ModelDisplayName.Common_UrlOpen)] public WindowTarget URL_Open { get; set; }
 
         #region 主子表關聯
-        public BannerDetail_DTO _BannerDetail { get; set; }
+        public BannerDetail_DTO? _BannerDetail { get; set; }
         #endregion
     }
 }

@@ -27,11 +27,11 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 檔案名稱
         /// </summary>
-        [LibDesc, MaxLength(255)] public string? FileName { get; set; }
+        [LibDesc, StringLength(SysLengthParam.FileName)] public string? FileName { get; set; }
         /// <summary>
         /// 副檔名
         /// </summary>
-        [LibDesc, MaxLength(15)] public string? FileExtension { get; set; }
+        [LibDesc, StringLength(SysLengthParam.FileExt)] public string? FileExtension { get; set; }
         /// <summary>
         /// 檔案描述
         /// (後續可透過帶出，其他表可修改對應的顯示說明)
@@ -40,12 +40,12 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 網際網路媒體型式
         /// </summary>
-        [LibDesc] public string? MimeType { get; set; } = string.Empty;
+        [LibDesc,StringLength(SysLengthParam.FileMineType)] public string? MimeType { get; set; } = string.Empty;
         /// <summary>
         /// 檔案SHA256值 
         /// 用來檢查Server是否已有該檔案，若有就不用再次上傳，但是要更新其他欄位
         /// </summary>
-        [LibDesc, MaxLength(64)] public string? FileSHA256 { get; set; }
+        [LibDesc, StringLength(SysLengthParam.FileSHA256)] public string? FileSHA256 { get; set; }
         /// <summary>
         /// 檔案大小
         /// </summary>

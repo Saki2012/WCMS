@@ -15,7 +15,7 @@ import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
 import { SpecPGID } from "@/SpecFetures/1817/Hooks/Common/SpecProgId";
 import SpecJournalProvider from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecMusical/SpecJournal_Api";
-import { AccountFields, SpecJournalModelFields, SpecJournalSetFields } from "@/types/SchemaFields";
+import { AccountFields, SpecJournalIndexDetailFields, SpecJournalModelFields, SpecJournalSetFields } from "@/types/SchemaFields";
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"]
 
 
@@ -36,16 +36,43 @@ export const Server_SpecJournal_List_Comp = (prop: { title: string; theme: IBETh
 
 /** 動態添加每行的動作功能 */
 const SetAdjustFunction = (gridProps: GridProps, rawData: SpecJournalSet[], actions: UseActionsResult): GridProps => {
-    if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
+    // 宣告：避免重複插入
+    const hasAdjust = gridProps.columns.some(col => col.key === '__adjust__');
+    const hasVolIssue = gridProps.columns.some(col => col.key === '__volIssue__');
+    if (hasAdjust && hasVolIssue) return gridProps;
+    // 宣告：無資料不處理
     if (gridProps.rows.length === 0) return gridProps;
+    // 宣告：新增欄位
+    const volIssueCol: ColumnConfig = { key: '__volIssue__', title: '卷期' };
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
-    const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
+    // 執行：組欄位（卷期放第一欄、動作放最後）
+    const newColumns: ColumnConfig[] = (() => {
+        const cols: ColumnConfig[] = [...gridProps.columns];
+        if (!hasVolIssue) cols.unshift(volIssueCol);
+        if (!hasAdjust) cols.push(adjustCol);
+        return cols;
+    })();
+
+    // 執行：組每列 cell（卷期放第一格、動作放最後一格）
     const newRows: GridRow[] = gridProps.rows.map((row, idx) => {
-        const curData = rawData?.[idx]
+        const curData = rawData?.[idx];
         const internalId = curData?.SpecJournal?.InternalId ?? "";
-        const newCell: RowCell = { col: adjustCol, content: (<GridCol_Toolbar key={internalId} action={actions} internalId={internalId} />) };
-        return { ...row, cells: [...row.cells, newCell] };
+        const cells: RowCell[] = [...row.cells];
+        // 卷期：第一格（content 你之後自行補）
+        if (!hasVolIssue) {
+            const volDt = curData.SpecJournal?._JournalIndexDetail
+            const volume = `${volDt?.Volume}卷${volDt?.Issue}期`
+            const volIssueCell: RowCell = { col: volIssueCol, content: volume };
+            cells.unshift(volIssueCell);
+        }
+        // 動作：最後一格
+        if (!hasAdjust) {
+            const adjustCell: RowCell = { col: adjustCol, content: (<GridCol_Toolbar key={internalId} action={actions} internalId={internalId} />), };
+            cells.push(adjustCell);
+        }
+        return { ...row, cells };
     });
+    // return
     return { ...gridProps, columns: newColumns, rows: newRows };
 };
 
@@ -66,6 +93,8 @@ const useSpecJournalList = (provider: IDataProvider<SpecJournalSet>, lang: Lang,
         buildQueryCondition: (page) => ({
             Fields: [
                 SpecJournalModelFields.JournalId, SpecJournalModelFields.Title, SpecJournalModelFields.ModifyUserId,
+                `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
+                `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
                 `${SpecJournalModelFields.ModifyUser}.${AccountFields.AccountName}`, SpecJournalModelFields.CreateTime,
                 SpecJournalModelFields.ModifyTime, SpecJournalModelFields.InternalId,
             ],

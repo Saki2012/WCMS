@@ -29,7 +29,7 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournalIndex
         /// <summary>
         /// 期刊目次名稱
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_JournalIndexName), StringLength(SysLengthParam.Name)] public string IndexName { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_JournalIndexName), StringLength(SysLengthParam.Name)] public string IndexName { get; set; } = string.Empty;
 
         #region 主子表關聯
         [InverseProperty(nameof(SpecJournalIndexDetail._SpecJournalIndex))] public List<SpecJournalIndexDetail> _SpecJournalIndexDetail { get; set; }
@@ -55,7 +55,7 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournalIndex
         /// <summary>
         /// 期數
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_Issue)] public int Issue { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_Issue), StringLength(SysLengthParam.Name)] public string Issue { get; set; } = string.Empty;
         /// <summary>
         /// 出版狀態
         /// </summary>
@@ -71,7 +71,7 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournalIndex
         /// <summary>
         /// 季號
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_SeasonNo), StringLength(SysLengthParam.Info)] public string SeasonNo { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_SeasonNo), StringLength(SysLengthParam.Info)] public string SeasonNo { get; set; } = string.Empty;
         /// <summary>
         /// 期刊檔案(整本)
         /// </summary>
@@ -80,7 +80,7 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournalIndex
         /// <summary>
         /// 期刊檔案名稱
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_SummaryFileName), StringLength(SysLengthParam.Name)] public string SummaryFileName { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_SummaryFileName), StringLength(SysLengthParam.FileName)] public string SummaryFileName { get; set; } = string.Empty;
 
         #region 主子表關聯
         [ForeignKey(nameof(IndexId))] public SpecJournalIndexModel _SpecJournalIndex { get; set; }

@@ -1,6 +1,5 @@
 // src/SpecFeatures/Spec1819/Pages/HomePage/HomePage.tsx
 import type { Lang } from "@/SysCore/i18n/lang";
-import { SubmissionReviewSystem } from "../Scaffold/MainFrame/SubmissionReviewSystem";
 import { LatestIssueSection } from "./Section/LatestIssueSection";
 import { AccessKeyCSection } from "./Section/AccessKeyCSection";
 import { IndexedSection } from "./Section/IndexedSection";

@@ -36,7 +36,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 檔案名稱
         /// </summary>
-        [StringLength(SysLengthParam.Title)] public string FileName { get; set; }
+        [StringLength(SysLengthParam.FileName)] public string FileName { get; set; }
         /// <summary>
         /// 副檔名
         /// </summary>

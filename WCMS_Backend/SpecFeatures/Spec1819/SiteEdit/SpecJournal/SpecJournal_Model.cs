@@ -19,7 +19,7 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
     {
         [LibDesc(SpecModelDisplayName.SpecJournal)] public SpecJournalModel SpecJournal { get; set; } = new ();
         [LibDesc(SpecModelDisplayName.SpecJournalAuthor)] public List<SpecJournalAuthor> SpecJournalAuthor { get; set; } = [];
-        [LibDesc()] public List<SpecJournalBibliography> SpecJournalBibliography { get; set; } = [];
+        [LibDesc(SpecModelDisplayName.SpecJournalBibliography)] public List<SpecJournalBibliography> SpecJournalBibliography { get; set; } = [];
         [LibDesc(SpecModelDisplayName.SpecJournalRefFormat)]public List<SpecJournalRefFormat> SpecJournalRefFormat { get; set; } = [];
         [LibDesc(SpecModelDisplayName.SpecJournalOpenPointFiles)]public List<SpecJournalOpenPointFiles> SpecJournalOpenPointFiles { get; set; } = [];
         [LibDesc(SpecModelDisplayName.SpecJournalRefFiles)]public List<SpecJournalRefFiles> SpecJournalRefFiles { get; set; } = [];
@@ -48,11 +48,11 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         /// <summary>
         /// 標題
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Title), StringLength(SysLengthParam.Title)] public string Title { get; set; }
+        [LibDesc(ModelDisplayName.Common_Title), StringLength(SysLengthParam.Title)] public string Title { get; set; } = string.Empty;
         /// <summary>
         /// 英文標題
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_Title_en), StringLength(SysLengthParam.Title)] public string Title_en { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_Title_en), StringLength(SysLengthParam.Title_en)] public string Title_en { get; set; } = string.Empty;
         /// <summary>
         /// 起訖頁(起)
         /// </summary>
@@ -65,7 +65,7 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         /// DOI網址
         /// e.x.: https://doi.org/10.6120/JoEMLS.202307_60(2).editorial
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_DOI), StringLength(SysLengthParam.Url)] public string DOIUrl { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_DOI), StringLength(SysLengthParam.Url)] public string DOIUrl { get; set; } = string.Empty;
         /// <summary>
         /// 期刊檔案
         /// </summary>
@@ -74,7 +74,7 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         /// <summary>
         /// 期刊檔案名稱
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_JournalFileName), StringLength(SysLengthParam.Name)] public string JournalFileName { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_JournalFileName), StringLength(SysLengthParam.FileName)] public string JournalFileName { get; set; } = string.Empty;
         /// <summary>
         /// 捷點InSight Point 檔案
         /// </summary>
@@ -83,7 +83,7 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         /// <summary>
         /// 期刊檔案名稱
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_InsightPointFileName), StringLength(SysLengthParam.Name)] public string InsightPointFileName { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_InsightPointFileName), StringLength(SysLengthParam.FileName)] public string InsightPointFileName { get; set; } = string.Empty;
         /// <summary>
         /// 文章語言
         /// </summary>
@@ -92,12 +92,12 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         /// 摘要
         /// 注:(文字編輯器，大量內容，不限長度)
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Memo)]public string Memo { get; set; }
+        [LibDesc(ModelDisplayName.Common_Memo)]public string Memo { get; set; } = string.Empty;
         /// <summary>
         /// 英文摘要
         /// 注:(文字編輯器，大量內容，不限長度)
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_Memo_en)]public string Memo_en { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_Memo_en)]public string Memo_en { get; set; } = string.Empty;
 
         #region 主子表關聯
         [InverseProperty(nameof(SpecJournalAuthor._SpecJournal))] public List<SpecJournalAuthor> _SpecJournalAuthor { get; set; }
@@ -128,35 +128,35 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         /// 存 0000-0002-2312-7480
         /// 用 -> https://orcid.org/0000-0002-2312-7480
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_ORCID), StringLength(SysLengthParam.ID)] public string ORCID{ get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_ORCID), StringLength(SysLengthParam.ID)] public string ORCID{ get; set; } = string.Empty;
         /// <summary>
         /// 中文姓名
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_AuthorName), StringLength(SysLengthParam.Name)] public string AuthorName { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_AuthorName), StringLength(SysLengthParam.Name)] public string AuthorName { get; set; } = string.Empty;
         /// <summary>
         /// 英文姓名
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_AuthorName_en), StringLength(SysLengthParam.Name)] public string AuthorName_en { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_AuthorName_en), StringLength(SysLengthParam.Name_Eng)] public string AuthorName_en { get; set; } = string.Empty;
         /// <summary>
         /// 職稱
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_JobTitle), StringLength(SysLengthParam.Info)] public string JobTitle { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_JobTitle), StringLength(SysLengthParam.Info)] public string JobTitle { get; set; } = string.Empty;
         /// <summary>
         /// 單位
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_Unit), StringLength(SysLengthParam.Info)] public string Unit { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_Unit), StringLength(SysLengthParam.Info)] public string Unit { get; set; } = string.Empty;
         /// <summary>
         /// 英文單位
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_Unit_en), StringLength(SysLengthParam.Memo)] public string Unit_en { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_Unit_en), StringLength(SysLengthParam.Memo)] public string Unit_en { get; set; } = string.Empty;
         /// <summary>
         /// Email
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Email), StringLength(SysLengthParam.Email)] public string Email { get; set; }
+        [LibDesc(ModelDisplayName.Common_Email), StringLength(SysLengthParam.Email)] public string Email { get; set; } = string.Empty;
         /// <summary>
         /// 地區/國家
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Country), StringLength(SysLengthParam.Info)]public string Country { get; set; }
+        [LibDesc(ModelDisplayName.Common_Country), StringLength(SysLengthParam.Info)]public string Country { get; set; } = string.Empty;
 
         #region 主子表關聯
         [ForeignKey(nameof(JournalId))] public SpecJournalModel _SpecJournal { get; set; }
@@ -170,7 +170,7 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         /// <summary>
         /// 期刊代號
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_JournalId), Key, StringLength(SysLengthParam.ID)] public string JournalId { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_JournalId), Key, StringLength(SysLengthParam.ID)] public string JournalId { get; set; } = string.Empty;
         /// <summary>
         /// 行主鍵
         /// </summary>
@@ -178,15 +178,15 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         /// <summary>
         /// 參考文獻標題
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_RefFormatTitle), StringLength(SysLengthParam.Title)] public string Title { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_BibliographyTitle), StringLength(SysLengthParam.Title)] public string Title { get; set; } = string.Empty;
         /// <summary>
         /// 參考文獻標題(英文)
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_RefFormatTitle), StringLength(SysLengthParam.Title_en)] public string Title_en { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_BibliographyTitle_En), StringLength(SysLengthParam.Title_en)] public string Title_en { get; set; } = string.Empty;
         /// <summary>
         /// 參考文獻連結
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_RefFormatContent), StringLength(SysLengthParam.Url)] public string Url { get; set; }
+        [LibDesc(ModelDisplayName.Common_Url), StringLength(SysLengthParam.Url)] public string Url { get; set; } = string.Empty;
 
         #region 主子表關聯
         [ForeignKey(nameof(JournalId))] public SpecJournalModel _SpecJournal { get; set; }
@@ -208,12 +208,12 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         /// <summary>
         /// 引文格式標題
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_RefFormatTitle), StringLength(SysLengthParam.Title)] public string Title { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_RefFormatTitle), StringLength(SysLengthParam.Title)] public string Title { get; set; } = string.Empty;
         /// <summary>
         /// 引文格式內容
         /// 注:(文字編輯器，大量內容，不限長度)
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_RefFormatContent)]public string Content { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_RefFormatContent)]public string Content { get; set; } = string.Empty;
 
         #region 主子表關聯
         [ForeignKey(nameof(JournalId))] public SpecJournalModel _SpecJournal { get; set; }
@@ -235,7 +235,7 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         /// <summary>
         /// 開放觀點檔案名稱
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_OpenPointFileName), StringLength(SysLengthParam.Name)] public string OpenPointFileName { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_OpenPointFileName), StringLength(SysLengthParam.FileName)] public string OpenPointFileName { get; set; } = string.Empty;
         /// <summary>
         /// 開放觀點檔案來源
         /// </summary>
@@ -262,7 +262,7 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         /// <summary>
         /// 相關檔案名稱
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_RefFileName), StringLength(SysLengthParam.Name)] public string RefFileName { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_RefFileName), StringLength(SysLengthParam.FileName)] public string RefFileName { get; set; } = string.Empty;
         /// <summary>
         /// 相關檔案來源
         /// </summary>
@@ -317,8 +317,8 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         /// <summary>
         /// 關鍵詞
         /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_Keyword), StringLength(SysLengthParam.Title)] public string Keyword{ get; set; }
-        
+        [LibDesc(SpecModelDisplayName.Spec_Keyword), StringLength(SysLengthParam.Title)] public string Keyword{ get; set; } = string.Empty;
+
         #region 主子表關聯
         [ForeignKey(nameof(JournalId))] public SpecJournalModel _SpecJournal { get; set; }
         #endregion

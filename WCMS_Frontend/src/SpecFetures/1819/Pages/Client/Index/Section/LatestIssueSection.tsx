@@ -7,6 +7,7 @@ import SpecJournalIndexProvider from "@/SpecFetures/1819/Hooks/BizFunc/SpecModul
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
+import { SpecJournalKeywordSearch_Comp } from "../../BizFunc/SpecModule/SpecJournal/SpecJournalKeywordSearchComp";
 type PublishStatus = components["schemas"]["PublishStatus"];
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
 type BannerSet = components["schemas"]["BannerSet_DTO"];
@@ -39,7 +40,7 @@ export const LatestIssueSection = () => {
                                             <div className="TS_wrapper">
                                                 <LastIssueComp pdvr={pdvr.JournalIndex} />
                                                 <PreprintComp pdvr={pdvr.JournalIndex} />
-                                                <SearchComp />
+                                                <SpecJournalKeywordSearch_Comp basePath="/Issues/List" />
                                             </div>
                                         </div>
                                     </div>
@@ -139,32 +140,6 @@ const PreprintComp = (props: { pdvr: IDataProvider<SpecJournalIndexSet> }) => {
         </>
     )
 }
-
-const SearchComp = () => {
-    return (
-        <div className="SEARCH_DIV">
-            <div className="input-group mb-3">
-                <input
-                    type="text"
-                    className="form-control"
-                    placeholder="請輸入檢索查詢 ..."
-                    aria-label="請輸入檢索查詢 ..."
-                />
-                <button type="button" className="btn-CCsearch" aria-label="搜尋">
-                    <i className="far fa-search" aria-hidden="true" />
-                </button>
-            </div>
-
-            <div className="form-check">
-                <input className="form-check-input" type="checkbox" id="includeRef" />
-                <label className="form-check-label" htmlFor="includeRef">
-                    包含參考文獻（ 51卷1期至今 ）
-                </label>
-            </div>
-        </div>
-    )
-}
-
 
 //#region Func
 /** 組卷期顯示字串 */

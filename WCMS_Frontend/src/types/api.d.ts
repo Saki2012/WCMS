@@ -11665,6 +11665,23 @@ export interface components {
             Country?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
+        SpecJournalBibliography_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description 期刊代號 */
+            JournalId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            /** @description 引文格式標題 */
+            Title?: string | null;
+            /** @description 引文格式標題 */
+            Title_en?: string | null;
+            /** @description 引文格式內容 */
+            Url?: string | null;
+            _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
+        };
         SpecJournalIndexDetail_DTO: {
             RowState?: components["schemas"]["RowState"];
             /** @description 期刊目次代號 */
@@ -11823,6 +11840,7 @@ export interface components {
             /** @description 英文摘要 */
             Memo_en?: string | null;
             _SpecJournalAuthor?: components["schemas"]["SpecJournalAuthor_DTO"][] | null;
+            _SpecJournalBibliography?: components["schemas"]["SpecJournalBibliography_DTO"][] | null;
             _SpecJournalRefFormat?: components["schemas"]["SpecJournalRefFormat_DTO"][] | null;
             _SpecJournalOpenPointFiles?: components["schemas"]["SpecJournalOpenPointFiles_DTO"][] | null;
             _SpecJournalRefFiles?: components["schemas"]["SpecJournalRefFiles_DTO"][] | null;
@@ -11880,6 +11898,7 @@ export interface components {
             SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
             /** @description 期刊作者列表 */
             SpecJournalAuthor?: components["schemas"]["SpecJournalAuthor_DTO"][] | null;
+            SpecJournalBibliography?: components["schemas"]["SpecJournalBibliography_DTO"][] | null;
             /** @description 期刊引文格式列表 */
             SpecJournalRefFormat?: components["schemas"]["SpecJournalRefFormat_DTO"][] | null;
             /** @description 期刊開放觀點檔案列表 */

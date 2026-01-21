@@ -252,4 +252,13 @@
   <data name="Spec_InsightPointFileName" xml:space="preserve">
     <value>捷點 InSignt Point 檔案名稱</value>
   </data>
+  <data name="SpecJournalBibliography" xml:space="preserve">
+    <value>參考文獻</value>
+  </data>
+  <data name="Spec_BibliographyTitle" xml:space="preserve">
+    <value>參考文獻</value>
+  </data>
+  <data name="Spec_BibliographyTitle_En" xml:space="preserve">
+    <value>參考文獻 (英)</value>
+  </data>
 </root>
