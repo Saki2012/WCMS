@@ -54,6 +54,8 @@ const useWebResourceList = (categoryIds: string, tagIds: string, lang: Lang) => 
     if (categoryIds) condition = LibMerge(" And ", false, condition, `${WebResourceFields.Categories} HasAny [${categoryIds}]`)
     if (tagIds) condition = LibMerge(" And ", false, condition, `${WebResourceFields.Tags} HasAny [${tagIds}]`)
     condition = LibMerge(" And ", false, condition, `${WebResourceFields.ContentStatus} !& 4`)//不包含隱藏的資料
+    condition = LibMerge(" And ", false, condition, `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang} = ${lang}`)
+    condition = LibMerge(" And ", false, condition, `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Title} != ''`)
     const provider = WebResourceProvider();
     return useFetchGridListData<WebResourceSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
@@ -66,12 +68,8 @@ const useWebResourceList = (categoryIds: string, tagIds: string, lang: Lang) => 
         ],
         buildQueryCondition: (page) => ({
             Fields: [
-                WebResourceFields.InternalId,
-                WebResourceFields.WebResourceId,
-                WebResourceFields.PicId,
-                WebResourceFields.PicDescription,
-                WebResourceFields.Categories,
-                WebResourceFields.ContentStatus,
+                WebResourceFields.InternalId, WebResourceFields.WebResourceId, WebResourceFields.PicId,
+                WebResourceFields.PicDescription, WebResourceFields.Categories, WebResourceFields.ContentStatus,
                 WebResourceFields.CreateTime,
                 `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang}`,
                 `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Title}`,
@@ -129,7 +127,6 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: WebResourc
                 case WebResourceInfoFields.ResUrl:
                     nextContent = SetUrlIcon(curDt?.ResUrl ?? "", curDt?.Content ?? "", curDt?.Url_OpenType ?? 0);
                     break;
-
             }
             // 再把「最新 / 置頂 / 熱門」標籤疊上去（只對 Title 欄位）
             const wrappedContent = (

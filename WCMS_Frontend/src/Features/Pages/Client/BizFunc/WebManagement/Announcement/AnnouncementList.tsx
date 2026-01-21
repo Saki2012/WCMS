@@ -40,6 +40,7 @@ const AnnouncementList = (props: IAnnouncementListProps) => {
     // <QAList_Comp {...props} />
     const pageSize = useMemo(() => {
         switch (props.options?.Style) {
+            case 2: return 12;//圖文式資料 3*4->12筆
             case 8: return 0;//歷史時間軸類型的資料一次全撈
             default: return 10;
         }
@@ -401,7 +402,8 @@ const dataFetch = (provider: IDataProvider<AnnouncementSet>, lang: string, categ
     if (categoryIds) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Categories} HasAny [${categoryIds}]`)
     if (tagIds) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Tags} HasAny [${tagIds}]`)
     condition = LibMerge(" And ", false, condition, `${AnnouncementFields.ContentStatus} !& 4`)//不包含隱藏的資料
-
+    condition = LibMerge(" And ", false, condition, `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang} = ${lang}`)
+    condition = LibMerge(" And ", false, condition, `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} != ''`)
     return useFetchGridListData<AnnouncementSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),

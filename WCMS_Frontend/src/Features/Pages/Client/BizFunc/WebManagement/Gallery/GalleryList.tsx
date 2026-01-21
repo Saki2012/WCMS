@@ -122,6 +122,8 @@ const useGalleryList = (provider: IDataProvider<GallerySet>, lang: string, categ
     if (categoryIds) condition = LibMerge(" And ", false, condition, `${GalleryFields.Categories} HasAny [${categoryIds}]`)
     if (tagIds) condition = LibMerge(" And ", false, condition, `${GalleryFields.Tags} HasAny [${tagIds}]`)
     condition = LibMerge(" And ", false, condition, `${GalleryFields.ContentStatus} !& 4`)//不包含隱藏的資料
+    condition = LibMerge(" And ", false, condition, `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang} = ${lang}`)
+    condition = LibMerge(" And ", false, condition, `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title} != ''`)
     return useFetchGridListData<GallerySet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),

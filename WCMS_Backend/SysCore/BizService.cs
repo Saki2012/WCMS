@@ -901,12 +901,17 @@ namespace WCMS.SysCore
             var (chunks, connectors) = SplitTopLevelByAndOr(input);
             var pieces = new List<string>();
 
-            for (int i = 0; i < chunks.Count; i++)
+            int i = 0;
+            while (i < chunks.Count)
             {
                 string seg = chunks[i].Trim();
-                if (string.IsNullOrEmpty(seg)) continue;
+                if (string.IsNullOrEmpty(seg))
+                {
+                    i++;
+                    continue;
+                }
 
-                // ( ... ) → 遞迴處理後再包回括號
+                // ( ... ) → 遞迴處理後再包回括號（括號群組不做合併）
                 if (seg.StartsWith("(") && seg.EndsWith(")") && IsBalanced(seg))
                 {
                     string inner = seg.Substring(1, seg.Length - 2);
@@ -915,22 +920,62 @@ namespace WCMS.SysCore
                 }
                 else
                 {
-                    // 單一子句 → 沿用你原本的子句規則交給 BuildNestedClause
-                    var m = Regex.Match(seg,
-                        @"^(?<fullPath>[\w.]+)\s*(?<op>=|&|!&|==|!=|>=|<=|>|<|in|not in|like|is null|is not null|hasany|hasallof|hasall)\s*(?<val>.+)?$",
-                        RegexOptions.IgnoreCase);
+                    // 嘗試：同 collection nav + AND 連續子句合併
+                    if (TryParseSimpleClause(seg, out var p0, out var op0, out var v0)
+                        && p0.Length >= 2
+                        && TryGetEnumerableElementType(modelType, p0[0], out var elementType))
+                    {
+                        var nav = p0[0];
 
-                    if (!m.Success) continue; // 或可視需要丟回錯誤
+                        // 收集連續 AND 同 nav 的子句
+                        var group = new List<(string[] RestPath, string Op, string? Val)>
+                {
+                    (p0.Skip(1).ToArray(), op0, v0)
+                };
 
-                    string fullPath = m.Groups["fullPath"].Value;
-                    string op = m.Groups["op"].Value;
-                    string? val = m.Groups["val"].Success ? m.Groups["val"].Value.Trim('\'', '"') : null;
+                        int j = i;
+                        while (j < connectors.Count
+                               && connectors[j].Equals("and", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var nextSeg = chunks[j + 1].Trim();
 
-                    string? clause = BuildNestedClause(modelType, fullPath.Split('.'), op, val, ref args);
-                    if (!string.IsNullOrEmpty(clause)) pieces.Add(clause);
+                            // 不跨括號合併
+                            if (nextSeg.StartsWith("(")) break;
+
+                            if (!TryParseSimpleClause(nextSeg, out var pn, out var opn, out var vn)) break;
+                            if (pn.Length < 2) break;
+                            if (!pn[0].Equals(nav, StringComparison.OrdinalIgnoreCase)) break;
+
+                            group.Add((pn.Skip(1).ToArray(), opn, vn));
+                            j++;
+                        }
+
+                        if (group.Count >= 2)
+                        {
+                            // ✅ 合併成單一 Any
+                            var merged = BuildMergedAnyClause(modelType, nav, elementType, group, ref args);
+                            if (!string.IsNullOrEmpty(merged)) pieces.Add(merged);
+
+                            // group 吃掉了 chunks[i..j]，下一個 connector 是 connectors[j]
+                            i = j + 1;
+
+                            // 補回 group 後面那個 connector（如果還有）
+                            if (j < connectors.Count) pieces.Add(connectors[j]);
+                            continue;
+                        }
+                    }
+
+                    // fallback：沿用你原本單子句 BuildNestedClause
+                    if (TryParseSimpleClause(seg, out var pathParts, out var op, out var val))
+                    {
+                        string? clause = BuildNestedClause(modelType, pathParts, op, val, ref args);
+                        if (!string.IsNullOrEmpty(clause)) pieces.Add(clause);
+                    }
                 }
 
-                if (i < connectors.Count) pieces.Add(connectors[i]); // "and" / "or"
+                // 正常補 connector（未合併的情況）
+                if (i < connectors.Count) pieces.Add(connectors[i]);
+                i++;
             }
 
             return string.Join(" ", pieces);
@@ -1266,6 +1311,68 @@ namespace WCMS.SysCore
             if (long.TryParse(raw.Trim(), out var n)) return System.Enum.ToObject(enumType, n);
             throw new FormatException($"Cannot parse '{raw}' to enum '{enumType.Name}'.");
         }
+
+        // 解析單一子句：AnnouncementDetail.Lang = en
+        private static bool TryParseSimpleClause(string seg,out string[] pathParts,out string op,out string? val)
+        {
+            // NOTE: 這裡沿用你原本 NormalizeRec 的 Regex（op 範圍一致）
+            var m = Regex.Match(seg,@"^(?<fullPath>[\w.]+)\s*(?<op>=|&|!&|==|!=|>=|<=|>|<|in|not in|like|is null|is not null|hasany|hasallof|hasall)\s*(?<val>.+)?$",RegexOptions.IgnoreCase);
+            pathParts = Array.Empty<string>();
+            op = "";
+            val = null;
+            if (!m.Success) return false;
+            var fullPath = m.Groups["fullPath"].Value;
+            op = m.Groups["op"].Value;
+            val = m.Groups["val"].Success ? m.Groups["val"].Value.Trim().Trim('\'', '"') : null;
+            pathParts = fullPath.Split('.');
+            return pathParts.Length > 0;
+        }
+
+        // 判斷 modelType.nav 是否為 IEnumerable（非 string），並取 elementType
+        private static bool TryGetEnumerableElementType(Type modelType,string navName,out Type elementType)
+        {
+            elementType = typeof(object);
+            var prop = PropertyAccessorCache.GetProperty(modelType, navName);
+            if (prop == null) return false;
+            var t = prop.PropertyType;
+            var isEnumerable = typeof(IEnumerable).IsAssignableFrom(t) && t != typeof(string);
+            if (!isEnumerable) return false;
+            if (t.IsArray)
+            {
+                elementType = t.GetElementType() ?? typeof(object);
+                return true;
+            }
+            if (t.IsGenericType)
+            {
+                elementType = t.GetGenericArguments()[0];
+                return true;
+            }
+            // fallback（很少見）
+            elementType = typeof(object);
+            return true;
+        }
+
+        // 合併：AnnouncementDetail.Any(Lang == @0 and Title != @1)
+        private string? BuildMergedAnyClause(Type modelType,string navName,Type elementType,List<(string[] RestPath, string Op, string? Val)> clauses,ref List<object> args)
+        {
+            // 逐條在 elementType 上 BuildNestedClause，避免每條都各自 Any()
+            var innerParts = new List<string>();
+            foreach (var c in clauses)
+            {
+                var inner = BuildNestedClause(elementType, c.RestPath, c.Op, c.Val, ref args, 0);
+                if (!string.IsNullOrEmpty(inner)) innerParts.Add(inner);
+            }
+            if (innerParts.Count == 0) return null;
+            // 多條用 and 串（同一筆明細必須同時成立）
+            var innerExpr = string.Join(" and ", innerParts);
+            return $"{navName}.Any({innerExpr})";
+        }
+
+
+
+
+
+
         /// <summary>
         /// 獲取表頭明細模型
         /// </summary>
