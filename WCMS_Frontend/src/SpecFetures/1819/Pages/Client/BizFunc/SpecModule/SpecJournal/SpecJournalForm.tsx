@@ -82,7 +82,7 @@ const SpecJournalFormContent = (props: { lang: Lang; data: SpecJournalSet }) => 
         <div className="Journal_List_content">
             <div className="row">
                 <div className="CategoryBar w-100">
-                        <SpecJournalKeywordSearch_Comp basePath="../List" />
+                    <SpecJournalKeywordSearch_Comp basePath="../List" />
                 </div>
                 <div className="col row-group">
                     <hr className="hr-my-4" />
@@ -284,7 +284,7 @@ const DOI_Comp = (props: { lang: Lang; data: SpecJournalSet }) => {
                     </div>
 
                     <div className="doiQr">
-                        <QrCodeWithLogo_Comp value={props.data?.SpecJournal?.DOIUrl ?? ""} logoSrc={QRCodeLogoImg} size={120} ariaLabel="DOI QR Code" />
+                        <QrCodeWithLogo_Comp value={props.data?.SpecJournal?.DOIUrl ?? ""} logoSrc={QRCodeLogoImg} size={200} ariaLabel="DOI QR Code" />
                     </div>
                 </div>
             </div>

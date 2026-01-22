@@ -16,7 +16,7 @@ export interface IQrCodeWithLogoProps {
 export const QrCodeWithLogo_Comp = (props: IQrCodeWithLogoProps) => {
     // 宣告變數
     const size = props.size ?? 120;
-    const logoSize = props.logoSize ?? Math.floor(size * 0.32);
+    const logoSize = props.logoSize ?? Math.floor(size * 0.2);
     const ariaLabel = props.ariaLabel ?? "DOI QR Code";
     const enableLink = props.enableLink ?? true;
     const linkTarget = props.linkTarget ?? "_blank";
