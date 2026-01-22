@@ -242,8 +242,8 @@ const JournalCard = (props: { item: SpecJournalSet; lang: Lang; onPickArticleLan
                 </div>
             </div>
             <div className="card_titleDiv">
-                <div className="card_title">{props.item.SpecJournal?.Title}</div>
-                <div className="card_title_en">{props.item.SpecJournal?.Title_en}</div>
+                <div className="card_title">{props.item.SpecJournal?.ArticleLang === "zh-tw" ? props.item.SpecJournal?.Title : props.item.SpecJournal?.Title_en}</div>
+                <div className="card_title_en">{props.item.SpecJournal?.ArticleLang === "en" ? props.item.SpecJournal?.Title : props.item.SpecJournal?.Title_en}</div>
             </div>
             <div className="line-my-2"></div>
         </div>
