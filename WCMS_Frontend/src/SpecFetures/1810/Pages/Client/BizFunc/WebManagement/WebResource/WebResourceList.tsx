@@ -53,6 +53,7 @@ const useWebResourceList = (categoryIds: string, tagIds: string, lang: Lang) => 
                 `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Url_OpenType}`,
             ],
             Condition: condition,
+            RankGroups: [{ Condition: `${WebResourceFields.ContentStatus} & 1` }],
             OrderBy: [{ Col: WebResourceFields.CreateTime, Desc: true }],
             PageNumber: page,
             PageSize: 10,

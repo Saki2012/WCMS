@@ -90,7 +90,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 PageSize = 1,
                 PageNumber = 1,
             };
-            var fileQuery = await Service.BizQueryListAsync(param.Fields, param.Condition, default, param.PageNumber, param.PageSize);
+            var fileQuery = await Service.BizQueryListAsync(param.Fields, param.Condition, default, default, param.PageNumber, param.PageSize);
             var file = fileQuery.FirstOrDefault()?.FileManage;
             if (file is null) return NotFound();
             // === 2) 檔案實體路徑 ===

@@ -98,6 +98,7 @@ const useGalleryListData = (provider: IDataProvider<GallerySet>, lang: Lang, que
                 `${GalleryFields.ModifyUser}.${AccountFields.AccountName}`,
             ],
             Condition: condition,
+            RankGroups: [{ Condition: `${GalleryFields.ContentStatus} & 1` }],
             OrderBy: [
                 { Col: GalleryFields.CreateTime, Desc: true },
             ],

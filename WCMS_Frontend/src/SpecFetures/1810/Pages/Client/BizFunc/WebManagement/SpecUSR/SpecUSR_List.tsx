@@ -11,7 +11,7 @@ import SpecCategoryProvider from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCate
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import DefaultPic from "@/SpecFetures/1810/Assets/Custom/images_960x960.jpg"
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { SpecCategoryModelFields, SpecUSRDetailFields, SpecUSRModelFields, SpecUSRSetFields } from "@/types/SchemaFields";
+import { SpecCategoryModelFields, SpecUSRDetailFields, SpecUSRFileFields, SpecUSRModelFields, SpecUSRSetFields } from "@/types/SchemaFields";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
@@ -62,6 +62,7 @@ const useSpecUSRList = (categoryId: string, tagIds: string) => {
                 `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ContentIntroduction}`,
             ],
             Condition: condition,
+            RankGroups: [{ Condition: `${SpecUSRModelFields.ContentStatus} & 1` }],
             OrderBy: [
                 { Col: `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Year}`, Desc: true },
                 { Col: `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.AcademicYear}`, Desc: true },

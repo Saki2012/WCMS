@@ -108,7 +108,7 @@ export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
             return;
         }
         const cond = props.buildQueryCondition(currentPage);
-        const key = `${currentPage}|${JSON.stringify(cond)}|${JSON.stringify(props.deps ?? [])}`;
+        const key = `${currentPage}|${buildStableQueryKey(cond)}|${JSON.stringify(props.deps ?? [])}`;
         if (lastFetchKeyRef.current === key) return;
         lastFetchKeyRef.current = key;
         fetchData(currentPage);
@@ -155,4 +155,26 @@ const BuildVisibleColumns = async (
         .filter((x): x is ColumnConfig => !!x);
 
     return columns;
+};
+
+const buildStableQueryKey = (cond: QueryListParam) =>
+{
+    // 只取 QueryListParam 中「真正影響查詢結果」的欄位
+    const {
+        Fields,
+        Condition,
+        OrderBy,
+        RankGroups,
+        PageNumber,
+        PageSize,
+    } = cond as any;
+
+    return JSON.stringify({
+        Fields,
+        Condition,
+        OrderBy,
+        RankGroups,
+        PageNumber,
+        PageSize,
+    });
 };

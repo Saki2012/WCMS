@@ -227,19 +227,76 @@ namespace WCMS.SysCore
         }
         public async Task<IList<TSet>> BizQueryListAsync(QueryListParam param)
         {
-            return await BizQueryListAsync(param.Fields,param.Condition, param.OrderBy, param.PageNumber, param.PageSize);
+            return await BizQueryListAsync(param.Fields,param.Condition, param.OrderBy, param.RankGroups, param.PageNumber, param.PageSize);
         }
-        public async Task<IList<TSet>> BizQueryListAsync(string[] selectFields, string condition, IReadOnlyList<OrderBySpec> OrderBy=null, int pageNumber=0, int pageSize = 0)
+        public async Task<IList<TSet>> BizQueryListAsync(string[] selectFields, string condition, IReadOnlyList<OrderBySpec> OrderBy=null,IReadOnlyList<RankGroupsSpec> rankGroups=null, int pageNumber=0, int pageSize = 0)
         {
+            // 宣告變數
             IList<TSet> result = [];
             var props = PropertyAccessorCache.GetProperties<TSet>();
             var headerProp = props.FirstOrDefault(p => !p.PropertyType.IsGenericType);
-            var datas = (await DoQueryListAsync(headerProp, selectFields, condition, OrderBy, pageNumber, pageSize)).ToDynamicList();
-            foreach (var data in datas)
+
+            // ✅ 無 RankGroups：沿用原本流程
+            if (rankGroups == null || rankGroups.Count == 0)
             {
-                var srcData = BuildSetFromData(headerProp, data);
-                result.Add(srcData);
+                var datas = (await DoQueryListAsync(headerProp, selectFields, condition, OrderBy, pageNumber, pageSize)).ToDynamicList();
+                foreach (var data in datas)
+                {
+                    var srcData = BuildSetFromData(headerProp, data);
+                    result.Add(srcData);
+                }
+                return result;
             }
+
+            // ✅ 有 RankGroups：分段取資料（Group0、Group1...、Rest）
+            var plan = BuildRankGroupPlan(condition, rankGroups);
+            var segments = BuildRankSegments(plan, rankGroups, OrderBy);
+
+            // 不分頁：依 segments 全部拉回
+            if (pageNumber <= 0 || pageSize <= 0)
+            {
+                foreach (var seg in segments)
+                {
+                    var datas = (await DoQueryListAsync(headerProp, selectFields, seg.Where, seg.OrderBy, 0, 0)).ToDynamicList();
+                    foreach (var data in datas)
+                    {
+                        var srcData = BuildSetFromData(headerProp, data);
+                        result.Add(srcData);
+                    }
+                }
+                return result;
+            }
+
+            // 分頁：跨 segments 精準切頁
+            var globalSkip = (pageNumber - 1) * pageSize;
+            var remaining = pageSize;
+
+            foreach (var seg in segments)
+            {
+                if (remaining <= 0) break;
+
+                var segCount = await DoQueryListCountAsync(headerProp.PropertyType, seg.Where);
+                if (segCount <= 0) continue;
+
+                if (globalSkip >= segCount)
+                {
+                    globalSkip -= segCount;
+                    continue;
+                }
+
+                var take = Math.Min(remaining, segCount - globalSkip);
+                var datas = (await DoQueryListAsync(headerProp, selectFields, seg.Where, seg.OrderBy, 0, take, globalSkip)).ToDynamicList();
+
+                foreach (var data in datas)
+                {
+                    var srcData = BuildSetFromData(headerProp, data);
+                    result.Add(srcData);
+                }
+
+                remaining -= take;
+                globalSkip = 0;
+            }
+
             return result;
         }
         public async Task<int> BizQueryTotalCounts(string condition)
@@ -423,7 +480,7 @@ namespace WCMS.SysCore
             }
             return result;
         }
-        protected async Task<IList> DoQueryListAsync<TModel>(string[] selectFields, string condition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt)
+        protected async Task<IList> DoQueryListAsync<TModel>(string[] selectFields, string condition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt, int skipCt = 0)
         {
             return await DoQueryListAsync(typeof(TModel), selectFields, condition, orderBy, pageCt, takeCt);
         }
@@ -432,11 +489,11 @@ namespace WCMS.SysCore
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        protected async Task<IList> DoQueryListAsync(PropertyInfo prop, string[] selectFields, string condition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt)
+        protected async Task<IList> DoQueryListAsync(PropertyInfo prop, string[] selectFields, string condition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt, int skipCt = 0)
         {
             return await DoQueryListAsync(prop.PropertyType, selectFields, condition, orderBy, pageCt, takeCt);
         }
-        protected async Task<IList> DoQueryListAsync(Type type, string[] selectFields, string condition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt)
+        protected async Task<IList> DoQueryListAsync(Type type, string[] selectFields, string condition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt, int skipCt = 0)
         {
             // ✅ 1) 先建立 whereExpr（已支援括號/and/or）
             var whereExpr = GetConditionExpr(type, condition);
@@ -445,7 +502,7 @@ namespace WCMS.SysCore
             // ✅ 3) projection：集合明細套用 Where(predicate)
             var selectExpr = GetSelectFieldsExpr(type, selectFields, detailPredMap);
             var repo = (dynamic)GetRepoByType(type);
-            var data = await repo.QueryListAsync(selectExpr, whereExpr, orderBy, pageCt, takeCt);
+            var data = await repo.QueryListAsync(selectExpr, whereExpr, orderBy, pageCt, takeCt, skipCt);
             return data;
         }
         protected async Task<int> DoQueryListCountAsync<TModel>(string condition)
@@ -747,10 +804,7 @@ namespace WCMS.SysCore
             return new Dictionary<string, DetailPredInfo>(StringComparer.Ordinal);
         }
 
-        private static Dictionary<string, DetailPredInfo> MergeByBoolean(
-            Dictionary<string, DetailPredInfo> left,
-            Dictionary<string, DetailPredInfo> right,
-            ExpressionType op)
+        private static Dictionary<string, DetailPredInfo> MergeByBoolean(Dictionary<string, DetailPredInfo> left,Dictionary<string, DetailPredInfo> right,ExpressionType op)
         {
             var result = new Dictionary<string, DetailPredInfo>(StringComparer.Ordinal);
             var keys = left.Keys.Union(right.Keys).ToList();
@@ -831,12 +885,7 @@ namespace WCMS.SysCore
         /// 匹配：x.Nav.Any(d => ...)
         /// 支援 Enumerable.Any / Queryable.Any
         /// </summary>
-        private static bool TryMatchAnyOnRootNav(
-            Expression node,
-            ParameterExpression rootParam,
-            out string navName,
-            out ParameterExpression detailParam,
-            out Expression detailBody)
+        private static bool TryMatchAnyOnRootNav(Expression node,ParameterExpression rootParam,out string navName,out ParameterExpression detailParam,out Expression detailBody)
         {
             navName = "";
             detailParam = null!;
@@ -907,6 +956,44 @@ namespace WCMS.SysCore
                 string seg = chunks[i].Trim();
                 if (string.IsNullOrEmpty(seg))
                 {
+                    i++;
+                    continue;
+                }
+
+                var s0 = seg.TrimStart();
+                var isNot =
+                    s0.StartsWith("not ", StringComparison.OrdinalIgnoreCase) ||
+                    s0.StartsWith("not(", StringComparison.OrdinalIgnoreCase) ||
+                    s0.StartsWith("!", StringComparison.Ordinal);
+
+                if (isNot)
+                {
+                    // 取出 not/! 後面的 operand
+                    var operand = s0.StartsWith("!", StringComparison.Ordinal)
+                        ? s0.Substring(1).Trim()
+                        : s0.Substring(3).Trim(); // "not"
+
+                    // 若是 not(...) 形式，去掉外層括號
+                    if (operand.StartsWith("(") && operand.EndsWith(")") && IsBalanced(operand))
+                        operand = operand.Substring(1, operand.Length - 2);
+
+                    // 先把 operand 正規化成 bool expr
+                    string innerNorm;
+
+                    if (TryParseSimpleClause(operand, out var p, out var opx, out var vx))
+                    {
+                        innerNorm = BuildNestedClause(modelType, p, opx, vx, ref args) ?? "true";
+                    }
+                    else
+                    {
+                        // 若 operand 本身還含 and/or/括號，就遞迴處理
+                        innerNorm = NormalizeRec(modelType, operand, args);
+                    }
+
+                    pieces.Add($"!({innerNorm})");
+
+                    // 正常補 connector（未合併的情況）
+                    if (i < connectors.Count) pieces.Add(connectors[i]);
                     i++;
                     continue;
                 }
@@ -1368,11 +1455,6 @@ namespace WCMS.SysCore
             return $"{navName}.Any({innerExpr})";
         }
 
-
-
-
-
-
         /// <summary>
         /// 獲取表頭明細模型
         /// </summary>
@@ -1605,6 +1687,192 @@ namespace WCMS.SysCore
                 return null;
             }
         }
+
+
+
+        // 產生 RankGroups 的最終 where condition（FirstMatchWins + Rest）
+        private sealed record RankGroupPlan(IReadOnlyList<string> GroupWhereList,string RestWhere,string BaseWhere);
+
+        // 將 base condition + rankGroups 組成：
+        // group0 = Base AND (G0)
+        // group1 = Base AND NOT(G0) AND (G1)
+        // ...
+        // rest  = Base AND NOT(G0 OR G1 OR ...)
+        private static RankGroupPlan BuildRankGroupPlan(string baseCond, IReadOnlyList<RankGroupsSpec> groups)
+        {
+            // 宣告變數
+            var groupWhereList = new List<string>();
+            var groupOrList = new List<string>();
+
+            // 執行 function
+            for (int i = 0; i < groups.Count; i++)
+            {
+                var g = groups[i];
+                if (string.IsNullOrWhiteSpace(g.Condition)) continue;
+
+                // 1) 先做 base AND group
+                var where = MergeAnd(baseCond, g.Condition);
+
+                // 2) 後續 group 要排除前面的 group（優先排序）
+                if (groupOrList.Count > 0)
+                {
+                    var prevOr = string.Join(" or ", groupOrList.Select(x => $"({x})"));
+                    where = MergeAnd(where, NotExpr(prevOr)); // ✅ 不用 not(...)
+                }
+
+                groupWhereList.Add(where);
+                groupOrList.Add(g.Condition);
+            }
+
+            // 3) Rest = base AND NOT(any group)
+            var restWhere = baseCond;
+            if (groupOrList.Count > 0)
+            {
+                var allOr = string.Join(" or ", groupOrList.Select(x => $"({x})"));
+                restWhere = MergeAnd(baseCond, NotExpr(allOr)); // ✅ 不用 not(...)
+            }
+            var baseWhere = NormalizeBaseWhere(baseCond);
+
+
+            // return
+            return new RankGroupPlan(groupWhereList, restWhere, baseWhere);
+        }
+
+        // 將 base condition 轉成可安全串接的片段
+        private static string NormalizeBaseWhere(string baseCondition)
+        {
+            // 宣告變數
+            var trimmed = (baseCondition ?? string.Empty).Trim();
+            // 執行 function
+            if (string.IsNullOrWhiteSpace(trimmed)) trimmed = "true";
+            // return
+            return trimmed;
+        }
+        private sealed record RankSegment(string Where, IReadOnlyList<OrderBySpec>? OrderBy);
+
+        private static List<RankSegment> BuildRankSegments(RankGroupPlan plan,IReadOnlyList<RankGroupsSpec>? rankGroups,IReadOnlyList<OrderBySpec>? baseOrderBy)
+        {
+            // 宣告變數
+            var result = new List<RankSegment>();
+            var groups = rankGroups?.Where(g => !string.IsNullOrWhiteSpace(g.Condition)).ToList() ?? new List<RankGroupsSpec>();
+
+            // 執行 function：每個 group 用自己的 orderBy（若沒給就 fallback baseOrderBy）
+            for (int i = 0; i < plan.GroupWhereList.Count; i++)
+            {
+                var gOrderBy = groups[i].OrderBy ?? baseOrderBy;
+                result.Add(new RankSegment(plan.GroupWhereList[i], gOrderBy));
+            }
+
+            // Rest 段：用 baseOrderBy
+            result.Add(new RankSegment(plan.RestWhere, baseOrderBy));
+
+            // return
+            return result;
+        }
+
+        private static string MergeAnd(string a, string b)
+        {
+            // 宣告變數
+            var aa = (a ?? "").Trim();
+            var bb = (b ?? "").Trim();
+
+            // 執行 function
+            if (string.IsNullOrWhiteSpace(aa)) return bb;
+            if (string.IsNullOrWhiteSpace(bb)) return aa;
+
+            // return
+            return $"({aa}) and ({bb})";
+        }
+        private static string NotExpr(string expr)
+        {
+            // 宣告變數
+            var e = (expr ?? "").Trim();
+
+            // 執行 function
+            if (string.IsNullOrWhiteSpace(e)) return "true";
+
+            // return（交給 NormalizeRec 去把裡面的子句轉成 bool）
+            return $"not ({e})";
+        }
+        // 過濾掉空的 group condition，並保持順序
+        private static List<RankGroupsSpec> NormalizeRankGroups(IReadOnlyList<RankGroupsSpec>? rankGroups)
+        {
+            // 宣告變數
+            var result = new List<RankGroupsSpec>();
+            // 執行 function
+            if (rankGroups == null) return result;
+            foreach (var g in rankGroups)
+            {
+                if (string.IsNullOrWhiteSpace(g.Condition)) continue;
+                result.Add(g);
+            }
+            // return
+            return result;
+        }
+
+        // 產出每個 group 的 where（含前序 NOT）
+        private static List<string> BuildGroupWhereList(string baseWhere, List<RankGroupsSpec> groups)
+        {
+            // 宣告變數
+            var list = new List<string>();
+            // 執行 function
+            for (int i = 0; i < groups.Count; i++)
+            {
+                var gWhere = Wrap(groups[i].Condition);
+                var prevNot = BuildPrevNot(groups, i); // NOT(G0 OR ... OR G(i-1))
+                var full = string.IsNullOrWhiteSpace(prevNot) ? $"{Wrap(baseWhere)} and {gWhere}" : $"{Wrap(baseWhere)} and {prevNot} and {gWhere}";
+                list.Add(full);
+            }
+            // return
+            return list;
+        }
+
+        // rest = Base AND NOT(G0 OR G1 OR ...)
+        private static string BuildRestWhere(string baseWhere, List<RankGroupsSpec> groups)
+        {
+            // 宣告變數
+            var any = BuildAnyOr(groups);
+            // 執行 function
+            if (string.IsNullOrWhiteSpace(any)) return baseWhere;
+            // return
+            return $"{Wrap(baseWhere)} and not {any}";
+        }
+
+        // 產生 NOT( G0 OR ... OR G(i-1) )
+        private static string BuildPrevNot(List<RankGroupsSpec> groups, int endExclusive)
+        {
+            // 宣告變數
+            if (endExclusive <= 0) return string.Empty;
+            // 執行 function
+            var any = BuildAnyOr(groups.Take(endExclusive).ToList());
+            if (string.IsNullOrWhiteSpace(any)) return string.Empty;
+            // return
+            return $"not {any}";
+        }
+
+        // 產生 (G0) OR (G1) OR ...
+        private static string BuildAnyOr(List<RankGroupsSpec> groups)
+        {
+            // 宣告變數
+            var parts = groups.Select(g => g.Condition?.Trim()).Where(s => !string.IsNullOrWhiteSpace(s)).Select(Wrap).ToArray();
+            // 執行 function
+            if (parts.Length == 0) return string.Empty;
+            // return
+            return "(" + string.Join(" or ", parts) + ")";
+        }
+
+        // 確保子條件都有括號（避免 and/or precedence 出事）
+        private static string Wrap(string s)
+        {
+            // 宣告變數
+            var t = (s ?? string.Empty).Trim();
+            // 執行 function
+            if (string.IsNullOrWhiteSpace(t)) return "(true)";
+            if (t.StartsWith("(") && t.EndsWith(")")) return t;
+            // return
+            return "(" + t + ")";
+        }
+
         #endregion
     }
 }

@@ -91,6 +91,7 @@ const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, 
                 `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Professor}`,
             ],
             Condition: condition,
+            RankGroups: [{ Condition: `${SpecResearchModelFields.ContentStatus} & 1` }],
             OrderBy: [
                 { Col: `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Year}`, Desc: true },
                 { Col: `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.AcademicYear}`, Desc: true },

@@ -310,7 +310,7 @@ namespace WCMS.SysCore
         {
             if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
             AddListTags();
-            var queryResult = await Service.BizQueryListAsync(queryCondition.Fields, queryCondition.Condition,queryCondition.OrderBy, queryCondition.PageNumber, queryCondition.PageSize);
+            var queryResult = await Service.BizQueryListAsync(queryCondition.Fields, queryCondition.Condition,queryCondition.OrderBy, queryCondition.RankGroups, queryCondition.PageNumber, queryCondition.PageSize);
             List<TSet_DTO> result = [];
             foreach (var item in queryResult) result.Add(DTOHelper.MapToDTO<TSet, TSet_DTO>(item));
             var response = new ApiResponse<TSet_DTO>() { Data = result, SysMessage = Message.Messages};
@@ -482,9 +482,11 @@ namespace WCMS.SysCore
     public class QueryListParam : IQueryListParam
     {
         public readonly record struct OrderBySpec(string Col, bool Desc = false);
-        public string[] Fields { get; set; }
-        public string Condition { get; set; }
+        public readonly record struct RankGroupsSpec(string Condition, IReadOnlyList<OrderBySpec>? OrderBy);
+        public string[] Fields { get; set; } = [];
+        public string Condition { get; set; } = string.Empty;
         public IReadOnlyList<OrderBySpec>? OrderBy { get; set; }
+        public IReadOnlyList<RankGroupsSpec>? RankGroups { get; set; }
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
     }

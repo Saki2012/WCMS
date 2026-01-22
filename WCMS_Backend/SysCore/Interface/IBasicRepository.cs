@@ -41,7 +41,7 @@ namespace WCMS.SysCore.Interface
         /// 查詢明細(非同步)
         /// </summary>
         /// <returns></returns>
-        public Task<IList<TModel>> QueryListAsync(LambdaExpression selectExpr, LambdaExpression whereExpr, IReadOnlyList<OrderBySpec>? orderBy = null, int pageCt = 1, int takeCt = 10, bool asNoTracking = true);
+        public Task<IList<TModel>> QueryListAsync(LambdaExpression selectExpr, LambdaExpression whereExpr, IReadOnlyList<OrderBySpec>? orderBy = null, int pageCt = 1, int takeCt = 10, int skipCt = 0, bool asNoTracking = true);
         /// <summary>
         /// 自動產生流水號ID
         /// </summary>

@@ -101,6 +101,7 @@ const useAnnouncementList = (provider: IDataProvider<AnnouncementSet>, lang: Lan
                 AnnouncementFields.InternalId,
             ],
             Condition: condition,
+            RankGroups: [{ Condition: `${AnnouncementFields.ContentStatus} & 1` }],
             OrderBy: [
                 { Col: AnnouncementFields.CreateTime, Desc: true },
             ],

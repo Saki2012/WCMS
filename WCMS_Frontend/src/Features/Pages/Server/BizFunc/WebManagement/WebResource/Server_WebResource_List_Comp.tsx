@@ -98,6 +98,7 @@ const useWebResourceListData = (provider: IDataProvider<WebResourceSet>, lang: L
                 WebResourceFields.InternalId,
             ],
             Condition: condition,
+            RankGroups: [{ Condition: `${WebResourceFields.ContentStatus} & 1` }],
             OrderBy: [
                 { Col: WebResourceFields.CreateTime, Desc: true },
             ],

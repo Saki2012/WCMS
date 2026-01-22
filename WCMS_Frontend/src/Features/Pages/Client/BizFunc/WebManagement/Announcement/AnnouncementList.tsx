@@ -432,6 +432,7 @@ const dataFetch = (provider: IDataProvider<AnnouncementSet>, lang: string, categ
                 AnnouncementFields.ViewCount,
             ],
             Condition: condition,
+            RankGroups: [{ Condition: `${AnnouncementFields.ContentStatus} & 1` }],
             OrderBy: [{ Col: AnnouncementFields.Validate_Start, Desc: true }, { Col: AnnouncementFields.CreateTime, Desc: true }],
             PageNumber: page,
             PageSize: pageSize,

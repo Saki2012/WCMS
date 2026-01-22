@@ -117,6 +117,7 @@ const useSpecUSRProjList = (provider: IDataProvider<SpecUSRSet>, lang: Lang, que
                 SpecUSRModelFields.InternalId,
             ],
             Condition: condition,
+            RankGroups: [{ Condition: `${SpecUSRModelFields.ContentStatus} & 1` }],
             OrderBy: [{ Col: SpecUSRModelFields.CreateTime, Desc: true }],
             PageNumber: page,
             PageSize: 10,

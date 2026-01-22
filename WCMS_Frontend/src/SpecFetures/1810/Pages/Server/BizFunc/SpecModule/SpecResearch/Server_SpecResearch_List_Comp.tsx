@@ -128,6 +128,7 @@ const useSpecResearchList = (provider: IDataProvider<SpecResearchSet>, lang: Lan
                 SpecResearchModelFields.ModifyTime,
             ],
             Condition: condition,
+            RankGroups: [{ Condition: `${SpecResearchModelFields.ContentStatus} & 1` }],
             OrderBy: [{ Col: SpecResearchModelFields.CreateTime, Desc: true }],
             PageNumber: page,
             PageSize: 10,

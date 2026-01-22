@@ -7048,6 +7048,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/SpecJournalIndex/crawer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: {
+                    maxIssues?: number;
+                    maxArticlesPerIssue?: number;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/SpecJournalIndex/Create": {
         parameters: {
             query?: never;
@@ -10523,11 +10562,11 @@ export interface components {
             URL?: string | null;
             URL_Open?: components["schemas"]["WindowTarget"];
             _BannerDetail?: components["schemas"]["BannerDetail_DTO"];
-            /** @description [Spec_LatestShows] */
+            /** @description 最新展演 */
             SpecLatestShows?: string | null;
-            /** @description [Spec_ShowLocation] */
+            /** @description 展演地點 */
             SpecShowLocation?: string | null;
-            /** @description [Spec_ShowDate] */
+            /** @description 展演時間 */
             SpecShowDate?: string | null;
         };
         BannerDetail_DTO: {
@@ -11125,6 +11164,10 @@ export interface components {
         Gender: 0 | 1 | 2;
         /** @enum {string} */
         LangCode: "zh-tw" | "zh-cn" | "en";
+        /** @example {
+         *       "Account": "Admin",
+         *       "Password": "Z7](oRuh98Z3x1$"
+         *     } */
         LoginDto: {
             Account: string;
             Password: string;
@@ -11323,10 +11366,15 @@ export interface components {
             Fields?: string[] | null;
             Condition?: string | null;
             OrderBy?: components["schemas"]["OrderBySpec"][] | null;
+            RankGroups?: components["schemas"]["RankGroupsSpec"][] | null;
             /** Format: int32 */
             PageNumber?: number;
             /** Format: int32 */
             PageSize?: number;
+        };
+        RankGroupsSpec: {
+            Condition?: string | null;
+            OrderBy?: components["schemas"]["OrderBySpec"][] | null;
         };
         ResetPassword: {
             UserInternalId?: string | null;
@@ -11640,24 +11688,24 @@ export interface components {
         };
         SpecJournalAuthor_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description ORCID */
+            /** @description [Spec_ORCID] */
             ORCID?: string | null;
-            /** @description 作者姓名 */
+            /** @description [Spec_AuthorName] */
             AuthorName?: string | null;
-            /** @description 作者英文姓名 */
+            /** @description [Spec_AuthorName_en] */
             AuthorName_en?: string | null;
-            /** @description 職稱 */
+            /** @description [Spec_JobTitle] */
             JobTitle?: string | null;
-            /** @description 單位 */
+            /** @description [Spec_Unit] */
             Unit?: string | null;
-            /** @description 英文單位 */
+            /** @description [Spec_Unit_en] */
             Unit_en?: string | null;
             /** @description 常用Email */
             Email?: string | null;
@@ -11667,24 +11715,24 @@ export interface components {
         };
         SpecJournalBibliography_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description 引文格式標題 */
+            /** @description [Spec_BibliographyTitle] */
             Title?: string | null;
-            /** @description 引文格式標題 */
+            /** @description [Spec_BibliographyTitle_En] */
             Title_en?: string | null;
-            /** @description 引文格式內容 */
+            /** @description 網址 */
             Url?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
         SpecJournalIndexDetail_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊目次代號 */
+            /** @description [Spec_JournalIndexId] */
             IndexId?: string | null;
             /**
              * Format: int32
@@ -11693,26 +11741,23 @@ export interface components {
             RowId?: number | null;
             /**
              * Format: int32
-             * @description 卷數
+             * @description [Spec_Volume]
              */
             Volume?: number | null;
-            /**
-             * Format: int32
-             * @description 期數
-             */
-            Issue?: number | null;
+            /** @description [Spec_Issue] */
+            Issue?: string | null;
             PublishStatus?: components["schemas"]["PublishStatus"];
-            /** @description 是否為特刊 */
+            /** @description [Spec_IsSpecial] */
             IsSpecial?: boolean | null;
             /**
              * Format: date
-             * @description 出版日期
+             * @description [Spec_PublishDate]
              */
             PublishDate?: string | null;
-            /** @description 季號 */
+            /** @description [Spec_SeasonNo] */
             SeasonNo?: string | null;
             SummaryFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 期刊檔案 */
+            /** @description [Spec_SummaryFileId] */
             SummaryFileId?: string | null;
             /** @description [Spec_SummaryFileName] */
             SummaryFileName?: string | null;
@@ -11743,9 +11788,9 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description 期刊目次代號 */
+            /** @description [Spec_JournalIndexId] */
             IndexId?: string | null;
-            /** @description 期刊目次名稱 */
+            /** @description [Spec_JournalIndexName] */
             IndexName?: string | null;
             _SpecJournalIndexDetail?: components["schemas"]["SpecJournalIndexDetail_DTO"][] | null;
         };
@@ -11760,7 +11805,7 @@ export interface components {
         };
         SpecJournalKeywords_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
@@ -11768,7 +11813,7 @@ export interface components {
              */
             RowId?: number | null;
             LangCode?: components["schemas"]["LangCode"];
-            /** @description 關鍵詞 */
+            /** @description [Spec_Keyword] */
             Keyword?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
@@ -11797,47 +11842,47 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             _JournalIndex?: components["schemas"]["SpecJournalIndexModel_DTO"];
-            /** @description 期刊目次代號 */
+            /** @description [Spec_JournalIndexId] */
             JournalIndexId?: string | null;
             _JournalIndexDetail?: components["schemas"]["SpecJournalIndexDetail_DTO"];
             /**
              * Format: int32
-             * @description 卷期代號
+             * @description [Spec_JournalIndexRowId]
              */
             JournalIndexRowId?: number | null;
             /** @description 標題 */
             Title?: string | null;
-            /** @description 英文標題 */
+            /** @description [Spec_Title_en] */
             Title_en?: string | null;
             /**
              * Format: int32
-             * @description 起始頁
+             * @description [Spec_PageStart]
              */
             PageStart?: number | null;
             /**
              * Format: int32
-             * @description 結束頁
+             * @description [Spec_PageEnd]
              */
             PageEnd?: number | null;
-            /** @description DOI */
+            /** @description [Spec_DOI] */
             DOIUrl?: string | null;
             JournalFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 期刊檔案 */
+            /** @description [Spec_JournalFieldId] */
             JournalFileId?: string | null;
-            /** @description 期刊檔案名稱 */
+            /** @description [Spec_JournalFileName] */
             JournalFileName?: string | null;
             InsightPointFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 捷點 InSignt Point 檔案 */
+            /** @description [Spec_InsightPointFileId] */
             InsightPointFileId?: string | null;
-            /** @description 捷點 InSignt Point 檔案名稱 */
+            /** @description [Spec_InsightPointFileName] */
             InsightPointFileName?: string | null;
             ArticleLang?: components["schemas"]["LangCode"];
             /** @description 摘要 */
             Memo?: string | null;
-            /** @description 英文摘要 */
+            /** @description [Spec_Memo_en] */
             Memo_en?: string | null;
             _SpecJournalAuthor?: components["schemas"]["SpecJournalAuthor_DTO"][] | null;
             _SpecJournalBibliography?: components["schemas"]["SpecJournalBibliography_DTO"][] | null;
@@ -11849,65 +11894,66 @@ export interface components {
         };
         SpecJournalOpenPointFiles_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description 開放觀點檔案名稱 */
+            /** @description [Spec_OpenPointFileName] */
             OpenPointFileName?: string | null;
             OpenPointFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 開放觀點檔案來源 */
+            /** @description [Spec_OpenPointFileId] */
             OpenPointFileId?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
         SpecJournalRefFiles_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description 相關檔案名稱 */
+            /** @description [Spec_RefFileName] */
             RefFileName?: string | null;
             RefFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 相關檔案來源 */
+            /** @description [Spec_RefFileId] */
             RefFileId?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
         SpecJournalRefFormat_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description 引文格式標題 */
+            /** @description [Spec_RefFormatTitle] */
             Title?: string | null;
-            /** @description 引文格式內容 */
+            /** @description [Spec_RefFormatContent] */
             Content?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
         SpecJournalSet_DTO: {
             SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
-            /** @description 期刊作者列表 */
+            /** @description [SpecJournalAuthor] */
             SpecJournalAuthor?: components["schemas"]["SpecJournalAuthor_DTO"][] | null;
+            /** @description [SpecJournalBibliography] */
             SpecJournalBibliography?: components["schemas"]["SpecJournalBibliography_DTO"][] | null;
-            /** @description 期刊引文格式列表 */
+            /** @description [SpecJournalRefFormat] */
             SpecJournalRefFormat?: components["schemas"]["SpecJournalRefFormat_DTO"][] | null;
-            /** @description 期刊開放觀點檔案列表 */
+            /** @description [SpecJournalOpenPointFiles] */
             SpecJournalOpenPointFiles?: components["schemas"]["SpecJournalOpenPointFiles_DTO"][] | null;
-            /** @description 期刊相關檔案列表 */
+            /** @description [SpecJournalRefFiles] */
             SpecJournalRefFiles?: components["schemas"]["SpecJournalRefFiles_DTO"][] | null;
-            /** @description 期刊類型列表 */
+            /** @description [SpecJournalTypes] */
             SpecJournalTypes?: components["schemas"]["SpecJournalTypes_DTO"][] | null;
-            /** @description 期刊關鍵字列表 */
+            /** @description [SpecJournalKeywords] */
             SpecJournalKeywords?: components["schemas"]["SpecJournalKeywords_DTO"][] | null;
         };
         SpecJournalSet_DTOApiRequest: {
@@ -11916,7 +11962,7 @@ export interface components {
         };
         SpecJournalTypes_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
@@ -11924,7 +11970,7 @@ export interface components {
              */
             RowId?: number | null;
             Tag?: components["schemas"]["TagData_DTO"];
-            /** @description 類型 */
+            /** @description [Spec_TagId] */
             TagId?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
@@ -11953,37 +11999,37 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description [Spec_MusicalId] */
+            /** @description 樂器代碼 */
             MusicalId?: string | null;
-            /** @description [Spec_MusicalName] */
+            /** @description 樂器名稱 */
             MusicalName?: string | null;
             Category?: components["schemas"]["Category_DTO"];
             /** @description 類別 */
             CategoryId?: string | null;
             /** @description 封面圖片 */
             CoverPicId?: string | null;
-            /** @description [Spec_Specification] */
+            /** @description 規格 */
             Specification?: string | null;
-            /** @description [Spec_Headstock] */
+            /** @description 琴頭 */
             Headstock?: string | null;
-            /** @description [Spec_Backboard] */
+            /** @description 背板 */
             Backboard?: string | null;
-            /** @description [Spec_ScaleLength] */
+            /** @description 弦長 */
             ScaleLength?: string | null;
-            /** @description [Spec_Bridge] */
+            /** @description 覆手長 */
             Bridge?: string | null;
-            /** @description [Spec_BodyForm] */
+            /** @description 形制 */
             BodyForm?: string | null;
-            /** @description [Spec_Material] */
+            /** @description 弦材 */
             Material?: string | null;
-            /** @description [Spec_MusicalInfo] */
+            /** @description 樂器說明 */
             Info?: string | null;
             _SpecMusicalSoundList?: components["schemas"]["SpecMusicalSoundList_DTO"][] | null;
             _SpecMusicalPictureList?: components["schemas"]["SpecMusicalPictureList_DTO"][] | null;
         };
         SpecMusicalPictureList_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_MusicalId] */
+            /** @description 樂器代碼 */
             MusicalId?: string | null;
             /**
              * Format: int32
@@ -12012,7 +12058,7 @@ export interface components {
         };
         SpecMusicalSoundList_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_MusicalId] */
+            /** @description 樂器代碼 */
             MusicalId?: string | null;
             /**
              * Format: int32
@@ -12021,7 +12067,7 @@ export interface components {
             RowId?: number | null;
             /** @description 音源 */
             SoundSrcId?: string | null;
-            /** @description [Spec_SoundSrcInfo] */
+            /** @description 音檔說明 */
             Info?: string | null;
             _SpecMusical?: components["schemas"]["SpecMusicalModel_DTO"];
         };

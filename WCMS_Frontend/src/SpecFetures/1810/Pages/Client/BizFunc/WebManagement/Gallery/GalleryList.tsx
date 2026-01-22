@@ -48,6 +48,7 @@ const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
                 `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title}`,
             ],
             Condition: condition,
+            RankGroups: [{ Condition: `${GalleryFields.ContentStatus} & 1` }],
             OrderBy: [{ Col: GalleryFields.Validate_Start, Desc: true }, { Col: GalleryFields.CreateTime, Desc: true }],
             PageNumber: page,
             PageSize: 12,

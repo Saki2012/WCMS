@@ -189,29 +189,55 @@ namespace WCMS.SysCore
         /// <summary>
         /// 查看表單清單(非同步)
         /// </summary>
-        /// <returns></returns>
-        public async Task<IList<TModel>> QueryListAsync(LambdaExpression? selectExpr,LambdaExpression? whereExpr,IReadOnlyList<OrderBySpec>? orderBy = null,int pageCt = 0,int takeCt = 0, bool asNoTracking = true)
+        public async Task<IList<TModel>> QueryListAsync(
+            LambdaExpression? selectExpr,
+            LambdaExpression? whereExpr,
+            IReadOnlyList<OrderBySpec>? orderBy = null,
+            int pageCt = 0,
+            int takeCt = 0,
+            int skipCt = 0,                 // ✅ 新增：支援 skip/take
+            bool asNoTracking = true)
         {
             IQueryable<TModel> query = DataAccess.Set<TModel>();
             query = query.TagWith($"BasicRepository<{typeof(TModel).Name}>.QueryListAsync");
             if (asNoTracking) query = query.AsNoTrackingWithIdentityResolution();
+
             // ✅ Where 條件
-            if (!whereExpr.IsNullOrEmpty()) query = query.Where((Expression<Func<TModel, bool>>)whereExpr);
+            if (!whereExpr.IsNullOrEmpty())
+                query = query.Where((Expression<Func<TModel, bool>>)whereExpr);
+
             // ✅ 排序
-            if (orderBy != null && orderBy.Count > 0) query = ApplyOrderBy(query, orderBy);
+            if (orderBy != null && orderBy.Count > 0)
+                query = ApplyOrderBy(query, orderBy);
+
             // ✅ Include（兩種模式：selectExpr 抽 include / fields 空 → 預設第一層 include）
             if (selectExpr == null)
             {
                 query = DefaultIncludeHelper.ApplyFirstLevelReferenceIncludes(DataAccess, query, out int includeCt);
                 if (includeCt > 0) query = query.AsSplitQuery();
             }
-            // ✅ 分頁（建議放在 include 後也 OK；你原本放前面也能跑）
-            if (takeCt > 0 && pageCt > 0) query = query.Skip((pageCt - 1) * takeCt).Take(takeCt);
+
+            // ✅ 分頁：優先使用 pageCt；否則使用 skipCt（給 RankGroups 精準切段用）
+            if (takeCt > 0)
+            {
+                if (pageCt > 0)
+                {
+                    query = query.Skip((pageCt - 1) * takeCt).Take(takeCt);
+                }
+                else if (skipCt > 0)
+                {
+                    query = query.Skip(skipCt).Take(takeCt);
+                }
+                else if (skipCt == 0)
+                {
+                    query = query.Take(takeCt);
+                }
+            }
+
             // ✅ Select
             if (selectExpr == null) return await query.ToListAsync();
             return await query.Select((Expression<Func<TModel, TModel>>)selectExpr).ToListAsync();
         }
-
         /// <summary>
         /// 查看表單清單總數量(非同步)
         /// </summary>

@@ -866,11 +866,19 @@ export const QueryListParamFields = {
     Fields: "Fields",
     Condition: "Condition",
     OrderBy: "OrderBy",
+    RankGroups: "RankGroups",
     PageNumber: "PageNumber",
     PageSize: "PageSize",
 } as const;
 
 export type QueryListParamFieldKey = keyof typeof QueryListParamFields;
+
+export const RankGroupsSpecFields = {
+    Condition: "Condition",
+    OrderBy: "OrderBy",
+} as const;
+
+export type RankGroupsSpecFieldKey = keyof typeof RankGroupsSpecFields;
 
 export const ResetPasswordFields = {
     UserInternalId: "UserInternalId",

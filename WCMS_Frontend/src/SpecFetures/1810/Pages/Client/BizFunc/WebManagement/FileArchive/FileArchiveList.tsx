@@ -64,6 +64,7 @@ const useFileArchive = (lang: Lang, categoryIds: string, tagIds: string, tagSets
 
             ],
             Condition: condition,
+            RankGroups: [{ Condition: `${FileArchiveFields.ContentStatus} & 1` }],
             OrderBy: [{ Col: FileArchiveFields.CreateTime, Desc: true }],
             PageNumber: page,
             PageSize: 10,
