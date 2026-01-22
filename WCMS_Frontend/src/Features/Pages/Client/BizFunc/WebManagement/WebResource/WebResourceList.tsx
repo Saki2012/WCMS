@@ -268,6 +268,7 @@ const PictureListContent = (prop: { lang: string, datas: WebResourceSet[] }) => 
                     const tar = detail?.Url_OpenType === 0 ? "_self" : "_blank"
                     const { isYoutube, url } = resolveYoutubeEmbedUrl(urlRaw);
                     const isVideo = false;//暫時
+                    const contentStatus = item.WebResource?.ContentStatus ?? 0;
                     return (
                         <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
                             <article className="cardbox">
@@ -317,8 +318,12 @@ const PictureListContent = (prop: { lang: string, datas: WebResourceSet[] }) => 
                                     )}
 
 
-                                    <div className="card_titleDiv + mb-md-4 mb-sm-3 mb-2" style={{ textAlign: "center" }}>
+                                    <div className="card_titleDiv + mb-md-4 mb-sm-3 mb-2" style={{ textAlign: (isYoutube || isVideo) ? undefined : 'center' }}>
                                         <a href={urlRaw} target={tar} className="card_title">🔗{title}</a>
+                                        <div className="d-flex gap-1 flex-wrap">
+                                            {Boolean(contentStatus & 1) && (<span className="label label-success">置頂</span>)}
+                                            {Boolean(contentStatus & 2) && (<span className="label label-danger">熱門</span>)}
+                                        </div>
                                     </div>
 
                                     {(isYoutube || isVideo) && (

@@ -56,6 +56,7 @@ const Gallery = (props: { lang: Lang; data: GallerySet[]; cateData: CategorySet[
                     const categories = categorys.map(catId => props.cateData?.find(s => String(s.Category?.CategoryId) === catId)?.CategoryDetail?.find(d => d.Lang === props.lang)?.CategoryName).filter((x): x is string => !!x).join("、");
                     const validate_Start = FormatDate(item.Gallery?.Validate_Start)
                     const content = item.GalleryInfo?.find(p => p.Lang === props.lang)?.Title ?? ""
+                    const contentStatus = item.Gallery?.ContentStatus ?? 0;
                     return (
                         <div key={idx} className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
                             <article className="cardbox">
@@ -87,6 +88,10 @@ const Gallery = (props: { lang: Lang; data: GallerySet[]; cateData: CategorySet[
                                         <LangLink to={linkUrl} className="card_title">
                                             {content}
                                         </LangLink>
+                                        <div className="d-flex gap-1 flex-wrap">
+                                            {Boolean(contentStatus & 1) && (<span className="label label-success">置頂</span>)}
+                                            {Boolean(contentStatus & 2) && (<span className="label label-danger">熱門</span>)}
+                                        </div>
                                     </div>
 
                                     <div className="card_StateDiv">
@@ -139,11 +144,8 @@ const useGalleryList = (provider: IDataProvider<GallerySet>, lang: string, categ
         ],
         buildQueryCondition: (page) => ({
             Fields: [
-                GalleryFields.InternalId,
-                GalleryFields.Categories,
-                GalleryFields.CoverPicSrcId,
-                GalleryFields.CreateTime,
-                GalleryFields.Validate_Start,
+                GalleryFields.InternalId, GalleryFields.Categories, GalleryFields.CoverPicSrcId, GalleryFields.CreateTime,
+                GalleryFields.Validate_Start, GalleryFields.ContentStatus,
                 `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang}`,
                 `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title}`,
             ],
