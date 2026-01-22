@@ -5,7 +5,7 @@ import { Outlet, type RouteObject } from "react-router-dom";
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 import HomePage from "SpecFeature/Pages/Client/Index/HomePage"
 import { Index } from "@/Features/Pages/Client/BizFunc/MainPage/Index";
-import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
+import { DefaultLang, isSupportedLang, type Lang } from "@/SysCore/i18n/lang";
 import { Classic_FETheme } from "../Theme/ClassicTheme_Clsx";
 import TemplateHub from "@/Features/Pages/Server/Scaffold/PreviewFrame/TemplateHub.tsx";
 import { useLang } from "@/SysCore/i18n/LangContext";
@@ -60,7 +60,7 @@ export const normalizeSite = (siteMenu: SiteMenuSet): INormSite => {
         };
     }
     if (Object.keys(indexInfoByLang).length === 0) {
-        indexInfoByLang["zh-tw"] = { title: "", description: "" };
+        indexInfoByLang[DefaultLang] = { title: "", description: "" };
     }
 
     // 2) 關聯表：以 ItemRowId 當 key
@@ -76,10 +76,14 @@ export const normalizeSite = (siteMenu: SiteMenuSet): INormSite => {
     // 3) 依語系分組：用 SiteMenu_Item（不是 Item_Title）
     const byLang = new Map<Lang, (SiteMenu_Item & SiteMenu_Item_Title)[]>();
     siteMenu.SiteMenu_Item_Title?.forEach(t => {
-        const arr = byLang.get(t.Lang as Lang ?? DefaultLang) ?? [];
+        // 宣告變數
+        const lang = normalizeLangKey(t.Lang);
+        const arr = byLang.get(lang) ?? [];
         const item = siteMenu.SiteMenu_Item?.find(i => i.RowId === t.ItemRowId);
+        // 執行function
         if (item) arr.push({ ...item, ...t }); // 合併 Item + Title
-        byLang.set(t.Lang as Lang ?? DefaultLang, arr);
+        // return xxx
+        byLang.set(lang, arr);
     });
 
     // 4) 為每個語系建立樹（正確使用 ItemRowId / ParentRowId）
@@ -189,20 +193,47 @@ let resolveRegistry: RegistryResolver = () => coreModuleRegistry;
 export const configureModuleRegistry = (extender: (base: ModuleRegistry) => ModuleRegistry) => { resolveRegistry = () => extender(coreModuleRegistry); };
 export const getModuleRegistry = (): ModuleRegistry => resolveRegistry();
 
+const normalizeLangKey = (raw?: string | null): Lang => {
+    // 宣告變數
+    const s = (raw ?? "").trim().toLowerCase();
 
+    // 執行function：別名/大小寫/底線統一
+    if (!s) return DefaultLang;
+
+    // 常見 zh-hant 系列 → zh-tw
+    if (s === "zh-hant" || s === "zh-hant-tw" || s === "zh_hant_tw" || s === "zh_tw" || s === "zh-tw") {
+        return "zh-tw";
+    }
+
+    // 常見 en-us → en（你目前 SUPPORTED_LANGS 只有 en）
+    if (s === "en-us" || s === "en_us") {
+        return "en";
+    }
+
+    // 若已是系統支援語系就直接用
+    if (isSupportedLang(s)) return s;
+
+    // 其他不支援的語系 → fallback
+    return DefaultLang;
+};
 /* ---------- 5) 純函式：把樹 → RouteObject[] ---------- */
 
 
 // 2) 模組元件：用 useLang() 把 lang 傳給對應的模組 component
-const ModuleElement: React.FC<{ node: INormNode; site: INormSite }> = ({ node, site }) => {
-    // const { code: lang } = useLang();
+const ModuleElement: React.FC<{ site: INormSite; nodeId: number; skeletonNode: INormNode }> = (props) => {
+    // 宣告變數
     const lang = (useLang().code ?? DefaultLang) as Lang;
+    const node = resolveNodeByLang(props.site, lang, props.nodeId) ?? props.skeletonNode;
+
+    // 執行 function
     if (node.type !== "module" || !node.module) return <div>Module not registered</div>;
     const entry = getModuleRegistry()[node.module.progId];
     if (!entry) return <div>Unknown module: {node.module.progId}</div>;
-    // 這個元件只需回傳「父層 element」；子路由在 toRoute 裡處理
-    const el = entry.kind === "element" ? entry.render(lang, site, node) : entry.element(lang, site, node);
-    return el;
+
+    // return
+    return entry.kind === "element"
+        ? entry.render(lang, props.site, node)
+        : entry.element(lang, props.site, node);
 };
 /** render 時用 LangContext 覆寫 route.element 裡的 lang / defaultLang（避免 route tree 只能用 DefaultLang 產生） */
 const WithCtxLang: React.FC<{ element: React.ReactElement }> = ({ element }) => {
@@ -226,6 +257,19 @@ const findNodeById = (roots: INormNode[], id: number): INormNode | null => {
         if (cur.children?.length) stack.push(...cur.children);
     }
     return null;
+};
+
+const resolveNodeByLang = (site: INormSite, lang: Lang, nodeId: number): INormNode | null => {
+    // 宣告變數
+    const roots = site.treeByLang?.[lang] ?? [];
+    const fallbackRoots = site.treeByLang?.[DefaultLang] ?? [];
+
+    // 執行 function
+    const hit = findNodeById(roots, nodeId);
+    if (hit) return hit;
+
+    // return
+    return findNodeById(fallbackRoots, nodeId);
 };
 
 /** ✅ node route guard：若該語系 node 不存在，或 title==="" && isShowOnMenu=false → 回該語系首頁 */
@@ -305,7 +349,7 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
         if (!n.module) return { path: n.path, element: <div>Module not registered</div> };
         const entry = getModuleRegistry()[n.module.progId];
         if (!entry) return { path: n.path, element: <div>Unknown module: {n.module.progId}</div> };
-        const element = wrapGuard(<ModuleElement node={n} site={site} />);
+        const element = wrapGuard(<ModuleElement site={site} nodeId={n.id} skeletonNode={n} />);
         // routes 型模組的自帶 children；element 型為空
         const modChildrenRaw: RouteObject[] = entry.kind === "routes" ? entry.children(n.module.options, DefaultLang, n, site) : [];
         const modChildren = wrapRoutesWithCtxLang(modChildrenRaw); const children = [...modChildren, ...menuChildren];
