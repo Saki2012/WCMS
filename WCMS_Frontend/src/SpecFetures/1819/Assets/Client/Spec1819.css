@@ -309,3 +309,48 @@
 .Spec1819-JournalSearch__label { 
   padding-top: 1px !important; 
 }
+
+/* ===============================
+   Focus 樣式統一（對齊 1816/1817/1818）
+   - 滑鼠點擊：清掉 focus 背景
+   - 鍵盤操作：保留 focus-visible 外框（AA）
+   =============================== */
+
+a, a:hover { 
+  text-decoration: none; 
+}
+
+a:focus {
+  outline: none;
+  background-color: transparent;
+  color: inherit;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--a_focusbordercolor);
+  outline-offset: 2px;
+  background-color: var(--a_focuscolor);
+  color: var(--blackcolor) !important;
+}
+
+a:active {
+  background-color: var(--a_focuscolor) !important;
+  transition: background-color 0.15s ease-out;
+}
+
+/* ✅ 滑鼠點擊後仍會 focus：但不是鍵盤 focus-visible 的情況，放開後清掉底色/光暈
+   ✅ 但「按住(active)」時不要清掉，讓你按住時仍有黃色提示 */
+a:focus:not(:focus-visible):not(:active) {
+  outline: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  color: inherit !important;
+}
+
+/* ✅ 常見 Bootstrap 元件也一起處理 */
+.nav-link:focus:not(:focus-visible):not(:active),
+.btn:focus:not(:focus-visible):not(:active) {
+  outline: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
