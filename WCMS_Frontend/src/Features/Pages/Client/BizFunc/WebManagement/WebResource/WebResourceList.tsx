@@ -267,6 +267,7 @@ const PictureListContent = (prop: { lang: string, datas: WebResourceSet[] }) => 
                     const urlRaw = detail?.ResUrl ?? ""
                     const tar = detail?.Url_OpenType === 0 ? "_self" : "_blank"
                     const { isYoutube, url } = resolveYoutubeEmbedUrl(urlRaw);
+                    const isVideo = false;//暫時
                     return (
                         <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
                             <article className="cardbox">
@@ -280,50 +281,61 @@ const PictureListContent = (prop: { lang: string, datas: WebResourceSet[] }) => 
                                                         referrerPolicy="strict-origin-when-cross-origin" allowFullScreen />
                                                 </div>
                                             </div> :
-                                            <a href={urlRaw} target={tar} className="card_image_link venobox" data-autoplay="true" data-vbtype="video" data-ratio="1x1" data-maxwidth="640px" title={title}>
-                                                <div className="card_figure">
-                                                    <video width="100%">
-                                                        <source src={`${FileManagementAPI.PREVIEW_URL}/${picId}`} />
-                                                    </video>
-                                                    <div className="videoDiv">
-                                                        <div className="customize_Play_Btn Ripplestyle">
-                                                            <i className="fas fa-play"></i><span className="sr-only">播放</span>
+                                            isVideo ?
+                                                <a href={urlRaw} target={tar} className="card_image_link venobox" data-autoplay="true" data-vbtype="video" data-ratio="1x1" data-maxwidth="640px" title={title}>
+                                                    <div className="card_figure">
+                                                        <video width="100%">
+                                                            <source src={`${FileManagementAPI.PREVIEW_URL}/${picId}`} />
+                                                        </video>
+                                                        <div className="videoDiv">
+                                                            <div className="customize_Play_Btn Ripplestyle">
+                                                                <i className="fas fa-play"></i><span className="sr-only">播放</span>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </a>
+                                                </a> :
+                                                <a href={urlRaw} target={tar} className="card_image_link venobox" data-autoplay="true" data-vbtype="video" data-ratio="1x1" data-maxwidth="640px" title={title}>
+                                                    <div className="img-wrapper">
+                                                        <img className="card_image" src={`${FileManagementAPI.PREVIEW_URL}/${picId}`} alt="" />
+                                                    </div>
+                                                </a>
                                         }
                                     </figure>
 
-                                    <div className="card_catDiv">
-                                        <div className="card_cat">
-                                            <div className="card_cat_link">
-                                                <span className="s-line">▍</span>
-                                                <span className="s-tle">{""}</span>
+                                    {(isYoutube || isVideo) && (
+                                        <div className="card_catDiv">
+                                            <div className="card_cat">
+                                                <div className="card_cat_link">
+                                                    <span className="s-line">▍</span>
+                                                    <span className="s-tle">{""}</span>
+                                                </div>
+                                            </div>
+                                            <div className="card_time">
+                                                <i className="far fa-clock mr-2"></i><span className="sr-only">日期</span>{validate}
                                             </div>
                                         </div>
-                                        <div className="card_time">
-                                            <i className="far fa-clock mr-2"></i><span className="sr-only">日期</span>{validate}
-                                        </div>
+                                    )}
+
+
+                                    <div className="card_titleDiv + mb-md-4 mb-sm-3 mb-2" style={{ textAlign: "center" }}>
+                                        <a href={urlRaw} target={tar} className="card_title">🔗{title}</a>
                                     </div>
 
-                                    <div className="card_titleDiv + mb-md-4 mb-sm-3 mb-2">
-                                        <a href={urlRaw} target={tar} className="card_title">{title}</a>
-                                    </div>
+                                    {(isYoutube || isVideo) && (
+                                        <div className="card_StateDiv">
+                                            <div className="More customize_btn">
+                                                <a href={urlRaw} target={tar} className="Btn_s1" type="button" role="button" title="觀看更多">VIEW ALL<span className="ml-2">+</span></a>
+                                            </div>
 
-                                    <div className="card_StateDiv">
-                                        <div className="More customize_btn">
-                                            <a href={urlRaw} target={tar} className="Btn_s1" type="button" role="button" title="觀看更多">VIEW ALL<span className="ml-2">+</span></a>
+                                            <div className="ZoomIn customize_ZoomIn_btn">
+                                                {/* <a href="images/video/0_Robot(4.4)_1080x1080.mp4" className="Btn_zm1 venobox" data-autoplay="true" data-vbtype="video" data-ratio="1x1" data-maxwidth="640px" type="button" role="button" title="放大播放影片"> */}
+                                                <a href={urlRaw} target={tar} className="Btn_zm1 venobox" data-autoplay="true" data-vbtype="iframe" data-maxwidth="640px" type="button" role="button" title="放大圖片">
+                                                    <i className="fas fa-expand-alt"></i>
+                                                    <span className="sr-only">放大圖片</span>
+                                                </a>
+                                            </div>
                                         </div>
-
-                                        <div className="ZoomIn customize_ZoomIn_btn">
-                                            {/* <a href="images/video/0_Robot(4.4)_1080x1080.mp4" className="Btn_zm1 venobox" data-autoplay="true" data-vbtype="video" data-ratio="1x1" data-maxwidth="640px" type="button" role="button" title="放大播放影片"> */}
-                                            <a href={urlRaw} target={tar} className="Btn_zm1 venobox" data-autoplay="true" data-vbtype="iframe" data-maxwidth="640px" type="button" role="button" title="放大圖片">
-                                                <i className="fas fa-expand-alt"></i>
-                                                <span className="sr-only">放大圖片</span>
-                                            </a>
-                                        </div>
-                                    </div>
+                                    )}
                                 </div>
                             </article>
                         </div>
