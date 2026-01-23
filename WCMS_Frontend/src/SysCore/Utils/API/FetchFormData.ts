@@ -1,6 +1,6 @@
+import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
+import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { useCallback, useEffect, useState } from "react";
-import type { ModelDisplaySchema } from "../../../types/IApiSchema";
-import type { IDataProvider } from "../../Interface/IApiProvider";
 
 export interface UseFetchFormDataResult<T>
 {

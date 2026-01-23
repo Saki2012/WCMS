@@ -1,0 +1,624 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+:root {
+  --Customize-dropdown-item-padding-y: 0.75rem;
+}
+
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+/* <<<<<<<< / PC板模式 ALL // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+/* ========================================================== */
+/* ==== // navbar-toggler ALL // ============================ */
+.navbar-toggler {
+    border: none;
+    padding: 0;
+    outline: none;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+.navbar-toggler .hamburger-toggle {
+    position: relative;
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    z-index: 11;
+    float: right;
+}
+
+.navbar-toggler .hamburger-toggle .hamburger {
+    position: absolute;
+    transform: translate(-50%, -50%) rotate(0deg);
+    left: 50%;
+    top: 50%;
+    width: 50%;
+    height: 50%;
+    pointer-events: none;
+}
+
+.navbar-toggler .hamburger-toggle .hamburger span {
+    width: 100%;
+    height: 2px;
+    position: absolute;
+    background-color: var(--blackcolor);
+    border-radius: 2px;
+    z-index: 1;
+    transition: transform 0.2s cubic-bezier(0.77, 0.2, 0.05, 1), background 0.2s cubic-bezier(0.77, 0.2, 0.05, 1), all 0.2s ease-in-out;
+    left: 0px;
+}
+
+.menu_section .navbar-dark .navbar-toggler:hover .hamburger span {
+    background-color: var(--FFFcolor);
+}
+
+
+.navbar-toggler .hamburger-toggle .hamburger span:first-child {
+    top: 10%;
+    transform-origin: 50% 50%;
+    transform: translate(0% -50%) !important;
+}
+.navbar-toggler .hamburger-toggle .hamburger span:nth-child(2) {
+    top: 50%;
+    transform: translate(0, -50%);
+}
+.navbar-toggler .hamburger-toggle .hamburger span:last-child {
+    left: 0px;
+    top: auto;
+    bottom: 10%;
+    transform-origin: 50% 50%;
+}
+
+.navbar-toggler .hamburger-toggle .hamburger.active span {
+    position: absolute;
+    margin: 0;
+}
+.navbar-toggler .hamburger-toggle .hamburger.active span:first-child {
+    top: 45%;
+    transform: rotate(45deg);
+}
+.navbar-toggler .hamburger-toggle .hamburger.active span:nth-child(2) {
+    left: 50%;
+    width: 0px;
+}
+.navbar-toggler .hamburger-toggle .hamburger.active span:last-child {
+    top: 45%;
+    transform: rotate(-45deg);
+}
+
+/* ==== // navbar-toggler ALL // ============================ */
+/* ========================================================== */
+
+/* ========================================================== */
+/* ==== // navbar-nav // ==================================== */
+@media screen and (min-width: 992px) {
+	.navbar-expand-lg .navbar-nav {
+		flex-direction: row;
+	}
+}
+/* 新增 */
+@media screen and (min-width: 992px) {
+	.navbar-expand-lg .navbar-nav {
+		display: -webkit-box;
+		display: -ms-flexbox;
+		display: flex;
+		flex-direction: row;
+		-ms-flex-wrap: wrap;
+		flex-wrap: wrap;
+		justify-content: flex-start;
+		align-items: center;
+	}
+}
+/* 新增 */
+/* ==== // navbar-nav // ==================================== */
+/* ========================================================== */
+
+/* ========================================================== */
+/* ==== // nav-link  // ===================================== */
+#navbar-content .nav-link {
+	display: block;
+	padding: var(--Customize-dropdown-item-padding-y) 1rem;
+	font-size: 93.75%;
+	font-weight: inherit;
+	color: inherit;
+	text-decoration: none;
+	background: 0 0;
+	border: 0;
+	transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out;
+}
+#navbar-content .nav-link {
+	color: var(--blackcolor);
+	font-weight: bold;
+}
+#navbar-content .nav-link.active,
+#navbar-content .nav-link.disabled,
+#navbar-content .nav-link.show {
+    color: var(--blackcolor);
+}
+#navbar-content .nav-link:hover,
+#navbar-content .nav-link:focus,
+#navbar-content .nav-link:active {
+    color: var(--color_007069);
+}
+/* ==== // nav-link  // ===================================== */
+/* ========================================================== */
+
+/* ========================================================== */
+/* ==== // dropdown-menu ALL // ============================= */
+/* 第一層 */
+#navbar-content .navbar-nav .dropdown-item {
+	display: block;
+	width: 100%;
+	padding: var(--Customize-dropdown-item-padding-y) 1rem;
+	clear: both;
+	font-weight: 400;
+	color: inherit;
+	text-align: inherit;
+	text-decoration: none;
+	white-space: normal;
+	background-color: transparent;
+	border: 0;
+	border-radius: 0;
+}
+/* 第一層 */
+/* ========================================================== */
+#navbar-content .navbar-nav .dropdown-item,
+#navbar-content .navbar-nav .dropend .dropdown-toggle {
+    color: var(--blackcolor);
+}
+#navbar-content .navbar-nav .dropdown-item:hover,
+#navbar-content .navbar-nav .dropend .dropdown-toggle:hover {
+	color: var(--FFFcolor);
+    background-color: var(--color_007069);
+}
+/* ========================================================== */
+
+/* ========================================================== */
+/* ==== // MENU 選單文字大小 // =============================== */
+/* 第二層 *//* 第三層 *//* 第四層 *//* 第五層 */
+#navbar-content .navbar-nav ul a.dropdown-item /*第二層*/,
+#navbar-content .navbar-nav ul ul a.dropdown-item /*第三層*/, 
+#navbar-content .navbar-nav ul ul ul a.dropdown-item /*第四層*/,
+#navbar-content .navbar-nav ul ul ul ul a.dropdown-item /*第五層*/ {
+	font-size: 93.75%
+}
+
+/* PC模式時，第二層 *//* 第三層 *//* 第四層 *//* 第五層 箭頭位置 */
+.dropend .dropdown-toggle::after {
+	position: absolute;
+	top: 42.5%;
+	right: 5%;  
+	display: inline-block;
+	margin-left: .255em;
+	vertical-align: .255em;
+	content: "";
+	border-top: .3em solid transparent;
+	border-right: 0;
+	border-bottom: .3em solid transparent;
+	border-left: .3em solid;
+}
+/* ==== // MENU 選單文字大小 // =============================== */
+/* ========================================================== */
+
+/* ========================================================== */
+/* ==== // dropdown-menu // ================================= */
+.dropdown .dropdown-menu {
+    display: none;
+}
+@media screen and (min-width: 992px) {
+	.navbar-expand-lg .navbar-nav .dropdown-menu {
+		position: absolute;
+		min-width: 16rem;
+		max-width: 20rem;
+		-webkit-box-shadow: 0px 5px 5px 0px rgba(0,0,0,0.175) !important;
+		box-shadow: 0px 5px 5px 0px rgba(0,0,0,0.175) !important;
+	}
+	.navbar-expand-lg .navbar-nav .dropdown-menu[data-bs-popper] {
+		top: 100%;
+		left: 0;
+		/*margin-top: var(--bs-dropdown-spacer);*/
+		margin-top: 0;
+	}
+}
+/* ========================================================== */
+/* 手機模式時，取消HOVER狀態 */
+.dropdown-menu.show {
+	display: block;
+}
+/* 手機模式時，取消HOVER狀態 */
+/* ========================================================== */
+
+/* ========================================================== */
+/* PC模式時，HOVER狀態 */
+@media screen and (min-width: 992px) {
+	.dropdown:hover > .dropdown-menu,
+	.dropend:hover > .dropdown-menu {
+		display: block;
+	}
+}
+@media screen and (min-width: 992px) {
+    .dropend:hover > .dropdown-menu {
+        position: absolute;
+        top: 0;
+        left: 100%;
+    }
+}
+/* PC模式時，HOVER狀態 */
+/* ========================================================== */
+
+/* ========================================================== */
+/* 自訂判別 第三層/第四層/第五層 MENU submenu 左右呈現位置 */
+#navbar-content .navbar-nav .submenu {
+    position: relative;
+}
+#navbar-content .navbar-nav .submenu .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-left: 0;
+}
+#navbar-content .navbar-nav .submenu.show-left .dropdown-menu {
+    left: auto;
+    right: 100%;
+    margin-left: 0;
+    margin-right: 0;
+}
+/* 自訂判別 第三層/第四層/第五層 MENU submenu 左右呈現位置 */
+/* ========================================================== */
+/* ==== // dropdown-menu // ================================= */
+
+/* ==== // dropdown-menu ALL // ============================= */
+/* ========================================================== */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+/* <<<<<<<< / PC板模式 ALL // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+
+
+
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+/* <<<<<<<< / 手機板模式 ALL // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+@media screen and (max-width: 991px) {
+	.navbar-collapse {
+		position: absolute;
+		top: 100%;
+		left: 0px;		
+				
+		height: 41vh;
+		width: calc(100% + 30px);
+		margin-left: -15px;	
+		border-left: 1px solid rgba(0, 0, 0, 0.175);
+		border-right: 1px solid rgba(0, 0, 0, 0.175);
+		border-bottom: 1px solid rgba(0, 0, 0, 0.175);
+		border-radius: 0 0 0.5rem 0.5rem;
+		background-color: var(--FFFcolor);	
+		z-index: 1000;
+		
+		-webkit-box-shadow: 0px 5px 5px 0px rgba(0,0,0,0.175) !important;
+		box-shadow: 0px 5px 5px 0px rgba(0,0,0,0.175) !important;
+	}
+	.collapsing {
+		height: 0;
+		overflow: hidden;
+		transition: height .35s ease
+	}
+	
+	.navbar-collapse.overflow-scroll-Y {
+		overflow-y: scroll;
+		/*height: calc(100vh - 25vh);*/
+	}
+	/* 定義滾動條樣式（高寬及背景）*/ 
+	.navbar-collapse.overflow-scroll-Y::-webkit-scrollbar { 
+		width: 6px;   /* 滾動條寬度， width：對應垂直滾動條的寬度 height：對應橫滾動條的高度 */
+		background-color: #e9ecef;
+	} 
+	/* 定義滾動條軌道（凹槽）樣式 */
+	.navbar-collapse.overflow-scroll-Y::-webkit-scrollbar-track { 
+		-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);    /* 较少使用 */
+		border-radius: 3px; 
+	} 
+	/* 定義滑桿 樣式 */
+	.navbar-collapse.overflow-scroll-Y::-webkit-scrollbar-thumb { 
+		border-radius: 3px; 
+		height: 100px;    /* 捲軸滑桿長度 */    
+		background-color: #007acc;
+	}
+}
+/* ========================================================== */
+
+@media screen and (max-width: 991px) {
+	.navbar-nav .dropdown-menu {
+		position: static;
+	}
+	.navbar-nav .dropdown-menu {
+		z-index: 1000;
+		min-width: 10rem;
+		padding: var(--Customize-dropdown-item-padding-y) 0rem;
+		margin: 0;
+		margin-top: 0px;
+		font-size: 100%;
+		color: var(--blackcolor);
+		text-align: left;
+		list-style: none;
+		background-color: var(--FFFcolor);
+		background-clip: padding-box;
+		/*border: 1 solid rgba(0, 0, 0, 0.175);*/
+		border: none;
+		/*border-radius: 0.375rem;*/
+		border-radius: 0;
+	}
+	
+	.dropdown-menu[data-bs-popper] {
+		top: 100%;
+		left: 0;
+		margin-top: 0;
+	}
+}
+
+/* ========================================================== */
+/* 手機模式時，HOVER + ACTIVE + FOCUS ... /*第一層*/ /*第二層 *//* 第三層 *//* 第四層 *//* 第五層 */
+@media screen and (max-width: 991px) {
+	/*第一層*//* 第二層 *//* 第三層 *//* 第四層 *//* 第五層 */
+	#navbar-content ul a.nav-link.active /*第一層*/,
+	#navbar-content ul a.nav-link.disabled /*第一層*/,
+	#navbar-content ul a.nav-link.show /*第一層*/,
+	#navbar-content ul a.nav-link:hover /*第一層*/,
+	#navbar-content ul a.nav-link:focus /*第一層*/,
+	#navbar-content ul a.nav-link:active /*第一層*/,
+	
+	#navbar-content .navbar-nav ul a.dropdown-item.active /*第二層*/,
+	#navbar-content .navbar-nav ul a.dropdown-item.disabled /*第二層*/,
+	#navbar-content .navbar-nav ul a.dropdown-item.show /*第二層*/,
+	#navbar-content .navbar-nav ul a.dropdown-item:hover /*第二層*/,
+	#navbar-content .navbar-nav ul a.dropdown-item:focus /*第二層*/,
+	#navbar-content .navbar-nav ul a.dropdown-item :active /*第二層*/,
+	
+	#navbar-content .navbar-nav ul ul a.dropdown-item.active /*第三層*/,
+	#navbar-content .navbar-nav ul ul a.dropdown-item.disabled /*第三層*/,
+	#navbar-content .navbar-nav ul ul a.dropdown-item.show /*第三層*/,
+	#navbar-content .navbar-nav ul ul a.dropdown-item:hover /*第三層*/,
+	#navbar-content .navbar-nav ul ul a.dropdown-item:focus /*第三層*/,
+	#navbar-content .navbar-nav ul ul a.dropdown-item:active /*第三層*/,
+	
+	#navbar-content .navbar-nav ul ul ul a.dropdown-item.active /*第四層*/,
+	#navbar-content .navbar-nav ul ul ul a.dropdown-item.disabled /*第四層*/,
+	#navbar-content .navbar-nav ul ul ul a.dropdown-item.show /*第四層*/,
+	#navbar-content .navbar-nav ul ul ul a.dropdown-item:hover /*第四層*/,
+	#navbar-content .navbar-nav ul ul ul a.dropdown-item:focus /*第四層*/,
+	#navbar-content .navbar-nav ul ul ul a.dropdown-item:active /*第四層*/,
+	
+	#navbar-content .navbar-nav ul ul ul ul a.dropdown-item.active /*第五層*/,
+	#navbar-content .navbar-nav ul ul ul ul a.dropdown-item.disabled /*第五層*/,
+	#navbar-content .navbar-nav ul ul ul ul a.dropdown-item.show /*第五層*/,
+	#navbar-content .navbar-nav ul ul ul ul a.dropdown-item:hover /*第五層*/,
+	#navbar-content .navbar-nav ul ul ul ul a.dropdown-item:focus /*第五層*/,
+	#navbar-content .navbar-nav ul ul ul ul a.dropdown-item:active /*第五層*/ {
+		color: var(--FFFcolor) !important;
+		background-color: var(--color_007069) !important;
+		outline: none;
+	}
+}
+/* 手機模式時，HOVER + ACTIVE + FOCUS ... /*第一層*/ /*第二層 *//* 第三層 *//* 第四層 *//* 第五層 */
+/* ========================================================== */
+
+/* ========================================================== */
+/* 手機模式時，第二層 *//* 第三層 *//* 第四層 *//* 第五層 內縮位置 */
+@media screen and (max-width: 991px) {
+	/* 第二層 *//* 第三層 *//* 第四層 *//* 第五層 */
+	#navbar-content .navbar-nav ul a.dropdown-item /*第二層*/ {
+		padding: var(--Customize-dropdown-item-padding-y) 1.75rem;
+	}
+	#navbar-content .navbar-nav ul ul a.dropdown-item /*第三層*/ {
+		padding: var(--Customize-dropdown-item-padding-y) 2.75rem;
+	}
+	#navbar-content .navbar-nav ul ul ul a.dropdown-item /*第四層*/ {
+		padding: var(--Customize-dropdown-item-padding-y) 3.75rem;
+	}
+	#navbar-content .navbar-nav ul ul ul ul a.dropdown-item /*第五層*/ {
+		padding: var(--Customize-dropdown-item-padding-y) 4.75rem;
+	}
+}
+/* 手機模式時，第二層 *//* 第三層 *//* 第四層 *//* 第五層 內縮位置 */
+/* ========================================================== */
+
+/* ========================================================== */
+/* 手機模式時，第二層 *//* 第三層 *//* 第四層 *//* 第五層 箭頭位置 */
+@media screen and (max-width: 991px) {
+	.dropdown-toggle:not(.show)::after {
+		position: absolute;
+		/*top: 6.5px;*/
+		right: 5%; 
+		display: inline-block;
+		margin-left: .255em;
+		vertical-align: .255em;
+		content: "+";
+		border: none;
+		font-size: 112.5%;
+		font-weight: 600;
+	}
+	.dropdown-toggle::after {
+		position: absolute;
+		/*top: 6.5px;*/
+		right: 5%; 
+		display: inline-block;
+		margin-left: .255em;
+		vertical-align: .255em;
+		content: "–";
+		border: none;
+		font-size: 112.5%;
+		font-weight: 600;
+	}
+	
+	.dropend.submenu .dropdown-toggle:not(.show)::after,
+	.dropend.submenu ul .dropdown-toggle:not(.show)::after,
+	.dropend.submenu ul ul .dropdown-toggle:not(.show)::after,
+	.dropend.submenu ul ul ul .dropdown-toggle:not(.show)::after,
+	.dropend.submenu ul ul ul ul .dropdown-toggle:not(.show)::after {
+		position: absolute;
+		top: 6.5px;
+		right: 5%; 
+		display: inline-block;
+		margin-left: .255em;
+		vertical-align: .255em;
+		content: "+";
+		border: none;
+		font-size: 112.5%;
+		font-weight: 600;
+	}
+	.dropend.submenu .dropdown-toggle::after,
+	.dropend.submenu ul .dropdown-toggle::after,
+	.dropend.submenu ul ul .dropdown-toggle::after,
+	.dropend.submenu ul ul ul .dropdown-toggle::after,
+	.dropend.submenu ul ul ul ul .dropdown-toggle::after {
+		position: absolute;
+		top: 6.5px;
+		right: 5%; 
+		display: inline-block;
+		margin-left: .255em;
+		vertical-align: .255em;
+		content: "–";
+		border: none;
+		font-size: 112.5%;
+		font-weight: 600;
+	}
+}
+/* 手機模式時，第二層 *//* 第三層 *//* 第四層 *//* 第五層 箭頭位置 */
+/* ========================================================== */
+
+/* ========================================================== */
+/* 手機模式時，增加於 黑色透明遮照 */
+@media screen and (max-width: 991px) {
+	body .main-header.active .overlayer {
+		opacity: 1;
+		pointer-events: auto;
+	}
+	body .overlayer {
+		content: "";
+		width: 100vw;
+		height: 100vh;
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: -1;
+		background-color: rgba(0, 0, 0, 0.5);/*0.3*/
+		display: block;
+		pointer-events: none;
+		opacity: 0;
+		-webkit-transition: 0.9s;
+		transition: 0.9s;
+	}
+}
+/* 手機模式時，增加 黑色透明遮照 */
+/* ========================================================== */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+/* <<<<<<<< / 手機板模式 ALL // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+
+
+
+
+
+
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+/* <<<<<<<< / PC板模式 MAGA ALL // >>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+.nav-item.dropdown.dropdown-mega {
+	position: static;
+}
+.nav-item.dropdown.dropdown-mega .dropdown-menu {
+	width: 90%;
+	top: auto;
+	left: 5%;
+	-webkit-box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+@media screen and (max-width: 991px) {
+	.nav-item.dropdown.dropdown-mega .dropdown-menu {
+		width: 100%;
+	}
+	/* 箭頭位置 */
+	.nav-item.dropdown.dropdown-mega .dropdown-toggle:not(.show)::after {
+		position: absolute;
+		/*top: 6.5px;*/
+		right: 5%; 
+		display: inline-block;
+		margin-left: .255em;
+		vertical-align: .255em;
+		content: "+";
+		border: none;
+		font-size: 112.5%;
+		font-weight: 600;
+	}
+	.nav-item.dropdown.dropdown-mega .dropdown-toggle::after {
+		position: absolute;
+		/*top: 6.5px;*/
+		right: 5%; 
+		display: inline-block;
+		margin-left: .255em;
+		vertical-align: .255em;
+		content: "-";
+		border: none;
+		font-size: 112.5%;
+		font-weight: 600;
+	}
+	/* 箭頭位置 */
+}
+@media screen and (min-width: 992px) {
+	.nav-item.dropdown.dropdown-mega .dropdown-menu {
+		position: absolute;
+		min-width: auto;
+    	max-width: 100%;
+	}
+}
+/* ========================================================== */
+
+/* ========================================================== */
+.nav-item.dropdown.dropdown-mega .row {
+	--bs-gutter-x: 1.5rem;
+	--bs-gutter-y: 0;
+	display: flex;
+	flex-wrap: wrap;
+	margin-top: calc(-1 * var(--bs-gutter-y));
+	margin-right: 0;
+	margin-left: 0;
+}
+
+.nav-item.dropdown.dropdown-mega .mega-content {
+	padding-left: 1.5rem !important;
+	padding-right: 1.5rem !important;
+}
+@media screen and (max-width: 991px) {
+	.nav-item.dropdown.dropdown-mega .mega-content {
+		padding-left: 0.75rem !important;
+		padding-right: 0.75rem !important;
+	}
+}
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+/* <<<<<<<< / PC板模式 MAGA ALL // >>>>>>>>>>>>>>>>>>>>>>>>>>> */
+/* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

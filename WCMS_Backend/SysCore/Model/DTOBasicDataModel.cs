@@ -1,8 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using WCMS.Features.Member.Account;
+using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Resx;
+using WCMS.SysCore.Library.LibAttribute;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.Model
@@ -55,5 +58,9 @@ namespace WCMS.SysCore.Model
         /// 系統內部唯一標識號
         /// </summary>
         [LibDesc(ModelDisplayName.Common_InternalId)] public string? InternalId { get; set; }
+        /// <summary>
+        /// 主子
+        /// </summary>
+        [StringLength(SysLengthParam.ID)] public string? OrgLvId { get; set; } = string.Empty;
     }
 }

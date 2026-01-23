@@ -14,7 +14,7 @@ import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { FormatDate, FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 import { AnnouncementDetailFields, AnnouncementFields, AnnouncementSetFields, AccountFields } from "@/types/SchemaFields";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
@@ -23,21 +23,21 @@ type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
  */
 export const Server_AnnouncementListComp = (prop: { title: string; theme: IBETheme; lang: Lang }) => {
     const [kw, setKw] = useState<string>("");
+    const searchCompProp: SearchBarProps = { title: "公告搜尋", subTitle: "搜尋公告 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
     const pathname = useLocation().pathname;
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
     const provider = useMemo(() => AnnouncementProvider(), []);
-    const useCategory = useCategoryListData(ProgId.Announcement, prop.lang);
+    const useCategory = useCategoryListData(PGID.Announcement, prop.lang);
     const useAnnounceList = useAnnouncementList(provider, prop.lang, kw);
     const actions = useActions(dirUrl, provider, undefined, undefined, useAnnounceList.refetchCurrent)
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, actions); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, actions]);
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(prop.lang, useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, actions); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, actions]);
     const isLoading = useMemo(() => [useAnnounceList.isLoading, useCategory.isLoading], [useAnnounceList.isLoading, useCategory.isLoading]);
     const errors = useMemo(() => [useAnnounceList.error, useCategory.error], [useAnnounceList.error, useCategory.error]);
-    const searchCompProp: SearchBarProps = { title: "公告搜尋", subTitle: "搜尋公告 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
     return (<ListComp Title={prop.title} Theme={prop.theme} LoadingList={isLoading} ErrorList={errors} Actions={actions} GridData={adjustedGrid} SearchBar={searchCompProp}></ListComp>);
 }
 
 /** 動態添加每行的動作功能 */
-const SetAdjustFunction = (gridProps: GridProps, rawData: AnnouncementSet[], categoryData: CategoryDataSet[],
+const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: AnnouncementSet[], categoryData: CategoryDataSet[],
     actions: UseActionsResult
 ): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
@@ -50,7 +50,7 @@ const SetAdjustFunction = (gridProps: GridProps, rawData: AnnouncementSet[], cat
         if (titleCell) { titleCell.content = (<>{titleCell.content}{GetDataStatusContent(curData?.Announcement?.ContentStatus ?? 0)}</>); }
         const categoryCell = row.cells.find(p => p.col.key === AnnouncementFields.Categories);
         const rawCatId = curData?.Announcement?.Categories ?? categoryCell?.content?.toString() ?? "";
-        if (categoryCell) { categoryCell.content = useFormatCategoriesName(rawCatId, categoryData); }
+        if (categoryCell) { categoryCell.content = useFormatCategoriesName(rawCatId, categoryData, lang); }
         const internalId = curData?.Announcement?.InternalId ?? "";
         const newCell: RowCell = {
             col: adjustCol,
@@ -101,6 +101,7 @@ const useAnnouncementList = (provider: IDataProvider<AnnouncementSet>, lang: Lan
                 AnnouncementFields.InternalId,
             ],
             Condition: condition,
+            RankGroups: [{ Condition: `${AnnouncementFields.ContentStatus} & 1` }],
             OrderBy: [
                 { Col: AnnouncementFields.CreateTime, Desc: true },
             ],
@@ -114,7 +115,7 @@ const useAnnouncementList = (provider: IDataProvider<AnnouncementSet>, lang: Lan
 
                 switch (col.key) {
                     case AnnouncementDetailFields.Title:
-                        content = item.AnnouncementDetail?.find(d => d.Lang === "zh-tw")?.Title ?? "";
+                        content = item.AnnouncementDetail?.find(d => d.Lang === lang)?.Title ?? "";
                         break;
                     case AnnouncementFields.Validate_Start:
                         content = FormatDate((data as any)[col.key]);

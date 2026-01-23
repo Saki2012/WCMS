@@ -1,4 +1,4 @@
-import { Outlet, Link } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 import SubBannerComp from '@/SpecFetures/1810/Pages/Client/Scaffold/SubPages/Section/SubBanner_Comp'
 import BreadCrumbComp from '@/SysCore/Components/BreadCrumb/BreadCrumb_Comp'
 import MenuListComp from "@/SysCore/Components/MenuList/MenuList_Comp"
@@ -17,6 +17,7 @@ import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient'
 import { buildMenuItems, getAncestorAtLevel, GetMenuData } from '@/Features/Hooks/Common/BuildMenuItems'
 import { GoTopButton } from '@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton'
 import { useLegacyMenuDOM } from '@/SpecFetures/1810/Pages/Client/Scaffold/MainFrame/Header'
+import { LangLink } from '@/SysCore/i18n/LangLink'
 
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 const useBannerPic = (bannerId: string) => {
@@ -43,7 +44,10 @@ const useBannerPic = (bannerId: string) => {
   });
 }
 const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode): ReactNode[] => {
-  const result: ReactNode[] = [<Link to={`/${site.siteIndex}`} title='首頁'>首頁</Link>];
+
+  const homepageTitle = lang === "zh-tw" ? "首頁" : lang === "en" ? "Home" : "首頁"
+
+  const result: ReactNode[] = [<LangLink to={`/${site.siteIndex}`} title={homepageTitle}>{homepageTitle}</LangLink>];
   var curNodes = site.treeByLang[lang]
   node.absIds?.forEach(id => {
     var curNode = curNodes?.find((n: INormNode) => n.id === id);
@@ -51,16 +55,28 @@ const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode): ReactN
       result.push(<>{curNode.title}</>)
     }
     else {
-      result.push(<Link to={curNode?.redirectTo ?? ""} title={curNode?.title}>{curNode?.title}</Link>)
+      result.push(<LangLink to={curNode?.redirectTo ?? ""} title={curNode?.title}>{curNode?.title}</LangLink>)
     }
     curNodes = curNode?.children ?? []
   });
   return result;
 }
+const findNodeById = (nodes: INormNode[] | undefined, id: number): INormNode | undefined => {
+  if (!nodes?.length) return undefined;
+
+  for (const n of nodes) {
+    if (n.id === id) return n;
+    const hit = findNodeById(n.children, id);
+    if (hit) return hit;
+  }
+
+  return undefined;
+};
 
 interface ISubPagesProps { style: IFETheme; lang: Lang; site: INormSite; node: INormNode; backHref?: string; }
 const SubPageBase = (props: ISubPagesProps & { renderMain: () => React.ReactNode }) => {
-  const title: string = props.node.title;
+  const localizedNode = useMemo(() => { const roots = props.site.treeByLang?.[props.lang]; return findNodeById(roots, props.node.id); }, [props.lang, props.site, props.node.id]);
+  const title: string = localizedNode?.title ?? props.node.title;
   const breadCrumbData: ReactNode[] = GetBreadCrumbData(props.lang, props.site, props.node);
   const SIDE_MAX_DEPTH = 3;
   const sideMenuData: MenuItemData[] = GetMenuData(props.lang, props.site, props.node, SIDE_MAX_DEPTH);
@@ -68,10 +84,11 @@ const SubPageBase = (props: ISubPagesProps & { renderMain: () => React.ReactNode
   const topMenuData: MenuItemData[] = buildMenuItems(anchor?.children ?? [], props.node.id);
   const navigate = useNavigate(); // 🔑 先宣告
   const handleBack = (e: React.MouseEvent<HTMLAnchorElement>) => { e.preventDefault(); navigate(-1); };
+  const gobackTitle = props.lang === "zh-tw" ? "返回上一層" : "Return"
   const back: ReactNode = <div className="pos-relative d-inline-block ml-auto">
     <a href="#" onClick={handleBack}>
       <div className="pos-relative d-inline-block">
-        <div className="return-box"><i className="fa fa-reply" aria-hidden="true" style={{ fontSize: "112.5%", marginRight: "10px" }}></i>返回上一層</div>
+        <div className="return-box"><i className="fa fa-reply" aria-hidden="true" style={{ fontSize: "112.5%", marginRight: "10px" }}></i>{gobackTitle}</div>
       </div>
     </a>
   </div>
@@ -103,16 +120,20 @@ const SubPageBase = (props: ISubPagesProps & { renderMain: () => React.ReactNode
                 </nav>
               </div>
               {/* SideMenu區塊 */}
-              <div className="col-lg-2 col-md-12 col-sm-12 col-12">
-                <div id="ContentPlaceContent_ContentSubMenu" className="col-sm-12 col-12 px-0 page-leftmenu">
-                  <a accessKey="L" href="#" className="accesskey_left L" title="左方選單區(L)">:::</a>
-                  <h2>{title}</h2>
-                  <p></p>
-                  <nav className="Left-Second-navBox" ref={menuRef}>
-                    <MenuListComp items={sideMenuData} Style={props.style.SideMenu}></MenuListComp>
-                  </nav>
+
+              {sideMenuData?.length > 0 ?
+                <div className="col-lg-2 col-md-12 col-sm-12 col-12">
+                  <div id="ContentPlaceContent_ContentSubMenu" className="col-sm-12 col-12 px-0 page-leftmenu">
+                    <a accessKey="L" href="#" className="accesskey_left L" title="左方選單區(L)">:::</a>
+                    <h2>{title}</h2>
+                    <p></p>
+                    <nav className="Left-Second-navBox" ref={menuRef}>
+                      <MenuListComp items={sideMenuData} Style={props.style.SideMenu}></MenuListComp>
+                    </nav>
+                  </div>
                 </div>
-              </div>
+                : null}
+
               {/* 主內容區塊 */}
               <div className="col-lg-10 col-md-12 col-sm-12 col-12" id="div_ThirdMenu">
                 <div className='col-sm-12 col-12 px-0 page-righttopmenu'></div>

@@ -1,20 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Data;
-using WCMS.Features.SiteEdit.Banner;
+using WCMS.Features.BizResx;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.Interface;
-using WCMS.SysCore.Library;
-using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
+using WCMS.SysCore.Library.LibAttribute;
 
 namespace WCMS.Features.SiteEdit.Tag
 {
-    [ApiController, Route(SysParam.ServiceRoute)]
+    [LibApiController(ModuleCode.WebManagement, PGID.Tag, SysEnum.FuncAction.MasterData)]
     public class TagController : ApiDataController<TagSet,TagSet_DTO>
     {
         
     }
-
 }

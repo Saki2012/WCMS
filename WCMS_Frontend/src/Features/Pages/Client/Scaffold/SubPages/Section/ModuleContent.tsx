@@ -1,14 +1,31 @@
+import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { NewPaginator } from "@/SysCore/Components/Paginator/Paginator_Comp"
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
+import { DefaultLang, SUPPORTED_LANGS, type Lang } from "@/SysCore/i18n/lang";
+import { useLang } from "@/SysCore/i18n/LangContext";
 import type { ReactNode } from "react";
+import { useLocation } from "react-router";
+import { siteHeaderMeta } from "SpecFeature/SpecRouter"
 
-export interface ModuleContentProps { title?: string; subTitle?: SubTitleProps; paginatorProps?: PaginatorProps; loadingList: boolean[]; errorList: (string | null | undefined)[]; children?: ReactNode; }
+export interface ModuleContentProps { nodeTitle: string; title?: string; subTitle?: SubTitleProps; paginatorProps?: PaginatorProps; loadingList: boolean[]; errorList: (string | null | undefined)[]; children?: ReactNode; }
 
 const ModuleContent = (props: ModuleContentProps) => {
+    const fullTitle = [siteHeaderMeta.title, props.nodeTitle, props.title].filter(Boolean).join("｜");
+    const ctx = useLang();
+    const lang = (ctx.code ?? DefaultLang) as Lang;
+    const loc = useLocation();
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const canonicalUrl = origin ? `${origin}${loc.pathname}` : undefined;
+    const alternates = origin ? SUPPORTED_LANGS.map(l => {
+        const isDefault = l === DefaultLang;
+        const href = isDefault ? `${origin}${loc.pathname.replace(/^\/[^/]+(?=\/|$)/, "")}` : `${origin}/${l}${loc.pathname.replace(/^\/[^/]+(?=\/|$)/, "")}`;
+        return { hrefLang: l, href };
+    }) : undefined;
     return (
-        <LoadingErrorHandler loadingList={props.loadingList} errorList={props.errorList}>
-            <div id="ContentPlaceContent_ContentConentA" className="col-sm-12 col-12 + All_Standard_Content_CSS + my-5">
+        <>
+            <HeaderMetaComp htmlLang={lang} title={fullTitle} description={siteHeaderMeta.description} canonicalUrl={canonicalUrl} alternates={alternates} />
+            <LoadingErrorHandler loadingList={props.loadingList} errorList={props.errorList}>
                 {props.title && <Title title={props.title} subTitle={props.subTitle} />}
                 {/* <SearchBar /> */}
                 <div className="ALL__Information__Display__Area">
@@ -16,8 +33,8 @@ const ModuleContent = (props: ModuleContentProps) => {
                 </div>
                 <hr className="hr-my-4" />
                 {props.paginatorProps && <NewPaginator {...props.paginatorProps} />}
-            </div>
-        </LoadingErrorHandler>
+            </LoadingErrorHandler>
+        </>
     )
 }
 export default ModuleContent

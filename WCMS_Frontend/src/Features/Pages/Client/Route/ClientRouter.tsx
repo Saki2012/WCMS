@@ -9,8 +9,9 @@ import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx
 import type { Lang } from "@/SysCore/i18n/lang";
 import { SubPage, PageManagementForm, AnnouncementList, AnnouncementForm, FileArchiveList, GalleryListComp, GalleryForm, WebResourceListComp } from "@/Features/Pages/Client/Route/ClientComponentResolver";
 import { type IPageManagementOptions, type IAnnouncementListOptions, type IFileArchiveOptions, type IGalleryListOptions, type IWebResourceListOptions } from "@/Features/Pages/Client/Route/ClientComponentResolver";
-import { specClientEntries } from "@/SpecFetures/1810/SpecRouter";
-
+import { specClientEntries } from "SpecFeature/SpecRouter";
+import { Sitemap, SITEMAP_SEGMENT } from "../BizFunc/MainPage/Sitemap";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 
 
 
@@ -47,17 +48,19 @@ export class FrontendRouteModule implements IRouteModule {
     return this.sites.flatMap(site => createRoutesFromSite(site));
   }
 }
+
+
 export const clientEntries: Record<string, ModuleEntry> = {
-  PageManagement: {
+  [PGID.PageManagement]: {
     kind: "routes",
     element: (lang: Lang, site: INormSite, node: INormNode) => (
       <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
     ),
     children: (opts, lang, node: INormNode) => [
-      { index: true, element: <PageManagementForm lang={lang} options={opts as IPageManagementOptions} /> },
+      { index: true, element: <PageManagementForm lang={lang} options={opts as IPageManagementOptions} node={node} /> },
     ],
   },
-  Announcement: {
+  [PGID.Announcement]: {
     kind: "routes",
     element: (lang: Lang, site: INormSite, node: INormNode) => (
       <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
@@ -65,10 +68,10 @@ export const clientEntries: Record<string, ModuleEntry> = {
     children: (opts, lang, node: INormNode) => [
       { index: true, element: <AutoRedirect to="List" replace /> },
       { path: "List", element: <AnnouncementList theme={Classic_FETheme} lang={lang} options={opts as IAnnouncementListOptions} node={node} /> },
-      { path: ":internalId", element: <AnnouncementForm theme={Classic_FETheme} lang={lang} /> },
+      { path: ":internalId", element: <AnnouncementForm node={node} theme={Classic_FETheme} lang={lang} /> },
     ],
   },
-  FileArchive: {
+  [PGID.FileArchive]: {
     kind: "routes",
     element: (lang: Lang, site: INormSite, node: INormNode) => (
       <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
@@ -77,24 +80,33 @@ export const clientEntries: Record<string, ModuleEntry> = {
       { index: true, element: <FileArchiveList theme={Classic_FETheme} lang={lang} options={opts as IFileArchiveOptions} node={node} /> },
     ],
   },
-  Gallery: {
+  [PGID.Gallery]: {
     kind: "routes",
     element: (lang: Lang, site: INormSite, node: INormNode) => (
       <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
     ),
     children: (opts, lang, node: INormNode) => [
       { index: true, element: <AutoRedirect to="List" replace /> },
-      { path: "List", element: <GalleryListComp theme={Classic_FETheme} lang={lang} options={opts as IGalleryListOptions} title={node.title} /> },
-      { path: ":internalId", element: <GalleryForm theme={Classic_FETheme} lang={lang} /> },
+      { path: "List", element: <GalleryListComp node={node} theme={Classic_FETheme} lang={lang} options={opts as IGalleryListOptions} title={node.title} /> },
+      { path: ":internalId", element: <GalleryForm node={node} theme={Classic_FETheme} lang={lang} /> },
     ],
   },
-  WebResource: {
+  [PGID.WebResource]: {
     kind: "routes",
     element: (lang: Lang, site: INormSite, node: INormNode) => (
       <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
     ),
     children: (opts, lang, node: INormNode) => [
-      { index: true, element: <WebResourceListComp theme={Classic_FETheme} lang={lang} options={opts as IWebResourceListOptions} title={node.title} /> },
+      { index: true, element: <WebResourceListComp node={node} theme={Classic_FETheme} lang={lang} options={opts as IWebResourceListOptions} title={node.title} /> },
+    ],
+  },
+  [SITEMAP_SEGMENT]: {
+    kind: "routes",
+    element: (lang, site, node) => (
+      <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
+    ),
+    children: (_opts, lang, _node, site) => [
+      { index: true, element: <Sitemap lang={lang} site={site} /> },
     ],
   },
 };

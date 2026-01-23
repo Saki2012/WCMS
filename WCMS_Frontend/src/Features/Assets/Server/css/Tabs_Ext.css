@@ -1,0 +1,46 @@
+/* 每個 tab 需要可定位右上角 X */
+.wcms-tabs .nav-item {
+  position: relative;
+}
+
+/* X 按鈕（預設隱藏） */
+.wcms-tabs .btn-remove-tab {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+
+  padding: 0;
+  border: 0;
+  background: transparent;
+
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+
+  /* ② 顏色跟 tab 文字一致：用 Bootstrap 的變數（跟 nav-link 同來源） */
+  color: var(--bs-nav-link-color);
+}
+
+/* ① hover 該 tab：顯示 X */
+.wcms-tabs .nav-item:hover .btn-remove-tab {
+  opacity: 1;
+  color: var(--bs-nav-link-hover-color, var(--bs-nav-link-color));
+}
+
+/* ① 當前 active tab：X 永遠顯示（不隱藏） */
+.wcms-tabs .nav-link.active ~ .btn-remove-tab,
+.wcms-tabs .nav-item.active .btn-remove-tab {
+  opacity: 1;
+  color: var(--bs-nav-tabs-link-active-color, var(--bs-nav-link-color));
+}
+
+/* ③ 不要 focus 框（含 bootstrap 的 focus ring） */
+.wcms-tabs .btn-remove-tab:focus,
+.wcms-tabs .btn-remove-tab:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}

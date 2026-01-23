@@ -1,25 +1,27 @@
-import React from 'react';
-import type { Lang } from '../../i18n/lang';
-const SUPPORTED_LANGS: Lang[] = ["zh-tw", "zh-cn", "en"];
+import { DefaultLang, isSupportedLang, SUPPORTED_LANGS, type Lang } from '@/SysCore/i18n/lang';
+import { HeaderMetaComp } from '@/SysCore/Components/HeaderMeta/HeaderMeta_Comp';
 
-interface Props { resolvedLang: string; pathname: string }
-const BASE = import.meta.env.VITE_SITE_ORIGIN;
 
-export const SeoLinks: React.FC<Props> = ({ resolvedLang, pathname }) => {
-  const pathNoLang = pathname.replace(/^\/[a-z]{2}-[a-z]{2}(?=\/|$)/i, ''); // 去掉前導語系段
-  const isB = /^\/[a-z]{2}-[a-z]{2}(?=\/|$)/i.test(pathname);              // 是否為 B 形態
+const stripLeadingLang = (pathname: string) => {
+  const parts = pathname.split("/").filter(Boolean);
+  const seg1 = (parts[0] ?? "").toLowerCase();
+  if (seg1 && isSupportedLang(seg1)) parts.shift();
+  const rest = "/" + parts.join("/");
+  return rest === "" ? "/" : rest;
+};
+const buildPathByLang = (lang: Lang, basePath: string) => {
+  if (lang === DefaultLang) return basePath;              // default：/xxx
+  return basePath === "/" ? `/${lang}` : `/${lang}${basePath}`; // 非 default：/en/xxx
+};
 
-  const canonical = isB
-    ? `${BASE}${pathname}`
-    : `${BASE}/${resolvedLang}${pathNoLang || '/'}`;
-
-  return (
-    <>
-      <link rel="canonical" href={canonical} />
-      {SUPPORTED_LANGS.map(l => (
-        <link key={l} rel="alternate" hrefLang={l} href={`${BASE}/${l}${pathNoLang || '/'}`} />
-      ))}
-      <link rel="alternate" hrefLang="x-default" href={`${BASE}/${resolvedLang}${pathNoLang || '/'}`} />
-    </>
-  );
+export const SeoLinks = (props: { resolvedLang: Lang, pathname: string }) => {
+  if (props.pathname.startsWith("/Server") || props.pathname.startsWith("/Service")) return null; // 後台先不做語系
+  const basePath = stripLeadingLang(props.pathname);
+  // canonical：指向「當前語系版本」
+  const canonicalUrl = buildPathByLang(props.resolvedLang, basePath);
+  // alternates：第一筆放 x-default -> default 版本
+  const alternates = [
+    { hrefLang: "x-default", href: buildPathByLang(DefaultLang, basePath) },
+    ...SUPPORTED_LANGS.map(l => ({ hrefLang: l, href: buildPathByLang(l, basePath) })),];
+  return <HeaderMetaComp htmlLang={props.resolvedLang} canonicalUrl={canonicalUrl} alternates={alternates} />;
 };

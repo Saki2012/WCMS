@@ -6,6 +6,7 @@ import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import type { GridProps } from "@/SysCore/Components/Grid/Grid_Data";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { UseActionsResult } from "@/Features/Hooks/Common/useActions";
+import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 
 
 interface ListCompProp {
@@ -38,7 +39,9 @@ export const ListComp = (prop: ListCompProp) => {
                                                 <DividerComp></DividerComp>
                                                 <List_Toolbar action={prop.Actions} ></List_Toolbar>
                                                 <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList} >
+                                                    <OperationGuideHelp_Comp />
                                                     <Grid gridData={prop.GridData as GridProps} style={prop.Theme.GridView} pageStyle={prop.Theme.Paginator}></Grid>
+
                                                 </LoadingErrorHandler>
                                             </div>
                                         </div>

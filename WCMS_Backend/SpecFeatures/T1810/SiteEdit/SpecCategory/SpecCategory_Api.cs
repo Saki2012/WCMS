@@ -1,25 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
-using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using WCMS.Features.SiteEdit.PageManagement;
+using WCMS.Features.BizResx;
 using WCMS.Features.SiteEdit.SpecCategory;
-using WCMS.Features.SiteEdit.WebResource;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.Interface;
-using WCMS.SysCore.Library;
-using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
+using WCMS.SysCore.Library.LibAttribute;
 
 namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecCategory
 {
-    [ApiController, Route(SysParam.ServiceRoute)]
+    [LibApiController(ModuleCode.WebManagement, PGID.SpecCategory, SysEnum.FuncAction.MasterData)]
     public class SpecCategoryController : ApiDataController<SpecCategorySet,SpecCategorySet_DTO>
     {
-        [HttpGet(nameof(GetShowColumnItems))/*, OutputCache(PolicyName = "PermanentJson")*/]
+        [HttpGet(nameof(GetShowColumnItems)), OutputCache(PolicyName = SysParam.PermanentCache)]
         public IActionResult GetShowColumnItems(string progId)
         {
             AddDetailTags(progId);

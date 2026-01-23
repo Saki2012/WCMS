@@ -161,8 +161,16 @@ ul.sitemap-list.level-2 {
 
 /*-------// level-3 //-------*/
 ul.sitemap-list.level-3 {
-	margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 48px; /* 上下 / 左右間距：讓版面鬆一點 */
 }
+ul.sitemap-list.level-3 > li {
+  width: auto !important;         /* 覆蓋原本 width:50% 那種設定 */
+  flex: 1 1 340px;                /* 340px 是「最小欄寬」(可調) */
+  min-width: 300px;               /* 保底，不要再縮到太窄 */
+}
+
 .sitemap-list.level-3 > li {
 	position: relative;
 	display: inline-block;
@@ -204,6 +212,11 @@ ul.sitemap-list.level-3 {
 /*-------// level-4 //-------*/
 ul.sitemap-list.level-4 {
 	margin-bottom: 10px;
+}
+ul.sitemap-list.level-4 a {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
 }
 .sitemap-list.level-4 > li {
 	position: relative;

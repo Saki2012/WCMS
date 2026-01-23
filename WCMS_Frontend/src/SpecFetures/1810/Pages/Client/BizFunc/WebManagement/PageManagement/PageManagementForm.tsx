@@ -12,7 +12,7 @@ export interface IPageManagementProps { lang: string; theme?: IFETheme; options?
 
 const PageManagementFormComp: React.FC<IPageManagementProps> = (props) => {
     const pageData = useFetchFormData(PageManagementProvider(), props.options?.PageId);
-    const detail = pageData.data?.PageManagementDetail?.find(d => (d.Lang ?? "").toLowerCase() === 'zh-tw')
+    const detail = pageData.data?.PageManagementDetail?.find(d => (d.Lang ?? "").toLowerCase() === props.lang)
     const parseContent = useResolveInternalIds(detail?.Content ?? "", { locale: props.lang });
     const content = parseContent.html ? parse(parseContent.html) : null;
     const isLoading = [pageData.isLoading];

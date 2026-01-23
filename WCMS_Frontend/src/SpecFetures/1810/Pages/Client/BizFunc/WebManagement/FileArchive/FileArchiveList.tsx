@@ -16,6 +16,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import type { FileArchiveProps } from "@/Features/Pages/Client/BizFunc/WebManagement/FileArchive/FileArchiveList";
+import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
 type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"];
 type FileArchiveUrlDetail = components["schemas"]["FileArchiveUrlDetail_DTO"];
@@ -63,6 +64,7 @@ const useFileArchive = (lang: Lang, categoryIds: string, tagIds: string, tagSets
 
             ],
             Condition: condition,
+            RankGroups: [{ Condition: `${FileArchiveFields.ContentStatus} & 1` }],
             OrderBy: [{ Col: FileArchiveFields.CreateTime, Desc: true }],
             PageNumber: page,
             PageSize: 10,
@@ -207,5 +209,10 @@ const SetUrlIcon = (url: string, descript: string, target: WindowTarget) => {
 }
 /** 清單式 */
 const List_Comp = (prop: { gridData: GridProps; theme: IFETheme }) => {
-    return <Grid gridData={prop.gridData} style={prop.theme.GridView} pageStyle={prop.theme.Paginator}></Grid>
+    return (
+        <>
+            <OperationGuideHelp_Comp />
+            <Grid gridData={prop.gridData} style={prop.theme.GridView} pageStyle={prop.theme.Paginator} />
+        </>
+    )
 }

@@ -1,11 +1,11 @@
-export const SpecProgId = {
+export const SpecPGID = {
     SpecCategory: "SpecCategory",
     SpecResearch: "SpecResearch",
     SpecUSR: "SpecUSR",
 } as const;
 
 // 👉 "Announcement" | "FileArchive" | ...
-export type Program = typeof SpecProgId[keyof typeof SpecProgId];
+export type Program = typeof SpecPGID[keyof typeof SpecPGID];
 
 // 👉 "Announcement" | "FileArchive" | ...
-export type ProgramKey = keyof typeof SpecProgId;
+export type ProgramKey = keyof typeof SpecPGID;

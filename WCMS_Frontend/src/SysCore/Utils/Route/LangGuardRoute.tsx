@@ -1,31 +1,33 @@
 // src/SysCore/Utils/LangGuardRoute.tsx
-import React from "react";
-import { Outlet, useLocation, useParams } from "react-router-dom";
-import { DefaultLang, isSupportedLang, normalizeLang } from "../../i18n/lang";
-import { LangProvider } from "../../i18n/LangContext";
-import { SeoLinks } from "./SeoLinks";
-import { AutoRedirect } from "./AutoRedirect";
+import React, { useEffect } from "react";
+import { Outlet, useLoaderData, useLocation } from "react-router-dom";
+import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
+import { LangProvider } from "@/SysCore/i18n/LangContext";
+import { SeoLinks } from "@/SysCore/Utils/Route/SeoLinks";
+import { ScrollToTop } from "@/SysCore/Components/ScollToTop";
+import { LANG_COOKIE_KEY } from "@/SysCore/Utils/Library/SysParam";
 
-export const LangGuard: React.FC<{ ssrAcceptLang?: string; cookieLang?: string }> = (props) => {
-    const { lang: langFromUrl } = useParams();          // 只有在 /:lang 分支才會有值
+
+//#region Cookies相關
+const setLangCookie = (lang: Lang) => {
+    if (typeof document === "undefined") return;
+    const maxAge = 60 * 60 * 24 * 365; // 1 year
+    const secure = (typeof location !== "undefined" && location.protocol === "https:") ? "; Secure" : "";
+    document.cookie = `${LANG_COOKIE_KEY}=${encodeURIComponent(lang)}; Path=/; Max-Age=${maxAge}; SameSite=Lax${secure}`;
+};
+//#endregion
+
+type LangGuardLoaderData = { resolvedLang?: Lang; pathname?: string; };
+export const LangGuard: React.FC<{ ssrAcceptLang?: string; cookieLang?: string }> = () => {
     const location = useLocation();
-
-    // 挑一個最佳語言（用你的既有邏輯）
-    const best = normalizeLang(langFromUrl ?? props.cookieLang ?? props.ssrAcceptLang ?? DefaultLang);
-
-    // **只有真的有 URL lang 時才做「大小寫/別名」校正導頁**
-    if (langFromUrl) {
-        const normalized = normalizeLang(langFromUrl);
-        if (!isSupportedLang(normalized) || normalized !== langFromUrl) {
-            const rest = location.pathname.replace(/^\/[^/]+/, "");
-            return <AutoRedirect to={`/${normalized}${rest}${location.search}${location.hash}`} replace />;
-        }
-    }
-
-    // 沒有 :lang → 不導頁，只提供 Context + SEO
+    const data = useLoaderData() as LangGuardLoaderData | undefined;
+    // loader 已經做完 strict lang 判定/redirect，這裡只讀結果即可
+    const resolved = (data?.resolvedLang ?? DefaultLang) as Lang;
+    useEffect(() => { setLangCookie(resolved); }, [resolved]);
     return (
-        <LangProvider initial={best}>
-            <SeoLinks resolvedLang={best} pathname={location.pathname} />
+        <LangProvider key={data?.resolvedLang} initial={resolved}>
+            <SeoLinks resolvedLang={resolved} pathname={location.pathname} />
+            <ScrollToTop />
             <Outlet />
         </LangProvider>
     );

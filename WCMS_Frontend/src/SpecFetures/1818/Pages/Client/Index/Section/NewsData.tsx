@@ -1,49 +1,21 @@
-import { Link } from 'react-router-dom';
 import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api';
 import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api';
 import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import type { components } from "@/types/api";
 import * as SchemaFields from "@/types/SchemaFields";
+import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
+import { useNow } from '@/SysCore/Utils/Library/LibHook';
+import { type Lang } from '@/SysCore/i18n/lang';
+import { PGID } from '@/Features/Hooks/Common/ProgId';
+import { LangLink, LangNavLink } from '@/SysCore/i18n/LangLink';
+import { IndexLabel } from "@/SpecFetures/1818/Pages/Client//Index/Section/IndexLabelText";
+
 //type BannerSet = components["schemas"]["BannerSet_DTO"]
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
 
-import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
-import { useNow } from '@/SysCore/Utils/Library/LibHook';
-import { DefaultLang } from '@/SysCore/i18n/lang';
-import { ProgId } from '@/Features/Hooks/Common/ProgId';
-
-const emptyData: AnnouncementSet = {
-	Announcement:
-	{
-		AnnouncementId: "",
-		Validate_Start: "",
-		Validate_End: "",
-		PictureId: "",
-		PicDescription: "",
-	}
-	,
-	AnnouncementDetail: [
-		{
-			RowId: 1,
-			Lang: "zh-tw",
-			Title: "",
-			Content: "",
-			Url: "",
-			UrlDescription: "",
-		},
-		{
-			RowId: 2,
-			Lang: "en",
-			Title: "",
-			Content: "",
-			Url: "",
-			UrlDescription: "",
-		}
-	]
-}
 
 
 /** 找置頂公告 */
@@ -151,7 +123,7 @@ const useTagList = () => {
 				`${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
 				`${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
 			],
-			Condition: `${SchemaFields.TagDataFields.ProgId} = ${ProgId.Announcement}`,
+			Condition: `${SchemaFields.TagDataFields.ProgId} = ${PGID.Announcement}`,
 			PageNumber: 0,
 			PageSize: 0,
 		}),
@@ -161,60 +133,29 @@ const useTagList = () => {
 };
 
 
-export const NewsData = () => {
-
+export const NewsData = (props: { lang: Lang }) => {
 	const useTopAllNewsData1 = useTopAnnouncementList("Category20251113009");
-	//	const useTopAllNewsData2 = useTopAnnouncementList("2");
-	//	const useTopAllNewsData3 = useTopAnnouncementList("3");
-	//	const useTopAllNewsData4 = useTopAnnouncementList("4");
-
 	const useAllNewsData1 = useAnnouncementList("Category20251113009");
-	//	const useAllNewsData2 = useAnnouncementList("2");
-	//	const useAllNewsData3 = useAnnouncementList("3");
-	//	const useAllNewsData4 = useAnnouncementList("4");
-
-
-
 	const allNewsRawData1 = takeTopThenFill(useTopAllNewsData1.rawData, useAllNewsData1.rawData, 6);
-	//	const allNewsRawData2 = takeTopThenFill(useTopAllNewsData2.rawData, useAllNewsData2.rawData, 3);
-	//	const allNewsRawData3 = takeTopThenFill(useTopAllNewsData3.rawData, useAllNewsData3.rawData, 3);
-	//	const allNewsRawData4 = takeTopThenFill(useTopAllNewsData4.rawData, useAllNewsData4.rawData, 3);
-
-
 	const useCategoryData = useCategoryList();
 	const useTagData = useTagList();
-
-
-
-	const lang = DefaultLang
-
 	const categoryDict: Record<string, string> = Object.fromEntries(
 		(useCategoryData.rawData ?? []).map(cat => {
 			const id = cat.Category?.CategoryId;
-			const name = cat.CategoryDetail?.find(p => p.Lang === lang)?.CategoryName ?? "";
+			const name = cat.CategoryDetail?.find(p => p.Lang === props.lang)?.CategoryName ?? "";
 			return [id, name];
 		})
 	);
-
 	const tagDict: Record<string, string> = Object.fromEntries(
 		(useTagData.rawData ?? []).map(cat => {
 			const id = cat.TagData?.TagId;
-			const name = cat.TagDetail?.find(p => p.Lang === lang)?.TagName ?? "";
+			const name = cat.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "";
 			return [id, name];
 		})
 	);
-
-
-
-	const allNews1 = getNewsDataProps(allNewsRawData1, lang, "/News/News-01", "", categoryDict, tagDict);
-	//	const allNews2 = getNewsDataProps(allNewsRawData2, lang, "/News/News-02", "", categoryDict, tagDict);
-	//	const allNews3 = getNewsDataProps(allNewsRawData3, lang, "/News/News-03", "", categoryDict, tagDict);
-	//	const allNews4 = getNewsDataProps(allNewsRawData4, lang, "/News/News-04", "", categoryDict, tagDict);
+	const allNews1 = getNewsDataProps(allNewsRawData1, props.lang, "/announcement/announcement-news", "", categoryDict, tagDict);
 
 	return (
-
-
-
 		<section className="Newsii_section Layout_Padding_1_top Layout_Padding_1_bottom bg-white">
 			<div className="Mask-DivBox">
 				<div className="customizeBox">
@@ -223,38 +164,25 @@ export const NewsData = () => {
 						<div className="row">
 							<div className="offset-md-5 offset-sm-3 offset-1 col-md-6 col-sm-6 col-10">
 								<div className="headDiv mb-lg-5 mb-4">
-									<span className="headDiv-txt-4 tw">最新消息</span>
+									<span className="headDiv-txt-4 tw">{IndexLabel(props.lang).NewsTitle}</span>
 								</div>
 							</div>
 							<div className="col-12">
 								<div className="H-nav-tabs-content-box" id="Horizontal">
 									<div className="tab-content" id="H-nav-tabContent">
-										<div
-											aria-labelledby="H-Tabs__01"
-											className="tab-pane fade show active"
-											id="H-navTabs-01"
-											role="tabpanel">
+										<div aria-labelledby="H-Tabs__01" className="tab-pane fade show active" id="H-navTabs-01" role="tabpanel">
 											<div className="News_mainDIV">
 												<ul className="ListNews">
-
 													<GetData prop={allNews1}></GetData>
-
-
 												</ul>
 												<div className="btn-w100-wrapper justify-content-center">
 													<div className="customize_btn">
-														<a
-															className="Btn_a"
-															href="/News/News-01"
-															role="button"
-															tabIndex={0}
-															target="_self"
-															title="MORE INFO"
-															type="button">
+														<LangNavLink className="Btn_a" to="/announcement/announcement-news/List" role="button"
+															tabIndex={0} target="_self" title={IndexLabel(props.lang).MoreInfo} type="button">
 															<div className="BtnBox">
-																<span>更多資訊</span>
+																<span>{IndexLabel(props.lang).MoreInfo}</span>
 															</div>
-														</a>
+														</LangNavLink>
 													</div>
 												</div>
 											</div>
@@ -267,11 +195,6 @@ export const NewsData = () => {
 				</div>
 			</div>
 		</section>
-
-
-
-
-
 	);
 };
 
@@ -330,21 +253,13 @@ const formatDate = (dateStr: string) => {
 	return { day, month, year };
 }
 
-
-
 const GetData = ({ prop }: { prop: getDataProp[] }) => {
 	return (
 		<>
 			{prop.map((item) => {
 				return (
-
-
 					<li className="News_item" key={item.announceInternalId} >
-
-						<Link to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
-
-
-
+						<LangLink to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
 							<div className="rightBox">
 								<div className="card_catDiv">
 									<div className="a-left">
@@ -354,7 +269,6 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 											</div>
 										</div>
 										<div className="CustomState">
-
 											{isWithinLastNDaysFromMD(Number(item.monthNum), Number(item.date)) && (
 												<div className="icon-small new-bg" >最新</div>
 											)}
@@ -364,7 +278,6 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 													{Boolean(item.contentStatus & 2) && (<div className="icon-small hot-bg">熱門</div>)}
 												</>
 											)}
-
 										</div>
 									</div>
 									<div className="a-right">
@@ -384,12 +297,8 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 									</div>
 								</div>
 							</div>
-
-						</Link>
+						</LangLink>
 					</li>
-
-
-
 				)
 			})}
 		</>
@@ -406,10 +315,8 @@ const takeTopThenFill = (
 	limit: number = 3
 ): AnnouncementSet[] => {
 	const getKey = (x: AnnouncementSet) => x.Announcement?.InternalId ?? String(x.Announcement?.AnnouncementId ?? '');
-
 	const seen = new Set<string>();
 	const out: AnnouncementSet[] = [];
-
 	// 先放置頂
 	for (const it of (top ?? [])) {
 		const k = getKey(it);
@@ -426,19 +333,15 @@ const takeTopThenFill = (
 
 const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean => {
 	if (!month1to12 || !day1to31) return false;
-
 	const now = new Date();
 	const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-
 	let y = now.getUTCFullYear();
 	let candidateUTC = Date.UTC(y, month1to12 - 1, day1to31);
-
 	// 若候選日在未來，代表跨年情境 → 改用去年
 	if (candidateUTC > nowUTC) {
 		y -= 1;
 		candidateUTC = Date.UTC(y, month1to12 - 1, day1to31);
 	}
-
 	const diffDays = Math.floor((nowUTC - candidateUTC) / DAY_MS);
 	return diffDays >= 0 && diffDays <= n;
 };

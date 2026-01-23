@@ -2,7 +2,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
 
@@ -55,6 +57,14 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// 是否啟用站台
         /// </summary>
         public bool Enable { get; set; } = true;
+        /// <summary>
+        /// 預設語系
+        /// </summary>
+        public LangCode DefaultLang { get; set; }
+        /// <summary>
+        /// 支援語系
+        /// </summary>
+        [StringLength(SysLengthParam.Memo)] public string SupportLangs { get; set; }
 
         #region 主子表關聯
         [InverseProperty(nameof(SiteMenu_IndexInfoModel._SiteMenu_Index))] public List<SiteMenu_IndexInfoModel> _SiteMenu_IndexInfo { get; set; }
@@ -77,7 +87,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// <summary>
         /// 語系
         /// </summary>
-        [StringLength(SysLengthParam.Lang)] public string? Lang { get; set; }
+        public LangCode? Lang { get; set; }
         /// <summary>
         /// 網站標題
         /// </summary>
@@ -149,11 +159,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// 開啟分頁方式
         /// </summary>
         public WindowTarget WindowTarget { get; set; }
-        /// <summary>
-        /// 是否顯示在清單上
-        /// </summary>
-        public bool IsShowOnMenu { get; set; }
-
+        
         #region 主子表關聯
         [ForeignKey(nameof(SiteIndex))] public SiteMenu_IndexModel _SiteMenu_Index { get; set; }
         [InverseProperty(nameof(SiteMenu_Item_Title._SiteMenu_Index))] public List<SiteMenu_Item_Title> _SiteMenu_Item_Title { get; set; }
@@ -169,9 +175,9 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         [Key, StringLength(SysLengthParam.ID)] public string? SiteIndex { get; set; }
         [Key] public int? ItemRowId { get; set; }
         [Key] public int? RowId { get; set; }
-        [StringLength(SysLengthParam.Lang)] public string Lang { get; set; }
+        public LangCode Lang { get; set; }
         [StringLength(SysLengthParam.Title)] public string Title { get; set; }
-
+        public bool IsShowOnMenu { get; set; }
         #region 主子表關聯
         [ForeignKey($@"{nameof(SiteIndex)},{nameof(ItemRowId)}")] public SiteMenu_Item _SiteMenu_Index { get; set; }
         #endregion

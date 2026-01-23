@@ -140,11 +140,7 @@ export const useSpecCateListData = (progId: string, lang: Lang) =>
 };
 
 /** 根據id獲取顯示名稱 */
-export const useFormatSpecCategoriesName = (
-    content: string,
-    categoryData: SpecCategorySet[],
-    lang: string = "zh-tw",
-): string =>
+export const useFormatSpecCategoriesName = (content: string, categoryData: SpecCategorySet[], lang: Lang): string =>
 {
     if (!content) return "";
     return (content.toString() ?? "").split(",").map(s => s.trim()).filter(Boolean)

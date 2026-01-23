@@ -5,16 +5,19 @@ import BreadCrumb from "@/Features/Pages/Server/Scaffold/Menu/BreadCrumb/BreadCr
 import FooterComp from "@/Features/Pages/Server/Scaffold/Footer/Footer_Comp"
 import type { IBETheme } from '@/Features/Pages/Server/Theme/ITheme'
 import { ToastViewport_Comp } from '@/Features/Pages/Server/Scaffold/Toast/ToastViewport_Comp'
-import { resolveTitle, type RouteHandleMeta } from '@/Features/Pages/Server/ServerRouter'
+import { type RouteHandleMeta } from '@/Features/Pages/Server/Scaffold/Routes/ServerRouter'
 
 export const DashboardPage = ({ theme }: { theme: IBETheme }) => {
   const matches = useMatches();
-  const last = [...matches].reverse().find(m => (m.handle as RouteHandleMeta | undefined)?.title);
-  const pageTitle = resolveTitle(last?.handle as RouteHandleMeta, last);
+  const lastHandle = [...matches].reverse().find(m => (m.handle as RouteHandleMeta | undefined))?.handle as RouteHandleMeta;
+  const pageTitle = lastHandle?.title;
+  const lastModule = [...matches].reverse().find(m => (m.handle as RouteHandleMeta | undefined)?.moduleCode);
+  const moduleCode = (lastModule?.handle as RouteHandleMeta | undefined)?.moduleCode ?? "WebManagement"; // 你的預設
+
   return (
     <>
-      <SidebarMenu theme={theme} />
-      <NavibarMenu theme={theme} />
+      <SidebarMenu moduleCode={moduleCode} />
+      <NavibarMenu />
       <div className="pc-container">
         <div className="pc-content">
           <div className="page-header">

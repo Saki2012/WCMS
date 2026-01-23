@@ -1,82 +1,22 @@
-import { Link } from 'react-router-dom';
 import GalleryProvider from '@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api';
 import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api';
 import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
-import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
-//import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import type { components } from "@/types/api";
 import * as SchemaFields from "@/types/SchemaFields";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-//type BannerSet = components["schemas"]["BannerSet_DTO"]
-//type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
+import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
+import { useNow } from '@/SysCore/Utils/Library/LibHook';
+import { type Lang } from '@/SysCore/i18n/lang';
+import { PGID } from '@/Features/Hooks/Common/ProgId';
+import { useEffect } from 'react';
+import { LangLink, LangNavLink } from '@/SysCore/i18n/LangLink';
+import { IndexLabel } from "@/SpecFetures/1818/Pages/Client//Index/Section/IndexLabelText";
 
 type GallerySet = components["schemas"]["GallerySet_DTO"]
-
-
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
 
-import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
-import { useNow } from '@/SysCore/Utils/Library/LibHook';
-import { DefaultLang } from '@/SysCore/i18n/lang';
-import { ProgId } from '@/Features/Hooks/Common/ProgId';
-
-//const emptyData: AnnouncementSet = {
-//	Announcement:
-//	{
-//		AnnouncementId: "",
-//		Validate_Start: "",
-//		Validate_End: "",
-//		PictureId: "",
-//		PicDescription: "",
-//	}
-//	,
-//	AnnouncementDetail: [
-//		{
-//			RowId: 1,
-//			Lang: "zh-tw",
-//			Title: "",
-//			Content: "",
-//			Url: "",
-//			UrlDescription: "",
-//		},
-//		{
-//			RowId: 2,
-//			Lang: "en",
-//			Title: "",
-//			Content: "",
-//			Url: "",
-//			UrlDescription: "",
-//		}
-//	]
-//}
-
-
-const emptyData: GallerySet = {
-	Gallery:
-	{
-		GalleryId: "",
-		Validate_Start: "",
-		InternalId: "",
-		CoverPicSrcId: "",
-		Categories: "",
-		Tags: "",
-		ContentStatus: 0,
-	}
-	,
-	GalleryInfo: [
-		{
-			RowId: 1,
-			Lang: "zh-tw",
-			Title: "",
-			Content: "",
-		}
-	]
-}
-
-
-/** 找置頂公告 */
 const useTopGalleryList = (categories?: string) => {
 	const provider = GalleryProvider();
 	let cdt = `${SchemaFields.GalleryFields.ContentStatus} & 1`;
@@ -116,9 +56,6 @@ const useTopGalleryList = (categories?: string) => {
 		deps: [categories],
 	});
 };
-
-
-
 const useGalleryList = (categories?: string) => {
 	const provider = GalleryProvider();
 	let cdt = `${SchemaFields.GalleryFields.ContentStatus} !& 4 And ${SchemaFields.GalleryFields.ContentStatus} !& 1`;
@@ -140,7 +77,6 @@ const useGalleryList = (categories?: string) => {
 				SchemaFields.GalleryFields.ContentStatus,
 				SchemaFields.GalleryFields.Validate_Start,
 				SchemaFields.GalleryFields.CoverPicSrcId,
-
 				`${SchemaFields.GalleryFields._GalleryInfo}.${SchemaFields.GalleryInfoFields.Lang}`,
 				`${SchemaFields.GalleryFields._GalleryInfo}.${SchemaFields.GalleryInfoFields.Title}`,
 				`${SchemaFields.GalleryFields._GalleryInfo}.${SchemaFields.GalleryInfoFields.Content}`,
@@ -158,7 +94,6 @@ const useGalleryList = (categories?: string) => {
 		deps: [categories],
 	});
 };
-
 const useCategoryList = () => {
 	const provider = CategoryProvider();
 	return useFetchGridListData<CategoryDataSet>({
@@ -172,7 +107,7 @@ const useCategoryList = () => {
 				`${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
 				`${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
 			],
-			Condition: `${SchemaFields.CategoryFields.ProgId} = Gallery`,
+			Condition: `${SchemaFields.CategoryFields.ProgId} = ${PGID.Gallery}`,
 			PageNumber: 0,
 			PageSize: 0,
 		}),
@@ -193,7 +128,7 @@ const useTagList = () => {
 				`${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
 				`${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
 			],
-			Condition: `${SchemaFields.TagDataFields.ProgId} = ${ProgId.Gallery}`,
+			Condition: `${SchemaFields.TagDataFields.ProgId} = ${PGID.Gallery}`,
 			PageNumber: 0,
 			PageSize: 0,
 		}),
@@ -201,62 +136,126 @@ const useTagList = () => {
 		deps: [],
 	});
 };
-
-
-export const ActivityPhotoData = () => {
-
-	const useTopAllGalleryData1 = useTopGalleryList("1");
-	//	const useTopAllNewsData2 = useTopAnnouncementList("2");
-	//	const useTopAllNewsData3 = useTopAnnouncementList("3");
-	//	const useTopAllNewsData4 = useTopAnnouncementList("4");
-
-	const useAllGalleryData1 = useGalleryList("1");
-	//	const useAllNewsData2 = useAnnouncementList("2");
-	//	const useAllNewsData3 = useAnnouncementList("3");
-	//	const useAllNewsData4 = useAnnouncementList("4");
-
-
-
+export const ActivityPhotoData = (props: { lang: Lang }) => {
+	const useTopAllGalleryData1 = useTopGalleryList("Category20251113010");
+	const useAllGalleryData1 = useGalleryList("Category20251113010");
 	const allGalleryRawData1 = takeTopThenFill(useTopAllGalleryData1.rawData, useAllGalleryData1.rawData, 6);
-	//	const allNewsRawData2 = takeTopThenFill(useTopAllNewsData2.rawData, useAllNewsData2.rawData, 3);
-	//	const allNewsRawData3 = takeTopThenFill(useTopAllNewsData3.rawData, useAllNewsData3.rawData, 3);
-	//	const allNewsRawData4 = takeTopThenFill(useTopAllNewsData4.rawData, useAllNewsData4.rawData, 3);
-
-
 	const useCategoryData = useCategoryList();
 	const useTagData = useTagList();
-
-
-
-	const lang = DefaultLang
-
 	const categoryDict: Record<string, string> = Object.fromEntries(
 		(useCategoryData.rawData ?? []).map(cat => {
 			const id = cat.Category?.CategoryId;
-			const name = cat.CategoryDetail?.find(p => p.Lang === lang)?.CategoryName ?? "";
+			const name = cat.CategoryDetail?.find(p => p.Lang === props.lang)?.CategoryName ?? "";
 			return [id, name];
 		})
 	);
-
 	const tagDict: Record<string, string> = Object.fromEntries(
 		(useTagData.rawData ?? []).map(cat => {
 			const id = cat.TagData?.TagId;
-			const name = cat.TagDetail?.find(p => p.Lang === lang)?.TagName ?? "";
+			const name = cat.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "";
 			return [id, name];
 		})
 	);
+	const allGallery1 = getGalleryDataProps(allGalleryRawData1, props.lang, "/announcement/announcement-activity", "", categoryDict, tagDict);
+	useEffect(() => {
+		// SSR 保護
+		if (typeof window === "undefined") return;
+		// 沒資料就不要初始化
+		if (!allGallery1 || allGallery1.length === 0) return;
+		const $: any = (window as any).$ || (window as any).jQuery;
+		if (!$) return;
+		const $owl = $('#Gallery_owl_carousel');
+		if (!$owl.length || typeof $owl.owlCarousel !== "function") return;
+		// 若已經被初始化過，先 destroy 再重建，避免重複包 wrapper
+		if ($owl.hasClass('owl-loaded')) {
+			try {
+				$owl.trigger('destroy.owl.carousel');
+				$owl.find('.owl-stage-outer').children().unwrap(); // 還原結構
+				$owl.removeClass('owl-loaded owl-center owl-text-select-on');
+			} catch {
+				// ignore
+			}
+		}
+		// 初始化 Owl Carousel（設定對齊原 index.html）
+		$owl.owlCarousel({
+			items: 4,
+			// loop: true,
+			dots: false,
+			nav: true,
+			margin: 30,
+			// autoplay: true,
+			autoplayTimeout: 5000,
+			autoplayHoverPause: true,
+			responsive: {
+				0: { items: 1 },
+				500: { items: 2 },
+				575: { items: 2 },
+				767: { items: 2 },
+				991: { items: 3 },
+				1199: { items: 3 },
+			},
+		});
+		let isPlaying = false;
+		const $start = $('#Gallery_start');
+		const $pause = $('#Gallery_pause');
+		const updateControls = () => {
+			// 若按鈕被你先隱藏或乾脆沒 render，就直接跳過
+			if (!$start.length || !$pause.length) return;
+			if (isPlaying) {
+				$start
+					.attr('aria-pressed', 'true')
+					.attr('aria-label', '圖片輪播播放中')
+					.find('.sr-only')
+					.text('圖片輪播播放中');
 
+				$pause
+					.attr('aria-pressed', 'false')
+					.attr('aria-label', '暫停圖片輪播')
+					.find('.sr-only')
+					.text('暫停圖片輪播');
+			} else {
+				$start
+					.attr('aria-pressed', 'false')
+					.attr('aria-label', '開始播放圖片輪播')
+					.find('.sr-only')
+					.text('開始播放圖片輪播');
 
-
-	const allGallery1 = getGalleryDataProps(allGalleryRawData1, lang, "/News/News-01", "", categoryDict, tagDict);
-	//	const allNews2 = getNewsDataProps(allNewsRawData2, lang, "/News/News-02", "", categoryDict, tagDict);
-	//	const allNews3 = getNewsDataProps(allNewsRawData3, lang, "/News/News-03", "", categoryDict, tagDict);
-	//	const allNews4 = getNewsDataProps(allNewsRawData4, lang, "/News/News-04", "", categoryDict, tagDict);
+				$pause
+					.attr('aria-pressed', 'true')
+					.attr('aria-label', '圖片輪播已暫停')
+					.find('.sr-only')
+					.text('圖片輪播已暫停');
+			}
+		};
+		const handlePauseClick = (e: any) => {
+			e.preventDefault();
+			$owl.trigger('stop.owl.autoplay');
+			isPlaying = false;
+			updateControls();
+		};
+		const handleStartClick = (e: any) => {
+			e.preventDefault();
+			$owl.trigger('play.owl.autoplay', [5000]);
+			isPlaying = true;
+			updateControls();
+		};
+		$pause.on('click', handlePauseClick);
+		$start.on('click', handleStartClick);
+		// 預設狀態（跟原始 script 一樣：暫停中）
+		isPlaying = false;
+		updateControls();
+		return () => {
+			$pause.off('click', handlePauseClick);
+			$start.off('click', handleStartClick);
+			try {
+				$owl.trigger('destroy.owl.carousel');
+			} catch {
+				// ignore
+			}
+		};
+	}, [allGallery1]);
 
 	return (
-
-
-
 		<section className="Gallery_section owl-box Layout_Padding_1_top Layout_Padding_1_bottom bg-white">
 			<div className="Mask-DivBox">
 				<div className="customizeBox">
@@ -264,42 +263,26 @@ export const ActivityPhotoData = () => {
 						<div className="row">
 							<div className="offset-3 col-6">
 								<div className="headDiv mb-lg-5 mb-4">
-									<span className="headDiv-txt-5 tw">活動相簿</span>
+									<span className="headDiv-txt-5 tw">{IndexLabel(props.lang).AlbumTitle}</span>
 								</div>
 							</div>
 							<div className="col-12">
 								<div className="content-box px-0 mb-5">
 									<div className="owl-carousel owl-theme" id="Gallery_owl_carousel">
-
 										<GetData prop={allGallery1}></GetData>
-
-
-
 									</div>
 									<div className="DIV-Box">
 										<div className="control-box">
-											<a
-												aria-label="開始播放圖片輪播"
-												aria-pressed="false"
-												className="play me-1"
-												href="javascript:void(0);"
-												id="Gallery_start"
-												tabIndex={0}
-												title="播放">
+											<a aria-label="開始播放圖片輪播" aria-pressed="false" className="play me-1"
+												href="javascript:void(0);" id="Gallery_start" tabIndex={0} title="播放">
 												<div className="contrl_start">
 													<span className="control-start-icon">
 														<span className="sr-only">開始播放圖片輪播</span>
 													</span>
 												</div>
 											</a>
-											<a
-												aria-label="暫停圖片輪播"
-												aria-pressed="true"
-												className="stop ms-1"
-												href="javascript:void(0);"
-												id="Gallery_pause"
-												tabIndex={0}
-												title="暫停">
+											<a aria-label="暫停圖片輪播" aria-pressed="true" className="stop ms-1"
+												href="javascript:void(0);" id="Gallery_pause" tabIndex={0} title="暫停">
 												<div className="contrl_pause">
 													<span className="control-pause-icon">
 														<span className="sr-only">暫停圖片輪播</span>
@@ -313,18 +296,11 @@ export const ActivityPhotoData = () => {
 							<div className="offset-6 col-6 mt-customize">
 								<div className="btn-w100-wrapper justify-content-end">
 									<div className="customize_btn">
-										<a
-											className="Btn_a"
-											href="/News/News-01"
-											role="button"
-											tabIndex={0}
-											target="_self"
-											title="MORE INFO"
-											type="button">
+										<LangNavLink className="Btn_a" to="/announcement/announcement-activity/List" role="button" tabIndex={0} target="_self" title={IndexLabel(props.lang).MoreInfo} type="button">
 											<div className="BtnBox">
-												<span>更多資訊</span>
+												<span>{IndexLabel(props.lang).MoreInfo}</span>
 											</div>
-										</a>
+										</LangNavLink>
 									</div>
 								</div>
 							</div>
@@ -333,16 +309,9 @@ export const ActivityPhotoData = () => {
 				</div>
 			</div>
 		</section>
-
-
-
 	);
 };
-
-
-
 interface getDataProp { redir: string; galleryInternalId: string; title: string; content: string; date: string; month: string; year: string; monthNum: number; tagName: string; categoryName: string; contentStatus: number; internalId: string; PicSrcId: string; }
-
 const getGalleryDataProps = (GalleryData: GallerySet[], lang: string, redir: string, targetCategoryId: string, categoryDict: Record<string, string>, tagDict: Record<string, string>) => {
 	const top6 = pickGallerysByCategories(GalleryData, targetCategoryId, 6, 'any');
 	const resultProps: getDataProp[] = []
@@ -374,7 +343,6 @@ const getGalleryDataProps = (GalleryData: GallerySet[], lang: string, redir: str
 	})
 	return resultProps;
 }
-
 const pickGallerysByCategories = <T extends { Gallery?: { Categories?: string | null | undefined } }>
 	(newsData: T[] | undefined, categories: string | string[], take: number = 6, mode: 'any' | 'all' = 'any'): T[] => {
 	const target = new Set((Array.isArray(categories) ? categories : String(categories).split(',')).map(s => s.trim()).filter(Boolean));
@@ -386,7 +354,6 @@ const pickGallerysByCategories = <T extends { Gallery?: { Categories?: string | 
 	});
 	return result.slice(0, take);
 }
-
 const formatDate = (dateStr: string) => {
 	const date = new Date(dateStr);
 	const day = date.getDate().toString().padStart(2, "0");
@@ -395,29 +362,18 @@ const formatDate = (dateStr: string) => {
 	const year = date.getFullYear().toString();
 	return { day, month, year };
 }
-
-
-
 const GetData = ({ prop }: { prop: getDataProp[] }) => {
 	return (
 		<>
 			{prop.map((item) => {
 				return (
-
-
 					<div className="item" key={item.galleryInternalId} >
-
-
-						<Link to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
-
+						<LangLink to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
 							<div className="wrapper_box">
 								<div className="Qlink-item">
 									<div className="Img_Div w-100">
 										<div className="Qlinkimg-outer">
-											<img
-												alt={item.title}
-												src={`${FileManagementAPI.PREVIEW_URL}/${item.PicSrcId}`}
-											/>
+											<img alt={item.title} src={`${FileManagementAPI.PREVIEW_URL}/${item.PicSrcId}`} />
 										</div>
 									</div>
 									<div className="Content_Div">
@@ -430,31 +386,17 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 									</div>
 								</div>
 							</div>
-						</Link>
+						</LangLink>
 					</div>
-
-
-
 				)
 			})}
 		</>
 	)
 }
-
-
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-// 置頂優先 → 去重 → 補滿到 limit（預設 3）
-const takeTopThenFill = (
-	top: GallerySet[] | undefined,
-	rest: GallerySet[] | undefined,
-	limit: number = 3
-): GallerySet[] => {
+const takeTopThenFill = (top: GallerySet[] | undefined, rest: GallerySet[] | undefined, limit: number = 3): GallerySet[] => {
 	const getKey = (x: GallerySet) => x.Gallery?.InternalId ?? String(x.Gallery?.GalleryId ?? '');
-
 	const seen = new Set<string>();
 	const out: GallerySet[] = [];
-
 	// 先放置頂
 	for (const it of (top ?? [])) {
 		const k = getKey(it);
@@ -467,23 +409,4 @@ const takeTopThenFill = (
 		if (!seen.has(k)) { seen.add(k); out.push(it); }
 	}
 	return out;
-};
-
-const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean => {
-	if (!month1to12 || !day1to31) return false;
-
-	const now = new Date();
-	const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-
-	let y = now.getUTCFullYear();
-	let candidateUTC = Date.UTC(y, month1to12 - 1, day1to31);
-
-	// 若候選日在未來，代表跨年情境 → 改用去年
-	if (candidateUTC > nowUTC) {
-		y -= 1;
-		candidateUTC = Date.UTC(y, month1to12 - 1, day1to31);
-	}
-
-	const diffDays = Math.floor((nowUTC - candidateUTC) / DAY_MS);
-	return diffDays >= 0 && diffDays <= n;
 };

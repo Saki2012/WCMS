@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using WCMS.Features.Member.Account;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
 
@@ -35,7 +36,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 檔案名稱
         /// </summary>
-        [StringLength(SysLengthParam.Title)] public string FileName { get; set; }
+        [StringLength(SysLengthParam.FileName)] public string FileName { get; set; }
         /// <summary>
         /// 副檔名
         /// </summary>
@@ -211,6 +212,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// 對應資料主鍵
         /// </summary>
         [StringLength(SysLengthParam.Memo)] public string CompositeKey { get; set; }
+
         #region 主子表關聯
         [ForeignKey(nameof(InternalId))] public FileManageModel _FileManage { get; set; } = null!;
         #endregion

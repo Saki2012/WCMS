@@ -1,13 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WCMS.Features.BizResx;
 using WCMS.Features.Member.Account;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Library.LibAttribute;
+using static WCMS.SysCore.Enum.SysEnum;
 
 
 namespace WCMS.Features.Member.Personnel
 {
-    [ApiController, Route(SysParam.ServiceRoute)]
+    [LibApiController(ModuleCode.AccountManage, PGID.Person, FuncAction.MasterData)]
     public class PersonController : ApiDataController<PersonSet,PersonSet_DTO>{
 
         #region Public
@@ -17,7 +20,6 @@ namespace WCMS.Features.Member.Personnel
             return base.QueryList(queryCondition, ct);
         }
         #endregion
-
 
         #region Private
         /// <summary>

@@ -98,7 +98,9 @@ namespace WCMS.SysCore.Interface
         public string[] Fields { get; set; }
         public string Condition { get; set; }
         public IReadOnlyList<OrderBySpec> OrderBy { get; set; }
+        public IReadOnlyList<RankGroupsSpec> RankGroups { get; set; }
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
     }
+    
 }

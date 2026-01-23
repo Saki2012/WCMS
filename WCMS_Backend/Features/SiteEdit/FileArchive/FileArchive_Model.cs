@@ -3,7 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.SiteEdit.Announcement;
 using WCMS.Features.SiteEdit.Banner;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting.ModuleOptions;
@@ -58,7 +60,7 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [StringLength(SysLengthParam.Lang)] public string Lang { get; set; }
+        public LangCode Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>

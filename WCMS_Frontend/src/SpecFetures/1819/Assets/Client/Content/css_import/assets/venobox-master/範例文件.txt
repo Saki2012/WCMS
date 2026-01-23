@@ -1,0 +1,16 @@
+
+<!-- // 照片 // -->
+<a href="images/XXXXXX.jpg" class="venobox" data-gall="myGallery" title="要寫"><img src="images/XXXXXX.jpg"/></a> //照片        
+<a class="venobox" href="image01-big.jpg" title="要寫"><img src="image01-small.jpg" alt="image alt"/></a> //照片
+
+<!-- // YOUTUBE 影片 // -->
+<a class="venobox" data-vbtype="iframe" title="要寫" href="https://www.youtube.com/.......">open iFrame</a> //預設顯示大小(滿版)影片
+<a class="venobox" data-vbtype="iframe" title="要寫" data-maxwidth="1200px" title="" href="https://www.youtube.com/.......">	//預設顯示大小(滿版)影片
+
+<!-- // MP4 影片 // -->
+<a class="venobox" data-autoplay="true" data-vbtype="video" title="要寫" href="http://youtu.be/xxx...">Youtube</a> //預設顯示大小(滿版)影片
+<a class="venobox" data-autoplay="true" data-vbtype="video" title="要寫" data-ratio="1x1" data-maxwidth="1200px" href="my-video.mp4">MP4</a>	//預設顯示大小(滿版)影片   
+
+
+
+

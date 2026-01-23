@@ -3,15 +3,14 @@ using Newtonsoft.Json;
 using System.Data;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using WCMS.Features.SiteEdit.Banner;
 using WCMS.Features.SiteEdit.PageManagement;
 using WCMS.SpecFeatures.T1810.SystemSetting;
 using WCMS.SysCore;
-using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Resx;
+using WCMS.SysCore.Library.LibAttribute;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
@@ -53,7 +52,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
             set.SiteMenu_Index.GoogleAnalytics = siteinfoRow["GoogleAnalysis"].ToString();
             foreach (DataRow r in dsInfoLang.Rows)
             {
-                string lang = r["Lang"].ToString();
+                LangCodeExt.TryParse(r["Lang"].ToString(), out LangCode lang);
                 var siteInfo = set.SiteMenu_IndexInfo.FirstOrDefault(p => p.Lang == lang);
                 if (siteInfo == null)
                 {
@@ -92,16 +91,18 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
                     foreach (DataRow rl in menuLang.Select($"Sn={sn}"))
                     {
                         item.WindowTarget = rl["URL_Open"].ToByte() == 1 ? WindowTarget.Self : WindowTarget.Blank;
-                        item.IsShowOnMenu = Convert.ToBoolean(rl["MenuDisplay"]);
+                        LangCodeExt.TryParse(rl["Lang"].ToString(), out LangCode lang);
                         set.SiteMenu_Item_Title.Add(new SiteMenu_Item_Title()
                         {
                             SiteIndex = set.SiteMenu_Index.SiteIndex,
                             ItemRowId = item.RowId,
                             RowId = titleRowId++,
-                            Lang = rl["Lang"].ToString(),
-                            Title = rl["Title"].ToString()
+                            Lang = lang,
+                            Title = rl["Title"].ToString(),
+                            IsShowOnMenu = Convert.ToBoolean(rl["MenuDisplay"]),
                         });
                     }
+
                     switch (r["Type"].ToString())
                     {
                         case "url":
@@ -199,7 +200,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
                 case "page":
                     {
                         string pageId = r["ContentA_Page"].ToString();
-                        var data = await pageManagementService.BizQueryListAsync([nameof(PageManagement.InternalId)], $"{nameof(PageManagement.PageId)} = {pageId}", default, 0, 0);
+                        var data = await pageManagementService.BizQueryListAsync([nameof(PageManagement.InternalId)], $"{nameof(PageManagement.PageId)} = {pageId}", default, default,0, 0);
                         var option = new ModuleOptions.PageManagement()
                         {
                             PageId = data.FirstOrDefault().PageManagement.InternalId
@@ -342,13 +343,12 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
             foreach (var dt in set.SiteMenu_Item)
             {
                 dt.ItemSiteUrl = dt.ItemSiteUrl.Trim();//防呆，清空前後空白
-                if (dt.ItemSiteUrl.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SiteMenu_Item>(x => x.ItemSiteUrl));
-                else if (!menuIdRegex.IsMatch(dt.ItemSiteUrl)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00016, string.Format("{0}:{1}", I18nCache.GetLabel<SiteMenu_Item>(x => x.ItemSiteUrl), dt.ItemSiteUrl));
+                if (dt.ItemSiteUrl.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SiteMenu_Item_DTO>(x => x.ItemSiteUrl));
+                else if (!menuIdRegex.IsMatch(dt.ItemSiteUrl)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00016, string.Format("{0}:{1}", I18nCache.GetLabel<SiteMenu_Item_DTO>(x => x.ItemSiteUrl), dt.ItemSiteUrl));
             }
             foreach(var dt in set.SiteMenu_Item_Title)
             {   
-                //暫時寫死zh-tw跟繁體中文
-                if (dt.Lang.Equals("zh-tw")&&dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, "繁體中文", I18nCache.GetLabel<SiteMenu_Item_Title>(x => x.Title));
+                if (dt.IsShowOnMenu && dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015,dt.Lang.ToLabel(), I18nCache.GetLabel<SiteMenu_Item_Title_DTO>(x => x.Title));
             }
         }
         private void SetData(SiteMenuSet set)
@@ -377,7 +377,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
                 }
                 item.FullUrl = Combine(parent.FullUrl, seg);
                 if (!fullUrl.Contains(item.FullUrl)) fullUrl.Add(item.FullUrl);
-                else Message.AddMessage(MessageStatus.Error,SysMessageCode.BECode00026, set.SiteMenu_Item_Title.Find(p=>p.Lang.Equals("zh-tw")&&p.ItemRowId.Equals(item.RowId)).Title,item.ItemSiteUrl);
+                else Message.AddMessage(MessageStatus.Error,SysMessageCode.BECode00026, set.SiteMenu_Item_Title.Find(p=>p.Lang==EffectiveLang && p.ItemRowId.Equals(item.RowId)).Title,item.ItemSiteUrl);
             }
         }
         #endregion

@@ -1,5 +1,6 @@
 // src/api/APIBase.ts
-import axios, { type AxiosInstance } from "axios";
+import { LANG_COOKIE_KEY } from "@/SysCore/Utils/Library/SysParam";
+import axios, { AxiosHeaders, type AxiosInstance } from "axios";
 
 declare module "axios"
 {
@@ -40,6 +41,40 @@ const createUniversalApi = (opts?: UniversalApiOptions): AxiosInstance =>
             withCredentials: true,
             timeout,
         });
+
+        // #region cookie相關
+        const getCookieValue = (cookieStr: string, name: string): string | undefined =>
+        {
+            if (!cookieStr) return undefined;
+            const parts = cookieStr.split(";");
+            for (const part of parts)
+            {
+                const p = part.trim();
+                if (p.startsWith(name + "="))
+                {
+                    const value = p.substring(name.length + 1);
+                    return decodeURIComponent(value);
+                }
+            }
+            return undefined;
+        };
+        const toAcceptLanguage = (raw?: string): string =>
+        {
+            const s = (raw ?? "").trim().toLowerCase().replace(/_/g, "-");
+            if (s === "zh-tw" || s === "zh-hant-tw" || s.startsWith("zh-hant")) return "zh-TW";
+            if (s === "en" || s.startsWith("en-")) return "en";
+            return "zh-TW"; // fallback：站台預設
+        };
+        api.interceptors.request.use((config) =>
+        {
+            const cookieLang = getCookieValue(document.cookie, LANG_COOKIE_KEY);
+            const acceptLang = toAcceptLanguage(cookieLang);
+            config.headers = AxiosHeaders.from(config.headers);
+            // 允許呼叫端覆寫：如果已經有就不動
+            if (!config.headers.has("Accept-Language")) config.headers.set("Accept-Language", acceptLang);
+            return config;
+        });
+        // #endregion
 
         // 與後端名稱一致
         (api.defaults as any).xsrfCookieName = "XSRF-TOKEN";
@@ -90,8 +125,7 @@ const createUniversalApi = (opts?: UniversalApiOptions): AxiosInstance =>
     }
 
     // --------- SSR：絕對路徑 + 可選 Cookie 轉發（不做 XSRF/攔截器） ----------
-    const origin = opts?.ssr?.origin
-        ?? process.env.SSR_API_ORIGIN; // e.g. https://xxx
+    const origin = opts?.ssr?.origin ?? process.env.SSR_API_ORIGIN; // e.g. https://xxx
     if (!origin)
     {
         throw new Error("[APIBase] SSR 模式需要提供 ssr.origin 或設定環境變數 SSR_API_ORIGIN。");

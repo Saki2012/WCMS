@@ -32,6 +32,7 @@ export interface IBETheme
 
     // #region Fields
     DropList: ILibDropListStyle;
+    DropList2: ILibDropListStyle;
     Tabs: ILibTabsStyle;
     TextBox: ILibTextBoxStyle;
     TextBox2: ILibTextBoxStyle2;

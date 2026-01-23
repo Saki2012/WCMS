@@ -67,19 +67,55 @@ namespace WCMS.SysCore
             var oldEntry = DataAccess.Entry(oldData);
             if (oldEntry.State == EntityState.Detached)
             {
-                set.Attach(oldData);
+                var entityType = DataAccess.Model.FindEntityType(typeof(TModel))
+                    ?? throw new InvalidOperationException($"EntityType not found: {typeof(TModel).Name}");
+
+                var pk = entityType.FindPrimaryKey()
+                    ?? throw new InvalidOperationException($"Primary key not found: {typeof(TModel).Name}");
+
+                object[] GetKeyValues(object entity) =>
+                    pk.Properties.Select(p => p.PropertyInfo!.GetValue(entity)!).ToArray();
+
+                var targetKeys = GetKeyValues(oldData);
+
+                // ✅ 1) 先用 set.Local 找（快）
+                var local = set.Local.FirstOrDefault(e => GetKeyValues(e!).SequenceEqual(targetKeys));
+                if (local != null)
+                {
+                    oldData = local;
+                }
+                else
+                {
+                    // ✅ 2) 再用 ChangeTracker 全域找（穩）
+                    var tracked = DataAccess.ChangeTracker.Entries<TModel>()
+                        .FirstOrDefault(e => GetKeyValues(e.Entity!).SequenceEqual(targetKeys));
+
+                    if (tracked != null)
+                    {
+                        oldData = tracked.Entity;
+                    }
+                    else
+                    {
+                        // ✅ 3) 最安全：用 FindAsync 取回「正規 tracked entity」
+                        //    FindAsync 會優先用 Context cache，沒有才打 DB
+                        var found = await set.FindAsync(targetKeys);
+                        if (found != null)
+                        {
+                            oldData = found;
+                        }
+                        else
+                        {
+                            // ✅ 4) 真的找不到才 attach（fallback）
+                            set.Attach(oldData);
+                        }
+                    }
+                }
+
                 oldEntry = DataAccess.Entry(oldData);
             }
-            oldEntry.State = EntityState.Unchanged; // 以「逐欄位 IsModified」為準
 
-            // 2) 取出主鍵，禁止在更新時變更主鍵值
-            var entityType = DataAccess.Model.FindEntityType(typeof(TModel))
-                            ?? throw new InvalidOperationException($"EntityType not found: {typeof(TModel).Name}");
-            var pk = entityType.FindPrimaryKey()
-                     ?? throw new InvalidOperationException($"Primary key not found: {typeof(TModel).Name}");
-            object[] GetKeyValues(object entity) => pk.Properties.Select(p => p.PropertyInfo!.GetValue(entity)!).ToArray();
-            if (!GetKeyValues(oldData).SequenceEqual(GetKeyValues(newData)))
-                throw new InvalidOperationException("Primary key cannot be changed during update.");
+            // 2) 以「逐欄位 IsModified」為準
+            oldEntry.State = EntityState.Unchanged;
 
             // 3) 欄位差異套用到 oldData（跳過集合/Key/NotMapped/併發欄位）
             var ef = EfMetaCache.Get(DataAccess, typeof(TModel));
@@ -93,24 +129,22 @@ namespace WCMS.SysCore
             foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TModel)))
             {
                 if (!prop.CanWrite) continue;
-                // 導航（參考/集合）或複雜型別 → 一律跳過
-                if (ef.IsNav(prop.Name)) continue;        // 🟢 只跳過關聯
-                if (!ef.IsScalar(prop.Name)) continue;    // 🟢 非 EF scalar 就略過
-                if (prop.GetCustomAttribute<KeyAttribute>() != null) continue;  // 跳過主鍵
-                if (prop.GetCustomAttribute<NotMappedAttribute>() != null) continue; // 跳過 NotMapped
-                if (IsConcurrency(prop)) continue;                               // 跳過併發欄位
+                if (ef.IsNav(prop.Name)) continue;                 // 關聯略過
+                if (!ef.IsScalar(prop.Name)) continue;             // 非 scalar 略過
+                if (prop.GetCustomAttribute<KeyAttribute>() != null) continue;
+                if (prop.GetCustomAttribute<NotMappedAttribute>() != null) continue;
+                if (IsConcurrency(prop)) continue;
 
                 var oldVal = PropertyAccessorCache.Get(oldData, prop.Name);
                 var newVal = PropertyAccessorCache.Get(newData, prop.Name);
 
-                // 允許把值改成 null；只要不同就更新並標記
                 if (!Equals(oldVal, newVal))
                 {
                     PropertyAccessorCache.Set(oldData, prop.Name, newVal);
                     DataAccess.Entry(oldData).Property(prop.Name).IsModified = true;
                 }
             }
-            // 這個方法只負責把變更標記好；真正 SaveChanges 在上層 CommitDataAsync
+
             await Task.CompletedTask;
         }
         /// <summary>
@@ -119,8 +153,27 @@ namespace WCMS.SysCore
         /// <param name="key"></param>
         public async Task<bool> DeleteAsync(TModel oldData)
         {
+            // 1) 取得 entry
             var entry = DataAccess.Entry(oldData);
-            if (entry.State == EntityState.Detached) DataAccess.Attach(oldData);
+            // 2) Detached 時：避免 AttachGraph（會把 navigation 一起掛上去造成 PK 衝突）
+            if (entry.State == EntityState.Detached)
+            {
+                // ✅ 清空 reference navigation，避免帶著 master instance 一起被追蹤
+                var et = DataAccess.Model.FindEntityType(typeof(TModel));
+                if (et != null)
+                {
+                    foreach (var nav in et.GetNavigations().Where(n => !n.IsCollection))
+                    {
+                        // 只清 reference nav（collection 不處理）
+                        var prop = PropertyAccessorCache.GetProperty(oldData.GetType(), nav.Name);
+                        if (prop != null && prop.CanWrite) PropertyAccessorCache.Set(oldData, nav.Name, null);
+                    }
+                }
+                // ✅ 直接標記 Deleted（不 Attach）
+                DataAccess.Entry(oldData).State = EntityState.Deleted;
+                return true;
+            }
+            // 3) 已追蹤：直接刪
             DataAccess.Remove(oldData);
             return true;
         }
@@ -136,52 +189,67 @@ namespace WCMS.SysCore
         /// <summary>
         /// 查看表單清單(非同步)
         /// </summary>
-        /// <returns></returns>
-        public async Task<IList<TModel>> QueryListAsync(LambdaExpression selectExpr, LambdaExpression whereExpr, IReadOnlyList<OrderBySpec>? orderBy = null, int pageCt = 0, int takeCt = 0)
+        public async Task<IList<TModel>> QueryListAsync(
+            LambdaExpression? selectExpr,
+            LambdaExpression? whereExpr,
+            IReadOnlyList<OrderBySpec>? orderBy = null,
+            int pageCt = 0,
+            int takeCt = 0,
+            int skipCt = 0,                 // ✅ 新增：支援 skip/take
+            bool asNoTracking = true)
         {
             IQueryable<TModel> query = DataAccess.Set<TModel>();
+            query = query.TagWith($"BasicRepository<{typeof(TModel).Name}>.QueryListAsync");
+            if (asNoTracking) query = query.AsNoTrackingWithIdentityResolution();
+
             // ✅ Where 條件
-            if (!whereExpr.IsNullOrEmpty()) query = query.Where((Expression<Func<TModel, bool>>)whereExpr);
+            if (!whereExpr.IsNullOrEmpty())
+                query = query.Where((Expression<Func<TModel, bool>>)whereExpr);
+
             // ✅ 排序
-            if (orderBy != null && orderBy.Count > 0) query = ApplyOrderBy(query, orderBy);
-            // ✅ 分頁
-            if (takeCt > 0 && pageCt > 0) query = query.Skip((pageCt - 1) * takeCt).Take(takeCt);
-            // ✅ 解析 navigation 路徑
-            var includes = new HashSet<string>();
-            if (selectExpr != null) includes.UnionWith(ExpressionIncludeHelper.ExtractIncludePaths(selectExpr));
-            // ✅ 執行 Include
-            foreach (var path in includes) query = query.Include(path);  // 支援多層如 A.B.C
+            if (orderBy != null && orderBy.Count > 0)
+                query = ApplyOrderBy(query, orderBy);
 
-#if DEBUG
-            var sqlStr = selectExpr == null ? query.ToQueryString() : query.Select((Expression<Func<TModel, TModel>>)selectExpr).ToQueryString();
-            Console.WriteLine(sqlStr);
-#endif
+            // ✅ Include（兩種模式：selectExpr 抽 include / fields 空 → 預設第一層 include）
+            if (selectExpr == null)
+            {
+                query = DefaultIncludeHelper.ApplyFirstLevelReferenceIncludes(DataAccess, query, out int includeCt);
+                if (includeCt > 0) query = query.AsSplitQuery();
+            }
+
+            // ✅ 分頁：優先使用 pageCt；否則使用 skipCt（給 RankGroups 精準切段用）
+            if (takeCt > 0)
+            {
+                if (pageCt > 0)
+                {
+                    query = query.Skip((pageCt - 1) * takeCt).Take(takeCt);
+                }
+                else if (skipCt > 0)
+                {
+                    query = query.Skip(skipCt).Take(takeCt);
+                }
+                else if (skipCt == 0)
+                {
+                    query = query.Take(takeCt);
+                }
+            }
+
             // ✅ Select
-            var result = selectExpr == null? await query.Cast<TModel>().ToListAsync() : await query.Select((Expression<Func<TModel, TModel>>)selectExpr).Cast<TModel>().ToListAsync();
-            return result;
+            if (selectExpr == null) return await query.ToListAsync();
+            return await query.Select((Expression<Func<TModel, TModel>>)selectExpr).ToListAsync();
         }
-
         /// <summary>
         /// 查看表單清單總數量(非同步)
         /// </summary>
         /// <returns></returns>
-        public async Task<int> QueryListCountAsync(LambdaExpression selectExpr, LambdaExpression whereExpr)
+        public async Task<int> QueryListCountAsync(LambdaExpression? whereExpr)
         {
-            IQueryable<TModel> query = DataAccess.Set<TModel>();
+            // ✅ Count 永遠 NoTracking
+            IQueryable<TModel> query = DataAccess.Set<TModel>().AsNoTracking();
+            query = query.TagWith($"BasicRepository<{typeof(TModel).Name}>.QueryListCountAsync");
             // ✅ Where 條件
             if (!whereExpr.IsNullOrEmpty()) query = query.Where((Expression<Func<TModel, bool>>)whereExpr);
-            // ✅ 解析 navigation 路徑
-            var includes = new HashSet<string>();
-            if (selectExpr != null) includes.UnionWith(ExpressionIncludeHelper.ExtractIncludePaths(selectExpr));
-            // ✅ 執行 Include
-            foreach (var path in includes) query = query.Include(path);  // 支援多層如 A.B.C
-#if DEBUG
-            var sqlStr = selectExpr == null ? query.ToQueryString() : query.Select((Expression<Func<TModel, TModel>>)selectExpr).ToQueryString();
-            Console.WriteLine(sqlStr);
-#endif
-            // ✅ Select
-            var result = selectExpr == null ? await query.Cast<TModel>().CountAsync() : await query.Select((Expression<Func<TModel, TModel>>)selectExpr).Cast<TModel>().CountAsync();
-            return result;
+            return await query.CountAsync();
         }
         /// <summary>
         /// 自動產生流水號ID
@@ -341,6 +409,9 @@ namespace WCMS.SysCore
         }
 
 
+        /// <summary>
+        /// ✅ 統一排序套用：支援「同一個集合導航」的多欄位 group 排序（Top-1 detail key）
+        /// </summary>
         private static IQueryable<TModel> ApplyOrderBy(IQueryable<TModel> source, IReadOnlyList<OrderBySpec>? specs)
         {
             if (specs == null || specs.Count == 0) return source;
@@ -348,28 +419,246 @@ namespace WCMS.SysCore
             var param = Expression.Parameter(typeof(TModel), "x");
             IOrderedQueryable<TModel>? ordered = null;
 
-            foreach (var spec in specs)
+            var i = 0;
+            while (i < specs.Count)
             {
+                // ✅ 1) 嘗試把同 collection prefix 的排序欄位打包成 group（Top-1 detail）
+                if (TryBuildGroupedCollectionKeys(param, specs, i, out var groupKeys, out var consumed))
+                {
+                    foreach (var g in groupKeys)
+                    {
+                        ordered = ApplyOrderMethod(ordered, source, g.KeyExpr, param, g.Desc);
+                    }
+
+                    i += consumed;
+                    continue;
+                }
+
+                // ✅ 2) fallback：單欄位排序（沿用你原本的 BuildKeyForOrder：collection→Min/Max）
+                var spec = specs[i];
                 var parts = spec.Col.Split('.', StringSplitOptions.RemoveEmptyEntries);
 
-                // 產生排序用 key（處理集合→聚合成純量）
                 Expression key = BuildKeyForOrder(param, parts, spec.Desc);
+                ordered = ApplyOrderMethod(ordered, source, key, param, spec.Desc);
 
-                var lambda = Expression.Lambda(key, param);
-                string methodName =
-                    ordered == null
-                        ? (spec.Desc ? "OrderByDescending" : "OrderBy")
-                        : (spec.Desc ? "ThenByDescending" : "ThenBy");
-
-                var method = typeof(Queryable).GetMethods()
-                    .First(m => m.Name == methodName && m.GetParameters().Length == 2);
-
-                var generic = method.MakeGenericMethod(typeof(TModel), key.Type);
-                var result = generic.Invoke(null, new object[] { ordered ?? source, lambda })!;
-                ordered = (IOrderedQueryable<TModel>)result;
+                i++;
             }
 
             return ordered ?? source;
+        }
+        /// <summary>
+        /// ✅ 套用 OrderBy/ThenBy（依是否已有 ordered 決定）
+        /// </summary>
+        private static IOrderedQueryable<TModel> ApplyOrderMethod(
+            IOrderedQueryable<TModel>? ordered,
+            IQueryable<TModel> source,
+            Expression keyExpr,
+            ParameterExpression param,
+            bool desc)
+        {
+            var lambda = Expression.Lambda(keyExpr, param);
+
+            var methodName =
+                ordered == null
+                    ? (desc ? nameof(Queryable.OrderByDescending) : nameof(Queryable.OrderBy))
+                    : (desc ? nameof(Queryable.ThenByDescending) : nameof(Queryable.ThenBy));
+
+            var method = typeof(Queryable).GetMethods()
+                .First(m => m.Name == methodName && m.GetParameters().Length == 2)
+                .MakeGenericMethod(typeof(TModel), keyExpr.Type);
+
+            var result = method.Invoke(null, new object[] { ordered ?? source, lambda })!;
+            return (IOrderedQueryable<TModel>)result;
+        }
+        private sealed record GroupKey(Expression KeyExpr, bool Desc);
+
+        /// <summary>
+        /// ✅ 偵測並建立「同一個集合導航」的 group 排序 key：
+        /// - 先對集合元素套用 group 的 OrderBy/ThenBy（用 group 各 spec 的 Desc）
+        /// - 再對每個 spec：Select(prop).FirstOrDefault() 當外層排序 key
+        /// </summary>
+        private static bool TryBuildGroupedCollectionKeys(
+            ParameterExpression root,
+            IReadOnlyList<OrderBySpec> specs,
+            int startIndex,
+            out List<GroupKey> keys,
+            out int consumed)
+        {
+            keys = new();
+            consumed = 0;
+
+            // ✅ 至少要有 2 個排序欄位才值得打包（避免改變既有單欄位行為）
+            if (startIndex < 0 || startIndex >= specs.Count - 1) return false;
+
+            // ✅ 解析第一個 spec：找出「第一個集合導航」的位置（例如 SpecResearchDetail）
+            var firstParts = specs[startIndex].Col.Split('.', StringSplitOptions.RemoveEmptyEntries);
+            if (!TryFindFirstCollectionIndex(root.Type, firstParts, out var colIndex)) return false;
+
+            // ✅ collection prefix：例如 ["SpecResearchDetail"]
+            var prefix = firstParts.Take(colIndex + 1).ToArray();
+
+            // ✅ 收集連續 spec：必須同 prefix 且都含 collection
+            var group = new List<(string[] Parts, bool Desc)>();
+            var j = startIndex;
+
+            while (j < specs.Count)
+            {
+                var parts = specs[j].Col.Split('.', StringSplitOptions.RemoveEmptyEntries);
+                if (!IsSamePrefix(parts, prefix)) break;
+                if (!TryFindFirstCollectionIndex(root.Type, parts, out var idx) || idx != colIndex) break;
+
+                group.Add((parts, specs[j].Desc));
+                j++;
+            }
+
+            // ✅ 需要至少 2 個欄位才打包
+            if (group.Count < 2) return false;
+
+            // ✅ 建立 ordered elements query（同一套排序規則）
+            var orderedElemQuery = BuildOrderedElementQuery(root, prefix, group);
+
+            // ✅ 每個欄位都用「同一筆 Top-1 detail」取值當 key
+            foreach (var (parts, desc) in group)
+            {
+                var keyExpr = BuildTop1ElementValueExpr(orderedElemQuery, prefix, parts);
+                keys.Add(new GroupKey(keyExpr, desc));
+            }
+
+            consumed = group.Count;
+            return true;
+        }
+        /// <summary>
+        /// ✅ 產生集合元素的排序查詢：AsQueryable(nav).OrderBy(...).ThenBy(...).
+        /// </summary>
+        private static Expression BuildOrderedElementQuery(
+            ParameterExpression root,
+            string[] prefix,
+            List<(string[] Parts, bool Desc)> group)
+        {
+            // ✅ prefix 最後一段就是 collection navigation name
+            Expression nav = root;
+            for (int i = 0; i < prefix.Length; i++)
+            {
+                nav = Expression.PropertyOrField(nav, prefix[i]);
+            }
+
+            var elemType = TryGetIEnumerableElementType(nav.Type)
+                ?? throw new InvalidOperationException($"排序集合 '{string.Join(".", prefix)}' 無法推斷元素型別。");
+
+            // AsQueryable(nav)
+            var asQ = Expression.Call(
+                typeof(Queryable),
+                nameof(Queryable.AsQueryable),
+                new[] { elemType },
+                nav
+            );
+
+            // ✅ 元素排序：依 group spec 的 remaining path 建立 key
+            var ep = Expression.Parameter(elemType, "e");
+            Expression currentQuery = asQ;
+            var first = true;
+
+            foreach (var (parts, desc) in group)
+            {
+                var key = BuildElementKey(ep, prefix, parts); // e => e.Year / e.AcademicYear ...
+                var lambda = Expression.Lambda(key, ep);
+
+                var methodName =
+                    first
+                        ? (desc ? nameof(Queryable.OrderByDescending) : nameof(Queryable.OrderBy))
+                        : (desc ? nameof(Queryable.ThenByDescending) : nameof(Queryable.ThenBy));
+
+                var method = typeof(Queryable).GetMethods()
+                    .First(m => m.Name == methodName && m.GetParameters().Length == 2)
+                    .MakeGenericMethod(elemType, key.Type);
+
+                currentQuery = Expression.Call(null, method, currentQuery, lambda);
+                first = false;
+            }
+
+            return currentQuery;
+        }
+        /// <summary>
+        /// ✅ 從 ordered elements 取 Top-1 元素的某個欄位值：
+        /// ordered.Select(e => e.Prop).FirstOrDefault()
+        /// </summary>
+        private static Expression BuildTop1ElementValueExpr(Expression orderedElemQuery, string[] prefix, string[] fullParts)
+        {
+            // ✅ fullParts = prefix + [PropPath...]
+            var elemType = orderedElemQuery.Type.GetGenericArguments().First();
+
+            var ep = Expression.Parameter(elemType, "e");
+            var propExpr = BuildElementKey(ep, prefix, fullParts); // e => e.Prop
+
+            // Select(...)
+            var selectMethod = typeof(Queryable).GetMethods()
+                .First(m => m.Name == nameof(Queryable.Select) && m.GetParameters().Length == 2)
+                .MakeGenericMethod(elemType, propExpr.Type);
+
+            var selector = Expression.Lambda(propExpr, ep);
+            var projected = Expression.Call(null, selectMethod, orderedElemQuery, selector);
+
+            // FirstOrDefault(...)
+            var fodMethod = typeof(Queryable).GetMethods()
+                .First(m => m.Name == nameof(Queryable.FirstOrDefault) && m.GetParameters().Length == 1)
+                .MakeGenericMethod(propExpr.Type);
+
+            return Expression.Call(null, fodMethod, projected);
+        }
+        /// <summary>
+        /// ✅ 建立元素 key：剔除 prefix（collection nav）後，從元素 e 往下取屬性
+        /// </summary>
+        private static Expression BuildElementKey(ParameterExpression elemParam, string[] prefix, string[] fullParts)
+        {
+            // fullParts: prefix + remaining
+            var start = prefix.Length; // prefix 已含 collection nav 名稱
+            Expression cur = elemParam;
+
+            for (int i = start; i < fullParts.Length; i++)
+            {
+                cur = Expression.PropertyOrField(cur, fullParts[i]);
+            }
+
+            return cur;
+        }
+
+        private static bool IsSamePrefix(string[] parts, string[] prefix)
+        {
+            if (parts.Length <= prefix.Length) return false;
+            for (int i = 0; i < prefix.Length; i++)
+            {
+                if (!string.Equals(parts[i], prefix[i], StringComparison.Ordinal)) return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// ✅ 找出 parts 裡第一個 IEnumerable<>（排除 string）的位置
+        /// </summary>
+        private static bool TryFindFirstCollectionIndex(Type rootType, string[] parts, out int index)
+        {
+            index = -1;
+
+            Type cur = rootType;
+            for (int i = 0; i < parts.Length; i++)
+            {
+                var pi = cur.GetProperty(parts[i], BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
+                var fi = cur.GetField(parts[i], BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
+
+                var mt = pi?.PropertyType ?? fi?.FieldType;
+                if (mt == null) return false;
+
+                var elemType = TryGetIEnumerableElementType(mt);
+                if (elemType != null && mt != typeof(string))
+                {
+                    index = i;
+                    return true;
+                }
+
+                cur = mt;
+            }
+
+            return false;
         }
         private static Expression BuildKeyForOrder(ParameterExpression root, string[] parts, bool desc)
         {
@@ -503,5 +792,44 @@ namespace WCMS.SysCore
 #endif
                 return new Map(scalars, navs, skips, complex);
             });
+    }
+
+    static class DefaultIncludeHelper
+    {
+        private static readonly ConcurrentDictionary<Type, string[]> _cache = new();
+
+        /// <summary>
+        /// 取得 Entity 第一層 Reference Navigation 的 Include paths（快取）
+        /// </summary>
+        public static string[] GetFirstLevelReferenceIncludes(DbContext db, Type entityType)
+        {
+            // NOTE: 使用快取避免每次掃 metadata
+            return _cache.GetOrAdd(entityType, t =>
+            {
+                var et = db.Model.FindEntityType(t);
+                if (et == null) return Array.Empty<string>();
+                // NOTE: 只取 Reference（排除 Collection）避免爆量
+                var navs = et.GetNavigations().Where(n => !n.IsCollection).Select(n => n.Name).Distinct().ToArray();
+                return navs;
+            });
+        }
+
+        /// <summary>
+        /// 套用第一層 Reference Includes（只在你想要時呼叫）
+        /// </summary>
+        public static IQueryable<T> ApplyFirstLevelReferenceIncludes<T>(DbContext db,IQueryable<T> query,out int includeCt)where T : class
+        {
+            includeCt = 0;
+            var includes = GetFirstLevelReferenceIncludes(db, typeof(T));
+            foreach (var path in includes)
+            {
+                if (!string.IsNullOrWhiteSpace(path) && !path.Contains('.'))
+                {
+                    query = query.Include(path);
+                    includeCt++;
+                }
+            }
+            return query;
+        }
     }
 }

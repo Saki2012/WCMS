@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.Library;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
@@ -54,6 +55,14 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// 是否啟用站台
         /// </summary>
         [LibDesc(ModelDisplayName.SiteMenu_Enable)] public bool Enable { get; set; } = true;
+        /// <summary>
+        /// 預設語系
+        /// </summary>
+        [LibDesc(ModelDisplayName.Enum_DefaultLang)] public LangCode? DefaultLang { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [LibDesc(ModelDisplayName.Enum_SupportLang),StringLength(SysLengthParam.Memo)] public string? SupportLangs { get; set; }
     }
     /// <summary>
     /// 
@@ -71,7 +80,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// <summary>
         /// 語系
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Lang)] public string? Lang { get; set; }
+        [LibDesc(ModelDisplayName.Common_Lang)] public LangCode? Lang { get; set; }
         /// <summary>
         /// 網站標題
         /// </summary>
@@ -138,10 +147,6 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// 開啟分頁方式
         /// </summary>
         [LibDesc(ModelDisplayName.SiteMenu_WindowTarget)] public WindowTarget WindowTarget { get; set; }
-        /// <summary>
-        /// 是否顯示在清單上
-        /// </summary>
-        [LibDesc(ModelDisplayName.SiteMenu_IsShowOnMenu)] public bool IsShowOnMenu { get; set; }
     }
     /// <summary>
     /// 
@@ -151,8 +156,9 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         [LibDesc(ModelDisplayName.SiteMenu_SiteIndex)] public string? SiteIndex { get; set; }
         [LibDesc(ModelDisplayName.Common_RowId)] public int? ItemRowId { get; set; }
         [LibDesc(ModelDisplayName.Common_RowId)] public int? RowId { get; set; }
-        [LibDesc(ModelDisplayName.Common_Lang)] public string? Lang { get; set; }
+        [LibDesc(ModelDisplayName.Common_Lang)] public LangCode? Lang { get; set; }
         [LibDesc(ModelDisplayName.SiteMenu_MenuTitle)] public string? Title { get; set; }
+        [LibDesc(ModelDisplayName.SiteMenu_IsShowOnMenu)] public bool IsShowOnMenu { get; set; }
     }
     /// <summary>
     /// 

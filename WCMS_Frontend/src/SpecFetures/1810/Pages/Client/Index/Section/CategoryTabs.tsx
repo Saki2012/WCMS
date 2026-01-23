@@ -12,10 +12,11 @@ import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api';
 import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
 import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
-import { DefaultLang } from '@/SysCore/i18n/lang';
-import { ProgId } from '@/Features/Hooks/Common/ProgId';
+import { PGID } from '@/Features/Hooks/Common/ProgId';
 import { useNow } from '@/SysCore/Utils/Library/LibHook';
 import bgImg from "@/SpecFetures/1810/Assets/Client/Images/bg/background-transparent-image_1920x600.png"
+import { LangLink } from '@/SysCore/i18n/LangLink';
+import type { Lang } from '@/SysCore/i18n/lang';
 
 
 /** 找置頂公告 */
@@ -122,7 +123,7 @@ const useTagList = () => {
                 `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
                 `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
             ],
-            Condition: `${SchemaFields.TagDataFields.ProgId} = ${ProgId.Announcement}`,
+            Condition: `${SchemaFields.TagDataFields.ProgId} = ${PGID.Announcement}`,
             PageNumber: 0,
             PageSize: 0,
         }),
@@ -131,7 +132,7 @@ const useTagList = () => {
     });
 };
 
-export const CategoryTabs = () => {
+export const CategoryTabs = (props: { lang: Lang }) => {
 
     const useTopAllNewsData = useTopAnnouncementList();
     const useTopProjectData = useTopAnnouncementList("3,4,5");
@@ -162,12 +163,11 @@ export const CategoryTabs = () => {
     const errorList = [useAllNewsData.error, useProjectData.error, useLegalData.error, useEvenData.error, useAwardData.error, useMediaData.error, useCategoryData.error, useTagData.error,
     useTopAllNewsData.error, useTopProjectData.error, useTopLegalData.error, useTopEvenData.error, useTopAwardData.error, useTopMediaData.error]
 
-    const lang = DefaultLang
 
     const categoryDict: Record<string, string> = Object.fromEntries(
         (useCategoryData.rawData ?? []).map(cat => {
             const id = cat.Category?.CategoryId;
-            const name = cat.CategoryDetail?.find(p => p.Lang === lang)?.CategoryName ?? "";
+            const name = cat.CategoryDetail?.find(p => p.Lang === props.lang)?.CategoryName ?? "";
             return [id, name];
         })
     );
@@ -175,150 +175,148 @@ export const CategoryTabs = () => {
     const tagDict: Record<string, string> = Object.fromEntries(
         (useTagData.rawData ?? []).map(cat => {
             const id = cat.TagData?.TagId;
-            const name = cat.TagDetail?.find(p => p.Lang === lang)?.TagName ?? "";
+            const name = cat.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "";
             return [id, name];
         })
     );
 
-    const allNews = getNewsDataProps(allNewsRawData, lang, "/Allnews/All-announcement", "", categoryDict, tagDict);
-    const project = getNewsDataProps(projectRawData, lang, "/Allnews/All-announcement", "", categoryDict, tagDict);
-    const legal = getNewsDataProps(legalRawData, lang, "/Allnews/Regulatory-Announcements", "6", categoryDict, tagDict)
-    const even = getNewsDataProps(evenRawData, lang, "/Allnews/Intramural-activities/In-school-activities", "", categoryDict, tagDict)
-    const award = getNewsDataProps(awardRawData, lang, "/Allnews/Award-announcement", "45", categoryDict, tagDict)
-    const media = getNewsDataProps(mediaRawData, lang, "/Allnews/Special-Topics-and-Media-Coverage", "46", categoryDict, tagDict)
+    const allNews = getNewsDataProps(allNewsRawData, props.lang, "/Allnews/All-announcement", "", categoryDict, tagDict);
+    const project = getNewsDataProps(projectRawData, props.lang, "/Allnews/All-announcement", "", categoryDict, tagDict);
+    const legal = getNewsDataProps(legalRawData, props.lang, "/Allnews/Regulatory-Announcements", "6", categoryDict, tagDict)
+    const even = getNewsDataProps(evenRawData, props.lang, "/Allnews/Intramural-activities/In-school-activities", "", categoryDict, tagDict)
+    const award = getNewsDataProps(awardRawData, props.lang, "/Allnews/Award-announcement", "45", categoryDict, tagDict)
+    const media = getNewsDataProps(mediaRawData, props.lang, "/Allnews/Special-Topics-and-Media-Coverage", "46", categoryDict, tagDict)
     return (
-        <LoadingErrorHandler loadingList={loadingList} errorList={errorList} >
-
-            <section className="Newsbox-section" style={{ backgroundImage: `url(${bgImg})` }}>
-                <div className="Mask-DivBox layout_padding2 bg-white">
-                    <div className="customizeBox">
-                        <div className="container-customize1">
-                            <div className="row">
-                                <div className="col-12 px-4 + animate__animated animate__slow wow bounceInUp" data-wow-delay="0.1s">
-                                    {/* // 標題 start */}
-                                    <div className="Standard-TitleDiv div-header">
-                                        <div className="TextDIV">
-                                            <h3><span className="title-tw">最新消息<span className="c-line"></span></span></h3>
-                                            <span className="en-box">
-                                                <span className="title-en">Latest News</span>
-                                            </span>
-                                        </div>
+        // <LoadingErrorHandler loadingList={loadingList} errorList={errorList} >
+        <section className="Newsbox-section" style={{ backgroundImage: `url(${bgImg})` }}>
+            <div className="Mask-DivBox layout_padding2 bg-white">
+                <div className="customizeBox">
+                    <div className="container-customize1">
+                        <div className="row">
+                            <div className="col-12 px-4 + animate__animated animate__slow wow bounceInUp" data-wow-delay="0.1s">
+                                {/* // 標題 start */}
+                                <div className="Standard-TitleDiv div-header">
+                                    <div className="TextDIV">
+                                        <h3><span className="title-tw">最新消息<span className="c-line"></span></span></h3>
+                                        <span className="en-box">
+                                            <span className="title-en">Latest News</span>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div className="container-customize1">
-                            <div className="row">
-                                <div className="col-xxl-2 col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12 + px-4">
-                                    <div className="tab_ulbox">
-                                        <ul className="nav nav-tabs p-0 STYL0 + animate__animated animate__slow wow bounceInUp" data-wow-delay="0.1s">
-                                            <li className="nav-item">
-                                                <a className="nav-link i1 active" data-bs-toggle="tab" href="#tab-1" tabIndex={6} title="最新公告" >最新公告</a>
-                                            </li>
-                                            <li className="nav-item">
-                                                <a className="nav-link i2" data-bs-toggle="tab" href="#tab-2" tabIndex={7} title="計畫徵件" >計畫徵件</a>
-                                            </li>
-                                            <li className="nav-item">
-                                                <a className="nav-link i3" data-bs-toggle="tab" href="#tab-3" tabIndex={8} title="法規公告" >法規公告</a>
-                                            </li>
-                                            <li className="nav-item">
-                                                <a className="nav-link i4" data-bs-toggle="tab" href="#tab-4" tabIndex={9} title="活動公告" >活動公告</a>
-                                            </li>
-                                            <li className="nav-item">
-                                                <a className="nav-link i5" data-bs-toggle="tab" href="#tab-5" tabIndex={10} title="獲獎公告" >獲獎公告</a>
-                                            </li>
-                                            <li className="nav-item">
-                                                <a className="nav-link i6" data-bs-toggle="tab" href="#tab-6" tabIndex={11} title="專題與媒體報導" >專題與媒體報導</a>
-                                            </li>
-                                        </ul>
-                                    </div>
+                    </div>
+                    <div className="container-customize1">
+                        <div className="row">
+                            <div className="col-xxl-2 col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12 + px-4">
+                                <div className="tab_ulbox">
+                                    <ul className="nav nav-tabs p-0 STYL0 + animate__animated animate__slow wow bounceInUp" data-wow-delay="0.1s">
+                                        <li className="nav-item">
+                                            <a className="nav-link i1 active" data-bs-toggle="tab" href="#tab-1" tabIndex={6} title="最新公告" >最新公告</a>
+                                        </li>
+                                        <li className="nav-item">
+                                            <a className="nav-link i2" data-bs-toggle="tab" href="#tab-2" tabIndex={7} title="計畫徵件" >計畫徵件</a>
+                                        </li>
+                                        <li className="nav-item">
+                                            <a className="nav-link i3" data-bs-toggle="tab" href="#tab-3" tabIndex={8} title="法規公告" >法規公告</a>
+                                        </li>
+                                        <li className="nav-item">
+                                            <a className="nav-link i4" data-bs-toggle="tab" href="#tab-4" tabIndex={9} title="活動公告" >活動公告</a>
+                                        </li>
+                                        <li className="nav-item">
+                                            <a className="nav-link i5" data-bs-toggle="tab" href="#tab-5" tabIndex={10} title="獲獎公告" >獲獎公告</a>
+                                        </li>
+                                        <li className="nav-item">
+                                            <a className="nav-link i6" data-bs-toggle="tab" href="#tab-6" tabIndex={11} title="專題與媒體報導" >專題與媒體報導</a>
+                                        </li>
+                                    </ul>
                                 </div>
-                                <div className="col-xxl-10 col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12 + px-4">
-                                    <div className="tab-content + animate__animated animate__slow wow bounceInUp" data-wow-delay="0.3s">
+                            </div>
+                            <div className="col-xxl-10 col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12 + px-4">
+                                <div className="tab-content + animate__animated animate__slow wow bounceInUp" data-wow-delay="0.3s">
 
-                                        <div className="tab-pane fade show active" id="tab-1">
-                                            <div className="News_mainDIV">
-                                                <div className="list-div">
-                                                    <ul className="m-news_list">
-                                                        <GetData prop={allNews}></GetData>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <div className="btn_Div justify-content-end">
-                                                <div className="customize_btn my-3">
-                                                    <Link to="/Allnews/All-announcement" className="Btn_s1" tabIndex={6} title="更多最新公告">VIEW ALL<span className="ml-2">+</span></Link>
-                                                </div>
+                                    <div className="tab-pane fade show active" id="tab-1">
+                                        <div className="News_mainDIV">
+                                            <div className="list-div">
+                                                <ul className="m-news_list">
+                                                    <GetData prop={allNews}></GetData>
+                                                </ul>
                                             </div>
                                         </div>
+                                        <div className="btn_Div justify-content-end">
+                                            <div className="customize_btn my-3">
+                                                <LangLink to="/Allnews/All-announcement" className="Btn_s1" tabIndex={6} title="更多最新公告">VIEW ALL<span className="ml-2">+</span></LangLink>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                        <div className="tab-pane fade" id="tab-2">
-                                            <div className="News_mainDIV">
-                                                <div className="list-div">
-                                                    <ul className="m-news_list">
-                                                        <GetData prop={project}></GetData>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <div className="btn_Div justify-content-end">
-                                                <div className="customize_btn my-3">
-                                                    <Link to="/Allnews/Project-solicitation/National-Science-Accounting" className="Btn_s1" tabIndex={7} title="更多計畫徵件">VIEW ALL<span className="ml-2">+</span></Link>
-                                                </div>
+                                    <div className="tab-pane fade" id="tab-2">
+                                        <div className="News_mainDIV">
+                                            <div className="list-div">
+                                                <ul className="m-news_list">
+                                                    <GetData prop={project}></GetData>
+                                                </ul>
                                             </div>
                                         </div>
-                                        <div className="tab-pane fade" id="tab-3">
-                                            <div className="News_mainDIV">
-                                                <div className="list-div">
-                                                    <ul className="m-news_list">
-                                                        <GetData prop={legal}></GetData>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <div className="btn_Div justify-content-end">
-                                                <div className="customize_btn my-3">
-                                                    <Link to="/Allnews/Regulatory-Announcements" className="Btn_s1" tabIndex={8} title="更多法規公告">VIEW ALL<span className="ml-2">+</span></Link>
-                                                </div>
+                                        <div className="btn_Div justify-content-end">
+                                            <div className="customize_btn my-3">
+                                                <LangLink to="/Allnews/Project-solicitation/National-Science-Accounting" className="Btn_s1" tabIndex={7} title="更多計畫徵件">VIEW ALL<span className="ml-2">+</span></LangLink>
                                             </div>
                                         </div>
-                                        <div className="tab-pane fade" id="tab-4">
-                                            <div className="News_mainDIV">
-                                                <div className="list-div">
-                                                    <ul className="m-news_list">
-                                                        <GetData prop={even}></GetData>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <div className="btn_Div justify-content-end">
-                                                <div className="customize_btn my-3">
-                                                    <Link to="/Allnews/Intramural-activities/In-school-activities" className="Btn_s1" tabIndex={9} title="更多活動公告">VIEW ALL<span className="ml-2">+</span></Link>
-                                                </div>
+                                    </div>
+                                    <div className="tab-pane fade" id="tab-3">
+                                        <div className="News_mainDIV">
+                                            <div className="list-div">
+                                                <ul className="m-news_list">
+                                                    <GetData prop={legal}></GetData>
+                                                </ul>
                                             </div>
                                         </div>
-                                        <div className="tab-pane fade" id="tab-5">
-                                            <div className="News_mainDIV">
-                                                <div className="list-div">
-                                                    <ul className="m-news_list">
-                                                        <GetData prop={award}></GetData>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <div className="btn_Div justify-content-end">
-                                                <div className="customize_btn my-3">
-                                                    <Link to="/Allnews/Award-announcement" className="Btn_s1" tabIndex={10} title="更多獲獎公告">VIEW ALL<span className="ml-2">+</span></Link>
-                                                </div>
+                                        <div className="btn_Div justify-content-end">
+                                            <div className="customize_btn my-3">
+                                                <LangLink to="/Allnews/Regulatory-Announcements" className="Btn_s1" tabIndex={8} title="更多法規公告">VIEW ALL<span className="ml-2">+</span></LangLink>
                                             </div>
                                         </div>
-                                        <div className="tab-pane fade" id="tab-6">
-                                            <div className="News_mainDIV">
-                                                <div className="list-div">
-                                                    <ul className="m-news_list">
-                                                        <GetData prop={media}></GetData>
-                                                    </ul>
-                                                </div>
+                                    </div>
+                                    <div className="tab-pane fade" id="tab-4">
+                                        <div className="News_mainDIV">
+                                            <div className="list-div">
+                                                <ul className="m-news_list">
+                                                    <GetData prop={even}></GetData>
+                                                </ul>
                                             </div>
-                                            <div className="btn_Div justify-content-end">
-                                                <div className="customize_btn my-3">
-                                                    <Link to="/Allnews/Special-Topics-and-Media-Coverage" className="Btn_s1" tabIndex={11} title="更多專題與媒體報導">VIEW ALL<span className="ml-2">+</span></Link>
-                                                </div>
+                                        </div>
+                                        <div className="btn_Div justify-content-end">
+                                            <div className="customize_btn my-3">
+                                                <LangLink to="/Allnews/Intramural-activities/In-school-activities" className="Btn_s1" tabIndex={9} title="更多活動公告">VIEW ALL<span className="ml-2">+</span></LangLink>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="tab-pane fade" id="tab-5">
+                                        <div className="News_mainDIV">
+                                            <div className="list-div">
+                                                <ul className="m-news_list">
+                                                    <GetData prop={award}></GetData>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div className="btn_Div justify-content-end">
+                                            <div className="customize_btn my-3">
+                                                <LangLink to="/Allnews/Award-announcement" className="Btn_s1" tabIndex={10} title="更多獲獎公告">VIEW ALL<span className="ml-2">+</span></LangLink>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="tab-pane fade" id="tab-6">
+                                        <div className="News_mainDIV">
+                                            <div className="list-div">
+                                                <ul className="m-news_list">
+                                                    <GetData prop={media}></GetData>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div className="btn_Div justify-content-end">
+                                            <div className="customize_btn my-3">
+                                                <LangLink to="/Allnews/Special-Topics-and-Media-Coverage" className="Btn_s1" tabIndex={11} title="更多專題與媒體報導">VIEW ALL<span className="ml-2">+</span></LangLink>
                                             </div>
                                         </div>
                                     </div>
@@ -327,8 +325,9 @@ export const CategoryTabs = () => {
                         </div>
                     </div>
                 </div>
-            </section>
-        </LoadingErrorHandler>
+            </div>
+        </section>
+        // </LoadingErrorHandler>
     )
 };
 
@@ -387,7 +386,7 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
             {prop.map((item) => {
                 return (
                     <li className="m-news_item" key={item.announceInternalId}>
-                        <Link className="m-news_link" to={`${item.redir}/${item.announceInternalId}`} tabIndex={7} title={item.title}>
+                        <LangLink className="m-news_link" to={`${item.redir}/${item.announceInternalId}`} tabIndex={7} title={item.title}>
                             <div className="m-news_date">
                                 <div className="d-big">{item.date}</div>
                                 <div className="d-small">{item.month}</div>
@@ -418,7 +417,7 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
                                     </div>
                                 </div>
                             </div>
-                        </Link>
+                        </LangLink>
                     </li>)
             })}
         </>

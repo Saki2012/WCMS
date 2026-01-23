@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Options;
 using SharpCompress.Compressors.RLE90;
 using System.Collections.Generic;
@@ -11,6 +13,7 @@ using System.Reflection.Emit;
 using System.Runtime.Intrinsics.Arm;
 using System.Security.AccessControl;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
 using WCMS.SysCore.Model;
 
 namespace WCMS.SysCore
@@ -38,6 +41,8 @@ namespace WCMS.SysCore
         {
             base.OnModelCreating(builder);
             ModelDbSetting(builder);
+            ApplyEnumStringConversions(builder);
+            IgnoreDtoTypes(builder);
             AutoBindRelationships(builder);
             ApplyCascadeDeleteRules(builder);
             builder.Entity<OperateLogModel>().ToTable("OperateLog");
@@ -64,6 +69,17 @@ namespace WCMS.SysCore
                 if (keyPropName.Length != 0) builder.Entity(type).ToTable(tableName).HasKey(keyPropName);
                 else builder.Entity(type).ToTable(tableName);
             }
+        }
+        /// <summary>
+        /// 排除DTO型別不納入EF追蹤
+        /// </summary>
+        /// <param name="builder"></param>
+        private static void IgnoreDtoTypes(ModelBuilder builder)
+        {
+            // 取得目前執行組件中的所有型別
+            var asm = Assembly.GetExecutingAssembly();
+            var dtoTypes = asm.GetTypes().Where(t => t.IsClass && !t.IsAbstract && (typeof(DTOBasicDataModel).IsAssignableFrom(t)|| t.Name.EndsWith("_DTO", StringComparison.OrdinalIgnoreCase))).ToList();
+            foreach (var t in dtoTypes) builder.Ignore(t);   // 告訴 EF：這些型別不是實體，全部忽略
         }
         /// <summary>
         /// 依慣例自動綁定一對多關聯：
@@ -142,7 +158,6 @@ namespace WCMS.SysCore
             if (!t.IsGenericType) return typeof(System.Collections.IEnumerable).IsAssignableFrom(t);
             return typeof(System.Collections.IEnumerable).IsAssignableFrom(t);
         }
-
         private static Type? GetEnumerableElementType(Type t)
         {
             if (t.IsArray) return t.GetElementType();
@@ -205,15 +220,38 @@ namespace WCMS.SysCore
         }
         private static void ApplyGlobalDeleteBehavior(ModelBuilder builder)
         {
-            foreach (var fk in builder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
-            {
-                if (fk.IsOwnership) continue;                    // 跳過 OwnedType
-                if (fk.DeclaringEntityType.IsOwned()) continue;  // 跳過 OwnedType
+            // 先把 FK 按 (Dependent, Principal) 分組，找出「同表多重 FK」
+            var fkGroups = builder.Model.GetEntityTypes()
+                .SelectMany(e => e.GetForeignKeys())
+                .Where(fk =>
+                    !fk.IsOwnership &&
+                    !fk.DeclaringEntityType.IsOwned() &&
+                    !fk.PrincipalEntityType.IsOwned())
+                .GroupBy(fk => new
+                {
+                    Dep = fk.DeclaringEntityType,   // dependent
+                    Pri = fk.PrincipalEntityType    // principal
+                })
+                .ToList();
 
-                if (fk.IsRequired)                                // 🟢 必填 FK
-                    fk.DeleteBehavior = DeleteBehavior.Cascade;   //    → 刪主體會連動刪子項；移除關聯也不會丟例外
-                else                                              //    選填 FK
-                    fk.DeleteBehavior = DeleteBehavior.ClientSetNull; // → 由 EF 把 FK 設 null（DB 不做級聯）
+            foreach (var g in fkGroups)
+            {
+                var fks = g.ToList();
+
+                // ✅ 同一 Dependent 對同一 Principal 有 2+ FK：全部禁用 Cascade
+                if (fks.Count > 1)
+                {
+                    foreach (var fk in fks) fk.DeleteBehavior = DeleteBehavior.NoAction;
+                    continue;
+                }
+
+                // 一般情境：照你原本規則處理
+                var onlyFk = fks[0];
+
+                if (onlyFk.IsRequired)
+                    onlyFk.DeleteBehavior = DeleteBehavior.Cascade;
+                else
+                    onlyFk.DeleteBehavior = DeleteBehavior.ClientSetNull;
             }
         }
         /// <summary>
@@ -274,6 +312,82 @@ namespace WCMS.SysCore
         public static void RegistUDF(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDbFunction(typeof(ApplicationDbContext).GetMethod(nameof(SplitToStringTable), [typeof(string)])!).HasName(nameof(SplitToStringTable)).HasSchema("dbo");
+        }
+        /// <summary>
+        /// 在 EF Model 建置階段掃描所有 Entity 屬性，套用指定 enum 的「存成 nvarchar 字串」轉換規則。
+        /// </summary>
+        private static void ApplyEnumStringConversions(ModelBuilder builder)
+        {
+            var specs = BuildEnumStringConversionSpecs();
+            foreach (var et in builder.Model.GetEntityTypes())
+            {
+                if (et.IsOwned()) continue;
+                foreach (var p in et.GetProperties())
+                {
+                    // non-nullable enum
+                    var spec = specs.FirstOrDefault(s => s.EnumType == p.ClrType);
+                    if (spec != null)
+                    {
+                        ApplySpec(p, spec, isNullable: false);
+                        continue;
+                    }
+
+                    // nullable enum
+                    var under = Nullable.GetUnderlyingType(p.ClrType);
+                    if (under != null)
+                    {
+                        var specNullable = specs.FirstOrDefault(s => s.EnumType == under);
+                        if (specNullable != null)
+                        {
+                            ApplySpec(p, specNullable, isNullable: true);
+                        }
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// 將指定的 enum-string 轉換規則套用到某個 EF Property（含 converter、max length、nvarchar 型別）。
+        /// </summary>
+        private static void ApplySpec(IMutableProperty prop, EnumStringConversionSpec spec, bool isNullable)
+        {
+            prop.SetValueConverter(isNullable ? spec.NullableConverter : spec.Converter);
+            prop.SetMaxLength(spec.MaxLength);
+            prop.SetColumnType($"nvarchar({spec.MaxLength})");
+        }
+        /// <summary>
+        /// 描述某個 enum 存成字串欄位時所需的轉換器與欄位長度設定。
+        /// </summary>
+        private sealed record EnumStringConversionSpec(Type EnumType,ValueConverter Converter,ValueConverter NullableConverter,int MaxLength);
+        /// <summary>
+        /// 建立「需要將 enum 以 nvarchar 字串儲存」的規則清單（可在此集中新增/調整 enum 規則）。
+        /// </summary>
+        private static List<EnumStringConversionSpec> BuildEnumStringConversionSpecs()
+        {
+            var list = new List<EnumStringConversionSpec>
+            {
+                // ✅ LangCode：用你自訂 mapping（ToCode/Normalize）
+                CreateEnumSpec(
+                maxLength: SysLengthParam.Lang,
+                toProvider: (LangCode v) => v.ToCode(),
+                fromProvider: (string v) => LangCodeExt.Normalize(v)
+            )};
+
+            // 之後要加新的 enum（也存字串）就只要再加一筆：
+            // list.Add(CreateEnumSpec(
+            //     maxLength: 20,
+            //     toProvider: (YourEnum v) => v.ToDbCode(),
+            //     fromProvider: (string v) => YourEnumExt.ParseDbCode(v)
+            // ));
+            return list;
+        }
+        /// <summary>
+        /// 建立單一 enum 的「enum ↔ string」轉換規則（含 nullable 與非 nullable 版本）。
+        /// </summary>
+        private static EnumStringConversionSpec CreateEnumSpec<TEnum>(int maxLength,Func<TEnum, string> toProvider,Func<string, TEnum> fromProvider) where TEnum : struct, System.Enum
+        {
+            var converter = new ValueConverter<TEnum, string>(v => toProvider(v),v => fromProvider(v));
+            var nullableConverter = new ValueConverter<TEnum?, string?>(v => v.HasValue ? toProvider(v.Value) : null,v => string.IsNullOrWhiteSpace(v) ? null : fromProvider(v!));
+            return new EnumStringConversionSpec(EnumType: typeof(TEnum),Converter: converter,NullableConverter: nullableConverter,MaxLength: maxLength);
         }
         #endregion
     }

@@ -9,9 +9,11 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Xml;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.Library.LibAttribute;
 using static MimeDetective.Definitions.DefaultDefinitions;
 
 namespace WCMS.SysCore.Library
@@ -482,16 +484,16 @@ namespace WCMS.SysCore.Library
                     .All(g => g.Count() == 1);
             }
         }
-        /// <summary>
-        /// 深度拷貝資料 (拷貝資料快照)
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public static T DeepClone<T>(this T obj)
+        public static T Snapshot<T>(this T obj)
         {
-            var json = JsonSerializer.Serialize(obj);
-            return JsonSerializer.Deserialize<T>(json);
+            // ❗ 明確約定：只能用於比對 / log，不可再丟回 EF
+            var opt = new JsonSerializerOptions
+            {
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                MaxDepth = 128
+            };
+            var json = JsonSerializer.Serialize(obj, opt);
+            return JsonSerializer.Deserialize<T>(json, opt)!;
         }
         /// <summary>
         /// 轉換Json元素成c#接受的型態
@@ -593,7 +595,7 @@ namespace WCMS.SysCore.Library
                     })];
             }
 
-            private static string GetEnumDisplayName(System.Enum value)
+            public static string GetEnumDisplayName(System.Enum value)
             {
                 var field =  value.GetType().GetField(value.ToString());
                 var attr = field?.GetCustomAttribute<LibDescAttribute>();

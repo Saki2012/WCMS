@@ -9,7 +9,6 @@ import * as SchemaFields from "@/types/SchemaFields";
 import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import TagProvider from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
 import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
-import { Link } from "react-router-dom";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
@@ -17,6 +16,7 @@ import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useMemo } from "react";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { GridCol_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 type TagSet = components["schemas"]["TagSet_DTO"]
 const buildEmptyTagSet = (progId: string): TagSet => ({ TagData: { ProgId: progId }, TagDetail: [] });
 export const TagListFormComp = (prop: { progId: string; title: string; theme: IBETheme; lang: Lang }) => {
@@ -75,9 +75,9 @@ const TagListComp = (prop: { theme: IBETheme; tagSets: TagSet[]; lang: Lang; act
                     <li className="list-group-item" key={`${item.TagData?.InternalId}-${item.TagDetail?.find(p => p.Lang === prop.lang)?.RowId}`}>
                         <div className="checkboxDIV my-2">
                             <div className="custom-control form-check">
-                                <Link to={`${dirPath}/${item.TagData?.InternalId}`} className="form-check-label" aria-label={`前往 ${item.TagDetail?.find(p => p.Lang === prop.lang)?.TagName} 詳細頁`}>
+                                <LangLink to={`${dirPath}/${item.TagData?.InternalId}`} className="form-check-label" aria-label={`前往 ${item.TagDetail?.find(p => p.Lang === prop.lang)?.TagName} 詳細頁`}>
                                     <span className="check-txt">{item.TagDetail?.find(p => p.Lang === prop.lang)?.TagName}</span>
-                                </Link>
+                                </LangLink>
                             </div>
                         </div>
                         <div className="form-check form-switch my-2">

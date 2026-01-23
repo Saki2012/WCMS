@@ -52,15 +52,15 @@ const Footer = () => {
                                             </div>
                                             <div className="widget-content">
                                                 <div className="social_box mb-1">
-                                                    <a href="javascript:void(0);" target="_blank" title="Facebook_[ 另開視窗 ]" tabIndex={0}>
+                                                    <a href="https://www.facebook.com/TaiwanTraditionalMusic/" target="_blank" title="Facebook_[ 另開視窗 ]" tabIndex={0}>
                                                         <i className="fab fa-facebook-square"></i>
                                                         <span className="sr-only">Facebook</span>
                                                     </a>
-                                                    <a href="javascript:void(0);" target="_blank" title="Youtube_[ 另開視窗 ]" tabIndex={0}>
+                                                    <a href="https://www.youtube.com/@taiwantradmus8182?sub_confirmation=1" target="_blank" title="Youtube_[ 另開視窗 ]" tabIndex={0}>
                                                         <i className="fab fa-youtube"></i>
                                                         <span className="sr-only">Youtube</span>
                                                     </a>
-                                                    <a href="javascript:void(0);" target="_blank" title="Podcast_[ 另開視窗 ]" tabIndex={0}>
+                                                    <a href="https://podcasts.apple.com/tw/podcast/%E5%82%B3%E9%9F%B3%E8%81%9A%E6%A8%82%E9%83%A8/id1833645926" target="_blank" title="Podcast_[ 另開視窗 ]" tabIndex={0}>
                                                         <i className="fas fa-podcast"></i>
                                                         <span className="sr-only">Podcast</span>
                                                     </a>

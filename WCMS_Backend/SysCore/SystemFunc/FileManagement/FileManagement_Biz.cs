@@ -6,9 +6,9 @@ using Newtonsoft.Json;
 using SharpCompress.Archives;
 using System.Reflection;
 using WCMS.SysCore.AppSettingsOptions;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.SystemFunc.FileManagement
@@ -287,15 +287,16 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 filemanage.FileStatus = FileStatus.Failed;
                 syncInfo.FileStatus = FileStatus.Failed;
                 syncInfo.ErrorCode = SysMessageCode.BECode00023;
-                syncInfo.ErrorMessage = ResxMsg.Msg(SysMessageCode.BECode00023, filemanage.FileExtension);
+                syncInfo.ErrorMessage = ErrorHelper.GetResxMsg(SysMessageCode.BECode00023, filemanage.FileExtension);
                 return false;
             }
             if (!CheckMimeType(filemanage.MimeType))
             {
+                
                 filemanage.FileStatus = FileStatus.Failed;
                 syncInfo.FileStatus = FileStatus.Failed;
                 syncInfo.ErrorCode = SysMessageCode.BECode00022;
-                syncInfo.ErrorMessage = ResxMsg.Msg(SysMessageCode.BECode00022, filemanage.MimeType);
+                syncInfo.ErrorMessage = ErrorHelper.GetResxMsg(SysMessageCode.BECode00022, filemanage.MimeType);
                 return false;
             }
             return true;
@@ -308,12 +309,12 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <returns></returns>
         private bool CheckFileSize(FileManageModel filemanage, FileManage_SyncInfoModel syncInfo)
         {
-            const int mb = 20;
+            const int mb = 200;
             const long maxFileSize = mb * 1024 * 1024;
             if (filemanage.FileSize > maxFileSize)
             {
                 syncInfo.ErrorCode = SysMessageCode.BECode00024;
-                syncInfo.ErrorMessage = ResxMsg.Msg(SysMessageCode.BECode00024,mb);
+                syncInfo.ErrorMessage = ErrorHelper.GetResxMsg(SysMessageCode.BECode00024,mb);
                 return false;
             }
             return true;
@@ -344,6 +345,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 #region 文字檔案
                 FileExtensions.PDF,
                 FileExtensions.DOCX,
+                FileExtensions.DOC,
                 FileExtensions.XLSX,
                 FileExtensions.PPTX,
                 FileExtensions.TXT,
@@ -370,6 +372,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 FileExtensions.MP4,
                 FileExtensions.MOV,
                 FileExtensions.MKV,
+                FileExtensions.M4A,
                 #endregion
             ];
 
@@ -405,8 +408,10 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 MimeTypes.APPLICATION_X_7Z_COMPRESSED ,
                 MimeTypes.AUDIO_MPEG,
                 MimeTypes.AUDIO_WAV,
+                MimeTypes.AUDIO_MP4,
+                MimeTypes.VIDEO_QUICKTIME,
                 MimeTypes.VIDEO_MP4,
-                MimeTypes.VIDEO_QUICKTIME];
+                ];
             return checkList.Contains(fileType.ToLowerInvariant());
         }
         /// <summary>

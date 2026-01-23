@@ -48,6 +48,22 @@ namespace WCMS.SysCore.Enum
         /// 系統操作
         /// </summary>
         public static readonly User_DTO SysOperator = new() { UserId= "SysOperator"};
+        /// <summary>
+        /// 搜尋清單快取 
+        /// (Program設定時長)
+        /// </summary>
+        public const string ListCache = "ListCache";
+        /// <summary>
+        /// 搜尋明細快取 
+        /// (Program設定時長)
+        /// </summary>
+        public const string DetailCache = "DetailCache";
+        /// <summary>
+        /// 永久快取 
+        /// </summary>
+        public const string PermanentCache = "PermanentCache";
+
+
 
     }
 }

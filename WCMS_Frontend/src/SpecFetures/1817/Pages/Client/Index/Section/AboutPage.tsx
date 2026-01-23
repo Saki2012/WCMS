@@ -1,49 +1,9 @@
+import type { Lang } from "@/SysCore/i18n/lang";
+import { LangLink } from "@/SysCore/i18n/LangLink";
+import { Link } from "react-router-dom";
 
 
-//import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
-//import { useBannerListData } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Hook";
-//import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
-//import type { components } from "@/types/api";
-//import clsx from "clsx";
-//import * as SchemaFields from "@/types/SchemaFields";
-//import { useMemo } from "react";
-//import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-//type BannerSet = components["schemas"]["BannerSet_DTO"]
-//const emptyData: BannerSet = {
-//	Banner: {},
-//	BannerDetail: [
-//		{
-//			RowId: 1,
-//			Validate_Start: "",
-//			Validate_End: "",
-//			PicSrcId: "",
-//			FontColor: "",
-//		}
-//	],
-//	BannerDetailInfo: [
-//		{
-//			ParentRowId: 1,
-//			RowId: 1,
-//			Lang: "zh-tw",
-//			Title: "",
-//			Content: "",
-//			URL: "",
-//			URL_Open: 1,
-//		},
-//		{
-//			ParentRowId: 1,
-//			RowId: 2,
-//			Lang: "en",
-//			Title: "",
-//			Content: "",
-//			URL: "",
-//			URL_Open: 1,
-//		}
-//	]
-//}
-
-
-export const AboutPage = () => {
+export const AboutPage = (props: { lang: Lang }) => {
 	//	const usebannerList = useBannerListData(`${SchemaFields.BannerFields.BannerId} = Banner20251106004`)
 	//	const bannerInternal = usebannerList.rawData?.[0]?.Banner?.InternalId ?? ""
 	//	const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), bannerInternal, emptyData)
@@ -81,30 +41,19 @@ export const AboutPage = () => {
 										<figure className="figure_Box">
 											<div className="card_youtube_figure">
 												<div className="img-wrapper">
-													<iframe
-														allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-														allowFullScreen
-														frameBorder="0"
-														height="350"
+													<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+														allowFullScreen frameBorder="0" height="350"
 														referrerPolicy="strict-origin-when-cross-origin"
 														src="https://www.youtube.com/embed/65qCx584bVA?si=oITqbz83-ypocwsI"
-														title="YouTube video player"
-														width="100%"
-													/>
+														title="YouTube video player" width="100%" />
 												</div>
 											</div>
 										</figure>
 										<div className="Text_Block_Area">
 											<div className="card_titleDiv">
-												<a
-													href="javascript:void(0);"
-													//onclick="js_method();return false;"
-													tabIndex={0}
-													target="_blank"
-													title="">
+												<a href="https://www.youtube.com/@taiwantradmus8182?sub_confirmation=1" tabIndex={0} target="_blank" title="">
 													<div className="card_title">
-														【2025大學OPEN
-														DAY系列影音】｜國立臺北藝術大學傳統音樂學系」
+														【2025大學OPEN DAY系列影音】｜國立臺北藝術大學傳統音樂學系」
 													</div>
 												</a>
 											</div>
@@ -113,14 +62,7 @@ export const AboutPage = () => {
 								</article>
 								<div className="col-12 + btn-w100-wrapper justify-content-center mt-3 mb-5">
 									<div className="customize_btn">
-										<a
-											className="Btn_a"
-											href="javascript:void(0);"
-											role="button"
-											tabIndex={0}
-											target="_self"
-											title="更多系所公告"
-											type="button">
+										<a className="Btn_a" href="https://www.youtube.com/@taiwantradmus8182?sub_confirmation=1" role="button" tabIndex={0} target="_blank" title="更多傳音系影音" type="button">
 											<div className="BtnBox">
 												<span>More View</span>
 												<span className="ml-2">+</span>
@@ -144,32 +86,25 @@ export const AboutPage = () => {
 													以保存、傳承、研究並發展傳統音樂為宗旨，結合傳統藝術傳承理念與經驗和高等教育體系，兼融傳統與現代精神，發展精緻傳統音樂，並隨著臺灣移民社會及國際視野之需，延伸至亞洲許多地區傳統音樂的涉獵與實作。在強調傳承與發展在地傳統的同時，也積極開發傳統音樂於當代社會的各種可能的發展和應用，並且透過跨文化音樂技藝的養成，以培養具本國音樂專業技藝、國際文化視野與時代感的新世代音樂人才。
 												</span>
 											</div>
-											<a
+											{/* <a
 												aria-label="[全文展開]"
 												className="About_label_btn"
 												href="javascript:void(0);"
 												role="button"
 												tabIndex={0}
 												title="[ 全文展開 ]"
-												type="button"></a>
+												type="button"></a> */}
 										</div>
 										<p />
 									</div>
 									<div className="col-12 + btn-w100-wrapper justify-content-start mt-5">
 										<div className="customize_btn">
-											<a
-												className="Btn_a"
-												href="javascript:void(0);"
-												role="button"
-												tabIndex={0}
-												target="_self"
-												title="更多系所公告"
-												type="button">
+											<LangLink className="Btn_a" to="/department/department-intro" role="button" tabIndex={0} target="_self" title="更多傳音系介紹" type="button">
 												<div className="BtnBox">
 													<span>More View</span>
 													<span className="ml-2">+</span>
 												</div>
-											</a>
+											</LangLink>
 										</div>
 									</div>
 									<div className="col-12 + w100-wrapper justify-content-start mt-5">
@@ -180,14 +115,7 @@ export const AboutPage = () => {
 														<figure className="figure_Box">
 															<div className="card_youtube_figure">
 																<div className="img-wrapper">
-																	<iframe
-																		allow="autoplay"
-																		frameBorder="no"
-																		height="165"
-																		scrolling="no"
-																		src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/666345588&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"
-																		width="100%"
-																	/>
+																	<iframe allow="autoplay" frameBorder="no" width="100%" height="165" scrolling="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A530105151&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true" />
 																</div>
 															</div>
 														</figure>
@@ -200,14 +128,7 @@ export const AboutPage = () => {
 														<figure className="figure_Box">
 															<div className="card_youtube_figure">
 																<div className="img-wrapper">
-																	<iframe
-																		allow="autoplay"
-																		frameBorder="no"
-																		height="165"
-																		scrolling="no"
-																		src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/666345588&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"
-																		width="100%"
-																	/>
+																	<iframe allow="autoplay" frameBorder="no" height="165" scrolling="no" width="100%" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A530109579&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true" />
 																</div>
 															</div>
 														</figure>
@@ -218,19 +139,12 @@ export const AboutPage = () => {
 									</div>
 									<div className="col-12 + btn-w100-wrapper justify-content-center mt-3">
 										<div className="customize_btn">
-											<a
-												className="Btn_a"
-												href="javascript:void(0);"
-												role="button"
-												tabIndex={0}
-												target="_self"
-												title="更多系所公告"
-												type="button">
+											<LangLink className="Btn_a" to="/videos/online-msc" role="button" tabIndex={0} target="_self" title="更多音樂線上試聽" type="button">
 												<div className="BtnBox">
 													<span>More View</span>
 													<span className="ml-2">+</span>
 												</div>
-											</a>
+											</LangLink>
 										</div>
 									</div>
 								</div>
@@ -240,9 +154,5 @@ export const AboutPage = () => {
 				</div>
 			</div>
 		</section>
-
-
-
-
 	);
 };

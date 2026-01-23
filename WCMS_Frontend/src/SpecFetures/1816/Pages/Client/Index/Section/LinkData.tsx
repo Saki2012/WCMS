@@ -1,53 +1,19 @@
 
 import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
-import { useBannerListData } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Hook";
 import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
-import * as SchemaFields from "@/types/SchemaFields";
 import { useEffect, useMemo, useRef } from "react";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { LangLink } from "@/SysCore/i18n/LangLink";
+import type { Lang } from "@/SysCore/i18n/lang";
+import bgImg from "@/SpecFetures/1816/Assets/Client/images/bg/background-transparent-image_1920x600.png"
 
 declare global { interface Window { Swiper?: any } }
 type BannerSet = components["schemas"]["BannerSet_DTO"]
-const emptyData: BannerSet = {
-	Banner: {},
-	BannerDetail: [
-		{
-			RowId: 1,
-			Validate_Start: "",
-			Validate_End: "",
-			PicSrcId: "",
-			FontColor: "",
-		}
-	],
-	BannerDetailInfo: [
-		{
-			ParentRowId: 1,
-			RowId: 1,
-			Lang: "zh-tw",
-			Title: "",
-			Content: "",
-			URL: "",
-			URL_Open: 1,
-		},
-		{
-			ParentRowId: 1,
-			RowId: 2,
-			Lang: "en",
-			Title: "",
-			Content: "",
-			URL: "",
-			URL_Open: 1,
-		}
-	]
-}
 
-export const LinkData = () => {
-	const usebannerList = useBannerListData(`${SchemaFields.BannerFields.BannerId} = Banner20251106005`)
-	const bannerInternal = usebannerList.rawData?.[0]?.Banner?.InternalId ?? ""
-	const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), bannerInternal, emptyData)
-	const loadingList = [useBanner.isLoading, usebannerList.isLoading]
-	const errorList = [useBanner.error, usebannerList.error]
+
+export const LinkData = (props: { lang: Lang }) => {
+	const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), "aaf84f7c-3521-4288-9c2e-c75b43f14c56", {})
 	const sortedDetails = useMemo(() => {
 		const list = useBanner.data?.BannerDetail ?? [];
 		// 依 Detail.Sort 由小到大
@@ -58,7 +24,6 @@ export const LinkData = () => {
 			return as - bs || (a.RowId ?? 0) - (b.RowId ?? 0);
 		});
 	}, [useBanner.data?.BannerDetail]);
-
 	const swiperRef = useRef<HTMLDivElement | null>(null);
 	useEffect(() => {
 		if (typeof window === "undefined" || !swiperRef.current) return;
@@ -92,9 +57,8 @@ export const LinkData = () => {
 		})();
 		return () => { try { instance?.destroy(true, true); } catch { } };
 	}, []);
-
 	return (
-		<section className="Link-icons_section Layout_Padding_4_bottom" style={{ backgroundImage: "url(/images/bg/background-transparent-image_1920x600.png)", }}>
+		<section className="Link-icons_section Layout_Padding_4_bottom" style={{ backgroundImage: bgImg, }}>
 			<div className="Mask-DivBox">
 				<div className="customizeBox">
 					<div className="container-customize2">
@@ -103,26 +67,25 @@ export const LinkData = () => {
 								<div className="swiper" id="icon_area" ref={swiperRef}>
 									<div className="swiper-wrapper">
 										{sortedDetails.map((p, i) => {
-											const alt = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.Title ?? ""
-											const url = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.URL ?? ""
+											const info = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang);
+											const alt = info?.Title ?? ""
+											const url = info?.URL ?? ""
+											const tar = info?.URL_Open === 0 ? "_self" : "_blank"
 											return (
 												<div key={i} className="swiper-slide">
 													<div className="item">
-														<a href={url} tabIndex={0} target="_blank" title={alt}>
+														<LangLink to={url} tabIndex={0} target={tar} title={alt}>
 															<div className="icon-wrapper">
 																<div className="icon-area">
 																	<div className="icon-type-image">
-																		<img
-																			alt={alt}
-																			src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`}
-																		/>
+																		<img alt={alt} src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} />
 																	</div>
 																</div>
 																<div className="tit-contents">
 																	<div className="Link-icons-title">{alt}</div>
 																</div>
 															</div>
-														</a>
+														</LangLink>
 													</div>
 												</div>
 											)

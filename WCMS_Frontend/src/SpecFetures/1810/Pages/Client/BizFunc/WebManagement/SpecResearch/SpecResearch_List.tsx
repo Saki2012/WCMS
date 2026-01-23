@@ -11,6 +11,7 @@ import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { useGetShowColumnItems } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Hook";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import { SpecResearchDetailModelFields, SpecResearchModelFields } from "@/types/SchemaFields";
+import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 
 const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, showColumns: string[]) => {
     var condition: string = "";
@@ -90,9 +91,11 @@ const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, 
                 `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Professor}`,
             ],
             Condition: condition,
+            RankGroups: [{ Condition: `${SpecResearchModelFields.ContentStatus} & 1` }],
             OrderBy: [
                 { Col: `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Year}`, Desc: true },
                 { Col: `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.AcademicYear}`, Desc: true },
+                { Col: `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Semester}`, Desc: false },
             ],
             PageNumber: page,
             PageSize: 15,
@@ -105,7 +108,7 @@ const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, 
                     if (col.key === SpecResearchDetailModelFields.ApprovedAmount ||
                         col.key === SpecResearchDetailModelFields.PlanAmount) {
                         let val = detail ? (detail as Record<string, any>)[col.key] ?? "" : "";
-                        content = new Intl.NumberFormat("zh-TW", { style: "decimal", }).format(val)
+                        content = new Intl.NumberFormat(lang, { style: "decimal", }).format(val)
                     }
                     else
                         content = detail ? (detail as Record<string, any>)[col.key] ?? "" : "";
@@ -134,6 +137,7 @@ export const SpecResearchListComp = (props: ISpecResearchListProps) => {
     const errors = [useSpecResearch.error];
     return (
         <LoadingErrorHandler loadingList={isLoading} errorList={errors} >
+            <OperationGuideHelp_Comp />
             <Grid gridData={useSpecResearch.gridProps} style={props.Theme.GridView} pageStyle={props.Theme.Paginator}></Grid>
         </LoadingErrorHandler>
     )

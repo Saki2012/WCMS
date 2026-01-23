@@ -1,0 +1,356 @@
+/* ===============================
+   Spec1819 - Layout / Author Cards
+   目標：
+   - PC：3 欄滿版等比例
+   - 平板：2 欄
+   - 手機：1 欄
+   - 卡片寬度不要看起來太窄
+   =============================== */
+
+/* 讓這一段區塊確實吃滿容器寬度（避免外層有寬度限制時看起來很窄） */
+.JJ_main_contentDIV,
+.JJ_main_contentDIV .row_item_group,
+.Uncat {
+  width: 100%;
+}
+
+/* 如果有用到 Uncat_no_ls，保險清掉預設 list 間距 */
+.Uncat_no_ls {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* ===== Grid 容器 ===== */
+.AuthorCardGrid {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* ===== Grid Item（欄位）===== */
+.AuthorCardGrid__item {
+  width: 33.3333%;
+  box-sizing: border-box;
+
+  /* ✅ 這裡是你覺得太窄的關鍵之一：原本 1.25rem 會讓三欄視覺變窄 */
+  padding: 0 0.75rem;
+
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+/* ===== 直分隔線（PC 3 欄）===== */
+.AuthorCardGrid__item::after {
+  content: "";
+  position: absolute;
+  top: 0.5rem;
+  right: 0;
+  width: 1px;
+  height: calc(100% - 1rem);
+  background: #d9d9d9;
+  display: block;
+}
+
+/* 每列第 3 個（3n）不畫右分隔線 */
+.AuthorCardGrid__item:nth-child(3n)::after {
+  display: none;
+}
+
+/* ===== 卡片本體 ===== */
+.AuthorCard {
+  background: #f3f3f3;
+  border-radius: 10px;
+  padding: 1.25rem;
+
+  /* ✅ 同列高度一致（視覺更滿版） */
+  height: 100%;
+}
+
+/* ===== 卡片標題 ===== */
+.AuthorCard__title {
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  line-height: 1.35;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.AuthorCard__nameZh {
+  font-size: 1.1rem;
+}
+
+.AuthorCard__nameEn {
+  font-size: 1.05rem;
+  word-break: break-word;
+}
+
+/* ===== 內容列 ===== */
+.AuthorCard__rows {
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.AuthorCard__label {
+  font-weight: 700;
+}
+
+.AuthorCard__value {
+  word-break: break-word;
+}
+
+/* email 連結基本可讀性 */
+.AuthorCard__rows a {
+  text-decoration: underline;
+}
+
+/* ===== RWD：平板 2 欄 ===== */
+@media (max-width: 992px) {
+  .AuthorCardGrid__item {
+    width: 50%;
+    padding: 0 0.75rem;
+  }
+
+  /* 2 欄時：每列第 2 個不畫右線 */
+  .AuthorCardGrid__item::after {
+    display: block;
+  }
+  .AuthorCardGrid__item:nth-child(2n)::after {
+    display: none;
+  }
+}
+
+/* ===== RWD：手機 1 欄 ===== */
+@media (max-width: 576px) {
+  .AuthorCardGrid__item {
+    width: 100%;
+    padding: 0;
+  }
+
+  /* 手機不需要分隔線 */
+  .AuthorCardGrid__item::after {
+    display: none;
+  }
+}
+
+/* ===============================
+   DOI + QR（右側）
+   =============================== */
+.doiRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.doiText {
+  flex: 1;
+  min-width: 0;
+}
+
+.doiQr {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card_title_en{
+  margin-top: 0.35rem;   /* 與中文標題的距離 */
+  font-size: 0.9rem;     /* ✅ 小一點 */
+  font-weight: 500;      /* 比主標題淡一點 */
+  line-height: 1.4;
+  word-break: break-word; /* 避免長英文溢出 */
+}
+
+.bib-list { margin: 0; padding-left: 1.25rem; }
+.bib-item { margin-bottom: 1rem; }
+
+.bib-zh { margin: 0; font-size: 1rem; }
+.bib-en { margin: 0.35rem 0 0; font-size: 0.95rem; opacity: 0.85; }
+.bib-link:hover { text-decoration: underline; }
+
+
+/* ===============================
+   Spec1819 - Journal Search (統一版)
+   目標：首頁/內頁同一顆元件外觀一致、對齊一致
+   =============================== */
+
+.Spec1819-JournalSearch {
+  /* 統一視覺寬度，不會因為外層容器不同就忽大忽小 */
+  width: 100%;
+  max-width: 560px;
+
+  /* 讓元素彼此有固定間距 */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  /* 可依你想要的位置調整：內頁如果需要靠右可改成 margin-left:auto; */
+  /* margin-left: auto; */
+}
+
+/* 第一列：label + field 同列對齊 */
+.Spec1819-JournalSearch__row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* label 固定寬度：確保首頁/內頁都對齊 */
+.Spec1819-JournalSearch__label {
+  flex: 0 0 8.5rem; /* ✅ 你覺得太寬/太窄就改這裡 */
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* 右側輸入框容器吃滿 */
+.Spec1819-JournalSearch__field {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ✅ 你原本的 searchDIV 在不同頁吃到不同樣式
+   這裡直接把它「收斂成一致」 */
+.Spec1819-JournalSearch .searchDIV {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+/* input 高度統一 */
+.Spec1819-JournalSearch .searchDIV .form-control {
+  height: 40px;
+  line-height: 40px;
+}
+
+/* button 高度、寬度統一，置中 icon */
+.Spec1819-JournalSearch .searchDIV button {
+  height: 40px;
+  width: 44px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* 讓按鈕看起來像 input-group 的右端 */
+  border: 1px solid #ced4da;
+  border-left: 0;
+  background: #fff;
+}
+
+/* input 右側圓角交給 button */
+.Spec1819-JournalSearch .searchDIV .form-control {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.Spec1819-JournalSearch .searchDIV button {
+  border-top-right-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
+}
+
+/* 第二列 checkbox：左邊縮排到「跟輸入框起點一致」 */
+.Spec1819-JournalSearch__checkRow {
+  padding-left: calc(8.5rem + 0.75rem); /* ✅ 要跟 label 寬度 + gap 對應 */
+}
+
+/* checkbox 那一行不要被外層影響 */
+.Spec1819-JournalSearch__checkRow .form-check {
+  margin: 0;
+}
+
+/* RWD：窄螢幕改成直排，checkbox 不縮排 */
+@media (max-width: 576px) {
+  .Spec1819-JournalSearch__row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+  }
+
+  .Spec1819-JournalSearch__label {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .Spec1819-JournalSearch__checkRow {
+    padding-left: 0;
+  }
+}
+
+/* ===============================
+   Spec1819 - Journal Search (對齊修正覆蓋版)
+   只針對內頁 label 偏高：鎖定 label 的高度/對齊方式
+   =============================== */
+
+.Spec1819-JournalSearch__row {
+  align-items: center;
+}
+
+/* ✅ 關鍵：不要讓 label 吃 baseline/line-height 撐高 */
+.Spec1819-JournalSearch__label {
+  display: inline-flex;      /* 用 flex 排除 baseline 問題 */
+  align-items: center;       /* 垂直置中 */
+  height: 40px;              /* 跟 input 同高（你 input 已固定 40px） */
+  line-height: 1 !important; /* 強制不被外層 line-height 撐高 */
+  padding: 0 !important;     /* 避免外層對 label 加 padding */
+}
+
+/* 有些頁面會對 form label 設 position/transform，這裡保險清掉 */
+.Spec1819-JournalSearch__label {
+  position: static !important;
+  transform: none !important;
+}
+.Spec1819-JournalSearch__label { 
+  padding-top: 1px !important; 
+}
+
+/* ===============================
+   Focus 樣式統一（對齊 1816/1817/1818）
+   - 滑鼠點擊：清掉 focus 背景
+   - 鍵盤操作：保留 focus-visible 外框（AA）
+   =============================== */
+
+a, a:hover { 
+  text-decoration: none; 
+}
+
+a:focus {
+  outline: none;
+  background-color: transparent;
+  color: inherit;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--a_focusbordercolor);
+  outline-offset: 2px;
+  background-color: var(--a_focuscolor);
+  color: var(--blackcolor) !important;
+}
+
+a:active {
+  background-color: var(--a_focuscolor) !important;
+  transition: background-color 0.15s ease-out;
+}
+
+/* ✅ 滑鼠點擊後仍會 focus：但不是鍵盤 focus-visible 的情況，放開後清掉底色/光暈
+   ✅ 但「按住(active)」時不要清掉，讓你按住時仍有黃色提示 */
+a:focus:not(:focus-visible):not(:active) {
+  outline: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  color: inherit !important;
+}
+
+/* ✅ 常見 Bootstrap 元件也一起處理 */
+.nav-link:focus:not(:focus-visible):not(:active),
+.btn:focus:not(:focus-visible):not(:active) {
+  outline: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}

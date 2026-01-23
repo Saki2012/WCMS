@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.SiteEdit.Category;
 using WCMS.Features.SiteEdit.PageManagement;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 
@@ -16,7 +17,7 @@ namespace WCMS.Features.SiteEdit.Tag
     public class TagData : MasterDataModel
     {
         /// <summary>
-        /// 類別ID
+        /// 標籤ID
         /// </summary>
         [Key, StringLength(SysLengthParam.ID)] public string TagId { get; set; } = string.Empty;
         /// <summary>
@@ -41,7 +42,7 @@ namespace WCMS.Features.SiteEdit.Tag
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [StringLength(SysLengthParam.Lang)] public string Lang { get; set; } = string.Empty;
+        public LangCode Lang { get; set; }
         /// <summary>
         /// 標籤名稱
         /// </summary>

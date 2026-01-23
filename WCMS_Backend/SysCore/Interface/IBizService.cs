@@ -75,7 +75,7 @@ namespace WCMS.SysCore.Interface
         /// <param name="pageCt"></param>
         /// <param name="takeCt"></param>
         /// <returns></returns>
-        public Task<IList<TSet>> BizQueryListAsync(string[] selectFields, string condition,IReadOnlyList<OrderBySpec> orderBy, int pageNumber, int pageSize);
+        public Task<IList<TSet>> BizQueryListAsync(string[] selectFields, string condition, IReadOnlyList<OrderBySpec> orderBy,IReadOnlyList<RankGroupsSpec>rankGroups, int pageNumber, int pageSize);
         /// <summary>
         /// 獲取清單總頁數
         /// </summary>
@@ -83,23 +83,23 @@ namespace WCMS.SysCore.Interface
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public Task<int> BizQueryTotalCounts(string[] selectFields, string condition);
+        public Task<int> BizQueryTotalCounts(string condition);
 
         /// <summary>
         /// 啟用交易控制(非同步)
         /// </summary>
         /// <returns></returns>
-        public Task BeginTransactionAsync();
+        public Task<bool> TryBeginTransactionAsync();
         /// <summary>
         /// 回滾交易控制(非同步)
         /// </summary>
         /// <returns></returns>
-        public Task RollbackTransactionAsync();
+        public Task TryRollbackAsync(bool ownsTx);
         /// <summary>
         /// 執行更新(非同步)
         /// </summary>
         /// <param name="action"></param>
-        public Task CommitDataAsync();
+        public Task TryCommitAsync(bool ownsTx);
         #endregion
     }
 

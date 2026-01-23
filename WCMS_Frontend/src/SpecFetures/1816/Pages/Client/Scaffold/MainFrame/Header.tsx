@@ -1,15 +1,17 @@
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import { A11yContent } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Header";
-import { Link, NavLink } from "react-router-dom";
+import { A11yContent, type HeaderProps } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Header";
 import LogoImg from '@/SpecFetures/1816/Assets/Client/images/logo/LOGO_525x60.svg'
-import { Fragment, useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";
+import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
+import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
+import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap";
 
-const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
+const Header = (props: HeaderProps) => {
     const headerRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
         if (typeof window === "undefined") return;
@@ -81,7 +83,7 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
         <>
             <A11yContent />
             <div id="Site-Header" className="ALL_Header_DivBar main-header" ref={headerRef}>
-                <Header_Section />
+                <Header_Section {...props} />
                 <Menu_Section {...props} />
                 <div className="overlayer" aria-hidden="true" />
             </div>
@@ -91,7 +93,7 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
 }
 export default Header
 
-const Header_Section = () => {
+const Header_Section = (props: HeaderProps) => {
     const sizeGroupRef = useRef<HTMLUListElement | null>(null);
     useEffect(() => {
         const root = sizeGroupRef.current;
@@ -117,10 +119,10 @@ const Header_Section = () => {
             <div className="navsBox">
                 <div className="container-customize2">
                     <ul className="nav custom_nav justify-content-xl-end justify-content-center">
-                        <NavBar />
+                        <NavBar lang={props.lang} />
                         <li>
                             <ul className="nav custom_nav py-0 justify-content-center my-1" ref={sizeGroupRef}>
-                                <LangChange />
+                                <LangSwitchBtn site={props.site} />
                                 <SizeChange />
                             </ul>
                         </li>
@@ -130,34 +132,38 @@ const Header_Section = () => {
         </header>
     </section>)
 }
-const NavBar = () => {
-    return (<li>
-        <ul className="nav custom_nav py-0 justify-content-center my-1">
-            <a accessKey="U" href="#U" className="accesskey_header U" title="上方導覽區(U)" tabIndex={0}>:::</a>
-            <li className="nav-item">
-                <a className="nav-link" href="/" tabIndex={0} target="_self" title="圖書館首頁">圖書館首頁</a>
-            </li>
-            <li className="nav-item">
-                <a className="nav-link" href="00_page_login_(BS.5_New).html" tabIndex={0} target="_self" title="北藝大首頁">北藝大首頁</a>
-            </li>
-            <li className="nav-item">
-                <a className="nav-link" href="javascript:void(0);" tabIndex={0} target="_self" title="網站導覽">網站導覽</a>
-            </li>
-        </ul>
-    </li>
+const NavBar = (props: { lang: Lang; }) => {
+
+    const title =
+        props.lang === 'zh-tw' ? {
+            Home: "圖書館首頁",
+            TNUA: "臺北藝術大學",
+            SiteMap: "網站導覽"
+        } :
+            props.lang === 'en' ? {
+                Home: "Home",
+                TNUA: "TNUA",
+                SiteMap: "SiteMap"
+            } : {}
+
+    return (
+        <li>
+            <ul className="nav custom_nav py-0 justify-content-center my-1">
+                <a accessKey="U" href="#U" className="accesskey_header U" title="上方導覽區(U)" tabIndex={0}>:::</a>
+                <li className="nav-item">
+                    <LangLink className="nav-link" to="/" tabIndex={0} target="_self" title={title.Home}>{title.Home}</LangLink>
+                </li>
+                <li className="nav-item">
+                    <a className="nav-link" href="https://w3.tnua.edu.tw/" tabIndex={0} target="_blank" title={title.TNUA}>{title.TNUA}</a>
+                </li>
+                <li className="nav-item">
+                    <LangLink className="nav-link" to={`/${SITEMAP_SEGMENT}`} tabIndex={0} target="_self" title={title.SiteMap}>{title.SiteMap}</LangLink>
+                </li>
+            </ul>
+        </li>
     )
 }
-const LangChange = () => {
-    return (<li>
-        <div className="icons">
-            <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
-                <a id="linkE" href="javascript:void(0);" type="button" role="button" title="英文版" tabIndex={0}>
-                    <div className="link-text">English</div>
-                </a>
-            </div>
-        </div>
-    </li>)
-}
+
 const SizeChange = () => {
     const doZoom = useCallback((px: number) => { document.documentElement.style.fontSize = `${px}px`; localStorage.setItem('font-zoom', String(px)); }, []);
     useEffect(() => { const saved = +localStorage.getItem('font-zoom')!; if (saved) doZoom(saved); }, [doZoom]);
@@ -165,7 +171,7 @@ const SizeChange = () => {
         <li>
             <div className="icons">
                 <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
-                    <a className="A-LMS" href="javascript:void(0);" onClick={() => { doZoom(20) }} type="button" role="button" title="字型-大" tabIndex={0} data-size="20">
+                    <a className="A-LMS" onClick={() => { doZoom(20) }} type="button" role="button" title="字型-大" tabIndex={0} data-size="20">
                         <div className="LMS-text">大</div>
                     </a>
                 </div>
@@ -174,7 +180,7 @@ const SizeChange = () => {
         <li>
             <div className="icons">
                 <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
-                    <a className="A-LMS" href="javascript:void(0);" onClick={() => { doZoom(18) }} type="button" role="button" title="字型-中" tabIndex={0} data-size="18">
+                    <a className="A-LMS" onClick={() => { doZoom(18) }} type="button" role="button" title="字型-中" tabIndex={0} data-size="18">
                         <div className="LMS-text">中</div>
                     </a>
                 </div>
@@ -183,7 +189,7 @@ const SizeChange = () => {
         <li>
             <div className="icons">
                 <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-0">
-                    <a className="A-LMS active" href="javascript:void(0);" onClick={() => { doZoom(16) }} type="button" role="button" title="字型-小" tabIndex={0} data-size="16">
+                    <a className="A-LMS active" onClick={() => { doZoom(16) }} type="button" role="button" title="字型-小" tabIndex={0} data-size="16">
                         <div className="LMS-text">小</div>
                     </a>
                 </div>
@@ -194,6 +200,42 @@ const SizeChange = () => {
 const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
 
     const menuRef = useRef<HTMLDivElement | null>(null);
+    // 關閉 bootstrap collapse（若 bootstrap 不存在就手動拔 class）
+    const hideNavbarCollapse = useCallback((root: HTMLElement) => {
+        const el = document.getElementById("navbar-content");
+        if (!el) return;
+        const bs = (window as any).bootstrap;
+        if (bs?.Collapse) {
+            bs.Collapse.getOrCreateInstance(el, { toggle: false }).hide();
+            return;
+        }
+        el.classList.remove("show");
+    }, []);
+    // 重設漢堡按鈕狀態（aria + hamburger active）
+    const resetHamburger = useCallback((root: HTMLElement) => {
+        const toggler = root.querySelector<HTMLElement>(".navbar-toggler");
+        toggler?.classList.add("collapsed");
+        toggler?.setAttribute("aria-expanded", "false");
+        toggler?.querySelector<HTMLElement>(".hamburger")?.classList.remove("active");
+    }, []);
+    // 關閉 Site-Header 的 overlay 狀態（避免 body 被鎖住）
+    const closeHeaderOverlay = useCallback((root: HTMLElement) => {
+        const header = root.closest("#Site-Header") as HTMLElement | null;
+        header?.classList.remove("active");
+        document.body.style.overflow = "auto";
+    }, []);
+    // 子項點擊後：全部收合
+    const collapseAll = useCallback(() => {
+        if (typeof window === "undefined") return;
+        const root = menuRef.current;
+        if (!root) return;
+
+        hideNavbarCollapse(root);
+        resetHamburger(root);
+        closeHeaderOverlay(root);
+    }, [hideNavbarCollapse, resetHamburger, closeHeaderOverlay]);
+
+
     useEffect(() => {
         if (typeof window === "undefined") return;
         const root = menuRef.current;
@@ -232,79 +274,10 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
             btn.querySelector<HTMLElement>(".hamburger")?.classList.toggle("active");
         };
         navbarToggler?.addEventListener("click", onBurgerClick);
-        // ---------- 4) Mega menu：桌機 hover、手機只用點擊，點外面關閉 ----------
-        const BREAKPOINT = 992; // 跟 navbar-expand-lg 對齊
-        const megaEls = Array.from(root.querySelectorAll<HTMLElement>(".dropdown-mega"));
-        const closeAllExcept = (keep?: HTMLElement) => {
-            megaEls.forEach(d => {
-                if (keep && d === keep) return;
-                d.classList.remove("show");
-                d.querySelector<HTMLElement>(".dropdown-menu")?.classList.remove("show");
-                d.querySelector<HTMLElement>(".dropdown-toggle")?.setAttribute("aria-expanded", "false");
-            });
-        };
-        const openMega = (d: HTMLElement) => {
-            closeAllExcept(d);
-            d.classList.add("show");
-            d.querySelector<HTMLElement>(".dropdown-menu")?.classList.add("show");
-            d.querySelector<HTMLElement>(".dropdown-toggle")?.setAttribute("aria-expanded", "true");
-        };
-        const closeMega = (d: HTMLElement) => {
-            d.classList.remove("show");
-            d.querySelector<HTMLElement>(".dropdown-menu")?.classList.remove("show");
-            d.querySelector<HTMLElement>(".dropdown-toggle")?.setAttribute("aria-expanded", "false");
-        };
-        // 桌機寬度才吃 hover
-        const onMegaEnter = (e: Event) => {
-            if (window.innerWidth < BREAKPOINT) return; // 手機寬 → 忽略 hover
-            const d = e.currentTarget as HTMLElement;
-            openMega(d);
-        };
-        const onMegaLeave = (e: Event) => {
-            if (window.innerWidth < BREAKPOINT) return; // 手機寬 → 忽略 hover
-            const d = e.currentTarget as HTMLElement;
-            closeMega(d);
-        };
-        // 個別 toggle 的 click handler 需要保存以便清掉
-        const toggleClickMap = new Map<HTMLElement, (e: Event) => void>();
-        megaEls.forEach(d => {
-            const t = d.querySelector<HTMLElement>(".dropdown-toggle");
-            // 桌機：仍然綁 hover
-            d.addEventListener("mouseenter", onMegaEnter);
-            d.addEventListener("mouseleave", onMegaLeave);
-            if (t) {
-                const h = (e: Event) => {
-                    e.preventDefault(); // 避免直接導頁
-                    const isOpen = d.classList.contains("show");
-                    if (isOpen) {
-                        closeMega(d);
-                    } else {
-                        openMega(d);
-                    }
-                };
-                t.addEventListener("click", h);
-                toggleClickMap.set(t, h);
-            }
-        });
-        const onDocClick = (e: MouseEvent) => {
-            if (!root.contains(e.target as Node)) closeAllExcept();
-        };
-        document.addEventListener("click", onDocClick);
+
+
         // ---------- cleanup ----------
-        return () => {
-            submenuEls.forEach(el => {
-                el.removeEventListener("mouseenter", onMouseEnter);
-                el.removeEventListener("keydown", onKeyEnter);
-            });
-            toggleEls.forEach(el => el.removeEventListener("keydown", toggleKeyHandler));
-            navbarToggler?.removeEventListener("click", onBurgerClick);
-            megaEls.forEach(d => {
-                d.removeEventListener("mouseenter", onMegaEnter);
-                d.removeEventListener("mouseleave", onMegaLeave);
-            });
-            toggleClickMap.forEach((h, el) => el.removeEventListener("click", h));
-            document.removeEventListener("click", onDocClick);
-        };
+        return () => { };
     }, []);
     return (
         <section className="menu_section">
@@ -314,8 +287,8 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
                         <div className="navbar navbar-expand-lg navbar-dark px-0 py-0" ref={menuRef}>
                             <LogoComp />
                             <MobileBtn />
-                            <MainMenu {...props} />
-                            <PCBtn />
+                            <MainMenu {...props} onCollapseAll={collapseAll} menuRootRef={menuRef} />
+                            {/* <SearchBtn /> */}
                         </div>
                     </div>
                 </div>
@@ -326,9 +299,9 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
 const LogoComp = () => {
     return (
         <h1 className="logo">
-            <Link className="navbar-brand" to="/" tabIndex={0} title="">
+            <LangLink className="navbar-brand" to="/" tabIndex={0} title="">
                 <img src={LogoImg} alt=" LOGO" />
-            </Link>
+            </LangLink>
         </h1>
     )
 }
@@ -337,7 +310,7 @@ const MobileBtn = () => {
         <div className="mobile-box">
             <div className="icons">
                 <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-1 mx-0 d-inline-block">
-                    <a href="javascript:void(0);" className="search-button" type="button" role="button" title="搜尋" id="mobile-sss" data-bs-toggle="dropdown" aria-expanded="false" tabIndex={0}>
+                    <a className="search-button" type="button" role="button" title="搜尋" id="mobile-sss" data-bs-toggle="dropdown" aria-expanded="false" tabIndex={0}>
                         <i className="far fa-search" aria-hidden="true"></i>
                         <span className="sr-only">搜尋</span>
                     </a>
@@ -360,30 +333,76 @@ const MobileBtn = () => {
         </a>
     </>);
 }
-const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
-    const menuItems = GetMenuData(props.lang, props.site)
+const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme; onCollapseAll?: () => void; menuRootRef?: React.RefObject<HTMLElement>; }) => {
+    const [openId, setOpenId] = useState<string | null>(null);
+    const menuItems = useMemo(() => { return GetMenuData(props.lang, props.site); }, [props.lang, props.site]);
+    const toggleOpen = useCallback((id: string) => { setOpenId(prev => (prev === id ? null : id)); }, []);
+    const onLeafClick = useCallback(() => { setOpenId(null); props.onCollapseAll?.(); }, [props]);
+    // 點外面自動收合第一層（桌機/手機都適用）
+    useEffect(() => {
+        if (typeof window === "undefined") return;
 
+        const root = props.menuRootRef?.current;
+        if (!root) return;
+
+        const onPointerDown = (e: PointerEvent) => {
+            const target = e.target as Node;
+
+            // 1) 點 navbar 外：收合全部（含手機漢堡）
+            if (!root.contains(target)) {
+                setOpenId(null);
+                props.onCollapseAll?.();
+                return;
+            }
+
+            // 2) 點 navbar 內，但不在「目前展開的那個 dropdown 區塊」：只收合 dropdown
+            if (!openId) return;
+
+            const openLi = root.querySelector<HTMLElement>(`li[data-menu-id="${openId}"]`);
+            if (!openLi) {
+                setOpenId(null);
+                return;
+            }
+
+            if (!openLi.contains(target)) {
+                setOpenId(null);
+            }
+        };
+
+        // capture=true：避免被其他 click handler 擋掉
+        document.addEventListener("pointerdown", onPointerDown, true);
+        return () => document.removeEventListener("pointerdown", onPointerDown, true);
+    }, [openId, props]);
     return (
         <div id="navbar-content" className="collapse navbar-collapse overflow-scroll-Y">
             <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
-                {menuItems.map((item) => {
+                {menuItems.map(item => {
+                    const hasChildren = (item.SubItem ?? []).length > 0;
+
+                    if (!hasChildren) {
+                        return <SingleMenuItem key={item.Id} menuItem={item} />;
+                    }
+
                     return (
-                        <Fragment key={item.Id} >
-                            {/* <SingleMenuItem menuItem={item} />
-                        <DropdownMenuItem menuItem={item} /> */}
-                            <MegaMenuItem menuItem={item} />
-                        </Fragment >)
+                        <MegaMenuItem
+                            key={item.Id}
+                            menuItem={item}
+                            isOpen={openId === String(item.Id)}
+                            onToggle={toggleOpen}
+                            onLeafClick={onLeafClick}
+                        />
+                    );
                 })}
             </ul>
         </div>
     )
 }
-const PCBtn = () => {
+const SearchBtn = () => {
     return (
         <div className="pc-box">
             <div className="icons">
                 <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1 d-inline-block">
-                    <a href="javascript:void(0);" className="search-button" type="button" role="button" title="搜尋" id="pc-sss" data-bs-toggle="dropdown" aria-expanded="false" tabIndex={0}>
+                    <a className="search-button" type="button" role="button" title="搜尋" id="pc-sss" data-bs-toggle="dropdown" aria-expanded="false" tabIndex={0}>
                         <i className="far fa-search" aria-hidden="true"></i>
                         <span className="sr-only">搜尋</span>
                     </a>
@@ -400,9 +419,9 @@ const PCBtn = () => {
 const SingleMenuItem = (props: { menuItem: MenuItemData }) => {
     return (
         <li className="nav-item">
-            <NavLink className="nav-link" aria-current="page" to={props.menuItem.Url} role="button" tabIndex={0} title={props.menuItem.SrcData} aria-label={props.menuItem.SrcData}>
+            <LangNavLink className="nav-link" aria-current="page" to={props.menuItem.Url} role="button" tabIndex={0} title={props.menuItem.SrcData} aria-label={props.menuItem.SrcData}>
                 {props.menuItem.SrcData}
-            </NavLink>
+            </LangNavLink>
         </li>
     );
 };
@@ -410,9 +429,9 @@ const SingleMenuItem = (props: { menuItem: MenuItemData }) => {
 const DropdownMenuItem = (props: { menuItem: MenuItemData; }) => {
     return (
         <li className="nav-item dropdown">
-            <NavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} role="button" tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside">
+            <LangNavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} role="button" tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside">
                 {props.menuItem.SrcData}
-            </NavLink>
+            </LangNavLink>
             {/* 第二層（原本的 <ul className="dropdown-menu">） */}
             <ul className="dropdown-menu">
                 {renderDropdownItems(props.menuItem.SubItem, 0)}
@@ -421,32 +440,50 @@ const DropdownMenuItem = (props: { menuItem: MenuItemData; }) => {
     );
 };
 /** 3. Mega 選項：明細動態渲染 */
-const MegaMenuItem = (props: { menuItem: MenuItemData; }) => {
-    const tar = props.menuItem.URL_Open
-    return (
-        <li className="nav-item dropdown dropdown-mega position-static">
-            <NavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside" target={tar}>
-                {props.menuItem.SrcData}
-            </NavLink>
+interface IMegaMenuItemProps {
+    menuItem: MenuItemData;
+    isOpen: boolean;
+    onToggle: (id: string) => void;
+    onLeafClick: () => void;
+}
+const MegaMenuItem = (props: IMegaMenuItemProps) => {
+    const id = String(props.menuItem.Id);
+    const menuDomId = `mega-${id}`;
+    const liClass = props.isOpen
+        ? "nav-item dropdown dropdown-mega position-static show"
+        : "nav-item dropdown dropdown-mega position-static";
+    const menuClass = props.isOpen ? "dropdown-menu show" : "dropdown-menu";
 
-            <div className="dropdown-menu">
+    return (
+        <li className={liClass} data-menu-id={id}>
+            <button
+                type="button"
+                className="nav-link dropdown-toggle"
+                aria-expanded={props.isOpen}
+                aria-controls={menuDomId}
+                onClick={() => props.onToggle(id)}
+            >
+                {props.menuItem.SrcData}
+            </button>
+
+            <div id={menuDomId} className={menuClass}>
                 <div className="mega-content">
                     <div className="container-customize2">
                         <div className="row">
                             {props.menuItem.SubItem.map((col, colIndex) => (
                                 <div key={colIndex} className="col-12 col-sm-4 col-md-3">
-                                    {/* 每一欄的標題 */}
                                     <div className="mega-item-tilte">{col.SrcData}</div>
 
-                                    {/* 每一欄底下的連結列表 */}
                                     <div className="list-group">
                                         {(col.SubItem ?? []).map((link, linkIndex) => {
-                                            const subTar = link.URL_Open
+                                            const subTar = link.URL_Open;
                                             return (
-                                                <NavLink key={linkIndex} className="list-group-item" to={link.Url || "#"} tabIndex={0} target={subTar}>
+                                                <LangNavLink key={linkIndex} className="list-group-item" to={link.Url || "#"}
+                                                    tabIndex={0} target={subTar} onClick={props.onLeafClick} // ✅ 點子項後自動收合
+                                                >
                                                     {link.SrcData}
-                                                </NavLink>
-                                            )
+                                                </LangNavLink>
+                                            );
                                         })}
                                     </div>
                                 </div>
@@ -460,6 +497,7 @@ const MegaMenuItem = (props: { menuItem: MenuItemData; }) => {
 };
 
 const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] => {
+    if (!site) return [];
     const roots = site.treeByLang?.[lang] ?? [];
     if (!roots) return [];
     return buildMenuItems(roots, 0);
@@ -480,9 +518,9 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
             // 純連結項目
             return (
                 <li key={key}>
-                    <NavLink className="dropdown-item" to={item.Url || "#"} role="button" tabIndex={0}>
+                    <LangNavLink className="dropdown-item" to={item.Url || "#"} role="button" tabIndex={0}>
                         {item.SrcData}
-                    </NavLink>
+                    </LangNavLink>
                 </li>
             );
         }
@@ -490,9 +528,9 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
         const submenuClassName = parentDepth === 0 ? "dropdown-menu" : "dropdown-menu dropdown-submenu";
         return (
             <li key={key} className="dropend submenu">
-                <NavLink to={item.Url || "#"} role="button" tabIndex={0} className="dropdown-item dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                <LangNavLink to={item.Url || "#"} role="button" tabIndex={0} className="dropdown-item dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                     {item.SrcData}
-                </NavLink>
+                </LangNavLink>
 
                 <ul className={submenuClassName}>
                     {renderDropdownItems(item.SubItem ?? [], parentDepth + 1)}

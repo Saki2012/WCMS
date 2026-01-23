@@ -1,18 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Data;
-using System.Diagnostics;
-using WCMS.Features.SiteEdit.Announcement;
-using WCMS.Features.SiteEdit.PageManagement;
+using WCMS.Features.BizResx;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.Interface;
-using WCMS.SysCore.Library;
-using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
-using WCMS.SysCore.SystemFunc.FileManagement;
+using WCMS.SysCore.Library.LibAttribute;
 
 namespace WCMS.Features.SiteEdit.Banner
 {
-    [ApiController, Route(SysParam.ServiceRoute)]
+    [LibApiController(ModuleCode.WebManagement, PGID.Banner, SysEnum.FuncAction.MasterData)]
     public class BannerController: ApiDataController<BannerSet, BannerSet_DTO>{}
 }

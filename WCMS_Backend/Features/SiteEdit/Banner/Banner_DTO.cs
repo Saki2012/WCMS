@@ -1,19 +1,19 @@
-﻿using System.Text.Json.Serialization;
-using WCMS.Features.SiteEdit.Announcement;
-using WCMS.SysCore.Library;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Banner
 {
-    public class BannerSet_DTO : ITSet_DTO
+    public partial class BannerSet_DTO : ITSet_DTO
     {
         [LibDesc] public Banner_DTO Banner { get; set; } = new();
         [LibDesc] public List<BannerDetail_DTO> BannerDetail { get; set; } = [];
         [LibDesc] public List<BannerDetailInfo_DTO> BannerDetailInfo { get; set; } = [];
     }
-    public class Banner_DTO : DTOBasicDataModel
+    public partial class Banner_DTO : DTOBasicDataModel
     {
         /// <summary>
         /// 橫幅ID
@@ -44,7 +44,7 @@ namespace WCMS.Features.SiteEdit.Banner
         public List<BannerDetail_DTO>? _BannerDetail { get; set; }
         #endregion
     }
-    public class BannerDetail_DTO
+    public partial class BannerDetail_DTO
     {
         /// <summary>
         /// 
@@ -74,9 +74,13 @@ namespace WCMS.Features.SiteEdit.Banner
         /// 播放順序
         /// </summary>
         [LibDesc(ModelDisplayName.Banner_Sort)] public ushort Sort { get; set; }
-        [LibDesc] public List<BannerDetailInfo_DTO> BannerDetailInfo { get; set; } = [];
+
+        #region 主子表關聯
+        public Banner_DTO? _Banner { get; set; }
+        public List<BannerDetailInfo_DTO>? _BannerDetailInfo { get; set; }
+        #endregion
     }
-    public class BannerDetailInfo_DTO
+    public partial class BannerDetailInfo_DTO
     {
         /// <summary>
         /// 
@@ -93,7 +97,7 @@ namespace WCMS.Features.SiteEdit.Banner
         /// <summary>
         /// 語系
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Lang)] public string? Lang { get; set; }
+        [LibDesc(ModelDisplayName.Common_Lang)] public LangCode? Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>
@@ -108,5 +112,9 @@ namespace WCMS.Features.SiteEdit.Banner
         /// 網址開啟方式
         /// </summary>
         [LibDesc(ModelDisplayName.Common_UrlOpen)] public WindowTarget URL_Open { get; set; }
+
+        #region 主子表關聯
+        public BannerDetail_DTO? _BannerDetail { get; set; }
+        #endregion
     }
 }

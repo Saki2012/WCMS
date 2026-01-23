@@ -6,13 +6,13 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
-import { Link } from "react-router-dom";
-import type { NaviData } from "@/SysCore/Components/NaviBar/NaviBar_Data";
-import NaviBarComp from "@/SysCore/Components/NaviBar/NaviBar_Comp";
 import MenuListComp from "@/SysCore/Components/MenuList/MenuList_Comp";
 import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import logImg from "@/SpecFetures/1810/Assets/Client/images/logo/logo_450x80.svg";
 import subLogImg from "@/SpecFetures/1810/Assets/Client/images/logo/logo_M320_191x60.svg";
+import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
+import clsx from "clsx";
+import { SpecLangSwitchBtn } from "./SpecLangSwitchBtn";
 
 
 export const Header = ({ lang, site, style }: { lang: Lang; site: INormSite; style: IFETheme }) => {
@@ -33,12 +33,12 @@ export const Header = ({ lang, site, style }: { lang: Lang; site: INormSite; sty
                                 <div className="leftBox">
                                     <div className="logo">
                                         <h1>
-                                            <a className="P_logo" href="/" title={data.Title} tabIndex={1}>
+                                            <LangNavLink className="P_logo" to="/" title={data.Title} tabIndex={1}>
                                                 <img src={data.SrcImg} alt={data.Title} />
-                                            </a>
-                                            <a className="M320_logo" href="/" title={data.Title} tabIndex={1}>
+                                            </LangNavLink>
+                                            <LangNavLink className="M320_logo" to="/" title={data.Title} tabIndex={1}>
                                                 <img src={data.SubSrcImg} alt={data.Title} />
-                                            </a>
+                                            </LangNavLink>
                                         </h1>
                                     </div>
                                 </div>
@@ -79,22 +79,6 @@ const MainMenu = (prop: { lang: Lang; site: INormSite; style: IFETheme }) => {
     const translateRef = useRef<HTMLDivElement>(null);
     const navsRef = useRef<HTMLDivElement>(null);
     const menuItems = GetMenuData(prop.lang, prop.site)
-    const Mock_naviData: NaviData[] = [
-        {
-            Id: "", SrcData: "", Url: "",
-            DOMContent: <Link className="nav-link" to="/" target="_self" title="首頁" onClick={() => closeMenu()}>首頁</Link>
-        },
-        {
-            Id: "", SrcData: "", Url: "",
-            DOMContent: <Link className="nav-link" to="https://www.ntua.edu.tw/" target="_self" title="臺藝大校首頁" onClick={() => closeMenu()}>臺藝校首頁</Link>
-        },
-        {
-            Id: "", SrcData: "", Url: "",
-            DOMContent: <Link className="nav-link" to="Sitemap" target="_self" title="網站導覽" onClick={() => closeMenu()}>網站導覽</Link>
-        },
-    ]
-
-
     useEffect(() => {
         if (typeof window === 'undefined') return;
         const scriptId = 'google-translate-script';
@@ -108,11 +92,11 @@ const MainMenu = (prop: { lang: Lang; site: INormSite; style: IFETheme }) => {
         window.googleTranslateElementInit = () => {
             if (translateRef.current) {
                 new window.google.translate.TranslateElement({
-                    pageLanguage: 'zh-TW',
+                    pageLanguage: prop.lang,
                 }, translateRef.current);
             }
         };
-    }, []);
+    }, [prop.lang]);
 
     const menuRef = useRef<HTMLUListElement>(null);
     useLegacyMenuDOM(menuRef);
@@ -133,7 +117,28 @@ const MainMenu = (prop: { lang: Lang; site: INormSite; style: IFETheme }) => {
                 {/* // topBox上方選單 // */}
                 <div className="topBox">
                     <div className="navsBox" ref={navsRef}>
-                        <NaviBarComp items={Mock_naviData} style={prop.style.NaviBarMenu} />
+
+                        <ul className={clsx("nav", "Customize_Nav")}>
+                            <li className={clsx("nav-item")}>
+                                <LangLink className="nav-link" to="/" target="_self" title="首頁" onClick={() => closeMenu()}>首頁</LangLink>
+                            </li>
+
+                            <li className={clsx("nav-item")}>
+                                <LangLink className="nav-link" to="https://www.ntua.edu.tw/" target="_blank" title="臺藝大校首頁" onClick={() => closeMenu()}>臺藝校首頁</LangLink>
+                            </li>
+
+                            <li className={clsx("nav-item")}>
+                                <LangLink className="nav-link" to="Sitemap" target="_self" title="網站導覽" onClick={() => closeMenu()}>網站導覽</LangLink>
+                            </li>
+
+                            <li className={clsx("nav-item")}>
+                                <SpecLangSwitchBtn site={prop.site} />
+                            </li>
+                        </ul>
+
+
+
+
                     </div>
                 </div>
                 {/* // topBox上方選單 end // */}
@@ -314,6 +319,9 @@ function useHeaderBehaviorRef(headerRef: React.RefObject<HTMLElement | null>) {
             btnClose?.removeEventListener('click', toggleActive);
             overlay?.removeEventListener('click', toggleActive);
             window.removeEventListener('scroll', handleScroll);
+            // ✅ 保險：避免路由切換/卸載時殘留鎖 scroll
+            document.body.style.overflow = "auto";
+            headerEl.classList.remove("active");
         };
     }, [headerRef]);
 }

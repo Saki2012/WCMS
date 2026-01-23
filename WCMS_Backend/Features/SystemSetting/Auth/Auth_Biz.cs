@@ -1,4 +1,5 @@
 ﻿using WCMS.Features.Member.Account;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library.Security;
 
@@ -21,7 +22,7 @@ namespace WCMS.Features.SystemSetting.Auth
         public async Task<User_DTO> FindByAccountAsync(string account)
         {
             string[] selectFields = [nameof(AccountModel.AccountId)];
-            var userResult = await AccountBiz.BizQueryListAsync(selectFields, $"{nameof(AccountModel.PersonId)} = {account}", default, 0, 0);
+            var userResult = await AccountBiz.BizQueryListAsync(selectFields, $"{nameof(AccountModel.PersonId)} = {account}", default,default, 0, 0);
             var user = userResult.FirstOrDefault().Account;
             return new User_DTO(){UserId = user.PersonId,AccountStatus = user.AccountStatus};
         }
@@ -44,11 +45,12 @@ namespace WCMS.Features.SystemSetting.Auth
         private async Task<(bool ok, User_DTO userInfo)> SignInAsync(string account, string password)
         {
             string[] selectFields = [nameof(AccountModel.InternalId), nameof(AccountModel.AccountId), nameof(AccountModel.AccountName), nameof(AccountModel.PasswordHash), nameof(AccountModel.PasswordSalt), nameof(AccountModel.PasswordAlgoVer),nameof(AccountModel.AccountStatus)];
-            IList<AccountSet> userResult = await AccountBiz.BizQueryListAsync(selectFields, $"{nameof(AccountModel.AccountId)} = {account}", default, 0, 0);
+            IList<AccountSet> userResult = await AccountBiz.BizQueryListAsync(selectFields, $"{nameof(AccountModel.AccountId)} = {account}", default,default, 0, 0);
             var set = userResult.FirstOrDefault();
             if (set is null) return (false,default);
             var ok = PasswordHasher.Verify(password, set.Account.PasswordHash, set.Account.PasswordSalt, set.Account.PasswordAlgoVer);
             if (!ok) return (false,default);
+            if (set.Account.AccountStatus != SysEnum.AccountStatus.Enable) return (false, default);
             return (true, new User_DTO
             {
                 UserId = set.Account.AccountId,

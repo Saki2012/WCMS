@@ -1,11 +1,11 @@
 // src/SysCore/Utils/Routes.tsx
 import { createBrowserRouter, type RouteObject } from "react-router-dom";
 import { createStaticHandler, createStaticRouter, type StaticHandlerContext } from "react-router-dom/server";
-import type { IRouteModule } from "../../Interface/IBaseRouter";
-import { LangGuard } from "./LangGuardRoute";
-import { langGuardLoader } from "./langGuardLoader";
-import type { Lang } from "../../i18n/lang";
-import { AutoRedirect } from "./AutoRedirect";
+import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
+import { LangGuard } from "@/SysCore/Utils/Route/LangGuardRoute";
+import { langGuardLoader } from "@/SysCore/Utils/Route/langGuardLoader";
+import type { Lang } from "@/SysCore/i18n/lang";
+import { Error404Page } from "@/Features/Pages/Client/Scaffold/MainFrame/ErrorPage";
 
 // 把模組的絕對子路徑轉相對；"/" 改成 index:true
 const normalizeChildren = (routes: RouteObject[]): RouteObject[] =>
@@ -14,9 +14,7 @@ const normalizeChildren = (routes: RouteObject[]): RouteObject[] =>
         const clone: RouteObject = { ...r };
 
         // 先遞迴處理子層
-        if (hasChildren) {
-            clone.children = normalizeChildren(clone.children!);
-        }
+        if (hasChildren) clone.children = normalizeChildren(clone.children!);
 
         // A) "/"：有 children → 變成路由群組(path:"")；沒有 children → 變成 index
         if (clone.path === "/") {
@@ -52,7 +50,6 @@ export const buildRoutes = async (boot: Boot): Promise<RouteObject[]> => {
     const routes = await boot.module.getRoutes();   // 等待 Promise
     const children = normalizeChildren(routes);
 
-
     return [
         // /:lang 家族（只做語系正規化）
         {
@@ -60,8 +57,9 @@ export const buildRoutes = async (boot: Boot): Promise<RouteObject[]> => {
             loader: langGuardLoader,
             element: <LangGuard ssrAcceptLang={boot.lang} cookieLang={boot.cookieLang} />,      // 元件內只用 useLoaderData 取 resolvedLang；不再 useNavigate 導頁
             children: [
+                { path: "404", element: <Error404Page /> },
                 ...children,
-                { path: "*", element: <AutoRedirect to="." replace /> },
+                { path: "*", element: <Error404Page /> },
             ],
         },
         // 根 "/" 家族（不 redirect，只注入語系）
@@ -70,8 +68,9 @@ export const buildRoutes = async (boot: Boot): Promise<RouteObject[]> => {
             loader: langGuardLoader,
             element: <LangGuard ssrAcceptLang={boot.lang} cookieLang={boot.cookieLang} />,
             children: [
+                { path: "404", element: <Error404Page /> },
                 ...children,
-                { path: "*", element: <AutoRedirect to="." replace /> },
+                { path: "*", element: <Error404Page /> },
             ],
         },
     ];

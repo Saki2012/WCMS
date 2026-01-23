@@ -6,9 +6,11 @@ using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Resx;
+using WCMS.SysCore.Library.LibAttribute;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
@@ -50,11 +52,13 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
                     int.TryParse(dRow["AcademicYear"].ToString(), out int academicYear);
                     decimal.TryParse(dRow["PlanAmount"].ToString().Replace(",", ""), out decimal planAmount);
                     decimal.TryParse(dRow["ApprovedAmount"].ToString().Replace(",", ""), out decimal approvedAmount);
+
+                    LangCodeExt.TryParse(dRow["Lang"].ToString(), out LangCode lang);
                     SpecResearchDetailModel detail = new()
                     {
                         ResearchId = set.SpecResearch.ResearchId,
                         RowId = rowId++,
-                        Lang = dRow["Lang"].ToString(),
+                        Lang = lang,
                         Year = year,
                         AcademicYear = academicYear,
                         Semester = dRow["Semester"].ToString(),

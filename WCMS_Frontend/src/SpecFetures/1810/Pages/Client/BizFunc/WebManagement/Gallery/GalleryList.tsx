@@ -12,11 +12,11 @@ import GalleryProvider from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gall
 import { useCategoryListData } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { useLocation } from "react-router";
-import { Link } from "react-router-dom";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { Paginator } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import type { IGalleryListProps } from "@/Features/Pages/Client/BizFunc/WebManagement/Gallery/GalleryList";
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 
 const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
     var condition: string = "";
@@ -48,6 +48,7 @@ const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
                 `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title}`,
             ],
             Condition: condition,
+            RankGroups: [{ Condition: `${GalleryFields.ContentStatus} & 1` }],
             OrderBy: [{ Col: GalleryFields.Validate_Start, Desc: true }, { Col: GalleryFields.CreateTime, Desc: true }],
             PageNumber: page,
             PageSize: 12,
@@ -80,7 +81,7 @@ const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {
 };
 
 const GalleryListComp = (props: IGalleryListProps) => {
-    const useCategoryList = useCategoryListData(ProgId.Gallery, props.lang)
+    const useCategoryList = useCategoryListData(PGID.Gallery, props.lang)
     const useListData = useGalleryList(props.lang, props.options?.Category ?? "", props.options?.Tag ?? "");
     const isLoading = [useListData.isLoading, useCategoryList.isLoading, useCategoryList.isLoading];
     const errors = [useListData.error, useCategoryList.error, useCategoryList.error];
@@ -153,7 +154,7 @@ const MainContent = ({ props, gridProps, theme }: { props: MainGridContentProp[]
             <div className="row margin_0">
                 {props.map((prop, idx) => (
                     <div className="col-xxl-3 col-xl-4 col-lg-6 col-md-6 col-sm-6 col-12 photo_standardbox">
-                        <Link key={idx} to={`${dirUrl}/${prop.galleryInternalId}`} title={prop.Title}>
+                        <LangLink key={idx} to={`${dirUrl}/${prop.galleryInternalId}`} title={prop.Title}>
                             <div className="img-box">
                                 <img className="img-fluid" src={`${FileManagementAPI.PREVIEW_URL}/${prop.CoverPicInternlId}`} alt={prop.Title} />
                             </div>
@@ -173,7 +174,7 @@ const MainContent = ({ props, gridProps, theme }: { props: MainGridContentProp[]
                                     </div>
                                 </div>
                             </figcaption>
-                        </Link>
+                        </LangLink>
                     </div>
                 ))}
             </div>

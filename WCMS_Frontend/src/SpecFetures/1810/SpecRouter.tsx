@@ -1,7 +1,7 @@
 // SpecFeatures/1810/Router.ts
 import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
 import { loadClientChildren } from "@/Features/Pages/Client/Route/ClientRouter";
-import { BackendRouteModule } from "@/Features/Pages/Server/ServerRouter";
+import { BackendRouteModule } from "@/Features/Pages/Server/Scaffold/Routes/ServerRouter";
 import type { RouteObject } from "react-router-dom";
 import { type INormNode, type INormSite, type ModuleEntry } from "@/Features/Pages/Client/Route/Site-Routing";
 import SubPage from "@/SpecFetures/1810/Pages/Client/Scaffold/SubPages/SubPage";
@@ -11,6 +11,7 @@ import { SpecResearchListComp, type ISpecResearchListOptions } from "@/SpecFetur
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 import { SpecUSRFormComp } from "@/SpecFetures/1810/Pages/Client/BizFunc/WebManagement/SpecUSR/SpecUSR_Form";
 import type { Lang } from "@/SysCore/i18n/lang";
+import type { IHeaderMetaProps } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 
 
 export class SpecRouteModule implements IRouteModule {
@@ -44,3 +45,6 @@ export const specClientEntries: Record<string, ModuleEntry> = {
     ],
   },
 };
+
+
+export const siteHeaderMeta: IHeaderMetaProps = { title: "國立臺灣藝術大學_研究發展處", description: "國立臺灣藝術大學_研究發展處" };

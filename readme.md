@@ -90,12 +90,37 @@
     - 如需在原本功能二次開發，請繼承後討論是否開出Virtual Function處理
     - 新增的任何單元，皆以Spec作為開頭
 
+DB表格欄位版本衝突解決方式:
+
+1. 產生BaseLine版本
+dotnet ef migrations add Baseline --context ApplicationDbContext
+
+2. 剛生成的快照Baseline.cs要把Up/Down的內容清空
+dotnet ef database update
+
+3. 透過完整連線字串去讀舊DB的當前版本：
+$settings = Get-Content .\appsettings.Development.json -Raw | ConvertFrom-Json
+$conn = $settings.ConnectionStrings.SqlConnection
+dotnet ef dbcontext scaffold "$conn" Microsoft.EntityFrameworkCore.SqlServer --context TempBaselineDbContext --startup-project .\WCMS.csproj --project .\WCMS.csproj --output-dir Migrations/_BaselineScaffold --use-database-names --no-pluralize --schema dbo
+dotnet ef migrations add TempSnap_1_1 --context WCMS.Migrations._BaselineScaffold.TempBaselineDbContext --startup-project .\WCMS.csproj --project .\WCMS.csproj --output-dir Migrations/_BaselineScaffold/__TempMigrations
+
+4. 把 v1.1 模型「植入」正式 Snapshot：
+A. 開 Migrations/_BaselineScaffold/__TempMigrations/..._TempSnap_1_1.Designer.cs，複製 BuildTargetModel 大括號內全部內容。
+B. 開 Migrations/ApplicationDbContextModelSnapshot.cs，把 BuildModel(...) 方法內原有內容 整段換成 第 1 步複製的內容。
+C. 建置一次（缺 using 就補：Microsoft.EntityFrameworkCore.*、Metadata 等）。
+
+5. 產生「當前DB → 最新」真正差異遷移並套用：
+dotnet ef migrations add Upgrade_1_1_to_Latest --context ApplicationDbContext
+dotnet ef database update --context ApplicationDbContext
+
+
 後端開發規範
 1. 所有顯示說明的文字，皆透過.resx做動態多語系處理
 2. 禁止在邏輯區寫固定的定義值，若需要仍要用宣告方式處理
 3. 務必區分出公開的API時機(Public)、業務流程(Protect)、以及實作過程(Private)
 4. 有寫到Try-catch時，除非真的異常結果需要無視後繼續往下走之外，一律throw給ErrorHandlingMiddleware處理
 5. 有關時區存儲一律寫UTC作為依據，以作為之後跨區需求
+6. Spec的Model/API層用Partial來追加Feature客製需求/Biz用繼承
 
 前端程式架構
 - src
@@ -223,3 +248,27 @@ IIS與環境設定:
     2. 啟用Proxy
         A. 點擊右邊 Server Proxy Settings
         B. 打勾 Enable proxy
+		
+		
+---中間版本衝突處理方式：
+1. 產生BaseLine版本
+dotnet ef migrations add Baseline --context ApplicationDbContext
+剛生成的快照Baseline.cs要把Up/Down的內容清空
+dotnet ef database update
+
+2. 透過完整連線字串去讀舊DB的當前版本：
+
+$settings = Get-Content .\appsettings.Development.json -Raw | ConvertFrom-Json
+$conn = $settings.ConnectionStrings.SqlConnection
+dotnet ef dbcontext scaffold "$conn" Microsoft.EntityFrameworkCore.SqlServer --context TempBaselineDbContext --startup-project .\WCMS.csproj --project .\WCMS.csproj --output-dir Migrations/_BaselineScaffold --use-database-names --no-pluralize --schema dbo
+dotnet ef migrations add TempSnap_1_1 --context WCMS.Migrations._BaselineScaffold.TempBaselineDbContext --startup-project .\WCMS.csproj --project .\WCMS.csproj --output-dir Migrations/_BaselineScaffold/__TempMigrations
+
+
+3. 把 v1.1 模型「植入」正式 Snapshot：
+A. 開 Migrations/_BaselineScaffold/__TempMigrations/..._TempSnap_1_1.Designer.cs，複製 BuildTargetModel 大括號內全部內容。
+B. 開 Migrations/ApplicationDbContextModelSnapshot.cs，把 BuildModel(...) 方法內原有內容 整段換成 第 1 步複製的內容。
+C. 建置一次（缺 using 就補：Microsoft.EntityFrameworkCore.*、Metadata 等）。
+
+4. 產生「當前DB → 最新」真正差異遷移並套用：
+dotnet ef migrations add Upgrade_1_1_to_Latest --context ApplicationDbContext
+dotnet ef database update --context ApplicationDbContext

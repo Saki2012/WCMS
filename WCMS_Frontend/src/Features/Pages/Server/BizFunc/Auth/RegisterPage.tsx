@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthAPI, UserAPI } from '../../../../../SysCore/Utils/API/AuthClient';
+import { LangLink } from '@/SysCore/i18n/LangLink';
 
 
 
@@ -98,9 +99,9 @@ export const RegisterPage: React.FC = () => {
                 <div className="page-title mr-3">會員註冊 Register</div>
                 <ul className="switcher-wrap">
                   <li>
-                    <Link to="/Server/Login" className="switcher-btn">
+                    <LangLink to="/Server/Login" className="switcher-btn">
                       會員登入 Login
-                    </Link>
+                    </LangLink>
                   </li>
                 </ul>
               </div>
@@ -283,9 +284,9 @@ export const RegisterPage: React.FC = () => {
                     <div className="col-md-6 col-sm-12 col-12">
                       <div className="Form-DivBox">
                         <div className="form-group">
-                          <Link to="/Server/Login" className="w-100" role="button" title="取消返回">
+                          <LangLink to="/Server/Login" className="w-100" role="button" title="取消返回">
                             <button type="button" className="btn-fill w-100">取消返回 Cancel</button>
-                          </Link>
+                          </LangLink>
                         </div>
                       </div>
                     </div>
@@ -310,7 +311,7 @@ export const RegisterPage: React.FC = () => {
             <div className="col-12 d-flex justify-content-sm-center justify-content-start px-3">
               <p className="mb-2">
                 Copyright &copy; 2024 - 後台管理系統　|　design by <a href="#">it-easygo.</a>　|
-                <Link to="/Server/Login">管理者登入</Link>
+                <LangLink to="/Server/Login">管理者登入</LangLink>
               </p>
             </div>
           </div>

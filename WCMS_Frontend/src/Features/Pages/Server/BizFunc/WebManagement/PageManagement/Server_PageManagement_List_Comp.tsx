@@ -6,12 +6,12 @@ import { useLocation } from 'react-router-dom';
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp"
 import type { components } from "@/types/api";
 import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
-import { PageManagementSetFields, PageManagementFields, PageManagementDetailFields } from "@/types/SchemaFields";
+import { PageManagementSetFields, PageManagementFields, PageManagementDetailFields, AccountFields } from "@/types/SchemaFields";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions";
 import { GridCol_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp";
 import PageManagementProvider from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Api";
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
@@ -26,10 +26,10 @@ export const PageListComp = (prop: { title: string; theme: IBETheme; lang: Lang 
     const pathname = useLocation().pathname;
     const provider = useMemo(() => PageManagementProvider(), []);
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
-    const useCategory = useCategoryListData(ProgId.PageManagement, prop.lang);
+    const useCategory = useCategoryListData(PGID.PageManagement, prop.lang);
     const usePageList = usePageManagementListData(provider, prop.lang, kw);
     const actions = useActions(dirUrl, PageManagementProvider(), undefined, undefined, usePageList.refetchCurrent)
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions); }, [dirUrl, usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions]);
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(prop.lang, usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions); }, [dirUrl, usePageList.gridProps, usePageList.rawData, useCategory.rawData, actions]);
     const searchCompProp: SearchBarProps = { title: "頁面搜尋", subTitle: "搜尋頁面 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
     const isLoading = [usePageList.isLoading, useCategory.isLoading];
     const errors = [usePageList.error, useCategory.error];
@@ -37,7 +37,7 @@ export const PageListComp = (prop: { title: string; theme: IBETheme; lang: Lang 
     return (<ListComp Title={prop.title} Theme={prop.theme} LoadingList={isLoading} ErrorList={errors} Actions={actions} GridData={adjustedGrid} SearchBar={searchCompProp}></ListComp>);
 }
 /** 動態添加每行的動作功能 */
-const SetAdjustFunction = (gridProps: GridProps, rawData: PageManagementSet[], categoryData: CategoryDataSet[], actions: UseActionsResult): GridProps => {
+const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: PageManagementSet[], categoryData: CategoryDataSet[], actions: UseActionsResult): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
@@ -50,7 +50,7 @@ const SetAdjustFunction = (gridProps: GridProps, rawData: PageManagementSet[], c
         const categoryCell = row.cells.find(p => p.col.key === PageManagementFields.CategoryId);
         const rawCatId = rawData?.[index]?.PageManagement?.CategoryId ?? categoryCell?.content?.toString() ?? "";
         if (categoryCell) {
-            categoryCell.content = useFormatCategoriesName(rawCatId, categoryData);
+            categoryCell.content = useFormatCategoriesName(rawCatId, categoryData, lang);
         }
         const internalId = rawData?.[index]?.PageManagement?.InternalId ?? "";
         const newCell: RowCell = {
@@ -111,6 +111,7 @@ const usePageManagementListData = (provider: IDataProvider<PageManagementSet>, l
                 `${PageManagementFields._PageManagementDetail}.${PageManagementDetailFields.Lang}`,
                 `${PageManagementFields._PageManagementDetail}.${PageManagementDetailFields.Title}`,
                 PageManagementFields.ModifyUserId,
+                `${PageManagementFields.ModifyUser}.${AccountFields.AccountName}`,
                 // 缺Name
                 PageManagementFields.CreateTime,
                 PageManagementFields.ModifyTime,
@@ -135,6 +136,9 @@ const usePageManagementListData = (provider: IDataProvider<PageManagementSet>, l
                     case PageManagementFields.CreateTime:
                     case PageManagementFields.ModifyTime:
                         content = FormatDateTime((data as any)[col.key]);
+                        break;
+                    case PageManagementFields.ModifyUserId:
+                        content = item.PageManagement?.ModifyUser?.AccountName ?? "";
                         break;
                     default:
                         content = (data as any)[col.key] ?? "";

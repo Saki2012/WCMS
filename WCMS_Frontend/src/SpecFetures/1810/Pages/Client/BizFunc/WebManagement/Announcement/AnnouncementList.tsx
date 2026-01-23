@@ -21,11 +21,13 @@ import { Paginator } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 import { useNow } from "@/SysCore/Utils/Library/LibHook";
 
 import DefaultEventImg from "@/SpecFetures/1810/Assets/Custom/DefaultEventPic_940x1330.jpg"
 import type { IAnnouncementListProps } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList";
+import { LangLink } from "@/SysCore/i18n/LangLink";
+import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
@@ -71,6 +73,7 @@ const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string, 
                 AnnouncementFields.ViewCount,
             ],
             Condition: condition,
+            RankGroups: [{ Condition: `${AnnouncementFields.ContentStatus} & 1` }],
             OrderBy: [{ Col: AnnouncementFields.Validate_Start, Desc: true }, { Col: AnnouncementFields.CreateTime, Desc: true }],
             PageNumber: page,
             PageSize: 12,
@@ -111,20 +114,20 @@ const AnnouncementList = (props: IAnnouncementListProps) => {
     const [queryDraft, setQueryDraft] = useState<ISearchQuery>({});
     const [query, setQuery] = useState<ISearchQuery>({});
     const useAnnounceList = useAnnouncementList(props.lang, props.options?.Category ?? "", props.options?.Tag ?? "", query);
-    const useCategory = useCategoryListData(ProgId.Announcement, props.lang);
-    const useTagData = useTagListData(ProgId.Announcement, props.lang);
+    const useCategory = useCategoryListData(PGID.Announcement, props.lang);
+    const useTagData = useTagListData(PGID.Announcement, props.lang);
     const tags = (useTagData.rawData ?? []).map(t => ({ id: t.TagData?.TagId ?? "", name: t.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "" }));
     const searchSlot = <SearchBarComp value={queryDraft} tags={tags} onChange={(k, v) => setQueryDraft(prev => ({ ...prev, [k]: v }))} onSubmit={() => setQuery(queryDraft)} onReset={() => { setQueryDraft({}); setQuery({}); }} />;
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData]);
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(props.lang, dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData]);
     const isLoading = [useAnnounceList.isLoading, useTagData.isLoading];
     const errors = [useAnnounceList.error, useTagData.error];
 
     const content: React.ReactElement | null = useMemo(() => {
         switch (props.options?.Style) {
             case 3:
-                return <QAList_Comp key="qa" GridData={adjustedGrid} Theme={props.theme} />;
+                return <QAList_Comp key="qa" lang={props.lang} GridData={adjustedGrid} Theme={props.theme} />;
             case 2:
-                return <PictureList_Comp key="picture" GridData={adjustedGrid} Theme={props.theme} />;
+                return <PictureList_Comp key="picture" lang={props.lang} GridData={adjustedGrid} Theme={props.theme} />;
             case 1:
             default: // 含 case 1
                 return <GridList_Comp key="grid" GridData={adjustedGrid} Theme={props.theme} />
@@ -144,7 +147,7 @@ const AnnouncementList = (props: IAnnouncementListProps) => {
 
 export default AnnouncementList
 
-const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[], catData: CategorySet[], tagData: TagSet[]): GridProps => {
+const SetAdjustFunction = (lang: Lang, dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[], catData: CategorySet[], tagData: TagSet[]): GridProps => {
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
         const curRow = rawData?.[index];
         const internalId = curRow.Announcement?.InternalId ?? "";
@@ -155,10 +158,10 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: Announ
 
             switch (cell.col.key) {
                 case AnnouncementFields.Categories:
-                    cell.content = useFormatCategoriesName(curRow.Announcement?.Categories ?? "", catData)
+                    cell.content = useFormatCategoriesName(curRow.Announcement?.Categories ?? "", catData, lang)
                     break;
                 case AnnouncementFields.Tags:
-                    cell.content = useFormatTagsName(curRow.Announcement?.Tags ?? "", tagData)
+                    cell.content = useFormatTagsName(curRow.Announcement?.Tags ?? "", tagData, lang)
                     break;
             }
 
@@ -166,10 +169,10 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: Announ
                 ...cell,
                 content: (
                     <>
-                        <Link to={`${dirUrl}/${internalId}`} className="link-cell" id={isTitle ? titleId : undefined}
+                        <LangLink to={`${dirUrl}/${internalId}`} className="link-cell" id={isTitle ? titleId : undefined}
                             aria-labelledby={isTitle ? undefined : titleId}>
                             <span aria-hidden={!isTitle}>{cell.content}</span>
-                        </Link>
+                        </LangLink>
 
                         {isTitle &&
                             <>
@@ -191,9 +194,9 @@ const SetAdjustFunction = (dirUrl: string, gridProps: GridProps, rawData: Announ
 
 
 /** 圖文式公告 */
-const PictureList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
+const PictureList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
-    const useCateData = useCategoryListData("Announcement", 'zh-tw');
+    const useCateData = useCategoryListData(PGID.Announcement, prop.lang);
     return (
         <>
             <div className="articles_itemBoxs">
@@ -201,19 +204,19 @@ const PictureList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
                     const internalId = `${dirUrl}/${row.Announcement?.InternalId ?? ""}`
                     const picUrl = row.Announcement?.PictureId ? `${FileManagementAPI.PREVIEW_URL}/${row.Announcement?.PictureId ?? ""}` : DefaultEventImg
                     const picDesc = row.Announcement?.PicDescription ?? ""
-                    const title = row.AnnouncementDetail?.find(p => p.Lang === 'zh-tw')?.Title ?? ""
+                    const title = row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Title ?? ""
                     const date = FormatDate(row.Announcement?.Validate_Start) ?? ""
-                    const catName = useFormatCategoriesName(row.Announcement?.Categories ?? "", useCateData.rawData)
+                    const catName = useFormatCategoriesName(row.Announcement?.Categories ?? "", useCateData.rawData, prop.lang)
                     return (
                         <div key={internalId} className="articles_item col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12">
                             <article className="cardbox">
                                 <div className="card_content">
                                     <figure className="card_figure">
-                                        <Link to={internalId} className="card_image_link" title={title}>
+                                        <LangLink to={internalId} className="card_image_link" title={title}>
                                             <picture>
                                                 <img className="card_image" src={picUrl} alt={picDesc} />
                                             </picture>
-                                        </Link>
+                                        </LangLink>
                                     </figure>
                                     <div className="card_catDiv">
                                         <div className="card_cat">
@@ -225,7 +228,7 @@ const PictureList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
                                         <div className="card_time">{date}</div>
                                     </div>
                                     <div className="card_titleDiv">
-                                        <Link to={internalId} className="card_title" title={title}>{title}</Link>
+                                        <LangLink to={internalId} className="card_title" title={title}>{title}</LangLink>
                                         {
                                             <>
                                                 {isWithinLastNDaysFromString(row.Announcement?.Validate_Start ?? "") && (<span className="label label-warning">最新</span>)}
@@ -235,7 +238,7 @@ const PictureList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
                                         }
                                     </div>
                                     <div className="customize_btn mr-auto mt-2">
-                                        <Link to={internalId} className="Btn_s1">VIEW ALL<span className="ml-2">+</span></Link>
+                                        <LangLink to={internalId} className="Btn_s1">VIEW ALL<span className="ml-2">+</span></LangLink>
                                     </div>
                                 </div>
                             </article>
@@ -249,10 +252,14 @@ const PictureList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
 }
 /** 清單式公告 */
 const GridList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
-    return (<Grid gridData={prop.GridData} style={prop.Theme.GridView} pageStyle={prop.Theme.Paginator}></Grid>)
+    return (
+        <>
+            <OperationGuideHelp_Comp />
+            <Grid gridData={prop.GridData} style={prop.Theme.GridView} pageStyle={prop.Theme.Paginator} />
+        </>)
 }
 /** QA列表式 */
-const QAList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
+const QAList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps }) => {
     return (
         <>
             <div className="faq_content">
@@ -260,13 +267,13 @@ const QAList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
                     <div className="col-12">
                         <div id="accordion" className="FAQBar">
                             {prop.GridData && prop.GridData.rawData.map((row: AnnouncementSet, idx: number) => {
-                                const parseContent = useResolveInternalIds(row.AnnouncementDetail?.find(p => p.Lang === 'zh-tw')?.Content ?? "", { locale: 'zh-tw' });
+                                const parseContent = useResolveInternalIds(row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Content ?? "", { locale: prop.lang });
                                 const content = parseContent.html ? parse(parseContent.html) : null;
                                 return (
                                     <div className={`QA${idx} card`}>
                                         <div className="card-header">
                                             <a className="card-link darkcolor collapsed" data-bs-toggle="collapse" href={`#collapse${idx}`} aria-expanded="false">
-                                                {`${(idx + 1).toString().padStart(2, '0')}. ${row.AnnouncementDetail?.find(p => p.Lang === 'zh-tw')?.Title}`}
+                                                {`${(idx + 1).toString().padStart(2, '0')}. ${row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Title}`}
                                             </a>
                                         </div>
                                         <div id={`collapse${idx}`} className="collapse" data-bs-parent="#accordion">

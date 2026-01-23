@@ -3,7 +3,7 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme"
 import type { GridProps, ColumnConfig, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data"
 import { useMemo, useState } from "react"
 import { useLocation } from 'react-router-dom';
-import { GallerySetFields, GalleryFields, GalleryInfoFields } from "@/types/SchemaFields"
+import { GallerySetFields, GalleryFields, GalleryInfoFields, AccountFields } from "@/types/SchemaFields"
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient"
 import type { components } from "@/types/api";
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp";
@@ -95,8 +95,10 @@ const useGalleryListData = (provider: IDataProvider<GallerySet>, lang: Lang, que
                 GalleryFields.CreateTime,
                 GalleryFields.ModifyTime,
                 GalleryFields.ModifyUserId,
+                `${GalleryFields.ModifyUser}.${AccountFields.AccountName}`,
             ],
             Condition: condition,
+            RankGroups: [{ Condition: `${GalleryFields.ContentStatus} & 1` }],
             OrderBy: [
                 { Col: GalleryFields.CreateTime, Desc: true },
             ],
@@ -115,6 +117,9 @@ const useGalleryListData = (provider: IDataProvider<GallerySet>, lang: Lang, que
                     case GalleryFields.CreateTime:
                     case GalleryFields.ModifyTime:
                         content = FormatDateTime((data as any)[col.key]);
+                        break;
+                    case GalleryFields.ModifyUserId:
+                        content = item.Gallery?.ModifyUser?.AccountName ?? "";
                         break;
                     default:
                         content = (data as any)[col.key] ?? "";

@@ -2,6 +2,7 @@ import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
 
@@ -43,7 +44,7 @@ export const ThirdMenu_Comp = (props: { lang: Lang; site: INormSite; node: INorm
                 <ul className="Rightlist-group">
                     {topMenuData && topMenuData.map((i) => {
                         return (
-                            <li><NavLink className="list-group-item" to={i.Url} title={i.SrcData} target={tar}>{i.SrcData}</NavLink></li>
+                            <li><LangNavLink className="list-group-item" to={i.Url} title={i.SrcData} target={tar}>{i.SrcData}</LangNavLink></li>
                         )
                     })}
                 </ul>

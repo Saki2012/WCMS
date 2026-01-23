@@ -4,9 +4,10 @@ import parse from 'html-react-parser';
 import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
 import PageManagementProvider from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Api";
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
+import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 
 export interface IPageManagementOptions { PageId?: string }
-interface IPageManagementProps { lang: string; theme?: IFETheme; options?: IPageManagementOptions; }
+interface IPageManagementProps { node: INormNode; lang: string; theme?: IFETheme; options?: IPageManagementOptions; }
 const PageManagementFormComp = (props: IPageManagementProps) => {
     const pageData = useFetchFormData(PageManagementProvider(), props.options?.PageId);
     const detail = pageData.data?.PageManagementDetail?.find(d => (d.Lang ?? "").toLowerCase() === props.lang)
@@ -15,7 +16,7 @@ const PageManagementFormComp = (props: IPageManagementProps) => {
     const loadingList: boolean[] = [pageData.isLoading];
     const errorList: (string | null | undefined)[] = [pageData.error];
     return (
-        <ModuleContent title={detail?.Title ?? ""} loadingList={loadingList} errorList={errorList}>
+        <ModuleContent nodeTitle={""} title={detail?.Title ?? ""} loadingList={loadingList} errorList={errorList}>
             {content}
         </ModuleContent>
     )

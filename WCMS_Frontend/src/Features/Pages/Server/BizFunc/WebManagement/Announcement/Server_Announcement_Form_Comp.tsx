@@ -21,7 +21,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 import { useCallback, useMemo, useState } from "react";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 import { PreviewFrame } from "@/Features/Pages/Server/Scaffold/PreviewFrame/PreviewFrame";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
@@ -36,16 +36,13 @@ export const Server_AnnouncementFormComp = (props: { theme: IBETheme; lang: Lang
     const { internalId } = useParams();
     const dirUrl = useLocation().pathname.replace(/\/Form$/, `/Form`);
     const formData = useFetchFormData<AnnouncementSet>(AnnouncementProvider(), internalId, emptyData)
-    const useCategory = useGetCategoryListByProgId(ProgId.Announcement, props.lang);
-    const useTag = useGetTagListByProgId(ProgId.Announcement, props.lang);
+    const useCategory = useGetCategoryListByProgId(PGID.Announcement, props.lang);
+    const useTag = useGetTagListByProgId(PGID.Announcement, props.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
     const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
     const [open, setOpen] = useState(false);
     const [payload, setPayload] = useState<PreviewPayload | undefined>(undefined);
-    const onPreview = useCallback((p?: PreviewPayload) => {
-        setPayload(p);
-        setOpen(true);
-    }, []);
+    const onPreview = useCallback((p?: PreviewPayload) => { setPayload(p); setOpen(true); }, []);
 
     // A) 編輯中預覽（用當前表單 dto）
     const handlePreviewFromDto = useCallback((dto: any) => {
@@ -168,21 +165,18 @@ const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
     return (
         <>
             <div role="group" className="mt-4">
-                <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-secondary mb-2">新增附件</button>
+                <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-outline-primary mb-2">新增附件</button>
                 {getFiles().map((f, i) => {
                     const rowKeys = { [SchemaFields.AnnouncementDetailFileFields.AnnouncementId]: f.AnnouncementId, [SchemaFields.AnnouncementDetailFileFields.ParentRowId]: f.ParentRowId, [SchemaFields.AnnouncementDetailFileFields.RowId]: f.RowId, }
                     return (
                         <div key={`${f.ParentRowId}-${f.RowId}`} className="flex items-center gap-2 mb-2">
                             <LibFileInput
-                                Style={props.theme.FileInput}
-                                DefaultInputDisplay="請輸入附件說明"
-                                // 直接展開！只要給：表名、id欄位、name欄位(可選)、rowKeys(可選)、options(可選)
                                 {...setFileField(
                                     SchemaFields.AnnouncementSetFields.AnnouncementDetailFile,
-                                    SchemaFields.AnnouncementDetailFileFields.FileId,      // ← internalId 欄位
-                                    SchemaFields.AnnouncementDetailFileFields.FileName,       // ← 檔名欄位（可省略）
-                                    rowKeys,                               // ← 指定哪一列
-                                    { defaultNameFromOriginal: "basename" }               // ← 第一次上傳自動帶入不含副檔名
+                                    SchemaFields.AnnouncementDetailFileFields.FileId,
+                                    SchemaFields.AnnouncementDetailFileFields.FileName,
+                                    rowKeys,
+                                    { defaultNameFromOriginal: "basename" }
                                 )}
                                 // 其他 UI 行為仍由你自己控制
                                 Accept="*/*"

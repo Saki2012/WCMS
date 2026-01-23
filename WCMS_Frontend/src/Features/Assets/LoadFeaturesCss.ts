@@ -15,3 +15,4 @@ import "./Server/ContentBack/login/login_NewDesige.css";
 import "./Server/ContentBack/register/register_NewDesige.css";
 import "./Server/ContentBack/bg_dynamic/login-Particles.css";
 import "./Server/ContentBack/chart_c3_0.7.20/css/c3.css";
+import "./Server/css/Tabs_Ext.css";

@@ -16,7 +16,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -43,6 +46,90 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/Account/ChangePassword": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ChangePassword"];
+                    "text/json": components["schemas"]["ChangePassword"];
+                    "application/*+json": components["schemas"]["ChangePassword"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Account/ResetPassword": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ResetPassword"];
+                    "text/json": components["schemas"]["ResetPassword"];
+                    "application/*+json": components["schemas"]["ResetPassword"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Account/Create": {
         parameters: {
             query?: never;
@@ -55,7 +142,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -94,7 +184,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -132,7 +225,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -179,7 +275,10 @@ export interface paths {
                     internalId?: string;
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path: {
                     pk: string;
                 };
@@ -216,7 +315,10 @@ export interface paths {
                 query?: {
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -254,7 +356,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -287,7 +392,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -325,7 +433,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -360,7 +471,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -397,7 +511,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -432,7 +549,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -471,7 +591,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -510,7 +633,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -548,7 +674,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -595,7 +724,10 @@ export interface paths {
                     internalId?: string;
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path: {
                     pk: string;
                 };
@@ -632,7 +764,10 @@ export interface paths {
                 query?: {
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -670,7 +805,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -703,7 +841,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -741,7 +882,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -776,7 +920,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -815,7 +962,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -852,7 +1002,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -887,7 +1040,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -928,6 +1084,8 @@ export interface paths {
                 query?: never;
                 header?: {
                     "X-XSRF-Token"?: string;
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
                 };
                 path?: never;
                 cookie?: never;
@@ -961,7 +1119,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -992,7 +1153,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1027,7 +1191,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1066,7 +1233,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1104,7 +1274,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1151,7 +1324,10 @@ export interface paths {
                     internalId?: string;
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path: {
                     pk: string;
                 };
@@ -1188,7 +1364,10 @@ export interface paths {
                 query?: {
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1226,7 +1405,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1259,7 +1441,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1297,7 +1482,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1332,7 +1520,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1371,7 +1562,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1408,7 +1602,579 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/SyncFromNtpc": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: {
+                    year?: number;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/UpdateDayInfo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CalendarDetail_DTO"];
+                    "text/json": components["schemas"]["CalendarDetail_DTO"];
+                    "application/*+json": components["schemas"]["CalendarDetail_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/Spec_GetCurrentOpenTime": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["SpecCurrentOpenTime_DTOApiResponse"];
+                        "application/json": components["schemas"]["SpecCurrentOpenTime_DTOApiResponse"];
+                        "text/json": components["schemas"]["SpecCurrentOpenTime_DTOApiResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/Create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CalendarSet_DTO"];
+                    "text/json": components["schemas"]["CalendarSet_DTO"];
+                    "application/*+json": components["schemas"]["CalendarSet_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CalendarSet_DTO"][];
+                    "text/json": components["schemas"]["CalendarSet_DTO"][];
+                    "application/*+json": components["schemas"]["CalendarSet_DTO"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/Update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CalendarSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["CalendarSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["CalendarSet_DTOApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/Invalid/{pk}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path: {
+                    pk: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/Calendar/BatchInvalid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    isInvalid?: boolean;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/Calendar/Delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/BatchDelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/QueryData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Calendar/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1443,7 +2209,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1482,7 +2251,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1520,7 +2292,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1567,7 +2342,10 @@ export interface paths {
                     internalId?: string;
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path: {
                     pk: string;
                 };
@@ -1604,7 +2382,10 @@ export interface paths {
                 query?: {
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1642,7 +2423,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1675,7 +2459,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1713,7 +2500,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1748,7 +2538,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1787,7 +2580,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1824,7 +2620,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1859,7 +2658,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1898,7 +2700,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1936,7 +2741,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1983,7 +2791,10 @@ export interface paths {
                     internalId?: string;
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path: {
                     pk: string;
                 };
@@ -2020,7 +2831,10 @@ export interface paths {
                 query?: {
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2058,7 +2872,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2091,7 +2908,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2129,7 +2949,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2164,7 +2987,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2203,7 +3029,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2240,7 +3069,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2275,7 +3107,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2315,7 +3150,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2354,7 +3192,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2391,7 +3232,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path: {
                     internalId: string;
                 };
@@ -2426,7 +3270,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path: {
                     internalId: string;
                 };
@@ -2465,7 +3312,10 @@ export interface paths {
                 query?: {
                     label?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2498,7 +3348,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2537,7 +3390,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2575,7 +3431,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2622,7 +3481,10 @@ export interface paths {
                     internalId?: string;
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path: {
                     pk: string;
                 };
@@ -2659,7 +3521,10 @@ export interface paths {
                 query?: {
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2697,7 +3562,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2730,7 +3598,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2768,7 +3639,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2803,7 +3677,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2842,7 +3719,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2879,7 +3759,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2914,7 +3797,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2953,7 +3839,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2991,7 +3880,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3038,7 +3930,10 @@ export interface paths {
                     internalId?: string;
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path: {
                     pk: string;
                 };
@@ -3075,7 +3970,10 @@ export interface paths {
                 query?: {
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3113,7 +4011,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3146,7 +4047,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3184,7 +4088,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3219,7 +4126,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3258,7 +4168,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3295,7 +4208,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3330,7 +4246,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3369,7 +4288,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3407,7 +4329,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3454,7 +4379,10 @@ export interface paths {
                     internalId?: string;
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path: {
                     pk: string;
                 };
@@ -3491,7 +4419,10 @@ export interface paths {
                 query?: {
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3529,7 +4460,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3562,7 +4496,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3600,7 +4537,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3635,7 +4575,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3674,7 +4617,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3711,7 +4657,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3746,7 +4695,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3785,7 +4737,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3824,7 +4779,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3862,7 +4820,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3909,7 +4870,10 @@ export interface paths {
                     internalId?: string;
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path: {
                     pk: string;
                 };
@@ -3946,7 +4910,10 @@ export interface paths {
                 query?: {
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -3984,7 +4951,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4017,7 +4987,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4055,7 +5028,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4090,7 +5066,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4127,7 +5106,499 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/GetPermissionCatalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PermissionCatalogModuleDTOApiResponse"];
+                        "application/json": components["schemas"]["PermissionCatalogModuleDTOApiResponse"];
+                        "text/json": components["schemas"]["PermissionCatalogModuleDTOApiResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/Create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["RolePermissionSet_DTO"];
+                    "text/json": components["schemas"]["RolePermissionSet_DTO"];
+                    "application/*+json": components["schemas"]["RolePermissionSet_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["RolePermissionSet_DTO"][];
+                    "text/json": components["schemas"]["RolePermissionSet_DTO"][];
+                    "application/*+json": components["schemas"]["RolePermissionSet_DTO"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/Update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["RolePermissionSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["RolePermissionSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["RolePermissionSet_DTOApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/Invalid/{pk}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path: {
+                    pk: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/RolePermission/BatchInvalid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    isInvalid?: boolean;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/RolePermission/Delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/BatchDelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/QueryData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4162,7 +5633,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4201,7 +5675,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4239,7 +5716,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4286,7 +5766,10 @@ export interface paths {
                     internalId?: string;
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path: {
                     pk: string;
                 };
@@ -4323,7 +5806,10 @@ export interface paths {
                 query?: {
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4361,7 +5847,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4394,7 +5883,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4432,7 +5924,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4467,7 +5962,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4506,7 +6004,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4543,7 +6044,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4578,7 +6082,10 @@ export interface paths {
                 query?: {
                     progId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4613,7 +6120,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4652,7 +6162,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4690,7 +6203,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4737,7 +6253,10 @@ export interface paths {
                     internalId?: string;
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path: {
                     pk: string;
                 };
@@ -4774,7 +6293,10 @@ export interface paths {
                 query?: {
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4812,7 +6334,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4845,7 +6370,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4883,7 +6411,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4918,7 +6449,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4957,7 +6491,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4994,7 +6531,1887 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournal/GetAuthorByOrcid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    orcid?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ORCIDDataApiResponse"];
+                        "application/json": components["schemas"]["ORCIDDataApiResponse"];
+                        "text/json": components["schemas"]["ORCIDDataApiResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournal/Create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecJournalSet_DTO"];
+                    "text/json": components["schemas"]["SpecJournalSet_DTO"];
+                    "application/*+json": components["schemas"]["SpecJournalSet_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournal/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecJournalSet_DTO"][];
+                    "text/json": components["schemas"]["SpecJournalSet_DTO"][];
+                    "application/*+json": components["schemas"]["SpecJournalSet_DTO"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournal/Update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecJournalSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["SpecJournalSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["SpecJournalSet_DTOApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournal/Invalid/{pk}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path: {
+                    pk: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/SpecJournal/BatchInvalid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    isInvalid?: boolean;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/SpecJournal/Delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournal/BatchDelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournal/QueryData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournal/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournal/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournal/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/crawer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: {
+                    maxIssues?: number;
+                    maxArticlesPerIssue?: number;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/Create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecJournalIndexSet_DTO"];
+                    "text/json": components["schemas"]["SpecJournalIndexSet_DTO"];
+                    "application/*+json": components["schemas"]["SpecJournalIndexSet_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecJournalIndexSet_DTO"][];
+                    "text/json": components["schemas"]["SpecJournalIndexSet_DTO"][];
+                    "application/*+json": components["schemas"]["SpecJournalIndexSet_DTO"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/Update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecJournalIndexSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["SpecJournalIndexSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["SpecJournalIndexSet_DTOApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/Invalid/{pk}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path: {
+                    pk: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/BatchInvalid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    isInvalid?: boolean;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/Delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/BatchDelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/QueryData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecMusical/Create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecMusicalSet_DTO"];
+                    "text/json": components["schemas"]["SpecMusicalSet_DTO"];
+                    "application/*+json": components["schemas"]["SpecMusicalSet_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecMusical/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecMusicalSet_DTO"][];
+                    "text/json": components["schemas"]["SpecMusicalSet_DTO"][];
+                    "application/*+json": components["schemas"]["SpecMusicalSet_DTO"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecMusical/Update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecMusicalSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["SpecMusicalSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["SpecMusicalSet_DTOApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecMusical/Invalid/{pk}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path: {
+                    pk: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/SpecMusical/BatchInvalid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    isInvalid?: boolean;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/SpecMusical/Delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecMusical/BatchDelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecMusical/QueryData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecMusical/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecMusical/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecMusical/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/Create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
+                    "text/json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
+                    "application/*+json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"][];
+                    "text/json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"][];
+                    "application/*+json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/Update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecOpenScheduleRuleSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["SpecOpenScheduleRuleSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["SpecOpenScheduleRuleSet_DTOApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/Invalid/{pk}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path: {
+                    pk: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/BatchInvalid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    isInvalid?: boolean;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/Delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/BatchDelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/QueryData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecOpenScheduleRule/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5029,7 +8446,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5068,7 +8488,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5106,7 +8529,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5153,7 +8579,10 @@ export interface paths {
                     internalId?: string;
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path: {
                     pk: string;
                 };
@@ -5190,7 +8619,10 @@ export interface paths {
                 query?: {
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5228,7 +8660,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5261,7 +8696,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5299,7 +8737,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5334,7 +8775,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5373,7 +8817,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5410,7 +8857,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5445,7 +8895,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5484,7 +8937,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5522,7 +8978,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5569,7 +9028,10 @@ export interface paths {
                     internalId?: string;
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path: {
                     pk: string;
                 };
@@ -5606,7 +9068,10 @@ export interface paths {
                 query?: {
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5644,7 +9109,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5677,7 +9145,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5715,7 +9186,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5750,7 +9224,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5789,7 +9266,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5826,7 +9306,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5859,7 +9342,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5894,7 +9380,10 @@ export interface paths {
                 query: {
                     enumName: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5931,7 +9420,10 @@ export interface paths {
                 query?: {
                     labelTag?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -5964,7 +9456,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6003,7 +9498,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6041,7 +9539,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6088,7 +9589,10 @@ export interface paths {
                     internalId?: string;
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path: {
                     pk: string;
                 };
@@ -6125,7 +9629,10 @@ export interface paths {
                 query?: {
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6163,7 +9670,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6196,7 +9706,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6234,7 +9747,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6269,7 +9785,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6308,7 +9827,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6345,7 +9867,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6380,7 +9905,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6419,7 +9947,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6457,7 +9988,10 @@ export interface paths {
         put: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6504,7 +10038,10 @@ export interface paths {
                     internalId?: string;
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path: {
                     pk: string;
                 };
@@ -6541,7 +10078,10 @@ export interface paths {
                 query?: {
                     isInvalid?: boolean;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6579,7 +10119,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6612,7 +10155,10 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6650,7 +10196,10 @@ export interface paths {
                 query?: {
                     internalId?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6685,7 +10234,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6724,7 +10276,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6761,7 +10316,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -6814,6 +10372,8 @@ export interface components {
             AccountName?: string | null;
             Person?: components["schemas"]["PersonModel"];
             PersonId?: string | null;
+            Role?: components["schemas"]["RoleDataModel"];
+            RoleId?: string | null;
             /** Format: byte */
             PasswordHash?: string | null;
             /** Format: byte */
@@ -6821,6 +10381,8 @@ export interface components {
             /** Format: int32 */
             PasswordAlgoVer?: number;
             AccountStatus?: components["schemas"]["AccountStatus"];
+            /** Format: date */
+            PasswordChangeDate?: string;
         };
         AccountSet_DTO: {
             Account?: components["schemas"]["Account_DTO"];
@@ -6833,7 +10395,7 @@ export interface components {
          * Format: int32
          * @enum {integer}
          */
-        AccountStatus: 0 | 1 | 2 | 3 | 4;
+        AccountStatus: 0 | 1;
         Account_DTO: {
             /**
              * Format: date-time
@@ -6858,6 +10420,7 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            OrgLvId?: string | null;
             /** @description 帳號 */
             AccountId?: string | null;
             /** @description 使用者名稱 */
@@ -6865,9 +10428,17 @@ export interface components {
             Person?: components["schemas"]["PersonModel"];
             /** @description 人員編號 */
             PersonId?: string | null;
+            Role?: components["schemas"]["RoleDataModel"];
+            /** @description 角色代號 */
+            RoleId?: string | null;
             /** @description 密碼 */
             Password?: string | null;
             AccountStatus?: components["schemas"]["AccountStatus"];
+            /**
+             * Format: date
+             * @description 密碼最後修改日
+             */
+            PasswordChangeDate?: string;
         };
         AnnouncementDetailFile_DTO: {
             /** @description 公告代碼 */
@@ -6895,8 +10466,7 @@ export interface components {
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description 語系 */
-            Lang?: string | null;
+            Lang?: components["schemas"]["LangCode"];
             /** @description 標題 */
             Title?: string | null;
             /** @description 副標題 */
@@ -6941,11 +10511,12 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            OrgLvId?: string | null;
             /** @description 公告代碼 */
             AnnouncementId?: string | null;
             /** @description 類別 */
             Categories?: string | null;
-            /** @description 組別 */
+            /** @description 標籤 */
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 封面圖片 */
@@ -6982,8 +10553,7 @@ export interface components {
              * @description 行代碼
              */
             RowId?: number;
-            /** @description 語系 */
-            Lang?: string | null;
+            Lang?: components["schemas"]["LangCode"];
             /** @description 標題 */
             Title?: string | null;
             /** @description 內文 */
@@ -6991,6 +10561,13 @@ export interface components {
             /** @description 網址 */
             URL?: string | null;
             URL_Open?: components["schemas"]["WindowTarget"];
+            _BannerDetail?: components["schemas"]["BannerDetail_DTO"];
+            /** @description 最新展演 */
+            SpecLatestShows?: string | null;
+            /** @description 展演地點 */
+            SpecShowLocation?: string | null;
+            /** @description 展演時間 */
+            SpecShowDate?: string | null;
         };
         BannerDetail_DTO: {
             /** @description 橫幅廣告 */
@@ -7019,7 +10596,8 @@ export interface components {
              * @description 排序編號
              */
             Sort?: number;
-            BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
+            _Banner?: components["schemas"]["Banner_DTO"];
+            _BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
         };
         BannerSet_DTO: {
             Banner?: components["schemas"]["Banner_DTO"];
@@ -7054,6 +10632,7 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            OrgLvId?: string | null;
             /** @description 橫幅廣告 */
             BannerId?: string | null;
             /** @description 橫幅類別名稱 */
@@ -7080,6 +10659,76 @@ export interface components {
             Width?: number;
             _BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
         };
+        CalendarDetail_DTO: {
+            /** Format: int32 */
+            Year?: number | null;
+            /** Format: date */
+            Date?: string | null;
+            DayOfWeek?: components["schemas"]["DayOfWeek"];
+            IsHoliday?: boolean | null;
+            HolidayName?: string | null;
+            Description?: string | null;
+            IsEdit?: boolean | null;
+            /** Format: date-time */
+            ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["AccountModel"];
+            ModifyUserId?: string | null;
+            _Calendar?: components["schemas"]["Calendar_DTO"];
+            Spec_AcademicYear?: components["schemas"]["SpecOpenScheduleRuleModel"];
+            Spec_AcademicYearId?: string | null;
+            /**
+             * Format: time
+             * @description [Spec_OpenTime]
+             */
+            Spec_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description [Spec_CloseTime]
+             */
+            Spec_CloseTime?: string | null;
+            /** @description 摘要 */
+            Spec_ModifyMemo?: string | null;
+        };
+        CalendarSet_DTO: {
+            Calendar?: components["schemas"]["Calendar_DTO"];
+            CalendarDetail?: components["schemas"]["CalendarDetail_DTO"][] | null;
+        };
+        CalendarSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["CalendarSet_DTO"];
+        };
+        Calendar_DTO: {
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
+            CreateTime?: string | null;
+            /** @description 創建人 */
+            CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["Account_DTO"];
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
+            ModifyTime?: string | null;
+            /** @description 修改人 */
+            ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["Account_DTO"];
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            /** Format: int32 */
+            Year?: number | null;
+            ImportSrc?: string | null;
+            /** Format: date-time */
+            LastImportTime?: string | null;
+            _CalendarDetail?: components["schemas"]["CalendarDetail_DTO"][] | null;
+        };
         CategoryDataSet_DTO: {
             Category?: components["schemas"]["Category_DTO"];
             CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
@@ -7096,8 +10745,7 @@ export interface components {
              * @description 行代碼
              */
             RowId?: number;
-            /** @description 語系 */
-            Lang?: string | null;
+            Lang?: components["schemas"]["LangCode"];
             /** @description 類別名稱 */
             CategoryName?: string | null;
         };
@@ -7125,11 +10773,16 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            OrgLvId?: string | null;
             /** @description 類別 */
             CategoryId?: string | null;
             /** @description 功能模塊代碼 */
             ProgId?: string | null;
             _CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
+        };
+        ChangePassword: {
+            OldPassword?: string | null;
+            NewPassword?: string | null;
         };
         /**
          * Format: int32
@@ -7141,6 +10794,11 @@ export interface components {
          * @enum {integer}
          */
         DataStatus: 0 | 1;
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
+        DayOfWeek: 0 | 1 | 2 | 3 | 4 | 5 | 6;
         FileArchiveDetail_DTO: {
             /** @description 檔案室代碼 */
             FileArchiveId?: string | null;
@@ -7168,8 +10826,7 @@ export interface components {
              * @description 行代碼
              */
             RowId?: number;
-            /** @description 語系 */
-            Lang?: string | null;
+            Lang?: components["schemas"]["LangCode"];
             /** @description 標題 */
             Title?: string | null;
             _FileArchiveDetail?: components["schemas"]["FileArchiveDetail_DTO"][] | null;
@@ -7228,12 +10885,13 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            OrgLvId?: string | null;
             /** @description 檔案室代碼 */
             FileArchiveId?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 類別 */
             CategoriesId?: string | null;
-            /** @description 組別 */
+            /** @description 標籤 */
             TagsId?: string | null;
             /**
              * Format: int32
@@ -7298,6 +10956,7 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            OrgLvId?: string | null;
             Path?: string | null;
             FileName?: string | null;
             FileExtension?: string | null;
@@ -7305,12 +10964,14 @@ export interface components {
             MimeType?: string | null;
             FileSHA256?: string | null;
             /** Format: int64 */
-            FileSize?: number;
+            FileSize?: number | null;
             ProgId?: string | null;
             ImportLabel?: string | null;
             FileStatus?: components["schemas"]["FileStatus"];
             /** Format: int32 */
-            readonly DownloadCount?: number;
+            readonly DownloadCount?: number | null;
+            _FileManage_DownloadInfo?: components["schemas"]["FileManage_DownloadInfoModel_DTO"][] | null;
+            _FileManage_SyncInfo?: components["schemas"]["FileManage_SyncInfoModel_DTO"][] | null;
         };
         FileManageSet_DTO: {
             FileManage?: components["schemas"]["FileManageModel_DTO"];
@@ -7343,7 +11004,8 @@ export interface components {
             RefererURL?: string | null;
             DownloadStatus?: string | null;
             /** Format: date-time */
-            DownloadTime?: string;
+            DownloadTime?: string | null;
+            _FileManage?: components["schemas"]["FileManageModel_DTO"];
         };
         FileManage_SyncInfoModel: {
             RowState?: components["schemas"]["RowState"];
@@ -7377,7 +11039,8 @@ export interface components {
             ErrorCode?: string | null;
             ErrorMessage?: string | null;
             /** Format: date-time */
-            ExecuteTime?: string;
+            ExecuteTime?: string | null;
+            _FileManage?: components["schemas"]["FileManageModel_DTO"];
         };
         /**
          * Format: int32
@@ -7389,6 +11052,11 @@ export interface components {
          * @enum {integer}
          */
         FormStatus: 0 | 1 | 2 | 3;
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
+        FuncAction: 0 | 1 | 2 | 4 | 7 | 8 | 16 | 32 | 63 | 64 | 127;
         GalleryInfo_DTO: {
             /** @description 相簿 */
             GalleryId?: string | null;
@@ -7397,8 +11065,7 @@ export interface components {
              * @description 行代碼
              */
             RowId?: number;
-            /** @description 語系 */
-            Lang?: string | null;
+            Lang?: components["schemas"]["LangCode"];
             /** @description 標題 */
             Title?: string | null;
             /** @description 內文 */
@@ -7417,8 +11084,7 @@ export interface components {
              * @description 行代碼
              */
             RowId?: number;
-            /** @description 語系 */
-            Lang?: string | null;
+            Lang?: components["schemas"]["LangCode"];
             /** @description 標題 */
             Title?: string | null;
         };
@@ -7473,6 +11139,7 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            OrgLvId?: string | null;
             /** @description 相簿 */
             GalleryId?: string | null;
             /** @description 類別 */
@@ -7495,6 +11162,12 @@ export interface components {
          * @enum {integer}
          */
         Gender: 0 | 1 | 2;
+        /** @enum {string} */
+        LangCode: "zh-tw" | "zh-cn" | "en";
+        /** @example {
+         *       "Account": "Admin",
+         *       "Password": "Z7](oRuh98Z3x1$"
+         *     } */
         LoginDto: {
             Account: string;
             Password: string;
@@ -7508,7 +11181,27 @@ export interface components {
          * Format: int32
          * @enum {integer}
          */
+        MessageStatus: 0 | 1 | 2 | 3;
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
         ModulePageType: 0 | 1;
+        ORCIDData: {
+            ORCID?: string | null;
+            AuthorName?: string | null;
+            AuthorName_en?: string | null;
+            JobTitle?: string | null;
+            Unit?: string | null;
+            Unit_en?: string | null;
+            Email?: string | null;
+            Country?: string | null;
+        };
+        ORCIDDataApiResponse: {
+            readonly IsSuccess?: boolean;
+            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
+            Data?: components["schemas"]["ORCIDData"][] | null;
+        };
         OrderBySpec: {
             Col?: string | null;
             Desc?: boolean;
@@ -7521,8 +11214,7 @@ export interface components {
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description 語系 */
-            Lang?: string | null;
+            Lang?: components["schemas"]["LangCode"];
             /** @description 標題 */
             Title?: string | null;
             /** @description 內文 */
@@ -7560,6 +11252,7 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            OrgLvId?: string | null;
             /** @description 頁面 */
             PageId?: string | null;
             /** @description 類別 */
@@ -7570,6 +11263,21 @@ export interface components {
              */
             ViewCount?: number | null;
             _PageManagementDetail?: components["schemas"]["PageManagementDetail_DTO"][] | null;
+        };
+        PermissionCatalogModuleDTO: {
+            ModuleCode?: string | null;
+            ModuleTitle?: string | null;
+            Progs?: components["schemas"]["PermissionCatalogProgDTO"][] | null;
+        };
+        PermissionCatalogModuleDTOApiResponse: {
+            readonly IsSuccess?: boolean;
+            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
+            Data?: components["schemas"]["PermissionCatalogModuleDTO"][] | null;
+        };
+        PermissionCatalogProgDTO: {
+            ProgId?: string | null;
+            ProgTitle?: string | null;
+            SupportMask?: components["schemas"]["FuncAction"];
         };
         PersonModel: {
             /** Format: date-time */
@@ -7626,6 +11334,7 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            OrgLvId?: string | null;
             /** @description 人員編號 */
             PersonId?: string | null;
             /** @description 人員名稱 */
@@ -7648,14 +11357,118 @@ export interface components {
             InternalId?: string | null;
             Data?: components["schemas"]["PersonSet_DTO"];
         };
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
+        PublishStatus: 0 | 1;
         QueryListParam: {
             Fields?: string[] | null;
             Condition?: string | null;
             OrderBy?: components["schemas"]["OrderBySpec"][] | null;
+            RankGroups?: components["schemas"]["RankGroupsSpec"][] | null;
             /** Format: int32 */
             PageNumber?: number;
             /** Format: int32 */
             PageSize?: number;
+        };
+        RankGroupsSpec: {
+            Condition?: string | null;
+            OrderBy?: components["schemas"]["OrderBySpec"][] | null;
+        };
+        ResetPassword: {
+            UserInternalId?: string | null;
+            NewPassword?: string | null;
+        };
+        RoleDataModel: {
+            /** Format: date-time */
+            CreateTime?: string | null;
+            CreateUser?: components["schemas"]["AccountModel"];
+            CreateUserId?: string | null;
+            /** Format: date-time */
+            ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["AccountModel"];
+            ModifyUserId?: string | null;
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["AccountModel"];
+            InvalidUserId?: string | null;
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            IsIniData?: boolean;
+            /** Format: date-time */
+            Validate_Start?: string | null;
+            /** Format: date-time */
+            Validate_End?: string | null;
+            RoleId?: string | null;
+            RoleName?: string | null;
+            IsAdmin?: boolean;
+            _RolePermission?: components["schemas"]["RolePermissionModel"][] | null;
+        };
+        RoleDataModel_DTO: {
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
+            CreateTime?: string | null;
+            /** @description 創建人 */
+            CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["Account_DTO"];
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
+            ModifyTime?: string | null;
+            /** @description 修改人 */
+            ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["Account_DTO"];
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            /** @description 角色代號 */
+            RoleId?: string | null;
+            /** @description 角色名稱 */
+            RoleName?: string | null;
+            /** @description 是否管理員 */
+            IsAdmin?: boolean | null;
+            _RolePermission?: components["schemas"]["RolePermissionModel_DTO"][] | null;
+        };
+        RolePermissionModel: {
+            RowState?: components["schemas"]["RowState"];
+            RoleId?: string | null;
+            /** Format: int32 */
+            RowId?: number | null;
+            PermissionKey?: string | null;
+            GrantMask?: components["schemas"]["FuncAction"];
+            _RoleData?: components["schemas"]["RoleDataModel"];
+        };
+        RolePermissionModel_DTO: {
+            /** @description 角色代號 */
+            RoleId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            /** @description 權限代號 */
+            PermissionKey?: string | null;
+            GrantMask?: components["schemas"]["FuncAction"];
+            _RoleData?: components["schemas"]["RoleDataModel_DTO"];
+        };
+        RolePermissionSet_DTO: {
+            RoleData?: components["schemas"]["RoleDataModel_DTO"];
+            RolePermission?: components["schemas"]["RolePermissionModel_DTO"][] | null;
+        };
+        RolePermissionSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["RolePermissionSet_DTO"];
         };
         /**
          * Format: int32
@@ -7675,26 +11488,25 @@ export interface components {
             Data?: components["schemas"]["SiteMenuSet_DTO"];
         };
         SiteMenu_IndexInfo_DTO: {
-            /** @description [SiteMenu_SiteIndex] */
+            /** @description 首頁代碼 */
             SiteIndex?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description 語系 */
-            Lang?: string | null;
+            Lang?: components["schemas"]["LangCode"];
             /** @description 選單名稱 */
             Title?: string | null;
-            /** @description [SiteMenu_SiteDescription] */
+            /** @description 網站描述 */
             Description?: string | null;
             /** @description 橫幅廣告 */
             BannerId?: string | null;
-            /** @description [SiteMenu_SiteHeader] */
+            /** @description 網站標頭 */
             SiteHeader?: string | null;
-            /** @description [SiteMenu_SiteFooter] */
+            /** @description 網站標尾 */
             SiteFooter?: string | null;
-            /** @description [SiteMenu_SiteFooter] */
+            /** @description 網站標尾 */
             Keyword?: string | null;
         };
         SiteMenu_Index_DTO: {
@@ -7721,15 +11533,19 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
-            /** @description [SiteMenu_SiteIndex] */
+            OrgLvId?: string | null;
+            /** @description 首頁代碼 */
             SiteIndex?: string | null;
-            /** @description [SiteMenu_GoogleAnalytics] */
+            /** @description Google分析碼 */
             GoogleAnalytics?: string | null;
-            /** @description [SiteMenu_Enable] */
+            /** @description 是否啟用站台 */
             Enable?: boolean;
+            DefaultLang?: components["schemas"]["LangCode"];
+            /** @description 支援語系 */
+            SupportLangs?: string | null;
         };
         SiteMenu_Item_DTO: {
-            /** @description [SiteMenu_SiteIndex] */
+            /** @description 首頁代碼 */
             SiteIndex?: string | null;
             /**
              * Format: int32
@@ -7744,21 +11560,19 @@ export interface components {
             FullUrl?: string | null;
             /**
              * Format: int32
-             * @description [SiteMenu_Level]
+             * @description 網頁項目層級
              */
             Level?: number;
             /**
              * Format: int32
-             * @description [SiteMenu_DisplayOrder]
+             * @description 網頁項目排序
              */
             DisplayOrder?: number;
             ItemType?: components["schemas"]["MenuUrlType"];
             WindowTarget?: components["schemas"]["WindowTarget"];
-            /** @description 是否顯示在菜單中 */
-            IsShowOnMenu?: boolean;
         };
         SiteMenu_Item_Module_DTO: {
-            /** @description [SiteMenu_SiteIndex] */
+            /** @description 首頁代碼 */
             SiteIndex?: string | null;
             /**
              * Format: int32
@@ -7770,11 +11584,11 @@ export interface components {
             PageType?: components["schemas"]["ModulePageType"];
             /** @description 模型功能 */
             ModuleProgId?: string | null;
-            /** @description [SiteMenu_ModuleOptions] */
+            /** @description 網頁模型參數 */
             ModuleOptions?: string | null;
         };
         SiteMenu_Item_Title_DTO: {
-            /** @description [SiteMenu_SiteIndex] */
+            /** @description 首頁代碼 */
             SiteIndex?: string | null;
             /**
              * Format: int32
@@ -7786,13 +11600,14 @@ export interface components {
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description 語系 */
-            Lang?: string | null;
-            /** @description [SiteMenu_MenuTitle] */
+            Lang?: components["schemas"]["LangCode"];
+            /** @description 網頁項目標題 */
             Title?: string | null;
+            /** @description 是否顯示在選單中 */
+            IsShowOnMenu?: boolean;
         };
         SiteMenu_Item_Url_DTO: {
-            /** @description [SiteMenu_SiteIndex] */
+            /** @description 首頁代碼 */
             SiteIndex?: string | null;
             /**
              * Format: int32
@@ -7804,16 +11619,15 @@ export interface components {
             RedirectUrl?: string | null;
         };
         SpecCategoryDetailModel_DTO: {
-            /** @description 類別代號 */
+            /** @description [SpecCategoryId] */
             CategoryId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number;
-            /** @description 語系 */
-            Lang?: string | null;
-            /** @description 計畫類別名稱 */
+            Lang?: components["schemas"]["LangCode"];
+            /** @description [SpecCategory_Name] */
             CategoryName?: string | null;
         };
         SpecCategoryModel_DTO: {
@@ -7840,11 +11654,12 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
-            /** @description 類別代號 */
+            OrgLvId?: string | null;
+            /** @description [SpecCategoryId] */
             CategoryId?: string | null;
             /** @description 功能模塊代碼 */
             ProgId?: string | null;
-            /** @description 顯示欄位 */
+            /** @description [SpecCategory_ShowColumn] */
             ShowColumnItems?: string | null;
             _SpecCategoryDetail?: components["schemas"]["SpecCategoryDetailModel_DTO"][] | null;
         };
@@ -7856,79 +11671,782 @@ export interface components {
             InternalId?: string | null;
             Data?: components["schemas"]["SpecCategorySet_DTO"];
         };
+        SpecCurrentOpenTime_DTO: {
+            /** Format: date */
+            Date?: string;
+            DayOfWeek?: components["schemas"]["DayOfWeek"];
+            HolidayName?: string | null;
+            /** Format: time */
+            Spec_OpenTime?: string | null;
+            /** Format: time */
+            Spec_CloseTime?: string | null;
+        };
+        SpecCurrentOpenTime_DTOApiResponse: {
+            readonly IsSuccess?: boolean;
+            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
+            Data?: components["schemas"]["SpecCurrentOpenTime_DTO"][] | null;
+        };
+        SpecJournalAuthor_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description [Spec_JournalId] */
+            JournalId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            /** @description [Spec_ORCID] */
+            ORCID?: string | null;
+            /** @description [Spec_AuthorName] */
+            AuthorName?: string | null;
+            /** @description [Spec_AuthorName_en] */
+            AuthorName_en?: string | null;
+            /** @description [Spec_JobTitle] */
+            JobTitle?: string | null;
+            /** @description [Spec_Unit] */
+            Unit?: string | null;
+            /** @description [Spec_Unit_en] */
+            Unit_en?: string | null;
+            /** @description 常用Email */
+            Email?: string | null;
+            /** @description 地區/國家 */
+            Country?: string | null;
+            _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
+        };
+        SpecJournalBibliography_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description [Spec_JournalId] */
+            JournalId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            /** @description [Spec_BibliographyTitle] */
+            Title?: string | null;
+            /** @description [Spec_BibliographyTitle_En] */
+            Title_en?: string | null;
+            /** @description 網址 */
+            Url?: string | null;
+            _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
+        };
+        SpecJournalIndexDetail_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description [Spec_JournalIndexId] */
+            IndexId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            /**
+             * Format: int32
+             * @description [Spec_Volume]
+             */
+            Volume?: number | null;
+            /** @description [Spec_Issue] */
+            Issue?: string | null;
+            PublishStatus?: components["schemas"]["PublishStatus"];
+            /** @description [Spec_IsSpecial] */
+            IsSpecial?: boolean | null;
+            /**
+             * Format: date
+             * @description [Spec_PublishDate]
+             */
+            PublishDate?: string | null;
+            /** @description [Spec_SeasonNo] */
+            SeasonNo?: string | null;
+            SummaryFile?: components["schemas"]["FileManageModel_DTO"];
+            /** @description [Spec_SummaryFileId] */
+            SummaryFileId?: string | null;
+            /** @description [Spec_SummaryFileName] */
+            SummaryFileName?: string | null;
+            _SpecJournalIndex?: components["schemas"]["SpecMusicalModel_DTO"];
+        };
+        SpecJournalIndexModel_DTO: {
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
+            CreateTime?: string | null;
+            /** @description 創建人 */
+            CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["Account_DTO"];
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
+            ModifyTime?: string | null;
+            /** @description 修改人 */
+            ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["Account_DTO"];
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            /** @description [Spec_JournalIndexId] */
+            IndexId?: string | null;
+            /** @description [Spec_JournalIndexName] */
+            IndexName?: string | null;
+            _SpecJournalIndexDetail?: components["schemas"]["SpecJournalIndexDetail_DTO"][] | null;
+        };
+        SpecJournalIndexSet_DTO: {
+            SpecJournalIndex?: components["schemas"]["SpecJournalIndexModel_DTO"];
+            /** @description [SpecJournalIndexDetail] */
+            SpecJournalIndexDetail?: components["schemas"]["SpecJournalIndexDetail_DTO"][] | null;
+        };
+        SpecJournalIndexSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SpecJournalIndexSet_DTO"];
+        };
+        SpecJournalKeywords_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description [Spec_JournalId] */
+            JournalId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            LangCode?: components["schemas"]["LangCode"];
+            /** @description [Spec_Keyword] */
+            Keyword?: string | null;
+            _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
+        };
+        SpecJournalModel_DTO: {
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
+            CreateTime?: string | null;
+            /** @description 創建人 */
+            CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["Account_DTO"];
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
+            ModifyTime?: string | null;
+            /** @description 修改人 */
+            ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["Account_DTO"];
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            /** @description [Spec_JournalId] */
+            JournalId?: string | null;
+            _JournalIndex?: components["schemas"]["SpecJournalIndexModel_DTO"];
+            /** @description [Spec_JournalIndexId] */
+            JournalIndexId?: string | null;
+            _JournalIndexDetail?: components["schemas"]["SpecJournalIndexDetail_DTO"];
+            /**
+             * Format: int32
+             * @description [Spec_JournalIndexRowId]
+             */
+            JournalIndexRowId?: number | null;
+            /** @description 標題 */
+            Title?: string | null;
+            /** @description [Spec_Title_en] */
+            Title_en?: string | null;
+            /**
+             * Format: int32
+             * @description [Spec_PageStart]
+             */
+            PageStart?: number | null;
+            /**
+             * Format: int32
+             * @description [Spec_PageEnd]
+             */
+            PageEnd?: number | null;
+            /** @description [Spec_DOI] */
+            DOIUrl?: string | null;
+            JournalFile?: components["schemas"]["FileManageModel_DTO"];
+            /** @description [Spec_JournalFieldId] */
+            JournalFileId?: string | null;
+            /** @description [Spec_JournalFileName] */
+            JournalFileName?: string | null;
+            InsightPointFile?: components["schemas"]["FileManageModel_DTO"];
+            /** @description [Spec_InsightPointFileId] */
+            InsightPointFileId?: string | null;
+            /** @description [Spec_InsightPointFileName] */
+            InsightPointFileName?: string | null;
+            ArticleLang?: components["schemas"]["LangCode"];
+            /** @description 摘要 */
+            Memo?: string | null;
+            /** @description [Spec_Memo_en] */
+            Memo_en?: string | null;
+            _SpecJournalAuthor?: components["schemas"]["SpecJournalAuthor_DTO"][] | null;
+            _SpecJournalBibliography?: components["schemas"]["SpecJournalBibliography_DTO"][] | null;
+            _SpecJournalRefFormat?: components["schemas"]["SpecJournalRefFormat_DTO"][] | null;
+            _SpecJournalOpenPointFiles?: components["schemas"]["SpecJournalOpenPointFiles_DTO"][] | null;
+            _SpecJournalRefFiles?: components["schemas"]["SpecJournalRefFiles_DTO"][] | null;
+            _SpecJournalTypes?: components["schemas"]["SpecJournalTypes_DTO"][] | null;
+            _SpecJournalKeywords?: components["schemas"]["SpecJournalKeywords_DTO"][] | null;
+        };
+        SpecJournalOpenPointFiles_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description [Spec_JournalId] */
+            JournalId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            /** @description [Spec_OpenPointFileName] */
+            OpenPointFileName?: string | null;
+            OpenPointFile?: components["schemas"]["FileManageModel_DTO"];
+            /** @description [Spec_OpenPointFileId] */
+            OpenPointFileId?: string | null;
+            _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
+        };
+        SpecJournalRefFiles_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description [Spec_JournalId] */
+            JournalId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            /** @description [Spec_RefFileName] */
+            RefFileName?: string | null;
+            RefFile?: components["schemas"]["FileManageModel_DTO"];
+            /** @description [Spec_RefFileId] */
+            RefFileId?: string | null;
+            _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
+        };
+        SpecJournalRefFormat_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description [Spec_JournalId] */
+            JournalId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            /** @description [Spec_RefFormatTitle] */
+            Title?: string | null;
+            /** @description [Spec_RefFormatContent] */
+            Content?: string | null;
+            _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
+        };
+        SpecJournalSet_DTO: {
+            SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
+            /** @description [SpecJournalAuthor] */
+            SpecJournalAuthor?: components["schemas"]["SpecJournalAuthor_DTO"][] | null;
+            /** @description [SpecJournalBibliography] */
+            SpecJournalBibliography?: components["schemas"]["SpecJournalBibliography_DTO"][] | null;
+            /** @description [SpecJournalRefFormat] */
+            SpecJournalRefFormat?: components["schemas"]["SpecJournalRefFormat_DTO"][] | null;
+            /** @description [SpecJournalOpenPointFiles] */
+            SpecJournalOpenPointFiles?: components["schemas"]["SpecJournalOpenPointFiles_DTO"][] | null;
+            /** @description [SpecJournalRefFiles] */
+            SpecJournalRefFiles?: components["schemas"]["SpecJournalRefFiles_DTO"][] | null;
+            /** @description [SpecJournalTypes] */
+            SpecJournalTypes?: components["schemas"]["SpecJournalTypes_DTO"][] | null;
+            /** @description [SpecJournalKeywords] */
+            SpecJournalKeywords?: components["schemas"]["SpecJournalKeywords_DTO"][] | null;
+        };
+        SpecJournalSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SpecJournalSet_DTO"];
+        };
+        SpecJournalTypes_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description [Spec_JournalId] */
+            JournalId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            Tag?: components["schemas"]["TagData_DTO"];
+            /** @description [Spec_TagId] */
+            TagId?: string | null;
+            _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
+        };
+        SpecMusicalModel_DTO: {
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
+            CreateTime?: string | null;
+            /** @description 創建人 */
+            CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["Account_DTO"];
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
+            ModifyTime?: string | null;
+            /** @description 修改人 */
+            ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["Account_DTO"];
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            /** @description 樂器代碼 */
+            MusicalId?: string | null;
+            /** @description 樂器名稱 */
+            MusicalName?: string | null;
+            Category?: components["schemas"]["Category_DTO"];
+            /** @description 類別 */
+            CategoryId?: string | null;
+            /** @description 封面圖片 */
+            CoverPicId?: string | null;
+            /** @description 規格 */
+            Specification?: string | null;
+            /** @description 琴頭 */
+            Headstock?: string | null;
+            /** @description 背板 */
+            Backboard?: string | null;
+            /** @description 弦長 */
+            ScaleLength?: string | null;
+            /** @description 覆手長 */
+            Bridge?: string | null;
+            /** @description 形制 */
+            BodyForm?: string | null;
+            /** @description 弦材 */
+            Material?: string | null;
+            /** @description 樂器說明 */
+            Info?: string | null;
+            _SpecMusicalSoundList?: components["schemas"]["SpecMusicalSoundList_DTO"][] | null;
+            _SpecMusicalPictureList?: components["schemas"]["SpecMusicalPictureList_DTO"][] | null;
+        };
+        SpecMusicalPictureList_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description 樂器代碼 */
+            MusicalId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            /** @description 相片來源 */
+            PicSrcId?: string | null;
+            /**
+             * Format: int32
+             * @description 排序編號
+             */
+            Sort?: number | null;
+            /** @description 相片說明 */
+            Info?: string | null;
+            _SpecMusical?: components["schemas"]["SpecMusicalModel_DTO"];
+        };
+        SpecMusicalSet_DTO: {
+            SpecMusical?: components["schemas"]["SpecMusicalModel_DTO"];
+            SpecMusicalSoundList?: components["schemas"]["SpecMusicalSoundList_DTO"][] | null;
+            SpecMusicalPictureList?: components["schemas"]["SpecMusicalPictureList_DTO"][] | null;
+        };
+        SpecMusicalSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SpecMusicalSet_DTO"];
+        };
+        SpecMusicalSoundList_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description 樂器代碼 */
+            MusicalId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            /** @description 音源 */
+            SoundSrcId?: string | null;
+            /** @description 音檔說明 */
+            Info?: string | null;
+            _SpecMusical?: components["schemas"]["SpecMusicalModel_DTO"];
+        };
+        SpecOpenScheduleRuleModel: {
+            /** Format: date-time */
+            CreateTime?: string | null;
+            CreateUser?: components["schemas"]["AccountModel"];
+            CreateUserId?: string | null;
+            /** Format: date-time */
+            ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["AccountModel"];
+            ModifyUserId?: string | null;
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["AccountModel"];
+            InvalidUserId?: string | null;
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            IsIniData?: boolean;
+            /** Format: date-time */
+            Validate_Start?: string | null;
+            /** Format: date-time */
+            Validate_End?: string | null;
+            /** @description [SpecAcademicYearId] */
+            AcademicYearId?: string | null;
+            /**
+             * Format: date
+             * @description [SpecAcademicStart]
+             */
+            AcademicStart?: string;
+            /**
+             * Format: date
+             * @description [SpecAcademicEnd]
+             */
+            AcademicEnd?: string;
+            /**
+             * Format: time
+             * @description [SpecWeekday_OpenTime]
+             */
+            Weekday_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecWeekday_CloseTime]
+             */
+            Weekday_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecSat_OpenTime]
+             */
+            Sat_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecSat_CloseTime]
+             */
+            Sat_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecSun_OpenTime]
+             */
+            Sun_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecSun_CloseTime]
+             */
+            Sun_CloseTime?: string | null;
+            /**
+             * Format: date
+             * @description [SpecWinterStart]
+             */
+            WinterStart?: string;
+            /**
+             * Format: date
+             * @description [SpecWinterEnd]
+             */
+            WinterEnd?: string;
+            /**
+             * Format: time
+             * @description [SpecWinter_Weekday_OpenTime]
+             */
+            Winter_Weekday_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecWinter_Weekday_CloseTime]
+             */
+            Winter_Weekday_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecWinter_Sat_OpenTime]
+             */
+            Winter_Sat_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecWinter_Sat_CloseTime]
+             */
+            Winter_Sat_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecWinter_Sun_OpenTime]
+             */
+            Winter_Sun_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecWinter_Sun_CloseTime]
+             */
+            Winter_Sun_CloseTime?: string | null;
+            /**
+             * Format: date
+             * @description [SpecSummerStart]
+             */
+            SummerStart?: string;
+            /**
+             * Format: date
+             * @description [SpecSummerEnd]
+             */
+            SummerEnd?: string;
+            /**
+             * Format: time
+             * @description [SpecSummer_Weekday_OpenTime]
+             */
+            Summer_Weekday_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecSummer_Weekday_CloseTime]
+             */
+            Summer_Weekday_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecSummer_Sat_OpenTime]
+             */
+            Summer_Sat_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecSummer_Sat_CloseTime]
+             */
+            Summer_Sat_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecSummer_Sun_OpenTime]
+             */
+            Summer_Sun_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecSummer_Sun_CloseTime]
+             */
+            Summer_Sun_CloseTime?: string | null;
+            /** @description 摘要 */
+            ModifyMemo?: string | null;
+        };
+        SpecOpenScheduleRuleModel_DTO: {
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
+            CreateTime?: string | null;
+            /** @description 創建人 */
+            CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["Account_DTO"];
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
+            ModifyTime?: string | null;
+            /** @description 修改人 */
+            ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["Account_DTO"];
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            /** @description [SpecAcademicYearId] */
+            AcademicYearId?: string | null;
+            /**
+             * Format: date
+             * @description [SpecAcademicStart]
+             */
+            AcademicStart?: string | null;
+            /**
+             * Format: date
+             * @description [SpecAcademicEnd]
+             */
+            AcademicEnd?: string | null;
+            /**
+             * Format: time
+             * @description [SpecWeekday_OpenTime]
+             */
+            Weekday_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecWeekday_CloseTime]
+             */
+            Weekday_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecSat_OpenTime]
+             */
+            Sat_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecSat_CloseTime]
+             */
+            Sat_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecSun_OpenTime]
+             */
+            Sun_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecSun_CloseTime]
+             */
+            Sun_CloseTime?: string | null;
+            /**
+             * Format: date
+             * @description [SpecWinterStart]
+             */
+            WinterStart?: string | null;
+            /**
+             * Format: date
+             * @description [SpecWinterEnd]
+             */
+            WinterEnd?: string | null;
+            /**
+             * Format: time
+             * @description [SpecWinter_Weekday_OpenTime]
+             */
+            Winter_Weekday_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecWinter_Weekday_CloseTime]
+             */
+            Winter_Weekday_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecWinter_Sat_OpenTime]
+             */
+            Winter_Sat_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecWinter_Sat_CloseTime]
+             */
+            Winter_Sat_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecWinter_Sun_OpenTime]
+             */
+            Winter_Sun_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecWinter_Sun_CloseTime]
+             */
+            Winter_Sun_CloseTime?: string | null;
+            /**
+             * Format: date
+             * @description [SpecSummerStart]
+             */
+            SummerStart?: string | null;
+            /**
+             * Format: date
+             * @description [SpecSummerEnd]
+             */
+            SummerEnd?: string | null;
+            /**
+             * Format: time
+             * @description [SpecSummer_Weekday_OpenTime]
+             */
+            Summer_Weekday_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecSummer_Weekday_CloseTime]
+             */
+            Summer_Weekday_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecSummer_Sat_OpenTime]
+             */
+            Summer_Sat_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecSummer_Sat_CloseTime]
+             */
+            Summer_Sat_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecSummer_Sun_OpenTime]
+             */
+            Summer_Sun_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description [SpecSummer_Sun_CloseTime]
+             */
+            Summer_Sun_CloseTime?: string | null;
+            /** @description 摘要 */
+            ModifyMemo?: string | null;
+        };
+        SpecOpenScheduleRuleSet_DTO: {
+            SpecOpenScheduleRule?: components["schemas"]["SpecOpenScheduleRuleModel_DTO"];
+        };
+        SpecOpenScheduleRuleSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
+        };
         SpecResearchDetailModel_DTO: {
-            /** @description 研究計畫 */
+            /** @description [SpecResearchId] */
             ResearchId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number;
-            /** @description 語系 */
-            Lang?: string | null;
+            Lang?: components["schemas"]["LangCode"];
             /**
              * Format: int32
-             * @description 年度
+             * @description [SpecResearch_Year]
              */
             Year?: number | null;
             /**
              * Format: int32
-             * @description 學年度
+             * @description [SpecResearch_AcademicYear]
              */
             AcademicYear?: number | null;
-            /** @description 學期 */
+            /** @description [SpecResearch_Semester] */
             Semester?: string | null;
-            /** @description 執行期間 */
+            /** @description [SpecResearch_DuringExecution] */
             DuringExecution?: string | null;
-            /** @description 合約期間 */
+            /** @description [SpecResearch_ContractPeriod] */
             ContractPeriod?: string | null;
-            /** @description 上課時間 */
+            /** @description [SpecResearch_ClassTime] */
             ClassTime?: string | null;
-            /** @description 計畫主持人 */
+            /** @description [SpecResearch_ProjectLeader] */
             ProjectLeader?: string | null;
-            /** @description 姓名 */
+            /** @description [SpecResearch_Name] */
             Name?: string | null;
-            /** @description 本校教學人員 */
+            /** @description [SpecResearch_TeachingStaffOfOurSchool] */
             TeachingStaffOfOurSchool?: string | null;
-            /** @description 核定編號 */
+            /** @description [SpecResearch_ApprovalNumber] */
             ApprovalNumber?: string | null;
             /**
              * Format: double
-             * @description 核定金額
+             * @description [SpecResearch_ApprovedAmount]
              */
             ApprovedAmount?: number | null;
-            /** @description 學院 */
+            /** @description [SpecResearch_College] */
             College?: string | null;
-            /** @description 系所 */
+            /** @description [SpecResearch_Department] */
             Department?: string | null;
-            /** @description 學位 */
+            /** @description [SpecResearch_Degree] */
             GraduationDegree?: string | null;
-            /** @description 合作單位/學校 */
+            /** @description [SpecResearch_CoUnits] */
             CooperatingUnits?: string | null;
-            /** @description 合作項目 */
+            /** @description [SpecResearch_CoProject] */
             CooperationProject?: string | null;
-            /** @description 課程/社團 */
+            /** @description [SpecResearch_Courses] */
             Courses?: string | null;
-            /** @description 計畫名稱 */
+            /** @description [SpecResearch_ProjectName] */
             ProjectName?: string | null;
-            /** @description 論文名稱 */
+            /** @description [SpecResearch_PaperTitle] */
             PaperTitle?: string | null;
-            /** @description 備註 */
+            /** @description [SpecResearch_Remark] */
             Remark?: string | null;
-            /** @description 共同主持人 */
+            /** @description [SpecResearch_Cohost1] */
             Cohost1?: string | null;
-            /** @description 協同主持人 */
+            /** @description [SpecResearch_Cohost2] */
             Cohost2?: string | null;
-            /** @description 委辦/補助單位 */
+            /** @description [SpecResearch_Commissioned] */
             Commissioned?: string | null;
             /**
              * Format: double
-             * @description 計畫金額
+             * @description [SpecResearch_PlanAmount]
              */
             PlanAmount?: number | null;
-            /** @description 計畫內容簡介 */
+            /** @description [SpecResearch_PlanContent] */
             PlanContent?: string | null;
-            /** @description 委辦/補助單位 */
+            /** @description [SpecResearch_Professor] */
             Professor?: string | null;
         };
         SpecResearchModel_DTO: {
@@ -7955,12 +12473,13 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
-            /** @description 研究計畫 */
+            OrgLvId?: string | null;
+            /** @description [SpecResearchId] */
             ResearchId?: string | null;
-            /** @description 計畫類別 */
+            /** @description [SpecResearch_Categories] */
             CategoryId?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
-            /** @description 標籤 */
+            /** @description [SpecResearch_Tags] */
             Tags?: string | null;
             _SpecResearchDetail?: components["schemas"]["SpecResearchDetailModel_DTO"][] | null;
         };
@@ -7973,76 +12492,75 @@ export interface components {
             Data?: components["schemas"]["SpecResearchSet_DTO"];
         };
         SpecUSRDetail_DTO: {
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number;
-            /** @description 語系 */
-            Lang: string;
-            /** @description 年度 */
+            Lang: components["schemas"]["LangCode"];
+            /** @description [SpecUSR_Year] */
             Year?: string | null;
             /**
              * Format: int32
-             * @description 學年度
+             * @description [SpecUSR_AcademicYear]
              */
             AcademicYear?: number | null;
-            /** @description 課程/活動名稱 */
+            /** @description [SpecUSR_Courses] */
             Courses?: string | null;
-            /** @description 實踐領域 */
+            /** @description [SpecUSR_PracticeField] */
             PracticeField?: string | null;
-            /** @description 計畫名稱 */
+            /** @description [SpecUSR_ProjectName] */
             ProjectName?: string | null;
-            /** @description 外部合作單位 */
+            /** @description [SpecUSR_ExternalCoUnits] */
             ExternalCooperationUnit?: string | null;
-            /** @description 本校執行系所/單位 */
+            /** @description [SpecUSR_Department] */
             Department?: string | null;
-            /** @description 執行期間 */
+            /** @description [SpecUSR_DuringExecution] */
             DuringExecution?: string | null;
             /**
              * Format: double
-             * @description 計畫金額
+             * @description [SpecUSR_PlanAmount]
              */
             PlanAmount?: number | null;
-            /** @description 執行策略 */
+            /** @description [SpecUSR_ExecutionStrategy] */
             ExecutionStrategy?: string | null;
-            /** @description 計畫內容簡介 */
+            /** @description [SpecUSR_ContentIntro] */
             ContentIntroduction?: string | null;
-            /** @description 計畫理念 */
+            /** @description [SpecUSR_ProjectConcept] */
             ProjectConcept?: string | null;
-            /** @description 計畫亮點 */
+            /** @description [SpecUSR_KeyHighlights] */
             ProjectHighlights?: string | null;
-            /** @description 計畫主持人 */
+            /** @description [SpecUSR_ProjectLeader] */
             ProjectLeader?: string | null;
-            /** @description 子計畫主持人 */
+            /** @description [SpecUSR_ProjectSubLeader] */
             ProjectSubLeader?: string | null;
-            /** @description 參與之師生或團隊 */
+            /** @description [SpecUSR_AttendTeam] */
             AttendTeam?: string | null;
-            /** @description 共同主持人 */
+            /** @description [SpecUSR_Cohost1] */
             Cohost1?: string | null;
-            /** @description 協同主持人 */
+            /** @description [SpecUSR_Cohost2] */
             Cohost2?: string | null;
-            /** @description 委辦/補助單位 */
+            /** @description [SpecUSR_Commissioned] */
             Commissioned?: string | null;
-            /** @description 備註 */
+            /** @description [SpecUSR_Remark] */
             Remark?: string | null;
-            /** @description 計畫類別 */
+            /** @description [SpecUSR_ProjectItem] */
             ProjectItem?: string | null;
             /**
              * @deprecated
-             * @description 相關網址
+             * @description [SpecUSR_Url]
              */
             Url?: string | null;
             /**
              * @deprecated
-             * @description 相關網址說明
+             * @description [SpecUSR_UrlDescription]
              */
             UrlDescription?: string | null;
         };
         SpecUSRFile_DTO: {
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
             /**
              * Format: int32
@@ -8085,25 +12603,23 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
-            /** @description USR計畫 */
+            OrgLvId?: string | null;
+            /** @description [SpecUSRId] */
             USRId?: string | null;
-            /** @description 計畫類別 */
+            /** @description [SpecResearch_Categories] */
             CategoryId?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
-            /** @description 標籤 */
+            /** @description [SpecResearch_Tags] */
             Tags?: string | null;
-            /** @description 成果照片 */
+            /** @description [SpecUSR_PictureId] */
             PictureId?: string | null;
-            /**
-             * @deprecated
-             * @description 圖片說明
-             */
+            /** @description [SpecUSR_PicDescription] */
             PicDescription?: string | null;
             _SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"][] | null;
             _SpecUSRPhoto?: components["schemas"]["SpecUSRPhoto_DTO"][] | null;
         };
         SpecUSRPhotoInfo_DTO: {
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
             /**
              * Format: int32
@@ -8115,14 +12631,13 @@ export interface components {
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description 語系 */
-            Lang?: string | null;
+            Lang?: components["schemas"]["LangCode"];
             /** @description 標題 */
             Title?: string | null;
             _SpecUSRPhoto?: components["schemas"]["SpecUSRPhoto_DTO"];
         };
         SpecUSRPhoto_DTO: {
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
             /**
              * Format: int32
@@ -8151,7 +12666,7 @@ export interface components {
             Data?: components["schemas"]["SpecUSRSet_DTO"];
         };
         SpecUSRUrl_DTO: {
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
             /**
              * Format: int32
@@ -8169,6 +12684,11 @@ export interface components {
             UrlDescription?: string | null;
             WindowTarget?: components["schemas"]["WindowTarget"];
             _SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"];
+        };
+        SysMessageModel: {
+            Status?: components["schemas"]["MessageStatus"];
+            MessageCode?: string | null;
+            Message?: string | null;
         };
         TagData_DTO: {
             /**
@@ -8194,6 +12714,7 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            OrgLvId?: string | null;
             /** @description 標籤功能 */
             TagId?: string | null;
             /** @description 功能模塊代碼 */
@@ -8208,8 +12729,7 @@ export interface components {
              * @description 行代碼
              */
             RowId?: number;
-            /** @description 語系 */
-            Lang?: string | null;
+            Lang?: components["schemas"]["LangCode"];
             /** @description 標籤名稱 */
             TagName?: string | null;
         };
@@ -8229,8 +12749,7 @@ export interface components {
              * @description 行代碼
              */
             RowId?: number;
-            /** @description 語系 */
-            Lang?: string | null;
+            Lang?: components["schemas"]["LangCode"];
             /** @description 標題 */
             Title?: string | null;
             /** @description 內文 */
@@ -8271,6 +12790,7 @@ export interface components {
             InvalidUserId?: string | null;
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
+            OrgLvId?: string | null;
             /** @description 網路資源 */
             WebResourceId?: string | null;
             /** @description 類別 */
@@ -8282,6 +12802,16 @@ export interface components {
             PicId?: string | null;
             /** @description 圖片說明 */
             PicDescription?: string | null;
+            /**
+             * Format: date-time
+             * @description 上架日期
+             */
+            Validate_Start?: string | null;
+            /**
+             * Format: date-time
+             * @description 下架日期
+             */
+            Validate_End?: string | null;
             _WebResourceInfo?: components["schemas"]["WebResourceInfo_DTO"][] | null;
         };
         /**

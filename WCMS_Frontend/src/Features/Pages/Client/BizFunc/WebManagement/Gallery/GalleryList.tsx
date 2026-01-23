@@ -4,7 +4,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { useLocation } from "react-router";
 import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
 import { useCategoryListData } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { GalleryFields, GalleryInfoFields, GallerySetFields } from "@/types/SchemaFields";
 import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
@@ -15,16 +15,17 @@ import GalleryProvider from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gall
 import type { components } from "@/types/api";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { Link } from "react-router-dom";
+import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 
 export interface IGalleryListOptions { Title: string, Category?: string; Tag?: string; Style: number; }
-export interface IGalleryListProps { theme: IFETheme; lang: Lang; options?: IGalleryListOptions; title: string }
+export interface IGalleryListProps { node: INormNode; theme: IFETheme; lang: Lang; options?: IGalleryListOptions; title: string }
 const GalleryList = (props: IGalleryListProps) => {
     // <Gallery {...props} />
-    const useCategoryList = useCategoryListData(ProgId.Gallery, props.lang)
+    const useCategoryList = useCategoryListData(PGID.Gallery, props.lang)
     const provider = useMemo(() => { return GalleryProvider() }, [])
     const useListData = useGalleryList(provider, props.lang, props.options?.Category ?? "", props.options?.Tag ?? "");
     const loadingList = [useListData.isLoading, useCategoryList.isLoading, useCategoryList.isLoading];
@@ -33,7 +34,7 @@ const GalleryList = (props: IGalleryListProps) => {
     const children = useMemo(() => { return <Gallery key="grid" lang={props.lang} data={useListData.rawData} cateData={useCategoryList.rawData} />; }, [useListData.rawData, props.lang, props.options, useCategoryList.rawData]);
 
     return (
-        <ModuleContent title={""} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops}>
+        <ModuleContent nodeTitle={props.node.title} title={""} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops}>
             {children}
         </ModuleContent>
     )
@@ -55,19 +56,20 @@ const Gallery = (props: { lang: Lang; data: GallerySet[]; cateData: CategorySet[
                     const categories = categorys.map(catId => props.cateData?.find(s => String(s.Category?.CategoryId) === catId)?.CategoryDetail?.find(d => d.Lang === props.lang)?.CategoryName).filter((x): x is string => !!x).join("、");
                     const validate_Start = FormatDate(item.Gallery?.Validate_Start)
                     const content = item.GalleryInfo?.find(p => p.Lang === props.lang)?.Title ?? ""
+                    const contentStatus = item.Gallery?.ContentStatus ?? 0;
                     return (
                         <div key={idx} className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
                             <article className="cardbox">
                                 <div className="card_content">
 
                                     <figure className="figure_Box">
-                                        <Link to={linkUrl} className="card_image_link venobox" data-gall="myGallery" title={title}>
+                                        <LangLink to={linkUrl} className="card_image_link venobox" data-gall="myGallery" title={title}>
                                             <div className="card_figure">
                                                 <div className="img-wrapper">
                                                     <img className="card_image" src={coverPicUrl} alt={coverPicDesc} />
                                                 </div>
                                             </div>
-                                        </Link>
+                                        </LangLink>
                                     </figure>
 
                                     <div className="card_catDiv">
@@ -83,21 +85,27 @@ const Gallery = (props: { lang: Lang; data: GallerySet[]; cateData: CategorySet[
                                     </div>
 
                                     <div className="card_titleDiv + mb-md-4 mb-sm-3 mb-2">
-                                        <Link to={linkUrl} className="card_title">
+                                        <LangLink to={linkUrl} className="card_title">
                                             {content}
-                                        </Link>
+                                        </LangLink>
+                                        <div className="d-flex gap-1 flex-wrap">
+                                            {Boolean(contentStatus & 1) && (<span className="label label-success">置頂</span>)}
+                                            {Boolean(contentStatus & 2) && (<span className="label label-danger">熱門</span>)}
+                                        </div>
                                     </div>
 
                                     <div className="card_StateDiv">
                                         <div className="More customize_btn">
-                                            <a href="javascript:void(0);" className="Btn_s1" type="button" role="button" title="觀看更多">VIEW ALL<span className="ml-2">+</span></a>
+                                            <LangLink to={linkUrl} className="Btn_s1" type="button" role="button" title="觀看更多">
+                                                VIEW ALL<span className="ml-2">+</span>
+                                            </LangLink>
                                         </div>
 
                                         <div className="ZoomIn customize_ZoomIn_btn">
-                                            <a href="images/media_reports/images_960x960.jpg" className="Btn_zm1 venobox" data-gall="myGallery" type="button" role="button" title="放大圖片">
+                                            <LangLink to={linkUrl} className="Btn_zm1 venobox" data-gall="myGallery" type="button" role="button" title="放大圖片">
                                                 <i className="fas fa-expand-alt"></i>
                                                 <span className="sr-only">放大圖片</span>
-                                            </a>
+                                            </LangLink>
                                         </div>
                                     </div>
                                 </div>
@@ -119,6 +127,8 @@ const useGalleryList = (provider: IDataProvider<GallerySet>, lang: string, categ
     if (categoryIds) condition = LibMerge(" And ", false, condition, `${GalleryFields.Categories} HasAny [${categoryIds}]`)
     if (tagIds) condition = LibMerge(" And ", false, condition, `${GalleryFields.Tags} HasAny [${tagIds}]`)
     condition = LibMerge(" And ", false, condition, `${GalleryFields.ContentStatus} !& 4`)//不包含隱藏的資料
+    condition = LibMerge(" And ", false, condition, `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang} = ${lang}`)
+    condition = LibMerge(" And ", false, condition, `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title} != ''`)
     return useFetchGridListData<GallerySet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
@@ -134,15 +144,13 @@ const useGalleryList = (provider: IDataProvider<GallerySet>, lang: string, categ
         ],
         buildQueryCondition: (page) => ({
             Fields: [
-                GalleryFields.InternalId,
-                GalleryFields.Categories,
-                GalleryFields.CoverPicSrcId,
-                GalleryFields.CreateTime,
-                GalleryFields.Validate_Start,
+                GalleryFields.InternalId, GalleryFields.Categories, GalleryFields.CoverPicSrcId, GalleryFields.CreateTime,
+                GalleryFields.Validate_Start, GalleryFields.ContentStatus,
                 `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang}`,
                 `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title}`,
             ],
             Condition: condition,
+            RankGroups: [{ Condition: `${GalleryFields.ContentStatus} & 1` }],
             OrderBy: [{ Col: GalleryFields.Validate_Start, Desc: true }, { Col: GalleryFields.CreateTime, Desc: true }],
             PageNumber: page,
             PageSize: 12,

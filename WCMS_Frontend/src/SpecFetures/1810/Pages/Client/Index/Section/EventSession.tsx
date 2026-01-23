@@ -1,7 +1,4 @@
 /* Banner */
-import type { components } from '@/types/api';
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
-type TagSet = components["schemas"]["TagSet_DTO"]
 import * as SchemaFields from "@/types/SchemaFields";
 import { Link } from 'react-router-dom';
 import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api';
@@ -15,6 +12,11 @@ import defaulteventpic from '@/SpecFetures/1810/Assets/Custom/DefaultEventPic_94
 import { useNow } from '@/SysCore/Utils/Library/LibHook';
 import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
 import bgImg from '@/SpecFetures/1810/Assets/Client/Images/bg/background-transparent-image_1920x600.png'
+import type { components } from '@/types/api';
+import { LangLink } from "@/SysCore/i18n/LangLink";
+import type { Lang } from "@/SysCore/i18n/lang";
+type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
+type TagSet = components["schemas"]["TagSet_DTO"]
 interface EventData {
     Id: string;
     Title: string; // 標題
@@ -84,21 +86,21 @@ const useTagList = () => {
     });
 };
 
-export const EventSession = () => {
+export const EventSession = (props: { lang: Lang }) => {
     const useEvent = useAnnouncementList();
     const useTag = useTagList();
     const isLoading = [useEvent.isLoading, useTag.isLoading]
     const errors = [useEvent.error, useTag.error]
-    const lang = 'zh-tw'
+
     const tagDict: Record<string, string> = Object.fromEntries(
         (useTag.rawData ?? []).map(tag => {
             const id = tag.TagData?.TagId;
-            const name = tag.TagDetail?.find(p => p.Lang === lang)?.TagName ?? "";
+            const name = tag.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "";
             return [id, name];
         })
     );
     const rawData = (useEvent.rawData ?? []).sort((a, b) => new Date(b.Announcement?.Validate_Start ?? "").getTime() - new Date(a.Announcement?.Validate_Start ?? "").getTime()).slice(0, 6);
-    const eventList = getData(lang, rawData, tagDict)
+    const eventList = getData(props.lang, rawData, tagDict)
     const carouselRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
         if (eventList.length > 0 && carouselRef.current) {
@@ -156,97 +158,96 @@ export const EventSession = () => {
 
 
     return (
-        <LoadingErrorHandler loadingList={isLoading} errorList={errors}>
-            <section className="Event-section owl-box" style={{ backgroundImage: `url(${bgImg})` }}>
-                <div className="Mask-DivBox layout_padding2">
-                    <div className="customizeBox">
-                        <div className="container-customize1">
-                            <div className="row">
-                                <div className="col-12 px-4 + animate__animated animate__slow wow animate__bounceInUp" data-wow-delay="0.1s">
-                                    {/* // 標題 start // */}
-                                    <div className="Standard-TitleDiv div-header">
-                                        <div className="TextDIV">
-                                            <h3><span className="title-tw">活動資訊<span className="c-line-3ac3d1"></span></span></h3>
-                                            <span className="en-box">
-                                                <span className="title-en-3ac3d1">Event information</span>
-                                            </span>
-                                        </div>
+        // <LoadingErrorHandler loadingList={isLoading} errorList={errors}>
+        <section className="Event-section owl-box" style={{ backgroundImage: `url(${bgImg})` }}>
+            <div className="Mask-DivBox layout_padding2">
+                <div className="customizeBox">
+                    <div className="container-customize1">
+                        <div className="row">
+                            <div className="col-12 px-4 + animate__animated animate__slow wow animate__bounceInUp" data-wow-delay="0.1s">
+                                {/* // 標題 start // */}
+                                <div className="Standard-TitleDiv div-header">
+                                    <div className="TextDIV">
+                                        <h3><span className="title-tw">活動資訊<span className="c-line-3ac3d1"></span></span></h3>
+                                        <span className="en-box">
+                                            <span className="title-en-3ac3d1">Event information</span>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div className="container-customize1">
-                            <div className="row">
-                                <div className="col-12 + p-0">
-                                    <div className="content-box + animate__animated animate__slow wow animate__bounceInUp" data-wow-delay="0.1s">
-                                        <div id="Event" className="owl-carousel owl-theme px-2" ref={carouselRef}>
-                                            {/* <asp:Literal ID="Lit_Event" runat="server" /> {/*輪播項目*/}
-                                            {eventList.map((item, index) => {
-                                                const { month, day } = getMonthDayNums(item.date);
-                                                return item && (
-                                                    <div className="item" key={item.Id}>
-                                                        <Link to={`Allnews/Intramural-activities/In-school-activities${item.Url}`} title={item.Title} tabIndex={index + 1}>
-                                                            <div className="DivBox_content v_itemBOX">
-                                                                <div className="Picture_Div">
-                                                                    <div className="img_wrapper">
-                                                                        <div className="figure_wrapper">
-                                                                            <img src={item.ImgSrc} alt={item.Title} />
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="TxtBoxDiv">
-                                                                    <div className="card_titleDiv">
-                                                                        <div className="card_title">{item.Title}</div>
-                                                                    </div>
-                                                                    <div className="m-news_detail">
-
-                                                                        <div className="customstyle-hotop">
-                                                                            {isWithinLastNDaysFromMD(Number(month), Number(day)) && (
-                                                                                <div className="icon-small new-bg" role="status" aria-label="最新">最新</div>
-                                                                            )}
-                                                                            {item.contentStatus != 0 && (
-                                                                                <>
-                                                                                    {Boolean(item.contentStatus & 1) && (<div className="icon-small top-bg">置頂</div>)}
-                                                                                    {Boolean(item.contentStatus & 2) && (<div className="icon-small hot-bg">熱門</div>)}
-                                                                                </>
-                                                                            )}
-                                                                        </div>
-
-
-                                                                        <div className="category_box">
-                                                                            <div className="m-news_category"> <i className="fa fa-bookmark" aria-hidden="true"></i>
-                                                                                <div className="tags-text">{item.Tags}</div>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="TimeBoxDiv">
-                                                                            <div className="card_time"><i className="fa fa-clock-o" aria-hidden="true"></i>{FormatDate(item.date)}</div>
-                                                                            <div className="card_arrow"><i className="fa fa-arrow-circle-right" aria-hidden="true"></i></div>
-                                                                        </div>
+                    </div>
+                    <div className="container-customize1">
+                        <div className="row">
+                            <div className="col-12 + p-0">
+                                <div className="content-box + animate__animated animate__slow wow animate__bounceInUp" data-wow-delay="0.1s">
+                                    <div id="Event" className="owl-carousel owl-theme px-2" ref={carouselRef}>
+                                        {/* <asp:Literal ID="Lit_Event" runat="server" /> {/*輪播項目*/}
+                                        {eventList.map((item, index) => {
+                                            const { month, day } = getMonthDayNums(item.date);
+                                            return item && (
+                                                <div className="item" key={item.Id}>
+                                                    <LangLink to={`Allnews/Intramural-activities/In-school-activities${item.Url}`} title={item.Title} tabIndex={index + 1}>
+                                                        <div className="DivBox_content v_itemBOX">
+                                                            <div className="Picture_Div">
+                                                                <div className="img_wrapper">
+                                                                    <div className="figure_wrapper">
+                                                                        <img src={item.ImgSrc} alt={item.Title} />
                                                                     </div>
                                                                 </div>
                                                             </div>
+                                                            <div className="TxtBoxDiv">
+                                                                <div className="card_titleDiv">
+                                                                    <div className="card_title">{item.Title}</div>
+                                                                </div>
+                                                                <div className="m-news_detail">
 
-                                                        </Link>
-                                                    </div>
-                                                )
-                                            })}
-                                        </div>
-                                        <div className="control-box">
-                                            <a id="Event_start" href="#" onClick={(e) => { e.preventDefault(); }} className="play" tabIndex={12} title="播放">
-                                                <div className="control_start">
-                                                    <span className="control-start-icon"><span className="d-none">播放</span></span>
+                                                                    <div className="customstyle-hotop">
+                                                                        {isWithinLastNDaysFromMD(Number(month), Number(day)) && (
+                                                                            <div className="icon-small new-bg" role="status" aria-label="最新">最新</div>
+                                                                        )}
+                                                                        {item.contentStatus != 0 && (
+                                                                            <>
+                                                                                {Boolean(item.contentStatus & 1) && (<div className="icon-small top-bg">置頂</div>)}
+                                                                                {Boolean(item.contentStatus & 2) && (<div className="icon-small hot-bg">熱門</div>)}
+                                                                            </>
+                                                                        )}
+                                                                    </div>
+
+
+                                                                    <div className="category_box">
+                                                                        <div className="m-news_category"> <i className="fa fa-bookmark" aria-hidden="true"></i>
+                                                                            <div className="tags-text">{item.Tags}</div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="TimeBoxDiv">
+                                                                        <div className="card_time"><i className="fa fa-clock-o" aria-hidden="true"></i>{FormatDate(item.date)}</div>
+                                                                        <div className="card_arrow"><i className="fa fa-arrow-circle-right" aria-hidden="true"></i></div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </LangLink>
                                                 </div>
-                                            </a>
-                                            <a id="Event_pause" href="#" onClick={(e) => { e.preventDefault(); }} className="stop" tabIndex={12} title="暫停">
-                                                <div className="control_pause">
-                                                    <span className="control-pause-icon"><span className="d-none">暫停</span></span>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div className="btn_Div justify-content-end px-2">
-                                            <div className="customize_btn my-3">
-                                                <Link to="/Allnews/Intramural-activities/In-school-activities" className="Btn_s2" tabIndex={12} title="更多活動資訊">VIEW ALL<span className="ml-2">+</span></Link>
+                                            )
+                                        })}
+                                    </div>
+                                    <div className="control-box">
+                                        <a id="Event_start" href="#" onClick={(e) => { e.preventDefault(); }} className="play" tabIndex={12} title="播放">
+                                            <div className="control_start">
+                                                <span className="control-start-icon"><span className="d-none">播放</span></span>
                                             </div>
+                                        </a>
+                                        <a id="Event_pause" href="#" onClick={(e) => { e.preventDefault(); }} className="stop" tabIndex={12} title="暫停">
+                                            <div className="control_pause">
+                                                <span className="control-pause-icon"><span className="d-none">暫停</span></span>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div className="btn_Div justify-content-end px-2">
+                                        <div className="customize_btn my-3">
+                                            <LangLink to="/Allnews/Intramural-activities/In-school-activities" className="Btn_s2" tabIndex={12} title="更多活動資訊">VIEW ALL<span className="ml-2">+</span></LangLink>
                                         </div>
                                     </div>
                                 </div>
@@ -254,11 +255,9 @@ export const EventSession = () => {
                         </div>
                     </div>
                 </div>
-            </section>
-
-
-
-        </LoadingErrorHandler>
+            </div>
+        </section>
+        // </LoadingErrorHandler>
     )
 };
 

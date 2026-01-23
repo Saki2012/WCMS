@@ -13,10 +13,11 @@ import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { useEffect, useMemo, useState } from "react";
 import { SearchBarComp, type ISearchQuery } from "@/SysCore/Components/SearchBar/SearchBar_Comp";
 import { useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
+import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
 type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"];
 type FileArchiveUrlDetail = components["schemas"]["FileArchiveUrlDetail_DTO"];
@@ -28,12 +29,8 @@ export interface FileArchiveProps { lang: Lang; theme: IFETheme; options: IFileA
 const FileArchiveList = (props: FileArchiveProps) => {
     const [queryDraft, setQueryDraft] = useState<ISearchQuery>({});
     const [query, setQuery] = useState<ISearchQuery>({});
-
     const pvder = useMemo(() => { return { FileArchive: FileArchiveProvider() } }, []);
-
-
-
-    const useTagData = useTagListData(ProgId.FileArchive, props.lang);
+    const useTagData = useTagListData(PGID.FileArchive, props.lang);
     const useFileArchiveList = useFileArchive(pvder.FileArchive, props.lang, props.options.Category, props.options.Tag, useTagData.rawData, query);
     const tags = (useTagData.rawData ?? []).map(t => ({ id: t.TagData?.TagId ?? "", name: t.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "" }));
     const tagMap = useMemo(() => {
@@ -51,7 +48,7 @@ const FileArchiveList = (props: FileArchiveProps) => {
     const errorList: (string | null | undefined)[] = [useFileArchiveList.error, useTagData.error];
     const paginprops: PaginatorProps = { currentPage: adjustedGrid.CurrentPage, totalPages: adjustedGrid.TotalPage, onPageChange: adjustedGrid.onPageChange };
     return (
-        <ModuleContent title={""} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops}>
+        <ModuleContent nodeTitle={props.node.title} title={""} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops}>
             <GridList_Comp key="grid" gridData={adjustedGrid} title={props.node.title} />
         </ModuleContent>
     )
@@ -82,11 +79,14 @@ const GridList_Comp = (props: { title: string; gridData: GridProps; }) => {
         });
     };
     return (
-        <table className={"table table-striped table-bordered table-hover + table-rwd"} summary={props.title}>
-            <caption>{props.title}</caption>
-            <ColRender columns={columns} onResize={handleResize} />
-            <RowRender rows={props.gridData.rows} />
-        </table>
+        <>
+            <OperationGuideHelp_Comp />
+            <table className={"table table-striped table-bordered table-hover + table-rwd"} summary={props.title}>
+                <caption>{props.title}</caption>
+                <ColRender columns={columns} onResize={handleResize} />
+                <RowRender rows={props.gridData.rows} />
+            </table>
+        </>
     );
 }
 
@@ -97,21 +97,20 @@ const useFileArchive = (provider: IDataProvider<FileArchiveSet>, lang: Lang, cat
     if (categoryIds) condition = LibMerge(" And ", false, condition, `${FileArchiveFields.CategoriesId} HasAny [${categoryIds}]`)
     if (tagIds) condition = LibMerge(" And ", false, condition, `${FileArchiveFields.TagsId} HasAny [${tagIds}]`)
     condition = LibMerge(" And ", false, condition, `${FileArchiveFields.ContentStatus} !& 4`)//不包含隱藏的資料
+    condition = LibMerge(" And ", false, condition, `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Lang} = ${lang}`)
+    condition = LibMerge(" And ", false, condition, `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Title} != ''`)
     return useFetchGridListData<FileArchiveSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
         fetchList: (cond) => provider.fetchList(cond),
         fetchListCount: (cond) => provider.fetchListCount(cond),
         visibleKeys: [
-            [FileArchiveSetFields.FileArchive, FileArchiveFields.TagsId],
+            // [FileArchiveSetFields.FileArchive, FileArchiveFields.TagsId],
             [FileArchiveSetFields.FileArchiveInfo, FileArchiveInfoFields.Title],
-            [FileArchiveSetFields.FileArchive, FileArchiveFields.DownloadCount]
+            // [FileArchiveSetFields.FileArchive, FileArchiveFields.DownloadCount]
         ],
         buildQueryCondition: (page) => ({
             Fields: [
-                FileArchiveFields.InternalId,
-                FileArchiveFields.FileArchiveId,
-                FileArchiveFields.TagsId,
-                FileArchiveFields.DownloadCount,
+                FileArchiveFields.InternalId, FileArchiveFields.FileArchiveId, FileArchiveFields.TagsId, FileArchiveFields.DownloadCount, FileArchiveFields.ContentStatus,
                 `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.FileArchiveId}`,
                 `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.RowId}`,
                 `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Lang}`,
@@ -130,6 +129,7 @@ const useFileArchive = (provider: IDataProvider<FileArchiveSet>, lang: Lang, cat
 
             ],
             Condition: condition,
+            RankGroups: [{ Condition: `${FileArchiveFields.ContentStatus} & 1` }],
             OrderBy: [{ Col: FileArchiveFields.CreateTime, Desc: true }],
             PageNumber: page,
             PageSize: 10,
@@ -157,9 +157,12 @@ const useFileArchive = (provider: IDataProvider<FileArchiveSet>, lang: Lang, cat
 };
 
 const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: FileArchiveSet[], tagMap: Map<string, string>): GridProps => {
+    // 宣告變數
     const downloadColName = '__Download__';
+    // 執行 function
     if (gridProps.columns.some(col => col.key === downloadColName)) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
+
     // 1) 欄位層級：抽掉「下載次數」，最後組合為「其他｜下載｜下載次數」
     let baseColumns = [...gridProps.columns];
     const dcIdx = baseColumns.findIndex(c => c.key === FileArchiveFields.DownloadCount);
@@ -168,16 +171,23 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: FileArchiv
     if (dcIdx !== -1) {
         [downloadCountCol] = baseColumns.splice(dcIdx, 1);
     }
+
     const downloadCol: ColumnConfig = { key: downloadColName, title: '下載' };
-    const newColumns: ColumnConfig[] = [...baseColumns, downloadCol, ...(downloadCountCol ? [downloadCountCol] : []),];
+    const newColumns: ColumnConfig[] = [...baseColumns, downloadCol, ...(downloadCountCol ? [downloadCountCol] : [])];
+
     // 2) 列層級：抽掉「下載次數」cell，最後組合為「其他｜下載｜下載次數」
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
-        const fileInfoRowId = rawData?.[index].FileArchiveInfo?.find(p => p.Lang === lang)?.RowId;
-        const fileRows = rawData[index].FileArchiveDetail?.filter(p => p.ParentRowId === fileInfoRowId) as FileArchiveDetail[];
-        const urlRows = rawData[index].FileArchiveUrlDetail?.filter(p => p.ParentRowId === fileInfoRowId) as FileArchiveUrlDetail[];
+        // 宣告變數
+        const curRow = rawData?.[index];
+        const contentStatus = Number(curRow?.FileArchive?.ContentStatus ?? 0);
+
+        const fileInfoRowId = curRow?.FileArchiveInfo?.find(p => p.Lang === lang)?.RowId;
+        const fileRows = (curRow?.FileArchiveDetail?.filter(p => p.ParentRowId === fileInfoRowId) ?? []) as FileArchiveDetail[];
+        const urlRows = (curRow?.FileArchiveUrlDetail?.filter(p => p.ParentRowId === fileInfoRowId) ?? []) as FileArchiveUrlDetail[];
+
         // 產生「下載」內容
         let downloadFileContent = <></>;
-        fileRows?.forEach(item => {
+        fileRows.forEach(item => {
             downloadFileContent = (
                 <>
                     {downloadFileContent}
@@ -185,35 +195,71 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: FileArchiv
                 </>
             );
         });
-        urlRows?.forEach(item => {
-            downloadFileContent = <>
-                {downloadFileContent}
-                {SetUrlIcon(item.Url ?? "", item.UrlDescription ?? "", item.WindowTarget ?? 0)}
-            </>
-        });
-        const cells = row.cells.map(cell => {
-            if (cell.col?.key !== FileArchiveFields.TagsId) return cell;
-            const ids = String(cell.content ?? "").split(",").map(s => s.trim()).filter(Boolean);
-            const names = ids.map(id => tagMap.get(id)).filter((x): x is string => !!x).join("、");
-            return { ...cell, content: names };
+        urlRows.forEach(item => {
+            downloadFileContent = (
+                <>
+                    {downloadFileContent}
+                    {SetUrlIcon(item.Url ?? "", item.UrlDescription ?? "", item.WindowTarget ?? 0)}
+                </>
+            );
         });
 
+        // 執行 function：處理 tags 顯示 + title label 顯示
+        const cells = row.cells.map(cell => {
+            // tags：把 ids 轉成名稱
+            if (cell.col?.key === FileArchiveFields.TagsId) {
+                const ids = String(cell.content ?? "").split(",").map(s => s.trim()).filter(Boolean);
+                const names = ids.map(id => tagMap.get(id)).filter((x): x is string => !!x).join("、");
+                return { ...cell, content: names };
+            }
+
+            // title：在 title 前面加 labels
+            const isTitle = cell.col?.key === FileArchiveInfoFields.Title;
+            if (isTitle) {
+                const titleContent = cell.content; // 原本 parseRow 產生的 title 字串
+                return {
+                    ...cell,
+                    content: (
+                        <>
+                            <div>{titleContent}</div>
+                            <div className="d-flex gap-1 flex-wrap">
+                                {Boolean(contentStatus & 1) && (<span className="label label-success">置頂</span>)}
+                                {Boolean(contentStatus & 2) && (<span className="label label-danger">熱門</span>)}
+                            </div>
+                        </>
+                    )
+                };
+            }
+
+            return cell;
+        });
+
+        // 把下載次數 cell 抽掉
         const dcCellIdx = cells.findIndex(c => c.col?.key === FileArchiveFields.DownloadCount);
         let downloadCountCell: RowCell | null = null;
         if (dcCellIdx !== -1) {
             [downloadCountCell] = cells.splice(dcCellIdx, 1);
             if (downloadCountCol) downloadCountCell = { ...downloadCountCell, col: downloadCountCol };
         }
+
+        // 插入下載 cell
         const downloadCell: RowCell = {
-            col: downloadCol, content:
+            col: downloadCol,
+            content: (
                 <div className="Standard_btnDiv">
                     {downloadFileContent}
                 </div>
+            )
         };
-        return { ...row, cells: [...cells, downloadCell, ...(downloadCountCell ? [downloadCountCell] : [])], };
+
+        // return
+        return { ...row, cells: [...cells, downloadCell, ...(downloadCountCell ? [downloadCountCell] : [])] };
     });
+
+    // return
     return { ...gridProps, columns: newColumns, rows: newRows };
 };
+
 const SetDownloadIcon = (fileInternalId: string, fileExtName: string, fileTitle: string) => {
     return (
         <a href={`${FileManagementAPI.DOWNLOAD_URL}/${fileInternalId}`}

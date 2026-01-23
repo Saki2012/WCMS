@@ -41,6 +41,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.8" />
+    <PackageReference Include="Microsoft.Playwright" Version="1.57.0" />
     <PackageReference Include="Mime-Detective" Version="25.8.1" />
     <PackageReference Include="Mime-Detective.Definitions.Condensed" Version="25.8.1" />
     <PackageReference Include="Mime-Detective.Definitions.Exhaustive" Version="25.8.1" />
@@ -54,8 +55,6 @@
 
 	<ItemGroup>
 		<Folder Include="Features\Finance\" />
-		<Folder Include="Features\BizResx\" />
-		<Folder Include="Features\SiteEdit\PCS_Sites\" />
 		<Folder Include="Features\SystemSetting\SiteInfo\EnvConfig\" />
 		<Folder Include="Features\SystemSetting\SiteInfo\SiteArch\" />
 		<Folder Include="Features\SystemSetting\SiteInfo\SEO\" />
@@ -114,15 +113,25 @@
 
 	
 	<ItemGroup>
+	  <Compile Remove="Publish\**" />
 	  <Compile Remove="SysCore\SystemFunc\UserRolePermission\**" />
+	  <Content Remove="Publish\**" />
 	  <Content Remove="SysCore\SystemFunc\UserRolePermission\**" />
+	  <EmbeddedResource Remove="Publish\**" />
 	  <EmbeddedResource Remove="SysCore\SystemFunc\UserRolePermission\**" />
+	  <None Remove="Publish\**" />
 	  <None Remove="SysCore\SystemFunc\UserRolePermission\**" />
 	</ItemGroup>
 
 	
 	<ItemGroup>
-	  <EmbeddedResource Update="SpecFeatures\T1810\Resx\SysMessageCode.zh-TW.resx">
+	  <EmbeddedResource Update="SpecFeatures\Spec1816\Resx\SpecMessageCode.zh-TW.resx">
+	    <SubType>Designer</SubType>
+	  </EmbeddedResource>
+	  <EmbeddedResource Update="SpecFeatures\Spec1817\Resx\SpecMessageCode.zh-TW.resx">
+	    <SubType>Designer</SubType>
+	  </EmbeddedResource>
+	  <EmbeddedResource Update="SpecFeatures\T1810\Resx\SpecMessageCode.zh-TW.resx">
 	    <SubType>Designer</SubType>
 	  </EmbeddedResource>
 	</ItemGroup>

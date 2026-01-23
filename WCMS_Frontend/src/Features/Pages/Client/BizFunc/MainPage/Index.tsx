@@ -18,7 +18,7 @@ export const Index = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
       <div id="Customsize" className={containerClass}>
         <Header lang={props.lang} site={props.site} style={props.style} />
         <Outlet />
-        <Footer />
+        <Footer lang={props.lang} />
       </div>
     </>
   );

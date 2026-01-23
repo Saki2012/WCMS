@@ -7,7 +7,6 @@ import type { components } from "@/types/api";
 import CategoryProvider from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
 import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
-import { Link } from "react-router-dom";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 import * as SchemaFields from "@/types/SchemaFields";
 import { useMemo } from "react";
@@ -17,6 +16,7 @@ import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions";
 import { GridCol_Toolbar } from "../../../Scaffold/Toolbar/Toolbar_Comp";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 
@@ -85,9 +85,9 @@ const CateListComp = (prop: { theme: IBETheme; cateSets: CategoryDataSet[]; lang
                     <li className="list-group-item" key={`${item.Category?.InternalId}-${item.CategoryDetail?.find(p => p.Lang === prop.lang)?.RowId}`}>
                         <div className="checkboxDIV my-2">
                             <div className="custom-control form-check">
-                                <Link to={`${dirPath}/${item.Category?.InternalId}`} className="form-check-label" aria-label={`前往 ${item.CategoryDetail?.find(p => p.Lang === prop.lang)?.CategoryName} 詳細頁`}>
+                                <LangLink to={`${dirPath}/${item.Category?.InternalId}`} className="form-check-label" aria-label={`前往 ${item.CategoryDetail?.find(p => p.Lang === prop.lang)?.CategoryName} 詳細頁`}>
                                     <span className="check-txt">{item.CategoryDetail?.find(p => p.Lang === prop.lang)?.CategoryName}</span>
-                                </Link>
+                                </LangLink>
                             </div>
                         </div>
                         <div className="form-check form-switch my-2">

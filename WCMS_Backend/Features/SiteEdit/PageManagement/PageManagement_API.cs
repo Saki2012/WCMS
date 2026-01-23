@@ -1,18 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Data;
-using WCMS.Features.SiteEdit.Category;
+using WCMS.Features.BizResx;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.Interface;
-using WCMS.SysCore.Library;
-using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
-using WCMS.SysCore.SystemFunc.FileManagement;
-using static WCMS.SysCore.Library.LibData;
+using WCMS.SysCore.Library.LibAttribute;
 
 namespace WCMS.Features.SiteEdit.PageManagement
 {
-    [ApiController, Route(SysParam.ServiceRoute)]
+    [LibApiController(ModuleCode.WebManagement, PGID.PageManagement, SysEnum.FuncAction.MasterData)]
     public class PageManagementController : ApiDataController<PageManagementSet, PageManagementSet_DTO>{}
 }

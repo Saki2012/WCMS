@@ -379,10 +379,17 @@
 /* ========================================================== */
 /* PC模式時，HOVER狀態 */
 @media screen and (min-width: 992px) {
-	.dropdown:hover > .dropdown-menu,
-	.dropend:hover > .dropdown-menu {
-		display: block;
-	}
+	/* ❌ 禁止 hover 自動展開 */
+  .dropdown:hover > .dropdown-menu,
+  .dropend:hover > .dropdown-menu {
+    display: none;
+  }
+
+  /* ✅ 只允許 show（button/click/Enter 觸發） */
+  .dropdown.show > .dropdown-menu,
+  .dropend.show > .dropdown-menu {
+    display: block;
+  }
 }
 @media screen and (min-width: 992px) {
     .dropend:hover > .dropdown-menu {

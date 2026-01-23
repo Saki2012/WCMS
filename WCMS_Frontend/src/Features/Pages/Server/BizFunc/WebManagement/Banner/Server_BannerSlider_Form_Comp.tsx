@@ -86,6 +86,9 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<B
                 RowId: 1,
                 Lang: 'zh-tw',
                 Content: "",
+                SpecLatestShows: "",
+                SpecShowDate: "",
+                SpecShowLocation: "",
             },
             {
                 BannerId: props.formData.data.Banner?.BannerId,
@@ -93,6 +96,9 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<B
                 RowId: 2,
                 Lang: 'en',
                 Content: "",
+                SpecLatestShows: "",
+                SpecShowDate: "",
+                SpecShowLocation: "",
             },
         ]
         // 更新 BannerDetailInfo
@@ -103,7 +109,6 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<B
         };
         props.formData.setFormData(updated);
     };
-
     const removeOne = (rowKey: number | string): void => {
         const keyStr = String(rowKey);
         props.formData.setFormData(prev => {
@@ -128,7 +133,6 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<B
             return { ...prev, BannerDetail: nextDetails, BannerDetailInfo: nextInfos };
         });
     };
-
     const tabInfo: LibTabsProp = {
         Style: props.theme.Tabs,
         item: details.reduce<Record<string, string>>((acc, d, idx) => {
@@ -142,7 +146,6 @@ const DetailComp = (props: { theme: IBETheme, formData: UseFetchFormDataResult<B
         // ✅ 這裡要回傳 boolean，寫成表達式最安全
         // isRemovable: (key) => key !== String(details[0]?.RowId ?? "1"),
     };
-
     const tabContent: Record<string, React.ReactNode[]> = details.reduce<Record<string, React.ReactNode[]>>(
         (acc, d, idx) => {
             const detailRowId = d.RowId ?? idx;
@@ -204,6 +207,13 @@ const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
                 <LibTextArea Style={props.theme.TextArea} DefaultInputDisplay="請輸入" {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.Content, "string", rowKeys)} />,
                 <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.URL, "string", rowKeys)} />,
                 <LibDropList Style={props.theme.DropList} Options={windowTarget.data} {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.URL_Open, "number", rowKeys)} />,
+                //以下這個是1817(傳音)所需客製欄位，暫時先寫這，後續做插件抽離
+                ...(String(import.meta.env.VITE_SPEC_CODE ?? "") === "1817"
+                    ? [
+                        <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.SpecLatestShows, "string", rowKeys)} />,
+                        <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.SpecShowLocation, "string", rowKeys)} />,
+                        <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.SpecShowDate, "string", rowKeys)} />,
+                    ] : []),
             ]
             return compMap;
         }, {}

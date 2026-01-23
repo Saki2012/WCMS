@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
-import { AuthAPI } from '../../Utils/API/AuthClient';
+import { AuthAPI, startAuthIdleGuard } from '../../Utils/API/AuthClient';
 /**
  * 輕量節流策略：
  * - 預設 300s 內同來源的路由切換不重打 /Me（除非是第一次或上次結果是 unauth）
@@ -67,6 +67,15 @@ export default function RequireAuth({ children }: Props) {
   };
 
   useEffect(() => {
+    // ✅ 啟用：30 分鐘閒置登出；有動作會節流 refresh
+    const idle = startAuthIdleGuard({
+      idleMs: 30 * 60 * 1000,            // 30 分鐘
+      refreshThrottleMs: 5 * 60 * 1000,  // 5 分鐘最多 refresh 一次
+      onIdleLogout: () => {
+        resetAuthProbe();                // 清掉 RequireAuth 快取
+        setStatus('unauth');             // 觸發 Navigate → /Server/Login
+      }
+    });
     // 初次進入：一般檢查
     checkAuth({ force: true }).catch(() => { });
 
@@ -86,6 +95,7 @@ export default function RequireAuth({ children }: Props) {
       window.addEventListener('focus', onFocus);
     }
     return () => {
+      idle.stop(); // ✅ 關閉 idle 監聽
       if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         document.removeEventListener('visibilitychange', onVisible);
         window.removeEventListener('focus', onFocus);

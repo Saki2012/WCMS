@@ -50,7 +50,7 @@ export const Classic_SidebarMenu: IMenu_Style = {
 
 /** 頁籤樣式 */
 export const Classic_LibTabs: ILibTabsStyle = {
-    UlStyle: clsx("nav", "nav-tabs"),
+    UlStyle: clsx("nav", "nav-tabs", "wcms-tabs"),
     LiStyle: clsx("nav-item"),
     BtnStyle: clsx("nav-link"),
 };
@@ -59,6 +59,11 @@ export const Classic_LibTabs: ILibTabsStyle = {
 export const Classic_LibDropList: ILibDropListStyle = {
     Labelstyle: clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label", "mb-1"),
     SelectStyle: clsx("col-md-10", "col-sm-12", "float-md-left", "float-sm-none", "mb-1"),
+    OptionsStyle: clsx("form-select"),
+};
+export const Classic_LibDropList2: ILibDropListStyle = {
+    Labelstyle: clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label", "mb-1"),
+    SelectStyle: clsx("col-md-4", "col-sm-12", "float-md-left", "float-sm-none", "mb-1"),
     OptionsStyle: clsx("form-select"),
 };
 
@@ -74,7 +79,7 @@ export const Classic_LibTextBox2: ILibTextBoxStyle2 = {
     SelectStyle: clsx("col-md-8", "col-sm-12", "float-md-left", "float-sm-none", "mb-1"),
     InputStyle: clsx("form-control"),
 };
-/** 文字輸入框樣式2 */
+/** 文字輸入框樣式3 */
 export const Classic_LibTextBox3: ILibTextBoxStyle3 = {
     Labelstyle: clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label", "mb-1"),
     SelectStyle: clsx("col-md-4", "col-sm-12", "float-md-left", "float-sm-none", "mb-1"),
@@ -177,6 +182,7 @@ export const Classic_BETheme: IBETheme = {
     // #region Fields
     GridView: Classic_GridView,
     DropList: Classic_LibDropList,
+    DropList2: Classic_LibDropList2,
     Tabs: Classic_LibTabs,
     TextBox: Classic_LibTextBox,
     TextBox2: Classic_LibTextBox2,

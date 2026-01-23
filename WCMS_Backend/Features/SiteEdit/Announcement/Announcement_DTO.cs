@@ -1,10 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
-using WCMS.SysCore.Enum;
-using WCMS.SysCore.Library;
+﻿using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Announcement
@@ -12,8 +9,7 @@ namespace WCMS.Features.SiteEdit.Announcement
     /// <summary>
     /// 公告功能
     /// </summary>
-    [LibDesc]
-    public class AnnouncementSet_DTO : ITSet_DTO
+    [LibDesc] public class AnnouncementSet_DTO : ITSet_DTO
     {
         [LibDesc] public Announcement_DTO Announcement { get; set; } = new();
         [LibDesc] public List<AnnouncementDetail_DTO> AnnouncementDetail { get; set; } = [];
@@ -22,8 +18,7 @@ namespace WCMS.Features.SiteEdit.Announcement
     /// <summary>
     /// 公告主表
     /// </summary>
-    [LibDesc]
-    public class Announcement_DTO : DTOBasicDataModel
+    [LibDesc] public class Announcement_DTO : DTOBasicDataModel
     {
         /// <summary>
         /// 公告代碼
@@ -36,10 +31,9 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 標籤 (多個) 
         /// </summary>
+        [LibDesc(ModelDisplayName.Common_Tag)] public string? Tags { get; set; } = string.Empty;
         /// <summary>
         /// 狀態 (多個)
-        [LibDesc(ModelDisplayName.Common_Tag)] public string? Tags { get; set; } = string.Empty;
-        //[LibDesc(ModelDisplayName.Spec1810_Tag)] public string? Tags { get; set; } = string.Empty;
         /// </summary>
         [LibDesc(ModelDisplayName.Common_ContentStatus)] public ContentStatus ContentStatus { get; set; }
         /// <summary>
@@ -70,8 +64,7 @@ namespace WCMS.Features.SiteEdit.Announcement
     /// <summary>
     /// 公告明細
     /// </summary>
-    [LibDesc]
-    public class AnnouncementDetail_DTO
+    [LibDesc] public class AnnouncementDetail_DTO
     {
         /// <summary>
         /// 公告代碼
@@ -84,7 +77,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 語系
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Lang)] public string? Lang { get; set; }
+        [LibDesc(ModelDisplayName.Common_Lang)] public LangCode? Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>

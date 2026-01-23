@@ -2,10 +2,11 @@
 using System.Runtime.InteropServices;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Tag
@@ -14,17 +15,17 @@ namespace WCMS.Features.SiteEdit.Tag
     public class TagBiz(BizDeps bizDeps) : BizService<TagSet>(bizDeps), IBizService<TagSet> {
 
         #region Protected
-        protected override async Task BeforeUpdate(TagSet set, SysEnum.FuncAction act)
+        protected override async Task BeforeUpdate(TagSet set, FuncAction act)
         {
             await base.BeforeUpdate(set, act);
             switch (act)
             {
-                case SysEnum.FuncAction.Create:
-                case SysEnum.FuncAction.Update:
+                case FuncAction.Create:
+                case FuncAction.Update:
                     CheckData(set);
                     break;
-                case SysEnum.FuncAction.Delete:
-                    await CheckIsUsedAsync(set, "zh-tw");
+                case FuncAction.Delete:
+                    await CheckIsUsedAsync(set);
                     break;
             }
         }
@@ -35,28 +36,28 @@ namespace WCMS.Features.SiteEdit.Tag
         #region Private
         private void CheckData(TagSet set)
         {
-            CheckTagName(set.TagDetail, "zh-tw");
+            CheckTagName(set.TagDetail,LangCode.zhtw);
         }
-        private void CheckTagName(IList<TagDetail> datail, string lang)
+        private void CheckTagName(IList<TagDetail> datail, LangCode lang)
         {
             if (datail.Any(p => p.Lang.Equals(lang) && p.TagName.IsNullOrEmpty())) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015,"繁體中文", I18nCache.GetLabel<TagDetail>(x => x.TagName));
         }
-        private async Task CheckIsUsedAsync(TagSet set, string defaultLang)
+        private async Task CheckIsUsedAsync(TagSet set)
         {
             string progId = set.TagData.ProgId;
             string tagId = set.TagData.TagId;
-            string tagName = set.TagDetail.FirstOrDefault(p => p.Lang.Equals(defaultLang)).TagName;
+            string tagName = set.TagDetail.FirstOrDefault(p => p.Lang==EffectiveLang).TagName;
             int useCount = 0;
             switch (progId)
             {
                 case "Announcement":
-                    useCount = await DoQueryListCountAsync<Announcement.Announcement>([nameof(BasicDataModel.InternalId)], $@"{nameof(Announcement.Announcement.Tags)} HasAny {tagId}");
+                    useCount = await DoQueryListCountAsync<Announcement.Announcement>($@"{nameof(Announcement.Announcement.Tags)} HasAny {tagId}");
                     break;
                 case "FileArchive":
-                    useCount = await DoQueryListCountAsync<FileArchive.FileArchive>([nameof(BasicDataModel.InternalId)], $@"{nameof(FileArchive.FileArchive.TagsId)} HasAny {tagId}");
+                    useCount = await DoQueryListCountAsync<FileArchive.FileArchive>($@"{nameof(FileArchive.FileArchive.TagsId)} HasAny {tagId}");
                     break;
                 case "Gallery":
-                    useCount = await DoQueryListCountAsync<Gallery.Gallery>([nameof(BasicDataModel.InternalId)], $@"{nameof(Gallery.Gallery.Tags)} HasAny {tagId}");
+                    useCount = await DoQueryListCountAsync<Gallery.Gallery>($@"{nameof(Gallery.Gallery.Tags)} HasAny {tagId}");
                     break;
                 default:
                     await SpecCheckIsUsed(progId, tagId, tagName);
@@ -90,11 +91,12 @@ namespace WCMS.Features.SiteEdit.Tag
                 int rowId = 1;
                 foreach (var detailRow in ds.Tables["Tag_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.TagData.TagId).ToList())
                 {
+                    LangCodeExt.TryParse(detailRow["Lang"].ToString(), out LangCode lang);
                     TagDetail dt = new()
                     {
                         TagId = set.TagData.TagId,
                         RowId = rowId++,
-                        Lang = detailRow["Lang"].ToString(),
+                        Lang = lang,
                         TagName = detailRow["TagName"].ToString(),
                     };
                     set.TagDetail.Add(dt);

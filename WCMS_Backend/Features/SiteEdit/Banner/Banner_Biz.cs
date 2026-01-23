@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using WCMS.Features.SiteEdit.Announcement;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.SystemFunc.FileManagement;
@@ -100,24 +101,13 @@ namespace WCMS.Features.SiteEdit.Banner
                     {
                         if (!detailLangRow["Title"].IsNullOrEmpty())
                         {
-                            SysEnum.WindowTarget target;
-                            switch (Convert.ToByte(detailLangRow["URL_Open"]))
-                            {
-                                case 1:
-                                    target = SysEnum.WindowTarget.Self;
-                                    break;
-                                case 2:
-                                    target = SysEnum.WindowTarget.Blank;
-                                    break;
-                            }
-
-
+                            LangCodeExt.TryParse(detailLangRow["Lang"].ToString(), out LangCode lang);
                             BannerDetailInfo detailInfo = new()
                             {
                                 BannerId = set.Banner.BannerId,
                                 ParentRowId = rowId,
                                 RowId = subRowId,
-                                Lang = detailLangRow["Lang"].ToString(),
+                                Lang = lang,
                                 Title = detailLangRow["Title"].ToString(),
                                 Content = detailLangRow["Content"].ToString(),
                                 URL = detailLangRow["Url"].ToString(),

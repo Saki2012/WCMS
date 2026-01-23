@@ -1,13 +1,27 @@
 import { IApiProvider, IDataProvider } from "@/SysCore/Interface/IApiProvider";
 import type { ApiResponse } from "@/SysCore/Interface/IApiProvider";
+import api from "@/SysCore/Utils/API/APIBase";
 import { BaseApiService } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 type AccountSet = components["schemas"]["AccountSet_DTO"];
+type ChangePassword = components["schemas"]["ChangePassword"];
+type ResetPassword = components["schemas"]["ResetPassword"];
 type QueryListParam = components["schemas"]["QueryListParam"];
 
 abstract class IAccountProvider extends IDataProvider<AccountSet>
-{}
+{
+    public async ChangePassword(pw: ChangePassword): Promise<ApiResponse<object>>
+    {
+        const res = await api.put<ApiResponse<object>>(`${"Account"}/ChangePassword`, pw);
+        return res.data;
+    }
+    public async ResetPassword(param: ResetPassword): Promise<ApiResponse<object>>
+    {
+        const res = await api.put<ApiResponse<object>>(`${"Account"}/ResetPassword`, param);
+        return res.data;
+    }
+}
 class MockProvider extends IAccountProvider
 {
     protected doFetchListCount(condition?: QueryListParam): Promise<ApiResponse<number>>

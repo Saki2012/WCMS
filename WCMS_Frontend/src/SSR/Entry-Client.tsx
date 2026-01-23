@@ -5,10 +5,13 @@ import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter.ts";
 import { createClientRouter } from "@/SysCore/Utils/Route/Routes.tsx";
 import { SpecRouteModule } from "../SpecFetures/1810/SpecRouter.tsx";
 import { RouterProvider } from "react-router-dom";
-// import "SpecFeature/Assets/Client/Content/Style.css"
 import { MessageProvider } from "@/SysCore/Components/Message/Dialog/Dialog_Comp.tsx";
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp.tsx";
 import api, { type BrowserApiWithInit } from "@/SysCore/Utils/API/APIBase.ts"
+import { siteHeaderMeta } from "SpecFeature/SpecRouter"
+import { LANG_COOKIE_KEY } from "@/SysCore/Utils/Library/SysParam.ts";
+import { SUPPORTED_LANGS } from "@/SysCore/i18n/lang.ts";
+
 
 if (typeof window !== "undefined") {
   // CSR：初始化一次 XSRF
@@ -28,7 +31,6 @@ if (typeof window !== "undefined") {
 
 
 declare global { interface Window { __INITIAL_STATE__?: { lang?: string;[k: string]: unknown }; } }
-const SUPPORTED_LANGS = ["zh-tw", "en-us"] as const;
 export type SupportedLang = (typeof SUPPORTED_LANGS)[number];
 interface UseCookieResult {
   get: (name: string) => string | undefined;
@@ -43,7 +45,7 @@ const normalizeLang = (raw?: string): SupportedLang | undefined => {
   if (!raw) return;
   const v = raw.toLowerCase();
   if (v.startsWith("zh")) return "zh-tw";
-  if (v.startsWith("en")) return "en-us";
+  if (v.startsWith("en")) return "en";
   return (SUPPORTED_LANGS.find(l => l === v) as SupportedLang | undefined) ?? undefined;
 };
 
@@ -82,7 +84,7 @@ const useNavigatorLang = (): SupportedLang | undefined =>
 
 /** 統一決策語言（單一資料源） */
 const useActiveLang = (opts?: UseLangOpts): SupportedLang => {
-  const cookieName = opts?.cookieName ?? "wcms.lang";
+  const cookieName = opts?.cookieName ?? LANG_COOKIE_KEY;
   const fallback = opts?.fallback ?? "zh-tw";
 
   const fromState = useInitialStateLang();
@@ -108,15 +110,7 @@ const ClientBootstrap: React.FC<{ router: any }> = ({ router }) => {
   return (
     <MessageProvider>
       <HelmetProvider>
-        <HeaderMetaComp
-          title={"國立臺灣藝術大學_研究發展處"}
-          description={"國立臺灣藝術大學_研究發展處 / 國立臺灣藝術大學_研究發展處 / 國立臺灣藝術大學_研究發展處"}
-          keywords={"國立臺灣藝術大學_研究發展處"}
-
-        // title={"國立臺北藝術大學圖書館"}
-        // description={"國立臺北藝術大學圖書館"}
-        // keywords={"國立臺北藝術大學圖書館"}
-        />
+        <HeaderMetaComp title={siteHeaderMeta.title} description={siteHeaderMeta.description} />
         <RouterProvider router={router} />
       </HelmetProvider>
     </MessageProvider>
@@ -132,14 +126,8 @@ const rootNode = <ClientBootstrap router={router} />;
 container.innerHTML = "";
 
 const CSR_Render = () => {
-  if (container.hasChildNodes()) {
-    console.log("Exec HydrateRoot")
-    hydrateRoot(container, rootNode);
-  }
-  else {
-    console.log("Exec CreateRoot")
-    createRoot(container).render(rootNode);
-  }
+  if (container.hasChildNodes()) hydrateRoot(container, rootNode);
+  else createRoot(container).render(rootNode);
 };
 
 CSR_Render();

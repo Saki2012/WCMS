@@ -10,21 +10,23 @@ import { WebResourceFields, WebResourceInfoFields, WebResourceSetFields } from "
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
 import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
-import { ProgId } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 import { useEffect, useMemo, useState } from "react";
 import { isWithinLastNDaysFromString } from "@/SpecFetures/1810/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 import { ColRender, RowRender, STORAGE_KEY } from "@/SysCore/Components/Grid/Grid_Comp";
+import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
+import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 // type TagSet = components["schemas"]["TagSet_DTO"];
 type WindowTarget = components["schemas"]["WindowTarget"]
 
 export interface IWebResourceListOptions { Category?: string; Tag?: string; Style: number; }
-export interface IWebResourceListProps { theme: IFETheme; lang: Lang; options?: IWebResourceListOptions; title: string }
+export interface IWebResourceListProps { node: INormNode; theme: IFETheme; lang: Lang; options?: IWebResourceListOptions; title: string }
 const WebResourceListComp = (props: IWebResourceListProps) => {
     const useWebResList = useWebResourceList(props.options?.Category ?? "", props.options?.Tag ?? "", props.lang);
-    const useCategory = useCategoryListData(ProgId.WebResource, props.lang);
+    const useCategory = useCategoryListData(PGID.WebResource, props.lang);
     const children = useMemo(() => {
         switch (props.options?.Style) {
             case 7:
@@ -40,7 +42,7 @@ const WebResourceListComp = (props: IWebResourceListProps) => {
     const loadingList = [useWebResList.isLoading, useCategory.isLoading];
     const errorList = [useWebResList.error, useCategory.error];
     return (
-        <ModuleContent loadingList={loadingList} errorList={errorList}>
+        <ModuleContent nodeTitle={props.node.title} loadingList={loadingList} errorList={errorList}>
             {children}
         </ModuleContent>
     )
@@ -52,6 +54,8 @@ const useWebResourceList = (categoryIds: string, tagIds: string, lang: Lang) => 
     if (categoryIds) condition = LibMerge(" And ", false, condition, `${WebResourceFields.Categories} HasAny [${categoryIds}]`)
     if (tagIds) condition = LibMerge(" And ", false, condition, `${WebResourceFields.Tags} HasAny [${tagIds}]`)
     condition = LibMerge(" And ", false, condition, `${WebResourceFields.ContentStatus} !& 4`)//不包含隱藏的資料
+    condition = LibMerge(" And ", false, condition, `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang} = ${lang}`)
+    condition = LibMerge(" And ", false, condition, `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Title} != ''`)
     const provider = WebResourceProvider();
     return useFetchGridListData<WebResourceSet>({
         getModelDisplayName: () => provider.getModelDisplayName(),
@@ -64,12 +68,8 @@ const useWebResourceList = (categoryIds: string, tagIds: string, lang: Lang) => 
         ],
         buildQueryCondition: (page) => ({
             Fields: [
-                WebResourceFields.InternalId,
-                WebResourceFields.WebResourceId,
-                WebResourceFields.PicId,
-                WebResourceFields.PicDescription,
-                WebResourceFields.Categories,
-                WebResourceFields.ContentStatus,
+                WebResourceFields.InternalId, WebResourceFields.WebResourceId, WebResourceFields.PicId,
+                WebResourceFields.PicDescription, WebResourceFields.Categories, WebResourceFields.ContentStatus,
                 WebResourceFields.CreateTime,
                 `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang}`,
                 `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Title}`,
@@ -78,6 +78,7 @@ const useWebResourceList = (categoryIds: string, tagIds: string, lang: Lang) => 
                 `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Url_OpenType}`,
             ],
             Condition: condition,
+            RankGroups: [{ Condition: `${WebResourceFields.ContentStatus} & 1` }],
             OrderBy: [{ Col: WebResourceFields.CreateTime, Desc: true }],
             PageNumber: page,
             PageSize: 10,
@@ -122,12 +123,11 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: WebResourc
             // 只在特定欄位調整內容
             switch (cell.col.key) {
                 case WebResourceFields.Categories:
-                    nextContent = useFormatCategoriesName(curRow?.WebResource?.Categories ?? "", catData);
+                    nextContent = useFormatCategoriesName(curRow?.WebResource?.Categories ?? "", catData, lang);
                     break;
                 case WebResourceInfoFields.ResUrl:
                     nextContent = SetUrlIcon(curDt?.ResUrl ?? "", curDt?.Content ?? "", curDt?.Url_OpenType ?? 0);
                     break;
-
             }
             // 再把「最新 / 置頂 / 熱門」標籤疊上去（只對 Title 欄位）
             const wrappedContent = (
@@ -184,11 +184,14 @@ const GridList_Comp = (props: { title: string; GridData: GridProps }) => {
         });
     };
     return (
-        <table className={"table table-striped table-bordered table-hover + Files_table + table-rwd"} summary={props.title}>
-            <caption>{props.title}</caption>
-            <ColRender columns={columns} onResize={handleResize} />
-            <RowRender rows={props.GridData.rows} />
-        </table>
+        <>
+            <OperationGuideHelp_Comp />
+            <table className={"table table-striped table-bordered table-hover + table-rwd"} summary={props.title}>
+                <caption>{props.title}</caption>
+                <ColRender columns={columns} onResize={handleResize} />
+                <RowRender rows={props.GridData.rows} />
+            </table>
+        </>
     )
 
 
@@ -264,6 +267,8 @@ const PictureListContent = (prop: { lang: string, datas: WebResourceSet[] }) => 
                     const urlRaw = detail?.ResUrl ?? ""
                     const tar = detail?.Url_OpenType === 0 ? "_self" : "_blank"
                     const { isYoutube, url } = resolveYoutubeEmbedUrl(urlRaw);
+                    const isVideo = false;//暫時
+                    const contentStatus = item.WebResource?.ContentStatus ?? 0;
                     return (
                         <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
                             <article className="cardbox">
@@ -277,50 +282,65 @@ const PictureListContent = (prop: { lang: string, datas: WebResourceSet[] }) => 
                                                         referrerPolicy="strict-origin-when-cross-origin" allowFullScreen />
                                                 </div>
                                             </div> :
-                                            <a href={urlRaw} target={tar} className="card_image_link venobox" data-autoplay="true" data-vbtype="video" data-ratio="1x1" data-maxwidth="640px" title={title}>
-                                                <div className="card_figure">
-                                                    <video width="100%">
-                                                        <source src={`${FileManagementAPI.PREVIEW_URL}/${picId}`} />
-                                                    </video>
-                                                    <div className="videoDiv">
-                                                        <div className="customize_Play_Btn Ripplestyle">
-                                                            <i className="fas fa-play"></i><span className="sr-only">播放</span>
+                                            isVideo ?
+                                                <a href={urlRaw} target={tar} className="card_image_link venobox" data-autoplay="true" data-vbtype="video" data-ratio="1x1" data-maxwidth="640px" title={title}>
+                                                    <div className="card_figure">
+                                                        <video width="100%">
+                                                            <source src={`${FileManagementAPI.PREVIEW_URL}/${picId}`} />
+                                                        </video>
+                                                        <div className="videoDiv">
+                                                            <div className="customize_Play_Btn Ripplestyle">
+                                                                <i className="fas fa-play"></i><span className="sr-only">播放</span>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </a>
+                                                </a> :
+                                                <a href={urlRaw} target={tar} className="card_image_link venobox" data-autoplay="true" data-vbtype="video" data-ratio="1x1" data-maxwidth="640px" title={title}>
+                                                    <div className="img-wrapper">
+                                                        <img className="card_image" src={`${FileManagementAPI.PREVIEW_URL}/${picId}`} alt="" />
+                                                    </div>
+                                                </a>
                                         }
                                     </figure>
 
-                                    <div className="card_catDiv">
-                                        <div className="card_cat">
-                                            <div className="card_cat_link">
-                                                <span className="s-line">▍</span>
-                                                <span className="s-tle">{""}</span>
+                                    {(isYoutube || isVideo) && (
+                                        <div className="card_catDiv">
+                                            <div className="card_cat">
+                                                <div className="card_cat_link">
+                                                    <span className="s-line">▍</span>
+                                                    <span className="s-tle">{""}</span>
+                                                </div>
+                                            </div>
+                                            <div className="card_time">
+                                                <i className="far fa-clock mr-2"></i><span className="sr-only">日期</span>{validate}
                                             </div>
                                         </div>
-                                        <div className="card_time">
-                                            <i className="far fa-clock mr-2"></i><span className="sr-only">日期</span>{validate}
+                                    )}
+
+
+                                    <div className="card_titleDiv + mb-md-4 mb-sm-3 mb-2" style={{ textAlign: (isYoutube || isVideo) ? undefined : 'center' }}>
+                                        <a href={urlRaw} target={tar} className="card_title">🔗{title}</a>
+                                        <div className="d-flex gap-1 flex-wrap">
+                                            {Boolean(contentStatus & 1) && (<span className="label label-success">置頂</span>)}
+                                            {Boolean(contentStatus & 2) && (<span className="label label-danger">熱門</span>)}
                                         </div>
                                     </div>
 
-                                    <div className="card_titleDiv + mb-md-4 mb-sm-3 mb-2">
-                                        <a href={urlRaw} target={tar} className="card_title">{title}</a>
-                                    </div>
+                                    {(isYoutube || isVideo) && (
+                                        <div className="card_StateDiv">
+                                            <div className="More customize_btn">
+                                                <a href={urlRaw} target={tar} className="Btn_s1" type="button" role="button" title="觀看更多">VIEW ALL<span className="ml-2">+</span></a>
+                                            </div>
 
-                                    <div className="card_StateDiv">
-                                        <div className="More customize_btn">
-                                            <a href={urlRaw} target={tar} className="Btn_s1" type="button" role="button" title="觀看更多">VIEW ALL<span className="ml-2">+</span></a>
+                                            <div className="ZoomIn customize_ZoomIn_btn">
+                                                {/* <a href="images/video/0_Robot(4.4)_1080x1080.mp4" className="Btn_zm1 venobox" data-autoplay="true" data-vbtype="video" data-ratio="1x1" data-maxwidth="640px" type="button" role="button" title="放大播放影片"> */}
+                                                <a href={urlRaw} target={tar} className="Btn_zm1 venobox" data-autoplay="true" data-vbtype="iframe" data-maxwidth="640px" type="button" role="button" title="放大圖片">
+                                                    <i className="fas fa-expand-alt"></i>
+                                                    <span className="sr-only">放大圖片</span>
+                                                </a>
+                                            </div>
                                         </div>
-
-                                        <div className="ZoomIn customize_ZoomIn_btn">
-                                            {/* <a href="images/video/0_Robot(4.4)_1080x1080.mp4" className="Btn_zm1 venobox" data-autoplay="true" data-vbtype="video" data-ratio="1x1" data-maxwidth="640px" type="button" role="button" title="放大播放影片"> */}
-                                            <a href={urlRaw} target={tar} className="Btn_zm1 venobox" data-autoplay="true" data-vbtype="iframe" data-maxwidth="640px" type="button" role="button" title="放大圖片">
-                                                <i className="fas fa-expand-alt"></i>
-                                                <span className="sr-only">放大圖片</span>
-                                            </a>
-                                        </div>
-                                    </div>
+                                    )}
                                 </div>
                             </article>
                         </div>

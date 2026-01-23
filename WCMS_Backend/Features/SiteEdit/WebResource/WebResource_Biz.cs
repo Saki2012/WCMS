@@ -2,9 +2,10 @@
 using System.Runtime.InteropServices;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 
@@ -61,11 +62,12 @@ namespace WCMS.Features.SiteEdit.WebResource
                 {
                     if (!dRow["Title"].ToString().IsNullOrEmpty())
                     {
+                        LangCodeExt.TryParse(dRow["Lang"].ToString(), out LangCode lang);
                         WebResourceInfo detail = new()
                         {
                             WebResourceId = set.WebResource.WebResourceId,
                             RowId = rowId++,
-                            Lang = dRow["Lang"].ToString(),
+                            Lang = lang,
                             Title = dRow["Title"].ToString(),
                             Content = dRow["Content"].ToString(),
                             ResUrl = dRow["Url"].ToString(),
@@ -133,8 +135,8 @@ namespace WCMS.Features.SiteEdit.WebResource
         }
         private void CheckIsEmpty(WebResourceSet set)
         {
-            if (set.WebResourceInfo.FirstOrDefault(p => p.Lang.Equals("zh-tw")) == null || set.WebResourceInfo.FirstOrDefault(p => p.Lang.Equals("zh-tw")).Title.IsNullOrEmpty())
-                Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, "繁體中文", I18nCache.GetLabel<WebResourceInfo_DTO>(x => x.Title));
+            if (set.WebResourceInfo.FirstOrDefault(p => p.Lang==SiteDefaultLang) == null || set.WebResourceInfo.FirstOrDefault(p => p.Lang== SiteDefaultLang).Title.IsNullOrEmpty())
+                Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, SiteDefaultLang.ToLabel(), I18nCache.GetLabel<WebResourceInfo_DTO>(x => x.Title));
         }
         /// <summary>
         /// 重新組合多筆資料(類別、狀態、標籤)

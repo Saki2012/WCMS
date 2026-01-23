@@ -5,47 +5,13 @@ import type { components } from "@/types/api";
 import * as SchemaFields from "@/types/SchemaFields";
 import { useEffect, useMemo, useRef } from "react";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import type { Lang } from "@/SysCore/i18n/lang";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 type BannerSet = components["schemas"]["BannerSet_DTO"]
-const emptyData: BannerSet = {
-	Banner: {},
-	BannerDetail: [
-		{
-			RowId: 1,
-			Validate_Start: "",
-			Validate_End: "",
-			PicSrcId: "",
-			FontColor: "",
-		}
-	],
-	BannerDetailInfo: [
-		{
-			ParentRowId: 1,
-			RowId: 1,
-			Lang: "zh-tw",
-			Title: "",
-			Content: "",
-			URL: "",
-			URL_Open: 1,
-		},
-		{
-			ParentRowId: 1,
-			RowId: 2,
-			Lang: "en",
-			Title: "",
-			Content: "",
-			URL: "",
-			URL_Open: 1,
-		}
-	]
-}
 
-export const QuickLinksData = () => {
+export const QuickLinksData = (props: { lang: Lang }) => {
 
-	const usebannerList = useBannerListData(`${SchemaFields.BannerFields.BannerId} = Banner20251106001`)
-	const bannerInternal = usebannerList.rawData?.[0]?.Banner?.InternalId ?? ""
-	const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), bannerInternal, emptyData)
-	const loadingList = [useBanner.isLoading, usebannerList.isLoading]
-	const errorList = [useBanner.error, usebannerList.error]
+	const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), "b74facc4-6b1c-4642-b148-0a0aca751279", {})
 	const sortedDetails = useMemo(() => {
 		const list = useBanner.data?.BannerDetail ?? [];
 		// 依 Detail.Sort 由小到大
@@ -56,7 +22,6 @@ export const QuickLinksData = () => {
 			return as - bs || (a.RowId ?? 0) - (b.RowId ?? 0);
 		});
 	}, [useBanner.data?.BannerDetail]);
-
 	const carouselRef = useRef<HTMLDivElement | null>(null);
 	const toggleRef = useRef<HTMLAnchorElement | null>(null);
 	useEffect(() => {
@@ -151,8 +116,6 @@ export const QuickLinksData = () => {
 	}, [sortedDetails.length]);
 
 	return (
-
-
 		<section className="Links_section owl-box Layout_Padding_3_top Layout_Padding_1_bottom">
 			<div className="Mask-DivBox">
 				<div className="customizeBox">
@@ -160,8 +123,15 @@ export const QuickLinksData = () => {
 						<div className="row">
 							<div className="col-12">
 								<div className="headDiv mb-sm-5 mb-4">
-									<span className="headDiv-txt">快速連結</span>
-									<span className="headDiv-subtxt">Links</span>
+									{props.lang === "zh-tw" ?
+										<>
+											<span className="headDiv-txt">快速連結</span>
+											<span className="headDiv-subtxt">Links</span>
+										</> :
+										props.lang === "en" ? <>
+											<span className="headDiv-txt">Links</span>
+										</> : ""
+									}
 								</div>
 							</div>
 							<div className="col-12">
@@ -184,30 +154,19 @@ export const QuickLinksData = () => {
 										</div>
 									</div>
 									<div className="owl-carousel owl-theme" id="Links_owl_carousel" ref={carouselRef}>
-
-
 										{sortedDetails.map((p, i) => {
-											const alt = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.Title ?? ""
-											const url = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.URL ?? ""
-											const content = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.Content ?? ""
-											const urlopen = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === "zh-tw")?.URL_Open ?? ""
+											const info = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang)
+											const alt = info?.Title ?? ""
+											const url = info?.URL ?? ""
+											const urlopen = info?.URL_Open === 0 ? "_self" : "_blank"
 											return (
-
 												<div key={i} className="item">
-													<a
-														href={url}
-														//onclick="js_method();return false;"
-														tabIndex={0}
-														target={(urlopen === 1 ? "_blank" : "_self")}
-														title="">
+													<LangLink to={url} tabIndex={0} target={urlopen} title="">
 														<div className="wrapper_box">
 															<div className="Qlink-item">
 																<div className="Img_Div w-100">
 																	<div className="Qlinkimg-outer">
-																		<img
-																			alt={alt}
-																			src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`}
-																		/>
+																		<img alt={alt} src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} />
 																	</div>
 																</div>
 																<div className="go_label d-none">
@@ -224,34 +183,13 @@ export const QuickLinksData = () => {
 																</div>
 															</div>
 														</div>
-													</a>
+													</LangLink>
 												</div>
 											)
 										})}
-
-
-
-
-
-
-
-
 									</div>
-									<div
-										className="customize_btn mr-4 d-none"
-										style={{
-											bottom: "-40px",
-											position: "absolute",
-											right: "0",
-										}}>
-										<a
-											className="Btn_a"
-											href="javascript:void(0);"
-											role="button"
-											tabIndex={0}
-											target="_self"
-											title="更多連結"
-											type="button">
+									<div className="customize_btn mr-4 d-none" style={{ bottom: "-40px", position: "absolute", right: "0", }}>
+										<a className="Btn_a" role="button" tabIndex={0} target="_self" title="更多連結" type="button">
 											<div className="BtnBox">
 												<span>更多連結</span>
 												<span className="ml-2">+</span>
@@ -265,7 +203,6 @@ export const QuickLinksData = () => {
 				</div>
 			</div>
 		</section>
-
 	);
 };
 

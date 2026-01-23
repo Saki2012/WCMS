@@ -1,22 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Data;
-using System.Reflection;
+﻿using System.Data;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using WCMS.Features.SiteEdit.PageManagement;
+using WCMS.Features.BizResx;
 using WCMS.SysCore;
-using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
 using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Library.LibData;
 
 namespace WCMS.Features.SiteEdit.Announcement
 {
-    [ProgId("Announcement")]
+    [ProgId(PGID.Announcement)]
     public class AnnouncementBiz(BizDeps bizDeps) : BizService<AnnouncementSet>(bizDeps), IBizService<AnnouncementSet>
     {
         #region Migration Old Data
@@ -74,11 +70,12 @@ namespace WCMS.Features.SiteEdit.Announcement
                     {
                         string contentXml = HtmlInternalIdByFullPath.TransformHtml_ReplaceSrcWithDataInternalId(dRow["Content"].ToString(), fileSrcIdDic, out List<string> usedInternalIds);
                         updateFileSets.AddRange(srcFileSets.Where(p => usedInternalIds.Contains(p.FileManage.InternalId)));
+                        LangCodeExt.TryParse(dRow["Lang"].ToString(), out LangCode lang);
                         AnnouncementDetail detail = new()
                         {
                             AnnouncementId = set.Announcement.AnnouncementId,
                             RowId = rowId,
-                            Lang = dRow["Lang"].ToString(),
+                            Lang = lang,
                             Title = dRow["Title"].ToString(),
                             Content = contentXml,
                             SubTitle = dRow["SubTitle"].ToString(),
@@ -173,7 +170,7 @@ namespace WCMS.Features.SiteEdit.Announcement
             if (set.Announcement.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Announcement_DTO>(x => x.Validate_Start));
             if (set.Announcement.Validate_End != null && set.Announcement.Validate_Start >= set.Announcement.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, I18nCache.GetLabel<Announcement_DTO>(x => x.Validate_End), I18nCache.GetLabel<Announcement_DTO>(x => x.Validate_Start));
             if (set.Announcement.Categories == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Announcement_DTO>(x => x.Categories));
-            if(set.AnnouncementDetail.FirstOrDefault(p=>p.Lang.Equals("zh-tw")) == null || set.AnnouncementDetail.FirstOrDefault(p => p.Lang.Equals("zh-tw")).Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, "繁體中文", I18nCache.GetLabel<AnnouncementDetail_DTO>(x => x.Title));
+            if(set.AnnouncementDetail.FirstOrDefault(p=>p.Lang==SiteDefaultLang) == null || set.AnnouncementDetail.FirstOrDefault(p => p.Lang==SiteDefaultLang).Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, SiteDefaultLang.ToLabel(), I18nCache.GetLabel<AnnouncementDetail_DTO>(x => x.Title));
         }
 
         /// <summary>

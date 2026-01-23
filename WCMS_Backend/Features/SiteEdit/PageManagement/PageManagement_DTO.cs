@@ -1,6 +1,8 @@
-﻿using WCMS.SysCore.Library;
+﻿using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
+using WCMS.SysCore.Library;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
 
 namespace WCMS.Features.SiteEdit.PageManagement
 {
@@ -41,7 +43,7 @@ namespace WCMS.Features.SiteEdit.PageManagement
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Lang)] public string? Lang { get; set; }
+        [LibDesc(ModelDisplayName.Common_Lang)] public LangCode? Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>

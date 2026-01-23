@@ -4,10 +4,12 @@ using System.Data;
 using System.Runtime.InteropServices;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
-using WCMS.SysCore.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Category
@@ -40,11 +42,12 @@ namespace WCMS.Features.SiteEdit.Category
                 int rowId = 1;
                 foreach (var dRow in ds.Tables["Category_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.Category.CategoryId).ToList())
                 {
+                    LangCodeExt.TryParse(dRow["Lang"].ToString(), out LangCode lang);
                     CategoryDetail detail = new()
                     {
                         CategoryId = set.Category.CategoryId,
                         RowId = rowId++,
-                        Lang = dRow["Lang"].ToString(),
+                        Lang = lang,
                         CategoryName = dRow["CategoryName"].ToString()
                     };
                     set.CategoryDetail.Add(detail);
@@ -66,7 +69,7 @@ namespace WCMS.Features.SiteEdit.Category
                     CheckData(set);
                     break;
                 case SysEnum.FuncAction.Delete:
-                    await CheckIsUsed(set,"zh-tw");
+                    await CheckIsUsed(set);
                     break;
             }
         }
@@ -76,33 +79,33 @@ namespace WCMS.Features.SiteEdit.Category
 
         private void CheckData(CategoryDataSet set)
         {
-            CheckCategoryName(set.CategoryDetail, "zh-tw");
+            CheckCategoryName(set.CategoryDetail, LangCode.zhtw);
         }
 
-        private void CheckCategoryName(IList<CategoryDetail> datail,string lang)
+        private void CheckCategoryName(IList<CategoryDetail> datail, LangCode lang)
         {
             if (datail.Any(p => p.Lang.Equals(lang) && p.CategoryName.IsNullOrEmpty())) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<CategoryDetail>(x => x.CategoryName));
         }
 
-        private async Task CheckIsUsed(CategoryDataSet set,string defaultLang)
+        private async Task CheckIsUsed(CategoryDataSet set)
         {
             string progId = set.Category.ProgId;
             string categoryId = set.Category.CategoryId;
-            string categoryName = set.CategoryDetail.FirstOrDefault(p => p.Lang.Equals(defaultLang)).CategoryName;
+            string categoryName = set.CategoryDetail.FirstOrDefault(p => p.Lang==EffectiveLang).CategoryName;
             int useCount = 0;
             switch (progId)
             {
                 case "Announcement":
-                    useCount = await DoQueryListCountAsync<Announcement.Announcement>([nameof(BasicDataModel.InternalId)], $@"{nameof(Announcement.Announcement.Categories)} HasAny {categoryId}");
+                    useCount = await DoQueryListCountAsync<Announcement.Announcement>($@"{nameof(Announcement.Announcement.Categories)} HasAny {categoryId}");
                     break;
                 case "FileArchive":
-                    useCount = await DoQueryListCountAsync<FileArchive.FileArchive>([nameof(BasicDataModel.InternalId)], $@"{nameof(FileArchive.FileArchive.CategoriesId)} HasAny {categoryId}");
+                    useCount = await DoQueryListCountAsync<FileArchive.FileArchive>($@"{nameof(FileArchive.FileArchive.CategoriesId)} HasAny {categoryId}");
                     break;
                 case "Gallery":
-                    useCount = await DoQueryListCountAsync<Gallery.Gallery>([nameof(BasicDataModel.InternalId)], $@"{nameof(Gallery.Gallery.Categories)} HasAny {categoryId}");
+                    useCount = await DoQueryListCountAsync<Gallery.Gallery>($@"{nameof(Gallery.Gallery.Categories)} HasAny {categoryId}");
                     break;
                 case "PageManagement":
-                    useCount = await DoQueryListCountAsync<PageManagement.PageManagement>([nameof(BasicDataModel.InternalId)], $@"{nameof(PageManagement.PageManagement.CategoryId)} = {categoryId}");
+                    useCount = await DoQueryListCountAsync<PageManagement.PageManagement>($@"{nameof(PageManagement.PageManagement.CategoryId)} = {categoryId}");
                     break;
                 default:
                     await SpecCheckIsUsed(progId, categoryId, categoryName);
