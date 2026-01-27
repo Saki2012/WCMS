@@ -35,7 +35,7 @@ const WebResourceListComp = (props: IWebResourceListProps) => {
             case 1:
             default: {
                 const adjustedGrid = useMemo(() => { return SetAdjustFunction(props.lang, useWebResList.gridProps, useWebResList.rawData, useCategory.rawData); }, [useWebResList.gridProps, useWebResList.rawData, useCategory.rawData]);
-                return <GridList_Comp key="grid" title={""} GridData={adjustedGrid} />;
+                return <GridList_Comp key="grid" lang={props.lang} title={""} GridData={adjustedGrid} />;
             }
         }
     }, [useWebResList, props.lang, props.options]);
@@ -159,7 +159,7 @@ const SetUrlIcon = (url: string, descript: string, target: WindowTarget) => {
     )
 }
 //
-const GridList_Comp = (props: { title: string; GridData: GridProps }) => {
+const GridList_Comp = (props: { lang: Lang; title: string; GridData: GridProps }) => {
 
     const [columns, setColumns] = useState<ColumnConfig[]>(props.GridData.columns);
     useEffect(() => {
@@ -185,7 +185,7 @@ const GridList_Comp = (props: { title: string; GridData: GridProps }) => {
     };
     return (
         <>
-            <OperationGuideHelp_Comp />
+            <OperationGuideHelp_Comp lang={props.lang} />
             <table className={"table table-striped table-bordered table-hover + table-rwd"} summary={props.title}>
                 <caption>{props.title}</caption>
                 <ColRender columns={columns} onResize={handleResize} />

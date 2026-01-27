@@ -111,7 +111,7 @@ const FileArchiveList = (props: FileArchiveProps) => {
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(props.lang, useFileArchiveList.gridProps, useFileArchiveList.rawData, tagMap); }, [useFileArchiveList.gridProps, useFileArchiveList.rawData, tagMap]);
     const isLoading = [useFileArchiveList.isLoading, useTagData.isLoading];
     const errors = [useFileArchiveList.error, useTagData.error];
-    const content: React.ReactElement | null = useMemo(() => { return <List_Comp key="grid" gridData={adjustedGrid} theme={props.theme} /> }, [searchSlot, adjustedGrid, props.theme, isLoading, errors]);
+    const content: React.ReactElement | null = useMemo(() => { return <List_Comp key="grid" lang={props.lang} gridData={adjustedGrid} theme={props.theme} /> }, [searchSlot, adjustedGrid, props.theme, isLoading, errors]);
 
 
     return (
@@ -208,10 +208,10 @@ const SetUrlIcon = (url: string, descript: string, target: WindowTarget) => {
         </a>)
 }
 /** 清單式 */
-const List_Comp = (prop: { gridData: GridProps; theme: IFETheme }) => {
+const List_Comp = (prop: { lang: Lang; gridData: GridProps; theme: IFETheme }) => {
     return (
         <>
-            <OperationGuideHelp_Comp />
+            <OperationGuideHelp_Comp lang={prop.lang} />
             <Grid gridData={prop.gridData} style={prop.theme.GridView} pageStyle={prop.theme.Paginator} />
         </>
     )
