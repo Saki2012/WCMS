@@ -49,7 +49,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// 圖片 (關聯檔案資料)
         /// 注:後續應改關聯SpecUSRPhoto的RowId去指向對應的相片，以及SpecUSRPhotoInfo的Title
         /// </summary>
-        public FileManageModel? Picture { get; set; }
+        public FileManageModel_DTO? Picture { get; set; }
         [LibDesc(SpecModelDisplayName.SpecUSR_PictureId)] public string? PictureId { get; set; } = string.Empty;
         /// <summary>
         /// 圖片描述
@@ -110,7 +110,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// <summary>
         /// 圖片來源
         /// </summary>
-        public FileManageModel PicSrc { get; set; }
+        public FileManageModel_DTO? PicSrc { get; set; }
         [StringLength(SysLengthParam.InternalId)] public string? PicSrcId { get; set; }
         /// <summary>
         /// 相片排序
@@ -172,7 +172,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// <summary>
         /// 檔案來源
         /// </summary>
-        public FileManageModel? FileSrc { get; set; }
+        public FileManageModel_DTO? FileSrc { get; set; }
         [LibDesc(ModelDisplayName.FileArchive_FileSrcId), StringLength(SysLengthParam.InternalId)] public string? FileSrcId { get; set; }
         /// <summary>
         /// 語系 SysEnum.Lang
