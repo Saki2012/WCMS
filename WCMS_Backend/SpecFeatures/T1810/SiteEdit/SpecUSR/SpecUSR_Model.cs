@@ -45,6 +45,7 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// 圖片 (關聯檔案資料)
         /// 注:後續應改關聯SpecUSRPhoto的RowId去指向對應的相片，以及SpecUSRPhotoInfo的Title
         /// </summary>
+        [ForeignKey(nameof(PictureId))] public FileManageModel? Picture { get; set; }
         [StringLength(SysLengthParam.InternalId)] public string? PictureId { get; set; } = string.Empty;
         /// <summary>
         /// 圖片描述
@@ -110,7 +111,8 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// <summary>
         /// 圖片來源
         /// </summary>
-        [StringLength(SysLengthParam.InternalId)] public string PicSrcId { get; set; }
+        [ForeignKey(nameof(PicSrcId))] public FileManageModel? PicSrc { get; set; }
+        [StringLength(SysLengthParam.InternalId)] public string? PicSrcId { get; set; }
         /// <summary>
         /// 相片排序
         /// </summary>
@@ -171,8 +173,8 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecUSR
         /// <summary>
         /// 檔案來源
         /// </summary>
-        [StringLength(SysLengthParam.InternalId)] public string FileSrcId { get; set; }
-        [ForeignKey(nameof(FileSrcId))] public FileManageModel FileSrc { get; set; }
+        [StringLength(SysLengthParam.InternalId)] public string? FileSrcId { get; set; }
+        [ForeignKey(nameof(FileSrcId))] public FileManageModel? FileSrc { get; set; }
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
