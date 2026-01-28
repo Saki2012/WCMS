@@ -37,11 +37,13 @@ export const LangSwitchBtn: React.FC<{ site: INormSite }> = ({ site }) => {
   }, [activeLang, buildSwitchTo, navigate]);
 
   // ★注意：所有 hooks 都已經呼叫完，現在才允許 return（避免 #310）
-  const shouldHide =
-    supportedLangs.length <= 1 ||
-    location.pathname.startsWith("/Server") ||
-    location.pathname.startsWith("/Service");
+  const path = location.pathname.toLowerCase();
 
+  // 執行判斷：只匹配 /server 或 /service（必須是完整 segment）
+  const isServerRoute = path === "/server" || path.startsWith("/server/");
+  const isServiceRoute = path === "/service" || path.startsWith("/service/");
+
+  const shouldHide = supportedLangs.length <= 1 || isServerRoute || isServiceRoute;
   if (shouldHide) return null;
 
   // 只有兩種語系：顯示一顆切換按鈕

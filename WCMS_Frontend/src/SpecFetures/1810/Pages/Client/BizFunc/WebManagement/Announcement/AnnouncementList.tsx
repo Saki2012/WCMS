@@ -130,7 +130,7 @@ const AnnouncementList = (props: IAnnouncementListProps) => {
                 return <PictureList_Comp key="picture" lang={props.lang} GridData={adjustedGrid} Theme={props.theme} />;
             case 1:
             default: // 含 case 1
-                return <GridList_Comp key="grid" GridData={adjustedGrid} Theme={props.theme} />
+                return <GridList_Comp key="grid" lang={props.lang} GridData={adjustedGrid} Theme={props.theme} />
         }
     }, [props.options?.Style, searchSlot, adjustedGrid, props.theme, isLoading, errors]);
 
@@ -251,10 +251,10 @@ const PictureList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridPro
     );
 }
 /** 清單式公告 */
-const GridList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
+const GridList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps }) => {
     return (
         <>
-            <OperationGuideHelp_Comp />
+            <OperationGuideHelp_Comp lang={prop.lang} />
             <Grid gridData={prop.GridData} style={prop.Theme.GridView} pageStyle={prop.Theme.Paginator} />
         </>)
 }

@@ -49,13 +49,13 @@ const FileArchiveList = (props: FileArchiveProps) => {
     const paginprops: PaginatorProps = { currentPage: adjustedGrid.CurrentPage, totalPages: adjustedGrid.TotalPage, onPageChange: adjustedGrid.onPageChange };
     return (
         <ModuleContent nodeTitle={props.node.title} title={""} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops}>
-            <GridList_Comp key="grid" gridData={adjustedGrid} title={props.node.title} />
+            <GridList_Comp key="grid" lang={props.lang} gridData={adjustedGrid} title={props.node.title} />
         </ModuleContent>
     )
 };
 export default FileArchiveList
 
-const GridList_Comp = (props: { title: string; gridData: GridProps; }) => {
+const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps; }) => {
     const [columns, setColumns] = useState<ColumnConfig[]>(props.gridData.columns);
     useEffect(() => {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -80,7 +80,7 @@ const GridList_Comp = (props: { title: string; gridData: GridProps; }) => {
     };
     return (
         <>
-            <OperationGuideHelp_Comp />
+            <OperationGuideHelp_Comp lang={props.lang} />
             <table className={"table table-striped table-bordered table-hover + table-rwd"} summary={props.title}>
                 <caption>{props.title}</caption>
                 <ColRender columns={columns} onResize={handleResize} />

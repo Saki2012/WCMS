@@ -345,12 +345,20 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
                 dt.ItemSiteUrl = dt.ItemSiteUrl.Trim();//防呆，清空前後空白
                 if (dt.ItemSiteUrl.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SiteMenu_Item_DTO>(x => x.ItemSiteUrl));
                 else if (!menuIdRegex.IsMatch(dt.ItemSiteUrl)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00016, string.Format("{0}:{1}", I18nCache.GetLabel<SiteMenu_Item_DTO>(x => x.ItemSiteUrl), dt.ItemSiteUrl));
+
+                // 執行判斷：只允許 "service" / "server" 兩種完整 segment（不含 services/servers）
+                var url = (dt.FullUrl ?? string.Empty).Trim().ToLowerInvariant();
+                var isService = url == "service" || url.StartsWith("service/");
+                var isServer = url == "server" || url.StartsWith("server/");
+                if (isService || isServer) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00030);
+                    
             }
             foreach(var dt in set.SiteMenu_Item_Title)
             {   
                 if (dt.IsShowOnMenu && dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015,dt.Lang.ToLabel(), I18nCache.GetLabel<SiteMenu_Item_Title_DTO>(x => x.Title));
             }
         }
+
         private void SetData(SiteMenuSet set)
         {
             SetItemFullUrl(set);

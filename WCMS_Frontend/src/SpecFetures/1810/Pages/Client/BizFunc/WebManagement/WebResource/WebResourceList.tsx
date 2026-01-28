@@ -101,7 +101,7 @@ const WebResourceListComp = (props: IWebResourceListProps) => {
             case 1:
             default: {
                 const adjustedGrid = useMemo(() => { return SetAdjustFunction(props.lang, useWebResList.gridProps, useWebResList.rawData, useCategory.rawData); }, [useWebResList.gridProps, useWebResList.rawData, useCategory.rawData]);
-                return <GridList_Comp key="grid" GridData={adjustedGrid} Theme={props.theme} />;
+                return <GridList_Comp key="grid" lang={props.lang} GridData={adjustedGrid} Theme={props.theme} />;
             }
         }
     }, [useWebResList, props.lang, props.options]);
@@ -192,10 +192,10 @@ const PictureListContent = (prop: { lang: string, datas: WebResourceSet[] }) => 
         </div>
     </>)
 }
-const GridList_Comp = (prop: { Theme: IFETheme; GridData: GridProps }) => {
+const GridList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps }) => {
     return (
         <>
-            <OperationGuideHelp_Comp />
+            <OperationGuideHelp_Comp lang={prop.lang} />
             <Grid gridData={prop.GridData} style={prop.Theme.GridView} pageStyle={prop.Theme.Paginator} />
         </>)
 }

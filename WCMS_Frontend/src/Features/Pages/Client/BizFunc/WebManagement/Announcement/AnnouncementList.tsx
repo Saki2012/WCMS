@@ -65,7 +65,7 @@ const AnnouncementList = (props: IAnnouncementListProps) => {
             case 2:
                 return <PictureList_Row_Comp dirUrl={dirUrl} lang={props.lang} gridData={useAnnounceList.rawData} />;
             case 1:
-            default: return <GridList_Comp key="grid" gridData={adjustedGrid} title={props.node.title} />;
+            default: return <GridList_Comp key="grid" lang={props.lang} gridData={adjustedGrid} title={props.node.title} />;
 
         }
     }, [useAnnounceList, props.lang, props.options]);
@@ -80,7 +80,7 @@ const AnnouncementList = (props: IAnnouncementListProps) => {
 };
 export default AnnouncementList
 
-const GridList_Comp = (props: { title: string; gridData: GridProps }) => {
+const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps }) => {
     const [columns, setColumns] = useState<ColumnConfig[]>(props.gridData.columns);
     useEffect(() => {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -105,7 +105,7 @@ const GridList_Comp = (props: { title: string; gridData: GridProps }) => {
     };
     return (
         <>
-            <OperationGuideHelp_Comp />
+            <OperationGuideHelp_Comp lang={props.lang} />
             <table className={"table table-striped table-bordered table-hover + table-rwd"} summary={props.title}>
                 <caption>{props.title}</caption>
                 <ColRender columns={columns} onResize={handleResize} />

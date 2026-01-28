@@ -9,7 +9,7 @@ const Footer = (props: FooterProps) => {
             address: "Address",
             addressValue: "Room 521, College of Social Sciences and Management Building, No. 145, Xingda Rd., South Dist., Taichung City 40227, Taiwan",
             mapTitle: "Map: National Chung Hsing University",
-            copyright: "Copyright © 2025. National Chung Hsing University — Transcontinental International Master Pgorgam. All rights reserved.",
+            copyright: "Copyright © 2025. National Chung Hsing University — Transcontinental International Master Program. All rights reserved.",
             viewCount: "Views",
             updateDate: "Last updated",
             browserHint: "For a better and more stable browsing experience, please update your browser to Microsoft Edge / Google Chrome / Mozilla Firefox or any W3C-compatible browser (recommended screen resolution: 1920×1080).",

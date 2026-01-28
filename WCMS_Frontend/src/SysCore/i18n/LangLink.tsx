@@ -38,7 +38,12 @@ export const buildLangPathname = (pathname: string, lang: Lang): string => {
     // 只處理「絕對路徑」，相對路徑一律原樣（避免破壞 react-router relative link）
     if (!pathname.startsWith("/")) return pathname;
     // 防呆：不要影響後台/服務路徑（通常前台不會用 Link 導到這些）
-    if (pathname.startsWith("/Server") || pathname.startsWith("/Service")) return pathname;
+    // ★注意：所有 hooks 都已經呼叫完，現在才允許 return（避免 #310）
+    const path = location.pathname.toLowerCase();
+    // 執行判斷：只匹配 /server 或 /service（必須是完整 segment）
+    const isServerRoute = path === "/server" || path.startsWith("/server/");
+    const isServiceRoute = path === "/service" || path.startsWith("/service/");
+    if (isServerRoute || isServiceRoute) return pathname;
     const leading = getLeadingLangPrefix(pathname);
     // 如果已經明確帶了語系前綴：
     if (leading) {

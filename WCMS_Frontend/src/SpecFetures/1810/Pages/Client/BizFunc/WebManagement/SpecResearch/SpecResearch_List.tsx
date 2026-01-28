@@ -127,7 +127,7 @@ const useSpecResearchList = (lang: string, categoryIds: string, tagIds: string, 
 
 
 export interface ISpecResearchListOptions { Category?: string; Tag?: string; }
-interface ISpecResearchListProps { Theme: IFETheme; Lang: string | Lang; Options?: ISpecResearchListOptions; }
+interface ISpecResearchListProps { Theme: IFETheme; Lang: Lang; Options?: ISpecResearchListOptions; }
 
 export const SpecResearchListComp = (props: ISpecResearchListProps) => {
     const useGetShowColumns = useGetShowColumnItems(props.Options?.Category ?? "");
@@ -137,7 +137,7 @@ export const SpecResearchListComp = (props: ISpecResearchListProps) => {
     const errors = [useSpecResearch.error];
     return (
         <LoadingErrorHandler loadingList={isLoading} errorList={errors} >
-            <OperationGuideHelp_Comp />
+            <OperationGuideHelp_Comp lang={props.Lang} />
             <Grid gridData={useSpecResearch.gridProps} style={props.Theme.GridView} pageStyle={props.Theme.Paginator}></Grid>
         </LoadingErrorHandler>
     )

@@ -1,14 +1,13 @@
-import React, { useId, useRef, useState, useEffect } from "react";
+import React, { useId, useRef, useState, useEffect, useMemo } from "react";
 import './OperationGuideHelp_Comp.css'
 import img from './GridListOperationGuide.gif'
+import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 
 
-export const OperationGuideHelp_Comp = () => {
-    const label = "游標移至表格欄位時，可自行調整欄寬"
+export const OperationGuideHelp_Comp = (props: { lang?: Lang }) => {
+    const lang = props.lang ?? DefaultLang
+    const { title, label, description } = useMemo(() => { return getOperationGuideHelpText(lang); }, [lang]);
     const imageSrc = img
-    const title = "列表操作示範"
-    const description = "示範如何拖曳欄位標題分隔線來調整欄位寬度。"
-
     const [open, setOpen] = useState(false);
     const dialogId = useId();
     const closeBtnRef = useRef<HTMLButtonElement | null>(null);
@@ -43,4 +42,36 @@ export const OperationGuideHelp_Comp = () => {
             )}
         </>
     );
+};
+
+const getOperationGuideHelpText = (lang: Lang) => {
+    // 宣告變數
+    const dict: Record<
+        Lang,
+        { title: string; label: string; description: string }
+    > = {
+        "zh-tw": {
+            title: "列表操作示範",
+            label: "游標移至表格欄位時，可自行調整欄寬",
+            description: "示範如何拖曳欄位標題分隔線來調整欄位寬度。",
+        },
+        en: {
+            title: "List Operation Demo",
+            label: "Move the cursor over the table column to adjust the column width.",
+            description:
+                "This shows how to drag the divider between column headers to resize columns.",
+        },
+        "zh-cn": {
+            title: "列表操作示範",
+            label: "游標移至表格欄位時，可自行調整欄寬",
+            description: "示範如何拖曳欄位標題分隔線來調整欄位寬度。",
+        },
+    };
+
+    // 執行 function
+    const hit = dict[lang];
+    const fallback = dict["zh-tw"];
+
+    // return
+    return hit ?? fallback;
 };

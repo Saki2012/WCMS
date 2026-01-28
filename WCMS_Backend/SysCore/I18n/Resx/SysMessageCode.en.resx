@@ -207,4 +207,7 @@
   <data name="BECode00029" xml:space="preserve">
     <value>您沒有【{1}】權限。</value>
   </data>
+  <data name="BECode00030" xml:space="preserve">
+    <value>網站項目路徑開頭不應為【Service】或【Server】。</value>
+  </data>
 </root>

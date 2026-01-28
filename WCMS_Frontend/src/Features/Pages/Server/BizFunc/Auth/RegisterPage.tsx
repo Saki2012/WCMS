@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { AuthAPI, UserAPI } from '../../../../../SysCore/Utils/API/AuthClient';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { AuthAPI, UserAPI } from '@/SysCore/Utils/API/AuthClient';
 import { LangLink } from '@/SysCore/i18n/LangLink';
 
 
