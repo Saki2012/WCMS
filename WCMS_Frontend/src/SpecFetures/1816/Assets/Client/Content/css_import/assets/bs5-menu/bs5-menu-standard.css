@@ -379,17 +379,15 @@
 /* ========================================================== */
 /* PC模式時，HOVER狀態 */
 @media screen and (min-width: 992px) {
-	/* ❌ 禁止 hover 自動展開 */
-  .dropdown:hover > .dropdown-menu,
-  .dropend:hover > .dropdown-menu {
-    display: none;
-  }
-
-  /* ✅ 只允許 show（button/click/Enter 觸發） */
-  .dropdown.show > .dropdown-menu,
-  .dropend.show > .dropdown-menu {
-    display: block;
-  }
+	.dropdown:hover > .dropdown-menu,
+	.dropend:hover > .dropdown-menu {
+		display: block;
+	}
+	.dropend:hover > .dropdown-toggle,
+	.dropend > .dropdown-toggle.show {
+		background: var(--Customize_HRcolor) !important;
+		color: var(--FFFcolor) !important;
+	}
 }
 @media screen and (min-width: 992px) {
     .dropend:hover > .dropdown-menu {
@@ -479,7 +477,7 @@
 	.navbar-collapse.overflow-scroll-Y::-webkit-scrollbar-thumb { 
 		border-radius: 3px; 
 		height: 100px;    /* 捲軸滑桿長度 */    
-		background-color: #007acc;
+		background-color: var(--Customize_color)
 	}
 }
 /* ========================================================== */

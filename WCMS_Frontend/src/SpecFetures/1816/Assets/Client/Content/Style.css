@@ -83,7 +83,7 @@
 /* Font Awesome Pro 5.15.4 Icon 字型 */
 
 /* GOOGLE 字型 */
-@import url(https://fonts.googleapis.com/css?family=Roboto);
+@import url(http://fonts.googleapis.com/css?family=Roboto);
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap');
 /*font-family: "Noto Sans TC" */
 /* GOOGLE 字型 */
@@ -92,21 +92,24 @@
 /* ============================================= */
 
 :root {
-	--Customize_color: #906323;
-	--Customize_HRcolor: #906323;
-	--Customize_ACcolor: #906323;
-	--Customize_FCcolor: #906323;
+	--Customize_color: #AB573C;
+	--Customize_HRcolor: #AB573C;
+	--Customize_ACcolor: #AB573C;
+	--Customize_FOCUScolor: #A05B42;
+	--Customize_SCROLLcolor: #A05B42;
+	--Customize_FCcolor: #E6CCC5;
 	--Customize_Footercolor: #00305c;
+	--F2Fcolor: #f2f2f2;
 	
 	/* =================================== */
 	
-	--Customize_TXTcolor: #942700;
-	--Customize_TXTHRcolor: #942700;
+	--Customize_TXTcolor: #ad4829;
+	--Customize_TXTHRcolor: #ad4829;
 	
 	/* =================================== */
 	
-	--Customize_Btn_color: #a05b42;
-	--Customize_Btn_HRcolor: #a05b42;
+	--Customize_Btn_color: #AB573C;
+	--Customize_Btn_HRcolor: #AB573C;
 	--Customize_border_color: #00305c;
 
 	/* =================================== */
@@ -135,6 +138,7 @@
 	--Customize_size_W100: 100%;
 	--bs-gutter-x: 1.5rem;
 	--bs-gutter-y: 0rem;
+	--menu-section-height: 100px;
 	
 	/* =================================== */
 	
@@ -176,23 +180,15 @@ body {
 a { color: var(--a_linkcolor); }
 
 a, a:hover { text-decoration: none; }
-/* 1. 一般 focus 清掉背景，只留給鍵盤用 :focus-visible */
 a:focus {
-    outline: none;
-    background-color: transparent;
-    color: inherit;
-}
-a:focus-visible {
+    text-decoration: none;    
+	outline: thin dotted;
     outline: 2px solid var(--a_focusbordercolor);
-    outline-offset: 2px;
-    background-color: var(--a_focuscolor);
+	outline-offset: 0px;    
     color: var(--blackcolor) !important;
+	background-color: var(--a_focuscolor) !important;
+    
 }
-a:active {
-    background-color: var(--a_focuscolor);
-    transition: background-color 0.15s ease-out;
-}
-
 [tabindex="-1"]:focus:not(:focus-visible) {
 	text-decoration: none;
 	outline: thin dotted !important;
