@@ -228,13 +228,8 @@
 	justify-content: space-between;
 	align-items: center;
 	
-	margin: 0;
-	/* border-bottom: 1px solid var(--G999color); */
-}
-@media (max-width:1199px) {
-	.breadcrumb__wrapper .R{
-		width: 100%;
-	}
+	margin: 2rem 0 0rem 0;
+	border-bottom: 1px solid var(--G999color);
 }
 /*----------------------------------------------*/
 .custom_breadcrumb {
@@ -246,16 +241,13 @@
     display: flex;
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
-    padding: 0.6rem 0.2rem;
+    padding: 0rem 0rem;
     margin-bottom: 0rem;
     list-style: none;
     
     border-radius: 0; /*.25rem*/
 	background-color: transparent;	
 	align-items: center;
-	background-color: var(--F2Fcolor);
-	border-radius: 10px;
-	
 }
 
 .custom_breadcrumb .breadcrumb-item,
@@ -282,26 +274,12 @@
 	}
 }
 
-.custom_breadcrumb .breadcrumb-item a .icon-custom-school-B{
-	background-image: url(../../../images/svg_icon/icon-custom-school-B.svg);
-	display: flex;
-	width: 12px;
-	height: 15px;
-	background-repeat: no-repeat;
-	background-size: contain;
-	margin-bottom: 0px;
-}
-
 .custom_breadcrumb .breadcrumb-item a:hover {
 	color: var(--Customize_color); /* JESS重要 - 變更顏色*/
 }
 
-.custom_breadcrumb .breadcrumb-item a:hover:not(:focus) .icon-custom-school-B{
-	background-image: url(../../../images/svg_icon/icon-custom-school-DARK-OR.svg);
-}
-
 .custom_breadcrumb .breadcrumb-item+.breadcrumb-item {
-	padding-left: .1rem;
+	padding-left: .5rem;
 }
 .custom_breadcrumb .breadcrumb-item+.breadcrumb-item:last-child {
 	padding-right: .5rem;
@@ -309,14 +287,9 @@
 /*----------------------------------------------*/
 .custom_breadcrumb .breadcrumb-item + .breadcrumb-item::before {
 	float: left;
-	/* padding-right: .5rem; */
+	padding-right: .5rem;
 	color: rgba(0,0,0,0.35);
-	content: "";
-	background-image: url(../../../images/owl-carousel/next-B.svg);
-	width: 1.5rem;
-	height: 1.5rem;
-	background-repeat: no-repeat;
-	background-size: contain;
+	content: "/"
 }
 
 .custom_breadcrumb .breadcrumb-item + .breadcrumb-item:hover::before {
@@ -358,17 +331,6 @@
 	display: block;
 	font-size: 93.75%;	
 }
-@media screen and (max-width: 992px) {	
-	.breadcrumb__wrapper a {
-    font-size: 87.5%;
-		padding: 0.125rem 0.35rem; /*0.125rem 0.75rem*/
-	}
-}
-.breadcrumb__wrapper .retrun-wrap {
-  background-color: var(--F2Fcolor);
-	border-radius: 10px;
-	padding: 0.4rem 0.2rem;
-}
 .breadcrumb__wrapper a .return-box {
     color: var(--blackcolor);
 	font-weight: normal;
@@ -378,7 +340,7 @@
 }
 @media screen and (max-width: 575px) {
     .breadcrumb__wrapper a .return-box {
-		font-size: 100%;
+		font-size: 87.5%;
 		padding-left: 0;
 	}
 }
@@ -396,14 +358,14 @@
 .breadcrumb__wrapper a:active .return-box {
     color: var(--Customize_color);
 }
-/* .breadcrumb__wrapper a:focus .return-box {
+.breadcrumb__wrapper a:focus .return-box {
 	text-decoration: none;
 	outline: thin dotted;
 	outline: 1px solid var(--a_focusbordercolor);
 	outline-offset: 0px;
 	color: var(--blackcolor) !important;
 	background-color: var(--a_focuscolor) !important;
-} */
+}
 /* ====================================================== */
 /* =====  內頁  自訂  麵包屑 ( Breadcrumb )  ============== */
 /* ====================================================== */
@@ -423,7 +385,7 @@
 	justify-content: center;
 	align-items: center;
 	
-	margin: 0rem 0 0rem 0;
+	margin: 0rem 0 1.5rem 0;
 	/*padding-bottom: 0.5rem;*/
 	/*border-bottom: 1px solid var(--G999color);*/
 }
@@ -435,13 +397,10 @@
 /*----------------------------------------------*/
 /*----------------------------------------------*/
 .PrintingSite__wrapper .Print-box {
-	color: var(--blackcolor);
+    color: var(--blackcolor);
 	font-weight: normal;
-	text-decoration: none;
-	/* background-color: transparent; */
-	background-color: var(--F2Fcolor);
-	border-radius: 10px;
-	padding: 0.4rem 0.2rem;
+    text-decoration: none;
+    background-color: transparent;
 }
 @media screen and (max-width: 575px) {
     .PrintingSite__wrapper .Print-box {}
@@ -455,7 +414,7 @@
 }
 
 .PrintingSite__wrapper .Print-box .nav-item {
-	font-size: 100%;
+	font-size: 93.75%;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -466,44 +425,22 @@
     /*font-weight: bold;*/
     display: block;
 	
-	padding: 0.25rem 0.375rem;	
+	padding-top: 0.25rem 0.375rem;	
 }
 .PrintingSite__wrapper .Print-box .nav-item:last-child .nav-link {
-	padding: 0.25rem 0.375rem;	
+	padding: 0.125rem 0.5rem 0.125rem 0.35rem;
 }
 
-.PrintingSite__wrapper .Print-box .nav-link .icon-custom-print-B{
-	background-image: url(../../../images/svg_icon/icon-custom-print-B.svg);
-	display: inline-block;
-	width: 16px;
-	height: 18px;
-	background-repeat: no-repeat;
-	background-size: contain;
-	margin-bottom: -4px;
-	transition: .15s ease-in-out;
-}
-.PrintingSite__wrapper .Print-box .nav-link .icon-custom-share-B{
-	background-image: url(../../../images/svg_icon/icon-custom-share-B.svg);
-	display: inline-block;
-	width: 16px;
-	height: 18px;
-	background-repeat: no-repeat;
-	background-size: contain;
-	margin-bottom: -4px;
-	transition: .15s ease-in-out;
-}
 @media screen and (max-width: 992px) {	
 	.PrintingSite__wrapper .Print-box .nav-link {
-    font-size: 87.5%;
+        font-size: 87.5%;
 		padding: 0.125rem 0.35rem; /*0.125rem 0.75rem*/
 	}
-	.PrintingSite__wrapper .Print-box .nav-link .icon-custom-print-B,
-	.PrintingSite__wrapper .Print-box .nav-link .icon-custom-share-B{
-		width: 13px;
-		height: 16px;
-	}
 }
-
+.PrintingSite__wrapper .Print-box .nav-link:focus-visible {
+	outline: 1px solid var(--a_focusbordercolor);
+	box-shadow: none;
+}
 /*.header_Box .nav-item+.nav-item a.nav-link {	
 }*/
 
@@ -528,12 +465,6 @@
 }
 .PrintingSite__wrapper .Print-box .nav-item a.nav-link i {
 	margin-right: 5px;
-}
-.PrintingSite__wrapper .Print-box .nav-item a:hover.nav-link:not(:focus) .icon-custom-print-B{
-	background-image: url(../../../images/svg_icon/icon-custom-print-DARK-OR.svg);
-}
-.PrintingSite__wrapper .Print-box .nav-item a:hover.nav-link:not(:focus) .icon-custom-share-B{
-	background-image: url(../../../images/svg_icon/icon-custom-share-DARK-OR.svg);
 }
 /* ====================================================== */
 /* =====  內頁  自訂  友善列印 ( PrintingSite )  =========== */
@@ -605,14 +536,7 @@
 	position: relative;
 	list-style: none;
 	width: 100%;
-	margin-bottom: 0px;
-	/* padding: 0 0.25rem; */
-}
-.sidebar ul.list-group > li.nav-item > a.list-group-item{
-	font-weight: 900;
-}
-.sidebar ul.list-group > li.nav-item:last-child{
-	border-bottom: 1px solid var(--GCCCcolor);
+	margin-bottom: 5px;
 }
 /* ------ 第一層 ITEM ul li.nav-item ------------ */
 /* ============================================= */
@@ -661,31 +585,15 @@
 
 /* ============================================= */
 /* ------ a class="list-group-item ------------- */
-.sidebar .list-group li{
-	position: relative;
-	border-top: 1px solid var(--GCCCcolor);
-}
 .sidebar .list-group-item {
 	position: relative;
 	cursor: pointer;
 	font-size: 93.75%;
 	color: var(--blackcolor);
 	width: 100%;	
-	border: 1px solid transparent;
-	border-radius: 0px;
-	font-weight: 500;
-	display: inline;
+	border: 1px solid #ddd;
+	border-radius: 4px;
 }
-/* .sidebar .list-group-item::before{
-	content: "";
-	display: block;
-	width: 25vw;
-	height: 1px;
-	background-color: var(--GCCCcolor);
-	bottom: 0;
-	left: 0;
-	position: absolute;
-} */
 @media screen and (min-width: 320px) and (max-width: 991px) {
 	.sidebar .list-group-item {
 		font-size: 87.5%;
@@ -695,9 +603,9 @@
 .sidebar .list-group-item:hover,
 .sidebar .list-group-item:focus,
 .sidebar .list-group-item.active {
-	color: var(--Customize_color) !important;
-	background-color: var(--CFFFcolor) !important;
-	/* border-color: var(--Customize_color); */
+	color: var(--FFFcolor) !important;
+	background-color: var(--Customize_color) !important;
+	border-color: var(--Customize_color);
 }
 .sidebar .list-group-item:focus {
 	outline: 4px solid var(--a_focusbordercolor) !important;
@@ -705,73 +613,48 @@
 }
 
 /* 只有有子選單的 a 才加箭頭 */
-.sidebar .has-submenu > .list-group-item{
-	position: relative;
-}
 .sidebar .has-submenu > .list-group-item::after {
-	content: "";
-	background-image: url(../../../images/sidebar-right-B.svg);
-	width: 13px;
-	height: 13px;
-	background-size: contain;
+	content: "▼";
 	position: absolute;
-	bottom: 2px;
-	right: -18px;
+	top: 33.3333333%;
+	right: 0.5rem;
 	font-size: 56.25%;
 	transition: transform 0.2s ease;
 }
-.sidebar .has-submenu > .list-group-item:hover::after,
-.sidebar .has-submenu > .list-group-item.active::after {
-	background-image: url(../../../images/sidebar-right-DARK-OR.svg);
-}
 /* 展開時變成向上箭頭 */
-.sidebar .has-submenu > .list-group-item.open::after {
-	background-image: url(../../../images/sidebar-down-B.svg);
-}
-.sidebar .has-submenu > .list-group-item.active.open::after{
-	background-image: url(../../../images/sidebar-down-DARK-OR.svg);
+.sidebar .has-submenu > .list-group-item.active::after {
+	content: "▲";
 }
 /* ------ a class="list-group-item ------------- */
 /* ============================================= */
 
 /* ============================================= */
 /* ------ 第一層 ITEM ul li.nav-item ------------ */
-.sidebar ul > li .list-group-item{
-	/* padding: 0.75rem 1.25rem; */
-	line-height: 3;
+.sidebar ul > li > .list-group-item {
+	padding: 0.75rem 1.25rem 0.75rem 0.75rem;
 }
 /* ------ 第一層 ITEM ul li.nav-item ------------ */
 /* ============================================= */
 
 /* ============================================= */
 /* ------  第二.三.四.五.六層 ul.submenu --------- */
-.sidebar ul > li > ul.submenu > li > .list-group-item{
-	margin: 0rem 0rem 0rem 0.5rem;
-	line-height: 3;
+.sidebar ul > li > ul.submenu > li > .list-group-item {
+	padding: 0.75rem 1.25rem 0.75rem 1.25rem;
 }
-.sidebar ul > li > ul.submenu > li > ul.submenu > li .list-group-item{
-	margin: 0rem 0rem 0rem 1rem;
-	line-height: 3;
+.sidebar ul > li > ul.submenu > li > ul.submenu > li .list-group-item {
+	padding: 0.75rem 1.25rem 0.75rem 1.5rem;
 }
-.sidebar ul > li > ul.submenu > li > ul.submenu > li > ul.submenu > li .list-group-item{
-	margin: 0rem 0rem 0rem 1.25rem;
-	line-height: 3;
+.sidebar ul > li > ul.submenu > li > ul.submenu > li > ul.submenu > li .list-group-item {
+	padding: 0.75rem 1.25rem 0.75rem 1.75rem;
 }
-.sidebar ul > li > ul.submenu > li > ul.submenu > li > ul.submenu > li > ul.submenu > li .list-group-item{
-	margin: 0rem 0rem 0rem 1.5rem;
-	line-height: 3;
+.sidebar ul > li > ul.submenu > li > ul.submenu > li > ul.submenu > li > ul.submenu > li .list-group-item {
+	padding: 0.75rem 1.25rem 0.75rem 2rem;
 }
-.sidebar ul > li > ul.submenu > li > ul.submenu > li > ul.submenu > li > ul.submenu > li > ul.submenu > li .list-group-item{
-	margin: 0rem 0rem 0rem 1.75rem;
-	line-height: 3;
-}
-
-.list-group-item{
-	padding: 0;
+.sidebar ul > li > ul.submenu > li > ul.submenu > li > ul.submenu > li > ul.submenu > li > ul.submenu > li .list-group-item {
+	padding: 0.75rem 1.25rem 0.75rem 2.25rem;
 }
 /* ------  第二.三.四.五.六層 ul.submenu --------- */
 /* ============================================= */
-
 /* ====================================================== */
 /* =====  內頁 - 多層 左邊選單 ( 以上 )  =================== */
 /* ====================================================== */
@@ -892,8 +775,7 @@
 #ContentPlaceContent_ContentSubMenu .h3, #ContentPlaceContent_ContentSubMenu h3, 
 #ContentPlaceContent_ContentConentA .h3, #ContentPlaceContent_ContentConentA h3 {
 	font-size: 150% !important;
-	font-weight: 900;
-	color: var(--Customize_color);
+	font-weight: 500;
 }
 @media screen and (min-width: 320px) and (max-width: 991px) {
 	.All_Standard_Content_CSS .Div_H3_Title, 
@@ -904,7 +786,7 @@
 	}
 }
 
-/* .All_Standard_Content_CSS .Div_H3_Title::before, 
+.All_Standard_Content_CSS .Div_H3_Title::before, 
 .All_Standard_Content_CSS .Div_H3_Title::before,
 #ContentPlaceContent_ContentSubMenu .h3::before, #ContentPlaceContent_ContentSubMenu h3::before, 
 #ContentPlaceContent_ContentConentA .h3::before, #ContentPlaceContent_ContentConentA h3::before {
@@ -915,7 +797,7 @@
     background-color: var(--Customize_color);
     vertical-align: text-top;
     margin-right: 6px;
-} */
+}
 /* =============================================================== */
 /* =====  內頁  標準  內容區 H3 標題  ///// .page-header H3  ======== */
 /* =============================================================== */
@@ -3699,148 +3581,11 @@
 
 
 
-/* 網站導覽 以下 */
-.keyboard-guide {
-	background-color: var(--F2Fcolor);
-	border-radius: 12px;
-	color: var(--G333color);
-	font-weight: bold;
-}
-
-.key-badge {
-	display: inline-block;
-	padding: 4px 10px;
-	margin: 0 2px;
-	font-size: 0.875rem;
-	color: var(--blackcolor);
-	background-color: var(--GCCCcolor);
-	border-radius: 8px;
-}
-
-.guide-item {
-	text-align: left;
-	padding: 12px 0px;
-	position: relative;
-}
-.guide-box{
-	display: flex;
-	flex-wrap: wrap;
-}
-@media (min-width:1200px) {
-	.guide-box .guide-item.right-border:after{
-		content: "";
-		width: 1px;
-		height: 100%;
-		background-color: var(--GCCCcolor);
-		position: absolute;
-		top: 0;
-		right: -5rem;
-	}
-}
-@media (max-width:1199px) {
-	.guide-box.top-border:after{
-		content: "";
-		width: 100%;
-		height: 1px;
-		background-color: var(--GCCCcolor);
-		position: absolute;
-		top: 0;
-		left: 0;
-	}
-}
-@media (max-width:575px) {
-	.keyboard-guide{
-		font-size: 87.5%;
-	}
-}
 
 
-.sitemap-section {
-	margin-bottom: 3rem;
-}
-
-.sitemap-title {
-	color: var(--Customize_color);
-	font-weight: 900;
-	font-size: 1.8rem;
-	margin-bottom: .5rem;
-}
-@media (max-width:575px) {
-	.sitemap-section {
-		margin-bottom: 2rem;
-	}
-	.sitemap-title {
-		font-size: 1.4rem;
-	}
-}
-.sitemap-divider {
-	border-top: 2px solid var(--GCCCcolor);
-	margin-bottom: 1rem;
-}
-
-.group-title {
-	color: var(--Customize_color);
-	font-weight: 900;
-	font-size: 1.25rem;
-	margin-bottom: .75rem;
-	margin-bottom: 1.25rem;
-}
-@media (max-width:575px) {
-	.group-title {
-		font-size: 1.1rem;
-	}
-}
-.group-title::before {
-	content: " | ";
-	color: var(--GCCCcolor);
-}
-.group-title::after {
-	content: " | ";
-	color: var(--GCCCcolor);
-}
-
-.sitemap-list {
-	list-style: none;
-	padding-left: 0;
-	margin-bottom: 0;
-}
-
-.sitemap-list li {
-	margin-bottom: .5rem;
-	margin-left: 0.75rem;
-}
-
-.sitemap-list a {
-	text-decoration: none;
-	color: var(--blackcolor);
-	line-height: 1.8;
-}
-@media (max-width:575px) {
-	.sitemap-list a {
-		font-size: 93.75%;
-	}
-}
-.sitemap-list a:hover {
-	text-decoration: underline;
-	text-underline-offset: 6px;
-}
-
-/* 垂直分隔線（桌機） */
-@media (min-width: 768px) {
-	.border-start-md {
-		border-left: 1px solid var(--GCCCcolor);
-	}
-}
-/* 網站導覽 以上 */
 
 
-/* 內頁文字hover - 成員及服務項目 */
-.staff-box .staff-name:has(+ .staff-mail a:hover) .text-hover-color {
-  color: #af624e !important; /* 你要的 hover 顏色 */
-}
-.staff-box a.text-hover-color:hover svg .st0{
-	fill: #af624e !important;
-}
+
 
 
 
