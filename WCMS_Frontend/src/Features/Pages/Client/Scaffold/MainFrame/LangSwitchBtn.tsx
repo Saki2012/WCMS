@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useLang } from "@/SysCore/i18n/LangContext";
 import { DefaultLang, isSupportedLang, LangLabelMap, type Lang } from "@/SysCore/i18n/lang";
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import GlobalPic from '@/Features/Assets/Client/icon-custom-global-W.svg'
 
 export const LangSwitchBtn: React.FC<{ site: INormSite }> = ({ site }) => {
   // 取得語系/路由/導頁工具
@@ -55,7 +56,9 @@ export const LangSwitchBtn: React.FC<{ site: INormSite }> = ({ site }) => {
         <div className="icons">
           <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
             <a type="button" role="button" title={LangLabelMap?.[other] ?? other} tabIndex={0} onClick={(e) => { e.preventDefault(); go(other); }}>
-              <div className="link-text">{LangLabelMap?.[other] ?? other}</div>
+              <div className="link-text">
+                <img src={GlobalPic} alt="" className="me-1" />
+                {LangLabelMap?.[other] ?? other}</div>
             </a>
           </div>
         </div>

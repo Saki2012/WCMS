@@ -1,31 +1,34 @@
 import { SearchData } from '@/SpecFetures/1816/Pages/Client/Index/Section/SearchData'
 import { LinkData } from '@/SpecFetures/1816/Pages/Client/Index/Section/LinkData'
-import { CarouselData } from '@/SpecFetures/1816/Pages/Client/Index/Section/CarouselData'
-import { NewsData } from '@/SpecFetures/1816/Pages/Client/Index/Section/NewsData'
 import { CollectionsData } from '@/SpecFetures/1816/Pages/Client/Index/Section/CollectionsData'
 import { SpecialLinkData } from '@/SpecFetures/1816/Pages/Client/Index/Section/SpecialLinkData'
 import { QuickLinksData } from '@/SpecFetures/1816/Pages/Client/Index/Section/QuickLinksData'
 import type { Lang } from '@/SysCore/i18n/lang'
+import { NewsCalendarData } from '@/SpecFetures/1816/Pages/Client/Index/Section/NewsCalendarData'
+import { BannerNews } from '@/SpecFetures/1816/Pages/Client/Index/Section/BannerNews'
 
 const HomePage = (props: { lang: Lang }) => {
   return (
     <main id="Site-Main" className="ALL_Main_DivBar main-fullpage-wraper">
       <div className="background_area">
         <div className="mainArea" id="mainArea">
-          {/* // 資源探索 //  */}
-          <SearchData lang={props.lang}></SearchData>
-          {/* // 連結區 //  */}
-          <LinkData lang={props.lang}></LinkData>
-          {/* // 輪播BANNER //  */}
-          <CarouselData lang={props.lang}></CarouselData>
-          {/* // 最新消息 //  */}
-          <NewsData lang={props.lang}></NewsData>
-          {/* // 館藏櫥窗 //  */}
-          <CollectionsData lang={props.lang}></CollectionsData>
-          {/* // 專區連結 //  */}
-          <SpecialLinkData lang={props.lang}></SpecialLinkData>
-          {/* // 快速連結 //  */}
-          <QuickLinksData lang={props.lang}></QuickLinksData>
+          {/* 連結區 */}
+          <LinkData {...props} />
+          {/* 開館時間 */}
+          <NewsCalendarData {...props} />
+          <section className="accesskey_C_H">
+            <div className="container-customize4">
+              <a id="content" accessKey="C" href="#C" className="accesskey_main C" title="中央主要內容區(C)">:::</a>
+            </div>
+          </section>
+          {/* 輪播+最新消息 */}
+          <BannerNews {...props} />
+          {/* 館藏櫥窗  */}
+          <CollectionsData {...props} />
+          {/* 專區連結  */}
+          <SpecialLinkData {...props} />
+          {/* 快速連結  */}
+          <QuickLinksData {...props} />
         </div>
       </div>
     </main>

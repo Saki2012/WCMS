@@ -49,7 +49,7 @@ export const QuickLinksData = (props: { lang: Lang }) => {
 				loop: false,
 				dots: false,
 				nav: true,
-				margin: 30,
+				margin: 5,
 				autoplay: false,
 				autoplayTimeout: 1000,
 				autoplayHoverPause: true,
@@ -116,13 +116,13 @@ export const QuickLinksData = (props: { lang: Lang }) => {
 	}, [sortedDetails.length]);
 
 	return (
-		<section className="Links_section owl-box Layout_Padding_3_top Layout_Padding_1_bottom">
+		<section className="Links_section owl-box Layout_Padding_4_top Layout_Padding_4_bottom">
 			<div className="Mask-DivBox">
 				<div className="customizeBox">
-					<div className="container-customize2">
+					<div className="container-customize4">
 						<div className="row">
 							<div className="col-12">
-								<div className="headDiv mb-sm-5 mb-4">
+								<div className="headDiv mb-3">
 									{props.lang === "zh-tw" ?
 										<>
 											<span className="headDiv-txt">快速連結</span>
@@ -136,23 +136,6 @@ export const QuickLinksData = (props: { lang: Lang }) => {
 							</div>
 							<div className="col-12">
 								<div className="content-box px-0 mb-5">
-									<div className="DIV-singleBox d-none">
-										<div className="control-singlebox">
-											<a
-												ref={toggleRef}
-												aria-label="圖片輪播播放中，點擊暫停"
-												aria-pressed="true"
-												className="toggle ms-1"
-												href="javascript:void(0);"
-												id="Links_toggle"
-												tabIndex={0}
-												title="暫停">
-												<div className="control-toggle control-pause-icon">
-													<span className="sr-only">圖片輪播播放中，點擊暫停</span>
-												</div>
-											</a>
-										</div>
-									</div>
 									<div className="owl-carousel owl-theme" id="Links_owl_carousel" ref={carouselRef}>
 										{sortedDetails.map((p, i) => {
 											const info = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang)
@@ -163,31 +146,20 @@ export const QuickLinksData = (props: { lang: Lang }) => {
 												<div key={i} className="item">
 													<LangLink to={url} tabIndex={0} target={urlopen} title="">
 														<div className="wrapper_box">
-															<div className="Qlink-item">
-																<div className="Img_Div w-100">
-																	<div className="Qlinkimg-outer">
-																		<img alt={alt} src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} />
-																	</div>
+															<figure className="card_figure">
+																<div className="card_image_link">
+																	<picture>
+																		<img className="card_image" src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} alt={alt} />
+																	</picture>
 																</div>
-																<div className="go_label d-none">
-																	<i aria-hidden="true" className="fa fa-link">
-																		<span className="sr-only">{alt}</span>
-																	</i>
-																</div>
-																<div className="Content_Div">
-																	<div className="box_content">
-																		<div className="tit-text">
-																			{alt}
-																		</div>
-																	</div>
-																</div>
-															</div>
+															</figure>
 														</div>
 													</LangLink>
 												</div>
 											)
 										})}
 									</div>
+
 									<div className="customize_btn mr-4 d-none" style={{ bottom: "-40px", position: "absolute", right: "0", }}>
 										<a className="Btn_a" role="button" tabIndex={0} target="_self" title="更多連結" type="button">
 											<div className="BtnBox">
@@ -196,6 +168,7 @@ export const QuickLinksData = (props: { lang: Lang }) => {
 											</div>
 										</a>
 									</div>
+
 								</div>
 							</div>
 						</div>

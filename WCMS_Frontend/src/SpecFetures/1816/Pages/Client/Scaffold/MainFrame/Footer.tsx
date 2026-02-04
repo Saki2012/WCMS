@@ -1,8 +1,15 @@
-import AAImg from "@/SpecFetures/1816/Assets/Client/images/footer/small_icon/accessibility_badge_2.1AA_88x31.svg"
+import { useEffect } from "react"
 import type { FooterProps } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Footer"
+import AAPic from "@/SpecFetures/1816/Assets/Client/images/footer/small_icon/accessibility_badge_2.1AA_88x31.svg"
+import LogoPic from "@/SpecFetures/1816/Assets/Client/images/logo/LOGO_266x41_W.svg"
 
-const Footer = (props: FooterProps) => {
-    const t = (props.lang === "en"
+// ✅ 文案集中：避免散落在 JSX，方便後續維護
+const getFooterText = (lang?: FooterProps["lang"]) => {
+    // 宣告變數
+    const isEn = lang === "en"
+
+    // 執行 function
+    const t = isEn
         ? {
             accessKeyTitle: "Footer content area (B)",
             contactTitle: "Contact",
@@ -12,21 +19,20 @@ const Footer = (props: FooterProps) => {
             email: "Email",
             address: "Address",
             addressValue: "No. 1, Xueyuan Rd., Beitou Dist., Taipei City 112301, Taiwan",
-            securityTitle: "Security",
-            securityTitleEn: "Security Info",
-            rules: "Rules of Use",
-            terms: "Terms of Service",
-            openNewWindow: "Opens in a new window",
-            securityHint: "Please review the rules and terms to protect your information security.",
-            a11yTitle: "Accessibility statement (opens in a new window)",
-            a11yAlt: "AA (WCAG 2.1) accessibility badge",
-            copyright: "Copyright © 2025. National Taipei University of the Arts Library. All rights reserved.",
-            viewCount: "Views",
-            updateDate: "Last updated",
+            a11yTitle: "Accessibility (opens in a new window)",
+            a11yAlt: "WCAG 2.1 AA accessibility badge",
+            a11yHint: "This website meets WCAG 2.1 AA.",
+            viewCountTitle: "Views",
+            updateDateTitle: "Last updated",
+            copyright:
+                "Copyright © 2025. National Taipei University of the Arts Library. All rights reserved.",
             browserHint:
                 "For a better and more stable browsing experience, please update your browser to Microsoft Edge / Google Chrome / Mozilla Firefox or any W3C-compatible browser (recommended screen resolution: 1920×1080).",
             designByTitle: "IT-EASYGO International Accessibility Technology Co., Ltd.",
             designBy: "Design by it-easygo.",
+            // SSR 初始顯示（CSR 會自動覆蓋）
+            initialViewCount: "0000000000",
+            initialUpdateDate: "2026/01/02",
         }
         : {
             accessKeyTitle: "下方內容區(B)",
@@ -37,151 +43,240 @@ const Footer = (props: FooterProps) => {
             email: "信箱",
             address: "地址",
             addressValue: "112301 臺北市北投區學園路1號",
-            securityTitle: "資安資訊",
-            securityTitleEn: "Security Info",
-            rules: "使用規則",
-            terms: "服務條款",
-            openNewWindow: "另開視窗",
-            securityHint: "為維護您的資訊安全，請詳閱使用規則與服務條款。",
             a11yTitle: "無障礙網站_[ 另開視窗 ]",
             a11yAlt: "通過AA優先等級無障礙網頁檢測",
+            a11yHint: "本網站通過 AA 無障礙標準",
+            viewCountTitle: "瀏覽人數",
+            updateDateTitle: "更新日期",
             copyright: "Copyright © 2025. 國立臺北藝術大學圖書館 All rights reserved.",
-            viewCount: "瀏覽人數",
-            updateDate: "更新日期",
             browserHint:
-                "為提供更為穩定的瀏覽品質與使用體驗，建議更新瀏覽器 Microsoft Edge / Google Chrome / Mozilla Firefox 或相容 W3C 網頁標準之瀏覽器 ( 螢幕最佳瀏覽解析度為1920*1080 )",
+                "為提供更為穩定的瀏覽品質與使用體驗，建議更新瀏覽器 Microsoft Edge / Google Chrome / Mozilla Firefox 或相容 W3C 網頁標準之瀏覽器  ( 螢幕最佳瀏覽解析度為1920*1080 )",
             designByTitle: "國際暢行科技有限公司",
             designBy: "Design by it-easygo.",
-        } as const)
+            // SSR 初始顯示（CSR 會自動覆蓋）
+            initialViewCount: "0000000000",
+            initialUpdateDate: "2026/01/02",
+        }
 
+    // return
+    return t
+}
+
+// ✅ CSR 行為：用 React 取代 index.html 內嵌 script（SSR 安全）
+const useFooterAutoUpdate = () => {
+    useEffect(() => {
+        // 宣告變數
+        const isBrowser = typeof window !== "undefined"
+        if (!isBrowser) return
+
+        // 執行 function：自動更新日期
+        const updateTodayDate = () => {
+            const el = document.getElementById("updateDate")
+            if (!el) return
+
+            const today = new Date()
+            const yyyy = today.getFullYear()
+            const mm = String(today.getMonth() + 1).padStart(2, "0")
+            const dd = String(today.getDate()).padStart(2, "0")
+            el.textContent = `${yyyy}/${mm}/${dd}`
+        }
+
+        // 執行 function：模擬瀏覽人數增加（localStorage）
+        const updateViewCount = () => {
+            const el = document.getElementById("viewCount")
+            if (!el) return
+
+            const key = "page_view_count"
+            const raw = window.localStorage.getItem(key)
+            const next = raw ? Number.parseInt(raw, 10) + 1 : 1
+
+            window.localStorage.setItem(key, String(next))
+            el.textContent = String(next).padStart(10, "0")
+        }
+
+        updateTodayDate()
+        updateViewCount()
+    }, [])
+}
+
+const Footer = (props: FooterProps) => {
+    // 宣告變數
+    const t = getFooterText(props.lang)
+
+    // 執行 function
+    useFooterAutoUpdate()
+
+    // return
     return (
         <footer className="Footer_section">
-            <section className="footer-black Layout_Padding_5_top">
-                <div className="container-customize2">
+            <section className="container-customize4">
+                <div className="row">
                     <span>
-                        <a accessKey="B" href="#B" className="accesskey_footer B" title={`${t.accessKeyTitle}(B)`} tabIndex={0} style={{ color: "var(--FFFcolor)" }}>
+                        <a
+                            accessKey="B"
+                            href="#B"
+                            className="accesskey_footer B"
+                            title={`${t.accessKeyTitle}(B)`}
+                            tabIndex={0}
+                            style={{ color: "var(--FFFcolor)" }}
+                        >
                             :::
                         </a>
                     </span>
-                    <div className="widgets-box">
-                        <div className="row">
-                            <div className="col-sm-6 col-12">
-                                <div className="row">
-                                    <div className="col-12 mb-md-0 mb-3">
-                                        <div className="footer-widget info-widget">
-                                            <div className="widget-title-content">
-                                                <div className="TitleDivBox">
-                                                    <span className="widget-title">{t.contactTitle}</span>
-                                                    <span className="widget-V-line">｜</span>
-                                                    <span className="widget-english">{t.contactTitleEn}</span>
-                                                </div>
-                                            </div>
 
-                                            <div className="widget-content">
-                                                <ul className="list">
-                                                    <li>
-                                                        {t.tel} ：( 02 ) 2896-1000 #1836 or #1837
-                                                    </li>
-                                                    <li>
-                                                        {t.fax} ：( 02 ) 7750-7223
-                                                    </li>
-                                                    <li>
-                                                        {t.email} ：
-                                                        <a href="mailto:master@library.tnua.edu.tw">master@library.tnua.edu.tw</a>
-                                                    </li>
-                                                    <li>
-                                                        {t.address} ：{t.addressValue}
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div className="col-xl-9 col-12 order-xl-1 order-2">
+                        {/* footer-black */}
+                        <div className="footer-black Layout_Padding_5_top Layout_Padding_5_bottom">
+                            <div className="">
+                                {/* widgets-box */}
+                                <div className="widgets-box">
+                                    <div className="row">
+                                        <div className="col-xl-4 col-lg-5 col-md-6 col-sm-12 col-12 border-right">
+                                            <div className="row">
+                                                <div className="col-12 mb-md-0 mb-3">
+                                                    <div className="footer-widget info-widget">
+                                                        <div className="widget-title-content">
+                                                            <div className="TitleDivBox">
+                                                                <span className="widget-title">{t.contactTitle}</span>
+                                                                <span className="widget-english">{t.contactTitleEn}</span>
+                                                            </div>
+                                                        </div>
 
-                            <div className="col-sm-6 col-12">
-                                <div className="row">
-                                    <div className="col-12 mb-md-0 mb-3">
-                                        <div className="footer-widget info-widget">
-                                            <div className="widget-title-content">
-                                                <div className="TitleDivBox">
-                                                    <span className="widget-title">{t.securityTitle}</span>
-                                                    <span className="widget-V-line">｜</span>
-                                                    <span className="widget-english">{t.securityTitleEn}</span>
-                                                </div>
-                                            </div>
-
-                                            <div className="widget-content">
-                                                <ul className="list">
-                                                    <li>
-                                                        <a target="_blank" title={`${t.rules} (${t.openNewWindow})`} tabIndex={0}>
-                                                            {t.rules}
-                                                        </a>
-                                                        <span className="mx-2">＆</span>
-                                                        <a target="_blank" title={`${t.terms} (${t.openNewWindow})`} tabIndex={0}>
-                                                            {t.terms}
-                                                        </a>
-                                                    </li>
-                                                </ul>
-
-                                                {/* ✅ 說明文案：中/英切換 */}
-                                                <p style={{ margin: "0.5rem 0 0", color: "var(--FFFcolor)" }}>
-                                                    {t.securityHint}
-                                                </p>
-
-                                                <div className="social_box">
-                                                    <div className="Accessibility-Badge_box">
-                                                        <a target="_blank" title={t.a11yTitle} tabIndex={0}>
-                                                            <img className="Accessibility-Badge" src={AAImg} alt={t.a11yAlt} />
-                                                        </a>
+                                                        <div className="widget-content">
+                                                            <ul className="list">
+                                                                <li>
+                                                                    {t.tel}：( 02 ) 2896-1000 #1836 or #1837
+                                                                </li>
+                                                                <li>
+                                                                    {t.fax}：( 02 ) 7750-7223
+                                                                </li>
+                                                                <li>
+                                                                    {t.email}：
+                                                                    <a
+                                                                        href="mailto:master@library.tnua.edu.tw"
+                                                                        title=""
+                                                                        target="_blank"
+                                                                        rel="noreferrer"
+                                                                    >
+                                                                        master@library.tnua.edu.tw
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    {t.address}：
+                                                                    <a href="112臺北市北投區學園路1號" title="" target="_blank" rel="noreferrer">
+                                                                        {t.addressValue}
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <div className="col-xl-8 col-lg-7 col-md-6 col-sm-12 col-12 ps-xl-5 ps-3">
+                                            <div className="footer-widget info-widget">
+                                                <div className="widget-content my-1">
+                                                    <div className="social_box">
+                                                        <div className="Accessibility-Badge_box">
+                                                            <a
+                                                                href="javascript:void(0);"
+                                                                target="_blank"
+                                                                title={t.a11yTitle}
+                                                                tabIndex={0}
+                                                                style={{ height: "auto", width: "auto" }}
+                                                                rel="noreferrer"
+                                                            >
+                                                                <img
+                                                                    className="Accessibility-Badge"
+                                                                    src={AAPic}
+                                                                    alt={t.a11yAlt}
+                                                                />
+                                                            </a>
+                                                            <ul className="list">
+                                                                <li>{t.a11yHint}</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    {/* //無障礙 END */}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {/* widgets-box */}
+                            </div>
+                        </div>
+                        {/* footer-black */}
+                    </div>
+
+                    <div className="col-xl-3 col-lg-12 order-xl-2 order-1">
+                        {/* visitor_section */}
+                        <div className="visitor_section Layout_Padding_5_top Layout_Padding_5_bottom d-flex align-items-xl-end align-items-start">
+                            <div className="w-100">
+                                <div className="visitor_wraper" style={{ padding: "0 3px" }}>
+                                    <div className="row">
+                                        <div className="col-12">
+                                            <div className="footer-widget info-widget d-flex flex-xl-column flex-row align-items-xl-end align-items-center justify-content-between flex-wrap">
+                                                <div className="logo mt-2 mb-xl-5 mb-3 pb-xl-4 pb-0 me-5 me-xl-0">
+                                                    <img src={LogoPic} alt="" />
+                                                </div>
+                                                <div className="info_contact">
+                                                    <div className="dbox">
+                                                        <div className="pe-3 me-3 border-right">
+                                                            <p className="">{t.viewCountTitle}</p>
+                                                            <p id="viewCount" className="">
+                                                                {t.initialViewCount}
+                                                            </p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="">{t.updateDateTitle}</p>
+                                                            <p id="updateDate" className="">
+                                                                {t.initialUpdateDate}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* index.html 原本這段是註解區，這裡保留 DOM 區塊結構（不加內容） */}
+                                        {/*<div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                                            <div class="info_contact">
+                                                <div class="dbox"><p>更新日期 : 2022/11/15</p></div>
+                                            </div>
+                                        </div>*/}
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        {/* visitor_section */}
                     </div>
                 </div>
             </section>
 
-            <section className="visitor_section pt-3">
-                <div className="container-customize2">
-                    <div className="visitor_wraper" style={{ padding: "0 3px" }}>
-                        <div className="row">
-                            <div className="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+            {/* copyright_section */}
+            <section className="copyright_section pt-3 Layout_Padding_3_bottom">
+                <div className="container-customize4">
+                    <div className="copyright_wraper">
+                        <div className="d-flex align-items-center flex-wrap">
+                            <div className="me-1">
                                 <div className="info_contact">
                                     <div className="dbox">
                                         <p>{t.copyright}</p>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div className="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
-                                <div className="info_contact">
-                                    <div className="dbox">
-                                        <p id="viewCount">{t.viewCount}　:　0000000005</p>
-                                        <p className="px-2">｜</p>
-                                        <p id="updateDate">{t.updateDate}　:　2025/11/12</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section className="copyright_section pt-3 pb-3">
-                <div className="container-customize2">
-                    <div className="copyright_wraper" style={{ padding: "0 3px" }}>
-                        <div className="row">
-                            <div className="col-md-12">
                                 <div className="dbox-tb">
                                     <p>{t.browserHint}</p>
                                     <p className="px-2">｜</p>
                                     <p>
-                                        <a href="http://www.it-easygo.com/Main.aspx" title={t.designByTitle} target="_blank" tabIndex={0}>
+                                        <a
+                                            href="http://www.it-easygo.com/Main.aspx"
+                                            title={t.designByTitle}
+                                            target="_blank"
+                                            tabIndex={0}
+                                            rel="noreferrer"
+                                        >
                                             {t.designBy}
                                         </a>
                                     </p>
@@ -191,6 +286,7 @@ const Footer = (props: FooterProps) => {
                     </div>
                 </div>
             </section>
+            {/* copyright_section */}
         </footer>
     )
 }

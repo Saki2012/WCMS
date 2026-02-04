@@ -47,7 +47,7 @@ const ContentContainer = (props: { style: IFETheme; lang: Lang; site: INormSite;
                     <BreadcrumbContext.Provider value={{ items, setItems }}>
                         <div className="row">
                             <BreadCrumb_Comp lang={props.lang} site={props.site} node={props.node} backHref={props.backHref} />
-                            <Toolbar_Comp lang={props.lang} />
+                            {/* <Toolbar_Comp lang={props.lang} /> */}
                         </div>
 
                         <div className="row">

@@ -1,4 +1,3 @@
-import { NewsCalendarData } from '@/SpecFetures/1816/Pages/Client/Index/Section/NewsCalendarData'
 import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api';
 import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api';
 import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
@@ -10,6 +9,7 @@ import { PGID } from '@/Features/Hooks/Common/ProgId';
 import { LangLink } from '@/SysCore/i18n/LangLink';
 import type { Lang } from '@/SysCore/i18n/lang';
 import { AnnouncementDetailFields, AnnouncementFields, CategoryDetailFields, CategoryFields, TagDataFields, TagDetailFields } from '@/types/SchemaFields';
+import { useCallback, useState } from 'react';
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
@@ -164,143 +164,278 @@ export const NewsData = (props: { lang: Lang }) => {
 	const allNews2 = getNewsDataProps(allNewsRawData2, props.lang, "/News/News-02", "", categoryDict, tagDict);
 	const allNews3 = getNewsDataProps(allNewsRawData3, props.lang, "/News/News-03", "", categoryDict, tagDict);
 	const allNews4 = getNewsDataProps(allNewsRawData4, props.lang, "/News/News-04", "", categoryDict, tagDict);
-	const moreTitle = props.lang === "zh-tw" ? "更多" : props.lang === "en" ? "More " : ""
+	const getMoreText = (catName: string) => {
+		// 宣告變數
+		const base = props.lang === "en" ? "More " : "更多";
+		// return
+		return `${base}${catName ?? ""}`;
+	};
+	const [activeTab, setActiveTab] = useState<"01" | "02" | "03" | "04">("01");
+
+	// 執行 function：切換 tab（阻止 a 預設行為，避免網址跳動）
+	const onTabClick = useCallback((tab: "01" | "02" | "03" | "04") => {
+		return (e: React.MouseEvent<HTMLAnchorElement>) => {
+			e.preventDefault();
+			setActiveTab(tab);
+		};
+	}, []);
+
+	// 宣告變數：class helper（保持 DOM 結構不變，只換 class）
+	const getTabLinkClass = (tab: "01" | "02" | "03" | "04") => {
+		return tab === activeTab ? "nav-link active" : "nav-link";
+	};
+
+	const getPaneClass = (tab: "01" | "02" | "03" | "04") => {
+		return tab === activeTab ? "tab-pane fade show active" : "tab-pane fade";
+	};
 	return (
-		<section className="Newsii_section Layout_Padding_1_top Layout_Padding_5_bottom" style={{ backgroundImage: "url(/images/bg/background-transparent-image_1920x600.png)", }}>
-			<div className="Mask-DivBox">
-				<div className="customizeBox">
-					<div className="circle-1 iMG-Shape-1" />
-					<div className="container-customize2 image-layer">
-						<div className="row">
-							<div className="col-xxl-7 col-xl-7 col-lg-7 col-md-12 col-sm-12 col-12 + order-xxl-1 order-xl-1 order-lg-1 order-md-2 order-sm-2  order-2">
-								<div className="col-12">
-									<div className="headDiv mb-sm-5 mb-4">
-										{props.lang === "zh-tw" ?
-											<>
-												<span className="headDiv-txt">最新消息</span>
-												<span className="headDiv-subtxt">News</span>
-											</> :
-											props.lang === "en" ? <>
-												<span className="headDiv-txt">News</span>
-											</> : ""
-										}
-									</div>
-								</div>
-								<div className="V-nav-tabs-content-box" id="Vertical">
-									<div className="Vertical nav-tabs-list">
-										<ul className="nav nav-tabs" role="tablist">
-											<li className="nav-item" role="presentation">
-												<a aria-controls="V-navTabs-01" aria-selected="true"
-													className="nav-link active" data-bs-target="#V-navTabs-01"
-													data-bs-toggle="tab" href="#" id="V-Tabs__01" role="tab"
-													tabIndex={0} type="button">
-													{categoryDict[1]}
-												</a>
-											</li>
-											<li className="nav-item" role="presentation">
-												<a aria-controls="V-navTabs-02" aria-selected="false"
-													className="nav-link" data-bs-target="#V-navTabs-02"
-													data-bs-toggle="tab" href="#" id="V-Tabs__02" role="tab"
-													tabIndex={0} type="button">
-													{categoryDict[2]}
-												</a>
-											</li>
-											<li className="nav-item" role="presentation">
-												<a aria-controls="V-navTabs-02" aria-selected="false"
-													className="nav-link" data-bs-target="#V-navTabs-03"
-													data-bs-toggle="tab" href="#" id="V-Tabs__03" role="tab"
-													tabIndex={0} type="button">
-													{categoryDict[3]}
-												</a>
-											</li>
-											<li className="nav-item" role="presentation">
-												<a aria-controls="V-navTabs-04" aria-selected="false"
-													className="nav-link" data-bs-target="#V-navTabs-04"
-													data-bs-toggle="tab" href="#" id="V-Tabs__04" role="tab"
-													tabIndex={0} type="button">
-													{categoryDict[4]}
-												</a>
-											</li>
-										</ul>
-									</div>
-									<div className="tab-content" id="V-nav-tabContent">
-										<div aria-labelledby="V-Tabs__01" className="tab-pane fade show active" id="V-navTabs-01" role="tabpanel">
-											<div className="News_mainDIV">
-												<ul className="ListNews">
-													<GetData prop={allNews1}></GetData>
-												</ul>
-												<div className="btn-w100-wrapper justify-content-start">
-													<div className="customize_btn mr-4">
-														<LangLink className="Btn_a" to="/News/News-01" role="button" tabIndex={0} target="_self" title={`${moreTitle}${categoryDict[1]}`} type="button">
-															<div className="BtnBox">
-																<span>{`${moreTitle}${categoryDict[1]}`}</span>
-																<span className="ml-2">+</span>
-															</div>
-														</LangLink>
-													</div>
-												</div>
-											</div>
-										</div>
-										<div aria-labelledby="V-Tabs__02" className="tab-pane fade" id="V-navTabs-02" role="tabpanel">
-											<div className="News_mainDIV">
-												<ul className="ListNews">
-													<GetData prop={allNews2}></GetData>
-												</ul>
-												<div className="btn-w100-wrapper justify-content-start">
-													<div className="customize_btn mr-4">
-														<LangLink className="Btn_a" to="/News/News-02" role="button" tabIndex={0} target="_self" title={`${moreTitle}${categoryDict[2]}`} type="button">
-															<div className="BtnBox">
-																<span>{`${moreTitle}${categoryDict[1]}`}</span>
-																<span className="ml-2">+</span>
-															</div>
-														</LangLink>
-													</div>
-												</div>
-											</div>
-										</div>
-										<div aria-labelledby="V-Tabs__03" className="tab-pane fade" id="V-navTabs-03" role="tabpanel">
-											<div className="News_mainDIV">
-												<ul className="ListNews">
-													<GetData prop={allNews3}></GetData>
-												</ul>
-												<div className="btn-w100-wrapper justify-content-start">
-													<div className="customize_btn mr-4">
-														<LangLink className="Btn_a" to="/News/News-03" role="button" tabIndex={0} target="_self" title={`${moreTitle}${categoryDict[3]}`} type="button">
-															<div className="BtnBox">
-																<span>{`${moreTitle}${categoryDict[3]}`}</span>
-																<span className="ml-2">+</span>
-															</div>
-														</LangLink>
-													</div>
-												</div>
-											</div>
-										</div>
-										<div aria-labelledby="V-Tabs__04" className="tab-pane fade" id="V-navTabs-04" role="tabpanel">
-											<div className="News_mainDIV">
-												<ul className="ListNews">
-													<GetData prop={allNews4}></GetData>
-												</ul>
-												<div className="btn-w100-wrapper justify-content-start">
-													<div className="customize_btn mr-4">
-														<LangLink className="Btn_a" to="/News/News-04" role="button" tabIndex={0} target="_self" title={`${moreTitle}${categoryDict[4]}`} type="button">
-															<div className="BtnBox">
-																<span>{`${moreTitle}${categoryDict[4]}`}</span>
-																<span className="ml-2">+</span>
-															</div>
-														</LangLink>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
+		<div className="Mask-DivBox">
+			<div className="customizeBox">
+				<div className="container-customize4 bg-layer p-3">
+					<div className="row">
+						<div className="col-12">
+							{/* 標題 start */}
+							<div className="headDiv mb-3 mt-1 d-flex justify-content-center">
+								<span className="headDiv-txt">{props.lang === "en" ? "News" : "最新消息"}</span>
+								<span className="headDiv-subtxt">{props.lang === "en" ? "" : "NEWS"}</span>
 							</div>
-							<NewsCalendarData lang={props.lang} />
+							{/* 標題 end */}
+						</div>
+
+						<div className="V-nav-tabs-content-box" id="Horizontal">
+							<div className="Horizontal nav-tabs-list">
+								<ul className="nav nav-tabs" role="tablist">
+									<li className="nav-item" role="presentation">
+										<a
+											aria-controls="V-navTabs-01"
+											aria-selected={activeTab === "01"}
+											className={getTabLinkClass("01")}
+											data-bs-target="#V-navTabs-01"
+											data-bs-toggle="tab"
+											href="#"
+											id="V-Tabs__01"
+											role="tab"
+											tabIndex={0}
+											type="button"
+											onClick={onTabClick("01")}
+										>
+											{categoryDict["1"] ?? categoryDict[1] ?? ""}
+										</a>
+
+										<div className="tab-content" id="V-nav-tabContent">
+											<div
+												aria-labelledby="V-Tabs__01"
+												className={getPaneClass("01")}
+												id="V-navTabs-01"
+												role="tabpanel"
+											>												<div className="News_mainDIV">
+													<ul className="ListNews">
+														<GetData prop={allNews1}></GetData>
+													</ul>
+
+													<div className="btn-w100-wrapper w-100">
+														<div className="customize_btn w-100">
+															<LangLink
+																to={"/News/News-01"}
+																title={getMoreText(categoryDict["1"] ?? categoryDict[1] ?? "")}
+																role="button"
+																tabIndex={0}
+																target="_self"
+																className="Btn_a"
+																type="button"
+															>
+																<div className="BtnBox">
+																	<div className="me-2">
+																		<img alt="" src="images/svg_icon/more-d.svg" />
+																	</div>
+																	<span>{getMoreText(categoryDict["1"] ?? categoryDict[1] ?? "")}</span>
+																	<span className="ms-2">
+																		<span className="fas fa-angle-right"></span>
+																	</span>
+																</div>
+															</LangLink>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</li>
+
+									<li className="nav-item" role="presentation">
+										<a
+											aria-controls="V-navTabs-02"
+											aria-selected={activeTab === "02"}
+											className={getTabLinkClass("02")}
+											data-bs-target="#V-navTabs-02"
+											data-bs-toggle="tab"
+											href="#"
+											id="V-Tabs__02"
+											role="tab"
+											tabIndex={0}
+											type="button"
+											onClick={onTabClick("02")}
+										>
+											{categoryDict["2"] ?? categoryDict[2] ?? ""}
+										</a>
+
+										<div className="tab-content" id="V-nav-tabContent">
+											<div
+												aria-labelledby="V-Tabs__02"
+												className={getPaneClass("02")}
+												id="V-navTabs-02"
+												role="tabpanel"
+											>												<div className="News_mainDIV">
+													<ul className="ListNews">
+														<GetData prop={allNews2}></GetData>
+													</ul>
+
+													<div className="btn-w100-wrapper w-100">
+														<div className="customize_btn w-100">
+															<LangLink
+																to={"/News/News-02"}
+																title={getMoreText(categoryDict["2"] ?? categoryDict[2] ?? "")}
+																role="button"
+																tabIndex={0}
+																target="_self"
+																className="Btn_a"
+																type="button"
+															>
+																<div className="BtnBox">
+																	<div className="me-2">
+																		<img alt="" src="images/svg_icon/more-d.svg" />
+																	</div>
+																	<span>{getMoreText(categoryDict["2"] ?? categoryDict[2] ?? "")}</span>
+																	<span className="ms-2">
+																		<span className="fas fa-angle-right"></span>
+																	</span>
+																</div>
+															</LangLink>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</li>
+
+									<li className="nav-item" role="presentation">
+										<a
+											aria-controls="V-navTabs-03"
+											aria-selected={activeTab === "03"}
+											className={getTabLinkClass("03")}
+											data-bs-target="#V-navTabs-03"
+											data-bs-toggle="tab"
+											href="#"
+											id="V-Tabs__03"
+											role="tab"
+											tabIndex={0}
+											type="button"
+											onClick={onTabClick("03")}
+										>
+											{categoryDict["3"] ?? categoryDict[3] ?? ""}
+										</a>
+
+										<div className="tab-content" id="V-nav-tabContent">
+											<div
+												aria-labelledby="V-Tabs__03"
+												className={getPaneClass("03")}
+												id="V-navTabs-03"
+												role="tabpanel"
+											>												<div className="News_mainDIV">
+													<ul className="ListNews">
+														<GetData prop={allNews3}></GetData>
+													</ul>
+
+													<div className="btn-w100-wrapper w-100">
+														<div className="customize_btn w-100">
+															<LangLink
+																to={"/News/News-03"}
+																title={getMoreText(categoryDict["3"] ?? categoryDict[3] ?? "")}
+																role="button"
+																tabIndex={0}
+																target="_self"
+																className="Btn_a"
+																type="button"
+															>
+																<div className="BtnBox">
+																	<div className="me-2">
+																		<img alt="" src="images/svg_icon/more-d.svg" />
+																	</div>
+																	<span>{getMoreText(categoryDict["3"] ?? categoryDict[3] ?? "")}</span>
+																	<span className="ms-2">
+																		<span className="fas fa-angle-right"></span>
+																	</span>
+																</div>
+															</LangLink>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</li>
+
+									<li className="nav-item" role="presentation">
+										<a
+											aria-controls="V-navTabs-04"
+											aria-selected={activeTab === "04"}
+											className={getTabLinkClass("04")}
+											data-bs-target="#V-navTabs-04"
+											data-bs-toggle="tab"
+											href="#"
+											id="V-Tabs__04"
+											role="tab"
+											tabIndex={0}
+											type="button"
+											onClick={onTabClick("04")}
+										>
+											{categoryDict["4"] ?? categoryDict[4] ?? ""}
+										</a>
+
+										<div className="tab-content" id="V-nav-tabContent">
+											<div
+												aria-labelledby="V-Tabs__04"
+												className={getPaneClass("04")}
+												id="V-navTabs-04"
+												role="tabpanel"
+											>
+												<div className="News_mainDIV">
+													<ul className="ListNews">
+														<GetData prop={allNews4}></GetData>
+													</ul>
+
+													<div className="btn-w100-wrapper w-100">
+														<div className="customize_btn w-100">
+															<LangLink
+																to={"/News/News-04"}
+																title={getMoreText(categoryDict["4"] ?? categoryDict[4] ?? "")}
+																role="button"
+																tabIndex={0}
+																target="_self"
+																className="Btn_a"
+																type="button"
+															>
+																<div className="BtnBox">
+																	<div className="me-2">
+																		<img alt="" src="images/svg_icon/more-d.svg" />
+																	</div>
+																	<span>{getMoreText(categoryDict["4"] ?? categoryDict[4] ?? "")}</span>
+																	<span className="ms-2">
+																		<span className="fas fa-angle-right"></span>
+																	</span>
+																</div>
+															</LangLink>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</li>
+								</ul>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</section>
+		</div>
 	);
 };
 
@@ -360,64 +495,53 @@ const formatDate = (dateStr: string) => {
 
 
 
-const GetData = ({ prop }: { prop: getDataProp[] }) => {
+const GetData = (props: { prop: getDataProp[] }) => {
+	// 宣告變數
+	const list = props.prop ?? [];
+
+	// return：對標 prototype 的 News_item DOM
 	return (
 		<>
-			{prop.map((item) => {
+			{list.map((p, idx) => {
+				// 宣告變數：你原本的判斷邏輯照舊（這裡只示意）
+				const isTop = Boolean(p.contentStatus & 1);   // 置頂（依你原本 bitmask）
+				const isNew = Boolean(p.contentStatus & 2);   // 最新（依你原本 bitmask）
+				const href = `${p.redir}/${p.announceInternalId}`;
+
 				return (
-					<li className="News_item" key={item.announceInternalId} >
-						<LangLink to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
+					<li key={`${p.announceInternalId}-${idx}`} className="News_item">
+						<LangLink to={href} className="item-inner" tabIndex={0} title={p.title}>
 							<div className="rightBox">
 								<div className="card_catDiv">
-									<div className="a-left">
-										<div className="card_cat">
-											<div className="card_cat_link">
-												<span className="cat_title">{item.categoryName}</span>
-											</div>
-										</div>
+									{/* a-left：日期（prototype 放左邊，純文字，不要 clock icon） */}
+									<div className="a-left order-1">
+										<div className="card_time">{`${p.year}-${String(p.monthNum).padStart(2, "0")}-${String(p.date).padStart(2, "0")}`}</div>
+									</div>
+
+									{/* card_titleDiv：標題（prototype 放在 card_catDiv 內） */}
+									<div className="card_titleDiv order-xl-2 order-3">
+										<div className="card_title">{p.title}</div>
+									</div>
+
+									{/* a-right：狀態（置頂/最新） */}
+									<div className="a-right order-xl-3 order-2">
 										<div className="CustomState">
-
-											{isWithinLastNDaysFromMD(Number(item.monthNum), Number(item.date)) && (
-												<div className="icon-small new-bg" >最新</div>
-											)}
-											{item.contentStatus != 0 && (
-												<>
-													{Boolean(item.contentStatus & 1) && (<div className="icon-small top-bg">置頂</div>)}
-													{Boolean(item.contentStatus & 2) && (<div className="icon-small hot-bg">熱門</div>)}
-												</>
-											)}
-
-										</div>
-									</div>
-									<div className="a-right">
-										<div className="card_time">
-											<i
-												aria-hidden="true"
-												className="fa fa-clock-o"
-												style={{
-													marginRight: "3px",
-												}}
-											/>
-											{item.year}-{item.month}-{item.date}
+											{isTop ? <div className="icon-small top-bg">置頂</div> : null}
+											{isNew ? <div className="icon-small top-bg">最新</div> : null}
 										</div>
 									</div>
 								</div>
-								<div className="card_titleDiv">
-									<div className="card_title" >
-										{item.title}
-									</div>
-								</div>
+								{/* card_catDiv */}
 							</div>
+							{/* rightBox */}
 						</LangLink>
 					</li>
-				)
+				);
 			})}
 		</>
-	)
-}
+	);
+};
 
-
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 // 置頂優先 → 去重 → 補滿到 limit（預設 3）
 const takeTopThenFill = (
@@ -440,23 +564,4 @@ const takeTopThenFill = (
 		if (!seen.has(k)) { seen.add(k); out.push(it); }
 	}
 	return out;
-};
-
-const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean => {
-	if (!month1to12 || !day1to31) return false;
-
-	const now = new Date();
-	const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-
-	let y = now.getUTCFullYear();
-	let candidateUTC = Date.UTC(y, month1to12 - 1, day1to31);
-
-	// 若候選日在未來，代表跨年情境 → 改用去年
-	if (candidateUTC > nowUTC) {
-		y -= 1;
-		candidateUTC = Date.UTC(y, month1to12 - 1, day1to31);
-	}
-
-	const diffDays = Math.floor((nowUTC - candidateUTC) / DAY_MS);
-	return diffDays >= 0 && diffDays <= n;
 };

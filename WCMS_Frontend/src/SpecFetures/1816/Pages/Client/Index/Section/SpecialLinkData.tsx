@@ -48,7 +48,7 @@ export const SpecialLinkData = (props: { lang: Lang }) => {
 				loop: false,
 				dots: false,
 				nav: true,
-				margin: 30,
+				margin: 5,
 				autoplay: false,
 				autoplayTimeout: 1000,
 				autoplayHoverPause: true,
@@ -115,67 +115,51 @@ export const SpecialLinkData = (props: { lang: Lang }) => {
 	}, [sortedDetails.length]);
 
 	return (
-
-
-		<section className="Event_section owl-box Layout_Padding_3_top Layout_Padding_5_bottom">
+		<section className="Event_section owl-box">
 			<div className="Mask-DivBox">
 				<div className="customizeBox">
-					<div className="circle-1 iMG-Shape-4" />
-					<div className="container-customize2">
+					<div className="container-customize4">
 						<div className="row">
 							<div className="col-12">
-								<div className="content-box px-0 mb-5">
-									<div className="DIV-singleBox d-none">
+								<div className="content-box px-0 mb-5 border-top">
+
+									<div id="Event_owl_carousel" className="owl-carousel owl-theme" ref={carouselRef}>
+										{sortedDetails.map((p, idx) => {
+											const info = useBanner.data?.BannerDetailInfo?.find((x) => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang);
+											const alt = info?.Title ?? "";
+											const url = info?.URL ?? "";
+											const urlopen = info?.URL_Open === 0 ? "_self" : "_blank";
+
+											return (
+												<div key={p.RowId ?? idx} className="item">
+													<LangLink to={url} tabIndex={0} target={urlopen} title={alt}>
+														<div className="wrapper_box">
+															<figure className="card_figure">
+																<div className="card_image_link">
+																	<picture>
+																		<img className="card_image" src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} alt={alt} />
+																	</picture>
+																</div>
+															</figure>
+														</div>
+													</LangLink>
+												</div>
+											);
+										})}
+									</div>
+
+									{/* 單一顆按鈕 START */}
+									<div className="DIV-singleBox">
 										<div className="control-singlebox">
-											<a ref={toggleRef} aria-label="圖片輪播播放中，點擊暫停" aria-pressed="true" className="toggle ms-1" href="javascript:void(0);" id="Event_toggle" tabIndex={0} title="暫停">
+											<a id="Event_toggle" ref={toggleRef} href="javascript:void(0);" className="toggle ms-1"
+												aria-label="圖片輪播播放中，點擊暫停" aria-pressed="true" tabIndex={0} title="暫停">
 												<div className="control-toggle control-pause-icon">
 													<span className="sr-only">圖片輪播播放中，點擊暫停</span>
 												</div>
 											</a>
 										</div>
 									</div>
-									<div className="owl-carousel owl-theme" id="Event_owl_carousel" ref={carouselRef}>
-
-										{sortedDetails.map((p, i) => {
-
-											const info = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang)
-
-											const alt = info?.Title ?? ""
-											const url = info?.URL ?? ""
-											const content = info?.Content ?? ""
-											const urlopen = info?.URL_Open === 0 ? "_self" : "_blank"
-											return (
-												<div key={i} className="item">
-													<LangLink to={url} tabIndex={0} target={urlopen} title={alt}>
-														<div className="wrapper_box">
-															<figure className="card_figure">
-																<div className="card_image_link">
-																	<picture>
-																		<img alt={alt} className="card_image" src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} />
-																	</picture>
-																	<div className="Description-Area-content">
-																		<div className="hidden-TextArea">
-																			<div className="Des-tit">
-																				{content}
-																			</div>
-																		</div>
-																	</div>
-																</div>
-															</figure>
-														</div>
-													</LangLink>
-												</div>
-											)
-										})}
-									</div>
-									<div className="customize_btn mr-4 d-none" style={{ bottom: "-40px", position: "absolute", right: "0", }}>
-										<a className="Btn_a" role="button" tabIndex={0} target="_self" title="更多專區連結" type="button">
-											<div className="BtnBox">
-												<span>更多專區連結</span>
-												<span className="ml-2">+</span>
-											</div>
-										</a>
-									</div>
+									{/* 單一顆按鈕 END */}
 								</div>
 							</div>
 						</div>

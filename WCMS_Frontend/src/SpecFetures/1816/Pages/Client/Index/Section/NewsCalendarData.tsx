@@ -1,111 +1,177 @@
 import CalendarProvider from "@/Features/Hooks/BizFunc/SystemSetting/Calendar/Calendar_Api";
-import { useEffect, useMemo, useState } from "react";
-import type { components } from "@/types/api";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import type { Lang } from "@/SysCore/i18n/lang";
+import type { components } from "@/types/api";
+import { useEffect, useMemo, useState } from "react";
+
+import calendarSvg from '@/SpecFetures/1816/Assets/Client/images/svg_icon/icon-custom-calendar-B.svg'
+
 type CurrentOpenTime = components["schemas"]["SpecCurrentOpenTime_DTO"];
 
 export const NewsCalendarData = (props: { lang: Lang }) => {
-	const { data, isLoading } = useCurrentOpenTime({ initialData: null, });
-	if (!data) return
-	const month = formatMonthShort(data.Date ?? "", props.lang);
-	const day = formatDay(data.Date ?? "");
-	const weekday = formatWeekday(data.DayOfWeek ?? 0, props.lang);
-	const openTime = formatTimeHHmm(data.Spec_OpenTime);
-	const closeTime = formatTimeHHmm(data.Spec_CloseTime);
-	const holidayName = data.HolidayName
-	const isOpenDay = openTime && closeTime
-	const uiText =
-		props.lang === "zh-tw"
-			? {
-				todayOpen: "今日開館時間",
-				todayClosed: "今日休館",
-				openDetail: "詳細開館時間",
-				openDetailTitle: "詳細開館時間",
-			}
-			: props.lang === "en"
-				? {
-					todayOpen: "Opening Hours",
-					todayClosed: "Closed Today",
-					openDetail: "More Opening Hours",
-					openDetailTitle: "More Opening Hours",
-				}
-				: {
-					todayOpen: "",
-					todayClosed: "",
-					openDetail: "",
-					openDetailTitle: "",
-				};
+	// 宣告變數：SSR/CSR 皆可用的取數 hook
+	const { data } = useCurrentOpenTime({ initialData: null });
 
-	const holidayText = formatHolidayName(holidayName, props.lang);
+	// 宣告變數：prototype 這段是「雙語固定顯示」，所以這裡不跟 lang 切換
+	const uiText = useMemo(() => {
+		return {
+			title: "今日開館時間 OPENING HOURS",
+			closedTitle: "今日休館 CLOSED TODAY",
+			openDetail: "詳細開館時間",
+			openDetailTitle: "詳細開館時間",
+		};
+	}, []);
 
+	// 宣告變數：為了對標 prototype 的「每分鐘更新」日期/星期顯示
+	const [nowTick, setNowTick] = useState<number>(() => Date.now());
+
+	// 執行 function：每分鐘 tick 一次，更新顯示用的日期/星期（對標 prototype JS）
+	useEffect(() => {
+		const id = window.setInterval(() => setNowTick(Date.now()), 60000);
+		return () => window.clearInterval(id);
+	}, []);
+
+	// 宣告變數：若 API 有 Date 就用 API Date，否則 fallback 用現在時間
+	const effectiveDate = useMemo(() => {
+		const apiDate = data?.Date ? new Date(data.Date) : null;
+		if (apiDate && !Number.isNaN(apiDate.getTime())) return apiDate;
+		return new Date(nowTick);
+	}, [data?.Date, nowTick]);
+
+	// 宣告變數：組 prototype 需要的欄位（2 FEBRUARY / 4、星期三 Wednesday、8:00 ~ 17:00）
+	const monthText = useMemo(() => formatMonthENWithIndex(effectiveDate), [effectiveDate]);
+	const dayText = useMemo(() => String(effectiveDate.getDate()), [effectiveDate]);
+	const weekdayText = useMemo(() => formatWeekdayBilingual(effectiveDate), [effectiveDate]);
+
+	const openTime = formatTimeHHmm(data?.Spec_OpenTime);
+	const closeTime = formatTimeHHmm(data?.Spec_CloseTime);
+	const isOpenDay = Boolean(openTime && closeTime);
+
+	// 宣告變數：節日名稱（若有就附加）
+	const holidayText = useMemo(() => formatHolidayName(data?.HolidayName), [data?.HolidayName]);
+
+	// 若還沒資料也要回傳 null，避免 React render undefined
+	if (!data) return null;
 
 	return (
-		<div className="col-xxl-4 col-xl-4 col-lg-5 col-md-12 col-sm-12 col-12 + offset-xxl-1 offset-xl-1 + order-xxl-2 order-xl-2 order-lg-2 order-md-1 order-sm-1  order-1">
-			<div className="Opening_hours_DIV">
-				<div className="Opening-content">
-					<div className="Date_wrapbox">
-						<div className="DateTitleBox">
-							<div className="date_black">
-								<div className="today-date-box">
-									<div className="MM">{month}</div>
-									<div className="DD">{day}</div>
+		<section className="open_section" style={{}}>
+			<div className="Mask-DivBox">
+				<div className="customizeBox mb-3" style={{ backgroundColor: "#f2f2f2" }}>
+					<div className="container-customize4 image-layer">
+						<div className="row">
+							<div className="col-12">
+								<div className="Opening_hours_DIV">
+									<div className="Date_wrapbox d-flex">
+										<div className="DateTitleBox d-flex">
+											<div className="text_black">
+												<div className="date-Ptit">
+													<img
+														src={calendarSvg}
+														alt=""
+														className="me-2 icon-custom-calendar-B"
+													/>
+													{isOpenDay ? uiText.title : uiText.closedTitle}
+												</div>
+
+												<div className="text-description-box d-flex flex-wrap">
+													<div className="today-date-box d-flex">
+														<div className="MM">{monthText}</div>
+														<span className="mx-2">/</span>
+														<div className="DD">{dayText}</div>
+														<div className="date-week ps-3">
+															{weekdayText}
+															{holidayText}
+														</div>
+													</div>
+
+													<div className="Input date-time">{isOpenDay ? `${openTime} ~ ${closeTime}` : ""}</div>
+													{/* prototype 有 now-time，但目前註解掉；這裡維持不輸出 */}
+												</div>
+											</div>
+
+											<div className="open_btn_black">
+												<LangLink
+													className="Open_btn"
+													to={"/services/services-loan/services-loan-01"}
+													tabIndex={0}
+													target="_self"
+													title={uiText.openDetailTitle}
+												>
+													<span className="icon-custom-school-B me-2" />
+													{uiText.openDetail}
+												</LangLink>
+											</div>
+										</div>
+									</div>
 								</div>
-							</div>
-							<div className="text_black">
-								<div className="text-description-box">
-									<div className="date-week">	{weekday}{holidayText}</div>
-									<div className="date-Ptit">{isOpenDay ? uiText.todayOpen : uiText.todayClosed}</div>
-									<div className="Input date-time">{isOpenDay ? `${openTime} ~ ${closeTime}` : ""}</div>
-								</div>
-							</div>
-							<div className="open_btn_black mt-xl-3 mt-lg-3 mt-md-3 mt-sm-2 mt-2">
-								<LangLink className="Open_btn" to={"/services/services-loan/services-loan-01"}
-									tabIndex={0} target="_self" title={uiText.openDetailTitle}>
-									{uiText.openDetailTitle}
-								</LangLink>
+								{/* // Opening_hours_DIV */}
 							</div>
 						</div>
 					</div>
+					{/* // container-customize4 */}
 				</div>
+				{/* // customizeBox */}
 			</div>
-		</div>
+			{/* // Mask-DivBox */}
+		</section>
 	);
 };
 
+// =========================
+// helpers（保持小且可維護）
+// =========================
+
+const monthEnLong = [
+	"1 JANUARY",
+	"2 FEBRUARY",
+	"3 MARCH",
+	"4 APRIL",
+	"5 MAY",
+	"6 JUNE",
+	"7 JULY",
+	"8 AUGUST",
+	"9 SEPTEMBER",
+	"10 OCTOBER",
+	"11 NOVEMBER",
+	"12 DECEMBER",
+];
 
 const weekdayMapZh = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
-const weekdayMapEn = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const weekdayMapEnFull = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-const formatMonthShort = (dateStr: string, lang: Lang) => {
-	const d = new Date(dateStr);
-	if (lang === 'zh-tw') return `${d.getMonth() + 1}月`;
-	if (Number.isNaN(d.getTime())) return "";
-	return new Intl.DateTimeFormat("en-US", { month: "short" }).format(d);
+const formatMonthENWithIndex = (d: Date) => {
+	// 宣告變數：月份索引（1-12）
+	const idx = d.getMonth();
+	if (idx < 0 || idx > 11) return "";
+	// 執行 function：回傳 prototype 用的 "2 FEBRUARY"
+	return monthEnLong[idx];
 };
 
-const formatDay = (dateStr: string) => {
-	const d = new Date(dateStr);
-	return d.getDate();
-}
-const formatWeekday = (dayOfWeek: number, lang: Lang) => {
-	if (dayOfWeek < 0 || dayOfWeek > 6) return "";
-	if (lang === "zh-tw") return weekdayMapZh[dayOfWeek];
-	if (lang === "en") return weekdayMapEn[dayOfWeek];
-	return "";
+const formatWeekdayBilingual = (d: Date) => {
+	// 宣告變數：星期索引（0-6）
+	const idx = d.getDay();
+	if (idx < 0 || idx > 6) return "";
+	// 執行 function：回傳 "星期三 Wednesday"
+	return `${weekdayMapZh[idx]}　${weekdayMapEnFull[idx]}`;
 };
-const formatHolidayName = (holidayName?: string | null, lang?: Lang) => {
+
+const formatHolidayName = (holidayName?: string | null) => {
+	// 宣告變數：空值直接不顯示
 	if (!holidayName) return "";
-	if (lang === "zh-tw") return `（${holidayName}）`;
-	if (lang === "en") return ` (${holidayName})`;
-	return "";
+	// 執行 function：prototype 這段放在 weekday 後面即可
+	return `（${holidayName}）`;
 };
-const formatTimeHHmm = (timeStr?: string | null) => {
-	if (!timeStr) return "";
-	// 從 "08:30:00" 變成 "08:30"
-	return timeStr.substring(0, 5);
-}
 
+const formatTimeHHmm = (timeStr?: string | null) => {
+	// 宣告變數：空值直接不顯示
+	if (!timeStr) return "";
+	// 執行 function：從 "08:30:00" 變成 "08:30"
+	return timeStr.substring(0, 5);
+};
+
+// =========================
+// hook：沿用你現有邏輯（SSR/CSR）
+// =========================
 
 interface UseCurrentOpenTimeOptions {
 	/** SSR 時由伺服器塞進來的資料；CSR 沒有就會自行打 API */
@@ -125,30 +191,37 @@ interface UseCurrentOpenTimeResult {
 
 /**
  * 取得「今天開館時間」的 hook
- * - SSR：用 initialData，完全不依賴 window/document
- * - CSR：如果沒有 initialData，hydration 後會自動打 /Spec_GetCurrentOpenTime
+ * - SSR：用 initialData
+ * - CSR：hydration 後自動抓 /Spec_GetCurrentOpenTime
  */
-const useCurrentOpenTime = (options: UseCurrentOpenTimeOptions = {},): UseCurrentOpenTimeResult => {
+const useCurrentOpenTime = (options: UseCurrentOpenTimeOptions = {}): UseCurrentOpenTimeResult => {
 	const { initialData = null, enabled = true } = options;
-	// Provider 本身也是純邏輯，可在 SSR 執行
+
+	// 宣告變數：Provider（穩定引用）
 	const provider = useMemo(() => CalendarProvider(), []);
+
+	// 宣告變數：狀態
 	const [data, setData] = useState<CurrentOpenTime | null>(initialData);
 	const [isLoading, setIsLoading] = useState<boolean>(!initialData && enabled);
 	const [isError, setIsError] = useState<boolean>(false);
 	const [error, setError] = useState<unknown>(null);
+
+	// 執行 function：抓資料
 	const fetchData = async () => {
 		if (!enabled) return;
+
 		try {
 			setIsLoading(true);
 			setIsError(false);
 			setError(null);
-			// 這裡用的是你在 Calendar_Api.ts 裡加的 fetchCurrentOpenTime()
-			const res = await provider.fetchCurrentOpenTime(); // ApiResponse<CurrentOpenTimeDTO[]>
+
+			const res = await provider.fetchCurrentOpenTime();
 			if (res.IsSuccess && res.Data && res.Data.length > 0) {
-				setData(res.Data[0]); // 目前 API Data 是陣列，就取第一筆
-			} else {
-				setData(null);
+				setData(res.Data[0]);
+				return;
 			}
+
+			setData(null);
 		} catch (e) {
 			setIsError(true);
 			setError(e);
@@ -156,12 +229,14 @@ const useCurrentOpenTime = (options: UseCurrentOpenTimeOptions = {},): UseCurren
 			setIsLoading(false);
 		}
 	};
+
+	// 執行 function：CSR 自動抓（SSR 不會跑 useEffect）
 	useEffect(() => {
-		// SSR 不會跑這段；CSR hydration 完成後才會跑
 		if (!enabled) return;
-		if (initialData) return; // SSR 已有資料就不用再抓
+		if (initialData) return;
 		void fetchData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [enabled, initialData]); // provider 由 useMemo 保證穩定，可以不放進 deps
-	return { data, isLoading, isError, error, refetch: fetchData, };
+	}, [enabled, initialData]);
+
+	return { data, isLoading, isError, error, refetch: fetchData };
 };

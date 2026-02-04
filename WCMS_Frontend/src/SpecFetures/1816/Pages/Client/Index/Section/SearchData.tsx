@@ -1,117 +1,140 @@
-import bgimg from "@/SpecFetures/1816/Assets/Client/images/bg/background-transparent-image_1920x600.png"
+import searchBg from "@/SpecFetures/1816/Assets/Client/images/bg/search_bg.jpg";
 import type { Lang } from "@/SysCore/i18n/lang";
-import { useCallback, useRef } from "react";
+import type React from "react";
+import { useCallback, useMemo, useRef } from "react";
 
-const urlBase = "https://tnua.on.worldcat.org/external-search?queryString=#T#&databaseList=&clusterResults=on&groupVariantRecords=off&stickyFacetsChecked=on&baseScope=wz%3A11833#F#";
+const urlBase =
+	"https://tnua.on.worldcat.org/external-search?queryString=#T#&databaseList=&clusterResults=on&groupVariantRecords=off&stickyFacetsChecked=on&baseScope=wz%3A11833#F#";
 
 export const SearchData = (props: { lang: Lang }) => {
+	// 宣告變數：輸入框 ref
 	const inputRef = useRef<HTMLInputElement | null>(null);
+
+	// 宣告變數：UI 文案（依語系）
+	const uiText = useMemo(() => {
+		if (props.lang === "en") {
+			return {
+				placeholder:
+					"Search available library resources (books, audio-visual materials, theses/dissertations, database content, journal articles) ...",
+				btn1: "Integrated Search",
+				btn2: "Database List",
+				btn3: "E-Journal List",
+				btn1Title: "Integrated Library Search",
+				btn2Title: "Database List",
+				btn3Title: "E-Journal List",
+			};
+		}
+
+		// 預設 zh-tw（與 prototype 文字一致）
+		return {
+			placeholder: "查詢本館可用的資料 ( 書籍、影音資料、本校學位論文、資料庫內容、期刊文章 ) ...",
+			btn1: "館藏整合搜尋",
+			btn2: "資料庫列表",
+			btn3: "電子期刊列表",
+			btn1Title: "館藏整合搜尋",
+			btn2Title: "資料庫列表",
+			btn3Title: "電子期刊列表",
+		};
+	}, [props.lang]);
+
+	// 執行 function：整合搜尋（對標 prototype 的 js_method）
 	const handleSearch = useCallback(
 		(e: React.FormEvent | React.MouseEvent) => {
+			// ✅ 阻止 a / form 預設行為
 			e.preventDefault();
 			e.stopPropagation();
-			const inputs = [inputRef.current];
-			const activeInput = inputs.find((el) => el && el.offsetParent !== null) ?? inputs[0];
-			const raw = activeInput?.value ?? "";
+
+			// ✅ 取目前可見的 input
+			const raw = inputRef.current?.value ?? "";
 			const query = raw.trim();
 			if (!query) return;
+
+			// ✅ 若未來要加 facet，可在這裡組
 			const facets = "";
 			const url = urlBase.replace("#T#", encodeURIComponent(query)).replace("#F#", facets);
-			window.open(url, "_blank"); // ✅ 固定新開視窗
-		}, []);
 
-	const uiText =
-		props.lang === "zh-tw"
-			? {
-				tab1: "館藏整合查詢",
-				tab2: "資料庫列表",
-				tab3: "電子期刊列表",
-				placeholder: "請輸入查詢資訊 ...",
-				btnTitle: "搜尋",
-				btnText: "Search",
-				desc: "查詢本館可用的資源 ( 書籍、影音資料、本校學位論文、資料庫內容、期刊文章 )",
-				loading: "查詢 ( 取消 )......",
-			}
-			: props.lang === "en"
-				? {
-					tab1: "Integrated Library Search",
-					tab2: "Database List",
-					tab3: "E-Journal List",
-					placeholder: "Enter search keywords ...",
-					btnTitle: "Search",
-					btnText: "Search",
-					desc: "Search available library resources (books, audio-visual materials, theses/dissertations, database content, journal articles).",
-					loading: "Searching (Cancel)......",
-				}
-				: {
-					tab1: "", tab2: "", tab3: "", placeholder: "", btnTitle: "", btnText: "", desc: "", loading: "",
-				};
-
-
+			// ✅ 固定新開視窗
+			window.open(url, "_blank");
+		},
+		[],
+	);
 
 	return (
-
-		<section className="ResourceSearch_section Layout_Padding_4" style={{ backgroundImage: `url(${bgimg})` }}>
+		<section className="ResourceSearch_section Layout_Padding_2" style={{ backgroundImage: `url(${searchBg})` }}>
 			<div className="Mask-DivBox">
 				<div className="customizeBox">
-					<div className="circle-1 iMG-Shape-0" />
-					<div className="container-customize2">
+					<div className="container-customize4">
 						<div className="Form_Search_DIV">
-							<ul className="tablist_nav nav nav-tabs nav-fill" id="findTab" role="tablist">
-								<li className="li_item nav-item">
-									<a aria-controls="search_01" aria-selected="true" className="alink nav-link active show" data-bs-toggle="tab" href="#search_01" id="search_tab_01" role="tab" tabIndex={0}>
-										{uiText.tab1}
-									</a>
-								</li>
-								<li className="li_item nav-item">
-									<a aria-controls="search_02" aria-selected="false" target="_blank" className="alink nav-link" href="https://tnua.on.worldcat.org/atoztitles/browse/collections" id="search_tab_02" role="button" tabIndex={0}>
-										{uiText.tab2}
-									</a>
-								</li>
-								<li className="li_item nav-item">
-									<a aria-controls="search_03" aria-selected="false" target="_blank" className="alink nav-link" href="https://tnua.on.worldcat.org/atoztitles/browse/journals" id="search_tab_03" role="button" tabIndex={0}>
-										{uiText.tab3}
-									</a>
-								</li>
-							</ul>
-							<div
-								className="Search-content tab-content pt-md-5 pt-sm-4 pt-4"
-								id="TabContent">
+							<div className="Search-content tab-content" id="TabContent">
 								<div className="tab-pane fade active show" id="search_01">
-									<div className="form_DIV">
-										<div className="row align-items-start no-gutters + d-none">
-											<div className="col-12">
-												<p className="mt-0 mb-3">{uiText.loading}</p>
+									<div className="row align-items-start no-gutters">
+										<div className="b-main-filter__main col-lg px-0">
+											<div className="b-main-filter__inner row no-gutters">
+												<div className="float-md-left float-sm-none">
+													<input
+														ref={inputRef}
+														className="Searchform-control"
+														defaultValue=""
+														id=""
+														placeholder={uiText.placeholder}
+														tabIndex={0}
+														type="text"
+													/>
+												</div>
+
+												<a
+													className="Search_btn btn"
+													href="#"
+													onClick={handleSearch}
+													tabIndex={0}
+													title={uiText.btn1Title}
+													type="button"
+												>
+													{uiText.btn1}
+													<span className="fas fa-search ms-2" />
+												</a>
 											</div>
 										</div>
-										<form className="row align-items-start no-gutters" onSubmit={handleSearch}>
-											<div className="b-main-filter__main col-lg px-0">
-												<div className="b-main-filter__inner row no-gutters">
-													<div className="float-md-left float-sm-none">
-														<input ref={inputRef} className="Searchform-control" defaultValue="" id="" placeholder={uiText.placeholder} tabIndex={0} type="text" />
-													</div>
-												</div>
-											</div>
-											<div className="col-lg-auto mt-xl-0 mt-lg-0 mt-md-0 mt-sm-2 mt-2">
-												<button className="Search_btn btn" tabIndex={0} title="搜尋" type="submit">
-													{uiText.btnText}
-												</button>
-											</div>
-										</form>
-										<div className="row align-items-start no-gutters">
-											<div className="col-12">
-												<p className="mt-3 mb-0">
-													{uiText.desc}
-												</p>
-											</div>
+
+										<div className="col-lg-auto mt-xl-0 mt-lg-0 mt-md-2 mt-sm-2 mt-2">
+											<a
+												className="Search_btn btn"
+												href="https://sites.google.com/view/tnualibguide/how-to-find/database-list"
+												target="_blank"
+												rel="noreferrer"
+												tabIndex={0}
+												title={uiText.btn2Title}
+												type="button"
+											>
+												{uiText.btn2}
+												<span className="fas fa-search ms-2" />
+											</a>
+										</div>
+
+										<div className="col-lg-auto mt-xl-0 mt-lg-0 mt-md-2 mt-sm-2 mt-2">
+											<a
+												className="Search_btn btn"
+												href="https://tnua.on.worldcat.org/atoztitles/browse/journals"
+												target="_blank"
+												rel="noreferrer"
+												tabIndex={0}
+												title={uiText.btn3Title}
+												type="button"
+											>
+												{uiText.btn3}
+												<span className="fas fa-search ms-2" />
+											</a>
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
+						{/* //Form_Search_DIV */}
 					</div>
 				</div>
+				{/* //customizeBox */}
 			</div>
+			{/* //Mask-DivBox */}
 		</section>
 	);
 };
