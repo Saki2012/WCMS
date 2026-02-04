@@ -22,6 +22,7 @@ export const SearchData = (props: { lang: Lang }) => {
 				btn1Title: "Integrated Library Search",
 				btn2Title: "Database List",
 				btn3Title: "E-Journal List",
+				databaseLink: "https://sites.google.com/view/tnualibguide/how-to-find/database-list"
 			};
 		}
 
@@ -34,6 +35,7 @@ export const SearchData = (props: { lang: Lang }) => {
 			btn1Title: "館藏整合搜尋",
 			btn2Title: "資料庫列表",
 			btn3Title: "電子期刊列表",
+			databaseLink: "https://tnua.on.worldcat.org/atoztitles/browse/collections"
 		};
 	}, [props.lang]);
 
@@ -99,7 +101,7 @@ export const SearchData = (props: { lang: Lang }) => {
 										<div className="col-lg-auto mt-xl-0 mt-lg-0 mt-md-2 mt-sm-2 mt-2">
 											<a
 												className="Search_btn btn"
-												href="https://sites.google.com/view/tnualibguide/how-to-find/database-list"
+												href={uiText.databaseLink}
 												target="_blank"
 												rel="noreferrer"
 												tabIndex={0}
