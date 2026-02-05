@@ -737,7 +737,7 @@ body::-webkit-scrollbar-thumb {
 	/*outline: thin dotted !important;*/
     outline: 2px solid #43B5FC;
 	/*outline-offset: -2px;*/
-    /*background-color: #ffa700 !important;   */ 
+    /*background-color: transparent !important;   */ 
 }
 @media screen and (min-width: 320px) and (max-width: 991px) {
 	.Form_Search_DIV .Search_btn {
@@ -794,7 +794,7 @@ body::-webkit-scrollbar-thumb {
 	content: "";
 	position: absolute;
 	width: 1px;
-	height: 50%;
+	height: 40%;
 	top: 50%;
 	right: 0px;
 	transform: translate(0,-50%);
@@ -1043,7 +1043,7 @@ body::-webkit-scrollbar-thumb {
     height: 45px;
 	border-radius: 100%;
 	/*background-color: var(--Customize_HRcolor) !important;*/        /*★★★ 重要 焦點變色 ★★★*/
-	outline: 2px solid #43B5FC !important;
+	outline: 2px solid var(--blackcolor) !important;
 }
 /*=============================================*/
 /* ==   左右選擇鍵 下方 RIGHT右邊 right: 0;   ====*/
@@ -1293,7 +1293,7 @@ body::-webkit-scrollbar-thumb {
 	text-decoration: none;    
   outline: 1px solid var(--a_focusbordercolor);
   color: var(--blackcolor) !important;
-	background-color: #ffa700;
+	background-color: transparent;
 } */
 
 /* ------ Button 按鈕 carousel-control-prev ------------ */
@@ -1478,7 +1478,7 @@ body::-webkit-scrollbar-thumb {
 	/*outline-offset: -2px;*/
     
     color: var(--blackcolor) !important;
-	background-color: #ffa700;
+	background-color: transparent;
 }
 /* ------ Button 按鈕 a.start -------------------------- */
 /* ------ Button 按鈕 a.pause -------------------------- */
@@ -1622,7 +1622,7 @@ body::-webkit-scrollbar-thumb {
     outline: 1px solid var(--a_focusbordercolor);
     
     color: var(--blackcolor) !important;
-	background-color: #ffa700;
+	background-color: transparent;
 } */	
 
 .Carousel_slide_section .control-toggle a::before {
@@ -3238,7 +3238,7 @@ a:hover.caption-customize-btn .button-icon {
 	/*outline: thin dotted !important;*/
     outline: 2px solid #43B5FC;
 	/*outline-offset: -2px;*/
-    /*background-color: #ffa700 !important;*/ 
+    /*background-color: transparent !important;*/ 
 }
 @media (max-width:1120px) {
 	.Opening_hours_DIV .Open_btn{
@@ -3684,9 +3684,9 @@ a:hover.caption-customize-btn .button-icon {
 	width: var(--Customize_size_32);
 	height: var(--Customize_size_32);
 	border-radius: 100%; /*100%*/
-	outline: 2px solid #43B5FC !important;
+	outline: 2px solid var(--Customize_FOCUScolor) !important;
     /* outline-offset: -2px; */
-    background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
+    background-color: transparent !important;        /*★★★ 重要 焦點變色 ★★★*/
 }
 @media screen and (max-width: 768px) {
     .Collections_section.owl-box .owl-carousel .owl-nav button.owl-prev:focus,
@@ -4515,9 +4515,9 @@ a:hover.caption-customize-btn .button-icon {
 	width: var(--Customize_size_32);
 	height: var(--Customize_size_32);
 	border-radius: 100%;
-	outline: 2px solid #43B5FC !important;
+	outline: 2px solid var(--Customize_FOCUScolor) !important;
     /* outline-offset: -2px; */
-    background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
+    background-color: transparent !important;        /*★★★ 重要 焦點變色 ★★★*/
 }
 @media screen and (max-width: 768px) {
     .Event_section.owl-box .owl-carousel .owl-nav button.owl-prev:focus,
@@ -5331,9 +5331,9 @@ a:hover.caption-customize-btn .button-icon {
 	width: var(--Customize_size_32);
 	height: var(--Customize_size_32);
 	border-radius: 100%;
-	outline: 2px solid #43B5FC !important;
+	outline: 2px solid var(--Customize_FOCUScolor) !important;
     /* outline-offset: -2px; */
-    background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
+    background-color: transparent !important;        /*★★★ 重要 焦點變色 ★★★*/
 }
 @media screen and (max-width: 768px) {
     .Links_section.owl-box .owl-carousel .owl-nav button.owl-prev:focus,
@@ -5875,7 +5875,7 @@ a:hover.caption-customize-btn .button-icon {
 .footer-black .info-widget .list li a:hover {
 	/*color: var(--color_001413);*/
     color: var(--blackcolor);
-    background-color: #ffa700;
+    background-color: transparent;
 }
 
 .footer-black .info-widget .list li a i {
