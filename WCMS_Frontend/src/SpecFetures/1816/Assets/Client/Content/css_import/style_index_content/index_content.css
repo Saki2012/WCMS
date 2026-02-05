@@ -43,6 +43,28 @@
 /* ======================================================================================================================= */
 /* 所有 首頁 CSS 設定 ( 以下 )  OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO */
 /* ======================================================================================================================= */
+@media (min-width: 1200px) {
+	.col-xl-c1.Carousel_slide_section {
+		flex: 0 0 auto;
+		max-width: 43%;
+	}
+	.col-xl-c2.Newsii_section{
+		flex: 0 0 auto;
+		max-width: 57%;
+	}
+}
+@media (min-width: 1400px) {
+	.col-xxl-6.Carousel_slide_section{
+		flex: 0 0 auto;
+		max-width: 50%;
+	}
+	.col-xxl-6.Newsii_section{
+		flex: 0 0 auto;
+		max-width: 50%;
+	}
+}
+
+
 
 /* 定義滾動條樣式（高寬及背景）*/ 
 body::-webkit-scrollbar { 
@@ -64,7 +86,10 @@ body::-webkit-scrollbar-thumb {
 /* ------ Container-Custom4 =1360 -------------- */
 @media screen and (min-width: 1200px) {
 	.container-customize4 {
-		max-width: 1360px; /*1170 / 1500*/
+		max-width: 1370px; /*1170 / 1500*/
+	}
+	.container-customize4.w-en {
+		max-width: 1660px; /*1170 / 1500*/
 	}
 }
 .container-customize4 {
@@ -610,7 +635,7 @@ body::-webkit-scrollbar-thumb {
 .Form_Search_DIV .Searchform-control {
     display: block;
     width: 100%;
-    padding: .65rem 12rem .5rem 1rem;
+    padding: .65rem 15rem .5rem 1rem;
     font-weight: 400;
     line-height: 1.5;    
     color: #1e2d40;
@@ -628,6 +653,7 @@ body::-webkit-scrollbar-thumb {
 	.Form_Search_DIV .Searchform-control {
 		font-size: 87.5%;
 		border-radius: 25px;
+		padding: .65rem 1rem .5rem 1rem;
 	}
 }
 /* ---------------------------------------------------- */
@@ -686,10 +712,16 @@ body::-webkit-scrollbar-thumb {
 		box-shadow 0.15s ease-in-out, 
 		-webkit-box-shadow 0.15s ease-in-out;
 }
-.Form_Search_DIV .b-main-filter__inner .Search_btn {
-	position: absolute;
-	width: auto;
-	right: 12px;
+.Form_Search_DIV .Search_btn.s-c{
+	width: calc(100% - 1.5rem);
+	margin-left: 0.75rem;
+}
+@media (min-width:992px) {
+	.Form_Search_DIV .b-main-filter__inner .Search_btn {
+		position: absolute;
+		width: auto;
+		right: 12px;
+	}
 }
 .Form_Search_DIV .Search_btn:hover {
 	color: var(--FFFcolor);
@@ -710,7 +742,7 @@ body::-webkit-scrollbar-thumb {
 @media screen and (min-width: 320px) and (max-width: 991px) {
 	.Form_Search_DIV .Search_btn {
 		border-radius: 25px;
-		padding: 0.47rem 1rem;
+		padding: 0.53rem 1rem;
 		font-size: 93.75%;
 	}
 }
@@ -791,11 +823,14 @@ body::-webkit-scrollbar-thumb {
 	flex-direction: row;
 	-ms-flex-wrap: wrap;
 	flex-wrap: wrap;
+	-ms-flex-wrap: nowrap;
+	flex-wrap:  nowrap;
 	justify-content: center;
 	align-items: center;
 	width: 100%;	
 	background-color: transparent;
-	padding: 1.5rem 0;
+	padding: 1.25rem 1rem;
+	min-height: 95px;
 }
 
 .Link-icons-pos a .icon-area {
@@ -1184,6 +1219,11 @@ body::-webkit-scrollbar-thumb {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
+}
+@media (min-width:1201px) and (max-width:1399px){
+	.Carousel_slide_section .carousel-item img {
+		object-fit: fill;
+	}
 }
 @media (min-width:1200px) {
 	.Carousel_slide_section .carousel-item img {
@@ -2320,7 +2360,7 @@ a:hover.caption-customize-btn .button-icon {
 	margin-right: 0
 }
 
-@media screen and (min-width: 576px) {
+@media screen and (min-width: 768px) {
 	#Horizontal .nav-tabs-list ul.nav-tabs li:not(:last-child)::after {
 		content: "";
 		width: 1px;
@@ -2332,19 +2372,36 @@ a:hover.caption-customize-btn .button-icon {
 		transform: translate(0%,-50%);
 	}
 }
-@media screen and (max-width: 575px) {
+@media screen and (max-width: 767px) {
 	#Horizontal .nav-tabs-list ul.nav-tabs li {
 		display: flex;
 		align-content: center;
 		justify-content: center;
 		margin-left: 0px;
-        margin-right: 2.5px;
+    margin-right: 2.5px;
 		margin: 5px 0;
 		
 		/* =col4 x 2個 */
-        width: calc((100% - (2.5px * 4)) / 2);
-        
+		width: calc((100% - (2.5px * 4)) / 2);
+		
 		min-height: 1px;
+	}
+	#Horizontal .nav-tabs-list ul.nav-tabs li.News_item{
+		width: 100%;
+	}
+}
+@media (max-width: 767px) {
+	#Horizontal .nav-tabs-list ul.nav-tabs li.nav-item {
+		padding: 0 5px;
+		text-align: center;
+	}
+	#Horizontal.V-nav-tabs-content-box{
+		padding: 0;
+	}
+}
+@media (max-width: 374px) {
+	#Horizontal .nav-tabs-list ul.nav-tabs li.nav-item {
+		font-size: 89%;
 	}
 }
 /* ------ ul.nav-tabs li ----------------------- */
@@ -2375,10 +2432,11 @@ a:hover.caption-customize-btn .button-icon {
 	overflow: hidden;	
 	border-radius: 10px;
 }
-@media (max-width:575px) {
+@media (max-width:767px) {
 	#Horizontal .nav-tabs-list ul.nav-tabs .nav-link,
 	#Horizontal .nav-tabs-list ul.nav-tabs .nav-link{
 		font-size: 100%;
+		width: 100%;
 	}
 }
 /* : BEFORE */
@@ -2668,6 +2726,7 @@ a:hover.caption-customize-btn .button-icon {
     background-color: var(--FFFcolor);
     padding: 0;
 		border-radius: 10px;
+		width: 100%;
 } 
 /* ---------------------------------------------------- */
 .News_mainDIV a.item-inner .card_catDiv {
@@ -2729,9 +2788,9 @@ a:hover.caption-customize-btn .button-icon {
 	/* padding: var(--bs-label-padding-x) var(--bs-label-padding-y); */
 	border-radius: 4px;
 	margin-bottom: 6px;
-	letter-spacing: 0.2rem;
+	letter-spacing: 0.1rem;
 	border: 1px solid var(--blackcolor);
-	padding: 0 1px 0 4px;
+	padding: 0 2px 0 4px;
 }
 @media screen and (max-width: 767px) {
 	.News_mainDIV .CustomState div.icon-small,
@@ -2873,7 +2932,7 @@ a:hover.caption-customize-btn .button-icon {
 	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
 	overflow: hidden;
 	/* 第四步：設定超過上述指定之行數時隱藏。 */
-	max-height: 24px;
+	height: 22px;
   	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
  
     transition-duration: .3s;
@@ -3339,7 +3398,7 @@ a:hover.caption-customize-btn .button-icon {
     display: block;    
     position: relative;
     aspect-ratio: 4/4;
-	/*aspect-ratio: 3/4.181497797356828;*/
+	/*aspect-ratio: 3/4.181497797357678;*/
     overflow: hidden;
     z-index: 1;
 }
@@ -3395,7 +3454,7 @@ a:hover.caption-customize-btn .button-icon {
 	/* 第一步：設定 display 為 -webkit-box 元素。 */
 	-webkit-box-orient: vertical;
 	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
-	-webkit-line-clamp: 1;
+	-webkit-line-clamp: 2;
 	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
 	overflow: hidden;
 	/* 第四步：設定超過上述指定之行數時隱藏。 */
@@ -3408,10 +3467,11 @@ a:hover.caption-customize-btn .button-icon {
 		font-size: 125%;
 		font-weight: 500;
 		max-width: 100%;
-		width: 250px;
+		width: 300px;
+		height: 45px;
 		text-align: center;
 		text-shadow: 0 0 1px rgba(0,0,0,.95), 0 0 4px rgba(0,0,0,.95),0 0 7px rgba(0,0,0,.95),0 0 10px rgba(0,0,0,.95),0 0 13px rgba(0,0,0,.95);
-		letter-spacing: 1.5px;
+		letter-spacing: 1px;
 }
 /* .Collections_section a:focus .wrapper_box .card_catname{
 	text-shadow: none;
@@ -6158,6 +6218,11 @@ a:hover.caption-customize-btn .button-icon {
 .menu_section #navbar-content .nav-link{
 	font-size: 112.5%;
 }
+@media (max-width: 575px) {
+	.menu_section #navbar-content .nav-link{
+		font-size: 100%;
+	}
+}
 /* ===================================== */
 /* =====  MENU 變化 (以上) ============== */
 /* ====================================== */
@@ -6185,7 +6250,9 @@ a:hover.caption-customize-btn .button-icon {
 	font-weight: bold !important;
 	position: relative !important;
 }
-
+.header_Box .nav-link.web-map.en-size{
+	font-size: 112.5%;
+}
 #navbar-content .header_Box .nav-link.web-map::before{
 	content: "";
 	position: absolute;
@@ -6292,13 +6359,13 @@ a:hover.caption-customize-btn .button-icon {
 		min-height: 510px;
 	}
 }
-@media screen and (min-width: 576px) {
+@media screen and (min-width: 768px) {
 	#Horizontal .nav-tabs-list ul.nav-tabs li:not(:last-child)::after {
 		content: "";
 		width: 0px;
 	}
 }
-@media screen and (min-width: 576px) {
+@media screen and (min-width: 768px) {
 	#Horizontal .nav-tabs-list ul.nav-tabs li:not(:last-child) .nav-link::after {
 		content: "";
 		width: 1px;
@@ -6318,12 +6385,12 @@ a:hover.caption-customize-btn .button-icon {
 		min-height: 500px;
 	}
 }
-@media screen and (max-width: 575px) {
+@media screen and (max-width: 767px) {
 	#Horizontal .nav-tabs-list ul.nav-tabs li.News_item {
 		width: 100%;
 	}
 	.Newsii_section .bg-layer {
-		min-height: 540px;
+		min-height: 550px;
 	}
 	.btn-w100-wrapper {
 		padding-top: 5px;
@@ -6331,7 +6398,7 @@ a:hover.caption-customize-btn .button-icon {
 	#Horizontal .tab-content{
 		position: absolute;
 		left: 0;
-		top: 140px;
+		top: 150px;
 	}
 }
 /* 最新消息 Newsii_section 修改後 以上*/
