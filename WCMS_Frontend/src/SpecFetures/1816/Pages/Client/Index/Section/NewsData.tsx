@@ -139,10 +139,10 @@ export const NewsData = (props: { lang: Lang }) => {
 	const useAllNewsData2 = useAnnouncementList("2");
 	const useAllNewsData3 = useAnnouncementList("3");
 	const useAllNewsData4 = useAnnouncementList("4");
-	const allNewsRawData1 = takeTopThenFill(useTopAllNewsData1.rawData, useAllNewsData1.rawData, 3);
-	const allNewsRawData2 = takeTopThenFill(useTopAllNewsData2.rawData, useAllNewsData2.rawData, 3);
-	const allNewsRawData3 = takeTopThenFill(useTopAllNewsData3.rawData, useAllNewsData3.rawData, 3);
-	const allNewsRawData4 = takeTopThenFill(useTopAllNewsData4.rawData, useAllNewsData4.rawData, 3);
+	const allNewsRawData1 = takeTopThenFill(useTopAllNewsData1.rawData, useAllNewsData1.rawData, 5);
+	const allNewsRawData2 = takeTopThenFill(useTopAllNewsData2.rawData, useAllNewsData2.rawData, 5);
+	const allNewsRawData3 = takeTopThenFill(useTopAllNewsData3.rawData, useAllNewsData3.rawData, 5);
+	const allNewsRawData4 = takeTopThenFill(useTopAllNewsData4.rawData, useAllNewsData4.rawData, 5);
 	const useCategoryData = useCategoryList();
 	const useTagData = useTagList();
 	const categoryDict: Record<string, string> = Object.fromEntries(

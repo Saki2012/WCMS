@@ -15,11 +15,11 @@ export const BannerNews = (props: { lang: Lang }) => {
     return (
         <section className="BannerNews container-customize4">
             <div className="row">
-                <div className="col-xl-6 col-12 Carousel_slide_section Layout_Padding_4_top Layout_Padding_5_bottom">
+                <div className="col-xxl-6 col-xl-c1 col-12 Carousel_slide_section Layout_Padding_4_top Layout_Padding_5_bottom">
                     <CarouselData lang={props.lang} />
                 </div>
 
-                <div className="col-xl-6 col-12 Newsii_section Layout_Padding_4_top Layout_Padding_5_bottom" style={bgStyle}>
+                <div className="col-xxl-6 col-xl-c2 col-12 Newsii_section Layout_Padding_4_top Layout_Padding_5_bottom" style={bgStyle}>
                     <NewsData lang={props.lang} />
                 </div>
             </div>

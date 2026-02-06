@@ -266,17 +266,11 @@ const Footer = (props: FooterProps) => {
                                         <p>{t.copyright}</p>
                                     </div>
                                 </div>
-                                <div className="dbox-tb">
-                                    <p>{t.browserHint}</p>
-                                    <p className="px-2">｜</p>
-                                    <p>
-                                        <a
-                                            href="http://www.it-easygo.com/Main.aspx"
-                                            title={t.designByTitle}
-                                            target="_blank"
-                                            tabIndex={0}
-                                            rel="noreferrer"
-                                        >
+                                <div className="dbox-tb d-inline">
+                                    <p className="d-inline">{t.browserHint}</p>
+                                    <p className="px-2 d-inline">｜</p>
+                                    <p className="d-inline">
+                                        <a href="http://www.it-easygo.com/Main.aspx" title={t.designByTitle} target="_blank" tabIndex={0} rel="noreferrer">
                                             {t.designBy}
                                         </a>
                                     </p>

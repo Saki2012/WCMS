@@ -15,7 +15,7 @@ export const SearchData = (props: { lang: Lang }) => {
 		if (props.lang === "en") {
 			return {
 				placeholder:
-					"Search available library resources (books, audio-visual materials, theses/dissertations, database content, journal articles) ...",
+					"Find books, media, theses, articles & more ...",
 				btn1: "Integrated Search",
 				btn2: "Database List",
 				btn3: "E-Journal List",
@@ -85,7 +85,7 @@ export const SearchData = (props: { lang: Lang }) => {
 												</div>
 
 												<a
-													className="Search_btn btn"
+													className="Search_btn btn s-c"
 													href="#"
 													onClick={handleSearch}
 													tabIndex={0}

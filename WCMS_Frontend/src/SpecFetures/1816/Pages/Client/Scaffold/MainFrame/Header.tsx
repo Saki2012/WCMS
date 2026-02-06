@@ -11,6 +11,7 @@ import LogoImg from "@/SpecFetures/1816/Assets/Client/images/logo/LOGO_266x41.sv
 import { SearchData } from "../../Index/Section/SearchData";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
+import clsx from "clsx";
 const Header = (props: HeaderProps) => {
     // 宣告變數：Site-Header root ref
     const headerRef = useRef<HTMLDivElement | null>(null);
@@ -26,22 +27,16 @@ const Header = (props: HeaderProps) => {
                 {/* 對標 index.html：<section class="menu_section p-lg-0 p-2"> */}
                 <section className="menu_section p-lg-0 p-2">
                     {/* 對標 index.html：<div class="customMENU_Box bg-white pb-lg-0 pt-lg-2 px-lg-2 px-0 pt-0"> */}
-                    <div className="customMENU_Box bg-white pb-lg-0 pt-lg-2 px-lg-2 px-0 pt-0">
+                    <div className="customMENU_Box bg-white pb-lg-0 pt-lg-2 px-lg-2 px-0 pt-0 align-items-lg-start align-items-center">
                         <div className="menuBox">
                             {/* 對標 index.html：container-customize4 */}
-                            <div className="container-customize4">
+                            <div className={clsx("container-customize4", props.lang === 'en' ? "w-en" : "")}>
                                 <div className="navbar navbar-expand-lg navbar-dark px-0 py-0">
                                     <LogoBlock />
 
                                     <MobileToggler />
 
-                                    <a
-                                        accessKey="U"
-                                        href="#U"
-                                        className="accesskey_header U d-none d-lg-block"
-                                        title="上方導覽區(U)"
-                                        tabIndex={0}
-                                    >
+                                    <a accessKey="U" href="#U" className="accesskey_header U d-none d-lg-block mt-4" title="上方導覽區(U)" tabIndex={0}>
                                         :::
                                     </a>
 
@@ -140,7 +135,7 @@ const useHeaderPrototypeBehavior = (headerRef: React.RefObject<HTMLDivElement>) 
 const LogoBlock = () => {
     return (
         <h1 className="logo">
-            <LangLink className="navbar-brand" to="/" tabIndex={0} title="">
+            <LangLink className="navbar-brand mt-lg-3 mt-2" to="/" tabIndex={0} title="">
                 <img src={LogoImg} alt=" LOGO" />
             </LangLink>
         </h1>
@@ -190,7 +185,7 @@ const NavbarContent = (props: { lang: Lang; site: INormSite; style: IFETheme }) 
     return (
         <div
             id="navbar-content"
-            className="collapse navbar-collapse flex-wrap flex-wrap-reverse"
+            className="collapse navbar-collapse flex-wrap"
             ref={menuRootRef}
         >
             <ul className="navbar-nav ms-auto mb-2 mb-lg-0 overflow-scroll-Y ps-xl-5 ps-0">
@@ -230,7 +225,7 @@ const useMenuHeightVar = () => {
 
         // 執行 function：計算 menu_section 高度寫入 CSS 變數
         const setMenuHeightVar = () => {
-            const menuSection = document.querySelector<HTMLElement>(".menu_section");
+            const menuSection = document.querySelector<HTMLElement>(".navbar-nav");
             if (!menuSection) return;
 
             const height = menuSection.offsetHeight;
@@ -381,7 +376,7 @@ const SiteMapLink = (props: { lang: Lang }) => {
     const title = props.lang === "en" ? "SiteMap" : "網站導覽";
 
     return (
-        <li className="nav-item ms-4 me-lg-3 me-0 ps-2">
+        <li className="nav-item ms-2 me-lg-3 me-0 ps-2">
             <LangLink className="nav-link web-map" to={`/${SITEMAP_SEGMENT}`} tabIndex={0} target="_self" title={title}>
                 <span className="fas fa-bars me-2 mt-1"></span>
                 {text}
