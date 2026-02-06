@@ -11,25 +11,21 @@ const HomePage = (props: { lang: Lang }) => {
   return (
     <main id="Site-Main" className="ALL_Main_DivBar main-fullpage-wraper">
       <div className="background_area">
-        <div className="mainArea" id="mainArea">
-          {/* 連結區 */}
-          <LinkData {...props} />
-          {/* 開館時間 */}
-          <NewsCalendarData {...props} />
-          <section className="accesskey_C_H">
-            <div className="container-customize4">
-              <a id="content" accessKey="C" href="#C" className="accesskey_main C" title="中央主要內容區(C)">:::</a>
-            </div>
-          </section>
-          {/* 輪播+最新消息 */}
-          <BannerNews {...props} />
-          {/* 館藏櫥窗  */}
-          <CollectionsData {...props} />
-          {/* 專區連結  */}
-          <SpecialLinkData {...props} />
-          {/* 快速連結  */}
-          <QuickLinksData {...props} />
-        </div>
+        <LinkData {...props} />
+        <NewsCalendarData {...props} />
+        <section className="accesskey_C_H">
+          <div className="container-customize4">
+            <a id="content" accessKey="C" href="#C" className="accesskey_main C" title="中央主要內容區(C)">:::</a>
+          </div>
+        </section>
+        {/* 輪播+最新消息 */}
+        <BannerNews {...props} />
+        {/* 館藏櫥窗  */}
+        <CollectionsData {...props} />
+        {/* 專區連結  */}
+        <SpecialLinkData {...props} />
+        {/* 快速連結  */}
+        <QuickLinksData {...props} />
       </div>
     </main>
   );

@@ -15,12 +15,12 @@ export const NewsCalendarData = (props: { lang: Lang }) => {
 	// 宣告變數：prototype 這段是「雙語固定顯示」，所以這裡不跟 lang 切換
 	const uiText = useMemo(() => {
 		return {
-			title: "今日開館時間 OPENING HOURS",
-			closedTitle: "今日休館 CLOSED TODAY",
-			openDetail: "詳細開館時間",
-			openDetailTitle: "詳細開館時間",
+			title: props.lang === 'zh-tw' ? "今日開館時間 OPENING HOURS" : "OPENING HOURS",
+			closedTitle: props.lang === 'zh-tw' ? "今日休館 CLOSED TODAY" : "CLOSED TODAY",
+			openDetail: props.lang === 'zh-tw' ? "詳細開館時間" : "Library Opening Hours",
+			openDetailTitle: props.lang === 'zh-tw' ? "詳細開館時間" : "Library Opening Hours",
 		};
-	}, []);
+	}, [props.lang]);
 
 	// 宣告變數：為了對標 prototype 的「每分鐘更新」日期/星期顯示
 	const [nowTick, setNowTick] = useState<number>(() => Date.now());
@@ -41,7 +41,7 @@ export const NewsCalendarData = (props: { lang: Lang }) => {
 	// 宣告變數：組 prototype 需要的欄位（2 FEBRUARY / 4、星期三 Wednesday、8:00 ~ 17:00）
 	const monthText = useMemo(() => formatMonthENWithIndex(effectiveDate), [effectiveDate]);
 	const dayText = useMemo(() => String(effectiveDate.getDate()), [effectiveDate]);
-	const weekdayText = useMemo(() => formatWeekdayBilingual(effectiveDate), [effectiveDate]);
+	const weekdayText = useMemo(() => formatWeekdayBilingual(props.lang, effectiveDate), [props.lang, effectiveDate]);
 
 	const openTime = formatTimeHHmm(data?.Spec_OpenTime);
 	const closeTime = formatTimeHHmm(data?.Spec_CloseTime);
@@ -147,12 +147,13 @@ const formatMonthENWithIndex = (d: Date) => {
 	return monthEnLong[idx];
 };
 
-const formatWeekdayBilingual = (d: Date) => {
+const formatWeekdayBilingual = (lang: Lang, d: Date) => {
 	// 宣告變數：星期索引（0-6）
 	const idx = d.getDay();
 	if (idx < 0 || idx > 6) return "";
 	// 執行 function：回傳 "星期三 Wednesday"
-	return `${weekdayMapZh[idx]}　${weekdayMapEnFull[idx]}`;
+	if (lang === 'zh-tw') return `${weekdayMapZh[idx]}　${weekdayMapEnFull[idx]}`
+	return `${weekdayMapEnFull[idx]}`;
 };
 
 const formatHolidayName = (holidayName?: string | null) => {

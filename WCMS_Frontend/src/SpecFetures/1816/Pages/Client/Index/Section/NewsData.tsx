@@ -15,10 +15,12 @@ type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
 
 
-/** 找置頂公告 */
-const useTopAnnouncementList = (categories?: string) => {
+
+const useAnnouncementList = (lang: Lang, categories?: string) => {
 	const provider = AnnouncementProvider();
-	let cdt = `${AnnouncementFields.ContentStatus} & 1`;
+	let cdt = `${AnnouncementFields.ContentStatus} !& 4`;
+	cdt = LibMerge(" And ", false, cdt, `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang} = ${lang}`)
+	cdt = LibMerge(" And ", false, cdt, `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} != ''`)
 	//因時程關係，暫時用前端來判斷有效日期時間，多少會有客戶端修改時間的風險。之後再改到後端開新的api寫死抓系統時間為依據。
 	const now = useNow({ startPaused: true });
 	if (now.isoLocal) cdt = LibMerge(" And ", false, cdt, `${AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
@@ -41,48 +43,13 @@ const useTopAnnouncementList = (categories?: string) => {
 				AnnouncementFields.ViewCount,
 			],
 			Condition: cdt,
+			RankGroups: [{ Condition: `${AnnouncementFields.ContentStatus} & 1` }],
 			OrderBy: [{ Col: AnnouncementFields.Validate_Start, Desc: true }],
 			PageNumber: 1,
-			PageSize: 6,
+			PageSize: 5,
 		}),
 		enabled: true,
-		deps: [categories],
-	});
-};
-
-
-
-const useAnnouncementList = (categories?: string) => {
-	const provider = AnnouncementProvider();
-	let cdt = `${AnnouncementFields.ContentStatus} !& 4 And ${AnnouncementFields.ContentStatus} !& 1`;
-	//因時程關係，暫時用前端來判斷有效日期時間，多少會有客戶端修改時間的風險。之後再改到後端開新的api寫死抓系統時間為依據。
-	const now = useNow({ startPaused: true });
-	if (now.isoLocal) cdt = LibMerge(" And ", false, cdt, `${AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
-	cdt = LibMerge(" And ", false, cdt, categories ? `${AnnouncementFields.Categories} HasAny [${categories}]` : "");
-	return useFetchGridListData<AnnouncementSet>({
-		getModelDisplayName: () => provider.getModelDisplayName(),
-		fetchList: (cond) => provider.fetchList(cond),
-		fetchListCount: (cond) => provider.fetchListCount(cond),
-		visibleKeys: [],
-		buildQueryCondition: () => ({
-			Fields: [
-				AnnouncementFields.AnnouncementId,
-				AnnouncementFields.InternalId,
-				AnnouncementFields.Categories,
-				AnnouncementFields.Tags,
-				AnnouncementFields.ContentStatus,
-				AnnouncementFields.Validate_Start,
-				`${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
-				`${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
-				AnnouncementFields.ViewCount,
-			],
-			Condition: cdt,
-			OrderBy: [{ Col: AnnouncementFields.Validate_Start, Desc: true }],
-			PageNumber: 1,
-			PageSize: 6,
-		}),
-		enabled: true,
-		deps: [categories],
+		deps: [lang, categories],
 	});
 };
 
@@ -131,18 +98,10 @@ const useTagList = () => {
 
 
 export const NewsData = (props: { lang: Lang }) => {
-	const useTopAllNewsData1 = useTopAnnouncementList("1");
-	const useTopAllNewsData2 = useTopAnnouncementList("2");
-	const useTopAllNewsData3 = useTopAnnouncementList("3");
-	const useTopAllNewsData4 = useTopAnnouncementList("4");
-	const useAllNewsData1 = useAnnouncementList("1");
-	const useAllNewsData2 = useAnnouncementList("2");
-	const useAllNewsData3 = useAnnouncementList("3");
-	const useAllNewsData4 = useAnnouncementList("4");
-	const allNewsRawData1 = takeTopThenFill(useTopAllNewsData1.rawData, useAllNewsData1.rawData, 5);
-	const allNewsRawData2 = takeTopThenFill(useTopAllNewsData2.rawData, useAllNewsData2.rawData, 5);
-	const allNewsRawData3 = takeTopThenFill(useTopAllNewsData3.rawData, useAllNewsData3.rawData, 5);
-	const allNewsRawData4 = takeTopThenFill(useTopAllNewsData4.rawData, useAllNewsData4.rawData, 5);
+	const useAllNewsData1 = useAnnouncementList(props.lang, "1");
+	const useAllNewsData2 = useAnnouncementList(props.lang, "2");
+	const useAllNewsData3 = useAnnouncementList(props.lang, "3");
+	const useAllNewsData4 = useAnnouncementList(props.lang, "4");
 	const useCategoryData = useCategoryList();
 	const useTagData = useTagList();
 	const categoryDict: Record<string, string> = Object.fromEntries(
@@ -159,11 +118,10 @@ export const NewsData = (props: { lang: Lang }) => {
 			return [id, name];
 		})
 	);
-
-	const allNews1 = getNewsDataProps(allNewsRawData1, props.lang, "/News/News-01", "", categoryDict, tagDict);
-	const allNews2 = getNewsDataProps(allNewsRawData2, props.lang, "/News/News-02", "", categoryDict, tagDict);
-	const allNews3 = getNewsDataProps(allNewsRawData3, props.lang, "/News/News-03", "", categoryDict, tagDict);
-	const allNews4 = getNewsDataProps(allNewsRawData4, props.lang, "/News/News-04", "", categoryDict, tagDict);
+	const allNews1 = getNewsDataProps(useAllNewsData1.rawData, props.lang, "/News/News-01", "", categoryDict, tagDict);
+	const allNews2 = getNewsDataProps(useAllNewsData2.rawData, props.lang, "/News/News-02", "", categoryDict, tagDict);
+	const allNews3 = getNewsDataProps(useAllNewsData3.rawData, props.lang, "/News/News-03", "", categoryDict, tagDict);
+	const allNews4 = getNewsDataProps(useAllNewsData4.rawData, props.lang, "/News/News-04", "", categoryDict, tagDict);
 	const getMoreText = (catName: string) => {
 		// 宣告變數
 		const base = props.lang === "en" ? "More " : "更多";
@@ -189,212 +147,212 @@ export const NewsData = (props: { lang: Lang }) => {
 		return tab === activeTab ? "tab-pane fade show active" : "tab-pane fade";
 	};
 	return (
-		<div className="Mask-DivBox">
-			<div className="customizeBox">
-				<div className="container-customize4 bg-layer p-3">
-					<div className="row">
-						<div className="col-12">
-							{/* 標題 start */}
-							<div className="headDiv mb-3 mt-1 d-flex justify-content-center">
-								<span className="headDiv-txt">{props.lang === "en" ? "News" : "最新消息"}</span>
-								<span className="headDiv-subtxt">{props.lang === "en" ? "" : "NEWS"}</span>
+		<div className="col-xxl-6 col-xl-c2 col-12 Newsii_section Layout_Padding_4_top Layout_Padding_5_bottom">
+			<div className="Mask-DivBox">
+				<div className="customizeBox">
+					<div className="container-customize4 bg-layer p-3">
+						<div className="row">
+							<div className="col-12">
+								{/* 標題 start（對標 prototype：置中 + margin class） */}
+								<div className="headDiv mb-3 mt-1 d-flex justify-content-center">
+									<span className="headDiv-txt">{props.lang === "en" ? "News" : "最新消息"}</span>
+									<span className="headDiv-subtxt">{props.lang === "en" ? "" : "NEWS"}</span>
+								</div>
+								{/* 標題 end */}
 							</div>
-							{/* 標題 end */}
-						</div>
 
-						<div className="V-nav-tabs-content-box" id="Horizontal">
-							<div className="Horizontal nav-tabs-list">
-								<ul className="nav nav-tabs" role="tablist">
-									<li className="nav-item" role="presentation">
-										<a
-											aria-controls="V-navTabs-01"
-											aria-selected={activeTab === "01"}
-											className={getTabLinkClass("01")}
-											data-bs-target="#V-navTabs-01"
-											data-bs-toggle="tab"
-											href="#"
-											id="V-Tabs__01"
-											role="tab"
-											tabIndex={0}
-											type="button"
-											onClick={onTabClick("01")}
-										>
-											{categoryDict["1"] ?? categoryDict[1] ?? ""}
-										</a>
+							<div className="V-nav-tabs-content-box" id="Horizontal">
+								<div className="Horizontal nav-tabs-list">
+									<ul className="nav nav-tabs" id="V-nav-tab" role="tablist">
+										<li className="nav-item" role="presentation">
+											<a
+												className={getTabLinkClass("01")}
+												id="V-Tabs__01"
+												data-bs-toggle="tab"
+												href="#V-navTabs-01-content"
+												role="tab"
+												aria-controls="V-navTabs-01-content"
+												aria-selected={activeTab === "01"}
+												tabIndex={0}
+												type="button"
+												onClick={onTabClick("01")}
+											>
+												{categoryDict["1"] ?? categoryDict[1] ?? ""}
+											</a>
 
-										<div className="tab-content" id="V-nav-tabContent">
-											<div
-												aria-labelledby="V-Tabs__01"
-												className={getPaneClass("01")}
-												id="V-navTabs-01"
-												role="tabpanel"
-											>												<div className="News_mainDIV">
-													<ul className="ListNews">
-														<GetData prop={allNews1}></GetData>
-													</ul>
+											<div className="tab-content" id="V-nav-tabContent">
+												<div
+													aria-labelledby="V-Tabs__01"
+													className={getPaneClass("01")}
+													id="V-navTabs-01-content"
+													role="tabpanel"
+												>
+													<div className="News_mainDIV">
+														<ul className="ListNews">
+															<GetData prop={allNews1}></GetData>
+														</ul>
 
-													<div className="btn-w100-wrapper w-100">
-														<div className="customize_btn w-100">
-															<LangLink
-																to={"/News/News-01"}
-																title={getMoreText(categoryDict["1"] ?? categoryDict[1] ?? "")}
-																role="button"
-																tabIndex={0}
-																target="_self"
-																className="Btn_a"
-																type="button"
-															>
-																<div className="BtnBox">
-																	<div className="me-2">
-																		<img alt="" src="images/svg_icon/more-d.svg" />
+														{/* 對標 prototype：Btn_a / BtnBox（大寫 B） */}
+														<div className="btn-w100-wrapper w-100">
+															<div className="customize_btn w-100">
+																<LangLink
+																	to={"/News/News-01"}
+																	title={getMoreText(categoryDict["1"] ?? categoryDict[1] ?? "")}
+																	role="button"
+																	tabIndex={0}
+																	target="_self"
+																	className="Btn_a"
+																	type="button"
+																>
+																	<div className="BtnBox">
+																		<div className="me-2">
+																			<img alt="" src="images/svg_icon/more-d.svg" />
+																		</div>
+																		<span>{getMoreText(categoryDict["1"] ?? categoryDict[1] ?? "")}</span>
+																		<span className="ms-2">
+																			<span className="fas fa-angle-right"></span>
+																		</span>
 																	</div>
-																	<span>{getMoreText(categoryDict["1"] ?? categoryDict[1] ?? "")}</span>
-																	<span className="ms-2">
-																		<span className="fas fa-angle-right"></span>
-																	</span>
-																</div>
-															</LangLink>
+																</LangLink>
+															</div>
+														</div>
+													</div>
+												</div>
+
+
+											</div>
+										</li>
+
+										<li className="nav-item" role="presentation">
+											<a
+												className={getTabLinkClass("02")}
+												id="V-Tabs__02"
+												data-bs-toggle="tab"
+												href="#V-navTabs-02-content"
+												role="tab"
+												aria-controls="V-navTabs-02-content"
+												aria-selected={activeTab === "02"}
+												tabIndex={0}
+												type="button"
+												onClick={onTabClick("02")}
+											>
+												{categoryDict["2"] ?? categoryDict[2] ?? ""}
+											</a>
+											<div className="tab-content" id="V-nav-tabContent">
+												<div
+													aria-labelledby="V-Tabs__02"
+													className={getPaneClass("02")}
+													id="V-navTabs-02-content"
+													role="tabpanel"
+												>
+													<div className="News_mainDIV">
+														<ul className="ListNews">
+															<GetData prop={allNews2}></GetData>
+														</ul>
+
+														<div className="btn-w100-wrapper w-100">
+															<div className="customize_btn w-100">
+																<LangLink
+																	to={"/News/News-02"}
+																	title={getMoreText(categoryDict["2"] ?? categoryDict[2] ?? "")}
+																	role="button"
+																	tabIndex={0}
+																	target="_self"
+																	className="Btn_a"
+																	type="button"
+																>
+																	<div className="BtnBox">
+																		<div className="me-2">
+																			<img alt="" src="images/svg_icon/more-d.svg" />
+																		</div>
+																		<span>{getMoreText(categoryDict["2"] ?? categoryDict[2] ?? "")}</span>
+																		<span className="ms-2">
+																			<span className="fas fa-angle-right"></span>
+																		</span>
+																	</div>
+																</LangLink>
+															</div>
 														</div>
 													</div>
 												</div>
 											</div>
-										</div>
-									</li>
+										</li>
 
-									<li className="nav-item" role="presentation">
-										<a
-											aria-controls="V-navTabs-02"
-											aria-selected={activeTab === "02"}
-											className={getTabLinkClass("02")}
-											data-bs-target="#V-navTabs-02"
-											data-bs-toggle="tab"
-											href="#"
-											id="V-Tabs__02"
-											role="tab"
-											tabIndex={0}
-											type="button"
-											onClick={onTabClick("02")}
-										>
-											{categoryDict["2"] ?? categoryDict[2] ?? ""}
-										</a>
+										<li className="nav-item" role="presentation">
+											<a
+												className={getTabLinkClass("03")}
+												id="V-Tabs__03"
+												data-bs-toggle="tab"
+												href="#V-navTabs-03-content"
+												role="tab"
+												aria-controls="V-navTabs-03-content"
+												aria-selected={activeTab === "03"}
+												tabIndex={0}
+												type="button"
+												onClick={onTabClick("03")}
+											>
+												{categoryDict["3"] ?? categoryDict[3] ?? ""}
+											</a>
+											<div className="tab-content" id="V-nav-tabContent">
+												<div
+													aria-labelledby="V-Tabs__03"
+													className={getPaneClass("03")}
+													id="V-navTabs-03-content"
+													role="tabpanel"
+												>
+													<div className="News_mainDIV">
+														<ul className="ListNews">
+															<GetData prop={allNews3}></GetData>
+														</ul>
 
-										<div className="tab-content" id="V-nav-tabContent">
-											<div
-												aria-labelledby="V-Tabs__02"
-												className={getPaneClass("02")}
-												id="V-navTabs-02"
-												role="tabpanel"
-											>												<div className="News_mainDIV">
-													<ul className="ListNews">
-														<GetData prop={allNews2}></GetData>
-													</ul>
-
-													<div className="btn-w100-wrapper w-100">
-														<div className="customize_btn w-100">
-															<LangLink
-																to={"/News/News-02"}
-																title={getMoreText(categoryDict["2"] ?? categoryDict[2] ?? "")}
-																role="button"
-																tabIndex={0}
-																target="_self"
-																className="Btn_a"
-																type="button"
-															>
-																<div className="BtnBox">
-																	<div className="me-2">
-																		<img alt="" src="images/svg_icon/more-d.svg" />
+														<div className="btn-w100-wrapper w-100">
+															<div className="customize_btn w-100">
+																<LangLink
+																	to={"/News/News-03"}
+																	title={getMoreText(categoryDict["3"] ?? categoryDict[3] ?? "")}
+																	role="button"
+																	tabIndex={0}
+																	target="_self"
+																	className="Btn_a"
+																	type="button"
+																>
+																	<div className="BtnBox">
+																		<div className="me-2">
+																			<img alt="" src="images/svg_icon/more-d.svg" />
+																		</div>
+																		<span>{getMoreText(categoryDict["3"] ?? categoryDict[3] ?? "")}</span>
+																		<span className="ms-2">
+																			<span className="fas fa-angle-right"></span>
+																		</span>
 																	</div>
-																	<span>{getMoreText(categoryDict["2"] ?? categoryDict[2] ?? "")}</span>
-																	<span className="ms-2">
-																		<span className="fas fa-angle-right"></span>
-																	</span>
-																</div>
-															</LangLink>
+																</LangLink>
+															</div>
 														</div>
 													</div>
 												</div>
+
 											</div>
-										</div>
-									</li>
+										</li>
 
-									<li className="nav-item" role="presentation">
-										<a
-											aria-controls="V-navTabs-03"
-											aria-selected={activeTab === "03"}
-											className={getTabLinkClass("03")}
-											data-bs-target="#V-navTabs-03"
-											data-bs-toggle="tab"
-											href="#"
-											id="V-Tabs__03"
-											role="tab"
-											tabIndex={0}
-											type="button"
-											onClick={onTabClick("03")}
-										>
-											{categoryDict["3"] ?? categoryDict[3] ?? ""}
-										</a>
-
-										<div className="tab-content" id="V-nav-tabContent">
-											<div
-												aria-labelledby="V-Tabs__03"
-												className={getPaneClass("03")}
-												id="V-navTabs-03"
-												role="tabpanel"
-											>												<div className="News_mainDIV">
-													<ul className="ListNews">
-														<GetData prop={allNews3}></GetData>
-													</ul>
-
-													<div className="btn-w100-wrapper w-100">
-														<div className="customize_btn w-100">
-															<LangLink
-																to={"/News/News-03"}
-																title={getMoreText(categoryDict["3"] ?? categoryDict[3] ?? "")}
-																role="button"
-																tabIndex={0}
-																target="_self"
-																className="Btn_a"
-																type="button"
-															>
-																<div className="BtnBox">
-																	<div className="me-2">
-																		<img alt="" src="images/svg_icon/more-d.svg" />
-																	</div>
-																	<span>{getMoreText(categoryDict["3"] ?? categoryDict[3] ?? "")}</span>
-																	<span className="ms-2">
-																		<span className="fas fa-angle-right"></span>
-																	</span>
-																</div>
-															</LangLink>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-									</li>
-
-									<li className="nav-item" role="presentation">
-										<a
-											aria-controls="V-navTabs-04"
-											aria-selected={activeTab === "04"}
-											className={getTabLinkClass("04")}
-											data-bs-target="#V-navTabs-04"
-											data-bs-toggle="tab"
-											href="#"
-											id="V-Tabs__04"
-											role="tab"
-											tabIndex={0}
-											type="button"
-											onClick={onTabClick("04")}
-										>
-											{categoryDict["4"] ?? categoryDict[4] ?? ""}
-										</a>
-
-										<div className="tab-content" id="V-nav-tabContent">
-											<div
+										<li className="nav-item" role="presentation">
+											<a
+												className={getTabLinkClass("04")}
+												id="V-Tabs__04"
+												data-bs-toggle="tab"
+												href="#V-navTabs-04-content"
+												role="tab"
+												aria-controls="V-navTabs-04-content"
+												aria-selected={activeTab === "04"}
+												tabIndex={0}
+												type="button"
+												onClick={onTabClick("04")}
+											>
+												{categoryDict["4"] ?? categoryDict[4] ?? ""}
+											</a>
+											<div className="tab-content" id="V-nav-tabContent"><div
 												aria-labelledby="V-Tabs__04"
 												className={getPaneClass("04")}
-												id="V-navTabs-04"
+												id="V-navTabs-04-content"
 												role="tabpanel"
 											>
 												<div className="News_mainDIV">
@@ -427,9 +385,14 @@ export const NewsData = (props: { lang: Lang }) => {
 													</div>
 												</div>
 											</div>
-										</div>
-									</li>
-								</ul>
+											</div>
+										</li>
+									</ul>
+								</div>
+
+								{/* ✅ tab-content 一次放在 ul 外面（維持正確 DOM） */}
+
+								{/* tab-content end */}
 							</div>
 						</div>
 					</div>
@@ -542,26 +505,3 @@ const GetData = (props: { prop: getDataProp[] }) => {
 	);
 };
 
-
-// 置頂優先 → 去重 → 補滿到 limit（預設 3）
-const takeTopThenFill = (
-	top: AnnouncementSet[] | undefined,
-	rest: AnnouncementSet[] | undefined,
-	limit: number = 3
-): AnnouncementSet[] => {
-	const getKey = (x: AnnouncementSet) => x.Announcement?.InternalId ?? String(x.Announcement?.AnnouncementId ?? '');
-	const seen = new Set<string>();
-	const out: AnnouncementSet[] = [];
-	// 先放置頂
-	for (const it of (top ?? [])) {
-		const k = getKey(it);
-		if (!seen.has(k) && out.length < limit) { seen.add(k); out.push(it); }
-	}
-	// 再用一般補足到 limit
-	for (const it of (rest ?? [])) {
-		if (out.length >= limit) break;
-		const k = getKey(it);
-		if (!seen.has(k)) { seen.add(k); out.push(it); }
-	}
-	return out;
-};

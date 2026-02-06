@@ -47,6 +47,9 @@ export const LangSwitchBtn: React.FC<{ site: INormSite }> = ({ site }) => {
   const shouldHide = supportedLangs.length <= 1 || isServerRoute || isServiceRoute;
   if (shouldHide) return null;
 
+  const is1816 = import.meta.env.VITE_SPEC_CODE === "1816";
+
+
   // 只有兩種語系：顯示一顆切換按鈕
   if (supportedLangs.length === 2) {
     const other = supportedLangs.find(x => x !== activeLang) ?? supportedLangs[1];
@@ -56,9 +59,16 @@ export const LangSwitchBtn: React.FC<{ site: INormSite }> = ({ site }) => {
         <div className="icons">
           <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
             <a type="button" role="button" title={LangLabelMap?.[other] ?? other} tabIndex={0} onClick={(e) => { e.preventDefault(); go(other); }}>
-              <div className="link-text">
-                <img src={GlobalPic} alt="" className="me-1" />
-                {LangLabelMap?.[other] ?? other}</div>
+              {is1816 ?
+                <div className="link-text">
+                  <img src={GlobalPic} alt="" className="me-1" />
+                  {other === "zh-tw" ? "中文" : "ＥＮ"}
+                </div>
+                :
+                <div className="link-text">
+                  {LangLabelMap?.[other] ?? other}
+                </div>
+              }
             </a>
           </div>
         </div>
