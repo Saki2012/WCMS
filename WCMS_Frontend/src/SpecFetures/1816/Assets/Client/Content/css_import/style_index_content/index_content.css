@@ -2341,7 +2341,7 @@ a:hover.caption-customize-btn .button-icon {
     border-radius: 4px;
 	background-color: transparent;
 	/* position: relative; */
-	padding: 0 15px;
+	padding: 0 9px;
 	
 	/* ====================================== */
 	/* =col4 x 2個 */
@@ -2359,6 +2359,9 @@ a:hover.caption-customize-btn .button-icon {
 	/* =col2 x 5個 */
     /*width: calc((100% - (2.5px * 12)) / 6);*/  
 	/* ====================================== */
+}
+#Horizontal .nav-tabs-list ul.nav-tabs li.News_item {
+	padding: 0 15px;
 }
 #Horizontal .nav-tabs-list ul.nav-tabs li:first-child {
 	margin-left: 0
@@ -2745,6 +2748,7 @@ a:hover.caption-customize-btn .button-icon {
     align-items: center;
 		flex-wrap: wrap;
 		padding: 5px 10px;
+		max-height: 38px;
 }
 @media screen and (max-width: 1199px){
 	.News_mainDIV a.item-inner .card_catDiv {
@@ -2923,7 +2927,7 @@ a:hover.caption-customize-btn .button-icon {
 }
 @media (min-width:1199px) {
 	.News_mainDIV a.item-inner .card_titleDiv { 
-		width: calc(100% - 185px);
+		width: calc(100% - 193px);
 	}
 }
 /* ---------------------------------------------------- */
@@ -2939,7 +2943,7 @@ a:hover.caption-customize-btn .button-icon {
 	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
 	overflow: hidden;
 	/* 第四步：設定超過上述指定之行數時隱藏。 */
-	height: 22px;
+	height: 24px;
   	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
  
     transition-duration: .3s;
@@ -6380,7 +6384,7 @@ a:hover.caption-customize-btn .button-icon {
 		background-color: var(--bs-gray-600);
 		position: absolute;
 		top: 50%;
-		right: -1rem;
+		right: -0.67rem;
 		transform: translate(0%, -50%);
 	}
 	#Horizontal .nav-tabs-list ul.nav-tabs .nav-link, #Horizontal .nav-tabs-list ul.nav-tabs .nav-link {
