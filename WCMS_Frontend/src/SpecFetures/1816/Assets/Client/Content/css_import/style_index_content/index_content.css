@@ -470,8 +470,15 @@ body::-webkit-scrollbar-thumb {
 	background-size: cover;
 	background-repeat: no-repeat;
 	background-position: center top;
+	padding-top: 125px !important;
+  padding-bottom: 125px !important;
 }
-
+@media screen and (max-width: 768px) {
+	.ResourceSearch_section {
+		padding-top: 50px !important;
+  	padding-bottom: 50px !important;
+	}
+}
 /* ==   資源探索區   ===================================== */
 .Form_Search_DIV {
 	display: block;
