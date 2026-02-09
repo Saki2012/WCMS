@@ -16,9 +16,9 @@ import { SpecPGID } from "@/SpecFetures/1819/Hooks/Common/SpecProgId";
 import SpecJournalIndexProvider from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecMusical/SpecJournalIndex_Api";
 import { SpecJournalIndexDetailFields, SpecJournalIndexModelFields, SpecJournalIndexSetFields } from "@/types/SchemaFields";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
+import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"]
-type SpecJournalIndexModel = components["schemas"]["SpecJournalIndexModel_DTO"]
 type SpecJournalIndexDetail = components["schemas"]["SpecJournalIndexDetail_DTO"]
 
 const emptyData: SpecJournalIndexSet = {}
@@ -48,24 +48,9 @@ const MainFormComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
     const tabInfo: LibTabsProp = { Style: prop.theme.Tabs, item: { "Basic": "基本資料", "System": "系統資訊" } }
     const components: Record<string, React.ReactNode[]> = {
         Basic: [<BasicComp theme={prop.theme} formData={prop.formData} />],
-        System: []
+        System: [<SystemInfoTabComp theme={prop.theme} formData={prop.formData} setKey={SpecJournalIndexSetFields.SpecJournalIndex} />]
     }
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>
-}
-
-/** 之後應該要做共用邏輯 */
-const SystemComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalIndexSet> }) => {
-    const setField = useSetTableField<SpecJournalIndexSet>(props.formData);
-
-    return (
-        <>
-            <div className="col-12 form-group">
-                <LibTextBox Style={props.theme.TextBox3} {...setField(SpecJournalIndexSetFields.SpecJournalIndex, SpecJournalIndexModelFields.CreateUserId, 'string')} />
-            </div>
-            <div className="col-12 form-group">
-                <LibTextBox Style={props.theme.TextBox3} {...setField(SpecJournalIndexSetFields.SpecJournalIndex, SpecJournalIndexModelFields.ModifyUserId, 'string')} />
-            </div>
-        </>)
 }
 
 const BasicComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalIndexSet> }) => {
@@ -124,7 +109,7 @@ const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
         return typeof firstVolume === "number" && !Number.isNaN(firstVolume) ? firstVolume : 1;
     };
 
-    const getNextIssue = (): number => {
+    const getNextIssue = (): string => {
         // 新增項目：期 = 同一個 Volume 內的最大 Issue + 1
         const baseVolume = getBaseVolume();
 
@@ -138,16 +123,15 @@ const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
             return issue > max ? issue : max;
         }, 0);
 
-        return maxIssueInVolume + 1;
+        return String(maxIssueInVolume + 1);
     };
 
     const buildTabLabel = (d: SpecJournalIndexDetail, idx: number): string => {
         // 標籤：XX卷XX期（Volume/Issue 動態）
         const v = typeof d.Volume === "number" && !Number.isNaN(d.Volume) ? d.Volume : 0;
-        const i = typeof d.Issue === "number" && !Number.isNaN(d.Issue) ? d.Issue : 0;
-
+        const i = d.Issue;
         // 若都還沒填，仍保留索引避免整排都是 0卷0期 造成困惑
-        if (v === 0 && i === 0) return `第${idx + 1}筆`;
+        if (v === 0) return `第${idx + 1}筆`;
         return `${v}卷${i}期`;
     };
 
@@ -161,7 +145,7 @@ const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
             IndexId: props.formData.data.SpecJournalIndex?.IndexId,
             RowId: 1,
             Volume: 1,
-            Issue: 1,
+            Issue: "1",
         };
 
         props.formData.setFormData({
@@ -289,7 +273,7 @@ const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
             acc[String(detailRowId)] = [
                 <div className="col-12 form-group">
                     <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(SpecJournalIndexSetFields.SpecJournalIndexDetail, SpecJournalIndexDetailFields.Volume, "number", rowKeys)} />
-                    <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(SpecJournalIndexSetFields.SpecJournalIndexDetail, SpecJournalIndexDetailFields.Issue, "number", rowKeys)} />
+                    <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(SpecJournalIndexSetFields.SpecJournalIndexDetail, SpecJournalIndexDetailFields.Issue, "string", rowKeys)} />
                 </div>,
                 <div className="col-12 form-group">
                     <LibCheckBox Style={props.theme.RadioBox} options={props.publishStatusOpts} {...setField(SpecJournalIndexSetFields.SpecJournalIndexDetail, SpecJournalIndexDetailFields.PublishStatus, "number", rowKeys)} />
