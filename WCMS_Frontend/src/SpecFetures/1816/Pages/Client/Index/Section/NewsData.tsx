@@ -10,6 +10,7 @@ import { LangLink } from '@/SysCore/i18n/LangLink';
 import type { Lang } from '@/SysCore/i18n/lang';
 import { AnnouncementDetailFields, AnnouncementFields, CategoryDetailFields, CategoryFields, TagDataFields, TagDetailFields } from '@/types/SchemaFields';
 import { useCallback, useState } from 'react';
+import more_d from '@/SpecFetures/1816/Assets/Client/images/svg_icon/more-d.svg'
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
@@ -206,7 +207,7 @@ export const NewsData = (props: { lang: Lang }) => {
 																>
 																	<div className="BtnBox">
 																		<div className="me-2">
-																			<img alt="" src="images/svg_icon/more-d.svg" />
+																			<img alt="" src={more_d} />
 																		</div>
 																		<span>{getMoreText(categoryDict["1"] ?? categoryDict[1] ?? "")}</span>
 																		<span className="ms-2">
@@ -263,7 +264,7 @@ export const NewsData = (props: { lang: Lang }) => {
 																>
 																	<div className="BtnBox">
 																		<div className="me-2">
-																			<img alt="" src="images/svg_icon/more-d.svg" />
+																			<img alt="" src={more_d} />
 																		</div>
 																		<span>{getMoreText(categoryDict["2"] ?? categoryDict[2] ?? "")}</span>
 																		<span className="ms-2">
@@ -318,7 +319,7 @@ export const NewsData = (props: { lang: Lang }) => {
 																>
 																	<div className="BtnBox">
 																		<div className="me-2">
-																			<img alt="" src="images/svg_icon/more-d.svg" />
+																			<img alt="" src={more_d} />
 																		</div>
 																		<span>{getMoreText(categoryDict["3"] ?? categoryDict[3] ?? "")}</span>
 																		<span className="ms-2">
@@ -373,7 +374,7 @@ export const NewsData = (props: { lang: Lang }) => {
 															>
 																<div className="BtnBox">
 																	<div className="me-2">
-																		<img alt="" src="images/svg_icon/more-d.svg" />
+																		<img alt="" src={more_d} />
 																	</div>
 																	<span>{getMoreText(categoryDict["4"] ?? categoryDict[4] ?? "")}</span>
 																	<span className="ms-2">
