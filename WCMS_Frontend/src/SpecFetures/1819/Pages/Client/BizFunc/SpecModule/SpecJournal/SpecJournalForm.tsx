@@ -535,13 +535,22 @@ const RefFile_Comp = (props: { lang: Lang; data: SpecJournalSet }) => {
         </div>
     </>)
 }
-/** 摘要+參考文獻+引文格式 */
+/** 摘要+參考文獻+引文格式（預設全展開、互不互斥） */
 const Accordion_Comp = (props: { lang: Lang; data: SpecJournalSet }) => {
+    // 宣告：分隔線
     const bodyHr = (<div className="col row-group px-0"><hr className="hr-my-2" /></div>);
+
+    // 宣告：摘要內容
     let parseContent = useResolveInternalIds(props.data?.SpecJournal?.Memo ?? "", { locale: props.lang });
     const memoContent = parseContent.html ? parse(parseContent.html) : null;
+
     parseContent = useResolveInternalIds(props.data?.SpecJournal?.Memo_en ?? "", { locale: props.lang });
     const memo_enContent = parseContent.html ? parse(parseContent.html) : null;
+
+    // 宣告：collapse 預設展開（show）
+    const collapseClass = "collapse show";
+
+    // return：render
     return (
         <>
             <div id="accordion" className="Expand_Close_Bar">
@@ -556,13 +565,14 @@ const Accordion_Comp = (props: { lang: Lang; data: SpecJournalSet }) => {
                                     </span>
                                 </a>
                             </div>
-                            <div id={"99999999"} className={`collapse`} data-bs-parent="#accordion">
+
+                            {/* ✅ 預設展開 + ✅ 移除 data-bs-parent（互不影響） */}
+                            <div id={"99999999"} className={collapseClass}>
                                 <div className="card-body">{memoContent}{memo_enContent}</div>
                                 {bodyHr}
                             </div>
                         </div>
                     </li>
-
 
                     <li>
                         <div className={`EC-0 + card`}>
@@ -574,9 +584,10 @@ const Accordion_Comp = (props: { lang: Lang; data: SpecJournalSet }) => {
                                     </span>
                                 </a>
                             </div>
-                            <div id={`99999998`} className={`collapse`} data-bs-parent="#accordion">
-                                <div className="card-body">
 
+                            {/* ✅ 預設展開 + ✅ 移除 data-bs-parent（互不影響） */}
+                            <div id={`99999998`} className={collapseClass}>
+                                <div className="card-body">
                                     <ol className="bib-list">
                                         {props.data?.SpecJournalBibliography?.map((dt, idx) => {
                                             const title = (dt.Title ?? "").trim();
@@ -586,13 +597,21 @@ const Accordion_Comp = (props: { lang: Lang; data: SpecJournalSet }) => {
                                             const hasEn = titleEn.length > 0;
                                             const hasUrl = url.length > 0;
                                             if (!hasZh && !hasEn) return null;
+
                                             const key = `bib-${dt.RowId ?? idx}`;
+
                                             return (
                                                 <li key={key} className="bib-item">
                                                     {hasZh && (
                                                         <p className="bib-zh">
                                                             {hasUrl ? (
-                                                                <LangNavLink className="bib-link" to={url} target="_blank" rel="noopener noreferrer" aria-label="開啟參考文獻連結（另開新視窗）">
+                                                                <LangNavLink
+                                                                    className="bib-link"
+                                                                    to={url}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    aria-label="開啟參考文獻連結（另開新視窗）"
+                                                                >
                                                                     {title}
                                                                 </LangNavLink>
                                                             ) : (title)}
@@ -602,7 +621,13 @@ const Accordion_Comp = (props: { lang: Lang; data: SpecJournalSet }) => {
                                                     {hasEn && (
                                                         <p className="bib-en">
                                                             {hasUrl ? (
-                                                                <LangNavLink className="bib-link" to={url} target="_blank" rel="noopener noreferrer" aria-label="Open bibliography link (opens in a new tab)">
+                                                                <LangNavLink
+                                                                    className="bib-link"
+                                                                    to={url}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    aria-label="Open bibliography link (opens in a new tab)"
+                                                                >
                                                                     {titleEn}
                                                                 </LangNavLink>
                                                             ) : (titleEn)}
@@ -620,8 +645,10 @@ const Accordion_Comp = (props: { lang: Lang; data: SpecJournalSet }) => {
 
                     {props.data?.SpecJournalRefFormat?.map((sec, idx) => {
                         const cardClass = `EC-0${idx + 1} + card`;
+
                         parseContent = useResolveInternalIds(sec?.Content ?? "", { locale: props.lang });
                         const content = parseContent.html ? parse(parseContent.html) : null;
+
                         return (
                             <li key={sec.RowId}>
                                 <div className={cardClass}>
@@ -634,7 +661,8 @@ const Accordion_Comp = (props: { lang: Lang; data: SpecJournalSet }) => {
                                         </a>
                                     </div>
 
-                                    <div id={`${sec.RowId}`} className={`collapse`} data-bs-parent="#accordion">
+                                    {/* ✅ 預設展開 + ✅ 移除 data-bs-parent（互不影響） */}
+                                    <div id={`${sec.RowId}`} className={collapseClass}>
                                         <div className="card-body">{content}</div>
                                         {bodyHr}
                                     </div>
@@ -645,8 +673,8 @@ const Accordion_Comp = (props: { lang: Lang; data: SpecJournalSet }) => {
                 </ul>
             </div>
         </>
-    )
-}
+    );
+};
 
 //#region Func 
 const preventHashOrVoidNav = (e: React.MouseEvent<HTMLAnchorElement>) => {

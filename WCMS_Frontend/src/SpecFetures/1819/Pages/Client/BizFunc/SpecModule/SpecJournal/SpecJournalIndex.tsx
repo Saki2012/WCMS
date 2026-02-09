@@ -93,6 +93,7 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
                                     const masterData = group.SpecJournalIndex;
                                     const DetailDatas = group.SpecJournalIndexDetail
                                     const indexTitle = `${masterData?.IndexName}${props.lang === 'zh-tw' ? " 年" : ""}`
+                                    const volTitle = `(Vol.${DetailDatas?.[0]?.Volume})`
                                     const { collapseId, headerId } = buildCollapseIds(masterData?.IndexId ?? "");
                                     return (
                                         <li key={masterData?.IndexId}>
@@ -102,7 +103,7 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
                                                         role="button" aria-expanded="false" aria-controls={collapseId} title={indexTitle}>
                                                         <span className="fs-5">
                                                             <i className={clsx("fas", "fa-folder-open", "me-3")} aria-hidden="true"></i>
-                                                            {indexTitle}
+                                                            {indexTitle} {volTitle}
                                                         </span>
                                                     </a>
                                                 </div>

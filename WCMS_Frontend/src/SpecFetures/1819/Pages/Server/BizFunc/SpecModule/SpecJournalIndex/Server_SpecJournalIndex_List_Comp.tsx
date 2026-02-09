@@ -113,7 +113,7 @@ const useSpecJournalIndexList = (provider: IDataProvider<SpecJournalIndexSet>, l
                 SpecJournalIndexModelFields.ModifyTime, SpecJournalIndexModelFields.InternalId,
             ],
             Condition: condition,
-            OrderBy: [{ Col: SpecJournalIndexModelFields.CreateTime, Desc: true },],
+            OrderBy: [{ Col: SpecJournalIndexModelFields.IndexName, Desc: true },],
             PageNumber: page,
             PageSize: 10,
         }),
