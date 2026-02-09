@@ -38,7 +38,7 @@ export const CarouselData = (props: { lang: Lang }) => {
                 {sortedDetails.map((p, i) => {
                   const info = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang)
                   const alt = info?.Title ?? ""
-                  const date = formatDate(p.Validate_Start || "")
+                  // const date = formatDate(p.Validate_Start || "")
                   const content = info?.Content ?? ""
                   const url = info?.URL;
                   const tar = info?.URL_Open === 0 ? "_self" : "_blank"
@@ -58,7 +58,7 @@ export const CarouselData = (props: { lang: Lang }) => {
                         <div className="caption-subtitle mb-sm-2 mb-1">
                           {content}
                         </div>
-                        <div className="caption-date">{date.year}.{date.month}.{date.day}</div>
+                        {/* <div className="caption-date">{date.year}.{date.month}.{date.day}</div> */}
                       </div>
                     </div>
                   )
