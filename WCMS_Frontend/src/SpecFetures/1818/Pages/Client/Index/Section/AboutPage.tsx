@@ -10,6 +10,9 @@ import type { components } from "@/types/api";
 import parse from 'html-react-parser';
 import { useEffect, useMemo, useRef } from 'react';
 import { IndexLabel } from "@/SpecFetures/1818/Pages/Client//Index/Section/IndexLabelText";
+
+import HomepageVideo from '@/SpecFetures/1818/Assets/Client/Spec/HomepageVideo.mp4'
+
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"]
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"]
 
@@ -21,9 +24,9 @@ export const AboutPage = (props: { lang: Lang }) => {
 	const pageDt = pageData?.PageManagementDetail?.find(p => p.Lang === props.lang);
 	const parseContent = useResolveInternalIds(pageDt?.Content ?? "", { locale: props.lang });
 	const content = parseContent.html ? parse(parseContent.html) : null;
-	const videoRef = useRef<HTMLVideoElement | null>(null);
-	const videoSrc = webSrcDt?.ResUrl ?? "";
-	useEffect(() => { if (videoRef.current && videoSrc) { videoRef.current.load(); } }, [videoSrc]);
+	// const videoRef = useRef<HTMLVideoElement | null>(null);
+	// const videoSrc = webSrcDt?.ResUrl ?? "";
+	// useEffect(() => { if (videoRef.current && videoSrc) { videoRef.current.load(); } }, [videoSrc]);
 	return (
 		<section className="About_section">
 			<div className="Mask-DivBox">
@@ -32,8 +35,8 @@ export const AboutPage = (props: { lang: Lang }) => {
 					<div className="container-customize3">
 						<div className="row Layout_Padding_1_bottom">
 							<div className="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
-								<video ref={videoRef} className="about-video" controls loop playsInline preload="metadata">
-									<source src={videoSrc} type="video/mp4" />
+								<video className="about-video" controls loop playsInline preload="metadata">
+									<source src={HomepageVideo} type="video/mp4" />
 									<track default kind="subtitles" label="中文" src="subs/zh-TW.vtt" srcLang="zh-TW" />
 									<track kind="subtitles" label="English" src="subs/en.vtt" srcLang="en" />
 									你的瀏覽器不支援 HTML5 視訊，請更新瀏覽器或下載檔案播放。
