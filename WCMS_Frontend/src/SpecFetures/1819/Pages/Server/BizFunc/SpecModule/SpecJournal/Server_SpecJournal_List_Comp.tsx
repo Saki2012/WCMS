@@ -42,6 +42,10 @@ const SetAdjustFunction = (gridProps: GridProps, rawData: SpecJournalSet[], acti
     if (hasAdjust && hasVolIssue) return gridProps;
     // 宣告：無資料不處理
     if (gridProps.rows.length === 0) return gridProps;
+
+    const titleColKey = gridProps.columns.find(c => c.title === '標題')?.key;
+
+
     // 宣告：新增欄位
     const volIssueCol: ColumnConfig = { key: '__volIssue__', title: '卷期' };
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
@@ -58,6 +62,20 @@ const SetAdjustFunction = (gridProps: GridProps, rawData: SpecJournalSet[], acti
         const curData = rawData?.[idx];
         const internalId = curData?.SpecJournal?.InternalId ?? "";
         const cells: RowCell[] = [...row.cells];
+        if (titleColKey) {
+            const titleCellIdx = cells.findIndex(c => c.col.key === titleColKey);
+            if (titleCellIdx >= 0) {
+                cells[titleCellIdx] = {
+                    ...cells[titleCellIdx],
+                    content: (
+                        <>
+                            <p className="mb-0">{curData?.SpecJournal?.Title}</p>
+                            <p className="mb-0">{curData?.SpecJournal?.Title_en}</p>
+                        </>
+                    ),
+                };
+            }
+        }
         // 卷期：第一格（content 你之後自行補）
         if (!hasVolIssue) {
             const volDt = curData.SpecJournal?._JournalIndexDetail
@@ -92,14 +110,17 @@ const useSpecJournalList = (provider: IDataProvider<SpecJournalSet>, lang: Lang,
         ],
         buildQueryCondition: (page) => ({
             Fields: [
-                SpecJournalModelFields.JournalId, SpecJournalModelFields.Title, SpecJournalModelFields.ModifyUserId,
+                SpecJournalModelFields.JournalId, SpecJournalModelFields.Title, SpecJournalModelFields.Title_en, SpecJournalModelFields.ModifyUserId,
                 `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
                 `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
                 `${SpecJournalModelFields.ModifyUser}.${AccountFields.AccountName}`, SpecJournalModelFields.CreateTime,
                 SpecJournalModelFields.ModifyTime, SpecJournalModelFields.InternalId,
             ],
             Condition: condition,
-            OrderBy: [{ Col: SpecJournalModelFields.CreateTime, Desc: true },],
+            OrderBy: [
+                { Col: `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`, Desc: true },
+                { Col: `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`, Desc: true },
+            ],
             PageNumber: page,
             PageSize: 10,
         }),

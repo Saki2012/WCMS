@@ -206,6 +206,9 @@ const SpecJournalListContent = (props: {
 const JournalCard = (props: { item: SpecJournalSet; lang: Lang; onPickArticleLang: (langCode: string) => void; onPickTypeTag: (tagId: string, tagName?: string) => void; }) => {
     const langCode = props.item.SpecJournal?.ArticleLang ?? "";
     const langLabel = getLangLabel(langCode);
+    const pStart = props.item.SpecJournal?.PageStart ?? 0
+    const pEnd = props.item.SpecJournal?.PageEnd ?? 0
+    const pageTitle = pStart < pEnd ? `(p.${pStart} - ${pEnd})` : `(p.${pStart})`;
     return (
         <div className="IItemBox">
             <div className="card_catDiv">
@@ -242,7 +245,7 @@ const JournalCard = (props: { item: SpecJournalSet; lang: Lang; onPickArticleLan
                 </div>
             </div>
             <div className="card_titleDiv">
-                <div className="card_title">{props.item.SpecJournal?.ArticleLang === "zh-tw" ? props.item.SpecJournal?.Title : props.item.SpecJournal?.Title_en}</div>
+                <div className="card_title">{props.item.SpecJournal?.ArticleLang === "zh-tw" ? props.item.SpecJournal?.Title : props.item.SpecJournal?.Title_en} {pageTitle}</div>
                 <div className="card_title_en">{props.item.SpecJournal?.ArticleLang === "en" ? props.item.SpecJournal?.Title : props.item.SpecJournal?.Title_en}</div>
             </div>
             <div className="line-my-2"></div>
@@ -340,6 +343,7 @@ const volumeFetch = (provider: IDataProvider<SpecJournalSet>, indexId: string, r
             Fields: [
                 SpecJournalModelFields.InternalId, SpecJournalModelFields.JournalId,
                 SpecJournalModelFields.Title, SpecJournalModelFields.Title_en, SpecJournalModelFields.ArticleLang,
+                SpecJournalModelFields.PageStart, SpecJournalModelFields.PageEnd,
                 `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.IndexId}`,
                 `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.RowId}`,
                 `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
@@ -354,7 +358,7 @@ const volumeFetch = (provider: IDataProvider<SpecJournalSet>, indexId: string, r
                 `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en}`,
             ],
             Condition: condition,
-            OrderBy: [{ Col: SpecJournalModelFields.CreateTime, Desc: true }],
+            OrderBy: [{ Col: SpecJournalModelFields.PageStart, Desc: false }],
             PageNumber: page,
             PageSize: pageSize,
         }),

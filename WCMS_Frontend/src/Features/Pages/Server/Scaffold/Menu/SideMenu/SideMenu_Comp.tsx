@@ -201,9 +201,9 @@ const SidebarMenu = (prop: { moduleCode: IModuleMeta['ModuleCode'] }) => {
             <div className="navbar-wrapper">
                 <div className="m-header">
                     <h1>
-                        <LangNavLink to={'/'} title="首頁" target="_self" className="b-brand">
+                        <a href={'/'} title="首頁" target="_blank" className="b-brand">
                             <img src={logImg} className="img-fluid logo-lg" alt="logo" />
-                        </LangNavLink>
+                        </a>
                     </h1>
                 </div>
 
