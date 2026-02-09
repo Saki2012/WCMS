@@ -5,6 +5,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 
@@ -166,8 +167,8 @@ export const LinkData = (props: { lang: Lang }) => {
 											return (
 												<div key={p.RowId ?? i} className="swiper-slide">
 													<div className="item">
-														<a
-															href={url || "#"}
+														<LangLink
+															to={url || "#"}
 															onClick={(e) => handleClick(e, url)}
 															title={title}
 															target={target}
@@ -184,7 +185,7 @@ export const LinkData = (props: { lang: Lang }) => {
 																	<div className="Link-icons-title">{title}</div>
 																</div>
 															</div>
-														</a>
+														</LangLink>
 													</div>
 												</div>
 											);

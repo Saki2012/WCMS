@@ -190,7 +190,7 @@ export const NewsData = (props: { lang: Lang }) => {
 												>
 													<div className="News_mainDIV">
 														<ul className="ListNews">
-															<GetData prop={allNews1}></GetData>
+															<GetData lang={props.lang} prop={allNews1}></GetData>
 														</ul>
 
 														{/* 對標 prototype：Btn_a / BtnBox（大寫 B） */}
@@ -248,7 +248,7 @@ export const NewsData = (props: { lang: Lang }) => {
 												>
 													<div className="News_mainDIV">
 														<ul className="ListNews">
-															<GetData prop={allNews2}></GetData>
+															<GetData lang={props.lang} prop={allNews2}></GetData>
 														</ul>
 
 														<div className="btn-w100-wrapper w-100">
@@ -303,7 +303,7 @@ export const NewsData = (props: { lang: Lang }) => {
 												>
 													<div className="News_mainDIV">
 														<ul className="ListNews">
-															<GetData prop={allNews3}></GetData>
+															<GetData lang={props.lang} prop={allNews3}></GetData>
 														</ul>
 
 														<div className="btn-w100-wrapper w-100">
@@ -358,7 +358,7 @@ export const NewsData = (props: { lang: Lang }) => {
 											>
 												<div className="News_mainDIV">
 													<ul className="ListNews">
-														<GetData prop={allNews4}></GetData>
+														<GetData lang={props.lang} prop={allNews4}></GetData>
 													</ul>
 
 													<div className="btn-w100-wrapper w-100">
@@ -458,18 +458,34 @@ const formatDate = (dateStr: string) => {
 }
 
 
-
-const GetData = (props: { prop: getDataProp[] }) => {
+type TagKey = "top" | "new" | "hot";
+const GetData = (props: { lang: Lang; prop: getDataProp[] }) => {
 	// 宣告變數
 	const list = props.prop ?? [];
+
+
 
 	// return：對標 prototype 的 News_item DOM
 	return (
 		<>
 			{list.map((p, idx) => {
+
 				// 宣告變數：你原本的判斷邏輯照舊（這裡只示意）
 				const isTop = Boolean(p.contentStatus & 1);   // 置頂（依你原本 bitmask）
-				const isNew = Boolean(p.contentStatus & 2);   // 最新（依你原本 bitmask）
+				const isNew = Boolean(p.contentStatus & 2);   // 熱門（依你原本 bitmask）
+				const isHot = isWithinLastNDaysFromMD(Number(p.month), Number(p.date))
+
+				const tagText: Record<TagKey, string> = props.lang === 'zh-tw'
+					? { top: "置頂", new: "最新", hot: "熱門" }
+					: { top: "TOP", new: "NEW", hot: "HOT" };
+
+				const tagEnabled: Record<TagKey, boolean> = {
+					top: isTop,
+					new: isHot, // 「最新」：最近 N 天
+					hot: isNew, // 「熱門」：bitmask
+				};
+				const tagKeys = (["top", "new", "hot"] as const).filter((k) => tagEnabled[k]).slice(0, 2);
+
 				const href = `${p.redir}/${p.announceInternalId}`;
 
 				return (
@@ -490,8 +506,11 @@ const GetData = (props: { prop: getDataProp[] }) => {
 									{/* a-right：狀態（置頂/最新） */}
 									<div className="a-right order-xl-3 order-2">
 										<div className="CustomState">
-											{isTop ? <div className="icon-small top-bg">置頂</div> : null}
-											{isNew ? <div className="icon-small top-bg">最新</div> : null}
+											{tagKeys.map((k) => (
+												<div key={k} className="icon-small top-bg">
+													{tagText[k]}
+												</div>
+											))}
 										</div>
 									</div>
 								</div>
@@ -506,3 +525,23 @@ const GetData = (props: { prop: getDataProp[] }) => {
 	);
 };
 
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean => {
+	if (!month1to12 || !day1to31) return false;
+
+	const now = new Date();
+	const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+
+	let y = now.getUTCFullYear();
+	let candidateUTC = Date.UTC(y, month1to12 - 1, day1to31);
+
+	// 若候選日在未來，代表跨年情境 → 改用去年
+	if (candidateUTC > nowUTC) {
+		y -= 1;
+		candidateUTC = Date.UTC(y, month1to12 - 1, day1to31);
+	}
+
+	const diffDays = Math.floor((nowUTC - candidateUTC) / DAY_MS);
+	return diffDays >= 0 && diffDays <= n;
+};

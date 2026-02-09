@@ -1,4 +1,3 @@
-import { SearchData } from '@/SpecFetures/1816/Pages/Client/Index/Section/SearchData'
 import { LinkData } from '@/SpecFetures/1816/Pages/Client/Index/Section/LinkData'
 import { CollectionsData } from '@/SpecFetures/1816/Pages/Client/Index/Section/CollectionsData'
 import { SpecialLinkData } from '@/SpecFetures/1816/Pages/Client/Index/Section/SpecialLinkData'
