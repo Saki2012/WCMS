@@ -364,6 +364,9 @@ const JournalInfo_Comp = (props: { lang: Lang; data: SpecJournalSet }) => {
 }
 /** 檔案下載區 */
 const FileDownload_Comp = (props: { lang: Lang; data: SpecJournalSet }) => {
+    const hasJournalFile = props.data.SpecJournal?.JournalFileId
+    const hasInsightPointFile = props.data.SpecJournal?.InsightPointFileId
+    if (!hasJournalFile && !hasInsightPointFile) return null;
     return (
         <>
             {/* 全文可取得 下載按鈕 */}
@@ -371,44 +374,50 @@ const FileDownload_Comp = (props: { lang: Lang; data: SpecJournalSet }) => {
                 <div className="row">
                     <div className="col-12">
                         <ul className="fulllist-group">
-                            <li>
-                                <div className="DownItem_Box">
-                                    <a className="page-item" href={`${FileManagementAPI.DOWNLOAD_URL}/${props.data?.SpecJournal?.JournalFileId}`} title={props.data?.SpecJournal?.JournalFileName ?? ""} onClick={preventHashOrVoidNav}
-                                        target="_blank" rel="noopener noreferrer">
-                                        <div className="icontxtbox">
-                                            <span className="page_icon">
-                                                <i className="far fa-file-alt" aria-hidden="true"></i>
+                            {hasJournalFile ?
+                                <li>
+                                    <div className="DownItem_Box">
+                                        <a className="page-item" href={`${FileManagementAPI.DOWNLOAD_URL}/${props.data?.SpecJournal?.JournalFileId}`} title={props.data?.SpecJournal?.JournalFileName ?? ""} onClick={preventHashOrVoidNav}
+                                            target="_blank" rel="noopener noreferrer">
+                                            <div className="icontxtbox">
+                                                <span className="page_icon">
+                                                    <i className="far fa-file-alt" aria-hidden="true"></i>
+                                                </span>
+                                                <span className="icontxt">{props.data?.SpecJournal?.JournalFileName}</span>
+                                            </div>
+                                        </a>
+                                        <span className="G_Vline_Down">│</span>
+                                        <span className="Div_All_Ttext views d-inline-flex flex-column align-items-start">
+                                            {/* 第 1 行：標題 */}
+                                            <span className="download-title">全文可下載</span>
+
+                                            {/* 第 2 行：icon + 瀏覽次數 */}
+                                            <span className="d-flex align-items-center">
+                                                <i className="fas fa-download me-1" aria-hidden="true"></i>
+                                                <span className="font-SW-normal">瀏覽次數 :</span>
+                                                <span className="font-SW-normal ms-2">{0}</span>
                                             </span>
-                                            <span className="icontxt">{props.data?.SpecJournal?.JournalFileName}</span>
-                                        </div>
-                                    </a>
-                                    <span className="G_Vline_Down">│</span>
-                                    <span className="Div_All_Ttext + views">
-                                        <i className="fas fa-download me-1" aria-hidden="true"></i>
-                                        <span className="font-SW-normal">瀏覽次數 :</span>
-                                        <span className="font-SW-normal + ms-2">{0}</span>
-                                    </span>
-                                </div>
-                            </li>
-
-                            <li>
-                                <div className="DownItem_Box">
-                                    <a className="page-item" href={`${FileManagementAPI.DOWNLOAD_URL}/${props.data?.SpecJournal?.InsightPointFileId}`} title={props.data?.SpecJournal?.InsightPointFileName ?? ""} onClick={preventHashOrVoidNav}
-                                        target="_blank" rel="noopener noreferrer">
-                                        <div className="icontxtbox">
-                                            <img className="ii_image" src={insightpointImg1} alt="" />
-                                            <img className="ii_image_hover" src={insightpointImg2} alt="" />
-                                        </div>
-                                    </a>
-                                    <span className="G_Vline_Down">│</span>
-                                    <span className="Div_All_Ttext + views">
-                                        <i className="fas fa-download me-1" aria-hidden="true"></i>
-                                        <span className="font-SW-normal">瀏覽次數 :</span>
-                                        <span className="font-SW-normal + ms-2">{0}</span>
-                                    </span>
-                                </div>
-                            </li>
-
+                                        </span>
+                                    </div>
+                                </li> : null}
+                            {hasInsightPointFile ?
+                                <li>
+                                    <div className="DownItem_Box">
+                                        <a className="page-item" href={`${FileManagementAPI.DOWNLOAD_URL}/${props.data?.SpecJournal?.InsightPointFileId}`} title={props.data?.SpecJournal?.InsightPointFileName ?? ""} onClick={preventHashOrVoidNav}
+                                            target="_blank" rel="noopener noreferrer">
+                                            <div className="icontxtbox">
+                                                <img className="ii_image" src={insightpointImg1} alt="" />
+                                                <img className="ii_image_hover" src={insightpointImg2} alt="" />
+                                            </div>
+                                        </a>
+                                        <span className="G_Vline_Down">│</span>
+                                        <span className="Div_All_Ttext + views">
+                                            <i className="fas fa-download me-1" aria-hidden="true"></i>
+                                            <span className="font-SW-normal">瀏覽次數 :</span>
+                                            <span className="font-SW-normal + ms-2">{0}</span>
+                                        </span>
+                                    </div>
+                                </li> : null}
                         </ul>
                     </div>
                 </div>

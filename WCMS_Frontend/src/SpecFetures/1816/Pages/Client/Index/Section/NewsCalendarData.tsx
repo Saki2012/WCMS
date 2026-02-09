@@ -137,7 +137,7 @@ const monthEnLong = [
 ];
 
 const weekdayMapZh = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
-const weekdayMapEnFull = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const weekdayMapEnFull = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
 
 const formatMonthENWithIndex = (d: Date) => {
 	// 宣告變數：月份索引（1-12）

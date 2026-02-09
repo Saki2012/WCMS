@@ -157,7 +157,7 @@ export const NewsData = (props: { lang: Lang }) => {
 								{/* 標題 start（對標 prototype：置中 + margin class） */}
 								<div className="headDiv mb-3 mt-1 d-flex justify-content-center">
 									<span className="headDiv-txt">{props.lang === "en" ? "News" : "最新消息"}</span>
-									<span className="headDiv-subtxt">{props.lang === "en" ? "" : "NEWS"}</span>
+									<span className="headDiv-subtxt">{props.lang === "en" ? "" : "News"}</span>
 								</div>
 								{/* 標題 end */}
 							</div>
