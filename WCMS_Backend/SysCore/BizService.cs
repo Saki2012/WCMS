@@ -482,7 +482,7 @@ namespace WCMS.SysCore
         }
         protected async Task<IList> DoQueryListAsync<TModel>(string[] selectFields, string condition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt, int skipCt = 0)
         {
-            return await DoQueryListAsync(typeof(TModel), selectFields, condition, orderBy, pageCt, takeCt);
+            return await DoQueryListAsync(typeof(TModel), selectFields, condition, orderBy, pageCt, takeCt, skipCt);
         }
         /// <summary>
         /// 
@@ -491,7 +491,7 @@ namespace WCMS.SysCore
         /// <returns></returns>
         protected async Task<IList> DoQueryListAsync(PropertyInfo prop, string[] selectFields, string condition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt, int skipCt = 0)
         {
-            return await DoQueryListAsync(prop.PropertyType, selectFields, condition, orderBy, pageCt, takeCt);
+            return await DoQueryListAsync(prop.PropertyType, selectFields, condition, orderBy, pageCt, takeCt, skipCt);
         }
         protected async Task<IList> DoQueryListAsync(Type type, string[] selectFields, string condition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt, int skipCt = 0)
         {
