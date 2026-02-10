@@ -130,7 +130,7 @@
     <value>期刊目次代號</value>
   </data>
   <data name="Spec_JournalIndexName" xml:space="preserve">
-    <value>期刊目次名稱</value>
+    <value>期刊年份</value>
   </data>
   <data name="Spec_JournalIndexRowId" xml:space="preserve">
     <value>卷期代號</value>
