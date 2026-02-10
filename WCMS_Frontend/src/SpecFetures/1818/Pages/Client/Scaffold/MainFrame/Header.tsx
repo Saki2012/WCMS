@@ -354,7 +354,7 @@ const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
     const menuItems = GetMenuData(props.lang, props.site)
 
     return (
-        <div id="navbar-content" className="collapse navbar-collapse overflow-scroll-Y mt-lg-5 mt-0">
+        <div id="navbar-content" className="collapse navbar-collapse overflow-scroll-Y mt-0">
             <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
 
                 {menuItems.map((item) => {
