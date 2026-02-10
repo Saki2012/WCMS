@@ -1,11 +1,9 @@
 /* Banner */
 import * as SchemaFields from "@/types/SchemaFields";
-import { Link } from 'react-router-dom';
 import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api';
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
-import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import { FormatDate } from '@/SysCore/Utils/Library/LibData';
 import defaulteventpic from '@/SpecFetures/1810/Assets/Custom/DefaultEventPic_940x1330.jpg'
@@ -15,6 +13,7 @@ import bgImg from '@/SpecFetures/1810/Assets/Client/Images/bg/background-transpa
 import type { components } from '@/types/api';
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { PGID } from "@/Features/Hooks/Common/ProgId";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type TagSet = components["schemas"]["TagSet_DTO"]
 interface EventData {
@@ -33,7 +32,8 @@ const useAnnouncementList = () => {
     //因時程關係，暫時用前端來判斷有效日期時間，多少會有客戶端修改時間的風險。之後再改到後端開新的api寫死抓系統時間為依據。
     const now = useNow({ startPaused: true });
     if (now.isoLocal) cdt = LibMerge(" And ", false, cdt, `${SchemaFields.AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
-    cdt = LibMerge(" And ", false, cdt, `${SchemaFields.AnnouncementFields.Categories} HasAny [8,10]`)
+    if (now.isoLocal) cdt = LibMerge(" And ", false, cdt, `(${SchemaFields.AnnouncementFields.Validate_End} >= ${now.isoLocal} Or ${SchemaFields.AnnouncementFields.Validate_End} is null)`);
+    cdt = LibMerge(" And ", false, cdt, `${SchemaFields.AnnouncementFields.Categories} HasAny [8]`)
     cdt = LibMerge(" And ", false, cdt, `${SchemaFields.AnnouncementFields.ContentStatus} !&4`)
 
     return useFetchGridListData<AnnouncementSet>({
@@ -55,6 +55,7 @@ const useAnnouncementList = () => {
                 SchemaFields.AnnouncementFields.ViewCount,
             ],
             Condition: cdt,
+            RankGroups: [{ Condition: `${SchemaFields.AnnouncementFields.ContentStatus} & 1` }],
             OrderBy: [{ Col: SchemaFields.AnnouncementFields.Validate_Start, Desc: true }],
             PageNumber: 1,
             PageSize: 6,
@@ -77,7 +78,7 @@ const useTagList = () => {
                 `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
                 `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
             ],
-            Condition: `${SchemaFields.TagDataFields.ProgId} = Announcement`,
+            Condition: `${SchemaFields.TagDataFields.ProgId} = ${PGID.Announcement}`,
             PageNumber: 0,
             PageSize: 0,
         }),
@@ -92,68 +93,110 @@ export const EventSession = (props: { lang: Lang }) => {
     const isLoading = [useEvent.isLoading, useTag.isLoading]
     const errors = [useEvent.error, useTag.error]
 
-    const tagDict: Record<string, string> = Object.fromEntries(
-        (useTag.rawData ?? []).map(tag => {
-            const id = tag.TagData?.TagId;
-            const name = tag.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "";
-            return [id, name];
-        })
-    );
-    const rawData = (useEvent.rawData ?? []).sort((a, b) => new Date(b.Announcement?.Validate_Start ?? "").getTime() - new Date(a.Announcement?.Validate_Start ?? "").getTime()).slice(0, 6);
-    const eventList = getData(props.lang, rawData, tagDict)
-    const carouselRef = useRef<HTMLDivElement>(null);
-    useEffect(() => {
-        if (eventList.length > 0 && carouselRef.current) {
-            const $owl = $(carouselRef.current);
+    const tagDict = useMemo<Record<string, string>>(() => {
+        // 宣告變數
+        const pairs = (useTag.rawData ?? [])
+            .map(tag => {
+                const id = tag.TagData?.TagId ?? "";
+                if (!id) return null;
+                const name = tag.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "";
+                return [id, name] as const;
+            })
+            .filter((p): p is readonly [string, string] => Boolean(p));
 
-            // Destroy if exists
-            if ($owl.hasClass('owl-loaded')) {
-                $owl.trigger('destroy.owl.carousel');
+        // return
+        return Object.fromEntries(pairs);
+    }, [useTag.rawData, props.lang]);
+
+    const eventList = useMemo(() => {
+        // 宣告變數
+        const raw = useEvent.rawData ?? [];
+        // return
+        return getData(props.lang, raw, tagDict);
+    }, [props.lang, useEvent.rawData, tagDict]);
+
+    // 宣告：用 key 強制 remount（避免 React diff 到 owl 改過的 DOM）
+    const eventKey = useMemo(() => {
+        const ids = eventList.map(p => p.Id).join("|");
+        return `${props.lang}|${ids || "__empty__"}`;
+    }, [props.lang, eventList]);
+
+    const carouselRef = useRef<HTMLDivElement>(null);
+    const initTimerRef = useRef<number | null>(null);
+    const isOwlInitedRef = useRef(false);
+    useEffect(() => {
+        // 宣告變數
+        const el = carouselRef.current;
+        if (!el) return;
+
+        const $owl = $(el);
+
+        const cleanup = () => {
+            // 宣告：清掉延遲 init（避免 unmount 後還 init）
+            if (initTimerRef.current !== null) {
+                window.clearTimeout(initTimerRef.current);
+                initTimerRef.current = null;
             }
 
-            // Init carousel
-            setTimeout(() => {
-                $owl.owlCarousel({
-                    items: 4,
-                    loop: true,
-                    dots: true,
-                    nav: true,
-                    margin: 30,
-                    // autoplay: true,
-                    autoplayTimeout: 3000,
-                    autoplayHoverPause: true,
-                    responsive: {
-                        0: { items: 1 },
-                        767: { items: 2 },
-                        991: { items: 3 },
-                        1200: { items: 4 }
-                    }
-                });
+            // 執行：解除事件（用 namespace 避免誤殺其他 click）
+            $('#Event_start').off('click.eventSession');
+            $('#Event_pause').off('click.eventSession');
 
-                // 設定 tabindex
-                $('#Event .owl-nav button').attr('tabindex', '7');
+            // 執行：銷毀 carousel（只在真的 init 過才做）
+            if (isOwlInitedRef.current && $owl.hasClass('owl-loaded')) {
+                $owl.trigger('destroy.owl.carousel');
+            }
+            isOwlInitedRef.current = false;
+        };
 
-                // 播放與暫停控制
-                $('#Event_start').on('click', () => {
+        // 執行：StrictMode 下 effect 會 mount/cleanup/mount，先清一輪是安全的
+        cleanup();
+
+        // 執行：無資料就不 init
+        if (eventList.length === 0) return;
+
+        initTimerRef.current = window.setTimeout(() => {
+            // 宣告：如果已 unmount 就不處理
+            if (!carouselRef.current) return;
+
+            // 執行：初始化
+            $owl.owlCarousel({
+                items: 4,
+                loop: true,
+                dots: true,
+                nav: true,
+                margin: 30,
+                autoplayTimeout: 3000,
+                autoplayHoverPause: true,
+                responsive: {
+                    0: { items: 1 },
+                    767: { items: 2 },
+                    991: { items: 3 },
+                    1200: { items: 4 }
+                }
+            });
+
+            isOwlInitedRef.current = true;
+
+            // 執行：設定 tabindex
+            $('#Event .owl-nav button').attr('tabindex', '7');
+
+            // 執行：播放/暫停（namespace 綁定）
+            $('#Event_start')
+                .off('click.eventSession')
+                .on('click.eventSession', () => {
                     $owl.trigger('play.owl.autoplay', [6000]);
                 });
 
-                $('#Event_pause').on('click', () => {
+            $('#Event_pause')
+                .off('click.eventSession')
+                .on('click.eventSession', () => {
                     $owl.trigger('stop.owl.autoplay');
                 });
-            }, 0);
+        }, 0);
 
-            return () => {
-                $('#Event_start').off();
-                $('#Event_pause').off();
-                if ($owl.hasClass('owl-loaded')) {
-                    $owl.trigger('destroy.owl.carousel');
-                }
-            };
-        }
-    }, [eventList]);
-
-
+        return cleanup;
+    }, [eventKey]); // ✅ 不要用 [eventList]
 
 
 
@@ -181,7 +224,7 @@ export const EventSession = (props: { lang: Lang }) => {
                         <div className="row">
                             <div className="col-12 + p-0">
                                 <div className="content-box + animate__animated animate__slow wow animate__bounceInUp" data-wow-delay="0.1s">
-                                    <div id="Event" className="owl-carousel owl-theme px-2" ref={carouselRef}>
+                                    <div id="Event" className="owl-carousel owl-theme px-2" ref={carouselRef} key={eventKey}>
                                         {/* <asp:Literal ID="Lit_Event" runat="server" /> {/*輪播項目*/}
                                         {eventList.map((item, index) => {
                                             const { month, day } = getMonthDayNums(item.date);
