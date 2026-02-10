@@ -1,8 +1,8 @@
 // SysCore/Utils/Hooks/useUploadFile.ts
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
-import { type ApiResponse, MessageStatus, type SysMessageModel } from "@/SysCore/Interface/IApiProvider";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useState } from "react";
+import { type ApiResponse, MessageStatus, type SysMessageModel } from "../API/APIBase";
 
 export interface UploadResult
 {

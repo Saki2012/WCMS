@@ -3,7 +3,6 @@ import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
 
 export const buildMenuItems = (nodes: INormNode[] = [], activeId?: number, currentDepth: number = 1, maxDepth: number = Infinity,): MenuItemData[] => {
     return nodes.filter(n => n.isShowOnMenu !== false).map(n => {

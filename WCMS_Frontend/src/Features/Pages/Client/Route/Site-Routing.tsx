@@ -1,7 +1,7 @@
 // src/Features/Client/routing/site-routing.tsx
 import * as React from "react";
 import type { components } from "@/types/api";
-import { Outlet, type RouteObject } from "react-router-dom";
+import { Outlet, type LoaderFunctionArgs, type RouteObject } from "react-router-dom";
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 import HomePage from "SpecFeature/Pages/Client/Index/HomePage"
 import { Index } from "@/Features/Pages/Client/BizFunc/MainPage/Index";
@@ -10,6 +10,7 @@ import { Classic_FETheme } from "../Theme/ClassicTheme_Clsx";
 import TemplateHub from "@/Features/Pages/Server/Scaffold/PreviewFrame/TemplateHub.tsx";
 import { useLang } from "@/SysCore/i18n/LangContext";
 import { SITEMAP_NODE_ID, SITEMAP_SEGMENT, SitemapNode } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap";
+import { SubPageLoader, type ISubPageLoaderData } from "../Scaffold/SubPages/SubPage_Loader";
 
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"]
 type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"]
@@ -19,7 +20,6 @@ type SiteMenu_Item_Url = components["schemas"]["SiteMenu_Item_Url_DTO"]
 type WindowTarget = components["schemas"]["WindowTarget"];
 
 // import { PageManagementComp } from "@/Features/Client/BizFunc/PageManagement/PageManagementComp"; // 第2步再接
-
 
 /* ---------- 2) 正規化後的樹 ---------- */
 type NodeType = "redirect-external" | "redirect-internal" | "module";
@@ -185,7 +185,10 @@ export type ModuleFactory = (lang: Lang, site: INormSite, node: INormNode) => Re
 export type ModuleRoutesFactory = (opts: unknown, lang: Lang, node: INormNode, site: INormSite) => RouteObject[];
 export type ModuleEntry =
     | { kind: "element"; render: ModuleFactory }
-    | { kind: "routes"; element: ModuleFactory; children: ModuleRoutesFactory };
+    | {
+        kind: "routes"; element: ModuleFactory; children: ModuleRoutesFactory;
+        loader?: (args: LoaderFunctionArgs, ctx: { lang: Lang; site: INormSite; node: INormNode; }) => Promise<ISubPageLoaderData>;
+    };
 export type ModuleRegistry = Record<string, ModuleEntry>;
 export const coreModuleRegistry: ModuleRegistry = {};
 type RegistryResolver = () => ModuleRegistry;
@@ -285,7 +288,43 @@ const NodeRouteGuard: React.FC<{ site: INormSite; nodeId: number; children: Reac
     return props.children;
 };
 
+const readCookieValue = (cookieHeader: string, key: string): string | null => {
+    // 宣告變數
+    const parts = cookieHeader.split(";").map(s => s.trim());
+
+    // 執行function
+    for (const p of parts) {
+        const eq = p.indexOf("=");
+        if (eq <= 0) continue;
+        const k = decodeURIComponent(p.slice(0, eq).trim());
+        if (k !== key) continue;
+        const v = decodeURIComponent(p.slice(eq + 1).trim());
+        return v || null;
+    }
+
+    // return
+    return null;
+};
+
+const resolveLangFromRequest = (request: Request): Lang => {
+    // 宣告變數
+    const cookie = request.headers.get("cookie") ?? "";
+    const cookieLang = readCookieValue(cookie, "wcms.lang");
+    const acceptLang = request.headers.get("accept-language") ?? "";
+    const firstAccept = acceptLang.split(",")[0]?.trim() ?? "";
+
+    // 執行function：cookie 優先，其次 Accept-Language
+    const raw = (cookieLang ?? firstAccept ?? "").toLowerCase();
+
+    // return
+    return normalizeLangKey(raw);
+};
+
 export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
+    const defaultModuleSubPageLoader = async (args: LoaderFunctionArgs, ctx: { lang: Lang; site: INormSite; node: INormNode }) => {
+        // return：SubPage 預設只撈 Banner（或你 SubPageLoader 目前做的事）
+        return SubPageLoader({ lang: ctx.lang, site: ctx.site, node: ctx.node })(args);
+    };
     const skeletonRoots = site.treeByLang[DefaultLang] ?? Object.values(site.treeByLang)[0] ?? [];
     const toRoute = (n: INormNode): RouteObject => {
         // 先把菜單樹的 children 算好（第二層/第三層都會遞迴進來）
@@ -350,19 +389,34 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
         const entry = getModuleRegistry()[n.module.progId];
         if (!entry) return { path: n.path, element: <div>Unknown module: {n.module.progId}</div> };
         const element = wrapGuard(<ModuleElement site={site} nodeId={n.id} skeletonNode={n} />);
+
+        const loader =
+            entry.kind === "routes" && entry.loader
+                ? async (args: LoaderFunctionArgs) => {
+                    // 宣告變數
+                    const lang = resolveLangFromRequest(args.request);
+                    const resolvedNode = resolveNodeByLang(site, lang, n.id) ?? n;
+                    // 執行function
+                    const entryLoader = entry.loader ?? defaultModuleSubPageLoader;
+                    // return
+                    return entryLoader(args, { lang, site, node: resolvedNode });
+                }
+                : undefined;
+
         // routes 型模組的自帶 children；element 型為空
         const modChildrenRaw: RouteObject[] = entry.kind === "routes" ? entry.children(n.module.options, DefaultLang, n, site) : [];
         const modChildren = wrapRoutesWithCtxLang(modChildrenRaw); const children = [...modChildren, ...menuChildren];
         // pathless 模組：有 children → 當包裹；沒有 → 當 index
-        if (!n.path) return children.length > 0 ? { element, children } : { index: true, element };
+        if (!n.path) return children.length > 0 ? { element, loader, children } : { index: true, element, loader };
         // 一般模組
-        return { path: n.path, element, children };
+        return { path: n.path, element, loader, children };
     };
 
     return [
         {
             path: "/" + site.siteIndex,
             element: <WithCtxLang element={<Index lang={DefaultLang} site={site} style={Classic_FETheme} />} />,
+
             children:
                 [
                     { index: true, element: <WithCtxLang element={<HomePage lang={DefaultLang} />} /> },

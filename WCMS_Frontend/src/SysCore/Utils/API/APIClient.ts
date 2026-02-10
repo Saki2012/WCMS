@@ -1,96 +1,139 @@
-import type { ApiResponse } from "@/SysCore/Interface/IApiProvider";
-import api from "@/SysCore/Utils/API/APIBase";
+import api, { type ApiResponse, MessageStatus, type SysMessageModel } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
+import { PGID } from "@/types/SchemaFields";
+import type { AxiosInstance, AxiosResponse } from "axios";
+import axios from "axios";
+
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-const genericApi = {
-    create: <T>(module: string, data: T) => api.post<ApiResponse<T>>(`${module}/Create`, data),
-    update: <T>(module: string, internalId: string, data: T) =>
-        api.put<ApiResponse<T>>(`${module}/Update`, { InternalId: internalId, Data: data }),
-    delete: <T>(module: string, internalId: string) =>
-        api.delete<ApiResponse<T>>(`${module}/Delete`, { params: { internalId } }),
-    invalid: <T>(module: string, internalId: string, isInvalid: boolean) =>
-        api.delete<ApiResponse<T>>(`${module}/Invalid`, { data: { internalId, isInvalid } }),
-    queryData: <T>(module: string, internalId: string) =>
-        api.get<ApiResponse<T>>(`${module}/QueryData`, { params: { internalId: internalId } }),
-    queryList: <T>(module: string, condition: QueryListParam) =>
-        api.post<ApiResponse<T[]>>(`${module}/QueryList`, condition),
-    queryListCount: (module: string, condition: QueryListParam) =>
-        api.post<ApiResponse<number>>(`${module}/GetTotalCounts`, condition),
-    getModelDisplayName: (module: string) => api.get(`${module}/GetModelDisplayName`),
-};
-
-export class BaseApiService<T>
+/** API服務層
+ * 注意:繼承的Function須一律Return ApiResponse格式，好讓後續hook、loader接收後有共同處理方式
+ */
+export class ApiBaseService
 {
-    private module: string;
-    constructor(module: string)
-    {
-        this.module = module;
-    }
+    // #region Property
+    protected readonly Module: PGID;
+    protected readonly Api: AxiosInstance;
+    // #endregion
 
-    async create(data: T)
+    // #region Construct
+    constructor(module: PGID, apiInstance?: AxiosInstance)
     {
-        return await genericApi.create(this.module, data);
+        this.Module = module;
+        this.Api = apiInstance ?? api;
     }
+    // #endregion
 
-    async update(internaId: string, data: T)
+    // #region Protected
+    protected async CallApi<U>(fn: () => Promise<AxiosResponse<ApiResponse<U>>>): Promise<ApiResponse<U>>
     {
-        return await genericApi.update(this.module, internaId, data);
+        try
+        {
+            // 宣告變數
+            const res = await fn();
+            return res.data;
+        } catch (err)
+        {
+            // 宣告變數
+            const fallbackStatus = 0;
+            if (axios.isAxiosError(err))
+            {
+                const status = err.response?.status ?? fallbackStatus;
+                const serverEnv = err.response?.data as ApiResponse<U> | undefined;
+                if (serverEnv && typeof serverEnv === "object" && "IsSuccess" in serverEnv) return serverEnv;
+                return this.BuildHttpError<U>(status, err.message);
+            }
+            if (err instanceof Error) return this.BuildHttpError<U>(fallbackStatus, err.message);
+            return this.BuildHttpError<U>(fallbackStatus, "Unknown error");
+        }
     }
+    // #endregion
 
-    async delete(internaId: string)
+    // #region Private
+    private BuildHttpError<U>(httpStatus: number, message: string): ApiResponse<U>
     {
-        return await genericApi.delete<T>(this.module, internaId);
+        const env: ApiResponse<U> = {
+            IsSuccess: false,
+            Data: null,
+            SysMessage: [
+                {
+                    Status: MessageStatus.Error,
+                    MessageCode: `Http Error ${httpStatus}`,
+                    Message: message,
+                } as SysMessageModel,
+            ],
+        };
+        return env;
     }
+    // #endregion
+}
 
-    async invalid(internaId: string, isInvalid: boolean)
+export class ApiDataService<T> extends ApiBaseService
+{
+    async create(data: T): Promise<ApiResponse<T>>
     {
-        return await genericApi.invalid<T>(this.module, internaId, isInvalid);
+        return await this.CallApi<T>(() => this.Api.post<ApiResponse<T>>(`${this.Module}/Create`, data));
     }
-
-    async queryData(internaId: string)
+    async update(internalId: string, data: T): Promise<ApiResponse<T>>
     {
-        return await genericApi.queryData<T>(this.module, internaId);
+        return await this.CallApi<T>(() =>
+            this.Api.put<ApiResponse<T>>(`${this.Module}/Update`, { InternalId: internalId, Data: data })
+        );
     }
-
-    async queryList(condition: QueryListParam)
+    async delete(internalId: string): Promise<ApiResponse<T>>
     {
-        return await genericApi.queryList<T>(this.module, condition);
+        return await this.CallApi<T>(() =>
+            this.Api.delete<ApiResponse<T>>(`${this.Module}/Delete`, { params: { internalId } })
+        );
     }
-
-    async queryCount(condition: QueryListParam)
+    async invalid(internalId: string, isInvalid: boolean): Promise<ApiResponse<T>>
     {
-        return await genericApi.queryListCount(this.module, condition);
+        return await this.CallApi<T>(() =>
+            this.Api.delete<ApiResponse<T>>(`${this.Module}/Invalid`, { data: { internalId, isInvalid } })
+        );
     }
-
-    async getModelDisplayName(): Promise<ModelDisplaySchema>
+    async queryData(internalId: string): Promise<ApiResponse<T>>
     {
-        const res = await genericApi.getModelDisplayName(this.module);
-        return res.data;
+        return await this.CallApi<T>(() =>
+            this.Api.get<ApiResponse<T>>(`${this.Module}/QueryData`, { params: { internalId } })
+        );
+    }
+    async queryList(condition: QueryListParam): Promise<ApiResponse<T[]>>
+    {
+        return await this.CallApi<T[]>(() => this.Api.post<ApiResponse<T[]>>(`${this.Module}/QueryList`, condition));
+    }
+    async queryCount(condition: QueryListParam): Promise<ApiResponse<number>>
+    {
+        return await this.CallApi<number>(() =>
+            this.Api.post<ApiResponse<number>>(`${this.Module}/GetTotalCounts`, condition)
+        );
+    }
+    async getModelDisplayName(): Promise<ApiResponse<ModelDisplaySchema>>
+    {
+        return await this.CallApi<ModelDisplaySchema>(() =>
+            this.Api.get<ApiResponse<ModelDisplaySchema>>(`${this.Module}/GetModelDisplayName`)
+        );
     }
 }
 
-class systemAPI
+export class SystemAPI extends ApiBaseService
 {
-    private module: string;
-    constructor()
+    constructor(apiInstance?: AxiosInstance)
     {
-        this.module = "SystemAPI";
+        super(PGID.SystemAPI, apiInstance);
     }
-    async getEnumOptions(enumName: string)
+    async getEnumOptions(enumName: string): Promise<ApiResponse<string>>
     {
-        return await api.get(`/${this.module}/GetEnumOptions`, {
-            params: { enumName }, // 傳入 query string 參數
-        });
+        return await this.CallApi<string>(() =>
+            this.Api.get(`${this.Module}/GetEnumOptions`, { params: { enumName } })
+        );
     }
 }
-
-export const SystemAPI = new systemAPI();
 
 export class FileManagementAPI
 {
-    private static readonly BASEURL = `FileManagement`;
+    private static readonly BASEURL = PGID.FileManagement;
     // private static readonly baseUrl = import.meta.env.VITE_API_BASE_URL ?? "/Service";
     private static readonly baseUrl = "/Service";
     public static readonly PREVIEW_URL: string = `${this.baseUrl}/${this.BASEURL}/Preview`;

@@ -8,7 +8,7 @@ import type { GridRow } from "@/SysCore/Components/Grid/Grid_Data";
 import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import parse from 'html-react-parser';
-import { AnnouncementFields, AnnouncementDetailFields, AnnouncementSetFields } from "@/types/SchemaFields";
+import { AnnouncementFields, AnnouncementDetailFields, AnnouncementSetFields, PGID } from "@/types/SchemaFields";
 import AnnouncementProvider from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -21,7 +21,6 @@ import { Paginator } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
-import { PGID } from "@/Features/Hooks/Common/ProgId";
 import { useNow } from "@/SysCore/Utils/Library/LibHook";
 
 import DefaultEventImg from "@/SpecFetures/1810/Assets/Custom/DefaultEventPic_940x1330.jpg"

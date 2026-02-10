@@ -7,24 +7,22 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import { LibCheckBox, LibDropList, LibSelectCard, LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { DefaultLang, LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 import * as SchemaFields from "@/types/SchemaFields";
 import type { components } from "@/types/api";
-import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import { GetBannerListOpt, GetSiteMenuListOpt } from "@/Features/Hooks/BizFunc/Dashboard/SiteMenu/SiteInfo_Hook";
-import SiteMenuProvider from "@/Features/Hooks/BizFunc/Dashboard/SiteMenu/SiteInfo_Api";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { useSetJsonField, useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import "react-nestable/dist/styles/index.css";
-import { useCategoryListData } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
-import { useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
-import { usePageListData } from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Hook";
-import { useSpecCateListData } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Hook";
-import { useActions, useWrapAfter, type UseActionsResult } from "@/Features/Hooks/Common/useActions";
-import { SpecPGID } from "@/SpecFetures/1817/Hooks/Common/SpecProgId";
+import { type UseActionsResult } from "@/Features/Hooks/Common/useActions";
 import { SiteMenu_IndexInfoFields, SiteMenu_Item_ModuleFields, SiteMenu_Item_TitleFields, SiteMenu_Item_UrlFields, SiteMenu_ItemFields, SiteMenuSetFields } from "@/types/SchemaFields";
+import { SiteMenuAdapter } from "@/Features/Hooks/BizFunc/Dashboard/SiteMenu/SiteInfo_Api";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
+import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
+import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Api";
+import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
+import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
+import type { ModelDisplaySchema } from "@/types/IApiSchema";
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"]
 type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"]
 type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title_DTO"]
@@ -44,9 +42,9 @@ const emptyData: SiteMenuSet = {}
 
 interface ModuleOptionsJson {
   PageId: string;
-  Category: string; // "3,4,5"
-  Tag: string;      // "10,12"
-  Style: number;    // 1
+  Category: string;
+  Tag: string;
+  Style: number;
 }
 
 const moduleOptionsDefaults: ModuleOptionsJson = {
@@ -150,52 +148,202 @@ const siteMenuInfo = (data: SiteMenuSet, lang: Lang): Item[] => {
 
 export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
   const [selectedItemEdit, setSelectedItemEdit] = useState<Item | null>(null);
-  const provider = React.useMemo(() => SiteMenuProvider(), []);
-  const useSiteList = useFetchGridListData<SiteMenuSet>(GetSiteMenuListOpt());
-  const internalId = React.useMemo<string | null>(() => {
-    const first = (useSiteList.rawData ?? []).find(x => x?.SiteMenu_Index?.InternalId)?.SiteMenu_Index?.InternalId;
+  const adapter = useMemo(() => SiteMenuAdapter(), []);
+
+  const siteListRes = adapter.hooks.useQueryList({
+    condition: {
+      Fields: [SchemaFields.SiteMenu_IndexFields.InternalId],
+      PageNumber: 0,
+      PageSize: 50,
+    },
+    deps: [],
+  });
+
+  const internalId = useMemo<string | null>(() => {
+    const first = (siteListRes.data ?? []).find(x => x?.SiteMenu_Index?.InternalId)?.SiteMenu_Index?.InternalId;
     return first ?? null;
-  }, [useSiteList.rawData]);
-  const useSiteInfo = useFetchFormData<SiteMenuSet>(provider, internalId, emptyData)
+  }, [siteListRes.data]);
+
+  const queryRes = adapter.hooks.useQueryData({
+    internalId: internalId ?? "",
+    deps: [internalId ?? ""],
+  });
+
+  const [formData, setFormData] = useState<SiteMenuSet>(emptyData);
+
+
+  useEffect(() => {
+    if (!internalId) return;
+    setFormData(queryRes.data ?? emptyData);
+  }, [internalId, queryRes.data]);
+  const modelDisplayRes = adapter.hooks.useModelDisplayName({
+    deps: [],
+  });
+  const useSiteInfo: UseFetchFormDataResult<SiteMenuSet> = useMemo(() => {
+    const displayName = (modelDisplayRes.data ?? ({} as ModelDisplaySchema));
+
+    return {
+      // 宣告變數
+      data: formData,
+      displayName: displayName,
+
+      // ✅ 這裡直接用 React.Dispatch 型別（不再包 updater），型別就會完全對齊
+      setFormData: setFormData,
+
+      isLoading: Boolean(siteListRes.isLoading || queryRes.isLoading || modelDisplayRes.isLoading),
+
+      // UseFetchFormDataResult 要 string | null
+      error: queryRes.errorText ?? modelDisplayRes.errorText ?? null,
+
+      // refetch: () => void
+      refetch: () => {
+        void modelDisplayRes.refetch();
+        void queryRes.refetch();
+      },
+    };
+  }, [
+    formData,
+    siteListRes.isLoading,
+    queryRes.isLoading,
+    queryRes.errorText,
+    queryRes.refetch,
+    modelDisplayRes.data,
+    modelDisplayRes.isLoading,
+    modelDisplayRes.errorText,
+    modelDisplayRes.refetch,
+  ]);
+
+
+
+  // 宣告變數：CUD actions（取代 useActions）
+  const cud = adapter.hooks.useCudActions();
+
+  const onCancelBack = useCallback(() => {
+    void queryRes.refetch();
+    setSelectedItemEdit(null);
+  }, [useSiteInfo, setSelectedItemEdit]);
+
+  const actionsEx: UseActionsResult = useMemo(() => {
+    const onSave = async () => {
+      if (!internalId) return false;
+
+      // 執行 function：更新（SiteMenu 後台通常是更新既有 internalId）
+      const res = await cud.updateAsync(internalId, useSiteInfo.data);
+
+      // return：成功後重抓
+      if (res.IsSuccess) {
+        await queryRes.refetch();
+        return true;
+      }
+      return false;
+    };
+
+    return {
+      isExecuting: cud.isSaving,
+      onSave,
+      onCancelBack,
+      onAddNew: () => { },
+      onEdit: (_id: string) => { void _id; },
+      onDelete: async (_id: string) => { void _id; },
+      onInvalid: (_reason?: unknown) => { void _reason; },
+      onPreview: () => { },
+    } as UseActionsResult;
+  }, [cud, internalId, useSiteInfo, onCancelBack]);
+
+
   const windowTarget = useFetchEnumOptions("WindowTarget")
   const menuUrlType = useFetchEnumOptions("MenuUrlType")
   const modulePageType = useFetchEnumOptions("ModulePageType")
   const moduleDisplayStyle = useFetchEnumOptions("ModuleDisplayStyle")
-  const useCateList = useCategoryListData("", prop.lang)
-  const usetagList = useTagListData("", prop.lang)
-  const usePageList = usePageListData(prop.lang)
-  const useSpecCateDatas = useSpecCateListData("", prop.lang)
-  const actions = useActions("", provider, useSiteInfo.data as SiteMenuSet, internalId as string)
-  // ✅ 先在頂層定義 hook
-  const onCancelBack = useCallback(() => {
-    void useSiteInfo.refetch();
-    setSelectedItemEdit(null);
-  }, [useSiteInfo.refetch, setSelectedItemEdit]);
-  const actionsEx = React.useMemo(() => {
+
+
+  const categoryAdapter = useMemo(() => CategoryAdapter(), []);
+  const tagAdapter = useMemo(() => TagAdapter(), []);
+  const pageAdapter = useMemo(() => PageManagementAdapter(), []);
+
+  // 執行 function：queryList（Fields 可先不給，讓後端走預設；需要再補）
+  const cateRes = categoryAdapter.hooks.useQueryList({
+    condition: {
+      PageNumber: 0,
+      PageSize: 5000,
+      // Fields: [...],  // 真的需要再補（先保持最小變更）
+      // Condition: "IsValid = 1", // 如果你原 hook 有做有效篩選，再補這行
+    },
+    deps: [prop.lang],
+  });
+
+  const tagRes = tagAdapter.hooks.useQueryList({
+    condition: {
+      PageNumber: 0,
+      PageSize: 5000,
+    },
+    deps: [prop.lang],
+  });
+
+  const pageRes = pageAdapter.hooks.useQueryList({
+    condition: {
+      PageNumber: 0,
+      PageSize: 5000,
+    },
+    deps: [prop.lang],
+  });
+
+  // ✅ alias：維持你原本「useXxxList.rawData/isLoading/error」的用法
+  const useCateList = useMemo(() => {
     return {
-      ...actions,
-      onSave: useWrapAfter(actions.onSave, async (ok) => {
-        if (ok !== false) {
-          useSiteInfo.refetch();
-        }
-      }),
-      onCancelBack,   // 直接用上面那個 callback
+      rawData: cateRes.data ?? [],
+      isLoading: cateRes.isLoading,
+      error: cateRes.errorText ?? null,
     };
-  }, [actions, onCancelBack, useSiteInfo.refetch]);
-  const useBannerList = useFetchGridListData<BannerSet>(GetBannerListOpt());
-  const bannerDict = useMemo<Record<string, string>>(() => {
-    const src = useBannerList.rawData ?? [];
+  }, [cateRes.data, cateRes.isLoading, cateRes.errorText]);
+
+  const usetagList = useMemo(() => {
+    return {
+      rawData: tagRes.data ?? [],
+      isLoading: tagRes.isLoading,
+      error: tagRes.errorText ?? null,
+    };
+  }, [tagRes.data, tagRes.isLoading, tagRes.errorText]);
+
+  const usePageList = useMemo(() => {
+    return {
+      rawData: pageRes.data ?? [],
+      isLoading: pageRes.isLoading,
+      error: pageRes.errorText ?? null,
+    };
+  }, [pageRes.data, pageRes.isLoading, pageRes.errorText]);
+
+
+  const useSpecCateDatas = useSpecCateListData("", prop.lang)
+  // ✅ 先在頂層定義 hook
+  const bannerAdapter = useMemo(() => BannerSliderAdapter(), []);
+
+  const useBannerList = bannerAdapter.hooks.useQueryList({
+    condition: {
+      PageNumber: 0,
+      PageSize: 0,
+      // 若你確定後端 QueryListParam 需要 Fields，才打開下面兩行並補 SchemaFields.BannerFields.*
+      // Fields: [SchemaFields.BannerFields.BannerId, SchemaFields.BannerFields.BannerCategoryName],
+    },
+    deps: [],
+  }); const bannerDict = useMemo<Record<string, string>>(() => {
+
+    const src = useBannerList.data ?? [];
     return src.reduce<Record<string, string>>((acc, p) => {
       const key = p.Banner?.BannerId?.toString?.();
       if (!key) return acc;
       acc[key] = p.Banner?.BannerCategoryName ?? "";
       return acc;
     }, {}); // << 預設空白選項
-  }, [useBannerList.rawData]);
+  }, [useBannerList.data]);
   useEnsureLangDetails(useSiteInfo, { headerName: SiteMenuSetFields.SiteMenu_Index, detailName: SiteMenuSetFields.SiteMenu_IndexInfo, parentKeys: [SiteMenu_IndexInfoFields.SiteIndex], preferFirstLang: prop.lang });
   useEnsureLangDetails(useSiteInfo, { headerName: SiteMenuSetFields.SiteMenu_Item, detailName: SiteMenuSetFields.SiteMenu_Item_Title, parentKeys: [SiteMenu_Item_TitleFields.SiteIndex, SiteMenu_Item_TitleFields.ItemRowId], preferFirstLang: prop.lang });
-  const isLoading: any[] = [useSiteList.isLoading, useSiteInfo.isLoading, windowTarget.isLoading, menuUrlType.isLoading, modulePageType.isLoading, useBannerList.isLoading, useCateList.isLoading, usetagList.isLoading, usePageList.isLoading, useSpecCateDatas.isLoading]
-  const errors: any[] = [useSiteList.error, useSiteInfo.error, windowTarget.error, menuUrlType.error, modulePageType.error, useBannerList.error, useCateList.error, usetagList.error, usePageList.error, useSpecCateDatas.error]
+
+
+  const isLoading: any[] = [siteListRes.isLoading, windowTarget.isLoading, menuUrlType.isLoading, modulePageType.isLoading, useBannerList.isLoading, useCateList.isLoading, usetagList.isLoading, usePageList.isLoading, useSpecCateDatas.isLoading]
+  const errors: any[] = [siteListRes.errorText, windowTarget.error, menuUrlType.error, modulePageType.error, useBannerList.errorText, useCateList.error, usetagList.error, usePageList.error, useSpecCateDatas.error]
+
+
   const formProp: FormCompProp = { Title: "網站功能", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actionsEx }
   return (
     <FormComp prop={formProp}>
@@ -1040,7 +1188,7 @@ const Module_SpecMusical_Comp = (prop: {
     moduleOptionsDefaults
   );
   const catBind = binder.bind("Category", "string");
-  const cateDic = useCategoryDict(prop.categoryDatas, prop.lang, SpecPGID.SpecMusical)
+  const cateDic = useCategoryDict(prop.categoryDatas, prop.lang, SchemaFields.PGID.SpecMusical)
   return ([
     <LibDropList Style={prop.theme.DropList} ColumnDisplayName="類別" Options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} AutoDefaultFirst={false} />,
   ])

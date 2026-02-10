@@ -1,6 +1,4 @@
 /**預覽功能模組 */
-import { SubPageShell } from "@/SpecFetures/1810/Pages/Client/Scaffold/SubPages/SubPage";
-import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx";
 import { useEffect, useState } from "react";
 
 type ModuleKey = "announcement" | "pagemanagement"; // 先列你會用到的模組

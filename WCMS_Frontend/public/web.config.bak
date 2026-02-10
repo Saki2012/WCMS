@@ -1,81 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<configuration> 
-  <system.webServer> 
-    <rewrite> 
-      <rules> 
-        <rule name="ServiceProxy" stopProcessing="true"> 
-          <match url="^Service/(.*)"/>  
-          <conditions logicalGrouping="MatchAll" trackAllCaptures="false"/>  
-          <serverVariables> 
-            <set name="HTTP_X_FORWARDED_PROTO" value="https"/>  
-            <set name="HTTP_X_FORWARDED_HOST" value="{HTTP_HOST}"/> 
-          </serverVariables>  
-          <action type="Rewrite" url="http://127.0.0.1:XXXX/Service/{R:1}"/> 
-        </rule>  
-        <!-- 1) 先把 /Service/* 代理到本機 Kestrel -->  
-        <rule name="Proxy Service to Kestrel" stopProcessing="true"> 
-          <match url="^Service/(.*)"/>  
-          <action type="Rewrite" url="http://127.0.0.1:XXXX/{R:1}"/>  
-          <serverVariables> 
-            <!-- 轉給後端的協定/主機，方便它產生正確的絕對網址 -->  
-            <set name="HTTP_X_FORWARDED_PROTO" value="https"/>  
-            <set name="HTTP_X_FORWARDED_HOST" value="{HTTP_HOST}"/> 
-          </serverVariables> 
-        </rule>  
-        <!-- 2) 其餘走 SPA：讓前端路由接手 -->  
-        <rule name="SPA Redirect" stopProcessing="true"> 
-          <match url=".*"/>  
-          <conditions logicalGrouping="MatchAll"> 
-            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true"/>  
-            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true"/> 
-          </conditions>  
-          <action type="Rewrite" url="/index.html"/> 
-        </rule> 
-      </rules> 
-    </rewrite> 
-	
-    <proxy reverseProxy="true"/>  
-	
-    <defaultDocument> 
-      <files> 
-        <clear/>  
-        <add value="index.html"/> 
-      </files> 
-    </defaultDocument>  
-	
-    <httpProtocol> 
-      <customHeaders> 
-        <!-- Anti-clickjacking -->  
-        <add name="X-Frame-Options" value="SAMEORIGIN"/>  
-        <!-- 基本安全 -->  
-        <add name="X-Content-Type-Options" value="nosniff"/>  
-        <add name="Referrer-Policy" value="strict-origin-when-cross-origin"/>  
-        <add name="Permissions-Policy" value="geolocation=(), microphone=(), camera=(), fullscreen=(self)"/>  
-        <!-- 若確定前端站只走 HTTPS，再開 HSTS；目前不確定的話可以先註解掉
-        <add name="Strict-Transport-Security" value="max-age=31536000" />
-        -->  
-        <!-- CSP：偏寬鬆版本，避免擋掉編輯器 iframe -->  
-        <add name="Content-Security-Policy"
-     value="default-src 'self';
-            script-src 'self';
-            style-src 'self' https://fonts.googleapis.com;
-            style-src-elem 'self' https://fonts.googleapis.com;
-            img-src 'self' data: blob:;
-            font-src 'self' data: https://fonts.gstatic.com;
-            connect-src 'self';
-            frame-ancestors 'self';
-            frame-src 'self'
-                https://calendar.google.com
-                https://www.google.com
-                https://www.youtube.com
-                https://www.youtube-nocookie.com
-                https://w.soundcloud.com;
-            object-src 'none';
-            base-uri 'self';
-            form-action 'self';" />
+<configuration>
+  <system.webServer>
 
-      </customHeaders> 
-    </httpProtocol> 
+    <!-- ARR Reverse Proxy -->
+    <proxy reverseProxy="true" />
+
+    <rewrite>
+      <!-- 如果你要 set serverVariables，IIS 通常需要允許清單 -->
+      <allowedServerVariables>
+        <add name="HTTP_X_FORWARDED_PROTO" />
+        <add name="HTTP_X_FORWARDED_HOST" />
+        <add name="HTTP_X_FORWARDED_FOR" />
+      </allowedServerVariables>
+
+      <rules>
+        <!-- 0) 靜態資源：檔案/資料夾存在就直接讓 IIS 回，不要進 proxy -->
+        <rule name="Static assets passthrough" stopProcessing="true">
+          <match url=".*" />
+          <conditions logicalGrouping="MatchAny">
+            <add input="{REQUEST_FILENAME}" matchType="IsFile" />
+            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" />
+          </conditions>
+          <action type="None" />
+        </rule>
+
+        <!-- 1) 其餘全部代理到 Node SSR（包含 /Service） -->
+        <rule name="Proxy to Node SSR" stopProcessing="true">
+          <match url="(.*)" />
+          <serverVariables>
+            <!-- 轉給 Node SSR 的 forwarded headers（讓 SSR 能算出外部 origin） -->
+            <set name="HTTP_X_FORWARDED_PROTO" value="https" />
+            <set name="HTTP_X_FORWARDED_HOST" value="{HTTP_HOST}" />
+            <set name="HTTP_X_FORWARDED_FOR" value="{REMOTE_ADDR}" />
+          </serverVariables>
+          <action type="Rewrite" url="http://127.0.0.1:XXXX/{R:1}" />
+        </rule>
+      </rules>
+    </rewrite>
+
+    <!-- 預設文件（實際上 SSR 會接管，但保留不傷） -->
+    <defaultDocument>
+      <files>
+        <clear />
+        <add value="index.html" />
+      </files>
+    </defaultDocument>
+
+    <!-- 安全相關 Header（沿用你原本的） -->
+    <httpProtocol>
+      <customHeaders>
+        <add name="X-Frame-Options" value="SAMEORIGIN" />
+        <add name="X-Content-Type-Options" value="nosniff" />
+        <add name="Referrer-Policy" value="strict-origin-when-cross-origin" />
+        <add name="Permissions-Policy" value="geolocation=(), microphone=(), camera=(), fullscreen=(self)" />
+
+        <!-- 若確定站台只走 HTTPS 再開，否則先留註解
+        <add name="Strict-Transport-Security" value="max-age=31536000" />
+        -->
+
+        <!-- CSP：先保留你原本的版本（後續 SSR 穩定後再收斂） -->
+        <add name="Content-Security-Policy"
+             value="default-src 'self';
+                    script-src 'self';
+                    style-src 'self' https://fonts.googleapis.com;
+                    style-src-elem 'self' https://fonts.googleapis.com;
+                    img-src 'self' data: blob:;
+                    font-src 'self' data: https://fonts.gstatic.com;
+                    connect-src 'self';
+                    frame-ancestors 'self';
+                    frame-src 'self'
+                        https://calendar.google.com
+                        https://www.google.com
+                        https://www.youtube.com
+                        https://www.youtube-nocookie.com
+                        https://w.soundcloud.com;
+                    object-src 'none';
+                    base-uri 'self';
+                    form-action 'self';" />
+      </customHeaders>
+    </httpProtocol>
 	
-  </system.webServer> 
+	<!-- MIME 類型（建議加） -->
+	<staticContent>
+		<remove fileExtension=".json" />
+		<mimeMap fileExtension=".json" mimeType="application/json" />
+		<clientCache cacheControlMode="UseMaxAge" cacheControlMaxAge="7.00:00:00" />
+	</staticContent>
+
+
+  </system.webServer>
 </configuration>

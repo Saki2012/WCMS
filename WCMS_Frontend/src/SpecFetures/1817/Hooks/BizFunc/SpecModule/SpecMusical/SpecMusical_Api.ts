@@ -1,93 +1,18 @@
-import { IApiProvider, IDataProvider } from "@/SysCore/Interface/IApiProvider";
-import type { ApiResponse } from "@/SysCore/Interface/IApiProvider";
-import { BaseApiService } from "@/SysCore/Utils/API/APIClient";
+import { ApiDataAdapter } from "@/SysCore/Utils/API/APIAdapter";
+import { ApiDataService } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
-import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { SpecPGID } from "../../../Common/SpecProgId";
-
+import { PGID } from "@/types/SchemaFields";
+import type { AxiosInstance } from "axios";
 type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
-type QueryListParam = components["schemas"]["QueryListParam"];
 
-abstract class ISpecMusicalProvider extends IDataProvider<SpecMusicalSet>
-{}
-class MockProvider extends ISpecMusicalProvider
+class SpecMusicalService extends ApiDataService<SpecMusicalSet>
 {
-    protected doFetchListCount(condition?: QueryListParam): Promise<ApiResponse<number>>
+    constructor(apiInstance?: AxiosInstance)
     {
-        throw new Error("Method not implemented.");
-    }
-    protected async doCreateData(set: SpecMusicalSet): Promise<ApiResponse<SpecMusicalSet>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doUpdateData(internaId: string, set: SpecMusicalSet): Promise<ApiResponse<SpecMusicalSet>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doDelete(internaId: string): Promise<ApiResponse<SpecMusicalSet>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doInvalid(internaId: string, isInvalid: boolean): Promise<ApiResponse<SpecMusicalSet>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doFetchData(internaId?: string): Promise<ApiResponse<SpecMusicalSet>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doFetchList(condition: QueryListParam): Promise<ApiResponse<SpecMusicalSet[]>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected doGetModelDisplayName(): Promise<ModelDisplaySchema>
-    {
-        throw new Error("Method not implemented.");
+        super(PGID.SpecMusical, apiInstance);
     }
 }
-class APIProvider extends ISpecMusicalProvider
-{
-    private readonly API = new BaseApiService<SpecMusicalSet>(SpecPGID.SpecMusical);
-    protected async doCreateData(set: SpecMusicalSet): Promise<ApiResponse<SpecMusicalSet>>
-    {
-        const res = await this.API.create(set);
-        return res.data;
-    }
-    protected async doUpdateData(internaId: string, set: SpecMusicalSet): Promise<ApiResponse<SpecMusicalSet>>
-    {
-        const res = await this.API.update(internaId, set);
-        return res.data;
-    }
-    protected async doDelete(internaId: string): Promise<ApiResponse<SpecMusicalSet>>
-    {
-        const res = await this.API.delete(internaId);
-        return res.data;
-    }
-    protected async doInvalid(internaId: string, isInvalid: boolean): Promise<ApiResponse<SpecMusicalSet>>
-    {
-        const res = await this.API.invalid(internaId, isInvalid);
-        return res.data;
-    }
-    protected async doFetchData(internaId: string): Promise<ApiResponse<SpecMusicalSet>>
-    {
-        const res = await this.API.queryData(internaId);
-        return res.data;
-    }
-    protected async doFetchList(condition: QueryListParam): Promise<ApiResponse<SpecMusicalSet[]>>
-    {
-        const res = await this.API.queryList(condition);
-        return res.data;
-    }
-    protected async doFetchListCount(condition: QueryListParam): Promise<ApiResponse<number>>
-    {
-        const res = await this.API.queryCount(condition);
-        return res.data;
-    }
-    protected async doGetModelDisplayName(): Promise<ModelDisplaySchema>
-    {
-        const res = await this.API.getModelDisplayName();
-        return res;
-    }
-}
-const SpecMusicalProvider = (): ISpecMusicalProvider => IApiProvider<ISpecMusicalProvider>(APIProvider, MockProvider);
-export default SpecMusicalProvider;
+export const SpecMusicalAdapter = (apiInstance?: AxiosInstance) =>
+    new ApiDataAdapter<SpecMusicalSet, SpecMusicalService>((api?: AxiosInstance) =>
+        new SpecMusicalService(api ?? apiInstance)
+    );

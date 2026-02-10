@@ -3,7 +3,7 @@ import type { components } from "@/types/api";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { BannerDetailFields, BannerFields, SpecJournalIndexDetailFields, SpecJournalIndexModelFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
-import SpecJournalIndexProvider from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecMusical/SpecJournalIndex_Api";
+import SpecJournalIndexProvider from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournalIndex_Api";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";

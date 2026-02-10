@@ -1,29 +1,48 @@
-import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
-import { useBannerListData } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Hook";
-import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
-import type { components } from "@/types/api";
+import { useBannerSetByCondition } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Hook";
 import { useEffect, useMemo, useRef } from "react";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { type Lang } from "@/SysCore/i18n/lang";
 import { IndexLabel } from "@/SpecFetures/1818/Pages/Client//Index/Section/IndexLabelText";
 import { BannerFields } from "@/types/SchemaFields";
-type BannerSet = components["schemas"]["BannerSet_DTO"]
-
 
 export const LinkData = (props: { lang?: Lang }) => {
-	const usebannerList = useBannerListData(`${BannerFields.BannerId} = Banner20251119001`)
-	const bannerInternal = usebannerList.rawData?.[0]?.Banner?.InternalId ?? ""
-	const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), bannerInternal, {})
+	// 宣告變數
+	const useBanner = useBannerSetByCondition({ condition: `${BannerFields.BannerId} = Banner20251119001` });
+
 	const sortedDetails = useMemo(() => {
 		const list = useBanner.data?.BannerDetail ?? [];
-		// 依 Detail.Sort 由小到大
 		return [...list].sort((a, b) => {
 			const as = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
 			const bs = Number.isFinite(b?.Sort) ? Number(b.Sort) : Number.MAX_SAFE_INTEGER;
-			// 次排序：RowId，確保順序穩定
-			return as - bs || (a.RowId ?? 0) - (b.RowId ?? 0);
+			if (as !== bs) return as - bs;
+			const ar = Number.isFinite(a?.RowId) ? Number(a.RowId) : Number.MAX_SAFE_INTEGER;
+			const br = Number.isFinite(b?.RowId) ? Number(b.RowId) : Number.MAX_SAFE_INTEGER;
+			return ar - br;
 		});
 	}, [useBanner.data?.BannerDetail]);
+
+	const imgMapRef = useRef<Record<string, string>>({});
+
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+		if (!sortedDetails.length) return;
+
+		const run = async () => {
+			const tasks = sortedDetails.map(async (d) => {
+				const id = d?.PicSrcId ?? "";
+				if (!id) return { id, url: "" };
+				const url = `${FileManagementAPI.PREVIEW_URL}/${id}`;
+				return { id, url };
+			});
+
+			const res = await Promise.all(tasks);
+			const map: Record<string, string> = {};
+			res.forEach(x => { if (x.id) map[x.id] = x.url; });
+			imgMapRef.current = map;
+		};
+
+		run();
+	}, [sortedDetails.length]);
 	const { carouselRef, pauseRef, startRef } = useLinksCarousel(sortedDetails);
 
 	return (
@@ -37,52 +56,93 @@ export const LinkData = (props: { lang?: Lang }) => {
 									<span className="headDiv-txt tw">{IndexLabel(props.lang).LinkDataTitle}</span>
 								</div>
 							</div>
+
 							<div className="col-12">
 								<div className="content-box px-0 mb-5">
-									<div className="owl-carousel owl-theme" id="Links_owl_carousel" ref={carouselRef}>
-
+									<div
+										className="owl-carousel owl-theme"
+										id="Links_owl_carousel"
+										ref={carouselRef}
+									>
 										{sortedDetails.map((p, i) => {
-											const info = useBanner.data?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang)
-											const alt = info?.Title ?? ""
-											const url = info?.URL ?? ""
-											const urlopen = info?.URL_Open ?? ""
+											const info = useBanner.data?.BannerDetailInfo?.find(
+												x =>
+													x.BannerId === p.BannerId &&
+													x.ParentRowId === p.RowId &&
+													x.Lang === (props.lang ?? "zh-tw"),
+											);
+
+											const alt = info?.Title ?? "";
+											const url = info?.URL ?? "";
+											const open = info?.URL_Open ?? 0;
+
 											return (
-												<div key={i} className="item" >
-													<a href={url} tabIndex={0} target={(urlopen === 1 ? "_blank" : "_self")} title={alt}>
+												<div key={i} className="item">
+													<a
+														href={url}
+														tabIndex={0}
+														target={open === 1 ? "_blank" : "_self"}
+														rel={open === 1 ? "noreferrer" : undefined}
+														title={alt}
+													>
 														<div className="wrapper_box">
 															<div className="Qlink-item">
 																<div className="Content_Div">
 																	<div className="box_content">
-																		<div className="tit-text">
-																			{alt}
-																		</div>
+																		<div className="tit-text">{alt}</div>
 																	</div>
 																</div>
+
 																<div className="Img_Div w-100">
 																	<div className="Qlinkimg-outer">
-																		<img alt={alt} src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} />
+																		<img
+																			alt={alt}
+																			src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId ?? ""}`}
+																		/>
 																	</div>
 																</div>
 															</div>
 														</div>
 													</a>
 												</div>
-											)
+											);
 										})}
-
 									</div>
+
 									<div className="DIV-Box">
 										<div className="control-box">
-											<a aria-label="開始播放圖片輪播" aria-pressed="false" className="play me-1" href="#" onClick={(e) => { e.preventDefault(); }}
-												data-bs-target="#carousel-Controls" id="Links_start" tabIndex={0} title="播放" ref={startRef}>
+											<a
+												aria-label="開始播放圖片輪播"
+												aria-pressed="false"
+												className="play me-1"
+												href="#"
+												onClick={(e) => { e.preventDefault(); }}
+												data-bs-target="#carousel-Controls"
+												id="Links_start"
+												tabIndex={0}
+												title="播放"
+												ref={startRef}
+											>
 												<div id="cycleCarousel" className="contrl_start">
 													<span className="control-start-icon">
 														<span className="sr-only">開始播放圖片輪播</span>
 													</span>
 												</div>
 											</a>
-											<a aria-label="暫停圖片輪播" aria-pressed="true" className="stop ms-1" href="#" onClick={(e) => { e.preventDefault(); }}
-												data-bs-target="#carousel-Controls" id="Links_pause" tabIndex={0} title="暫停" type="button" ref={pauseRef}>
+
+											<a
+												aria-label="暫停圖片輪播"
+												aria-pressed="true"
+												className="stop ms-1"
+												href="#"
+												onClick={(e) => { e.preventDefault(); }}
+												data-bs-target="#carousel-Controls"
+												id="Links_pause"
+												tabIndex={0}
+												title="暫停"
+												type="button"
+												ref={pauseRef}
+											>
 												<div id="pauseCarousel" className="contrl_pause">
 													<span className="control-pause-icon">
 														<span className="sr-only">暫停圖片輪播</span>
@@ -91,8 +151,10 @@ export const LinkData = (props: { lang?: Lang }) => {
 											</a>
 										</div>
 									</div>
+
 								</div>
 							</div>
+
 						</div>
 					</div>
 				</div>
@@ -100,7 +162,6 @@ export const LinkData = (props: { lang?: Lang }) => {
 		</section>
 	);
 };
-
 
 const ensureJQuery = (() => {
 	let p: Promise<any> | null = null;

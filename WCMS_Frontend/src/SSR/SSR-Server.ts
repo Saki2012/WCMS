@@ -1,35 +1,98 @@
-// ---- SSR-Server.ts（只用 const；Dev/Prod 各自包成一個 const） ----
+// src/SSR/SSR-Server.ts
+// SSR Server for Vite (dev middleware) + Express (prod static) + API proxy
+import "dotenv/config";
 import compression from "compression";
 import express, { type NextFunction, type Request, type Response } from "express";
-import { createProxyMiddleware } from "http-proxy-middleware"; // 需要就打開
+import { createProxyMiddleware } from "http-proxy-middleware";
+import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import https from "node:https";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import serveStatic from "serve-static";
 
-// 基本參數
-const PORT = Number(import.meta.env.PORT ?? 5174);
-const isProd = import.meta.env.NODE_ENV === "production";
-if (!isProd) process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-// 需排除進 SSR 的固定前綴（你的 public 內資料夾）
-const STATIC_PREFIXES = ["/tinymce", "/tinymce-i18n", "/.well-known/", "/@vite", "/vite"] as const;
+type SsrConfig = Readonly<{
+    port: number;
+    isProd: boolean;
+    apiTarget: string; // 後端 origin，例如 https://localhost:7030
+}>;
 
-// 判斷「這個請求是否該進 SSR」
-const shouldSSR = (req: Request): boolean =>
+// 讀 env 並整理成 config
+const getConfig = (): SsrConfig =>
 {
-    if (req.method !== "GET") return false;
-    if (/\.[a-zA-Z0-9]+$/.test(req.path)) return false; // 有副檔名 => 靜態資源
-    if (STATIC_PREFIXES.some((p) => req.path.startsWith(p))) return false; // 固定前綴 => 靜態/其他中介
-    const accept = String(req.headers.accept || "");
-    if (!accept.includes("text/html")) return false; // 只處理要 HTML 的請求
-    return true;
+    const nodeEnv = String(process.env.NODE_ENV || "development");
+    const isProd = nodeEnv === "production";
+    const port = Number(process.env.SSR_PORT || process.env.PORT || 5174);
+    const apiTarget = String(process.env.SSR_API_TARGET || "https://localhost:7030").replace(/\/+$/, "");
+    // dev 自簽憑證避免 axios/https 失敗（僅 dev）
+    if (!isProd) process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+    return { port, isProd, apiTarget };
 };
 
-// 把 SSR_Render 的結果統一成可注入模板的 payload
+// 判斷是否要進 SSR（避免靜態資源/代理被 SSR 吃掉）
+const shouldSSR = (req: Request): boolean =>
+{
+    // 宣告變數
+    const accept = String(req.headers.accept || "");
+
+    // 執行 function
+    if (req.method !== "GET") return false;
+    if (!accept.includes("text/html")) return false;
+    if (req.path.startsWith("/Service")) return false;
+    if (req.path.startsWith("/@vite")) return false;
+    if (req.path.startsWith("/vite")) return false;
+    if (req.path.startsWith("/tinymce")) return false;
+    if (req.path.startsWith("/tinymce-i18n")) return false;
+    if (req.path.startsWith("/.well-known/")) return false;
+    if (/\.[a-zA-Z0-9]+$/.test(req.path)) return false; // 有副檔名 => 靜態資源
+
+    // return
+    return true;
+};
+// 讀取 TS 檔內的 css import，轉成 href 清單（dev 用）
+const readCssImportHrefs = async (absTsFilePath: string, devPublicBase: string): Promise<string[]> =>
+{
+    // 宣告變數
+    const text = await fs.readFile(absTsFilePath, "utf-8");
+    const re = /^\s*import\s+["'](.+?)["'];\s*$/gm;
+    const hrefs: string[] = [];
+
+    // 執行 function
+    for (const m of text.matchAll(re))
+    {
+        const p = String(m[1] || "");
+        if (!p.endsWith(".css")) continue;
+        const rel = p.replace(/^\.\//, ""); // "./Client/xx.css" -> "Client/xx.css"
+        hrefs.push(`${devPublicBase}/${rel}`.replace(/\/{2,}/g, "/"));
+    }
+
+    // return
+    return hrefs;
+};
+
+const injectCssLinksToHead = (html: string, hrefs: string[]): string =>
+{
+    // 宣告變數
+    const links = hrefs
+        .map(h => `<link rel="stylesheet" href="${h}">`)
+        .join("");
+
+    // 執行 function
+    if (!links) return html;
+    const out = html.replace("</head>", `${links}</head>`);
+
+    // return
+    return out;
+};
+
+// 讓 SSR_Render 回傳的東西統一成 payload
 const toPayload = (result: any) =>
 {
-    if (!result) return { appHtml: "", headTags: "", initialState: undefined };
+    // 宣告變數
+    const empty = { appHtml: "", headTags: "", initialState: undefined as any };
+
+    // 執行 function
+    if (!result) return empty;
     if (result.kind === "html") return result;
     return {
         appHtml: result.appHtml ?? "",
@@ -38,16 +101,95 @@ const toPayload = (result: any) =>
     };
 };
 
-// Dev：Vite 中介 + public 靜態 + SSR（transformIndexHtml + ssrLoadModule）
-const setupDevSSR = async (app: express.Express) =>
+// 把 initial state 注入到模板
+const injectInitialState = (html: string, initialState: unknown, nonce: string): string =>
 {
+    // 宣告變數
+    const stateScript = initialState
+        ? `<script nonce="${nonce}">window.__INITIAL_STATE__=${
+            JSON.stringify(initialState).replace(/</g, "\\u003c")
+        };</script>`
+        : "";
+
+    // 執行 function
+    const out = html.replace("<!--initial-state-->", stateScript);
+
+    // return
+    return out;
+};
+
+// Prod：把模板裡所有 <script ...> 都補上 nonce（避免 CSP 擋住）
+const addNonceToAllScripts = (html: string, nonce: string): string =>
+{
+    // 宣告變數
+    const re = /<script\b(?![^>]*\bnonce=)([^>]*)>/gi;
+
+    // 執行 function
+    const out = html.replace(re, `<script nonce="${nonce}"$1>`);
+
+    // return
+    return out;
+};
+
+// 組 SSR HTML（dev/prod 共用）
+const buildHtml = (
+    template: string,
+    payload: { appHtml: string; headTags?: string; initialState?: unknown; },
+    nonce: string,
+    isProd: boolean,
+): string =>
+{
+    // 宣告變數
+    let html = template;
+
+    // 執行 function
+    html = html.replace("<!--app-head-->", payload.headTags ?? "");
+    html = html.replace("<!--app-html-->", payload.appHtml ?? "");
+    html = injectInitialState(html, payload.initialState, nonce);
+
+    // prod 才需要 nonce + CSP（dev 先不要擋 vite scripts）
+    if (isProd)
+    {
+        html = addNonceToAllScripts(html, nonce);
+    }
+
+    // return
+    return html;
+};
+
+// SSR Render（dev/prod 共用呼叫 Entry-Server）
+const renderByEntry = async (
+    SSR_Render: (url: string, headers?: Record<string, string>) => Promise<any>,
+    req: Request,
+) =>
+{
+    // 宣告變數
+    const url = req.originalUrl || req.url || "/";
+    const headers: Record<string, string> = {
+        "accept-language": String(req.headers["accept-language"] || ""),
+        cookie: String(req.headers.cookie || ""),
+    };
+
+    // 執行 function
+    const result = await SSR_Render(url, headers);
+
+    // return
+    return result;
+};
+
+// Dev SSR：Vite middleware + transformIndexHtml + ssrLoadModule
+const setupDevSSR = async (app: express.Express, cfg: SsrConfig) =>
+{
+    // 宣告變數
     const vite = await (await import("vite")).createServer({
         server: { middlewareMode: true },
         appType: "custom",
     });
+
+    // 執行 function
     app.use(vite.middlewares);
 
-    // public/ 靜態（確保 /Legacy、/tinymce… 不被 SSR 攔到）
+    // public 靜態（確保 tinymce 等不被 SSR 攔到）
     app.use(
         serveStatic(path.resolve(process.cwd(), "public"), {
             index: false,
@@ -56,78 +198,79 @@ const setupDevSSR = async (app: express.Express) =>
         }),
     );
 
-    // SSR catch-all（只有 shouldSSR 才進來）
-    const devSSRMiddleware = async (req: Request, res: Response, next: NextFunction) =>
+    // SSR middleware
+    app.use(async (req: Request, res: Response, next: NextFunction) =>
     {
+        // 宣告變數
+        const nonce = crypto.randomUUID();
+
+        // 執行 function
         if (!shouldSSR(req)) return next();
+
         try
         {
-            const url = req.originalUrl || req.url || "/";
+            // ✅ SSR 打 API 用後端 origin（避免打到自己 5174）
+            process.env.SSR_API_ORIGIN = cfg.apiTarget;
 
-            // 讀模板並讓 Vite 注入 HMR/資產
+            const url = req.originalUrl || req.url || "/";
             let template = await fs.readFile(path.resolve(process.cwd(), "index.html"), "utf-8");
             template = await vite.transformIndexHtml(url, template);
+            // 宣告變數
+            const spec = String(process.env.VITE_SPEC_CODE || "1819");
+            const isServer = String(req.path || "").toLowerCase().startsWith("/server");
 
-            // 載入 server entry 並執行
-            const mod = await vite.ssrLoadModule("/src/SSR/Entry-Server.tsx");
-            const { SSR_Render } = mod as { SSR_Render: (u: string, h?: Record<string, string>) => Promise<any>; };
-
-            const result = await SSR_Render(url, {
-                "accept-language": String(req.headers["accept-language"] || ""),
-                cookie: String(req.headers.cookie || ""),
-            });
-
-            // 處理 loader redirect / error（React Router 會回 Response）
-            if (result?.kind === "response" || result instanceof Response)
+            // 執行 function
+            if (isServer)
             {
-                const r: Response | globalThis.Response = result.response ?? result;
-                const status = r.status as number;
-                if (status >= 300 && status < 400)
-                {
-                    const loc = r.headers.get("Location") || "/";
-                    return res.redirect(status, loc);
-                }
-                const body = await (r as any).text?.().catch(() => "")!;
-                return res.status((r as any).status || 500).send(body || "SSR Error");
-            }
-
-            const { appHtml, headTags, initialState } = toPayload(result);
-
-            const nonce = crypto.randomUUID().toString();
-            const html = template
-                .replace("<!--app-head-->", headTags ?? "")
-                .replace("<!--app-html-->", appHtml ?? "")
-                .replace(
-                    "<!--initial-state-->",
-                    initialState
-                        ? `<script nonce="${nonce}">window.__INITIAL_STATE__=${
-                            JSON.stringify(initialState).replace(/</g, "\\u003c")
-                        }</script>`
-                        : "",
+                // 後台：Features + Spec(Server)
+                const featuresCssTs = path.resolve(process.cwd(), "src/Features/Assets/LoadFeaturesCss.ts");
+                const specServerCssTs = path.resolve(
+                    process.cwd(),
+                    `src/SpecFetures/${spec}/Assets/LoadSpecCss_Server.ts`,
                 );
 
-            res.status(200).set("Content-Type", "text/html").set(
-                "Content-Security-Policy",
-                `script-src 'self' 'nonce-${nonce}'`,
-            ).end(html);
+                const fHrefs = await readCssImportHrefs(featuresCssTs, "/src/Features/Assets");
+                const sHrefs = await readCssImportHrefs(specServerCssTs, `/src/SpecFetures/${spec}/Assets`);
+
+                template = injectCssLinksToHead(template, [...fHrefs, ...sHrefs]);
+            } else
+            {
+                // 前台：Spec(Client)
+                const specCssTs = path.resolve(process.cwd(), `src/SpecFetures/${spec}/Assets/LoadSpecCss.ts`);
+                const hrefs = await readCssImportHrefs(specCssTs, `/src/SpecFetures/${spec}/Assets`);
+
+                template = injectCssLinksToHead(template, hrefs);
+            }
+            const mod = await vite.ssrLoadModule("/src/SSR/Entry-Server.tsx");
+            const SSR_Render = (mod as any).SSR_Render as ((u: string, h?: Record<string, string>) => Promise<any>);
+
+            const result = await renderByEntry(SSR_Render, req);
+
+            const payload = toPayload(result);
+            const html = buildHtml(template, payload, nonce, false);
+
+            // ✅ dev 先不要送 CSP（不然 /@vite/client 沒 nonce 會被擋）
+            res.status(200).set("Content-Type", "text/html").end(html);
         } catch (e)
         {
             vite.ssrFixStacktrace?.(e as Error);
             next(e);
         }
-    };
-
-    app.use(devSSRMiddleware);
+    });
 };
 
-// Prod：整個 dist/client 做靜態根 + SSR（讀 dist/client/index.html + 伺服端 bundle）
-const setupProdSSR = async (app: express.Express) =>
+// Prod SSR：dist/client 靜態 + dist/server/entry-server.js
+const setupProdSSR = async (app: express.Express, cfg: SsrConfig) =>
 {
+    // 宣告變數
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    const clientRoot = path.resolve(__dirname, "../../dist/client");
+    const serverEntryPath = "../../dist/server/entry-server.js";
+    const indexPath = path.resolve(clientRoot, "index.html");
 
-    // dist/client（含 public 複製過來的內容）整個當靜態根
+    // 執行 function
     app.use(
-        serveStatic(path.resolve(__dirname, "../../dist/client"), {
+        serveStatic(clientRoot, {
             index: false,
             maxAge: "1y",
             immutable: true,
@@ -135,108 +278,84 @@ const setupProdSSR = async (app: express.Express) =>
         }),
     );
 
-    // 你若已經另外掛 /assets 也無妨；這裡保留可更細緻快取
-    app.use(
-        "/assets",
-        serveStatic(path.resolve(__dirname, "../../dist/client/assets"), {
-            index: false,
-            maxAge: "1y",
-            immutable: true,
-            fallthrough: true,
-        }),
-    );
-
-    // SSR catch-all（只有 shouldSSR 才進來）
-    const prodSSRMiddleware = async (req: Request, res: Response, next: NextFunction) =>
+    app.use(async (req: Request, res: Response, next: NextFunction) =>
     {
+        // 宣告變數
+        const nonce = crypto.randomUUID();
+
+        // 執行 function
         if (!shouldSSR(req)) return next();
+
         try
         {
-            const url = req.originalUrl || req.url || "/";
+            process.env.SSR_API_ORIGIN = cfg.apiTarget;
 
-            // 載入 server bundle（若你的匯出名稱不同，改這行）
-            const entry = await import("../../dist/server/entry-server.js").catch(() => ({} as any));
-            const SSR_Render = (entry as any).SSR_Render ?? (entry as any).render ?? null;
+            const entry = await import(serverEntryPath);
+            const SSR_Render = (entry as any).SSR_Render ?? (entry as any).render;
 
             if (!SSR_Render)
             {
-                return res.status(500).send("SSR bundle not found or has no export SSR_Render/render");
+                res.status(500).send("SSR bundle has no SSR_Render/render export");
+                return;
             }
 
-            const result = await SSR_Render(url, {
-                "accept-language": String(req.headers["accept-language"] || ""),
-                cookie: String(req.headers.cookie || ""),
-            });
+            const result = await renderByEntry(SSR_Render, req);
+            const payload = toPayload(result);
 
-            // 處理 loader redirect / error
-            if (result?.kind === "response" || result instanceof Response)
-            {
-                const r: Response | globalThis.Response = result.response ?? result;
-                const status = r.status as number;
-                if (status >= 300 && status < 400)
-                {
-                    const loc = r.headers.get("Location") || "/";
-                    return res.redirect(status, loc);
-                }
-                const body = await (r as any).text?.().catch(() => "")!;
-                return res.status((r as any).status || 500).send(body || "SSR Error");
-            }
+            const template = await fs.readFile(indexPath, "utf-8");
+            const html = buildHtml(template, payload, nonce, true);
 
-            // 讀 dist 的 index.html 當模板
-            const templatePath = path.resolve(__dirname, "../../dist/client/index.html");
-            let template = await fs.readFile(templatePath, "utf-8");
-
-            const { appHtml, headTags, initialState } = toPayload(result);
-            const nonce = crypto.randomUUID().toString();
-            const html = template
-                .replace("<!--app-head-->", headTags ?? "")
-                .replace("<!--app-html-->", appHtml ?? "")
-                .replace(
-                    "<!--initial-state-->",
-                    initialState
-                        ? `<script  nonce="${nonce}>window.__INITIAL_STATE__=${
-                            JSON.stringify(initialState).replace(/</g, "\\u003c")
-                        }</script>`
-                        : "",
-                );
-
-            res.status(200).set("Content-Type", "text/html").set(
-                "Content-Security-Policy",
-                `script-src 'self' 'nonce-${nonce}'`,
-            ).end(html);
+            // CSP（prod 才啟用）
+            res.status(200)
+                .set("Content-Type", "text/html")
+                .set("Content-Security-Policy", `script-src 'self' 'nonce-${nonce}'`)
+                .end(html);
         } catch (e)
         {
             next(e);
         }
-    };
-
-    app.use(prodSSRMiddleware);
+    });
 };
 
-// ---- 啟動（可保持你原本的 API 代理、其他中介件順序） ----
-const start = async () =>
+// API Proxy：/Service -> cfg.apiTarget（後端）
+const setupApiProxy = (app: express.Express, cfg: SsrConfig) =>
 {
-    const app = express();
-    app.use(compression());
-
-    const serviceProxyOptions = {
-        target: "https://localhost:7030",
+    // 宣告變數
+    const options = {
+        target: cfg.apiTarget,
         changeOrigin: true,
-        secure: false, // 自簽憑證 (dev)
-        // xfwd: true,
+        secure: false, // dev 自簽（prod 可改 true）
         agent: new https.Agent({ rejectUnauthorized: false }),
-        logLevel: "debug",
-        // pathRewrite: { "^/Service": "" }, // ★ 把 /Service 移除後再轉發給後端
+        logLevel: "warn",
+        // ✅ 因為 app.use("/Service", ...) 會把 /Service 剝掉，所以要加回去
+        pathRewrite: (path: string) => `/Service${path}`,
+        onProxyReq: (_proxyReq: any, req: Request) =>
+        {
+            // 簡短 log：確認實際送出去的 path（方便你驗證）
+            console.log(`[SSR][proxy-hit] ${req.method} ${req.originalUrl}`);
+        },
     } as const;
 
-    // 例：API 代理（需要就打開）
-    app.use("/Service", createProxyMiddleware(serviceProxyOptions));
-    if (!isProd)
+    // 執行 function
+    app.use("/Service", createProxyMiddleware(options));
+};
+// 啟動
+const start = async () =>
+{
+    // 宣告變數
+    const cfg = getConfig();
+    const app = express();
+
+    // 執行 function
+    app.use(compression());
+    setupApiProxy(app, cfg);
+
+    if (cfg.isProd)
     {
-        await setupDevSSR(app);
+        await setupProdSSR(app, cfg);
     } else
     {
-        await setupProdSSR(app);
+        await setupDevSSR(app, cfg);
     }
 
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) =>
@@ -245,9 +364,10 @@ const start = async () =>
         res.status(500).send("SSR Render Error");
     });
 
-    app.listen(PORT, () =>
+    app.listen(cfg.port, () =>
     {
-        console.log(`[SSR] server started at http://127.0.0.1:${PORT}`);
+        console.log(`[SSR] server started at http://127.0.0.1:${cfg.port}`);
+        console.log(`[SSR] SSR_API_TARGET: ${cfg.apiTarget}`);
     });
 };
 

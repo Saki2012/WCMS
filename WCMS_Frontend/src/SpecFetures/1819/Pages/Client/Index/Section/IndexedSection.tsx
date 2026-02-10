@@ -32,14 +32,14 @@ export const IndexedSection = (props: { lang: Lang }) => {
                             <div className="IndexedRowBody">
                                 <ul className="IndexedRowMenu">
 
-                                    {useIndex.rawData?.[0]?.BannerDetail?.map((dt) => {
+                                    {useIndex.rawData?.[0]?.BannerDetail?.map((dt, idx) => {
                                         if (!isInValidTimeRange(dt.Validate_Start, dt.Validate_End)) return null
                                         const info = dt._BannerDetailInfo?.find(p => p.Lang === props.lang);
                                         const url = info?.URL ?? ""
                                         const tar = info?.URL_Open === 0 ? "_self" : "_blank"
                                         const title = info?.Title
                                         return (
-                                            <li key={`${dt.BannerId}-${dt.RowId}`}>
+                                            <li key={`${dt.BannerId}-${dt.RowId}-${idx}`}>
                                                 <a href={url} target={tar} rel={info?.URL_Open === 0 ? undefined : "noreferrer"}>
                                                     <div className="Item_TextBox">{title}</div>
                                                     <div className="card_arrow">

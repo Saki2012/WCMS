@@ -1,9 +1,6 @@
 import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
 import { type RouteObject } from "react-router-dom";
-import type { components } from "@/types/api";
-import SiteMenuProvider from "@/Features/Hooks/BizFunc/Dashboard/SiteMenu/SiteInfo_Api";
-import * as SchemaFields from "@/types/SchemaFields";
-import { configureModuleRegistry, createRoutesFromSite, normalizeSite, type INormNode, type INormSite, type ModuleEntry } from "./Site-Routing";
+import { configureModuleRegistry, createRoutesFromSite, type INormNode, type INormSite, type ModuleEntry } from "./Site-Routing";
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -11,114 +8,148 @@ import { SubPage, PageManagementForm, AnnouncementList, AnnouncementForm, FileAr
 import { type IPageManagementOptions, type IAnnouncementListOptions, type IFileArchiveOptions, type IGalleryListOptions, type IWebResourceListOptions } from "@/Features/Pages/Client/Route/ClientComponentResolver";
 import { specClientEntries } from "SpecFeature/SpecRouter";
 import { Sitemap, SITEMAP_SEGMENT } from "../BizFunc/MainPage/Sitemap";
-import { PGID } from "@/Features/Hooks/Common/ProgId";
+import { PGID } from "@/types/SchemaFields";
+import { AnnouncementListLoader } from "../BizFunc/WebManagement/Announcement/AnnouncementList_Loader";
+import { PageManagementForm_Loader } from "../BizFunc/WebManagement/PageManagement/PageManagementForm_Loader";
+import { AnnouncementFormLoader } from "../BizFunc/WebManagement/Announcement/AnnouncementForm_Loader";
+import { FileArchiveList_Loader } from "../BizFunc/WebManagement/FileArchive/FileArchiveList_Loader";
+import { GalleryForm_Loader } from "../BizFunc/WebManagement/Gallery/GalleryForm_Loader";
+import { GalleryList_Loader } from "../BizFunc/WebManagement/Gallery/GalleryList_Loader";
+import { WebResourceList_Loader } from "../BizFunc/WebManagement/WebResource/WebResourceList_Loader";
 
+import { loadSitesForRouting, type SiteRoutingInitialState } from "./ClientRouter_Loader";
 
+export const loadClientChildren = async (opt?: { request?: Request; initialState?: SiteRoutingInitialState; }): Promise<RouteObject[]> => {
+  // 宣告變數
+  ensureClientRegistryInstalled();
 
-type QueryListParam = components["schemas"]["QueryListParam"];
-type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"]
+  // 執行 function：SSR/CSR 共用（優先 initialState/window/cache，最後才打 API）
+  const sites = await loadSitesForRouting(opt);
+  const module = new FrontendRouteModule(sites);
 
-const fetchSite = async (): Promise<INormSite[]> => {
-  const condition: QueryListParam = { Fields: [SchemaFields.SiteMenu_IndexFields.InternalId], Condition: "", PageSize: 0, PageNumber: 0 };
-  const provider = SiteMenuProvider();
-  const sites = await provider.fetchList(condition);
-  if (!sites.IsSuccess || !Array.isArray(sites.Data)) return [];
-  const rows = sites.Data as SiteMenuSet[];
-  const tasks = rows.map(async (item) => {
-    const id = item?.SiteMenu_Index?.InternalId as string
-    if (!id) return null;
-    const res = await provider.fetchData(id);
-    if (!res.IsSuccess || !res.Data) return null;
-    const payload = Array.isArray(res.Data) ? res.Data[0] : res.Data;
-    return normalizeSite(payload as SiteMenuSet);
-  });
-  const result = await Promise.all(tasks);
-  return result.filter((x): x is INormSite => !!x);
-}
-export const loadClientChildren = async (): Promise<RouteObject[]> => {
-  ensureClientRegistryInstalled();           // ★ 必須在這裡呼叫一次，安裝/覆寫 registry
-  const site = await fetchSite();
-  const module = new FrontendRouteModule(site);
+  // return
   return module.getRoutes();
 };
-export class FrontendRouteModule implements IRouteModule {
+
+class FrontendRouteModule implements IRouteModule {
   sites: INormSite[];
-  constructor(sites: INormSite[]) { this.sites = sites }
+
+  constructor(sites: INormSite[]) {
+    this.sites = sites;
+  }
+
   getRoutes(): RouteObject[] {
+    // return
     return this.sites.flatMap(site => createRoutesFromSite(site));
   }
 }
 
+const clientEntries: Record<string, ModuleEntry> =
+{
+  [PGID.PageManagement]:
+  {
+    kind: "routes",
+    element: (lang: Lang, site: INormSite, node: INormNode) => (<SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />),
+    children: (opts, lang, node: INormNode) => [
+      {
+        index: true,
+        loader: PageManagementForm_Loader({ lang: lang, opts: opts as IPageManagementOptions }),
+        element: <PageManagementForm lang={lang} options={opts as IPageManagementOptions} node={node} />
+      },
+    ],
+  },
 
-export const clientEntries: Record<string, ModuleEntry> = {
-  [PGID.PageManagement]: {
+  [PGID.Announcement]:
+  {
     kind: "routes",
-    element: (lang: Lang, site: INormSite, node: INormNode) => (
-      <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
-    ),
-    children: (opts, lang, node: INormNode) => [
-      { index: true, element: <PageManagementForm lang={lang} options={opts as IPageManagementOptions} node={node} /> },
-    ],
-  },
-  [PGID.Announcement]: {
-    kind: "routes",
-    element: (lang: Lang, site: INormSite, node: INormNode) => (
-      <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
-    ),
+    element: (lang: Lang, site: INormSite, node: INormNode) => (<SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />),
     children: (opts, lang, node: INormNode) => [
       { index: true, element: <AutoRedirect to="List" replace /> },
-      { path: "List", element: <AnnouncementList theme={Classic_FETheme} lang={lang} options={opts as IAnnouncementListOptions} node={node} /> },
-      { path: ":internalId", element: <AnnouncementForm node={node} theme={Classic_FETheme} lang={lang} /> },
+      {
+        path: "List",
+        loader: AnnouncementListLoader({ lang, opts: opts as IAnnouncementListOptions }),
+        element: <AnnouncementList theme={Classic_FETheme} lang={lang} options={opts as IAnnouncementListOptions} node={node} />
+      },
+      {
+        path: ":internalId",
+        loader: AnnouncementFormLoader({ lang }),
+        element: <AnnouncementForm node={node} theme={Classic_FETheme} lang={lang} />
+      },
     ],
   },
-  [PGID.FileArchive]: {
+
+  [PGID.FileArchive]:
+  {
     kind: "routes",
-    element: (lang: Lang, site: INormSite, node: INormNode) => (
-      <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
-    ),
+    element: (lang: Lang, site: INormSite, node: INormNode) => (<SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />),
     children: (opts, lang, node: INormNode) => [
-      { index: true, element: <FileArchiveList theme={Classic_FETheme} lang={lang} options={opts as IFileArchiveOptions} node={node} /> },
+      {
+        index: true,
+        loader: FileArchiveList_Loader({ lang: lang, opts: opts as IFileArchiveOptions }),
+        element: <FileArchiveList theme={Classic_FETheme} lang={lang} options={opts as IFileArchiveOptions} node={node} />
+      },
     ],
   },
-  [PGID.Gallery]: {
+
+  [PGID.Gallery]:
+  {
     kind: "routes",
-    element: (lang: Lang, site: INormSite, node: INormNode) => (
-      <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
-    ),
+    element: (lang: Lang, site: INormSite, node: INormNode) => (<SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />),
     children: (opts, lang, node: INormNode) => [
       { index: true, element: <AutoRedirect to="List" replace /> },
-      { path: "List", element: <GalleryListComp node={node} theme={Classic_FETheme} lang={lang} options={opts as IGalleryListOptions} title={node.title} /> },
-      { path: ":internalId", element: <GalleryForm node={node} theme={Classic_FETheme} lang={lang} /> },
+      {
+        path: "List",
+        loader: GalleryList_Loader({ lang, opts: opts as IGalleryListOptions }),
+        element: <GalleryListComp node={node} theme={Classic_FETheme} lang={lang} options={opts as IGalleryListOptions} title={node.title} />
+      },
+      {
+        path: ":internalId",
+        loader: GalleryForm_Loader({ lang }),
+        element: <GalleryForm node={node} theme={Classic_FETheme} lang={lang} />
+      },
     ],
   },
-  [PGID.WebResource]: {
+
+  [PGID.WebResource]:
+  {
     kind: "routes",
-    element: (lang: Lang, site: INormSite, node: INormNode) => (
-      <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
-    ),
+    element: (lang: Lang, site: INormSite, node: INormNode) => (<SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />),
     children: (opts, lang, node: INormNode) => [
-      { index: true, element: <WebResourceListComp node={node} theme={Classic_FETheme} lang={lang} options={opts as IWebResourceListOptions} title={node.title} /> },
+      {
+        index: true,
+        loader: WebResourceList_Loader({ lang: lang, opts: opts as IWebResourceListOptions }),
+        element: <WebResourceListComp node={node} theme={Classic_FETheme} lang={lang} options={opts as IWebResourceListOptions} title={node.title} />
+      },
     ],
   },
-  [SITEMAP_SEGMENT]: {
+
+  [SITEMAP_SEGMENT]:
+  {
     kind: "routes",
-    element: (lang, site, node) => (
-      <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
-    ),
+    element: (lang, site, node) => (<SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />),
     children: (_opts, lang, _node, site) => [
       { index: true, element: <Sitemap lang={lang} site={site} /> },
     ],
   },
 };
+
 // 2) 安裝擴充（只做一次，避免 HMR 重覆）
 let registryInstalled = false;
-export const ensureClientRegistryInstalled = () => {
-  if (registryInstalled) return;
-  configureModuleRegistry(base => ({
-    ...base,          // 先帶入核心
-    ...clientEntries, // 追加/覆寫（同 key 會覆蓋核心）
-    ...specClientEntries //暫時寫上，之後看如何用繼承處理
-  }));
-  registryInstalled = true;
-};
 
+const ensureClientRegistryInstalled = (): void => {
+  // 宣告變數
+  const installed = registryInstalled;
+
+  // 執行 function
+  if (installed) return;
+
+  configureModuleRegistry(base => ({
+    ...base,
+    ...clientEntries,
+    ...specClientEntries, // 暫時寫上，之後看如何用繼承處理
+  }));
+
+  registryInstalled = true;
+
+  // return
+};

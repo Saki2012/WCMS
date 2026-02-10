@@ -1,5 +1,6 @@
 // src/hooks/useToastCenter.ts
-import type { MessageStatusCode } from "@/SysCore/Interface/IApiProvider";
+
+import type { MessageStatusCode } from "@/SysCore/Utils/API/APIBase";
 import * as React from "react";
 
 /** 類型：錯誤 / 警告 / 提示 */
@@ -8,10 +9,10 @@ import * as React from "react";
 export interface ToastMessage
 {
     id: string; // 唯一鍵（預設自動產生）
-    level: MessageStatusCode; // "error" | "warning" | "info"
-    code?: string; // 例如 "Code0001"
-    title?: string; // 顯示在第一行（例如「錯誤訊息」）
-    text?: string; // 詳細內容
+    level: MessageStatusCode | undefined; // "error" | "warning" | "info"
+    code?: string | undefined | null; // 例如 "Code0001"
+    title?: string | undefined | null; // 顯示在第一行（例如「錯誤訊息」）
+    text?: string | undefined | null; // 詳細內容
     createdAt: number; // 排序／去重用
     durationMs?: number; // ✅ 可選：針對單筆覆寫自動關閉時間
     focusSelector?: string;
@@ -23,10 +24,10 @@ type Store = {
     subscribe: (listener: () => void) => () => void;
     publish: (
         msg: Omit<Partial<ToastMessage>, "id" | "createdAt"> & {
-            level: MessageStatusCode;
-            text?: string;
-            code?: string;
-            title?: string;
+            level: MessageStatusCode | undefined;
+            text?: string | undefined | null;
+            code?: string | undefined | null;
+            title?: string | undefined | null;
             id?: string;
             durationMs?: number;
             focusSelector?: string;

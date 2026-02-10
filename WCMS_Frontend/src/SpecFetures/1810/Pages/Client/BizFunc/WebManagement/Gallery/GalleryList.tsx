@@ -5,7 +5,7 @@ type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 import type { GridProps, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
-import { GalleryFields, GallerySetFields, GalleryInfoFields } from "@/types/SchemaFields";
+import { GalleryFields, GallerySetFields, GalleryInfoFields, PGID } from "@/types/SchemaFields";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { Lang } from "@/SysCore/i18n/lang";
 import GalleryProvider from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api";
@@ -15,7 +15,6 @@ import { useLocation } from "react-router";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { Paginator } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import type { IGalleryListProps } from "@/Features/Pages/Client/BizFunc/WebManagement/Gallery/GalleryList";
-import { PGID } from "@/Features/Hooks/Common/ProgId";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 
 const useGalleryList = (lang: string, categoryIds: string, tagIds: string) => {

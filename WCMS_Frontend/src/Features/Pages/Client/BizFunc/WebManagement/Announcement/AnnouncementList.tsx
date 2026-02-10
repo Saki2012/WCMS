@@ -1,24 +1,14 @@
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import { useLocation } from "react-router-dom";
+import { useLoaderData, useLocation } from "react-router-dom";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import ModuleContent, { ContentStatus } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNow } from "@/SysCore/Utils/Library/LibHook";
 import parse from 'html-react-parser';
-import { AnnouncementDetailFields, AnnouncementFields, AnnouncementSetFields } from "@/types/SchemaFields";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-import AnnouncementProvider from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api";
-import type { ISearchQuery } from "@/SysCore/Components/SearchBar/SearchBar_Comp";
-import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
+import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFields";
 import type { components } from "@/types/api";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
-import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
-import { PGID } from "@/Features/Hooks/Common/ProgId";
-import { useFormatTagsName, useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
-import { isWithinLastNDaysFromString } from "@/SpecFetures/1810/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList";
-import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
 import { ColRender, RowRender, STORAGE_KEY } from "@/SysCore/Components/Grid/Grid_Comp";
 import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
@@ -26,6 +16,11 @@ import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInter
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
+import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api";
+import type { AnnouncementListLoaderData } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList_Loader";
+import { formatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
+import { formatTagsName } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
+import { isWithinLastNDaysFromString } from "../WebResource/WebResourceList";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 type TagSet = components["schemas"]["TagSet_DTO"];
@@ -38,6 +33,63 @@ const AnnouncementList = (props: IAnnouncementListProps) => {
     // <PictureList_Row_Comp {...props} />
     // <PictureList_Col_Comp {...props} />
     // <QAList_Comp {...props} />
+    const initial = useLoaderData() as AnnouncementListLoaderData;
+    const adapter = useMemo(() => AnnouncementAdapter(), [])
+    // 宣告變數
+    const listInitial = useMemo(() => ({ args: initial.args.listParam, apiRes: { IsSuccess: true, Data: initial.res.listRes, SysMessage: [] }, }), [initial]);
+    const countInitial = useMemo(() => ({ args: initial.args.countParam, apiRes: { IsSuccess: true, Data: initial.res.countRes, SysMessage: [] }, }), [initial]);
+    // 執行 function：首屏吃 loader 的 args/res，CSR 互動再 refetch
+    const useCount = adapter.hooks.useQueryCount({ condition: initial.args.countParam, initial: countInitial, deps: [initial.args.condition], });
+    // ✅ paged list：baseParam 以 loader.args 為準，頁碼狀態由 hook 內部管理
+    const useList = adapter.hooks.usePagedQueryList({ baseParam: initial.args.listParam, count: useCount.data ?? 0, initial: listInitial, deps: [initial.args.condition, initial.args.pageSize], });
+
+    const gridPropsFromList = useMemo<GridProps>(() => {
+        // 宣告變數
+        const columns: ColumnConfig[] =
+            [
+                { key: AnnouncementDetailFields.Title, title: "標題" },
+                { key: AnnouncementFields.Validate_Start, title: "日期" },
+                { key: AnnouncementFields.Categories, title: "分類" },
+                { key: AnnouncementFields.Tags, title: "標籤" },
+                { key: AnnouncementFields.ViewCount, title: "瀏覽" },
+            ];
+
+        const rows: GridRow[] = (useList.data ?? []).map((item) => {
+            const detail = item.AnnouncementDetail?.find(p => p.Lang === props.lang);
+            const cells: RowCell[] = columns.map((col) => {
+                let content = "";
+                switch (col.key) {
+                    case AnnouncementDetailFields.Title:
+                        content = detail?.Title ?? "";
+                        break;
+                    case AnnouncementFields.Validate_Start:
+                        content = FormatDate(item.Announcement?.Validate_Start) ?? "";
+                        break;
+                    case AnnouncementFields.Categories:
+                        content = item.Announcement?.Categories ?? "";
+                        break;
+                    case AnnouncementFields.Tags:
+                        content = item.Announcement?.Tags ?? "";
+                        break;
+                    case AnnouncementFields.ViewCount:
+                        content = String(item.Announcement?.ViewCount ?? "");
+                        break;
+                }
+                return { col, content };
+            });
+            return { cells };
+        });
+
+        // return
+        return {
+            columns,
+            rows,
+            CurrentPage: useList.pageNumber,
+            TotalPage: useList.totalPages,
+            onPageChange: useList.onPageChange,
+        };
+    }, [props.lang, useList.data, useList.onPageChange, useList.pageNumber, useList.totalPages]);
+
     const pageSize = useMemo(() => {
         switch (props.options?.Style) {
             case 2: return 12;//圖文式資料 3*4->12筆
@@ -46,32 +98,53 @@ const AnnouncementList = (props: IAnnouncementListProps) => {
         }
     }, [props.options]);
 
+
+
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
-    const [queryDraft, setQueryDraft] = useState<ISearchQuery>({});
-    const [query, setQuery] = useState<ISearchQuery>({});
-    const provider = useMemo(() => { return AnnouncementProvider() }, [])
-    const useAnnounceList = dataFetch(provider, props.lang, props.options?.Category ?? "", props.options?.Tag ?? "", query, pageSize);
-    const useCategory = useCategoryListData(PGID.Announcement, props.lang);
-    const useTagData = useTagListData(PGID.Announcement, props.lang);
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(props.lang, dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData]);
+    // const [queryDraft, setQueryDraft] = useState<ISearchQuery>({});
+    // const [query, setQuery] = useState<ISearchQuery>({});
+
+    const categoryData = useMemo<CategorySet[]>(
+        () => initial.res.categoryRes ?? [],
+        [initial.res.categoryRes],
+    );
+
+    const tagData = useMemo<TagSet[]>(
+        () => initial.res.tagRes ?? [],
+        [initial.res.tagRes],
+    );
+
+    const adjustedGrid = useMemo(() => {
+        return SetAdjustFunction(
+            props.lang,
+            dirUrl,
+            gridPropsFromList,
+            useList.data ?? [],
+            categoryData,
+            tagData,
+        );
+    }, [props.lang, dirUrl, gridPropsFromList, useList.data, categoryData, tagData]);
+
+
+
     // const searchSlot = <SearchBarComp value={queryDraft} tags={tags} onChange={(k, v) => setQueryDraft(prev => ({ ...prev, [k]: v }))} onSubmit={() => setQuery(queryDraft)} onReset={() => { setQueryDraft({}); setQuery({}); }} />;
     // const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData]);
     const children = useMemo(() => {
         switch (props.options?.Style) {
             case 8:/** 目前有一bug，有抓資料數量，看如何處理 */
-                return <TimelineSlider dirUrl={dirUrl} lang={props.lang} data={useAnnounceList.rawData} />;
+                return <TimelineSlider dirUrl={dirUrl} lang={props.lang} data={useList.data} />;
             case 3:
-                return <QAList_Comp lang={props.lang} gridData={useAnnounceList.rawData} currentPage={useAnnounceList.gridProps.CurrentPage} pageSize={pageSize} />
+                return <QAList_Comp lang={props.lang} gridData={useList.data} currentPage={useList.pageNumber} pageSize={pageSize} />
             case 2:
-                return <PictureList_Row_Comp dirUrl={dirUrl} lang={props.lang} gridData={useAnnounceList.rawData} />;
+                return <PictureList_Row_Comp dirUrl={dirUrl} lang={props.lang} gridData={useList.data} categoryData={categoryData} />;
             case 1:
-            default: return <GridList_Comp key="grid" lang={props.lang} gridData={adjustedGrid} title={props.node.title} />;
+                return <GridList_Comp key="grid" lang={props.lang} gridData={adjustedGrid} title={props.node.title} />;
 
         }
-    }, [useAnnounceList, props.lang, props.options]);
-    const loadingList = [useAnnounceList.isLoading];
-    const errorList = [useAnnounceList.error];
-    const paginprops = props.options?.Style === 8 ? undefined : { currentPage: adjustedGrid.CurrentPage, totalPages: adjustedGrid.TotalPage, onPageChange: adjustedGrid.onPageChange } as PaginatorProps;
+    }, [useList.data, props.lang, props.options]);
+    const loadingList = [useList.isLoading || useCount.isLoading];
+    const errorList = [useList.errorText, useCount.errorText].filter(Boolean) as string[];
+    const paginprops = props.options?.Style === 8 ? undefined : { currentPage: useList.pageNumber, totalPages: useList.totalPages, onPageChange: useList.onPageChange } as PaginatorProps;
     return (
         <ModuleContent nodeTitle={props.node.title} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops}>
             {children}
@@ -114,9 +187,8 @@ const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps }
         </>
     )
 }
-const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: AnnouncementSet[] }) => {
+const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: AnnouncementSet[]; categoryData: CategorySet[] }) => {
     const defaultAnnouncePic = useOptionalSpecAssetUrl({ relativePath: "Assets/Custom/DefaultEventPic.jpg", fallbackToDefault: true, }) ?? "";
-    const useCateData = useCategoryListData(PGID.Announcement, props.lang);
     return (
         <div id="Row_Colitem" className="SubPage_Standard_itemBoxs">
             {props.gridData && props.gridData.map((item) => {
@@ -125,7 +197,7 @@ const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: Ann
                 const picUrl = item.Announcement?.PictureId ? `${FileManagementAPI.PREVIEW_URL}/${item.Announcement?.PictureId}` : defaultAnnouncePic
                 const picDesc = item.Announcement?.PicDescription ?? title
                 const validate = FormatDate(item.Announcement?.Validate_Start)
-                const catName = useFormatCategoriesName(item.Announcement?.Categories ?? "", useCateData.rawData, props.lang)
+                const catName = formatCategoriesName(item.Announcement?.Categories ?? "", props.categoryData, props.lang)
 
                 return (
                     < div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
@@ -519,80 +591,7 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
     );
 };
 
-const dataFetch = (provider: IDataProvider<AnnouncementSet>, lang: string, categoryIds: string, tagIds: string, query: ISearchQuery, pageSize: number) => {
-    const now = useNow({ startPaused: true });
-    var condition: string = "";
-    //因時程關係，暫時用前端來判斷有效日期時間，多少會有客戶端修改時間的風險。之後再改到後端開新的api寫死抓系統時間為依據。
-    if (now.isoLocal) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
-    if (now.isoLocal) condition = LibMerge(" And ", false, condition, `(${AnnouncementFields.Validate_End} >= ${now.isoLocal} Or ${AnnouncementFields.Validate_End} is null)`);
-    if (query.keyword) condition = LibMerge(" And ", false, condition, `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} Like ${query.keyword}`)
-    if (query.tag) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Tags} HasAny [${query.tag}]`)
-    if (categoryIds) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Categories} HasAny [${categoryIds}]`)
-    if (tagIds) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Tags} HasAny [${tagIds}]`)
-    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.ContentStatus} !& 4`)//不包含隱藏的資料
-    condition = LibMerge(" And ", false, condition, `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang} = ${lang}`)
-    condition = LibMerge(" And ", false, condition, `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} != ''`)
-    return useFetchGridListData<AnnouncementSet>({
-        getModelDisplayName: () => provider.getModelDisplayName(),
-        fetchList: (cond) => provider.fetchList(cond),
-        fetchListCount: (cond) => provider.fetchListCount(cond),
-        visibleKeys: [
-            [AnnouncementSetFields.Announcement, AnnouncementFields.Validate_Start],
-            [AnnouncementSetFields.Announcement, AnnouncementFields.Categories],
-            // [AnnouncementSetFields.Announcement, AnnouncementFields.Tags],
-            [AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.Title],
-            [AnnouncementSetFields.Announcement, AnnouncementFields.ViewCount],
-        ],
-        buildQueryCondition: (page) => ({
-            Fields: [
-                AnnouncementFields.AnnouncementId,
-                AnnouncementFields.InternalId,
-                AnnouncementFields.ContentStatus,
-                AnnouncementFields.PictureId,
-                AnnouncementFields.PicDescription,
-                AnnouncementFields.Categories,
-                AnnouncementFields.Tags,
-                AnnouncementFields.Validate_Start,
-                `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
-                `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
-                `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.SubTitle}`,
-                `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Content}`,
-                AnnouncementFields.ViewCount,
-            ],
-            Condition: condition,
-            RankGroups: [{ Condition: `${AnnouncementFields.ContentStatus} & 1` }],
-            OrderBy: [{ Col: AnnouncementFields.Validate_Start, Desc: true }, { Col: AnnouncementFields.CreateTime, Desc: true }],
-            PageNumber: page,
-            PageSize: pageSize,
-        }),
-        parseRow: (item, columns) => {
-            const cells: RowCell[] = columns.map(col => {
-                let content = "";
-                switch (col.key) {
-                    case AnnouncementDetailFields.Title:
-                        {
-                            content = item.AnnouncementDetail?.find(d => d.Lang === lang)?.Title ?? "";
-                            break;
-                        }
-                    case AnnouncementFields.Validate_Start:
-                        {
-                            content = FormatDate(item.Announcement?.Validate_Start) ?? ""
-                            break;
-                        }
-                    default:
-                        {
-                            content = (item.Announcement as any)[col.key] ?? "";
-                            break;
-                        }
-                }
-                return { col, content };
-            });
-            return { cells };
-        },
-        enabled: true,
-        deps: [lang, categoryIds, tagIds, query, condition, pageSize],
-    });
-};
+
 const SetAdjustFunction = (lang: Lang, dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[], catData: CategorySet[], tagData: TagSet[]): GridProps => {
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
         const curRow = rawData?.[index];
@@ -604,10 +603,10 @@ const SetAdjustFunction = (lang: Lang, dirUrl: string, gridProps: GridProps, raw
 
             switch (cell.col.key) {
                 case AnnouncementFields.Categories:
-                    cell.content = useFormatCategoriesName(curRow.Announcement?.Categories ?? "", catData, lang)
+                    cell.content = formatCategoriesName(curRow.Announcement?.Categories ?? "", catData, lang)
                     break;
                 case AnnouncementFields.Tags:
-                    cell.content = useFormatTagsName(curRow.Announcement?.Tags ?? "", tagData, lang)
+                    cell.content = formatTagsName(curRow.Announcement?.Tags ?? "", tagData, lang)
                     break;
             }
 
@@ -637,3 +636,5 @@ const SetAdjustFunction = (lang: Lang, dirUrl: string, gridProps: GridProps, raw
     });
     return { ...gridProps, rows: newRows };
 };
+
+

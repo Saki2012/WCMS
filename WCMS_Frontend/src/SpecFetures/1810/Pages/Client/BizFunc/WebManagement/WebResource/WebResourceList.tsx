@@ -8,13 +8,12 @@ import WebResourceProvider from "@/Features/Hooks/BizFunc/WebManagement/WebResou
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import DefaultImg from "@/SpecFetures/1810/Assets/Custom/WebResource_Default.png"
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { WebResourceFields, WebResourceInfoFields, WebResourceSetFields } from "@/types/SchemaFields";
+import { PGID, WebResourceFields, WebResourceInfoFields, WebResourceSetFields } from "@/types/SchemaFields";
 import type { GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import { useEffect, useMemo, useRef } from "react";
 import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
 import { isWithinLastNDaysFromString } from "../Announcement/AnnouncementList";
-import { PGID } from "@/Features/Hooks/Common/ProgId";
 import { resolveYoutubeEmbedUrl, type IWebResourceListProps } from "@/Features/Pages/Client/BizFunc/WebManagement/WebResource/WebResourceList";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];

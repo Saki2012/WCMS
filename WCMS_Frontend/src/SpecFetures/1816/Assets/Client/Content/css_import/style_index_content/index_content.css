@@ -812,9 +812,8 @@ body::-webkit-scrollbar-thumb {
 	display: inline-block;
 	width: 100%;
 }
-.Link-icons-pos a:hover .tit-contents .Link-icons-title{
-	/* background-color: var(--Customize_TXTcolor); */
-	color: var(--blackcolor);
+.Link-icons-pos a:hover {
+	background-color: var(--Customize_TXTcolor);
 }
 .Link-icons-pos a:focus {
 	text-decoration: none;
@@ -857,42 +856,6 @@ body::-webkit-scrollbar-thumb {
 }
 .Link-icons-pos a .icon-area .icon-type-image img {
 	border: 0;
-}
-.Link-icons-pos a .icon-area .icon-type-image.img-1{
-	content: url(../../../images/links/icon-01.svg);
-}
-.Link-icons-pos a .icon-area .icon-type-image.img-2{
-	content: url(../../../images/links/icon-02.svg);
-}
-.Link-icons-pos a .icon-area .icon-type-image.img-3{
-	content: url(../../../images/links/icon-03.svg);
-}
-.Link-icons-pos a .icon-area .icon-type-image.img-4{
-	content: url(../../../images/links/icon-04.svg);
-}
-.Link-icons-pos a .icon-area .icon-type-image.img-5{
-	content: url(../../../images/links/icon-05.svg);
-}
-.Link-icons-pos a .icon-area .icon-type-image.img-6{
-	content: url(../../../images/links/icon-06.svg);
-}
-.Link-icons-pos a:hover .icon-area .icon-type-image.img-1{
-	content: url(../../../images/links/icon-01-B.svg);
-}
-.Link-icons-pos a:hover .icon-area .icon-type-image.img-2{
-	content: url(../../../images/links/icon-02-B.svg);
-}
-.Link-icons-pos a:hover .icon-area .icon-type-image.img-3{
-	content: url(../../../images/links/icon-03-B.svg);
-}
-.Link-icons-pos a:hover .icon-area .icon-type-image.img-4{
-	content: url(../../../images/links/icon-04-B.svg);
-}
-.Link-icons-pos a:hover .icon-area .icon-type-image.img-5{
-	content: url(../../../images/links/icon-05-B.svg);
-}
-.Link-icons-pos a:hover .icon-area .icon-type-image.img-6{
-	content: url(../../../images/links/icon-06-B.svg);
 }
 
 .Link-icons-pos a .tit-contents {
@@ -2776,12 +2739,11 @@ a:hover.caption-customize-btn .button-icon {
 .News_mainDIV .CustomState {
 	display: flex;
 	flex-direction: row;
-	justify-content: flex-end;
+	justify-content: flex-start;
 	align-items: center;
 	
 	position: relative;
 	display: inline-flex;
-	width: 91px;
 }
 @media screen and (max-width: 767px) {
 	.News_mainDIV .CustomState  {

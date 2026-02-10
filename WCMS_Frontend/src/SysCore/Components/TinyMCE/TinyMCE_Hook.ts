@@ -1,6 +1,6 @@
 // src/hooks/TinyMCE_Hook.ts
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
-import { MessageStatus, type SysMessageModel } from "@/SysCore/Interface/IApiProvider";
+import { MessageStatus, type SysMessageModel } from "@/SysCore/Utils/API/APIBase";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useMemo, useRef } from "react";
 import type { Editor as TinyMCEEditor } from "tinymce";

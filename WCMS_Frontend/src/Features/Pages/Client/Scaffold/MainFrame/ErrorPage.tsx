@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router-dom";
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { useLang } from "@/SysCore/i18n/LangContext";
-import type { Lang } from "@/SysCore/i18n/lang";
 // ✅ 確保圖片會被 Vite bundle 進 dist（不要用硬編 /images/...）
 import errorSvgUrl from "SpecFeature/Assets/Client/images/svg_icon/error.svg?url";
 

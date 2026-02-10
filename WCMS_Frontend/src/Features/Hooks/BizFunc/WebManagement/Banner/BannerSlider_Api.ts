@@ -1,164 +1,17 @@
-import { IApiProvider, IDataProvider } from "@/SysCore/Interface/IApiProvider";
-import type { ApiResponse } from "@/SysCore/Interface/IApiProvider";
-import { BaseApiService } from "@/SysCore/Utils/API/APIClient";
+import { ApiDataAdapter } from "@/SysCore/Utils/API/APIAdapter";
+import { ApiDataService } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
-import type { ModelDisplaySchema } from "@/types/IApiSchema";
+import { PGID } from "@/types/SchemaFields";
+import type { AxiosInstance } from "axios";
 type BannerSliderSet = components["schemas"]["BannerSet_DTO"];
-type QueryListParam = components["schemas"]["QueryListParam"];
-
-abstract class IBannerSliderProvider extends IDataProvider<BannerSliderSet>
-{}
-class MockProvider extends IBannerSliderProvider
+class BannerSliderService extends ApiDataService<BannerSliderSet>
 {
-    protected doCreateData(
-        set?: {
-            Banner?: components["schemas"]["Banner_DTO"];
-            BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
-            BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
-        } | undefined,
-    ): Promise<
-        ApiResponse<
-            {
-                Banner?: components["schemas"]["Banner_DTO"];
-                BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
-                BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
-            }
-        >
-    >
+    constructor(apiInstance?: AxiosInstance)
     {
-        throw new Error("Method not implemented.");
-    }
-    protected doUpdateData(
-        internaId: string,
-        set: {
-            Banner?: components["schemas"]["Banner_DTO"];
-            BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
-            BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
-        },
-    ): Promise<
-        ApiResponse<
-            {
-                Banner?: components["schemas"]["Banner_DTO"];
-                BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
-                BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
-            }
-        >
-    >
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected doDelete(
-        internaId: string,
-    ): Promise<
-        ApiResponse<
-            {
-                Banner?: components["schemas"]["Banner_DTO"];
-                BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
-                BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
-            }
-        >
-    >
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected doInvalid(
-        internaId: string,
-        isInvalid: boolean,
-    ): Promise<
-        ApiResponse<
-            {
-                Banner?: components["schemas"]["Banner_DTO"];
-                BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
-                BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
-            }
-        >
-    >
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected doFetchData(
-        internaId?: string,
-    ): Promise<
-        ApiResponse<
-            {
-                Banner?: components["schemas"]["Banner_DTO"];
-                BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
-                BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
-            }
-        >
-    >
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected doFetchList(
-        condition?: QueryListParam,
-    ): Promise<
-        ApiResponse<
-            {
-                Banner?: components["schemas"]["Banner_DTO"];
-                BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
-                BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
-            }[]
-        >
-    >
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected doFetchListCount(condition?: QueryListParam): Promise<ApiResponse<number>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected doGetModelDisplayName(): Promise<ModelDisplaySchema>
-    {
-        throw new Error("Method not implemented.");
+        super(PGID.Banner, apiInstance);
     }
 }
-class APIProvider extends IBannerSliderProvider
-{
-    private readonly ModuleName = "Banner";
-    private readonly API = new BaseApiService<BannerSliderSet>(this.ModuleName);
-
-    protected async doCreateData(set: BannerSliderSet): Promise<ApiResponse<BannerSliderSet>>
-    {
-        const res = await this.API.create(set);
-        return res.data;
-    }
-    protected async doUpdateData(internaId: string, set: BannerSliderSet): Promise<ApiResponse<BannerSliderSet>>
-    {
-        const res = await this.API.update(internaId, set);
-        return res.data;
-    }
-    protected async doDelete(internaId: string): Promise<ApiResponse<BannerSliderSet>>
-    {
-        const res = await this.API.delete(internaId);
-        return res.data;
-    }
-    protected async doInvalid(internaId: string, isInvalid: boolean): Promise<ApiResponse<BannerSliderSet>>
-    {
-        const res = await this.API.invalid(internaId, isInvalid);
-        return res.data;
-    }
-    protected async doFetchData(internaId: string): Promise<ApiResponse<BannerSliderSet>>
-    {
-        const res = await this.API.queryData(internaId);
-        return res.data;
-    }
-    protected async doFetchList(condition: QueryListParam): Promise<ApiResponse<BannerSliderSet[]>>
-    {
-        const res = await this.API.queryList(condition);
-        return res.data;
-    }
-    protected async doFetchListCount(condition: QueryListParam): Promise<ApiResponse<number>>
-    {
-        const res = await this.API.queryCount(condition);
-        return res.data;
-    }
-    protected async doGetModelDisplayName(): Promise<ModelDisplaySchema>
-    {
-        const res = await this.API.getModelDisplayName();
-        return res;
-    }
-}
-const BannerSliderProvider = (): IBannerSliderProvider =>
-    IApiProvider<IBannerSliderProvider>(APIProvider, MockProvider);
-export default BannerSliderProvider;
+export const BannerSliderAdapter = (apiInstance?: AxiosInstance) =>
+    new ApiDataAdapter<BannerSliderSet, BannerSliderService>((api?: AxiosInstance) =>
+        new BannerSliderService(api ?? apiInstance)
+    );

@@ -2,24 +2,29 @@ import { useEffect, useMemo } from "react";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
 import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
-import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
 import type { components } from "@/types/api";
-import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import { SpecJournalIndexDetailFields, SpecJournalIndexModelFields, SpecJournalIndexSetFields } from "@/types/SchemaFields";
-import SpecJournalIndexProvider from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecMusical/SpecJournalIndex_Api";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import clsx from "clsx";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { SpecJournalKeywordSearch_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalKeywordSearchComp";
+
+// ✅ 新架構：LoaderData initial + adapter hooks
+import { useLoaderData } from "react-router-dom";
+import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
+import { SpecJournalIndexAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournalIndex_Api";
+import type { SpecJournalIndexLoaderData } from "./SpecJournalIndex_Loader";
+
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
-
-
+type QueryListParam = components["schemas"]["QueryListParam"];
 
 /** ===== Helpers (放 component 外面，方便 code review 後續整理) ===== */
 
 const buildCollapseIds = (year: string) => {
+    // 宣告變數
     const collapseId = `collapse-${year}`;
     const headerId = `heading-${year}`;
+
+    // return
     return { collapseId, headerId };
 };
 
@@ -33,48 +38,116 @@ const wireBsAccordion = (root: HTMLElement) => {
                 el.click();
             }
         };
+
         el.addEventListener("keydown", onKeyDown);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (el as any).__wcms_onKeyDown = onKeyDown;
+        (el as unknown as { __wcms_onKeyDown?: (e: KeyboardEvent) => void }).__wcms_onKeyDown = onKeyDown;
     });
 };
 
 const unwireBsAccordion = (root: HTMLElement) => {
     const toggles = root.querySelectorAll<HTMLElement>("[data-bs-toggle='collapse']");
     toggles.forEach((el) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const handler = (el as any).__wcms_onKeyDown as ((e: KeyboardEvent) => void) | undefined;
+        const handler = (el as unknown as { __wcms_onKeyDown?: (e: KeyboardEvent) => void }).__wcms_onKeyDown;
         if (handler) el.removeEventListener("keydown", handler);
     });
 };
 
-
 export const SpecJournalIndex = (props: { node: INormNode; lang: Lang; }) => {
+    // 宣告變數
     const pageSize = 10;
-    const pvdr = useMemo(() => { return SpecJournalIndexProvider() }, [])
-    const indexData = indexFetch(pvdr, pageSize);
-    const loadingList: any = [indexData.isLoading];
-    const errorList: any = [indexData.error];
-    const paginprops: PaginatorProps = { currentPage: indexData.gridProps.CurrentPage, totalPages: indexData.gridProps.TotalPage, onPageChange: indexData.gridProps.onPageChange };
+    const loaderData = useLoaderData() as SpecJournalIndexLoaderData | null;
+
+    const adapter = useMemo(() => SpecJournalIndexAdapter(), []);
+
+    // 執行 function：SSR initial → CSR 接手
+    const useIndex = useSpecJournalIndex(adapter, pageSize, loaderData);
+
+    const loadingList = [useIndex.isLoading];
+    const errorList = [useIndex.error];
+
+    const paginprops: PaginatorProps =
+    {
+        currentPage: useIndex.pageNumber,
+        totalPages: useIndex.totalPages,
+        onPageChange: useIndex.onPageChange,
+    };
+
+    // return（DOM 不改）
     return (
         <ModuleContent nodeTitle={props.node.title} title={props.node.title} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops} >
-            <SpecJournalIndexContent title={props.node.title} data={indexData.rawData} lang={props.lang} />
+            <SpecJournalIndexContent title={props.node.title} data={useIndex.rawData} lang={props.lang} />
         </ModuleContent>
     )
-}
+};
+
+const useSpecJournalIndex = (
+    adapter: ReturnType<typeof SpecJournalIndexAdapter>,
+    pageSize: number,
+    loaderData: SpecJournalIndexLoaderData | null,
+) => {
+    // 宣告變數
+    const baseParam = useMemo<QueryListParam>(() => {
+        if (!loaderData?.args?.baseParam) return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: pageSize };
+        if (loaderData.args.pageSize !== pageSize) return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: pageSize };
+        return loaderData.args.baseParam;
+    }, [loaderData, pageSize]);
+
+    const initialCount = useMemo<ApiLoaderData<QueryListParam, number> | null>(() => {
+        if (!loaderData?.args?.baseParam) return null;
+        if (loaderData.args.pageSize !== pageSize) return null;
+
+        return {
+            args: loaderData.args.baseParam,
+            apiRes: { IsSuccess: true, Data: loaderData.res.countRes ?? 0, SysMessage: [] },
+        };
+    }, [loaderData, pageSize]);
+
+    const initialList = useMemo<ApiLoaderData<QueryListParam, SpecJournalIndexSet[]> | null>(() => {
+        if (!loaderData?.args?.baseParam) return null;
+        if (loaderData.args.pageSize !== pageSize) return null;
+
+        return {
+            args: loaderData.args.baseParam,
+            apiRes: { IsSuccess: true, Data: loaderData.res.listRes ?? [], SysMessage: [] },
+        };
+    }, [loaderData, pageSize]);
+
+    // 執行 function：count/list
+    const useCount = adapter.hooks.useQueryCount({
+        condition: baseParam,
+        initial: initialCount,
+        deps: [pageSize],
+    });
+
+    const useList = adapter.hooks.usePagedQueryList({
+        baseParam,
+        count: useCount.data ?? 0,
+        initial: initialList,
+        deps: [pageSize],
+    });
+
+    // return
+    return {
+        rawData: useList.data ?? [],
+        isLoading: useCount.isLoading || useList.isLoading,
+        error: useCount.errorText ?? useList.errorText ?? null,
+        pageNumber: useList.pageNumber,
+        totalPages: useList.totalPages,
+        onPageChange: useList.onPageChange,
+    };
+};
 
 const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalIndexSet[]; lang: Lang; }) => {
     // ===== effects =====
     useEffect(() => {
-        // NOTE: 綁定 bootstrap accordion 的鍵盤行為
+        // NOTE: 綁定 bootstrap accordion 的鍵盤行為（CSR only）
         const root = document.getElementById("ContentPlaceContent_ContentConentA");
         if (!root) return;
         wireBsAccordion(root);
         return () => unwireBsAccordion(root);
     }, []);
 
-
-    // ===== render =====
+    // ===== render（DOM 不改）=====
     return (
         <div className="Journal_List_content">
             <div className="row">
@@ -159,36 +232,4 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
             </div>
         </div >
     );
-};
-
-const indexFetch = (provider: IDataProvider<SpecJournalIndexSet>, pageSize: number) => {
-    var condition: string = "";
-    return useFetchGridListData<SpecJournalIndexSet>({
-        getModelDisplayName: () => provider.getModelDisplayName(),
-        fetchList: (cond) => provider.fetchList(cond),
-        fetchListCount: (cond) => provider.fetchListCount(cond),
-        visibleKeys: [],
-        buildQueryCondition: (page) => ({
-            Fields: [
-                SpecJournalIndexModelFields.IndexId,
-                SpecJournalIndexModelFields.IndexName,
-                SpecJournalIndexModelFields.InternalId,
-                `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.RowId}`,
-                `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
-                `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
-                `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileId}`,
-                `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileName}`,
-            ],
-            Condition: condition,
-            OrderBy: [
-                { Col: SpecJournalIndexModelFields.IndexName, Desc: true },
-                { Col: `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`, Desc: false },
-                { Col: `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`, Desc: false },
-            ],
-            PageNumber: page,
-            PageSize: pageSize,
-        }),
-        enabled: true,
-        deps: [pageSize],
-    });
 };

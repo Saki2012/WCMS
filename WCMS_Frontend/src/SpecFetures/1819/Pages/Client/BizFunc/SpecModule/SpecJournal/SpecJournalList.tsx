@@ -4,82 +4,139 @@ import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { getLangLabel, type Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
-import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
-import { SpecJournalAuthorFields, SpecJournalBibliographyFields, SpecJournalIndexDetailFields, SpecJournalKeywordsFields, SpecJournalModelFields, SpecJournalTypesFields, TagDataFields, TagDetailFields } from "@/types/SchemaFields";
-import SpecJournalProvider from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecMusical/SpecJournal_Api";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import { useParams } from "react-router";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useBreadcrumb } from "@/Features/Pages/Client/Scaffold/SubPages/Section/BreadCrumb_Comp";
 import { SpecJournalKeywordSearch_Comp } from "./SpecJournalKeywordSearchComp";
-import { useSearchParams } from "react-router-dom";
 import { useSpecJournalSearchNav } from "./SpecJournalSearchUtils";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-
+import { useLoaderData } from "react-router-dom";
+import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
+import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournal_Api";
+import type { SpecJournalListLoaderData } from "./SpecJournalList_Loader";
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
+type QueryListParam = components["schemas"]["QueryListParam"];
 
 /** SpecJournal：用 ModuleContent 包住 Journal_List_content（你指定的輸出格式） */
 export const SpecJournalList = (props: { node: INormNode; lang: Lang; }) => {
-    // ✅ 目前先照你範例：loading/error 用 array（未接 API 時先給空/false）
+    // 宣告變數
     const { indexId, rowId } = useParams();
     const { setItems } = useBreadcrumb();
 
-    const [sp] = useSearchParams();
-
-    const filters = useMemo(() => {
-        return {
-            q: (sp.get("q") ?? "").trim(),
-            articleLang: (sp.get("articleLang") ?? "").trim(),
-            tagId: (sp.get("tagId") ?? "").trim(),
-            tagName: (sp.get("tagName") ?? "").trim(),
-            author: (sp.get("author") ?? "").trim(),
-            keyword: (sp.get("keyword") ?? "").trim(),
-            includeRef: (sp.get("includeRef") ?? "").trim(),
-        };
-    }, [sp]);
-
+    const loaderData = useLoaderData() as SpecJournalListLoaderData | null;
+    const adapter = useMemo(() => SpecJournalAdapter(), []);
 
     const pageSize = 10;
-    const pvdr = useMemo(() => { return SpecJournalProvider() }, [])
-    const volumeData = volumeFetch(pvdr, indexId ?? "", rowId ?? "", pageSize, filters);
 
+    const useVolume = useSpecJournalVolume(adapter, pageSize, loaderData);
+
+    const filters = loaderData?.args?.filters ?? {
+        q: "", articleLang: "", tagId: "", tagName: "", author: "", keyword: "", includeRef: "",
+    };
 
     const issueLabel = useMemo(() => {
         const isSearchMode = !!filters.q || !!filters.articleLang || !!filters.tagId || !!filters.author || !!filters.keyword;
         if (isSearchMode) return "";
         if (!indexId || !rowId) return "";
-        const detail = volumeData.rawData?.[0]?.SpecJournal?._JournalIndexDetail;
+        const detail = useVolume.rawData?.[0]?.SpecJournal?._JournalIndexDetail;
         if (!detail) return "";
         return `Vol.${detail.Volume}, No.${detail.Issue}`;
-    }, [filters.q, filters.articleLang, filters.tagId, filters.author, filters.keyword, indexId, rowId, volumeData.rawData]);
+    }, [filters.q, filters.articleLang, filters.tagId, filters.author, filters.keyword, indexId, rowId, useVolume.rawData]);
 
     const issueSummary = useMemo(() => {
         const isSearchMode = !!filters.q || !!filters.articleLang || !!filters.tagId || !!filters.author || !!filters.keyword;
         if (isSearchMode) return { fileId: "", fileName: "" };
 
-        const detail = volumeData.rawData?.[0]?.SpecJournal?._JournalIndexDetail;
+        const detail = useVolume.rawData?.[0]?.SpecJournal?._JournalIndexDetail;
         return {
             fileId: detail?.SummaryFileId ?? "",
             fileName: detail?.SummaryFileName ?? "",
         };
-    }, [filters.q, filters.articleLang, filters.tagId, filters.author, filters.keyword, volumeData.rawData]);
+    }, [filters.q, filters.articleLang, filters.tagId, filters.author, filters.keyword, useVolume.rawData]);
 
     useEffect(() => {
         // ✅ 設定：第二層（卷期）
         if (issueLabel) setItems([{ label: issueLabel }]);
         else setItems([]);
+
         // ✅ 離開頁面就清空，避免殘留到其他 module
         return () => setItems([]);
     }, [issueLabel, setItems]);
-    const loadingList = [volumeData.isLoading];
-    const errorList = [volumeData.error];
-    const paginprops: PaginatorProps = { currentPage: volumeData.gridProps.CurrentPage, totalPages: volumeData.gridProps.TotalPage, onPageChange: volumeData.gridProps.onPageChange };
+
+    const loadingList = [useVolume.isLoading];
+    const errorList = [useVolume.error];
+
+    const paginprops: PaginatorProps =
+    {
+        currentPage: useVolume.pageNumber,
+        totalPages: useVolume.totalPages,
+        onPageChange: useVolume.onPageChange,
+    };
+
+    // return（DOM 不改）
     return (
         <ModuleContent nodeTitle={issueLabel} title={issueLabel} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops} >
-            <SpecJournalListContent lang={props.lang} rawData={volumeData.rawData} queryFilters={filters} issueSummary={issueSummary} />
+            <SpecJournalListContent lang={props.lang} rawData={useVolume.rawData} queryFilters={filters} issueSummary={issueSummary} />
         </ModuleContent>
     );
+};
+
+/** ✅ hooks：SSR loaderData initial → CSR 分頁接手 */
+const useSpecJournalVolume = (
+    adapter: ReturnType<typeof SpecJournalAdapter>,
+    pageSize: number,
+    loaderData: SpecJournalListLoaderData | null,
+) => {
+    // 宣告變數
+    const baseParam = useMemo<QueryListParam>(() => {
+        if (!loaderData?.args?.baseParam) return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: pageSize };
+        if (loaderData.args.pageSize !== pageSize) return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: pageSize };
+        return loaderData.args.baseParam;
+    }, [loaderData, pageSize]);
+
+    const initialCount = useMemo<ApiLoaderData<QueryListParam, number> | null>(() => {
+        if (!loaderData?.args?.baseParam) return null;
+        if (loaderData.args.pageSize !== pageSize) return null;
+
+        return {
+            args: loaderData.args.baseParam,
+            apiRes: { IsSuccess: true, Data: loaderData.res.countRes ?? 0, SysMessage: [] },
+        };
+    }, [loaderData, pageSize]);
+
+    const initialList = useMemo<ApiLoaderData<QueryListParam, SpecJournalSet[]> | null>(() => {
+        if (!loaderData?.args?.baseParam) return null;
+        if (loaderData.args.pageSize !== pageSize) return null;
+
+        return {
+            args: loaderData.args.baseParam,
+            apiRes: { IsSuccess: true, Data: loaderData.res.listRes ?? [], SysMessage: [] },
+        };
+    }, [loaderData, pageSize]);
+
+    // 執行 function：count/list（SSR initial → CSR 接手）
+    const useCount = adapter.hooks.useQueryCount({
+        condition: baseParam,
+        initial: initialCount,
+        deps: [pageSize, loaderData?.args?.indexId, loaderData?.args?.rowId, loaderData?.args?.filters],
+    });
+
+    const useList = adapter.hooks.usePagedQueryList({
+        baseParam,
+        count: useCount.data ?? 0,
+        initial: initialList,
+        deps: [pageSize, loaderData?.args?.indexId, loaderData?.args?.rowId, loaderData?.args?.filters],
+    });
+
+    // return
+    return {
+        rawData: useList.data ?? [],
+        isLoading: useCount.isLoading || useList.isLoading,
+        error: useCount.errorText ?? useList.errorText ?? null,
+        pageNumber: useList.pageNumber,
+        totalPages: useList.totalPages,
+        onPageChange: useList.onPageChange,
+    };
 };
 
 /** SpecJournalListContent：對齊 prototype 的 Journal_List_content DOM 結構 */
@@ -92,6 +149,7 @@ const SpecJournalListContent = (props: {
     const handlePickArticleLang = (langCode: string) => { goExclusive({ articleLang: langCode }); };
     const handlePickTypeTag = (tagId: string, tagName?: string) => { goExclusive({ tagId, tagName }); };
     const handlePickAuthor = (authorName: string) => { goExclusive({ author: authorName }); };
+
     // function：是否要顯示「搜尋：...」
     const hasSearch = useMemo(() => {
         return !!filters.q || !!filters.articleLang || !!filters.tagId || !!filters.author || !!filters.keyword;
@@ -143,7 +201,6 @@ const SpecJournalListContent = (props: {
                                             <div className="authorName" aria-label="authorName">
                                                 <ul className="authorName_list">
                                                     {it.SpecJournalAuthor?.map((au) => {
-
                                                         return (
                                                             <li key={`${it.SpecJournal?.JournalId}-au-${au.RowId}`} className="authorlist-item">
                                                                 <LangLink
@@ -153,11 +210,12 @@ const SpecJournalListContent = (props: {
                                                                         const en = (au.AuthorName_en ?? "").trim();
                                                                         const showZh = !!zh;
                                                                         const showEnOnly = !!en && !showZh;
+
                                                                         // 執行 function：點擊作者查詢（保持原本行為）
                                                                         const onPick = (v: string) => (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); handlePickAuthor(v); };
+
                                                                         return (
                                                                             <>
-                                                                                {/* ✅ 有中文：顯示中文 */}
                                                                                 {showZh && (
                                                                                     <div className="AuthorCard__nameZh">
                                                                                         <a href="#" onClick={onPick(zh)} aria-label={`依作者篩選：${zh}${en ? ` (${en})` : ""}`} style={{ color: "inherit", textDecoration: "none" }}>
@@ -165,7 +223,6 @@ const SpecJournalListContent = (props: {
                                                                                         </a>
                                                                                     </div>
                                                                                 )}
-                                                                                {/* ✅ 中英都有：英文顯示括號 */}
                                                                                 {showZh && !!en && (
                                                                                     <div className="AuthorCard__nameEn ms-2">
                                                                                         <a href="#" onClick={onPick(en)} aria-label={`依作者篩選：${en}`} style={{ color: "inherit", textDecoration: "none" }}>
@@ -173,7 +230,6 @@ const SpecJournalListContent = (props: {
                                                                                         </a>
                                                                                     </div>
                                                                                 )}
-                                                                                {/* ✅ 只有英文：只顯示英文（不加括號） */}
                                                                                 {showEnOnly && (
                                                                                     <div className="AuthorCard__nameEn">
                                                                                         <a href="#" onClick={onPick(en)} aria-label={`依作者篩選：${en}`} style={{ color: "inherit", textDecoration: "none" }}>
@@ -223,7 +279,8 @@ const JournalCard = (props: { item: SpecJournalSet; lang: Lang; onPickArticleLan
                         </div>
                     </div>
                     {props.item.SpecJournalTypes?.map((type) => {
-                        const tagName = type.Tag?._TagDetail?.find(p => p.Lang === props.lang)?.TagName
+                        const tagName = type.Tag?._TagDetail?.find(p => p.Lang === props.lang)?.TagName;
+
                         return (
                             <div className="card_cat_item">
                                 <div className="card_cat_TxT">
@@ -258,14 +315,15 @@ const IssueSummaryDownload = (props: { fileId?: string; fileName?: string }) => 
     const fileId = (props.fileId ?? "").trim();
     const fileName = (props.fileName ?? "").trim();
     const href = fileId ? `${FileManagementAPI.DOWNLOAD_URL}/${fileId}` : "";
+
     // 執行 function
     const canShow = !!fileId && !!fileName;
     if (!canShow) return null;
-    // return
+
+    // return（DOM 不改）
     return (
         <>
             <div className="JJ_main_contentDIV">
-
                 <div className="DownItem_Box">
                     <a className="page-item" href={href} title={fileName}
                         target="_blank" rel="noopener noreferrer">
@@ -283,86 +341,8 @@ const IssueSummaryDownload = (props: { fileId?: string; fileName?: string }) => 
                         <span className="font-SW-normal + ms-2">{0}</span>
                     </span>
                 </div>
-
             </div>
             <p />
         </>
     );
-};
-//
-const volumeFetch = (provider: IDataProvider<SpecJournalSet>, indexId: string, rowId: string, pageSize: number,
-    filters: { q?: string; articleLang?: string; tagId?: string; author?: string; keyword?: string; includeRef?: string }
-) => {
-    // 變數宣告
-    let condition = "";
-    const isSearchMode = !!filters.q || !!filters.articleLang || !!filters.tagId || !!filters.author || !!filters.keyword;
-    // ✅ 非搜尋模式才套卷期條件；搜尋模式就全站查
-    if (!isSearchMode) {
-        if (indexId) condition = LibMerge(" And ", false, condition, `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.IndexId} = ${indexId}`);
-        if (rowId) condition = LibMerge(" And ", false, condition, `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.RowId} = ${rowId}`);
-    }
-    // ✅ 關鍵字：Title / Title_en like（不加 %）
-    if (filters.q) {
-        const kw = filters.q.replace(/'/g, "''");
-        const baseCond = `(${SpecJournalModelFields.Title} like '${kw}' Or ${SpecJournalModelFields.Title_en} like '${kw}')`;
-        const includeRef = (filters.includeRef ?? "").trim() === "1" || (filters.includeRef ?? "").toLowerCase() === "true";
-        if (!includeRef) {
-            condition = LibMerge(" And ", false, condition, baseCond);
-        } else {
-            const bibCond = `(${SpecJournalModelFields._SpecJournalBibliography}.${SpecJournalBibliographyFields.Title} like '${kw}' Or ${SpecJournalModelFields._SpecJournalBibliography}.${SpecJournalBibliographyFields.Title_en} like '${kw}')`;
-            condition = LibMerge(" And ", false, condition, `(${baseCond} Or ${bibCond})`);
-        }
-    }
-    // ✅ 語言：字串要加單引號
-    if (filters.articleLang) {
-        const v = filters.articleLang.replace(/'/g, "''");
-        condition = LibMerge(" And ", false, condition, `${SpecJournalModelFields.ArticleLang} = '${v}'`);
-    }
-    // ✅ 分類 TagId：通常也是字串（你資料看起來是字串 id）
-    if (filters.tagId) {
-        const v = filters.tagId.replace(/'/g, "''");
-        condition = LibMerge(" And ", false, condition, `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.TagId} = '${v}'`);
-    }
-    // ✅ 作者：你指定用 = 精準比對（純文字）
-    if (filters.author) {
-        const v = filters.author.replace(/'/g, "''");
-        condition = LibMerge(" And ", false, condition, `(${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName} = '${v}' Or ${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en} = '${v}')`);
-    }
-    // ✅ 關鍵詞：明細 Keyword =（你這裡要的是點 keyword 查全部）
-    if (filters.keyword) {
-        const v = filters.keyword.replace(/'/g, "''");
-        condition = LibMerge(" And ", false, condition, `${SpecJournalModelFields._SpecJournalKeywords}.${SpecJournalKeywordsFields.Keyword} = '${v}'`);
-    }
-    // return
-    return useFetchGridListData<SpecJournalSet>({
-        getModelDisplayName: () => provider.getModelDisplayName(),
-        fetchList: (cond) => provider.fetchList(cond),
-        fetchListCount: (cond) => provider.fetchListCount(cond),
-        visibleKeys: [],
-        buildQueryCondition: (page) => ({
-            Fields: [
-                SpecJournalModelFields.InternalId, SpecJournalModelFields.JournalId,
-                SpecJournalModelFields.Title, SpecJournalModelFields.Title_en, SpecJournalModelFields.ArticleLang,
-                SpecJournalModelFields.PageStart, SpecJournalModelFields.PageEnd,
-                `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.IndexId}`,
-                `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.RowId}`,
-                `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
-                `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
-                `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileId}`,
-                `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileName}`,
-                `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.TagId}`,
-                `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.Tag}`,
-                `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.Tag}.${TagDataFields._TagDetail}.${TagDetailFields.Lang}`,
-                `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.Tag}.${TagDataFields._TagDetail}.${TagDetailFields.TagName}`,
-                `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName}`,
-                `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en}`,
-            ],
-            Condition: condition,
-            OrderBy: [{ Col: SpecJournalModelFields.PageStart, Desc: false }],
-            PageNumber: page,
-            PageSize: pageSize,
-        }),
-        enabled: true,
-        deps: [indexId, rowId, pageSize, filters],
-    });
 };

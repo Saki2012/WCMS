@@ -1,7 +1,7 @@
 // src/components/ToastViewport_Comp.tsx
 import * as React from "react";
 import { useToastState, useToast } from "@/Features/Hooks/Common/useToastCenter";
-import { MessageStatus, type MessageStatusCode } from "@/SysCore/Interface/IApiProvider";
+import { MessageStatus, type MessageStatusCode } from "@/SysCore/Utils/API/APIBase";
 
 const DEFAULT_AUTO_CLOSE_MS = Number(import.meta.env.VITE_TOAST_AUTO_CLOSE_MS ?? 5000);
 const EXIT_ANIM_MS = 300;
@@ -242,7 +242,7 @@ export const ToastViewport_Comp: React.FC = () => {
                         aria-live={ariaLive}
                         aria-atomic="true"
                         style={{
-                            ...levelStyle[t.level],
+                            ...levelStyle[t.level ?? MessageStatus.Info],
                             pointerEvents: "auto",
                             minWidth: 520,       // ✅ 加寬
                             maxWidth: 640,
@@ -273,7 +273,7 @@ export const ToastViewport_Comp: React.FC = () => {
                         }}
                     >
                         <div aria-hidden="true" style={{ fontSize: 18, lineHeight: "24px" }}>
-                            {iconMap[t.level]}
+                            {iconMap[t.level ?? MessageStatus.Info]}
                         </div>
 
                         <div>
@@ -326,7 +326,7 @@ export const ToastViewport_Comp: React.FC = () => {
                                         width: `${pct}%`,
                                         // 由右往左縮短：用 margin-left 填滿，或用 transform-origin: right
                                         transformOrigin: "right center",
-                                        background: progressColor[t.level],
+                                        background: progressColor[t.level ?? MessageStatus.Info],
                                         borderRadius: 999,
                                         transition: globalPaused ? "none" : "width 100ms linear"
                                     }}

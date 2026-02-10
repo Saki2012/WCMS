@@ -1,45 +1,167 @@
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { useLocation } from "react-router";
 import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
-import { useCategoryListData } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
-import { PGID } from "@/Features/Hooks/Common/ProgId";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-import { GalleryFields, GalleryInfoFields, GallerySetFields } from "@/types/SchemaFields";
-import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
-import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 import { useMemo } from "react";
-import GalleryProvider from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api";
 import type { components } from "@/types/api";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 
+// ✅ 新架構：Adapter + LoaderData initial
+import { useLoaderData } from "react-router-dom";
+import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
+import { GalleryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
+import type { GalleryListLoaderData } from "./GalleryList_Loader";
+
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 
-export interface IGalleryListOptions { Title: string, Category?: string; Tag?: string; Style: number; }
+export interface IGalleryListOptions { Title: string; Category?: string; Tag?: string; Style: number; }
 export interface IGalleryListProps { node: INormNode; theme: IFETheme; lang: Lang; options?: IGalleryListOptions; title: string }
-const GalleryList = (props: IGalleryListProps) => {
-    // <Gallery {...props} />
-    const useCategoryList = useCategoryListData(PGID.Gallery, props.lang)
-    const provider = useMemo(() => { return GalleryProvider() }, [])
-    const useListData = useGalleryList(provider, props.lang, props.options?.Category ?? "", props.options?.Tag ?? "");
-    const loadingList = [useListData.isLoading, useCategoryList.isLoading, useCategoryList.isLoading];
-    const errorList = [useListData.error, useCategoryList.error, useCategoryList.error];
-    const paginprops: PaginatorProps = { currentPage: useListData.gridProps.CurrentPage, totalPages: useListData.gridProps.TotalPage, onPageChange: useListData.gridProps.onPageChange };
-    const children = useMemo(() => { return <Gallery key="grid" lang={props.lang} data={useListData.rawData} cateData={useCategoryList.rawData} />; }, [useListData.rawData, props.lang, props.options, useCategoryList.rawData]);
 
+const GalleryList = (props: IGalleryListProps) => {
+    // 宣告變數
+    const loaderData = useLoaderData() as GalleryListLoaderData | null;
+
+    const adapter = useMemo(() => {
+        return {
+            gallery: GalleryAdapter(),
+            category: CategoryAdapter(),
+        };
+    }, []);
+
+    const categoryIds = props.options?.Category ?? "";
+    const tagIds = props.options?.Tag ?? "";
+
+    const useListData = useGalleryList(adapter.gallery, props.lang, categoryIds, tagIds, loaderData);
+    const useCategoryList = useCategory(adapter.category, props.lang, loaderData);
+
+    const loadingList = [useListData.isLoading, useCategoryList.isLoading, useCategoryList.isLoading];
+    const errorList = [useListData.error, useCategoryList.errorText, useCategoryList.errorText];
+
+    const paginprops: PaginatorProps =
+    {
+        currentPage: useListData.pageNumber,
+        totalPages: useListData.totalPages,
+        onPageChange: useListData.onPageChange,
+    };
+
+    const children = useMemo(() => {
+        return <Gallery key="grid" lang={props.lang} data={useListData.data} cateData={useCategoryList.data} />;
+    }, [useListData.data, props.lang, props.options, useCategoryList.data]);
+
+    // return（不改 div 結構）
     return (
         <ModuleContent nodeTitle={props.node.title} title={""} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops}>
             {children}
         </ModuleContent>
-    )
+    );
 };
-export default GalleryList
+
+export default GalleryList;
+
+// ✅ categories：固定條件已由 loader 做，CSR 用 initial 接手
+const useCategory = (adapter: ReturnType<typeof CategoryAdapter>, lang: Lang, loaderData: GalleryListLoaderData | null) => {
+    // 宣告變數
+    const cateParam = loaderData?.args?.cateParam ?? { Fields: [], Condition: "1=0", PageNumber: 0, PageSize: 0 };
+
+    const initial = useMemo<ApiLoaderData<components["schemas"]["QueryListParam"], CategorySet[]> | null>(() => {
+        if (!loaderData?.args?.cateParam) return null;
+
+        return {
+            args: loaderData.args.cateParam,
+            apiRes: { IsSuccess: true, Data: loaderData.res.cateRes ?? [], SysMessage: [] },
+        };
+    }, [loaderData]);
+
+    // 執行 function
+    const hook = adapter.hooks.useQueryList({
+        condition: cateParam,
+        initial,
+        deps: [lang],
+    });
+
+    // return
+    return {
+        data: hook.data ?? [],
+        isLoading: hook.isLoading,
+        errorText: hook.errorText,
+    };
+};
+
+// ✅ gallery list/count：固定條件已由 loader 做，CSR 用 initial 接手 + 分頁互動
+const useGalleryList = (
+    adapter: ReturnType<typeof GalleryAdapter>,
+    lang: Lang,
+    categoryIds: string,
+    tagIds: string,
+    loaderData: GalleryListLoaderData | null,
+) => {
+    // 宣告變數：baseParam 優先使用 loader 的（SSR 首屏一致）
+    const baseParam = useMemo(() => {
+        if (loaderData?.args?.lang === lang && loaderData?.args?.categoryIds === categoryIds && loaderData?.args?.tagIds === tagIds)
+            return loaderData.args.baseParam;
+
+        // 若 CSR 條件和 SSR 不一致，先回空，讓 hook 自己重撈（避免錯用 initial）
+        return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: 12 } as components["schemas"]["QueryListParam"];
+    }, [loaderData, lang, categoryIds, tagIds]);
+
+    const initialCount = useMemo<ApiLoaderData<components["schemas"]["QueryListParam"], number> | null>(() => {
+        if (!loaderData?.args?.baseParam) return null;
+
+        // 確保 initial 的條件與目前一致，才使用
+        if (loaderData.args.lang !== lang) return null;
+        if (loaderData.args.categoryIds !== categoryIds) return null;
+        if (loaderData.args.tagIds !== tagIds) return null;
+
+        return {
+            args: loaderData.args.baseParam,
+            apiRes: { IsSuccess: true, Data: loaderData.res.countRes ?? 0, SysMessage: [] },
+        };
+    }, [loaderData, lang, categoryIds, tagIds]);
+
+    const initialList = useMemo<ApiLoaderData<components["schemas"]["QueryListParam"], GallerySet[]> | null>(() => {
+        if (!loaderData?.args?.baseParam) return null;
+
+        if (loaderData.args.lang !== lang) return null;
+        if (loaderData.args.categoryIds !== categoryIds) return null;
+        if (loaderData.args.tagIds !== tagIds) return null;
+
+        return {
+            args: loaderData.args.baseParam,
+            apiRes: { IsSuccess: true, Data: loaderData.res.listRes ?? [], SysMessage: [] },
+        };
+    }, [loaderData, lang, categoryIds, tagIds]);
+
+    // 執行 function：count
+    const useCount = adapter.hooks.useQueryCount({
+        condition: baseParam,
+        initial: initialCount,
+        deps: [lang, categoryIds, tagIds],
+    });
+
+    // 執行 function：paged list
+    const useList = adapter.hooks.usePagedQueryList({
+        baseParam,
+        count: useCount.data ?? 0,
+        initial: initialList,
+        deps: [lang, categoryIds, tagIds],
+    });
+
+    // return
+    return {
+        data: useList.data ?? [],
+        isLoading: useCount.isLoading || useList.isLoading,
+        error: useCount.errorText ?? useList.errorText ?? null,
+        pageNumber: useList.pageNumber,
+        totalPages: useList.totalPages,
+        onPageChange: useList.onPageChange,
+    };
+};
 
 const Gallery = (props: { lang: Lang; data: GallerySet[]; cateData: CategorySet[] }) => {
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
@@ -117,67 +239,4 @@ const Gallery = (props: { lang: Lang; data: GallerySet[]; cateData: CategorySet[
             <hr className="hr-my-4" />
         </>
     )
-}
-
-
-
-
-const useGalleryList = (provider: IDataProvider<GallerySet>, lang: string, categoryIds: string, tagIds: string) => {
-    var condition: string = "";
-    if (categoryIds) condition = LibMerge(" And ", false, condition, `${GalleryFields.Categories} HasAny [${categoryIds}]`)
-    if (tagIds) condition = LibMerge(" And ", false, condition, `${GalleryFields.Tags} HasAny [${tagIds}]`)
-    condition = LibMerge(" And ", false, condition, `${GalleryFields.ContentStatus} !& 4`)//不包含隱藏的資料
-    condition = LibMerge(" And ", false, condition, `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang} = ${lang}`)
-    condition = LibMerge(" And ", false, condition, `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title} != ''`)
-    return useFetchGridListData<GallerySet>({
-        getModelDisplayName: () => provider.getModelDisplayName(),
-        fetchList: (cond) => provider.fetchList(cond),
-        fetchListCount: (cond) => provider.fetchListCount(cond),
-        visibleKeys: [
-            [GallerySetFields.Gallery, GalleryFields.InternalId],
-            [GallerySetFields.Gallery, GalleryFields.Categories],
-            [GallerySetFields.Gallery, GalleryFields.CoverPicSrcId],
-            [GallerySetFields.Gallery, GalleryFields.CreateTime],
-            [GallerySetFields.Gallery, GalleryFields.Validate_Start],
-            [GallerySetFields.GalleryInfo, GalleryInfoFields.Lang],
-            [GallerySetFields.GalleryInfo, GalleryInfoFields.Title],
-        ],
-        buildQueryCondition: (page) => ({
-            Fields: [
-                GalleryFields.InternalId, GalleryFields.Categories, GalleryFields.CoverPicSrcId, GalleryFields.CreateTime,
-                GalleryFields.Validate_Start, GalleryFields.ContentStatus,
-                `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang}`,
-                `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title}`,
-            ],
-            Condition: condition,
-            RankGroups: [{ Condition: `${GalleryFields.ContentStatus} & 1` }],
-            OrderBy: [{ Col: GalleryFields.Validate_Start, Desc: true }, { Col: GalleryFields.CreateTime, Desc: true }],
-            PageNumber: page,
-            PageSize: 12,
-        }),
-        parseRow: (item, columns) => {
-            const data = item.Gallery ?? {};
-            const cells: RowCell[] = columns.map(col => {
-                let content = "";
-
-                switch (col.key) {
-                    case GalleryInfoFields.Title:
-                        // content = data?.find(d => d.Lang === lang)?.Title ?? "";
-                        break;
-                    case GalleryFields.CreateTime:
-                    case GalleryFields.ModifyTime:
-                    case GalleryFields.Validate_Start:
-                        content = FormatDate((data as any)[col.key]);
-                        break;
-                    default:
-                        content = (data as any)[col.key] ?? "";
-                        break;
-                }
-                return { col, content };
-            });
-            return { cells };
-        },
-        enabled: true,
-        deps: [lang, categoryIds, tagIds],
-    });
 };

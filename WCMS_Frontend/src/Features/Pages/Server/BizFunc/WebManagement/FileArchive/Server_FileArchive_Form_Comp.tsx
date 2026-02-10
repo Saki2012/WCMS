@@ -1,48 +1,86 @@
 import { LibCheckBox, LibTextBox, LibFileInput } from "@/SysCore/Components/FormField/LibFormField"
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { useGetCategoryListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook"
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
-import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
+import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
-import FileArchiveProvider from "@/Features/Hooks/BizFunc/WebManagement/FileArchive/FileArchive_Api";
-import { useGetTagListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
-import { FileArchiveDetailFields, FileArchiveSetFields, FileArchiveFields, FileArchiveInfoFields } from "@/types/SchemaFields";
+import { FileArchiveDetailFields, FileArchiveSetFields, FileArchiveFields, FileArchiveInfoFields, PGID } from "@/types/SchemaFields";
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-import { useActions } from "@/Features/Hooks/Common/useActions";
-import { useMemo } from "react";
+import { useMemo, useCallback, useEffect, useState } from "react";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { PGID } from "@/Features/Hooks/Common/ProgId";
 import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
 import { LibUrlInput } from "@/SysCore/Components/FormField/FieldComponets/LibUrlInput_Comp";
+
+import { useToast } from "@/Features/Hooks/Common/useToastCenter";
+import type { ApiAdapterError, ApiLoaderData, ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
+import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
+import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
+import type { ModelDisplaySchema } from "@/types/IApiSchema";
+import { FileArchiveAdapter } from "@/Features/Hooks/BizFunc/WebManagement/FileArchive/FileArchive_Api";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
+import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
+
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"]
 type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"]
 type FileArchiveUrlDetail = components["schemas"]["FileArchiveUrlDetail_DTO"]
-const emptyData: FileArchiveSet = { FileArchive: {}, FileArchiveInfo: [], FileArchiveDetail: [] }
+
+const emptyData: FileArchiveSet = {
+    FileArchive: {},
+    FileArchiveInfo: [],
+    FileArchiveDetail: [],
+    FileArchiveUrlDetail: [],
+}
 
 /** 檔案室表單
- * @returns 
+ * @returns
  */
 export const Server_FileArchiveFormComp = (prop: { theme: IBETheme; lang: Lang }) => {
+    // 宣告變數
     const { internalId } = useParams()
-    const dirUrl = useLocation().pathname.replace(/\/Form$/, `/Form`);
-    const provider = useMemo(() => { return FileArchiveProvider() }, [])
-    const formData = useFetchFormData<FileArchiveSet>(provider, internalId, emptyData)
-    const useCategory = useGetCategoryListByProgId(PGID.FileArchive, prop.lang);
-    const useTag = useGetTagListByProgId(PGID.FileArchive, prop.lang);
+    const navigate = useNavigate();
+    const listUrl = useLocation().pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
+
+    const adapter = useMemo(() => FileArchiveAdapter(), [])
+    const formData = useFileArchiveFormDataByAdapter(adapter, internalId ?? "", emptyData)
+
+    const useCategory = useCategoryMapByProgId(PGID.FileArchive, prop.lang);
+    const useTag = useTagMapByProgId(PGID.FileArchive, prop.lang);
     const useContentStatus = useFetchEnumOptions("ContentStatus")
-    const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
-    useEnsureLangDetails(formData, { headerName: FileArchiveSetFields.FileArchive, detailName: FileArchiveSetFields.FileArchiveInfo, parentKeys: [FileArchiveFields.FileArchiveId], preferFirstLang: prop.lang });
-    const actions = useActions(dirUrl, provider, formData.data as FileArchiveSet, internalId as string)
+
+    const status = useMemo(() => {
+        // 執行 function：移除 0 選項
+        const src = useContentStatus.data ?? {};
+        const { ["0"]: _drop, ...rest } = src;
+        return rest as Record<string, string>;
+    }, [useContentStatus.data]);
+
+    useEnsureLangDetails(formData, {
+        headerName: FileArchiveSetFields.FileArchive,
+        detailName: FileArchiveSetFields.FileArchiveInfo,
+        parentKeys: [FileArchiveFields.FileArchiveId],
+        preferFirstLang: prop.lang
+    });
+
+    const actions = useFileArchiveFormActionsByAdapter(
+        adapter,
+        internalId ?? "",
+        formData.data,
+        () => {
+            // 執行 function：儲存/刪除成功回列表
+            navigate(listUrl);
+        },
+    );
+
     const isLoading = [useTag.isLoading, useCategory.isLoading, formData.isLoading, useContentStatus.isLoading]
     const errors = [useTag.error, useCategory.error, formData.error, useContentStatus.error]
     const formProp: FormCompProp = { Title: "新增檔案室", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
 
+    // return（不改 JSX / DOM 結構）
     return (
         <FormComp prop={formProp}>
             <HeaderComp theme={prop.theme} formData={formData} cateOpts={useCategory.data} statusOpts={status} tagOpts={useTag.data} />
@@ -51,6 +89,105 @@ export const Server_FileArchiveFormComp = (prop: { theme: IBETheme; lang: Lang }
     )
 }
 
+/** FormData：QueryData + ModelDisplayName（對標 Announcement） */
+const useFileArchiveFormDataByAdapter = (
+    adapter: ReturnType<typeof FileArchiveAdapter>,
+    internalId: string,
+    empty: FileArchiveSet,
+): UseFetchFormDataResult<FileArchiveSet> => {
+    // 宣告變數
+    const { publish } = useToast();
+    const isNew = useMemo(() => !internalId, [internalId]);
+    const internalKey = internalId || "__new__";
+
+    const onError = useCallback((e: ApiAdapterError) => {
+        // 執行 function：統一 toast
+        publish({ level: MessageStatus.Error, title: e.messageText });
+    }, [publish]);
+
+    const initial = useMemo<ApiLoaderData<string, FileArchiveSet> | null>(() => {
+        // 執行 function：新建模式提供 initial data
+        if (!isNew) return null;
+        const ok: ApiResponse<FileArchiveSet> = { IsSuccess: true, Data: empty, SysMessage: [] };
+        return { args: internalKey, apiRes: ok };
+    }, [isNew, empty, internalKey]);
+
+    const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
+    const query = adapter.hooks.useQueryData({
+        internalId: internalKey,
+        initial,
+        deps: [internalKey],
+        onError,
+    });
+
+    const [data, setData] = useState<FileArchiveSet>(empty);
+
+    useEffect(() => {
+        // 執行 function：QueryData 回來後同步到可編輯 state
+        if (query.data) setData(query.data);
+        else if (isNew) setData(empty);
+    }, [query.data, isNew, empty]);
+
+    const refetch = useCallback(() => {
+        // 執行 function
+        void query.refetch();
+    }, [query]);
+
+    const isLoading = Boolean(!isNew && query.isLoading) || Boolean(model.isLoading);
+    const error = query.errorText ?? model.errorText ?? null;
+
+    // return（displayName 不可為 null）
+    return {
+        data,
+        setFormData: setData,
+        isLoading,
+        error,
+        refetch,
+        displayName: (model.data ?? ({ ModelId: "", ModelDisplayName: "", Tables: [] } as ModelDisplaySchema)),
+    };
+};
+
+/** Actions：useServerActions（對標 Announcement） */
+const useFileArchiveFormActionsByAdapter = (
+    adapter: ReturnType<typeof FileArchiveAdapter>,
+    internalId: string,
+    formData: FileArchiveSet | null,
+    onAfterDone: () => void,
+): ServerFormActions => {
+    // 宣告變數
+    const isNew = useMemo(() => !internalId, [internalId]);
+
+    const server = adapter.useServerActions({
+        onSuccessByMode: {
+            create: () => onAfterDone(),
+            update: () => onAfterDone(),
+            delete: () => onAfterDone(),
+        },
+    });
+
+    // return（對標 ServerFormActions）
+    return {
+        Save: async () => {
+            // 執行 function：create/update
+            if (!formData) return;
+            if (isNew) await server.createAsync(formData);
+            else await server.updateAsync(internalId, formData);
+        },
+        Delete: async () => {
+            // 執行 function
+            if (!internalId) return;
+            await server.deleteAsync(internalId);
+        },
+        Back: () => {
+            // 執行 function
+            onAfterDone();
+        },
+        Preview: () => {
+            // 執行 function：目前無預覽
+        },
+        IsSaving: server.isSaving,
+    };
+};
 
 const HeaderComp = (prop: {
     theme: IBETheme; formData: UseFetchFormDataResult<FileArchiveSet>;
@@ -138,7 +275,7 @@ const SubFilesComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
                     const rowKeys = { [FileArchiveDetailFields.FileArchiveId]: f.FileArchiveId, [FileArchiveDetailFields.ParentRowId]: f.ParentRowId, [FileArchiveDetailFields.RowId]: f.RowId, }
                     return (
                         <div key={`${f.ParentRowId}-${f.RowId}`} className="flex items-center gap-2 mb-2">
-                            <LibFileInput Style={prop.theme.FileInput} DefaultInputDisplay="請輸入附件說明" Accept="*/*" onDelete={() => removeFileAt(i)}
+                            <LibFileInput DefaultInputDisplay="請輸入附件說明" Accept="*/*" onDelete={() => removeFileAt(i)}
                                 {...setFileField(FileArchiveSetFields.FileArchiveDetail, FileArchiveDetailFields.FileSrcId, FileArchiveDetailFields.FileName, rowKeys,)} />
                         </div>
                     )
@@ -192,4 +329,43 @@ const SubUrlComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Fi
             })}
         />
     );
+};
+
+// Category / Tag options by progId（統一走 Adapter hooks：useMapByProgId）
+const useCategoryMapByProgId = (progId: string, lang: Lang) => {
+    // 宣告變數
+    const adapter = useMemo(() => CategoryAdapter(), []);
+
+    // 執行 function：由 adapter 統一組 condition（含 progId/lang/fields）
+    const q = adapter.hooks.useMapByProgId({
+        progId,
+        lang,
+        deps: [progId, lang],
+    });
+
+    // return
+    return {
+        data: q.map ?? {},
+        isLoading: q.isLoading,
+        error: q.errorText,
+    };
+};
+
+const useTagMapByProgId = (progId: string, lang: Lang) => {
+    // 宣告變數
+    const adapter = useMemo(() => TagAdapter(), []);
+
+    // 執行 function：由 adapter 統一組 condition（含 progId/lang/fields）
+    const q = adapter.hooks.useMapByProgId({
+        progId,
+        lang,
+        deps: [progId, lang],
+    });
+
+    // return
+    return {
+        data: q.map ?? {},
+        isLoading: q.isLoading,
+        error: q.errorText,
+    };
 };

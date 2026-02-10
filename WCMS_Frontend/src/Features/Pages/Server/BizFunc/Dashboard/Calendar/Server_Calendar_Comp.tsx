@@ -1,15 +1,15 @@
 import './CalendarPageComp.css';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
-import { MessageStatus, type ApiResponse } from "@/SysCore/Interface/IApiProvider";
-import api from "@/SysCore/Utils/API/APIBase";
 import type { components } from '@/types/api';
 import { CalendarFields } from '@/types/SchemaFields';
 import { useToast } from '@/Features/Hooks/Common/useToastCenter';
+import { CalendarAdapter } from '@/Features/Hooks/BizFunc/SystemSetting/Calendar/Calendar_Api';
+import { MessageStatus } from '@/SysCore/Utils/API/APIBase';
 
 type CalendarSet = components["schemas"]["CalendarSet_DTO"];
 type Calendar = components["schemas"]["Calendar_DTO"];
 type CalendarDetail = components["schemas"]["CalendarDetail_DTO"];
-type QueryListParam = components["schemas"]["QueryListParam"]
+
 /** YYYY-MM-DD -> 單日 DTO */
 type CalendarYearMap = Record<string, CalendarDetail>;
 
@@ -25,6 +25,8 @@ interface DialogAnchorRect {
 export interface CalendarPageCompProps {
     defaultYear?: number;
 }
+
+//#region private Func
 
 /** 將後端 Date 轉成 YYYY-MM-DD（避免帶時間造成 key 對不到） */
 const normalizeDateKey = (dateStr?: string | null): string => {
@@ -42,7 +44,7 @@ const createEmptyDayInfo = (year: number, dateStr: string): CalendarDetail => {
     return {
         Year: year,
         Date: dateStr,
-        DayOfWeek: jsDate.getDay() as any,
+        DayOfWeek: jsDate.getDay() as CalendarDetail["DayOfWeek"],
         IsHoliday: false,
         HolidayName: "",
         Description: "",
@@ -61,29 +63,24 @@ const formatDateString = (year: number, monthZeroBased: number, day: number): st
 };
 
 /** 0~6 -> 日一二三四五六 */
-const getWeekdayNameZh = (weekDay: number): string => {
-    const names = ["日", "一", "二", "三", "四", "五", "六"];
-    return names[weekDay] ?? "";
+const getWeekdayNameZh = (weekDay: number | null | undefined) => {
+    const w = Number(weekDay ?? 0);
+    const map = ["日", "一", "二", "三", "四", "五", "六"];
+    return map[w] ?? "";
 };
 
-/** 0~11 -> 1 月 ~ 12 月 */
-const getMonthLabelZh = (monthZeroBased: number): string => {
-    const names = ["1 月", "2 月", "3 月", "4 月", "5 月", "6 月", "7 月", "8 月", "9 月", "10 月", "11 月", "12 月"];
-    return names[monthZeroBased] ?? "";
-};
-
-// ✅ QueryList 回來的 list（單日 DTO list）轉成 map
-const buildYearMapFromList = (year: number, list: CalendarDetail[] | null | undefined): CalendarYearMap => {
+/** 把後端 CalendarDetail[] 轉成年字典（並補齊該年每一天） */
+const buildYearMapFromList = (year: number, list: CalendarDetail[]): CalendarYearMap => {
     const map: CalendarYearMap = {};
 
-    // 1) 先把 API 回來的資料塞進 map（以 Date 當 key）
+    // 1) 先塞回傳資料
     (list ?? []).forEach((d) => {
-        const k = (d?.Date ?? "").trim();
-        if (!k) return;
-        map[k] = d;
+        const key = normalizeDateKey(d.Date);
+        if (!key) return;
+        map[key] = { ...d, Date: key };
     });
 
-    // 2) 再把整年度缺的日期補齊（避免 UI 某天點不到）
+    // 2) 補齊缺日
     for (let m = 0; m < 12; m += 1) {
         const daysInMonth = new Date(year, m + 1, 0).getDate();
         for (let day = 1; day <= daysInMonth; day += 1) {
@@ -94,59 +91,6 @@ const buildYearMapFromList = (year: number, list: CalendarDetail[] | null | unde
     }
 
     return map;
-};
-/** 組裝 QueryList 的查詢條件（年度） */
-const buildYearQueryParam = (year: number): QueryListParam => {
-    return {
-        Fields: [CalendarFields.InternalId],
-        // ✅ 建議改用主表 Year（通常 Calendar_DTO 本身就有 Year）
-        Condition: `${CalendarFields.Year} = ${year}`,
-        PageSize: 1,
-        PageNumber: 0,
-    };
-};
-
-/** 從 QueryList 結果拿到 internalId（無資料就回 null） */
-const pickFirstInternalId = (list: CalendarSet[] | null | undefined): string | null => {
-    const id = list?.[0]?.Calendar?.InternalId ?? null;
-    return id && id.trim() ? id.trim() : null;
-};
-
-/** GET /Calendar/QueryData?internalId=xxx */
-const fetchCalendarSetByInternalId = async (internalId: string): Promise<CalendarSet[] | null> => {
-    const res = await api.get<ApiResponse<CalendarSet[]>>("/Calendar/QueryData", {
-        params: { internalId },
-    });
-    return res.data?.Data ?? null;
-};
-/** ✅ 呼叫後端：取得該年度清單（會回 CalendarDetail[]） */
-const queryCalendarListByYear = async (year: number): Promise<CalendarDetail[]> => {
-    // 1) 先 QueryList 找到該年度的主表 internalId
-    const param = buildYearQueryParam(year);
-    const res = await api.post<ApiResponse<CalendarSet[]>>("/Calendar/QueryList", param);
-    const data = res.data;
-
-    if (!data?.IsSuccess) {
-        const msg = data?.SysMessage?.map((x) => x.Message).join("\n") ?? "載入行事曆資料失敗";
-        throw new Error(msg);
-    }
-
-    const internalId = pickFirstInternalId(data.Data);
-    if (!internalId) {
-        // ✅ 沒有年度資料：回空陣列（外層 buildYearMapFromList 會補齊缺日）
-        return [];
-    }
-
-    // 2) 再用 internalId 去 QueryData 拿 CalendarDetail
-    const set = await fetchCalendarSetByInternalId(internalId);
-
-    return (set?.[0]?.CalendarDetail ?? []) as CalendarDetail[];
-};
-
-/** 呼叫後端：更新單日資訊 (/Service/Calendar/UpdateDayInfo) */
-const updateDayInfo = async (dayInfo: CalendarDetail): Promise<ApiResponse<CalendarDetail>> => {
-    const res = await api.put<ApiResponse<CalendarDetail>>(`/Calendar/UpdateDayInfo`, dayInfo);
-    return res.data;
 };
 
 /** ---------- Time helpers (12h UI + 24h value) ---------- */
@@ -189,26 +133,15 @@ const to24hHour = (meridiem: "AM" | "PM", hh12: number): number => {
     return h === 12 ? 12 : h + 12;
 };
 
-/** 12h display string */
-const format12hDisplay = (value24?: string | null): string => {
-    const p = parseHHmm(value24);
-    if (!p) return "";
-    const { meridiem, hh12 } = to12hParts(p.hh);
-
-    const zhMer = meridiem === "AM" ? "上午" : "下午";
-    const mm = String(p.mm).padStart(2, "0");
-    const hh = String(hh12).padStart(2, "0");
-
-    return `${zhMer} ${hh}:${mm}`;
-};
-
-/** Create 24h "HH:mm" */
-const makeHHmm = (hh24: number, mm: number): string => {
-    const hh = String(Math.max(0, Math.min(23, hh24))).padStart(2, "0");
+/** number -> "HH:mm" */
+const formatHHmm = (hh: number, mm: number): string => {
+    const h = String(Math.max(0, Math.min(23, hh))).padStart(2, "0");
     const m = String(Math.max(0, Math.min(59, mm))).padStart(2, "0");
 
-    return `${hh}:${m}`;
+    return `${h}:${m}`;
 };
+
+//#endregion
 
 /** ---------- Page ---------- */
 
@@ -220,39 +153,18 @@ export const CalendarPageComp: React.FC<CalendarPageCompProps> = ({ defaultYear 
     const [daysByDate, setDaysByDate] = useState<CalendarYearMap>({});
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [dialogAnchor, setDialogAnchor] = useState<DialogAnchorRect | null>(null);
-    const yearCacheRef = useRef<Record<number, CalendarYearMap>>({});
-
-    /** 載入某年度（暫用 mock，之後替換成 API） */
-    const loadYear = useCallback(async (targetYear: number, force?: boolean) => {
-        // 1) 命中 cache 就直接用（除非 force）
-        const cached = yearCacheRef.current[targetYear];
-        if (cached && !force) {
-            setDaysByDate(cached);
-            return;
-        }
-
-        setIsLoading(true);
-
-        try {
-            const list = await queryCalendarListByYear(targetYear);
-            const map = buildYearMapFromList(targetYear, list);
-
-            yearCacheRef.current[targetYear] = map; // ✅ 更新 cache
-            setDaysByDate(map);
-        }
-        catch {
-            publish({ level: MessageStatus.Error, title: "載入年度清單時發生錯誤" });
-        }
-        finally {
-            setIsLoading(false);
-        }
-    }, []);
-
+    const [refreshTick, setRefreshTick] = useState<number>(0);
+    const adapter = useMemo(() => CalendarAdapter(), []);
+    const yearDetailsRes = adapter.hooks.useFetchCalendarDetailsByYear({ year, deps: [year, refreshTick], });
+    const { isSaving: isDaySaving, updateDayInfoAsync } = adapter.hooks.useUpdateDayInfo();
     useEffect(() => {
-        void loadYear(year);
-    }, [year, loadYear]);
+        // 宣告變數：將年度清單補齊缺日後 mapping 成字典
+        const list = yearDetailsRes.data ?? [];
+        const map = buildYearMapFromList(year, list);
+        // 執行 function：更新畫面
+        setDaysByDate(map);
+    }, [year, yearDetailsRes.data]);
 
     /** 上一個月 */
     const handlePrevMonth = useCallback(() => {
@@ -276,14 +188,15 @@ export const CalendarPageComp: React.FC<CalendarPageCompProps> = ({ defaultYear 
         });
     }, []);
 
-    /** 回到今天 */
+    /** 跳到今天 */
     const handleGoToday = useCallback(() => {
-        const now = new Date();
-        setYear(now.getFullYear());
-        setMonth(now.getMonth());
+        const t = new Date();
+        setYear(t.getFullYear());
+        setMonth(t.getMonth());
+        setSelectedDate(formatDateString(t.getFullYear(), t.getMonth(), t.getDate()));
     }, []);
 
-    /** 點某一天 -> 開啟編輯框 */
+    /** 點某一天：開啟編輯 dialog */
     const handleDayClick = useCallback((dateStr: string, anchor: DialogAnchorRect) => {
         setSelectedDate(dateStr);
         setDialogAnchor(anchor);
@@ -299,23 +212,20 @@ export const CalendarPageComp: React.FC<CalendarPageCompProps> = ({ defaultYear 
     const handleDialogSave = useCallback(async (updated: CalendarDetail) => {
 
         try {
-            const res = await updateDayInfo(updated);
+            const res = await updateDayInfoAsync(updated);
 
             if (res.IsSuccess) {
                 (res.SysMessage ?? []).forEach(item =>
                     publish({ level: item.Status, code: item.MessageCode, title: item.Message })
                 );
+
                 // ✅ 1) 先關閉 dialog
                 setIsDialogOpen(false);
 
-                // ✅ 2) 清掉該年的 cache，避免看到舊資料
-                const y = Number(updated.Year ?? year);
-                delete yearCacheRef.current[y];
+                // ✅ 2) 強制重抓該年度，馬上刷新畫面
+                setRefreshTick(v => v + 1);
 
-                // ✅ 3) 強制重抓該年度，馬上刷新畫面
-                await loadYear(y, true);
-
-                // ✅ 4) 選取日維持（避免因 Date 帶時間造成失焦）
+                // ✅ 3) 選取日維持（避免因 Date 帶時間造成失焦）
                 const key = normalizeDateKey(updated.Date);
                 if (key) setSelectedDate(key);
 
@@ -329,61 +239,42 @@ export const CalendarPageComp: React.FC<CalendarPageCompProps> = ({ defaultYear 
         catch {
             publish({ level: MessageStatus.Error, title: "儲存失敗" });
         }
-    }, [loadYear, year]);
+    }, [updateDayInfoAsync, year]);
 
     /** 目前選到的日資料 */
     const selectedDay: CalendarDetail | null =
         selectedDate != null ? daysByDate[selectedDate] ?? null : null;
+
+    const isLoading = yearDetailsRes.isLoading || isDaySaving;
 
     return (
         <main className="wcms-calendar-page" aria-labelledby="calendar-page-title">
             <header className="wcms-calendar-header">
                 <div className="wcms-calendar-header-left">
                     <h1 id="calendar-page-title" className="page-title">
-                        萬年曆管理
+                        行事曆管理
                     </h1>
-                    <span aria-live="polite" className="wcms-calendar-year-label">
-                        {year} 年
-                    </span>
+                    <p className="page-subtitle">（{year} 年）</p>
                 </div>
 
-                <div className="wcms-calendar-header-right">
-                    <label className="year-input-label">
-                        <span className="sr-only">選擇年份</span>
-                        <input
-                            type="number"
-                            aria-label="選擇年份"
-                            value={year}
-                            onChange={(e) => setYear(Number(e.target.value) || year)}
-                            className="year-input"
-                        />
-                    </label>
-
-                    {/*
-                      已移除「儲存本年度異動」：此頁改為單日編輯後即呼叫 UpdateDayInfo 保存
-                    */}
-                </div>
-            </header>
-
-            <section className="wcms-calendar-toolbar" aria-label="月份切換與工具列">
-                <div className="wcms-calendar-month-nav">
-                    <button type="button" onClick={handlePrevMonth} className="btn btn-ghost" aria-label="上一個月">
-                        ◀
+                <div className="wcms-calendar-header-right" role="group" aria-label="月份切換">
+                    <button type="button" className="btn btn-default" onClick={handlePrevMonth} aria-label="上一個月">
+                        ‹
                     </button>
 
-                    <div aria-live="polite" aria-atomic="true" className="wcms-calendar-month-label">
-                        {year} 年 {getMonthLabelZh(month)}
+                    <div className="wcms-calendar-month-label" aria-live="polite">
+                        {year} / {String(month + 1).padStart(2, "0")}
                     </div>
 
-                    <button type="button" onClick={handleNextMonth} className="btn btn-ghost" aria-label="下一個月">
-                        ▶
+                    <button type="button" className="btn btn-default" onClick={handleNextMonth} aria-label="下一個月">
+                        ›
                     </button>
 
-                    <button type="button" onClick={handleGoToday} className="btn btn-outline">
+                    <button type="button" className="btn btn-default" onClick={handleGoToday}>
                         今天
                     </button>
                 </div>
-            </section>
+            </header>
 
 
             <section className="wcms-calendar-month-grid-section" aria-label="月曆檢視">
@@ -397,10 +288,9 @@ export const CalendarPageComp: React.FC<CalendarPageCompProps> = ({ defaultYear 
             </section>
 
             {isDialogOpen && selectedDay && dialogAnchor && (
-                <CalendarDayDialog
-                    key={selectedDay.Date}
-                    day={selectedDay}
+                <DayEditDialog
                     anchor={dialogAnchor}
+                    dayInfo={selectedDay}
                     onCancel={handleDialogCancel}
                     onSave={handleDialogSave}
                 />
@@ -409,293 +299,95 @@ export const CalendarPageComp: React.FC<CalendarPageCompProps> = ({ defaultYear 
     );
 };
 
-interface CalendarMonthGridProps {
+/** 月曆格子（不帶邏輯，只負責 render） */
+const CalendarMonthGrid: React.FC<{
     year: number;
-    /** 0~11 */
     month: number;
     daysByDate: CalendarYearMap;
     onDayClick: (dateStr: string, anchor: DialogAnchorRect) => void;
-}
+}> = (props) => {
+    const weekdayLabels = ["日", "一", "二", "三", "四", "五", "六"];
+    const monthStart = new Date(props.year, props.month, 1);
+    const monthStartDay = monthStart.getDay(); // 0=Sun
+    const daysInMonth = new Date(props.year, props.month + 1, 0).getDate();
 
-const CalendarMonthGrid: React.FC<CalendarMonthGridProps> = ({ year, month, daysByDate, onDayClick }) => {
-    const todayKey = useMemo(() => {
-        const now = new Date();
-        const y = now.getFullYear();
-        const m = String(now.getMonth() + 1).padStart(2, "0");
-        const d = String(now.getDate()).padStart(2, "0");
-        return `${y}-${m}-${d}`;
-    }, []);
-    const weeks = useMemo(() => {
-        const firstDay = new Date(year, month, 1);
-        const firstWeekday = firstDay.getDay(); // 0~6
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const totalCells = 6 * 7;
+    const cells: Array<{ dateStr: string | null; dayNumber: number | null }> = [];
 
-        const cells: (string | null)[] = [];
-        let dayCounter = 1;
+    // leading blanks
+    for (let i = 0; i < monthStartDay; i += 1) {
+        cells.push({ dateStr: null, dayNumber: null });
+    }
 
-        for (let i = 0; i < totalCells; i += 1) {
-            if (i < firstWeekday || dayCounter > daysInMonth) {
-                cells.push(null);
-            } else {
-                const dateStr = formatDateString(year, month, dayCounter);
-                cells.push(dateStr);
-                dayCounter += 1;
-            }
-        }
+    // actual days
+    for (let d = 1; d <= daysInMonth; d += 1) {
+        const dateStr = formatDateString(props.year, props.month, d);
+        cells.push({ dateStr, dayNumber: d });
+    }
 
-        const result: (string | null)[][] = [];
-        for (let row = 0; row < 6; row += 1) {
-            result.push(cells.slice(row * 7, row * 7 + 7));
-        }
+    // trailing blanks to fill complete weeks (optional)
+    while (cells.length % 7 !== 0) {
+        cells.push({ dateStr: null, dayNumber: null });
+    }
 
-        return result;
-    }, [year, month]);
-
-    const weekDayHeader = ["日", "一", "二", "三", "四", "五", "六"];
+    const hostId = useId();
 
     return (
-        <table className="wcms-calendar-month-grid">
-            <thead>
-                <tr>
-                    {weekDayHeader.map((label) => (
-                        <th key={label} scope="col">
-                            {label}
-                        </th>
-                    ))}
-                </tr>
-            </thead>
-            <tbody>
-                {weeks.map((row, rowIndex) => (
-                    <tr key={rowIndex}>
-                        {row.map((dateStr, colIndex) => {
-                            if (!dateStr) {
-                                return <td key={colIndex} className="empty-cell" />;
-                            }
+        <div className="wcms-calendar-grid" role="grid" aria-label={`${props.year} 年 ${props.month + 1} 月 月曆`} id={hostId}>
+            {/* weekday header */}
+            <div className="wcms-calendar-grid-header" role="row">
+                {weekdayLabels.map((w) => (
+                    <div key={w} className="wcms-calendar-grid-cell header" role="columnheader">
+                        {w}
+                    </div>
+                ))}
+            </div>
 
-                            const day = daysByDate[dateStr];
-                            const jsDate = new Date(dateStr);
-                            const dayNum = jsDate.getDate();
+            {/* weeks */}
+            <div className="wcms-calendar-grid-body" role="rowgroup">
+                {cells.map((c, idx) => {
+                    if (!c.dateStr) {
+                        return <div key={`empty-${idx}`} className="wcms-calendar-grid-cell empty" role="gridcell" />;
+                    }
 
-                            const isWeekend = jsDate.getDay() === 0 || jsDate.getDay() === 6;
-                            const holidayClass = day?.IsHoliday ? "is-holiday" : "";
-                            const weekendClass = isWeekend ? "is-weekend" : "";
+                    const dayInfo = props.daysByDate[c.dateStr];
+                    const isHoliday = Boolean(dayInfo?.IsHoliday);
+                    const holidayName = (dayInfo?.HolidayName ?? "").trim();
+                    const desc = (dayInfo?.Description ?? "").trim();
 
-                            const isToday = dateStr === todayKey;
-
-                            const cellClassName = ["calendar-cell", weekendClass, holidayClass, isToday ? "is-today" : "",].filter(Boolean).join(" ");
-                            const ariaLabel = [`${dateStr}（星期${getWeekdayNameZh(jsDate.getDay())}）`, day?.IsHoliday ? `假日：${day?.HolidayName ?? ""}` : "", day?.Description ? `說明：${day.Description}` : "",].filter(Boolean).join("，");
-
-                            const handleCellClick = (e: React.MouseEvent<HTMLButtonElement>, dateStrValue: string) => {
-                                const rect = e.currentTarget.getBoundingClientRect();
-                                const anchor: DialogAnchorRect = {
+                    return (
+                        <button
+                            key={c.dateStr}
+                            type="button"
+                            className={`wcms-calendar-grid-cell day ${isHoliday ? "holiday" : ""}`}
+                            role="gridcell"
+                            onClick={(e) => {
+                                const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                                props.onDayClick(c.dateStr!, {
                                     top: rect.top,
                                     left: rect.left,
                                     width: rect.width,
                                     height: rect.height,
-                                    viewportWidth: typeof window !== "undefined" ? window.innerWidth : rect.right + 16,
-                                    viewportHeight: typeof window !== "undefined" ? window.innerHeight : rect.bottom + 16,
-                                };
+                                    viewportWidth: window.innerWidth,
+                                    viewportHeight: window.innerHeight,
+                                });
+                            }}
+                            aria-label={`${c.dateStr}（星期${getWeekdayNameZh(dayInfo?.DayOfWeek ?? 0)}）`}
+                        >
+                            <div className="wcms-calendar-day-number">{c.dayNumber}</div>
 
-                                onDayClick(dateStrValue, anchor);
-                            };
-
-                            return (
-                                <td key={colIndex}>
-                                    <button type="button" className={cellClassName} onClick={(e) => handleCellClick(e, dateStr)} aria-label={`編輯 ${ariaLabel}`}>
-                                        <span className="calendar-day-number">{dayNum}</span>
-                                        <span className="calendar-day-tag">{(day?.HolidayName ?? "").trim() || (day?.IsHoliday ? "假日" : "")}</span>
-                                        <span className="calendar-day-tag">{renderOpenCloseText(day)}</span>
-                                    </button>
-                                </td>
-                            );
-                        })}
-                    </tr>
-                ))}
-            </tbody>
-        </table>
-    );
-};
-
-interface CalendarDayDialogProps {
-    day: CalendarDetail;
-    anchor: DialogAnchorRect;
-    onCancel: () => void;
-    onSave: (updated: CalendarDetail) => void;
-}
-
-const CalendarDayDialog: React.FC<CalendarDayDialogProps> = ({ day, anchor, onCancel, onSave }) => {
-    const [local, setLocal] = useState<CalendarDetail>(day);
-
-    const isHolidayId = useId();
-    const holidayNameId = useId();
-    const descId = useId();
-    const openTimeId = useId();
-    const closeTimeId = useId();
-    const memoId = useId();
-
-    useEffect(() => {
-        setLocal(day);
-    }, [day]);
-
-    /** 更新 local form state */
-    const handleChange = <K extends keyof CalendarDetail>(key: K, value: CalendarDetail[K]): void => {
-        setLocal((prev) => ({
-            ...prev,
-            [key]: value,
-        }));
-    };
-
-    /** 送出保存 */
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        onSave(local);
-    };
-
-    const dialogTitleId = "calendar-day-dialog-title";
-
-    /** 點遮罩關閉 */
-    const handleBackdropClick = () => {
-        onCancel();
-    };
-
-    /** 避免點到 dialog 本體觸發遮罩關閉 */
-    const handleDialogClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        e.stopPropagation();
-    };
-
-    /**
-     * 版面修正重點：
-     * 1) Dialog 固定置中（不貼格子），避免底部按鈕被切掉
-     * 2) Dialog 最大高度以 viewport 為準；內容區可滾動，按鈕區永遠看得到
-     */
-    const dialogStyle: React.CSSProperties = {
-        position: "fixed",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        maxHeight: "calc(100vh - 32px)",
-        width: "min(520px, calc(100vw - 24px))",
-    };
-
-    // anchor 先保留（未來如果要改回「貼格子」可用），目前不使用
-    void anchor;
-
-    return (
-        <div className="wcms-dialog-backdrop" role="presentation" onClick={handleBackdropClick}>
-            <div
-                className="wcms-dialog"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby={dialogTitleId}
-                style={dialogStyle}
-                onClick={handleDialogClick}
-            >
-                <header className="wcms-dialog-header">
-                    <h2 id={dialogTitleId}>
-                        編輯 {local.Date ?? ""}（星期{getWeekdayNameZh((local.DayOfWeek as any) ?? 0)}）
-                    </h2>
-                    <button type="button" onClick={onCancel} className="btn-icon" aria-label="關閉編輯視窗">
-                        ✕
-                    </button>
-                </header>
-
-                {/* 這裡用 form 包住，footer 仍可 submit */}
-                <form
-                    className="wcms-dialog-body"
-                    onSubmit={handleSubmit}
-                    style={{
-                        overflowY: "auto",
-                        maxHeight: "calc(100vh - 32px - 56px - 56px)", // 預留 header/footer 高度
-                        paddingBottom: 8,
-                    }}
-                >
-                    <div className="form-group">
-                        <div className="form-check">
-                            <input
-                                id={isHolidayId}
-                                className="form-check-input"
-                                type="checkbox"
-                                checked={!!local.IsHoliday}
-                                onChange={(e) => handleChange("IsHoliday", e.target.checked)}
-                            />
-                            <label className="form-check-label" htmlFor={isHolidayId}>
-                                是否為假日
-                            </label>
-                        </div>
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor={holidayNameId}>假日名稱</label>
-                        <input
-                            id={holidayNameId}
-                            type="text"
-                            className="form-control"
-                            value={local.HolidayName ?? ""}
-                            onChange={(e) => handleChange("HolidayName", e.target.value)}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor={descId}>說明</label>
-                        <textarea
-                            id={descId}
-                            className="form-control"
-                            rows={3}
-                            value={local.Description ?? ""}
-                            onChange={(e) => handleChange("Description", e.target.value)}
-                        />
-                    </div>
-
-                    {/*
-                      Spec_* 欄位為本次 case 額外擴充：
-                      之後會做成 Spec 插件繼承追加（Feature 版不直接耦合 Spec 欄位）
-                    */}
-                    <div className="form-group">
-                        <TimePicker12hWithConfirm
-                            inputId={openTimeId}
-                            label="開館時間"
-                            value24={local.Spec_OpenTime ?? null}
-                            onConfirm={(v24) => handleChange("Spec_OpenTime", v24 as any)}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <TimePicker12hWithConfirm
-                            inputId={closeTimeId}
-                            label="閉館時間"
-                            value24={local.Spec_CloseTime ?? null}
-                            onConfirm={(v24) => handleChange("Spec_CloseTime", v24 as any)}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor={memoId}>修改備註</label>
-                        <textarea
-                            id={memoId}
-                            className="form-control"
-                            rows={3}
-                            value={local.Spec_ModifyMemo ?? ""}
-                            onChange={(e) => handleChange("Spec_ModifyMemo", e.target.value)}
-                        />
-                    </div>
-
-                    {/* 讓 footer 跟著 form，方便 enter 提交 */}
-                    <footer className="wcms-dialog-footer">
-                        <button type="button" className="btn btn-outline" onClick={onCancel}>
-                            取消
+                            {(holidayName || desc) && (
+                                <div className="wcms-calendar-day-meta">
+                                    {holidayName && <div className="holiday-name">{holidayName}</div>}
+                                    {desc && <div className="day-desc">{desc}</div>}
+                                </div>
+                            )}
                         </button>
-                        <button type="submit" className="btn btn-primary">
-                            保存
-                        </button>
-                    </footer>
-                </form>
+                    );
+                })}
             </div>
         </div>
     );
 };
-
-/** ---------- 12h time picker (Confirm to close) ---------- */
 
 interface TimePicker12hWithConfirmProps {
     inputId: string;
@@ -705,9 +397,9 @@ interface TimePicker12hWithConfirmProps {
 }
 
 /**
- * 12 小時制時間選擇器（含確認/取消）
- * - 顯示：上午/下午 + hh:mm
- * - 儲存：24h HH:mm，送到後端安全
+ * 12 小時制時間選擇器
+ * - AA：label + sr-only、button 可 focus
+ * - 不依賴外部套件
  */
 const TimePicker12hWithConfirm: React.FC<TimePicker12hWithConfirmProps> = (props) => {
     const hostRef = useRef<HTMLDivElement | null>(null);
@@ -726,165 +418,100 @@ const TimePicker12hWithConfirm: React.FC<TimePicker12hWithConfirmProps> = (props
             setMm(0);
             return;
         }
-
-        const t12 = to12hParts(p.hh);
-        setMeridiem(t12.meridiem);
-        setHh12(t12.hh12);
+        const parts = to12hParts(p.hh);
+        setMeridiem(parts.meridiem);
+        setHh12(parts.hh12);
         setMm(p.mm);
     }, [props.value24]);
 
-    /** 開啟面板 */
-    const handleOpen = () => {
-        setIsOpen(true);
-    };
-
-    /** 關閉面板 */
-    const handleClose = () => {
-        setIsOpen(false);
-    };
-
-    /** 點外面關閉（不提交） */
-    const handleDocumentClick = useCallback((e: MouseEvent) => {
-        const host = hostRef.current;
-        if (!host) return;
-
-        if (host.contains(e.target as Node)) return;
-        setIsOpen(false);
-    }, []);
-
+    /** click outside -> close */
     useEffect(() => {
-        if (!isOpen) return;
+        const onDoc = (ev: MouseEvent) => {
+            if (!isOpen) return;
+            const el = hostRef.current;
+            if (!el) return;
+            if (ev.target instanceof Node && el.contains(ev.target)) return;
+            setIsOpen(false);
+        };
+        document.addEventListener("mousedown", onDoc);
+        return () => document.removeEventListener("mousedown", onDoc);
+    }, [isOpen]);
 
-        document.addEventListener("mousedown", handleDocumentClick);
-        return () => document.removeEventListener("mousedown", handleDocumentClick);
-    }, [isOpen, handleDocumentClick]);
-
-    /** 確認 -> 回寫 24h 值並關閉 */
-    const handleConfirm = () => {
-        const hour24 = to24hHour(meridiem, hh12);
-        const v24 = makeHHmm(hour24, mm);
-
-        props.onConfirm(v24);
+    /** 確認 */
+    const handleConfirm = useCallback(() => {
+        const hh24 = to24hHour(meridiem, hh12);
+        const value24 = formatHHmm(hh24, mm);
+        props.onConfirm(value24);
         setIsOpen(false);
-    };
-
-    /** 取消 -> 不回寫，直接關閉 */
-    const handleCancel = () => {
-        handleClose();
-    };
-
-    /** 清空 */
-    const handleClear = () => {
-        props.onConfirm(null);
-        setIsOpen(false);
-    };
-
-    const display = format12hDisplay(props.value24);
+    }, [meridiem, hh12, mm, props]);
 
     return (
-        <div ref={hostRef} style={{ position: "relative" }}>
-            <label htmlFor={props.inputId}>{props.label}</label>
+        <div className="wcms-timepicker" ref={hostRef}>
+            <label htmlFor={props.inputId} className="sr-only">
+                {props.label}
+            </label>
 
-            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <div className="wcms-timepicker-input-row">
                 <input
                     id={props.inputId}
-                    type="text"
                     className="form-control"
-                    value={display}
+                    value={props.value24 ?? ""}
                     readOnly
-                    onClick={handleOpen}
-                    aria-label={`${props.label}（點擊選擇時間）`}
-                    placeholder="請選擇時間"
+                    onClick={() => setIsOpen((v) => !v)}
+                    aria-haspopup="dialog"
+                    aria-expanded={isOpen}
                 />
-                <button
-                    type="button"
-                    className="btn btn-outline"
-                    onClick={handleOpen}
-                    aria-label={`開啟${props.label}時間選擇器`}
-                    style={{ whiteSpace: "nowrap" }}
-                >
+
+                <button type="button" className="btn btn-default" onClick={() => setIsOpen((v) => !v)}>
                     選擇
                 </button>
             </div>
 
             {isOpen && (
-                <div
-                    role="dialog"
-                    aria-modal="false"
-                    aria-label={`${props.label}時間選擇器`}
-                    style={{
-                        position: "absolute",
-                        zIndex: 2000,
-                        top: "calc(100% + 6px)",
-                        left: 0,
-                        width: "100%",
-                        background: "#fff",
-                        border: "1px solid rgba(0,0,0,.15)",
-                        borderRadius: 8,
-                        boxShadow: "0 10px 30px rgba(0,0,0,.2)",
-                        padding: 10,
-                    }}
-                >
-                    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                        <div style={{ flex: 1 }}>
-                            <label className="sr-only">上午下午</label>
+                <div className="wcms-timepicker-panel" role="dialog" aria-label={`${props.label} 選擇器`}>
+                    <div className="wcms-timepicker-row">
+                        <div style={{ width: 88 }}>
+                            <label className="sr-only">AM/PM</label>
                             <select
                                 className="form-control"
                                 value={meridiem}
-                                onChange={(e) => setMeridiem((e.target.value as "AM" | "PM") ?? "AM")}
-                                aria-label="上午下午"
+                                onChange={(e) => setMeridiem(e.target.value as "AM" | "PM")}
                             >
-                                <option value="AM">上午</option>
-                                <option value="PM">下午</option>
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
                             </select>
                         </div>
 
                         <div style={{ flex: 1 }}>
                             <label className="sr-only">時</label>
-                            <select
-                                className="form-control"
-                                value={hh12}
-                                onChange={(e) => setHh12(Number(e.target.value) || 1)}
-                                aria-label="小時"
-                            >
-                                {Array.from({ length: 12 }).map((_, i) => {
-                                    const v = i + 1;
-                                    return (
-                                        <option key={v} value={v}>
-                                            {String(v).padStart(2, "0")}
-                                        </option>
-                                    );
-                                })}
+                            <select className="form-control" value={hh12} onChange={(e) => setHh12(Number(e.target.value))}>
+                                {Array.from({ length: 12 }, (_, i) => i + 1).map((v) => (
+                                    <option key={v} value={v}>
+                                        {String(v).padStart(2, "0")}
+                                    </option>
+                                ))}
                             </select>
                         </div>
 
                         <div style={{ flex: 1 }}>
                             <label className="sr-only">分</label>
-                            <select
-                                className="form-control"
-                                value={mm}
-                                onChange={(e) => setMm(Number(e.target.value) || 0)}
-                                aria-label="分鐘"
-                            >
-                                {Array.from({ length: 60 }).map((_, i) => (
-                                    <option key={i} value={i}>
-                                        {String(i).padStart(2, "0")}
+                            <select className="form-control" value={mm} onChange={(e) => setMm(Number(e.target.value))}>
+                                {Array.from({ length: 60 }, (_, i) => i).map((v) => (
+                                    <option key={v} value={v}>
+                                        {String(v).padStart(2, "0")}
                                     </option>
                                 ))}
                             </select>
                         </div>
-                    </div>
 
-                    <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 10 }}>
-                        <button type="button" className="btn btn-outline" onClick={handleClear}>
-                            清空
-                        </button>
-                        <button type="button" className="btn btn-outline" onClick={handleCancel}>
-                            取消
-                        </button>
-                        <button type="button" className="btn btn-primary" onClick={handleConfirm}>
-                            確認
-                        </button>
+                        <div style={{ display: "flex", gap: 8 }}>
+                            <button type="button" className="btn btn-default" onClick={() => setIsOpen(false)}>
+                                取消
+                            </button>
+                            <button type="button" className="btn btn-primary" onClick={handleConfirm}>
+                                確認
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -892,29 +519,153 @@ const TimePicker12hWithConfirm: React.FC<TimePicker12hWithConfirmProps> = (props
     );
 };
 
+const DayEditDialog: React.FC<{
+    anchor: DialogAnchorRect;
+    dayInfo: CalendarDetail;
+    onCancel: () => void;
+    onSave: (updated: CalendarDetail) => void;
+}> = (props) => {
+    const dialogId = useId();
+    const openTimeId = useId();
+    const closeTimeId = useId();
+    const [local, setLocal] = useState<CalendarDetail>({ ...props.dayInfo });
+
+    useEffect(() => {
+        setLocal({ ...props.dayInfo });
+    }, [props.dayInfo]);
+
+    /** 更新 local */
+    const handleChange = <K extends keyof CalendarDetail>(key: K, value: CalendarDetail[K]): void => {
+        setLocal((prev) => ({
+            ...prev,
+            [key]: value,
+        }));
+    };
+
+    /** 送出保存 */
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        // ✅ Date key normalize
+        const key = normalizeDateKey(local.Date);
+        const updated: CalendarDetail = { ...local, Date: key };
+
+        props.onSave(updated);
+    };
+
+    /** dialog 位置 */
+    const style = useMemo(() => {
+        const padding = 12;
+        const w = 420;
+        const h = 520;
+
+        // default: below
+        let top = props.anchor.top + props.anchor.height + 8;
+        let left = props.anchor.left;
+
+        // keep inside viewport
+        if (left + w + padding > props.anchor.viewportWidth) {
+            left = Math.max(padding, props.anchor.viewportWidth - w - padding);
+        }
+        if (top + h + padding > props.anchor.viewportHeight) {
+            top = Math.max(padding, props.anchor.top - h - 8);
+        }
+
+        return { top, left, width: w };
+    }, [props.anchor]);
+
+    return (
+        <div className="wcms-calendar-dialog-overlay" role="presentation">
+            <div
+                id={dialogId}
+                className="wcms-calendar-dialog"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={`${dialogId}-title`}
+                style={{ top: style.top, left: style.left, width: style.width }}
+            >
+                <div className="wcms-calendar-dialog-header">
+                    <h2 id={`${dialogId}-title`} className="dialog-title">
+                        {local.Date}（星期{getWeekdayNameZh(local.DayOfWeek ?? 0)}）
+                    </h2>
+
+                    <button type="button" className="btn btn-default" onClick={props.onCancel} aria-label="關閉">
+                        ×
+                    </button>
+                </div>
+
+                <form className="wcms-calendar-dialog-body" onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={Boolean(local.IsHoliday)}
+                                onChange={(e) => handleChange("IsHoliday", e.target.checked as CalendarDetail["IsHoliday"])}
+                            />
+                            {" "}假日
+                        </label>
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor={`${dialogId}-holiday-name`}>假日名稱</label>
+                        <input
+                            id={`${dialogId}-holiday-name`}
+                            className="form-control"
+                            value={local.HolidayName ?? ""}
+                            onChange={(e) => handleChange("HolidayName", e.target.value as CalendarDetail["HolidayName"])}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor={`${dialogId}-desc`}>描述</label>
+                        <textarea
+                            id={`${dialogId}-desc`}
+                            className="form-control"
+                            value={local.Description ?? ""}
+                            onChange={(e) => handleChange("Description", e.target.value as CalendarDetail["Description"])}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <TimePicker12hWithConfirm
+                            inputId={openTimeId}
+                            label="開館時間"
+                            value24={local.Spec_OpenTime ?? null}
+                            onConfirm={(v24) => handleChange("Spec_OpenTime", v24)}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <TimePicker12hWithConfirm
+                            inputId={closeTimeId}
+                            label="閉館時間"
+                            value24={local.Spec_CloseTime ?? null}
+                            onConfirm={(v24) => handleChange("Spec_CloseTime", v24)}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor={`${dialogId}-memo`}>修改備註</label>
+                        <textarea
+                            id={`${dialogId}-memo`}
+                            className="form-control"
+                            value={local.Spec_ModifyMemo ?? ""}
+                            onChange={(e) => handleChange("Spec_ModifyMemo", e.target.value as CalendarDetail["Spec_ModifyMemo"])}
+                        />
+                    </div>
+
+                    <div className="wcms-calendar-dialog-footer">
+                        <button type="button" className="btn btn-default" onClick={props.onCancel}>
+                            取消
+                        </button>
+                        <button type="submit" className="btn btn-primary">
+                            保存
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
 export default CalendarPageComp;
-
-
-
-
-//之後應放在Spec1816上
-const renderOpenCloseText = (day: CalendarDetail): string => {
-    if (!day) return "";
-    const open = toHHmm(day.Spec_OpenTime);
-    const close = toHHmm(day.Spec_CloseTime);
-
-    // 都沒有 → 閉館
-    if (!open && !close) {
-        return "閉館";
-    }
-
-    // 只有其中一個，也照樣顯示
-    return `開館時間：${open || "--"} ~ ${close || "--"}`;
-};
-const toHHmm = (v?: string | null): string => {
-    const s = (v ?? "").trim();
-    if (!s) return "";
-    // 允許 HH:mm 或 HH:mm:ss，直接取前 5 碼
-    return s.length >= 5 ? s.slice(0, 5) : s;
-};
-

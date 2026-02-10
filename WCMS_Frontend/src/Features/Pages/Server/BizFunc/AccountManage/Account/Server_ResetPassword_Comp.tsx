@@ -7,16 +7,19 @@ import { useMatches } from 'react-router';
 import type { IActionHandle } from '@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData';
 import LibPwdTextBox from '@/SysCore/Components/FormField/FieldComponets/LibPwdTextBox_Comp';
 import { useToast } from '@/Features/Hooks/Common/useToastCenter';
-import { IDataProvider, MessageStatus } from '@/SysCore/Interface/IApiProvider';
 import type { UseActionsResult } from '@/Features/Hooks/Common/useActions';
 import { useLocation, useNavigate } from 'react-router-dom';
-import AccountProvider from '@/Features/Hooks/BizFunc/AccountManage/Account/Account_Api';
 import type { components } from "@/types/api";
-import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import { AccountFields } from '@/types/SchemaFields';
+import { MessageStatus } from '@/SysCore/Utils/API/APIBase';
+import type { ApiAdapterError } from '@/SysCore/Utils/API/APIAdapter';
 
-type AccountSet = components["schemas"]["AccountSet_DTO"]
+// ✅ Adapter（已支援 hooks.useResetPassword）
+import { AccountAdapter } from '@/Features/Hooks/BizFunc/AccountManage/Account/Account_Api';
+
+type AccountSet = components["schemas"]["AccountSet_DTO"];
 type ResetPassword = components["schemas"]["ResetPassword"];
+type QueryListParam = components["schemas"]["QueryListParam"];
 
 /** 重置密碼 */
 export const Server_ResetPassword_Comp = (props: { theme: IBETheme }) => {
@@ -27,26 +30,34 @@ export const Server_ResetPassword_Comp = (props: { theme: IBETheme }) => {
     const isLoading: boolean[] = [];
     const errors: (string | null | undefined)[] = [];
     const handle = useMatches().at(-1)?.handle as IActionHandle | undefined;
-    const provider = useMemo(() => AccountProvider(), []);
+
+    const adapter = useMemo(() => AccountAdapter(), []);
+
     const [userInternalId, setUserInternalId] = useState<string>("");
     const [newPwd, setNewPwd] = useState<string>("");
     const [confirmPwd, setConfirmPwd] = useState<string>("");
-    const [isExecuting, setIsExecuting] = useState(false);
-    const useAccountList = useAccountListData(provider);
+
+    // 執行 function：帳號清單（改用 adapter.hooks.useQueryList）
+    const useAccountList = useAccountListDataByAdapter(adapter);
 
     const accountDict: Record<string, string> = useMemo(() => {
         const dict: Record<string, string> = {};
         for (const item of useAccountList.rawData ?? []) {
             const id = String(item?.Account?.InternalId ?? "").trim();
             if (!id) continue;
-            dict[id] = `${item?.Account?.AccountId}, ${item?.Account?.AccountName}`;
+            dict[id] = `${item?.Account?.AccountId ?? ""}, ${item?.Account?.AccountName ?? ""}`;
         }
         return dict;
     }, [useAccountList.rawData]);
 
     const validateBeforeSave = useCallback((): boolean => {
+        // 執行 function：表單檢核（不改 DOM，只補必要條件）
         if (!userInternalId) {
             publish({ level: MessageStatus.Error, title: "保存失敗", text: "請選擇帳號" });
+            return false;
+        }
+        if (!newPwd || !confirmPwd) {
+            publish({ level: MessageStatus.Error, title: "保存失敗", text: "請輸入新密碼並再次確認" });
             return false;
         }
         if (newPwd !== confirmPwd) {
@@ -54,49 +65,69 @@ export const Server_ResetPassword_Comp = (props: { theme: IBETheme }) => {
             return false;
         }
         return true;
-    }, [newPwd, confirmPwd, publish]);
+    }, [userInternalId, newPwd, confirmPwd, publish]);
 
     const handleCancelBack = useCallback(() => {
-        // 回到同模組 List（沿用你專案既有規則）
+        // 執行 function：回到同模組 List（沿用你專案既有規則）
         navigate(location.pathname.replace(/\/ResetPassword(\/[^\/]*)?$/, "/List"));
     }, [navigate, location.pathname]);
 
+    // ✅ hook：對接 AccountAdapter.hooks.useResetPassword
+    const resetPwd = adapter.hooks.useResetPassword({
+        onError: (e: ApiAdapterError) => {
+            publish({ level: MessageStatus.Error, title: "保存失敗", text: e.messageText });
+        },
+    });
+
     const handleSave = useCallback(async (): Promise<boolean> => {
-        // 打 API：AccountProvider.ChangePassword({ OldPassword, NewPassword })
+        // 執行 function：打 API（adapter.hooks.useResetPassword）
         const ok = validateBeforeSave();
         if (!ok) return false;
-        try {
-            setIsExecuting(true);
-            const payload: ResetPassword = {
-                UserInternalId: userInternalId,
-                NewPassword: newPwd,
-            };
-            const res = await provider.ResetPassword(payload);
-            if (res.IsSuccess) {
-                (res.SysMessage ?? []).forEach(item => { publish({ level: item.Status, code: item.MessageCode, title: item.Message }); });
-                handleCancelBack();
-                publish({ level: MessageStatus.Green, title: "重置成功", text: "", });
-                return true;
-            }
-            (res.SysMessage ?? []).forEach(item => { publish({ level: item.Status, code: item.MessageCode, title: "保存失敗", text: item.Message }); });
-            return false;
-        } catch (err: any) {
-            const data = err?.response?.data;
-            publish({ level: MessageStatus.Error, title: "保存失敗", text: typeof data === "string" ? data : JSON.stringify(data ?? err, null, 2), });
-            return false;
-        } finally {
-            setIsExecuting(false);
+
+        const payload: ResetPassword = {
+            UserInternalId: userInternalId,
+            NewPassword: newPwd,
+        };
+
+        const res = await resetPwd.execute(payload);
+
+        (res.SysMessage ?? []).forEach(item => {
+            publish({ level: item.Status, code: item.MessageCode, title: item.Message });
+        });
+
+        if (res.IsSuccess) {
+            handleCancelBack();
+            publish({ level: MessageStatus.Green, title: "重置成功", text: "", });
+            return true;
         }
-    }, [validateBeforeSave, provider, userInternalId, newPwd, publish, handleCancelBack]);
+
+        publish({ level: MessageStatus.Error, title: "保存失敗", text: "重置密碼失敗" });
+        return false;
+    }, [validateBeforeSave, userInternalId, newPwd, resetPwd, publish, handleCancelBack]);
 
     const actions: UseActionsResult = useMemo(() => {
         // 提供給 Form_Toolbar 使用（其餘方法這頁用不到，先放 no-op）
-        return { isExecuting, onSave: handleSave, onCancelBack: handleCancelBack, onAddNew: () => { }, onEdit: () => { }, onDelete: async () => { }, onInvalid: () => { }, onPreview: () => { }, };
-    }, [isExecuting, handleSave, handleCancelBack]);
+        return {
+            isExecuting: resetPwd.isLoading,
+            onSave: handleSave,
+            onCancelBack: handleCancelBack,
+            onAddNew: () => { },
+            onEdit: () => { },
+            onDelete: async () => { },
+            onInvalid: () => { },
+            onPreview: () => { },
+        };
+    }, [resetPwd.isLoading, handleSave, handleCancelBack]);
 
-    const prop: FormCompProp = { Title: handle?.Title ?? "重置密碼", Theme: props.theme, LoadingList: [...isLoading, isExecuting], ErrorList: errors, Actions: actions, };
+    const prop: FormCompProp = {
+        Title: handle?.Title ?? "重置密碼",
+        Theme: props.theme,
+        LoadingList: [...isLoading, useAccountList.isLoading, resetPwd.isLoading],
+        ErrorList: errors,
+        Actions: actions,
+    };
 
-    // return xxx
+    // return（⚠️ DOM 完全不動）
     return (
         <FormComp prop={prop}>
             <div className="row">
@@ -137,20 +168,36 @@ export const Server_ResetPassword_Comp = (props: { theme: IBETheme }) => {
     );
 };
 
+const useAccountListDataByAdapter = (adapter: ReturnType<typeof AccountAdapter>) => {
+    // 宣告變數
+    const { publish } = useToast();
 
-const useAccountListData = (provider: IDataProvider<AccountSet>) => {
-    var condition: string = ``;
-    return useFetchGridListData<AccountSet>({
-        getModelDisplayName: () => provider.getModelDisplayName(),
-        fetchList: (cond) => provider.fetchList(cond),
-        fetchListCount: (cond) => provider.fetchListCount(cond),
-        visibleKeys: [],
-        buildQueryCondition: () => ({
-            Fields: [AccountFields.InternalId, AccountFields.AccountId, AccountFields.AccountName,],
-            Condition: condition, OrderBy: [{ Col: AccountFields.AccountId, Desc: false },],
-            PageNumber: 0, PageSize: 0,
-        }),
-        enabled: true,
+    const onError = useCallback((e: ApiAdapterError) => {
+        // 執行 function：toast 錯誤
+        publish({ level: MessageStatus.Error, title: e.messageText });
+    }, [publish]);
+
+    const condition = useMemo<QueryListParam>(() => {
+        // 執行 function：撈下拉用的最小欄位
+        return {
+            Fields: [AccountFields.InternalId, AccountFields.AccountId, AccountFields.AccountName],
+            Condition: "",
+            OrderBy: [{ Col: AccountFields.AccountId, Desc: false }],
+            PageNumber: 0,
+            PageSize: 0,
+        };
+    }, []);
+
+    const query = adapter.hooks.useQueryList({
+        condition,
         deps: [],
+        onError,
     });
+
+    // return
+    return {
+        rawData: (query.data ?? []) as AccountSet[],
+        isLoading: Boolean(query.isLoading),
+        error: query.errorText ?? null,
+    };
 };

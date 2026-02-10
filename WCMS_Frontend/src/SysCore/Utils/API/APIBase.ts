@@ -1,5 +1,6 @@
 // src/api/APIBase.ts
 import { LANG_COOKIE_KEY } from "@/SysCore/Utils/Library/SysParam";
+import type { components } from "@/types/api";
 import axios, { AxiosHeaders, type AxiosInstance } from "axios";
 
 declare module "axios"
@@ -16,6 +17,7 @@ export interface UniversalApiOptions
     ssr?: {
         origin?: string; // 例如 https://xxx
         cookie?: string; // 由 req.headers.cookie 傳入，可選
+        acceptLanguage?: string;
     };
     /** 只在 CSR 使用；不傳則用 import.meta.env.VITE_API_BASE_URL 或 /Service */
     csr?: {
@@ -25,7 +27,7 @@ export interface UniversalApiOptions
 }
 
 /** 建立一個『可同時跑 CSR/SSR』的 Axios 實例 */
-const createUniversalApi = (opts?: UniversalApiOptions): AxiosInstance =>
+export const createUniversalApi = (opts?: UniversalApiOptions): AxiosInstance =>
 {
     const isBrowser = typeof window !== "undefined";
     const timeout = opts?.timeoutMs ?? 30000;
@@ -89,7 +91,7 @@ const createUniversalApi = (opts?: UniversalApiOptions): AxiosInstance =>
             {
                 try
                 {
-                    await api.get("/SystemAPI/GetXsrfToken");
+                    await api.get("SystemAPI/GetXsrfToken");
                 } finally
                 {
                     // 204 No Content
@@ -136,7 +138,10 @@ const createUniversalApi = (opts?: UniversalApiOptions): AxiosInstance =>
         baseURL: `${normalized}/Service`,
         withCredentials: false, // Node 端不走瀏覽器 Cookie
         timeout,
-        headers: opts?.ssr?.cookie ? { Cookie: opts.ssr.cookie } : undefined,
+        headers: {
+            ...(opts?.ssr?.cookie ? { Cookie: opts.ssr.cookie } : {}),
+            ...(opts?.ssr?.acceptLanguage ? { "Accept-Language": opts.ssr.acceptLanguage } : {}),
+        },
     });
 };
 
@@ -147,11 +152,43 @@ export default api;
 /** 型別助手：CSR 狀態下可呼叫 __initXsrfOnce；SSR 下不存在（不影響使用） */
 export type BrowserApiWithInit = AxiosInstance & { __initXsrfOnce?: () => Promise<void>; };
 
-// #region Property Type
+/** 後端提供訊息包 */
+export const MessageStatus = { Green: 0, Info: 1, Warning: 2, Error: 3 } as const;
+export type MessageStatusCode = typeof MessageStatus[keyof typeof MessageStatus];
+export type SysMessageModel = components["schemas"]["SysMessageModel"];
+/** API回傳資訊包 */
 export interface ApiResponse<T>
 {
-    success: boolean;
-    data: T | null;
-    message?: string;
+    IsSuccess: boolean;
+    SysMessage: SysMessageModel[];
+    Data: T | null;
 }
-// #endregion
+
+/** SSR Api */
+
+const _cache = new WeakMap<Request, AxiosInstance>();
+
+const getHeader = (req: Request, name: string): string =>
+{
+    // 宣告變數
+    const v = req.headers.get(name);
+    // return
+    return v ? String(v) : "";
+};
+
+/** SSR：同一個 request 只建立一次 AxiosInstance（給多個 loader 共用） */
+export const getSsrApi = (req: Request): AxiosInstance =>
+{
+    // 宣告變數
+    const cached = _cache.get(req);
+    // 執行 function
+    if (cached) return cached;
+    const cookie = getHeader(req, "cookie");
+    const acceptLang = getHeader(req, "accept-language");
+    const api = createUniversalApi({ ssr: { cookie, acceptLanguage: acceptLang } });
+    // SSR 也要跟 CSR 一致：把語系帶給後端
+    if (acceptLang) (api.defaults.headers as any).common["Accept-Language"] = acceptLang;
+    _cache.set(req, api);
+    // return
+    return api;
+};

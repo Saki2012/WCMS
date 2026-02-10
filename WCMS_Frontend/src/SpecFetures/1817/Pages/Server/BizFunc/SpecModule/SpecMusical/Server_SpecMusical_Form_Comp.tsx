@@ -5,18 +5,16 @@ import { useLocation, useParams } from "react-router-dom";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import { useState, useMemo } from 'react';
-import { useGetCategoryListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
-import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
+import { type Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useActions } from "@/Features/Hooks/Common/useActions";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import SpecMusicalProvider from "@/SpecFetures/1817/Hooks/BizFunc/SpecModule/SpecMusical/SpecMusical_Api";
-import { SpecPGID } from "@/SpecFetures/1817/Hooks/Common/SpecProgId";
-import { SpecMusicalModelFields, SpecMusicalPictureListFields, SpecMusicalSetFields, SpecMusicalSoundListFields } from "@/types/SchemaFields";
+import { PGID, SpecMusicalModelFields, SpecMusicalPictureListFields, SpecMusicalSetFields, SpecMusicalSoundListFields } from "@/types/SchemaFields";
+import { SpecMusicalAdapter } from "@/SpecFetures/1817/Hooks/BizFunc/SpecModule/SpecMusical/SpecMusical_Api";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
 type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"]
 type SpecMusicalSoundList = components["schemas"]["SpecMusicalSoundList_DTO"]
 const emptyData: SpecMusicalSet = {}
@@ -24,16 +22,22 @@ const emptyData: SpecMusicalSet = {}
 export const Server_SpecMusical_Form_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
     const { internalId } = useParams();
     const dirUrl = useLocation().pathname.replace(/\/Form$/, `/Form`);
-    const provider = useMemo(() => SpecMusicalProvider(), []);
-    const formData = useFetchFormData<SpecMusicalSet>(provider, internalId, emptyData)
-    const useCategory = useGetCategoryListByProgId(SpecPGID.SpecMusical, prop.lang);
+
+    const adapter = useMemo(() => SpecMusicalAdapter(), []);
+    const formData = useAnnouncementFormDataByAdapter(adapter, internalId ?? "", emptyData);
+
+    const catAdapter = useMemo(() => CategoryAdapter(), []);
+    const useCategory = useMemo(() => catAdapter.hooks.useMapByProgId({ progId: PGID.SpecMusical, lang: prop.lang }), []);
+
     const actions = useActions(dirUrl, provider, formData.data, internalId ?? "")
+
     const isLoading = [formData.isLoading, useCategory.isLoading]
-    const errors = [formData.error, useCategory.error]
+    const errors = [formData.error, useCategory.errorText]
+
     const formProp: FormCompProp = { Title: "琵琶介紹", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
     return (
         <FormComp prop={formProp}>
-            <MainFormComp theme={prop.theme} formData={formData} cateOpts={useCategory.data}></MainFormComp>
+            <MainFormComp theme={prop.theme} formData={formData} cateOpts={useCategory.map}></MainFormComp>
         </FormComp>
     )
 }

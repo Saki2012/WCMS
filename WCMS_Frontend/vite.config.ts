@@ -1,4 +1,6 @@
 import { defineConfig, loadEnv } from 'vite'
+import react from "@vitejs/plugin-react";
+
 import path from 'path';
 
 export default defineConfig(({ mode }) => {
@@ -19,7 +21,10 @@ export default defineConfig(({ mode }) => {
               secure: false
             }}
         },
-        // plugins: [react(), ssr(), basicSsl()],
+        plugins: [react()],
+        optimizeDeps: {
+          include: ["react-helmet-async"], // ✅ 瀏覽器端預打包鎖定
+        },
         build: isSSR
       ? {
           ssr: 'src/SSR/Entry-Server.tsx',
@@ -40,7 +45,7 @@ export default defineConfig(({ mode }) => {
           },
         },
         ssr: {
-          noExternal: ['swiper'],
+          noExternal: ['swiper',"react-helmet-async"],
           external: [],          
         },
         assetsInclude: ['**/*.ttf', '**/*.woff', '**/*.woff2'], // TinyMCE 字型檔支援

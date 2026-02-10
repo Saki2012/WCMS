@@ -1,107 +1,172 @@
-import { IApiProvider, IDataProvider } from "@/SysCore/Interface/IApiProvider";
-import type { ApiResponse } from "@/SysCore/Interface/IApiProvider";
-import api from "@/SysCore/Utils/API/APIBase";
-import { BaseApiService } from "@/SysCore/Utils/API/APIClient";
+import { ApiDataAdapter } from "@/SysCore/Utils/API/APIAdapter";
+import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
+import { ApiDataService } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
-import type { ModelDisplaySchema } from "@/types/IApiSchema";
+import { PGID } from "@/types/SchemaFields";
+import type { AxiosInstance } from "axios";
+import { useCallback, useMemo, useState } from "react";
+
 type AccountSet = components["schemas"]["AccountSet_DTO"];
 type ChangePassword = components["schemas"]["ChangePassword"];
 type ResetPassword = components["schemas"]["ResetPassword"];
-type QueryListParam = components["schemas"]["QueryListParam"];
 
-abstract class IAccountProvider extends IDataProvider<AccountSet>
+/** 將 ApiResponse 轉為 ApiAdapterError（避免 throw class；對標 APIAdapter.ts 的型別） */
+const toAdapterError = (apiRes: ApiResponse<unknown>, fallback: string, action: string): ApiAdapterError =>
 {
-    public async ChangePassword(pw: ChangePassword): Promise<ApiResponse<object>>
-    {
-        const res = await api.put<ApiResponse<object>>(`${"Account"}/ChangePassword`, pw);
-        return res.data;
-    }
-    public async ResetPassword(param: ResetPassword): Promise<ApiResponse<object>>
-    {
-        const res = await api.put<ApiResponse<object>>(`${"Account"}/ResetPassword`, param);
-        return res.data;
-    }
-}
-class MockProvider extends IAccountProvider
-{
-    protected doFetchListCount(condition?: QueryListParam): Promise<ApiResponse<number>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doCreateData(set: AccountSet): Promise<ApiResponse<AccountSet>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doUpdateData(internaId: string, set: AccountSet): Promise<ApiResponse<AccountSet>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doDelete(internaId: string): Promise<ApiResponse<AccountSet>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doInvalid(internaId: string, isInvalid: boolean): Promise<ApiResponse<AccountSet>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doFetchData(internaId?: string): Promise<ApiResponse<AccountSet>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doFetchList(condition: QueryListParam): Promise<ApiResponse<AccountSet[]>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected doGetModelDisplayName(): Promise<ModelDisplaySchema>
-    {
-        throw new Error("Method not implemented.");
-    }
-}
-class APIProvider extends IAccountProvider
-{
-    private readonly ModuleName = "Account";
-    private readonly API = new BaseApiService<AccountSet>(this.ModuleName);
+    // 宣告變數
+    const sysMessages = apiRes?.SysMessage ?? [];
+    const text = sysMessages
+        .map(m => `${m?.MessageCode ?? ""}:${m?.Message ?? ""}`.trim())
+        .filter(s => s.length > 0)
+        .join("；");
 
-    protected async doCreateData(set: AccountSet): Promise<ApiResponse<AccountSet>>
+    // return
+    return {
+        messageText: text || fallback,
+        sysMessages,
+        httpStatus: undefined,
+        action,
+    };
+};
+
+class AccountService extends ApiDataService<AccountSet>
+{
+    constructor(apiInstance?: AxiosInstance)
     {
-        const res = await this.API.create(set);
-        return res.data;
+        super(PGID.Account, apiInstance);
     }
-    protected async doUpdateData(internaId: string, set: AccountSet): Promise<ApiResponse<AccountSet>>
+
+    async ChangePassword(pw: ChangePassword): Promise<ApiResponse<object>>
     {
-        const res = await this.API.update(internaId, set);
-        return res.data;
+        return await this.CallApi<object>(() => this.Api.put<ApiResponse<object>>(`${this.Module}/ChangePassword`, pw));
     }
-    protected async doDelete(internaId: string): Promise<ApiResponse<AccountSet>>
+
+    async ResetPassword(param: ResetPassword): Promise<ApiResponse<object>>
     {
-        const res = await this.API.delete(internaId);
-        return res.data;
-    }
-    protected async doInvalid(internaId: string, isInvalid: boolean): Promise<ApiResponse<AccountSet>>
-    {
-        const res = await this.API.invalid(internaId, isInvalid);
-        return res.data;
-    }
-    protected async doFetchData(internaId: string): Promise<ApiResponse<AccountSet>>
-    {
-        const res = await this.API.queryData(internaId);
-        return res.data;
-    }
-    protected async doFetchList(condition: QueryListParam): Promise<ApiResponse<AccountSet[]>>
-    {
-        const res = await this.API.queryList(condition);
-        return res.data;
-    }
-    protected async doFetchListCount(condition: QueryListParam): Promise<ApiResponse<number>>
-    {
-        const res = await this.API.queryCount(condition);
-        return res.data;
-    }
-    protected async doGetModelDisplayName(): Promise<ModelDisplaySchema>
-    {
-        const res = await this.API.getModelDisplayName();
-        return res;
+        return await this.CallApi<object>(() =>
+            this.Api.put<ApiResponse<object>>(`${this.Module}/ResetPassword`, param)
+        );
     }
 }
-const AccountProvider = (): IAccountProvider => IApiProvider<IAccountProvider>(APIProvider, MockProvider);
-export default AccountProvider;
+
+/**
+ * ✅ 對標 Category_Api.ts 的擴充方式：
+ * - 先 new ApiDataAdapter
+ * - 外掛 hooks：useChangePassword / useResetPassword
+ * - 最後 merge 回 adapter.hooks
+ */
+export const AccountAdapter = (apiInstance?: AxiosInstance) =>
+{
+    // 宣告變數
+    const adapter = new ApiDataAdapter<AccountSet, AccountService>(
+        (api?: AxiosInstance) => new AccountService(api ?? apiInstance),
+    );
+
+    const useChangePassword = (opt?: {
+        apiInstance?: AxiosInstance;
+        onSuccess?: () => void;
+        onError?: (err: ApiAdapterError) => void;
+    }) =>
+    {
+        // 宣告變數
+        const [isLoading, setLoading] = useState(false);
+        const [apiRes, setApiRes] = useState<ApiResponse<object> | null>(null);
+
+        const apiOpt = opt?.apiInstance;
+        const onSuccess = opt?.onSuccess;
+        const onError = opt?.onError;
+
+        const execute = useCallback(async (dto: ChangePassword) =>
+        {
+            // 執行 function：呼叫 ChangePassword
+            setLoading(true);
+            try
+            {
+                const svc = new AccountService(apiOpt ?? apiInstance);
+                const res = await svc.ChangePassword(dto);
+                setApiRes(res);
+
+                if (!res.IsSuccess)
+                {
+                    onError?.(toAdapterError(res, "修改密碼失敗", "Account.ChangePassword"));
+                } else
+                {
+                    onSuccess?.();
+                }
+
+                return res;
+            } finally
+            {
+                setLoading(false);
+            }
+        }, [apiOpt, apiInstance, onSuccess, onError]);
+
+        // return
+        return { execute, isLoading, apiRes };
+    };
+
+    const useResetPassword = (opt?: {
+        apiInstance?: AxiosInstance;
+        onSuccess?: () => void;
+        onError?: (err: ApiAdapterError) => void;
+    }) =>
+    {
+        // 宣告變數
+        const [isLoading, setLoading] = useState(false);
+        const [apiRes, setApiRes] = useState<ApiResponse<object> | null>(null);
+
+        const apiOpt = opt?.apiInstance;
+        const onSuccess = opt?.onSuccess;
+        const onError = opt?.onError;
+
+        const execute = useCallback(async (dto: ResetPassword) =>
+        {
+            // 執行 function：呼叫 ResetPassword
+            setLoading(true);
+            try
+            {
+                const svc = new AccountService(apiOpt ?? apiInstance);
+                const res = await svc.ResetPassword(dto);
+                setApiRes(res);
+
+                if (!res.IsSuccess)
+                {
+                    onError?.(toAdapterError(res, "重置密碼失敗", "Account.ResetPassword"));
+                } else
+                {
+                    onSuccess?.();
+                }
+
+                return res;
+            } finally
+            {
+                setLoading(false);
+            }
+        }, [apiOpt, apiInstance, onSuccess, onError]);
+
+        // return
+        return { execute, isLoading, apiRes };
+    };
+
+    // ✅ 關鍵：合併 hooks（對標 Category）
+    const extAdapter = adapter as ApiDataAdapter<AccountSet, AccountService> & {
+        hooks: typeof adapter.hooks & {
+            useChangePassword: typeof useChangePassword;
+            useResetPassword: typeof useResetPassword;
+        };
+    };
+
+    extAdapter.hooks = useMemo(() =>
+    {
+        // return
+        return {
+            ...adapter.hooks,
+            useChangePassword,
+            useResetPassword,
+        };
+    }, [adapter.hooks]);
+
+    // return
+    return extAdapter;
+};

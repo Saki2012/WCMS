@@ -13,6 +13,7 @@ import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
 import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap";
 import { SubmissionReviewSystem } from "./SubmissionReviewSystem";
+import React from "react";
 
 const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
     const headerRef = useRef<HTMLDivElement | null>(null);
@@ -378,17 +379,16 @@ const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
     return (
         <div id="navbar-content" className="collapse navbar-collapse overflow-scroll-Y">
             <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
-
-                {menuItems.map((item) => {
+                {menuItems.map((item, idx) => {
                     return (
-                        <>
+                        <React.Fragment key={idx}>
                             {
                                 item.SubItem?.length === 0 ?
                                     <SingleMenuItem menuItem={item} /> :
                                     <DropdownMenuItem menuItem={item} />
                             }
                             {/* <MegaMenuItem menuItem={item} /> */}
-                        </>)
+                        </React.Fragment>)
                 })}
             </ul>
         </div>

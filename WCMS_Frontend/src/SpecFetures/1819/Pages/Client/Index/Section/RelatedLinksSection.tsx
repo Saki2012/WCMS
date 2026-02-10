@@ -1,11 +1,9 @@
-import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
 import type { components } from "@/types/api";
 import type { Lang } from "@/SysCore/i18n/lang";
 import TitleLine from "@/SpecFetures/1819/Assets/Client/images/line_title.svg";
 import RelatedOpenPointImg from "@/SpecFetures/1819/Assets/Client/images/links/Open_Point_bt_960x324.jpg";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-import WebResourceProvider from "@/Features/Hooks/BizFunc/WebManagement/WebResource/WebResource_Api";
 import { useMemo } from "react";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { WebResourceFields, WebResourceInfoFields } from "@/types/SchemaFields";

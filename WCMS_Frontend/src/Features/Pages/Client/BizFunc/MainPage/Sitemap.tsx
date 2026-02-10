@@ -190,6 +190,7 @@ export const Sitemap = (props: { lang: Lang; site: INormSite; includeHidden?: bo
 
 //////
 export const SITEMAP_NODE_ID = -9999 as const;
+/** 網站導覽 */
 export const SITEMAP_SEGMENT = "Sitemap" as const;
 export const SitemapNode = (lang: Lang): INormNode => {
     return {

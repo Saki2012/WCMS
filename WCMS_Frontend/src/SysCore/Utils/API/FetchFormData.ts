@@ -1,4 +1,3 @@
-import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { useCallback, useEffect, useState } from "react";
 
@@ -19,7 +18,7 @@ export interface UseFetchFormDataResult<T>
  * @param emptyData 當 internalId 為 null 時回傳的預設資料
  */
 export const useFetchFormData = <T>(
-    provider: IDataProvider<T>,
+    provider: any,
     internalId?: string | null,
     emptyData?: T,
 ): UseFetchFormDataResult<T> =>

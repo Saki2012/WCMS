@@ -1,26 +1,44 @@
-import { LibTextBox, LibFileInput, LibTinyMCE, LibDropList } from "@/SysCore/Components/FormField/LibFormField"
+import { LibTextBox, LibFileInput, LibTinyMCE, LibDropList } from "@/SysCore/Components/FormField/LibFormField";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useGetCategoryListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+
 import { DefaultLang, LangLabelMap, SUPPORTED_LANGS, type Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
-import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
-import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
-import { useActions } from "@/Features/Hooks/Common/useActions";
+import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { SpecPGID } from "@/SpecFetures/1819/Hooks/Common/SpecProgId";
-import SpecJournalProvider from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecMusical/SpecJournal_Api";
-import { SpecJournalAuthorFields, SpecJournalBibliographyFields, SpecJournalIndexDetailFields, SpecJournalIndexModelFields, SpecJournalKeywordsFields, SpecJournalModelFields, SpecJournalOpenPointFilesFields, SpecJournalRefFilesFields, SpecJournalRefFormatFields, SpecJournalSetFields } from "@/types/SchemaFields";
-import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import SpecJournalIndexProvider from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecMusical/SpecJournalIndex_Api";
-import type { ApiResponse, IDataProvider } from "@/SysCore/Interface/IApiProvider";
-import { useGetTagListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
+import type { ModelDisplaySchema } from "@/types/IApiSchema";
+
+import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
+
+import type { ApiAdapterError, ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
+import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
+import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
+import type { ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
+
+import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournal_Api";
+import { SpecJournalIndexAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournalIndex_Api";
+
+import {
+    PGID,
+    SpecJournalAuthorFields,
+    SpecJournalBibliographyFields,
+    SpecJournalIndexDetailFields,
+    SpecJournalIndexModelFields,
+    SpecJournalKeywordsFields,
+    SpecJournalModelFields,
+    SpecJournalOpenPointFilesFields,
+    SpecJournalRefFilesFields,
+    SpecJournalRefFormatFields,
+    SpecJournalSetFields,
+} from "@/types/SchemaFields";
+import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
 
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"]
 type SpecJournalOpenPointFiles = components["schemas"]["SpecJournalOpenPointFiles_DTO"]
@@ -37,26 +55,134 @@ const emptyData: SpecJournalSet = {}
 
 
 export const Server_SpecJournal_Form_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
+    // 宣告變數
     const { internalId } = useParams();
-    const dirUrl = useLocation().pathname.replace(/\/Form$/, `/Form`);
-    const pvd = useMemo(() => { return { Journal: SpecJournalProvider(), JournalIndex: SpecJournalIndexProvider() } }, []);
-    const useTag = useGetTagListByProgId(SpecPGID.SpecJournal, prop.lang);
-    const useKeywords = useGetKeywordsData(pvd.Journal)
+    const navigate = useNavigate();
+    const pathname = useLocation().pathname;
 
-    const useIndexList = useIndexData(pvd.JournalIndex)
-    const formData = useFetchFormData<SpecJournalSet>(pvd.Journal, internalId, emptyData)
-    const useCategory = useGetCategoryListByProgId(SpecPGID.SpecJournal, prop.lang);
-    const actions = useActions(dirUrl, pvd.Journal, formData.data, internalId ?? "")
-    const isLoading = [formData.isLoading, useCategory.isLoading, useIndexList.isLoading, useTag.isLoading, useKeywords.isLoading]
-    const errors = [formData.error, useCategory.error, useIndexList.error, useTag.error, useKeywords.error]
-    const formProp: FormCompProp = { Title: "期刊目次", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
+    const adapter = useMemo(() => SpecJournalAdapter(), []);
+    const indexAdapter = useMemo(() => SpecJournalIndexAdapter(), []);
+
+    const formData = useSpecJournalFormDataByAdapter(adapter, internalId ?? "", emptyData);
+
+    // 原本就有的資料（不動業務邏輯）
+    const tagAdapter = useMemo(() => TagAdapter(), []);
+
+    const useTag = tagAdapter.hooks.useMapByProgId({ progId: PGID.SpecJournal, lang: prop.lang },);
+
+    const useKeywords = useKeywordsDataByAdapter(adapter);
+    const useIndexList = useIndexDataByAdapter(indexAdapter);
+
+    const onBackToList = useCallback(() => {
+        // 執行 function：回列表
+        navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));
+    }, [navigate, pathname]);
+
+    const actions = useSpecJournalFormActionsFromAdapter(adapter, internalId ?? "", formData.data, onBackToList);
+
+    const isLoading = [formData.isLoading, useIndexList.isLoading, useTag.isLoading, useKeywords.isLoading];
+    const errors = [formData.error, useIndexList.error, useTag.errorText, useKeywords.error];
+    const formProp: FormCompProp = { Title: "期刊目次", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions };
 
     return (
         <FormComp prop={formProp}>
-            <MainFormComp theme={prop.theme} formData={formData} indexRawData={useIndexList.rawData ?? []} tagOptionsRaw={useTag.data ?? {}} keywords={useKeywords.rawData ?? []} />
+            <MainFormComp theme={prop.theme} formData={formData} indexRawData={useIndexList.rawData ?? []} tagOptionsRaw={useTag.map} keywords={useKeywords.rawData ?? []} />
         </FormComp>
     )
-}
+
+};
+
+/** FormData：QueryData + ModelDisplayName（改用 Adapter） */
+const useSpecJournalFormDataByAdapter = (
+    adapter: ReturnType<typeof SpecJournalAdapter>,
+    internalId: string,
+    empty: SpecJournalSet,
+): UseFetchFormDataResult<SpecJournalSet> => {
+    // 宣告變數
+    const { publish } = useToast();
+
+    const internalKey = internalId || "__new__";
+    const isNew = useMemo(() => !internalId, [internalId]);
+
+    const initial = useMemo<ApiLoaderData<string, SpecJournalSet> | null>(() => {
+        if (!isNew) return null;
+        const ok: ApiResponse<SpecJournalSet> = { IsSuccess: true, Data: empty, SysMessage: [] };
+        return { args: internalKey, apiRes: ok };
+    }, [isNew, empty, internalKey]);
+
+    const onError = useCallback((e: ApiAdapterError) => {
+        // 執行 function
+        publish({ level: MessageStatus.Error, title: e.messageText });
+    }, [publish]);
+
+    const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
+    const query = adapter.hooks.useQueryData({
+        internalId: internalKey,
+        initial,
+        deps: [internalKey],
+        onError,
+    });
+
+    const [data, setData] = useState<SpecJournalSet>(empty);
+
+    useEffect(() => {
+        // 執行 function：QueryData 回來後同步到可編輯 state
+        if (query.data) setData(query.data);
+        else if (isNew) setData(empty);
+    }, [query.data, isNew, empty]);
+
+    const refetch = useCallback(() => {
+        // 執行 function
+        void query.refetch();
+    }, [query]);
+
+    const isLoading = (Boolean(!isNew && query.isLoading) || Boolean(model.isLoading));
+    const error = query.errorText ?? model.errorText ?? null;
+
+    // return（displayName 不可為 null）
+    return {
+        data,
+        setFormData: setData,
+        isLoading,
+        error,
+        refetch,
+        displayName: (model.data ?? ({ ModelId: "", ModelDisplayName: "", Tables: [] } as ModelDisplaySchema)),
+    };
+};
+
+/** Actions：改用 Adapter.useServerActions（不動業務邏輯） */
+const useSpecJournalFormActionsFromAdapter = (
+    adapter: ReturnType<typeof SpecJournalAdapter>,
+    internalId: string,
+    formData: SpecJournalSet,
+    onBackToList: () => void,
+): ServerFormActions => {
+    // 宣告變數
+    const isNew = useMemo(() => !internalId, [internalId]);
+
+    const actions = adapter.useServerActions({
+        onSuccessByMode: {
+            create: () => onBackToList(),
+            update: () => onBackToList(),
+            delete: () => onBackToList(),
+        },
+    });
+
+    // return（不動 UI 結構）
+    return {
+        Save: async () => {
+            if (isNew) await actions.createAsync(formData);
+            else await actions.updateAsync(internalId, formData);
+        },
+        Delete: async () => {
+            if (!internalId) return;
+            await actions.deleteAsync(internalId);
+        },
+        Back: onBackToList,
+        IsSaving: actions.isSaving,
+    };
+};
+
 const MainFormComp = (props: {
     theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalSet>; indexRawData: SpecJournalIndexSet[];
     tagOptionsRaw: Record<string, string>; keywords: SpecJournalSet[];
@@ -1075,13 +1201,11 @@ const buildArticleLangOptions = (): Record<string, string> => {
 };
 
 ///
-const useIndexData = (provider: IDataProvider<SpecJournalIndexSet>) => {
-    return useFetchGridListData<SpecJournalIndexSet>({
-        getModelDisplayName: () => provider.getModelDisplayName(),
-        fetchList: (cond) => provider.fetchList(cond),
-        fetchListCount: (cond) => provider.fetchListCount(cond),
-        visibleKeys: [],
-        buildQueryCondition: () => ({
+
+const useIndexDataByAdapter = (adapter: ReturnType<typeof SpecJournalIndexAdapter>) => {
+    // 宣告變數
+    const q = adapter.hooks.useQueryList({
+        condition: {
             Fields: [
                 SpecJournalIndexModelFields.IndexId,
                 SpecJournalIndexModelFields.IndexName,
@@ -1093,19 +1217,22 @@ const useIndexData = (provider: IDataProvider<SpecJournalIndexSet>) => {
             OrderBy: [{ Col: SpecJournalIndexModelFields.CreateTime, Desc: true }],
             PageNumber: 0,
             PageSize: 0,
-        }),
-        enabled: true,
+        },
         deps: [],
     });
+
+    // return
+    return {
+        rawData: q.data ?? [],
+        isLoading: q.isLoading,
+        error: q.errorText,
+    };
 };
 
-const useGetKeywordsData = (provider: IDataProvider<SpecJournalSet>) => {
-    return useFetchGridListData<SpecJournalSet>({
-        getModelDisplayName: () => provider.getModelDisplayName(),
-        fetchList: (cond) => provider.fetchList(cond),
-        fetchListCount: (cond) => provider.fetchListCount(cond),
-        visibleKeys: [],
-        buildQueryCondition: () => ({
+const useKeywordsDataByAdapter = (adapter: ReturnType<typeof SpecJournalAdapter>) => {
+    // 宣告變數
+    const q = adapter.hooks.useQueryList({
+        condition: {
             Fields: [
                 `${SpecJournalModelFields._SpecJournalKeywords}.${SpecJournalKeywordsFields.LangCode}`,
                 `${SpecJournalModelFields._SpecJournalKeywords}.${SpecJournalKeywordsFields.Keyword}`,
@@ -1114,8 +1241,14 @@ const useGetKeywordsData = (provider: IDataProvider<SpecJournalSet>) => {
             OrderBy: [{ Col: SpecJournalIndexModelFields.CreateTime, Desc: true }],
             PageNumber: 0,
             PageSize: 0,
-        }),
-        enabled: true,
+        },
         deps: [],
     });
+
+    // return
+    return {
+        rawData: q.data ?? [],
+        isLoading: q.isLoading,
+        error: q.errorText,
+    };
 };

@@ -606,7 +606,7 @@
 	list-style: none;
 	width: 100%;
 	margin-bottom: 0px;
-	/* padding: 0 0.25rem; */
+	padding: 0 0.25rem;
 }
 .sidebar ul.list-group > li.nav-item > a.list-group-item{
 	font-weight: 900;

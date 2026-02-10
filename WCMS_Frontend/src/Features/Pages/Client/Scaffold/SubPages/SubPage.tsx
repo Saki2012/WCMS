@@ -3,17 +3,19 @@ import { BreadCrumb_Comp, BreadcrumbContext, type BreadcrumbItem } from "@/Featu
 import { Toolbar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Section/Toolbar_Comp";
 import { SubMenu_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Section/SubMenu_Comp";
 import { ThirdMenu_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ThirdMenu_Comp";
-import { Outlet } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { useState } from "react";
 import clsx from "clsx";
 import { Banner_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Section/Banner_Comp";
+import type { ISubPageLoaderData } from "./SubPage_Loader";
 
 const SubPage = (props: { style: IFETheme; lang: Lang; site: INormSite; node: INormNode; backHref?: string }) => {
+    const data = useLoaderData() as ISubPageLoaderData;
     return (
         <>
-            <Banner_Comp lang={props.lang} node={props.node} />
+            <Banner_Comp lang={props.lang} node={props.node} initialBanner={data.bannerInitial} />
             <AccessKeySection />
             <ContentContainer style={props.style} lang={props.lang} site={props.site} node={props.node} backHref={props.backHref} />
         </>

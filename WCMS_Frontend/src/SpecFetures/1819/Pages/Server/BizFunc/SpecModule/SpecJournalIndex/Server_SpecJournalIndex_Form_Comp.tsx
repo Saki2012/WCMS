@@ -1,22 +1,32 @@
-import { LibTextBox, LibCheckBoxSingle, LibFileInput, LibCalendar, LibCheckBox } from "@/SysCore/Components/FormField/LibFormField"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+
+import { LibTextBox, LibFileInput, LibCalendar, LibCheckBox } from "@/SysCore/Components/FormField/LibFormField";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
-import { useLocation, useParams } from "react-router-dom";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
-import { useEffect, useMemo, useRef } from 'react';
-import { useGetCategoryListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
+import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
+import type { ModelDisplaySchema } from "@/types/IApiSchema";
+import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
+
+import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
+import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
 import { type Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
-import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
-import { useActions } from "@/Features/Hooks/Common/useActions";
-import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { SpecPGID } from "@/SpecFetures/1819/Hooks/Common/SpecProgId";
-import SpecJournalIndexProvider from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecMusical/SpecJournalIndex_Api";
 import { SpecJournalIndexDetailFields, SpecJournalIndexModelFields, SpecJournalIndexSetFields } from "@/types/SchemaFields";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
+
+import type { ApiAdapterError, ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
+import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
+import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
+
+import { useToast } from "@/Features/Hooks/Common/useToastCenter";
+import type { ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
+
+import { SpecJournalIndexAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournalIndex_Api";
+import { PGID } from "@/types/SchemaFields";
 
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"]
 type SpecJournalIndexDetail = components["schemas"]["SpecJournalIndexDetail_DTO"]
@@ -24,17 +34,33 @@ type SpecJournalIndexDetail = components["schemas"]["SpecJournalIndexDetail_DTO"
 const emptyData: SpecJournalIndexSet = {}
 
 export const Server_SpecJournalIndex_Form_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
+    // 宣告變數
     const { internalId } = useParams();
-    const dirUrl = useLocation().pathname.replace(/\/Form$/, `/Form`);
-    const provider = useMemo(() => SpecJournalIndexProvider(), []);
-    const formData = useFetchFormData<SpecJournalIndexSet>(provider, internalId, emptyData)
-    const useCategory = useGetCategoryListByProgId(SpecPGID.SpecJournalIndex, prop.lang);
-    const actions = useActions(dirUrl, provider, formData.data, internalId ?? "")
-    const publishStatusOpts = useFetchEnumOptions("PublishStatus")
+    const navigate = useNavigate();
+    const pathname = useLocation().pathname;
 
-    const isLoading = [formData.isLoading, useCategory.isLoading]
-    const errors = [formData.error, useCategory.error]
-    const formProp: FormCompProp = { Title: "期刊目次", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
+    const adapter = useMemo(() => SpecJournalIndexAdapter(), []);
+    const categoryAdapter = useMemo(() => CategoryAdapter(), []);
+    const formData = useSpecJournalIndexFormDataByAdapter(adapter, internalId ?? "", emptyData);
+
+    const useCategory = categoryAdapter.hooks.useMapByProgId({ progId: PGID.SpecJournalIndex, lang: prop.lang });
+    const publishStatusOpts = useFetchEnumOptions("PublishStatus");
+
+    const onBackToList = useCallback(() => {
+        // 執行 function：回列表
+        navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));
+    }, [navigate, pathname]);
+
+    const actions = useSpecJournalIndexFormActionsFromAdapter(
+        adapter,
+        internalId ?? "",
+        formData.data,
+        onBackToList,
+    );
+
+    const isLoading = [formData.isLoading, useCategory.isLoading, publishStatusOpts.isLoading];
+    const errors = [formData.error, useCategory.errorText, publishStatusOpts.error];
+    const formProp: FormCompProp = { Title: "期刊目次", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions };
 
     return (
         <FormComp prop={formProp}>
@@ -43,6 +69,96 @@ export const Server_SpecJournalIndex_Form_Comp = (prop: { theme: IBETheme; lang:
         </FormComp>
     )
 }
+
+/** FormData：QueryData + ModelDisplayName（對標 Server_Announcement_Form_Comp） */
+const useSpecJournalIndexFormDataByAdapter = (
+    adapter: ReturnType<typeof SpecJournalIndexAdapter>,
+    internalId: string,
+    empty: SpecJournalIndexSet,
+): UseFetchFormDataResult<SpecJournalIndexSet> => {
+    // 宣告變數
+    const { publish } = useToast();
+    const internalKey = internalId || "__new__";
+    const isNew = useMemo(() => !internalId, [internalId]);
+
+    const initial = useMemo<ApiLoaderData<string, SpecJournalIndexSet> | null>(() => {
+        if (!isNew) return null;
+        const ok: ApiResponse<SpecJournalIndexSet> = { IsSuccess: true, Data: empty, SysMessage: [] };
+        return { args: internalKey, apiRes: ok };
+    }, [isNew, empty, internalKey]);
+
+    const onError = useCallback((e: ApiAdapterError) => {
+        // 執行 function
+        publish({ level: MessageStatus.Error, title: e.messageText });
+    }, [publish]);
+
+    const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
+    const query = adapter.hooks.useQueryData({
+        internalId: internalKey,
+        initial,
+        deps: [internalKey],
+        onError,
+    });
+
+    const [data, setData] = useState<SpecJournalIndexSet>(empty);
+
+    useEffect(() => {
+        // 執行 function：QueryData 回來後同步到可編輯 state
+        if (query.data) setData(query.data);
+        else if (isNew) setData(empty);
+    }, [query.data, isNew, empty]);
+
+    const refetch = useCallback(() => {
+        // 執行 function
+        void query.refetch();
+    }, [query]);
+
+    const isLoading = (Boolean(!isNew && query.isLoading) || Boolean(model.isLoading));
+    const error = query.errorText ?? model.errorText ?? null;
+
+    // return（displayName 不可為 null）
+    return {
+        data,
+        setFormData: setData,
+        isLoading,
+        error,
+        refetch,
+        displayName: (model.data ?? ({ ModelId: "", ModelDisplayName: "", Tables: [] } as ModelDisplaySchema)),
+    };
+};
+
+/** Actions：改用 Adapter.useServerActions（對標 Server_Announcement_Form_Comp） */
+const useSpecJournalIndexFormActionsFromAdapter = (
+    adapter: ReturnType<typeof SpecJournalIndexAdapter>,
+    internalId: string,
+    formData: SpecJournalIndexSet,
+    onBackToList: () => void,
+): ServerFormActions => {
+    // 宣告變數
+    const isNew = useMemo(() => !internalId, [internalId]);
+
+    const actions = adapter.useServerActions({
+        onSuccessByMode: {
+            create: () => onBackToList(),
+            update: () => onBackToList(),
+            delete: () => onBackToList(),
+        },
+    });
+
+    // return（不動 UI 結構）
+    return {
+        Save: async () => {
+            if (isNew) await actions.createAsync(formData);
+            else await actions.updateAsync(internalId, formData);
+        },
+        Delete: async () => {
+            if (!internalId) return;
+            await actions.deleteAsync(internalId);
+        },
+        Back: onBackToList,
+        IsSaving: actions.isSaving,
+    };
+};
 
 const MainFormComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalIndexSet>; }) => {
     const tabInfo: LibTabsProp = { Style: prop.theme.Tabs, item: { "Basic": "基本資料", "System": "系統資訊" } }

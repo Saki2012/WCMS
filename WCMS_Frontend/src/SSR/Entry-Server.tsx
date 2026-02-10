@@ -1,8 +1,8 @@
 import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
-import { SpecRouteModule } from "@/SpecFetures/1810/SpecRouter";
 import { createServerRouter } from "@/SysCore/Utils/Route/Routes";
 import { renderToString } from "react-dom/server";
 import * as HelmetAsync from "react-helmet-async";
+import { SpecRouteModule, siteHeaderMeta } from "SpecFeature/SpecRouter";
 import { StaticRouterProvider } from "react-router-dom/server";
 import { MessageProvider } from "@/SysCore/Components/Message/Dialog/Dialog_Comp";
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
@@ -34,14 +34,7 @@ export const SSR_Render = async (url: string, headers: Record<string, string> = 
   const appHtml = renderToString(
     <MessageProvider>
       <HelmetProvider context={helmetContext}>
-        <HeaderMetaComp
-          title={"國立臺灣藝術大學_研究發展處"}
-          description={"國立臺灣藝術大學_研究發展處 / 國立臺灣藝術大學_研究發展處 / 國立臺灣藝術大學_研究發展處"}
-
-        // title={"國立臺北藝術大學圖書館"}
-        // description={"國立臺北藝術大學圖書館"}
-        // keywords={"國立臺北藝術大學圖書館"}
-        />
+        <HeaderMetaComp {...siteHeaderMeta} />
         <StaticRouterProvider router={router} context={context} />
       </HelmetProvider>
     </MessageProvider>

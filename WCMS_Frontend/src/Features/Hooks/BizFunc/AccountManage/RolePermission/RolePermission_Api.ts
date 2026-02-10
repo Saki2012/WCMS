@@ -1,150 +1,119 @@
 import type { Lang } from "@/SysCore/i18n/lang";
-import { IApiProvider, IDataProvider } from "@/SysCore/Interface/IApiProvider";
-import type { ApiResponse } from "@/SysCore/Interface/IApiProvider";
-import api from "@/SysCore/Utils/API/APIBase";
-import { BaseApiService } from "@/SysCore/Utils/API/APIClient";
+import { type ApiAdapterError, ApiDataAdapter, type EffectDeps } from "@/SysCore/Utils/API/APIAdapter";
+import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
+import { ApiDataService } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
-import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { RoleDataModelFields } from "@/types/SchemaFields";
-import { useEffect, useState } from "react";
-
-type PermissionCatalog = components["schemas"]["PermissionCatalogModuleDTO"];
+import { PGID } from "@/types/SchemaFields";
+import type { AxiosInstance } from "axios";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 type RolePermissionSet = components["schemas"]["RolePermissionSet_DTO"];
-type QueryListParam = components["schemas"]["QueryListParam"];
+type PermissionCatalog = components["schemas"]["PermissionCatalogModuleDTO"];
 
-abstract class IRolePermissionProvider extends IDataProvider<RolePermissionSet>
+export class RolePermissionService extends ApiDataService<RolePermissionSet>
 {
-    public async GetPermissionCatalog(): Promise<ApiResponse<PermissionCatalog>>
+    constructor(apiInstance?: AxiosInstance)
     {
-        const res = await api.get<ApiResponse<PermissionCatalog>>(`${"RolePermission"}/GetPermissionCatalog`);
-        return res.data;
+        super(PGID.RolePermission, apiInstance);
+    }
+
+    /** 讀取權限目錄（custom endpoint） */
+    async getPermissionCatalog(): Promise<ApiResponse<PermissionCatalog[]>>
+    {
+        return await this.CallApi<PermissionCatalog[]>(() =>
+            this.Api.get<ApiResponse<PermissionCatalog[]>>(`${this.Module}/GetPermissionCatalog`)
+        );
     }
 }
-class MockProvider extends IRolePermissionProvider
+
+export type UsePermissionCatalogOptions = {
+    lang: Lang;
+    apiInstance?: AxiosInstance;
+    deps?: EffectDeps;
+    onError?: (e: ApiAdapterError) => void;
+};
+
+export const RolePermissionAdapter = (apiInstance?: AxiosInstance) =>
 {
-    protected doFetchListCount(condition?: QueryListParam): Promise<ApiResponse<number>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doCreateData(set: RolePermissionSet): Promise<ApiResponse<RolePermissionSet>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doUpdateData(internaId: string, set: RolePermissionSet): Promise<ApiResponse<RolePermissionSet>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doDelete(internaId: string): Promise<ApiResponse<RolePermissionSet>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doInvalid(internaId: string, isInvalid: boolean): Promise<ApiResponse<RolePermissionSet>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doFetchData(internaId?: string): Promise<ApiResponse<RolePermissionSet>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doFetchList(condition: QueryListParam): Promise<ApiResponse<RolePermissionSet[]>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected doGetModelDisplayName(): Promise<ModelDisplaySchema>
-    {
-        throw new Error("Method not implemented.");
-    }
-}
-class APIProvider extends IRolePermissionProvider
-{
-    private readonly ModuleName = "RolePermission";
-    private readonly API = new BaseApiService<RolePermissionSet>(this.ModuleName);
+    // 宣告變數
+    const adapter = new ApiDataAdapter<RolePermissionSet, RolePermissionService>(
+        (api?: AxiosInstance) => new RolePermissionService(api ?? apiInstance),
+    );
 
-    protected async doCreateData(set: RolePermissionSet): Promise<ApiResponse<RolePermissionSet>>
+    const usePermissionCatalog = (opt: UsePermissionCatalogOptions) =>
     {
-        const res = await this.API.create(set);
-        return res.data;
-    }
-    protected async doUpdateData(internaId: string, set: RolePermissionSet): Promise<ApiResponse<RolePermissionSet>>
-    {
-        const res = await this.API.update(internaId, set);
-        return res.data;
-    }
-    protected async doDelete(internaId: string): Promise<ApiResponse<RolePermissionSet>>
-    {
-        const res = await this.API.delete(internaId);
-        return res.data;
-    }
-    protected async doInvalid(internaId: string, isInvalid: boolean): Promise<ApiResponse<RolePermissionSet>>
-    {
-        const res = await this.API.invalid(internaId, isInvalid);
-        return res.data;
-    }
-    protected async doFetchData(internaId: string): Promise<ApiResponse<RolePermissionSet>>
-    {
-        const res = await this.API.queryData(internaId);
-        return res.data;
-    }
-    protected async doFetchList(condition: QueryListParam): Promise<ApiResponse<RolePermissionSet[]>>
-    {
-        const res = await this.API.queryList(condition);
-        return res.data;
-    }
-    protected async doFetchListCount(condition: QueryListParam): Promise<ApiResponse<number>>
-    {
-        const res = await this.API.queryCount(condition);
-        return res.data;
-    }
-    protected async doGetModelDisplayName(): Promise<ModelDisplaySchema>
-    {
-        const res = await this.API.getModelDisplayName();
-        return res;
-    }
-}
-const RolePermissionProvider = (): IRolePermissionProvider =>
-    IApiProvider<IRolePermissionProvider>(APIProvider, MockProvider);
-export default RolePermissionProvider;
+        // 宣告變數
+        const deps = opt.deps ?? [opt.lang];
 
-/** hooks暫時寫在這邊 */
-export const usePermissionCatalog = (provider: any, lang: Lang) =>
-{
-    const [data, setData] = useState<PermissionCatalog[]>([]);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [error, setError] = useState<unknown>(null);
+        const [data, setData] = useState<PermissionCatalog[]>([]);
+        const [isLoading, setIsLoading] = useState<boolean>(false);
+        const [errorText, setErrorText] = useState<string | null>(null);
 
-    useEffect(() =>
-    {
-        let alive = true;
-
-        const load = async () =>
+        const refetch = useCallback(async () =>
         {
             try
             {
-                // 開始載入
+                // 宣告變數
                 setIsLoading(true);
-                setError(null);
-                // 呼叫 API
-                const res = await provider.GetPermissionCatalog();
-                // 寫回 state
-                if (alive) setData(res.Data);
+                setErrorText(null);
+
+                // 執行 function：支援 hook 端覆寫 apiInstance
+                const svc = new RolePermissionService(opt.apiInstance ?? apiInstance);
+                const res = await svc.getPermissionCatalog();
+
+                if (!res.IsSuccess)
+                {
+                    const msg = (res.SysMessage ?? [])
+                        .map(m => m?.Message)
+                        .filter(Boolean)
+                        .join("；");
+
+                    setErrorText(msg || "讀取權限目錄失敗");
+                    return;
+                }
+
+                setData(res.Data ?? []);
             } catch (e)
             {
-                // 記錄錯誤
-                if (alive) setError(e);
+                // 宣告變數：維持你們 adapter error 型別
+                const err: ApiAdapterError = {
+                    messageText: "讀取權限目錄失敗",
+                    sysMessages: [],
+                };
+
+                setErrorText(err.messageText);
+                opt.onError?.(err);
             } finally
             {
-                // 結束載入
-                if (alive) setIsLoading(false);
+                setIsLoading(false);
             }
-        };
+        }, [opt.apiInstance, apiInstance, opt.onError]);
 
-        void load();
-        return () =>
+        useEffect(() =>
         {
-            alive = false;
-        };
-    }, [provider, lang]);
+            // 執行 function
+            void refetch();
+        }, deps); // eslint-disable-line react-hooks/exhaustive-deps
 
-    return { data, isLoading, error };
+        // return（維持 query hook 的回傳風格）
+        return useMemo(() => ({
+            data,
+            isLoading,
+            errorText,
+            refetch,
+        }), [data, isLoading, errorText, refetch]);
+    };
+
+    // ✅ 關鍵：擴充 hooks，但不把 adapter 展平成 plain object（保留 prototype：useServerActions）
+    const extAdapter = adapter as ApiDataAdapter<RolePermissionSet, RolePermissionService> & {
+        hooks: typeof adapter.hooks & { usePermissionCatalog: typeof usePermissionCatalog; };
+    };
+
+    extAdapter.hooks = {
+        ...adapter.hooks,
+        usePermissionCatalog,
+    };
+
+    // return：仍是 ApiDataAdapter instance
+    return extAdapter;
 };

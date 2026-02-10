@@ -1,41 +1,92 @@
 import type { components } from '@/types/api';
-import { useFetchFormData } from '@/SysCore/Utils/API/FetchFormData';
 import { useParams } from 'react-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import ModuleContent from '@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent';
 import type { INormNode } from '@/Features/Pages/Client/Route/Site-Routing';
-import SpecMusicalProvider from '@/SpecFetures/1817/Hooks/BizFunc/SpecModule/SpecMusical/SpecMusical_Api';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import type { ModelDisplaySchema } from '@/types/IApiSchema';
 import { SpecMusicalModelFields, SpecMusicalSetFields } from '@/types/SchemaFields';
+
+// ✅ 新架構：Adapter + LoaderData initial
+import { useLoaderData } from 'react-router-dom';
+import type { ApiLoaderData } from '@/SysCore/Utils/API/APIAdapter';
+import { SpecMusicalAdapter } from '@/SpecFetures/1817/Hooks/BizFunc/SpecModule/SpecMusical/SpecMusical_Api';
+import type { SpecMusicalFormLoaderData } from './SpecMusicalForm_Loader';
 
 type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"]
 type SpecMusicalModel = components["schemas"]["SpecMusicalModel_DTO"]
 type SpecMusicalPictureList = components["schemas"]["SpecMusicalPictureList_DTO"]
 type SpecMusicalSoundList = components["schemas"]["SpecMusicalSoundList_DTO"]
+
 let globalCurrentAudio: HTMLAudioElement | null = null;
 
-
 interface ISpecMusicalFormProps { node: INormNode; }
+
 const SpecMusicalForm = (props: ISpecMusicalFormProps) => {
-    const { internalId } = useParams()
-    const provider = useMemo(() => { return SpecMusicalProvider() }, []);
-    const useData = useFetchFormData<SpecMusicalSet>(provider, internalId, {})
-    const loadingList = [useData.isLoading];
-    const errorList = [useData.error];
+    // 宣告變數
+    const { internalId } = useParams();
+    const loaderData = useLoaderData() as SpecMusicalFormLoaderData | null;
+
+    const adapter = useMemo(() => SpecMusicalAdapter(), []);
+    const safeInternalId = `${internalId ?? ""}`.trim();
+
+    const initialData = useMemo<ApiLoaderData<string, SpecMusicalSet> | null>(() => {
+        if (!loaderData?.args?.internalId) return null;
+        if (loaderData.args.internalId !== safeInternalId) return null;
+
+        return {
+            args: safeInternalId,
+            apiRes: {
+                IsSuccess: true,
+                Data: loaderData.res.dataRes ?? ({} as SpecMusicalSet),
+                SysMessage: [],
+            },
+        };
+    }, [loaderData, safeInternalId]);
+
+    const initialDisplayName = useMemo<ApiLoaderData<null, ModelDisplaySchema> | null>(() => {
+        if (!loaderData?.res?.displayNameRes) return null;
+
+        return {
+            args: null,
+            apiRes: {
+                IsSuccess: true,
+                Data: loaderData.res.displayNameRes as unknown as ModelDisplaySchema,
+                SysMessage: [],
+            },
+        };
+    }, [loaderData]);
+
+    // 執行 function：QueryData / DisplayName（SSR initial → CSR 接手）
+    const useData = adapter.hooks.useQueryData({
+        internalId: safeInternalId,
+        initial: initialData,
+        deps: [safeInternalId],
+    });
+
+    const useDisplayName = adapter.hooks.useModelDisplayName({
+        initial: initialDisplayName,
+        deps: [],
+    });
+
+    const loadingList = [useData.isLoading, useDisplayName.isLoading];
+    const errorList = [useData.errorText, useDisplayName.errorText];
+
     const title = useData.data?.SpecMusical?.MusicalName ?? "";
+
+    // return（DOM 不改）
     return (
         <ModuleContent nodeTitle={props.node.title} title={title} loadingList={loadingList} errorList={errorList}>
-            <MainContent data={useData.data} displayName={useData.displayName} />
+            <MainContent data={useData.data ?? {}} displayName={(useDisplayName.data ?? ({} as ModelDisplaySchema))} />
         </ModuleContent>
     )
 }
 
 export default SpecMusicalForm
 
+const MainContent = (props: { data?: SpecMusicalSet; displayName: ModelDisplaySchema }) => {
+    if (!props.data) return null;
 
-const MainContent = (props: { data: SpecMusicalSet; displayName: ModelDisplaySchema }) => {
-    if (!props.data) return;
     return (
         <>
             <div className="commodity_details_content + Layout_Padding_2_bottom">
@@ -53,7 +104,6 @@ const MainContent = (props: { data: SpecMusicalSet; displayName: ModelDisplaySch
     )
 }
 
-
 const PicturesComp = (props: { pics: SpecMusicalPictureList[] }) => {
     const mainRef = useRef<HTMLDivElement | null>(null);
     const thumbRef = useRef<HTMLDivElement | null>(null);
@@ -68,7 +118,7 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[] }) => {
         if (!mainRef.current || !thumbRef.current || !zoomBtnRef.current) return;
         if (typeof window === "undefined") return;
 
-        const win = window as any;
+        const win = window as unknown as { jQuery?: any; $?: any };
         const $ = win.jQuery || win.$;
         if (!$ || !$.fn || !$.fn.owlCarousel) {
             // jQuery / OwlCarousel 尚未載入就略過
@@ -80,35 +130,21 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[] }) => {
         const $zoomBtn = $(zoomBtnRef.current);
 
         // 如果之前被初始化過，先 destroy 一次避免重複
-        if ($main.hasClass("owl-loaded")) {
-            $main.trigger("destroy.owl.carousel");
-        }
-        if ($thumb.hasClass("owl-loaded")) {
-            $thumb.trigger("destroy.owl.carousel");
-        }
+        if ($main.hasClass("owl-loaded")) $main.trigger("destroy.owl.carousel");
+        if ($thumb.hasClass("owl-loaded")) $thumb.trigger("destroy.owl.carousel");
 
         // 同步縮圖 + 放大按鈕
-        const syncPosition = (event: any) => {
-            const index: number = event?.item?.index ?? 0;
+        const syncPosition = (event: { item?: { index?: number } }) => {
+            const index = event?.item?.index ?? 0;
 
-            // 縮圖 active 樣式
             $thumb.find(".item").removeClass("active").eq(index).addClass("active");
 
-            // 讓縮圖捲動到可視範圍（一次 5 張）
             const thumbsPerPage = 5;
             const start = Math.floor(index / thumbsPerPage) * thumbsPerPage;
             $thumb.trigger("to.owl.carousel", [start, 300, true]);
 
-            // 更新放大按鈕 href
-            const currentImgSrc = $main
-                .find(".item")
-                .eq(index)
-                .find("img")
-                .attr("src");
-
-            if (currentImgSrc) {
-                $zoomBtn.attr("href", currentImgSrc);
-            }
+            const currentImgSrc = $main.find(".item").eq(index).find("img").attr("src");
+            if (currentImgSrc) $zoomBtn.attr("href", currentImgSrc);
         };
 
         // 初始化主輪播
@@ -142,34 +178,25 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[] }) => {
             },
         });
 
-        // 綁定 data-index 給縮圖
         $thumb.find(".item").each(function (this: HTMLElement, index: number) {
             $(this).attr("data-index", index);
         });
 
-        // 點擊縮圖切換主圖
-        const handleThumbClick = function (this: HTMLElement, e: any) {
+        const handleThumbClick = function (this: HTMLElement, e: MouseEvent) {
             e.preventDefault();
             const $item = $(this);
-            const index = Number($item.attr("data-index")); // 直接從 data-index 讀
-
-            if (!Number.isNaN(index)) {
-                $main.trigger("to.owl.carousel", [index, 300, true]);
-            }
+            const index = Number($item.attr("data-index"));
+            if (!Number.isNaN(index)) $main.trigger("to.owl.carousel", [index, 300, true]);
         };
 
         $thumb.on("click", ".item", handleThumbClick);
 
-        // 初始第一張 active
         $thumb.find(".item").eq(0).addClass("active");
 
-        // 先把放大按鈕 href 指到第一張
         const firstImgSrc = $main.find(".item").eq(0).find("img").attr("src");
-        if (firstImgSrc) {
-            $zoomBtn.attr("href", firstImgSrc);
-        }
+        if (firstImgSrc) $zoomBtn.attr("href", firstImgSrc);
 
-        // 初始化 Venobox（如果有載入這個 plugin）
+        // 初始化 Venobox（如果有載入）
         const venoFn = ($zoomBtn as any).venobox;
         if (typeof venoFn === "function") {
             venoFn.call($zoomBtn, {
@@ -181,16 +208,18 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[] }) => {
             });
         }
 
-        // unmount / 重新渲染時清除
+        // cleanup
         return () => {
             try {
                 $main.trigger("destroy.owl.carousel").off("changed.owl.carousel", syncPosition);
                 $thumb.off("click", ".item", handleThumbClick).trigger("destroy.owl.carousel");
-            } catch {
+            }
+            catch {
                 // ignore
             }
         };
-    }, [sortPics]);
+    }, [sortPics, props.pics]);
+
     return (
         <div className="col-xxl-5 col-xl-5 col-lg-5 col-md-5 col-sm-12 col-12">
             <div className="Commodity_Change_Image_Area">
@@ -239,18 +268,26 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[] }) => {
 
 const InfoComp = (props: { info: SpecMusicalModel; displayName: ModelDisplaySchema }) => {
     const columns = props.displayName.Tables.find(p => p.TableId === SpecMusicalSetFields.SpecMusical)?.Columns ?? [];
-    const displayCol = [SpecMusicalModelFields.Specification, SpecMusicalModelFields.Headstock, SpecMusicalModelFields.Backboard,
-    SpecMusicalModelFields.ScaleLength, SpecMusicalModelFields.Bridge, SpecMusicalModelFields.BodyForm, SpecMusicalModelFields.Material]
+    const displayCol = [
+        SpecMusicalModelFields.Specification,
+        SpecMusicalModelFields.Headstock,
+        SpecMusicalModelFields.Backboard,
+        SpecMusicalModelFields.ScaleLength,
+        SpecMusicalModelFields.Bridge,
+        SpecMusicalModelFields.BodyForm,
+        SpecMusicalModelFields.Material
+    ];
+
     const specifications = displayCol.map((colId) => {
         const colMeta = columns.find(c => c.ColumnId === colId);
         const fieldKey = colId as keyof SpecMusicalModel;
         const rawValue = props.info[fieldKey];
-        return { label: colMeta?.ColumnDisplayName ?? colId, value: rawValue == null ? "" : String(rawValue), };
+        return { label: colMeta?.ColumnDisplayName ?? colId, value: rawValue == null ? "" : String(rawValue) };
     });
 
     const [isOpen, setIsOpen] = useState(false);
 
-    const toggleDescription = (e: any) => {
+    const toggleDescription = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
         setIsOpen(prev => !prev);
     };
@@ -265,10 +302,6 @@ const InfoComp = (props: { info: SpecMusicalModel; displayName: ModelDisplaySche
     return (
         <div className="col-xxl-7 col-xl-7 col-lg-7 col-md-7 col-sm-12 col-12 ">
             <div className="details_RightContent">
-                {/* <div className="commodity_title">
-                    <div className="tit">{props.info.MusicalName}</div>
-                </div> */}
-
                 <div className="Specifications">
                     <ul>
                         {specifications.map((spec, index) => (
@@ -289,42 +322,15 @@ const InfoComp = (props: { info: SpecMusicalModel; displayName: ModelDisplaySche
                                 {props.info.Info}
                             </span>
                         </div>
-                        <a className={`label_btn${isOpen ? " active" : ""}`} type="button" role="button" aria-label={isOpen ? "[收合全文]" : "[全文展開]"}
-                            title={isOpen ? "[ 收合全文 ]" : "[ 全文展開 ]"} tabIndex={0} onClick={toggleDescription} onKeyDown={handleKeyDown}>
+                        <a className={`label_btn${isOpen ? " active" : ""}`} type="button" role="button"
+                            aria-label={isOpen ? "[收合全文]" : "[全文展開]"}
+                            title={isOpen ? "[ 收合全文 ]" : "[ 全文展開 ]"} tabIndex={0}
+                            onClick={toggleDescription} onKeyDown={handleKeyDown}>
                             <span className="sr-only">{isOpen ? "收合全文" : "全文展開"}</span>
                         </a>
                     </div>
                 </div>
                 <hr className="hr-my-4" />
-
-                {/* // 上一個 + 回到列表頁 + 下一個 // */}
-
-                {/* <div className="Button_Area">
-                    <div className="block_box">
-                        <div className="Buttons_wrapper Order_1">
-                            <a href="javascript:void(0);" className="Normal_btn" type="button" role="button" title="上一個" tabIndex={0} >
-                                <i className="fas fa-angle-left mr-2" aria-hidden="true" />
-                                <span className="sr-only">上一個</span>
-                                <span>上一個</span>
-                            </a>
-                        </div>
-                        <div className="Buttons_wrapper Order_2">
-                            <a href="Client_Subpage_03_客戶_樂器列表_頁面_(BS.5_New)_20251001.html" className="Normal_btn" type="button" role="button" title="回到列表頁" tabIndex={0}>
-                                <span>回到列表頁</span>
-                                <i className="fas fa-th-large ml-2" aria-hidden="true" />
-                                <span className="sr-only">回到列表頁</span>
-                            </a>
-                        </div>
-                        <div className="Buttons_wrapper Order_3">
-                            <a href="javascript:void(0);" className="Normal_btn" type="button" role="button" title="下一個" tabIndex={0}>
-                                <span>下一個</span>
-                                <i className="fas fa-angle-right ml-2" aria-hidden="true" />
-                                <span className="sr-only">下一個</span>
-                            </a>
-                        </div>
-                    </div>
-                </div> */}
-
             </div>
         </div>
     )
@@ -360,14 +366,15 @@ const SoundComp = (props: { sounds: SpecMusicalSoundList[] }) => {
     )
 }
 
-
-
 const AudioPlayer = (props: { src: string }) => {
     const playerRef = useRef<HTMLDivElement | null>(null);
+
     useEffect(() => {
         if (typeof window === "undefined") return;
+
         const root = playerRef.current;
         if (!root) return;
+
         const audio = root.querySelector("audio") as HTMLAudioElement | null;
         const playToggleBtn = root.querySelector('a[role="button"]') as HTMLAnchorElement | null;
         const currentTimeEl = root.querySelector(".player-time") as HTMLElement | null;
@@ -381,6 +388,7 @@ const AudioPlayer = (props: { src: string }) => {
 
         if (!audio || !playToggleBtn || !currentTimeEl || !durationEl || !progressBar ||
             !playedBar || !thumb || !volumeSlider || !volumeIcon || !volumeLabel) return;
+
         let isDragging = false;
 
         const formatTime = (secs: number) => {
@@ -394,15 +402,14 @@ const AudioPlayer = (props: { src: string }) => {
             const val = audio.volume;
             if (audio.muted || val === 0) {
                 volumeIcon.style.backgroundImage = "url('images/audio_mp3/volume-mute_40x40.png')";
-            } else {
+            }
+            else {
                 volumeIcon.style.backgroundImage = "url('images/audio_mp3/volume-up_40x40.png')";
             }
         };
 
-        // === Play / Pause ===
         const togglePlay = () => {
             if (audio.paused) {
-                // 先關掉其他正在播的
                 if (globalCurrentAudio && globalCurrentAudio !== audio) {
                     globalCurrentAudio.pause();
                     const prevPlayer = globalCurrentAudio.closest(".audio-player") as HTMLElement | null;
@@ -411,12 +418,11 @@ const AudioPlayer = (props: { src: string }) => {
                 audio.play();
                 root.classList.add("player-playing");
                 globalCurrentAudio = audio;
-            } else {
+            }
+            else {
                 audio.pause();
                 root.classList.remove("player-playing");
-                if (globalCurrentAudio === audio) {
-                    globalCurrentAudio = null;
-                }
+                if (globalCurrentAudio === audio) globalCurrentAudio = null;
             }
         };
 
@@ -435,10 +441,7 @@ const AudioPlayer = (props: { src: string }) => {
         playToggleBtn.addEventListener("click", handleBtnClick);
         playToggleBtn.addEventListener("keydown", handleBtnKeyDown);
 
-        // === Duration / Time ===
-        const handleLoadedMetadata = () => {
-            durationEl.textContent = formatTime(audio.duration);
-        };
+        const handleLoadedMetadata = () => { durationEl.textContent = formatTime(audio.duration); };
 
         const handleTimeUpdate = () => {
             if (isDragging || !audio.duration) return;
@@ -450,16 +453,13 @@ const AudioPlayer = (props: { src: string }) => {
 
         const handleEnded = () => {
             root.classList.remove("player-playing");
-            if (globalCurrentAudio === audio) {
-                globalCurrentAudio = null;
-            }
+            if (globalCurrentAudio === audio) globalCurrentAudio = null;
         };
 
         audio.addEventListener("loadedmetadata", handleLoadedMetadata);
         audio.addEventListener("timeupdate", handleTimeUpdate);
         audio.addEventListener("ended", handleEnded);
 
-        // === Seek (拖曳進度條) ===
         const updatePosition = (clientX: number) => {
             const rect = progressBar.getBoundingClientRect();
             let offsetX = clientX - rect.left;
@@ -480,11 +480,10 @@ const AudioPlayer = (props: { src: string }) => {
             const onUp = () => {
                 isDragging = false;
                 document.removeEventListener("mousemove", onMove);
-                document.removeEventListener("mouseup", onUp);
             };
 
             document.addEventListener("mousemove", onMove);
-            document.addEventListener("mouseup", onUp, { once: true } as any);
+            document.addEventListener("mouseup", onUp, { once: true });
         };
 
         const onThumbMouseDown = (e: MouseEvent) => {
@@ -495,17 +494,15 @@ const AudioPlayer = (props: { src: string }) => {
             const onUp = () => {
                 isDragging = false;
                 document.removeEventListener("mousemove", onMove);
-                document.removeEventListener("mouseup", onUp);
             };
 
             document.addEventListener("mousemove", onMove);
-            document.addEventListener("mouseup", onUp, { once: true } as any);
+            document.addEventListener("mouseup", onUp, { once: true });
         };
 
         progressBar.addEventListener("mousedown", onProgressMouseDown);
         thumb.addEventListener("mousedown", onThumbMouseDown);
 
-        // === Volume ===
         audio.volume = 1;
         volumeSlider.value = "100";
 
@@ -528,7 +525,6 @@ const AudioPlayer = (props: { src: string }) => {
         updateVolumeIcon();
         volumeLabel.textContent = `${Math.round(audio.volume * 100)}%`;
 
-        // === cleanup ===
         return () => {
             playToggleBtn.removeEventListener("click", handleBtnClick);
             playToggleBtn.removeEventListener("keydown", handleBtnKeyDown);
@@ -539,7 +535,7 @@ const AudioPlayer = (props: { src: string }) => {
             thumb.removeEventListener("mousedown", onThumbMouseDown);
             volumeSlider.removeEventListener("input", handleVolumeInput);
             volumeIcon.removeEventListener("click", handleVolumeIconClick);
-            if (globalCurrentAudio === audio) { globalCurrentAudio = null; }
+            if (globalCurrentAudio === audio) globalCurrentAudio = null;
         };
     }, [props.src]);
 

@@ -3,6 +3,12 @@ import { parseBitmaskToStringArray, sumStringArrayToBitmask } from "@/SysCore/Ut
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { ModelDisplaySchema } from "../../../types/IApiSchema";
 import type { UseFetchFormDataResult } from "../../Utils/API/FetchFormData";
+
+export type FormDataLike<T> = {
+    data: T;
+    setFormData: React.Dispatch<React.SetStateAction<T>>;
+    displayName?: ModelDisplaySchema | null;
+};
 type CoerceMode = "string" | "number" | "boolean" | "datetime" | ((v: unknown) => any);
 
 const upsertRow = (
@@ -226,7 +232,7 @@ type SetOptions =
         // 是否啟用自動預設（預設 true）
         autoDefault?: boolean;
     };
-export const useSetTableField = <T>(form: UseFetchFormDataResult<T>) =>
+export const useSetTableField = <T>(form: FormDataLike<T>) =>
 {
     const appliedDefaultsRef = useRef<Set<string>>(new Set());
     const pendingWritesRef = useRef<Array<() => void>>([]);
@@ -264,7 +270,7 @@ export const useSetTableField = <T>(form: UseFetchFormDataResult<T>) =>
                 raw = tableVal?.[field as any];
             }
 
-            const label = getColumnDisplayName(form.displayName, String(table), String(field))
+            const label = getColumnDisplayName(form.displayName ?? null, String(table), String(field))
                 || `【${String(field)}】`;
 
             // 解析 setType
@@ -375,7 +381,7 @@ export interface FileFieldBindProps
     onNameChange: (name: string) => void; // 只有有提供檔名欄位時才會真的更新
 }
 
-export const useSetTableFileField = <TSet>(formData: UseFetchFormDataResult<TSet>) =>
+export const useSetTableFileField = <TSet>(formData: FormDataLike<TSet>) =>
 {
     // 🟢 新增：檔案欄位的寫回佇列
     const fileWritesRef = useRef<Array<() => void>>([]);

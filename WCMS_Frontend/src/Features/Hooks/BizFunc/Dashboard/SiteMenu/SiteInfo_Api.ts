@@ -1,93 +1,99 @@
-import { IApiProvider, IDataProvider } from "@/SysCore/Interface/IApiProvider";
-import type { ApiResponse } from "@/SysCore/Interface/IApiProvider";
-import { BaseApiService } from "@/SysCore/Utils/API/APIClient";
+import { ApiDataAdapter, type EffectDeps } from "@/SysCore/Utils/API/APIAdapter";
+import { ApiDataService } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
-import type { ModelDisplaySchema } from "@/types/IApiSchema";
-type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
+import * as SchemaFields from "@/types/SchemaFields";
+import { PGID } from "@/types/SchemaFields";
+import type { AxiosInstance } from "axios";
+import { useMemo } from "react";
+
 type QueryListParam = components["schemas"]["QueryListParam"];
+type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
 
-abstract class ISiteMenuSetProvider extends IDataProvider<SiteMenuSet>
-{}
-class MockProvider extends ISiteMenuSetProvider
+class SiteMenuService extends ApiDataService<SiteMenuSet>
 {
-    protected doFetchListCount(condition?: QueryListParam): Promise<ApiResponse<number>>
+    constructor(apiInstance?: AxiosInstance)
     {
-        throw new Error("Method not implemented.");
-    }
-    protected async doCreateData(set: SiteMenuSet): Promise<ApiResponse<SiteMenuSet>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doUpdateData(internaId: string, set: SiteMenuSet): Promise<ApiResponse<SiteMenuSet>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doDelete(internaId: string): Promise<ApiResponse<SiteMenuSet>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doInvalid(internaId: string, isInvalid: boolean): Promise<ApiResponse<SiteMenuSet>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doFetchData(internaId?: string): Promise<ApiResponse<SiteMenuSet>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected async doFetchList(condition: QueryListParam): Promise<ApiResponse<SiteMenuSet[]>>
-    {
-        throw new Error("Method not implemented.");
-    }
-    protected doGetModelDisplayName(): Promise<ModelDisplaySchema>
-    {
-        throw new Error("Method not implemented.");
+        // 宣告變數 + 執行 super
+        super(PGID.SiteMenu, apiInstance);
     }
 }
-class APIProvider extends ISiteMenuSetProvider
-{
-    private readonly ModuleName = "SiteMenu";
-    private readonly API = new BaseApiService<SiteMenuSet>(this.ModuleName);
 
-    protected async doCreateData(set: SiteMenuSet): Promise<ApiResponse<SiteMenuSet>>
+// #region private Func
+
+export const buildSiteMenuIndexListParam = (): QueryListParam =>
+{
+    // 宣告變數：只需要 InternalId（拿第一筆）
+    const fields: string[] = [
+        SchemaFields.SiteMenu_IndexFields.InternalId,
+    ];
+
+    // return
+    return {
+        Fields: fields,
+        PageNumber: 0,
+        PageSize: 50,
+        // Condition/OrderBy 若你原本 GetSiteMenuListOpt 有排序條件，下一步再補上
+    };
+};
+
+// #endregion
+
+export const SiteMenuAdapter = (apiInstance?: AxiosInstance) =>
+{
+    // 宣告變數
+    const adapter = new ApiDataAdapter<SiteMenuSet, SiteMenuService>(
+        (api?: AxiosInstance) => new SiteMenuService(api ?? apiInstance),
+    );
+
+    const useSiteMenuIndexList = (opt?: {
+        apiInstance?: AxiosInstance;
+        deps?: EffectDeps;
+    }) =>
     {
-        const res = await this.API.create(set);
-        return res.data;
-    }
-    protected async doUpdateData(internaId: string, set: SiteMenuSet): Promise<ApiResponse<SiteMenuSet>>
+        // 宣告變數
+        const deps = opt?.deps ?? [];
+
+        // return：沿用基底 useQueryList
+        return adapter.hooks.useQueryList({
+            condition: buildSiteMenuIndexListParam(),
+            deps,
+            apiInstance: opt?.apiInstance,
+        });
+    };
+
+    const useFirstSiteMenuInternalId = (opt?: {
+        apiInstance?: AxiosInstance;
+        deps?: EffectDeps;
+    }) =>
     {
-        const res = await this.API.update(internaId, set);
-        return res.data;
-    }
-    protected async doDelete(internaId: string): Promise<ApiResponse<SiteMenuSet>>
-    {
-        const res = await this.API.delete(internaId);
-        return res.data;
-    }
-    protected async doInvalid(internaId: string, isInvalid: boolean): Promise<ApiResponse<SiteMenuSet>>
-    {
-        const res = await this.API.invalid(internaId, isInvalid);
-        return res.data;
-    }
-    protected async doFetchData(internaId: string): Promise<ApiResponse<SiteMenuSet>>
-    {
-        const res = await this.API.queryData(internaId);
-        return res.data;
-    }
-    protected async doFetchList(condition: QueryListParam): Promise<ApiResponse<SiteMenuSet[]>>
-    {
-        const res = await this.API.queryList(condition);
-        return res.data;
-    }
-    protected async doFetchListCount(condition: QueryListParam): Promise<ApiResponse<number>>
-    {
-        const res = await this.API.queryCount(condition);
-        return res.data;
-    }
-    protected async doGetModelDisplayName(): Promise<ModelDisplaySchema>
-    {
-        const res = await this.API.getModelDisplayName();
-        return res;
-    }
-}
-const SiteMenuProvider = (): ISiteMenuSetProvider => IApiProvider<ISiteMenuSetProvider>(APIProvider, MockProvider);
-export default SiteMenuProvider;
+        // 宣告變數
+        const list = useSiteMenuIndexList({ apiInstance: opt?.apiInstance, deps: opt?.deps });
+
+        const internalId = useMemo<string | null>(() =>
+        {
+            const rows = list.data ?? [];
+            const first = rows.find(x => x?.SiteMenu_Index?.InternalId)?.SiteMenu_Index?.InternalId;
+            return first ?? null;
+        }, [list.data]);
+
+        // return
+        return { internalId, isLoading: list.isLoading };
+    };
+
+    // ✅ 關鍵：照 Category 做法擴充 hooks
+    const extAdapter = adapter as ApiDataAdapter<SiteMenuSet, SiteMenuService> & {
+        hooks: typeof adapter.hooks & {
+            useSiteMenuIndexList: typeof useSiteMenuIndexList;
+            useFirstSiteMenuInternalId: typeof useFirstSiteMenuInternalId;
+        };
+    };
+
+    extAdapter.hooks = {
+        ...adapter.hooks,
+        useSiteMenuIndexList,
+        useFirstSiteMenuInternalId,
+    };
+
+    // return
+    return extAdapter;
+};

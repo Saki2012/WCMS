@@ -1,15 +1,17 @@
-import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
 import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
-import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
+import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import type { components } from '@/types/api';
+import type { components } from "@/types/api";
 import { BannerDetailFields, BannerDetailInfoFields, BannerFields } from "@/types/SchemaFields";
+import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-type BannerSet = components["schemas"]["BannerSet_DTO"]
+type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerDetail = components["schemas"]["BannerDetail_DTO"];
+type BannerDetailInfo = components["schemas"]["BannerDetailInfo_DTO"];
+type QueryListParam = components["schemas"]["QueryListParam"];
 
 type BootstrapCarouselInstance = {
     cycle: () => void;
@@ -17,13 +19,13 @@ type BootstrapCarouselInstance = {
     dispose?: () => void;
 };
 
-export const Banner_Comp = (props: { lang: Lang; node: INormNode }) => {
+export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?: ApiLoaderData<QueryListParam, BannerSet[]> | null }) => {
     // 變數宣告
     const bannerId = props.node.bannerId ?? "";
-    const pvdr = useMemo(() => BannerSliderProvider(), []);
-    const bannerData = BannerFetch(pvdr, props.lang, bannerId);
+    const adapter = useMemo(() => BannerSliderAdapter(), []);
+    const bannerData = BannerFetch(adapter, props.lang, bannerId, props.initialBanner ?? null);
 
-    const banner = bannerData.rawData?.[0];
+    const banner = bannerData.data?.[0];
     const carouselId = useMemo(() => `wcms_banner_carousel_${bannerId || "na"}`, [bannerId]);
 
     // function：依時間過濾（下架的不顯示）+ 依 Sort 排序 + 必須有圖
@@ -43,8 +45,10 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode }) => {
 
     // function：長寬比（依資料來源設定）
     const ratioStyle = useMemo(() => {
-        if (!banner?.Banner?.Width || !banner?.Banner?.Height) return undefined;
-        return { aspectRatio: `${banner.Banner.Width} / ${banner.Banner.Height}` } as React.CSSProperties;
+        const w = banner?.Banner?.Width ?? 0;
+        const h = banner?.Banner?.Height ?? 0;
+        if (!w || !h) return undefined;
+        return { aspectRatio: `${w} / ${h}` } as React.CSSProperties;
     }, [banner?.Banner?.Width, banner?.Banner?.Height]);
 
     // function：輪播間隔（來源資料決定）
@@ -54,24 +58,25 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode }) => {
         if (!Number.isFinite(n) || n <= 0) return 5000;
         return n;
     }, [banner?.Banner?.Interval]);
+
     // Carousel instance（client-only）
     const carouselRef = useRef<HTMLDivElement | null>(null);
     const carouselInsRef = useRef<BootstrapCarouselInstance | null>(null);
+    const [isBootReady, setIsBootReady] = useState(false);
 
-    // function：初始化 bootstrap carousel（避免引入舊外掛/舊 js）
+    // function：初始化 bootstrap carousel
     const initCarousel = useCallback(async (el: HTMLElement, interval: number) => {
-        // 只在瀏覽器端載入 bootstrap carousel js
         const mod = await import("bootstrap/js/dist/carousel");
-        const CarouselAny = mod.default as any;
+        const CarouselAny = mod.default as unknown as {
+            getOrCreateInstance: (el: HTMLElement, opt: unknown) => BootstrapCarouselInstance;
+        };
 
-        const ins = CarouselAny.getOrCreateInstance(el, {
+        return CarouselAny.getOrCreateInstance(el, {
             interval,
             ride: "carousel",
             pause: false,
             touch: true,
         });
-
-        return ins as BootstrapCarouselInstance;
     }, []);
 
     // effect：當資料 ready / interval 改變時啟動 carousel
@@ -89,10 +94,11 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode }) => {
                 return;
             }
             carouselInsRef.current = ins;
+            setIsBootReady(true);
             ins.cycle();
         };
 
-        run();
+        void run();
 
         return () => {
             disposed = true;
@@ -120,9 +126,9 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode }) => {
                                 <div className="carousel-inner">
                                     {validDetails.map((d, i) => {
                                         const info = pickBannerDetailInfo(d, props.lang);
-                                        const title = getInfoTitle(info) ?? "";
-                                        const url = getInfoUrl(info) ?? "";
-                                        const openBlank = getInfoUrlOpen(info);
+                                        const title = getInfoTitle(info);
+                                        const url = getInfoUrl(info);
+                                        const openBlank = getInfoOpenBlank(info);
                                         const imgUrl = `${FileManagementAPI.PREVIEW_URL}/${d.PicSrcId}`;
 
                                         return (
@@ -131,11 +137,27 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode }) => {
                                                 className={`carousel-item ${i === 0 ? "active" : ""}`}
                                             >
                                                 {url ? (
-                                                    <LangLink to={url} target={openBlank ? "_blank" : undefined} rel={openBlank ? "noopener noreferrer" : undefined} aria-label={title ? `Banner 連結：${title}` : "Banner 連結"} title={title}>
-                                                        <img src={imgUrl} className="d-block w-100" alt={title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                                    <LangLink
+                                                        to={url}
+                                                        target={openBlank ? "_blank" : undefined}
+                                                        rel={openBlank ? "noopener noreferrer" : undefined}
+                                                        aria-label={title ? `Banner 連結：${title}` : "Banner 連結"}
+                                                        title={title}
+                                                    >
+                                                        <img
+                                                            src={imgUrl}
+                                                            className="d-block w-100"
+                                                            alt={title}
+                                                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                                        />
                                                     </LangLink>
                                                 ) : (
-                                                    <img src={imgUrl} className="d-block w-100" alt={title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                                    <img
+                                                        src={imgUrl}
+                                                        className="d-block w-100"
+                                                        alt={title}
+                                                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                                    />
                                                 )}
                                             </div>
                                         );
@@ -143,9 +165,11 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode }) => {
                                 </div>
                             </div>
 
-                            {/* ✅ Prototype 的文字區塊：沒有 key 文字就不顯示 */}
                             {!!props.node.title && (
-                                <div className="container-customize2" style={{ position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none", }}>
+                                <div
+                                    className="container-customize2"
+                                    style={{ position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none" }}
+                                >
                                     <div className="banner-content">
                                         <div className="content-inner">
                                             <div className="titlebar">
@@ -154,6 +178,7 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode }) => {
                                                 </div>
                                             </div>
                                             {/* breadcrumb 先不做：prototype 是 d-none */}
+                                            {isBootReady && null}
                                         </div>
                                     </div>
                                 </div>
@@ -166,18 +191,32 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode }) => {
     );
 };
 
-const BannerFetch = (provider: IDataProvider<BannerSet>, lang: Lang, bannerId: string) => {
+const BannerFetch = (
+    adapter: ReturnType<typeof BannerSliderAdapter>,
+    lang: Lang,
+    bannerId: string,
+    initial: ApiLoaderData<QueryListParam, BannerSet[]> | null,
+) => {
     // 變數宣告
     const enabled = !!bannerId;
-    const condition = useMemo(() => {
-        if (!bannerId) return "";
-        const c = `${BannerFields.BannerId} = ${bannerId}`;
-        return c;
-    }, [bannerId]);
-    const queryCondition = useMemo(() => {
+
+    // function：優先使用 loader 提供的 condition（initial.args）
+    const queryCondition = useMemo<QueryListParam>(() => {
+        if (initial?.args) return initial.args;
+
+        if (!bannerId) {
+            return { Fields: [], Condition: "" };
+        }
+
+        const condition = `${BannerFields.BannerId} = ${bannerId}`;
+
         return {
             Fields: [
-                BannerFields.BannerId, BannerFields.Width, BannerFields.Height, BannerFields.Interval, BannerFields.Speed,
+                BannerFields.BannerId,
+                BannerFields.Width,
+                BannerFields.Height,
+                BannerFields.Interval,
+                BannerFields.Speed,
                 `${BannerFields._BannerDetail}.${BannerDetailFields.PicSrcId}`,
                 `${BannerFields._BannerDetail}.${BannerDetailFields.Validate_Start}`,
                 `${BannerFields._BannerDetail}.${BannerDetailFields.Validate_End}`,
@@ -190,56 +229,39 @@ const BannerFetch = (provider: IDataProvider<BannerSet>, lang: Lang, bannerId: s
             Condition: condition,
             OrderBy: [{ Col: `${BannerFields._BannerDetail}.${BannerDetailFields.Sort}`, Desc: false }],
         };
-    }, [condition]);
+    }, [initial?.args, bannerId]);
 
-    const buildQueryCondition = useCallback(() => queryCondition, [queryCondition]);
-    // return
-    return useFetchGridListData<BannerSet>({
-        getModelDisplayName: () => provider.getModelDisplayName(),
-        fetchList: (cond) => provider.fetchList(cond),
-        fetchListCount: (cond) => provider.fetchListCount(cond),
-        visibleKeys: [],
-        buildQueryCondition,
-        enabled,
+    // return：SSR 有 initial → hydration 不重抓；否則 CSR 依條件抓取
+    return adapter.hooks.useQueryList({
+        condition: queryCondition,
+        initial,
         deps: [bannerId, lang],
     });
 };
 
-// function：依語系挑出正確的 BannerDetailInfo（✅你已確認是陣列）
-const pickBannerDetailInfo = (detail: any, lang: Lang) => {
-    // 變數宣告
-    const info = detail?._BannerDetailInfo;
-    const list = Array.isArray(info) ? info : [];
+const pickBannerDetailInfo = (detail: BannerDetail, lang: Lang): BannerDetailInfo | null => {
+    // 宣告變數
+    const list = Array.isArray(detail?._BannerDetailInfo) ? detail._BannerDetailInfo : [];
 
     // 執行 function
     if (list.length === 0) return null;
-    const hit = list.find((x) => (x?.Lang ?? "").toString() === lang);
+    const hit = list.find(x => (x?.Lang ?? "").toString() === lang);
 
     // return
     return hit ?? list[0] ?? null;
 };
 
-// function：安全取得 Title
-const getInfoTitle = (info: any) => {
+const getInfoTitle = (info: BannerDetailInfo | null): string => {
     // return
-    return (info?.Title ?? "") as string;
+    return (info?.Title ?? "").toString();
 };
 
-// function：安全取得 URL
-const getInfoUrl = (info: any) => {
+const getInfoUrl = (info: BannerDetailInfo | null): string => {
     // return
-    return (info?.URL ?? info?.Url ?? "") as string;
+    return (info?.URL ?? "").toString();
 };
 
-// function：安全取得是否開新分頁
-const getInfoUrlOpen = (info: any) => {
-    // 變數宣告
-    const v =
-        info?.URL_Open ??
-        info?.Url_Open ??
-        info?.URLOpen ??
-        info?.UrlOpen;
-
+const getInfoOpenBlank = (info: BannerDetailInfo | null): boolean => {
     // return
-    return !!v;
+    return Boolean(info?.URL_Open);
 };

@@ -1,139 +1,230 @@
 /**公告清單 */
 import type { components } from "@/types/api";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-import type { Lang } from "@/SysCore/i18n/lang";
-import WebResourceProvider from "@/Features/Hooks/BizFunc/WebManagement/WebResource/WebResource_Api";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { WebResourceFields, WebResourceInfoFields, WebResourceSetFields } from "@/types/SchemaFields";
+import { WebResourceFields, WebResourceInfoFields } from "@/types/SchemaFields";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
 import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
-import { PGID } from "@/Features/Hooks/Common/ProgId";
 import { useEffect, useMemo, useState } from "react";
-import { isWithinLastNDaysFromString } from "@/SpecFetures/1810/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 import { ColRender, RowRender, STORAGE_KEY } from "@/SysCore/Components/Grid/Grid_Comp";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
+import { useLoaderData } from "react-router-dom";
+import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
+import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WebManagement/WebResource/WebResource_Api";
+import { CategoryAdapter, formatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
+import type { WebResourceListLoaderData } from "./WebResourceList_Loader";
+
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
-// type TagSet = components["schemas"]["TagSet_DTO"];
-type WindowTarget = components["schemas"]["WindowTarget"]
+type WindowTarget = components["schemas"]["WindowTarget"];
 
 export interface IWebResourceListOptions { Category?: string; Tag?: string; Style: number; }
 export interface IWebResourceListProps { node: INormNode; theme: IFETheme; lang: Lang; options?: IWebResourceListOptions; title: string }
+
+import type { Lang } from "@/SysCore/i18n/lang";
+
 const WebResourceListComp = (props: IWebResourceListProps) => {
-    const useWebResList = useWebResourceList(props.options?.Category ?? "", props.options?.Tag ?? "", props.lang);
-    const useCategory = useCategoryListData(PGID.WebResource, props.lang);
+    // 宣告變數
+    const loaderData = useLoaderData() as WebResourceListLoaderData | null;
+
+    const adapter = useMemo(() => ({
+        web: WebResourceAdapter(),
+        cate: CategoryAdapter(),
+    }), []);
+
+    const categoryIds = props.options?.Category ?? "";
+    const tagIds = props.options?.Tag ?? "";
+    const style = props.options?.Style ?? 1;
+
+    const useWebResList = useWebResourceList(adapter.web, props.lang, categoryIds, tagIds, loaderData);
+    const useCategory = useCategoryList(adapter.cate, props.lang, loaderData);
+
     const children = useMemo(() => {
-        switch (props.options?.Style) {
+        switch (style) {
             case 7:
             case 2:
                 return <PictureListContent key="pic" lang={props.lang} datas={useWebResList.rawData ?? []} />;
             case 1:
-            default: {
-                const adjustedGrid = useMemo(() => { return SetAdjustFunction(props.lang, useWebResList.gridProps, useWebResList.rawData, useCategory.rawData); }, [useWebResList.gridProps, useWebResList.rawData, useCategory.rawData]);
-                return <GridList_Comp key="grid" lang={props.lang} title={""} GridData={adjustedGrid} />;
-            }
+            default:
+                {
+                    const adjustedGrid = SetAdjustFunction(props.lang, useWebResList.gridProps, useWebResList.rawData, useCategory.rawData);
+                    return <GridList_Comp key="grid" lang={props.lang} title={""} GridData={adjustedGrid} />;
+                }
         }
-    }, [useWebResList, props.lang, props.options]);
+    }, [useWebResList.gridProps, useWebResList.rawData, useCategory.rawData, props.lang, style]);
+
     const loadingList = [useWebResList.isLoading, useCategory.isLoading];
     const errorList = [useWebResList.error, useCategory.error];
+
+    // return（DOM 不動）
     return (
         <ModuleContent nodeTitle={props.node.title} loadingList={loadingList} errorList={errorList}>
             {children}
         </ModuleContent>
     )
 };
-export default WebResourceListComp
 
-const useWebResourceList = (categoryIds: string, tagIds: string, lang: Lang) => {
-    var condition: string = "";
-    if (categoryIds) condition = LibMerge(" And ", false, condition, `${WebResourceFields.Categories} HasAny [${categoryIds}]`)
-    if (tagIds) condition = LibMerge(" And ", false, condition, `${WebResourceFields.Tags} HasAny [${tagIds}]`)
-    condition = LibMerge(" And ", false, condition, `${WebResourceFields.ContentStatus} !& 4`)//不包含隱藏的資料
-    condition = LibMerge(" And ", false, condition, `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang} = ${lang}`)
-    condition = LibMerge(" And ", false, condition, `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Title} != ''`)
-    const provider = WebResourceProvider();
-    return useFetchGridListData<WebResourceSet>({
-        getModelDisplayName: () => provider.getModelDisplayName(),
-        fetchList: (cond) => provider.fetchList(cond),
-        fetchListCount: (cond) => provider.fetchListCount(cond),
-        visibleKeys: [
-            [WebResourceSetFields.WebResource, WebResourceFields.Categories],
-            [WebResourceSetFields.WebResourceInfo, WebResourceInfoFields.Title],
-            [WebResourceSetFields.WebResourceInfo, WebResourceInfoFields.ResUrl],
-        ],
-        buildQueryCondition: (page) => ({
-            Fields: [
-                WebResourceFields.InternalId, WebResourceFields.WebResourceId, WebResourceFields.PicId,
-                WebResourceFields.PicDescription, WebResourceFields.Categories, WebResourceFields.ContentStatus,
-                WebResourceFields.CreateTime,
-                `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang}`,
-                `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Title}`,
-                `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Content}`,
-                `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.ResUrl}`,
-                `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Url_OpenType}`,
-            ],
-            Condition: condition,
-            RankGroups: [{ Condition: `${WebResourceFields.ContentStatus} & 1` }],
-            OrderBy: [{ Col: WebResourceFields.CreateTime, Desc: true }],
-            PageNumber: page,
-            PageSize: 10,
-        }),
-        parseRow: (item, columns) => {
-            const cells: RowCell[] = columns.map(col => {
+export default WebResourceListComp;
+
+const useCategoryList = (adapter: ReturnType<typeof CategoryAdapter>, lang: Lang, loaderData: WebResourceListLoaderData | null) => {
+    // 宣告變數
+    const cateParam = loaderData?.args?.cateParam ?? { Fields: [], Condition: "1=0", PageNumber: 0, PageSize: 0 };
+
+    const initial = useMemo<ApiLoaderData<components["schemas"]["QueryListParam"], CategorySet[]> | null>(() => {
+        if (!loaderData?.args?.cateParam) return null;
+
+        return {
+            args: loaderData.args.cateParam,
+            apiRes: { IsSuccess: true, Data: loaderData.res.cateRes ?? [], SysMessage: [] },
+        };
+    }, [loaderData]);
+
+    // 執行 function
+    const hook = adapter.hooks.useQueryList({
+        condition: cateParam,
+        initial,
+        deps: [lang],
+    });
+
+    // return
+    return {
+        rawData: hook.data ?? [],
+        isLoading: hook.isLoading,
+        error: hook.errorText,
+    };
+};
+
+const useWebResourceList = (adapter: ReturnType<typeof WebResourceAdapter>, lang: Lang, categoryIds: string, tagIds: string, loaderData: WebResourceListLoaderData | null) => {
+    // 宣告變數：baseParam 由 loader 決定（SSR 首屏一致）
+    const baseParam = useMemo(() => {
+        if (!loaderData?.args?.baseParam) return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: 10 } as components["schemas"]["QueryListParam"];
+        if (loaderData.args.lang !== lang) return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: 10 } as components["schemas"]["QueryListParam"];
+        if (loaderData.args.categoryIds !== categoryIds) return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: 10 } as components["schemas"]["QueryListParam"];
+        if (loaderData.args.tagIds !== tagIds) return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: 10 } as components["schemas"]["QueryListParam"];
+        return loaderData.args.baseParam;
+    }, [loaderData, lang, categoryIds, tagIds]);
+
+    const initialCount = useMemo<ApiLoaderData<components["schemas"]["QueryListParam"], number> | null>(() => {
+        if (!loaderData?.args?.baseParam) return null;
+        if (loaderData.args.lang !== lang) return null;
+        if (loaderData.args.categoryIds !== categoryIds) return null;
+        if (loaderData.args.tagIds !== tagIds) return null;
+
+        return {
+            args: loaderData.args.baseParam,
+            apiRes: { IsSuccess: true, Data: loaderData.res.countRes ?? 0, SysMessage: [] },
+        };
+    }, [loaderData, lang, categoryIds, tagIds]);
+
+    const initialList = useMemo<ApiLoaderData<components["schemas"]["QueryListParam"], WebResourceSet[]> | null>(() => {
+        if (!loaderData?.args?.baseParam) return null;
+        if (loaderData.args.lang !== lang) return null;
+        if (loaderData.args.categoryIds !== categoryIds) return null;
+        if (loaderData.args.tagIds !== tagIds) return null;
+
+        return {
+            args: loaderData.args.baseParam,
+            apiRes: { IsSuccess: true, Data: loaderData.res.listRes ?? [], SysMessage: [] },
+        };
+    }, [loaderData, lang, categoryIds, tagIds]);
+
+    // 執行 function：count
+    const useCount = adapter.hooks.useQueryCount({
+        condition: baseParam,
+        initial: initialCount,
+        deps: [lang, categoryIds, tagIds],
+    });
+
+    // 執行 function：paged list
+    const useList = adapter.hooks.usePagedQueryList({
+        baseParam,
+        count: useCount.data ?? 0,
+        initial: initialList,
+        deps: [lang, categoryIds, tagIds],
+    });
+
+    const visibleColumns: ColumnConfig[] = useMemo(() => {
+        return [
+            { key: WebResourceFields.Categories, title: "類別" },
+            { key: WebResourceInfoFields.Title, title: "標題" },
+            { key: WebResourceInfoFields.ResUrl, title: "連結" },
+        ];
+    }, []);
+
+    const gridProps: GridProps = useMemo(() => {
+        // 宣告變數
+        const rows: GridRow[] = (useList.data ?? []).map(item => {
+            const cells: RowCell[] = visibleColumns.map(col => {
                 let content = "";
+
                 switch (col.key) {
                     case WebResourceInfoFields.Title:
-                        {
-                            content = item.WebResourceInfo?.find(d => d.Lang === lang)?.Title ?? "";
-                            break;
-                        }
-                    case WebResourceInfoFields.Content:
-                        {
-                            content = item.WebResourceInfo?.find(d => d.Lang === lang)?.Content ?? "";
-                            break;
-                        }
+                        content = item.WebResourceInfo?.find(d => d.Lang === lang)?.Title ?? "";
+                        break;
+
+                    case WebResourceInfoFields.ResUrl:
+                        content = item.WebResourceInfo?.find(d => d.Lang === lang)?.ResUrl ?? "";
+                        break;
+
+                    case WebResourceFields.Categories:
+                        content = item.WebResource?.Categories ?? "";
+                        break;
+
                     default:
-                        {
-                            content = (item.WebResource as any)[col.key] ?? "";
-                            break;
-                        }
+                        content = "";
+                        break;
                 }
+
                 return { col, content };
             });
+
             return { cells };
-        },
-        enabled: true,
-        deps: [categoryIds, tagIds],
-    });
+        });
+
+        // return
+        return {
+            columns: visibleColumns,
+            rows,
+            CurrentPage: useList.pageNumber,
+            TotalPage: useList.totalPages,
+            onPageChange: useList.onPageChange,
+        } as GridProps;
+    }, [useList.data, useList.pageNumber, useList.totalPages, useList.onPageChange, visibleColumns, lang]);
+
+    // return
+    return {
+        rawData: useList.data ?? [],
+        gridProps,
+        isLoading: useCount.isLoading || useList.isLoading,
+        error: useCount.errorText ?? useList.errorText ?? null,
+    };
 };
+
 const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: WebResourceSet[], catData: CategorySet[]): GridProps => {
     const newRows: GridRow[] = (gridProps.rows ?? []).map((row, index) => {
         const curRow = rawData?.[index];
         const contentStatus = curRow?.WebResource?.ContentStatus ?? 0;
         const curDt = curRow?.WebResourceInfo?.find(p => p.Lang === lang);
+
         const newCells = (row.cells ?? []).map((cell) => {
             const isTitle = cell.col.key === WebResourceInfoFields.Title;
-            // 先保留原本內容
             let nextContent = cell.content;
-            // 只在特定欄位調整內容
+
             switch (cell.col.key) {
                 case WebResourceFields.Categories:
-                    nextContent = useFormatCategoriesName(curRow?.WebResource?.Categories ?? "", catData, lang);
+                    nextContent = formatCategoriesName(curRow?.WebResource?.Categories ?? "", catData, lang);
                     break;
+
                 case WebResourceInfoFields.ResUrl:
                     nextContent = SetUrlIcon(curDt?.ResUrl ?? "", curDt?.Content ?? "", curDt?.Url_OpenType ?? 0);
                     break;
             }
-            // 再把「最新 / 置頂 / 熱門」標籤疊上去（只對 Title 欄位）
+
             const wrappedContent = (
                 <>
                     {nextContent}
-
                     {isTitle && (
                         <>
                             {isWithinLastNDaysFromString(curRow?.WebResource?.CreateTime ?? "") && (<span className="label label-warning">最新</span>)}
@@ -143,25 +234,30 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: WebResourc
                     )}
                 </>
             );
-            return { ...cell, content: wrappedContent, };
+
+            return { ...cell, content: wrappedContent };
         });
+
         return { ...row, cells: newCells };
     });
+
     return { ...gridProps, rows: newRows };
 };
+
 const SetUrlIcon = (url: string, descript: string, target: WindowTarget) => {
-    const tar = target === 0 ? "_self" : "_blank"
-    const alt = `${descript}${target === 0 ? "" : "｜[另開視窗]"}`
+    const tar = target === 0 ? "_self" : "_blank";
+    const alt = `${descript}${target === 0 ? "" : "｜[另開視窗]"}`;
+
     return (
         <a href={url} target={tar} rel="noopener noreferrer" className="btn btn-default" title={alt}>
             <div className="link">Link</div>
         </a>
-    )
-}
-//
-const GridList_Comp = (props: { lang: Lang; title: string; GridData: GridProps }) => {
+    );
+};
 
+const GridList_Comp = (props: { lang: Lang; title: string; GridData: GridProps }) => {
     const [columns, setColumns] = useState<ColumnConfig[]>(props.GridData.columns);
+
     useEffect(() => {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
@@ -174,6 +270,7 @@ const GridList_Comp = (props: { lang: Lang; title: string; GridData: GridProps }
             );
         }
     }, []);
+
     const handleResize = (index: number, width: number) => {
         setColumns((prev) => {
             const updated = prev.map((col, idx) => idx === index ? { ...col, width } : col);
@@ -183,6 +280,7 @@ const GridList_Comp = (props: { lang: Lang; title: string; GridData: GridProps }
             return updated;
         });
     };
+
     return (
         <>
             <OperationGuideHelp_Comp lang={props.lang} />
@@ -192,83 +290,25 @@ const GridList_Comp = (props: { lang: Lang; title: string; GridData: GridProps }
                 <RowRender rows={props.GridData.rows} />
             </table>
         </>
-    )
+    );
+};
 
-
-    return (<></>
-        // <table className="table table-striped table-bordered table-hover + Files_table + table-rwd" summary="檔案下載列表">
-        //     <caption>檔案下載列表</caption>
-        //     <thead>
-        //         <tr className="tr-only-hide-titlebar">
-        //             <th id="F1" scope="col" width="10%">類別</th>
-        //             <th id="F2" scope="col" width="7%">排序</th>
-        //             <th id="F3" scope="col" width="40%">標題</th>
-        //             <th id="F4" scope="col" width="23%">檔案下載</th>
-        //             <th id="F5" scope="col" width="8%">下載數</th>
-        //             <th id="F6" scope="col" width="12%">上傳日期</th>
-        //         </tr>
-        //     </thead>
-        //     <tbody>
-        //         <tr>
-        //             <td headers="F1" className="table_td_vertical_align" data-th="類別">檔案室</td>
-        //             <td headers="F2" className="table_td_vertical_align" data-th="排序">0</td>
-        //             <td headers="F3" className="table_td_vertical_align" data-th="標題">
-        //                 <a href="javascript:void(0);">標題虛擬文字 Virtual text 虛擬文字 Virtual text 虛擬文字 Virtual text 虛擬文字 Virtual text</a>
-        //                 <div className="CustomState">
-        //                     <span className="label icon-small label-success">置頂</span>
-        //                     <span className="label icon-small label-danger">熱門</span>
-        //                     <span className="label icon-small label-warning">最新</span>
-        //                 </div>
-        //             </td>
-        //             <td headers="F4" className="table_td_vertical_align" data-th="檔案下載">
-        //                 <div className="Standard_btnDiv">
-        //                     <a href="" className="btn btn-default + bg_pdf" role="button" aria-label="分享" target="_blank" title=".pdf [ 另開新視窗 ]" tabindex="0">
-        //                         <span className="pdf">pdf</span>
-        //                     </a>
-        //                     <a href="" className="btn btn-default + bg_docx" role="button" aria-label="分享" target="_blank" title=".docx [ 另開新視窗 ]" tabindex="0">
-        //                         <span className="docx">docx</span>
-        //                     </a>
-        //                     <a href="" className="btn btn-default + bg_docx" role="button" aria-label="分享" target="_blank" title=".odt [ 另開新視窗 ]" tabindex="0">
-        //                         <span className="odt">odt</span>
-        //                     </a>
-        //                     <a href="" className="btn btn-default + bg_xlsx" role="button" aria-label="分享" target="_blank" title=".xlsx [ 另開新視窗 ]" tabindex="0">
-        //                         <span className="xlsx">xlsx</span>
-        //                     </a>
-        //                     <a href="" className="btn btn-default + bg_xlsx" role="button" aria-label="分享" target="_blank" title=".ods [ 另開新視窗 ]" tabindex="0">
-        //                         <span className="ods">ods</span>
-        //                     </a>
-        //                     <a href="" className="btn btn-default + bg_ppt" role="button" aria-label="分享" target="_blank" title=".ppt [ 另開新視窗 ]" tabindex="0">
-        //                         <span className="ppt">ppt</span>
-        //                     </a>
-        //                     <a href="" className="btn btn-default + bg_link" role="button" aria-label="分享" target="_blank" title="[ 另開新視窗 ]" tabindex="0">
-        //                         <span className="link">link</span>
-        //                     </a>
-        //                 </div>
-        //             </td>
-        //             <td headers="F5" className="table_td_vertical_align" data-th="下載數">0</td>
-        //             <td headers="F6" className="table_td_vertical_align" data-th="上傳日期">2025-01-01</td>
-        //         </tr>
-        //     </tbody>
-        // </table>
-    )
-}
 /** YT要做自動解析 */
 const PictureListContent = (prop: { lang: string, datas: WebResourceSet[] }) => {
-    //有影音時顯示影音，如果沒有的話就往下確認yt
-    //如果連結是Youtube，解析Youtube(embed)
     return (
         <div id="Row_Colitem" className="SubPage_Standard_itemBoxs">
             {
                 prop.datas.map((item, idx) => {
                     const detail = item.WebResourceInfo?.find(p => p.Lang === prop.lang);
                     const title = detail?.Title ?? "";
-                    const validate = FormatDate(item.WebResource?.CreateTime)
-                    const picId = item.WebResource?.PicId ?? ""
-                    const urlRaw = detail?.ResUrl ?? ""
-                    const tar = detail?.Url_OpenType === 0 ? "_self" : "_blank"
+                    const validate = FormatDate(item.WebResource?.CreateTime);
+                    const picId = item.WebResource?.PicId ?? "";
+                    const urlRaw = detail?.ResUrl ?? "";
+                    const tar = detail?.Url_OpenType === 0 ? "_self" : "_blank";
                     const { isYoutube, url } = resolveYoutubeEmbedUrl(urlRaw);
                     const isVideo = false;//暫時
                     const contentStatus = item.WebResource?.ContentStatus ?? 0;
+
                     return (
                         <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
                             <article className="cardbox">
@@ -317,7 +357,6 @@ const PictureListContent = (prop: { lang: string, datas: WebResourceSet[] }) => 
                                         </div>
                                     )}
 
-
                                     <div className="card_titleDiv + mb-md-4 mb-sm-3 mb-2" style={{ textAlign: (isYoutube || isVideo) ? undefined : 'center' }}>
                                         <a href={urlRaw} target={tar} className="card_title">🔗{title}</a>
                                         <div className="d-flex gap-1 flex-wrap">
@@ -333,7 +372,6 @@ const PictureListContent = (prop: { lang: string, datas: WebResourceSet[] }) => 
                                             </div>
 
                                             <div className="ZoomIn customize_ZoomIn_btn">
-                                                {/* <a href="images/video/0_Robot(4.4)_1080x1080.mp4" className="Btn_zm1 venobox" data-autoplay="true" data-vbtype="video" data-ratio="1x1" data-maxwidth="640px" type="button" role="button" title="放大播放影片"> */}
                                                 <a href={urlRaw} target={tar} className="Btn_zm1 venobox" data-autoplay="true" data-vbtype="iframe" data-maxwidth="640px" type="button" role="button" title="放大圖片">
                                                     <i className="fas fa-expand-alt"></i>
                                                     <span className="sr-only">放大圖片</span>
@@ -349,14 +387,75 @@ const PictureListContent = (prop: { lang: string, datas: WebResourceSet[] }) => 
             }
         </div>
     )
-}
+};
+
 const YT_SHORT_REGEX = /^https?:\/\/(?:www\.)?youtu\.be\/([^?&#/]+)/i;
+
 /** 解析YT網址 */
 export const resolveYoutubeEmbedUrl = (rawUrl?: string | null) => {
-    if (!rawUrl) return { isYoutube: false, url: rawUrl ?? "", };
+    if (!rawUrl) return { isYoutube: false, url: rawUrl ?? "" };
     const match = rawUrl.match(YT_SHORT_REGEX);
     if (!match) return { isYoutube: false, url: rawUrl };
-    const videoId = match[1]; // 抓到 {id}
+    const videoId = match[1];
     const embedUrl = `https://www.youtube.com/embed/${videoId}`;
     return { isYoutube: true, url: embedUrl };
+};
+
+
+///以下應該抽掉
+
+interface WithinLastOptions {
+    /** 當字串沒有時區資訊時，假定的時區位移（單位：分鐘）。預設 0 = 當成 UTC。例：台北(+08:00)傳 480 */
+    assumeOffsetMinutes?: number;
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const parseDateTimeToEpochMs = (input: string, assumeOffsetMinutes: number = 0): number | null => {
+    if (!input) return null;
+    const s = input.trim();
+
+    // 1) .NET /Date(1696540800000)/ 格式
+    const msMatch = /\/Date\((\d+)\)\//.exec(s);
+    if (msMatch) return Number(msMatch[1]);
+
+    // 2) ISO 8601（含 Z 或 ±HH:mm）
+    //    例如：2025-10-28T14:30:00Z、2025-10-28T14:30:00+08:00
+    const hasTZ = /[zZ]|[+\-]\d{2}:\d{2}$/.test(s);
+    if (hasTZ) {
+        const t = Date.parse(s);
+        return Number.isNaN(t) ? null : t;
+    }
+
+    // 3) 無時區資訊的常見格式：
+    //    YYYY-MM-DD[ |T]HH:mm[:ss[.fff]]   或   YYYY/MM/DD[ ...]
+    //    以及只有日期：YYYY-MM-DD / YYYY/MM/DD
+    const m = /^(\d{4})[-/](\d{2})[-/](\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?)?$/.exec(s);
+    if (m) {
+        const [_, y, mo, d, hh = "0", mm = "0", ss = "0", fff = "0"] = m;
+        const ms = parseInt(fff.padEnd(3, "0"), 10);
+        // 先組成「該時區的牆上時間」對應的 UTC 時間
+        // 假設輸入代表的是「本地 assumeOffsetMinutes 的時間」
+        // 例如 assumeOffsetMinutes=480 (台北 +08:00)，那 2025-10-28 14:30 代表 UTC=14:30-8h
+        const asUTC = Date.UTC(+y, +mo - 1, +d, +hh, +mm, +ss, ms) - assumeOffsetMinutes * 60 * 1000;
+        return asUTC;
+    }
+
+    // 4) 其他能被 Date.parse 吃到的情況（不保證所有環境一致）
+    const fallback = Date.parse(s);
+    return Number.isNaN(fallback) ? null : fallback;
+};
+
+export const isWithinLastNDaysFromString = (dateTimeStr?: string, n: number = 8, opts?: WithinLastOptions): boolean => {
+    if (!dateTimeStr) return false;
+
+    const assumeOffsetMinutes = opts?.assumeOffsetMinutes ?? 0;
+    const targetMs = parseDateTimeToEpochMs(dateTimeStr, assumeOffsetMinutes);
+    if (targetMs == null) return false;
+
+    const nowMs = Date.now();
+    const diffMs = nowMs - targetMs;
+
+    // 僅計算「過去 n 天內」，未來時間回傳 false
+    return diffMs >= 0 && diffMs <= n * DAY_MS;
 };

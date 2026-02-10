@@ -3,42 +3,79 @@ import type { Lang } from '@/SysCore/i18n/lang';
 import ModuleContent from '@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent';
 import { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router';
-import { useFetchFormData } from '@/SysCore/Utils/API/FetchFormData';
 import type { components } from '@/types/api';
-import GalleryProvider from '@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import type { INormNode } from '@/Features/Pages/Client/Route/Site-Routing';
-type GallerySet = components["schemas"]["GallerySet_DTO"]
-const emptyData: GallerySet = {}
+
+// ✅ 新架構：Adapter + LoaderData initial
+import { useLoaderData } from 'react-router-dom';
+import type { ApiLoaderData } from '@/SysCore/Utils/API/APIAdapter';
+import { GalleryAdapter } from '@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api';
+import type { GalleryFormLoaderData } from './GalleryForm_Loader';
+
+type GallerySet = components["schemas"]["GallerySet_DTO"];
+const emptyData: GallerySet = {};
 
 const GalleryForm = (props: { node: INormNode; theme: IFETheme; lang: Lang }) => {
-    const { internalId } = useParams()
-    const pvd = useMemo(() => ({ Gallery: GalleryProvider() }), []);
-    const useGalleryFormData = useFetchFormData<GallerySet>(pvd.Gallery, internalId, emptyData)
+    // 宣告變數
+    const { internalId } = useParams();
+    const loaderData = useLoaderData() as GalleryFormLoaderData | null;
+
+    const adapter = useMemo(() => ({ Gallery: GalleryAdapter() }), []);
+    const safeInternalId = `${internalId ?? ""}`.trim();
+
+    // 宣告變數：SSR loaderData → hooks initial（避免 hydration 重撈）
+    const initialData = useMemo<ApiLoaderData<string, GallerySet> | null>(() => {
+        if (!loaderData?.args?.dataId) return null;
+        if (loaderData.args.dataId !== safeInternalId) return null;
+
+        return {
+            args: safeInternalId,
+            apiRes: {
+                IsSuccess: true,
+                Data: loaderData.res.dataRes ?? emptyData,
+                SysMessage: [],
+            },
+        };
+    }, [loaderData, safeInternalId]);
+
+    // 執行 function：QueryData（SSR initial → CSR 接手）
+    const useGalleryFormData = adapter.Gallery.hooks.useQueryData({
+        internalId: safeInternalId,
+        initial: initialData,
+        deps: [safeInternalId, props.lang],
+    });
+
     const loadingList = [useGalleryFormData.isLoading];
-    const errorList = [useGalleryFormData.error];
+    const errorList = [useGalleryFormData.errorText];
+
     const title = useGalleryFormData.data?.GalleryInfo?.find(p => p.Lang === props.lang)?.Title ?? "";
-    const children = useMemo(() => { return <GalleryFormList key="grid" lang={props.lang} data={useGalleryFormData.data} />; }, [useGalleryFormData.data, props.lang]);
+    const children = useMemo(() => {
+        return <GalleryFormList key="grid" lang={props.lang} data={useGalleryFormData.data ?? emptyData} />;
+    }, [useGalleryFormData.data, props.lang]);
+
+    // return
     return (
         <ModuleContent nodeTitle={props.node.title} title={title} loadingList={loadingList} errorList={errorList}>
             {children}
         </ModuleContent>
-    )
-}
-export default GalleryForm
+    );
+};
+
+export default GalleryForm;
 
 const GalleryFormList = (props: { lang: Lang; data: GallerySet }) => {
-
     useEffect(() => {
         if (typeof window === "undefined") return;
+
         const w = window as any;
         const $ = w.$ || w.jQuery;
+
         // 1️⃣ 先嘗試 jQuery 版 plugin：$('.venobox').venobox()
         if ($ && $.fn && typeof $.fn.venobox === "function") {
-            // 避免重複綁很多層，可以先嘗試清除舊的 instance，
-            // 但大多數情況下直接重新呼叫就可以正常覆蓋。
             $('.venobox').venobox();
         }
+
         // 2️⃣ 如果有新版 class 版 VenoBox，也一起初始化（對應 prototype 的 new VenoBox({...})）
         if (typeof w.VenoBox === "function") {
             if (w.__vbInstance && typeof w.__vbInstance.destroy === "function") {
@@ -57,6 +94,7 @@ const GalleryFormList = (props: { lang: Lang; data: GallerySet }) => {
                 spinner: "rotating-bounce",
             });
         }
+
         if ((!$ || !$.fn?.venobox) && typeof w.VenoBox !== "function") {
             // 兩種都沒有 → 代表 venobox js 根本沒載到
             console.warn("VenoBox / $.fn.venobox not found, please check LoadFeaturesJs.ts and script paths.");
@@ -100,5 +138,5 @@ const GalleryFormList = (props: { lang: Lang; data: GallerySet }) => {
                 })}
             </div>
         </>
-    )
-}
+    );
+};
