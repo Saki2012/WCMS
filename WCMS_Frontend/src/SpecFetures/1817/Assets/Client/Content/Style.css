@@ -197,6 +197,10 @@ a:focus-visible {
     background-color: var(--a_focuscolor);
     color: var(--blackcolor) !important;
 }
+a.btn:focus-visible {
+    outline: 2px solid var(--a_focusbordercolor);
+    outline-offset: 2px;
+}
 a:active {
     background-color: var(--a_focuscolor);
     transition: background-color 0.15s ease-out;
