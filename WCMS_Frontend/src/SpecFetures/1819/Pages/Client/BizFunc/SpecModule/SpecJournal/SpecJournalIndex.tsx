@@ -5,7 +5,7 @@ import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
 import type { components } from "@/types/api";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import { SpecJournalIndexDetailFields, SpecJournalIndexModelFields } from "@/types/SchemaFields";
+import { SpecJournalIndexDetailFields, SpecJournalIndexModelFields, SpecJournalIndexSetFields } from "@/types/SchemaFields";
 import SpecJournalIndexProvider from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecMusical/SpecJournalIndex_Api";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import clsx from "clsx";
@@ -95,6 +95,25 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
                                     const indexTitle = `${masterData?.IndexName}${props.lang === 'zh-tw' ? " 年" : ""}`
                                     const volTitle = `(Vol.${DetailDatas?.[0]?.Volume})`
                                     const { collapseId, headerId } = buildCollapseIds(masterData?.IndexId ?? "");
+
+                                    const toSortNum = (v: string | number | null | undefined): number => {
+                                        const n = typeof v === "number" ? v : Number.parseInt(String(v ?? ""), 10);
+                                        if (Number.isFinite(n)) return n;
+                                        return Number.MAX_SAFE_INTEGER;
+                                    };
+                                    // 宣告：依 Volume、Issue 正排序（升冪）
+                                    const sortedDetailDatas = useMemo(() => {
+                                        const list = DetailDatas ?? [];
+                                        return [...list].sort((a, b) => {
+                                            const av = toSortNum(a.Volume);
+                                            const bv = toSortNum(b.Volume);
+                                            if (av !== bv) return av - bv;
+                                            const ai = toSortNum(a.Issue);
+                                            const bi = toSortNum(b.Issue);
+                                            return ai - bi;
+                                        });
+                                    }, [DetailDatas]);
+
                                     return (
                                         <li key={masterData?.IndexId}>
                                             <div className={clsx("card", `JL-${masterData?.IndexId}`)}>
@@ -111,7 +130,7 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
                                                 <div id={collapseId} className="collapse" data-bs-parent="#accordion" aria-labelledby={headerId}>
                                                     <div className="card-body">
                                                         <ul className="Journallist-group">
-                                                            {DetailDatas?.map((dt) => {
+                                                            {sortedDetailDatas?.map((dt) => {
                                                                 const volumeTitle = `Vol.${dt.Volume}, No.${dt.Issue}`
                                                                 return (
                                                                     <li key={dt.RowId}>
@@ -161,7 +180,11 @@ const indexFetch = (provider: IDataProvider<SpecJournalIndexSet>, pageSize: numb
                 `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileName}`,
             ],
             Condition: condition,
-            OrderBy: [{ Col: SpecJournalIndexModelFields.IndexName, Desc: true }],
+            OrderBy: [
+                { Col: SpecJournalIndexModelFields.IndexName, Desc: true },
+                { Col: `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`, Desc: false },
+                { Col: `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`, Desc: false },
+            ],
             PageNumber: page,
             PageSize: pageSize,
         }),

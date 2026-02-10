@@ -1,29 +1,77 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import type { Lang } from "@/SysCore/i18n/lang";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
-import { createContext, Fragment, useContext, type MouseEvent, type ReactNode } from "react";
+import { SUPPORTED_LANGS, type Lang } from "@/SysCore/i18n/lang";
+import { createContext, Fragment, useContext, useMemo, type MouseEvent, type ReactNode } from "react";
+import { useLocation } from "react-router-dom";
 
-/** 站台 menu breadcrumb（原本既有邏輯） */
-const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode): ReactNode[] => {
+/** 取得目前網址的 module base（例：/Issues/Form/... -> /Issues；/en/Issues/... -> /Issues） */
+const resolveModuleBaseFromPathname = (pathname: string): string => {
+    // 宣告變數
+    const segs = (pathname ?? "").split("/").filter(Boolean);
+    const s0 = (segs[0] ?? "").toLowerCase();
+    const hasLang = (SUPPORTED_LANGS as readonly string[]).includes(s0);
+    const mod = hasLang ? segs[1] : segs[0];
+
+    // return
+    if (!mod) return "/";
+    return `/${mod}`;
+};
+
+type GetBreadCrumbDataOptions = {
+    /** 當頁有 dynamic crumbs 時，把 current node 也變成可點 */
+    treatCurrentAsLink?: boolean;
+    /** current node 沒 redirectTo 時，fallback 用 module base */
+    currentNodeFallbackTo?: string;
+};
+
+/** 站台 menu breadcrumb（原本既有邏輯 + 支援 dynamic crumbs 時 current node 可點回 module） */
+const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode, opts?: GetBreadCrumbDataOptions): ReactNode[] => {
+    // 宣告變數
     const result: ReactNode[] = [];
     let curNodes = site.treeByLang[lang];
+    const treatCurrentAsLink = opts?.treatCurrentAsLink ?? false;
+    const currentNodeFallbackTo = opts?.currentNodeFallbackTo ?? "";
 
+    // 執行 function
     node.absIds?.forEach((id) => {
         const curNode = curNodes?.find((n: INormNode) => n.id === id);
+        if (!curNode) return;
 
-        if (curNode?.id === node.id) {
-            result.push(<Fragment key={id}>{curNode.title}</Fragment>);
+        const isCurrent = curNode.id === node.id;
+
+        // ✅ 原本：current node 一律純文字
+        // ✅ 修正：如果有 dynamic crumbs，current node 改成可點（導回 module root / redirectTo）
+        if (isCurrent) {
+            const rawTo = (curNode.redirectTo ?? "").trim();
+            const canUseRawTo = rawTo !== "" && rawTo !== "/";
+            const finalTo = canUseRawTo ? rawTo : currentNodeFallbackTo;
+
+            if (treatCurrentAsLink && finalTo) {
+                result.push(
+                    <LangNavLink key={id} to={finalTo} title={curNode.title} aria-label={curNode.title}>
+                        {curNode.title}
+                    </LangNavLink>
+                );
+            } else {
+                result.push(<Fragment key={id}>{curNode.title}</Fragment>);
+            }
         } else {
-            result.push(
-                <LangNavLink key={id} to={curNode?.redirectTo ?? ""} title={curNode?.title} aria-label={curNode?.title}>
-                    {curNode?.title}
-                </LangNavLink>
-            );
+            const to = (curNode.redirectTo ?? "").trim();
+            if (to) {
+                result.push(
+                    <LangNavLink key={id} to={to} title={curNode.title} aria-label={curNode.title}>
+                        {curNode.title}
+                    </LangNavLink>
+                );
+            } else {
+                result.push(<Fragment key={id}>{curNode.title}</Fragment>);
+            }
         }
 
-        curNodes = curNode?.children ?? [];
+        curNodes = curNode.children ?? [];
     });
 
+    // return
     return result;
 };
 
@@ -152,24 +200,7 @@ const BreadCrumb1816Comp = (props: {
 
                 <div className="R d-flex flex-wrap mb-2 justify-content-between">
                     <div className="PrintingSite__wrapper mt-xl-0 mt-2">
-                        <div className="Print-box">
-                            {/* <ul className="nav custom_nav py-0 justify-content-center">
-                                <li className="nav-item">
-                                    <a className="nav-link" href="/" role="button" aria-label={props.printTitle} title={props.printTitle} tabIndex={0}>
-                                        <span className="icon-custom-print-B me-1"></span>
-                                        <span className="sr-only">{props.printTitle}</span>
-                                        {props.printTitle}
-                                    </a>
-                                </li>
-                                <li className="nav-item">
-                                    <a className="nav-link" href="/" role="button" aria-label={props.shareTitle} title={props.shareTitle} tabIndex={0}>
-                                        <span className="icon-custom-share-B me-1"></span>
-                                        <span className="sr-only">{props.shareTitle}</span>
-                                        {props.shareTitle}
-                                    </a>
-                                </li>
-                            </ul> */}
-                        </div>
+                        <div className="Print-box"></div>
                     </div>
 
                     <div className="retrun-wrap ms-xl-3 ms-0 mt-xl-0 mt-2">
@@ -265,11 +296,18 @@ export const BreadCrumb_Comp = (props: { lang: Lang; site: INormSite; node: INor
     const printTitle = isZh ? "友善列印" : "Print";
     const shareTitle = isZh ? "分享" : "Share";
 
+    const location = useLocation();
+    const moduleBase = useMemo(() => resolveModuleBaseFromPathname(location.pathname), [location.pathname]);
+
     // ✅ 動態 crumbs（由 page setItems）
     const { items } = useBreadcrumb();
+    const treatCurrentAsLink = (items?.length ?? 0) > 0;
 
-    // ✅ 原本 menu breadcrumb
-    const breadCrumbData: ReactNode[] = GetBreadCrumbData(props.lang, props.site, props.node);
+    // ✅ 原本 menu breadcrumb（修正：有 dynamic crumbs 時 current node 也可點）
+    const breadCrumbData: ReactNode[] = GetBreadCrumbData(props.lang, props.site, props.node, {
+        treatCurrentAsLink,
+        currentNodeFallbackTo: moduleBase,
+    });
 
     // ✅ 1816 crumbs（menu + dynamic，最後一個 active）
     const crumbParts1816 = Build1816CrumbParts(props.lang, props.site, props.node, items);
@@ -297,13 +335,5 @@ export const BreadCrumb_Comp = (props: { lang: Lang; site: INormSite; node: INor
     }
 
     // ✅ 其他 spec：維持原本 DOM
-    return (
-        <BreadCrumbDefaultComp
-            homepageTitle={homepageTitle}
-            gobackTitle={gobackTitle}
-            breadCrumbData={breadCrumbData}
-            items={items}
-            onGoBack={handleGoBack}
-        />
-    );
+    return <BreadCrumbDefaultComp homepageTitle={homepageTitle} gobackTitle={gobackTitle} breadCrumbData={breadCrumbData} items={items} onGoBack={handleGoBack} />;
 };
