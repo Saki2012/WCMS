@@ -29,7 +29,7 @@ export const specClientEntries: Record<string, ModuleEntry> = {
     element: (lang: Lang, site: INormSite, node: INormNode) => (
       <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
     ),
-    children: (opts: unknown, lang: string) => [
+    children: (opts: unknown, lang: Lang) => [
       { index: true, element: <AutoRedirect to="List" replace /> },
       { path: "List", element: <SpecUSRListComp Theme={Classic_FETheme} Lang={lang} Options={opts as ISpecUSRListOptions} /> },
       { path: ":internalId", element: <SpecUSRFormComp Theme={Classic_FETheme} Lang={lang} /> },
@@ -40,7 +40,7 @@ export const specClientEntries: Record<string, ModuleEntry> = {
     element: (lang: Lang, site: INormSite, node: INormNode) => (
       <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
     ),
-    children: (opts: unknown, lang: string) => [
+    children: (opts: unknown, lang: Lang) => [
       { index: true, element: <SpecResearchListComp Theme={Classic_FETheme} Lang={lang} Options={opts as ISpecResearchListOptions} /> },
     ],
   },

@@ -1,5 +1,5 @@
 /*Header模塊*/
-import type { Lang } from "@/SysCore/i18n/lang";
+import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { A11yContent } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Header";
 import LogoImg from '@/SpecFetures/1817/Assets/Client/images/logo/LOGO_475x120.svg'
@@ -11,6 +11,64 @@ import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopBut
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
+
+
+
+
+
+
+
+
+
+type HeaderA11yText = {
+    mainNavLabel: string;
+    openNewWindowSuffix: string;
+    hamburger: string;
+    search: string;
+    logoLink: string;
+    logoAlt: string;
+};
+
+const HEADER_A11Y_TEXT: Partial<Record<Lang, HeaderA11yText>> = {
+    "zh-tw": {
+        mainNavLabel: "主選單",
+        openNewWindowSuffix: "（另開新視窗）",
+        hamburger: "開啟主選單",
+        search: "搜尋",
+        logoLink: "回首頁",
+        logoAlt: "網站標誌",
+    },
+    en: {
+        mainNavLabel: "Main menu",
+        openNewWindowSuffix: " (opens in a new window)",
+        hamburger: "Open main menu",
+        search: "Search",
+        logoLink: "Home",
+        logoAlt: "Site logo",
+    },
+};
+
+const getHeaderA11y = (lang?: Lang): HeaderA11yText => {
+    const key = (lang ?? DefaultLang) as Lang;
+    return HEADER_A11Y_TEXT[key] ?? HEADER_A11Y_TEXT[DefaultLang] ?? {
+        mainNavLabel: "Main menu",
+        openNewWindowSuffix: " (opens in a new window)",
+        hamburger: "Open main menu",
+        search: "Search",
+        logoLink: "Home",
+        logoAlt: "Site logo",
+    };
+};
+
+const isBlankTarget = (t?: string) => String(t ?? "").toLowerCase() === "_blank";
+
+const withNewWindowSuffix = (a11y: HeaderA11yText, text: string, target?: string) => {
+    return isBlankTarget(target) ? `${text}${a11y.openNewWindowSuffix}` : text;
+};
+
+const getRelByTarget = (target?: string) => (isBlankTarget(target) ? "noopener noreferrer" : undefined);
+
+
 
 const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
     const headerRef = useRef<HTMLDivElement | null>(null);
@@ -479,9 +537,9 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
             <div className="customMENU_Box bg-custom-Customize_color">
                 <div className="menuBox">
                     <div className="container-customize0">
-                        <div className="navbar navbar-expand-lg navbar-dark px-0 py-0" ref={menuRef}>
-                            <LogoComp />
-                            <MobileBtn />
+                        <div className="navbar navbar-expand-lg navbar-dark px-0 py-0" ref={menuRef} role="navigation" aria-label={getHeaderA11y(props.lang).mainNavLabel}>
+                            <LogoComp lang={props.lang} />
+                            <MobileBtn lang={props.lang} />
                             <MainMenu {...props} />
                         </div>
                     </div>
@@ -490,18 +548,30 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
         </section>
     );
 };
+const LogoComp = (props: { lang: Lang }) => {
+    // 宣告變數
+    const a11y = getHeaderA11y(props.lang);
 
-const LogoComp = () => {
+    // return
     return (
         <h1 className="logo">
-            <LangLink className="navbar-brand" to="/" tabIndex={0} title="">
-                <img src={LogoImg} alt=" LOGO" />
+            <LangLink
+                className="navbar-brand"
+                to="/"
+                tabIndex={0}
+                title={a11y.logoLink}
+                aria-label={a11y.logoLink}
+            >
+                <img src={LogoImg} alt={a11y.logoAlt} />
             </LangLink>
         </h1>
     );
 };
 
-const MobileBtn = () => {
+const MobileBtn = (props: { lang: Lang }) => {
+    // 宣告變數
+    const a11y = getHeaderA11y(props.lang);
+
     return (
         <>
             <div className="mobile-box ml-auto me-2">
@@ -512,14 +582,15 @@ const MobileBtn = () => {
                             className="search-button"
                             type="button"
                             role="button"
-                            title="搜尋"
+                            title={a11y.search}
+                            aria-label={a11y.search}
                             id="mobile-sss"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                             tabIndex={0}
                         >
                             <i className="far fa-search" aria-hidden="true"></i>
-                            <span className="sr-only">搜尋</span>
+                            <span className="sr-only">{a11y.search}</span>
                         </a>
                         <div className="searchdropdown dropdown-menu search-input-dropdown" aria-labelledby="mobile-sss">
                             <input type="search" id="mobile-search-box" placeholder="search here..." tabIndex={0} />
@@ -537,6 +608,8 @@ const MobileBtn = () => {
                 data-bs-target="#navbar-content"
                 tabIndex={0}
                 aria-expanded="false"
+                title={a11y.hamburger}
+                aria-label={a11y.hamburger}
             >
                 <div className="hamburger-toggle">
                     <div className="hamburger">
@@ -558,7 +631,10 @@ const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
             <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
                 {menuItems.map((item, idx) => (
                     <div key={idx}>
-                        {item.SubItem?.length === 0 ? <SingleMenuItem menuItem={item} /> : <DropdownMenuItem menuItem={item} />}
+                        {item.SubItem?.length === 0
+                            ? <SingleMenuItem lang={props.lang} menuItem={item} />
+                            : <DropdownMenuItem lang={props.lang} menuItem={item} />
+                        }
                     </div>
                 ))}
             </ul>
@@ -567,17 +643,23 @@ const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
 };
 
 /** 1. 一般單選 */
-const SingleMenuItem = (props: { menuItem: MenuItemData }) => {
+const SingleMenuItem = (props: { lang: Lang; menuItem: MenuItemData }) => {
+    // 宣告變數
+    const a11y = getHeaderA11y(props.lang);
+    const label = withNewWindowSuffix(a11y, props.menuItem.SrcData, props.menuItem.URL_Open);
+
+    // return
     return (
         <li className="nav-item">
             <LangNavLink
                 className="nav-link"
-                aria-current="page"
                 to={props.menuItem.Url}
                 role="button"
                 tabIndex={0}
-                title={props.menuItem.SrcData}
-                aria-label={props.menuItem.SrcData}
+                target={props.menuItem.URL_Open}
+                rel={getRelByTarget(props.menuItem.URL_Open)}
+                title={label}
+                aria-label={label}
             >
                 {props.menuItem.SrcData}
             </LangNavLink>
@@ -585,8 +667,14 @@ const SingleMenuItem = (props: { menuItem: MenuItemData }) => {
     );
 };
 
+
 /** 2. 多層下拉 */
-const DropdownMenuItem = (props: { menuItem: MenuItemData }) => {
+const DropdownMenuItem = (props: { lang: Lang; menuItem: MenuItemData }) => {
+    // 宣告變數
+    const a11y = getHeaderA11y(props.lang);
+    const label = withNewWindowSuffix(a11y, props.menuItem.SrcData, props.menuItem.URL_Open);
+
+    // return
     return (
         <li className="nav-item dropdown">
             <LangNavLink
@@ -597,12 +685,17 @@ const DropdownMenuItem = (props: { menuItem: MenuItemData }) => {
                 data-bs-toggle="dropdown"
                 data-bs-auto-close="outside"
                 target={props.menuItem.URL_Open}
+                rel={getRelByTarget(props.menuItem.URL_Open)}
+                aria-haspopup="menu"
+                aria-expanded="false"
+                title={label}
+                aria-label={label}
             >
                 {props.menuItem.SrcData}
             </LangNavLink>
 
             <ul className="dropdown-menu">
-                {renderDropdownItems(props.menuItem.SubItem, 0)}
+                {renderDropdownItems(props.menuItem.SubItem, 0, props.lang)}
             </ul>
         </li>
     );
@@ -617,15 +710,29 @@ const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] => {
 /**
  * 遞迴渲染多層選單
  */
-const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.Element[] => {
+const renderDropdownItems = (items: MenuItemData[], parentDepth: number, lang: Lang): JSX.Element[] => {
+    // 宣告變數
+    const a11y = getHeaderA11y(lang);
+
+    // return
     return items.map((item, index) => {
         const hasChildren = (item.SubItem ?? []).length > 0;
         const key = `${parentDepth}-${index}`;
+        const label = withNewWindowSuffix(a11y, item.SrcData, item.URL_Open);
 
         if (!hasChildren) {
             return (
                 <li key={key}>
-                    <LangNavLink className="dropdown-item" to={item.Url || "#"} role="button" tabIndex={0} target={item.URL_Open}>
+                    <LangNavLink
+                        className="dropdown-item"
+                        to={item.Url || "#"}
+                        role="button"
+                        tabIndex={0}
+                        target={item.URL_Open}
+                        rel={getRelByTarget(item.URL_Open)}
+                        title={label}
+                        aria-label={label}
+                    >
                         {item.SrcData}
                     </LangNavLink>
                 </li>
@@ -644,11 +751,18 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
                     data-bs-toggle="dropdown"
                     data-bs-auto-close="outside"
                     target={item.URL_Open}
+                    rel={getRelByTarget(item.URL_Open)}
+                    aria-haspopup="menu"
+                    aria-expanded="false"
+                    title={label}
+                    aria-label={label}
                 >
                     {item.SrcData}
                 </LangNavLink>
 
-                <ul className={submenuClassName}>{renderDropdownItems(item.SubItem ?? [], parentDepth + 1)}</ul>
+                <ul className={submenuClassName}>
+                    {renderDropdownItems(item.SubItem ?? [], parentDepth + 1, lang)}
+                </ul>
             </li>
         );
     });
