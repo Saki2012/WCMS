@@ -46,7 +46,10 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: WebResourc
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
         const curData = rawData?.[index];
         const titleCell = row.cells.find(cell => cell.col.key === WebResourceInfoFields.Title);
-        if (titleCell) { titleCell.content = (<>{titleCell.content}{GetDataStatusContent(curData?.WebResource?.ContentStatus ?? 0)}</>); }
+        if (titleCell) {
+            const titleText = curData.WebResourceInfo?.find(p => p.Lang === lang)?.Title
+            titleCell.content = (<>{titleText}{GetDataStatusContent(curData?.WebResource?.ContentStatus ?? 0)}</>);
+        }
         const categoryCell = row.cells.find(p => p.col.key === WebResourceFields.Categories);
         const rawCatId = rawData?.[index]?.WebResource?.Categories ?? categoryCell?.content?.toString() ?? "";
         if (categoryCell) { categoryCell.content = useFormatCategoriesName(rawCatId, categoryData, lang); }

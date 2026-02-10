@@ -27,14 +27,14 @@ export const Server_GalleryListComp = (prop: { title: string; theme: IBETheme; l
     const provider = useMemo(() => GalleryProvider(), []);
     const useGalleryList = useGalleryListData(provider, prop.lang, kw);
     const actions = useActions(dirUrl, GalleryProvider(), undefined, undefined, useGalleryList.refetchCurrent)
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(useGalleryList.gridProps, useGalleryList.rawData, actions); }, [useGalleryList.gridProps, useGalleryList.rawData, actions]);
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(prop.lang, useGalleryList.gridProps, useGalleryList.rawData, actions); }, [useGalleryList.gridProps, useGalleryList.rawData, actions]);
     const searchCompProp: SearchBarProps = { title: "相簿搜尋", subTitle: "搜尋相簿 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
     const isLoading = [useGalleryList.isLoading];
     const errors = [useGalleryList.error];
     return (<ListComp Title={prop.title} Theme={prop.theme} LoadingList={isLoading} ErrorList={errors} Actions={actions} GridData={adjustedGrid} SearchBar={searchCompProp}></ListComp>);
 }
 /** 動態添加每行的動作功能 */
-const SetAdjustFunction = (gridProps: GridProps, rawData: GallerySet[], actions: UseActionsResult): GridProps => {
+const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: GallerySet[], actions: UseActionsResult): GridProps => {
     if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
     const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
@@ -49,7 +49,10 @@ const SetAdjustFunction = (gridProps: GridProps, rawData: GallerySet[], actions:
 
         const curData = rawData?.[index]
         const titleCell = row.cells.find(cell => cell.col.key === GalleryInfoFields.Title)
-        if (titleCell) { titleCell.content = (<>{titleCell.content}{GetDataStatusContent(curData?.Gallery?.ContentStatus ?? 0)}</>); }
+        if (titleCell) {
+            const titleText = curData.GalleryInfo?.find(p => p.Lang === lang)?.Title
+            titleCell.content = (<>{titleText}{GetDataStatusContent(curData?.Gallery?.ContentStatus ?? 0)}</>);
+        }
         const newCell: RowCell = {
             col: adjustCol,
             content: (<GridCol_Toolbar key={internalId} action={actions} internalId={internalId} />)

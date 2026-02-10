@@ -48,7 +48,8 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: FileArchiv
         const internalId = curData?.FileArchive?.InternalId ?? "";
         const baseCells: RowCell[] = row.cells.map(cell => {
             if (cell.col.key === FileArchiveInfoFields.Title) {
-                return { ...cell, content: (<>{cell.content}{GetContentStatus(curData?.FileArchive?.ContentStatus ?? 0)}</>), };
+                const titleText = curData.FileArchiveInfo?.find(p => p.Lang === lang)?.Title
+                return { ...cell, content: (<>{titleText}{GetContentStatus(curData?.FileArchive?.ContentStatus ?? 0)}</>), };
             }
             if (cell.col.key === FileArchiveFields.CategoriesId) {
                 const rawCatId =

@@ -47,7 +47,10 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: Announceme
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
         const curData = rawData?.[index]
         const titleCell = row.cells.find(cell => cell.col.key === AnnouncementDetailFields.Title)
-        if (titleCell) { titleCell.content = (<>{titleCell.content}{GetDataStatusContent(curData?.Announcement?.ContentStatus ?? 0)}</>); }
+        if (titleCell) {
+            const titleText = curData.AnnouncementDetail?.find(p => p.Lang === lang)?.Title
+            titleCell.content = (<>{titleText}{GetDataStatusContent(curData?.Announcement?.ContentStatus ?? 0)}</>);
+        }
         const categoryCell = row.cells.find(p => p.col.key === AnnouncementFields.Categories);
         const rawCatId = curData?.Announcement?.Categories ?? categoryCell?.content?.toString() ?? "";
         if (categoryCell) { categoryCell.content = useFormatCategoriesName(rawCatId, categoryData, lang); }
@@ -64,9 +67,9 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: Announceme
 /** 目前說只有公告/檔案室/網路資源/相簿會用到 */
 const GetDataStatusContent = (contentStatus: number): React.ReactNode => {
     const statusItems: React.ReactNode[] = [];
-    if (contentStatus & 1) { statusItems.push(<div className="icon-small top-bg">置頂</div>); }
-    if (contentStatus & 2) { statusItems.push(<div className="icon-small hot-bg">熱門</div>); }
-    if (contentStatus & 4) { statusItems.push(<div className="icon-small hide-bg">隱藏</div>); }
+    if (contentStatus & 1) { statusItems.push(<div key="top" className="icon-small top-bg">置頂</div>); }
+    if (contentStatus & 2) { statusItems.push(<div key="hot" className="icon-small hot-bg">熱門</div>); }
+    if (contentStatus & 4) { statusItems.push(<div key="hide" className="icon-small hide-bg">隱藏</div>); }
     return <div className="CustomState">{statusItems}</div>
 };
 
