@@ -102,7 +102,7 @@ export const NewsData = (props: { lang: Lang }) => {
 	const useAllNewsData1 = useAnnouncementList(props.lang, "1");
 	const useAllNewsData2 = useAnnouncementList(props.lang, "2");
 	const useAllNewsData3 = useAnnouncementList(props.lang, "3");
-	const useAllNewsData4 = useAnnouncementList(props.lang, "4");
+	const useAllNewsData4 = useAnnouncementList(props.lang, "4	");
 	const useCategoryData = useCategoryList();
 	const useTagData = useTagList();
 	const categoryDict: Record<string, string> = Object.fromEntries(
@@ -495,7 +495,7 @@ const GetData = (props: { lang: Lang; prop: getDataProp[] }) => {
 								<div className="card_catDiv">
 									{/* a-left：日期（prototype 放左邊，純文字，不要 clock icon） */}
 									<div className="a-left order-1">
-										<div className="card_time">{`${p.year}-${String(p.monthNum).padStart(2, "0")}-${String(p.date).padStart(2, "0")}`}</div>
+										<div className="card_time">{`${p.year}-${String(p.month).padStart(2, "0")}-${String(p.date).padStart(2, "0")}`}</div>
 									</div>
 
 									{/* card_titleDiv：標題（prototype 放在 card_catDiv 內） */}
