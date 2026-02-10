@@ -2341,7 +2341,7 @@ a:hover.caption-customize-btn .button-icon {
     border-radius: 4px;
 	background-color: transparent;
 	/* position: relative; */
-	padding: 0 9px;
+	padding: 0 5px;
 	
 	/* ====================================== */
 	/* =col4 x 2個 */
@@ -2753,6 +2753,7 @@ a:hover.caption-customize-btn .button-icon {
 @media screen and (max-width: 1199px){
 	.News_mainDIV a.item-inner .card_catDiv {
 			justify-content: space-between;
+			max-height: none;
 	}
 }
 
@@ -6384,7 +6385,7 @@ a:hover.caption-customize-btn .button-icon {
 		background-color: var(--bs-gray-600);
 		position: absolute;
 		top: 50%;
-		right: -0.67rem;
+		right: -0.46rem;
 		transform: translate(0%, -50%);
 	}
 	#Horizontal .nav-tabs-list ul.nav-tabs .nav-link, #Horizontal .nav-tabs-list ul.nav-tabs .nav-link {
