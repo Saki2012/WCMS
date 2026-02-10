@@ -282,13 +282,14 @@ const DOI_Comp = (props: { lang: Lang; data: SpecJournalSet }) => {
                             </a>
                         </div>
                     </div>
-
                     <div className="doiQr">
-                        <QrCodeWithLogo_Comp value={props.data?.SpecJournal?.DOIUrl ?? ""} logoSrc={QRCodeLogoImg} size={200} ariaLabel="DOI QR Code" />
+                        {props.data?.SpecJournal?.DOIUrl ?
+                            <QrCodeWithLogo_Comp value={props.data?.SpecJournal?.DOIUrl ?? ""} logoSrc={QRCodeLogoImg} size={200} ariaLabel="DOI QR Code" /> :
+                            null
+                        }
                     </div>
                 </div>
             </div>
-
             <div className="col row-group">
                 <hr className="hr-my-4" />
             </div>
