@@ -119,13 +119,13 @@
 
 /* ========================================================== */
 /* ==== // navbar-nav // ==================================== */
-@media screen and (min-width: 992px) {
+@media screen and (min-width: 1200px) {
 	.navbar-expand-lg .navbar-nav {
 		flex-direction: row;
 	}
 }
 /* 新增 */
-@media screen and (min-width: 992px) {
+@media screen and (min-width: 1200px) {
 	.navbar-expand-lg .navbar-nav {
 		display: -webkit-box;
 		display: -ms-flexbox;
@@ -177,7 +177,7 @@
 }
 
 /* 第一層::before 滑動線條  */
-@media screen and (min-width: 992px) {
+@media screen and (min-width: 1200px) {
 	#navbar-content .nav-link::before {
 		color: var(--Customize_HRcolor);    
 		content: '';
@@ -247,7 +247,7 @@
 }
 
 /* PC模式時，第一層::after 箭頭位置  */
-@media screen and (min-width: 992px) {
+@media screen and (min-width: 1200px) {
 	#navbar-content ul .dropdown-toggle::after {
 		position: relative;
 		display: inline-block;
@@ -274,7 +274,7 @@
 /* PC模式時，第一層::after 箭頭位置  */
 
 /* PC模式時，第二層 *//* 第三層 *//* 第四層 *//* 第五層::after 箭頭位置 */
-@media screen and (min-width: 992px) {
+@media screen and (min-width: 1200px) {
 	#navbar-content ul ul .dropend .dropdown-toggle::after,
 	#navbar-content ul ul ul .dropend .dropdown-toggle::after,
 	#navbar-content ul ul ul ul .dropend .dropdown-toggle::after,
@@ -317,7 +317,7 @@
 .dropdown .dropdown-menu {
     display: none;
 }
-@media screen and (min-width: 992px) {
+@media screen and (min-width: 1200px) {
 	.navbar-expand-lg .navbar-nav .dropdown-menu {
 		position: absolute;
 		min-width: 16rem;
@@ -378,7 +378,7 @@
 
 /* ========================================================== */
 /* PC模式時，HOVER狀態 */
-@media screen and (min-width: 992px) {
+@media screen and (min-width: 1200px) {
 	.dropdown:hover > .dropdown-menu,
 	.dropend:hover > .dropdown-menu {
 		display: block;
@@ -389,7 +389,7 @@
 		color: var(--FFFcolor) !important;
 	}
 }
-@media screen and (min-width: 992px) {
+@media screen and (min-width: 1200px) {
     .dropend:hover > .dropdown-menu {
         position: absolute;
         top: 0;
@@ -430,7 +430,7 @@
 /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
 /* <<<<<<<< / 手機板模式 ALL // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
 /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
-@media screen and (max-width: 991px) {
+@media screen and (max-width: 1199px) {
 	.navbar-collapse {
 		position: absolute;
 		left: 0px;	
@@ -481,7 +481,7 @@
 	}
 }
 /* ========================================================== */
-@media screen and (max-width: 991px) {
+@media screen and (max-width: 1199px) {
 	.navbar-nav .dropdown-menu {
 		position: static;
 	}
@@ -513,7 +513,7 @@
 
 /* ========================================================== */
 /* 手機模式時，HOVER + ACTIVE + FOCUS ... /*第一層*/ /*第二層 *//* 第三層 *//* 第四層 *//* 第五層 */
-@media screen and (max-width: 991px) {
+@media screen and (max-width: 1199px) {
 	#navbar-content .nav-link {
 		color: var(--blackcolor);
 		/*font-weight: bold;*/
@@ -564,7 +564,7 @@
 
 /* ========================================================== */
 /* 手機模式時，第二層 *//* 第三層 *//* 第四層 *//* 第五層 內縮位置 */
-@media screen and (max-width: 991px) {
+@media screen and (max-width: 1199px) {
 	/* 第二層 *//* 第三層 *//* 第四層 *//* 第五層 */
 	#navbar-content .navbar-nav ul a.dropdown-item /*第二層*/ {
 		padding: var(--Customize-dropdown-item-padding-y) 1.75rem;
@@ -584,7 +584,7 @@
 
 /* ========================================================== */
 /* 手機模式時，第二層 *//* 第三層 *//* 第四層 *//* 第五層 箭頭位置 */
-@media screen and (max-width: 991px) {
+@media screen and (max-width: 1199px) {
 	.dropdown-toggle:not(.show)::after {
 		position: absolute;
 		top: 15.5px;
@@ -660,7 +660,7 @@
 
 /* ========================================================== */
 /* 手機模式時，增加於 黑色透明遮照 */
-@media screen and (max-width: 991px) {
+@media screen and (max-width: 1199px) {
 	body .main-header.active .overlayer {
 		opacity: 1;
 		pointer-events: auto;
@@ -750,7 +750,7 @@
 
 /*-------------------------------------------*/
 
-@media screen and (max-width: 991px) {
+@media screen and (max-width: 1199px) {
 	.nav-item.dropdown.dropdown-mega .dropdown-menu {
 		width: 100%;
 	}
@@ -787,7 +787,7 @@
 	}
 	/* 箭頭位置 */
 }
-@media screen and (min-width: 992px) {
+@media screen and (min-width: 1200px) {
 	.nav-item.dropdown.dropdown-mega .dropdown-menu {
 		/*position: absolute;*/	 /* 重要 預設值 */
 		position: fixed;		 /* 重要 JESS 修改滿版浮動 20250918 */
@@ -815,7 +815,7 @@
 	padding-right: 1.5rem !important;
 	padding: var(--Customize-dropdown-mega-item-padding-y) var(--Customize-dropdown-mega-item-padding-X);
 }
-@media screen and (max-width: 991px) {
+@media screen and (max-width: 1199px) {
 	.nav-item.dropdown.dropdown-mega .mega-content {
 		padding-left: 0.75rem !important;
 		padding-right: 0.75rem !important;
@@ -883,7 +883,7 @@
 .nav-item.dropdown.dropdown-mega .content-mb {
 	margin-bottom: 3rem;
 }
-@media screen and (max-width: 991px) {
+@media screen and (max-width: 1199px) {
 	.nav-item.dropdown.dropdown-mega .content-mb {
 		margin-bottom: 1.5rem;
 		padding: 0 !important;
