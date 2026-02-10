@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import ModuleContent, { ContentStatus } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNow } from "@/SysCore/Utils/Library/LibHook";
 import parse from 'html-react-parser';
 import { AnnouncementDetailFields, AnnouncementFields, AnnouncementSetFields } from "@/types/SchemaFields";
@@ -226,44 +226,172 @@ const PictureList_Col_Comp = (props: { Theme: IFETheme; GridData: GridProps }) =
         </div>
     )
 }
+
+
+type NativeMouseEventWithStopImmediate = MouseEvent & { stopImmediatePropagation?: () => void };
 const QAList_Comp = (props: { lang: Lang; gridData: AnnouncementSet[]; currentPage: number; pageSize: number; }) => {
+    // 宣告變數
     const startIndex = (props.currentPage - 1) * props.pageSize;
+    const [openKey, setOpenKey] = useState<string | null>(null);
+    const [animMap, setAnimMap] = useState<Record<string, "opening" | "closing" | undefined>>({});
+    const collapseRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+    // 宣告：動畫時間（ms）
+    const durationMs = 520;
+
+    // 執行：id 安全化（- OK；主要防 . : 空白 等）
+    const toSafeId = (raw: string) => raw.replace(/[^A-Za-z0-9_-]/g, "_");
+
+    // 執行：設定/清除 anim 狀態（避免 React 覆蓋 class）
+    const setAnimating = (key: string, v?: "opening" | "closing") => {
+        setAnimMap(prev => {
+            const next = { ...prev };
+            if (!v) delete next[key];
+            else next[key] = v;
+            return next;
+        });
+    };
+
+    // 執行：展開動畫
+    const animateOpen = (key: string, el: HTMLDivElement) => {
+        setAnimating(key, "opening");
+
+        el.style.transition = `height ${durationMs}ms ease`;
+        el.style.height = "0px";
+
+        // 強制 reflow，避免動畫被合併成一幀
+        void el.offsetHeight;
+
+        requestAnimationFrame(() => {
+            el.style.height = `${el.scrollHeight}px`;
+        });
+
+        const onEnd = (ev: TransitionEvent) => {
+            if (ev.propertyName !== "height") return;
+            el.removeEventListener("transitionend", onEnd);
+            el.style.height = "";
+            setAnimating(key, undefined);
+        };
+
+        el.addEventListener("transitionend", onEnd);
+    };
+
+    // 執行：收合動畫
+    const animateClose = (key: string, el: HTMLDivElement) => {
+        setAnimating(key, "closing");
+
+        el.style.transition = `height ${durationMs}ms ease`;
+        el.style.height = `${el.scrollHeight}px`;
+
+        // 強制 reflow
+        void el.offsetHeight;
+
+        requestAnimationFrame(() => {
+            el.style.height = "0px";
+        });
+
+        const onEnd = (ev: TransitionEvent) => {
+            if (ev.propertyName !== "height") return;
+            el.removeEventListener("transitionend", onEnd);
+            el.style.height = "";
+            setAnimating(key, undefined);
+        };
+
+        el.addEventListener("transitionend", onEnd);
+    };
+
+    // 執行：切換（同一題再點一次會收回）
+    const toggle = (key: string) => {
+        setOpenKey(prev => {
+            const next = prev === key ? null : key;
+
+            // 先關前一個
+            if (prev) {
+                const prevEl = collapseRefs.current[prev];
+                if (prevEl) animateClose(prev, prevEl);
+            }
+
+            // 再開新的
+            if (next) {
+                const nextEl = collapseRefs.current[next];
+                if (nextEl) animateOpen(next, nextEl);
+            }
+
+            return next;
+        });
+    };
+
+    // 執行：決定 collapse 的 class（避免 re-render 洗掉 collapsing）
+    const getCollapseClass = (key: string, isOpen: boolean) => {
+        const anim = animMap[key];
+        if (anim) return "collapsing";
+        return `collapse${isOpen ? " show" : ""}`;
+    };
+
+    // return
     return (
         <div className="faq_content">
             <div className="row">
                 <div className="col row-group">
                     <div id="accordion" className="FAQBar">
                         <ul className="QA_info" style={{ counterReset: `faq-counter ${startIndex}` }}>
-                            {
-                                props.gridData && props.gridData.map((item, idx) => {
-                                    const detail = item.AnnouncementDetail?.find(p => p.Lang === props.lang);
-                                    const parseContent = useResolveInternalIds(detail?.Content ?? "", { locale: props.lang });
-                                    const content = parseContent.html ? parse(parseContent.html) : null;
-                                    return (
-                                        <li>
-                                            <div className="QA-01 + card">
-                                                <div className="card-header">
-                                                    <a href={`#collapse${idx}`} className="card-link collapsed" data-bs-toggle="collapse" type="button" role="button">
-                                                        {detail?.Title}
-                                                    </a>
-                                                </div>
-                                                <div id={`collapse${idx}`} className="collapse" data-bs-parent="#accordion">
-                                                    <div className="card-body">
-                                                        {content}
-                                                    </div>
+                            {props.gridData && props.gridData.map((item, idx) => {
+                                // 宣告變數
+                                const detail = item.AnnouncementDetail?.find(p => p.Lang === props.lang);
+                                const parseContent = useResolveInternalIds(detail?.Content ?? "", { locale: props.lang });
+                                const content = parseContent.html ? parse(parseContent.html) : null;
+
+                                const rawKey = item.Announcement?.InternalId ?? `${startIndex}_${idx}`;
+                                const key = toSafeId(rawKey);
+                                const collapseId = `collapse_${key}`;
+                                const isOpen = openKey === key;
+
+                                // return（DOM 結構不動）
+                                return (
+                                    <li key={`faq_${key}`}>
+                                        <div className="QA-01 + card">
+                                            <div className="card-header">
+                                                <a
+                                                    href="#"
+                                                    className={`card-link${isOpen ? "" : " collapsed"}`}
+                                                    data-bs-toggle="collapse"
+                                                    type="button"
+                                                    role="button"
+                                                    aria-expanded={isOpen}
+                                                    aria-controls={collapseId}
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        const ne = e.nativeEvent as NativeMouseEventWithStopImmediate;
+                                                        ne.stopImmediatePropagation?.();
+                                                        toggle(key);
+                                                    }}
+                                                >
+                                                    {detail?.Title}
+                                                </a>
+                                            </div>
+
+                                            <div
+                                                id={collapseId}
+                                                className={getCollapseClass(key, isOpen)}
+                                                data-bs-parent="#accordion"
+                                                ref={(el) => { collapseRefs.current[key] = el; }}
+                                            >
+                                                <div className="card-body">
+                                                    {content}
                                                 </div>
                                             </div>
-                                        </li>
-                                    )
-                                })
-                            }
+                                        </div>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementSet[] }) => {
     useEffect(() => {
         // SSR 防護：server 端不要執行
