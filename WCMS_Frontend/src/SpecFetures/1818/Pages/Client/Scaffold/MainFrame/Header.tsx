@@ -300,7 +300,7 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
             <div className="customMENU_Box bg-customize-op09">
                 <div className="menuBox">
                     <div className="container-customize4">
-                        <div className="navbar navbar-expand-lg navbar-dark px-0 py-0" ref={menuRef}>
+                        <div className="navbar navbar-expand-xl navbar-dark px-0 py-0" ref={menuRef}>
                             <LogoComp />
                             <MobileBtn />
                             <MainMenu {...props} />
@@ -354,7 +354,7 @@ const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
     const menuItems = GetMenuData(props.lang, props.site)
 
     return (
-        <div id="navbar-content" className="collapse navbar-collapse overflow-scroll-Y mt-0">
+        <div id="navbar-content" className="collapse navbar-collapse overflow-scroll-Y mt-xl-5 mt-0">
             <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
 
                 {menuItems.map((item) => {
