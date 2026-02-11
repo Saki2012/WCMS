@@ -41,7 +41,7 @@ const renderNodeLink = (siteIndex: string, node: INormNode): React.ReactNode => 
     const href = getExternalHref(node);
     if (href) {
         return (
-            <a href={href} target={target} rel={rel} title={text} style={{ color: "inherit", textDecoration: "none" }}>
+            <a href={href} target={target} rel={rel} title={text} style={{ color: "inherit" }}>
                 {text}
             </a>
         );
@@ -49,7 +49,7 @@ const renderNodeLink = (siteIndex: string, node: INormNode): React.ReactNode => 
 
     const to = getInternalTo(siteIndex, node.absSegments);
     return (
-        <LangNavLink to={to} target={target} rel={rel} title={text} style={{ color: "inherit", textDecoration: "none" }}>
+        <LangNavLink to={to} target={target} rel={rel} title={text} style={{ color: "inherit" }}>
             {text}
         </LangNavLink>
     );
