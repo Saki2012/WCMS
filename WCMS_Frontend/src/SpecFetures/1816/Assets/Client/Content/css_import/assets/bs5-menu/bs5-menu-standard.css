@@ -379,10 +379,6 @@
 /* ========================================================== */
 /* PC模式時，HOVER狀態 */
 @media screen and (min-width: 992px) {
-	.dropdown:hover > .dropdown-menu,
-	.dropend:hover > .dropdown-menu {
-		display: block;
-	}
 	.dropend:hover > .dropdown-toggle,
 	.dropend > .dropdown-toggle.show {
 		background: var(--Customize_HRcolor) !important;
