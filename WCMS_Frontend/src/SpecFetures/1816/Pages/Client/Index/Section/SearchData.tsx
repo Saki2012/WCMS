@@ -22,7 +22,7 @@ export const SearchData = (props: { lang: Lang }) => {
 				btn1Title: "Integrated Library Search",
 				btn2Title: "Database List",
 				btn3Title: "E-Journal List",
-				databaseLink: "https://sites.google.com/view/tnualibguide/how-to-find/database-list"
+				databaseLink: "https://sites.google.com/view/tnualib-en/e-resources/database-list"
 			};
 		}
 
@@ -35,7 +35,7 @@ export const SearchData = (props: { lang: Lang }) => {
 			btn1Title: "館藏整合搜尋",
 			btn2Title: "資料庫列表",
 			btn3Title: "電子期刊列表",
-			databaseLink: "https://tnua.on.worldcat.org/atoztitles/browse/collections"
+			databaseLink: "https://sites.google.com/view/tnualib/%E9%9B%BB%E5%AD%90%E8%B3%87%E6%BA%90/%E8%B3%87%E6%96%99%E5%BA%AB%E5%88%97%E8%A1%A8"
 		};
 	}, [props.lang]);
 
