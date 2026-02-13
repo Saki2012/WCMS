@@ -77,27 +77,19 @@ export class ApiDataService<T> extends ApiBaseService
     }
     async update(internalId: string, data: T): Promise<ApiResponse<T>>
     {
-        return await this.CallApi<T>(() =>
-            this.Api.put<ApiResponse<T>>(`${this.Module}/Update`, { InternalId: internalId, Data: data })
-        );
+        return await this.CallApi<T>(() =>this.Api.put<ApiResponse<T>>(`${this.Module}/Update`, { InternalId: internalId, Data: data }));
     }
     async delete(internalId: string): Promise<ApiResponse<T>>
     {
-        return await this.CallApi<T>(() =>
-            this.Api.delete<ApiResponse<T>>(`${this.Module}/Delete`, { params: { internalId } })
-        );
+        return await this.CallApi<T>(() =>this.Api.delete<ApiResponse<T>>(`${this.Module}/Delete`, { params: { internalId } }));
     }
     async invalid(internalId: string, isInvalid: boolean): Promise<ApiResponse<T>>
     {
-        return await this.CallApi<T>(() =>
-            this.Api.delete<ApiResponse<T>>(`${this.Module}/Invalid`, { data: { internalId, isInvalid } })
-        );
+        return await this.CallApi<T>(() =>this.Api.delete<ApiResponse<T>>(`${this.Module}/Invalid`, { data: { internalId, isInvalid } }));
     }
     async queryData(internalId: string): Promise<ApiResponse<T>>
     {
-        return await this.CallApi<T>(() =>
-            this.Api.get<ApiResponse<T>>(`${this.Module}/QueryData`, { params: { internalId } })
-        );
+        return await this.CallApi<T>(() =>this.Api.get<ApiResponse<T>>(`${this.Module}/QueryData`, { params: { internalId } }));
     }
     async queryList(condition: QueryListParam): Promise<ApiResponse<T[]>>
     {
@@ -105,15 +97,11 @@ export class ApiDataService<T> extends ApiBaseService
     }
     async queryCount(condition: QueryListParam): Promise<ApiResponse<number>>
     {
-        return await this.CallApi<number>(() =>
-            this.Api.post<ApiResponse<number>>(`${this.Module}/GetTotalCounts`, condition)
-        );
+        return await this.CallApi<number>(() =>this.Api.post<ApiResponse<number>>(`${this.Module}/GetTotalCounts`, condition));
     }
-    async getModelDisplayName(): Promise<ApiResponse<ModelDisplaySchema>>
+    async getModelDisplayName(): Promise<ApiResponse<ModelDisplaySchema[]>>
     {
-        return await this.CallApi<ModelDisplaySchema>(() =>
-            this.Api.get<ApiResponse<ModelDisplaySchema>>(`${this.Module}/GetModelDisplayName`)
-        );
+        return await this.CallApi<ModelDisplaySchema[]>(() =>this.Api.get<ApiResponse<ModelDisplaySchema[]>>(`${this.Module}/GetModelDisplayName`));
     }
 }
 

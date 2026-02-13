@@ -1,18 +1,21 @@
 {
   "editor.defaultFormatter": "dprint.dprint",
   "editor.formatOnSave": true,
+
   "[typescript]": {
-    "editor.defaultFormatter": "gplane.dprint2"
+    "editor.defaultFormatter": "dprint.dprint"
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
+    "editor.defaultFormatter": "dprint.dprint"
   },
+
   "[javascript]": {
     "editor.defaultFormatter": "dprint.dprint"
   },
   "[javascriptreact]": {
     "editor.defaultFormatter": "dprint.dprint"
   },
+
   "eslint.useFlatConfig": true,
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
   "editor.codeActionsOnSave": {

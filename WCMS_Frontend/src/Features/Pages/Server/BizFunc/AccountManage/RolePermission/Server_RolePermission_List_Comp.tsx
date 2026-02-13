@@ -62,7 +62,7 @@ export const Server_RolePermission_Comp = (prop: { title: string; theme: IBEThem
         <ListComp
             Title={prop.title}
             Theme={prop.theme}
-            LoadingList={isLoading}
+            isLoading={isLoading}
             ErrorList={errors}
             Actions={actions}
             GridData={adjustedGrid}

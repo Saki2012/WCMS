@@ -14,7 +14,6 @@ import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Bann
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import type { UseActionsResult } from "@/Features/Hooks/Common/useActions";
-
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 type QueryListParam = components["schemas"]["QueryListParam"];
 
@@ -49,7 +48,7 @@ export const BannerSliderListComp = (prop: { title: string; theme: IBETheme; lan
         <ListComp
             Title={prop.title}
             Theme={prop.theme}
-            LoadingList={isLoading}
+            isLoading={isLoading}
             ErrorList={errors}
             Actions={actions}
             GridData={adjustedGrid}

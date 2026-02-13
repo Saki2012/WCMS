@@ -53,7 +53,7 @@ export const PageListComp = (prop: { title: string; theme: IBETheme; lang: Lang 
     const isLoading = [list.isLoading, category.isLoading];
     const errors = [list.error, category.error];
 
-    return (<ListComp Title={prop.title} Theme={prop.theme} LoadingList={isLoading} ErrorList={errors} Actions={actions} GridData={adjustedGrid} SearchBar={searchCompProp}></ListComp>);
+    return (<ListComp Title={prop.title} Theme={prop.theme} isLoading={isLoading} ErrorList={errors} Actions={actions} GridData={adjustedGrid} SearchBar={searchCompProp}></ListComp>);
 };
 
 /** Category：useMapByProgId（opts=map / raw=list） */

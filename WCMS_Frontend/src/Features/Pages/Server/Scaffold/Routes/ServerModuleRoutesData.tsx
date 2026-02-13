@@ -4,8 +4,8 @@ import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 
 import { BannerSliderListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Banner/Server_BannerSlider_List_Comp";
 import { BannerSliderFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Banner/Server_BannerSlider_Form_Comp";
-import { Server_AnnouncementListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Announcement/Server_Announcement_List_Comp";
-import { Server_AnnouncementFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Announcement/Server_Announcement_Form_Comp";
+import { Server_AnnouncementListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Announcement/List/Server_Announcement_List_Comp";
+import { Server_AnnouncementFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Announcement/Form/Server_Announcement_Form_Comp";
 import { Server_CategoryListFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Category/Category_ListForm_Comp";
 import { TagListFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Tags/Server_Tag_ListForm_Comp";
 import { SiteMenu_Comp } from "@/Features/Pages/Server/BizFunc/Dashboard/SiteMenu/SiteMenu_Comp";

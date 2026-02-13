@@ -1,6 +1,3 @@
-
-import PageManagementProvider from '@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Api';
-import WebResourceProvider from '@/Features/Hooks/BizFunc/WebManagement/WebResource/WebResource_Api';
 import { AdmissionsCarouselData } from '@/SpecFetures/1818/Pages/Client/Index/Section/AdmissionsCarouselData'
 import { useResolveInternalIds } from '@/SysCore/Components/File/useResolveInternalIds';
 import type { Lang } from '@/SysCore/i18n/lang';

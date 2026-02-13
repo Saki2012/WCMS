@@ -64,7 +64,7 @@ export const Server_GalleryListComp = (prop: { title: string; theme: IBETheme; l
         <ListComp
             Title={prop.title}
             Theme={prop.theme}
-            LoadingList={isLoading}
+            isLoading={isLoading}
             ErrorList={errors}
             Actions={actions}
             GridData={adjustedGrid}

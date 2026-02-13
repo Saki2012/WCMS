@@ -68,20 +68,18 @@ export const TagAdapter = (apiInstance?: AxiosInstance) =>
     const useMapByProgId = (opt: {
         progId: string;
         lang: Lang;
-        pageSize?: number;
         apiInstance?: AxiosInstance;
         deps?: EffectDeps;
     }) =>
     {
         // 宣告變數
-        const deps = opt.deps ?? [opt.progId, opt.lang, opt.pageSize];
+        const deps = opt.deps ?? [opt.progId, opt.lang];
 
         // 執行 function：沿用基底 useQueryList
         const query = adapter.hooks.useQueryList({
             condition: buildTagQueryByProgIdParam({
                 progId: opt.progId,
                 lang: opt.lang,
-                pageSize: opt.pageSize,
             }),
             deps,
             apiInstance: opt.apiInstance,

@@ -1,13 +1,10 @@
-import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api';
-import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api';
-import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
+
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import type { components } from "@/types/api";
 import * as SchemaFields from "@/types/SchemaFields";
 import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
 import { useNow } from '@/SysCore/Utils/Library/LibHook';
 import { type Lang } from '@/SysCore/i18n/lang';
-import { PGID } from '@/Features/Hooks/Common/ProgId';
 import { LangLink, LangNavLink } from '@/SysCore/i18n/LangLink';
 import { IndexLabel } from "@/SpecFetures/1818/Pages/Client//Index/Section/IndexLabelText";
 

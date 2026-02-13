@@ -25,7 +25,7 @@ const ModuleContent = (props: ModuleContentProps) => {
     return (
         <>
             <HeaderMetaComp htmlLang={lang} title={fullTitle} description={siteHeaderMeta.description} canonicalUrl={canonicalUrl} alternates={alternates} />
-            <LoadingErrorHandler loadingList={props.loadingList} errorList={props.errorList}>
+            <LoadingErrorHandler isLoading={props.loadingList} errorList={props.errorList}>
                 {props.title && <Title title={props.title} subTitle={props.subTitle} />}
                 {/* <SearchBar /> */}
                 <div className="ALL__Information__Display__Area">

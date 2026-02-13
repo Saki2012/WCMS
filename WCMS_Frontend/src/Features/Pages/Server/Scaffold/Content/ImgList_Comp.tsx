@@ -25,7 +25,7 @@ export const ImgListComp = ({ prop, children }: { prop: FormCompProp; children: 
                                                 <DividerComp></DividerComp>
                                                 {/* <Form_Toolbar items={prop.Toolbar}></Form_Toolbar> */}
                                                 <List_Toolbar action={prop.Actions} ></List_Toolbar>
-                                                <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList} >
+                                                <LoadingErrorHandler isLoading={prop.LoadingList} errorList={prop.ErrorList} >
                                                     {children}
                                                 </LoadingErrorHandler>
                                             </div>

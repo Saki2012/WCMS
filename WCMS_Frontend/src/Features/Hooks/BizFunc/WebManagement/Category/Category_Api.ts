@@ -1,5 +1,5 @@
 import type { Lang } from "@/SysCore/i18n/lang";
-import { ApiDataAdapter, type EffectDeps } from "@/SysCore/Utils/API/APIAdapter";
+import { ApiDataAdapter } from "@/SysCore/Utils/API/APIAdapter";
 import { ApiDataService } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import * as SchemaFields from "@/types/SchemaFields";
@@ -67,27 +67,11 @@ export const CategoryAdapter = (apiInstance?: AxiosInstance) =>
         (api?: AxiosInstance) => new CategoryService(api ?? apiInstance),
     );
 
-    const useMapByProgId = (opt: {
-        progId: string;
-        lang: Lang;
-        pageSize?: number;
-        apiInstance?: AxiosInstance;
-        deps?: EffectDeps;
-    }) =>
+    const useMapByProgId = (opt: { progId: string; lang: Lang; apiInstance?: AxiosInstance; }) =>
     {
-        // 宣告變數
-        const deps = opt.deps ?? [opt.progId, opt.lang, opt.pageSize];
-
+        const deps = [opt.progId, opt.lang];
         // 執行 function：沿用基底 useQueryList
-        const query = adapter.hooks.useQueryList({
-            condition: buildCategoryQueryByProgIdParam({
-                progId: opt.progId,
-                lang: opt.lang,
-                pageSize: opt.pageSize,
-            }),
-            deps,
-            apiInstance: opt.apiInstance,
-        });
+        const query = adapter.hooks.useQueryList({condition: buildCategoryQueryByProgIdParam({ progId: opt.progId, lang: opt.lang }),deps,apiInstance: opt.apiInstance,});
 
         const map = useMemo<Record<string, string>>(() =>
         {
@@ -96,24 +80,18 @@ export const CategoryAdapter = (apiInstance?: AxiosInstance) =>
             {
                 const id = p.Category?.CategoryId;
                 if (!id) return acc;
-
                 const matched = (p.CategoryDetail ?? []).find((d: CategoryDetail) => d.Lang === opt.lang);
                 acc[String(id)] = matched?.CategoryName ?? "";
                 return acc;
             }, {} as Record<string, string>);
         }, [query.data, opt.lang]);
-
-        // return
         return { ...query, map };
     };
     const extAdapter = adapter as ApiDataAdapter<CategorySet, CategoryService> & {
         hooks: typeof adapter.hooks & { useMapByProgId: typeof useMapByProgId; };
     };
 
-    extAdapter.hooks = {
-        ...adapter.hooks,
-        useMapByProgId,
-    };
+    extAdapter.hooks = {...adapter.hooks,useMapByProgId,};
     // return：回傳擴充 hooks 後的 adapter
     return extAdapter;
 };

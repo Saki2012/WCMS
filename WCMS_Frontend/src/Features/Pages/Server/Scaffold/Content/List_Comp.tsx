@@ -13,11 +13,10 @@ import { DefaultLang } from "@/SysCore/i18n/lang";
 interface ListCompProp {
     Title: string;
     Theme: IBETheme;
-    LoadingList: boolean[];
+    isLoading: boolean;
     ErrorList: (string | null | undefined)[];
     SearchBar?: SearchBarProps;
-    Actions: UseActionsResult;
-    GridType?: string;
+    Actions?: UseActionsResult;
     GridData?: GridProps;
 }
 
@@ -38,11 +37,10 @@ export const ListComp = (prop: ListCompProp) => {
                                             <div className="form">
                                                 {prop.SearchBar && <LibSearchBar {...prop.SearchBar}></LibSearchBar>}
                                                 <DividerComp></DividerComp>
-                                                <List_Toolbar action={prop.Actions} ></List_Toolbar>
-                                                <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList} >
+                                                {prop.Actions && <List_Toolbar action={prop.Actions} ></List_Toolbar>}
+                                                <LoadingErrorHandler isLoading={prop.isLoading} errorList={prop.ErrorList} >
                                                     <OperationGuideHelp_Comp lang={DefaultLang} />
                                                     <Grid gridData={prop.GridData as GridProps} style={prop.Theme.GridView} pageStyle={prop.Theme.Paginator}></Grid>
-
                                                 </LoadingErrorHandler>
                                             </div>
                                         </div>

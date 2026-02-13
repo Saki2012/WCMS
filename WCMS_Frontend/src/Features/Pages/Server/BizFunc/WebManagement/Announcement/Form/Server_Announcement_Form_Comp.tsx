@@ -1,47 +1,37 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-
 import type { components } from "@/types/api";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
-
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import LibCheckBox from "@/SysCore/Components/FormField/FieldComponets/LibCheckBox_Comp";
 import LibCalendar from "@/SysCore/Components/FormField/FieldComponets/LibCalendar_Comp";
-
 import { LibTextBox, LibTinyMCE, LibFile, LibPicture, LibFileInput } from "@/SysCore/Components/FormField/LibFormField";
 import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
-
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
-
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { PreviewFrame } from "@/Features/Pages/Server/Scaffold/PreviewFrame/PreviewFrame";
-
 import type { ApiAdapterError, ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-
 import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api";
 import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
 import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
-
 import type { ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
-
 import { AnnouncementDetailFields, AnnouncementDetailFileFields, AnnouncementFields, AnnouncementSetFields, PGID, } from "@/types/SchemaFields";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 type TagSet = components["schemas"]["TagSet_DTO"];
-
 type PreviewPayload = | { type: "wcms:preview"; module: "announcement"; payload: { kind: "dto"; dto: AnnouncementSet } };
 
 const emptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [], AnnouncementDetailFile: [] };
@@ -55,7 +45,6 @@ export const Server_AnnouncementFormComp = (props: { theme: IBETheme; lang: Lang
 
     const adapter = useMemo(() => AnnouncementAdapter(), []);
     const formData = useAnnouncementFormDataByAdapter(adapter, internalId ?? "", emptyData);
-
     // Category/Tag
     const category = useCategoryMapByProgId(PGID.Announcement, props.lang);
     const tag = useTagMapByProgId(PGID.Announcement, props.lang);
@@ -455,82 +444,3 @@ const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
     );
 };
 
-// Category / Tag map by progId
-const buildCategoryOptions = (rows: CategorySet[], progId: string, lang: Lang): Record<string, string> => {
-    // 宣告變數
-    const map: Record<string, string> = {};
-
-    // 執行 function：過濾 ProgId 並找對應語系的名稱
-    rows.forEach(r => {
-        const cid = r.Category?.CategoryId ?? "";
-        const p = r.Category?.ProgId ?? "";
-        if (!cid || p !== progId) return;
-
-        const name =
-            (r.CategoryDetail ?? []).find(d => (d.Lang as unknown as string) === lang)?.CategoryName ??
-            (r.CategoryDetail ?? [])[0]?.CategoryName ??
-            cid;
-
-        map[cid] = name ?? cid;
-    });
-
-    // return
-    return map;
-};
-
-const buildTagOptions = (rows: TagSet[], progId: string, lang: Lang): Record<string, string> => {
-    // 宣告變數
-    const map: Record<string, string> = {};
-
-    // 執行 function：過濾 ProgId 並找對應語系的名稱
-    rows.forEach(r => {
-        const tid = r.TagData?.TagId ?? "";
-        const p = r.TagData?.ProgId ?? "";
-        if (!tid || p !== progId) return;
-
-        const name =
-            (r.TagDetail ?? []).find(d => (d.Lang as unknown as string) === lang)?.TagName ??
-            (r.TagDetail ?? [])[0]?.TagName ??
-            tid;
-
-        map[tid] = name ?? tid;
-    });
-
-    // return
-    return map;
-};
-
-// Category / Tag options by progId
-const useCategoryMapByProgId = (progId: string, lang: Lang) => {
-    // 宣告變數
-    const adapter = useMemo(() => CategoryAdapter(), []);
-
-    const q = adapter.hooks.useQueryList({
-        condition: { PageNumber: 1, PageSize: 9999 },
-        deps: [progId, lang],
-    });
-
-    // return
-    return {
-        data: buildCategoryOptions(q.data ?? [], progId, lang),
-        isLoading: q.isLoading,
-        error: q.errorText,
-    };
-};
-
-const useTagMapByProgId = (progId: string, lang: Lang) => {
-    // 宣告變數
-    const adapter = useMemo(() => TagAdapter(), []);
-
-    const q = adapter.hooks.useQueryList({
-        condition: { PageNumber: 1, PageSize: 9999 },
-        deps: [progId, lang],
-    });
-
-    // return
-    return {
-        data: buildTagOptions(q.data ?? [], progId, lang),
-        isLoading: q.isLoading,
-        error: q.errorText,
-    };
-};

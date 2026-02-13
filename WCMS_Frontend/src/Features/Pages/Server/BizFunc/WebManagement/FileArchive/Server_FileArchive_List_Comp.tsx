@@ -68,7 +68,7 @@ export const Server_FileArchiveListComp = (prop: { title: string; theme: IBEThem
         <ListComp
             Title={prop.title}
             Theme={prop.theme}
-            LoadingList={isLoading}
+            isLoading={isLoading}
             ErrorList={errors}
             Actions={actions}
             GridData={adjustedGrid}

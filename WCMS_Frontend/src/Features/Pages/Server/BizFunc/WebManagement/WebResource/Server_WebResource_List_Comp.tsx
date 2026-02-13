@@ -52,7 +52,7 @@ export const WebResourceListComp = (prop: { title: string; theme: IBETheme; lang
     const errors = [list.error, category.error];
 
     // return（不動 DOM）
-    return (<ListComp Title={prop.title} Theme={prop.theme} LoadingList={isLoading} ErrorList={errors} Actions={actions} GridData={adjustedGrid} SearchBar={searchCompProp}></ListComp>);
+    return (<ListComp Title={prop.title} Theme={prop.theme} isLoading={isLoading} ErrorList={errors} Actions={actions} GridData={adjustedGrid} SearchBar={searchCompProp}></ListComp>);
 };
 
 /** 動態添加每行的動作功能（保留原結構，只改 category format function） */

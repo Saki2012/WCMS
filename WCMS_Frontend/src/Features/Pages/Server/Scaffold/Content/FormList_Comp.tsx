@@ -35,7 +35,7 @@ export const FormListComp = (prop: FormListCompProp) => {
                                     <div className="panel">
                                         <div className="panel-body">
                                             <div className="form">
-                                                <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList} >
+                                                <LoadingErrorHandler isLoading={prop.LoadingList} errorList={prop.ErrorList} >
                                                     <div className="row mx-0">
                                                         <div className="col form-group">
                                                             {prop.InputControl}

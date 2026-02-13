@@ -1,4 +1,3 @@
-import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
 import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
 import clsx from "clsx";

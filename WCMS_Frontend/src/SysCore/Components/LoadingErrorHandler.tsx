@@ -2,20 +2,19 @@ import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 
 type Props = {
-  loadingList: boolean[];
+  isLoading: boolean;
   errorList: (string | null | undefined)[];
   children?: ReactNode;
 };
 
 const LoadingErrorHandler = (prop: Props) => {
-  const isLoading = prop.loadingList.some(Boolean);
   const error = prop.errorList.find(Boolean);
   const [showLightLoading, setShowLightLoading] = useState(false);
   const [showFullLoading, setShowFullLoading] = useState(false);
   useEffect(() => {
     let lightTimer: ReturnType<typeof setTimeout> | null = null;
     let fullTimer: ReturnType<typeof setTimeout> | null = null;
-    if (isLoading) {
+    if (prop.isLoading) {
       // 200ms 後顯示淡入 loading
       lightTimer = setTimeout(() => setShowLightLoading(true), 200);
       // 500ms 後顯示完整 loading
@@ -26,9 +25,9 @@ const LoadingErrorHandler = (prop: Props) => {
       setShowFullLoading(false);
     }
     return () => { if (lightTimer) clearTimeout(lightTimer); if (fullTimer) clearTimeout(fullTimer);};
-  }, [isLoading]);
+  }, [prop.isLoading]);
 
-  if (isLoading) {
+  if (prop.isLoading) {
     if (showFullLoading) {return <div style={{ fontWeight: 'bold', fontSize: '1.2em' }}>📦 資料載入中...</div>;}
     if (showLightLoading) {return <div style={{ opacity: 0.6, fontSize: '0.9em' }}>🔄 輕量載入中...</div>;}
     return null; // < 200ms 時不顯示任何東西

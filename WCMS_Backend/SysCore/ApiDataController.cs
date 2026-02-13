@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.OutputCaching;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 using WCMS.Features.SiteEdit.Announcement;
 using WCMS.Features.SiteEdit.Banner;
 using WCMS.Features.SiteEdit.Category;
@@ -156,7 +154,9 @@ namespace WCMS.SysCore
         [HttpGet(nameof(GetModelDisplayName)), OutputCache(PolicyName = SysParam.PermanentCache), AllowAnonymous, IgnoreAntiforgeryToken]
         public async Task<IActionResult> GetModelDisplayName()
         {
-            return Ok(await Task.Run(() => ModelDescription));
+            var result = await Task.Run(() => ModelDescription);
+            var response = new ApiResponse<ModelDisplay<TSet_DTO>.ModelMetadata>() { Data = [result], SysMessage = Message.Messages };
+            return Ok(response);
         }
     }
     /// <summary>
