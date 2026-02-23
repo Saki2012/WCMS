@@ -11,138 +11,14 @@ import LogoImg from '@/SpecFetures/1818/Assets/Client/images/logo/LOGO_300x100.s
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
 import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap";
+import { useMobileMenuCollapse } from "@/Features/Hooks/UIAction/Mobile/useMobileMenuCollapse";
 
 const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
     const headerRef = useRef<HTMLDivElement | null>(null);
-    useEffect(() => {
-        if (typeof window === "undefined") return;
-
-        // 宣告變數：DOM 參考
-        const header = headerRef.current;
-        if (!header) return;
-
-        const collapseEl = header.querySelector<HTMLElement>("#navbar-content");
-        const togglerEl = header.querySelector<HTMLElement>(".navbar-toggler");
-        const hamburgerEl = header.querySelector<HTMLElement>(".hamburger");
-        const overlayEl = header.querySelector<HTMLElement>(".overlayer");
-
-        if (!collapseEl || !togglerEl) return;
-
-        // 宣告變數：目前是否開啟（用我們自己的狀態，避免讀 class 不準）
-        let isOpen = false;
-
-        // function：同步外層 active + body overflow（prototype 核心）
-        const setHeaderActive = (open: boolean) => {
-            header.classList.toggle("active", open);
-            document.body.style.overflow = open ? "hidden" : "auto";
-        };
-
-        // function：同步漢堡視覺（避免卡住）
-        const setHamburgerActive = (open: boolean) => {
-            hamburgerEl?.classList.toggle("active", open);
-            togglerEl.classList.toggle("collapsed", !open);
-            togglerEl.setAttribute("aria-expanded", open ? "true" : "false");
-        };
-
-        // function：統一設定 open 狀態
-        const applyOpenState = (open: boolean) => {
-            isOpen = open;
-            setHeaderActive(open);
-            setHamburgerActive(open);
-        };
-
-        // function：移除 bootstrap 自動 toggle（對標 1817，避免事件打架）
-        const disableBootstrapAutoToggle = () => {
-            togglerEl.removeAttribute("data-bs-toggle");
-            togglerEl.removeAttribute("data-bs-target");
-            togglerEl.removeAttribute("data-bs-parent");
-        };
-
-        // function：立即重置 collapse（避免進站時殘留 show/collapsing）
-        const resetCollapseInstant = () => {
-            collapseEl.classList.remove("show");
-            collapseEl.classList.remove("collapsing");
-            collapseEl.classList.add("collapse");
-            collapseEl.style.height = "";
-            applyOpenState(false);
-        };
-
-        // function：取得 Bootstrap Collapse instance（有就用它做動畫）
-        const getCollapseInstance = () => {
-            const bs = (window as any).bootstrap;
-            if (!bs?.Collapse) return null;
-            return bs.Collapse.getOrCreateInstance(collapseEl, { toggle: false });
-        };
-
-        // function：開啟 menu（優先用 bootstrap 動畫）
-        const openMenu = () => {
-            const inst = getCollapseInstance();
-            applyOpenState(true);
-
-            if (inst) {
-                inst.show(); // 有動畫
-                return;
-            }
-
-            // fallback：對標 1817（無動畫但可用）
-            collapseEl.classList.add("show");
-        };
-
-        // function：關閉 menu（優先用 bootstrap 動畫）
-        const closeMenu = () => {
-            const inst = getCollapseInstance();
-            applyOpenState(false);
-
-            if (inst) {
-                inst.hide(); // 有動畫
-                return;
-            }
-
-            // fallback：對標 1817（無動畫但可用）
-            collapseEl.classList.remove("show");
-        };
-
-        // event：點漢堡 toggle（我們自己接管）
-        const onTogglerClick = (ev: MouseEvent) => {
-            ev.preventDefault();
-            ev.stopPropagation();
-
-            if (isOpen) {
-                closeMenu();
-                return;
-            }
-
-            openMenu();
-        };
-
-        // event：點遮罩關閉
-        const onOverlayClick = (ev: MouseEvent) => {
-            ev.preventDefault();
-            closeMenu();
-        };
-
-        // event：如果 bootstrap 仍會觸發 shown/hidden，就拿來校正狀態（更穩）
-        const onShown = () => applyOpenState(true);
-        const onHidden = () => applyOpenState(false);
-
-        // 初始化
-        disableBootstrapAutoToggle();
-        resetCollapseInstant();
-
-        // 綁定事件
-        togglerEl.addEventListener("click", onTogglerClick);
-        overlayEl?.addEventListener("click", onOverlayClick);
-        collapseEl.addEventListener("shown.bs.collapse", onShown as EventListener);
-        collapseEl.addEventListener("hidden.bs.collapse", onHidden as EventListener);
-
-        return () => {
-            togglerEl.removeEventListener("click", onTogglerClick);
-            overlayEl?.removeEventListener("click", onOverlayClick);
-            collapseEl.removeEventListener("shown.bs.collapse", onShown as EventListener);
-            collapseEl.removeEventListener("hidden.bs.collapse", onHidden as EventListener);
-            document.body.style.overflow = "auto";
-        };
-    }, []);
+    useMobileMenuCollapse({
+        headerRef, collapseSelector: "#navbar-content", togglerSelector: ".navbar-toggler",
+        overlaySelector: ".overlayer", hamburgerSelector: ".hamburger", headerActiveClass: "active", lockBodyScroll: true, disableBootstrapAutoToggle: true,
+    });
 
     return (
         <>
@@ -368,8 +244,6 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
             if (e.key === "Escape") closeAllExcept();
         };
 
-        root.addEventListener("pointerover", onPointerOver);
-        root.addEventListener("focusin", onFocusIn);
         root.addEventListener("click", onRootClick);
         document.addEventListener("pointerdown", onDocPointerDown);
         document.addEventListener("keydown", onDocKeyDown);
@@ -382,8 +256,6 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
             });
             toggleEls.forEach(el => el.removeEventListener("keydown", toggleKeyHandler));
 
-            root.removeEventListener("pointerover", onPointerOver);
-            root.removeEventListener("focusin", onFocusIn);
             root.removeEventListener("click", onRootClick);
             document.removeEventListener("pointerdown", onDocPointerDown);
             document.removeEventListener("keydown", onDocKeyDown);
