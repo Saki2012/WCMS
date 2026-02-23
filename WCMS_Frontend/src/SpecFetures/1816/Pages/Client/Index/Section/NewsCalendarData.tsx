@@ -75,8 +75,8 @@ export const NewsCalendarData = (props: { lang: Lang }) => {
 
 												<div className="text-description-box d-flex flex-wrap">
 													<div className="today-date-box d-flex">
-														<div className="MM">{monthText}</div>
-														<span className="mx-2"></span>
+														<div className="MM me-2">{monthText}</div>
+														{/* <span className="mx-2"></span> */}
 														<div className="DD">{dayText}</div>
 														<div className="date-week ps-3">
 															{weekdayText}
