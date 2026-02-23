@@ -73,19 +73,17 @@ export const NewsCalendarData = (props: { lang: Lang }) => {
 															<div className="MM">{monthText}</div>
 															<span className="mx-2">/</span>
 															<div className="DD">{dayText}</div>
-															<div className="date-week ps-3">{weekdayText}　{holidayText}</div>
+															<div className="date-week ps-3">{weekdayText}{holidayText}</div>
 														</div>
 														:
 														<div className="today-date-box d-flex">
-															<div className="date-week ps-3">{weekdayText},　</div>
-															<div className="MM">{monthText}</div>
-															<span className="mx-2">　</span>
+															<div className="date-week ps-3">{weekdayText},</div>
+															<div className="MM mx-2">{monthText}</div>
 															<div className="DD">{dayText}</div>
 															<div className="date-week ps-3">{holidayText}</div>
 														</div>
 													}
 													<div className="Input date-time">{isOpenDay ? `${openTime} ~ ${closeTime}` : ""}</div>
-													{/* prototype 有 now-time，但目前註解掉；這裡維持不輸出 */}
 												</div>
 											</div>
 
