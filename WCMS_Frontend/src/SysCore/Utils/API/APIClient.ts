@@ -90,7 +90,8 @@ export class ApiDataService<T> extends ApiBaseService
     }
     async queryData(internalId: string): Promise<ApiResponse<T>>
     {
-        return await this.CallApi<T>(() =>this.Api.get<ApiResponse<T>>(`${this.Module}/QueryData`, { params: { internalId } }));
+        const query= await this.CallApi<T>(() =>this.Api.get<ApiResponse<T>>(`${this.Module}/QueryData`, { params: { internalId } }));
+        return query
     }
     async queryList(condition: QueryListParam): Promise<ApiResponse<T[]>>
     {

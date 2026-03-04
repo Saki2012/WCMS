@@ -3,45 +3,69 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
-import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
+import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-import SpecUSRProvider from "@/SpecFetures/1810/Hooks/SpecUSR/SpecUSR_Api";
-import { useLocation, useParams } from "react-router";
-import { useGetTagListByProgId } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
-import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
-import { useActions } from "@/Features/Hooks/Common/useActions";
-import { useGetSpecCategoryListByProgId } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Hook";
-import { useMemo, useState } from "react";
+import { useLocation, useParams, useNavigate } from "react-router";
+import { useCallback, useMemo, useState } from "react";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { SpecUSRDetailFields, SpecUSRFileFields, SpecUSRModelFields, SpecUSRPhotoFields, SpecUSRPhotoInfoFields, SpecUSRSetFields } from "@/types/SchemaFields";
 import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
 import { LibUrlInput } from "@/SysCore/Components/FormField/FieldComponets/LibUrlInput_Comp";
+
+// ✅ provider → adapter：改用你已產生好的 hook
+import { useSpecUSRFormFetchData } from "./Server_SpecUSR_Form_Hook";
+import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
+
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"]
 type SpecUSRFile = components["schemas"]["SpecUSRFile_DTO"]
 type SpecUSRUrl = components["schemas"]["SpecUSRUrl_DTO"]
-const emptyData: SpecUSRSet = { SpecUSR: {}, SpecUSRDetail: [], }
+
+// ✅ 補齊空資料結構（不影響 DOM，只避免 new 時缺欄位）
+const emptyData: SpecUSRSet = {
+    SpecUSR: {},
+    SpecUSRDetail: [],
+    SpecUSRFile: [],
+    SpecUSRUrl: [],
+    SpecUSRPhoto: [],
+    SpecUSRPhotoInfo: [],
+}
 
 /** 網路資源表單
  * @returns 
  */
 export const Server_USRProjFormComp = (prop: { theme: IBETheme; lang: Lang }) => {
     const { internalId } = useParams();
-    const dirUrl = useLocation().pathname.replace(/\/Form$/, `/Form`);
-    const formData = useFetchFormData<SpecUSRSet>(SpecUSRProvider(), internalId, emptyData)
-    const useCategory = useGetSpecCategoryListByProgId("SpecUSR", prop.lang);
-    const useTag = useGetTagListByProgId("SpecUSR", prop.lang);
-    const useContentStatus = useFetchEnumOptions("ContentStatus")
-    const status = useMemo(() => { const src = useContentStatus.data ?? {}; const { ["0"]: _drop, ...rest } = src; return rest as Record<string, string>; }, [useContentStatus.data]);
-    const actions = useActions(dirUrl, SpecUSRProvider(), formData.data as SpecUSRSet, internalId as string)
+    const navigate = useNavigate();
+    const pathname = useLocation().pathname;
+
+    // ✅ BackToList（給 hook actions 用）
+    const onBackToList = useCallback(() => {
+        navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));
+    }, [navigate, pathname]);
+
+    // ✅ provider → adapter：統一由 hook 提供 formData / refs / actions / loading / errors
+    const getData = useSpecUSRFormFetchData({
+        lang: prop.lang,
+        internalId: (internalId ?? ""),
+        emptyData,
+        actionsOpt: { onBackToList },
+    });
+
+    // ✅ 以下維持原本變數命名，避免影響後續 code（不動 DOM）
+    const formData = getData.rawData.formData;
+    const useCategory = useMemo(() => ({ data: getData.rawData.categoryMap, cols: getData.rawData.categoryCols }), [getData.rawData.categoryMap, getData.rawData.categoryCols]);
+    const useTag = useMemo(() => ({ data: getData.rawData.tagMap }), [getData.rawData.tagMap]);
+    const status = getData.rawData.statusOpts;
+    const actions = getData.rawData.actions;
+
+
     useEnsureLangDetails(formData, { headerName: SpecUSRSetFields.SpecUSR, detailName: SpecUSRSetFields.SpecUSRDetail, parentKeys: [SpecUSRModelFields.USRId], preferFirstLang: prop.lang });
     useEnsureLangDetails(formData, { headerName: SpecUSRSetFields.SpecUSRPhoto, detailName: SpecUSRSetFields.SpecUSRPhotoInfo, parentKeys: [SpecUSRPhotoInfoFields.USRId, SpecUSRPhotoInfoFields.ParentRowId], preferFirstLang: prop.lang });
-    const isLoading = [formData.isLoading, useCategory.isLoading, useTag.isLoading, useContentStatus.isLoading]
-    const errors = [formData.error, useCategory.error, useTag.error, useContentStatus.error]
 
     const selectedCateId = formData?.data?.SpecUSR?.CategoryId ?? "";
     const visibleCols = useMemo(() => {
@@ -49,8 +73,7 @@ export const Server_USRProjFormComp = (prop: { theme: IBETheme; lang: Lang }) =>
         return new Set(list);
     }, [selectedCateId, useCategory.cols]);
 
-
-    const formProp: FormCompProp = { Title: "新增計畫成果版型", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
+    const formProp: FormCompProp = { Title: "新增計畫成果版型", Theme: prop.theme, IsLoading: getData.isLoading, ErrorList:  getData.errors, Actions: actions }
     return (
         <FormComp prop={formProp}>
             <HeaderComp theme={prop.theme} formData={formData} cateOpts={useCategory.data} statusOpts={status} tagOpts={useTag.data} />
@@ -67,10 +90,7 @@ const HeaderComp = (prop: {
     const useUploadPic = useUploadPicture();
     const initialPicId = prop.formData.data?.SpecUSR?.PictureId;
     const previewSrc = useUploadPic.result.previewUrl || (initialPicId ? `${FileManagementAPI.PREVIEW_URL}/${initialPicId}` : "https://dummyimage.com/1920x550/555/fff.png");
-    const LibTabsPropA: LibTabsProp = {
-        Style: prop.theme.Tabs,
-        item: { "Basic": "基本", "Status": "狀態", "Tags": "標籤", "Img": "封面圖片", "Photo": "相片" }
-    }
+    const LibTabsPropA: LibTabsProp = { Style: prop.theme.Tabs, item: { Basic: "基本", Status: "狀態", Tags: "標籤", Img: "封面圖片", Photo: "相片",System:"系統資訊" }}
     const componentsA: Record<string, React.ReactNode[]> = {
         Basic: [<LibDropList Style={prop.theme.DropList} Options={prop.cateOpts} {...setField(SpecUSRSetFields.SpecUSR, SpecUSRModelFields.CategoryId, 'string')} />],
         Status: [<LibCheckBox Style={prop.theme.CheckBox} options={prop.statusOpts} {...setField(SpecUSRSetFields.SpecUSR, SpecUSRModelFields.ContentStatus, 'number', undefined, { strategy: 'sum', sumKeys: Object.keys(prop.statusOpts ?? {}).map(Number) })} />],
@@ -89,7 +109,8 @@ const HeaderComp = (prop: {
             </LibFile>,
             <LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SpecUSRSetFields.SpecUSR, SpecUSRModelFields.PicDescription, 'string')} />
         ],
-        Photo: [<UploadPicComp theme={prop.theme} formData={prop.formData} />, <PhotoComp theme={prop.theme} formData={prop.formData} />]
+        Photo: [<UploadPicComp theme={prop.theme} formData={prop.formData} />, <PhotoComp theme={prop.theme} formData={prop.formData} />],
+        System: [<SystemInfoTabComp theme={prop.theme} formData={prop.formData} setKey={SpecUSRSetFields.SpecUSR} />]
     }
     return (<TabContentComp tabInfos={LibTabsPropA} components={componentsA}></TabContentComp>)
 }
@@ -193,7 +214,6 @@ const SubFilesComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
         const newItem: SpecUSRFile = { ParentRowId: prop.parentRowId, RowId: nextRowId, FileSrcId: "", FileName: "", };
         commitFiles([...allFiles, newItem]);
     };
-
     // 刪除第 i 筆附件列
     const removeFileAt = (i: number) => {
         const filtered = getFiles();
@@ -210,7 +230,7 @@ const SubFilesComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
                     const rowKeys = { [SpecUSRFileFields.USRId]: f.USRId, [SpecUSRFileFields.ParentRowId]: f.ParentRowId, [SpecUSRFileFields.RowId]: f.RowId, }
                     return (
                         <div key={`${f.ParentRowId}-${f.RowId}`} className="flex items-center gap-2 mb-2">
-                            <LibFileInput Style={prop.theme.FileInput} DefaultInputDisplay="請輸入附件說明" Accept="*/*" onDelete={() => removeFileAt(i)}
+                            <LibFileInput DefaultInputDisplay="請輸入附件說明" Accept="*/*" onDelete={() => removeFileAt(i)}
                                 {...setFileField(SpecUSRSetFields.SpecUSRFile, SpecUSRFileFields.FileSrcId, SpecUSRFileFields.FileName, rowKeys,)} />
                         </div>
                     )

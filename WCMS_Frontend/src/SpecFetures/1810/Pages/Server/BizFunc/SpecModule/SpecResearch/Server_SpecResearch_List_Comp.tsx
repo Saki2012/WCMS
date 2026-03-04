@@ -1,197 +1,117 @@
-import type { SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp"
-import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme"
-import type { GridProps, ColumnConfig, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data"
-import { useMemo, useState } from "react"
-import { useLocation } from 'react-router-dom';
-import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp"
-import type { components } from "@/types/api"
-import { useFormatSpecCategoriesName, useSpecCateListData } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Hook"
-import { useActions, type UseActionsResult } from "@/Features/Hooks/Common/useActions"
-import { GridCol_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp"
-import SpecResearchProvider from "@/SpecFetures/1810/Hooks/SpecResearch/SpecResearch_Api"
+import type { SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
+import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
+import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import { useMemo, useState, type ReactNode } from "react";
+import { useLocation, useNavigate, type NavigateFunction } from "react-router-dom";
+import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
-import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import { AccountFields, SpecResearchDetailModelFields, SpecResearchModelFields, SpecResearchSetFields } from "@/types/SchemaFields";
-import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
-import { SpecPGID } from "@/SpecFetures/1810/Hooks/Common/SpecProgId";
-import { useFormatTagsName, useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"]
-type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"]
-type TagSet = components["schemas"]["TagSet_DTO"]
+import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
+import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
+import type { components } from "@/types/api";
+import { SpecResearchDetailModelFields, SpecResearchModelFields } from "@/types/SchemaFields";
+import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import { useSpecResearchListFetchData } from "./Server_SpecResearch_List_Hook";
+type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"];
 
-
-/** 研究計畫清單
- * @returns 
- */
+/** 研究計畫清單 */
 export const Server_ResearchProjListComp = (prop: { title: string; theme: IBETheme; lang: Lang }) => {
-    const [kw, setKw] = useState<string>("");
-    const searchCompProp: SearchBarProps = { title: "研究計畫搜尋", subTitle: "搜尋研究計畫 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
-    const pathname = useLocation().pathname;
-    const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
-    const provider = useMemo(() => SpecResearchProvider(), []);
-    const useDataList = useSpecResearchList(provider, prop.lang, kw);
-    const useCategory = useSpecCateListData(SpecPGID.SpecResearch, prop.lang);
-    const useTagData = useTagListData(SpecPGID.SpecResearch, prop.lang);
-    const actions = useActions(dirUrl, provider, undefined, undefined, useDataList.refetchCurrent)
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(prop.lang, useDataList.gridProps, useDataList.rawData, useCategory.rawData, useTagData.rawData, actions); }, [useDataList.gridProps, useDataList.rawData, useCategory.rawData, actions]);
-    const isLoading = [useDataList.isLoading, useCategory.isLoading];
-    const errors = [useDataList.error, useCategory.error];
-    return (<ListComp Title={prop.title} Theme={prop.theme} LoadingList={isLoading} ErrorList={errors} Actions={actions} GridData={adjustedGrid} SearchBar={searchCompProp}></ListComp>);
-}
-
-/** 動態添加每行的動作功能 */
-const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: SpecResearchSet[], cateData: SpecCategorySet[], tagData: TagSet[], actions: UseActionsResult): GridProps => {
-    if (gridProps.columns.some(col => col.key === '__adjust__')) return gridProps;
-    if (gridProps.rows.length === 0) return gridProps;
-    const adjustCol: ColumnConfig = { key: '__adjust__', title: '動作' };
-    const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
-    const newRows: GridRow[] = gridProps.rows.map((row, index) => {
-        // const statusCell = row.cells.find(cell => cell.col.key === SpecResearchModelFields.ContentStatus);
-        // if (statusCell && typeof statusCell.content === 'number') { statusCell.content = GetDataStatusContent(statusCell.content); }
-        const categoryCell = row.cells.find(p => p.col.key === SpecResearchModelFields.CategoryId);
-        const rawCatId = rawData?.[index]?.SpecResearch?.CategoryId ?? categoryCell?.content?.toString() ?? "";
-        if (categoryCell) { categoryCell.content = useFormatSpecCategoriesName(rawCatId, cateData, lang); }
-        const tagCell = row.cells.find(p => p.col.key === SpecResearchModelFields.Tags);
-        const rawtagId = rawData?.[index]?.SpecResearch?.Tags ?? tagCell?.content?.toString() ?? "";
-        if (tagCell) { tagCell.content = useFormatTagsName(rawtagId, tagData, lang); }
-        const internalId = rawData?.[index]?.SpecResearch?.InternalId ?? "";
-        const newCell: RowCell = { col: adjustCol, content: (<GridCol_Toolbar key={internalId} action={actions} internalId={internalId} />) };
-        return { ...row, cells: [...row.cells, newCell] };
-    });
-    return { ...gridProps, columns: newColumns, rows: newRows };
+  const [kw, setKw] = useState<string>("");
+  const searchCompProp: SearchBarProps = {title: "研究計畫搜尋", subTitle: "搜尋研究計畫 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""),};
+  const pathname = useLocation().pathname;
+  const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
+  const navigate = useNavigate();
+  const getData = useSpecResearchListFetchData({ lang: prop.lang, kw });
+  const cudActions = getData.adapter.SpecResearch.hooks.useCudActions();
+  const gridData = useMemo(() => { 
+    return buildSpecResearchGridProps({ raw: getData.rawData, lang: prop.lang, crud: { navigate, dirUrl, deleteAsync: cudActions.deleteAsync, afterDelete: getData.refetchData,}, });
+  }, [getData.rawData, prop.lang, navigate, dirUrl, cudActions.deleteAsync, getData.refetchData]);
+  return <ListComp Title={prop.title} Theme={prop.theme} isLoading={getData.isLoading} ErrorList={getData.errors} GridData={gridData} SearchBar={searchCompProp}/>;
 };
 
-/** 目前說只有公告/檔案室/網路資源/相簿會用到 */
-const GetDataStatusContent = (contentStatus: number): React.ReactNode => {
-    const statusItems: React.ReactNode[] = [];
-    if (contentStatus & 1) { statusItems.push(<div className="icon-small top-bg">置頂</div>); }
-    if (contentStatus & 2) { statusItems.push(<div className="icon-small hot-bg">熱門</div>); }
-    if (contentStatus & 4) { statusItems.push(<div className="icon-small hide-bg">隱藏</div>); }
-    return <div className="CustomState">{statusItems}</div>
+//#region GridProps
+type SpecResearchListRawData = ReturnType<typeof useSpecResearchListFetchData>["rawData"];
+type CrudDeps = { navigate: NavigateFunction; dirUrl: string; deleteAsync: (internalId: string) => Promise<ApiResponse<SpecResearchSet>>; afterDelete: () => Promise<void>; };
+
+/** ✅ SpecResearch 專用：rawData → GridProps（含 ActionCell / Delete confirm） */
+const buildSpecResearchGridProps = (opt: {raw: SpecResearchListRawData;lang: Lang;crud: CrudDeps; can?: (mask: number) => boolean;notifyNoPermission?: (msg: string) => void;confirm?: GridConfirmFn;}): GridProps => 
+{
+  const visibleCols = [SpecResearchModelFields.CategoryId,SpecResearchModelFields.Tags,SpecResearchDetailModelFields.Year,
+    SpecResearchDetailModelFields.AcademicYear,SpecResearchDetailModelFields.Semester,SpecResearchDetailModelFields.ProjectName,
+    SpecResearchDetailModelFields.PaperTitle,SpecResearchDetailModelFields.CooperationProject,SpecResearchDetailModelFields.Courses,
+    SpecResearchModelFields.CreateTime,SpecResearchModelFields.ModifyUserId,SpecResearchModelFields.ModifyTime,
+  ];
+  const columns = buildColumns(visibleCols, opt.raw);
+  const rows = buildSpecResearchRows(opt.raw, opt.lang, columns);
+  const baseGrid: GridProps = {columns,rows,CurrentPage: opt.raw.pageNumber ?? 1,TotalPage: opt.raw.totalPages ?? 1,onPageChange: opt.raw.onPageChange,};
+  const actions = createGridCrudActions<SpecResearchSet>({
+    onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
+    deleteAsync: opt.crud.deleteAsync,
+    afterDelete: opt.crud.afterDelete,
+  });
+  return enhanceGridWithAdjustCell(baseGrid, { lang: opt.lang, rawList: opt.raw.list ?? [], actions,
+    can: opt.can, notifyNoPermission: opt.notifyNoPermission, confirm: opt.confirm,
+    getInternalId: (set) => set.SpecResearch?.InternalId ?? "",
+  });
 };
 
-const useSpecResearchList = (provider: IDataProvider<SpecResearchSet>, lang: Lang, query: string) => {
-    let condition: string = `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Lang} = ${lang}`;
-    if (!!query) {
-        let queryCdt = ''
-        if (/^\d+$/.test(query.trim())) {//如果純數字，就增加條件
-            queryCdt = LibMerge(" Or ", false, queryCdt, `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Year} = ${query}`)
-            queryCdt = LibMerge(" Or ", false, queryCdt, `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.AcademicYear} = ${query}`)
-        }
-        queryCdt = LibMerge(" Or ", false, queryCdt, `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.ProjectName} Like ${query}`)
-        queryCdt = LibMerge(" Or ", false, queryCdt, `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.PaperTitle} Like ${query}`)
-        queryCdt = LibMerge(" Or ", false, queryCdt, `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.CooperationProject} Like ${query}`)
-        queryCdt = LibMerge(" Or ", false, queryCdt, `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Courses} Like ${query}`)
-        condition = LibMerge(" And ", false, condition, `(${queryCdt})`)
-    }
-
-
-    return useFetchGridListData<SpecResearchSet>({
-        getModelDisplayName: () => provider.getModelDisplayName(),
-        fetchList: (cond) => provider.fetchList(cond),
-        fetchListCount: (cond) => provider.fetchListCount(cond),
-        visibleKeys: [
-            [SpecResearchSetFields.SpecResearch, SpecResearchModelFields.CategoryId],
-            [SpecResearchSetFields.SpecResearch, SpecResearchModelFields.Tags],
-            // [SpecResearchSetFields.SpecResearch, SpecResearchModelFields.ContentStatus],
-            [SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Year],
-            [SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.AcademicYear],
-            [SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Semester],
-            [SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.ProjectName],
-            [SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.PaperTitle],
-            [SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.CooperationProject],
-            [SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Courses],
-            [SpecResearchSetFields.SpecResearch, SpecResearchModelFields.CreateTime],
-            [SpecResearchSetFields.SpecResearch, SpecResearchModelFields.ModifyUserId],
-            [SpecResearchSetFields.SpecResearch, SpecResearchModelFields.ModifyTime],
-        ],
-        buildQueryCondition: (page) => ({
-            Fields: [
-                SpecResearchModelFields.ResearchId,
-                SpecResearchModelFields.InternalId,
-                SpecResearchModelFields.CategoryId,
-                SpecResearchModelFields.Tags,
-                SpecResearchModelFields.ContentStatus,
-                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Lang}`,
-                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Year}`,
-                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.AcademicYear}`,
-                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Semester}`,
-                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.ProjectName}`,
-                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.PaperTitle}`,
-                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.CooperationProject}`,
-                `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Courses}`,
-                SpecResearchModelFields.CreateTime,
-                SpecResearchModelFields.ModifyUserId,
-                `${SpecResearchModelFields.ModifyUser}.${AccountFields.AccountName}`,
-                SpecResearchModelFields.ModifyTime,
-            ],
-            Condition: condition,
-            RankGroups: [{ Condition: `${SpecResearchModelFields.ContentStatus} & 1` }],
-            OrderBy: [{ Col: SpecResearchModelFields.CreateTime, Desc: true }],
-            PageNumber: page,
-            PageSize: 10,
-        }),
-        parseRow: (item, columns) => {
-            const data = item.SpecResearch ?? {};
-            const cells: RowCell[] = columns.map(col => {
-                let content = "";
-                switch (col.key) {
-                    case SpecResearchDetailModelFields.Year:
-                        {
-                            content = item.SpecResearchDetail?.find(p => p.Lang === lang)?.Year?.toString() ?? "";
-                            break;
-                        }
-                    case SpecResearchDetailModelFields.AcademicYear:
-                        {
-                            content = item.SpecResearchDetail?.find(p => p.Lang === lang)?.AcademicYear?.toString()
-                                ?? "";
-                            break;
-                        }
-                    case SpecResearchDetailModelFields.ProjectName:
-                        {
-                            content = item.SpecResearchDetail?.find(p => p.Lang === lang)?.ProjectName ?? "";
-                            break;
-                        }
-                    case SpecResearchDetailModelFields.PaperTitle:
-                        {
-                            content = item.SpecResearchDetail?.find(p => p.Lang === lang)?.PaperTitle ?? "";
-                            break;
-                        }
-                    case SpecResearchDetailModelFields.CooperationProject:
-                        {
-                            content = item.SpecResearchDetail?.find(p => p.Lang === lang)?.CooperationProject ?? "";
-                            break;
-                        }
-                    case SpecResearchDetailModelFields.Courses:
-                        {
-                            content = item.SpecResearchDetail?.find(p => p.Lang === lang)?.Courses ?? "";
-                            break;
-                        }
-                    case SpecResearchDetailModelFields.Semester:
-                        {
-                            content = item.SpecResearchDetail?.find(p => p.Lang === lang)?.Semester ?? "";
-                            break;
-                        }
-                    case SpecResearchModelFields.CreateTime:
-                    case SpecResearchModelFields.ModifyTime:
-                        {
-                            content = FormatDateTime((data as any)[col.key]);
-                            break;
-                        }
-                    case SpecResearchModelFields.ModifyUserId:
-                        content = item.SpecResearch?.ModifyUser?.AccountName ?? "";
-                        break;
-                    default:
-                        content = (data as any)[col.key] ?? "";
-                        break;
-                }
-                return { col, content };
-            });
-            return { cells };
-        },
-        enabled: true,
-        deps: [lang, query],
-    });
+/** 欄位定義（順序＝顯示順序） */
+const buildColumns = (visibleCols: string[], raw: SpecResearchListRawData): ColumnConfig[] => {
+  return visibleCols.map((col) => {
+    const tables = raw.modelDisplayName?.Tables ?? [];
+    const hit = tables.flatMap((t) => t.Columns ?? []).find((c) => c.ColumnId === col);
+    return { key: col, title: hit?.ColumnDisplayName ?? `【${col}】` };
+  });
 };
+
+/** 列資料（cells 順序必須跟 columns 對齊） */
+const buildSpecResearchRows = (raw: SpecResearchListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] => {
+  return (raw.list ?? []).map((set) => {
+    // 宣告變數
+    const keyId = LibMerge("|", false, set.SpecResearch?.ResearchId);
+    const r = set.SpecResearch;
+    const detail = (set.SpecResearchDetail ?? []).find((d) => d?.Lang === lang);
+    // 執行 function：映射顯示文字
+    const categoryText = mapIdToText(r?.CategoryId, raw.categoryMap);
+    const tagsNode = mapIdsToText(r?.Tags, raw.tagMap);
+    // return：cells（順序必須對齊 columns）
+    const cells: RowCell[] = [
+      { col: columns[0], content: categoryText },
+      { col: columns[1], content: tagsNode },
+      { col: columns[2], content: detail?.Year?.toString() ?? "" },
+      { col: columns[3], content: detail?.AcademicYear?.toString() ?? "" },
+      { col: columns[4], content: detail?.Semester?.toString() ?? "" },
+      { col: columns[5], content: detail?.ProjectName ?? "" },
+      { col: columns[6], content: detail?.PaperTitle ?? "" },
+      { col: columns[7], content: detail?.CooperationProject ?? "" },
+      { col: columns[8], content: detail?.Courses ?? "" },
+      { col: columns[9], content: FormatDateTime(r?.CreateTime) },
+      { col: columns[10], content: r?.ModifyUser?.AccountName ?? "" },
+      { col: columns[11], content: FormatDateTime(r?.ModifyTime) },
+    ];
+    return { keyId, cells };
+  });
+};
+
+/** 把單一 id 用 map 轉成顯示文字 */
+const mapIdToText = (id: string | number | null | undefined, map: Record<string, string>): string => {
+  const key = id === null || id === undefined ? "" : String(id);
+  if (!key) return "";
+  return map[key] ?? key;
+};
+/** 把 "a,b,c" 這種 id 字串，用 map 轉成顯示文字（li 版本、不跑版） */
+const mapIdsToText = (ids: string | null | undefined, map: Record<string, string>): ReactNode => {
+  const raw = ids ?? "";
+  const parts = raw.split(",").map((x) => x.trim()).filter(Boolean);
+  const names = parts.map((id) => map[id] ?? id);
+  return (
+    <ul className="m-0 p-0" style={{ listStylePosition: "inside" }}>
+      {names.map((line, i) => (
+        <li key={`${line}-${i}`} className="m-0 p-0">
+          {line}
+        </li>
+      ))}
+    </ul>
+  );
+};
+//#endregion

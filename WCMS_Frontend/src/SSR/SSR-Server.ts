@@ -243,14 +243,9 @@ const getConfig = (): SsrConfig =>
 
 const isPathSegmentPrefix = (pathname: string, segment: string): boolean =>
 {
-    // 宣告變數
     const p = String(pathname || "").toLowerCase();
     const s = String(segment || "").toLowerCase();
-
-    // 執行 function
     const ok = p === s || p.startsWith(`${s}/`);
-
-    // return
     return ok;
 };
 

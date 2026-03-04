@@ -14,12 +14,7 @@ import { useNavigate } from "react-router";
 import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
 type QueryListParam = components["schemas"]["QueryListParam"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
-type CategoryListFormRawData = {
-    editForm:UseFetchFormDataResult<CategorySet>;
-    actions: UseActionsResult;
-    list: CategorySet[];
-    param: QueryListParam;
-};
+type CategoryListFormRawData = { editForm:UseFetchFormDataResult<CategorySet>; actions: UseActionsResult; list: CategorySet[]; param: QueryListParam; };
 type CategoryListFormAdapter = { Category: ReturnType<typeof CategoryAdapter>; };
 
 //#region Public

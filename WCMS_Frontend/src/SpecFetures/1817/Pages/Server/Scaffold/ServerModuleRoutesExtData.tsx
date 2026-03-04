@@ -1,7 +1,7 @@
 import type { IModuleMeta, IProgMeta } from "@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData";
 import { Server_SpecMusical_List_Comp } from "../BizFunc/SpecModule/SpecMusical/Server_SpecMusical_List_Comp";
 import { Server_SpecMusical_Form_Comp } from "../BizFunc/SpecModule/SpecMusical/Server_SpecMusical_Form_Comp";
-import { Server_CategoryListFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Category/Category_ListForm_Comp";
+import { Server_CategoryListFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Category/Server_Category_ListForm_Comp";
 import { PGID } from "@/types/SchemaFields";
 
 const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] => {

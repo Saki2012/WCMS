@@ -59,6 +59,20 @@ const isOk = <T>(apiRes: ApiResponse<T>): apiRes is ApiResponse<T> & { IsSuccess
 {
     return Boolean(apiRes?.IsSuccess) && apiRes.Data !== null && apiRes.Data !== undefined;
 };
+type MaybeArray<T> = T | ReadonlyArray<T>;
+
+/** 兼容舊版：QueryData 可能回傳 Data 為陣列（只取第一筆） */
+const normalizeOneData = <T>(apiRes: ApiResponse<T>): ApiResponse<T> =>
+{
+    // 宣告變數
+    const raw = apiRes?.Data as MaybeArray<T> | null | undefined;
+    const isArray = Array.isArray(raw);
+
+    // return
+    if (!isArray) return apiRes;
+    return { ...apiRes, Data: (raw as ReadonlyArray<T>)[0] ?? null };
+};
+
 
 // ============================================================================
 // 1) ApiBaseAdapter（只有共用底，不綁定「資料型共用 API」）
@@ -463,7 +477,16 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
         };
         const createQueryDataLoader: ApiDataLoaderGroup<TSet>["createQueryDataLoader"] = (opt) =>
         {
-            return this.createApiLoader<string, TSet>({action: "Query.QueryData", getArgs: opt.getInternalId, call: (svc, id) => svc.queryData(id), getApiInstance: opt.getApiInstance,});
+            return this.createApiLoader<string, TSet>({
+                action: "Query.QueryData",
+                getArgs: opt.getInternalId,
+                call: async (svc, id) =>
+                {
+                    const env = await svc.queryData(id);
+                    return normalizeOneData(env);
+                },
+                getApiInstance: opt.getApiInstance,
+            });
         };
         //#endregion
 
@@ -546,7 +569,11 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
         const useQueryData: ApiDataHookGroup<TSet>["useQueryData"] = (opt) =>
         {
             return this.useApiQuery<string, TSet>({action: "Query.QueryData",args: opt.internalId,initial: opt.initial ?? null,
-                    call: (svc, id) => svc.queryData(id),
+                    call: async (svc, id) =>
+                    {
+                        const env = await svc.queryData(id);
+                        return normalizeOneData(env);
+                    },
                     fallbackError: "查詢資料失敗", deps: opt.deps,onError: opt.onError,apiInstance: opt.apiInstance,});
         };
         const useCudActions: ApiDataHookGroup<TSet>["useCudActions"] = (opt) =>
