@@ -249,7 +249,12 @@ IIS與環境設定:
         A. 點擊右邊 Server Proxy Settings
         B. 打勾 Enable proxy
 		
-		
+
+*
+Hydration後，前端流程為
+IIS去指定前端的webconfig->該webconfig是轉交給SSR Server
+*
+
 ---中間版本衝突處理方式：
 1. 產生BaseLine版本
 dotnet ef migrations add Baseline --context ApplicationDbContext

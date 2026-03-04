@@ -12,7 +12,7 @@ import { FormatDate, FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFields";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
-import { GetDataStatusContent } from "../../../../Scaffold/CommUnitComp/CommonComp";
+import { GetDataStatusContent } from "../../../Scaffold/CommUnitComp/CommonComp";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
 /** 公告列表 */
@@ -25,7 +25,7 @@ export const Server_AnnouncementListComp = (prop: { title: string; theme: IBEThe
     const navigate = useNavigate();
     const cudActions = getData.adapter.Announcement.hooks.useCudActions();
     const gridData = useMemo(() => { return buildAnnouncementGridProps({raw: getData.rawData,lang: prop.lang, crud: {navigate,dirUrl,deleteAsync: cudActions.deleteAsync,afterDelete: getData.refetchData,},});
-     }, [getData.rawData, prop.lang, navigate, dirUrl, cudActions.deleteAsync, getData.refetchData]);
+    }, [getData.rawData, prop.lang, navigate, dirUrl, cudActions.deleteAsync, getData.refetchData]);
     return <ListComp Title={prop.title} Theme={prop.theme} isLoading={getData.isLoading} ErrorList={getData.errors} GridData={gridData} SearchBar={searchCompProp} />;
 };
 //#region GridProps
@@ -33,9 +33,9 @@ type CrudDeps = {navigate: NavigateFunction;dirUrl: string;deleteAsync: (interna
 /** ✅ Announcement 專用：rawData → GridProps（含 ActionCell / Delete confirm） */
 const buildAnnouncementGridProps = (opt: {raw: AnnouncementListRawData; lang: Lang;
     crud: CrudDeps; can?: (mask: number) => boolean; notifyNoPermission?: (msg: string) => void;confirm?: GridConfirmFn;}): GridProps => {
-    const visibleCols = [AnnouncementFields.Categories,AnnouncementDetailFields.Title,AnnouncementFields.Validate_Start,AnnouncementFields.ModifyUser,AnnouncementFields.ModifyTime,];
+    const visibleCols = [AnnouncementFields.Categories,AnnouncementDetailFields.Title,AnnouncementFields.Validate_Start,AnnouncementFields.Validate_End,AnnouncementFields.ModifyUserId,AnnouncementFields.ModifyTime,];
     // 執行 function：Grid 基礎資料
-    const columns = buildAnnouncementColumns(visibleCols, opt.raw);
+    const columns = buildColumns(visibleCols, opt.raw);
     const rows = buildAnnouncementRows(opt.raw, opt.lang, columns);
     const baseGrid: GridProps = {columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange,};
     // 執行 function：動作按鈕（Edit/Delete）
@@ -47,7 +47,7 @@ const buildAnnouncementGridProps = (opt: {raw: AnnouncementListRawData; lang: La
     });
 };
 /** 欄位定義（順序＝顯示順序） */
-const buildAnnouncementColumns = (visibleCols: string[], raw: AnnouncementListRawData): ColumnConfig[] => {
+const buildColumns = (visibleCols: string[], raw: AnnouncementListRawData): ColumnConfig[] => {
     return visibleCols.map((col) => { 
       const tables = raw.modelDisplayName?.Tables ?? [];
       const hit = tables.flatMap((t) => t.Columns ?? []).find((c) => c.ColumnId === col);
@@ -69,8 +69,9 @@ const buildAnnouncementRows = (raw: AnnouncementListRawData, lang: Lang, columns
             { col: columns[0], content: mapIdsToText(a?.Categories, raw.categoryMap) },
             { col: columns[1], content: detail },
             { col: columns[2], content: FormatDate(a?.Validate_Start) },
-            { col: columns[3], content: a?.ModifyUser?.AccountName ?? "" },
-            { col: columns[4], content: FormatDateTime(a?.ModifyTime) },
+            { col: columns[3], content: FormatDate(a?.Validate_End) },
+            { col: columns[4], content: a?.ModifyUser?.AccountName ?? "" },
+            { col: columns[5], content: FormatDateTime(a?.ModifyTime) },
         ];
         return { keyId, cells };
     });

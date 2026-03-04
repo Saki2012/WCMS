@@ -22,37 +22,24 @@ const Header = (props: HeaderProps) => {
     return (
         <>
             <A11yContent />
-            {/* 對標 index.html：<div id="Site-Header" class="ALL_Header_DivBar main-header"> */}
             <div id="Site-Header" className="ALL_Header_DivBar main-header" ref={headerRef}>
-                {/* 對標 index.html：<section class="menu_section p-lg-0 p-2"> */}
                 <section className="menu_section p-lg-0 p-2">
-                    {/* 對標 index.html：<div class="customMENU_Box bg-white pb-lg-0 pt-lg-2 px-lg-2 px-0 pt-0"> */}
                     <div className="customMENU_Box bg-white pb-lg-0 pt-lg-2 px-lg-2 px-0 pt-0 align-items-lg-start align-items-center">
                         <div className="menuBox">
-                            {/* 對標 index.html：container-customize4 */}
                             <div className={clsx("container-customize4", props.lang === 'en' ? "w-en" : "")}>
                                 <div className="navbar navbar-expand-lg navbar-dark px-0 py-0">
                                     <LogoBlock />
-
                                     <MobileToggler />
-
-                                    <a accessKey="U" href="#U" className="accesskey_header U d-none d-lg-block mt-4" title="上方導覽區(U)" tabIndex={0}>
-                                        :::
-                                    </a>
-
+                                    <a accessKey="U" href="#U" className="accesskey_header U d-none d-lg-block mt-4" title="上方導覽區(U)" >:::</a>
                                     <NavbarContent {...props} />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
-
-                {/* 對標 index.html：<div class="overlayer"></div> */}
                 <div className="overlayer" aria-hidden="true" />
             </div>
-            {/* 這一塊不要動（你已指定） */}
             <SearchData {...props} />
-
             <GoTopButton />
         </>
     );
@@ -135,7 +122,7 @@ const useHeaderPrototypeBehavior = (headerRef: React.RefObject<HTMLDivElement>) 
 const LogoBlock = () => {
     return (
         <h1 className="logo">
-            <LangLink className="navbar-brand mt-lg-3 mt-2" to="/" tabIndex={0} title="">
+            <LangLink className="navbar-brand mt-lg-3 mt-2" to="/" title="">
                 <img src={LogoImg} alt=" LOGO" />
             </LangLink>
         </h1>
@@ -143,26 +130,30 @@ const LogoBlock = () => {
 };
 
 const MobileToggler = () => {
-    return (
-        <a
-            href="javascript:void(0);"
-            className="navbar-toggler collapsed"
-            type="button"
-            role="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbar-content"
-            tabIndex={0}
-            aria-expanded="false"
-        >
-            <div className="hamburger-toggle">
-                <div className="hamburger">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
-        </a>
-    );
+  return (
+    <button
+      type="button"
+      className="navbar-toggler collapsed"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbar-content"
+      aria-controls="navbar-content"
+      aria-expanded="false"
+      aria-label="開啟或關閉主選單"
+      title="開啟或關閉主選單"
+    >
+      {/* AA：給讀屏用的文字（不影響畫面） */}
+      <span className="visually-hidden">主選單</span>
+
+      {/* 視覺 hamburger，不給讀屏重複念 */}
+      <div className="hamburger-toggle" aria-hidden="true">
+        <div className="hamburger">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </button>
+  );
 };
 
 const NavbarContent = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
@@ -377,7 +368,7 @@ const SiteMapLink = (props: { lang: Lang }) => {
 
     return (
         <li className="nav-item ms-2 me-lg-3 me-0 ps-2">
-            <LangLink className="nav-link web-map" to={`/${SITEMAP_SEGMENT}`} tabIndex={0} target="_self" title={title}>
+            <LangLink className="nav-link web-map" to={`/${SITEMAP_SEGMENT}`} target="_self" title={title}>
                 <span className="fas fa-bars me-2 mt-1"></span>
                 {text}
             </LangLink>
@@ -443,7 +434,7 @@ const SizeChange = () => {
                                 type="button"
                                 role="button"
                                 title="字型-大"
-                                tabIndex={0}
+                                
                                 data-size="20"
                             >
                                 <div className="LMS-text" style={{ fontSize: "100%" }}>
@@ -464,7 +455,7 @@ const SizeChange = () => {
                                 type="button"
                                 role="button"
                                 title="字型-中"
-                                tabIndex={0}
+                                
                                 data-size="18"
                             >
                                 <div className="LMS-text" style={{ fontSize: "100%" }}>
@@ -485,7 +476,7 @@ const SizeChange = () => {
                                 type="button"
                                 role="button"
                                 title="字型-小"
-                                tabIndex={0}
+                                
                                 data-size="16"
                             >
                                 <div className="LMS-text" style={{ fontSize: "100%" }}>
@@ -589,7 +580,7 @@ const SingleMenuItem = (props: { menuItem: MenuItemData; onLeafClick: () => void
                 aria-current="page"
                 to={props.menuItem.Url}
                 role="button"
-                tabIndex={0}
+                
                 title={props.menuItem.SrcData}
                 aria-label={props.menuItem.SrcData}
                 onClick={props.onLeafClick}
@@ -619,7 +610,7 @@ const MegaMenuItem = (props: IMegaMenuItemProps) => {
             <a
                 className="nav-link dropdown-toggle"
                 href="javascript:void(0);"
-                tabIndex={0}
+                
                 data-bs-toggle="dropdown"
                 data-bs-auto-close="outside"
                 aria-expanded={props.isOpen}
@@ -647,7 +638,7 @@ const MegaMenuItem = (props: IMegaMenuItemProps) => {
                                                     key={linkIndex}
                                                     className="list-group-item"
                                                     to={link.Url || "#"}
-                                                    tabIndex={0}
+                                                    
                                                     target={subTar}
                                                     onClick={props.onLeafClick}
                                                 >

@@ -1,7 +1,7 @@
 // src/Features/Pages/Client/TS/ClientComponentResolver.ts
 // 一支檔案同時處理：
-// 1) 解析目前 VITE_SPEC_CODE 對應的 Spec 元件
-// 2) 各模組的 Feature 版 + Spec 版 fallback
+// 1) 解析目前 VITE_SPEC_CODE 對應的 Spec 元件（只掃 SpecFeature，不掃全部 Spec）
+// 2) 各模組的 Feature 版 + Spec 版 fallback（可選 _default 再 fallback）
 
 import type { ComponentType } from "react";
 
@@ -11,7 +11,7 @@ import SubPageBase from "@/Features/Pages/Client/Scaffold/SubPages/SubPage";
 
 import PageManagementFormCompBase, {
     type IPageManagementOptions,
-} from "@/Features/Pages/Client/BizFunc/WebManagement/PageManagement/PageManagementForm";
+} from "@/Features/Pages/Client/BizFunc/WebManagement/PageManagement/PageManagementForm_Comp";
 
 import AnnouncementListBase, {
     type IAnnouncementListOptions,
@@ -25,44 +25,92 @@ import FileArchiveListBase, {
 
 import GalleryListCompBase, {
     type IGalleryListOptions,
-} from "@/Features/Pages/Client/BizFunc/WebManagement/Gallery/GalleryList";
+} from "@/Features/Pages/Client/BizFunc/WebManagement/Gallery/GalleryList_Comp";
 
-import GalleryFormCompBase from "@/Features/Pages/Client/BizFunc/WebManagement/Gallery/GalleryForm";
+import GalleryFormCompBase from "@/Features/Pages/Client/BizFunc/WebManagement/Gallery/GalleryForm_Comp";
 
 import WebResourceListCompBase, {
     type IWebResourceListOptions,
 } from "@/Features/Pages/Client/BizFunc/WebManagement/WebResource/WebResourceList";
 
 // ====================================================
-// 共用 Resolver：依 VITE_SPEC_CODE 從 SpecFetures 取對應元件
-// 找不到就 fallback 到 Feature 版
+// 共用 Resolver：只從「目前 SpecFeature」取對應元件
+// 找不到就 fallback 到 Feature 版（可選再 fallback 到 _default）
 // ====================================================
 
-export type SpecComponent<TProps = any> = ComponentType<TProps>;
+export type SpecComponent<TProps = Record<string, never>> = ComponentType<TProps>;
 
-const SPEC_CODE = import.meta.env.VITE_SPEC_CODE as string | undefined;
-
-// 注意：專案實際資料夾是 src/SpecFetures（少一個 a）
-// 如果之後你改成 SpecFeatures，要記得這邊一起調整
-const specModules = import.meta.glob("/src/SpecFetures/*/**/*.tsx", {
-    eager: true,
-}) as Record<string, any>;
+type SpecModule = {
+    default?: unknown;
+    [key: string]: unknown;
+};
 
 /**
- * relativePath: 從 "SpecFetures/{specCode}" 開始算的路徑
+ * ✅ 關鍵：不要用 /src/SpecFetures/* 這種 wildcard
+ * - SpecFeature 由 vite.config.ts alias 指向 /src/SpecFetures/{VITE_SPEC_CODE}
+ * - 所以這個 glob 只會把「當前 spec」打包進來
+ */
+const specModules = import.meta.glob("SpecFeature/**/*.tsx", {
+    eager: true,
+}) as Record<string, SpecModule>;
+
+/**
+ * （可選）_default fallback
+ * 需要 vite.config.ts alias：SpecDefault -> /src/SpecFetures/_default
+ * 你若還沒加 SpecDefault，也可以先留著，不用的話不會影響功能。
+ */
+const defaultModules = import.meta.glob("SpecDefault/**/*.tsx", {
+    eager: true,
+}) as Record<string, SpecModule>;
+
+const normalizeRelativePath = (relativePath: string): string => {
+    // 🔧 避免傳入以 / 開頭導致 key 對不上
+    return (relativePath ?? "").trim().replace(/^\/+/, "");
+};
+
+const pickExport = (mod: SpecModule, exportName?: string): unknown => {
+    // 🔧 named export 優先，否則吃 default
+    if (exportName && mod[exportName]) return mod[exportName];
+    return mod.default;
+};
+
+const resolveFromModules = <TComponent,>(
+    modules: Record<string, SpecModule>,
+    key: string,
+    core: TComponent,
+    exportName?: string,
+): TComponent => {
+    const mod = modules[key];
+    if (!mod) return core;
+
+    const resolved = pickExport(mod, exportName);
+    if (!resolved) return core;
+
+    // 🔧 這裡是「Spec 覆蓋 Feature」的型別橋接點
+    return resolved as TComponent;
+};
+
+/**
+ * relativePath: 從 SpecFeature 開始算的路徑
  *               例如 "Pages/Client/Scaffold/SubPages/SubPage.tsx"
  * core:         Feature 基準版元件
- * exportName:   如果 Spec 檔是 named export，就給它 export 名稱
- *               如果 Spec 檔有 default export，可以不給（或給 undefined）
+ * exportName:   Spec 檔若是 named export，就給它 export 名稱；default export 則可不給
  */
-function resolveSpecComponent<TComponent>(relativePath: string, core: TComponent, exportName?: string): TComponent
-{
-    if (!SPEC_CODE) return core;
-    const key = `/src/SpecFetures/${SPEC_CODE}/${relativePath}`;
-    const mod = specModules[key];
-    if (!mod) return core;
-    const resolved = exportName && mod[exportName] ? mod[exportName] : mod.default;
-    return (resolved ?? core) as TComponent;
+function resolveSpecComponent<TComponent>(
+    relativePath: string,
+    core: TComponent,
+    exportName?: string,
+): TComponent {
+    const rel = normalizeRelativePath(relativePath);
+
+    // SpecFeature/{rel}
+    const specKey = `SpecFeature/${rel}`;
+    const hit = resolveFromModules(specModules, specKey, core, exportName);
+    if (hit !== core) return hit;
+
+    // SpecDefault/{rel}（可選 fallback）
+    const defaultKey = `SpecDefault/${rel}`;
+    return resolveFromModules(defaultModules, defaultKey, core, exportName);
 }
 
 // ====================================================

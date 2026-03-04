@@ -1,20 +1,20 @@
-import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField"
+import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import type { components } from "@/types/api";
-import { useFetchFormData, type UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { useSetDateRangeField, useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
 import LibDatetimeRange from "@/SysCore/Components/FormField/FieldComponets/LibDatetimeRange_Comp";
-import { useMemo } from "react";
-import SpecOpenScheduleRuleProvider from "@/SpecFetures/1816/Hooks/BizFunc/Calendar/SpecOpenScheduleRule_Api";
-import { useActions } from "@/Features/Hooks/Common/useActions";
+import { useCallback, useMemo } from "react";
 import { SpecOpenScheduleRuleModelFields, SpecOpenScheduleRuleSetFields } from "@/types/SchemaFields";
+import { useScheduleRuleFormFetchData } from "./Server_ScheduleRule_Form_Hook";
+import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 
-type SpecOpenScheduleRuleSet = components["schemas"]["SpecOpenScheduleRuleSet_DTO"]
+type SpecOpenScheduleRuleSet = components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
+
 const emptySet: SpecOpenScheduleRuleSet = {
     SpecOpenScheduleRule: {
         AcademicYearId: "",
@@ -42,28 +42,47 @@ const emptySet: SpecOpenScheduleRuleSet = {
         Summer_Sat_CloseTime: null,
         Summer_Sun_OpenTime: null,
         Summer_Sun_CloseTime: null,
-    }
-}
-
-
+    },
+};
 
 export const Server_ScheduleRule_Form_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
+    // 宣告變數
     const { internalId } = useParams();
-    const dirUrl = useLocation().pathname.replace(/\/Form$/, `/Form`);
-    const pvd = useMemo(() => { return SpecOpenScheduleRuleProvider() }, []);
-    const formData = useFetchFormData<SpecOpenScheduleRuleSet>(pvd, internalId, emptySet);
-    const isLoading = [formData.isLoading];
-    const errors = [formData.error];
-    const actions = useActions(dirUrl, pvd, formData.data, internalId as string, undefined)
-    const formProp: FormCompProp = { Title: "開館時間設定", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
-    const isAddNew = !internalId
+    const navigate = useNavigate();
+    const pathname = useLocation().pathname;
+    const isAddNew = !internalId;
+
+    // 執行 function：回列表（對標 Announcement Form）
+    const onBackToList = useCallback(() => {
+        navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));
+    }, [navigate, pathname]);
+
+    // 執行 function：集中取資料（Adapter）
+    const getData = useScheduleRuleFormFetchData({
+        internalId: internalId ?? "",
+        emptyData: emptySet,
+        onBackToList,
+    });
+
+    const formProp: FormCompProp = useMemo(() => {
+        return {
+            Title: "開館時間設定",
+            Theme: prop.theme,
+            IsLoading: getData.isLoading,
+            ErrorList: getData.errors,
+            Actions: getData.rawData.actions,
+        };
+    }, [prop.theme, getData.isLoading, getData.errors, getData.rawData.actions]);
+
+    // return（DOM 結構不變）
     return (
         <FormComp prop={formProp}>
-            <HeaderComp theme={prop.theme} formData={formData} isAddNew={isAddNew} />
+            <HeaderComp theme={prop.theme} formData={getData.rawData.formData} isAddNew={isAddNew} />
         </FormComp>
-    )
-}
-const HeaderComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecOpenScheduleRuleSet>; isAddNew: boolean; }) => {
+    );
+};
+
+const HeaderComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecOpenScheduleRuleSet>; isAddNew: boolean }) => {
     const setField = useSetTableField<SpecOpenScheduleRuleSet>(props.formData);
     const setDateRangeField = useSetDateRangeField<SpecOpenScheduleRuleSet>(props.formData);
     return (
@@ -123,5 +142,5 @@ const HeaderComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
                 </div>
             </div>
         </>
-    )
-}
+    );
+};

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import gototopImg from 'SpecFeature/Assets/Client/images/go-to-top/gototop_40x40.svg'//暫時先這樣寫，之後應該要移動到Feature底下的Assets做控管
+import gototopImg from '@/Features/Assets/Client/gototop_40x40.svg'
 
 
 interface GoTopButtonProps {

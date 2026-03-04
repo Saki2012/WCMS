@@ -4,18 +4,18 @@ import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 
 import { BannerSliderListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Banner/Server_BannerSlider_List_Comp";
 import { BannerSliderFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Banner/Server_BannerSlider_Form_Comp";
-import { Server_AnnouncementListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Announcement/List/Server_Announcement_List_Comp";
-import { Server_AnnouncementFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Announcement/Form/Server_Announcement_Form_Comp";
-import { Server_CategoryListFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Category/Category_ListForm_Comp";
-import { TagListFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Tags/Server_Tag_ListForm_Comp";
+import { Server_AnnouncementListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Announcement/Server_Announcement_List_Comp";
+import { Server_Announcement_Form_Comp } from "@/Features/Pages/Server/BizFunc/WebManagement/Announcement/Server_Announcement_Form_Comp";
+import { Server_CategoryListFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Category/Server_Category_ListForm_Comp";
+import { Server_Tag_ListForm_Comp } from "@/Features/Pages/Server/BizFunc/WebManagement/Tags/Server_Tag_ListForm_Comp";
 import { SiteMenu_Comp } from "@/Features/Pages/Server/BizFunc/Dashboard/SiteMenu/SiteMenu_Comp";
 import { CalendarPageComp } from "@/Features/Pages/Server/BizFunc/Dashboard/Calendar/Server_Calendar_Comp";
-import { PageFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/PageManagement/Server_PageManagement_Form_Comp";
+import { Server_PageManagement_Form_Comp } from "@/Features/Pages/Server/BizFunc/WebManagement/PageManagement/Server_PageManagement_Form_Comp";
 import { PageListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/PageManagement/Server_PageManagement_List_Comp";
 import { Server_GalleryListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Gallery/Server_Gallery_List_Comp";
 import { Server_GalleryFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Gallery/Server_Gallery_Form_Comp";
 import { Server_FileArchiveListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/FileArchive/Server_FileArchive_List_Comp";
-import { Server_FileArchiveFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/FileArchive/Server_FileArchive_Form_Comp";
+import { Server_FileArchive_Form_Comp } from "@/Features/Pages/Server/BizFunc/WebManagement/FileArchive/Server_FileArchive_Form_Comp";
 import { WebResourceListComp } from "@/Features/Pages/Server/BizFunc/WebManagement/WebResource/Server_WebResource_List_Comp";
 import { WebResourceFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/WebResource/Server_WebResource_Form_Comp";
 import { Server_Account_List_Comp } from "@/Features/Pages/Server/BizFunc/AccountManage/Account/Server_Account_List_Comp";
@@ -130,7 +130,7 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                     },
                     {
                         ActionCode: "Form", Title: "公告維護", RoutePath: "Form/:internalId?",
-                        elementFactory: (ctx) => <Server_AnnouncementFormComp theme={ctx.theme} lang={ctx.lang} />,
+                        elementFactory: (ctx) => <Server_Announcement_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
                     },
                     {
                         ActionCode: "Category", Title: "公告類別", RoutePath: "Category/:internalId?",
@@ -138,7 +138,7 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                     },
                     {
                         ActionCode: "Tag", Title: "公告標籤", RoutePath: "Tag/:internalId?",
-                        elementFactory: (ctx) => <TagListFormComp progId="Announcement" title="標籤" theme={ctx.theme} lang={ctx.lang} />,
+                        elementFactory: (ctx) => <Server_Tag_ListForm_Comp progId="Announcement" title="標籤" theme={ctx.theme} lang={ctx.lang} />,
                     },
                 ],
             },
@@ -153,7 +153,7 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                     },
                     {
                         ActionCode: "Form", Title: "頁面維護", RoutePath: "Form/:internalId?",
-                        elementFactory: (ctx) => <PageFormComp theme={ctx.theme} lang={ctx.lang} />,
+                        elementFactory: (ctx) => <Server_PageManagement_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
                     },
                     {
                         ActionCode: "Category", Title: "頁面類別", RoutePath: "Category/:internalId?",
@@ -180,7 +180,7 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                     },
                     {
                         ActionCode: "Tag", Title: "相簿標籤", RoutePath: "Tag/:internalId?",
-                        elementFactory: (ctx) => <TagListFormComp progId="Gallery" title="標籤" theme={ctx.theme} lang={ctx.lang} />,
+                        elementFactory: (ctx) => <Server_Tag_ListForm_Comp progId="Gallery" title="標籤" theme={ctx.theme} lang={ctx.lang} />,
                     },
                 ],
             },
@@ -195,7 +195,7 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                     },
                     {
                         ActionCode: "Form", Title: "檔案室維護", RoutePath: "Form/:internalId?",
-                        elementFactory: (ctx) => <Server_FileArchiveFormComp theme={ctx.theme} lang={ctx.lang} />,
+                        elementFactory: (ctx) => <Server_FileArchive_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
                     },
                     {
                         ActionCode: "Category", Title: "檔案類別", RoutePath: "Category/:internalId?",
@@ -203,7 +203,7 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                     },
                     {
                         ActionCode: "Tag", Title: "檔案標籤", RoutePath: "Tag/:internalId?",
-                        elementFactory: (ctx) => <TagListFormComp progId="FileArchive" title="標籤" theme={ctx.theme} lang={ctx.lang} />
+                        elementFactory: (ctx) => <Server_Tag_ListForm_Comp progId="FileArchive" title="標籤" theme={ctx.theme} lang={ctx.lang} />
                     },
                 ],
             },
@@ -225,7 +225,7 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                     },
                     {
                         ActionCode: "Tag", Title: "資源標籤", RoutePath: "Tag/:internalId?",
-                        elementFactory: (ctx) => <TagListFormComp progId="WebResource" title="標籤" theme={ctx.theme} lang={ctx.lang} />
+                        elementFactory: (ctx) => <Server_Tag_ListForm_Comp progId="WebResource" title="標籤" theme={ctx.theme} lang={ctx.lang} />
                     },
                 ],
             },

@@ -4,14 +4,18 @@ import { AboutPage } from '@/SpecFetures/1818/Pages/Client/Index/Section/AboutPa
 import { NewsData } from '@/SpecFetures/1818/Pages/Client/Index/Section/NewsData'
 import { ActivityPhotoData } from '@/SpecFetures/1818/Pages/Client/Index/Section/ActivityPhotoData'
 import { type Lang } from '@/SysCore/i18n/lang'
+import { useLoaderData } from 'react-router'
+import type { HomePageLoaderData } from './HomePage_Loader'
 
 const HomePage = (props: { lang: Lang }) => {
+  const loaderData = useLoaderData() as HomePageLoaderData;
+  const rawData = loaderData.res.rawData;
   return (
     <main id="Site-Main" className="ALL_Main_DivBar main-fullpage-wraper">
       <div className="background_area">
         <div className="iMG-Shape-3" />
         {/* // 輪播BANNER //  */}
-        <CarouselData lang={props.lang} />
+        <CarouselData lang={props.lang} internalId={loaderData.args.heroBannerInternalId} initialBanner={rawData.heroBanner}/>
         <section className="accesskey_C_H">
           <div className="container-customize3">
             <a accessKey="C" className="accesskey_main C" href="#C" id="content" tabIndex={0} title="中央主要內容區(C)">
@@ -20,13 +24,20 @@ const HomePage = (props: { lang: Lang }) => {
           </div>
         </section>
         {/* // 相關連結 //  */}
-        <LinkData lang={props.lang} />
+        <LinkData lang={props.lang} bannerParam={loaderData.args.linksBannerParam} initialBanner={rawData.linksBanner} />
         {/* // 關於我們 //  */}
-        <AboutPage lang={props.lang} />
+        <AboutPage lang={props.lang} webInternalId={loaderData.args.aboutWebResourceInternalId}
+          pageInternalId={loaderData.args.aboutPageInternalId} admissionsInternalId={loaderData.args.admissionsBannerInternalId} 
+          initialWebResource={rawData.aboutWebResource} initialPage={rawData.aboutPage} initialAdmissionsBanner={rawData.admissionsBanner}/>
         {/* // 最新消息 //  */}
-        <NewsData lang={props.lang} />
+        <NewsData lang={props.lang} newsTopParam={loaderData.args.newsTopParam} newsListParam={loaderData.args.newsListParam}
+          cateParam={loaderData.args.newsCateParam} tagParam={loaderData.args.newsTagParam} initialTopList={rawData.newsTopList}
+          initialList={rawData.newsList} initialCategories={rawData.newsCategories} initialTags={rawData.newsTags}/>
         {/* // 活動相簿 //  */}
-        <ActivityPhotoData lang={props.lang} />
+        <ActivityPhotoData lang={props.lang} galleryTopParam={loaderData.args.galleryTopParam}
+          galleryListParam={loaderData.args.galleryListParam} cateParam={loaderData.args.galleryCateParam} 
+          tagParam={loaderData.args.galleryTagParam} initialTopList={rawData.galleryTopList} 
+          initialList={rawData.galleryList} initialCategories={rawData.galleryCategories} initialTags={rawData.galleryTags}/>
       </div>
     </main>
   );

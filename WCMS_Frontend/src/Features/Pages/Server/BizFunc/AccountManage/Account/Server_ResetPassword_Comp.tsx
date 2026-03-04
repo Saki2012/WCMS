@@ -122,7 +122,7 @@ export const Server_ResetPassword_Comp = (props: { theme: IBETheme }) => {
     const prop: FormCompProp = {
         Title: handle?.Title ?? "重置密碼",
         Theme: props.theme,
-        LoadingList: [...isLoading, useAccountList.isLoading, resetPwd.isLoading],
+        IsLoading: [...isLoading, useAccountList.isLoading, resetPwd.isLoading],
         ErrorList: errors,
         Actions: actions,
     };

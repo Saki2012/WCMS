@@ -3,16 +3,7 @@ import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import type { LoaderFunctionArgs } from "react-router-dom";
-
-import {
-    CategoryDataSetFields,
-    CategoryDetailFields,
-    CategoryFields,
-    PGID,
-    WebResourceFields,
-    WebResourceInfoFields,
-} from "@/types/SchemaFields";
-
+import {CategoryDataSetFields,CategoryDetailFields,CategoryFields,PGID,WebResourceFields,WebResourceInfoFields,} from "@/types/SchemaFields";
 import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
 import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WebManagement/WebResource/WebResource_Api";
 import type { IWebResourceListOptions } from "./WebResourceList";
@@ -47,28 +38,13 @@ export interface WebResourceListLoaderData
 
 const buildCondition = (p: { lang: Lang; opts: IWebResourceListOptions; }) =>
 {
-    // 宣告變數
     let condition = "";
-
-    if (p.opts.Category)
-    {
-        condition = LibMerge(" And ", false, condition, `${WebResourceFields.Categories} HasAny [${p.opts.Category}]`);
-    }
+    if (p.opts.Category) condition = LibMerge(" And ", false, condition, `${WebResourceFields.Categories} HasAny [${p.opts.Category}]`);
     if (p.opts.Tag) condition = LibMerge(" And ", false, condition, `${WebResourceFields.Tags} HasAny [${p.opts.Tag}]`);
 
     condition = LibMerge(" And ", false, condition, `${WebResourceFields.ContentStatus} !& 4`);
-    condition = LibMerge(
-        " And ",
-        false,
-        condition,
-        `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang} = ${p.lang}`,
-    );
-    condition = LibMerge(
-        " And ",
-        false,
-        condition,
-        `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Title} != ''`,
-    );
+    condition = LibMerge(" And ", false, condition, `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang} = ${p.lang}`,);
+    condition = LibMerge(" And ", false, condition, `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Title} != ''`,);
 
     // return
     return condition;

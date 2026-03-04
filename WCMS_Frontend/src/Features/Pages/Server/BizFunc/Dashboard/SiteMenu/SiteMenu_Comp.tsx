@@ -344,7 +344,7 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
   const errors: any[] = [siteListRes.errorText, windowTarget.error, menuUrlType.error, modulePageType.error, useBannerList.errorText, useCateList.error, usetagList.error, usePageList.error, useSpecCateDatas.error]
 
 
-  const formProp: FormCompProp = { Title: "網站功能", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actionsEx }
+  const formProp: FormCompProp = { Title: "網站功能", Theme: prop.theme, IsLoading: isLoading, ErrorList: errors, Actions: actionsEx }
   return (
     <FormComp prop={formProp}>
       <div className="row">

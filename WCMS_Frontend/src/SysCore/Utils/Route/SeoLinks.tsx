@@ -13,9 +13,22 @@ const buildPathByLang = (lang: Lang, basePath: string) => {
   if (lang === DefaultLang) return basePath;              // default：/xxx
   return basePath === "/" ? `/${lang}` : `/${lang}${basePath}`; // 非 default：/en/xxx
 };
+const isPathSegmentPrefix = (pathname: string, segment: string): boolean =>
+{
+  // 宣告變數
+  const p = String(pathname || "").toLowerCase();
+  const s = String(segment || "").toLowerCase();
+
+  // 執行 function
+  const ok = p === s || p.startsWith(`${s}/`);
+
+  // return
+  return ok;
+};
+
 
 export const SeoLinks = (props: { resolvedLang: Lang, pathname: string }) => {
-  if (props.pathname.startsWith("/Server") || props.pathname.startsWith("/Service")) return null; // 後台先不做語系
+  if (isPathSegmentPrefix(props.pathname, "/Server") || isPathSegmentPrefix(props.pathname, "/Service")) return null; // 後台先不做語系
   const basePath = stripLeadingLang(props.pathname);
   // canonical：指向「當前語系版本」
   const canonicalUrl = buildPathByLang(props.resolvedLang, basePath);

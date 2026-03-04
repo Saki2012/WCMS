@@ -1,6 +1,6 @@
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { IGalleryListOptions } from "@/Features/Pages/Client/BizFunc/WebManagement/Gallery/GalleryList";
+import type { IGalleryListOptions } from "@/Features/Pages/Client/BizFunc/WebManagement/Gallery/GalleryList_Comp";
 
 
 interface IGalleryListProps { Theme: IFETheme; Lang: Lang; Options?: IGalleryListOptions; title: string }

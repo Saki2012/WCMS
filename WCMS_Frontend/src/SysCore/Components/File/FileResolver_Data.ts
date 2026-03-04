@@ -6,13 +6,3 @@ export interface FileMeta {
   width?: number | null;
   height?: number | null;
 }
-
-export interface ResolveManyRequest {
-  ids: string[];
-  locale?: string;
-}
-
-export interface ResolveManyResponse {
-  results: FileMeta[];
-  notFound?: string[];
-}

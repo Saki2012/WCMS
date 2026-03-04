@@ -35,7 +35,7 @@ export const Server_Account_List_Comp = ({ theme }: { theme: IBETheme }) => {
   const isLoading: boolean[] = [useDataList.isLoading]
   const errors: (string | null | undefined)[] = [useDataList.error]
   const searchCompProp: SearchBarProps = { title: "帳號搜尋", subTitle: "搜尋帳號 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
-  const prop: FormCompProp = { Title: "會員管理", Theme: theme, LoadingList: isLoading, ErrorList: errors, Actions: actions, SearchBar: searchCompProp }
+  const prop: FormCompProp = { Title: "會員管理", Theme: theme, IsLoading: isLoading, ErrorList: errors, Actions: actions, SearchBar: searchCompProp }
 
   // return（⚠️ DOM/Components 完全不動）
   return (

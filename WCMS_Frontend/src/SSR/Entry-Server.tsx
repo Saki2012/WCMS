@@ -10,7 +10,9 @@ import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp"
 const HelmetProvider = (HelmetAsync as any).HelmetProvider ?? (HelmetAsync as any).default?.HelmetProvider ??
   // 萬一還是取不到，就用 no-op provider 避免 SSR 直接當掉
   (({ children }: any) => <>{children}</>);
-type RenderResult = { appHtml: string; headTags: string, initialState: string };
+type RenderResult =
+  | { kind: "html"; appHtml: string; headTags: string; initialState: any }
+  | { kind: "response"; status: number; headers: Record<string, string> };
 
 export const SSR_Render = async (url: string, headers: Record<string, string> = {}): Promise<RenderResult> => {
   const lowerUrl = url.toLowerCase();
@@ -27,9 +29,22 @@ export const SSR_Render = async (url: string, headers: Record<string, string> = 
     cookieLang: headers["cookie"] ?? "",
   };
   const request = new Request("http://localhost" + url, { method: "GET", headers });
-  const { router, context } = await createServerRouter(boot as any, request);
+  const built = await createServerRouter(boot as any, request);
+
+  if (built.kind === "response") return {kind: "response", status: built.response.status, headers: Object.fromEntries(built.response.headers.entries()),};
+
+  const { router, context } = built;
 
   const helmetContext: any = {};
+
+  const initialState = {
+    lang: (headers["accept-language"] ?? "zh-tw"),
+    hydrationData: {
+      loaderData: context.loaderData,
+      actionData: context.actionData,
+      errors: context.errors,
+    },
+  };
 
   const appHtml = renderToString(
     <MessageProvider>
@@ -44,7 +59,7 @@ export const SSR_Render = async (url: string, headers: Record<string, string> = 
     helmetContext.helmet?.title?.toString() ?? "",
     helmetContext.helmet?.meta?.toString() ?? "",
   ].join("");
-  return { appHtml, headTags, initialState: boot.lang };
+  return { kind: "html", appHtml, headTags, initialState };
 };
 
 export const render = SSR_Render;

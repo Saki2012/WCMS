@@ -130,13 +130,7 @@ const AnnouncementForm = (props: IAnnouncementFormProps) => {
 
     // return
     return (
-        <ModuleContent
-            nodeTitle={props.node.title}
-            title={detail?.Title ?? ""}
-            subTitle={subTitle}
-            loadingList={loadingList}
-            errorList={errorList}
-        >
+        <ModuleContent nodeTitle={props.node.title} title={detail?.Title ?? ""} subTitle={subTitle} isLoading={loadingList.some(Boolean)} errorList={errorList}>
             <Content lang={props.lang} data={formData} />
         </ModuleContent>
     );
@@ -145,33 +139,20 @@ const AnnouncementForm = (props: IAnnouncementFormProps) => {
 export default AnnouncementForm;
 
 const Content = (props: { lang: Lang; data: AnnouncementSet }) => {
-    // 宣告變數
     const detail = props.data.AnnouncementDetail?.find(d => (d.Lang ?? "").toLowerCase() === props.lang);
     const fileDetail = props.data.AnnouncementDetailFile?.filter(p => p.AnnouncementId === detail?.AnnouncementId && p.ParentRowId === detail?.RowId);
     const parseContent = useResolveInternalIds(detail?.Content ?? "", { locale: props.lang });
     const content = parseContent.html ? parse(parseContent.html) : null;
     const url = detail?.Url;
-
-    // return
     return (
         <>
             {content}
-
             {url && fileDetail && fileDetail.length > 0 && <hr className="hr-my-4" />}
-
             {url && <>
                 <div className="row">
                     <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
                         <div className="Standard_btnDiv">
-                            <a
-                                href={url}
-                                className="btn btn_NEWS bg_urllink_NEWS"
-                                role="button"
-                                aria-label="分享"
-                                target="_blank"
-                                title="[ 另開新視窗 ]"
-                                tabIndex={0}
-                            >
+                            <a href={url} className="btn btn_NEWS bg_urllink_NEWS" role="button" aria-label="分享" target="_blank" title="[ 另開新視窗 ]" tabIndex={0}>
                                 <span>
                                     <i className="fas fa-link + link + ml-0 mr-2"></i>
                                     <span className="sr-only">{detail?.UrlDescription ?? ""}</span>
@@ -190,15 +171,8 @@ const Content = (props: { lang: Lang; data: AnnouncementSet }) => {
                         return (
                             <div key={`${itme.FileId ?? ""}`} className="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
                                 <div className="Standard_btnDiv">
-                                    <a
-                                        href={`${FileManagementAPI.DOWNLOAD_URL}/${itme.FileId}`}
-                                        className="btn btn_NEWS bg_urllink_NEWS"
-                                        role="button"
-                                        aria-label="分享"
-                                        target="_blank"
-                                        title="[ 另開新視窗 ]"
-                                        tabIndex={0}
-                                    >
+                                    <a href={`${FileManagementAPI.DOWNLOAD_URL}/${itme.FileId}`} className="btn btn_NEWS bg_urllink_NEWS"
+                                        role="button" aria-label="分享" target="_blank" title="[ 另開新視窗 ]" tabIndex={0}>
                                         <span>
                                             <i className="fas fa-paperclip + link + ml-0 mr-2"></i>
                                             <span className="sr-only">{itme.FileName}</span>

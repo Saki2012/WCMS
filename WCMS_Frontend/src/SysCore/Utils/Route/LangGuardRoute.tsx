@@ -25,7 +25,7 @@ export const LangGuard: React.FC<{ ssrAcceptLang?: string; cookieLang?: string }
     const resolved = (data?.resolvedLang ?? DefaultLang) as Lang;
     useEffect(() => { setLangCookie(resolved); }, [resolved]);
     return (
-        <LangProvider key={data?.resolvedLang} initial={resolved}>
+        <LangProvider initial={resolved}>
             <SeoLinks resolvedLang={resolved} pathname={location.pathname} />
             <ScrollToTop />
             <Outlet />

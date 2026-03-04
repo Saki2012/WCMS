@@ -4,7 +4,7 @@ import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp"
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { useLang } from "@/SysCore/i18n/LangContext";
 // ✅ 確保圖片會被 Vite bundle 進 dist（不要用硬編 /images/...）
-import errorSvgUrl from "SpecFeature/Assets/Client/images/svg_icon/error.svg?url";
+// import errorSvgUrl from "SpecFeature/Assets/Client/images/svg_icon/error.svg?url";
 
 /**
  * /401
@@ -55,7 +55,8 @@ export const Error404Page: React.FC = () => {
 
                                 <div className="col-lg-7 col-md-6">
                                     <div className="error-img">
-                                        <img src={errorSvgUrl} alt={imgAlt} />
+                                        errorSvgUrl
+                                        {/* <img src={errorSvgUrl} alt={imgAlt} /> */}
                                     </div>
                                 </div>
                             </div>

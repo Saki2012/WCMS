@@ -1,7 +1,6 @@
 import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
-import { type RouteObject } from "react-router-dom";
-import { configureModuleRegistry, createRoutesFromSite, type INormNode, type INormSite, type ModuleEntry } from "./Site-Routing";
-import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
+import { type LoaderFunction, type LoaderFunctionArgs, type RouteObject } from "react-router-dom";
+import { configureModuleRegistry, createRoutesFromSite, resolveRouteLangFromRequest, type INormNode, type INormSite, type ModuleEntry } from "./Site-Routing";
 import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { SubPage, PageManagementForm, AnnouncementList, AnnouncementForm, FileArchiveList, GalleryListComp, GalleryForm, WebResourceListComp } from "@/Features/Pages/Client/Route/ClientComponentResolver";
@@ -10,11 +9,11 @@ import { specClientEntries } from "SpecFeature/SpecRouter";
 import { Sitemap, SITEMAP_SEGMENT } from "../BizFunc/MainPage/Sitemap";
 import { PGID } from "@/types/SchemaFields";
 import { AnnouncementListLoader } from "../BizFunc/WebManagement/Announcement/AnnouncementList_Loader";
-import { PageManagementForm_Loader } from "../BizFunc/WebManagement/PageManagement/PageManagementForm_Loader";
+import { PageManagementForm_Loader } from "../BizFunc/WebManagement/PageManagement/PageManagementForm_Hook";
 import { AnnouncementFormLoader } from "../BizFunc/WebManagement/Announcement/AnnouncementForm_Loader";
 import { FileArchiveList_Loader } from "../BizFunc/WebManagement/FileArchive/FileArchiveList_Loader";
-import { GalleryForm_Loader } from "../BizFunc/WebManagement/Gallery/GalleryForm_Loader";
-import { GalleryList_Loader } from "../BizFunc/WebManagement/Gallery/GalleryList_Loader";
+import { GalleryForm_Loader } from "../BizFunc/WebManagement/Gallery/GalleryForm_Hook";
+import { GalleryList_Loader } from "../BizFunc/WebManagement/Gallery/GalleryList_Hook";
 import { WebResourceList_Loader } from "../BizFunc/WebManagement/WebResource/WebResourceList_Loader";
 
 import { loadSitesForRouting, type SiteRoutingInitialState } from "./ClientRouter_Loader";
@@ -53,7 +52,7 @@ const clientEntries: Record<string, ModuleEntry> =
     children: (opts, lang, node: INormNode) => [
       {
         index: true,
-        loader: PageManagementForm_Loader({ lang: lang, opts: opts as IPageManagementOptions }),
+        loader: withRequestLang((lang) =>PageManagementForm_Loader({ lang: lang, opts: opts as IPageManagementOptions })),
         element: <PageManagementForm lang={lang} options={opts as IPageManagementOptions} node={node} />
       },
     ],
@@ -64,15 +63,14 @@ const clientEntries: Record<string, ModuleEntry> =
     kind: "routes",
     element: (lang: Lang, site: INormSite, node: INormNode) => (<SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />),
     children: (opts, lang, node: INormNode) => [
-      { index: true, element: <AutoRedirect to="List" replace /> },
-      {
-        path: "List",
-        loader: AnnouncementListLoader({ lang, opts: opts as IAnnouncementListOptions }),
+      { 
+        index: true, 
+        loader: withRequestLang((lang) =>AnnouncementListLoader({ lang, opts: opts as IAnnouncementListOptions })),
         element: <AnnouncementList theme={Classic_FETheme} lang={lang} options={opts as IAnnouncementListOptions} node={node} />
       },
       {
         path: ":internalId",
-        loader: AnnouncementFormLoader({ lang }),
+        loader: withRequestLang((lang) =>AnnouncementFormLoader({ lang })),
         element: <AnnouncementForm node={node} theme={Classic_FETheme} lang={lang} />
       },
     ],
@@ -85,7 +83,7 @@ const clientEntries: Record<string, ModuleEntry> =
     children: (opts, lang, node: INormNode) => [
       {
         index: true,
-        loader: FileArchiveList_Loader({ lang: lang, opts: opts as IFileArchiveOptions }),
+        loader: withRequestLang((lang) =>FileArchiveList_Loader({ lang: lang, opts: opts as IFileArchiveOptions })),
         element: <FileArchiveList theme={Classic_FETheme} lang={lang} options={opts as IFileArchiveOptions} node={node} />
       },
     ],
@@ -96,15 +94,14 @@ const clientEntries: Record<string, ModuleEntry> =
     kind: "routes",
     element: (lang: Lang, site: INormSite, node: INormNode) => (<SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />),
     children: (opts, lang, node: INormNode) => [
-      { index: true, element: <AutoRedirect to="List" replace /> },
-      {
-        path: "List",
-        loader: GalleryList_Loader({ lang, opts: opts as IGalleryListOptions }),
+      { 
+        index: true, 
+        loader: withRequestLang((lang) =>GalleryList_Loader({ lang, opts: opts as IGalleryListOptions })),
         element: <GalleryListComp node={node} theme={Classic_FETheme} lang={lang} options={opts as IGalleryListOptions} title={node.title} />
       },
       {
         path: ":internalId",
-        loader: GalleryForm_Loader({ lang }),
+        loader: withRequestLang((lang) =>GalleryForm_Loader({ lang })),
         element: <GalleryForm node={node} theme={Classic_FETheme} lang={lang} />
       },
     ],
@@ -117,7 +114,7 @@ const clientEntries: Record<string, ModuleEntry> =
     children: (opts, lang, node: INormNode) => [
       {
         index: true,
-        loader: WebResourceList_Loader({ lang: lang, opts: opts as IWebResourceListOptions }),
+        loader: withRequestLang((lang) =>WebResourceList_Loader({ lang: lang, opts: opts as IWebResourceListOptions })),
         element: <WebResourceListComp node={node} theme={Classic_FETheme} lang={lang} options={opts as IWebResourceListOptions} title={node.title} />
       },
     ],
@@ -152,4 +149,16 @@ const ensureClientRegistryInstalled = (): void => {
   registryInstalled = true;
 
   // return
+};
+
+type CreateLoader = (lang: Lang) => LoaderFunction;
+
+export const withRequestLang = (create: CreateLoader): LoaderFunction => {
+  // 宣告變數
+  const loader: LoaderFunction = (args: LoaderFunctionArgs) => {
+    const lang = resolveRouteLangFromRequest(args.request);
+    const run = create(lang);
+    return run(args);
+  };
+  return loader;
 };

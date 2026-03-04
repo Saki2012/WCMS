@@ -1,15 +1,39 @@
-import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
-import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
+import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
+import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
+import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
 import { useEffect, useMemo, useRef } from "react";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
-type BannerSet = components["schemas"]["BannerSet_DTO"]
 
+type BannerSet = components["schemas"]["BannerSet_DTO"];
 
-export const SpecialLinkData = (props: { lang: Lang }) => {
-	const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), "4f41bd57-a112-4aed-9e5a-50e08f816ffd", {})
+const buildQueryDataInitial = (internalId: string, banner: BannerSet | null): ApiLoaderData<string, BannerSet> | null => {
+	// 宣告變數：沒有 SSR initial 就回 null（CSR 會自己抓）
+	if (!banner) return null;
+	// 宣告變數：組成功 env
+	const apiRes: ApiResponse<BannerSet> = { IsSuccess: true, Data: banner, SysMessage: [] };
+	// return
+	return { args: internalId, apiRes };
+};
+
+export const SpecialLinkData = (props: { lang: Lang; internalId: string; initialBanner: BannerSet | null }) => {
+	// 宣告變數：Adapter（固定一次）
+	const adapter = useMemo(() => BannerSliderAdapter(), []);
+
+	// 宣告變數：SSR initial（QueryData 單筆）
+	const initial = useMemo(() => {
+		return buildQueryDataInitial(props.internalId, props.initialBanner);
+	}, [props.internalId, props.initialBanner]);
+
+	// 宣告變數：Banner QueryData（SSR 有 initial → hydration 不重抓）
+	const useBanner = adapter.hooks.useQueryData({
+		internalId: props.internalId,
+		initial,
+		deps: [props.internalId, props.lang],
+	});
+
 	const sortedDetails = useMemo(() => {
 		const list = useBanner.data?.BannerDetail ?? [];
 		// 依 Detail.Sort 由小到大
@@ -132,12 +156,12 @@ export const SpecialLinkData = (props: { lang: Lang }) => {
 
 											return (
 												<div key={p.RowId ?? idx} className="item">
-													<LangLink to={url} tabIndex={0} target={urlopen} title={alt}>
+													<LangLink to={url} tabIndex={0} target={urlopen}>
 														<div className="wrapper_box">
 															<figure className="card_figure">
 																<div className="card_image_link">
 																	<picture>
-																		<img className="card_image" src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} alt={alt} />
+																		<img className="card_image" src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} alt={alt}/>
 																	</picture>
 																</div>
 															</figure>

@@ -6,7 +6,6 @@ import { A11yContent } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFr
 import { useCallback, useEffect, useRef } from "react";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
-
 import LogoImg from '@/SpecFetures/1818/Assets/Client/images/logo/LOGO_300x100.svg'
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";

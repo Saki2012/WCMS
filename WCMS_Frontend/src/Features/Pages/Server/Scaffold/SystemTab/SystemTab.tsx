@@ -16,7 +16,7 @@ const DTOBasicDataModelFields = {
 
 type AnyObj = Record<string, any>;
 
-type Props<TSet extends AnyObj> = { theme: IBETheme; formData: any; setKey: string; };
+type Props = { theme: IBETheme; formData: any; setKey: string; };
 
 const pickUserId = (u: AnyObj | null | undefined): string => {
     const id = u?.AccountId;
@@ -41,7 +41,7 @@ const formatUserDisplay = (u: AnyObj | null | undefined): string => {
 };
 
 /** ✅ 後台共用：系統資訊頁籤（新增/修改人員與時間） */
-export const SystemInfoTabComp = <TSet extends AnyObj>(props: Props<TSet>) => {
+export const SystemInfoTabComp = <TSet extends AnyObj>(props: Props) => {
     const setField = useSetTableField<TSet>(props.formData);
 
     const mainRow = useMemo(() => {

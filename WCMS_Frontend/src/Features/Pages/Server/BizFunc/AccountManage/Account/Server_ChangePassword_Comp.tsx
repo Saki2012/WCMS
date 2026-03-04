@@ -115,7 +115,7 @@ export const Server_ChangePassword_Comp = (props: { theme: IBETheme }) => {
     const prop: FormCompProp = {
         Title: handle?.Title ?? "修改密碼",
         Theme: props.theme,
-        LoadingList: [...isLoading, changePwd.isLoading],
+        IsLoading: [...isLoading, changePwd.isLoading],
         ErrorList: errors,
         Actions: actions,
     };

@@ -12,9 +12,10 @@ interface LangState {
 const Ctx = React.createContext<LangState | null>(null);
 
 export const LangProvider: React.FC<{ initial: Lang; children: React.ReactNode }> = ({ initial, children }) => {
-    const [code, setCode] = React.useState<Lang>(initial);
-    const value = React.useMemo<LangState>(() => ({ code, label: LangLabelMap[code], setCode, }), [code]);
-    return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+  const [code, setCode] = React.useState<Lang>(initial);
+  React.useEffect(() => { setCode((prev) => (prev === initial ? prev : initial)); }, [initial]);
+  const value = React.useMemo<LangState>(() => ({ code, label: LangLabelMap[code], setCode }), [code]);
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 };
 
 // 想要像 useState 一樣好用也可以回傳 tuple

@@ -60,7 +60,7 @@ const WebResourceListComp = (props: IWebResourceListProps) => {
 
     // return（DOM 不動）
     return (
-        <ModuleContent nodeTitle={props.node.title} loadingList={loadingList} errorList={errorList}>
+        <ModuleContent nodeTitle={props.node.title} isLoading={loadingList.some(Boolean)} errorList={errorList}>
             {children}
         </ModuleContent>
     )
@@ -180,10 +180,8 @@ const useWebResourceList = (adapter: ReturnType<typeof WebResourceAdapter>, lang
                 return { col, content };
             });
 
-            return { cells };
+            return { keyId:item.WebResource?.InternalId??"", cells };
         });
-
-        // return
         return {
             columns: visibleColumns,
             rows,
@@ -192,8 +190,7 @@ const useWebResourceList = (adapter: ReturnType<typeof WebResourceAdapter>, lang
             onPageChange: useList.onPageChange,
         } as GridProps;
     }, [useList.data, useList.pageNumber, useList.totalPages, useList.onPageChange, visibleColumns, lang]);
-
-    // return
+    
     return {
         rawData: useList.data ?? [],
         gridProps,

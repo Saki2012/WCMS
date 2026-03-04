@@ -11,7 +11,7 @@ import type { INormNode } from '@/Features/Pages/Client/Route/Site-Routing';
 import { useLoaderData } from 'react-router-dom';
 import type { ApiLoaderData } from '@/SysCore/Utils/API/APIAdapter';
 import { GalleryAdapter } from '@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api';
-import type { GalleryFormLoaderData } from './GalleryForm_Loader';
+import type { GalleryFormLoaderData } from './GalleryForm_Hook';
 
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 const emptyData: GallerySet = {};
@@ -56,7 +56,7 @@ const GalleryForm = (props: { node: INormNode; theme: IFETheme; lang: Lang }) =>
 
     // return
     return (
-        <ModuleContent nodeTitle={props.node.title} title={title} loadingList={loadingList} errorList={errorList}>
+        <ModuleContent nodeTitle={props.node.title} title={title} isLoading={loadingList.some(Boolean)} errorList={errorList}>
             {children}
         </ModuleContent>
     );

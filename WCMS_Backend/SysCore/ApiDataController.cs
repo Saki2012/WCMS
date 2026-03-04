@@ -28,6 +28,7 @@ using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
+using static GraphQL.Validation.Rules.OverlappingFieldsCanBeMerged;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Library.LibData;
 
@@ -378,8 +379,9 @@ namespace WCMS.SysCore
         {
             try
             {
-                var options = EnumHelper.GetEnumOptions(enumName);
-                return Ok(options);
+                var result = EnumHelper.GetEnumOptions(enumName);
+                var response = new ApiResponse<EnumOption>() { Data = result };
+                return Ok(response);
             }
             catch (ArgumentException ex)
             {

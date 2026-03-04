@@ -10,7 +10,7 @@ interface FormListCompProp {
     Title: string;
     SubTitle: string;
     Theme: IBETheme;
-    LoadingList: boolean[];
+    isLoading: boolean;
     ErrorList: (string | null | undefined)[];
     InputControl: ReactNode;
     GridItems: ReactNode;
@@ -35,7 +35,7 @@ export const FormListComp = (prop: FormListCompProp) => {
                                     <div className="panel">
                                         <div className="panel-body">
                                             <div className="form">
-                                                <LoadingErrorHandler isLoading={prop.LoadingList} errorList={prop.ErrorList} >
+                                                <LoadingErrorHandler isLoading={prop.isLoading} errorList={prop.ErrorList} >
                                                     <div className="row mx-0">
                                                         <div className="col form-group">
                                                             {prop.InputControl}

@@ -240,7 +240,7 @@ export const Server_RolePermission_Form_Comp = (props: { theme: IBETheme; lang: 
     const prop: FormCompProp = {
         Title: "角色權限修改",
         Theme: props.theme,
-        LoadingList: isLoading,
+        IsLoading: isLoading,
         ErrorList: errors,
         Actions: actions,
     };

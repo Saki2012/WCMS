@@ -1,16 +1,39 @@
-import { useBannerSetByCondition } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Hook";
+import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
 import { useEffect, useMemo, useRef } from "react";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { type Lang } from "@/SysCore/i18n/lang";
 import { IndexLabel } from "@/SpecFetures/1818/Pages/Client//Index/Section/IndexLabelText";
-import { BannerFields } from "@/types/SchemaFields";
+import type { components } from "@/types/api";
 
-export const LinkData = (props: { lang?: Lang }) => {
-	// 宣告變數
-	const useBanner = useBannerSetByCondition({ condition: `${BannerFields.BannerId} = Banner20251119001` });
+type BannerSet = components["schemas"]["BannerSet_DTO"];
+type QueryListParam = components["schemas"]["QueryListParam"];
 
+export const LinkData = (props: { lang?: Lang; bannerParam: QueryListParam; initialBanner: BannerSet | null }) => {
+	// 宣告變數：adapter
+	const adapter = useMemo(() => BannerSliderAdapter(), []);
+
+	// 宣告變數：把 loader 的 single banner 包成 queryList initial（Data 是 array）
+	const listInitial = useMemo(() => {
+		if (!props.initialBanner) return null;
+		return {
+			args: props.bannerParam,
+			apiRes: { IsSuccess: true, Data: [props.initialBanner], SysMessage: [] },
+		};
+	}, [props.bannerParam, props.initialBanner]);
+
+	// 執行 function：CSR 用 adapter hook 接手（SSR 有 initial → 不重抓；CSR 無 initial → 會自動抓）
+	const useList = adapter.hooks.useQueryList({
+		condition: props.bannerParam,
+		initial: listInitial ?? undefined,
+		deps: [props.bannerParam.Condition ?? ""],
+	});
+
+	// 宣告變數：本頁只需要第一筆 BannerSet
+	const bannerSet = useMemo(() => useList.data?.[0] ?? null, [useList.data]);
+
+	// 宣告變數：排序 detail（維持你原本排序邏輯）
 	const sortedDetails = useMemo(() => {
-		const list = useBanner.data?.BannerDetail ?? [];
+		const list = bannerSet?.BannerDetail ?? [];
 		return [...list].sort((a, b) => {
 			const as = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
 			const bs = Number.isFinite(b?.Sort) ? Number(b.Sort) : Number.MAX_SAFE_INTEGER;
@@ -19,10 +42,13 @@ export const LinkData = (props: { lang?: Lang }) => {
 			const br = Number.isFinite(b?.RowId) ? Number(b.RowId) : Number.MAX_SAFE_INTEGER;
 			return ar - br;
 		});
-	}, [useBanner.data?.BannerDetail]);
+	}, [bannerSet?.BannerDetail]);
 
+	// 執行 function：初始化 owl（用長度當依賴即可）
+	const { carouselRef, pauseRef, startRef } = useLinksCarousel(sortedDetails.length);
+
+	//（你原本的 imgMapRef/useEffect 沒有被使用，我先保留不動，避免你後續要用）
 	const imgMapRef = useRef<Record<string, string>>({});
-
 	useEffect(() => {
 		if (typeof window === "undefined") return;
 		if (!sortedDetails.length) return;
@@ -43,7 +69,6 @@ export const LinkData = (props: { lang?: Lang }) => {
 
 		run();
 	}, [sortedDetails.length]);
-	const { carouselRef, pauseRef, startRef } = useLinksCarousel(sortedDetails);
 
 	return (
 		<section className="Links_section owl-box Layout_Padding_1_top Layout_Padding_1_bottom bg-white">
@@ -65,7 +90,7 @@ export const LinkData = (props: { lang?: Lang }) => {
 										ref={carouselRef}
 									>
 										{sortedDetails.map((p, i) => {
-											const info = useBanner.data?.BannerDetailInfo?.find(
+											const info = bannerSet?.BannerDetailInfo?.find(
 												x =>
 													x.BannerId === p.BannerId &&
 													x.ParentRowId === p.RowId &&
@@ -82,7 +107,7 @@ export const LinkData = (props: { lang?: Lang }) => {
 														href={url}
 														tabIndex={0}
 														target={open === 1 ? "_blank" : "_self"}
-														rel={open === 1 ? "noreferrer" : undefined}
+														rel={open === 1 ? "noopener noreferrer" : undefined}
 														title={alt}
 													>
 														<div className="wrapper_box">
@@ -163,192 +188,122 @@ export const LinkData = (props: { lang?: Lang }) => {
 	);
 };
 
-const ensureJQuery = (() => {
-	let p: Promise<any> | null = null;
-	return () => {
-		if (typeof window === "undefined") return Promise.resolve(null);
-		if ((window as any).jQuery) return Promise.resolve((window as any).jQuery);
-		if (!p) {
-			p = (async () => {
-				const { default: jqUrl } = await import("@/SpecFetures/1818/Assets/Client/Content/jquery-3.7.1/jquery-3.7.1.min.js?url");
-				await new Promise<void>((resolve, reject) => {
-					const s = document.createElement("script");
-					s.src = jqUrl;
-					s.async = true;
-					s.onload = () => resolve();
-					s.onerror = () => reject(new Error("load jQuery failed"));
-					document.head.appendChild(s);
-				});
-				// 保險：確保 $ / jQuery 都在 window
-				(window as any).$ = (window as any).jQuery = (window as any).jQuery || (window as any).$;
-				return (window as any).jQuery;
-			})();
-		}
-		return p;
-	};
-})();
+// --------------------
+// 以下維持你原本的 Owl 初始化（只改掉 any）
+// --------------------
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
-const ensureOwl = (() => {
-	let p: Promise<any> | null = null;
-	return async () => {
-		if (typeof window === "undefined") return null;
-		if ((window as any).jQuery?.fn?.owlCarousel) return (window as any).jQuery;
-		if (!p) {
-			p = (async () => {
-				const $ = await ensureJQuery();
+const waitForOwlReady = async (opt?: { timeoutMs?: number; intervalMs?: number }) => {
+  // 宣告變數
+  const timeoutMs = opt?.timeoutMs ?? 12000;
+  const intervalMs = opt?.intervalMs ?? 50;
+  const start = Date.now();
 
-				// ✅ 第一個 JS，第二個 CSS
-				const [{ default: jsUrl }, { default: cssUrl }] = await Promise.all([
-					import("https://owlcarousel2.github.io/OwlCarousel2/assets/owlcarousel/owl.carousel.min.js?url"),
-					import("https://owlcarousel2.github.io/OwlCarousel2/assets/owlcarousel/assets/owl.carousel.min.css?url"),
-				]);
+  // 執行：輪詢等待 LoadSpecJs 掛載 jQuery / owlCarousel
+  while (Date.now() - start < timeoutMs) {
+    const w = window as any;
+    const $ = w.jQuery ?? w.$;
+    if ($?.fn?.owlCarousel) return $;
+    await sleep(intervalMs);
+  }
 
-				// 先掛 CSS
-				if (!document.querySelector(`link[href="${cssUrl}"]`)) {
-					const link = document.createElement("link");
-					link.rel = "stylesheet";
-					link.href = cssUrl;
-					document.head.appendChild(link);
-				}
+  // return：逾時就放棄（不擋頁面）
+  return null;
+};
 
-				// 再掛 JS
-				await new Promise<void>((resolve, reject) => {
-					const s = document.createElement("script");
-					s.src = jsUrl;
-					s.async = true;
-					s.onload = () => resolve();
-					s.onerror = () => reject(new Error("load Owl failed"));
-					document.head.appendChild(s);
-				});
+const useLinksCarousel = (dep: number) => {
+  // 宣告變數
+  const carouselRef = useRef<HTMLDivElement | null>(null);
+  const pauseRef = useRef<HTMLAnchorElement | null>(null);
+  const startRef = useRef<HTMLAnchorElement | null>(null);
 
-				return $;
-			})();
-		}
-		return p;
-	};
-})();
+  useEffect(() => {
+    // SSR guard
+    if (typeof window === "undefined") return;
 
-const useLinksCarousel = (dep: any) => {
-	const carouselRef = useRef<HTMLDivElement | null>(null);
-	const pauseRef = useRef<HTMLAnchorElement>(null);
-	const startRef = useRef<HTMLAnchorElement>(null);
+    // 宣告：DOM ref
+    const root = carouselRef.current;
+    if (!root) return;
 
-	useEffect(() => {
-		if (typeof window === "undefined") return;
-		const root = carouselRef.current;
-		if (!root) return;
+    let cleanup: (() => void) | undefined;
 
-		let cleanup: (() => void) | undefined;
+    // 執行：等待 owl plugin ready 後再 init
+    (async () => {
+      const $ = await waitForOwlReady();
+      if (!$) return;
 
-		(async () => {
-			const $ = await ensureOwl();
-			if (!$) return;
+      const $owl = $(root);
 
-			const $owl = $(root);
+      // 先 destroy 避免重複 init
+      try {
+        if ($owl.data("owl.carousel")) $owl.trigger("destroy.owl.carousel");
+      } catch { /* ignore */ }
 
-			// 先銷毀舊的 carousel，避免重複初始化
-			try {
-				if ($owl.data("owl.carousel")) {
-					$owl.trigger("destroy.owl.carousel");
-				}
-			}
-			catch { /* ignore */ }
+      const opts = {
+        items: 4,
+        dots: false,
+        nav: true,
+        margin: 30,
+        autoplayTimeout: 5000,
+        autoplayHoverPause: true,
+        responsive: {
+          0: { items: 1 },
+          500: { items: 2 },
+          575: { items: 2 },
+          767: { items: 3 },
+          991: { items: 3 },
+          1199: { items: 4 },
+        },
+      };
 
-			// ✅ 完全依照你原本 script 的設定
-			const opts = {
-				items: 4,
-				// loop: true, //true or false
-				dots: false,
-				nav: true,
-				margin: 30,
-				// autoplay: true, //true or false
-				autoplayTimeout: 5000,
-				autoplayHoverPause: true,
-				responsive: {
-					0: { items: 1 },
-					500: { items: 2 },
-					575: { items: 2 },
-					767: { items: 3 },
-					991: { items: 3 },
-					1199: { items: 4 },
-				},
-			};
+      let isPlaying = false;
+      $owl.owlCarousel(opts);
 
-			// owl 的 autoplay 預設關閉（跟你原本註解掉 autoplay 一樣）
-			let isPlaying = false;
+      const $pause = $(pauseRef.current ?? document.getElementById("Links_pause"));
+      const $start = $(startRef.current ?? document.getElementById("Links_start"));
 
-			$owl.owlCarousel(opts);
+      const updateControls = () => {
+        if (isPlaying) {
+          $start.attr("aria-pressed", "true").attr("aria-label", "圖片輪播播放中").find(".sr-only").text("圖片輪播播放中");
+          $pause.attr("aria-pressed", "false").attr("aria-label", "暫停圖片輪播").find(".sr-only").text("暫停圖片輪播");
+        } else {
+          $start.attr("aria-pressed", "false").attr("aria-label", "開始播放圖片輪播").find(".sr-only").text("開始播放圖片輪播");
+          $pause.attr("aria-pressed", "true").attr("aria-label", "圖片輪播已暫停").find(".sr-only").text("圖片輪播已暫停");
+        }
+      };
 
-			// 綁定控制按鈕（維持原本的 id）
-			const $pause = $(pauseRef.current ?? document.getElementById("Links_pause"));
-			const $start = $(startRef.current ?? document.getElementById("Links_start"));
+      const onPauseClick = (ev: Event) => {
+        ev.preventDefault?.();
+        $owl.trigger("stop.owl.autoplay");
+        isPlaying = false;
+        updateControls();
+      };
 
-			const updateControls = () => {
-				// ✅ 完全照你原本的 aria / .sr-only 文案邏輯
-				if (isPlaying) {
-					$start
-						.attr("aria-pressed", "true")
-						.attr("aria-label", "圖片輪播播放中")
-						.find(".sr-only").text("圖片輪播播放中");
+      const onStartClick = (ev: Event) => {
+        ev.preventDefault?.();
+        $owl.trigger("play.owl.autoplay", [opts.autoplayTimeout]);
+        isPlaying = true;
+        updateControls();
+      };
 
-					$pause
-						.attr("aria-pressed", "false")
-						.attr("aria-label", "暫停圖片輪播")
-						.find(".sr-only").text("暫停圖片輪播");
-				}
-				else {
-					$start
-						.attr("aria-pressed", "false")
-						.attr("aria-label", "開始播放圖片輪播")
-						.find(".sr-only").text("開始播放圖片輪播");
+      $pause.on("click", onPauseClick);
+      $start.on("click", onStartClick);
 
-					$pause
-						.attr("aria-pressed", "true")
-						.attr("aria-label", "圖片輪播已暫停")
-						.find(".sr-only").text("圖片輪播已暫停");
-				}
-			};
+      isPlaying = false;
+      updateControls();
 
-			const onPauseClick = (ev: any) => {
-				ev.preventDefault?.();
-				$owl.trigger("stop.owl.autoplay");
-				isPlaying = false;
-				updateControls();
-			};
+      cleanup = () => {
+        try {
+          $pause.off("click", onPauseClick);
+          $start.off("click", onStartClick);
+          if ($owl.data("owl.carousel")) $owl.trigger("destroy.owl.carousel");
+        } catch { /* ignore */ }
+      };
+    })();
 
-			const onStartClick = (ev: any) => {
-				ev.preventDefault?.();
-				$owl.trigger("play.owl.autoplay", [opts.autoplayTimeout]);
-				isPlaying = true;
-				updateControls();
-			};
+    // return
+    return () => cleanup?.();
+  }, [dep]);
 
-			$pause.on("click", onPauseClick);
-			$start.on("click", onStartClick);
-
-			// 預設初始化狀態（跟原本 script 一樣 isPlaying = false）
-			isPlaying = false;
-			updateControls();
-
-			cleanup = () => {
-				try {
-					$pause.off("click", onPauseClick);
-					$start.off("click", onStartClick);
-					if ($owl.data("owl.carousel")) {
-						$owl.trigger("destroy.owl.carousel");
-					}
-				}
-				catch { /* ignore */ }
-			};
-		})();
-
-		return () => cleanup?.();
-		// 🔁 建議傳入像是 linksData.length 之類的依賴
-	}, [dep]);
-
-	return {
-		carouselRef,
-		pauseRef,
-		startRef,
-	};
+  return { carouselRef, pauseRef, startRef };
 };

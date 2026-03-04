@@ -6,7 +6,6 @@ import * as SchemaFields from "@/types/SchemaFields";
 import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 import { useMemo } from "react";
-
 type QueryListParam = components["schemas"]["QueryListParam"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 type CategoryDetail = components["schemas"]["CategoryDetail_DTO"];
@@ -28,7 +27,7 @@ const escapeQueryString = (value: string): string =>
     return escaped;
 };
 
-export const buildCategoryQueryByProgIdParam = (
+const buildCategoryQueryByProgIdParam = (
     opt: { progId: string; lang?: Lang; pageSize?: number; },
 ): QueryListParam =>
 {
@@ -67,7 +66,7 @@ export const CategoryAdapter = (apiInstance?: AxiosInstance) =>
         (api?: AxiosInstance) => new CategoryService(api ?? apiInstance),
     );
 
-    const useMapByProgId = (opt: { progId: string; lang: Lang; apiInstance?: AxiosInstance; }) =>
+    const useMapByProgId = (opt: { progId: PGID; lang: Lang; apiInstance?: AxiosInstance; }) =>
     {
         const deps = [opt.progId, opt.lang];
         // 執行 function：沿用基底 useQueryList

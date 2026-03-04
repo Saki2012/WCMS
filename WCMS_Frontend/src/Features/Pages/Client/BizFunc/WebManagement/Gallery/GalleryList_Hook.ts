@@ -2,20 +2,13 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
-import {
-    CategoryDataSetFields,
-    CategoryDetailFields,
-    CategoryFields,
-    GalleryFields,
-    GalleryInfoFields,
-    PGID,
-} from "@/types/SchemaFields";
+import {CategoryDataSetFields,CategoryDetailFields,CategoryFields,GalleryFields,GalleryInfoFields,PGID,} from "@/types/SchemaFields";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
 // ✅ 依你新架構：改用 Adapter（若你專案內名稱不同，改成對應的 XxxAdapter 即可）
 import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
 import { GalleryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api";
-import type { IGalleryListOptions } from "./GalleryList";
+import type { IGalleryListOptions } from "./GalleryList_Comp";
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 type GallerySet = components["schemas"]["GallerySet_DTO"];
@@ -57,12 +50,7 @@ const buildCondition = (p: { lang: Lang; opts: IGalleryListOptions; }) =>
     if (p.opts.Tag) condition = LibMerge(" And ", false, condition, `${GalleryFields.Tags} HasAny [${p.opts.Tag}]`);
 
     condition = LibMerge(" And ", false, condition, `${GalleryFields.ContentStatus} !& 4`); // 不包含隱藏資料
-    condition = LibMerge(
-        " And ",
-        false,
-        condition,
-        `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang} = ${p.lang}`,
-    );
+    condition = LibMerge(" And ", false, condition, `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang} = ${p.lang}`,);
     condition = LibMerge(" And ", false, condition, `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title} != ''`);
 
     // return
@@ -77,13 +65,8 @@ const buildBaseParam = (p: { lang: Lang; opts: IGalleryListOptions; }): QueryLis
     // return
     return {
         Fields: [
-            GalleryFields.InternalId,
-            GalleryFields.Categories,
-            GalleryFields.CoverPicSrcId,
-            GalleryFields.CreateTime,
-            GalleryFields.Validate_Start,
-            GalleryFields.ContentStatus,
-
+            GalleryFields.InternalId,GalleryFields.Categories,GalleryFields.CoverPicSrcId,
+            GalleryFields.CreateTime,GalleryFields.Validate_Start,GalleryFields.ContentStatus,
             `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang}`,
             `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title}`,
         ],

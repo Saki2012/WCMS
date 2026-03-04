@@ -1,5 +1,5 @@
-import React, { useMemo, useCallback } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useMemo, useCallback, useRef } from "react";
+import { useFetcher, useLocation, useNavigate } from "react-router-dom";
 import { useLang } from "@/SysCore/i18n/LangContext";
 import { DefaultLang, isSupportedLang, LangLabelMap, type Lang } from "@/SysCore/i18n/lang";
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
@@ -10,6 +10,26 @@ export const LangSwitchBtn: React.FC<{ site: INormSite }> = ({ site }) => {
   const ctx = useLang();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const fetcher = useFetcher();
+  const lastPrefetchUrlRef = useRef<string | null>(null);
+
+  // 執行 function：避免同一個 url 重複 prefetch
+  const prefetchUrl = useCallback((url: string) => {
+    if (!url) return;
+    if (lastPrefetchUrlRef.current === url) return;
+    lastPrefetchUrlRef.current = url;
+    fetcher.load(url);
+  }, [fetcher]);
+
+  // 執行 function：hover / focus / touch 就先 prefetch（AA：鍵盤也吃得到）
+  const getIntentPrefetchHandlers = useCallback((url: string) => {
+    return {
+      onMouseEnter: () => prefetchUrl(url),
+      onFocus: () => prefetchUrl(url),
+      onTouchStart: () => prefetchUrl(url),
+    };
+  }, [prefetchUrl]);
   // 從 site 推導可用語系清單（default 一定要存在）
   const supportedLangs = useMemo(() => {
     const fromIndex = Object.keys(site.indexInfoByLang ?? {}).map(s => s.toLowerCase()).filter(isSupportedLang) as Lang[];
@@ -37,6 +57,14 @@ export const LangSwitchBtn: React.FC<{ site: INormSite }> = ({ site }) => {
     navigate(buildSwitchTo(target), { replace: true });
   }, [activeLang, buildSwitchTo, navigate]);
 
+  const onLinkClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, target: Lang) => {
+    if (e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+    e.preventDefault();
+    go(target);
+  }, [go]);
+
   // ★注意：所有 hooks 都已經呼叫完，現在才允許 return（避免 #310）
   const path = location.pathname.toLowerCase();
 
@@ -53,12 +81,13 @@ export const LangSwitchBtn: React.FC<{ site: INormSite }> = ({ site }) => {
   // 只有兩種語系：顯示一顆切換按鈕
   if (supportedLangs.length === 2) {
     const other = supportedLangs.find(x => x !== activeLang) ?? supportedLangs[1];
-
+    const switchUrl = buildSwitchTo(other);
+    const intentHandlers = getIntentPrefetchHandlers(switchUrl);
     return (
       <li>
         <div className="icons">
           <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
-            <a type="button" role="button" title={LangLabelMap?.[other] ?? other} tabIndex={0} onClick={(e) => { e.preventDefault(); go(other); }}>
+            <a href={switchUrl} type="button" role="button" title={LangLabelMap?.[other] ?? other} tabIndex={0} {...intentHandlers} onClick={(e) => onLinkClick(e, other)}>
               {is1816 ?
                 <div className="link-text">
                   <img src={GlobalPic} alt="" className="me-1" />
@@ -86,13 +115,18 @@ export const LangSwitchBtn: React.FC<{ site: INormSite }> = ({ site }) => {
           </a>
 
           <ul className="dropdown-menu">
-            {supportedLangs.map(l => (
-              <li key={l}>
-                <a className={`dropdown-item ${l === activeLang ? "active" : ""}`} onClick={(e) => { e.preventDefault(); go(l); }}>
-                  {LangLabelMap?.[l] ?? l}
-                </a>
-              </li>
-            ))}
+            {supportedLangs.map(l => {
+              const url = buildSwitchTo(l);
+              const intentHandlers = getIntentPrefetchHandlers(url);
+
+              return (
+                <li key={l}>
+                  <a href={url} className={`dropdown-item ${l === activeLang ? "active" : ""}`} {...intentHandlers} onClick={(e) => onLinkClick(e, l)}>
+                    {LangLabelMap?.[l] ?? l}
+                  </a>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>

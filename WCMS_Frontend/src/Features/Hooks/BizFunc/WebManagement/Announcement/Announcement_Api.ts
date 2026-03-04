@@ -6,12 +6,7 @@ import type { AxiosInstance } from "axios";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 class AnnouncementService extends ApiDataService<AnnouncementSet>
 {
-    constructor(apiInstance?: AxiosInstance)
-    {
-        super(PGID.Announcement, apiInstance);
-    }
+    constructor(apiInstance?: AxiosInstance) { super(PGID.Announcement, apiInstance); }
 }
 export const AnnouncementAdapter = (apiInstance?: AxiosInstance) =>
-    new ApiDataAdapter<AnnouncementSet, AnnouncementService>((api?: AxiosInstance) =>
-        new AnnouncementService(api ?? apiInstance)
-    );
+    new ApiDataAdapter<AnnouncementSet, AnnouncementService>((api?: AxiosInstance) => new AnnouncementService(api ?? apiInstance));

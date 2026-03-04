@@ -4,7 +4,7 @@ import { createStaticHandler, createStaticRouter, type StaticHandlerContext } fr
 import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
 import { LangGuard } from "@/SysCore/Utils/Route/LangGuardRoute";
 import { langGuardLoader } from "@/SysCore/Utils/Route/langGuardLoader";
-import type { Lang } from "@/SysCore/i18n/lang";
+import { type Lang } from "@/SysCore/i18n/lang";
 import { Error404Page } from "@/Features/Pages/Client/Scaffold/MainFrame/ErrorPage";
 
 // 把模組的絕對子路徑轉相對；"/" 改成 index:true
@@ -40,11 +40,7 @@ const normalizeChildren = (routes: RouteObject[]): RouteObject[] =>
         return clone;
     });
 
-interface Boot {
-    lang?: Lang;
-    cookieLang?: Lang;
-    module: IRouteModule;
-}
+interface Boot { lang?: Lang; cookieLang?: Lang; module: IRouteModule;}
 
 export const buildRoutes = async (boot: Boot): Promise<RouteObject[]> => {
     const routes = await boot.module.getRoutes();   // 等待 Promise
@@ -88,21 +84,42 @@ const assertNoIndexWithChildren = (routes: RouteObject[], parent = "") => {
 };
 
 export const createClientRouter = async (boot: Boot) => {
-    const routes = await buildRoutes(boot);
-    assertNoIndexWithChildren(routes);
-    return createBrowserRouter(routes);
-}
+  const routes = await buildRoutes(boot);
+  assertNoIndexWithChildren(routes);
 
-export const createServerRouter = async (boot: Boot, request: Request) => {
-    // 1) 先產生 routes
-    const routes = await buildRoutes(boot);
-    assertNoIndexWithChildren(routes);
-    // 2) 用 routes 建 handler，並跑一次 query 拿到 context
-    const handler = createStaticHandler(routes);
-    const context = await handler.query(request) as StaticHandlerContext;
+  const hydrationData =
+    typeof window !== "undefined"
+      ? (window as any).__INITIAL_STATE__?.hydrationData
+      : undefined;
 
-    // 3) ★ 用 handler.dataRoutes 建 router（不是原始 routes）
-    const router = createStaticRouter(handler.dataRoutes, context);
+  return hydrationData
+    ? createBrowserRouter(routes, { hydrationData })
+    : createBrowserRouter(routes);
+};
 
-    return { router, context }; // 讓呼叫端渲染 <StaticRouterProvider />
+export type ServerRouterBuildResult = 
+  | { kind: "router"; router: ReturnType<typeof createStaticRouter>; context: StaticHandlerContext }
+  | { kind: "response"; response: Response };
+
+export const createServerRouter = async (boot: Boot, request: Request,): Promise<ServerRouterBuildResult> =>
+{
+  // 宣告變數
+  const routes = await buildRoutes(boot);
+
+  // 執行 function
+  assertNoIndexWithChildren(routes);
+
+  const handler = createStaticHandler(routes);
+  const queryResult = await handler.query(request);
+
+  // ✅ loader redirect / errors 會回 Response，SSR 端必須先處理掉
+  if (queryResult instanceof Response)
+  {
+    return { kind: "response", response: queryResult };
+  }
+
+  const router = createStaticRouter(handler.dataRoutes, queryResult);
+
+  // return
+  return { kind: "router", router, context: queryResult };
 };

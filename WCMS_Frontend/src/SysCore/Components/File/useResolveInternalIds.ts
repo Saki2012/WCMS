@@ -1,73 +1,63 @@
-// SysCore/Components/File/useResolveInternalIds.ts
-import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useEffect, useMemo, useState } from "react";
-import { fetchFileMetaMap } from "./fetchFileMeta";
 import { GetFileInternalIds } from "./LibFileParser";
 import { transformHtmlWithMeta } from "./transformHtml";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 
-export interface UseResolveOptions
-{
-    locale?: string;
-}
-export interface UseResolveResult
-{
-    html: string;
-    loading: boolean;
-    error?: unknown;
-}
+const buildFileUrlById = (id: string) =>
+  `${FileManagementAPI.PREVIEW_URL}/${encodeURIComponent(id)}`;
 
-const buildFileUrlById = (id: string) => `${FileManagementAPI.PREVIEW_URL}/${encodeURIComponent(id)}`;
+export const useResolveInternalIds = (rawHtml: string, opt?: { locale?: string }) => {
+  // 宣告變數：先做 SSR 可用的 fallback（至少補 src）
+  const fallbackHtml = useMemo(() => {
+    const html = rawHtml ?? "";
+    if (!html) return "";
+    return transformHtmlWithMeta(html, {}, { urlBuilder: buildFileUrlById });
+  }, [rawHtml]);
 
-export const useResolveInternalIds = (rawHtml: string, opt?: UseResolveOptions): UseResolveResult =>
-{
-    const [resolvedHtml, setResolvedHtml] = useState<string>(rawHtml ?? "");
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<unknown>();
-    const ids = useMemo(() => GetFileInternalIds(rawHtml ?? ""), [rawHtml]);
+  // 宣告變數：初始就用 fallback，SSR 首屏就不會破圖
+  const [resolvedHtml, setResolvedHtml] = useState<string>(fallbackHtml);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<unknown>();
 
-    useEffect(() =>
-    {
-        let alive = true;
-        // 先把預設值設為原字串（任何情況都不會掉成空）
-        setResolvedHtml(rawHtml ?? "");
+  const ids = useMemo(() => GetFileInternalIds(rawHtml ?? ""), [rawHtml]);
 
-        if (!rawHtml || ids.length === 0)
-        {
-            setLoading(false);
-            setError(undefined);
-            return; // ★ 直接返回原字串
+  useEffect(() => {
+    let alive = true;
+
+    // 執行：先回到 fallback（避免 CSR 初次也先破圖）
+    setResolvedHtml(fallbackHtml);
+
+    if (!rawHtml || ids.length === 0) {
+      setLoading(false);
+      setError(undefined);
+      return;
+    }
+
+    const run = async () => {
+      try {
+        setLoading(true);
+        setError(undefined);
+        //metaMap原本是要做一次先撈所有的資源回來再做mapping的，但整體流程尚未實踐，暫時先這樣挖空
+        const metaMap = {};
+        const out = transformHtmlWithMeta(rawHtml, metaMap, { urlBuilder: buildFileUrlById });
+
+        if (!alive) return;
+        setResolvedHtml(out ?? fallbackHtml);
+      } catch (e) {
+        if (alive) {
+          setError(e);
+          setResolvedHtml(fallbackHtml);
         }
+      } finally {
+        if (alive) setLoading(false);
+      }
+    };
 
-        const run = async () =>
-        {
-            try
-            {
-                setLoading(true);
-                setError(undefined);
-                const metaMap = await fetchFileMetaMap(ids, opt?.locale).catch(() => ({}));
-                const out = transformHtmlWithMeta(rawHtml, metaMap, { urlBuilder: buildFileUrlById });
-                if (!alive) return;
-                // const sanitizer = createPermissiveSanitizer();
-                // sanitizer.sanitize(out ?? rawHtml)之後處理安全嵌入問題
-                setResolvedHtml(out ?? rawHtml);
-            } catch (e)
-            {
-                if (alive)
-                {
-                    setError(e);
-                    setResolvedHtml(rawHtml); // ★ 失敗也回原字串
-                }
-            } finally
-            {
-                if (alive) setLoading(false);
-            }
-        };
-        run();
-        return () =>
-        {
-            alive = false;
-        };
-    }, [rawHtml, opt?.locale, ids]);
+    run();
+    return () => {
+      alive = false;
+    };
+  }, [rawHtml, opt?.locale, ids, fallbackHtml]);
 
-    return { html: resolvedHtml, loading, error };
+  return { html: resolvedHtml, loading, error };
 };

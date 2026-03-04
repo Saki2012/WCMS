@@ -29,10 +29,6 @@ type TagSet = components["schemas"]["TagSet_DTO"];
 export interface IAnnouncementListOptions { Category?: string; Tag?: string; Style?: number; }
 export interface IAnnouncementListProps { theme: IFETheme; lang: Lang; options?: IAnnouncementListOptions; node: INormNode }
 const AnnouncementList = (props: IAnnouncementListProps) => {
-    // <GridList_Comp {...props} />
-    // <PictureList_Row_Comp {...props} />
-    // <PictureList_Col_Comp {...props} />
-    // <QAList_Comp {...props} />
     const initial = useLoaderData() as AnnouncementListLoaderData;
     const adapter = useMemo(() => AnnouncementAdapter(), [])
     // 宣告變數
@@ -77,7 +73,7 @@ const AnnouncementList = (props: IAnnouncementListProps) => {
                 }
                 return { col, content };
             });
-            return { cells };
+            return { keyId:item.Announcement?.InternalId??"",cells };
         });
 
         // return
@@ -142,11 +138,11 @@ const AnnouncementList = (props: IAnnouncementListProps) => {
 
         }
     }, [useList.data, props.lang, props.options]);
-    const loadingList = [useList.isLoading || useCount.isLoading];
+    const loadingList = [useList.isLoading, useCount.isLoading];
     const errorList = [useList.errorText, useCount.errorText].filter(Boolean) as string[];
     const paginprops = props.options?.Style === 8 ? undefined : { currentPage: useList.pageNumber, totalPages: useList.totalPages, onPageChange: useList.onPageChange } as PaginatorProps;
     return (
-        <ModuleContent nodeTitle={props.node.title} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops}>
+        <ModuleContent nodeTitle={props.node.title} isLoading={loadingList.some(Boolean)} errorList={errorList} paginatorProps={paginprops}>
             {children}
         </ModuleContent>
     )
@@ -598,6 +594,9 @@ const SetAdjustFunction = (lang: Lang, dirUrl: string, gridProps: GridProps, raw
         const internalId = curRow.Announcement?.InternalId ?? "";
         const contentStatus = curRow.Announcement?.ContentStatus ?? 0;
         const titleId = `title-${internalId}`;
+        // AA：每個 link 需有可讀文字（避免 aria-hidden 造成可及名稱為空）
+        const rowTitle = curRow.AnnouncementDetail?.find(p => p.Lang === lang)?.Title?.trim() ?? "";
+        const srLinkText = rowTitle ? `前往：${rowTitle}` : "前往內容";
         const newCells = row.cells.map((cell) => {
             const isTitle = cell.col.key === AnnouncementDetailFields.Title;
 
@@ -617,6 +616,7 @@ const SetAdjustFunction = (lang: Lang, dirUrl: string, gridProps: GridProps, raw
                         <LangLink to={`${dirUrl}/${internalId}`} className="link-cell" id={isTitle ? titleId : undefined}
                             aria-labelledby={isTitle ? undefined : titleId}>
                             <span aria-hidden={!isTitle}>{cell.content}</span>
+                            {!isTitle && (<span className="visually-hidden">{srLinkText}</span>)}
                         </LangLink>
 
                         {isTitle &&

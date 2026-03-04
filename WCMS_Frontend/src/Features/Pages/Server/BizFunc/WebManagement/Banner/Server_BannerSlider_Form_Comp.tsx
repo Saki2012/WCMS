@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
-
+import React, { useCallback,  useMemo } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { LibDropList, LibTextBox, LibFile, LibPicture, LibCalendar, LibTextArea } from "@/SysCore/Components/FormField/LibFormField";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
@@ -16,155 +15,33 @@ import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-
-import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
-import { useToast } from "@/Features/Hooks/Common/useToastCenter";
-import type { ApiAdapterError, ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import type { ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
-import { MessageStatus, type ApiResponse } from "@/SysCore/Utils/API/APIBase";
-import type { ModelDisplaySchema } from "@/types/IApiSchema";
-
+import { useBannerSliderFormFetchData } from "./Server_BannerSlider_Form_Hook";
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 type BannerDetail = components["schemas"]["BannerDetail_DTO"];
 type BannerDetailInfo = components["schemas"]["BannerDetailInfo_DTO"];
-
 const emptyData: BannerSet = { Banner: {}, BannerDetail: [{ RowId: 1 }], BannerDetailInfo: [] };
-
 export const BannerSliderFormComp = (prop: { theme: IBETheme; lang: Lang }) => {
-    // 宣告變數
     const { internalId } = useParams();
-    const adapter = useMemo(() => BannerSliderAdapter(), []);
-
-    const formData = useBannerSliderFormDataByAdapter(adapter, internalId ?? "", emptyData);
-
+    const navigate = useNavigate();
+    const pathname = useLocation().pathname;
+    const onBackToList = useCallback(() => {navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));}, [navigate, pathname]);
+    const actionsOpt = useMemo(() => {return { onBackToList };}, [onBackToList]);
+    const getData = useBannerSliderFormFetchData({lang: prop.lang,internalId: internalId ?? "",emptyData, actionsOpt});
     // 執行 function：補齊多語系子明細
-    useEnsureLangDetails(formData, {
+    useEnsureLangDetails(getData.rawData.formData, {
         headerName: SchemaFields.BannerSetFields.BannerDetail,
         detailName: SchemaFields.BannerSetFields.BannerDetailInfo,
         parentKeys: [SchemaFields.BannerDetailInfoFields.BannerId, SchemaFields.BannerDetailInfoFields.ParentRowId],
         preferFirstLang: prop.lang,
     });
-
-    const actions = useBannerSliderFormActionsByAdapter(adapter, internalId ?? "", formData.data, () => {
-        formData.refetch?.();
-    });
-
-    const isLoading = [formData.isLoading];
-    const errors = [formData.error];
-    const formProp: FormCompProp = { Title: "設定輪播", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions };
-
-    // return（不動 DOM 結構）
+    const formProp: FormCompProp = { Title: "設定輪播", Theme: prop.theme, IsLoading: getData.isLoading, ErrorList: getData.errors, Actions: getData.rawData.actions };
     return (
-        <>
-            <FormComp prop={formProp}>
-                <HeaderComp theme={prop.theme} formData={formData} />
-                <DetailComp theme={prop.theme} formData={formData} />
-            </FormComp>
-        </>
+        <FormComp prop={formProp}>
+            <HeaderComp theme={prop.theme} formData={getData.rawData.formData} />
+            <DetailComp theme={prop.theme} formData={getData.rawData.formData} />
+        </FormComp>
     );
 };
-
-/** FormData：改用 adapter.hooks.useQueryData 包成 UseFetchFormDataResult（不使用 provider/useFetchFormData） */
-const useBannerSliderFormDataByAdapter = (
-    adapter: ReturnType<typeof BannerSliderAdapter>,
-    internalId: string,
-    empty: BannerSet,
-): UseFetchFormDataResult<BannerSet> => {
-    // 宣告變數
-    const { publish } = useToast();
-
-    const internalKey = internalId || "__new__";
-    const isNew = useMemo(() => !internalId, [internalId]);
-
-    const initial = useMemo<ApiLoaderData<string, BannerSet> | null>(() => {
-        // 執行 function：新建模式提供 initial data
-        if (!isNew) return null;
-        const ok: ApiResponse<BannerSet> = { IsSuccess: true, Data: empty, SysMessage: [] };
-        return { args: internalKey, apiRes: ok };
-    }, [isNew, empty, internalKey]);
-
-    const onError = useCallback((e: ApiAdapterError) => {
-        // 執行 function：統一 toast（不吃 e.level）
-        publish({ level: MessageStatus.Error, title: e.messageText });
-    }, [publish]);
-
-    const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
-
-    const query = adapter.hooks.useQueryData({
-        internalId: internalKey,
-        initial,
-        deps: [internalKey],
-        onError,
-    });
-
-    const [data, setData] = useState<BannerSet>(empty);
-
-    useEffect(() => {
-        // 執行 function：QueryData 回來後同步到可編輯 state
-        if (query.data) setData(query.data);
-        else if (isNew) setData(empty);
-    }, [query.data, isNew, empty]);
-
-    const refetch = useCallback(() => {
-        // 執行 function
-        void query.refetch();
-    }, [query]);
-
-    const isLoading = (Boolean(!isNew && query.isLoading) || Boolean(model.isLoading));
-    const error = query.errorText ?? model.errorText ?? null;
-
-    // return（displayName 不可為 null）
-    return {
-        data,
-        setFormData: setData,
-        isLoading,
-        error,
-        refetch,
-        displayName: (model.data ?? ({ ModelId: "", ModelDisplayName: "", Tables: [] } as ModelDisplaySchema)),
-    };
-};
-/** Actions：改用 adapter.useServerActions（淘汰 useActions/provider） */
-const useBannerSliderFormActionsByAdapter = (
-    adapter: ReturnType<typeof BannerSliderAdapter>,
-    internalId: string,
-    formData: BannerSet | null,
-    onAfterSave: () => void,
-): ServerFormActions => {
-    // 宣告變數
-    const isNew = useMemo(() => !internalId, [internalId]);
-
-    const actions = adapter.useServerActions({
-        onSuccessByMode: {
-            create: () => onAfterSave(),
-            update: () => onAfterSave(),
-            delete: () => onAfterSave(),
-        },
-    });
-
-    // return（對標 ServerFormActions：Save/Delete/Back/Preview/IsSaving）
-    return {
-        Save: async () => {
-            // 執行 function：create/update
-            if (!formData) return;
-            if (isNew) await actions.createAsync(formData);
-            else await actions.updateAsync(internalId, formData);
-        },
-        Delete: async () => {
-            // 執行 function
-            if (!internalId) return;
-            await actions.deleteAsync(internalId);
-        },
-        Back: () => {
-            // 執行 function：BannerSlider 目前是回列表（沿用你原本的 nav/listUrl 流程也行）
-            onAfterSave();
-        },
-        Preview: () => {
-            // 執行 function：目前沒預覽就空實作
-        },
-        IsSaving: actions.isSaving,
-    };
-};
-
 const HeaderComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<BannerSet> }) => {
     const setField = useSetTableField<BannerSet>(props.formData);
     return (
@@ -189,7 +66,6 @@ const HeaderComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<B
         </>
     );
 };
-
 const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<BannerSet> }) => {
     const setField = useSetTableField<BannerSet>(props.formData);
     const useUploadPic = useUploadPicture();
@@ -323,7 +199,6 @@ const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<B
 
     return (<TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>);
 };
-
 const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<BannerSet>; parentRowId: number }) => {
     const setField = useSetTableField<BannerSet>(props.formData);
     const windowTarget = useFetchEnumOptions("WindowTarget");

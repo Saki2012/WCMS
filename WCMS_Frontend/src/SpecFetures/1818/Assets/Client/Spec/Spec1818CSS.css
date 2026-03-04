@@ -1,0 +1,26 @@
+/* SSR / Owl 未初始化時：讓內容可見（避免 display:none） */
+#Links_owl_carousel,
+#Admissions_owl_carousel,
+#Gallery_owl_carousel {
+  display: block !important;
+}
+
+/* Owl 還沒加上 owl-loaded 前：用靜態水平列表呈現（可看到、可滑） */
+#Links_owl_carousel:not(.owl-loaded),
+#Admissions_owl_carousel:not(.owl-loaded),
+#Gallery_owl_carousel:not(.owl-loaded) {
+  display: flex !important;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 每個 item 在 SSR fallback 時給固定寬度，避免全部擠在一起 */
+#Links_owl_carousel:not(.owl-loaded) > .item,
+#Admissions_owl_carousel:not(.owl-loaded) > .item,
+#Gallery_owl_carousel:not(.owl-loaded) > .item {
+  flex: 0 0 auto;
+  width: 280px; /* 你可以依版型調整 */
+  scroll-snap-align: start;
+}

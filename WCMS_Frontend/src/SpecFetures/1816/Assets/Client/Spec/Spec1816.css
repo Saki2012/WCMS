@@ -1,0 +1,346 @@
+/* =========================================================
+   Spec1816.css (SSR/CSR Patch)
+   目的：
+   1) Owl / Swiper 在 SSR 或尚未 init 時也可正常顯示（避免空白/爆版）
+   2) 補上 1816 首頁 LinkData / QuickLinksData 需要的關鍵樣式
+   ========================================================= */
+
+/* =========================
+   1) Owl SSR / Pre-init fallback
+   ========================= */
+
+/* Owl 原始 CSS 會讓 .owl-carousel 預設 display:none（等 owl-loaded 才顯示）
+   SSR 沒 init 會直接整段消失，所以這裡強制可見 */
+.owl-carousel {
+  display: block;
+}
+
+/* Owl 還沒 init（沒有 owl-loaded）時，用「水平可捲動」模擬 carousel（可用滑鼠/觸控拖動） */
+.owl-carousel:not(.owl-loaded) {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none; /* Firefox hide scrollbar */
+}
+.owl-carousel:not(.owl-loaded)::-webkit-scrollbar {
+  display: none; /* Chrome/Safari hide scrollbar */
+}
+
+.owl-carousel:not(.owl-loaded) > .item {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+}
+
+/* ---- 1816：Links（QuickLinksData.tsx）----
+   prototype: 0/575/767=2, 991=3, 1199=4, margin=5 */
+#Links_owl_carousel:not(.owl-loaded) {
+  gap: 5px;
+}
+#Links_owl_carousel:not(.owl-loaded) > .item {
+  flex-basis: 50%;
+}
+@media (min-width: 992px) {
+  #Links_owl_carousel:not(.owl-loaded) > .item {
+    flex-basis: 33.3333%;
+  }
+}
+@media (min-width: 1200px) {
+  #Links_owl_carousel:not(.owl-loaded) > .item {
+    flex-basis: 25%;
+  }
+}
+
+/* ---- 1816：Collections（你先前的 owl opts）----
+   0/575/767=2, 991=3, 1199=4 */
+#Collections_owl_carousel:not(.owl-loaded) {
+  gap: 5px;
+}
+#Collections_owl_carousel:not(.owl-loaded) > .item {
+  flex-basis: 50%;
+}
+@media (min-width: 992px) {
+  #Collections_owl_carousel:not(.owl-loaded) > .item {
+    flex-basis: 33.3333%;
+  }
+}
+@media (min-width: 1200px) {
+  #Collections_owl_carousel:not(.owl-loaded) > .item {
+    flex-basis: 25%;
+  }
+}
+
+/* ---- 1816：Event ----
+   0/575/767=2, 991=3, 1199=3, margin=5 */
+#Event_owl_carousel:not(.owl-loaded) {
+  gap: 5px;
+}
+#Event_owl_carousel:not(.owl-loaded) > .item {
+  flex-basis: 50%;
+}
+@media (min-width: 992px) {
+  #Event_owl_carousel:not(.owl-loaded) > .item {
+    flex-basis: 33.3333%;
+  }
+}
+
+
+/* =========================
+   2) Swiper SSR / Pre-init fallback（LinkData.tsx）
+   ========================= */
+
+/* Swiper 尚未 initialized 時，讓它也用水平捲動可看全部 icons（避免只看到第一屏） */
+#icon_area.swiper:not(.swiper-initialized) {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+#icon_area.swiper:not(.swiper-initialized)::-webkit-scrollbar {
+  display: none;
+}
+#icon_area.swiper:not(.swiper-initialized) .swiper-wrapper {
+  display: flex;
+  flex-wrap: nowrap;
+}
+#icon_area.swiper:not(.swiper-initialized) .swiper-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+}
+
+/* 對標 LinkData 的 breakpoints：
+   480=2, 680=3, 768=4, 992=5, 1200=6 */
+@media (min-width: 480px) {
+  #icon_area.swiper:not(.swiper-initialized) .swiper-slide { flex-basis: 50%; }
+}
+@media (min-width: 680px) {
+  #icon_area.swiper:not(.swiper-initialized) .swiper-slide { flex-basis: 33.3333%; }
+}
+@media (min-width: 768px) {
+  #icon_area.swiper:not(.swiper-initialized) .swiper-slide { flex-basis: 25%; }
+}
+@media (min-width: 992px) {
+  #icon_area.swiper:not(.swiper-initialized) .swiper-slide { flex-basis: 20%; }
+}
+@media (min-width: 1200px) {
+  #icon_area.swiper:not(.swiper-initialized) .swiper-slide { flex-basis: 16.6667%; }
+}
+
+/* Swiper 沒 init 時：pagination/nav 先隱藏（避免出現但不能用） */
+#icon_area.swiper:not(.swiper-initialized) .swiper-pagination,
+#icon_area.swiper:not(.swiper-initialized) .swiper-nav {
+  display: none !important;
+}
+
+
+/* =========================
+   3) 1816 首頁：Link-icons_section（LinkData）必要樣式
+   （把 prototype 的關鍵段補回來，避免 SSR 首屏看起來不像）
+   ========================= */
+
+.Link-icons_section {
+  position: relative;
+  display: block;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center top;
+}
+
+.Link-icons_section .Mask-DivBox {
+  background-color: var(--Customize_color);
+}
+
+.Link-icons-pos {
+  position: relative;
+  width: 100%;
+  bottom: 0;
+  left: 0;
+  background-color: var(--Customize_Btn_color);
+}
+
+.Link-icons-pos .item {
+  position: relative;
+}
+
+.Link-icons-pos .swiper-slide:not(:last-child) .item::after {
+  content: "";
+  position: absolute;
+  width: 1px;
+  height: 40%;
+  top: 50%;
+  right: 0px;
+  transform: translate(0, -50%);
+  background: var(--FFFcolor);
+}
+
+.Link-icons-pos a {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.Link-icons-pos a:hover {
+  background-color: var(--Customize_TXTcolor);
+}
+
+.Link-icons-pos a:focus-visible {
+  text-decoration: none;
+  outline: 2px solid #43B5FC;
+  outline-offset: -2px;
+}
+
+.Link-icons-pos a .icon-wrapper {
+  position: relative;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  background-color: transparent;
+  padding: 1.25rem 1rem;
+  min-height: 95px;
+}
+
+.Link-icons-pos a .icon-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Link-icons-pos a .icon-area .icon-type-image {
+  width: 30px;
+  height: 30px;
+  margin-right: 0.75rem;
+}
+.Link-icons-pos a .icon-area .icon-type-image img {
+  border: 0;
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.Link-icons-pos a .tit-contents {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 0;
+}
+
+.Link-icons-pos a .tit-contents .Link-icons-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 112.5%;
+  font-weight: 700;
+  color: var(--FFFcolor);
+}
+@media (min-width: 320px) and (max-width: 992px) {
+  .Link-icons-pos a .tit-contents .Link-icons-title {
+    font-size: 93.75%;
+  }
+}
+
+
+/* =========================
+   4) 1816 首頁：Links_section（QuickLinksData）必要樣式
+   這段是「你截圖爆版」的核心修正點：卡片高度/圖片裁切
+   ========================= */
+
+.Links_section {
+  position: relative;
+  display: block;
+  background-color: transparent;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center top;
+}
+
+.Links_section .Mask-DivBox {
+  position: relative;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* A11y：有需要可以用 focus-visible 做外框（不改 DOM） */
+.Links_section a:focus-visible {
+  outline: 2px solid #43B5FC;
+  outline-offset: 2px;
+}
+
+.Links_section .item a {
+  position: relative;
+  display: block;
+}
+
+.Links_section .wrapper_box {
+  padding: 0;
+  margin-bottom: 0;
+}
+
+.Links_section .wrapper_box .card_figure {
+  margin-bottom: 0;
+}
+
+/* ✅ 關鍵：固定比例 + 絕對定位裁切，避免圖片把區塊撐爆 */
+.Links_section a .wrapper_box .card_image_link {
+  display: block;
+  position: relative;
+  aspect-ratio: 17 / 5;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* hover/focus 放大（跟 prototype 一致） */
+.Links_section a:hover .wrapper_box .card_image_link .card_image,
+.Links_section a:focus .wrapper_box .card_image_link .card_image,
+.Links_section a:active .wrapper_box .card_image_link .card_image {
+  transform: scale(1.05);
+}
+
+.Links_section a .wrapper_box .card_image_link picture {
+  display: block;
+}
+
+.Links_section a .wrapper_box .card_image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+
+  transition-duration: 0.7s;
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(.19, 1, .22, 1);
+}
+
+/* =========================
+   A11y：SSR pre-init 可用鍵盤水平捲動
+   ========================= */
+
+/* Owl pre-init：允許鍵盤 focus 到 item 時自動可見 */
+.owl-carousel:not(.owl-loaded) > .item {
+  scroll-margin-left: 12px;
+  scroll-margin-right: 12px;
+}
+
+/* Swiper pre-init：同上 */
+#icon_area.swiper:not(.swiper-initialized) .swiper-slide {
+  scroll-margin-left: 12px;
+  scroll-margin-right: 12px;
+}
+
+/* 若你不希望滑鼠水平滾輪干擾，可保留；這段可選 */
+@media (prefers-reduced-motion: reduce) {
+  .Links_section a .wrapper_box .card_image {
+    transition: none;
+  }
+}

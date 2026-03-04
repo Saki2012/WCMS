@@ -8,7 +8,7 @@ import type { ReactNode } from "react";
 import { useLocation } from "react-router";
 import { siteHeaderMeta } from "SpecFeature/SpecRouter"
 
-export interface ModuleContentProps { nodeTitle: string; title?: string; subTitle?: SubTitleProps; paginatorProps?: PaginatorProps; loadingList: boolean[]; errorList: (string | null | undefined)[]; children?: ReactNode; }
+export interface ModuleContentProps { nodeTitle: string; title?: string; subTitle?: SubTitleProps; paginatorProps?: PaginatorProps; isLoading: boolean; errorList: (string | null | undefined)[]; children?: ReactNode; }
 
 const ModuleContent = (props: ModuleContentProps) => {
     const fullTitle = [siteHeaderMeta.title, props.nodeTitle, props.title].filter(Boolean).join("｜");
@@ -25,7 +25,7 @@ const ModuleContent = (props: ModuleContentProps) => {
     return (
         <>
             <HeaderMetaComp htmlLang={lang} title={fullTitle} description={siteHeaderMeta.description} canonicalUrl={canonicalUrl} alternates={alternates} />
-            <LoadingErrorHandler isLoading={props.loadingList} errorList={props.errorList}>
+            <LoadingErrorHandler isLoading={props.isLoading} errorList={props.errorList}>
                 {props.title && <Title title={props.title} subTitle={props.subTitle} />}
                 {/* <SearchBar /> */}
                 <div className="ALL__Information__Display__Area">

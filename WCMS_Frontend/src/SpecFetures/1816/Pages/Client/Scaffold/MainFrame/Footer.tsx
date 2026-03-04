@@ -162,10 +162,7 @@ const Footer = (props: FooterProps) => {
                                                                     </a>
                                                                 </li>
                                                                 <li>
-                                                                    {t.address}：
-                                                                    <a href="112臺北市北投區學園路1號" title="" target="_blank" rel="noreferrer">
-                                                                        {t.addressValue}
-                                                                    </a>
+                                                                    {t.address}：{t.addressValue}
                                                                 </li>
                                                             </ul>
                                                         </div>

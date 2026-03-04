@@ -10516,7 +10516,7 @@ export interface components {
             AnnouncementId?: string | null;
             /** @description 類別 */
             Categories?: string | null;
-            /** @description 標籤 */
+            /** @description 組別 */
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 封面圖片 */
@@ -10891,7 +10891,7 @@ export interface components {
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 類別 */
             CategoriesId?: string | null;
-            /** @description 標籤 */
+            /** @description 組別 */
             TagsId?: string | null;
             /**
              * Format: int32
@@ -11144,7 +11144,7 @@ export interface components {
             GalleryId?: string | null;
             /** @description 類別 */
             Categories?: string | null;
-            /** @description 標籤 */
+            /** @description 組別 */
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 相簿封面圖 */
@@ -11619,7 +11619,7 @@ export interface components {
             RedirectUrl?: string | null;
         };
         SpecCategoryDetailModel_DTO: {
-            /** @description [SpecCategoryId] */
+            /** @description 類別代號 */
             CategoryId?: string | null;
             /**
              * Format: int32
@@ -11627,7 +11627,7 @@ export interface components {
              */
             RowId?: number;
             Lang?: components["schemas"]["LangCode"];
-            /** @description [SpecCategory_Name] */
+            /** @description 計畫類別名稱 */
             CategoryName?: string | null;
         };
         SpecCategoryModel_DTO: {
@@ -11655,11 +11655,11 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description [SpecCategoryId] */
+            /** @description 類別代號 */
             CategoryId?: string | null;
             /** @description 功能模塊代碼 */
             ProgId?: string | null;
-            /** @description [SpecCategory_ShowColumn] */
+            /** @description 顯示欄位 */
             ShowColumnItems?: string | null;
             _SpecCategoryDetail?: components["schemas"]["SpecCategoryDetailModel_DTO"][] | null;
         };
@@ -11688,24 +11688,24 @@ export interface components {
         };
         SpecJournalAuthor_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description ORCID */
+            /** @description [Spec_ORCID] */
             ORCID?: string | null;
-            /** @description 作者姓名 */
+            /** @description [Spec_AuthorName] */
             AuthorName?: string | null;
-            /** @description 作者英文姓名 */
+            /** @description [Spec_AuthorName_en] */
             AuthorName_en?: string | null;
-            /** @description 職稱 */
+            /** @description [Spec_JobTitle] */
             JobTitle?: string | null;
-            /** @description 單位 */
+            /** @description [Spec_Unit] */
             Unit?: string | null;
-            /** @description 英文單位 */
+            /** @description [Spec_Unit_en] */
             Unit_en?: string | null;
             /** @description 常用Email */
             Email?: string | null;
@@ -11715,16 +11715,16 @@ export interface components {
         };
         SpecJournalBibliography_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description 參考文獻 */
+            /** @description [Spec_BibliographyTitle] */
             Title?: string | null;
-            /** @description 參考文獻 (英) */
+            /** @description [Spec_BibliographyTitle_En] */
             Title_en?: string | null;
             /** @description 網址 */
             Url?: string | null;
@@ -11732,7 +11732,7 @@ export interface components {
         };
         SpecJournalIndexDetail_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊目次代號 */
+            /** @description [Spec_JournalIndexId] */
             IndexId?: string | null;
             /**
              * Format: int32
@@ -11741,23 +11741,23 @@ export interface components {
             RowId?: number | null;
             /**
              * Format: int32
-             * @description 卷數
+             * @description [Spec_Volume]
              */
             Volume?: number | null;
-            /** @description 期數 */
+            /** @description [Spec_Issue] */
             Issue?: string | null;
             PublishStatus?: components["schemas"]["PublishStatus"];
-            /** @description 是否為特刊 */
+            /** @description [Spec_IsSpecial] */
             IsSpecial?: boolean | null;
             /**
              * Format: date
-             * @description 出版日期
+             * @description [Spec_PublishDate]
              */
             PublishDate?: string | null;
-            /** @description 季號 */
+            /** @description [Spec_SeasonNo] */
             SeasonNo?: string | null;
             SummaryFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 期刊檔案 */
+            /** @description [Spec_SummaryFileId] */
             SummaryFileId?: string | null;
             /** @description [Spec_SummaryFileName] */
             SummaryFileName?: string | null;
@@ -11788,9 +11788,9 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description 期刊目次代號 */
+            /** @description [Spec_JournalIndexId] */
             IndexId?: string | null;
-            /** @description 期刊目次名稱 */
+            /** @description [Spec_JournalIndexName] */
             IndexName?: string | null;
             _SpecJournalIndexDetail?: components["schemas"]["SpecJournalIndexDetail_DTO"][] | null;
         };
@@ -11805,7 +11805,7 @@ export interface components {
         };
         SpecJournalKeywords_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
@@ -11813,7 +11813,7 @@ export interface components {
              */
             RowId?: number | null;
             LangCode?: components["schemas"]["LangCode"];
-            /** @description 關鍵詞 */
+            /** @description [Spec_Keyword] */
             Keyword?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
@@ -11842,47 +11842,47 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             _JournalIndex?: components["schemas"]["SpecJournalIndexModel_DTO"];
-            /** @description 期刊目次代號 */
+            /** @description [Spec_JournalIndexId] */
             JournalIndexId?: string | null;
             _JournalIndexDetail?: components["schemas"]["SpecJournalIndexDetail_DTO"];
             /**
              * Format: int32
-             * @description 卷期代號
+             * @description [Spec_JournalIndexRowId]
              */
             JournalIndexRowId?: number | null;
             /** @description 標題 */
             Title?: string | null;
-            /** @description 英文標題 */
+            /** @description [Spec_Title_en] */
             Title_en?: string | null;
             /**
              * Format: int32
-             * @description 起始頁
+             * @description [Spec_PageStart]
              */
             PageStart?: number | null;
             /**
              * Format: int32
-             * @description 結束頁
+             * @description [Spec_PageEnd]
              */
             PageEnd?: number | null;
-            /** @description DOI */
+            /** @description [Spec_DOI] */
             DOIUrl?: string | null;
             JournalFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 期刊檔案 */
+            /** @description [Spec_JournalFieldId] */
             JournalFileId?: string | null;
-            /** @description 期刊檔案名稱 */
+            /** @description [Spec_JournalFileName] */
             JournalFileName?: string | null;
             InsightPointFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 捷點 InSignt Point 檔案 */
+            /** @description [Spec_InsightPointFileId] */
             InsightPointFileId?: string | null;
-            /** @description 捷點 InSignt Point 檔案名稱 */
+            /** @description [Spec_InsightPointFileName] */
             InsightPointFileName?: string | null;
             ArticleLang?: components["schemas"]["LangCode"];
             /** @description 摘要 */
             Memo?: string | null;
-            /** @description 英文摘要 */
+            /** @description [Spec_Memo_en] */
             Memo_en?: string | null;
             _SpecJournalAuthor?: components["schemas"]["SpecJournalAuthor_DTO"][] | null;
             _SpecJournalBibliography?: components["schemas"]["SpecJournalBibliography_DTO"][] | null;
@@ -11894,66 +11894,66 @@ export interface components {
         };
         SpecJournalOpenPointFiles_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description 開放觀點檔案名稱 */
+            /** @description [Spec_OpenPointFileName] */
             OpenPointFileName?: string | null;
             OpenPointFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 開放觀點檔案來源 */
+            /** @description [Spec_OpenPointFileId] */
             OpenPointFileId?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
         SpecJournalRefFiles_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description 相關檔案名稱 */
+            /** @description [Spec_RefFileName] */
             RefFileName?: string | null;
             RefFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 相關檔案來源 */
+            /** @description [Spec_RefFileId] */
             RefFileId?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
         SpecJournalRefFormat_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description 引文格式標題 */
+            /** @description [Spec_RefFormatTitle] */
             Title?: string | null;
-            /** @description 引文格式內容 */
+            /** @description [Spec_RefFormatContent] */
             Content?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
         SpecJournalSet_DTO: {
             SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
-            /** @description 期刊作者列表 */
+            /** @description [SpecJournalAuthor] */
             SpecJournalAuthor?: components["schemas"]["SpecJournalAuthor_DTO"][] | null;
-            /** @description 參考文獻 */
+            /** @description [SpecJournalBibliography] */
             SpecJournalBibliography?: components["schemas"]["SpecJournalBibliography_DTO"][] | null;
-            /** @description 期刊引文格式列表 */
+            /** @description [SpecJournalRefFormat] */
             SpecJournalRefFormat?: components["schemas"]["SpecJournalRefFormat_DTO"][] | null;
-            /** @description 期刊開放觀點檔案列表 */
+            /** @description [SpecJournalOpenPointFiles] */
             SpecJournalOpenPointFiles?: components["schemas"]["SpecJournalOpenPointFiles_DTO"][] | null;
-            /** @description 期刊相關檔案列表 */
+            /** @description [SpecJournalRefFiles] */
             SpecJournalRefFiles?: components["schemas"]["SpecJournalRefFiles_DTO"][] | null;
-            /** @description 期刊類型列表 */
+            /** @description [SpecJournalTypes] */
             SpecJournalTypes?: components["schemas"]["SpecJournalTypes_DTO"][] | null;
-            /** @description 期刊關鍵字列表 */
+            /** @description [SpecJournalKeywords] */
             SpecJournalKeywords?: components["schemas"]["SpecJournalKeywords_DTO"][] | null;
         };
         SpecJournalSet_DTOApiRequest: {
@@ -11962,7 +11962,7 @@ export interface components {
         };
         SpecJournalTypes_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
@@ -11970,7 +11970,7 @@ export interface components {
              */
             RowId?: number | null;
             Tag?: components["schemas"]["TagData_DTO"];
-            /** @description 類型 */
+            /** @description [Spec_TagId] */
             TagId?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
@@ -12376,7 +12376,7 @@ export interface components {
             Data?: components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
         };
         SpecResearchDetailModel_DTO: {
-            /** @description [SpecResearchId] */
+            /** @description 研究計畫 */
             ResearchId?: string | null;
             /**
              * Format: int32
@@ -12386,67 +12386,67 @@ export interface components {
             Lang?: components["schemas"]["LangCode"];
             /**
              * Format: int32
-             * @description [SpecResearch_Year]
+             * @description 年度
              */
             Year?: number | null;
             /**
              * Format: int32
-             * @description [SpecResearch_AcademicYear]
+             * @description 學年度
              */
             AcademicYear?: number | null;
-            /** @description [SpecResearch_Semester] */
+            /** @description 學期 */
             Semester?: string | null;
-            /** @description [SpecResearch_DuringExecution] */
+            /** @description 執行期間 */
             DuringExecution?: string | null;
-            /** @description [SpecResearch_ContractPeriod] */
+            /** @description 合約期間 */
             ContractPeriod?: string | null;
-            /** @description [SpecResearch_ClassTime] */
+            /** @description 上課時間 */
             ClassTime?: string | null;
-            /** @description [SpecResearch_ProjectLeader] */
+            /** @description 計畫主持人 */
             ProjectLeader?: string | null;
-            /** @description [SpecResearch_Name] */
+            /** @description 姓名 */
             Name?: string | null;
-            /** @description [SpecResearch_TeachingStaffOfOurSchool] */
+            /** @description 本校教學人員 */
             TeachingStaffOfOurSchool?: string | null;
-            /** @description [SpecResearch_ApprovalNumber] */
+            /** @description 核定編號 */
             ApprovalNumber?: string | null;
             /**
              * Format: double
-             * @description [SpecResearch_ApprovedAmount]
+             * @description 核定金額
              */
             ApprovedAmount?: number | null;
-            /** @description [SpecResearch_College] */
+            /** @description 學院 */
             College?: string | null;
-            /** @description [SpecResearch_Department] */
+            /** @description 系所 */
             Department?: string | null;
-            /** @description [SpecResearch_Degree] */
+            /** @description 學位 */
             GraduationDegree?: string | null;
-            /** @description [SpecResearch_CoUnits] */
+            /** @description 合作單位/學校 */
             CooperatingUnits?: string | null;
-            /** @description [SpecResearch_CoProject] */
+            /** @description 合作項目 */
             CooperationProject?: string | null;
-            /** @description [SpecResearch_Courses] */
+            /** @description 課程/社團 */
             Courses?: string | null;
-            /** @description [SpecResearch_ProjectName] */
+            /** @description 計畫名稱 */
             ProjectName?: string | null;
-            /** @description [SpecResearch_PaperTitle] */
+            /** @description 論文名稱 */
             PaperTitle?: string | null;
-            /** @description [SpecResearch_Remark] */
+            /** @description 備註 */
             Remark?: string | null;
-            /** @description [SpecResearch_Cohost1] */
+            /** @description 共同主持人 */
             Cohost1?: string | null;
-            /** @description [SpecResearch_Cohost2] */
+            /** @description 協同主持人 */
             Cohost2?: string | null;
-            /** @description [SpecResearch_Commissioned] */
+            /** @description 委辦/補助單位 */
             Commissioned?: string | null;
             /**
              * Format: double
-             * @description [SpecResearch_PlanAmount]
+             * @description 計畫金額
              */
             PlanAmount?: number | null;
-            /** @description [SpecResearch_PlanContent] */
+            /** @description 計畫內容簡介 */
             PlanContent?: string | null;
-            /** @description [SpecResearch_Professor] */
+            /** @description 指導教授 */
             Professor?: string | null;
         };
         SpecResearchModel_DTO: {
@@ -12474,12 +12474,12 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description [SpecResearchId] */
+            /** @description 研究計畫 */
             ResearchId?: string | null;
-            /** @description [SpecResearch_Categories] */
+            /** @description 計畫類別 */
             CategoryId?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
-            /** @description [SpecResearch_Tags] */
+            /** @description 標籤 */
             Tags?: string | null;
             _SpecResearchDetail?: components["schemas"]["SpecResearchDetailModel_DTO"][] | null;
         };
@@ -12492,7 +12492,7 @@ export interface components {
             Data?: components["schemas"]["SpecResearchSet_DTO"];
         };
         SpecUSRDetail_DTO: {
-            /** @description [SpecUSRId] */
+            /** @description USR計畫 */
             USRId?: string | null;
             /**
              * Format: int32
@@ -12500,67 +12500,67 @@ export interface components {
              */
             RowId?: number;
             Lang: components["schemas"]["LangCode"];
-            /** @description [SpecUSR_Year] */
+            /** @description 年度 */
             Year?: string | null;
             /**
              * Format: int32
-             * @description [SpecUSR_AcademicYear]
+             * @description 學年度
              */
             AcademicYear?: number | null;
-            /** @description [SpecUSR_Courses] */
+            /** @description 課程/活動名稱 */
             Courses?: string | null;
-            /** @description [SpecUSR_PracticeField] */
+            /** @description 實踐領域 */
             PracticeField?: string | null;
-            /** @description [SpecUSR_ProjectName] */
+            /** @description 計畫名稱 */
             ProjectName?: string | null;
-            /** @description [SpecUSR_ExternalCoUnits] */
+            /** @description 外部合作單位 */
             ExternalCooperationUnit?: string | null;
-            /** @description [SpecUSR_Department] */
+            /** @description 本校執行系所/單位 */
             Department?: string | null;
-            /** @description [SpecUSR_DuringExecution] */
+            /** @description 執行期間 */
             DuringExecution?: string | null;
             /**
              * Format: double
-             * @description [SpecUSR_PlanAmount]
+             * @description 計畫金額
              */
             PlanAmount?: number | null;
-            /** @description [SpecUSR_ExecutionStrategy] */
+            /** @description 執行策略 */
             ExecutionStrategy?: string | null;
-            /** @description [SpecUSR_ContentIntro] */
+            /** @description 計畫內容簡介 */
             ContentIntroduction?: string | null;
-            /** @description [SpecUSR_ProjectConcept] */
+            /** @description 計畫理念 */
             ProjectConcept?: string | null;
-            /** @description [SpecUSR_KeyHighlights] */
+            /** @description 計畫亮點 */
             ProjectHighlights?: string | null;
-            /** @description [SpecUSR_ProjectLeader] */
+            /** @description 計畫主持人 */
             ProjectLeader?: string | null;
-            /** @description [SpecUSR_ProjectSubLeader] */
+            /** @description 子計畫主持人 */
             ProjectSubLeader?: string | null;
-            /** @description [SpecUSR_AttendTeam] */
+            /** @description 參與之師生或團隊 */
             AttendTeam?: string | null;
-            /** @description [SpecUSR_Cohost1] */
+            /** @description 共同主持人 */
             Cohost1?: string | null;
-            /** @description [SpecUSR_Cohost2] */
+            /** @description 協同主持人 */
             Cohost2?: string | null;
-            /** @description [SpecUSR_Commissioned] */
+            /** @description 委辦/補助單位 */
             Commissioned?: string | null;
-            /** @description [SpecUSR_Remark] */
+            /** @description 備註 */
             Remark?: string | null;
-            /** @description [SpecUSR_ProjectItem] */
+            /** @description 計畫類別 */
             ProjectItem?: string | null;
             /**
              * @deprecated
-             * @description [SpecUSR_Url]
+             * @description 相關網址
              */
             Url?: string | null;
             /**
              * @deprecated
-             * @description [SpecUSR_UrlDescription]
+             * @description 相關網址說明
              */
             UrlDescription?: string | null;
         };
         SpecUSRFile_DTO: {
-            /** @description [SpecUSRId] */
+            /** @description USR計畫 */
             USRId?: string | null;
             /**
              * Format: int32
@@ -12604,23 +12604,23 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description [SpecUSRId] */
+            /** @description USR計畫 */
             USRId?: string | null;
-            /** @description [SpecResearch_Categories] */
+            /** @description 計畫類別 */
             CategoryId?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
-            /** @description [SpecResearch_Tags] */
+            /** @description 標籤 */
             Tags?: string | null;
             Picture?: components["schemas"]["FileManageModel_DTO"];
-            /** @description [SpecUSR_PictureId] */
+            /** @description 成果照片 */
             PictureId?: string | null;
-            /** @description [SpecUSR_PicDescription] */
+            /** @description 圖片說明 */
             PicDescription?: string | null;
             _SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"][] | null;
             _SpecUSRPhoto?: components["schemas"]["SpecUSRPhoto_DTO"][] | null;
         };
         SpecUSRPhotoInfo_DTO: {
-            /** @description [SpecUSRId] */
+            /** @description USR計畫 */
             USRId?: string | null;
             /**
              * Format: int32
@@ -12638,7 +12638,7 @@ export interface components {
             _SpecUSRPhoto?: components["schemas"]["SpecUSRPhoto_DTO"];
         };
         SpecUSRPhoto_DTO: {
-            /** @description [SpecUSRId] */
+            /** @description USR計畫 */
             USRId?: string | null;
             /**
              * Format: int32
@@ -12668,7 +12668,7 @@ export interface components {
             Data?: components["schemas"]["SpecUSRSet_DTO"];
         };
         SpecUSRUrl_DTO: {
-            /** @description [SpecUSRId] */
+            /** @description USR計畫 */
             USRId?: string | null;
             /**
              * Format: int32
@@ -12797,7 +12797,7 @@ export interface components {
             WebResourceId?: string | null;
             /** @description 類別 */
             Categories?: string | null;
-            /** @description 標籤 */
+            /** @description 組別 */
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 封面圖片 */

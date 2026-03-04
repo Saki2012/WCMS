@@ -47,7 +47,7 @@ export const Server_Person_List_Comp = (props: { theme: IBETheme }) => {
   const prop: FormCompProp = {
     Title: "會員管理",
     Theme: props.theme,
-    LoadingList: isLoading,
+    IsLoading: isLoading,
     ErrorList: errors,
     Actions: actions,
     SearchBar: searchCompProp

@@ -122,7 +122,7 @@ export const Server_Account_Form_Comp = (props: { theme: IBETheme }) => {
         Person: [<Person_Comp theme={props.theme} formData={formData} />],
     };
     const userPic = formData.data?.Account?.Person?.PersonImgId ? `${FileManagementAPI.PREVIEW_URL}/${formData.data?.Account?.Person?.PersonImgId}` : pic
-    const prop: FormCompProp = { Title: "管理者帳號資料修改", Theme: props.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
+    const prop: FormCompProp = { Title: "管理者帳號資料修改", Theme: props.theme, IsLoading: isLoading, ErrorList: errors, Actions: actions }
 
     // ⚠️ return DOM 完全不動
     return (

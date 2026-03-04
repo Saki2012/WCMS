@@ -1,344 +1,345 @@
-
-import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import type { components } from "@/types/api";
-import * as SchemaFields from "@/types/SchemaFields";
-import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
-import { useNow } from '@/SysCore/Utils/Library/LibHook';
-import { type Lang } from '@/SysCore/i18n/lang';
-import { LangLink, LangNavLink } from '@/SysCore/i18n/LangLink';
+import { useMemo } from "react";
+import type { Lang } from "@/SysCore/i18n/lang";
+import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { IndexLabel } from "@/SpecFetures/1818/Pages/Client//Index/Section/IndexLabelText";
 
-//type BannerSet = components["schemas"]["BannerSet_DTO"]
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
-type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
-type TagSet = components["schemas"]["TagSet_DTO"]
+import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
+import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
 
+type QueryListParam = components["schemas"]["QueryListParam"];
+type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
+type TagSet = components["schemas"]["TagSet_DTO"];
 
-
-/** 找置頂公告 */
-const useTopAnnouncementList = (categories?: string) => {
-	const provider = AnnouncementProvider();
-	let cdt = `${SchemaFields.AnnouncementFields.ContentStatus} & 1`;
-	//因時程關係，暫時用前端來判斷有效日期時間，多少會有客戶端修改時間的風險。之後再改到後端開新的api寫死抓系統時間為依據。
-	const now = useNow({ startPaused: true });
-	if (now.isoLocal) cdt = LibMerge(" And ", false, cdt, `${SchemaFields.AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
-	cdt = LibMerge(" And ", false, cdt, categories ? `${SchemaFields.AnnouncementFields.Categories} HasAny [${categories}]` : "");
-	return useFetchGridListData<AnnouncementSet>({
-		getModelDisplayName: () => provider.getModelDisplayName(),
-		fetchList: (cond) => provider.fetchList(cond),
-		fetchListCount: (cond) => provider.fetchListCount(cond),
-		visibleKeys: [],
-		buildQueryCondition: () => ({
-			Fields: [
-				SchemaFields.AnnouncementFields.AnnouncementId,
-				SchemaFields.AnnouncementFields.InternalId,
-				SchemaFields.AnnouncementFields.Categories,
-				SchemaFields.AnnouncementFields.Tags,
-				SchemaFields.AnnouncementFields.ContentStatus,
-				SchemaFields.AnnouncementFields.Validate_Start,
-				`${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
-				`${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
-				SchemaFields.AnnouncementFields.ViewCount,
-			],
-			Condition: cdt,
-			OrderBy: [{ Col: SchemaFields.AnnouncementFields.Validate_Start, Desc: true }],
-			PageNumber: 1,
-			PageSize: 6,
-		}),
-		enabled: true,
-		deps: [categories],
-	});
+const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]) => {
+  // return：符合 adapter hook 的 initial 型別
+  return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
 };
 
+const buildCategoryDict = (list: CategoryDataSet[], lang: Lang): Record<string, string> => {
+  // 宣告變數
+  const pairs = list.map((cat) => {
+    const id = cat.Category?.CategoryId ?? "";
+    const name = cat.CategoryDetail?.find((p) => p.Lang === lang)?.CategoryName ?? "";
+    return [id, name] as const;
+  });
 
-
-const useAnnouncementList = (categories?: string) => {
-	const provider = AnnouncementProvider();
-	let cdt = `${SchemaFields.AnnouncementFields.ContentStatus} !& 4 And ${SchemaFields.AnnouncementFields.ContentStatus} !& 1`;
-	//因時程關係，暫時用前端來判斷有效日期時間，多少會有客戶端修改時間的風險。之後再改到後端開新的api寫死抓系統時間為依據。
-	const now = useNow({ startPaused: true });
-	if (now.isoLocal) cdt = LibMerge(" And ", false, cdt, `${SchemaFields.AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
-	cdt = LibMerge(" And ", false, cdt, categories ? `${SchemaFields.AnnouncementFields.Categories} HasAny [${categories}]` : "");
-	return useFetchGridListData<AnnouncementSet>({
-		getModelDisplayName: () => provider.getModelDisplayName(),
-		fetchList: (cond) => provider.fetchList(cond),
-		fetchListCount: (cond) => provider.fetchListCount(cond),
-		visibleKeys: [],
-		buildQueryCondition: () => ({
-			Fields: [
-				SchemaFields.AnnouncementFields.AnnouncementId,
-				SchemaFields.AnnouncementFields.InternalId,
-				SchemaFields.AnnouncementFields.Categories,
-				SchemaFields.AnnouncementFields.Tags,
-				SchemaFields.AnnouncementFields.ContentStatus,
-				SchemaFields.AnnouncementFields.Validate_Start,
-				`${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
-				`${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
-				SchemaFields.AnnouncementFields.ViewCount,
-			],
-			Condition: cdt,
-			OrderBy: [{ Col: SchemaFields.AnnouncementFields.Validate_Start, Desc: true }],
-			PageNumber: 1,
-			PageSize: 6,
-		}),
-		enabled: true,
-		deps: [categories],
-	});
+  // return
+  return Object.fromEntries(pairs.filter(([id]) => Boolean(id)));
 };
 
-const useCategoryList = () => {
-	const provider = CategoryProvider();
-	return useFetchGridListData<CategoryDataSet>({
-		getModelDisplayName: () => provider.getModelDisplayName(),
-		fetchList: (cond) => provider.fetchList(cond),
-		fetchListCount: (cond) => provider.fetchListCount(cond),
-		visibleKeys: [],
-		buildQueryCondition: () => ({
-			Fields: [
-				SchemaFields.CategoryFields.CategoryId,
-				`${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
-				`${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
-			],
-			Condition: `${SchemaFields.CategoryFields.ProgId} = Announcement`,
-			PageNumber: 0,
-			PageSize: 0,
-		}),
-		enabled: true,
-		deps: [],
-	});
-};
-const useTagList = () => {
-	const provider = TagProvider();
-	return useFetchGridListData<TagSet>({
-		getModelDisplayName: () => provider.getModelDisplayName(),
-		fetchList: (cond) => provider.fetchList(cond),
-		fetchListCount: (cond) => provider.fetchListCount(cond),
-		visibleKeys: [],
-		buildQueryCondition: () => ({
-			Fields: [
-				SchemaFields.TagDataFields.TagId,
-				`${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
-				`${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
-			],
-			Condition: `${SchemaFields.TagDataFields.ProgId} = ${PGID.Announcement}`,
-			PageNumber: 0,
-			PageSize: 0,
-		}),
-		enabled: true,
-		deps: [],
-	});
+const buildTagDict = (list: TagSet[], lang: Lang): Record<string, string> => {
+  // 宣告變數
+  const pairs = list.map((t) => {
+    const id = t.TagData?.TagId ?? "";
+    const name = t.TagDetail?.find((p) => p.Lang === lang)?.TagName ?? "";
+    return [id, name] as const;
+  });
+
+  // return
+  return Object.fromEntries(pairs.filter(([id]) => Boolean(id)));
 };
 
+export const NewsData = (props: {
+  lang: Lang;
 
-export const NewsData = (props: { lang: Lang }) => {
-	const useTopAllNewsData1 = useTopAnnouncementList("Category20251113009");
-	const useAllNewsData1 = useAnnouncementList("Category20251113009");
-	const allNewsRawData1 = takeTopThenFill(useTopAllNewsData1.rawData, useAllNewsData1.rawData, 6);
-	const useCategoryData = useCategoryList();
-	const useTagData = useTagList();
-	const categoryDict: Record<string, string> = Object.fromEntries(
-		(useCategoryData.rawData ?? []).map(cat => {
-			const id = cat.Category?.CategoryId;
-			const name = cat.CategoryDetail?.find(p => p.Lang === props.lang)?.CategoryName ?? "";
-			return [id, name];
-		})
-	);
-	const tagDict: Record<string, string> = Object.fromEntries(
-		(useTagData.rawData ?? []).map(cat => {
-			const id = cat.TagData?.TagId;
-			const name = cat.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "";
-			return [id, name];
-		})
-	);
-	const allNews1 = getNewsDataProps(allNewsRawData1, props.lang, "/announcement/announcement-news", "", categoryDict, tagDict);
+  newsTopParam: QueryListParam;
+  newsListParam: QueryListParam;
+  cateParam: QueryListParam;
+  tagParam: QueryListParam;
 
-	return (
-		<section className="Newsii_section Layout_Padding_1_top Layout_Padding_1_bottom bg-white">
-			<div className="Mask-DivBox">
-				<div className="customizeBox">
-					<div className="iMG-Shape-0" />
-					<div className="container-customize3">
-						<div className="row">
-							<div className="offset-md-5 offset-sm-3 offset-1 col-md-6 col-sm-6 col-10">
-								<div className="headDiv mb-lg-5 mb-4">
-									<span className="headDiv-txt-4 tw">{IndexLabel(props.lang).NewsTitle}</span>
-								</div>
-							</div>
-							<div className="col-12">
-								<div className="H-nav-tabs-content-box" id="Horizontal">
-									<div className="tab-content" id="H-nav-tabContent">
-										<div aria-labelledby="H-Tabs__01" className="tab-pane fade show active" id="H-navTabs-01" role="tabpanel">
-											<div className="News_mainDIV">
-												<ul className="ListNews">
-													<GetData prop={allNews1}></GetData>
-												</ul>
-												<div className="btn-w100-wrapper justify-content-center">
-													<div className="customize_btn">
-														<LangNavLink className="Btn_a" to="/announcement/announcement-news/List" role="button"
-															tabIndex={0} target="_self" title={IndexLabel(props.lang).MoreInfo} type="button">
-															<div className="BtnBox">
-																<span>{IndexLabel(props.lang).MoreInfo}</span>
-															</div>
-														</LangNavLink>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</section>
-	);
+  initialTopList: AnnouncementSet[];
+  initialList: AnnouncementSet[];
+  initialCategories: CategoryDataSet[];
+  initialTags: TagSet[];
+}) => {
+  // 宣告變數：adapters（CSR 用）
+  const announceAdapter = useMemo(() => AnnouncementAdapter(), []);
+  const cateAdapter = useMemo(() => CategoryAdapter(), []);
+  const tagAdapter = useMemo(() => TagAdapter(), []);
+
+  // 宣告變數：initial（必須 memo，避免每次 render 產生新物件造成重置）
+  const topInitial = useMemo(
+    () => toListInitial(props.newsTopParam, props.initialTopList ?? []),
+    [props.newsTopParam, props.initialTopList],
+  );
+  const listInitial = useMemo(
+    () => toListInitial(props.newsListParam, props.initialList ?? []),
+    [props.newsListParam, props.initialList],
+  );
+  const cateInitial = useMemo(
+    () => toListInitial(props.cateParam, props.initialCategories ?? []),
+    [props.cateParam, props.initialCategories],
+  );
+  const tagInitial = useMemo(
+    () => toListInitial(props.tagParam, props.initialTags ?? []),
+    [props.tagParam, props.initialTags],
+  );
+
+  // 執行 function：CSR hooks 接手（SSR 有 initial → 不會因 provider 爆）
+  const useTopList = announceAdapter.hooks.useQueryList({
+    condition: props.newsTopParam,
+    initial: topInitial,
+    deps: [props.newsTopParam.Condition ?? ""],
+  });
+
+  const useList = announceAdapter.hooks.useQueryList({
+    condition: props.newsListParam,
+    initial: listInitial,
+    deps: [props.newsListParam.Condition ?? ""],
+  });
+
+  const useCategoryData = cateAdapter.hooks.useQueryList({
+    condition: props.cateParam,
+    initial: cateInitial,
+    deps: [props.cateParam.Condition ?? ""],
+  });
+
+  const useTagData = tagAdapter.hooks.useQueryList({
+    condition: props.tagParam,
+    initial: tagInitial,
+    deps: [props.tagParam.Condition ?? ""],
+  });
+
+  // 宣告變數：資料整理（置頂優先補滿）
+  const allNewsRawData1 = useMemo(() => {
+    return takeTopThenFill(useTopList.data ?? [], useList.data ?? [], 6);
+  }, [useTopList.data, useList.data]);
+
+  const categoryDict = useMemo(() => {
+    return buildCategoryDict(useCategoryData.data ?? [], props.lang);
+  }, [useCategoryData.data, props.lang]);
+
+  const tagDict = useMemo(() => {
+    return buildTagDict(useTagData.data ?? [], props.lang);
+  }, [useTagData.data, props.lang]);
+
+  const allNews1 = useMemo(() => {
+    return getNewsDataProps(allNewsRawData1, props.lang, "/announcement/announcement-news", "", categoryDict, tagDict);
+  }, [allNewsRawData1, props.lang, categoryDict, tagDict]);
+
+  // return：DOM 結構維持原本
+  return (
+    <section className="Newsii_section Layout_Padding_1_top Layout_Padding_1_bottom bg-white">
+      <div className="Mask-DivBox">
+        <div className="customizeBox">
+          <div className="iMG-Shape-0" />
+          <div className="container-customize3">
+            <div className="row">
+              <div className="offset-md-5 offset-sm-3 offset-1 col-md-6 col-sm-6 col-10">
+                <div className="headDiv mb-lg-5 mb-4">
+                  <span className="headDiv-txt-4 tw">{IndexLabel(props.lang).NewsTitle}</span>
+                </div>
+              </div>
+              <div className="col-12">
+                <div className="H-nav-tabs-content-box" id="Horizontal">
+                  <div className="tab-content" id="H-nav-tabContent">
+                    <div aria-labelledby="H-Tabs__01" className="tab-pane fade show active" id="H-navTabs-01" role="tabpanel">
+                      <div className="News_mainDIV">
+                        <ul className="ListNews">
+                          <GetData prop={allNews1}></GetData>
+                        </ul>
+                        <div className="btn-w100-wrapper justify-content-center">
+                          <div className="customize_btn">
+                            <LangNavLink
+                              className="Btn_a"
+                              to="/announcement/announcement-news/List"
+                              role="button"
+                              tabIndex={0}
+                              target="_self"
+                              title={IndexLabel(props.lang).MoreInfo}
+                              type="button"
+                            >
+                              <div className="BtnBox">
+                                <span>{IndexLabel(props.lang).MoreInfo}</span>
+                              </div>
+                            </LangNavLink>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 };
 
-
-
-interface getDataProp { redir: string; announceInternalId: string; title: string; content: string; date: string; month: string; year: string; monthNum: number; tagName: string; categoryName: string; contentStatus: number; internalId: string }
-
-const getNewsDataProps = (newsData: AnnouncementSet[], lang: string, redir: string, targetCategoryId: string, categoryDict: Record<string, string>, tagDict: Record<string, string>) => {
-	const top6 = pickNewsByCategories(newsData, targetCategoryId, 6, 'any');
-	const resultProps: getDataProp[] = []
-	top6.map((item) => {
-		const categoryIds = (item.Announcement?.Categories ?? "").split(",").map(s => s.trim()).filter(Boolean);
-		const categoryName = categoryIds.map(id => categoryDict[id] ?? "").filter(Boolean).join(", ");
-		const tags = (item.Announcement?.Tags ?? "").split(",").map(s => s.trim()).filter(Boolean);
-		const tagsName = tags.map(id => tagDict[id] ?? "").filter(Boolean).join(", ");
-		const contentStatus = item.Announcement?.ContentStatus ?? 0;
-		const date = formatDate(item.Announcement?.Validate_Start ?? "");
-		const monthNum = Number(new Date(item.Announcement?.Validate_Start ?? "").getUTCMonth() + 1);
-		const InternalId = item.Announcement?.InternalId ?? "";
-		resultProps.push({
-			redir: redir,
-			announceInternalId: item.Announcement?.InternalId ?? "",
-			title: item.AnnouncementDetail?.find(p => p.Lang === lang)?.Title ?? "",
-			content: item.AnnouncementDetail?.find(p => p.Lang === lang)?.Content ?? "",
-			date: date.day,
-			month: date.month,
-			year: date.year,
-			monthNum: monthNum,
-			contentStatus: contentStatus,
-			tagName: tagsName,
-			categoryName: categoryName,
-			internalId: InternalId,
-		})
-	})
-	return resultProps;
+interface getDataProp {
+  redir: string;
+  announceInternalId: string;
+  title: string;
+  content: string;
+  date: string;
+  month: string;
+  year: string;
+  monthNum: number;
+  tagName: string;
+  categoryName: string;
+  contentStatus: number;
+  internalId: string;
 }
 
-const pickNewsByCategories = <T extends { Announcement?: { Categories?: string | null | undefined } }>
-	(newsData: T[] | undefined, categories: string | string[], take: number = 6, mode: 'any' | 'all' = 'any'): T[] => {
-	const target = new Set((Array.isArray(categories) ? categories : String(categories).split(',')).map(s => s.trim()).filter(Boolean));
-	if (!newsData || target.size === 0) return (newsData ?? []).slice(0, take);
-	const result = newsData.filter(item => {
-		const tokens = (item.Announcement?.Categories ?? '').split(',').map(s => s.trim()).filter(Boolean);
-		if (tokens.length === 0) return false;
-		return mode === 'all' ? [...target].every(t => tokens.includes(t)) : tokens.some(t => target.has(t));
-	});
-	return result.slice(0, take);
-}
+const getNewsDataProps = (
+  newsData: AnnouncementSet[],
+  lang: string,
+  redir: string,
+  targetCategoryId: string,
+  categoryDict: Record<string, string>,
+  tagDict: Record<string, string>,
+) => {
+  // 宣告變數
+  const top6 = pickNewsByCategories(newsData, targetCategoryId, 6, "any");
+  const resultProps: getDataProp[] = [];
+
+  // 執行 function
+  top6.map((item) => {
+    const categoryIds = (item.Announcement?.Categories ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+    const categoryName = categoryIds.map((id) => categoryDict[id] ?? "").filter(Boolean).join(", ");
+    const tags = (item.Announcement?.Tags ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+    const tagsName = tags.map((id) => tagDict[id] ?? "").filter(Boolean).join(", ");
+    const contentStatus = item.Announcement?.ContentStatus ?? 0;
+    const date = formatDate(item.Announcement?.Validate_Start ?? "");
+    const monthNum = Number(new Date(item.Announcement?.Validate_Start ?? "").getUTCMonth() + 1);
+    const InternalId = item.Announcement?.InternalId ?? "";
+
+    resultProps.push({
+      redir: redir,
+      announceInternalId: item.Announcement?.InternalId ?? "",
+      title: item.AnnouncementDetail?.find((p) => p.Lang === lang)?.Title ?? "",
+      content: item.AnnouncementDetail?.find((p) => p.Lang === lang)?.Content ?? "",
+      date: date.day,
+      month: date.month,
+      year: date.year,
+      monthNum: monthNum,
+      contentStatus: contentStatus,
+      tagName: tagsName,
+      categoryName: categoryName,
+      internalId: InternalId,
+    });
+  });
+
+  // return
+  return resultProps;
+};
+
+const pickNewsByCategories = <T extends { Announcement?: { Categories?: string | null | undefined } }>(
+  newsData: T[] | undefined,
+  categories: string | string[],
+  take: number = 6,
+  mode: "any" | "all" = "any",
+): T[] => {
+  const target = new Set(
+    (Array.isArray(categories) ? categories : String(categories).split(",")).map((s) => s.trim()).filter(Boolean),
+  );
+  if (!newsData || target.size === 0) return (newsData ?? []).slice(0, take);
+
+  const result = newsData.filter((item) => {
+    const tokens = (item.Announcement?.Categories ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+    if (tokens.length === 0) return false;
+    return mode === "all" ? [...target].every((t) => tokens.includes(t)) : tokens.some((t) => target.has(t));
+  });
+
+  return result.slice(0, take);
+};
 
 const formatDate = (dateStr: string) => {
-	const date = new Date(dateStr);
-	const day = date.getDate().toString().padStart(2, "0");
-	//const month = date.toLocaleString("en-US", { month: "short" });
-	const month = (date.getMonth() + 1).toString().padStart(2, "0");
-	const year = date.getFullYear().toString();
-	return { day, month, year };
-}
+  const date = new Date(dateStr);
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear().toString();
+  return { day, month, year };
+};
 
 const GetData = ({ prop }: { prop: getDataProp[] }) => {
-	return (
-		<>
-			{prop.map((item) => {
-				return (
-					<li className="News_item" key={item.announceInternalId} >
-						<LangLink to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
-							<div className="rightBox">
-								<div className="card_catDiv">
-									<div className="a-left">
-										<div className="card_cat">
-											<div className="card_cat_link">
-												<span className="cat_title">{item.categoryName}</span>
-											</div>
-										</div>
-										<div className="CustomState">
-											{isWithinLastNDaysFromMD(Number(item.monthNum), Number(item.date)) && (
-												<div className="icon-small new-bg" >最新</div>
-											)}
-											{item.contentStatus != 0 && (
-												<>
-													{Boolean(item.contentStatus & 1) && (<div className="icon-small top-bg">置頂</div>)}
-													{Boolean(item.contentStatus & 2) && (<div className="icon-small hot-bg">熱門</div>)}
-												</>
-											)}
-										</div>
-									</div>
-									<div className="a-right">
-										<div className="card_time">
-											{item.year}-{item.month}-{item.date}
-										</div>
-									</div>
-								</div>
-								<div className="card_titleDiv">
-									<div className="card_title">
-										{item.title}
-									</div>
-								</div>
-								<div className="card_subtitleDiv">
-									<div className="card_subtitle" >
-										{item.content}
-									</div>
-								</div>
-							</div>
-						</LangLink>
-					</li>
-				)
-			})}
-		</>
-	)
-}
-
+  return (
+    <>
+      {prop.map((item) => {
+        return (
+          <li className="News_item" key={item.announceInternalId}>
+            <LangLink to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
+              <div className="rightBox">
+                <div className="card_catDiv">
+                  <div className="a-left">
+                    <div className="card_cat">
+                      <div className="card_cat_link">
+                        <span className="cat_title">{item.categoryName}</span>
+                      </div>
+                    </div>
+                    <div className="CustomState">
+                      {isWithinLastNDaysFromMD(Number(item.monthNum), Number(item.date)) && (
+                        <div className="icon-small new-bg">最新</div>
+                      )}
+                      {item.contentStatus != 0 && (
+                        <>
+                          {Boolean(item.contentStatus & 1) && <div className="icon-small top-bg">置頂</div>}
+                          {Boolean(item.contentStatus & 2) && <div className="icon-small hot-bg">熱門</div>}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div className="a-right">
+                    <div className="card_time">
+                      {item.year}-{item.month}-{item.date}
+                    </div>
+                  </div>
+                </div>
+                <div className="card_titleDiv">
+                  <div className="card_title">{item.title}</div>
+                </div>
+                <div className="card_subtitleDiv">
+                  <div className="card_subtitle">{/*item.content*/}</div>
+                </div>
+              </div>
+            </LangLink>
+          </li>
+        );
+      })}
+    </>
+  );
+};
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-// 置頂優先 → 去重 → 補滿到 limit（預設 3）
-const takeTopThenFill = (
-	top: AnnouncementSet[] | undefined,
-	rest: AnnouncementSet[] | undefined,
-	limit: number = 3
-): AnnouncementSet[] => {
-	const getKey = (x: AnnouncementSet) => x.Announcement?.InternalId ?? String(x.Announcement?.AnnouncementId ?? '');
-	const seen = new Set<string>();
-	const out: AnnouncementSet[] = [];
-	// 先放置頂
-	for (const it of (top ?? [])) {
-		const k = getKey(it);
-		if (!seen.has(k) && out.length < limit) { seen.add(k); out.push(it); }
-	}
-	// 再用一般補足到 limit
-	for (const it of (rest ?? [])) {
-		if (out.length >= limit) break;
-		const k = getKey(it);
-		if (!seen.has(k)) { seen.add(k); out.push(it); }
-	}
-	return out;
+const takeTopThenFill = (top: AnnouncementSet[] | undefined, rest: AnnouncementSet[] | undefined, limit: number = 3): AnnouncementSet[] => {
+  const getKey = (x: AnnouncementSet) => x.Announcement?.InternalId ?? String(x.Announcement?.AnnouncementId ?? "");
+  const seen = new Set<string>();
+  const out: AnnouncementSet[] = [];
+  for (const it of top ?? []) {
+    const k = getKey(it);
+    if (!seen.has(k) && out.length < limit) {
+      seen.add(k);
+      out.push(it);
+    }
+  }
+  for (const it of rest ?? []) {
+    if (out.length >= limit) break;
+    const k = getKey(it);
+    if (!seen.has(k)) {
+      seen.add(k);
+      out.push(it);
+    }
+  }
+  return out;
 };
 
 const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean => {
-	if (!month1to12 || !day1to31) return false;
-	const now = new Date();
-	const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-	let y = now.getUTCFullYear();
-	let candidateUTC = Date.UTC(y, month1to12 - 1, day1to31);
-	// 若候選日在未來，代表跨年情境 → 改用去年
-	if (candidateUTC > nowUTC) {
-		y -= 1;
-		candidateUTC = Date.UTC(y, month1to12 - 1, day1to31);
-	}
-	const diffDays = Math.floor((nowUTC - candidateUTC) / DAY_MS);
-	return diffDays >= 0 && diffDays <= n;
+  if (!month1to12 || !day1to31) return false;
+  const now = new Date();
+  const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  let y = now.getUTCFullYear();
+  let candidateUTC = Date.UTC(y, month1to12 - 1, day1to31);
+  if (candidateUTC > nowUTC) {
+    y -= 1;
+    candidateUTC = Date.UTC(y, month1to12 - 1, day1to31);
+  }
+  const diffDays = Math.floor((nowUTC - candidateUTC) / DAY_MS);
+  return diffDays >= 0 && diffDays <= n;
 };

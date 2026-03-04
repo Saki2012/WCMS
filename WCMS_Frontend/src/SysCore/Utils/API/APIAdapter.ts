@@ -314,7 +314,6 @@ export type ApiDataHookGroup<TSet> = {
         pageNumber: number;
         totalPages: number;
         onPageChange: (page: number) => void;
-
         // 方便外部 debug/取用
         param: QueryListParam;
     };
@@ -374,53 +373,41 @@ export type ApiDataHookGroup<TSet> = {
 
 export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends ApiBaseAdapter<TSvc>
 {
-    /** 固定入口：adapter.loader.xxx */
+    //#region Property
     public loader: ApiDataLoaderGroup<TSet>;
-
-    /** 固定入口：adapter.hooks.useXxx */
     public hooks: ApiDataHookGroup<TSet>;
+    //#endregion
 
+    //#region Construct
     constructor(createService: (apiInstance?: AxiosInstance) => TSvc)
     {
-        // 宣告變數 + 執行 super
         super(createService);
-        // 執行 function
         this.loader = this.buildLoaderGroup();
         this.hooks = this.buildHookGroup();
     }
+    //#endregion
+    //#region Protect Virtual Func
+    protected buildExtendedLoader(base: ApiDataLoaderGroup<TSet>): ApiDataLoaderGroup<TSet> { return base; }
+    protected buildExtendedHooks(base: ApiDataHookGroup<TSet>): ApiDataHookGroup<TSet> { return base; }
+    //#endregion
 
-    // 子類可用：用 spread 方式組出「擴充後」的 loader/hook（無需 any/unknown）
-    protected buildExtendedLoader<TExtra extends object>(extra: TExtra): ApiDataLoaderGroup<TSet> & TExtra
-    {
-        // return
-        return { ...this.loader, ...extra };
-    }
-
-    protected buildExtendedHooks<TExtra extends object>(extra: TExtra): ApiDataHookGroup<TSet> & TExtra
-    {
-        // return
-        return { ...this.hooks, ...extra };
-    }
-
+    //#region Public
     /** 後台標準行為：CUD + Toast + Success / Error callback */
     public useServerActions(opt?: UseServerActionsOptions): UseServerActionsResult<TSet>
     {
-        // 宣告變數
         const { publish } = useToast();
         const cud = this.hooks.useCudActions({ apiInstance: opt?.apiInstance, onError: opt?.onError });
 
         const emitMessages = (env: ApiResponse<unknown>) =>
-        {
-            (env.SysMessage ?? []).forEach(m =>{publish({level: m.Status ?? MessageStatus.Info,code: m.MessageCode,title: m.Message ?? "",});});
+        { 
+            (env.SysMessage ?? []).forEach(m =>{publish({level: m.Status ?? MessageStatus.Info,code: m.MessageCode,title: m.Message ?? "",text:m.Message});});
         };
-
         const runSuccess = async (mode: ServerActionMode) =>
         {
             const fn = opt?.onSuccessByMode?.[mode];
             if (!fn) return;
             await fn();
         };
-
         // return
         return {
             isSaving: cud.isSaving,
@@ -456,7 +443,9 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
             },
         };
     }
+    //#endregion
 
+    //#region Private
     private buildLoaderGroup(): ApiDataLoaderGroup<TSet>
     {
         //#region Basic Loader Func
@@ -474,7 +463,7 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
         };
         const createQueryDataLoader: ApiDataLoaderGroup<TSet>["createQueryDataLoader"] = (opt) =>
         {
-            return this.createApiLoader<string, TSet>({action: "Query.QueryData",getArgs: opt.getInternalId,call: (svc, id) => svc.queryData(id),getApiInstance: opt.getApiInstance,});
+            return this.createApiLoader<string, TSet>({action: "Query.QueryData", getArgs: opt.getInternalId, call: (svc, id) => svc.queryData(id), getApiInstance: opt.getApiInstance,});
         };
         //#endregion
 
@@ -501,7 +490,8 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
             };
         };
         //#endregion
-        return {createModelDisplayNameLoader,createQueryListLoader,createQueryCountLoader,createQueryDataLoader,createQueryGridDataLoader,};
+
+        return this.buildExtendedLoader({createModelDisplayNameLoader,createQueryListLoader,createQueryCountLoader,createQueryDataLoader,createQueryGridDataLoader});
     }
     private buildHookGroup(): ApiDataHookGroup<TSet>
     {
@@ -556,9 +546,8 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
         const useQueryData: ApiDataHookGroup<TSet>["useQueryData"] = (opt) =>
         {
             return this.useApiQuery<string, TSet>({action: "Query.QueryData",args: opt.internalId,initial: opt.initial ?? null,
-                call: (svc, id) => svc.queryData(id),fallbackError: "查詢資料失敗",
-                deps: opt.deps,onError: opt.onError,apiInstance: opt.apiInstance,
-            });
+                    call: (svc, id) => svc.queryData(id),
+                    fallbackError: "查詢資料失敗", deps: opt.deps,onError: opt.onError,apiInstance: opt.apiInstance,});
         };
         const useCudActions: ApiDataHookGroup<TSet>["useCudActions"] = (opt) =>
         {
@@ -665,6 +654,8 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
             return {modelDisplayName: model.data,data: data.data,isLoading,errors,errorText,                refetchData,};
         };
         //#endregion
-        return {useModelDisplayName,useQueryList,useQueryCount,usePagedQueryList,useQueryData,useCudActions,useQueryGridData,useQueryFormData,};
+        
+        return this.buildExtendedHooks({useModelDisplayName,useQueryList,useQueryCount,usePagedQueryList,useQueryData,useCudActions,useQueryGridData,useQueryFormData});
     }
+    //#endregion
 }

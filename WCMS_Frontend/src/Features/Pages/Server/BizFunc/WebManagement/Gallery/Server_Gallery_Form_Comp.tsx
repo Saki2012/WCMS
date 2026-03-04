@@ -4,9 +4,8 @@ import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback,  useMemo, useState } from "react";
 import * as SchemaFields from "@/types/SchemaFields";
-import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
@@ -14,238 +13,37 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
-import type { ModelDisplaySchema } from "@/types/IApiSchema";
-
-import { useToast } from "@/Features/Hooks/Common/useToastCenter";
-import type { ApiAdapterError, ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
-import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import type { ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
-
-import { GalleryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api";
-import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
-import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
-
+import { useGalleryFormFetchData } from "./Server_Gallery_Form_Hook";
 type GallerySet = components["schemas"]["GallerySet_DTO"];
-type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
-type TagSet = components["schemas"]["TagSet_DTO"];
-
 const emptyData: GallerySet = { Gallery: {}, GalleryInfo: [], GalleryPhotos: [], GalleryPhotosInfo: [] };
 
-/** 相簿表單 */
 export const Server_GalleryFormComp = (prop: { theme: IBETheme; lang: Lang }) => {
-    // 宣告變數
     const { internalId } = useParams();
     const navigate = useNavigate();
     const pathname = useLocation().pathname;
-
-    const adapter = useMemo(() => GalleryAdapter(), []);
-
-    const formData = useGalleryFormDataByAdapter(adapter, internalId ?? "", emptyData);
-
-    // Category / Tag：改走 useMapByProgId（對標 Announcement）
-    const category = useCategoryMapByProgId(SchemaFields.PGID.Gallery, prop.lang);
-    const tag = useTagMapByProgId(SchemaFields.PGID.Gallery, prop.lang);
-
-    const useContentStatus = useFetchEnumOptions("ContentStatus");
-    const status = useMemo(() => {
-        // 宣告變數
-        const src = useContentStatus.data ?? {};
-        const { ["0"]: _drop, ...rest } = src;
-
-        // return
-        return rest as Record<string, string>;
-    }, [useContentStatus.data]);
-
+    const onBackToList = useCallback(() => {navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));}, [navigate, pathname]);
+    const actionsOpt = useMemo(() => {return { onBackToList };}, [onBackToList]);
+    const getData = useGalleryFormFetchData({lang: prop.lang,internalId: internalId ?? "",emptyData, actionsOpt});
     // 多語系 detail 補齊：相簿 info
-    useEnsureLangDetails(formData, {
+    useEnsureLangDetails(getData.rawData.formData, {
         headerName: SchemaFields.GallerySetFields.Gallery,
         detailName: SchemaFields.GallerySetFields.GalleryInfo,
         parentKeys: [SchemaFields.GalleryInfoFields.GalleryId],
         preferFirstLang: prop.lang,
     });
-
     // 多語系 detail 補齊：相片 info（依 parentRow）
-    useEnsureLangDetails(formData, {
+    useEnsureLangDetails(getData.rawData.formData, {
         headerName: SchemaFields.GallerySetFields.GalleryPhotos,
         detailName: SchemaFields.GallerySetFields.GalleryPhotosInfo,
         parentKeys: [SchemaFields.GalleryPhotosInfoFields.GalleryId, SchemaFields.GalleryPhotosInfoFields.ParentRowId],
         preferFirstLang: prop.lang,
     });
-
-    const onBackToList = useCallback(() => {
-        // 執行 function：回列表
-        navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));
-    }, [navigate, pathname]);
-
-    const actions = useGalleryFormActionsFromAdapter(adapter, internalId ?? "", formData.data, onBackToList);
-
-    const isLoading = [formData.isLoading, category.isLoading, tag.isLoading, useContentStatus.isLoading];
-    const errors = [formData.error, category.error, tag.error, useContentStatus.error];
-
-    const formProp: FormCompProp = {
-        Title: internalId ? "修改相簿" : "新增相簿",
-        Theme: prop.theme,
-        LoadingList: isLoading,
-        ErrorList: errors,
-        Actions: actions,
-    };
-
-    // return（⚠️ 不改 div/DOM 結構）
+    const formProp: FormCompProp = {Title: internalId ? "修改相簿" : "新增相簿",Theme: prop.theme,IsLoading: getData.isLoading,ErrorList: getData.errors,Actions: getData.rawData.actions,};
     return (
         <FormComp prop={formProp}>
-            <MainFormComp
-                theme={prop.theme}
-                formData={formData}
-                cateOpts={category.data}
-                statusOpts={status}
-                tagOpts={tag.data}
-            ></MainFormComp>
+            <MainFormComp theme={prop.theme} formData={getData.rawData. formData} cateOpts={getData.rawData.categoryMap} tagOpts={getData.rawData.tagMap} statusOpts={getData.rawData.statusOpts}/>
         </FormComp>
     );
-};
-
-/** FormData：QueryData + ModelDisplayName（對標 Announcement） */
-const useGalleryFormDataByAdapter = (
-    adapter: ReturnType<typeof GalleryAdapter>,
-    internalId: string,
-    empty: GallerySet,
-): UseFetchFormDataResult<GallerySet> => {
-    // 宣告變數
-    const { publish } = useToast();
-
-    const internalKey = internalId || "__new__";
-    const isNew = useMemo(() => !internalId, [internalId]);
-
-    const initial = useMemo<ApiLoaderData<string, GallerySet> | null>(() => {
-        if (!isNew) return null;
-        const ok: ApiResponse<GallerySet> = { IsSuccess: true, Data: empty, SysMessage: [] };
-        return { args: internalKey, apiRes: ok };
-    }, [isNew, empty, internalKey]);
-
-    const onError = useCallback((e: ApiAdapterError) => {
-        // 執行 function
-        publish({ level: MessageStatus.Error, title: e.messageText });
-    }, [publish]);
-
-    const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
-
-    const query = adapter.hooks.useQueryData({
-        internalId: internalKey,
-        initial,
-        deps: [internalKey],
-        onError,
-    });
-
-    const [data, setData] = useState<GallerySet>(empty);
-
-    useEffect(() => {
-        // 執行 function：QueryData 回來後同步到可編輯 state
-        if (query.data) setData(query.data);
-        else if (isNew) setData(empty);
-    }, [query.data, isNew, empty]);
-
-    const refetch = useCallback(() => {
-        // 執行 function
-        void query.refetch();
-    }, [query]);
-
-    const isLoading = (Boolean(!isNew && query.isLoading) || Boolean(model.isLoading));
-    const error = query.errorText ?? model.errorText ?? null;
-
-    // return（displayName 不可為 null）
-    return {
-        data,
-        setFormData: setData,
-        isLoading,
-        error,
-        refetch,
-        displayName: (model.data ?? ({ ModelId: "", ModelDisplayName: "", Tables: [] } as ModelDisplaySchema)),
-    };
-};
-
-/** Actions：改用 Adapter.useServerActions（對標 Announcement） */
-const useGalleryFormActionsFromAdapter = (
-    adapter: ReturnType<typeof GalleryAdapter>,
-    internalId: string,
-    formData: GallerySet,
-    onBackToList: () => void,
-): ServerFormActions => {
-    // 宣告變數
-    const isNew = useMemo(() => !internalId, [internalId]);
-
-    const actions = adapter.useServerActions({
-        onSuccessByMode: {
-            create: () => onBackToList(),
-            update: () => onBackToList(),
-            delete: () => onBackToList(),
-        },
-    });
-
-    // return（不動 UI 結構）
-    return {
-        Save: async () => {
-            if (isNew) await actions.createAsync(formData);
-            else await actions.updateAsync(internalId, formData);
-        },
-        Delete: async () => {
-            if (!internalId) return;
-            await actions.deleteAsync(internalId);
-        },
-        Back: onBackToList,
-        Preview: () => { /* Gallery 目前無 Preview */ },
-        IsSaving: actions.isSaving,
-    };
-};
-
-/** Category：useMapByProgId → options map（對標 Announcement） */
-const useCategoryMapByProgId = (progId: string, lang: Lang) => {
-    // 宣告變數
-    const adapter = useMemo(() => CategoryAdapter(), []);
-    const query = adapter.hooks.useMapByProgId({
-        progId,
-        lang,
-        pageSize: 0,
-        deps: [progId, lang],
-    });
-
-    const error = useMemo(() => {
-        // return
-        return query.errorText ?? null;
-    }, [query.errorText]);
-
-    // return
-    return {
-        data: query.map ?? ({} as Record<string, string>),
-        rawData: (query.data ?? []) as CategorySet[],
-        isLoading: Boolean(query.isLoading),
-        error,
-    };
-};
-
-/** Tag：useMapByProgId → options map（對標 Announcement） */
-const useTagMapByProgId = (progId: string, lang: Lang) => {
-    // 宣告變數
-    const adapter = useMemo(() => TagAdapter(), []);
-    const query = adapter.hooks.useMapByProgId({
-        progId,
-        lang,
-        pageSize: 0,
-        deps: [progId, lang],
-    });
-
-    const error = useMemo(() => {
-        // return
-        return query.errorText ?? null;
-    }, [query.errorText]);
-
-    // return
-    return {
-        data: query.map ?? ({} as Record<string, string>),
-        rawData: (query.data ?? []) as TagSet[],
-        isLoading: Boolean(query.isLoading),
-        error,
-    };
 };
 
 const MainFormComp = (prop: {

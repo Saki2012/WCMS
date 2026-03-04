@@ -1,11 +1,12 @@
-import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
-import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
+import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
+import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
+import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 import type { components } from "@/types/api";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { LangLink } from "@/SysCore/i18n/LangLink";
 
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 
@@ -33,13 +34,29 @@ declare global {
 	}
 }
 
-export const LinkData = (props: { lang: Lang }) => {
-	// 宣告變數：資料來源（沿用既有 BannerSlider）
-	const useBanner = useFetchFormData<BannerSet>(
-		BannerSliderProvider(),
-		"aaf84f7c-3521-4288-9c2e-c75b43f14c56",
-		{},
-	);
+export interface LinkDataProps {
+	lang: Lang;
+	/** BannerSlider QueryData 的 internalId */
+	internalId: string;
+	/** SSR loader 已抓到的 BannerSet（可為 null） */
+	initialBanner: BannerSet | null;
+}
+
+export const LinkData = (props: LinkDataProps) => {
+	// 宣告變數：adapter（固定一次）
+	const adapter = useMemo(() => BannerSliderAdapter(), []);
+
+	// 宣告變數：把 loader 的單筆資料包成 hook 的 initial（QueryData）
+	const initial = useMemo(() => {
+		return buildQueryDataInitial(props.internalId, props.initialBanner);
+	}, [props.internalId, props.initialBanner]);
+
+	// 執行 function：CSR 用 adapter hook 接手（SSR 有 initial → 不重抓）
+	const useBanner = adapter.hooks.useQueryData({
+		internalId: props.internalId,
+		initial,
+		deps: [props.internalId, props.lang],
+	});
 
 	// 宣告變數：依 Sort 排序（穩定排序）
 	const sortedDetails = useMemo(() => {
@@ -67,64 +84,35 @@ export const LinkData = (props: { lang: Lang }) => {
 	useEffect(() => {
 		// SSR guard
 		if (typeof window === "undefined") return;
-		if (!swiperRootRef.current) return;
 
-		// ✅ 沒資料就不要 init（避免空初始化）
-		if (sortedDetails.length === 0) return;
+		// 宣告變數
+		const root = swiperRootRef.current;
+		if (!root) return;
+
+		// ✅ 沒資料就 destroy（避免殘留）
+		if (sortedDetails.length === 0) {
+			destroySwiperSafe(swiperInstanceRef);
+			return;
+		}
 
 		let cancelled = false;
 
-		(async () => {
+		const run = async () => {
 			const SwiperCtor = await ensureSwiper();
-			if (!SwiperCtor) return;
-			if (cancelled) return;
+			if (!SwiperCtor || cancelled) return;
 
-			const root = swiperRootRef.current;
-			if (!root) return;
-
-			const nextBtn = root.querySelector(".swiper-next");
-			const prevBtn = root.querySelector(".swiper-prev");
-			const paginationEl = root.querySelector(".swiper-pagination");
-			const wrapperEl = root.querySelector(".swiper-wrapper");
-
-			// ✅ 結構不完整就不 init（避免 Swiper 亂塞東西）
-			if (!nextBtn || !prevBtn || !paginationEl || !wrapperEl) return;
+			const els = getSwiperElements(root);
+			if (!els) return;
 
 			// ✅ 若已初始化過（資料更新），先 destroy 再重建
-			try {
-				swiperInstanceRef.current?.destroy(true, true);
-			} catch {
-				// ignore
-			}
-			swiperInstanceRef.current = null;
+			destroySwiperSafe(swiperInstanceRef);
 
 			// ✅ 等 React 把 slide 都掛上去再 init（更穩）
 			requestAnimationFrame(() => {
 				if (cancelled) return;
 				if (!swiperRootRef.current) return;
 
-				swiperInstanceRef.current = new SwiperCtor(root, {
-					direction: "horizontal",
-					slidesPerView: 1,
-					spaceBetween: 0,
-					breakpoints: {
-						1200: { slidesPerView: 6 },
-						992: { slidesPerView: 5 },
-						768: { slidesPerView: 4 },
-						680: { slidesPerView: 3 },
-						480: { slidesPerView: 2 },
-					},
-					navigation: {
-						nextEl: nextBtn,
-						prevEl: prevBtn,
-					},
-					pagination: {
-						el: paginationEl,
-						clickable: false,
-					},
-					simulateTouch: true,
-					grabCursor: true,
-				});
+				swiperInstanceRef.current = new SwiperCtor(root, buildSwiperOptions(els));
 
 				// 若 Swiper 有 update 就順便呼叫一次（兼容某些版本）
 				try {
@@ -133,10 +121,14 @@ export const LinkData = (props: { lang: Lang }) => {
 					// ignore
 				}
 			});
-		})();
+		};
 
+		void run();
+
+		// cleanup
 		return () => {
 			cancelled = true;
+			destroySwiperSafe(swiperInstanceRef);
 		};
 	}, [sortedDetails.length]);
 
@@ -167,18 +159,12 @@ export const LinkData = (props: { lang: Lang }) => {
 											return (
 												<div key={p.RowId ?? i} className="swiper-slide">
 													<div className="item">
-														<LangLink
-															to={url || "#"}
-															onClick={(e) => handleClick(e, url)}
-															title={title}
-															target={target}
-															rel={target === "_blank" ? "noreferrer" : undefined}
-															tabIndex={0}
-														>
+														<LangLink to={url || "#"} onClick={(e) => handleClick(e, url)} title={title}
+															target={target} rel={target === "_blank" ? "noreferrer" : undefined} tabIndex={0}>
 															<div className="icon-wrapper">
 																<div className="icon-area">
 																	<div className={iconClass}>
-																		{imgSrc ? <img src={imgSrc} alt={title} /> : null}
+																		{imgSrc ? <img src={imgSrc} aria-hidden="true"/> : null}
 																	</div>
 																</div>
 																<div className="tit-contents">
@@ -197,12 +183,12 @@ export const LinkData = (props: { lang: Lang }) => {
 
 									{/* 控制 左 / 右 按鈕 START（對標 prototype） */}
 									<div className="swiper-nav mt-1">
-										<button type="button" role="presentation" className="swiper-prev" tabIndex={0}>
+										<button type="button" className="swiper-prev" tabIndex={0}>
 											<span aria-label="Previous" title="上一張">
 												<span className="d-none">上一張</span>
 											</span>
 										</button>
-										<button type="button" role="presentation" className="swiper-next" tabIndex={0}>
+										<button type="button" className="swiper-next" tabIndex={0}>
 											<span aria-label="Next" title="下一張">
 												<span className="d-none">下一張</span>
 											</span>
@@ -222,6 +208,77 @@ export const LinkData = (props: { lang: Lang }) => {
 	);
 };
 
+// --------------------
+// helpers（避免 effect 過長）
+// --------------------
+const buildQueryDataInitial = (internalId: string, banner: BannerSet | null): ApiLoaderData<string, BannerSet> | null => {
+	// 宣告變數：沒有 initial 就回 null
+	if (!banner) return null;
+
+	// 宣告變數：組出 env（QueryData 單筆）
+	const apiRes: ApiResponse<BannerSet> = { IsSuccess: true, Data: banner, SysMessage: [] };
+
+	// return
+	return { args: internalId, apiRes };
+};
+
+const destroySwiperSafe = (ref: React.MutableRefObject<SwiperInstance | null>) => {
+	// 宣告變數
+	const ins = ref.current;
+	if (!ins) return;
+
+	// 執行 function：安全 destroy
+	try {
+		ins.destroy(true, true);
+	} catch {
+		// ignore
+	}
+
+	// 執行 function：清空 ref
+	ref.current = null;
+};
+
+const getSwiperElements = (root: Element) => {
+	// 宣告變數
+	const nextBtn = root.querySelector(".swiper-next");
+	const prevBtn = root.querySelector(".swiper-prev");
+	const paginationEl = root.querySelector(".swiper-pagination");
+	const wrapperEl = root.querySelector(".swiper-wrapper");
+
+	// return：結構不完整就不 init（避免 Swiper 亂塞）
+	if (!nextBtn || !prevBtn || !paginationEl || !wrapperEl) return null;
+	return { nextBtn, prevBtn, paginationEl };
+};
+
+const buildSwiperOptions = (els: { nextBtn: Element; prevBtn: Element; paginationEl: Element }): SwiperOptions => {
+	// return
+	return {
+		direction: "horizontal",
+		slidesPerView: 1,
+		spaceBetween: 0,
+		breakpoints: {
+			1200: { slidesPerView: 6 },
+			992: { slidesPerView: 5 },
+			768: { slidesPerView: 4 },
+			680: { slidesPerView: 3 },
+			480: { slidesPerView: 2 },
+		},
+		navigation: {
+			nextEl: els.nextBtn,
+			prevEl: els.prevBtn,
+		},
+		pagination: {
+			el: els.paginationEl,
+			clickable: false,
+		},
+		simulateTouch: true,
+		grabCursor: true,
+	};
+};
+
+// --------------------
+// Swiper loader（沿用原本邏輯）
+// --------------------
 const ensureSwiper = (() => {
 	let promise: Promise<SwiperConstructor | null> | null = null;
 

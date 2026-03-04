@@ -43,7 +43,7 @@ export const RowRender = (props: { rows: GridRow[]; style?: IGridView_Style; }) 
     return (
         <tbody>
             {props.rows && props.rows.map((row, idx) => (
-                <tr key={idx} className={idx % 2 === 1 ? props.style?.Odd : props.style?.Even}>
+                <tr key={row.keyId} className={idx % 2 === 1 ? props.style?.Odd : props.style?.Even}>
                     {(row.cells ?? []).map((data, cellIdx) => (
                         <td key={cellIdx} headers={data.col.key} className={"table_td_vertical_align"} data-th={data.col.title}>
                             {data.content}

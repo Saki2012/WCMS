@@ -7,7 +7,7 @@ export interface FormCompProp
 {
     Title: string;
     Theme: IBETheme;
-    LoadingList: boolean[];
+    IsLoading: boolean;
     ErrorList: (string | null | undefined)[];
     Actions: UseActionsResult | ServerFormActions;
     SearchBar?: SearchBarProps;

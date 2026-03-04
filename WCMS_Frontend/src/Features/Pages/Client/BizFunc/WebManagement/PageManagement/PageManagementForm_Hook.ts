@@ -3,8 +3,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
 import type { LoaderFunctionArgs } from "react-router-dom";
-import type { IPageManagementOptions } from "./PageManagementForm";
-
+import type { IPageManagementOptions } from "./PageManagementForm_Comp";
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
 
 export interface PageManagementFormLoaderArgs
@@ -31,16 +30,9 @@ export const PageManagementForm_Loader =
     (p: { lang: Lang; opts: IPageManagementOptions; }) =>
     async ({ request }: LoaderFunctionArgs): Promise<PageManagementFormLoaderData> =>
     {
-        // 宣告變數
         const pageId = `${p.opts.PageId ?? ""}`.trim();
         const ssrApi = getSsrApi(request);
-
-        // 無 pageId：回空資料，避免 loader 爆掉
-        if (!pageId)
-        {
-            return { args: { pageId }, res: { dataRes: null } };
-        }
-
+        if (!pageId) return { args: { pageId }, res: { dataRes: null } };
         const adapter = PageManagementAdapter(ssrApi);
 
         // 執行 function：QueryData（PageManagement 以 pageId 當 internalId 使用）

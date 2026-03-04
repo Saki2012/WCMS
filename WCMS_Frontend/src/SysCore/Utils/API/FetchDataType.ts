@@ -13,7 +13,7 @@ export interface UseFetchDataResult<TRawData extends Record<string, unknown>,TAd
     /** 重抓「主資料」（可一次包含多個主資料，例如 count + list + detail） */
     refetchData: () => Promise<void>;
     /** 重抓「參考/關聯資料」（例如 category/tag/map/model display...） */
-    refetchRefData: () => Promise<void>;
+    refetchRefData?: () => Promise<void>;
 }
 
 /** （可選）SSR/Loader 初始資料格式：用 argsKey 判斷是否需要 CSR 補抓 */

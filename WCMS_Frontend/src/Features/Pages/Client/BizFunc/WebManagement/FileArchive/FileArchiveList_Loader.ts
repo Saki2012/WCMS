@@ -43,55 +43,23 @@ export interface FileArchiveListLoaderData
 
 const buildCondition = (p: { lang: Lang; opts: IFileArchiveOptions; }) =>
 {
-    // 宣告變數
-    let condition = "";
-
-    if (p.opts.Category)
-    {
-        condition = LibMerge(
-            " And ",
-            false,
-            condition,
-            `${FileArchiveFields.CategoriesId} HasAny [${p.opts.Category}]`,
-        );
-    }
-
-    if (p.opts.Tag)
-    {
-        condition = LibMerge(" And ", false, condition, `${FileArchiveFields.TagsId} HasAny [${p.opts.Tag}]`);
-    }
-
-    condition = LibMerge(" And ", false, condition, `${FileArchiveFields.ContentStatus} !& 4`); // 不包含隱藏資料
-    condition = LibMerge(
-        " And ",
-        false,
-        condition,
+    let condition = LibMerge(" And ", false, 
+        `${FileArchiveFields.ContentStatus} !& 4`, // 不包含隱藏資料
         `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Lang} = ${p.lang}`,
-    );
-    condition = LibMerge(
-        " And ",
-        false,
-        condition,
-        `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Title} != ''`,
+        `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Title} != ''`
     );
 
-    // return
+    if (p.opts.Category) condition = LibMerge(" And ", false, condition, `${FileArchiveFields.CategoriesId} HasAny [${p.opts.Category}]`,);
+    if (p.opts.Tag) condition = LibMerge(" And ", false, condition, `${FileArchiveFields.TagsId} HasAny [${p.opts.Tag}]`);
     return condition;
 };
 
 const buildBaseParam = (p: { lang: Lang; opts: IFileArchiveOptions; }) =>
 {
-    // 宣告變數
     const condition = buildCondition(p);
-
-    // return（比照你原本 buildQueryCondition 的 Fields）
     return {
-        Fields: [
-            FileArchiveFields.InternalId,
-            FileArchiveFields.FileArchiveId,
-            FileArchiveFields.TagsId,
-            FileArchiveFields.DownloadCount,
-            FileArchiveFields.ContentStatus,
+        Fields: [FileArchiveFields.InternalId, FileArchiveFields.FileArchiveId, FileArchiveFields.TagsId,
+            FileArchiveFields.DownloadCount, FileArchiveFields.ContentStatus,
 
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.FileArchiveId}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.RowId}`,
@@ -121,7 +89,10 @@ const buildBaseParam = (p: { lang: Lang; opts: IFileArchiveOptions; }) =>
 
 const buildTagParam = (lang: Lang) =>
 {
-    // return：用 TagData.ProgId + TagDetail.Lang 過濾（取 FileArchive 用的 tags）
+    let condition = LibMerge(" And ", false, `${TagDataFields.ProgId} = ${PGID.FileArchive}`,
+        `${TagDataFields._TagDetail}.${TagDetailFields.Lang} = ${lang}`,
+        `${TagDataFields._TagDetail}.${TagDetailFields.TagName} != ''`
+    )
     return {
         Fields: [
             `${TagSetFields.TagData}.${TagDataFields.TagId}`,
@@ -129,9 +100,7 @@ const buildTagParam = (lang: Lang) =>
             `${TagSetFields.TagDetail}.${TagDetailFields.Lang}`,
             `${TagSetFields.TagDetail}.${TagDetailFields.TagName}`,
         ],
-        Condition: `${TagSetFields.TagData}.${TagDataFields.ProgId} = ${PGID.FileArchive} And `
-            + `${TagSetFields.TagDetail}.${TagDetailFields.Lang} = ${lang} And `
-            + `${TagSetFields.TagDetail}.${TagDetailFields.TagName} != ''`,
+        Condition: condition,
         PageNumber: 0,
         PageSize: 0,
     } as QueryListParam;
@@ -142,27 +111,14 @@ export const FileArchiveList_Loader =
     (p: { lang: Lang; opts: IFileArchiveOptions; }) =>
     async ({ request }: LoaderFunctionArgs): Promise<FileArchiveListLoaderData> =>
     {
-        // 宣告變數
         const ssrApi = getSsrApi(request);
         const fileArchive = FileArchiveAdapter(ssrApi);
         const tag = TagAdapter(ssrApi);
-
         const baseParam = buildBaseParam(p);
         const tagParam = buildTagParam(p.lang);
-
-        // 執行 function：SSR 首屏先撈 count + list + tag
-        const countLoader = fileArchive.loader.createQueryCountLoader({
-            getCondition: () => baseParam,
-            getApiInstance: () => ssrApi,
-        });
-        const listLoader = fileArchive.loader.createQueryListLoader({
-            getCondition: () => baseParam,
-            getApiInstance: () => ssrApi,
-        });
-        const tagLoader = tag.loader.createQueryListLoader({
-            getCondition: () => tagParam,
-            getApiInstance: () => ssrApi,
-        });
+        const countLoader = fileArchive.loader.createQueryCountLoader({getCondition: () => baseParam, getApiInstance: () => ssrApi,});
+        const listLoader = fileArchive.loader.createQueryListLoader({getCondition: () => baseParam, getApiInstance: () => ssrApi,});
+        const tagLoader = tag.loader.createQueryListLoader({getCondition: () => tagParam, getApiInstance: () => ssrApi,});
 
         const [countLD, listLD, tagLD] = await Promise.all([
             countLoader({ request } as LoaderFunctionArgs),

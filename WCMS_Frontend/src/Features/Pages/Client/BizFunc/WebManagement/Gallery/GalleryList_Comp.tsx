@@ -15,7 +15,7 @@ import { useLoaderData } from "react-router-dom";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { GalleryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api";
 import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
-import type { GalleryListLoaderData } from "./GalleryList_Loader";
+import type { GalleryListLoaderData } from "./GalleryList_Hook";
 
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
@@ -40,8 +40,8 @@ const GalleryList = (props: IGalleryListProps) => {
     const useListData = useGalleryList(adapter.gallery, props.lang, categoryIds, tagIds, loaderData);
     const useCategoryList = useCategory(adapter.category, props.lang, loaderData);
 
-    const loadingList = [useListData.isLoading, useCategoryList.isLoading, useCategoryList.isLoading];
-    const errorList = [useListData.error, useCategoryList.errorText, useCategoryList.errorText];
+    const loadingList = [useListData.isLoading, useCategoryList.isLoading];
+    const errorList = [useListData.error, useCategoryList.errorText];
 
     const paginprops: PaginatorProps =
     {
@@ -56,7 +56,7 @@ const GalleryList = (props: IGalleryListProps) => {
 
     // return（不改 div 結構）
     return (
-        <ModuleContent nodeTitle={props.node.title} title={""} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops}>
+        <ModuleContent nodeTitle={props.node.title} title={""} isLoading={loadingList.some(Boolean)} errorList={errorList} paginatorProps={paginprops}>
             {children}
         </ModuleContent>
     );

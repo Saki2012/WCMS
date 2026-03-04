@@ -1,256 +1,277 @@
-
-import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import type { components } from "@/types/api";
-import * as SchemaFields from "@/types/SchemaFields";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
-import { useNow } from '@/SysCore/Utils/Library/LibHook';
-import { type Lang } from '@/SysCore/i18n/lang';
-import { useEffect } from 'react';
-import { LangLink, LangNavLink } from '@/SysCore/i18n/LangLink';
+import { type Lang } from "@/SysCore/i18n/lang";
+import { useEffect, useMemo } from "react";
+import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { IndexLabel } from "@/SpecFetures/1818/Pages/Client//Index/Section/IndexLabelText";
 
-type GallerySet = components["schemas"]["GallerySet_DTO"]
-type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
-type TagSet = components["schemas"]["TagSet_DTO"]
+import { GalleryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
+import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
 
-const useTopGalleryList = (categories?: string) => {
-	const provider = GalleryProvider();
-	let cdt = `${SchemaFields.GalleryFields.ContentStatus} & 1`;
-	//因時程關係，暫時用前端來判斷有效日期時間，多少會有客戶端修改時間的風險。之後再改到後端開新的api寫死抓系統時間為依據。
-	const now = useNow({ startPaused: true });
-	if (now.isoLocal) cdt = LibMerge(" And ", false, cdt, `${SchemaFields.GalleryFields.Validate_Start} <= ${now.isoLocal}`);
-	cdt = LibMerge(" And ", false, cdt, categories ? `${SchemaFields.GalleryFields.Categories} HasAny [${categories}]` : "");
-	return useFetchGridListData<GallerySet>({
-		getModelDisplayName: () => provider.getModelDisplayName(),
-		fetchList: (cond) => provider.fetchList(cond),
-		fetchListCount: (cond) => provider.fetchListCount(cond),
-		visibleKeys: [],
-		buildQueryCondition: () => ({
-			Fields: [
-				SchemaFields.GalleryFields.GalleryId,
-				SchemaFields.GalleryFields.InternalId,
-				SchemaFields.GalleryFields.Categories,
-				SchemaFields.GalleryFields.Tags,
-				SchemaFields.GalleryFields.ContentStatus,
-				SchemaFields.GalleryFields.Validate_Start,
-				SchemaFields.GalleryFields.CoverPicSrcId,
+type QueryListParam = components["schemas"]["QueryListParam"];
+type GallerySet = components["schemas"]["GallerySet_DTO"];
+type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
+type TagSet = components["schemas"]["TagSet_DTO"];
 
-				`${SchemaFields.GalleryFields._GalleryInfo}.${SchemaFields.GalleryInfoFields.Lang}`,
-				`${SchemaFields.GalleryFields._GalleryInfo}.${SchemaFields.GalleryInfoFields.Title}`,
-				`${SchemaFields.GalleryFields._GalleryInfo}.${SchemaFields.GalleryInfoFields.Content}`,
-				//`${SchemaFields.GalleryFields._GalleryPhotos}.${SchemaFields.GalleryPhotosFields.RowId}`,
-				//`${SchemaFields.GalleryFields._GalleryPhotos}.${SchemaFields.GalleryPhotosFields.PicSrcId}`,
-				//`${SchemaFields.GalleryFields._GalleryPhotos}.${SchemaFields.GalleryPhotosFields.GalleryPhotosInfo}.${SchemaFields.GalleryPhotosInfoFields.Lang}`,
-				//`${SchemaFields.GalleryFields._GalleryPhotos}.${SchemaFields.GalleryPhotosFields.GalleryPhotosInfo}.${SchemaFields.GalleryPhotosInfoFields.Title}`,
-			],
-			Condition: cdt,
-			OrderBy: [{ Col: SchemaFields.GalleryFields.Validate_Start, Desc: true }],
-			PageNumber: 1,
-			PageSize: 6,
-		}),
-		enabled: true,
-		deps: [categories],
-	});
+const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]) => {
+	// return：符合 adapter hook 的 initial 型別
+	return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
 };
-const useGalleryList = (categories?: string) => {
-	const provider = GalleryProvider();
-	let cdt = `${SchemaFields.GalleryFields.ContentStatus} !& 4 And ${SchemaFields.GalleryFields.ContentStatus} !& 1`;
-	//因時程關係，暫時用前端來判斷有效日期時間，多少會有客戶端修改時間的風險。之後再改到後端開新的api寫死抓系統時間為依據。
-	const now = useNow({ startPaused: true });
-	if (now.isoLocal) cdt = LibMerge(" And ", false, cdt, `${SchemaFields.GalleryFields.Validate_Start} <= ${now.isoLocal}`);
-	cdt = LibMerge(" And ", false, cdt, categories ? `${SchemaFields.GalleryFields.Categories} HasAny [${categories}]` : "");
-	return useFetchGridListData<GallerySet>({
-		getModelDisplayName: () => provider.getModelDisplayName(),
-		fetchList: (cond) => provider.fetchList(cond),
-		fetchListCount: (cond) => provider.fetchListCount(cond),
-		visibleKeys: [],
-		buildQueryCondition: () => ({
-			Fields: [
-				SchemaFields.GalleryFields.GalleryId,
-				SchemaFields.GalleryFields.InternalId,
-				SchemaFields.GalleryFields.Categories,
-				SchemaFields.GalleryFields.Tags,
-				SchemaFields.GalleryFields.ContentStatus,
-				SchemaFields.GalleryFields.Validate_Start,
-				SchemaFields.GalleryFields.CoverPicSrcId,
-				`${SchemaFields.GalleryFields._GalleryInfo}.${SchemaFields.GalleryInfoFields.Lang}`,
-				`${SchemaFields.GalleryFields._GalleryInfo}.${SchemaFields.GalleryInfoFields.Title}`,
-				`${SchemaFields.GalleryFields._GalleryInfo}.${SchemaFields.GalleryInfoFields.Content}`,
-				//`${SchemaFields.GalleryFields._GalleryPhotos}.${SchemaFields.GalleryPhotosFields.RowId}`,
-				//`${SchemaFields.GalleryFields._GalleryPhotos}.${SchemaFields.GalleryPhotosFields.PicSrcId}`,
-				//`${SchemaFields.GalleryFields._GalleryPhotos}.${SchemaFields.GalleryPhotosFields.GalleryPhotosInfo}.${SchemaFields.GalleryPhotosInfoFields.Lang}`,
-				//`${SchemaFields.GalleryFields._GalleryPhotos}.${SchemaFields.GalleryPhotosFields.GalleryPhotosInfo}.${SchemaFields.GalleryPhotosInfoFields.Title}`,
-			],
-			Condition: cdt,
-			OrderBy: [{ Col: SchemaFields.GalleryFields.Validate_Start, Desc: true }],
-			PageNumber: 1,
-			PageSize: 6,
-		}),
-		enabled: true,
-		deps: [categories],
-	});
-};
-const useCategoryList = () => {
-	const provider = CategoryProvider();
-	return useFetchGridListData<CategoryDataSet>({
-		getModelDisplayName: () => provider.getModelDisplayName(),
-		fetchList: (cond) => provider.fetchList(cond),
-		fetchListCount: (cond) => provider.fetchListCount(cond),
-		visibleKeys: [],
-		buildQueryCondition: () => ({
-			Fields: [
-				SchemaFields.CategoryFields.CategoryId,
-				`${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
-				`${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
-			],
-			Condition: `${SchemaFields.CategoryFields.ProgId} = ${SchemaFields.PGID.Gallery}`,
-			PageNumber: 0,
-			PageSize: 0,
-		}),
-		enabled: true,
-		deps: [],
-	});
-};
-const useTagList = () => {
-	const provider = TagProvider();
-	return useFetchGridListData<TagSet>({
-		getModelDisplayName: () => provider.getModelDisplayName(),
-		fetchList: (cond) => provider.fetchList(cond),
-		fetchListCount: (cond) => provider.fetchListCount(cond),
-		visibleKeys: [],
-		buildQueryCondition: () => ({
-			Fields: [
-				SchemaFields.TagDataFields.TagId,
-				`${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
-				`${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
-			],
-			Condition: `${SchemaFields.TagDataFields.ProgId} = ${PGID.Gallery}`,
-			PageNumber: 0,
-			PageSize: 0,
-		}),
-		enabled: true,
-		deps: [],
-	});
-};
-export const ActivityPhotoData = (props: { lang: Lang }) => {
-	const useTopAllGalleryData1 = useTopGalleryList("Category20251113010");
-	const useAllGalleryData1 = useGalleryList("Category20251113010");
-	const allGalleryRawData1 = takeTopThenFill(useTopAllGalleryData1.rawData, useAllGalleryData1.rawData, 6);
-	const useCategoryData = useCategoryList();
-	const useTagData = useTagList();
-	const categoryDict: Record<string, string> = Object.fromEntries(
-		(useCategoryData.rawData ?? []).map(cat => {
-			const id = cat.Category?.CategoryId;
-			const name = cat.CategoryDetail?.find(p => p.Lang === props.lang)?.CategoryName ?? "";
-			return [id, name];
+
+const buildCategoryDict = (list: CategoryDataSet[], lang: Lang): Record<string, string> => {
+	// 宣告變數
+	const pairs = list
+		.map((cat) => {
+			const id = cat.Category?.CategoryId ?? "";
+			const name = cat.CategoryDetail?.find((p) => p.Lang === lang)?.CategoryName ?? "";
+			return [id, name] as const;
 		})
-	);
-	const tagDict: Record<string, string> = Object.fromEntries(
-		(useTagData.rawData ?? []).map(cat => {
-			const id = cat.TagData?.TagId;
-			const name = cat.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "";
-			return [id, name];
+		.filter(([id]) => Boolean(id));
+
+	// return
+	return Object.fromEntries(pairs);
+};
+
+const buildTagDict = (list: TagSet[], lang: Lang): Record<string, string> => {
+	// 宣告變數
+	const pairs = list
+		.map((t) => {
+			const id = t.TagData?.TagId ?? "";
+			const name = t.TagDetail?.find((p) => p.Lang === lang)?.TagName ?? "";
+			return [id, name] as const;
 		})
+		.filter(([id]) => Boolean(id));
+
+	// return
+	return Object.fromEntries(pairs);
+};
+
+export const ActivityPhotoData = (props: {
+	lang: Lang;
+
+	galleryTopParam: QueryListParam;
+	galleryListParam: QueryListParam;
+	cateParam: QueryListParam;
+	tagParam: QueryListParam;
+
+	initialTopList: GallerySet[];
+	initialList: GallerySet[];
+	initialCategories: CategoryDataSet[];
+	initialTags: TagSet[];
+}) => {
+	// 宣告變數：adapters
+	const galleryAdapter = useMemo(() => GalleryAdapter(), []);
+	const cateAdapter = useMemo(() => CategoryAdapter(), []);
+	const tagAdapter = useMemo(() => TagAdapter(), []);
+
+	// 宣告變數：initial（必須 memo）
+	const topInitial = useMemo(
+		() => toListInitial(props.galleryTopParam, props.initialTopList ?? []),
+		[props.galleryTopParam, props.initialTopList],
 	);
-	const allGallery1 = getGalleryDataProps(allGalleryRawData1, props.lang, "/announcement/announcement-activity", "", categoryDict, tagDict);
-	useEffect(() => {
-		// SSR 保護
-		if (typeof window === "undefined") return;
-		// 沒資料就不要初始化
-		if (!allGallery1 || allGallery1.length === 0) return;
-		const $: any = (window as any).$ || (window as any).jQuery;
-		if (!$) return;
-		const $owl = $('#Gallery_owl_carousel');
-		if (!$owl.length || typeof $owl.owlCarousel !== "function") return;
-		// 若已經被初始化過，先 destroy 再重建，避免重複包 wrapper
-		if ($owl.hasClass('owl-loaded')) {
-			try {
-				$owl.trigger('destroy.owl.carousel');
-				$owl.find('.owl-stage-outer').children().unwrap(); // 還原結構
-				$owl.removeClass('owl-loaded owl-center owl-text-select-on');
-			} catch {
-				// ignore
-			}
-		}
-		// 初始化 Owl Carousel（設定對齊原 index.html）
-		$owl.owlCarousel({
-			items: 4,
-			// loop: true,
-			dots: false,
-			nav: true,
-			margin: 30,
-			// autoplay: true,
-			autoplayTimeout: 5000,
-			autoplayHoverPause: true,
-			responsive: {
-				0: { items: 1 },
-				500: { items: 2 },
-				575: { items: 2 },
-				767: { items: 2 },
-				991: { items: 3 },
-				1199: { items: 3 },
-			},
-		});
-		let isPlaying = false;
-		const $start = $('#Gallery_start');
-		const $pause = $('#Gallery_pause');
-		const updateControls = () => {
-			// 若按鈕被你先隱藏或乾脆沒 render，就直接跳過
-			if (!$start.length || !$pause.length) return;
-			if (isPlaying) {
-				$start
-					.attr('aria-pressed', 'true')
-					.attr('aria-label', '圖片輪播播放中')
-					.find('.sr-only')
-					.text('圖片輪播播放中');
+	const listInitial = useMemo(
+		() => toListInitial(props.galleryListParam, props.initialList ?? []),
+		[props.galleryListParam, props.initialList],
+	);
+	const cateInitial = useMemo(
+		() => toListInitial(props.cateParam, props.initialCategories ?? []),
+		[props.cateParam, props.initialCategories],
+	);
+	const tagInitial = useMemo(
+		() => toListInitial(props.tagParam, props.initialTags ?? []),
+		[props.tagParam, props.initialTags],
+	);
 
-				$pause
-					.attr('aria-pressed', 'false')
-					.attr('aria-label', '暫停圖片輪播')
-					.find('.sr-only')
-					.text('暫停圖片輪播');
-			} else {
-				$start
-					.attr('aria-pressed', 'false')
-					.attr('aria-label', '開始播放圖片輪播')
-					.find('.sr-only')
-					.text('開始播放圖片輪播');
+	// 執行：CSR hooks 接手（SSR 有 initial → 不重抓）
+	const useTopList = galleryAdapter.hooks.useQueryList({
+		condition: props.galleryTopParam,
+		initial: topInitial,
+		deps: [props.galleryTopParam.Condition ?? ""],
+	});
+	const useList = galleryAdapter.hooks.useQueryList({
+		condition: props.galleryListParam,
+		initial: listInitial,
+		deps: [props.galleryListParam.Condition ?? ""],
+	});
+	const useCategoryData = cateAdapter.hooks.useQueryList({
+		condition: props.cateParam,
+		initial: cateInitial,
+		deps: [props.cateParam.Condition ?? ""],
+	});
+	const useTagData = tagAdapter.hooks.useQueryList({
+		condition: props.tagParam,
+		initial: tagInitial,
+		deps: [props.tagParam.Condition ?? ""],
+	});
 
-				$pause
-					.attr('aria-pressed', 'true')
-					.attr('aria-label', '圖片輪播已暫停')
-					.find('.sr-only')
-					.text('圖片輪播已暫停');
-			}
-		};
-		const handlePauseClick = (e: any) => {
-			e.preventDefault();
-			$owl.trigger('stop.owl.autoplay');
-			isPlaying = false;
-			updateControls();
-		};
-		const handleStartClick = (e: any) => {
-			e.preventDefault();
-			$owl.trigger('play.owl.autoplay', [5000]);
-			isPlaying = true;
-			updateControls();
-		};
-		$pause.on('click', handlePauseClick);
-		$start.on('click', handleStartClick);
-		// 預設狀態（跟原始 script 一樣：暫停中）
-		isPlaying = false;
-		updateControls();
-		return () => {
-			$pause.off('click', handlePauseClick);
-			$start.off('click', handleStartClick);
-			try {
-				$owl.trigger('destroy.owl.carousel');
-			} catch {
-				// ignore
-			}
-		};
+	// 宣告：合併（置頂優先補滿 6）
+	const allGalleryRawData1 = useMemo(() => {
+		return takeTopThenFill(useTopList.data ?? [], useList.data ?? [], 6);
+	}, [useTopList.data, useList.data]);
+
+	// 宣告：字典
+	const categoryDict = useMemo(() => {
+		return buildCategoryDict(useCategoryData.data ?? [], props.lang);
+	}, [useCategoryData.data, props.lang]);
+
+	const tagDict = useMemo(() => {
+		return buildTagDict(useTagData.data ?? [], props.lang);
+	}, [useTagData.data, props.lang]);
+
+	// 宣告：轉成 UI props（沿用你原本函式）
+	const allGallery1 = useMemo(() => {
+		return getGalleryDataProps(allGalleryRawData1, props.lang, "/announcement/announcement-activity", "", categoryDict, tagDict);
+	}, [allGalleryRawData1, props.lang, categoryDict, tagDict]);
+
+	// 宣告：owl dep key（避免每次 render 都 destroy/re-init）
+	const owlKey = useMemo(() => {
+		return (allGallery1 ?? []).map((x) => x.internalId).join(",");
 	}, [allGallery1]);
+
+	type OwlOptions = Record<string, unknown>;
+
+type JQueryObj = {
+  length: number;
+  data: (key: string) => unknown;
+  trigger: (evt: string, payload?: unknown[]) => void;
+  owlCarousel: (opts: OwlOptions) => void;
+  on: (evt: string, handler: (e: Event) => void) => void;
+  off: (evt: string, handler: (e: Event) => void) => void;
+  attr: (name: string, value: string) => JQueryObj;
+  find: (sel: string) => JQueryObj;
+  text: (value: string) => JQueryObj;
+};
+
+type JQueryLike = ((el: HTMLElement | string) => JQueryObj) & {
+  fn?: { owlCarousel?: (opts: OwlOptions) => void };
+};
+
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+const getJQuery = (): JQueryLike | null => {
+  const w = window as unknown as { $?: JQueryLike; jQuery?: JQueryLike };
+  return w.jQuery ?? w.$ ?? null;
+};
+
+const waitForOwlReady = async (p?: { timeoutMs?: number; intervalMs?: number }) => {
+  const timeoutMs = p?.timeoutMs ?? 8000;
+  const intervalMs = p?.intervalMs ?? 50;
+  const start = Date.now();
+
+  while (Date.now() - start < timeoutMs) {
+    const $ = getJQuery();
+    if ($?.fn?.owlCarousel) return $;
+    await sleep(intervalMs);
+  }
+  return null;
+};
+
+const safeDestroyOwl = ($owl: JQueryObj) => {
+  try {
+    if ($owl.data("owl.carousel")) $owl.trigger("destroy.owl.carousel");
+  } catch {
+    // ignore
+  }
+};
+
+const setPlayPauseA11y = (p: { isPlaying: boolean; $start: JQueryObj; $pause: JQueryObj }) => {
+  // 執行：同步 aria 狀態（避免 AA 警告）
+  if (p.isPlaying) {
+    p.$start.attr("aria-pressed", "true").attr("aria-label", "圖片輪播播放中").find(".sr-only").text("圖片輪播播放中");
+    p.$pause.attr("aria-pressed", "false").attr("aria-label", "暫停圖片輪播").find(".sr-only").text("暫停圖片輪播");
+    return;
+  }
+  p.$start.attr("aria-pressed", "false").attr("aria-label", "開始播放圖片輪播").find(".sr-only").text("開始播放圖片輪播");
+  p.$pause.attr("aria-pressed", "true").attr("aria-label", "圖片輪播已暫停").find(".sr-only").text("圖片輪播已暫停");
+};
+
+// --------------------
+// 在 component 內：用 owlKey（你原本算的 join key）當依賴
+// --------------------
+useEffect(() => {
+  // SSR guard
+  if (typeof window === "undefined") return;
+  if (!allGallery1 || allGallery1.length === 0) return;
+
+  let disposed = false;
+  let $: JQueryLike | null = null;
+  let $owl: JQueryObj | null = null;
+  let $start: JQueryObj | null = null;
+  let $pause: JQueryObj | null = null;
+
+  let isPlaying = false;
+
+  // 宣告：handler（要留 reference 才能 off）
+  const onPause = (e: Event) => {
+    e.preventDefault?.();
+    if (!$owl || !$start || !$pause) return;
+    $owl.trigger("stop.owl.autoplay");
+    isPlaying = false;
+    setPlayPauseA11y({ isPlaying, $start, $pause });
+  };
+
+  const onStart = (e: Event) => {
+    e.preventDefault?.();
+    if (!$owl || !$start || !$pause) return;
+    $owl.trigger("play.owl.autoplay", [5000]);
+    isPlaying = true;
+    setPlayPauseA11y({ isPlaying, $start, $pause });
+  };
+
+  // 執行
+  const run = async () => {
+    $ = await waitForOwlReady();
+    if (disposed || !$) return;
+
+    $owl = $("#Gallery_owl_carousel");
+    if (!$owl || $owl.length === 0) return;
+
+    safeDestroyOwl($owl);
+
+    const opts: OwlOptions = {
+      items: 4,
+      dots: false,
+      nav: true,
+      margin: 30,
+      autoplayTimeout: 5000,
+      autoplayHoverPause: true,
+      responsive: {
+        0: { items: 1 },
+        500: { items: 2 },
+        575: { items: 2 },
+        767: { items: 2 },
+        991: { items: 3 },
+        1199: { items: 3 },
+      },
+    };
+
+    try {
+      $owl.owlCarousel(opts);
+    } catch {
+      // ignore
+    }
+
+    $start = $("#Gallery_start");
+    $pause = $("#Gallery_pause");
+    if ($start?.length) $start.on("click", onStart);
+    if ($pause?.length) $pause.on("click", onPause);
+
+    isPlaying = false;
+    if ($start && $pause) setPlayPauseA11y({ isPlaying, $start, $pause });
+  };
+
+  run();
+
+  // return：cleanup
+  return () => {
+    disposed = true;
+
+    if ($start) $start.off("click", onStart);
+    if ($pause) $pause.off("click", onPause);
+    if ($owl) safeDestroyOwl($owl);
+  };
+}, [owlKey]);
 
 	return (
 		<section className="Gallery_section owl-box Layout_Padding_1_top Layout_Padding_1_bottom bg-white">
@@ -308,7 +329,15 @@ export const ActivityPhotoData = (props: { lang: Lang }) => {
 		</section>
 	);
 };
-interface getDataProp { redir: string; galleryInternalId: string; title: string; content: string; date: string; month: string; year: string; monthNum: number; tagName: string; categoryName: string; contentStatus: number; internalId: string; PicSrcId: string; }
+
+// ----- 以下保留你原本的 helper（沿用） -----
+
+interface getDataProp {
+	redir: string; galleryInternalId: string; title: string; content: string;
+	date: string; month: string; year: string; monthNum: number;
+	tagName: string; categoryName: string; contentStatus: number; internalId: string; PicSrcId: string;
+}
+
 const getGalleryDataProps = (GalleryData: GallerySet[], lang: string, redir: string, targetCategoryId: string, categoryDict: Record<string, string>, tagDict: Record<string, string>) => {
 	const top6 = pickGallerysByCategories(GalleryData, targetCategoryId, 6, 'any');
 	const resultProps: getDataProp[] = []
@@ -340,6 +369,7 @@ const getGalleryDataProps = (GalleryData: GallerySet[], lang: string, redir: str
 	})
 	return resultProps;
 }
+
 const pickGallerysByCategories = <T extends { Gallery?: { Categories?: string | null | undefined } }>
 	(newsData: T[] | undefined, categories: string | string[], take: number = 6, mode: 'any' | 'all' = 'any'): T[] => {
 	const target = new Set((Array.isArray(categories) ? categories : String(categories).split(',')).map(s => s.trim()).filter(Boolean));
@@ -351,14 +381,15 @@ const pickGallerysByCategories = <T extends { Gallery?: { Categories?: string | 
 	});
 	return result.slice(0, take);
 }
+
 const formatDate = (dateStr: string) => {
 	const date = new Date(dateStr);
 	const day = date.getDate().toString().padStart(2, "0");
-	//const month = date.toLocaleString("en-US", { month: "short" });
 	const month = (date.getMonth() + 1).toString().padStart(2, "0");
 	const year = date.getFullYear().toString();
 	return { day, month, year };
 }
+
 const GetData = ({ prop }: { prop: getDataProp[] }) => {
 	return (
 		<>
@@ -390,16 +421,15 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 		</>
 	)
 }
+
 const takeTopThenFill = (top: GallerySet[] | undefined, rest: GallerySet[] | undefined, limit: number = 3): GallerySet[] => {
 	const getKey = (x: GallerySet) => x.Gallery?.InternalId ?? String(x.Gallery?.GalleryId ?? '');
 	const seen = new Set<string>();
 	const out: GallerySet[] = [];
-	// 先放置頂
 	for (const it of (top ?? [])) {
 		const k = getKey(it);
 		if (!seen.has(k) && out.length < limit) { seen.add(k); out.push(it); }
 	}
-	// 再用一般補足到 limit
 	for (const it of (rest ?? [])) {
 		if (out.length >= limit) break;
 		const k = getKey(it);

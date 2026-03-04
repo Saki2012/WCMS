@@ -81,24 +81,13 @@ const FileArchiveList = (props: FileArchiveProps) => {
         return map;
     }, [useTagData.data, props.lang]);
 
-    const searchSlot = (
-        <SearchBarComp
-            value={queryDraft}
-            tags={tags}
+    const searchSlot = <SearchBarComp value={queryDraft} tags={tags} 
             onChange={(k, v) => setQueryDraft(prev => ({ ...prev, [k]: v }))}
             onSubmit={() => setQuery(queryDraft)}
-            onReset={() => { setQueryDraft({}); setQuery({}); }}
-        />
-    );
+            onReset={() => { setQueryDraft({}); setQuery({}); }}/>
 
     // ✅ FileArchive list/count：固定條件（lang/categoryIds/tagIds/fields/orderby/rankGroups）由 Loader 做
-    const useFileArchiveList = useFileArchive(
-        adapter.FileArchive,
-        props.lang,
-        loaderData,
-        query,
-        useTagData.data ?? [],
-    );
+    const useFileArchiveList = useFileArchive(adapter.FileArchive,props.lang,loaderData,query,useTagData.data ?? [],);
 
     const adjustedGrid = useMemo(() => {
         return SetAdjustFunction(props.lang, useFileArchiveList.gridProps, useFileArchiveList.rawData, tagMap);
@@ -109,9 +98,8 @@ const FileArchiveList = (props: FileArchiveProps) => {
 
     const paginprops: PaginatorProps = { currentPage: adjustedGrid.CurrentPage, totalPages: adjustedGrid.TotalPage, onPageChange: adjustedGrid.onPageChange };
 
-    // return（✅ 不改 div 結構）
     return (
-        <ModuleContent nodeTitle={props.node.title} title={""} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops}>
+        <ModuleContent nodeTitle={props.node.title} title={""} isLoading={loadingList.some(Boolean)} errorList={errorList} paginatorProps={paginprops}>
             <GridList_Comp key="grid" lang={props.lang} gridData={adjustedGrid} title={props.node.title} />
         </ModuleContent>
     )
@@ -137,7 +125,6 @@ const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps; 
     }, []);
 
     const handleResize = (index: number, width: number) => {
-        // 宣告變數
         setColumns((prev) => {
             const updated = prev.map((col, idx) => idx === index ? { ...col, width } : col);
             const widths: Record<string, number> = {};
@@ -147,7 +134,6 @@ const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps; 
         });
     };
 
-    // return（✅ 不改 div 結構）
     return (
         <>
             <OperationGuideHelp_Comp lang={props.lang} />
@@ -191,7 +177,7 @@ const buildGridProps = (lang: Lang, datas: FileArchiveSet[], pageNumber: number,
             }
             return { col, content };
         });
-        return { cells };
+        return { keyId:item.FileArchive?.InternalId??"",cells };
     });
 
     // return

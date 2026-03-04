@@ -260,7 +260,7 @@ async ({ request }: LoaderFunctionArgs): Promise<AnnouncementListLoaderData> =>
 
     // ✅ 你 AnnouncementListLoaderData 要的是「純資料」：把 env.Data 拿出來
 
-    const colNameRes = colLD.apiRes.Data;
+    const colNameRes = colLD.apiRes.Data?.[0]??null;
     const listRes = listLD.apiRes.Data ?? [];
     const countRes = countLD.apiRes.Data ?? 0;
     const categoryRes = categoryLD.apiRes.Data ?? [];

@@ -4,6 +4,7 @@ import type { components } from "@/types/api";
 import { Outlet, type LoaderFunctionArgs, type RouteObject } from "react-router-dom";
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 import HomePage from "SpecFeature/Pages/Client/Index/HomePage"
+import { HomePageLoader } from "SpecFeature/Pages/Client/Index/HomePage_Loader"
 import { Index } from "@/Features/Pages/Client/BizFunc/MainPage/Index";
 import { DefaultLang, isSupportedLang, type Lang } from "@/SysCore/i18n/lang";
 import { Classic_FETheme } from "../Theme/ClassicTheme_Clsx";
@@ -241,7 +242,7 @@ const ModuleElement: React.FC<{ site: INormSite; nodeId: number; skeletonNode: I
 /** render 時用 LangContext 覆寫 route.element 裡的 lang / defaultLang（避免 route tree 只能用 DefaultLang 產生） */
 const WithCtxLang: React.FC<{ element: React.ReactElement }> = ({ element }) => {
     const lang = (useLang().code ?? DefaultLang) as Lang;
-    return React.cloneElement(element, { lang, defaultLang: lang } as any);
+    return React.cloneElement(element, { lang, defaultLang: DefaultLang } as any);
 };
 
 const wrapRoutesWithCtxLang = (routes: RouteObject[]): RouteObject[] =>
@@ -305,37 +306,74 @@ const readCookieValue = (cookieHeader: string, key: string): string | null => {
     // return
     return null;
 };
-
-const resolveLangFromRequest = (request: Request): Lang => {
+// ✅ 只接受「明確長得像語系」的 segment，避免 siteIndex 被誤判
+const tryParseLangSegment = (seg: string): Lang | null => {
     // 宣告變數
-    const cookie = request.headers.get("cookie") ?? "";
-    const cookieLang = readCookieValue(cookie, "wcms.lang");
-    const acceptLang = request.headers.get("accept-language") ?? "";
-    const firstAccept = acceptLang.split(",")[0]?.trim() ?? "";
-
-    // 執行function：cookie 優先，其次 Accept-Language
-    const raw = (cookieLang ?? firstAccept ?? "").toLowerCase();
+    const raw = (seg ?? "").trim().toLowerCase();
+    if (!raw) return null;
+    // 執行 function：只接受明確語系字串，避免把 siteIndex/module 名當語系
+    const allow = 
+        raw === "en" || raw === "en-us" || raw === "en_us" ||
+        raw === "zh-tw" || raw === "zh_tw" ||
+        raw === "zh-hant" || raw === "zh-hant-tw" || raw === "zh_hant_tw" ||
+        raw === "zh-cn" || raw === "zh_cn";
 
     // return
-    return normalizeLangKey(raw);
+    return allow ? normalizeLangKey(raw) : null;
+};
+
+export const resolveRouteLangFromRequest = (request: Request): Lang => {
+    // 宣告變數
+    const url = new URL(request.url, "http://local");
+    const segs = url.pathname.split("/").filter(Boolean);
+
+    // 執行 function：支援兩種可能：/en/... 或 /{siteIndex}/en/...
+    const hit = tryParseLangSegment(segs[0] ?? "") ?? tryParseLangSegment(segs[1] ?? "");
+
+    // return：沒前綴就固定用 DefaultLang（避免 cookie 殘留導致錯語系）
+    return hit ?? DefaultLang;
+};
+
+const resolveLangFromUrl = (url: string): Lang | null => {
+  // 宣告變數
+  const u = new URL(url, "http://local");
+  const seg0 = u.pathname.split("/").filter(Boolean)[0] ?? "";
+
+  // return
+  return tryParseLangSegment(seg0);
+};
+
+export const resolveLangFromRequest = (request: Request): Lang => {
+  // 1) URL 優先（CSR/SSR 都準：/en/...）
+  const urlLang = resolveLangFromUrl(request.url);
+  if (urlLang) return urlLang;
+
+  // 2) cookie：SSR 讀 header；CSR 改讀 document.cookie
+  const headerCookie = request.headers.get("cookie") ?? "";
+  const clientCookie = typeof document !== "undefined" ? document.cookie : "";
+  const cookie = headerCookie || clientCookie;
+  const cookieLang = readCookieValue(cookie, "wcms.lang");
+
+  // 3) accept-language（SSR 才比較常拿得到）
+  const acceptLang = request.headers.get("accept-language") ?? "";
+  const firstAccept = acceptLang.split(",")[0]?.trim() ?? "";
+
+  // return
+  return normalizeLangKey((cookieLang ?? firstAccept ?? "").toLowerCase());
 };
 
 export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
     const defaultModuleSubPageLoader = async (args: LoaderFunctionArgs, ctx: { lang: Lang; site: INormSite; node: INormNode }) => {
-        // return：SubPage 預設只撈 Banner（或你 SubPageLoader 目前做的事）
         return SubPageLoader({ lang: ctx.lang, site: ctx.site, node: ctx.node })(args);
     };
     const skeletonRoots = site.treeByLang[DefaultLang] ?? Object.values(site.treeByLang)[0] ?? [];
     const toRoute = (n: INormNode): RouteObject => {
-        // 先把菜單樹的 children 算好（第二層/第三層都會遞迴進來）
         const menuChildren = n.children.map(toRoute);
-
         const wrapGuard = (el: React.ReactElement) => (
             <NodeRouteGuard site={site} nodeId={n.id}>
                 {el}
             </NodeRouteGuard>
         );
-
         // A) 站內 redirect：父層要當「殼」，redirect 放在 index，children 一定要掛回去
         if (n.type === "redirect-internal") {
             if (n.path) {
@@ -359,7 +397,6 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
                 ],
             };
         }
-
         // B) 站外 redirect：同理（通常沒有子項；若有也要用殼 + index）
         if (n.type === "redirect-external") {
             const External: React.FC = () => {
@@ -389,20 +426,12 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
         const entry = getModuleRegistry()[n.module.progId];
         if (!entry) return { path: n.path, element: <div>Unknown module: {n.module.progId}</div> };
         const element = wrapGuard(<ModuleElement site={site} nodeId={n.id} skeletonNode={n} />);
-
-        const loader =
-            entry.kind === "routes" && entry.loader
-                ? async (args: LoaderFunctionArgs) => {
-                    // 宣告變數
-                    const lang = resolveLangFromRequest(args.request);
-                    const resolvedNode = resolveNodeByLang(site, lang, n.id) ?? n;
-                    // 執行function
-                    const entryLoader = entry.loader ?? defaultModuleSubPageLoader;
-                    // return
-                    return entryLoader(args, { lang, site, node: resolvedNode });
-                }
-                : undefined;
-
+        const loader = async (args: LoaderFunctionArgs) => {
+            const lang = resolveLangFromArgs(args);
+            const resolvedNode = resolveNodeByLang(site, lang, n.id) ?? n;
+            const entryLoader = entry.kind === "routes" && entry.loader ? entry.loader : defaultModuleSubPageLoader;
+            return entryLoader(args, { lang, site, node: resolvedNode });
+        };
         // routes 型模組的自帶 children；element 型為空
         const modChildrenRaw: RouteObject[] = entry.kind === "routes" ? entry.children(n.module.options, DefaultLang, n, site) : [];
         const modChildren = wrapRoutesWithCtxLang(modChildrenRaw); const children = [...modChildren, ...menuChildren];
@@ -411,22 +440,34 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
         // 一般模組
         return { path: n.path, element, loader, children };
     };
+    const resolveLangFromArgs = (args: LoaderFunctionArgs): Lang => {
+    const p = args.params?.["lang"];
+    if (p) return normalizeLangKey(p);
 
+    // 若你的路由不是 :lang 參數，而是用 path segment，也可用這段補強
+    const seg0 = new URL(args.request.url).pathname.split("/").filter(Boolean)[0] ?? "";
+    const fromSeg = normalizeLangKey(seg0);
+    if (isSupportedLang(fromSeg)) return fromSeg;
+
+    return resolveLangFromRequest(args.request);
+    };
     return [
         {
             path: "/" + site.siteIndex,
             element: <WithCtxLang element={<Index lang={DefaultLang} site={site} style={Classic_FETheme} />} />,
-
             children:
                 [
-                    { index: true, element: <WithCtxLang element={<HomePage lang={DefaultLang} />} /> },
+                    { 
+                        index: true, 
+                        element: <WithCtxLang element={<HomePage lang={DefaultLang} />} />,
+                        loader: async (args) => HomePageLoader({ lang: resolveLangFromArgs(args) })(args),
+                    },
                     {
                         path: "Template",
                         element: (
                             <React.Suspense fallback={<div role="status" aria-live="polite">載入預覽頁…</div>}>
                                 <WithCtxLang element={<TemplateHub site={site} defaultLang={DefaultLang} />} />
                             </React.Suspense>
-
                         ),
                     },
                     ...skeletonRoots.map(toRoute),

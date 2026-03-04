@@ -6,206 +6,50 @@ import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
-import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
-import { FileArchiveDetailFields, FileArchiveSetFields, FileArchiveFields, FileArchiveInfoFields, PGID } from "@/types/SchemaFields";
+import { FileArchiveDetailFields, FileArchiveSetFields, FileArchiveFields, FileArchiveInfoFields } from "@/types/SchemaFields";
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-import { useMemo, useCallback, useEffect, useState } from "react";
+import { useMemo, useCallback } from "react";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
 import { LibUrlInput } from "@/SysCore/Components/FormField/FieldComponets/LibUrlInput_Comp";
-
-import { useToast } from "@/Features/Hooks/Common/useToastCenter";
-import type { ApiAdapterError, ApiLoaderData, ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
-import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
-import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { FileArchiveAdapter } from "@/Features/Hooks/BizFunc/WebManagement/FileArchive/FileArchive_Api";
-import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
-import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
-
+import { useFileArchiveFormFetchData } from "./Server_FileArchive_Form_Hook";
+import { SystemInfoTabComp } from "../../../Scaffold/SystemTab/SystemTab";
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"]
 type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"]
 type FileArchiveUrlDetail = components["schemas"]["FileArchiveUrlDetail_DTO"]
+const emptyData: FileArchiveSet = {FileArchive: {},FileArchiveInfo: [],FileArchiveDetail: [],FileArchiveUrlDetail: [],}
 
-const emptyData: FileArchiveSet = {
-    FileArchive: {},
-    FileArchiveInfo: [],
-    FileArchiveDetail: [],
-    FileArchiveUrlDetail: [],
-}
-
-/** 檔案室表單
- * @returns
- */
-export const Server_FileArchiveFormComp = (prop: { theme: IBETheme; lang: Lang }) => {
+export const Server_FileArchive_Form_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
     // 宣告變數
     const { internalId } = useParams()
     const navigate = useNavigate();
-    const listUrl = useLocation().pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
-
-    const adapter = useMemo(() => FileArchiveAdapter(), [])
-    const formData = useFileArchiveFormDataByAdapter(adapter, internalId ?? "", emptyData)
-
-    const useCategory = useCategoryMapByProgId(PGID.FileArchive, prop.lang);
-    const useTag = useTagMapByProgId(PGID.FileArchive, prop.lang);
-    const useContentStatus = useFetchEnumOptions("ContentStatus")
-
-    const status = useMemo(() => {
-        // 執行 function：移除 0 選項
-        const src = useContentStatus.data ?? {};
-        const { ["0"]: _drop, ...rest } = src;
-        return rest as Record<string, string>;
-    }, [useContentStatus.data]);
-
-    useEnsureLangDetails(formData, {
-        headerName: FileArchiveSetFields.FileArchive,
-        detailName: FileArchiveSetFields.FileArchiveInfo,
-        parentKeys: [FileArchiveFields.FileArchiveId],
-        preferFirstLang: prop.lang
-    });
-
-    const actions = useFileArchiveFormActionsByAdapter(
-        adapter,
-        internalId ?? "",
-        formData.data,
-        () => {
-            // 執行 function：儲存/刪除成功回列表
-            navigate(listUrl);
-        },
-    );
-
-    const isLoading = [useTag.isLoading, useCategory.isLoading, formData.isLoading, useContentStatus.isLoading]
-    const errors = [useTag.error, useCategory.error, formData.error, useContentStatus.error]
-    const formProp: FormCompProp = { Title: "新增檔案室", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions }
-
-    // return（不改 JSX / DOM 結構）
+    const pathname = useLocation().pathname;
+    const onBackToList = useCallback(() => {navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));}, [navigate, pathname]);
+    const actionsOpt = useMemo(() => {return { onBackToList };}, [onBackToList]);
+    const getData = useFileArchiveFormFetchData({lang: prop.lang,internalId: internalId ?? "",emptyData, actionsOpt});
+    useEnsureLangDetails(getData.rawData.formData, {headerName: FileArchiveSetFields.FileArchive,detailName: FileArchiveSetFields.FileArchiveInfo,parentKeys: [FileArchiveFields.FileArchiveId],preferFirstLang: prop.lang});
+    const formProp: FormCompProp = { Title: internalId ? "修改檔案室" : "新增檔案室", Theme: prop.theme, IsLoading: getData.isLoading, ErrorList: getData.errors, Actions: getData.rawData.actions }
     return (
         <FormComp prop={formProp}>
-            <HeaderComp theme={prop.theme} formData={formData} cateOpts={useCategory.data} statusOpts={status} tagOpts={useTag.data} />
-            <DetailComp theme={prop.theme} formData={formData} />
+            <HeaderComp theme={prop.theme} formData={getData.rawData.formData} cateOpts={getData.rawData.categoryMap} statusOpts={getData.rawData.statusOpts} tagOpts={getData.rawData.tagMap} />
+            <DetailComp theme={prop.theme} formData={getData.rawData.formData} />
         </FormComp>
     )
 }
 
-/** FormData：QueryData + ModelDisplayName（對標 Announcement） */
-const useFileArchiveFormDataByAdapter = (
-    adapter: ReturnType<typeof FileArchiveAdapter>,
-    internalId: string,
-    empty: FileArchiveSet,
-): UseFetchFormDataResult<FileArchiveSet> => {
-    // 宣告變數
-    const { publish } = useToast();
-    const isNew = useMemo(() => !internalId, [internalId]);
-    const internalKey = internalId || "__new__";
-
-    const onError = useCallback((e: ApiAdapterError) => {
-        // 執行 function：統一 toast
-        publish({ level: MessageStatus.Error, title: e.messageText });
-    }, [publish]);
-
-    const initial = useMemo<ApiLoaderData<string, FileArchiveSet> | null>(() => {
-        // 執行 function：新建模式提供 initial data
-        if (!isNew) return null;
-        const ok: ApiResponse<FileArchiveSet> = { IsSuccess: true, Data: empty, SysMessage: [] };
-        return { args: internalKey, apiRes: ok };
-    }, [isNew, empty, internalKey]);
-
-    const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
-    const query = adapter.hooks.useQueryData({
-        internalId: internalKey,
-        initial,
-        deps: [internalKey],
-        onError,
-    });
-
-    const [data, setData] = useState<FileArchiveSet>(empty);
-
-    useEffect(() => {
-        // 執行 function：QueryData 回來後同步到可編輯 state
-        if (query.data) setData(query.data);
-        else if (isNew) setData(empty);
-    }, [query.data, isNew, empty]);
-
-    const refetch = useCallback(() => {
-        // 執行 function
-        void query.refetch();
-    }, [query]);
-
-    const isLoading = Boolean(!isNew && query.isLoading) || Boolean(model.isLoading);
-    const error = query.errorText ?? model.errorText ?? null;
-
-    // return（displayName 不可為 null）
-    return {
-        data,
-        setFormData: setData,
-        isLoading,
-        error,
-        refetch,
-        displayName: (model.data ?? ({ ModelId: "", ModelDisplayName: "", Tables: [] } as ModelDisplaySchema)),
-    };
-};
-
-/** Actions：useServerActions（對標 Announcement） */
-const useFileArchiveFormActionsByAdapter = (
-    adapter: ReturnType<typeof FileArchiveAdapter>,
-    internalId: string,
-    formData: FileArchiveSet | null,
-    onAfterDone: () => void,
-): ServerFormActions => {
-    // 宣告變數
-    const isNew = useMemo(() => !internalId, [internalId]);
-
-    const server = adapter.useServerActions({
-        onSuccessByMode: {
-            create: () => onAfterDone(),
-            update: () => onAfterDone(),
-            delete: () => onAfterDone(),
-        },
-    });
-
-    // return（對標 ServerFormActions）
-    return {
-        Save: async () => {
-            // 執行 function：create/update
-            if (!formData) return;
-            if (isNew) await server.createAsync(formData);
-            else await server.updateAsync(internalId, formData);
-        },
-        Delete: async () => {
-            // 執行 function
-            if (!internalId) return;
-            await server.deleteAsync(internalId);
-        },
-        Back: () => {
-            // 執行 function
-            onAfterDone();
-        },
-        Preview: () => {
-            // 執行 function：目前無預覽
-        },
-        IsSaving: server.isSaving,
-    };
-};
-
-const HeaderComp = (prop: {
-    theme: IBETheme; formData: UseFetchFormDataResult<FileArchiveSet>;
-    cateOpts: Record<string, string>; statusOpts: Record<string, string>; tagOpts: Record<string, string>;
-}) => {
+const HeaderComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<FileArchiveSet>;cateOpts: Record<string, string>; statusOpts: Record<string, string>; tagOpts: Record<string, string>;}) => 
+{
     const setField = useSetTableField<FileArchiveSet>(prop.formData);
-    const LibTabsPropA: LibTabsProp = {
-        Style: prop.theme.Tabs,
-        item: { "Basic": "基本", "Status": "狀態", "Tags": "標籤", }
-    }
+    const LibTabsPropA: LibTabsProp = { Style: prop.theme.Tabs,item: { Basic: "基本", Status: "狀態", Tags: "標籤",System:"系統資訊" } }
     const componentsA: Record<string, React.ReactNode[]> = {
         Basic: [<LibCheckBox Style={prop.theme.CheckBox} options={prop.cateOpts} {...setField(FileArchiveSetFields.FileArchive, FileArchiveFields.CategoriesId, 'string', undefined, 'csv')} />,],
         Status: [<LibCheckBox Style={prop.theme.CheckBox} options={prop.statusOpts} {...setField(FileArchiveSetFields.FileArchive, FileArchiveFields.ContentStatus, 'number', undefined, { strategy: 'sum', sumKeys: Object.keys(prop.statusOpts ?? {}).map(Number) })} />],
-        Tags: [<LibCheckBox Style={prop.theme.CheckBox} options={prop.tagOpts} {...setField(FileArchiveSetFields.FileArchive, FileArchiveFields.TagsId, 'string', undefined, 'csv')} />]
+        Tags: [<LibCheckBox Style={prop.theme.CheckBox} options={prop.tagOpts} {...setField(FileArchiveSetFields.FileArchive, FileArchiveFields.TagsId, 'string', undefined, 'csv')} />],
+        System: [<SystemInfoTabComp theme={prop.theme} formData={prop.formData} setKey={FileArchiveSetFields.FileArchive} />]
     }
-    return (
-        <TabContentComp tabInfos={LibTabsPropA} components={componentsA}></TabContentComp>
-    )
+    return <TabContentComp tabInfos={LibTabsPropA} components={componentsA}></TabContentComp>
 }
 
 const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<FileArchiveSet>; }) => {
@@ -234,10 +78,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Fi
             return compMap;
         }, {}
     );
-
-    return (
-        <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>
-    )
+    return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>
 }
 
 const SubFilesComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<FileArchiveSet>; parentRowId: number }) => {
@@ -331,41 +172,3 @@ const SubUrlComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Fi
     );
 };
 
-// Category / Tag options by progId（統一走 Adapter hooks：useMapByProgId）
-const useCategoryMapByProgId = (progId: string, lang: Lang) => {
-    // 宣告變數
-    const adapter = useMemo(() => CategoryAdapter(), []);
-
-    // 執行 function：由 adapter 統一組 condition（含 progId/lang/fields）
-    const q = adapter.hooks.useMapByProgId({
-        progId,
-        lang,
-        deps: [progId, lang],
-    });
-
-    // return
-    return {
-        data: q.map ?? {},
-        isLoading: q.isLoading,
-        error: q.errorText,
-    };
-};
-
-const useTagMapByProgId = (progId: string, lang: Lang) => {
-    // 宣告變數
-    const adapter = useMemo(() => TagAdapter(), []);
-
-    // 執行 function：由 adapter 統一組 condition（含 progId/lang/fields）
-    const q = adapter.hooks.useMapByProgId({
-        progId,
-        lang,
-        deps: [progId, lang],
-    });
-
-    // return
-    return {
-        data: q.map ?? {},
-        isLoading: q.isLoading,
-        error: q.errorText,
-    };
-};

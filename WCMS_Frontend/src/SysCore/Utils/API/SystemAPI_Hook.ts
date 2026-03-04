@@ -19,9 +19,9 @@ export const useFetchEnumOptions = (enumName: string) =>
         setError(null);
         try
         {
-            const result = await SystemAPI.getEnumOptions(enumName);
+            const result = await new SystemAPI().getEnumOptions(enumName);
             const dict: Record<string, string> = Object.fromEntries(
-                (result.data ?? []).map((o: EnumOption) => [String(o.Key), o.DisplayName]),
+                (result.Data ?? []).map((o: EnumOption) => [String(o.Key), o.DisplayName]),
             );
             setData(dict);
         } catch (err: any)

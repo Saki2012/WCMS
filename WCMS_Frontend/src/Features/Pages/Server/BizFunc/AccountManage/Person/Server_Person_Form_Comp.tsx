@@ -152,7 +152,7 @@ export const Server_Person_Form_Comp = (props: { theme: IBETheme }) => {
     const prop: FormCompProp = {
         Title: "管理者帳號資料修改",
         Theme: props.theme,
-        LoadingList: isLoading,
+        IsLoading: isLoading,
         ErrorList: errors,
         Actions: actions,
     };

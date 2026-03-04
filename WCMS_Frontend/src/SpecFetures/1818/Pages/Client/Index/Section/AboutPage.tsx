@@ -1,29 +1,73 @@
 import { AdmissionsCarouselData } from '@/SpecFetures/1818/Pages/Client/Index/Section/AdmissionsCarouselData'
-import { useResolveInternalIds } from '@/SysCore/Components/File/useResolveInternalIds';
-import type { Lang } from '@/SysCore/i18n/lang';
-import { LangNavLink } from '@/SysCore/i18n/LangLink';
-import { useFetchFormData } from '@/SysCore/Utils/API/FetchFormData';
-import type { components } from "@/types/api";
-import parse from 'html-react-parser';
-import { useEffect, useMemo, useRef } from 'react';
-import { IndexLabel } from "@/SpecFetures/1818/Pages/Client//Index/Section/IndexLabelText";
+import { useResolveInternalIds } from '@/SysCore/Components/File/useResolveInternalIds'
+import type { Lang } from '@/SysCore/i18n/lang'
+import { LangNavLink } from '@/SysCore/i18n/LangLink'
+import type { components } from "@/types/api"
+import parse from 'html-react-parser'
+import { useMemo } from 'react'
+import { IndexLabel } from "@/SpecFetures/1818/Pages/Client//Index/Section/IndexLabelText"
+
+import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WebManagement/WebResource/WebResource_Api"
+import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Api"
 
 import HomepageVideo from '@/SpecFetures/1818/Assets/Client/Spec/HomepageVideo.mp4'
 
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"]
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"]
+type BannerSet = components["schemas"]["BannerSet_DTO"]
 
-export const AboutPage = (props: { lang: Lang }) => {
-	const pvd = useMemo(() => { return { WebPvd: WebResourceProvider(), PagePvd: PageManagementProvider() } }, [])
-	const { data: webSrcData } = useFetchFormData<WebResourceSet>(pvd.WebPvd, "6d052cd7-3bf2-40aa-ba42-4289190ba8dc", {})
-	const { data: pageData } = useFetchFormData<PageManagementSet>(pvd.PagePvd, "4c7132ea-88e9-44a1-a9c5-3f89042275b6", {})
-	const webSrcDt = webSrcData?.WebResourceInfo?.find(p => p.Lang === props.lang);
-	const pageDt = pageData?.PageManagementDetail?.find(p => p.Lang === props.lang);
-	const parseContent = useResolveInternalIds(pageDt?.Content ?? "", { locale: props.lang });
-	const content = parseContent.html ? parse(parseContent.html) : null;
-	// const videoRef = useRef<HTMLVideoElement | null>(null);
-	// const videoSrc = webSrcDt?.ResUrl ?? "";
-	// useEffect(() => { if (videoRef.current && videoSrc) { videoRef.current.load(); } }, [videoSrc]);
+const toInitial = <TArgs, TData>(args: TArgs, data: TData) => {
+	// return：符合 adapter hook 的 initial 結構（SSR loader 轉成 CSR hook 初始資料）
+	return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } }
+}
+
+export const AboutPage = (props: {
+	lang: Lang;
+
+	webInternalId: string;
+	pageInternalId: string;
+	admissionsInternalId: string;
+
+	initialWebResource: WebResourceSet | null;
+	initialPage: PageManagementSet | null;
+	initialAdmissionsBanner: BannerSet | null;
+}) => {
+	// 宣告變數：adapters
+	const webAdapter = useMemo(() => WebResourceAdapter(), [])
+	const pageAdapter = useMemo(() => PageManagementAdapter(), [])
+
+	// 宣告變數：initial（必須 memo，避免每次 render 都產生新物件）
+	const webInitial = useMemo(() => {
+		if (!props.initialWebResource) return undefined
+		return toInitial(props.webInternalId, props.initialWebResource)
+	}, [props.webInternalId, props.initialWebResource])
+
+	const pageInitial = useMemo(() => {
+		if (!props.initialPage) return undefined
+		return toInitial(props.pageInternalId, props.initialPage)
+	}, [props.pageInternalId, props.initialPage])
+
+	// 執行 function：CSR hooks 接手（SSR 有 initial → 不重抓；CSR 無 initial → 會自動抓）
+	const webQ = webAdapter.hooks.useQueryData({
+		internalId: props.webInternalId,
+		initial: webInitial,
+		deps: [props.webInternalId],
+	})
+
+	const pageQ = pageAdapter.hooks.useQueryData({
+		internalId: props.pageInternalId,
+		initial: pageInitial,
+		deps: [props.pageInternalId],
+	})
+
+	// 宣告變數：依語系取對應 detail
+	const webSrcDt = webQ.data?.WebResourceInfo?.find(p => p.Lang === props.lang)
+	const pageDt = pageQ.data?.PageManagementDetail?.find(p => p.Lang === props.lang)
+
+	// 執行 function：解析內容（含 internal file ids 轉預覽 url）
+	const parseContent = useResolveInternalIds(pageDt?.Content ?? "", { locale: props.lang })
+	const content = parseContent.html ? parse(parseContent.html) : null
+
 	return (
 		<section className="About_section">
 			<div className="Mask-DivBox">
@@ -39,16 +83,19 @@ export const AboutPage = (props: { lang: Lang }) => {
 									你的瀏覽器不支援 HTML5 視訊，請更新瀏覽器或下載檔案播放。
 								</video>
 							</div>
+
 							<div className="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mt-lg-5 pt-lg-5 mt-0 pt-4">
 								<div className="offset-3 col-6">
 									<div className="headDiv mb-lg-5 mb-4">
 										<span className="headDiv-txt-2 tw">{IndexLabel(props.lang).AboutUsTitle}</span>
 									</div>
 								</div>
+
 								<div className="about-left">
-									<p className="about-txt">
+									<div className="about-txt">
 										{content}
-									</p>
+									</div>
+
 									<div className="btn-w100-wrapper justify-content-start mt-sm-5 mt-4">
 										<div className="customize_btn">
 											<LangNavLink className="Btn_a" to="/about/about-01" role="button" tabIndex={0} target="_self" title="MORE INFO" type="button">
@@ -61,12 +108,16 @@ export const AboutPage = (props: { lang: Lang }) => {
 								</div>
 							</div>
 						</div>
-						<AdmissionsCarouselData lang={props.lang} />
+
+						{/* ✅ Admissions 也一起改成吃 loader initial + adapter hook */}
+						<AdmissionsCarouselData
+							lang={props.lang}
+							internalId={props.admissionsInternalId}
+							initialBanner={props.initialAdmissionsBanner}
+						/>
 					</div>
 				</div>
 			</div>
 		</section>
-	);
-};
-
-
+	)
+}

@@ -4,6 +4,7 @@ import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance, AxiosResponse } from "axios";
 import axios from "axios";
+import type { EnumOption } from "./SystemAPI_Hook";
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 
@@ -111,11 +112,9 @@ export class SystemAPI extends ApiBaseService
     {
         super(PGID.SystemAPI, apiInstance);
     }
-    async getEnumOptions(enumName: string): Promise<ApiResponse<string>>
+    async getEnumOptions(enumName: string): Promise<ApiResponse<EnumOption[]>>
     {
-        return await this.CallApi<string>(() =>
-            this.Api.get(`${this.Module}/GetEnumOptions`, { params: { enumName } })
-        );
+        return await this.CallApi<EnumOption[]>(() =>this.Api.get(`${this.Module}/GetEnumOptions`, { params: { enumName } }));
     }
 }
 
