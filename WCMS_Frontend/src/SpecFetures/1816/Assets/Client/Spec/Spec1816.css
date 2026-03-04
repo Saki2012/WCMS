@@ -344,3 +344,26 @@
     transition: none;
   }
 }
+
+
+/* ------------------內頁共用客製----------------------- */
+
+/* 因目前分享與列印不用會到，故先把分享與列印padding拿掉 */
+.PrintingSite__wrapper .Print-box{
+  padding: 0;
+}
+/* 因目前分享與列印不用會到，故將返回鍵靠左 */
+.R.justify-content-between{
+  justify-content: start;
+}
+
+/* 內頁標題上方的margin-top拿掉 */
+#ContentPlaceContent_ContentConentA.All_Standard_Content_CSS{
+  margin-top: 0;
+}
+
+/* 內頁側邊攔新增的margin-top */
+#ContentPlaceContent_ContentSubMenu.SubPage-leftMenu{
+  margin-top: 1.2rem;
+}
+

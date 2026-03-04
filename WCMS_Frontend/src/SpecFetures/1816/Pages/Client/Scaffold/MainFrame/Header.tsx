@@ -30,7 +30,6 @@ const Header = (props: HeaderProps) => {
                                 <div className="navbar navbar-expand-lg navbar-dark px-0 py-0">
                                     <LogoBlock />
                                     <MobileToggler />
-                                    <a accessKey="U" href="#U" className="accesskey_header U d-none d-lg-block mt-4" title="上方導覽區(U)" >:::</a>
                                     <NavbarContent {...props} />
                                 </div>
                             </div>
@@ -176,15 +175,16 @@ const NavbarContent = (props: { lang: Lang; site: INormSite; style: IFETheme }) 
     return (
         <div
             id="navbar-content"
-            className="collapse navbar-collapse flex-wrap"
+            className="collapse navbar-collapse flex-wrap justify-content-end"
             ref={menuRootRef}
         >
-            <ul className="navbar-nav ms-auto mb-2 mb-lg-0 overflow-scroll-Y ps-xl-5 ps-0">
+            <ul className="navbar-nav mb-2 mb-lg-0 overflow-scroll-Y ps-2">
+                <li><a accessKey="U" href="#U" className="accesskey_header U d-none d-lg-block mt-4" title="上方導覽區(U)" >:::</a></li>
                 <MainMenu {...props} onCollapseAll={collapseAll} menuRootRef={menuRootRef} />
             </ul>
 
             {/* 對標 index.html：<div class="header_section ms-auto"> ... */}
-            <div className="header_section ms-auto">
+            <div className="header_section">
                 <header className="header_Box bg-white">
                     <div className="navsBox">
                         <div className="container-customize4 px-0">
