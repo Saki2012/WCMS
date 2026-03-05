@@ -179,12 +179,12 @@ const NavbarContent = (props: { lang: Lang; site: INormSite; style: IFETheme }) 
             ref={menuRootRef}
         >
             <ul className="navbar-nav mb-2 mb-lg-0 overflow-scroll-Y ps-2">
-                <li><a accessKey="U" href="#U" className="accesskey_header U d-none d-lg-block mt-4" title="上方導覽區(U)" >:::</a></li>
+                <li><a accessKey="U" href="#U" className="accesskey_header U d-none d-lg-block" title="上方導覽區(U)" >:::</a></li>
                 <MainMenu {...props} onCollapseAll={collapseAll} menuRootRef={menuRootRef} />
             </ul>
 
             {/* 對標 index.html：<div class="header_section ms-auto"> ... */}
-            <div className="header_section">
+            <div className="header_section ms-2">
                 <header className="header_Box bg-white">
                     <div className="navsBox">
                         <div className="container-customize4 px-0">
@@ -384,9 +384,9 @@ const SizeChange = () => {
     const doZoom = useCallback((px: number) => {
         const custom = document.getElementById("Customsize");
         if (custom) {
-            custom.style.fontSize = `${px}px`;
+            custom.style.fontSize = `${px}%`;
         } else {
-            document.documentElement.style.fontSize = `${px}px`;
+            document.documentElement.style.fontSize = `${px}%`;
         }
         localStorage.setItem("font-zoom", String(px));
 
@@ -430,12 +430,11 @@ const SizeChange = () => {
                             <a
                                 className="A-LMS"
                                 href="javascript:void(0);"
-                                onClick={() => doZoom(18)}
+                                onClick={() => doZoom(112.5)}
                                 type="button"
                                 role="button"
                                 title="字型-大"
-                                
-                                data-size="20"
+                                data-size="18"
                             >
                                 <div className="LMS-text" style={{ fontSize: "100%" }}>
                                     A+
@@ -451,12 +450,11 @@ const SizeChange = () => {
                             <a
                                 className="A-LMS active"
                                 href="javascript:void(0);"
-                                onClick={() => doZoom(16)}
+                                onClick={() => doZoom(100)}
                                 type="button"
                                 role="button"
                                 title="字型-中"
-                                
-                                data-size="18"
+                                data-size="16"
                             >
                                 <div className="LMS-text" style={{ fontSize: "100%" }}>
                                     A
@@ -472,12 +470,11 @@ const SizeChange = () => {
                             <a
                                 className="A-LMS"
                                 href="javascript:void(0);"
-                                onClick={() => doZoom(14)}
+                                onClick={() => doZoom(87.5)}
                                 type="button"
                                 role="button"
                                 title="字型-小"
-                                
-                                data-size="16"
+                                data-size="14"
                             >
                                 <div className="LMS-text" style={{ fontSize: "100%" }}>
                                     A-
