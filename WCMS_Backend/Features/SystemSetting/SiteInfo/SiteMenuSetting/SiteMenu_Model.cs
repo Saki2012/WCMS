@@ -178,6 +178,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         public LangCode Lang { get; set; }
         [StringLength(SysLengthParam.Title)] public string Title { get; set; }
         public bool IsShowOnMenu { get; set; }
+
         #region 主子表關聯
         [ForeignKey($@"{nameof(SiteIndex)},{nameof(ItemRowId)}")] public SiteMenu_Item _SiteMenu_Index { get; set; }
         #endregion

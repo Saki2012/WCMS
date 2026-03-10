@@ -374,18 +374,13 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
                 var s = Normalize(segment);
                 return "/" + (string.IsNullOrEmpty(p) ? s : $"{p}/{s}");
             }
-            List<string> fullUrl = [];
+            HashSet<string> fullUrl = new(StringComparer.OrdinalIgnoreCase);
             foreach (var item in set.SiteMenu_Item.OrderBy(i => i.Level))
             {
                 var seg = Normalize(item.ItemSiteUrl);
-                if (item.ParentRowId is null || !byId.TryGetValue(item.ParentRowId.Value, out var parent))
-                {
-                    item.FullUrl = "/" + seg;
-                    continue;
-                }
-                item.FullUrl = Combine(parent.FullUrl, seg);
-                if (!fullUrl.Contains(item.FullUrl)) fullUrl.Add(item.FullUrl);
-                else Message.AddMessage(MessageStatus.Error,SysMessageCode.BECode00026, set.SiteMenu_Item_Title.Find(p=>p.Lang==EffectiveLang && p.ItemRowId.Equals(item.RowId)).Title,item.ItemSiteUrl);
+                if (item.ParentRowId is null) item.FullUrl = "/" + seg;
+                if (item.ParentRowId!=null && !byId.TryGetValue(item.ParentRowId.Value, out var parent)) item.FullUrl = Combine(parent.FullUrl, seg);
+                if (!fullUrl.Add(item.FullUrl)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00026, set.SiteMenu_Item_Title.Find(p => p.Lang == EffectiveLang && p.ItemRowId.Equals(item.RowId)).Title, item.ItemSiteUrl);
             }
         }
         #endregion

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.I18n.Resx;
@@ -63,6 +64,11 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// 
         /// </summary>
         [LibDesc(ModelDisplayName.Enum_SupportLang),StringLength(SysLengthParam.Memo)] public string? SupportLangs { get; set; }
+
+        #region 主子表關聯
+        [InverseProperty(nameof(SiteMenu_IndexInfo_DTO._SiteMenu_Index))] public List<SiteMenu_IndexInfo_DTO>? _SiteMenu_IndexInfo { get; set; }
+        [InverseProperty(nameof(SiteMenu_Item_DTO._SiteMenu_Index))] public List<SiteMenu_Item_DTO>? _SiteMenu_Item { get; set; }
+        #endregion
     }
     /// <summary>
     /// 
@@ -105,6 +111,10 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// 網站關鍵字
         /// </summary>
         [LibDesc(ModelDisplayName.SiteMenu_SiteFooter)] public string? Keyword { get; set; }
+
+        #region 主子表關聯
+        public SiteMenu_Index_DTO? _SiteMenu_Index { get; set; }
+        #endregion
     }
     /// <summary>
     /// 
@@ -147,6 +157,13 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         /// 開啟分頁方式
         /// </summary>
         [LibDesc(ModelDisplayName.SiteMenu_WindowTarget)] public WindowTarget WindowTarget { get; set; }
+
+        #region 主子表關聯
+        [ForeignKey(nameof(SiteIndex))] public SiteMenu_Index_DTO? _SiteMenu_Index { get; set; }
+        [InverseProperty(nameof(SiteMenu_Item_Title_DTO._SiteMenu_Index))] public List<SiteMenu_Item_Title_DTO>? _SiteMenu_Item_Title { get; set; }
+        [InverseProperty(nameof(SiteMenu_Item_Title_DTO._SiteMenu_Index))] public SiteMenu_Item_Url_DTO? _SiteMenu_Item_Url { get; set; }
+        [InverseProperty(nameof(SiteMenu_Item_Title_DTO._SiteMenu_Index))] public SiteMenu_Item_Module_DTO? _SiteMenu_Item_Module { get; set; }
+        #endregion
     }
     /// <summary>
     /// 
@@ -159,6 +176,10 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         [LibDesc(ModelDisplayName.Common_Lang)] public LangCode? Lang { get; set; }
         [LibDesc(ModelDisplayName.SiteMenu_MenuTitle)] public string? Title { get; set; }
         [LibDesc(ModelDisplayName.SiteMenu_IsShowOnMenu)] public bool IsShowOnMenu { get; set; }
+
+        #region 主子表關聯
+        public SiteMenu_Item_DTO? _SiteMenu_Index { get; set; }
+        #endregion
     }
     /// <summary>
     /// 
@@ -169,6 +190,10 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         [LibDesc(ModelDisplayName.Common_RowId)] public int? ItemRowId { get; set; }
         [LibDesc(ModelDisplayName.SiteMenu_RedirectType)] public MenuUrlType RedirectType { get; set; } //0:無, 1:外部,2:內部模型功能(直接轉FullUrl、但是是用下拉的看Title/Url)
         [LibDesc(ModelDisplayName.Common_Url)] public string? RedirectUrl { get; set; }
+
+        #region 主子表關聯
+        public SiteMenu_Item_DTO? _SiteMenu_Index { get; set; }
+        #endregion
     }
     /// <summary>
     /// 
@@ -181,5 +206,9 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
         [LibDesc(ModelDisplayName.SiteMenu_ItemType)] public ModulePageType PageType { get; set; }
         [LibDesc(ModelDisplayName.SiteMenu_ModuleProgId)] public string? ModuleProgId { get; set; } //功能代碼
         [LibDesc(ModelDisplayName.SiteMenu_ModuleOptions)] public string? ModuleOptions { get; set; }//動態參數，存Json格式
+
+        #region 主子表關聯
+        public SiteMenu_Item_DTO? _SiteMenu_Index { get; set; }
+        #endregion
     }
 }
