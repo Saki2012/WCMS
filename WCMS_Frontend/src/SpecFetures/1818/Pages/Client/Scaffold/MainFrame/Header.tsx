@@ -11,36 +11,14 @@ import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
 import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap";
 import React from "react";
+import { useMobileMenuCollapse } from "@/Features/Hooks/UIAction/Mobile/useMobileMenuCollapse";
 
 const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
     const headerRef = useRef<HTMLDivElement | null>(null);
-    useEffect(() => {
-        if (typeof window === "undefined") return;
-        const header = headerRef.current;
-        if (!header) return;
-        const setOpen = (open: boolean) => {
-            header.classList.toggle("active", open);           // 等同 jQuery add/removeClass
-            document.body.style.overflow = open ? "hidden" : "auto";
-        };
-        const onClick = (ev: MouseEvent) => {
-            const el = ev.target as Element;
-
-            // 1) 點到 .navbar-toggler → 開/關
-            const toggler = el.closest(".navbar-toggler");
-            if (toggler && header.contains(toggler)) {
-                const open = !header.classList.contains("active");
-                setOpen(open);
-                return;
-            }
-            // 2) 若你有 overlayer：點 overlayer → 關閉
-            const overlay = el.closest(".overlayer");
-            if (overlay && header.contains(overlay)) {
-                setOpen(false);
-            }
-        };
-        header.addEventListener("click", onClick);
-        return () => header.removeEventListener("click", onClick);
-    }, []);
+    useMobileMenuCollapse({
+        headerRef, collapseSelector: "#navbar-content", togglerSelector: ".navbar-toggler",
+        overlaySelector: ".overlayer", hamburgerSelector: ".hamburger", headerActiveClass: "active", lockBodyScroll: true, disableBootstrapAutoToggle: true,
+    });
 
     return (
         <>
@@ -179,14 +157,7 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
         const toggleEls = Array.from(root.querySelectorAll<HTMLElement>(".dropdown-toggle"));
         toggleEls.forEach(el => el.addEventListener("keydown", toggleKeyHandler));
 
-        // ---------- 3) Hamburger 動畫（點 .navbar-toggler） ----------
-        const navbarToggler = root.querySelector<HTMLElement>(".navbar-toggler");
-        const onBurgerClick = (e: Event) => {
-            const btn = e.currentTarget as HTMLElement;
-            // 找到裡面的 .hamburger，切換 active（比原本 e.target.children[0] 安全）
-            btn.querySelector<HTMLElement>(".hamburger")?.classList.toggle("active");
-        };
-        navbarToggler?.addEventListener("click", onBurgerClick);
+
 
         // ---------- 4) Header menu：互斥顯示（hover/點擊），點外面或點子項就收合 ----------
         // NOTE：這裡是修 1818「點了教師後一直卡住」的核心。
@@ -273,8 +244,6 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
             if (e.key === "Escape") closeAllExcept();
         };
 
-        root.addEventListener("pointerover", onPointerOver);
-        root.addEventListener("focusin", onFocusIn);
         root.addEventListener("click", onRootClick);
         document.addEventListener("pointerdown", onDocPointerDown);
         document.addEventListener("keydown", onDocKeyDown);
@@ -286,10 +255,7 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
                 el.removeEventListener("keydown", onKeyEnter);
             });
             toggleEls.forEach(el => el.removeEventListener("keydown", toggleKeyHandler));
-            navbarToggler?.removeEventListener("click", onBurgerClick);
 
-            root.removeEventListener("pointerover", onPointerOver);
-            root.removeEventListener("focusin", onFocusIn);
             root.removeEventListener("click", onRootClick);
             document.removeEventListener("pointerdown", onDocPointerDown);
             document.removeEventListener("keydown", onDocKeyDown);
