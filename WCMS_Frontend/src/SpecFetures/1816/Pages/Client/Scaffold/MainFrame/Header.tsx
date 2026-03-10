@@ -291,7 +291,8 @@ const useNavbarEnhance = (menuRootRef: React.RefObject<HTMLDivElement>) => {
             if (bs?.Dropdown) new bs.Dropdown(e.currentTarget).toggle();
         };
 
-        const toggleEls = Array.from(root.querySelectorAll<HTMLElement>(".dropdown-toggle"));
+        const toggleEls = root.querySelectorAll<HTMLElement>('.dropdown-toggle[data-bs-toggle="dropdown"]');
+
         toggleEls.forEach((el) => el.addEventListener("keydown", toggleKeyHandler));
 
         // 3) Hamburger 動畫（點 .navbar-toggler 切 .hamburger.active）
