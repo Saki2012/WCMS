@@ -12,8 +12,8 @@ import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuid
 import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 import { useLoaderData } from "react-router-dom";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WebManagement/WebResource/WebResource_Api";
-import { CategoryAdapter, formatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
+import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WebManagement/WebResource_Api";
+import { CategoryAdapter, formatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
 import type { WebResourceListLoaderData } from "./WebResourceList_Loader";
 
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];

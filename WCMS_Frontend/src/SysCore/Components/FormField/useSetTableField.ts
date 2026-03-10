@@ -281,7 +281,7 @@ export const useSetTableField = <T>(form: FormDataLike<T>) =>
             const csvDelimiter = typeof setType === "object" && setType.csvDelimiter ? setType.csvDelimiter : ",";
 
             // InputValue 視策略決定
-            const inputValue: any = strategy === "sum"
+            const inputValue = strategy === "sum"
                 ? parseBitmaskToStringArray(Number(raw ?? 0), sumKeys ?? [])
                 : strategy === "csv"
                 ? String(raw ?? "")

@@ -8,7 +8,7 @@ import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 import { useMemo } from "react";
 import { useLoaderData } from "react-router-dom";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Api";
+import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/PageManagement_Api";
 import type { components } from "@/types/api";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { PageManagementFormLoaderData } from "./PageManagementForm_Hook";

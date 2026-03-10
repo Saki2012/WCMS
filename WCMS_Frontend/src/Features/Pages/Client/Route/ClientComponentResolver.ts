@@ -118,7 +118,7 @@ function resolveSpecComponent<TComponent>(
 // 之後 ClientRouter 一律從這裡 import
 // ====================================================
 
-// SubPage（1810/1816... Spec 裡請 export const SubPage = ...）
+// SubPage
 export const SubPage = resolveSpecComponent("Pages/Client/Scaffold/SubPages/SubPage.tsx", SubPageBase, "SubPage");
 
 // PageManagement Form

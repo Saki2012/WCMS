@@ -33,17 +33,10 @@ export const useScheduleRuleListFetchData = (
 ): UseFetchDataResult<ScheduleRuleListRawData, ScheduleRuleListAdapter> => {
     // 宣告變數
     const { publish } = useToast();
-    const onError = useCallback((e: ApiAdapterError) => {
-        publish({ level: MessageStatus.Error, title: e.messageText });
-    }, [publish]);
-
-    const adapter = useMemo<ScheduleRuleListAdapter>(() => {
-        return { ScheduleRule: SpecOpenScheduleRuleAdapter() };
-    }, []);
-
+    const onError = useCallback((e: ApiAdapterError) => { publish({ level: MessageStatus.Error, title: e.messageText }); }, [publish]);
+    const adapter = useMemo<ScheduleRuleListAdapter>(() => { return { ScheduleRule: SpecOpenScheduleRuleAdapter() }; }, []);
     // 執行 function：Query param
     const baseParam = useScheduleRuleListQueryParam({ kw: opt.kw });
-
     // 執行 function：主資料（Grid）
     const grid = adapter.ScheduleRule.hooks.useQueryGridData({
         baseParam,

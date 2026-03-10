@@ -1,6 +1,6 @@
-import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api";
-import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
-import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
+import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Announcement_Api";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
+import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tag_Api";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";

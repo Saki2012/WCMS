@@ -1,4 +1,4 @@
-import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
+import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
@@ -175,7 +175,7 @@ export const SpecialLinkData = (props: { lang: Lang; internalId: string; initial
 									{/* 單一顆按鈕 START */}
 									<div className="DIV-singleBox">
 										<div className="control-singlebox">
-											<a id="Event_toggle" ref={toggleRef} href="javascript:void(0);" className="toggle ms-1"
+											<a id="Event_toggle" ref={toggleRef} href="#" className="toggle ms-1"
 												aria-label="圖片輪播播放中，點擊暫停" aria-pressed="true" tabIndex={0} title="暫停">
 												<div className="control-toggle control-pause-icon">
 													<span className="sr-only">圖片輪播播放中，點擊暫停</span>

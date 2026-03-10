@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
-import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
+import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tag_Api";
 import { SpecResearchAdapter } from "@/SpecFetures/1810/Hooks/SpecResearch/SpecResearch_Api";
 import { SpecCategoryAdapter } from "@/SpecFetures/1810/Hooks/SpecCategory/SpecCategory_Api";
 

@@ -8,7 +8,7 @@ import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
+import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
 
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 

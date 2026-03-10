@@ -1,7 +1,7 @@
 import type { IModuleMeta } from "@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData";
 import { Server_SpecJournalIndex_List_Comp } from "@/SpecFetures/1819/Pages/Server/BizFunc/SpecModule/SpecJournalIndex/Server_SpecJournalIndex_List_Comp";
 import { Server_SpecJournalIndex_Form_Comp } from "@/SpecFetures/1819/Pages/Server/BizFunc/SpecModule/SpecJournalIndex/Server_SpecJournalIndex_Form_Comp";
-import { TagListFormComp } from "@/Features/Pages/Server/BizFunc/WebManagement/Tags/Server_Tag_ListForm_Comp";
+import { Server_Tag_ListForm_Comp } from "@/Features/Pages/Server/BizFunc/WebManagement/Tags/Server_Tag_ListForm_Comp";
 import { Server_SpecJournal_List_Comp } from "@/SpecFetures/1819/Pages/Server/BizFunc/SpecModule/SpecJournal/Server_SpecJournal_List_Comp";
 import { Server_SpecJournal_Form_Comp } from "@/SpecFetures/1819/Pages/Server/BizFunc/SpecModule/SpecJournal/Server_SpecJournal_Form_Comp";
 import { PGID } from "@/types/SchemaFields";
@@ -38,7 +38,7 @@ const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] => {
                 },
                 {
                     ActionCode: "Tag", Title: "期刊類型", RoutePath: "Tag/:internalId?",
-                    elementFactory: (ctx) => <TagListFormComp progId={PGID.SpecJournal} title="期刊類型" theme={ctx.theme} lang={ctx.lang} />,
+                    elementFactory: (ctx) => <Server_Tag_ListForm_Comp progId={PGID.SpecJournal} title="期刊類型" theme={ctx.theme} lang={ctx.lang} />,
                 },
             ],
         },

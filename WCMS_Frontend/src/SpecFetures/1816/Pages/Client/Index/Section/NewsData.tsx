@@ -4,9 +4,9 @@ import { useCallback, useMemo, useState } from "react";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 
-import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api";
-import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
-import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
+import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Announcement_Api";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
+import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tag_Api";
 
 import more_d from "@/SpecFetures/1816/Assets/Client/images/svg_icon/more-d.svg";
 

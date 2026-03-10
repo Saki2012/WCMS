@@ -38,7 +38,7 @@ import {
     SpecJournalRefFormatFields,
     SpecJournalSetFields,
 } from "@/types/SchemaFields";
-import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
+import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tag_Api";
 
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"]
 type SpecJournalOpenPointFiles = components["schemas"]["SpecJournalOpenPointFiles_DTO"]

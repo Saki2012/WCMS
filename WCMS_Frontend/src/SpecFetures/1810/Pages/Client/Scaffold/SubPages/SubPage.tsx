@@ -12,7 +12,7 @@ import type { components } from "@/types/api";
 import { useNavigate } from "react-router-dom";
 import { ThirdMenuComp } from '@/SpecFetures/1810/Pages/Client/Scaffold/SubPages/Section/ThirdMenu'
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData'
-import BannerSliderProvider from '@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api'
+import BannerSliderProvider from '@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api'
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient'
 import { buildMenuItems, getAncestorAtLevel, GetMenuData } from '@/Features/Hooks/Common/BuildMenuItems'
 import { GoTopButton } from '@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton'

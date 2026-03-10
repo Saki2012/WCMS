@@ -1,4 +1,3 @@
-// SpecFeatures/1810/Router.ts
 import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
 import { loadClientChildren } from "@/Features/Pages/Client/Route/ClientRouter";
 import { BackendRouteModule } from "@/Features/Pages/Server/Scaffold/Routes/ServerRouter";

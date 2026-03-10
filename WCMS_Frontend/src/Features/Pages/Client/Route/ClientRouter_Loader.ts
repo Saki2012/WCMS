@@ -1,7 +1,7 @@
 import type { AxiosInstance } from "axios";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
-import { SiteMenuAdapter } from "@/Features/Hooks/BizFunc/Dashboard/SiteMenu/SiteInfo_Api";
+import { SiteMenuAdapter } from "@/Features/Hooks/BizFunc/SystemSetting/SiteMenu_Api";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { SiteMenu_IndexFields } from "@/types/SchemaFields";

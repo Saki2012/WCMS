@@ -212,7 +212,6 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
         navbarToggler?.addEventListener("click", onBurgerClick);
 
         // ---------- 4) Header menu：互斥顯示（hover/點擊），點外面或點子項就收合 ----------
-        // NOTE：這裡是修 1818「點了教師後一直卡住」的核心。
         // 原因：Bootstrap click 會留下 .show，但 hover(多半是 CSS) 不會互斥，導致多個 menu 疊在一起。
 
         // 只管「第一層」(navbar-nav > li.dropdown) 的互斥；子層 submenu 仍交給 Bootstrap。

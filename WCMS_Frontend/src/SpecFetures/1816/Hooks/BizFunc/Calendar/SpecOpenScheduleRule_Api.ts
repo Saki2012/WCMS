@@ -12,7 +12,11 @@ class SpecOpenScheduleRuleService extends ApiDataService<SpecOpenScheduleRuleSet
         super(PGID.SpecOpenScheduleRule, apiInstance);
     }
 }
-export const SpecOpenScheduleRuleAdapter = (apiInstance?: AxiosInstance) =>
-    new ApiDataAdapter<SpecOpenScheduleRuleSet, SpecOpenScheduleRuleService>(
-        (api?: AxiosInstance) => new SpecOpenScheduleRuleService(api ?? apiInstance),
-    );
+
+
+class SpecOpenScheduleRuleAdapterImpl extends ApiDataAdapter<SpecOpenScheduleRuleSet, SpecOpenScheduleRuleService>{
+
+}
+
+
+export const SpecOpenScheduleRuleAdapter = (apiInstance?: AxiosInstance) => new SpecOpenScheduleRuleAdapterImpl((api?: AxiosInstance) => new SpecOpenScheduleRuleService(api ?? apiInstance));

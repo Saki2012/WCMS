@@ -32,11 +32,6 @@ export const useFetchEnumOptions = (enumName: string) =>
             setIsLoading(false);
         }
     }, [enumName]);
-
-    useEffect(() =>
-    {
-        fetchData();
-    }, [fetchData]);
-
+    useEffect(() =>{fetchData();}, [fetchData]);
     return { data, isLoading, error };
 };

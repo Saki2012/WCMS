@@ -14,7 +14,7 @@ import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { AccountFields, PGID, SpecMusicalModelFields, SpecMusicalSetFields } from "@/types/SchemaFields";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { SpecMusicalAdapter } from "@/SpecFetures/1817/Hooks/BizFunc/SpecModule/SpecMusical/SpecMusical_Api";
-import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";

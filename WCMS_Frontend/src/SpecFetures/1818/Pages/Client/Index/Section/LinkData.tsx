@@ -1,4 +1,4 @@
-import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
+import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
 import { useEffect, useMemo, useRef } from "react";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { type Lang } from "@/SysCore/i18n/lang";

@@ -5,7 +5,7 @@ import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { BannerDetailFields, BannerDetailInfoFields, BannerFields } from "@/types/SchemaFields";
-import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
+import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type BannerSet = components["schemas"]["BannerSet_DTO"];

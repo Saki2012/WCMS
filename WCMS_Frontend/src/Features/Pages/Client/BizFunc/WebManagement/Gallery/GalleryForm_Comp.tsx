@@ -10,7 +10,7 @@ import type { INormNode } from '@/Features/Pages/Client/Route/Site-Routing';
 // ✅ 新架構：Adapter + LoaderData initial
 import { useLoaderData } from 'react-router-dom';
 import type { ApiLoaderData } from '@/SysCore/Utils/API/APIAdapter';
-import { GalleryAdapter } from '@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api';
+import { GalleryAdapter } from '@/Features/Hooks/BizFunc/WebManagement/Gallery_Api';
 import type { GalleryFormLoaderData } from './GalleryForm_Hook';
 
 type GallerySet = components["schemas"]["GallerySet_DTO"];

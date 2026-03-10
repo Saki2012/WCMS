@@ -1,5 +1,5 @@
-import { FileArchiveAdapter } from "@/Features/Hooks/BizFunc/WebManagement/FileArchive/FileArchive_Api";
-import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
+import { FileArchiveAdapter } from "@/Features/Hooks/BizFunc/WebManagement/FileArchive_Api";
+import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tag_Api";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";

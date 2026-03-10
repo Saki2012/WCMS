@@ -1,4 +1,4 @@
-import { GalleryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api";
+import { GalleryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Gallery_Api";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";

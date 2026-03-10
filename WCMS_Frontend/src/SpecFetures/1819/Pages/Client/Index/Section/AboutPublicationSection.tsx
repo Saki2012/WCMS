@@ -8,7 +8,7 @@ import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { BannerDetailFields, BannerDetailInfoFields, BannerFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
-import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
+import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 
 type BannerSet = components["schemas"]["BannerSet_DTO"];

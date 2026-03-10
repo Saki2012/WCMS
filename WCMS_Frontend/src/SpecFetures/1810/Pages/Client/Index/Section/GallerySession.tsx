@@ -2,14 +2,14 @@
 import 'swiper/swiper-bundle.css';
 import { BaseCarousel } from '@/SysCore/Components/BaseCarousel'
 import { Link } from 'react-router-dom';
-import GalleryProvider from '@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api';
+import GalleryProvider from '@/Features/Hooks/BizFunc/WebManagement/Gallery_Api';
 import type { components } from '@/types/api';
 import * as SchemaFields from "@/types/SchemaFields";
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import { FormatDate } from '@/SysCore/Utils/Library/LibData';
 import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import { useEffect, useRef } from 'react';
-import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api';
+import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category_Api';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 
 import bgImg from '@/SpecFetures/1810/Assets/Client/Images/bg/background-transparent-image_1920x600.png'

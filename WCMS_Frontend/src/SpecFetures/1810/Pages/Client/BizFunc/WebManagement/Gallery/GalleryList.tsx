@@ -8,7 +8,7 @@ import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 import { GalleryFields, GallerySetFields, GalleryInfoFields, PGID } from "@/types/SchemaFields";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { Lang } from "@/SysCore/i18n/lang";
-import GalleryProvider from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api";
+import GalleryProvider from "@/Features/Hooks/BizFunc/WebManagement/Gallery_Api";
 import { useCategoryListData } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { useLocation } from "react-router";

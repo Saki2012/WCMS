@@ -13,13 +13,13 @@ import { useMemo } from "react";
 /** 目前 Spec（vite.config.ts: alias SpecFeature -> /src/SpecFetures/{VITE_SPEC_CODE}） */
 const RawSpecAssetUrlMap = import.meta.glob(
   "SpecFeature/Assets/**/**/*.{pdf,png,jpg,jpeg,gif,svg,webp,mp4,webm,mp3,wav,ogg,zip,rar,7z,txt,doc,docx,xls,xlsx,ppt,pptx}",
-  { eager: true, as: "url" },
+  { eager: true, query: "?url", import: "default" },
 ) as Record<string, string>;
 
 /** _default（vite.config.ts: alias SpecDefault -> /src/SpecFetures/_default） */
 const RawDefaultAssetUrlMap = import.meta.glob(
   "SpecDefault/Assets/**/**/*.{pdf,png,jpg,jpeg,gif,svg,webp,mp4,webm,mp3,wav,ogg,zip,rar,7z,txt,doc,docx,xls,xlsx,ppt,pptx}",
-  { eager: true, as: "url" },
+  { eager: true, query: "?url", import: "default" },
 ) as Record<string, string>;
 
 // #endregion

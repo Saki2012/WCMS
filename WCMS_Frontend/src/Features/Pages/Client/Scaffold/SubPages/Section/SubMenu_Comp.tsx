@@ -200,7 +200,7 @@ const SubMenu_1816_Comp: React.FC<{
     /** render：父節點（prototype：用 <a>，並靠 open class / collapse 動畫） */
     const renderParent = (item: MenuItemData): React.ReactNode => {
         return (
-            <a href="javascript:void(0);" role="button" className="list-group-item collapsed">
+            <a href="#" role="button" className="list-group-item collapsed">
                 {item.SrcData}
             </a>
         );

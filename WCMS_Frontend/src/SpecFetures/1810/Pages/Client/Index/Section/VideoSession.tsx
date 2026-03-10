@@ -3,7 +3,7 @@ import { BaseCarousel } from '@/SysCore/Components/BaseCarousel'
 import { Link } from 'react-router-dom';
 import type { components } from '@/types/api';
 import * as SchemaFields from "@/types/SchemaFields";
-import WebResourceProvider from '@/Features/Hooks/BizFunc/WebManagement/WebResource/WebResource_Api';
+import WebResourceProvider from '@/Features/Hooks/BizFunc/WebManagement/WebResource_Api';
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
 import { useEffect, useRef } from 'react';

@@ -11,7 +11,7 @@ import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import type { UseActionsResult } from "@/Features/Hooks/Common/useActions";
 import { useNavigate } from "react-router";
-import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
 type QueryListParam = components["schemas"]["QueryListParam"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 type CategoryListFormRawData = { editForm:UseFetchFormDataResult<CategorySet>; actions: UseActionsResult; list: CategorySet[]; param: QueryListParam; };

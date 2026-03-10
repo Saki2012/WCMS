@@ -10,7 +10,7 @@ import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
-import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
 import { type Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";

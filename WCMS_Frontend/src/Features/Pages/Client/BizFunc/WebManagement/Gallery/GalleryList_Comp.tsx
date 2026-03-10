@@ -13,8 +13,8 @@ import { LangLink } from "@/SysCore/i18n/LangLink";
 // ✅ 新架構：Adapter + LoaderData initial
 import { useLoaderData } from "react-router-dom";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import { GalleryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api";
-import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
+import { GalleryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Gallery_Api";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
 import type { GalleryListLoaderData } from "./GalleryList_Hook";
 
 type GallerySet = components["schemas"]["GallerySet_DTO"];

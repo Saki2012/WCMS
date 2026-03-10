@@ -38,15 +38,12 @@ export const Server_Announcement_Form_Comp = (props: { theme: IBETheme; lang: La
         }, []);
     const actionsOpt = useMemo(() => {return { onBackToList, onPreviewFromDto: handlePreviewFromDto };}, [onBackToList, handlePreviewFromDto]);
     const getData = useAnnouncementFormFetchData({lang: props.lang,internalId: internalId ?? "",emptyData, actionsOpt});
-    // 執行 function：確保語系明細存在（避免 Tab 缺資料）
-    useEnsureLangDetails(getData.rawData.formData, 
-        {headerName: AnnouncementSetFields.Announcement,detailName: AnnouncementSetFields.AnnouncementDetail,
-        parentKeys: [AnnouncementDetailFields.AnnouncementId],preferFirstLang: props.lang,});
+    
     const propForm: FormCompProp = {Title: internalId ? "修改公告" : "新增公告",Theme: props.theme,IsLoading: getData.isLoading,ErrorList: getData.errors,Actions: getData.rawData.actions,};
     // return（不動 div/DOM 結構）
     return (
         <FormComp prop={propForm}>
-            <HeaderComp theme={props.theme} formData={getData.rawData.formData} cateOpts={getData.rawData.categoryMap} statusOpts={getData.rawData.statusOpts}tagOpts={getData.rawData.tagMap}/>
+            <HeaderComp theme={props.theme} formData={getData.rawData.formData} cateOpts={getData.rawData.categoryMap} statusOpts={getData.rawData.statusOpts}tagOpts={getData.rawData.tagMap} />
             <DetailComp theme={props.theme} formData={getData.rawData.formData} />
             <PreviewFrame open={open} siteIndex={""} onClose={() => setOpen(false)} payload={payload} title="預覽" />
         </FormComp>

@@ -87,7 +87,7 @@ type CrumbPart = {
     isActive: boolean;
 };
 
-/** 1816：取得 menu path nodes（用 absIds 往下找） */
+/** 取得 menu path nodes（用 absIds 往下找） */
 const GetMenuPathNodes = (lang: Lang, site: INormSite, node: INormNode): Array<{ id: string; title: string; to: string }> => {
     // 宣告變數
     const result: Array<{ id: string; title: string; to: string }> = [];
@@ -106,7 +106,7 @@ const GetMenuPathNodes = (lang: Lang, site: INormSite, node: INormNode): Array<{
     return result;
 };
 
-/** 1816：組合 menu crumbs + dynamic crumbs（最後一個為 active） */
+/** 組合 menu crumbs + dynamic crumbs（最後一個為 active） */
 const Build1816CrumbParts = (lang: Lang, site: INormSite, node: INormNode, dynamicItems: BreadcrumbItem[]): CrumbPart[] => {
     // 宣告變數
     const menuNodes = GetMenuPathNodes(lang, site, node);

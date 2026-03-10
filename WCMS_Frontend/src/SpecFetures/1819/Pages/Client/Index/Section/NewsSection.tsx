@@ -6,7 +6,7 @@ import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
-import AnnouncementProvider from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api";
+import AnnouncementProvider from "@/Features/Hooks/BizFunc/WebManagement/Announcement_Api";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];

@@ -23,42 +23,21 @@ export const Server_ScheduleRule_List_Comp = (prop: { title: string; theme: IBET
     const pathname = useLocation().pathname;
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
     const navigate = useNavigate();
-
     // 執行 function：集中取資料（Adapter）
     const getData = useScheduleRuleListFetchData({ kw });
     const cudActions = getData.adapter.ScheduleRule.hooks.useCudActions();
-
     // 執行 function：GridProps（含 __adjust__ actions）
     const gridData = useMemo(() => {
         return buildScheduleRuleGridProps({
             raw: getData.rawData,
-            crud: {
-                navigate,
-                dirUrl,
-                deleteAsync: cudActions.deleteAsync,
-                afterDelete: getData.refetchData,
-            },
+            crud: { navigate, dirUrl, deleteAsync: cudActions.deleteAsync, afterDelete: getData.refetchData, },
         });
     }, [getData.rawData, navigate, dirUrl, cudActions.deleteAsync, getData.refetchData]);
-
     // 宣告變數：保留原本 ListComp 的 Actions（讓「新建資料」按鈕仍存在）
     const actions = useMemo<UseActionsResult>(() => {
         return createLegacyListActions({ navigate, dirUrl });
     }, [navigate, dirUrl]);
-
-
-    // return（DOM 結構維持 ListComp 不變）
-    return (
-        <ListComp
-            Title={prop.title}
-            Theme={prop.theme}
-            isLoading={getData.isLoading}
-            ErrorList={getData.errors}
-            Actions={actions}
-            GridData={gridData}
-            SearchBar={searchCompProp}
-        />
-    );
+    return <ListComp Title={prop.title} Theme={prop.theme} isLoading={getData.isLoading} ErrorList={getData.errors} Actions={actions} GridData={gridData} SearchBar={searchCompProp}/>
 };
 
 //#region GridProps

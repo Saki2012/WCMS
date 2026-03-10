@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api";
-import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
-import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
+import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Announcement_Api";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
+import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tag_Api";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
-import type { Lang } from "@/SysCore/i18n/lang";
+import { useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError, ApiLoaderData, ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
@@ -12,7 +12,7 @@ import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { PGID } from "@/types/SchemaFields";
+import { AnnouncementDetailFields, AnnouncementSetFields, PGID } from "@/types/SchemaFields";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
@@ -46,6 +46,7 @@ export const useAnnouncementFormFetchData = (opt: {lang: Lang;internalId: string
     const adapter = useMemo<AnnouncementFormAdapter>(() => {return { Announcement: AnnouncementAdapter(), Category: CategoryAdapter(), Tag: TagAdapter() };}, []);
     // 執行 function：主資料（ModelDisplayName + QueryData + editable state）
     const formData = useAnnouncementFormDataByAdapter(adapter.Announcement, opt.internalId, opt.emptyData, onError);
+    useEnsureLangDetails(formData,{headerName: AnnouncementSetFields.Announcement,detailName: AnnouncementSetFields.AnnouncementDetail,parentKeys: [AnnouncementDetailFields.AnnouncementId],preferFirstLang: opt.lang,});
     const actions = useAnnouncementFormActionsByAdapter(adapter.Announcement,opt.internalId,formData.data,opt.actionsOpt,);
     // 執行 function：關聯資料（Category / Tag / ContentStatus）
     const category = adapter.Category.hooks.useMapByProgId({ progId: PGID.Announcement, lang: opt.lang });

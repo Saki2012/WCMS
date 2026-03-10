@@ -10,7 +10,6 @@ namespace WCMS.Features.SystemSetting.Calendar
     [LibApiController(ModuleCode.SystemSetting, PGID.Calendar, FuncAction.MasterData)]
     public partial class CalendarController() : ApiDataController<CalendarSet, CalendarSet_DTO>
     {
-
         #region Public
         /// <summary>
         /// 同步導入新北市行事曆

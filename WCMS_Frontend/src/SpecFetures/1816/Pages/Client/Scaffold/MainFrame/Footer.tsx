@@ -177,7 +177,7 @@ const Footer = (props: FooterProps) => {
                                                     <div className="social_box">
                                                         <div className="Accessibility-Badge_box">
                                                             <a
-                                                                href="javascript:void(0);"
+                                                                href="#"
                                                                 target="_blank"
                                                                 title={t.a11yTitle}
                                                                 tabIndex={0}

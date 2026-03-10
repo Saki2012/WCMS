@@ -1,8 +1,8 @@
 /* Banner */
 import * as SchemaFields from "@/types/SchemaFields";
-import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api';
+import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement_Api';
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
-import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
+import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tag_Api';
 import { useEffect, useMemo, useRef } from 'react';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import { FormatDate } from '@/SysCore/Utils/Library/LibData';

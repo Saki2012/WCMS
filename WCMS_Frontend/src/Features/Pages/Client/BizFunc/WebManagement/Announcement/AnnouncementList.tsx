@@ -16,10 +16,10 @@ import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInter
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
-import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api";
+import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Announcement_Api";
 import type { AnnouncementListLoaderData } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList_Loader";
-import { formatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
-import { formatTagsName } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
+import { formatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
+import { formatTagsName } from "@/Features/Hooks/BizFunc/WebManagement/Tag_Api";
 import { isWithinLastNDaysFromString } from "../WebResource/WebResourceList";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];

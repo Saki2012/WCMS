@@ -6,8 +6,8 @@ import {CategoryDataSetFields,CategoryDetailFields,CategoryFields,GalleryFields,
 import type { LoaderFunctionArgs } from "react-router-dom";
 
 // ✅ 依你新架構：改用 Adapter（若你專案內名稱不同，改成對應的 XxxAdapter 即可）
-import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
-import { GalleryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
+import { GalleryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Gallery_Api";
 import type { IGalleryListOptions } from "./GalleryList_Comp";
 
 type QueryListParam = components["schemas"]["QueryListParam"];

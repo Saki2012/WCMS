@@ -5,9 +5,9 @@ import { useEffect, useMemo } from "react";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { IndexLabel } from "@/SpecFetures/1818/Pages/Client//Index/Section/IndexLabelText";
 
-import { GalleryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Gallery/Gallery_Api";
-import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
-import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
+import { GalleryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Gallery_Api";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
+import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tag_Api";
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 type GallerySet = components["schemas"]["GallerySet_DTO"];

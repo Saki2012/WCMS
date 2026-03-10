@@ -1,5 +1,10 @@
-import type { ILibSelectCardProp } from './LibSelectCard_Data';
 
+
+interface ILibSelectCardProp
+{
+    ColDisplayName: string; // 上方顯示欄位名稱
+    children?: React.ReactNode;
+}
 
 const LibSelectCard = (prop: ILibSelectCardProp) => {
     return (
@@ -12,7 +17,7 @@ const LibSelectCard = (prop: ILibSelectCardProp) => {
                     <div className="col-12">
                         <div className="form-group">
                             <div className="row mx-0">
-                                {prop.components}
+                                {prop.children}
                             </div>
                         </div>
                     </div>

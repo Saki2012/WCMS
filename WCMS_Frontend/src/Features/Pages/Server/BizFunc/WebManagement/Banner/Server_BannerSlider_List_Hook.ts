@@ -8,7 +8,7 @@ import type { components } from "@/types/api";
 import {AccountFields, BannerDetailFields, BannerFields} from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
+import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
 type QueryListParam = components["schemas"]["QueryListParam"];
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 

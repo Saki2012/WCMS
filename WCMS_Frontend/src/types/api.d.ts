@@ -10516,7 +10516,7 @@ export interface components {
             AnnouncementId?: string | null;
             /** @description 類別 */
             Categories?: string | null;
-            /** @description 組別 */
+            /** @description 標籤 */
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 封面圖片 */
@@ -10678,12 +10678,12 @@ export interface components {
             Spec_AcademicYearId?: string | null;
             /**
              * Format: time
-             * @description [Spec_OpenTime]
+             * @description 開館時間
              */
             Spec_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [Spec_CloseTime]
+             * @description 閉館時間
              */
             Spec_CloseTime?: string | null;
             /** @description 摘要 */
@@ -10891,7 +10891,7 @@ export interface components {
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 類別 */
             CategoriesId?: string | null;
-            /** @description 組別 */
+            /** @description 標籤 */
             TagsId?: string | null;
             /**
              * Format: int32
@@ -11144,7 +11144,7 @@ export interface components {
             GalleryId?: string | null;
             /** @description 類別 */
             Categories?: string | null;
-            /** @description 組別 */
+            /** @description 標籤 */
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 相簿封面圖 */
@@ -11508,6 +11508,7 @@ export interface components {
             SiteFooter?: string | null;
             /** @description 網站標尾 */
             Keyword?: string | null;
+            _SiteMenu_Index?: components["schemas"]["SiteMenu_Index_DTO"];
         };
         SiteMenu_Index_DTO: {
             /**
@@ -11543,6 +11544,8 @@ export interface components {
             DefaultLang?: components["schemas"]["LangCode"];
             /** @description 支援語系 */
             SupportLangs?: string | null;
+            _SiteMenu_IndexInfo?: components["schemas"]["SiteMenu_IndexInfo_DTO"][] | null;
+            _SiteMenu_Item?: components["schemas"]["SiteMenu_Item_DTO"][] | null;
         };
         SiteMenu_Item_DTO: {
             /** @description 首頁代碼 */
@@ -11570,6 +11573,10 @@ export interface components {
             DisplayOrder?: number;
             ItemType?: components["schemas"]["MenuUrlType"];
             WindowTarget?: components["schemas"]["WindowTarget"];
+            _SiteMenu_Index?: components["schemas"]["SiteMenu_Index_DTO"];
+            _SiteMenu_Item_Title?: components["schemas"]["SiteMenu_Item_Title_DTO"][] | null;
+            _SiteMenu_Item_Url?: components["schemas"]["SiteMenu_Item_Url_DTO"];
+            _SiteMenu_Item_Module?: components["schemas"]["SiteMenu_Item_Module_DTO"];
         };
         SiteMenu_Item_Module_DTO: {
             /** @description 首頁代碼 */
@@ -11586,6 +11593,7 @@ export interface components {
             ModuleProgId?: string | null;
             /** @description 網頁模型參數 */
             ModuleOptions?: string | null;
+            _SiteMenu_Index?: components["schemas"]["SiteMenu_Item_DTO"];
         };
         SiteMenu_Item_Title_DTO: {
             /** @description 首頁代碼 */
@@ -11605,6 +11613,7 @@ export interface components {
             Title?: string | null;
             /** @description 是否顯示在選單中 */
             IsShowOnMenu?: boolean;
+            _SiteMenu_Index?: components["schemas"]["SiteMenu_Item_DTO"];
         };
         SiteMenu_Item_Url_DTO: {
             /** @description 首頁代碼 */
@@ -11617,9 +11626,10 @@ export interface components {
             RedirectType?: components["schemas"]["MenuUrlType"];
             /** @description 網址 */
             RedirectUrl?: string | null;
+            _SiteMenu_Index?: components["schemas"]["SiteMenu_Item_DTO"];
         };
         SpecCategoryDetailModel_DTO: {
-            /** @description 類別代號 */
+            /** @description [SpecCategoryId] */
             CategoryId?: string | null;
             /**
              * Format: int32
@@ -11627,7 +11637,7 @@ export interface components {
              */
             RowId?: number;
             Lang?: components["schemas"]["LangCode"];
-            /** @description 計畫類別名稱 */
+            /** @description [SpecCategory_Name] */
             CategoryName?: string | null;
         };
         SpecCategoryModel_DTO: {
@@ -11655,11 +11665,11 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description 類別代號 */
+            /** @description [SpecCategoryId] */
             CategoryId?: string | null;
             /** @description 功能模塊代碼 */
             ProgId?: string | null;
-            /** @description 顯示欄位 */
+            /** @description [SpecCategory_ShowColumn] */
             ShowColumnItems?: string | null;
             _SpecCategoryDetail?: components["schemas"]["SpecCategoryDetailModel_DTO"][] | null;
         };
@@ -12093,126 +12103,126 @@ export interface components {
             Validate_Start?: string | null;
             /** Format: date-time */
             Validate_End?: string | null;
-            /** @description [SpecAcademicYearId] */
+            /** @description 學年度 */
             AcademicYearId?: string | null;
             /**
              * Format: date
-             * @description [SpecAcademicStart]
+             * @description 學年度開始日
              */
             AcademicStart?: string;
             /**
              * Format: date
-             * @description [SpecAcademicEnd]
+             * @description 學年度結束日
              */
             AcademicEnd?: string;
             /**
              * Format: time
-             * @description [SpecWeekday_OpenTime]
+             * @description 平日開館時間
              */
             Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWeekday_CloseTime]
+             * @description 平日閉館時間
              */
             Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSat_OpenTime]
+             * @description 週六開館時間
              */
             Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSat_CloseTime]
+             * @description 週六閉館時間
              */
             Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSun_OpenTime]
+             * @description 週日開館時間
              */
             Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSun_CloseTime]
+             * @description 週日閉館時間
              */
             Sun_CloseTime?: string | null;
             /**
              * Format: date
-             * @description [SpecWinterStart]
+             * @description 寒假開始日
              */
             WinterStart?: string;
             /**
              * Format: date
-             * @description [SpecWinterEnd]
+             * @description 寒假結束日
              */
             WinterEnd?: string;
             /**
              * Format: time
-             * @description [SpecWinter_Weekday_OpenTime]
+             * @description 寒假平日開館時間
              */
             Winter_Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Weekday_CloseTime]
+             * @description 寒假平日閉館時間
              */
             Winter_Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Sat_OpenTime]
+             * @description 寒假週六開館時間
              */
             Winter_Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Sat_CloseTime]
+             * @description 寒假週六閉館時間
              */
             Winter_Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Sun_OpenTime]
+             * @description 寒假週日開館時間
              */
             Winter_Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Sun_CloseTime]
+             * @description 寒假週日閉館時間
              */
             Winter_Sun_CloseTime?: string | null;
             /**
              * Format: date
-             * @description [SpecSummerStart]
+             * @description 暑假開始日
              */
             SummerStart?: string;
             /**
              * Format: date
-             * @description [SpecSummerEnd]
+             * @description 暑假結束日
              */
             SummerEnd?: string;
             /**
              * Format: time
-             * @description [SpecSummer_Weekday_OpenTime]
+             * @description 暑假平日開館時間
              */
             Summer_Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Weekday_CloseTime]
+             * @description 暑假平日閉館時間
              */
             Summer_Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Sat_OpenTime]
+             * @description 暑假週六開館時間
              */
             Summer_Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Sat_CloseTime]
+             * @description 暑假週六閉館時間
              */
             Summer_Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Sun_OpenTime]
+             * @description 暑假週日開館時間
              */
             Summer_Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Sun_CloseTime]
+             * @description 暑假週日閉館時間
              */
             Summer_Sun_CloseTime?: string | null;
             /** @description 摘要 */
@@ -12243,126 +12253,126 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description [SpecAcademicYearId] */
+            /** @description 學年度 */
             AcademicYearId?: string | null;
             /**
              * Format: date
-             * @description [SpecAcademicStart]
+             * @description 學年度開始日
              */
             AcademicStart?: string | null;
             /**
              * Format: date
-             * @description [SpecAcademicEnd]
+             * @description 學年度結束日
              */
             AcademicEnd?: string | null;
             /**
              * Format: time
-             * @description [SpecWeekday_OpenTime]
+             * @description 平日開館時間
              */
             Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWeekday_CloseTime]
+             * @description 平日閉館時間
              */
             Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSat_OpenTime]
+             * @description 週六開館時間
              */
             Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSat_CloseTime]
+             * @description 週六閉館時間
              */
             Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSun_OpenTime]
+             * @description 週日開館時間
              */
             Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSun_CloseTime]
+             * @description 週日閉館時間
              */
             Sun_CloseTime?: string | null;
             /**
              * Format: date
-             * @description [SpecWinterStart]
+             * @description 寒假開始日
              */
             WinterStart?: string | null;
             /**
              * Format: date
-             * @description [SpecWinterEnd]
+             * @description 寒假結束日
              */
             WinterEnd?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Weekday_OpenTime]
+             * @description 寒假平日開館時間
              */
             Winter_Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Weekday_CloseTime]
+             * @description 寒假平日閉館時間
              */
             Winter_Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Sat_OpenTime]
+             * @description 寒假週六開館時間
              */
             Winter_Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Sat_CloseTime]
+             * @description 寒假週六閉館時間
              */
             Winter_Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Sun_OpenTime]
+             * @description 寒假週日開館時間
              */
             Winter_Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Sun_CloseTime]
+             * @description 寒假週日閉館時間
              */
             Winter_Sun_CloseTime?: string | null;
             /**
              * Format: date
-             * @description [SpecSummerStart]
+             * @description 暑假開始日
              */
             SummerStart?: string | null;
             /**
              * Format: date
-             * @description [SpecSummerEnd]
+             * @description 暑假結束日
              */
             SummerEnd?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Weekday_OpenTime]
+             * @description 暑假平日開館時間
              */
             Summer_Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Weekday_CloseTime]
+             * @description 暑假平日閉館時間
              */
             Summer_Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Sat_OpenTime]
+             * @description 暑假週六開館時間
              */
             Summer_Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Sat_CloseTime]
+             * @description 暑假週六閉館時間
              */
             Summer_Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Sun_OpenTime]
+             * @description 暑假週日開館時間
              */
             Summer_Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Sun_CloseTime]
+             * @description 暑假週日閉館時間
              */
             Summer_Sun_CloseTime?: string | null;
             /** @description 摘要 */
@@ -12376,7 +12386,7 @@ export interface components {
             Data?: components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
         };
         SpecResearchDetailModel_DTO: {
-            /** @description 研究計畫 */
+            /** @description [SpecResearchId] */
             ResearchId?: string | null;
             /**
              * Format: int32
@@ -12386,67 +12396,67 @@ export interface components {
             Lang?: components["schemas"]["LangCode"];
             /**
              * Format: int32
-             * @description 年度
+             * @description [SpecResearch_Year]
              */
             Year?: number | null;
             /**
              * Format: int32
-             * @description 學年度
+             * @description [SpecResearch_AcademicYear]
              */
             AcademicYear?: number | null;
-            /** @description 學期 */
+            /** @description [SpecResearch_Semester] */
             Semester?: string | null;
-            /** @description 執行期間 */
+            /** @description [SpecResearch_DuringExecution] */
             DuringExecution?: string | null;
-            /** @description 合約期間 */
+            /** @description [SpecResearch_ContractPeriod] */
             ContractPeriod?: string | null;
-            /** @description 上課時間 */
+            /** @description [SpecResearch_ClassTime] */
             ClassTime?: string | null;
-            /** @description 計畫主持人 */
+            /** @description [SpecResearch_ProjectLeader] */
             ProjectLeader?: string | null;
-            /** @description 姓名 */
+            /** @description [SpecResearch_Name] */
             Name?: string | null;
-            /** @description 本校教學人員 */
+            /** @description [SpecResearch_TeachingStaffOfOurSchool] */
             TeachingStaffOfOurSchool?: string | null;
-            /** @description 核定編號 */
+            /** @description [SpecResearch_ApprovalNumber] */
             ApprovalNumber?: string | null;
             /**
              * Format: double
-             * @description 核定金額
+             * @description [SpecResearch_ApprovedAmount]
              */
             ApprovedAmount?: number | null;
-            /** @description 學院 */
+            /** @description [SpecResearch_College] */
             College?: string | null;
-            /** @description 系所 */
+            /** @description [SpecResearch_Department] */
             Department?: string | null;
-            /** @description 學位 */
+            /** @description [SpecResearch_Degree] */
             GraduationDegree?: string | null;
-            /** @description 合作單位/學校 */
+            /** @description [SpecResearch_CoUnits] */
             CooperatingUnits?: string | null;
-            /** @description 合作項目 */
+            /** @description [SpecResearch_CoProject] */
             CooperationProject?: string | null;
-            /** @description 課程/社團 */
+            /** @description [SpecResearch_Courses] */
             Courses?: string | null;
-            /** @description 計畫名稱 */
+            /** @description [SpecResearch_ProjectName] */
             ProjectName?: string | null;
-            /** @description 論文名稱 */
+            /** @description [SpecResearch_PaperTitle] */
             PaperTitle?: string | null;
-            /** @description 備註 */
+            /** @description [SpecResearch_Remark] */
             Remark?: string | null;
-            /** @description 共同主持人 */
+            /** @description [SpecResearch_Cohost1] */
             Cohost1?: string | null;
-            /** @description 協同主持人 */
+            /** @description [SpecResearch_Cohost2] */
             Cohost2?: string | null;
-            /** @description 委辦/補助單位 */
+            /** @description [SpecResearch_Commissioned] */
             Commissioned?: string | null;
             /**
              * Format: double
-             * @description 計畫金額
+             * @description [SpecResearch_PlanAmount]
              */
             PlanAmount?: number | null;
-            /** @description 計畫內容簡介 */
+            /** @description [SpecResearch_PlanContent] */
             PlanContent?: string | null;
-            /** @description 指導教授 */
+            /** @description [SpecResearch_Professor] */
             Professor?: string | null;
         };
         SpecResearchModel_DTO: {
@@ -12474,12 +12484,12 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description 研究計畫 */
+            /** @description [SpecResearchId] */
             ResearchId?: string | null;
-            /** @description 計畫類別 */
+            /** @description [SpecResearch_Categories] */
             CategoryId?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
-            /** @description 標籤 */
+            /** @description [SpecResearch_Tags] */
             Tags?: string | null;
             _SpecResearchDetail?: components["schemas"]["SpecResearchDetailModel_DTO"][] | null;
         };
@@ -12492,7 +12502,7 @@ export interface components {
             Data?: components["schemas"]["SpecResearchSet_DTO"];
         };
         SpecUSRDetail_DTO: {
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
             /**
              * Format: int32
@@ -12500,67 +12510,67 @@ export interface components {
              */
             RowId?: number;
             Lang: components["schemas"]["LangCode"];
-            /** @description 年度 */
+            /** @description [SpecUSR_Year] */
             Year?: string | null;
             /**
              * Format: int32
-             * @description 學年度
+             * @description [SpecUSR_AcademicYear]
              */
             AcademicYear?: number | null;
-            /** @description 課程/活動名稱 */
+            /** @description [SpecUSR_Courses] */
             Courses?: string | null;
-            /** @description 實踐領域 */
+            /** @description [SpecUSR_PracticeField] */
             PracticeField?: string | null;
-            /** @description 計畫名稱 */
+            /** @description [SpecUSR_ProjectName] */
             ProjectName?: string | null;
-            /** @description 外部合作單位 */
+            /** @description [SpecUSR_ExternalCoUnits] */
             ExternalCooperationUnit?: string | null;
-            /** @description 本校執行系所/單位 */
+            /** @description [SpecUSR_Department] */
             Department?: string | null;
-            /** @description 執行期間 */
+            /** @description [SpecUSR_DuringExecution] */
             DuringExecution?: string | null;
             /**
              * Format: double
-             * @description 計畫金額
+             * @description [SpecUSR_PlanAmount]
              */
             PlanAmount?: number | null;
-            /** @description 執行策略 */
+            /** @description [SpecUSR_ExecutionStrategy] */
             ExecutionStrategy?: string | null;
-            /** @description 計畫內容簡介 */
+            /** @description [SpecUSR_ContentIntro] */
             ContentIntroduction?: string | null;
-            /** @description 計畫理念 */
+            /** @description [SpecUSR_ProjectConcept] */
             ProjectConcept?: string | null;
-            /** @description 計畫亮點 */
+            /** @description [SpecUSR_KeyHighlights] */
             ProjectHighlights?: string | null;
-            /** @description 計畫主持人 */
+            /** @description [SpecUSR_ProjectLeader] */
             ProjectLeader?: string | null;
-            /** @description 子計畫主持人 */
+            /** @description [SpecUSR_ProjectSubLeader] */
             ProjectSubLeader?: string | null;
-            /** @description 參與之師生或團隊 */
+            /** @description [SpecUSR_AttendTeam] */
             AttendTeam?: string | null;
-            /** @description 共同主持人 */
+            /** @description [SpecUSR_Cohost1] */
             Cohost1?: string | null;
-            /** @description 協同主持人 */
+            /** @description [SpecUSR_Cohost2] */
             Cohost2?: string | null;
-            /** @description 委辦/補助單位 */
+            /** @description [SpecUSR_Commissioned] */
             Commissioned?: string | null;
-            /** @description 備註 */
+            /** @description [SpecUSR_Remark] */
             Remark?: string | null;
-            /** @description 計畫類別 */
+            /** @description [SpecUSR_ProjectItem] */
             ProjectItem?: string | null;
             /**
              * @deprecated
-             * @description 相關網址
+             * @description [SpecUSR_Url]
              */
             Url?: string | null;
             /**
              * @deprecated
-             * @description 相關網址說明
+             * @description [SpecUSR_UrlDescription]
              */
             UrlDescription?: string | null;
         };
         SpecUSRFile_DTO: {
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
             /**
              * Format: int32
@@ -12604,23 +12614,23 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
-            /** @description 計畫類別 */
+            /** @description [SpecResearch_Categories] */
             CategoryId?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
-            /** @description 標籤 */
+            /** @description [SpecResearch_Tags] */
             Tags?: string | null;
             Picture?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 成果照片 */
+            /** @description [SpecUSR_PictureId] */
             PictureId?: string | null;
-            /** @description 圖片說明 */
+            /** @description [SpecUSR_PicDescription] */
             PicDescription?: string | null;
             _SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"][] | null;
             _SpecUSRPhoto?: components["schemas"]["SpecUSRPhoto_DTO"][] | null;
         };
         SpecUSRPhotoInfo_DTO: {
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
             /**
              * Format: int32
@@ -12638,7 +12648,7 @@ export interface components {
             _SpecUSRPhoto?: components["schemas"]["SpecUSRPhoto_DTO"];
         };
         SpecUSRPhoto_DTO: {
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
             /**
              * Format: int32
@@ -12668,7 +12678,7 @@ export interface components {
             Data?: components["schemas"]["SpecUSRSet_DTO"];
         };
         SpecUSRUrl_DTO: {
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
             /**
              * Format: int32
@@ -12797,7 +12807,7 @@ export interface components {
             WebResourceId?: string | null;
             /** @description 類別 */
             Categories?: string | null;
-            /** @description 組別 */
+            /** @description 標籤 */
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 封面圖片 */

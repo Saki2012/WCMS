@@ -1,12 +1,13 @@
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
+import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
 import type { components } from "@/types/api";
 import clsx from "clsx";
 import { useMemo } from "react";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
+import { useAnchorPreventDefaultClick } from "@/SysCore/Utils/UI_HookFunc/useAnchorPreventDefaultClick";
 
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 
@@ -32,6 +33,7 @@ export const CarouselData = (props: {lang: Lang;internalId: string;initialBanner
       return as - bs || (a.RowId ?? 0) - (b.RowId ?? 0);
     });
   }, [banner?.BannerDetail]);
+  const onClickLink = useAnchorPreventDefaultClick();
 
   return (
     <section className="Carousel_slide_section">
@@ -72,7 +74,7 @@ export const CarouselData = (props: {lang: Lang;internalId: string;initialBanner
               </div>
 
               <div className="carousel_btn-icon-prev">
-                <a data-bs-slide="prev" data-bs-target="#B5_default_carousel" href="javascript:void(0);" role="button" tabIndex={0} title="上一張" type="button">
+                <a data-bs-slide="prev" data-bs-target="#B5_default_carousel" href="#" role="button" tabIndex={0} title="上一張" type="button" onClick={onClickLink}>
                   <div className="carousel-control-prev">
                     <span aria-hidden="true" className="carousel-control-prev-icon" />
                     <span className="sr-only">Previous</span>
@@ -81,7 +83,7 @@ export const CarouselData = (props: {lang: Lang;internalId: string;initialBanner
               </div>
 
               <div className="carousel_btn-icon-next">
-                <a data-bs-slide="next" data-bs-target="#B5_default_carousel" href="javascript:void(0);" role="button" tabIndex={0} title="上一張" type="buttson">
+                <a data-bs-slide="next" data-bs-target="#B5_default_carousel" href="#" role="button" tabIndex={0} title="上一張" type="buttson" onClick={onClickLink}>
                   <div className="carousel-control-next">
                     <span aria-hidden="true" className="carousel-control-next-icon" />
                     <span className="sr-only">Next</span>
@@ -105,13 +107,13 @@ export const CarouselData = (props: {lang: Lang;internalId: string;initialBanner
               </div>
 
               <div className="carousel-indicators">
-                <a href="javascript:void(0);" tabIndex={0} title="上一張">
+                <a href="#" tabIndex={0} title="上一張" onClick={onClickLink}>
                   <button aria-current="true" aria-label="Slide 1" className="active" data-bs-slide-to="0" data-bs-target="#B5_default_carousel" type="button" />
                 </a>
-                <a href="javascript:void(0);" tabIndex={0} title="上一張">
+                <a href="#" tabIndex={0} title="上一張" onClick={onClickLink}>
                   <button aria-label="Slide 2" className="" data-bs-slide-to="1" data-bs-target="#B5_default_carousel" type="button" />
                 </a>
-                <a href="javascript:void(0);" tabIndex={0} title="上一張">
+                <a href="#" tabIndex={0} title="上一張" onClick={onClickLink}>
                   <button aria-label="Slide 3" className="" data-bs-slide-to="2" data-bs-target="#B5_default_carousel" type="button" />
                 </a>
               </div>

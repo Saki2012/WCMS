@@ -7,8 +7,8 @@ import parse from 'html-react-parser'
 import { useMemo } from 'react'
 import { IndexLabel } from "@/SpecFetures/1818/Pages/Client//Index/Section/IndexLabelText"
 
-import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WebManagement/WebResource/WebResource_Api"
-import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Api"
+import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WebManagement/WebResource_Api"
+import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/PageManagement_Api"
 
 import HomepageVideo from '@/SpecFetures/1818/Assets/Client/Spec/HomepageVideo.mp4'
 

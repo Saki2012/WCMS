@@ -6,7 +6,7 @@ import IndexPic from "@/SpecFetures/1819/Assets/Client/images/Indexed_150x150.sv
 import { BannerDetailFields, BannerDetailInfoFields, BannerFields } from "@/types/SchemaFields";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
+import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
 import { useMemo } from "react";
 import { isInValidTimeRange } from "@/SysCore/Utils/Library/DateRangeHelper";
 type BannerSet = components["schemas"]["BannerSet_DTO"];

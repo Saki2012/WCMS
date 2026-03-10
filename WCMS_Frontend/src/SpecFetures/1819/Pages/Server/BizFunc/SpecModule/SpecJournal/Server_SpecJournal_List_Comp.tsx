@@ -16,7 +16,7 @@ import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournal_Api";
 import { AccountFields, PGID, SpecJournalIndexDetailFields, SpecJournalModelFields, SpecJournalSetFields } from "@/types/SchemaFields";
-import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
 import type { UseActionsResult } from "@/Features/Hooks/Common/useActions";
 
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];

@@ -1,5 +1,5 @@
 import { LinkData } from '@/SpecFetures/1817/Pages/Client/Index/Section/LinkData'
-import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
+import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
 import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
 import clsx from "clsx";

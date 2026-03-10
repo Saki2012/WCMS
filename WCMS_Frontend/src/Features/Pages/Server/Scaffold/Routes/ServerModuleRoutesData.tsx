@@ -77,7 +77,7 @@ const ServerModuleRoutesData: IModuleMeta[] = [
         IconClassName: "fas fa-tachometer-alt",
         Progs: [
             {
-                ProgId: "SiteMenu", Title: "網站導覽", DefaultActionCode: "List", IconClassName: "",
+                ProgId: "SiteMenu", Title: "網站導覽", DefaultActionCode: "List", IconClassName: "fas fa-sitemap",
                 Actions: [
                     {
                         ActionCode: "List", Title: "網站導覽", RoutePath: "List",
@@ -88,7 +88,7 @@ const ServerModuleRoutesData: IModuleMeta[] = [
             ...(isSpec1816
                 ? [
                     {
-                        ProgId: "Calendar", Title: "行事曆", DefaultActionCode: "Index", IconClassName: "",
+                        ProgId: "Calendar", Title: "行事曆", DefaultActionCode: "Index", IconClassName: "fas fa-calendar-alt",
                         Actions: [
                             {
                                 ActionCode: "Index", Title: "行事曆", RoutePath: "Index",
@@ -239,7 +239,7 @@ const ServerModuleRoutesData: IModuleMeta[] = [
         Progs: [
             // 帳號
             {
-                ProgId: "Account", Title: "帳號管理", DefaultActionCode: "Form", IconClassName: "",
+                ProgId: "Account", Title: "帳號管理", DefaultActionCode: "Form", IconClassName: "fas fa-user-cog",
                 Actions: [
                     {
                         ActionCode: "List", Title: "帳號列表", RoutePath: "List",
@@ -262,7 +262,7 @@ const ServerModuleRoutesData: IModuleMeta[] = [
             },
             // 人員
             {
-                ProgId: "Person", Title: "人員資料", DefaultActionCode: "Form", IconClassName: "",
+                ProgId: "Person", Title: "人員資料", DefaultActionCode: "Form", IconClassName: "fas fa-id-card",
                 Actions: [
                     {
                         ActionCode: "List", Title: "人員列表", RoutePath: "List",
@@ -276,7 +276,7 @@ const ServerModuleRoutesData: IModuleMeta[] = [
             },
             // 角色權限
             {
-                ProgId: "RolePermission", Title: "角色權限", DefaultActionCode: "List", IconClassName: "",
+                ProgId: "RolePermission", Title: "角色權限", DefaultActionCode: "List", IconClassName: "fas fa-user-shield",
                 Actions: [
                     {
                         ActionCode: "List", Title: "角色列表", RoutePath: "List",

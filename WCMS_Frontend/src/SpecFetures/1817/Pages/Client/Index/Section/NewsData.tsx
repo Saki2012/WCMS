@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
-import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api';
-import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api';
-import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
+import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement_Api';
+import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category_Api';
+import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tag_Api';
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import type { components } from "@/types/api";
 import * as SchemaFields from "@/types/SchemaFields";

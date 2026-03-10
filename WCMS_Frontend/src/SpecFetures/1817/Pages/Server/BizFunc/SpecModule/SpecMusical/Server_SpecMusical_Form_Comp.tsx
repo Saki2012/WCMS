@@ -14,7 +14,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { PGID, SpecMusicalModelFields, SpecMusicalPictureListFields, SpecMusicalSetFields, SpecMusicalSoundListFields } from "@/types/SchemaFields";
 import { SpecMusicalAdapter } from "@/SpecFetures/1817/Hooks/BizFunc/SpecModule/SpecMusical/SpecMusical_Api";
-import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
 type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"]
 type SpecMusicalSoundList = components["schemas"]["SpecMusicalSoundList_DTO"]
 const emptyData: SpecMusicalSet = {}

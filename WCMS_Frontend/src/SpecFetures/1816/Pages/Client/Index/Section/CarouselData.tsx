@@ -1,6 +1,6 @@
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
+import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
 import type { components } from "@/types/api";
 import clsx from "clsx";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
@@ -33,7 +33,6 @@ const toOkEnv = <T,>(data: T): ApiResponse<T> => {
 };
 
 const toInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> => {
-	// return：對標 1818（ApiLoaderData 使用 apiRes）
 	return { args, apiRes: toOkEnv(data) };
 };
 

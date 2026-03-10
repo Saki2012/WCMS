@@ -1,7 +1,7 @@
 {/* // 最新消息 // */ }
 import { Link } from 'react-router-dom';
 import 'swiper/swiper-bundle.css';
-import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api';
+import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement_Api';
 import type { components } from '@/types/api';
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
@@ -9,8 +9,8 @@ type TagSet = components["schemas"]["TagSet_DTO"]
 import * as SchemaFields from "@/types/SchemaFields";
 import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
 import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
-import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api';
-import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api';
+import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category_Api';
+import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tag_Api';
 import { LibMerge } from '@/SysCore/Utils/Library/LibMergeData';
 import { PGID } from '@/Features/Hooks/Common/ProgId';
 import { useNow } from '@/SysCore/Utils/Library/LibHook';

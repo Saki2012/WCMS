@@ -9,7 +9,7 @@ import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import parse from 'html-react-parser';
 import { AnnouncementFields, AnnouncementDetailFields, AnnouncementSetFields, PGID } from "@/types/SchemaFields";
-import AnnouncementProvider from "@/Features/Hooks/BizFunc/WebManagement/Announcement/Announcement_Api";
+import AnnouncementProvider from "@/Features/Hooks/BizFunc/WebManagement/Announcement_Api";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";

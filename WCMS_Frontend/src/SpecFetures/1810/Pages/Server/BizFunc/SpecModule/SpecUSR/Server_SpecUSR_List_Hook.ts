@@ -2,7 +2,7 @@ import { useCallback, useMemo } from "react";
 import type { AxiosInstance } from "axios";
 
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
-import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
+import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tag_Api";
 
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";

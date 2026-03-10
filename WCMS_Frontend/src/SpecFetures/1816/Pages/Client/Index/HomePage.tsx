@@ -2,7 +2,7 @@ import { LinkData } from "@/SpecFetures/1816/Pages/Client/Index/Section/LinkData
 import { CollectionsData } from "@/SpecFetures/1816/Pages/Client/Index/Section/CollectionsData";
 import { SpecialLinkData } from "@/SpecFetures/1816/Pages/Client/Index/Section/SpecialLinkData";
 import { QuickLinksData } from "@/SpecFetures/1816/Pages/Client/Index/Section/QuickLinksData";
-// import { NewsCalendarData } from "@/SpecFetures/1816/Pages/Client/Index/Section/NewsCalendarData";
+import { NewsCalendarData } from "@/SpecFetures/1816/Pages/Client/Index/Section/NewsCalendarData";
 import { CarouselData } from "@/SpecFetures/1816/Pages/Client/Index/Section/CarouselData";
 import { NewsData } from "@/SpecFetures/1816/Pages/Client/Index/Section/NewsData";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -19,7 +19,7 @@ const HomePage = (props: { lang: Lang }) => {
         {/* Link icons */}
         <LinkData lang={props.lang} internalId={loaderData.args.linkIconsBannerInternalId} initialBanner={rawData.linkIconsBanner}/>
         {/* Opening hours */}
-        {/* <NewsCalendarData lang={props.lang} initialOpenTime={rawData.currentOpenTime} /> */}
+        <NewsCalendarData lang={props.lang} initialOpenTime={rawData.currentOpenTime} />
 
         <section className="accesskey_C_H">
           <div className="container-customize4">

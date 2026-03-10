@@ -1,4 +1,3 @@
-// SpecFeatures/1810/Router.ts
 import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
 import { loadClientChildren } from "@/Features/Pages/Client/Route/ClientRouter";
 import { BackendRouteModule } from "@/Features/Pages/Server/Scaffold/Routes/ServerRouter";
@@ -12,7 +11,6 @@ import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 import { SpecJournalIndex } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalIndex";
 import { SpecJournalList } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalList";
 import { SpecJournalForm_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalForm";
-
 export class SpecRouteModule implements IRouteModule {
   async getRoutes(): Promise<RouteObject[]> {
     const frontendRoutes = await loadClientChildren();
@@ -21,7 +19,6 @@ export class SpecRouteModule implements IRouteModule {
     return [...frontendRoutes, ...backendRoutes, ...customRoutes];
   }
 }
-
 export const specClientEntries: Record<string, ModuleEntry> = {
   SpecJournal: {
     kind: "routes",
@@ -37,6 +34,5 @@ export const specClientEntries: Record<string, ModuleEntry> = {
     ],
   },
 };
-
 //暫時先這樣做，之後將會把這些資訊改從後端設定回傳回來處理
 export const siteHeaderMeta: IHeaderMetaProps = { title: "淡江大學教育資料與圖書館學", description: "淡江大學教育資料與圖書館學" };

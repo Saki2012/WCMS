@@ -1,4 +1,4 @@
-import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
+import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
@@ -294,12 +294,10 @@ export const CollectionsData = (props: { lang: Lang; internalId: string; initial
 											const detail = useBanner.data?.BannerDetailInfo?.find(
 												(x) => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang,
 											);
-
 											const alt = detail?.Title ?? "";
-											const url = detail?.URL ?? "javascript:void(0);";
+											const url = detail?.URL ?? "#";
 											const content = detail?.Content ?? "";
 											const urlopen = detail?.URL_Open ?? "";
-
 											return (
 												<div key={i} className="item">
 													<LangLink to={url} tabIndex={0} target={urlopen === 1 ? "_blank" : "_self"}>

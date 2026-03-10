@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { IndexLabel } from "@/SpecFetures/1818/Pages/Client//Index/Section/IndexLabelText";
-import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
+import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
 
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 

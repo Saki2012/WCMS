@@ -1,5 +1,5 @@
-import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
-import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
+import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tag_Api";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
@@ -10,7 +10,7 @@ import type { components } from "@/types/api";
 import {AccountFields,WebResourceFields,PGID, WebResourceInfoFields,} from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WebManagement/WebResource/WebResource_Api";
+import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WebManagement/WebResource_Api";
 type QueryListParam = components["schemas"]["QueryListParam"];
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];

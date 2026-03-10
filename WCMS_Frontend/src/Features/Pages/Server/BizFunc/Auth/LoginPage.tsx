@@ -5,7 +5,7 @@ import { AuthAPI } from '@/SysCore/Utils/API/AuthClient';
 import { LangLink } from '@/SysCore/i18n/LangLink';
 import { loadLoginParticles } from '@/Features/Assets/LoadFeaturesJs';
 
-const logoModules = import.meta.glob('SpecFeature/Assets/Server/login_logo_PC.{svg,png,jpg,jpeg,gif,webp}', { eager: true, as: 'url', },) as Record<string, string>;
+const logoModules = import.meta.glob("SpecFeature/Assets/Server/login_logo_PC.{svg,png,jpg,jpeg,gif,webp}",{ eager: true, query: "?url", import: "default" },) as Record<string, string>;
 // 只拿第一個（實務上這個 pattern 只會 match 一個檔案）
 const logImg = Object.values(logoModules)[0] ?? '';
 

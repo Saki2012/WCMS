@@ -1,5 +1,5 @@
 import { useFetchFormData } from "@/SysCore/Utils/API/FetchFormData";
-import PageManagementProvider from "@/Features/Hooks/BizFunc/WebManagement/Pagemanagement/PageManagement_Api";
+import PageManagementProvider from "@/Features/Hooks/BizFunc/WebManagement/PageManagement_Api";
 import React, { type ReactNode } from "react";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";

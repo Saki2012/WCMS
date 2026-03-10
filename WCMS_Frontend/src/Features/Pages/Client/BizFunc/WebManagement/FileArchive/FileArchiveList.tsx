@@ -17,8 +17,8 @@ import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuid
 // ✅ 新架構：Adapter + LoaderData initial
 import { useLoaderData } from "react-router-dom";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import { FileArchiveAdapter } from "@/Features/Hooks/BizFunc/WebManagement/FileArchive/FileArchive_Api";
-import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Api";
+import { FileArchiveAdapter } from "@/Features/Hooks/BizFunc/WebManagement/FileArchive_Api";
+import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tag_Api";
 import type { FileArchiveListLoaderData } from "./FileArchiveList_Loader";
 
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];

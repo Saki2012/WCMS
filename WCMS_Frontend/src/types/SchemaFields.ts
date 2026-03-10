@@ -781,6 +781,7 @@ export const SiteMenu_IndexInfoFields = {
   SiteHeader: 'SiteHeader',
   SiteFooter: 'SiteFooter',
   Keyword: 'Keyword',
+  _SiteMenu_Index: '_SiteMenu_Index',
 } as const;
 
 export type SiteMenu_IndexInfoFieldKey = keyof typeof SiteMenu_IndexInfoFields;
@@ -803,6 +804,8 @@ export const SiteMenu_IndexFields = {
   Enable: 'Enable',
   DefaultLang: 'DefaultLang',
   SupportLangs: 'SupportLangs',
+  _SiteMenu_IndexInfo: '_SiteMenu_IndexInfo',
+  _SiteMenu_Item: '_SiteMenu_Item',
 } as const;
 
 export type SiteMenu_IndexFieldKey = keyof typeof SiteMenu_IndexFields;
@@ -817,6 +820,10 @@ export const SiteMenu_ItemFields = {
   DisplayOrder: 'DisplayOrder',
   ItemType: 'ItemType',
   WindowTarget: 'WindowTarget',
+  _SiteMenu_Index: '_SiteMenu_Index',
+  _SiteMenu_Item_Title: '_SiteMenu_Item_Title',
+  _SiteMenu_Item_Url: '_SiteMenu_Item_Url',
+  _SiteMenu_Item_Module: '_SiteMenu_Item_Module',
 } as const;
 
 export type SiteMenu_ItemFieldKey = keyof typeof SiteMenu_ItemFields;
@@ -828,6 +835,7 @@ export const SiteMenu_Item_ModuleFields = {
   PageType: 'PageType',
   ModuleProgId: 'ModuleProgId',
   ModuleOptions: 'ModuleOptions',
+  _SiteMenu_Index: '_SiteMenu_Index',
 } as const;
 
 export type SiteMenu_Item_ModuleFieldKey = keyof typeof SiteMenu_Item_ModuleFields;
@@ -839,6 +847,7 @@ export const SiteMenu_Item_TitleFields = {
   Lang: 'Lang',
   Title: 'Title',
   IsShowOnMenu: 'IsShowOnMenu',
+  _SiteMenu_Index: '_SiteMenu_Index',
 } as const;
 
 export type SiteMenu_Item_TitleFieldKey = keyof typeof SiteMenu_Item_TitleFields;
@@ -848,6 +857,7 @@ export const SiteMenu_Item_UrlFields = {
   ItemRowId: 'ItemRowId',
   RedirectType: 'RedirectType',
   RedirectUrl: 'RedirectUrl',
+  _SiteMenu_Index: '_SiteMenu_Index',
 } as const;
 
 export type SiteMenu_Item_UrlFieldKey = keyof typeof SiteMenu_Item_UrlFields;

@@ -12,6 +12,7 @@ import { SearchData } from "../../Index/Section/SearchData";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
 import clsx from "clsx";
+import { useAnchorPreventDefaultClick } from "@/SysCore/Utils/UI_HookFunc/useAnchorPreventDefaultClick";
 const Header = (props: HeaderProps) => {
     // 宣告變數：Site-Header root ref
     const headerRef = useRef<HTMLDivElement | null>(null);
@@ -420,7 +421,6 @@ const SizeChange = () => {
         root.addEventListener("click", onClick);
         return () => root.removeEventListener("click", onClick);
     }, []);
-
     return (
         <li>
             <ul className="nav custom_nav py-0 justify-content-center align-items-center" ref={sizeGroupRef}>
@@ -429,7 +429,7 @@ const SizeChange = () => {
                         <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
                             <a
                                 className="A-LMS"
-                                href="javascript:void(0);"
+                                href="#"
                                 onClick={() => doZoom(112.5)}
                                 type="button"
                                 role="button"
@@ -449,7 +449,7 @@ const SizeChange = () => {
                         <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
                             <a
                                 className="A-LMS active"
-                                href="javascript:void(0);"
+                                href="#"
                                 onClick={() => doZoom(100)}
                                 type="button"
                                 role="button"
@@ -469,7 +469,7 @@ const SizeChange = () => {
                         <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-0">
                             <a
                                 className="A-LMS"
-                                href="javascript:void(0);"
+                                href="#"
                                 onClick={() => doZoom(87.5)}
                                 type="button"
                                 role="button"
@@ -606,7 +606,7 @@ const MegaMenuItem = (props: IMegaMenuItemProps) => {
         <li className={liClass} data-menu-id={id}>
             <a
                 className="nav-link dropdown-toggle"
-                href="javascript:void(0);"
+                href="#"
                 
                 data-bs-toggle="dropdown"
                 data-bs-auto-close="outside"

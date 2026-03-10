@@ -4,8 +4,8 @@ import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import type { LoaderFunctionArgs } from "react-router-dom";
 import {CategoryDataSetFields,CategoryDetailFields,CategoryFields,PGID,WebResourceFields,WebResourceInfoFields,} from "@/types/SchemaFields";
-import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Api";
-import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WebManagement/WebResource/WebResource_Api";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
+import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WebManagement/WebResource_Api";
 import type { IWebResourceListOptions } from "./WebResourceList";
 
 type QueryListParam = components["schemas"]["QueryListParam"];

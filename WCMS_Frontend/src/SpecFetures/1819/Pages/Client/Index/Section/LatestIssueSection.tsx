@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import SpecJournalIndexProvider from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournalIndex_Api";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Api";
+import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
 import { SpecJournalKeywordSearch_Comp } from "../../BizFunc/SpecModule/SpecJournal/SpecJournalKeywordSearchComp";
 type PublishStatus = components["schemas"]["PublishStatus"];
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
