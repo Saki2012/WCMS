@@ -2,25 +2,21 @@ import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
 import { SpecJournalIndexDetailFields, SpecJournalIndexModelFields } from "@/types/SchemaFields";
 import type { LoaderFunctionArgs } from "react-router-dom";
-
-// ✅ 1819 Index Adapter（你說底層一致都已經有）
 import { SpecJournalIndexAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournalIndex_Api";
-
+import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { PublishStatusEnum } from "@/SpecFetures/1819/Pages/Client/Index/HomePage_Loader";
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
 type QueryListParam = components["schemas"]["QueryListParam"];
-
 export interface SpecJournalIndexLoaderArgs
 {
     pageSize: number;
     baseParam: QueryListParam;
 }
-
 export interface SpecJournalIndexLoaderRes
 {
     countRes: number;
     listRes: SpecJournalIndexSet[];
 }
-
 export interface SpecJournalIndexLoaderData
 {
     args: SpecJournalIndexLoaderArgs;
@@ -30,15 +26,11 @@ export interface SpecJournalIndexLoaderData
 const buildBaseParam = (pageSize: number): QueryListParam =>
 {
     // 宣告變數
-    const condition = "";
-
+    const condition = LibMerge(" And ",false,`${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.PublishStatus} = ${PublishStatusEnum.Published}`);
     // return
     return {
         Fields: [
-            SpecJournalIndexModelFields.IndexId,
-            SpecJournalIndexModelFields.IndexName,
-            SpecJournalIndexModelFields.InternalId,
-
+            SpecJournalIndexModelFields.IndexId,SpecJournalIndexModelFields.IndexName,SpecJournalIndexModelFields.InternalId,
             `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.RowId}`,
             `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
             `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
@@ -51,7 +43,6 @@ const buildBaseParam = (pageSize: number): QueryListParam =>
         PageSize: pageSize,
     };
 };
-
 /** ✅ SSR loader：Index 年度清單（含明細）首屏預載 */
 export const SpecJournalIndex_Loader =
     (p?: { pageSize?: number; }) => async ({ request }: LoaderFunctionArgs): Promise<SpecJournalIndexLoaderData> =>
@@ -59,7 +50,6 @@ export const SpecJournalIndex_Loader =
         // 宣告變數
         const pageSize = p?.pageSize ?? 10;
         const baseParam = buildBaseParam(pageSize);
-
         const ssrApi = getSsrApi(request);
         const adapter = SpecJournalIndexAdapter(ssrApi);
 

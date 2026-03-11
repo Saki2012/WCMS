@@ -3,56 +3,107 @@ import AboutBgImg from "@/SpecFetures/1819/Assets/Client/images/bg/About_bg_1920
 import TitleLine from "@/SpecFetures/1819/Assets/Client/images/line_title.svg";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import type { components } from "@/types/api";
-import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import { BannerDetailFields, BannerDetailInfoFields, BannerFields } from "@/types/SchemaFields";
+import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { useMemo } from "react";
-import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
+import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 
+type QueryListParam = components["schemas"]["QueryListParam"];
 type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerDetail = NonNullable<BannerSet["BannerDetail"]>[number];
+type BannerDetailInfo = NonNullable<BannerSet["BannerDetailInfo"]>[number];
+
+interface AboutPublicationSectionProps {
+    lang: Lang;
+    aboutPublicationParam: QueryListParam;
+    initialAboutPublicationBanner: BannerSet | null;
+}
+
+const toOkEnv = <T,>(data: T): ApiResponse<T> => {
+    // return：統一成功 env
+    return { IsSuccess: true, Data: data, SysMessage: [] };
+};
+
+const toListInitial = <T,>(args: QueryListParam, data: T[]) => {
+    // return：統一 queryList initial 結構
+    return { args, apiRes: toOkEnv(data) };
+};
+
+const getBanner = (data?: BannerSet[]): BannerSet | null => {
+    // return
+    return data?.[0] ?? null;
+};
+
+const getBannerContent = (banner: BannerSet | null, lang: Lang): string => {
+    // 宣告變數
+    const infoList = banner?.BannerDetailInfo ?? [];
+    const content = infoList.find((p) => p.Lang === lang && (p.Content ?? "").trim() !== "")?.Content ?? "";
+
+    // return
+    return content;
+};
+
+const getBannerTitleByParentRowId = (
+    banner: BannerSet | null,
+    parentRowId: BannerDetailInfo["ParentRowId"],
+    lang: Lang,
+): string => {
+    // 宣告變數
+    const infoList = banner?.BannerDetailInfo ?? [];
+    const title = infoList.find((p) => p.ParentRowId === parentRowId && p.Lang === lang)?.Title ?? "";
+
+    // return
+    return title;
+};
+
+const getIssueImage = (banner: BannerSet | null, idx: number, lang: Lang) => {
+    // 宣告變數
+    const detail = banner?.BannerDetail?.[idx];
+    const title = detail ? getBannerTitleByParentRowId(banner, detail.RowId, lang) : "";
+    const picId = detail?.PicSrcId ?? "";
+    const src = picId ? `${FileManagementAPI.PREVIEW_URL}/${picId}` : "";
+
+    // return
+    return { title, src };
+};
 
 /** 關於本刊（Prototype: .AboutPublication_section） */
-export const AboutPublicationSection = (props: { lang: Lang }) => {
-    // ✅ provider 只建立一次
-    const pvdr = useMemo(() => {
-        return BannerSliderProvider();
-    }, []);
+export const AboutPublicationSection = (props: AboutPublicationSectionProps) => {
+    // 宣告變數
+    const adapter = useMemo(() => BannerSliderAdapter(), []);
 
-    // ✅ hook 不能被條件跳過
-    const useIndex = bannerFetch(pvdr, "Banner20260113004", props.lang);
+    const initial = useMemo(() => {
+        return toListInitial(
+            props.aboutPublicationParam,
+            props.initialAboutPublicationBanner ? [props.initialAboutPublicationBanner] : [],
+        );
+    }, [props.aboutPublicationParam, props.initialAboutPublicationBanner]);
 
-    // ✅ 資料是否就緒（只用於 render 判斷，不影響 hooks 呼叫順序）
-    const hasData = !!useIndex.rawData && useIndex.rawData.length > 0;
+    const useIndex = adapter.hooks.useQueryList({
+        condition: props.aboutPublicationParam,
+        initial,
+        deps: [props.aboutPublicationParam.Condition ?? ""],
+    });
 
-    // ✅ 內容：沒資料就給空字串
+    const banner = useMemo(() => {
+        return getBanner(useIndex.data);
+    }, [useIndex.data]);
+
+    const hasData = !!banner;
+
     const content = useMemo(() => {
-        const row = useIndex.rawData?.[0];
-        const text = row?.BannerDetailInfo?.find((p) => p.Lang === props.lang && p.Content !== "")?.Content;
-        return text ?? "";
-    }, [useIndex.rawData, props.lang]);
+        return getBannerContent(banner, props.lang);
+    }, [banner, props.lang]);
 
-    // ✅ 圖片：沒資料就給空 src/alt，避免 /undefined
     const issueImg = useMemo(() => {
-        const details = useIndex.rawData?.[0]?.BannerDetail ?? [];
-
-        const pick = (idx: number) => {
-            const d = details[idx];
-            const title = d?._BannerDetailInfo?.find((p) => p.Lang === props.lang)?.Title ?? "";
-            const picId = d?.PicSrcId;
-            const src = picId ? `${FileManagementAPI.PREVIEW_URL}/${picId}` : "";
-            return { title, src };
-        };
-
         return {
-            Img1: pick(0),
-            Img2: pick(1),
-            Img3: pick(2),
+            Img1: getIssueImage(banner, 0, props.lang),
+            Img2: getIssueImage(banner, 1, props.lang),
+            Img3: getIssueImage(banner, 2, props.lang),
         };
-    }, [useIndex.rawData, props.lang]);
+    }, [banner, props.lang]);
 
-    // ✅ 所有 hooks 都跑完後才做 early return（安全）
+    // 所有 hooks 都跑完後才做 early return
     if (!hasData) return null;
 
     return (
@@ -157,40 +208,4 @@ export const AboutPublicationSection = (props: { lang: Lang }) => {
     );
 };
 
-const bannerFetch = (pdvr: IDataProvider<BannerSet>, bannerId: string, lang: Lang) => {
-    let condition: string = ``;
-    condition = LibMerge(" And ", false, condition, `${BannerFields.BannerId} = ${bannerId}`);
-    condition = LibMerge(
-        " And ",
-        false,
-        condition,
-        `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Lang} = ${lang}`
-    );
-
-    return useFetchGridListData<BannerSet>({
-        getModelDisplayName: () => pdvr.getModelDisplayName(),
-        fetchList: (cond) => pdvr.fetchList(cond),
-        fetchListCount: (cond) => pdvr.fetchListCount(cond),
-        visibleKeys: [],
-        buildQueryCondition: () => ({
-            Fields: [
-                `${BannerFields._BannerDetail}.${BannerDetailFields.BannerId}`,
-                `${BannerFields._BannerDetail}.${BannerDetailFields.PicSrcId}`,
-                `${BannerFields._BannerDetail}.${BannerDetailFields.Validate_Start}`,
-                `${BannerFields._BannerDetail}.${BannerDetailFields.Validate_End}`,
-                `${BannerFields._BannerDetail}.${BannerDetailFields.Sort}`,
-                `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.ParentRowId}`,
-                `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.RowId}`,
-                `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Lang}`,
-                `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Title}`,
-                `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Content}`,
-                `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.URL}`,
-                `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.URL_Open}`,
-            ],
-            Condition: condition,
-            OrderBy: [{ Col: `${BannerFields._BannerDetail}.${BannerDetailFields.Sort}`, Desc: true }],
-        }),
-        enabled: true,
-        deps: [bannerId, lang],
-    });
-};
+export default AboutPublicationSection;

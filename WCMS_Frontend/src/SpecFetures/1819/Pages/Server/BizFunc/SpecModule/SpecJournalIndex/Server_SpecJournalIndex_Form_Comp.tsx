@@ -17,14 +17,11 @@ import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/For
 import { SpecJournalIndexDetailFields, SpecJournalIndexModelFields, SpecJournalIndexSetFields } from "@/types/SchemaFields";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
-
 import type { ApiAdapterError, ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import type { ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
-
 import { SpecJournalIndexAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournalIndex_Api";
 import { PGID } from "@/types/SchemaFields";
 
@@ -38,30 +35,21 @@ export const Server_SpecJournalIndex_Form_Comp = (prop: { theme: IBETheme; lang:
     const { internalId } = useParams();
     const navigate = useNavigate();
     const pathname = useLocation().pathname;
-
     const adapter = useMemo(() => SpecJournalIndexAdapter(), []);
     const categoryAdapter = useMemo(() => CategoryAdapter(), []);
     const formData = useSpecJournalIndexFormDataByAdapter(adapter, internalId ?? "", emptyData);
-
     const useCategory = categoryAdapter.hooks.useMapByProgId({ progId: PGID.SpecJournalIndex, lang: prop.lang });
     const publishStatusOpts = useFetchEnumOptions("PublishStatus");
-
-    const onBackToList = useCallback(() => {
-        // 執行 function：回列表
-        navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));
-    }, [navigate, pathname]);
-
+    const onBackToList = useCallback(() => {navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));}, [navigate, pathname]);
     const actions = useSpecJournalIndexFormActionsFromAdapter(
         adapter,
         internalId ?? "",
         formData.data,
         onBackToList,
     );
-
-    const isLoading = [formData.isLoading, useCategory.isLoading, publishStatusOpts.isLoading];
+    const isLoading = [formData.isLoading, useCategory.isLoading, publishStatusOpts.isLoading].some(Boolean);
     const errors = [formData.error, useCategory.errorText, publishStatusOpts.error];
-    const formProp: FormCompProp = { Title: "期刊目次", Theme: prop.theme, LoadingList: isLoading, ErrorList: errors, Actions: actions };
-
+    const formProp: FormCompProp = { Title: "期刊目次", Theme: prop.theme, IsLoading: isLoading, ErrorList: errors, Actions: actions };
     return (
         <FormComp prop={formProp}>
             <MainFormComp theme={prop.theme} formData={formData} />
@@ -69,7 +57,6 @@ export const Server_SpecJournalIndex_Form_Comp = (prop: { theme: IBETheme; lang:
         </FormComp>
     )
 }
-
 /** FormData：QueryData + ModelDisplayName（對標 Server_Announcement_Form_Comp） */
 const useSpecJournalIndexFormDataByAdapter = (
     adapter: ReturnType<typeof SpecJournalIndexAdapter>,
@@ -80,7 +67,6 @@ const useSpecJournalIndexFormDataByAdapter = (
     const { publish } = useToast();
     const internalKey = internalId || "__new__";
     const isNew = useMemo(() => !internalId, [internalId]);
-
     const initial = useMemo<ApiLoaderData<string, SpecJournalIndexSet> | null>(() => {
         if (!isNew) return null;
         const ok: ApiResponse<SpecJournalIndexSet> = { IsSuccess: true, Data: empty, SysMessage: [] };
@@ -93,12 +79,7 @@ const useSpecJournalIndexFormDataByAdapter = (
     }, [publish]);
 
     const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
-    const query = adapter.hooks.useQueryData({
-        internalId: internalKey,
-        initial,
-        deps: [internalKey],
-        onError,
-    });
+    const query = adapter.hooks.useQueryData({internalId: internalKey,initial,deps: [internalKey],onError,});
 
     const [data, setData] = useState<SpecJournalIndexSet>(empty);
 
@@ -212,9 +193,7 @@ const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
 
     const getNextRowId = (): number => {
         // 以目前最大 RowId + 1 產生新 RowId
-        const maxRowId = details.reduce((max, d: SpecJournalIndexDetail) => {
-            return d.RowId && d.RowId > max ? d.RowId : max;
-        }, 0);
+        const maxRowId = details.reduce((max, d: SpecJournalIndexDetail) => { return d.RowId && d.RowId > max ? d.RowId : max; }, 0);
 
         return maxRowId + 1;
     };

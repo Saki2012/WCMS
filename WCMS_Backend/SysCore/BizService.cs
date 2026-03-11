@@ -1070,25 +1070,84 @@ namespace WCMS.SysCore
         // 3) 只在「括號深度為 0」時，辨識 and / or 作為分隔
         private static (List<string> chunks, List<string> connectors) SplitTopLevelByAndOr(string s)
         {
+            // 宣告變數
             var chunks = new List<string>();
             var connectors = new List<string>();
             var sb = new System.Text.StringBuilder();
             int depth = 0;
+            bool inSingleQuote = false;
+            bool inDoubleQuote = false;
 
+            // 執行 function
             for (int i = 0; i < s.Length;)
             {
                 char ch = s[i];
 
-                if (ch == '(') { depth++; sb.Append(ch); i++; continue; }
-                if (ch == ')') { depth = Math.Max(0, depth - 1); sb.Append(ch); i++; continue; }
-
-                if (depth == 0 && TryReadConnector(s, i, out string? conn, out int adv))
+                // 單引號字串：支援 SQL 風格 '' 跳脫
+                if (ch == '\'' && !inDoubleQuote)
                 {
-                    chunks.Add(sb.ToString());
-                    sb.Clear();
-                    connectors.Add(conn!); // "and" or "or"
-                    i += adv;
-                    continue;
+                    if (inSingleQuote && i + 1 < s.Length && s[i + 1] == '\'')
+                    {
+                        sb.Append("''");
+                        i += 2;
+                        continue;
+                    }
+
+                    if (IsUnescapedQuote(s, i))
+                    {
+                        inSingleQuote = !inSingleQuote;
+                        sb.Append(ch);
+                        i++;
+                        continue;
+                    }
+                }
+
+                // 雙引號字串：支援 "" 跳脫
+                if (ch == '"' && !inSingleQuote)
+                {
+                    if (inDoubleQuote && i + 1 < s.Length && s[i + 1] == '"')
+                    {
+                        sb.Append("\"\"");
+                        i += 2;
+                        continue;
+                    }
+
+                    if (IsUnescapedQuote(s, i))
+                    {
+                        inDoubleQuote = !inDoubleQuote;
+                        sb.Append(ch);
+                        i++;
+                        continue;
+                    }
+                }
+
+                // 只有在不在引號內時，才處理括號與 connector
+                if (!inSingleQuote && !inDoubleQuote)
+                {
+                    if (ch == '(')
+                    {
+                        depth++;
+                        sb.Append(ch);
+                        i++;
+                        continue;
+                    }
+
+                    if (ch == ')')
+                    {
+                        depth = Math.Max(0, depth - 1);
+                        sb.Append(ch);
+                        i++;
+                        continue;
+                    }
+
+                    if (depth == 0 && TryReadConnector(s, i, out string? conn, out int adv))
+                    {
+                        chunks.Add(sb.ToString());
+                        sb.Clear();
+                        connectors.Add(conn!);
+                        i += adv;
+                        continue;
+                    }
                 }
 
                 sb.Append(ch);
@@ -1096,130 +1155,249 @@ namespace WCMS.SysCore
             }
 
             chunks.Add(sb.ToString());
+
+            // return
             return (chunks, connectors);
         }
         // 4) 辨識 and / or（允許左右空白）
         private static bool TryReadConnector(string s, int index, out string? conn, out int advance)
         {
+            // 宣告變數
             int i = index;
-            while (i < s.Length && char.IsWhiteSpace(s[i])) i++;
-            int start = i;
 
-            bool match(string w)
+            // 執行 function
+            while (i < s.Length && char.IsWhiteSpace(s[i])) i++;
+
+            bool Match(string word)
             {
-                if (i + w.Length > s.Length) return false;
-                if (!s.AsSpan(i, w.Length).Equals(w, StringComparison.OrdinalIgnoreCase)) return false;
-                int j = i + w.Length;
-                // 右邊需為邊界（空白/括號/結束）
-                if (j < s.Length && !char.IsWhiteSpace(s[j]) && s[j] != '(' && s[j] != ')') return false;
-                // 左邊也需為邊界（正規化後，基本會成立）
+                if (i + word.Length > s.Length) return false;
+                if (!s.AsSpan(i, word.Length).Equals(word, StringComparison.OrdinalIgnoreCase)) return false;
+                if (!IsConnectorBoundary(s, i - 1)) return false;
+                if (!IsConnectorBoundary(s, i + word.Length)) return false;
                 return true;
             }
 
-            if (match("and"))
+            if (Match("and"))
             {
-                int j = i + 3; while (j < s.Length && char.IsWhiteSpace(s[j])) j++;
-                conn = "and"; advance = j - index; return true;
+                int j = i + 3;
+                while (j < s.Length && char.IsWhiteSpace(s[j])) j++;
+
+                conn = "and";
+                advance = j - index;
+                return true;
             }
 
-            if (match("or"))
+            if (Match("or"))
             {
-                int j = i + 2; while (j < s.Length && char.IsWhiteSpace(s[j])) j++;
-                conn = "or"; advance = j - index; return true;
+                int j = i + 2;
+                while (j < s.Length && char.IsWhiteSpace(s[j])) j++;
+
+                conn = "or";
+                advance = j - index;
+                return true;
             }
 
-            conn = null; advance = 0; return false;
+            conn = null;
+            advance = 0;
+
+            // return
+            return false;
         }
         // 5) 檢查括號是否平衡
         private static bool IsBalanced(string s)
         {
-            int d = 0;
-            foreach (var c in s)
+            // 宣告變數
+            int depth = 0;
+            bool inSingleQuote = false;
+            bool inDoubleQuote = false;
+
+            // 執行 function
+            for (int i = 0; i < s.Length; i++)
             {
-                if (c == '(') d++;
-                else if (c == ')') { d--; if (d < 0) return false; }
+                char ch = s[i];
+
+                if (ch == '\'' && !inDoubleQuote)
+                {
+                    if (inSingleQuote && i + 1 < s.Length && s[i + 1] == '\'')
+                    {
+                        i++;
+                        continue;
+                    }
+
+                    if (IsUnescapedQuote(s, i))
+                    {
+                        inSingleQuote = !inSingleQuote;
+                        continue;
+                    }
+                }
+
+                if (ch == '"' && !inSingleQuote)
+                {
+                    if (inDoubleQuote && i + 1 < s.Length && s[i + 1] == '"')
+                    {
+                        i++;
+                        continue;
+                    }
+
+                    if (IsUnescapedQuote(s, i))
+                    {
+                        inDoubleQuote = !inDoubleQuote;
+                        continue;
+                    }
+                }
+
+                if (inSingleQuote || inDoubleQuote) continue;
+
+                if (ch == '(') depth++;
+                else if (ch == ')')
+                {
+                    depth--;
+                    if (depth < 0) return false;
+                }
             }
-            return d == 0;
+
+            // return
+            return depth == 0;
+        }
+        private static string? UnescapeQuotedValue(string? raw)
+        {
+            // 宣告變數
+            bool isEmpty = string.IsNullOrEmpty(raw);
+
+            // 執行 function
+            if (isEmpty) return raw;
+
+            // return
+            return raw!
+                .Replace("''", "'")
+                .Replace("\"\"", "\"");
+        }
+        private static bool IsUnescapedQuote(string s, int index)
+        {
+            // 宣告變數
+            int slashCount = 0;
+            int i = index - 1;
+
+            // 執行 function
+            while (i >= 0 && s[i] == '\\')
+            {
+                slashCount++;
+                i--;
+            }
+
+            // return
+            return slashCount % 2 == 0;
+        }
+        private static bool IsConnectorBoundary(string s, int index)
+        {
+            // 宣告變數
+            bool isEdge = index < 0 || index >= s.Length;
+
+            // 執行 function
+            if (isEdge) return true;
+
+            char ch = s[index];
+
+            // return
+            return char.IsWhiteSpace(ch) || ch == '(' || ch == ')';
         }
         private string? BuildNestedClause(Type type, string[] pathParts, string op, string? val, ref List<object> args, int index = 0)
         {
+            // 宣告變數
             if (index >= pathParts.Length) return null;
+
             string current = pathParts[index];
             var prop = PropertyAccessorCache.GetProperty(type, current);
             if (prop == null) return null;
+
             Type nextType = prop.PropertyType;
             bool isEnumerable = typeof(IEnumerable).IsAssignableFrom(nextType) && nextType != typeof(string);
             if (isEnumerable) nextType = nextType.IsGenericType ? nextType.GetGenericArguments()[0] : nextType.GetElementType();
+
+            // 執行 function
             if (index == pathParts.Length - 1)
             {
                 string fieldExpr = current;
                 string expr = null;
+
                 switch (op.ToLowerInvariant())
                 {
-                    case "is null": expr = $"{fieldExpr} == null"; break;
-                    case "is not null": expr = $"{fieldExpr} != null"; break;
+                    case "is null":
+                        expr = $"{fieldExpr} == null";
+                        break;
+
+                    case "is not null":
+                        expr = $"{fieldExpr} != null";
+                        break;
+
                     case "in":
                     case "not in":
-                        var cleaned = val?.Trim('(', ')') ?? "";
-
-                        var fieldProp = PropertyAccessorCache.GetProperty(type, fieldExpr).PropertyType;
-                        var targetType = Nullable.GetUnderlyingType(fieldProp) ?? fieldProp;
-                        var valuesArray = cleaned.Split(',').Select(v => v.Trim()).Where(v => !string.IsNullOrEmpty(v)).ToArray();
-                        dynamic convertedArray;
-                        if (targetType.IsEnum)
                         {
-                            var enumArray = Array.ConvertAll(valuesArray, v => System.Enum.ToObject(targetType, int.Parse(v)));
-                            var typedEnumArray = Array.CreateInstance(targetType, enumArray.Length);
-                            enumArray.CopyTo(typedEnumArray, 0);
-                            convertedArray = typedEnumArray;
+                            var cleaned = val?.Trim('(', ')') ?? "";
+
+                            var fieldProp = PropertyAccessorCache.GetProperty(type, fieldExpr).PropertyType;
+                            var targetType = Nullable.GetUnderlyingType(fieldProp) ?? fieldProp;
+                            var valuesArray = cleaned.Split(',').Select(v => v.Trim()).Where(v => !string.IsNullOrEmpty(v)).ToArray();
+
+                            dynamic convertedArray;
+                            if (targetType.IsEnum)
+                            {
+                                var enumArray = Array.ConvertAll(valuesArray, v => System.Enum.ToObject(targetType, int.Parse(v)));
+                                var typedEnumArray = Array.CreateInstance(targetType, enumArray.Length);
+                                enumArray.CopyTo(typedEnumArray, 0);
+                                convertedArray = typedEnumArray;
+                            }
+                            else
+                            {
+                                convertedArray = valuesArray.Select(v => Convert.ChangeType(v, targetType)).ToArray();
+                            }
+
+                            int paramIndex = args.Count;
+                            args.Add(convertedArray);
+
+                            expr = op == "in"
+                                ? $"@{paramIndex}.Contains({fieldExpr})"
+                                : $"!@{paramIndex}.Contains({fieldExpr})";
+
+                            break;
                         }
-                        else convertedArray = valuesArray.Select(v => Convert.ChangeType(v, targetType)).ToArray();
-                        int paramIndex = args.Count;
-                        args.Add(convertedArray);
-                        if (op == "in") expr = $"@{paramIndex}.Contains({fieldExpr})";
-                        else expr = $"!@{paramIndex}.Contains({fieldExpr})";
-                        break;
-                    case "like": expr = $"{fieldExpr}.Contains(\"{val}\")"; break;
+
+                    case "like":
+                        {
+                            int pIndex = args.Count;
+                            args.Add(val ?? string.Empty);
+                            expr = $"{fieldExpr} != null && {fieldExpr}.Contains(@{pIndex})";
+                            break;
+                        }
+
                     case "hasany":
                         {
-                            // 允許格式：
-                            //   Categories hasAny ("a","b","c")
-                            //   Categories hasAny (a,b,c)
-                            //   Categories hasAny ["a","b"]
-                            //   Categories hasAny a,b,c
                             var raw = (val ?? string.Empty).Trim();
 
-                            // 去外層 () 或 []
                             if ((raw.StartsWith("(") && raw.EndsWith(")")) || (raw.StartsWith("[") && raw.EndsWith("]")))
                                 raw = raw.Substring(1, raw.Length - 2);
 
-                            // 以逗號切分並清理引號/空白
-                            var tokens = raw.Split(',').Select(s => s.Trim().Trim('"', '\'')).Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+                            var tokens = raw
+                                .Split(',')
+                                .Select(s => s.Trim().Trim('"', '\''))
+                                .Where(s => !string.IsNullOrWhiteSpace(s))
+                                .ToArray();
+
                             if (tokens.Length == 0) return null;
 
-                            // 放進動態 LINQ 參數清單
                             int pIndex = args.Count;
                             args.Add(tokens);
-
-                            // 透過 DbFunction 切 CSV，再做交集判斷（任一命中即可）
-                            // 這會被 EF 轉為：EXISTS (SELECT 1 FROM dbo.SplitToStringTable(field) WHERE Id IN (@p...))
                             expr = $"ApplicationDbContext.SplitToStringTable({fieldExpr}).Any(@{pIndex}.Contains(Id.ToUpper()))";
                             break;
                         }
+
                     case "hasall":
                         {
-                            // 允許格式：
-                            //   Categories hasAll ("A1","A2","A3")
-                            //   Categories hasAll (A1,A2,A3)
-                            //   Categories hasAll ["A1","A2","A3"]
-                            //   Categories hasAll A1,A2,A3
                             var raw = (val ?? string.Empty).Trim();
 
-                            // 去外層 () 或 []
                             if ((raw.StartsWith("(") && raw.EndsWith(")")) || (raw.StartsWith("[") && raw.EndsWith("]")))
                                 raw = raw.Substring(1, raw.Length - 2);
 
-                            // 以逗號切分並清理引號/空白，統一大寫以做到不分大小寫
                             var tokens = raw
                                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
                                 .Select(s => s.Trim().Trim('"', '\''))
@@ -1232,30 +1410,21 @@ namespace WCMS.SysCore
                             int pIndex = args.Count;
                             args.Add(tokens);
 
-                            // 以 DbFunction 切 CSV → 計數
-                            // 1) 交集數量 == 查詢條件數量
-                            // 2) 欄位 CSV 總數量 == 查詢條件數量
-                            // 兩者同時滿足 ⇒ 集合相等（順序無關，且不能多/少）
                             var split = $"ApplicationDbContext.SplitToStringTable({fieldExpr})";
                             expr =
                                 $"{split}.Count(@{pIndex}.Contains(Id.ToUpper())) == @{pIndex}.Length && " +
                                 $"{split}.Count() == @{pIndex}.Length";
+
                             break;
                         }
+
                     case "hasallof":
                         {
-                            // 允許格式：
-                            //   Categories hasAllOf ("A1","A2")
-                            //   Categories hasAllOf (A1,A2)
-                            //   Categories hasAllOf ["A1","A2"]
-                            //   Categories hasAllOf A1,A2
                             var raw = (val ?? string.Empty).Trim();
 
-                            // 去外層 () 或 []
                             if ((raw.StartsWith("(") && raw.EndsWith(")")) || (raw.StartsWith("[") && raw.EndsWith("]")))
                                 raw = raw.Substring(1, raw.Length - 2);
 
-                            // 以逗號切分並清理引號/空白，統一大寫以做到不分大小寫
                             var tokens = raw
                                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
                                 .Select(s => s.Trim().Trim('"', '\''))
@@ -1268,27 +1437,24 @@ namespace WCMS.SysCore
                             int pIndex = args.Count;
                             args.Add(tokens);
 
-                            // DbFunction 切 CSV → 計數
-                            // 條件：交集數量 == 查詢條件數量
                             var split = $"ApplicationDbContext.SplitToStringTable({fieldExpr})";
                             expr = $"{split}.Count(@{pIndex}.Contains(Id.ToUpper())) == @{pIndex}.Length";
+
                             break;
                         }
+
                     case "&":
                     case "!&":
                         {
-                            // 右值（旗標），允許 "4"、"(4)"、"4|8"、"4, 8"
                             var raw = (val ?? string.Empty).Trim();
                             if ((raw.StartsWith("(") && raw.EndsWith(")")) || (raw.StartsWith("[") && raw.EndsWith("]")))
                                 raw = raw.Substring(1, raw.Length - 2);
 
-                            // 欄位型別（Nullable<int> / enum? 等）
                             var propInfo = PropertyAccessorCache.GetProperty(type, fieldExpr);
                             var propType = propInfo.PropertyType;
                             var isNullable = Nullable.GetUnderlyingType(propType) != null;
                             var nonNullType = Nullable.GetUnderlyingType(propType) ?? propType;
 
-                            // 允許 enum / byte / short / int / long
                             Type underlying;
                             if (nonNullType.IsEnum)
                                 underlying = System.Enum.GetUnderlyingType(nonNullType);
@@ -1304,45 +1470,43 @@ namespace WCMS.SysCore
                                 underlying == typeof(int) ? (int)acc :
                                 underlying == typeof(short) ? (short)acc :
                                 underlying == typeof(byte) ? (byte)acc :
-                                Convert.ChangeType(acc, underlying); // 例如 enum underlying
+                                Convert.ChangeType(acc, underlying);
 
                             var pIndex = args.Count;
                             args.Add(flagVal);
 
-                            // Nullable 時先 coalesce 成 0，避免 Null 位元運算
                             var left = isNullable ? $"({fieldExpr} ?? 0)" : fieldExpr;
-
-                            // &  => (field & flag) != 0   （包含）
-                            // !& => (field & flag) == 0   （不包含）
-                            var cmp = (op == "&") ? "!= 0" : "== 0";
+                            var cmp = op == "&" ? "!= 0" : "== 0";
                             expr = $"(({left} & @{pIndex}) {cmp})";
                             break;
                         }
+
                     default:
                         {
-                            // 取得欄位型別
                             var pi = PropertyAccessorCache.GetProperty(type, fieldExpr);
                             var propType = pi?.PropertyType ?? typeof(string);
                             var nonNullType = Nullable.GetUnderlyingType(propType) ?? propType;
-                            // op 統一（保險：萬一外面沒換到）
                             var dynOp = op == "=" ? "==" : op;
+
                             object? converted = val;
-                            // ✅ enum：把 "zh-tw" 轉成 LangCode.zhtw（或其他 enum）
                             if (nonNullType.IsEnum) converted = ParseEnumFromString(nonNullType, val ?? "");
-                            // 其他型別：必要時也可 Convert.ChangeType（先不動，保持最小改動）
-                            // else if (nonNullType != typeof(string)) converted = Convert.ChangeType(val, nonNullType);
+
                             int pIndex = args.Count;
                             args.Add(converted!);
                             expr = $"{fieldExpr} {dynOp} @{pIndex}";
                             break;
                         }
                 }
+
                 return expr;
             }
-            // 還沒到底，繼續往下巢狀
-            string inner = BuildNestedClause(nextType, pathParts, op, val,ref args, index + 1);
+
+            string inner = BuildNestedClause(nextType, pathParts, op, val, ref args, index + 1);
             if (string.IsNullOrEmpty(inner)) return null;
+
             string thisLevel = current;
+
+            // return
             return isEnumerable ? $"{thisLevel}.Any({inner})" : $"{thisLevel}.{inner}";
         }
         /// <summary>
@@ -1400,21 +1564,35 @@ namespace WCMS.SysCore
         }
 
         // 解析單一子句：AnnouncementDetail.Lang = en
-        private static bool TryParseSimpleClause(string seg,out string[] pathParts,out string op,out string? val)
+        private static bool TryParseSimpleClause(string seg, out string[] pathParts, out string op, out string? val)
         {
-            // NOTE: 這裡沿用你原本 NormalizeRec 的 Regex（op 範圍一致）
-            var m = Regex.Match(seg,@"^(?<fullPath>[\w.]+)\s*(?<op>=|&|!&|==|!=|>=|<=|>|<|in|not in|like|is null|is not null|hasany|hasallof|hasall)\s*(?<val>.+)?$",RegexOptions.IgnoreCase);
+            // 宣告變數
+            var m = Regex.Match(
+                seg,
+                @"^(?<fullPath>[\w.]+)\s*(?<op>=|&|!&|==|!=|>=|<=|>|<|in|not in|like|is null|is not null|hasany|hasallof|hasall)\s*(?<val>.+)?$",
+                RegexOptions.IgnoreCase);
+
             pathParts = Array.Empty<string>();
             op = "";
             val = null;
+
+            // 執行 function
             if (!m.Success) return false;
+
             var fullPath = m.Groups["fullPath"].Value;
             op = m.Groups["op"].Value;
-            val = m.Groups["val"].Success ? m.Groups["val"].Value.Trim().Trim('\'', '"') : null;
+
+            if (m.Groups["val"].Success)
+            {
+                var rawVal = m.Groups["val"].Value.Trim().Trim('\'', '"');
+                val = UnescapeQuotedValue(rawVal);
+            }
+
             pathParts = fullPath.Split('.');
+
+            // return
             return pathParts.Length > 0;
         }
-
         // 判斷 modelType.nav 是否為 IEnumerable（非 string），並取 elementType
         private static bool TryGetEnumerableElementType(Type modelType,string navName,out Type elementType)
         {

@@ -22,18 +22,11 @@ export const SpecJournalList = (props: { node: INormNode; lang: Lang; }) => {
     // 宣告變數
     const { indexId, rowId } = useParams();
     const { setItems } = useBreadcrumb();
-
     const loaderData = useLoaderData() as SpecJournalListLoaderData | null;
     const adapter = useMemo(() => SpecJournalAdapter(), []);
-
     const pageSize = 10;
-
     const useVolume = useSpecJournalVolume(adapter, pageSize, loaderData);
-
-    const filters = loaderData?.args?.filters ?? {
-        q: "", articleLang: "", tagId: "", tagName: "", author: "", keyword: "", includeRef: "",
-    };
-
+    const filters = loaderData?.args?.filters ?? {q: "", articleLang: "", tagId: "", tagName: "", author: "", keyword: "", includeRef: "",};
     const issueLabel = useMemo(() => {
         const isSearchMode = !!filters.q || !!filters.articleLang || !!filters.tagId || !!filters.author || !!filters.keyword;
         if (isSearchMode) return "";
@@ -42,40 +35,32 @@ export const SpecJournalList = (props: { node: INormNode; lang: Lang; }) => {
         if (!detail) return "";
         return `Vol.${detail.Volume}, No.${detail.Issue}`;
     }, [filters.q, filters.articleLang, filters.tagId, filters.author, filters.keyword, indexId, rowId, useVolume.rawData]);
-
     const issueSummary = useMemo(() => {
         const isSearchMode = !!filters.q || !!filters.articleLang || !!filters.tagId || !!filters.author || !!filters.keyword;
         if (isSearchMode) return { fileId: "", fileName: "" };
-
         const detail = useVolume.rawData?.[0]?.SpecJournal?._JournalIndexDetail;
         return {
             fileId: detail?.SummaryFileId ?? "",
             fileName: detail?.SummaryFileName ?? "",
         };
     }, [filters.q, filters.articleLang, filters.tagId, filters.author, filters.keyword, useVolume.rawData]);
-
     useEffect(() => {
         // ✅ 設定：第二層（卷期）
         if (issueLabel) setItems([{ label: issueLabel }]);
         else setItems([]);
-
         // ✅ 離開頁面就清空，避免殘留到其他 module
         return () => setItems([]);
     }, [issueLabel, setItems]);
-
-    const loadingList = [useVolume.isLoading];
+    const loadingList = useVolume.isLoading;
     const errorList = [useVolume.error];
-
     const paginprops: PaginatorProps =
     {
         currentPage: useVolume.pageNumber,
         totalPages: useVolume.totalPages,
         onPageChange: useVolume.onPageChange,
     };
-
-    // return（DOM 不改）
     return (
-        <ModuleContent nodeTitle={issueLabel} title={issueLabel} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops} >
+        <ModuleContent nodeTitle={issueLabel} title={issueLabel} isLoading={loadingList} errorList={errorList} paginatorProps={paginprops} >
             <SpecJournalListContent lang={props.lang} rawData={useVolume.rawData} queryFilters={filters} issueSummary={issueSummary} />
         </ModuleContent>
     );

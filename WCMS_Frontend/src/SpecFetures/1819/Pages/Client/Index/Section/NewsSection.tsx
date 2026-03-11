@@ -1,28 +1,135 @@
 import type { Lang } from "@/SysCore/i18n/lang";
 import TitleLine from "@/SpecFetures/1819/Assets/Client/images/line_title.svg";
-import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
 import type { components } from "@/types/api";
-import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
-import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
-import AnnouncementProvider from "@/Features/Hooks/BizFunc/WebManagement/Announcement_Api";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Announcement_Api";
+import type { HomePageRawData } from "../HomePage_Loader";
 
+type QueryListParam = components["schemas"]["QueryListParam"];
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
-/** 最新消息（Prototype: .Newsii_section） */
-export const NewsSection = (props: { lang: Lang }) => {
-    const pdvr = useMemo(() => { return AnnouncementProvider() }, [])
-    const categoryId = "Category20260113001";
-    // ✅ 置頂優先 + 非置頂補滿，最多 5 筆
-    const useTopNews = useNewsFetch(pdvr, props.lang, categoryId, "top", 5);
-    const useNormalNews = useNewsFetch(pdvr, props.lang, categoryId, "normal", 5);
-    const merged = useMemo(() => {
-        return takeTopThenFill(useTopNews.rawData, useNormalNews.rawData, 5);
-    }, [useTopNews.rawData, useNormalNews.rawData]);
+interface NewsSectionProps {
+    lang: Lang;
+    topParam: QueryListParam;
+    listParam: QueryListParam;
+    initialData: Pick<HomePageRawData, "newsTopList" | "newsList" | "newsMergedList">;
+}
 
+type InitialListCompat<TArgs, TItem> = {
+    args: TArgs;
+    apiRes: {
+        IsSuccess: true;
+        Data: TItem[];
+        SysMessage: never[];
+    };
+};
+
+const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]): InitialListCompat<TArgs, TItem> => {
+    // return：提供 adapter hook 的 initial 結構
+    return {
+        args,
+        apiRes: {
+            IsSuccess: true,
+            Data: data,
+            SysMessage: [],
+        },
+    };
+};
+
+const takeTopThenFill = (
+    top: AnnouncementSet[] | undefined,
+    rest: AnnouncementSet[] | undefined,
+    limit: number = 5,
+): AnnouncementSet[] => {
+    // 宣告變數
+    const getKey = (x: AnnouncementSet) => x.Announcement?.InternalId ?? String(x.Announcement?.AnnouncementId ?? "");
+    const seen = new Set<string>();
+    const out: AnnouncementSet[] = [];
+
+    // 執行 function：先放置頂
+    for (const it of top ?? []) {
+        const key = getKey(it);
+        if (seen.has(key) || out.length >= limit) continue;
+
+        seen.add(key);
+        out.push(it);
+    }
+
+    // 執行 function：再用一般資料補滿
+    for (const it of rest ?? []) {
+        const key = getKey(it);
+        if (seen.has(key) || out.length >= limit) continue;
+
+        seen.add(key);
+        out.push(it);
+    }
+
+    // return
+    return out;
+};
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const isWithinLastNDaysFromMD = (
+    month1to12?: number,
+    day1to31?: number,
+    n: number = 8,
+): boolean => {
+    // 宣告變數
+    if (!month1to12 || !day1to31) return false;
+
+    const now = new Date();
+    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+
+    let year = now.getUTCFullYear();
+    let candidateUTC = Date.UTC(year, month1to12 - 1, day1to31);
+
+    // 執行 function：若候選日在未來，代表跨年 → 改去年
+    if (candidateUTC > nowUTC) {
+        year -= 1;
+        candidateUTC = Date.UTC(year, month1to12 - 1, day1to31);
+    }
+
+    const diffDays = Math.floor((nowUTC - candidateUTC) / DAY_MS);
+
+    // return
+    return diffDays >= 0 && diffDays <= n;
+};
+
+/** 最新消息（Prototype: .Newsii_section） */
+export const NewsSection = (props: NewsSectionProps) => {
+    // 宣告變數
+    const adapter = useMemo(() => AnnouncementAdapter(), []);
+
+    const topInitial = useMemo(() => {
+        return toListInitial(props.topParam, props.initialData.newsTopList ?? []);
+    }, [props.topParam, props.initialData.newsTopList]);
+
+    const listInitial = useMemo(() => {
+        return toListInitial(props.listParam, props.initialData.newsList ?? []);
+    }, [props.listParam, props.initialData.newsList]);
+
+    const useTopNews = adapter.hooks.useQueryList({
+        condition: props.topParam,
+        initial: topInitial,
+        deps: [props.topParam.Condition ?? ""],
+    });
+
+    const useNormalNews = adapter.hooks.useQueryList({
+        condition: props.listParam,
+        initial: listInitial,
+        deps: [props.listParam.Condition ?? ""],
+    });
+
+    const merged = useMemo(() => {
+        return takeTopThenFill(useTopNews.data ?? [], useNormalNews.data ?? [], 5);
+    }, [useTopNews.data, useNormalNews.data]);
+
+    // 執行 function
     if (!merged || merged.length === 0) return null;
+
+    // return
     return (
         <>
             <div className="Down-Line" />
@@ -45,17 +152,17 @@ export const NewsSection = (props: { lang: Lang }) => {
                                                 <div className="News_mainDIV">
                                                     <ul className="ListNews">
                                                         {merged.map((data) => {
-                                                            const InternalId = data.Announcement?.InternalId
+                                                            const internalId = data.Announcement?.InternalId;
                                                             const startRaw = data.Announcement?.Validate_Start;
                                                             const startDt = startRaw ? new Date(startRaw) : null;
                                                             const year = startDt ? String(startDt.getFullYear()) : "";
                                                             const month = startDt ? String(startDt.getMonth() + 1).padStart(2, "0") : "";
                                                             const day = startDt ? String(startDt.getDate()).padStart(2, "0") : "";
-                                                            const dt = data.AnnouncementDetail?.find(p => p.Lang === props.lang)
+                                                            const detail = data.AnnouncementDetail?.find(p => p.Lang === props.lang);
 
                                                             return (
-                                                                <li key={InternalId} className="News_item">
-                                                                    <LangNavLink to={`/news/${InternalId}`} className="item-inner" target="_self" tabIndex={0}>
+                                                                <li key={internalId} className="News_item">
+                                                                    <LangNavLink to={`/news/${internalId}`} className="item-inner" target="_self" tabIndex={0}>
                                                                         <div className="leftBox">
                                                                             <div className="news-date-box">
                                                                                 <div className="year">{year}</div>
@@ -78,8 +185,12 @@ export const NewsSection = (props: { lang: Lang }) => {
                                                                                         )}
                                                                                         {data.Announcement?.ContentStatus != 0 && (
                                                                                             <>
-                                                                                                {Boolean(data.Announcement?.ContentStatus ?? 0 & 1) && (<div className="icon-small top-bg">置頂</div>)}
-                                                                                                {Boolean(data.Announcement?.ContentStatus ?? 0 & 2) && (<div className="icon-small hot-bg">熱門</div>)}
+                                                                                                {Boolean((data.Announcement?.ContentStatus ?? 0) & 1) && (
+                                                                                                    <div className="icon-small top-bg">置頂</div>
+                                                                                                )}
+                                                                                                {Boolean((data.Announcement?.ContentStatus ?? 0) & 2) && (
+                                                                                                    <div className="icon-small hot-bg">熱門</div>
+                                                                                                )}
                                                                                             </>
                                                                                         )}
                                                                                     </div>
@@ -87,7 +198,7 @@ export const NewsSection = (props: { lang: Lang }) => {
                                                                             </div>
                                                                             <div className="card_titleDiv">
                                                                                 <div className="card_title">
-                                                                                    {dt?.Title}
+                                                                                    {detail?.Title}
                                                                                 </div>
                                                                                 <span className="link-arrow">
                                                                                     <i className="fas fa-long-arrow-alt-right" aria-hidden="true" />
@@ -97,7 +208,7 @@ export const NewsSection = (props: { lang: Lang }) => {
                                                                         </div>
                                                                     </LangNavLink>
                                                                 </li>
-                                                            )
+                                                            );
                                                         })}
                                                     </ul>
                                                 </div>
@@ -126,113 +237,4 @@ export const NewsSection = (props: { lang: Lang }) => {
     );
 };
 
-
-
-type NewsFetchMode = "top" | "normal";
-
-/** ✅ 撈公告清單（mode: top / normal） */
-const useNewsFetch = (
-    pdvr: IDataProvider<AnnouncementSet>,
-    lang: Lang,
-    categoryId: string,
-    mode: NewsFetchMode,
-    pageSize: number = 5
-) => {
-    const condition = useMemo(() => {
-        let cond = "";
-
-        // ✅ mode 條件
-        if (mode === "top") {
-            cond = LibMerge(" And ", false, cond, `${AnnouncementFields.ContentStatus} & 1`);
-        } else {
-            cond = LibMerge(" And ", false, cond, `${AnnouncementFields.ContentStatus} !& 4`); // 排除隱藏
-            cond = LibMerge(" And ", false, cond, `${AnnouncementFields.ContentStatus} !& 1`); // 排除置頂
-        }
-
-        // ✅ 類別
-        cond = LibMerge(" And ", false, cond, `${AnnouncementFields.Categories} HasAll ${categoryId}`);
-
-        // ✅ 明細語系/標題
-        cond = LibMerge(
-            " And ",
-            false,
-            cond,
-            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang} = ${lang}`
-        );
-        cond = LibMerge(
-            " And ",
-            false,
-            cond,
-            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} != ''`
-        );
-
-        return cond;
-    }, [categoryId, lang, mode]);
-
-    return useFetchGridListData<AnnouncementSet>({
-        getModelDisplayName: () => pdvr.getModelDisplayName(),
-        fetchList: (cond) => pdvr.fetchList(cond),
-        fetchListCount: (cond) => pdvr.fetchListCount(cond),
-        visibleKeys: [],
-        buildQueryCondition: () => ({
-            Fields: [
-                AnnouncementFields.InternalId,
-                AnnouncementFields.ContentStatus,
-                AnnouncementFields.Validate_Start,
-                AnnouncementFields.Validate_End,
-                `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
-                `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
-            ],
-            Condition: condition,
-            OrderBy: [{ Col: `${AnnouncementFields.Validate_Start}`, Desc: true }],
-            PageNumber: 1,
-            PageSize: pageSize,
-        }),
-        enabled: true,
-        deps: [categoryId, lang, mode],
-    });
-};
-
-const takeTopThenFill = (
-    top: AnnouncementSet[] | undefined,
-    rest: AnnouncementSet[] | undefined,
-    limit: number = 5
-): AnnouncementSet[] => {
-    const getKey = (x: AnnouncementSet) => x.Announcement?.InternalId ?? String(x.Announcement?.AnnouncementId ?? "");
-
-    const seen = new Set<string>();
-    const out: AnnouncementSet[] = [];
-
-    // 先放置頂
-    for (const it of (top ?? [])) {
-        const k = getKey(it);
-        if (!seen.has(k) && out.length < limit) { seen.add(k); out.push(it); }
-    }
-    // 再用一般補足到 limit
-    for (const it of (rest ?? [])) {
-        if (out.length >= limit) break;
-        const k = getKey(it);
-        if (!seen.has(k)) { seen.add(k); out.push(it); }
-    }
-    return out;
-};
-
-const DAY_MS = 24 * 60 * 60 * 1000;
-const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean => {
-    if (!month1to12 || !day1to31) return false;
-
-    const now = new Date();
-    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-
-    let y = now.getUTCFullYear();
-    let candidateUTC = Date.UTC(y, month1to12 - 1, day1to31);
-
-    // 若候選日在未來，代表跨年情境 → 改用去年
-    if (candidateUTC > nowUTC) {
-        y -= 1;
-        candidateUTC = Date.UTC(y, month1to12 - 1, day1to31);
-    }
-
-    const diffDays = Math.floor((nowUTC - candidateUTC) / DAY_MS);
-    return diffDays >= 0 && diffDays <= n;
-};
+export default NewsSection;

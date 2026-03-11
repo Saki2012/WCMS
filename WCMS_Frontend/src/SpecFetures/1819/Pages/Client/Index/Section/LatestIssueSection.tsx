@@ -1,32 +1,202 @@
-import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
-import type { components } from "@/types/api";
-import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import { BannerDetailFields, BannerFields, SpecJournalIndexDetailFields, SpecJournalIndexModelFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
-import SpecJournalIndexProvider from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournalIndex_Api";
+import type { Lang } from "@/SysCore/i18n/lang";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
+import type { HomePageRawData } from "../HomePage_Loader";
+import type { components } from "@/types/api";
 import { SpecJournalKeywordSearch_Comp } from "../../BizFunc/SpecModule/SpecJournal/SpecJournalKeywordSearchComp";
-type PublishStatus = components["schemas"]["PublishStatus"];
+
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
 type BannerSet = components["schemas"]["BannerSet_DTO"];
-const PublishStatusEnum = { Unpublished: 0, Published: 1, } as const;
 
-/** 最新卷期（Prototype: .LatestIssue_section） */
-export const LatestIssueSection = () => {
-    const pdvr = useMemo(() => { return { Banner: BannerSliderProvider(), JournalIndex: SpecJournalIndexProvider() } }, [])
-    const useBgInnerImg = bannerFetch(pdvr.Banner, "Banner20260113002");
-    const useIssue01Img = bannerFetch(pdvr.Banner, "Banner20260113001");
-    const bgPicId = useBgInnerImg.rawData?.[0]?.BannerDetail?.[0]?.PicSrcId;
-    const issuePicId = useIssue01Img.rawData?.[0]?.BannerDetail?.[0]?.PicSrcId;
-    const { BgInnerImg, IssueImg } = useMemo(() => {
-        return {
-            BgInnerImg: bgPicId ? `${FileManagementAPI.PREVIEW_URL}/${bgPicId}` : "",
-            IssueImg: issuePicId ? `${FileManagementAPI.PREVIEW_URL}/${issuePicId}` : "",
-        };
-    }, [bgPicId, issuePicId]);
+interface LatestIssueSectionProps {
+    lang: Lang;
+    initialData: Pick<
+        HomePageRawData,
+        | "latestIssueBgBanner"
+        | "latestIssueCoverBanner"
+        | "latestIssuePublishedList"
+        | "latestIssueUnpublishedList"
+    >;
+}
 
+/** 取得 Banner 圖片網址 */
+const getBannerImageUrl = (banner: BannerSet | null): string => {
+    // 宣告變數
+    const picId = banner?.BannerDetail?.[0]?.PicSrcId ?? "";
+
+    // return
+    return picId ? `${FileManagementAPI.PREVIEW_URL}/${picId}` : "";
+};
+
+/** 取第一筆卷期資料 */
+const getFirstIssue = (list: SpecJournalIndexSet[] | undefined): SpecJournalIndexSet | null => {
+    // return
+    return list?.[0] ?? null;
+};
+
+/** 組卷期顯示字串 */
+const buildIssueTitle = (data?: SpecJournalIndexSet | null): string => {
+    // 宣告變數
+    if (!data) return "";
+
+    const detail = data.SpecJournalIndexDetail?.[0];
+    const vol = detail?.Volume ?? "";
+    const iss = detail?.Issue ?? "";
+    const dateText = detail?.PublishDate ? formatYyyyMm(detail.PublishDate) : "預刊本";
+    const special = detail?.IsSpecial ? " - 特刊" : "";
+
+    // return
+    return `${vol}卷${iss}期 ( ${dateText} )${special}`;
+};
+
+/** 站內卷期連結 */
+const buildIssueTo = (data?: SpecJournalIndexSet | null): string => {
+    // 宣告變數
+    const index = data?.SpecJournalIndexDetail?.[0]?.IndexId ?? "";
+    const rowId = data?.SpecJournalIndexDetail?.[0]?.RowId ?? "";
+
+    // return
+    return `/Issues/List/${index}/${rowId}`;
+};
+
+/** Summary 檔案下載連結 */
+const buildSummaryDownloadHref = (data?: SpecJournalIndexSet | null): string => {
+    // 宣告變數
+    const id = data?.SpecJournalIndexDetail?.[0]?.SummaryFileId ?? "";
+
+    // return
+    return id ? `${FileManagementAPI.DOWNLOAD_URL}/${encodeURIComponent(id)}` : "";
+};
+
+/** 只取 yyyy/MM */
+const formatYyyyMm = (publishDate: unknown): string => {
+    // 宣告變數
+    if (!publishDate) return "";
+
+    const d = new Date(String(publishDate));
+    if (Number.isNaN(d.getTime())) return String(publishDate);
+
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+
+    // return
+    return `${yyyy} / ${mm}`;
+};
+
+/** 最新期刊 */
+const LastIssueComp = (props: { data: SpecJournalIndexSet | null }) => {
+    // 宣告變數
+    const data = props.data;
+    const title = buildIssueTitle(data);
+    const issueTo = buildIssueTo(data);
+    const downloadHref = buildSummaryDownloadHref(data);
+    const fileName = data?.SpecJournalIndexDetail?.[0]?.SummaryFileName ?? "";
+
+    // 執行 function
+    if (!data) return null;
+
+    // return
+    return (
+        <>
+            <div className="TOP_TXT">
+                <div className="TTLeft_Box">
+                    <div className="ttl-Big">Latest</div>
+                </div>
+                <div className="TTRight_Box">
+                    <div className="ttl-small">issue</div>
+                </div>
+            </div>
+
+            <div className="CENTER_FILE + CENTER_After">
+                <div className="HD-txt">最新卷期</div>
+
+                <div className="TW-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <i className="fas fa-link" aria-hidden="true" />
+                    <LangNavLink to={issueTo} style={{ color: "inherit", textDecoration: "none" }}>
+                        {title}
+                    </LangNavLink>
+                </div>
+
+                {!!downloadHref && (
+                    <div className="EN-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <i className="fas fa-file-pdf + me-2" aria-hidden="true" />
+                        <a
+                            href={downloadHref}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title={fileName || "下載檔案"}
+                            aria-label={`下載檔案：${fileName || "PDF"}`}
+                            style={{ color: "inherit", textDecoration: "none", display: "inline" }}
+                        >
+                            <span>{fileName || "Download"}</span>
+                        </a>
+                    </div>
+                )}
+            </div>
+        </>
+    );
+};
+
+/** 預刊本 */
+const PreprintComp = (props: { data: SpecJournalIndexSet | null }) => {
+    // 宣告變數
+    const data = props.data;
+    const title = buildIssueTitle(data);
+    const issueTo = buildIssueTo(data);
+    const downloadHref = buildSummaryDownloadHref(data);
+    const fileName = data?.SpecJournalIndexDetail?.[0]?.SummaryFileName ?? "";
+
+    // 執行 function
+    if (!data) return null;
+
+    // return
+    return (
+        <>
+            <div className="DOWN_TXT">
+                <div className="HD-txt">先知先覺</div>
+
+                <div className="TW-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <i className="fas fa-link" aria-hidden="true" />
+                    <LangNavLink to={issueTo} style={{ color: "inherit", textDecoration: "none" }}>
+                        {title}
+                    </LangNavLink>
+                </div>
+
+                {!!downloadHref && (
+                    <div className="EN-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <i className="fas fa-file-pdf + me-2" aria-hidden="true" />
+                        <a
+                            href={downloadHref}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title={fileName || "下載檔案"}
+                            aria-label={`下載檔案：${fileName || "PDF"}`}
+                            style={{ color: "inherit", textDecoration: "none", display: "inline" }}
+                        >
+                            <span>{fileName || "Download"}</span>
+                        </a>
+                    </div>
+                )}
+            </div>
+        </>
+    );
+};
+
+/** 最新卷期（DOM 以舊版為準，資料來源沿用新版 initialData） */
+export const LatestIssueSection = (props: LatestIssueSectionProps) => {
+    // 宣告變數
+    const bgBanner = props.initialData.latestIssueBgBanner;
+    const coverBanner = props.initialData.latestIssueCoverBanner;
+    const publishedList = props.initialData.latestIssuePublishedList ?? [];
+    const unpublishedList = props.initialData.latestIssueUnpublishedList ?? [];
+
+    const bgInnerImg = useMemo(() => getBannerImageUrl(bgBanner), [bgBanner]);
+    const issueImg = useMemo(() => getBannerImageUrl(coverBanner), [coverBanner]);
+    const latestPublished = useMemo(() => getFirstIssue(publishedList), [publishedList]);
+    const latestUnpublished = useMemo(() => getFirstIssue(unpublishedList), [unpublishedList]);
+
+    // return
     return (
         <section className="LatestIssue_section">
             <div className="Mask-DivBox">
@@ -38,20 +208,24 @@ export const LatestIssueSection = () => {
                                     <div className="col-md-6 col-sm-12 col-12 + Left_Textbox + order-md-1 + order-sm-2 + order-2">
                                         <div className="FV_Box">
                                             <div className="TS_wrapper">
-                                                <LastIssueComp pdvr={pdvr.JournalIndex} />
-                                                <PreprintComp pdvr={pdvr.JournalIndex} />
+                                                <LastIssueComp data={latestPublished} />
+                                                <PreprintComp data={latestUnpublished} />
                                                 <SpecJournalKeywordSearch_Comp basePath="/Issues/List" />
                                             </div>
                                         </div>
                                     </div>
+
                                     <div className="col-md-6 col-sm-12 col-12 + Right_Imgbox + order-md-2 + order-sm-1 + order-1">
                                         <div className="Background_IMG_DIV">
                                             <div className="IMG_wrapperBOX">
-                                                <div className="inner_body" style={{ backgroundImage: `url(${BgInnerImg})` }}>
+                                                <div
+                                                    className="inner_body"
+                                                    style={bgInnerImg ? { backgroundImage: `url(${bgInnerImg})` } : undefined}
+                                                >
                                                     <div className="Journal-content">
                                                         <div className="card_figure">
                                                             <div className="img-wrapper">
-                                                                <img className="card_image" src={IssueImg} alt="" />
+                                                                <img className="card_image" src={issueImg} alt="" />
                                                             </div>
                                                         </div>
                                                     </div>
@@ -68,161 +242,5 @@ export const LatestIssueSection = () => {
         </section>
     );
 };
-/** 最新期刊 */
-const LastIssueComp = (props: { pdvr: IDataProvider<SpecJournalIndexSet> }) => {
-    const useData = indexFetch(props.pdvr, PublishStatusEnum.Published);
-    const data: SpecJournalIndexSet = useData.rawData?.[0];
-    const title = buildIssueTitle(data);
-    const issueTo = buildIssueTo(data);                 // ✅ 站內卷期連結（暫用 query）
-    const downloadHref = buildSummaryDownloadHref(data); // ✅ 下載連結（SummaryFileId）
-    const fileName = data?.SpecJournalIndexDetail?.[0].SummaryFileName;
-    if (!data) return null;
-    return (
-        <>
-            <div className="TOP_TXT">
-                <div className="TTLeft_Box">
-                    <div className="ttl-Big">Latest</div>
-                </div>
-                <div className="TTRight_Box">
-                    <div className="ttl-small">issue</div>
-                </div>
-            </div>
-            <div className="CENTER_FILE + CENTER_After">
-                <div className="HD-txt">最新卷期</div>
-                <div className="TW-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <i className="fas fa-link" aria-hidden="true" />
-                    <LangNavLink to={issueTo} style={{ color: "inherit", textDecoration: "none" }}>
-                        {title}
-                    </LangNavLink>
-                </div>
-                {!!downloadHref && (
-                    <div className="EN-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <i className="fas fa-file-pdf + me-2" aria-hidden="true" />
-                        <a href={downloadHref} target="_blank" rel="noopener noreferrer" title={fileName ?? "下載檔案"} aria-label={`下載檔案：${fileName ?? "PDF"}`}
-                            style={{ color: "inherit", textDecoration: "none", display: "inline" }}>
-                            <span>{fileName ?? "Download"}</span>
-                        </a>
-                    </div>
-                )}
-            </div>
-        </>
-    );
-};
-/** 預刊本 */
-const PreprintComp = (props: { pdvr: IDataProvider<SpecJournalIndexSet> }) => {
-    const useData = indexFetch(props.pdvr, PublishStatusEnum.Unpublished);
-    const data: SpecJournalIndexSet = useData.rawData?.[0];
-    const title = buildIssueTitle(data);
-    const issueTo = buildIssueTo(data);                 // ✅ 站內卷期連結（暫用 query）
-    const downloadHref = buildSummaryDownloadHref(data); // ✅ 下載連結（SummaryFileId）
-    const fileName = data?.SpecJournalIndexDetail?.[0].SummaryFileName;
-    if (!data) return null;
-    return (
-        <>
-            <div className="DOWN_TXT">
-                <div className="HD-txt">先知先覺</div>
-                <div className="TW-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <i className="fas fa-link" aria-hidden="true" />
-                    <LangNavLink to={issueTo} style={{ color: "inherit", textDecoration: "none" }}>
-                        {title}
-                    </LangNavLink>
-                </div>
-                {!!downloadHref && (
-                    <div className="EN-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <i className="fas fa-file-pdf + me-2" aria-hidden="true" />
-                        <a href={downloadHref} target="_blank" rel="noopener noreferrer" title={fileName ?? "下載檔案"} aria-label={`下載檔案：${fileName ?? "PDF"}`}
-                            style={{ color: "inherit", textDecoration: "none", display: "inline" }}>
-                            <span>{fileName ?? "Download"}</span>
-                        </a>
-                    </div>
-                )}
-            </div>
-        </>
-    )
-}
 
-//#region Func
-/** 組卷期顯示字串 */
-const buildIssueTitle = (data?: SpecJournalIndexSet): string => {
-    if (!data) return "";
-    const vol = data.SpecJournalIndexDetail?.[0].Volume ?? "";
-    const iss = data.SpecJournalIndexDetail?.[0].Issue ?? "";
-    const dateText = data.SpecJournalIndexDetail?.[0].PublishDate ? formatYyyyMm(data.SpecJournalIndexDetail?.[0].PublishDate) : "預刊本";
-    const special = data.SpecJournalIndexDetail?.[0].IsSpecial ? " - 特刊" : "";
-    return `${vol}卷${iss}期 ( ${dateText} )${special}`;
-};
-
-/** 站內卷期連結：先用 query 帶 index/volume/issue，後續你要換成 /.../.../ 再改這裡即可 */
-const buildIssueTo = (data?: SpecJournalIndexSet): string => {
-    const index = data?.SpecJournalIndexDetail?.[0]?.IndexId ?? "";
-    const rowId = data?.SpecJournalIndexDetail?.[0]?.RowId ?? "";
-    return `/Issues/List/${index}/${rowId}`;
-};
-
-/** Summary 檔案下載連結（後端已有 Download endpoint） */
-const buildSummaryDownloadHref = (data?: SpecJournalIndexSet): string => {
-    const id = data?.SpecJournalIndexDetail?.[0]?.SummaryFileId;
-    if (!id) return "";
-    return `${FileManagementAPI.DOWNLOAD_URL}/${encodeURIComponent(id)}`;
-};
-
-/** 只取 yyyy/MM（PublishDate 可能是 string/Date，這邊用最保險處理） */
-const formatYyyyMm = (publishDate: unknown): string => {
-    if (!publishDate) return "";
-    const d = new Date(String(publishDate));
-    if (Number.isNaN(d.getTime())) return String(publishDate);
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    return `${yyyy} / ${mm}`;
-};
-//#endregion
-
-const indexFetch = (pdvr: IDataProvider<SpecJournalIndexSet>, isPublish: PublishStatus) => {
-    var condition: string = `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.PublishStatus} = ${isPublish}`;
-    return useFetchGridListData<SpecJournalIndexSet>({
-        getModelDisplayName: () => pdvr.getModelDisplayName(),
-        fetchList: (cond) => pdvr.fetchList(cond),
-        fetchListCount: (cond) => pdvr.fetchListCount(cond),
-        visibleKeys: [],
-        buildQueryCondition: () => ({
-            Fields: [
-                `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.IndexId}`,
-                `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.RowId}`,
-                `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
-                `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
-                `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileId}`,
-                `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileName}`,
-                `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.PublishDate}`,
-                `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.IsSpecial}`,
-            ],
-            Condition: condition,
-            OrderBy: [{ Col: `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.PublishDate}`, Desc: true }],
-            PageNumber: 1,
-            PageSize: 5,
-        }),
-        enabled: true,
-        deps: [isPublish],
-    });
-};
-
-
-const bannerFetch = (pdvr: IDataProvider<BannerSet>, bannerId: string) => {
-    var condition: string = `${BannerFields.BannerId} = ${bannerId}`;
-    return useFetchGridListData<BannerSet>({
-        getModelDisplayName: () => pdvr.getModelDisplayName(),
-        fetchList: (cond) => pdvr.fetchList(cond),
-        fetchListCount: (cond) => pdvr.fetchListCount(cond),
-        visibleKeys: [],
-        buildQueryCondition: () => ({
-            Fields: [
-                `${BannerFields._BannerDetail}.${BannerDetailFields.BannerId}`,
-                `${BannerFields._BannerDetail}.${BannerDetailFields.PicSrcId}`,
-            ],
-            Condition: condition,
-            PageNumber: 1,
-            PageSize: 1,
-        }),
-        enabled: true,
-        deps: [bannerId],
-    });
-};
+export default LatestIssueSection;

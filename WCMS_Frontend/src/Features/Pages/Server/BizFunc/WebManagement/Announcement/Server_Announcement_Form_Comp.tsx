@@ -14,7 +14,7 @@ import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-import { LangLabelMap, useEnsureLangDetails, type Lang } from "@/SysCore/i18n/lang";
+import { LangLabelMap, type Lang } from "@/SysCore/i18n/lang";
 import { PreviewFrame } from "@/Features/Pages/Server/Scaffold/PreviewFrame/PreviewFrame";
 import { AnnouncementDetailFields, AnnouncementDetailFileFields, AnnouncementFields, AnnouncementSetFields } from "@/types/SchemaFields";
 import { useAnnouncementFormFetchData } from "./Server_Announcement_Form_Hook";

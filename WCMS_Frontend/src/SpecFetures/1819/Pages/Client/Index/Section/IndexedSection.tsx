@@ -1,21 +1,57 @@
-import type { IDataProvider } from "@/SysCore/Interface/IApiProvider";
 import type { components } from "@/types/api";
 import type { Lang } from "@/SysCore/i18n/lang";
 import BgTransparentImg from "@/SpecFetures/1819/Assets/Client/images/bg/background-transparent-image_1920x600.png";
 import IndexPic from "@/SpecFetures/1819/Assets/Client/images/Indexed_150x150.svg";
-import { BannerDetailFields, BannerDetailInfoFields, BannerFields } from "@/types/SchemaFields";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import BannerSliderProvider from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
 import { useMemo } from "react";
 import { isInValidTimeRange } from "@/SysCore/Utils/Library/DateRangeHelper";
-type BannerSet = components["schemas"]["BannerSet_DTO"];
-/** 索引（Prototype: .Indexed_section） */
-export const IndexedSection = (props: { lang: Lang }) => {
+import type { HomePageRawData } from "../HomePage_Loader";
 
-    const pvdr = useMemo(() => { return BannerSliderProvider() }, [])
-    const useIndex = bannerFetch(pvdr, "Banner20260113003", props.lang)
-    if (!useIndex.rawData || useIndex.rawData.length === 0) return null;
+type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerDetail = NonNullable<BannerSet["BannerDetail"]>[number];
+type BannerDetailInfo = NonNullable<BannerDetail["_BannerDetailInfo"]>[number];
+
+interface IndexedSectionProps {
+    lang: Lang;
+    initialData: Pick<HomePageRawData, "indexedBanner">;
+}
+
+/** 取得對應語系的索引資訊 */
+const getBannerInfo = (dt: BannerDetail, lang: Lang): BannerDetailInfo | null => {
+    // 宣告變數
+    const info = dt._BannerDetailInfo?.find(p => p.Lang === lang) ?? null;
+
+    // return
+    return info;
+};
+
+/** 過濾可顯示的索引項目 */
+const getVisibleDetails = (banner: BannerSet | null, lang: Lang): BannerDetail[] => {
+    // 宣告變數
+    const details = banner?.BannerDetail ?? [];
+
+    // return
+    return details.filter(dt => {
+        const inRange = isInValidTimeRange(dt.Validate_Start, dt.Validate_End);
+        const info = getBannerInfo(dt, lang);
+        const hasTitle = Boolean(info?.Title && info.Title.trim() !== "");
+
+        return inRange && hasTitle;
+    });
+};
+
+/** 索引（Prototype: .Indexed_section） */
+export const IndexedSection = (props: IndexedSectionProps) => {
+    // 宣告變數
+    const banner = props.initialData.indexedBanner;
+
+    const visibleDetails = useMemo(() => {
+        return getVisibleDetails(banner, props.lang);
+    }, [banner, props.lang]);
+
+    // 執行 function
+    if (!banner || visibleDetails.length === 0) return null;
+
+    // return
     return (
         <section className="Indexed_section + Layout_Padding_3_top + Layout_Padding_5_bottom"
             style={{ backgroundImage: `url(${BgTransparentImg})` }} >
@@ -32,12 +68,14 @@ export const IndexedSection = (props: { lang: Lang }) => {
                             <div className="IndexedRowBody">
                                 <ul className="IndexedRowMenu">
 
-                                    {useIndex.rawData?.[0]?.BannerDetail?.map((dt, idx) => {
-                                        if (!isInValidTimeRange(dt.Validate_Start, dt.Validate_End)) return null
-                                        const info = dt._BannerDetailInfo?.find(p => p.Lang === props.lang);
-                                        const url = info?.URL ?? ""
-                                        const tar = info?.URL_Open === 0 ? "_self" : "_blank"
-                                        const title = info?.Title
+                                    {visibleDetails.map((dt, idx) => {
+                                        // 宣告變數
+                                        const info = getBannerInfo(dt, props.lang);
+                                        const url = info?.URL ?? "";
+                                        const tar = info?.URL_Open === 0 ? "_self" : "_blank";
+                                        const title = info?.Title ?? "";
+
+                                        // return
                                         return (
                                             <li key={`${dt.BannerId}-${dt.RowId}-${idx}`}>
                                                 <a href={url} target={tar} rel={info?.URL_Open === 0 ? undefined : "noreferrer"}>
@@ -46,7 +84,8 @@ export const IndexedSection = (props: { lang: Lang }) => {
                                                         <i className="far fa-chevron-double-right" aria-hidden="true" />
                                                     </div>
                                                 </a>
-                                            </li>)
+                                            </li>
+                                        );
                                     })}
 
                                 </ul>
@@ -59,32 +98,4 @@ export const IndexedSection = (props: { lang: Lang }) => {
     );
 };
 
-const bannerFetch = (pdvr: IDataProvider<BannerSet>, bannerId: string, lang: Lang) => {
-    let condition: string = ``;
-    condition = LibMerge(" And ", false, condition, `${BannerFields.BannerId} = ${bannerId}`);
-    condition = LibMerge(" And ", false, condition, `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Lang} = ${lang}`);
-    condition = LibMerge(" And ", false, condition, `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Title} != ''`);
-    return useFetchGridListData<BannerSet>({
-        getModelDisplayName: () => pdvr.getModelDisplayName(),
-        fetchList: (cond) => pdvr.fetchList(cond),
-        fetchListCount: (cond) => pdvr.fetchListCount(cond),
-        visibleKeys: [],
-        buildQueryCondition: () => ({
-            Fields: [
-                `${BannerFields._BannerDetail}.${BannerDetailFields.BannerId}`, `${BannerFields._BannerDetail}.${BannerDetailFields.PicSrcId}`,
-                `${BannerFields._BannerDetail}.${BannerDetailFields.Validate_Start}`, `${BannerFields._BannerDetail}.${BannerDetailFields.Validate_End}`,
-                `${BannerFields._BannerDetail}.${BannerDetailFields.Sort}`,
-                `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.ParentRowId}`,
-                `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.RowId}`,
-                `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Lang}`,
-                `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Title}`,
-                `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.URL}`,
-                `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.URL_Open}`,
-            ],
-            Condition: condition,
-            OrderBy: [{ Col: `${BannerFields._BannerDetail}.${BannerDetailFields.Sort}`, Desc: true }],
-        }),
-        enabled: true,
-        deps: [bannerId, lang],
-    });
-};
+export default IndexedSection;

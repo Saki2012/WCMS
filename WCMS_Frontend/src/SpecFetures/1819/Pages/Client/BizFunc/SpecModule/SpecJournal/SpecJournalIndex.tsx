@@ -23,7 +23,6 @@ const buildCollapseIds = (year: string) => {
     // 宣告變數
     const collapseId = `collapse-${year}`;
     const headerId = `heading-${year}`;
-
     // return
     return { collapseId, headerId };
 };
@@ -38,7 +37,6 @@ const wireBsAccordion = (root: HTMLElement) => {
                 el.click();
             }
         };
-
         el.addEventListener("keydown", onKeyDown);
         (el as unknown as { __wcms_onKeyDown?: (e: KeyboardEvent) => void }).__wcms_onKeyDown = onKeyDown;
     });
@@ -53,79 +51,60 @@ const unwireBsAccordion = (root: HTMLElement) => {
 };
 
 export const SpecJournalIndex = (props: { node: INormNode; lang: Lang; }) => {
-    // 宣告變數
     const pageSize = 10;
     const loaderData = useLoaderData() as SpecJournalIndexLoaderData | null;
-
     const adapter = useMemo(() => SpecJournalIndexAdapter(), []);
-
-    // 執行 function：SSR initial → CSR 接手
     const useIndex = useSpecJournalIndex(adapter, pageSize, loaderData);
-
-    const loadingList = [useIndex.isLoading];
+    const loadingList = useIndex.isLoading;
     const errorList = [useIndex.error];
-
     const paginprops: PaginatorProps =
     {
         currentPage: useIndex.pageNumber,
         totalPages: useIndex.totalPages,
         onPageChange: useIndex.onPageChange,
     };
-
-    // return（DOM 不改）
     return (
-        <ModuleContent nodeTitle={props.node.title} title={props.node.title} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops} >
+        <ModuleContent nodeTitle={props.node.title} title={props.node.title} isLoading={loadingList} errorList={errorList} paginatorProps={paginprops} >
             <SpecJournalIndexContent title={props.node.title} data={useIndex.rawData} lang={props.lang} />
         </ModuleContent>
     )
 };
 
-const useSpecJournalIndex = (
-    adapter: ReturnType<typeof SpecJournalIndexAdapter>,
-    pageSize: number,
-    loaderData: SpecJournalIndexLoaderData | null,
-) => {
+const useSpecJournalIndex = (adapter: ReturnType<typeof SpecJournalIndexAdapter>,pageSize: number,loaderData: SpecJournalIndexLoaderData | null,) => {
     // 宣告變數
     const baseParam = useMemo<QueryListParam>(() => {
         if (!loaderData?.args?.baseParam) return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: pageSize };
         if (loaderData.args.pageSize !== pageSize) return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: pageSize };
         return loaderData.args.baseParam;
     }, [loaderData, pageSize]);
-
     const initialCount = useMemo<ApiLoaderData<QueryListParam, number> | null>(() => {
         if (!loaderData?.args?.baseParam) return null;
         if (loaderData.args.pageSize !== pageSize) return null;
-
         return {
             args: loaderData.args.baseParam,
             apiRes: { IsSuccess: true, Data: loaderData.res.countRes ?? 0, SysMessage: [] },
         };
     }, [loaderData, pageSize]);
-
     const initialList = useMemo<ApiLoaderData<QueryListParam, SpecJournalIndexSet[]> | null>(() => {
         if (!loaderData?.args?.baseParam) return null;
         if (loaderData.args.pageSize !== pageSize) return null;
-
         return {
             args: loaderData.args.baseParam,
             apiRes: { IsSuccess: true, Data: loaderData.res.listRes ?? [], SysMessage: [] },
         };
     }, [loaderData, pageSize]);
-
     // 執行 function：count/list
     const useCount = adapter.hooks.useQueryCount({
         condition: baseParam,
         initial: initialCount,
         deps: [pageSize],
     });
-
     const useList = adapter.hooks.usePagedQueryList({
         baseParam,
         count: useCount.data ?? 0,
         initial: initialList,
         deps: [pageSize],
     });
-
     // return
     return {
         rawData: useList.data ?? [],
@@ -138,7 +117,6 @@ const useSpecJournalIndex = (
 };
 
 const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalIndexSet[]; lang: Lang; }) => {
-    // ===== effects =====
     useEffect(() => {
         // NOTE: 綁定 bootstrap accordion 的鍵盤行為（CSR only）
         const root = document.getElementById("ContentPlaceContent_ContentConentA");
@@ -146,8 +124,6 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
         wireBsAccordion(root);
         return () => unwireBsAccordion(root);
     }, []);
-
-    // ===== render（DOM 不改）=====
     return (
         <div className="Journal_List_content">
             <div className="row">
@@ -164,9 +140,9 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
                             <ul className="Journal_info">
                                 {props.data?.map((group) => {
                                     const masterData = group.SpecJournalIndex;
-                                    const DetailDatas = group.SpecJournalIndexDetail
-                                    const indexTitle = `${masterData?.IndexName}${props.lang === 'zh-tw' ? " 年" : ""}`
-                                    const volTitle = `(Vol.${DetailDatas?.[0]?.Volume})`
+                                    const DetailDatas = group.SpecJournalIndexDetail;
+                                    const indexTitle = `${masterData?.IndexName}${props.lang === "zh-tw" ? " 年" : ""}`;
+                                    const volTitle = `(Vol.${DetailDatas?.[0]?.Volume})`;
                                     const { collapseId, headerId } = buildCollapseIds(masterData?.IndexId ?? "");
 
                                     const toSortNum = (v: string | number | null | undefined): number => {
@@ -175,24 +151,29 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
                                         return Number.MAX_SAFE_INTEGER;
                                     };
                                     // 宣告：依 Volume、Issue 正排序（升冪）
-                                    const sortedDetailDatas = useMemo(() => {
-                                        const list = DetailDatas ?? [];
-                                        return [...list].sort((a, b) => {
-                                            const av = toSortNum(a.Volume);
-                                            const bv = toSortNum(b.Volume);
-                                            if (av !== bv) return av - bv;
-                                            const ai = toSortNum(a.Issue);
-                                            const bi = toSortNum(b.Issue);
-                                            return ai - bi;
-                                        });
-                                    }, [DetailDatas]);
+                                    const sortedDetailDatas = [...(DetailDatas ?? [])].sort((a, b) => {
+                                        const av = toSortNum(a.Volume);
+                                        const bv = toSortNum(b.Volume);
+                                        if (av !== bv) return av - bv;
+                                        const ai = toSortNum(a.Issue);
+                                        const bi = toSortNum(b.Issue);
+                                        return ai - bi;
+                                    });
 
                                     return (
                                         <li key={masterData?.IndexId}>
                                             <div className={clsx("card", `JL-${masterData?.IndexId}`)}>
                                                 <div className="card-header" id={headerId}>
-                                                    <a href={`#${collapseId}`} className="card-link collapsed" data-bs-toggle="collapse" type="button"
-                                                        role="button" aria-expanded="false" aria-controls={collapseId} title={indexTitle}>
+                                                    <a
+                                                        href={`#${collapseId}`}
+                                                        className="card-link collapsed"
+                                                        data-bs-toggle="collapse"
+                                                        type="button"
+                                                        role="button"
+                                                        aria-expanded="false"
+                                                        aria-controls={collapseId}
+                                                        title={indexTitle}
+                                                    >
                                                         <span className="fs-5">
                                                             <i className={clsx("fas", "fa-folder-open", "me-3")} aria-hidden="true"></i>
                                                             {indexTitle} {volTitle}
@@ -203,11 +184,16 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
                                                 <div id={collapseId} className="collapse" data-bs-parent="#accordion" aria-labelledby={headerId}>
                                                     <div className="card-body">
                                                         <ul className="Journallist-group">
-                                                            {sortedDetailDatas?.map((dt) => {
-                                                                const volumeTitle = `Vol.${dt.Volume}, No.${dt.Issue}`
+                                                            {sortedDetailDatas.map((dt) => {
+                                                                const volumeTitle = `Vol.${dt.Volume}, No.${dt.Issue}`;
                                                                 return (
                                                                     <li key={dt.RowId}>
-                                                                        <LangLink className="list-group-item" to={`../List/${masterData?.IndexId}/${dt.RowId}`} title={volumeTitle} aria-label={`前往 ${volumeTitle} 期刊列表`}>
+                                                                        <LangLink
+                                                                            className="list-group-item"
+                                                                            to={`../List/${masterData?.IndexId}/${dt.RowId}`}
+                                                                            title={volumeTitle}
+                                                                            aria-label={`前往 ${volumeTitle} 期刊列表`}
+                                                                        >
                                                                             <div className="icontxtbox">
                                                                                 <span className="page_icon">
                                                                                     <i className="far fa-file-alt" aria-hidden="true"></i>
@@ -216,7 +202,7 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
                                                                             </div>
                                                                         </LangLink>
                                                                     </li>
-                                                                )
+                                                                );
                                                             })}
                                                         </ul>
                                                     </div>
