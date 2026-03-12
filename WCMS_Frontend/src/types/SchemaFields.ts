@@ -941,18 +941,6 @@ export const SpecJournalAuthorFields = {
 
 export type SpecJournalAuthorFieldKey = keyof typeof SpecJournalAuthorFields;
 
-export const SpecJournalBibliographyFields = {
-  RowState: 'RowState',
-  JournalId: 'JournalId',
-  RowId: 'RowId',
-  Title: 'Title',
-  Title_en: 'Title_en',
-  Url: 'Url',
-  _SpecJournal: '_SpecJournal',
-} as const;
-
-export type SpecJournalBibliographyFieldKey = keyof typeof SpecJournalBibliographyFields;
-
 export const SpecJournalIndexDetailFields = {
   RowState: 'RowState',
   IndexId: 'IndexId',
@@ -1048,8 +1036,8 @@ export const SpecJournalModelFields = {
   ArticleLang: 'ArticleLang',
   Memo: 'Memo',
   Memo_en: 'Memo_en',
+  Bibliography: 'Bibliography',
   _SpecJournalAuthor: '_SpecJournalAuthor',
-  _SpecJournalBibliography: '_SpecJournalBibliography',
   _SpecJournalRefFormat: '_SpecJournalRefFormat',
   _SpecJournalOpenPointFiles: '_SpecJournalOpenPointFiles',
   _SpecJournalRefFiles: '_SpecJournalRefFiles',
@@ -1097,7 +1085,6 @@ export type SpecJournalRefFormatFieldKey = keyof typeof SpecJournalRefFormatFiel
 export const SpecJournalSetFields = {
   SpecJournal: 'SpecJournal',
   SpecJournalAuthor: 'SpecJournalAuthor',
-  SpecJournalBibliography: 'SpecJournalBibliography',
   SpecJournalRefFormat: 'SpecJournalRefFormat',
   SpecJournalOpenPointFiles: 'SpecJournalOpenPointFiles',
   SpecJournalRefFiles: 'SpecJournalRefFiles',

@@ -1,21 +1,8 @@
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
 import type { LoaderFunctionArgs } from "react-router-dom";
-
-import {
-    SpecJournalAuthorFields,
-    SpecJournalBibliographyFields,
-    SpecJournalIndexDetailFields,
-    SpecJournalKeywordsFields,
-    SpecJournalModelFields,
-    SpecJournalOpenPointFilesFields,
-    SpecJournalRefFilesFields,
-    SpecJournalRefFormatFields,
-    SpecJournalTypesFields,
-    TagDataFields,
-    TagDetailFields,
-} from "@/types/SchemaFields";
-
+import {SpecJournalAuthorFields, SpecJournalIndexDetailFields, SpecJournalKeywordsFields, SpecJournalModelFields, SpecJournalOpenPointFilesFields, 
+    SpecJournalRefFilesFields, SpecJournalRefFormatFields, SpecJournalTypesFields, TagDataFields, TagDetailFields, } from "@/types/SchemaFields";
 import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournal_Api";
 
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
@@ -63,6 +50,7 @@ const buildBaseParam = (journalId: string): QueryListParam =>
             SpecJournalModelFields.ArticleLang,
             SpecJournalModelFields.Memo,
             SpecJournalModelFields.Memo_en,
+            SpecJournalModelFields.Bibliography,
 
             `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
             `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
@@ -81,10 +69,7 @@ const buildBaseParam = (journalId: string): QueryListParam =>
             `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.Country}`,
             `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.ORCID}`,
 
-            // Bibliography
-            `${SpecJournalModelFields._SpecJournalBibliography}.${SpecJournalBibliographyFields.Title}`,
-            `${SpecJournalModelFields._SpecJournalBibliography}.${SpecJournalBibliographyFields.Title_en}`,
-            `${SpecJournalModelFields._SpecJournalBibliography}.${SpecJournalBibliographyFields.Url}`,
+           
 
             // RefFormat
             `${SpecJournalModelFields._SpecJournalRefFormat}.${SpecJournalRefFormatFields.RowId}`,

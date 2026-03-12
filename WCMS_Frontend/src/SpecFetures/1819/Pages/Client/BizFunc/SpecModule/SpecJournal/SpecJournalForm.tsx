@@ -16,7 +16,6 @@ import { useLocation, useParams } from "react-router";
 import { useBreadcrumb } from "@/Features/Pages/Client/Scaffold/SubPages/Section/BreadCrumb_Comp";
 import { SpecJournalKeywordSearch_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalKeywordSearchComp";
 import { useSpecJournalSearchNav } from "./SpecJournalSearchUtils";
-import { LangNavLink } from "@/SysCore/i18n/LangLink";
 
 // ✅ 新架構：LoaderData initial + adapter hooks
 import { useLoaderData } from "react-router-dom";
@@ -48,8 +47,6 @@ export const SpecJournalForm_Comp = (props: { node: INormNode; lang: Lang }) => 
 
     const useDetail = useSpecJournalDetail(adapter, loaderData);
     const data = useMemo(() => useDetail.rawData?.[0], [useDetail.rawData]);
-
-    const isLoading = [useDetail.isLoading];
     const errors = [useDetail.error];
 
     const title = useMemo(() => {
@@ -90,7 +87,7 @@ export const SpecJournalForm_Comp = (props: { node: INormNode; lang: Lang }) => 
 
     // return
     return (
-        <ModuleContent nodeTitle={title} title={title} loadingList={isLoading} errorList={errors}>
+        <ModuleContent nodeTitle={title} title={title} isLoading={useDetail.isLoading} errorList={errors}>
             <SpecJournalFormContent data={data} lang={props.lang} />
         </ModuleContent>
     );
@@ -748,6 +745,9 @@ const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
     parseContent = useResolveInternalIds(props.data?.SpecJournal?.Memo_en ?? "", { locale: props.lang });
     const memo_enContent = parseContent.html ? parse(parseContent.html) : null;
 
+    parseContent = useResolveInternalIds(props.data?.SpecJournal?.Bibliography ?? "", { locale: props.lang });
+    const bibliography_Content = parseContent.html ? parse(parseContent.html) : null;
+
     // 宣告：collapse 預設展開（show）
     const collapseClass = "collapse show";
 
@@ -788,64 +788,7 @@ const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
 
                             {/* ✅ 預設展開 + ✅ 移除 data-bs-parent（互不影響） */}
                             <div id={`99999998`} className={collapseClass}>
-                                <div className="card-body">
-                                    <ol className="bib-list">
-                                        {props.data?.SpecJournalBibliography?.map((dt, idx) => {
-                                            const title = (dt.Title ?? "").trim();
-                                            const titleEn = (dt.Title_en ?? "").trim();
-                                            const url = (dt.Url ?? "").trim();
-
-                                            const hasZh = title.length > 0;
-                                            const hasEn = titleEn.length > 0;
-                                            const hasUrl = url.length > 0;
-
-                                            if (!hasZh && !hasEn) return null;
-
-                                            const key = `bib-${dt.RowId ?? idx}`;
-
-                                            return (
-                                                <li key={key} className="bib-item">
-                                                    {hasZh && (
-                                                        <p className="bib-zh">
-                                                            {hasUrl ? (
-                                                                <LangNavLink
-                                                                    className="bib-link"
-                                                                    to={url}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    aria-label="開啟參考文獻連結（另開新視窗）"
-                                                                >
-                                                                    {title}
-                                                                </LangNavLink>
-                                                            ) : (
-                                                                title
-                                                            )}
-                                                        </p>
-                                                    )}
-
-                                                    {hasEn && (
-                                                        <p className="bib-en">
-                                                            {hasUrl ? (
-                                                                <LangNavLink
-                                                                    className="bib-link"
-                                                                    to={url}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    aria-label="Open bibliography link (opens in a new tab)"
-                                                                >
-                                                                    {titleEn}
-                                                                </LangNavLink>
-                                                            ) : (
-                                                                titleEn
-                                                            )}
-                                                        </p>
-                                                    )}
-                                                </li>
-                                            );
-                                        })}
-                                    </ol>
-                                </div>
-
+                                <div className="card-body">{bibliography_Content}</div>
                                 {bodyHr}
                             </div>
                         </div>

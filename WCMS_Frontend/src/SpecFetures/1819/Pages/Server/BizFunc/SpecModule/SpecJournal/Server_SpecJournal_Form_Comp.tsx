@@ -5,35 +5,20 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-
 import { DefaultLang, LangLabelMap, SUPPORTED_LANGS, type Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
-
-import {
-    SpecJournalAuthorFields,
-    SpecJournalBibliographyFields,
-    SpecJournalModelFields,
-    SpecJournalOpenPointFilesFields,
-    SpecJournalRefFilesFields,
-    SpecJournalRefFormatFields,
-    SpecJournalSetFields,
-} from "@/types/SchemaFields";
-import {
-    useSpecJournalFormFetchData,
-    type SpecJournalFormActionsOpt,
-} from "./Server_SpecJournal_Form_Hook";
+import {SpecJournalAuthorFields, SpecJournalModelFields, SpecJournalOpenPointFilesFields, SpecJournalRefFilesFields, SpecJournalRefFormatFields, SpecJournalSetFields,} from "@/types/SchemaFields";
+import {useSpecJournalFormFetchData, type SpecJournalFormActionsOpt,} from "./Server_SpecJournal_Form_Hook";
 
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
 type SpecJournalOpenPointFiles = components["schemas"]["SpecJournalOpenPointFiles_DTO"];
 type SpecJournalRefFiles = components["schemas"]["SpecJournalRefFiles_DTO"];
-type SpecJournalBibliography = components["schemas"]["SpecJournalBibliography_DTO"];
 type ORCIDData = components["schemas"]["ORCIDData"];
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
 type SpecJournalIndexDetailSet = components["schemas"]["SpecJournalIndexDetail_DTO"];
@@ -41,7 +26,6 @@ type SpecJournalIndexDetailSet = components["schemas"]["SpecJournalIndexDetail_D
 const emptyData: SpecJournalSet = {
     SpecJournal: {},
     SpecJournalAuthor: [],
-    SpecJournalBibliography: [],
     SpecJournalRefFormat: [],
     SpecJournalOpenPointFiles: [],
     SpecJournalRefFiles: [],
@@ -68,6 +52,7 @@ export const Server_SpecJournal_Form_Comp = (prop: { theme: IBETheme; lang: Lang
 const MainFormComp = (props: {theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalSet>; indexRawData: SpecJournalIndexSet[];
     tagOptionsRaw: Record<string, string>; keywords: SpecJournalSet[];}) => 
 {
+    const setField = useSetTableField<SpecJournalSet>(props.formData);
     const tabInfo: LibTabsProp = {
         Style: props.theme.Tabs,
         item: {Basic: "基本資料", Author: "期刊作者", Bibliography: "參考文獻", RefFormat: "引文格式", Files: "檔案上傳", Keyword: "關鍵字", System: "系統資訊" }
@@ -75,7 +60,7 @@ const MainFormComp = (props: {theme: IBETheme; formData: UseFetchFormDataResult<
     const components: Record<string, React.ReactNode[]> = {
         Basic: [<BasicComp theme={props.theme} formData={props.formData} indexRawData={props.indexRawData} tagOptionsRaw={props.tagOptionsRaw} />],
         Author: [<AuthorComp theme={props.theme} formData={props.formData} />],
-        Bibliography: [<BibliographyComp theme={props.theme} formData={props.formData} />],
+        Bibliography: [<LibTinyMCE Style={props.theme.TinyMCE}{...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Bibliography, "string")}  ColumnDisplayName={""} />],
         RefFormat: [<RefFormatComp theme={props.theme} formData={props.formData} />],
         Files: [<FilesComp theme={props.theme} formData={props.formData} />],
         Keyword: [<KeywordComp theme={props.theme} formData={props.formData} keywords={props.keywords} />],
@@ -477,98 +462,6 @@ const AuthorComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
-const BibliographyComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalSet> }) => {
-    const setField = useSetTableField<SpecJournalSet>(props.formData);
-    const rows = (props.formData.data?.SpecJournalBibliography ?? []).map((r) => ({ ...r, RowId: r.RowId ?? undefined }));
-
-    const commitRows = (nextRows: SpecJournalBibliography[]) => {
-        // ✅ 提交回整份表單（關鍵：真正更新 formData）
-        props.formData.setFormData(prev => ({
-            ...(prev ?? ({} as SpecJournalSet)),
-            SpecJournalBibliography: nextRows,
-        }));
-    };
-
-    const addRow = (): void => {
-        // ✅ 新增一組參考文獻資料（明細列）
-        const parentJournalId = props.formData.data?.SpecJournal?.JournalId ?? rows[0]?.JournalId;
-        const nextRowId = getNextRowId(rows);
-        const newItem: SpecJournalBibliography = {
-            JournalId: parentJournalId,
-            RowId: nextRowId,
-            Title: "",
-            Title_en: "",
-            Url: "",
-        };
-        commitRows([...rows, newItem]);
-    };
-
-    const removeRow = (rowId: number): void => {
-        // ✅ 刪除指定 RowId 的一組參考文獻資料
-        const next = rows.filter((x: SpecJournalBibliography) => Number(x?.RowId ?? 0) !== rowId);
-        commitRows(next);
-    };
-
-    return (
-        <div role="group" className="mt-2">
-            {rows.map((r: SpecJournalBibliography, i: number) => {
-                const rowId = Number(r?.RowId ?? i + 1);
-                const rowKeys: SpecJournalBibliography = {
-                    [SpecJournalBibliographyFields.JournalId]: r?.JournalId,
-                    [SpecJournalBibliographyFields.RowId]: r?.RowId,
-                };
-
-                return (
-                    <div key={`bib-${rowId}`} className="border rounded p-3 mb-3">
-                        <div className="d-flex justify-content-between align-items-start gap-2">
-                            <div className="w-100">
-                                <div className="col-12 form-group">
-                                    <LibTextBox
-                                        Style={props.theme.TextBox}
-                                        DefaultInputDisplay="請輸入"
-                                        {...setField(SpecJournalSetFields.SpecJournalBibliography, SpecJournalBibliographyFields.Title, "string", rowKeys)}
-                                    />
-                                </div>
-
-                                <div className="col-12 form-group">
-                                    <LibTextBox
-                                        Style={props.theme.TextBox}
-                                        DefaultInputDisplay="請輸入"
-                                        {...setField(SpecJournalSetFields.SpecJournalBibliography, SpecJournalBibliographyFields.Title_en, "string", rowKeys)}
-                                    />
-                                </div>
-
-                                <div className="col-12 form-group">
-                                    <LibTextBox
-                                        Style={props.theme.TextBox}
-                                        DefaultInputDisplay="請輸入"
-                                        {...setField(SpecJournalSetFields.SpecJournalBibliography, SpecJournalBibliographyFields.Url, "string", rowKeys)}
-                                    />
-                                </div>
-                            </div>
-                            <button
-                                type="button"
-                                className="btn btn-sm btn-light"
-                                aria-label={`刪除參考文獻第 ${i + 1} 組`}
-                                onClick={() => removeRow(rowId)}
-                            >
-                                ×
-                            </button>
-                        </div>
-                    </div>
-                );
-            })}
-            <button
-                type="button"
-                onClick={addRow}
-                aria-label="新增參考文獻"
-                className="btn btn-outline-primary mb-3"
-            >
-                新增參考文獻
-            </button>
-        </div>
-    );
-};
 
 const TAB_PREFIX = "REF_";
 

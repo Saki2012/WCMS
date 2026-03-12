@@ -1,16 +1,7 @@
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
-import {
-    SpecJournalAuthorFields,
-    SpecJournalBibliographyFields,
-    SpecJournalIndexDetailFields,
-    SpecJournalKeywordsFields,
-    SpecJournalModelFields,
-    SpecJournalTypesFields,
-    TagDataFields,
-    TagDetailFields,
-} from "@/types/SchemaFields";
+import {SpecJournalAuthorFields, SpecJournalIndexDetailFields, SpecJournalKeywordsFields, SpecJournalModelFields, SpecJournalTypesFields, TagDataFields, TagDetailFields, } from "@/types/SchemaFields";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
 // ✅ 1819 SpecJournal Adapter（你說底層都有，先直接用 Adapter）
@@ -107,17 +98,17 @@ const buildCondition = (p: {
     if (f.q)
     {
         const kw = f.q.replace(/'/g, "''");
-        const baseCond =
-            `(${SpecJournalModelFields.Title} like '${kw}' Or ${SpecJournalModelFields.Title_en} like '${kw}')`;
+        const baseCond = `(${SpecJournalModelFields.Title} like '${kw}' Or ${SpecJournalModelFields.Title_en} like '${kw}')`;
 
         const includeRef = f.includeRef === "1" || f.includeRef.toLowerCase() === "true";
         if (!includeRef)
         {
             condition = LibMerge(" And ", false, condition, baseCond);
-        } else
+        }
+        else
         {
-            const bibCond =
-                `(${SpecJournalModelFields._SpecJournalBibliography}.${SpecJournalBibliographyFields.Title} like '${kw}' Or ${SpecJournalModelFields._SpecJournalBibliography}.${SpecJournalBibliographyFields.Title_en} like '${kw}')`;
+            //參考文獻變成純Content，有可能會因此變慢，但需求上是必須要加上條件審查，暫時這樣
+            const bibCond = `(${SpecJournalModelFields.Bibliography} like '${kw}')`;
             condition = LibMerge(" And ", false, condition, `(${baseCond} Or ${bibCond})`);
         }
     }

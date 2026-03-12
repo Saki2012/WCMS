@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using WCMS.Features.Member.Account;
 using WCMS.Features.SystemSetting.Auth;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;

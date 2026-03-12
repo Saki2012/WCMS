@@ -19,7 +19,6 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
     {
         [LibDesc(SpecModelDisplayName.SpecJournal)] public SpecJournalModel SpecJournal { get; set; } = new ();
         [LibDesc(SpecModelDisplayName.SpecJournalAuthor)] public List<SpecJournalAuthor> SpecJournalAuthor { get; set; } = [];
-        [LibDesc(SpecModelDisplayName.SpecJournalBibliography)] public List<SpecJournalBibliography> SpecJournalBibliography { get; set; } = [];
         [LibDesc(SpecModelDisplayName.SpecJournalRefFormat)]public List<SpecJournalRefFormat> SpecJournalRefFormat { get; set; } = [];
         [LibDesc(SpecModelDisplayName.SpecJournalOpenPointFiles)]public List<SpecJournalOpenPointFiles> SpecJournalOpenPointFiles { get; set; } = [];
         [LibDesc(SpecModelDisplayName.SpecJournalRefFiles)]public List<SpecJournalRefFiles> SpecJournalRefFiles { get; set; } = [];
@@ -98,10 +97,14 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         /// 注:(文字編輯器，大量內容，不限長度)
         /// </summary>
         [LibDesc(SpecModelDisplayName.Spec_Memo_en)]public string Memo_en { get; set; } = string.Empty;
+        /// <summary>
+        /// 參考文獻
+        /// 注:(文字編輯器，大量內容，不限長度)
+        /// </summary>
+        [LibDesc(SpecModelDisplayName.SpecBibliography)] public string Bibliography { get; set; } = string.Empty;
 
         #region 主子表關聯
         [InverseProperty(nameof(SpecJournalAuthor._SpecJournal))] public List<SpecJournalAuthor> _SpecJournalAuthor { get; set; }
-        [InverseProperty(nameof(SpecJournalAuthor._SpecJournal))] public List<SpecJournalBibliography> _SpecJournalBibliography { get; set; }
         [InverseProperty(nameof(SpecJournalRefFormat._SpecJournal))] public List<SpecJournalRefFormat> _SpecJournalRefFormat { get; set; }
         [InverseProperty(nameof(SpecJournalOpenPointFiles._SpecJournal))] public List<SpecJournalOpenPointFiles> _SpecJournalOpenPointFiles { get; set; }
         [InverseProperty(nameof(SpecJournalRefFiles._SpecJournal))] public List<SpecJournalRefFiles> _SpecJournalRefFiles { get; set; }
@@ -157,36 +160,6 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         /// 地區/國家
         /// </summary>
         [LibDesc(ModelDisplayName.Common_Country), StringLength(SysLengthParam.Info)]public string Country { get; set; } = string.Empty;
-
-        #region 主子表關聯
-        [ForeignKey(nameof(JournalId))] public SpecJournalModel _SpecJournal { get; set; }
-        #endregion
-    }
-    /// <summary>
-    /// 參考文獻
-    /// </summary>
-    public class SpecJournalBibliography : DetailRowModel
-    {
-        /// <summary>
-        /// 期刊代號
-        /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_JournalId), Key, StringLength(SysLengthParam.ID)] public string JournalId { get; set; } = string.Empty;
-        /// <summary>
-        /// 行主鍵
-        /// </summary>
-        [LibDesc(ModelDisplayName.Common_RowId), Key] public int RowId { get; set; }
-        /// <summary>
-        /// 參考文獻標題
-        /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_BibliographyTitle), StringLength(SysLengthParam.Title)] public string Title { get; set; } = string.Empty;
-        /// <summary>
-        /// 參考文獻標題(英文)
-        /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_BibliographyTitle_En), StringLength(SysLengthParam.Title_en)] public string Title_en { get; set; } = string.Empty;
-        /// <summary>
-        /// 參考文獻連結
-        /// </summary>
-        [LibDesc(ModelDisplayName.Common_Url), StringLength(SysLengthParam.Url)] public string Url { get; set; } = string.Empty;
 
         #region 主子表關聯
         [ForeignKey(nameof(JournalId))] public SpecJournalModel _SpecJournal { get; set; }

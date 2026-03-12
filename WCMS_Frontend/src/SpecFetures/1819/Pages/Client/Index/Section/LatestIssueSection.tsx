@@ -140,17 +140,10 @@ const LastIssueComp = (props: { data: SpecJournalIndexSet | null }) => {
 
 /** 預刊本 */
 const PreprintComp = (props: { data: SpecJournalIndexSet | null }) => {
-    // 宣告變數
     const data = props.data;
     const title = buildIssueTitle(data);
     const issueTo = buildIssueTo(data);
-    const downloadHref = buildSummaryDownloadHref(data);
-    const fileName = data?.SpecJournalIndexDetail?.[0]?.SummaryFileName ?? "";
-
-    // 執行 function
     if (!data) return null;
-
-    // return
     return (
         <>
             <div className="DOWN_TXT">
@@ -163,29 +156,13 @@ const PreprintComp = (props: { data: SpecJournalIndexSet | null }) => {
                     </LangNavLink>
                 </div>
 
-                {!!downloadHref && (
-                    <div className="EN-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <i className="fas fa-file-pdf + me-2" aria-hidden="true" />
-                        <a
-                            href={downloadHref}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            title={fileName || "下載檔案"}
-                            aria-label={`下載檔案：${fileName || "PDF"}`}
-                            style={{ color: "inherit", textDecoration: "none", display: "inline" }}
-                        >
-                            <span>{fileName || "Download"}</span>
-                        </a>
-                    </div>
-                )}
             </div>
         </>
     );
 };
 
-/** 最新卷期（DOM 以舊版為準，資料來源沿用新版 initialData） */
+/** 最新卷期 */
 export const LatestIssueSection = (props: LatestIssueSectionProps) => {
-    // 宣告變數
     const bgBanner = props.initialData.latestIssueBgBanner;
     const coverBanner = props.initialData.latestIssueCoverBanner;
     const publishedList = props.initialData.latestIssuePublishedList ?? [];
@@ -196,7 +173,6 @@ export const LatestIssueSection = (props: LatestIssueSectionProps) => {
     const latestPublished = useMemo(() => getFirstIssue(publishedList), [publishedList]);
     const latestUnpublished = useMemo(() => getFirstIssue(unpublishedList), [unpublishedList]);
 
-    // return
     return (
         <section className="LatestIssue_section">
             <div className="Mask-DivBox">
