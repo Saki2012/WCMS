@@ -9,7 +9,8 @@ import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import  {AccountFields, PGID, SpecJournalIndexDetailFields, SpecJournalModelFields, } from "@/types/SchemaFields";
+import  {AccountFields, PGID, SpecJournalAuthorFields, SpecJournalIndexDetailFields, SpecJournalModelFields, } from "@/types/SchemaFields";
+import { FalseLiteral } from "ts-morph";
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
@@ -35,13 +36,13 @@ export type SpecJournalListAdapter = {
 
 /** ✅ 主入口：Server SpecJournal List 的 fetch 都集中在這裡 */
 export const useSpecJournalListFetchData = (
-    opt: { lang: Lang; kw: string; },
+    opt: { lang: Lang; kw: string; volume: string;},
 ): UseFetchDataResult<SpecJournalListRawData, SpecJournalListAdapter> =>
 {
     const { publish } = useToast();
     const onError = useCallback((e: ApiAdapterError) => { publish({ level: MessageStatus.Error, title: e.messageText }); }, [publish]);
     const adapter = useMemo<SpecJournalListAdapter>(() => { return { SpecJournal: SpecJournalAdapter(), Category: CategoryAdapter(), }; }, []);
-    const baseParam = useSpecJournalListQueryParam({ kw: opt.kw });
+    const baseParam = useSpecJournalListQueryParam({ kw: opt.kw, volume:opt.volume });
     const grid = adapter.SpecJournal.hooks.useQueryGridData({
         baseParam,
         deps: [baseParam.Condition ?? "", baseParam.PageSize ?? 0],
@@ -85,13 +86,15 @@ export const useSpecJournalListFetchData = (
 
 //#region Private
 /** List QueryListParam */
-const useSpecJournalListQueryParam = (p: { kw: string; }): QueryListParam =>
+const useSpecJournalListQueryParam = (p: { kw: string; volume:string; }): QueryListParam =>
 {
     const fields = useMemo<string[]>(() =>
     {
         return [SpecJournalModelFields.JournalId, SpecJournalModelFields.Title, SpecJournalModelFields.Title_en, SpecJournalModelFields.ModifyUserId,
             `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
             `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
+            `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName}`,
+            `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en}`,
             `${SpecJournalModelFields.ModifyUser}.${AccountFields.AccountName}`,
             SpecJournalModelFields.CreateTime, SpecJournalModelFields.ModifyTime, SpecJournalModelFields.InternalId,
         ];
@@ -104,11 +107,19 @@ const useSpecJournalListQueryParam = (p: { kw: string; }): QueryListParam =>
         {
             const orCdt = LibMerge(" Or ",false,
             `${SpecJournalModelFields.Title} Like '${p.kw}'`,
-            `${SpecJournalModelFields.Title_en} Like '${p.kw}'`)
+            `${SpecJournalModelFields.Title_en} Like '${p.kw}'`);
             cdt = LibMerge(" And ", false, cdt,`(${orCdt})` );
         }
+
+        if(!!p.volume)
+        {
+            cdt = LibMerge(" And ",false,cdt,
+                `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume} = ${p.volume}`
+            );
+        }
+
         return cdt;
-    }, [p.kw]);
+    }, [p.kw,p.volume]);
 
     return useMemo(() =>
     {

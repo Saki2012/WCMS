@@ -19,7 +19,7 @@ type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 /** 網路資源清單 */
 export const WebResourceListComp = (prop: { title: string; theme: IBETheme; lang: Lang }) => {
     const [kw, setKw] = useState<string>("");
-    const searchCompProp: SearchBarProps = {title: "網路資源搜尋",subTitle: "搜尋網路資源 ...",settingTitle: "搜尋設定",onSubmit: setKw,onReset: () => setKw(""),};
+    const searchCompProp: SearchBarProps = {title: "網路資源搜尋",subTitle: "搜尋網路資源 ...",onSubmit: setKw,onReset: () => setKw(""),};
     const pathname = useLocation().pathname;
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
     const navigate = useNavigate();

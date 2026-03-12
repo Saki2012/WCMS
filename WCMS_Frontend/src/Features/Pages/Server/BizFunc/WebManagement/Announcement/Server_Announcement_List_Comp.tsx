@@ -18,7 +18,7 @@ type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 /** 公告列表 */
 export const Server_AnnouncementListComp = (prop: { title: string; theme: IBETheme; lang: Lang }) => {
     const [kw, setKw] = useState<string>("");
-    const searchCompProp: SearchBarProps = { title: "公告搜尋", subTitle: "搜尋公告 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
+    const searchCompProp: SearchBarProps = { title: "公告搜尋", subTitle: "搜尋公告 ...", onSubmit: setKw, onReset: () => setKw(""), };
     const pathname = useLocation().pathname;
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
     const getData = useAnnouncementListFetchData({ lang: prop.lang, kw: kw });

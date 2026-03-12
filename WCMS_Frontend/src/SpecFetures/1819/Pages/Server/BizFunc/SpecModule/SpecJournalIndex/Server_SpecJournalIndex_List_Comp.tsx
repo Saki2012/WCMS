@@ -21,7 +21,7 @@ type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
 export const Server_SpecJournalIndex_List_Comp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
 {
     const [kw, setKw] = useState<string>("");
-    const searchCompProp: SearchBarProps = {title: "搜尋", subTitle: "搜尋 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""),};
+    const searchCompProp: SearchBarProps = {title: "搜尋", subTitle: "搜尋 ...", onSubmit: setKw, onReset: () => setKw(""),};
     const pathname = useLocation().pathname;
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, "/Form"), [pathname]);
     const fetchData = useSpecJournalIndexListFetchData({lang: prop.lang,kw,});
