@@ -43,24 +43,11 @@ const SpecJournalVolumeSearchField = (prop: SpecJournalVolumeSearchFieldProps) =
 /** 後台期刊列表 */
 export const Server_SpecJournal_List_Comp = (prop: { title: string; theme: IBETheme; lang: Lang }) =>
 {
-    // 宣告變數
     const [kw, setKw] = useState<string>("");
     const [volume, setVolume] = useState<string>("");
     const [volumeInput, setVolumeInput] = useState<string>("");
-    const handleSubmitSearch = (nextKw: string): void =>
-    {
-        // 執行 function
-        setKw(nextKw);
-        setVolume(volumeInput);
-
-        // return
-    };
-    const handleResetSearch = (): void =>
-    {
-        setKw("");
-        setVolume("");
-        setVolumeInput("");
-    };
+    const handleSubmitSearch = (nextKw: string): void => { setKw(nextKw); setVolume(volumeInput); };
+    const handleResetSearch = (): void => { setKw(""); setVolume(""); setVolumeInput(""); };
     const searchCompProp: SearchBarProps = {title: "搜尋", subTitle: "搜尋 ...", onSubmit: handleSubmitSearch, onReset: handleResetSearch, extraFields: (<SpecJournalVolumeSearchField value={volumeInput} onChange={setVolumeInput}/>),};
     const pathname = useLocation().pathname;
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
@@ -172,7 +159,7 @@ const renderTitle = (set: SpecJournalSet): ReactNode =>
     );
 };
 
-/** 顯示中英文標題 */
+/** 顯示中英文作者名稱 */
 const renderAuthorName = (set: SpecJournalSet): ReactNode =>
 {
     return (
