@@ -70,15 +70,20 @@ export const LibSearchBar: React.FC<SearchBarProps> = (prop) =>
                             </div>
                         </div>
                         {prop.extraFields && (
-                            <div className="col-12 px-0 mt-4" aria-label="搜尋附加條件">
+                            <div aria-label="搜尋附加條件">
                                 {prop.extraFields}
                             </div>
                         )}
                             <div className="row mx-0">
                                 <div className="offset-md-2 col-md-4 col-sm-12 px-0 mt-3 text-end">
-                                    <button type="submit" className="btn btn-custom btn-rounded">
-                                        搜尋
-                                    </button>
+                                    <div className="d-flex justify-content-end gap-2">
+                                        <button type="button" className="btn btn-custom btn-rounded" onClick={handleReset}>
+                                            重置
+                                        </button>
+                                        <button type="submit" className="btn btn-custom btn-rounded">
+                                            搜尋
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                     </div>

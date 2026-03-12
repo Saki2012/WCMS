@@ -15,28 +15,44 @@ import {useSpecJournalListFetchData, type SpecJournalListRawData, } from "./Serv
 import { useId } from "react";
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
 type SpecJournalVolumeSearchFieldProps = {
-    value: string;
-    onChange: (value: string) => void;
+    volumeValue: string;
+    authorValue: string;
+    onVolumeChange: (value: string) => void;
+    onAuthorChange: (value: string) => void;
 };
-
 
 const SpecJournalVolumeSearchField = (prop: SpecJournalVolumeSearchFieldProps) =>
 {
     const id = useId();
-    const handleVolumeChange = (value: string): void => {
+    const handleVolumeChange = (value: string): void =>
+    {
         const numericValue = value.replace(/\D/g, "");
-        prop.onChange(numericValue);
+        prop.onVolumeChange(numericValue);
+    };
+    const handleAuthorChange = (value: string): void =>
+    {
+        prop.onAuthorChange(value);
     };
     return (
-        <div className="row mx-0">
-            <label className="col-md-2 col-sm-12 float-md-left float-sm-none col-form-label">
-                卷數
-            </label>
-            <div className="col-md-4 col-sm-12 float-md-left float-sm-none">
-                <input id={`${id}-volume`} type="text" className="form-control" placeholder="請輸入卷數" value={prop.value} onChange={(e) => { handleVolumeChange(e.target.value); }} 
-                    inputMode="numeric" pattern="[0-9]*" />
+        <>
+            <div className="col-12 px-0 mt-4 row mx-0">
+                <label htmlFor={`${id}-volume`} className="col-md-2 col-sm-12 float-md-left float-sm-none col-form-label">
+                    卷數
+                </label>
+                <div className="col-md-4 col-sm-12 float-md-left float-sm-none">
+                    <input id={`${id}-volume`} type="text" className="form-control" placeholder="請輸入卷數" value={prop.volumeValue} onChange={(e) => { handleVolumeChange(e.target.value); }} inputMode="numeric" pattern="[0-9]*" />
+                </div>
             </div>
-        </div>
+
+            <div className="col-12 px-0 mt-4 row mx-0">
+                <label htmlFor={`${id}-author`} className="col-md-2 col-sm-12 float-md-left float-sm-none col-form-label">
+                    作者
+                </label>
+                <div className="col-md-4 col-sm-12 float-md-left float-sm-none">
+                    <input id={`${id}-author`} type="text" className="form-control" placeholder="請輸入作者名稱..." value={prop.authorValue} onChange={(e) => { handleAuthorChange(e.target.value); }} inputMode="text"/>
+                </div>
+            </div>
+        </>
     );
 };
 
@@ -46,12 +62,41 @@ export const Server_SpecJournal_List_Comp = (prop: { title: string; theme: IBETh
     const [kw, setKw] = useState<string>("");
     const [volume, setVolume] = useState<string>("");
     const [volumeInput, setVolumeInput] = useState<string>("");
-    const handleSubmitSearch = (nextKw: string): void => { setKw(nextKw); setVolume(volumeInput); };
-    const handleResetSearch = (): void => { setKw(""); setVolume(""); setVolumeInput(""); };
-    const searchCompProp: SearchBarProps = {title: "搜尋", subTitle: "搜尋 ...", onSubmit: handleSubmitSearch, onReset: handleResetSearch, extraFields: (<SpecJournalVolumeSearchField value={volumeInput} onChange={setVolumeInput}/>),};
+
+    const [author, setAuthor] = useState<string>("");
+    const [authorInput, setAuthorInput] = useState<string>("");
+
+    const handleSubmitSearch = (nextKw: string): void =>
+    {
+        setKw(nextKw);
+        setVolume(volumeInput);
+        setAuthor(authorInput);
+    };
+    const handleResetSearch = (): void =>
+    {
+        setKw("");
+        setVolume("");
+        setVolumeInput("");
+        setAuthor("");
+        setAuthorInput("");
+    };
+    const searchCompProp: SearchBarProps = {
+        title: "搜尋",
+        subTitle: "搜尋 ...",
+        onSubmit: handleSubmitSearch,
+        onReset: handleResetSearch,
+        extraFields: (
+            <SpecJournalVolumeSearchField
+                volumeValue={volumeInput}
+                authorValue={authorInput}
+                onVolumeChange={setVolumeInput}
+                onAuthorChange={setAuthorInput}
+            />
+        ),
+    };
     const pathname = useLocation().pathname;
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
-    const getData = useSpecJournalListFetchData({ lang: prop.lang, kw,volume });
+    const getData = useSpecJournalListFetchData({ lang: prop.lang, kw,volume,author });
     const navigate = useNavigate();
     const cudActions = getData.adapter.SpecJournal.hooks.useCudActions();
     const gridData = useMemo(() => { return buildSpecJournalGridProps({ raw: getData.rawData, lang: prop.lang, crud: { navigate, dirUrl, deleteAsync: cudActions.deleteAsync, afterDelete: getData.refetchData, },});

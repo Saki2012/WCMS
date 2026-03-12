@@ -5,7 +5,7 @@ export type Lang = components["schemas"]["LangCode"]; // ← 以後端 Swagger �
 
 /**應該可以從後端提供顯示名稱，暫時寫死 */
 export const LangLabelMap: Record<Lang, string> = {
-    "zh-tw": "繁體中文",
+    "zh-tw": "中文",
     "zh-cn": "简体中文",
     "en": "English",
 };
