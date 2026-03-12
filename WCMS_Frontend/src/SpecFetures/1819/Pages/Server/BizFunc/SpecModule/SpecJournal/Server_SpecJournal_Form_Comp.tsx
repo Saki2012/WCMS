@@ -73,18 +73,18 @@ const MainFormComp = (props: {theme: IBETheme; formData: UseFetchFormDataResult<
         item: {Basic: "基本資料", Author: "期刊作者", Bibliography: "參考文獻", RefFormat: "引文格式", Files: "檔案上傳", Keyword: "關鍵字", System: "系統資訊" }
     };
     const components: Record<string, React.ReactNode[]> = {
-        Basic: [<BasicComp theme={props.theme} formData={props.formData} indexRawData={props.indexRawData} />],
+        Basic: [<BasicComp theme={props.theme} formData={props.formData} indexRawData={props.indexRawData} tagOptionsRaw={props.tagOptionsRaw} />],
         Author: [<AuthorComp theme={props.theme} formData={props.formData} />],
         Bibliography: [<BibliographyComp theme={props.theme} formData={props.formData} />],
         RefFormat: [<RefFormatComp theme={props.theme} formData={props.formData} />],
         Files: [<FilesComp theme={props.theme} formData={props.formData} />],
-        Keyword: [<KeywordComp theme={props.theme} formData={props.formData} tagOptionsRaw={props.tagOptionsRaw} keywords={props.keywords} />],
+        Keyword: [<KeywordComp theme={props.theme} formData={props.formData} keywords={props.keywords} />],
         System: [<SystemInfoTabComp theme={props.theme} formData={props.formData} setKey={SpecJournalSetFields.SpecJournal} />]
     };
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
 
-const BasicComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalSet>; indexRawData: SpecJournalIndexSet[] }) => {
+const BasicComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalSet>; indexRawData: SpecJournalIndexSet[]; tagOptionsRaw: Record<string, string>; }) => {
     const setField = useSetTableField<SpecJournalSet>(props.formData);
     const setFileField = useSetTableFileField<SpecJournalSet>(props.formData);
     const indexOptions = useMemo(() => { return buildIndexHeaderOptions(props.indexRawData); }, [props.indexRawData]);
@@ -96,6 +96,35 @@ const BasicComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
         return dict;
     }, [indexRowOptionsByIndexId, selectedIndexId]);
     const prevIndexIdRef = useRef<string | null>(null);
+    const types = props.formData.data.SpecJournalTypes ?? [];
+    const typeOptions = useMemo(() => {
+        const dict = props.tagOptionsRaw ?? {};
+        return Object.entries(dict).map(([tagId, label]) => ({ tagId, label }));
+    }, [props.tagOptionsRaw]);
+
+    const isTypeChecked = useCallback((tagId: string): boolean => {
+        // 勾選代表 SpecJournalTypes 明細中存在該 TagId
+        return (types as any[]).some(x => String(x?.TagId ?? "") === tagId);
+    }, [types]);
+
+    const toggleType = useCallback((tagId: string, checked: boolean): void => {
+        // 勾/取消勾：同步更新 SpecJournalTypes 明細列
+        props.formData.setFormData(prev => {
+            const p = prev ?? {};
+            const cur = (p as any).SpecJournalTypes ?? [];
+
+            if (checked) {
+                if (cur.some((x: any) => String(x?.TagId ?? "") === tagId)) return p;
+
+                const nextRowId = getNextRowId(cur);
+                const next = [...cur, { RowId: nextRowId, TagId: tagId }];
+                return { ...(p as any), SpecJournalTypes: next };
+            }
+
+            const next = cur.filter((x: any) => String(x?.TagId ?? "") !== tagId);
+            return { ...(p as any), SpecJournalTypes: next };
+        });
+    }, [props.formData]);
 
     useEffect(() => {
         const prev = prevIndexIdRef.current;
@@ -138,108 +167,62 @@ const BasicComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
     return (
         <>
             <div className="col-12 form-group">
-                <LibDropList
-                    Style={props.theme.DropList2}
-                    Options={indexOptions}
-                    AutoDefaultFirst={false}
-                    {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.JournalIndexId, "string")}
-                />
-                <LibDropList
-                    Style={props.theme.DropList2}
-                    Options={indexRowOptions}
-                    AutoDefaultFirst={false}
-                    {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.JournalIndexRowId, "string")}
-                />
+                <LibDropList Style={props.theme.DropList2} Options={indexOptions} AutoDefaultFirst={false} {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.JournalIndexId, "string")}/>
+                <LibDropList Style={props.theme.DropList2} Options={indexRowOptions} AutoDefaultFirst={false} {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.JournalIndexRowId, "string")}/>
             </div>
 
             <div className="col-12 form-group">
-                <LibTextBox
-                    Style={props.theme.TextBox}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Title, "string")}
-                />
+                <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Title, "string")}/>
             </div>
 
             <div className="col-12 form-group">
-                <LibTextBox
-                    Style={props.theme.TextBox}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Title_en, "string")}
-                />
+                <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Title_en, "string")}/>
             </div>
 
             <div className="col-12 form-group">
-                <LibTextBox
-                    Style={props.theme.TextBox3}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.PageStart, "number")}
-                />
-                <LibTextBox
-                    Style={props.theme.TextBox3}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.PageEnd, "number")}
-                />
+                <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.PageStart, "number")}/>
+                <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.PageEnd, "number")}/>
             </div>
 
             <div className="col-12 form-group">
-                <LibTextBox
-                    Style={props.theme.TextBox}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.DOIUrl, "string")}
-                />
+                <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.DOIUrl, "string")}/>
             </div>
 
             <div className="col-12 form-group">
                 <div className="row">
                     <div className="col-12 col-lg-6">
-                        <LibFileInput
-                            LabelColClassName="col-sm-4"
-                            InputColClassName="col-sm-8"
-                            {...setFileField(
-                                SpecJournalSetFields.SpecJournal,
-                                SpecJournalModelFields.JournalFileId,
-                                SpecJournalModelFields.JournalFileName,
-                                { defaultNameFromOriginal: "basename" }
-                            )}
-                            Accept="application/pdf"
-                        />
+                        <LibFileInput LabelColClassName="col-sm-4" InputColClassName="col-sm-8" {...setFileField(SpecJournalSetFields.SpecJournal,SpecJournalModelFields.JournalFileId,SpecJournalModelFields.JournalFileName,{ defaultNameFromOriginal: "basename" })} Accept="application/pdf"/>
                     </div>
                     <div className="col-12 col-lg-6">
-                        <LibFileInput
-                            LabelColClassName="col-sm-4"
-                            InputColClassName="col-sm-8"
-                            {...setFileField(
-                                SpecJournalSetFields.SpecJournal,
-                                SpecJournalModelFields.InsightPointFileId,
-                                SpecJournalModelFields.InsightPointFileName,
-                                { defaultNameFromOriginal: "basename" }
-                            )}
-                            Accept="application/pdf"
-                        />
+                        <LibFileInput LabelColClassName="col-sm-4" InputColClassName="col-sm-8" {...setFileField(SpecJournalSetFields.SpecJournal,SpecJournalModelFields.InsightPointFileId,SpecJournalModelFields.InsightPointFileName,{ defaultNameFromOriginal: "basename" })} Accept="application/pdf"/>
                     </div>
                 </div>
             </div>
 
             <div className="col-12 form-group">
-                <LibDropList
-                    Style={props.theme.DropList2}
-                    Options={articleLangOptions}
-                    {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.ArticleLang, "string")}
-                />
+                <LibDropList Style={props.theme.DropList2} Options={articleLangOptions} {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.ArticleLang, "string")}/>
             </div>
 
             <div className="col-12 form-group">
-                <LibTinyMCE
-                    Style={props.theme.TinyMCE}
-                    {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Memo, "string")}
-                />
+                <label className="form-label fw-bold">期刊類型（可多選）</label>
+                <div className="d-flex flex-wrap gap-3" role="group" aria-label="期刊類型多選">
+                    {typeOptions.map(opt => (
+                        <div key={opt.tagId} className="form-check">
+                            <input className="form-check-input" type="checkbox" id={`journal-type-${opt.tagId}`} checked={isTypeChecked(opt.tagId)} onChange={(e) => toggleType(opt.tagId, e.target.checked)}/>
+                            <label className="form-check-label" htmlFor={`journal-type-${opt.tagId}`}>
+                                {opt.label}
+                            </label>
+                        </div>
+                    ))}
+                </div>
             </div>
 
             <div className="col-12 form-group">
-                <LibTinyMCE
-                    Style={props.theme.TinyMCE}
-                    {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Memo_en, "string")}
-                />
+                <LibTinyMCE Style={props.theme.TinyMCE} {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Memo, "string")}/>
+            </div>
+
+            <div className="col-12 form-group">
+                <LibTinyMCE Style={props.theme.TinyMCE} {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Memo_en, "string")}/>
             </div>
         </>
     );
@@ -249,7 +232,6 @@ const AuthorComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
     const { publish } = useToast();
     const setField = useSetTableField<SpecJournalSet>(props.formData);
     const authors = props.formData.data?.SpecJournalAuthor ?? [];
-
     // ✅ UIUX：新增後要跳到新增的 tab
     const pendingActiveTabKeyRef = useRef<string | null>(null);
     // ✅ UIUX：若刪到當前 tab，要回到第一筆
@@ -258,19 +240,16 @@ const AuthorComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
     const activeTabKeyRef = useRef<string | null>(null);
     // ✅ 暫存 tab key/label mapping，供「回第一筆」使用
     const tabInfoRef = useRef<Record<string, string>>({});
-
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {
             const el = e.target as HTMLElement | null;
             const btn = el?.closest?.('button[data-bs-toggle="tab"][data-bs-target^="#Tab_TWEN_"]') as HTMLButtonElement | null;
             if (!btn) return;
-
             const target = btn.getAttribute("data-bs-target") ?? "";
             const m = target.match(/^#Tab_TWEN_(.+)$/);
             const key = m?.[1] ?? null;
             if (key) activeTabKeyRef.current = key;
         };
-
         document.addEventListener("click", handleClick, true);
         return () => document.removeEventListener("click", handleClick, true);
     }, [authors.length]);
@@ -280,17 +259,8 @@ const AuthorComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
         if (!props.formData.data) return;
         const current = props.formData.data.SpecJournalAuthor ?? [];
         if (current.length > 0) return;
-
-        const firstItem: any = {
-            JournalId: props.formData.data.SpecJournal?.JournalId,
-            RowId: 1,
-        };
-
-        props.formData.setFormData({
-            ...props.formData.data,
-            SpecJournalAuthor: [firstItem],
-        });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        const firstItem: any = {JournalId: props.formData.data.SpecJournal?.JournalId, RowId: 1,};
+        props.formData.setFormData({...props.formData.data, SpecJournalAuthor: [firstItem],});
     }, [props.formData.data]);
 
     useEffect(() => {
@@ -311,38 +281,30 @@ const AuthorComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
                 pendingGoFirstRef.current = false;
             });
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [authors.length]);
 
     const getNextRowId = (): number => {
-        // 以目前最大 RowId + 1 產生新 RowId
         const maxRowId = authors.reduce((max: number, a: any) => {
             const r = typeof a?.RowId === "number" ? a.RowId : 0;
             return r > max ? r : max;
         }, 0);
-
         return maxRowId + 1;
     };
 
     const buildTabLabel = (a: any, idx: number): string => {
-        // Tab 名稱：AuthorName -> AuthorName_en -> 未命名
         const name = (a?.AuthorName ?? "").trim();
         if (name) return name;
-
         const nameEn = (a?.AuthorName_en ?? "").trim();
         if (nameEn) return nameEn;
-
         return `未命名${authors.length > 1 ? `(${idx + 1})` : ""}`;
     };
 
     const activateTabByKey = (key: string): void => {
-        // 觸發 click 讓 bootstrap 切換 tab
         const btn = document.querySelector<HTMLButtonElement>(`button[data-bs-toggle="tab"][data-bs-target="#Tab_TWEN_${key}"]`);
         btn?.click();
     };
 
     const activateFirstTab = (): void => {
-        // 回到第一筆：抓第一個可用的 tab key 觸發 click
         const firstKey = Object.keys(tabInfoRef.current).at(0);
         if (!firstKey) return;
         if (activeTabKeyRef.current === firstKey) return;
@@ -350,83 +312,49 @@ const AuthorComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
     };
 
     const handleAdd = (): void => {
-        // 新增作者：RowId = max + 1
         if (!props.formData.data) return;
-
         const nextRowId = getNextRowId();
         const parentJournalId = props.formData.data.SpecJournal?.JournalId ?? authors[0]?.JournalId;
-
-        const newItem: any = {
-            JournalId: parentJournalId,
-            RowId: nextRowId,
-        };
-
+        const newItem: any = {JournalId: parentJournalId,RowId: nextRowId,};
         pendingActiveTabKeyRef.current = String(nextRowId);
         activeTabKeyRef.current = String(nextRowId);
-
-        props.formData.setFormData({
-            ...props.formData.data,
-            SpecJournalAuthor: [...(props.formData.data.SpecJournalAuthor ?? []), newItem],
-        });
+        props.formData.setFormData({...props.formData.data,SpecJournalAuthor: [...(props.formData.data.SpecJournalAuthor ?? []), newItem],});
     };
 
     const removeOne = (rowKey: number | string): void => {
-        // 刪除指定作者（RowId / index fallback）
         const keyStr = String(rowKey);
-
-        if (activeTabKeyRef.current === keyStr) {
-            pendingGoFirstRef.current = true;
-        }
+        if (activeTabKeyRef.current === keyStr) {pendingGoFirstRef.current = true;}
 
         props.formData.setFormData(prev => {
             if (!prev) return prev;
-
             const list = prev.SpecJournalAuthor ?? [];
             const hitIdx = list.findIndex((a: any, i: number) => String(a?.RowId ?? i) === keyStr);
             if (hitIdx < 0) return prev;
-
             const target = list[hitIdx];
             let nextList: any[];
-
-            if (target?.RowId != null) {
-                nextList = list.filter((a: any) => !(a?.JournalId === target?.JournalId && a?.RowId === target?.RowId));
-            } else {
-                nextList = list.filter((_, i) => i !== hitIdx);
-            }
-
+            if (target?.RowId != null) nextList = list.filter((a: any) => !(a?.JournalId === target?.JournalId && a?.RowId === target?.RowId));
+            else nextList = list.filter((_, i) => i !== hitIdx);
             return { ...prev, SpecJournalAuthor: nextList };
         });
     };
-
-    // ORCID onblur
-    const normalizeOrcid = (v: string): string => {
-        return (v ?? "").trim().replace(/\s+/g, "").replace(/[^0-9-]/g, "");
-    };
-
-    const isLikelyOrcid = (v: string): boolean => {
-        return /^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/i.test(v);
-    };
-
+    const normalizeOrcid = (v: string): string => { return (v ?? "").trim().replace(/\s+/g, "").replace(/[^0-9-]/g, ""); };
+    const isLikelyOrcid = (v: string): boolean => { return /^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/i.test(v); };
     // ✅ 只覆寫空欄位（避免蓋掉使用者已輸入的內容）
     const applyAuthorFromOrcid = (rowKeys: any, dto: any): void => {
         props.formData.setFormData(prev => {
             if (!prev) return prev;
-
             const list: any[] = (prev as any).SpecJournalAuthor ?? [];
             const hitIdx = list.findIndex(a =>
                 String(a?.[SpecJournalAuthorFields.JournalId] ?? "") === String(rowKeys?.[SpecJournalAuthorFields.JournalId] ?? "") &&
                 String(a?.[SpecJournalAuthorFields.RowId] ?? "") === String(rowKeys?.[SpecJournalAuthorFields.RowId] ?? "")
             );
             if (hitIdx < 0) return prev;
-
             const cur = { ...(list[hitIdx] ?? {}) };
-
             const setIfEmpty = (field: string, value: any) => {
                 const oldVal = String(cur?.[field] ?? "").trim();
                 const nextVal = String(value ?? "").trim();
                 if (!oldVal && nextVal) cur[field] = nextVal;
             };
-
             // 依你 DTO 欄位回填
             setIfEmpty(SpecJournalAuthorFields.ORCID, dto?.ORCID);
             setIfEmpty(SpecJournalAuthorFields.AuthorName, dto?.AuthorName);
@@ -436,10 +364,8 @@ const AuthorComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
             setIfEmpty(SpecJournalAuthorFields.Unit_en, dto?.Unit_en);
             setIfEmpty(SpecJournalAuthorFields.Email, dto?.Email);
             setIfEmpty(SpecJournalAuthorFields.Country, dto?.Country);
-
             const nextList = [...list];
             nextList[hitIdx] = cur;
-
             return { ...(prev as any), SpecJournalAuthor: nextList };
         });
     };
@@ -448,13 +374,10 @@ const AuthorComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
     const handleOrcidBlur = async (rowKeys: any, raw: string): Promise<void> => {
         const orcid = normalizeOrcid(raw);
         if (!orcid) return;
-
         // 不像 ORCID 就不打（避免一直打 API）
         if (!isLikelyOrcid(orcid)) return;
-
         try {
             const url = `/Service/SpecJournal/GetAuthorByOrcid?orcid=${encodeURIComponent(orcid)}`;
-
             const resp = await fetch(url, {
                 method: "GET",
                 credentials: "include",
@@ -462,25 +385,16 @@ const AuthorComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
                     "Accept-Language": navigator.language || "zh-TW",
                 },
             });
-
             const json: ApiResponse<ORCIDData> = await resp.json();
-
             (json.SysMessage ?? []).forEach(item => {
                 publish({ level: item.Status, code: item.MessageCode, text: item.Message });
             });
-
-            // ✅ 只有 error 才算失敗
             if (!json?.IsSuccess) return;
-
             const dto = Array.isArray(json?.Data) ? json.Data[0] : null;
             if (!dto) return;
-
             applyAuthorFromOrcid(rowKeys, dto);
-        } catch {
-            // 這裡不丟錯（避免 blur 造成使用者卡住）
-        }
+        } catch {}
     };
-
     // tab key/label mapping（同步到 ref）
     const tabItemMap = authors.reduce<Record<string, string>>((acc, a: any, idx: number) => {
         const key = String(a?.RowId ?? idx);
@@ -1021,42 +935,10 @@ const RefFilesComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult
 const KeywordComp = (props: {
     theme: IBETheme;
     formData: UseFetchFormDataResult<SpecJournalSet>;
-    tagOptionsRaw: Record<string, string>;
     keywords: SpecJournalSet[];
 }) => {
     const data = props.formData.data ?? {};
-    const types = data.SpecJournalTypes ?? [];
     const tags = data.SpecJournalKeywords ?? [];
-
-    const typeOptions = useMemo(() => {
-        const dict = props.tagOptionsRaw ?? {};
-        return Object.entries(dict).map(([tagId, label]) => ({ tagId, label }));
-    }, [props.tagOptionsRaw]);
-
-    const isTypeChecked = useCallback((tagId: string): boolean => {
-        // 勾選代表 SpecJournalTypes 明細中存在該 TagId
-        return (types as any[]).some(x => String(x?.TagId ?? "") === tagId);
-    }, [types]);
-
-    const toggleType = useCallback((tagId: string, checked: boolean): void => {
-        // 勾/取消勾：同步更新 SpecJournalTypes 明細列
-        props.formData.setFormData(prev => {
-            const p = prev ?? {};
-            const cur = (p as any).SpecJournalTypes ?? [];
-
-            if (checked) {
-                if (cur.some((x: any) => String(x?.TagId ?? "") === tagId)) return p;
-
-                const nextRowId = getNextRowId(cur);
-                const next = [...cur, { RowId: nextRowId, TagId: tagId }];
-                return { ...(p as any), SpecJournalTypes: next };
-            }
-
-            const next = cur.filter((x: any) => String(x?.TagId ?? "") !== tagId);
-            return { ...(p as any), SpecJournalTypes: next };
-        });
-    }, [props.formData]);
-
     const [zhInput, setZhInput] = useState<string>("");
     const [enInput, setEnInput] = useState<string>("");
     const zhDebounced = useDebouncedValue(zhInput, 200);
@@ -1184,29 +1066,6 @@ const KeywordComp = (props: {
 
     return (
         <>
-            <div className="col-12 form-group">
-                <label className="form-label fw-bold">期刊類型（可多選）</label>
-
-                <div className="d-flex flex-wrap gap-3" role="group" aria-label="期刊類型多選">
-                    {typeOptions.map(opt => (
-                        <div key={opt.tagId} className="form-check">
-                            <input
-                                className="form-check-input"
-                                type="checkbox"
-                                id={`journal-type-${opt.tagId}`}
-                                checked={isTypeChecked(opt.tagId)}
-                                onChange={(e) => toggleType(opt.tagId, e.target.checked)}
-                            />
-                            <label className="form-check-label" htmlFor={`journal-type-${opt.tagId}`}>
-                                {opt.label}
-                            </label>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            <hr className="my-4" />
-
             <div className="col-12 form-group">
                 <label className="form-label fw-bold" htmlFor="kw-zh-input">關鍵字（中文）</label>
                 <div className="d-flex gap-2">
