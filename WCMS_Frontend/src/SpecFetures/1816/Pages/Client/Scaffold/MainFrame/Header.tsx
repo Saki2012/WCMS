@@ -5,7 +5,7 @@ import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { A11yContent, type HeaderProps } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Header";
 import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
-import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";
+// import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";
 import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap";
 import LogoImg from "@/SpecFetures/1816/Assets/Client/images/logo/LOGO_266x41.svg";
 import { SearchData } from "../../Index/Section/SearchData";
@@ -25,7 +25,7 @@ const Header = (props: HeaderProps) => {
             <A11yContent />
             <div id="Site-Header" className="ALL_Header_DivBar main-header" ref={headerRef}>
                 <section className="menu_section p-lg-0 p-2">
-                    <div className="customMENU_Box bg-white pb-lg-0 pt-lg-2 px-lg-2 px-0 pt-0 align-items-lg-start align-items-center">
+                    <div className="customMENU_Box bg-white pb-lg-2 pt-lg-2 px-lg-2 px-0 pt-0 align-items-lg-start align-items-center">
                         <div className="menuBox">
                             <div className={clsx("container-customize4", props.lang === 'en' ? "w-en" : "")}>
                                 <div className="navbar navbar-expand-lg navbar-dark px-0 py-0">
@@ -40,7 +40,7 @@ const Header = (props: HeaderProps) => {
                 <div className="overlayer" aria-hidden="true" />
             </div>
             <SearchData {...props} />
-            <GoTopButton />
+            {/* <GoTopButton /> */}
         </>
     );
 };
@@ -427,7 +427,7 @@ const SizeChange = () => {
             <ul className="nav custom_nav py-0 justify-content-center align-items-center" ref={sizeGroupRef}>
                 <li>
                     <div className="icons">
-                        <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
+                        <div className="All_icon_box mx-1">
                             <a
                                 className="A-LMS"
                                 href="#"
@@ -447,7 +447,7 @@ const SizeChange = () => {
 
                 <li>
                     <div className="icons">
-                        <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
+                        <div className="All_icon_box mx-1">
                             <a
                                 className="A-LMS active"
                                 href="#"
@@ -467,7 +467,7 @@ const SizeChange = () => {
 
                 <li>
                     <div className="icons">
-                        <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-0">
+                        <div className="All_icon_box mx-1">
                             <a
                                 className="A-LMS"
                                 href="#"

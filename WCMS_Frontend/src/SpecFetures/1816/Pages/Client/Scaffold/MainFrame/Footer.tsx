@@ -2,6 +2,7 @@ import { useEffect } from "react"
 import type { FooterProps } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Footer"
 import AAPic from "@/SpecFetures/1816/Assets/Client/images/footer/small_icon/accessibility_badge_2.1AA_88x31.svg"
 import LogoPic from "@/SpecFetures/1816/Assets/Client/images/logo/LOGO_266x41_W.svg"
+import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";
 
 // ✅ 文案集中：避免散落在 JSX，方便後續維護
 const getFooterText = (lang?: FooterProps["lang"]) => {
@@ -278,6 +279,8 @@ const Footer = (props: FooterProps) => {
                 </div>
             </section>
             {/* copyright_section */}
+
+            <GoTopButton />
         </footer>
     )
 }

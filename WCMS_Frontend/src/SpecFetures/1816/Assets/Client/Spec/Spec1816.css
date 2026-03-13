@@ -72,17 +72,17 @@
   }
 }
 
-/* ---- 1816：Event ----
+/* ---- 1816：Event ----  20260312 cara修改
    0/575/767=2, 991=3, 1199=3, margin=5 */
 #Event_owl_carousel:not(.owl-loaded) {
   gap: 5px;
 }
 #Event_owl_carousel:not(.owl-loaded) > .item {
-  flex-basis: 50%;
+  flex-basis: calc(50% - 3.5px);
 }
 @media (min-width: 992px) {
   #Event_owl_carousel:not(.owl-loaded) > .item {
-    flex-basis: 33.3333%;
+    flex-basis: calc(33.3333% - 3.5px);
   }
 }
 
@@ -183,7 +183,7 @@
 }
 
 .Link-icons-pos a:hover {
-  background-color: var(--Customize_TXTcolor);
+  color: var(--blackcolor);
 }
 
 .Link-icons-pos a:focus-visible {
@@ -269,10 +269,10 @@
 }
 
 /* A11y：有需要可以用 focus-visible 做外框（不改 DOM） */
-.Links_section a:focus-visible {
+/* .Links_section a:focus-visible {
   outline: 2px solid #43B5FC;
   outline-offset: 2px;
-}
+} */
 
 .Links_section .item a {
   position: relative;

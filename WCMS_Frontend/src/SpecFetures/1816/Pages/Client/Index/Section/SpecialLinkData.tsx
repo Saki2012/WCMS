@@ -34,47 +34,154 @@ export const SpecialLinkData = (props: { lang: Lang; internalId: string; initial
 		deps: [props.internalId, props.lang],
 	});
 
+	// 宣告變數：排序後的 Banner 明細
 	const sortedDetails = useMemo(() => {
 		const list = useBanner.data?.BannerDetail ?? [];
-		// 依 Detail.Sort 由小到大
 		return [...list].sort((a, b) => {
 			const as = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
 			const bs = Number.isFinite(b?.Sort) ? Number(b.Sort) : Number.MAX_SAFE_INTEGER;
-			// 次排序：RowId，確保順序穩定
 			return as - bs || (a.RowId ?? 0) - (b.RowId ?? 0);
 		});
 	}, [useBanner.data?.BannerDetail]);
 
+	// 宣告變數：重建 Owl 用 key
+	const depsKey = useMemo(() => {
+		return sortedDetails.map((d) => `${d?.RowId ?? ""}_${d?.PicSrcId ?? ""}_${d?.Sort ?? ""}`).join("|");
+	}, [sortedDetails]);
+
 	const carouselRef = useRef<HTMLDivElement | null>(null);
 	const toggleRef = useRef<HTMLAnchorElement | null>(null);
-	useEffect(() => {
-		if (typeof window === "undefined") return;
-		if (!carouselRef.current) return;
-	}, []);
 
 	useEffect(() => {
+		// SSR guard
 		if (typeof window === "undefined") return;
+
+		// 宣告變數
 		const root = carouselRef.current;
 		if (!root) return;
-		let cleanup: (() => void) | undefined;
-		(async () => {
-			const $ = await ensureOwl();
-			if (!$) return;
+
+		// fallback：先解除可能被 Owl CSS 隱藏
+		root.style.display = "block";
+
+		type OwlOptions = {
+			items: number;
+			loop: boolean;
+			dots: boolean;
+			nav: boolean;
+			margin: number;
+			autoplay: boolean;
+			autoplayTimeout: number;
+			autoplayHoverPause: boolean;
+			responsive: Record<number, { items: number }>;
+		};
+
+		type JQueryObj = {
+			length: number;
+			trigger: (eventName: string, args?: (string | number)[]) => void;
+			owlCarousel?: (opt: OwlOptions) => void;
+			off: (eventName?: string) => void;
+			on: (eventName: string, handler: (e: Event) => void) => void;
+			find: (selector: string) => JQueryObj;
+			attr: (name: string, value: string) => JQueryObj;
+			text: (value: string) => void;
+			addClass: (name: string) => void;
+			removeClass: (name: string) => void;
+		};
+
+		type JQueryStaticLike = ((el: Element) => JQueryObj) & {
+			fn?: { owlCarousel?: (opt: OwlOptions) => void };
+		};
+
+		const getJQueryLike = (): JQueryStaticLike | null => {
+			const win = window as unknown as {
+				jQuery?: JQueryStaticLike;
+				$?: JQueryStaticLike;
+			};
+
+			return win.jQuery ?? win.$ ?? null;
+		};
+
+		let cancelled = false;
+		let isPlaying = false;
+
+		const sleep = (ms: number): Promise<void> => {
+			return new Promise<void>((resolve) => setTimeout(resolve, ms));
+		};
+
+		const waitForOwlReady = async (): Promise<JQueryStaticLike | null> => {
+			// 執行 function：等待 legacy bundle 掛上 Owl
+			for (let i = 0; i < 40; i++) {
+				const $maybe = getJQueryLike();
+				if ($maybe?.fn?.owlCarousel) return $maybe;
+				await sleep(50);
+			}
+
+			return null;
+		};
+
+		const destroyOwlSafe = ($: JQueryStaticLike): void => {
 			const $owl = $(root);
+
 			try {
-				if ($owl.data("owl.carousel")) {
-					$owl.trigger("destroy.owl.carousel");
+				$owl.trigger("destroy.owl.carousel");
+			} catch {
+				// ignore
+			}
+		};
+
+		const updateToggleButton = ($toggle: JQueryObj): void => {
+			if (!$toggle.length) return;
+
+			const $iconBox = $toggle.find(".control-toggle");
+			const $srText = $toggle.find(".sr-only");
+
+			$iconBox.removeClass("control-play-icon control-pause-icon");
+
+			if (isPlaying) {
+				$toggle
+					.attr("aria-pressed", "true")
+					.attr("title", "暫停")
+					.attr("aria-label", "圖片輪播播放中，點擊暫停");
+				$iconBox.addClass("control-pause-icon");
+				$srText.text("圖片輪播播放中，點擊暫停");
+				return;
+			}
+
+			$toggle
+				.attr("aria-pressed", "false")
+				.attr("title", "播放")
+				.attr("aria-label", "圖片輪播已暫停，點擊播放");
+			$iconBox.addClass("control-play-icon");
+			$srText.text("圖片輪播已暫停，點擊播放");
+		};
+
+		const run = async (): Promise<void> => {
+			// 沒資料時先嘗試 destroy，避免殘留 display / class 狀態
+			if (sortedDetails.length === 0) {
+				const $maybe = getJQueryLike();
+				if ($maybe?.fn?.owlCarousel) {
+					destroyOwlSafe($maybe);
 				}
-			} catch { }
-			// 與你原始腳本一致的參數
-			const opts = {
-				items: 4,
+				return;
+			}
+
+			const $ = await waitForOwlReady();
+			if (cancelled) return;
+
+			// Owl 沒載到也先讓首屏可見
+			if (!$) {
+				root.classList.add("owl-loaded");
+				return;
+			}
+
+			const opts: OwlOptions = {
+				items: 3,
 				loop: false,
 				dots: false,
 				nav: true,
 				margin: 5,
-				autoplay: false,
-				autoplayTimeout: 1000,
+				autoplay:  true,
+				autoplayTimeout: 10000,
 				autoplayHoverPause: true,
 				responsive: {
 					0: { items: 2 },
@@ -84,59 +191,81 @@ export const SpecialLinkData = (props: { lang: Lang; internalId: string; initial
 					1199: { items: 3 },
 				},
 			};
-			let isPlaying = !!opts.autoplay;
-			$owl.owlCarousel(opts);
-			// 播放/暫停切換（A11y）
-			const $toggle = $(toggleRef.current ?? document.getElementById("Event_toggle"));
-			const updateToggleButton = () => {
-				if (!$toggle.length) return;
-				const $iconBox = $toggle.find(".control-toggle");
-				const $srText = $toggle.find(".sr-only");
-				$iconBox.removeClass("control-play-icon control-pause-icon");
-				if (isPlaying) {
-					$toggle
-						.attr("aria-pressed", "true")
-						.attr("aria-label", "圖片輪播播放中，點擊暫停");
-					$iconBox.addClass("control-pause-icon");
-					$srText.text("圖片輪播播放中，點擊暫停");
-				} else {
-					$toggle
-						.attr("aria-pressed", "false")
-						.attr("aria-label", "圖片輪播已暫停，點擊播放");
-					$iconBox.addClass("control-play-icon");
-					$srText.text("圖片輪播已暫停，點擊播放");
+
+			const $owl = $(root);
+
+			// 若已初始化過，先 destroy 再重建
+			destroyOwlSafe($);
+
+			requestAnimationFrame(() => {
+				if (cancelled) return;
+
+				$owl.owlCarousel?.(opts);
+
+				const toggleEl = toggleRef.current ?? document.getElementById("Event_toggle");
+				const $toggle = toggleEl ? $(toggleEl) : null;
+
+				isPlaying = !!opts.autoplay;
+
+				if ($toggle && $toggle.length) {
+					const onToggle = (e: Event) => {
+						e.preventDefault();
+
+						if (isPlaying) {
+							$owl.trigger("stop.owl.autoplay");
+							isPlaying = false;
+						} else {
+							$owl.trigger("play.owl.autoplay", [opts.autoplayTimeout]);
+							isPlaying = true;
+						}
+
+						updateToggleButton($toggle);
+					};
+
+					const onToggleKeydown = (e: Event) => {
+						const keyEvent = e as KeyboardEvent;
+						if (keyEvent.key !== "Enter") return;
+						onToggle(e);
+					};
+
+					$toggle.off("click.specialLinkToggle");
+					$toggle.off("keydown.specialLinkToggle");
+					$toggle.on("click.specialLinkToggle", onToggle);
+					$toggle.on("keydown.specialLinkToggle", onToggleKeydown);
+
+					updateToggleButton($toggle);
 				}
-			};
+			});
+		};
 
-			const onToggle = (ev: any) => {
-				ev.preventDefault?.();
-				if (isPlaying) {
-					$owl.trigger("stop.owl.autoplay");
-					isPlaying = false;
-				} else {
-					$owl.trigger("play.owl.autoplay", [opts.autoplayTimeout]);
-					isPlaying = true;
+		void run();
+
+		return () => {
+			cancelled = true;
+
+			try {
+				const $ = getJQueryLike();
+				const toggleEl = toggleRef.current ?? document.getElementById("Event_toggle");
+				const $toggle = $ && toggleEl ? $(toggleEl) : null;
+
+				if ($toggle && $toggle.length) {
+					$toggle.off("click.specialLinkToggle");
+					$toggle.off("keydown.specialLinkToggle");
 				}
-				updateToggleButton();
-			};
+			} catch {
+				// ignore
+			}
 
-			// 綁事件與初始化按鈕狀態
-			$toggle.on("click", onToggle);
-			updateToggleButton();
-
-			cleanup = () => {
-				try {
-					$toggle.off("click", onToggle);
-					if ($owl.data("owl.carousel")) {
-						$owl.trigger("destroy.owl.carousel");
-					}
-				} catch { }
-			};
-		})();
-
-		return () => cleanup?.();
-		// 每次 slides 資料量變更才重建，避免每 render 都初始化
-	}, [sortedDetails.length]);
+			try {
+				const $ = getJQueryLike();
+				if ($?.fn?.owlCarousel) {
+					destroyOwlSafe($);
+				}
+			} catch {
+				// ignore
+			}
+		};
+	}, [depsKey]);
 
 	return (
 		<section className="Event_section owl-box">
@@ -146,12 +275,13 @@ export const SpecialLinkData = (props: { lang: Lang; internalId: string; initial
 						<div className="row">
 							<div className="col-12">
 								<div className="content-box px-0 mb-5 border-top">
-
 									<div id="Event_owl_carousel" className="owl-carousel owl-theme" ref={carouselRef}>
 										{sortedDetails.map((p, idx) => {
-											const info = useBanner.data?.BannerDetailInfo?.find((x) => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang);
+											const info = useBanner.data?.BannerDetailInfo?.find(
+												(x) => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang,
+											);
 											const alt = info?.Title ?? "";
-											const url = info?.URL ?? "";
+											const url = info?.URL ?? "#";
 											const urlopen = info?.URL_Open === 0 ? "_self" : "_blank";
 
 											return (
@@ -161,7 +291,11 @@ export const SpecialLinkData = (props: { lang: Lang; internalId: string; initial
 															<figure className="card_figure">
 																<div className="card_image_link">
 																	<picture>
-																		<img className="card_image" src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} alt={alt}/>
+																		<img
+																			className="card_image"
+																			src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`}
+																			alt={alt}
+																		/>
 																	</picture>
 																</div>
 															</figure>
@@ -175,12 +309,22 @@ export const SpecialLinkData = (props: { lang: Lang; internalId: string; initial
 									{/* 單一顆按鈕 START */}
 									<div className="DIV-singleBox">
 										<div className="control-singlebox">
-											<a id="Event_toggle" ref={toggleRef} href="#" className="toggle ms-1"
-												aria-label="圖片輪播播放中，點擊暫停" aria-pressed="true" tabIndex={0} title="暫停">
-												<div className="control-toggle control-pause-icon">
-													<span className="sr-only">圖片輪播播放中，點擊暫停</span>
-												</div>
-											</a>
+											<div className="control-toggle">
+												<a
+													id="Event_toggle"
+													ref={toggleRef}
+													className="carousel-toggle-btn toggle ms-1"
+													type="button"
+													aria-label="暫停"
+													aria-pressed="true"
+													tabIndex={0}
+													title="暫停"
+												>
+													<div className="control-toggle control-pause-icon">
+														<span className="sr-only">暫停</span>
+													</div>
+												</a>
+											</div>
 										</div>
 									</div>
 									{/* 單一顆按鈕 END */}
@@ -193,64 +337,3 @@ export const SpecialLinkData = (props: { lang: Lang; internalId: string; initial
 		</section>
 	);
 };
-
-
-const ensureJQuery = (() => {
-	let p: Promise<any> | null = null;
-	return () => {
-		if (typeof window === "undefined") return Promise.resolve(null);
-		if ((window as any).jQuery) return Promise.resolve((window as any).jQuery);
-		if (!p) {
-			p = (async () => {
-				const { default: jqUrl } = await import("@/SpecFetures/1816/Assets/Client/Content/jquery-3.7.1/jquery-3.7.1.min.js?url");
-				await new Promise<void>((resolve, reject) => {
-					const s = document.createElement("script");
-					s.src = jqUrl;
-					s.async = true;
-					s.onload = () => resolve();
-					s.onerror = () => reject(new Error("load jQuery failed"));
-					document.head.appendChild(s);
-				});
-				// 保險：確保 $ / jQuery 都在 window
-				(window as any).$ = (window as any).jQuery = (window as any).jQuery || (window as any).$;
-				return (window as any).jQuery;
-			})();
-		}
-		return p;
-	};
-})();
-
-const ensureOwl = (() => {
-	let p: Promise<any> | null = null;
-	return async () => {
-		if (typeof window === "undefined") return null;
-		if ((window as any).jQuery?.fn?.owlCarousel) return (window as any).jQuery;
-		if (!p) {
-			p = (async () => {
-				const $ = await ensureJQuery();
-				const [{ default: cssUrl }, { default: jsUrl }] = await Promise.all([
-					import("https://owlcarousel2.github.io/OwlCarousel2/assets/owlcarousel/owl.carousel.js?url"),
-					import("https://owlcarousel2.github.io/OwlCarousel2/assets/owlcarousel/assets/owl.carousel.min.css?url"),
-				]);
-				// 先掛 CSS（若尚未）
-				if (!document.querySelector(`link[href="${cssUrl}"]`)) {
-					const link = document.createElement("link");
-					link.rel = "stylesheet";
-					link.href = cssUrl;
-					document.head.appendChild(link);
-				}
-				// 再掛 JS
-				await new Promise<void>((resolve, reject) => {
-					const s = document.createElement("script");
-					s.src = jsUrl;
-					s.async = true;
-					s.onload = () => resolve();
-					s.onerror = () => reject(new Error("load Owl failed"));
-					document.head.appendChild(s);
-				});
-				return $;
-			})();
-		}
-		return p;
-	};
-})();

@@ -200,6 +200,17 @@ useEffect(() => {
 
     // return
   };
+  const onToggleKeyDown = (e: KeyboardEvent): void => {
+    // 宣告變數
+    const isEnter = e.key === "Enter";
+    const isSpace = e.key === " " || e.key === "Spacebar";
+
+    // 執行 function
+    if (!isEnter && !isSpace) return;
+
+    e.preventDefault();
+    onToggleClick();
+  };
 
   const initOwl = ($: JQueryStaticLike): void => {
     // 宣告變數
@@ -249,6 +260,7 @@ useEffect(() => {
     // 綁 toggle（可選）
     if (toggleEl instanceof HTMLElement) {
       toggleEl.addEventListener("click", onToggleClick);
+      toggleEl.addEventListener("keydown", onToggleKeyDown);
       updateToggleButton();
     }
 
@@ -265,6 +277,7 @@ useEffect(() => {
 
     if (toggleEl instanceof HTMLElement) {
       toggleEl.removeEventListener("click", onToggleClick);
+      toggleEl.removeEventListener("keydown", onToggleKeyDown);
     }
 
     if (jqRef) {
@@ -321,15 +334,36 @@ useEffect(() => {
 											);
 										})}
 									</div>
+                  {/* 單一顆按鈕 START  */}
+									<div className="DIV-singleBox">
+										<div className="control-singlebox">
+											<div className="control-toggle">
+												<a
+													aria-label="暫停"
+													aria-pressed="true"
+													className="carousel-toggle-btn toggle ms-1"
+													id="Links_toggle"
+													role="button"
+													tabIndex={0}
+													title="暫停"
+													type="button"
+												>
+													<span className="control-toggle control-pause-icon" />
+													<span className="sr-only">暫停</span>
+												</a>
+											</div>
+										</div>
+									</div>
+									{/* 單一顆按鈕 END */}
 
-									<div className="customize_btn mr-4 d-none" style={{ bottom: "-40px", position: "absolute", right: "0" }}>
+									{/* <div className="customize_btn mr-4 d-none" style={{ bottom: "-40px", position: "absolute", right: "0" }}>
 										<a className="Btn_a" role="button" tabIndex={0} target="_self" title="更多連結" type="button">
 											<div className="BtnBox">
 												<span>更多連結</span>
 												<span className="ml-2">+</span>
 											</div>
 										</a>
-									</div>
+									</div> */}
 
 								</div>
 							</div>

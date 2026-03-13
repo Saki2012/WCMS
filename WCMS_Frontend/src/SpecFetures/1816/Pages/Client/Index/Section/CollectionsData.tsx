@@ -210,21 +210,30 @@ export const CollectionsData = (props: { lang: Lang; internalId: string; initial
 
 			if ($toggle && $toggle.length) {
 				const onToggle = (e: Event) => {
-				e.preventDefault();
+					e.preventDefault();
 
-				if (isPlaying) {
-					$owl.trigger("stop.owl.autoplay");
-					isPlaying = false;
-				} else {
-					$owl.trigger("play.owl.autoplay", [opts.autoplayTimeout]);
-					isPlaying = true;
-				}
+					if (isPlaying) {
+						$owl.trigger("stop.owl.autoplay");
+						isPlaying = false;
+					} else {
+						$owl.trigger("play.owl.autoplay", [opts.autoplayTimeout]);
+						isPlaying = true;
+					}
 
-				updateToggleButton($toggle);
+					updateToggleButton($toggle);
+				};
+
+				const onToggleKeydown = (e: Event) => {
+					const keyEvent = e as KeyboardEvent;
+					if (keyEvent.key !== "Enter") return;
+
+					onToggle(e);
 				};
 
 				$toggle.off("click.collectionsToggle");
+				$toggle.off("keydown.collectionsToggle");
 				$toggle.on("click.collectionsToggle", onToggle);
+				$toggle.on("keydown.collectionsToggle", onToggleKeydown);
 
 				updateToggleButton($toggle);
 			}
@@ -245,6 +254,7 @@ export const CollectionsData = (props: { lang: Lang; internalId: string; initial
 
 			if ($toggle && $toggle.length) {
 				$toggle.off("click.collectionsToggle");
+				$toggle.off("keydown.collectionsToggle");
 			}
 			} catch {
 			// ignore
@@ -327,6 +337,27 @@ export const CollectionsData = (props: { lang: Lang; internalId: string; initial
 											);
 										})}
 									</div>
+									{/* 單一顆按鈕 START  */}
+									<div className="DIV-singleBox">
+										<div className="control-singlebox">
+											<div className="control-toggle">
+												<a
+													aria-label="暫停"
+													aria-pressed="true"
+													className="carousel-toggle-btn toggle ms-1"
+													id="Collections_toggle"
+													role="button"
+													tabIndex={0}
+													title="暫停"
+													type="button"
+												>
+													<span className="control-toggle control-pause-icon" />
+													<span className="sr-only">暫停</span>
+												</a>
+											</div>
+										</div>
+									</div>
+									{/* 單一顆按鈕 END */}
 								</div>
 							</div>
 						</div>

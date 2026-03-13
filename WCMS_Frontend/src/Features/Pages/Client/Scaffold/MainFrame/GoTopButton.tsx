@@ -56,9 +56,18 @@ export const GoTopButton: React.FC<GoTopButtonProps> = (props) => {
         if (duration === 0) { window.scrollTo(0, 0); }
         else { requestAnimationFrame(step); }
     }, [durationMs]);
+
+    // 新增 - focus時點擊enter可gototop
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handleClick();
+        }
+    };
+    
     if (!visible) return null;
     return (
-        <a type="button" aria-label={ariaLabel} title={title} onClick={handleClick} id={"gotop_btn"} className={"show"} style={style}>
+        <a role="button" type="button" aria-label={ariaLabel} tabIndex={0} title={title} onClick={handleClick} onKeyDown={handleKeyDown} id={"gotop_btn"} className={"show"} style={style}>
             {/* 圖示為裝飾用途：由按鈕的 aria-label 提供無障礙名稱 */}
             <img src={iconSrc} alt="" role="presentation" />
         </a>
