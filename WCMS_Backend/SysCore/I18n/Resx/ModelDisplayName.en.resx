@@ -696,4 +696,7 @@
   <data name="Common_Memo" xml:space="preserve">
     <value>摘要</value>
   </data>
+  <data name="Common_None" xml:space="preserve">
+    <value>無</value>
+  </data>
 </root>

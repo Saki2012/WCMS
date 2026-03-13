@@ -82,45 +82,14 @@ const buildAnnouncementCondition = (
 ): string =>
 {
     // 宣告變數
-    let condition = "";
-    // 執行 function
-    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Validate_Start} <= ${p.nowIsoLocal}`);
-    condition = LibMerge(
-        " And ",
-        false,
-        condition,
+    let condition = LibMerge(" And ", false, `${AnnouncementFields.Validate_Start} <= ${p.nowIsoLocal}`,
         `(${AnnouncementFields.Validate_End} >= ${p.nowIsoLocal} Or ${AnnouncementFields.Validate_End} is null)`,
-    );
-    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.ContentStatus} !& 4`);
-    condition = LibMerge(
-        " And ",
-        false,
-        condition,
+        `${AnnouncementFields.ContentStatus} !& 4`,
         `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang} = ${p.lang}`,
-    );
-    condition = LibMerge(
-        " And ",
-        false,
-        condition,
-        `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} != ''`,
-    );
-
-    if (p.keyword)
-    {
-        condition = LibMerge(
-            " And ",
-            false,
-            condition,
-            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} Like ${p.keyword}`,
-        );
-    }
-    if (p.categoryIds)
-    {
-        condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Categories} HasAny [${p.categoryIds}]`);
-    }
+        `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} != ''`,);
+    if (p.keyword) condition = LibMerge(" And ", false, condition, `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} Like ${p.keyword}`,);
+    if (p.categoryIds) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Categories} HasAny [${p.categoryIds}]`);
     if (p.tagIds) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Tags} HasAny [${p.tagIds}]`);
-
-    // return
     return condition;
 };
 
@@ -161,15 +130,13 @@ const buildCategoryQuery = (progId: string): QueryListParam =>
 {
     // return
     return {
-        Fields: [
-            CategoryFields.InternalId,
-            CategoryFields.CategoryId,
-            CategoryFields.ProgId,
+        Fields: [CategoryFields.InternalId,CategoryFields.CategoryId,CategoryFields.ProgId,
             `${CategoryFields._CategoryDetail}.${CategoryDetailFields.Lang}`,
             `${CategoryFields._CategoryDetail}.${CategoryDetailFields.CategoryName}`,
         ],
         Condition: progId ? `${CategoryFields.ProgId} = ${progId}` : "",
         OrderBy: [{ Col: CategoryFields.CreateTime, Desc: false }],
+        
         PageNumber: 0,
         PageSize: 0,
     };
