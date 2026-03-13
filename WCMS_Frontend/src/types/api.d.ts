@@ -7048,45 +7048,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecJournalIndex/crawer": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: {
-                    maxIssues?: number;
-                    maxArticlesPerIssue?: number;
-                };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/Service/SpecJournalIndex/Create": {
         parameters: {
             query?: never;
@@ -11696,6 +11657,11 @@ export interface components {
             SysMessage?: components["schemas"]["SysMessageModel"][] | null;
             Data?: components["schemas"]["SpecCurrentOpenTime_DTO"][] | null;
         };
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
+        SpecDocumentType: 0 | 1 | 2 | 3 | 4;
         SpecJournalAuthor_DTO: {
             RowState?: components["schemas"]["RowState"];
             /** @description 期刊代號 */
@@ -11723,6 +11689,23 @@ export interface components {
             Country?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
+        SpecJournalDocument_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description 期刊代號 */
+            JournalId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            DocumentType?: components["schemas"]["SpecDocumentType"];
+            /** @description 說明檔案名稱 */
+            DocumentName?: string | null;
+            Document?: components["schemas"]["FileManageModel"];
+            /** @description 說明檔案來源 */
+            DocumentId?: string | null;
+            _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
+        };
         SpecJournalIndexDetail_DTO: {
             RowState?: components["schemas"]["RowState"];
             /** @description 期刊目次代號 */
@@ -11739,7 +11722,6 @@ export interface components {
             Volume?: number | null;
             /** @description 期數 */
             Issue?: string | null;
-            PublishStatus?: components["schemas"]["PublishStatus"];
             /** @description 是否為特刊 */
             IsSpecial?: boolean | null;
             /**
@@ -11785,6 +11767,7 @@ export interface components {
             IndexId?: string | null;
             /** @description 期刊年份 */
             IndexName?: string | null;
+            PublishStatus?: components["schemas"]["PublishStatus"];
             _SpecJournalIndexDetail?: components["schemas"]["SpecJournalIndexDetail_DTO"][] | null;
         };
         SpecJournalIndexSet_DTO: {
@@ -11883,6 +11866,7 @@ export interface components {
             _SpecJournalRefFormat?: components["schemas"]["SpecJournalRefFormat_DTO"][] | null;
             _SpecJournalOpenPointFiles?: components["schemas"]["SpecJournalOpenPointFiles_DTO"][] | null;
             _SpecJournalRefFiles?: components["schemas"]["SpecJournalRefFiles_DTO"][] | null;
+            _SpecJournalDocument?: components["schemas"]["SpecJournalDocument_DTO"][] | null;
             _SpecJournalTypes?: components["schemas"]["SpecJournalTypes_DTO"][] | null;
             _SpecJournalKeywords?: components["schemas"]["SpecJournalKeywords_DTO"][] | null;
         };
@@ -11943,6 +11927,8 @@ export interface components {
             SpecJournalOpenPointFiles?: components["schemas"]["SpecJournalOpenPointFiles_DTO"][] | null;
             /** @description 期刊相關檔案列表 */
             SpecJournalRefFiles?: components["schemas"]["SpecJournalRefFiles_DTO"][] | null;
+            /** @description 期刊說明檔案列表 */
+            SpecJournalDocument?: components["schemas"]["SpecJournalDocument_DTO"][] | null;
             /** @description 期刊類型列表 */
             SpecJournalTypes?: components["schemas"]["SpecJournalTypes_DTO"][] | null;
             /** @description 期刊關鍵字列表 */

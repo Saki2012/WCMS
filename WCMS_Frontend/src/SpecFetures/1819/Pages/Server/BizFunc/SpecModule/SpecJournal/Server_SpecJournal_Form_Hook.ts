@@ -18,6 +18,7 @@ import {
     SpecJournalKeywordsFields,
     SpecJournalModelFields,
 } from "@/types/SchemaFields";
+import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
@@ -27,6 +28,7 @@ export type SpecJournalFormRawData = {
     formData: UseFetchFormDataResult<SpecJournalSet>;
     indexRawData: SpecJournalIndexSet[];
     tagOptionsRaw: Record<string, string>;
+    specDocumentTypeOptionsRaw: Record<string, string>;
     keywords: SpecJournalSet[];
     actions: ServerFormActions;
 };
@@ -52,104 +54,30 @@ export const useSpecJournalFormFetchData = (
     },
 ): UseFetchDataResult<SpecJournalFormRawData, SpecJournalFormAdapter> =>
 {
-    // 宣告變數
     const { publish } = useToast();
-
-    const onError = useCallback((e: ApiAdapterError) =>
-    {
-        // 執行 function：統一顯示錯誤訊息
-        publish({ level: MessageStatus.Error, title: e.messageText });
-    }, [publish]);
-
-    const adapter = useMemo<SpecJournalFormAdapter>(() =>
-    {
-        // return
-        return {
-            SpecJournal: SpecJournalAdapter(),
-            SpecJournalIndex: SpecJournalIndexAdapter(),
-            Tag: TagAdapter(),
-        };
-    }, []);
-
-    // 執行 function：主資料（ModelDisplayName + QueryData + editable state）
-    const formData = useSpecJournalFormDataByAdapter(
-        adapter.SpecJournal,
-        opt.internalId,
-        opt.emptyData,
-        onError,
-    );
-
-    // 執行 function：表單動作
-    const actions = useSpecJournalFormActionsByAdapter(
-        adapter.SpecJournal,
-        opt.internalId,
-        formData.data,
-        opt.actionsOpt,
-    );
-
-    // 執行 function：參照資料
-    const tag = adapter.Tag.hooks.useMapByProgId({
-        progId: PGID.SpecJournal,
-        lang: opt.lang,
-    });
-
+    const onError = useCallback((e: ApiAdapterError) => { publish({ level: MessageStatus.Error, title: e.messageText }); }, [publish]);
+    const adapter = useMemo<SpecJournalFormAdapter>(() => { return { SpecJournal: SpecJournalAdapter(), SpecJournalIndex: SpecJournalIndexAdapter(), Tag: TagAdapter(), };}, []);
+    const formData = useSpecJournalFormDataByAdapter(adapter.SpecJournal, opt.internalId, opt.emptyData, onError, );
+    const actions = useSpecJournalFormActionsByAdapter(adapter.SpecJournal, opt.internalId, formData.data, opt.actionsOpt, );
+    const tag = adapter.Tag.hooks.useMapByProgId({progId: PGID.SpecJournal, lang: opt.lang, });
     const indexList = useSpecJournalIndexListByAdapter(adapter.SpecJournalIndex);
     const keywords = useSpecJournalKeywordsByAdapter(adapter.SpecJournal);
-
-    const loadingList = useMemo<boolean[]>(() =>
-    {
-        // return
-        return [
-            Boolean(formData.isLoading),
-            Boolean(tag.isLoading),
-            Boolean(indexList.isLoading),
-            Boolean(keywords.isLoading),
-        ];
-    }, [formData.isLoading, tag.isLoading, indexList.isLoading, keywords.isLoading]);
-
+    const specDocumentType = useFetchEnumOptions("SpecDocumentType");
+    const isLoading = useMemo<boolean>(() =>
+    { 
+        return formData.isLoading|| tag.isLoading || indexList.isLoading || keywords.isLoading || specDocumentType.isLoading
+    }, [formData.isLoading, tag.isLoading, indexList.isLoading, keywords.isLoading, specDocumentType.isLoading]);
     const errorList = useMemo<(string | null | undefined)[]>(() =>
     {
-        // return
-        return [
-            formData.error,
-            tag.errorText,
-            indexList.error,
-            keywords.error,
-        ];
-    }, [formData.error, tag.errorText, indexList.error, keywords.error]);
-
-    const isLoading = useMemo(() => loadingList.some(Boolean), [loadingList]);
+        return [formData.error, tag.errorText, indexList.error, keywords.error, specDocumentType.error];
+    }, [formData.error, tag.errorText, indexList.error, keywords.error, specDocumentType.error]);
     const errors = useMemo(() => errorList.filter((x): x is string => Boolean(x)), [errorList]);
-
     const rawData = useMemo<SpecJournalFormRawData>(() =>
     {
-        // return
-        return {
-            formData,
-            indexRawData: indexList.rawData ?? [],
-            tagOptionsRaw: tag.map ?? {},
-            keywords: keywords.rawData ?? [],
-            actions,
-        };
+        return {formData, indexRawData: indexList.rawData ?? [], tagOptionsRaw: tag.map ?? {},specDocumentTypeOptionsRaw:specDocumentType.data??{}, keywords: keywords.rawData ?? [], actions,};
     }, [formData, indexList.rawData, tag.map, keywords.rawData, actions]);
-
-    const refetchData = useCallback(async () =>
-    {
-        // 執行 function：重抓主表單資料
-        await Promise.resolve(formData.refetch());
-    }, [formData]);
-
-    const refetchRefData = useCallback(async () =>
-    {
-        // 執行 function：重抓參照資料
-        await Promise.all([
-            tag.refetch(),
-            indexList.refetch(),
-            keywords.refetch(),
-        ]);
-    }, [tag, indexList, keywords]);
-
-    // return
+    const refetchData = useCallback(async () => { await Promise.resolve(formData.refetch()); }, [formData]);
+    const refetchRefData = useCallback(async () => { await Promise.all([tag.refetch(), indexList.refetch(), keywords.refetch(),]); }, [tag, indexList, keywords]);
     return { adapter, rawData, isLoading, errors, refetchData, refetchRefData };
 };
 //#endregion
@@ -307,14 +235,7 @@ const useSpecJournalIndexListByAdapter = (
 };
 
 /** ✅ 關鍵字建議來源資料 */
-const useSpecJournalKeywordsByAdapter = (
-    adapter: ReturnType<typeof SpecJournalAdapter>,
-): {
-    rawData: SpecJournalSet[];
-    isLoading: boolean;
-    error: string | null;
-    refetch: () => Promise<void>;
-} =>
+const useSpecJournalKeywordsByAdapter = (adapter: ReturnType<typeof SpecJournalAdapter>,): {rawData: SpecJournalSet[];isLoading: boolean;error: string | null;refetch: () => Promise<void>;} =>
 {
     // 宣告變數
     const q = adapter.hooks.useQueryList({
@@ -333,7 +254,6 @@ const useSpecJournalKeywordsByAdapter = (
 
     const refetch = useCallback(async () =>
     {
-        // 執行 function
         await q.refetch();
     }, [q]);
 

@@ -13,10 +13,11 @@ import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/For
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
-import {SpecJournalAuthorFields, SpecJournalModelFields, SpecJournalOpenPointFilesFields, SpecJournalRefFilesFields, SpecJournalRefFormatFields, SpecJournalSetFields,} from "@/types/SchemaFields";
+import {SpecJournalAuthorFields, SpecJournalDocumentFields, SpecJournalModelFields, SpecJournalOpenPointFilesFields, SpecJournalRefFilesFields, SpecJournalRefFormatFields, SpecJournalSetFields,} from "@/types/SchemaFields";
 import {useSpecJournalFormFetchData, type SpecJournalFormActionsOpt,} from "./Server_SpecJournal_Form_Hook";
 
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
+type SpecJournalDocuments = components["schemas"]["SpecJournalDocument_DTO"];
 type SpecJournalOpenPointFiles = components["schemas"]["SpecJournalOpenPointFiles_DTO"];
 type SpecJournalRefFiles = components["schemas"]["SpecJournalRefFiles_DTO"];
 type ORCIDData = components["schemas"]["ORCIDData"];
@@ -30,6 +31,7 @@ const emptyData: SpecJournalSet = {
     SpecJournalOpenPointFiles: [],
     SpecJournalRefFiles: [],
     SpecJournalKeywords: [],
+    SpecJournalDocument: [],
     SpecJournalTypes: [],
 };
 
@@ -44,27 +46,28 @@ export const Server_SpecJournal_Form_Comp = (prop: { theme: IBETheme; lang: Lang
     return (
         <FormComp prop={formProp}>
             <MainFormComp theme={prop.theme} formData={getData.rawData.formData} indexRawData={getData.rawData.indexRawData} 
-            tagOptionsRaw={getData.rawData.tagOptionsRaw} keywords={getData.rawData.keywords}/>
+            tagOptionsRaw={getData.rawData.tagOptionsRaw} keywords={getData.rawData.keywords} specDocumentTypeOptionsRaw={getData.rawData.specDocumentTypeOptionsRaw}/>
         </FormComp>
     );
 };
 
 const MainFormComp = (props: {theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalSet>; indexRawData: SpecJournalIndexSet[];
-    tagOptionsRaw: Record<string, string>; keywords: SpecJournalSet[];}) => 
+    tagOptionsRaw: Record<string, string>;specDocumentTypeOptionsRaw: Record<string, string>; keywords: SpecJournalSet[];}) => 
 {
     const setField = useSetTableField<SpecJournalSet>(props.formData);
     const tabInfo: LibTabsProp = {
         Style: props.theme.Tabs,
-        item: {Basic: "基本資料", Author: "期刊作者", Bibliography: "參考文獻", RefFormat: "引文格式", Files: "檔案上傳", Keyword: "關鍵字", System: "系統資訊" }
+        item: {Basic: "基本資料", Author: "期刊作者", Bibliography: "參考文獻", RefFormat: "引文格式", Files: "檔案上傳", Keyword: "關鍵字",Documents:"說明文件", System: "系統資訊" }
     };
     const components: Record<string, React.ReactNode[]> = {
-        Basic: [<BasicComp theme={props.theme} formData={props.formData} indexRawData={props.indexRawData} tagOptionsRaw={props.tagOptionsRaw} />],
-        Author: [<AuthorComp theme={props.theme} formData={props.formData} />],
-        Bibliography: [<LibTinyMCE Style={props.theme.TinyMCE}{...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Bibliography, "string")}  ColumnDisplayName={""} />],
-        RefFormat: [<RefFormatComp theme={props.theme} formData={props.formData} />],
-        Files: [<FilesComp theme={props.theme} formData={props.formData} />],
-        Keyword: [<KeywordComp theme={props.theme} formData={props.formData} keywords={props.keywords} />],
-        System: [<SystemInfoTabComp theme={props.theme} formData={props.formData} setKey={SpecJournalSetFields.SpecJournal} />]
+        Basic: [<BasicComp key="basic" theme={props.theme} formData={props.formData} indexRawData={props.indexRawData} tagOptionsRaw={props.tagOptionsRaw} />],
+        Author: [<AuthorComp key="author" theme={props.theme} formData={props.formData} />],
+        Bibliography: [<LibTinyMCE key="bibliography" Style={props.theme.TinyMCE}{...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Bibliography, "string")}  ColumnDisplayName={""} />],
+        RefFormat: [<RefFormatComp key="refFormat" theme={props.theme} formData={props.formData} />],
+        Files: [<FilesComp key="files" theme={props.theme} formData={props.formData} />],
+        Keyword: [<KeywordComp key="keyword" theme={props.theme} formData={props.formData} keywords={props.keywords} />],
+        Documents:[<DocumentsComp key="documents" theme={props.theme} formData={props.formData} specDocumentTypeOptionsRaw={props.specDocumentTypeOptionsRaw} />],
+        System: [<SystemInfoTabComp key="system" theme={props.theme} formData={props.formData} setKey={SpecJournalSetFields.SpecJournal} />]
     };
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
@@ -86,6 +89,21 @@ const BasicComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
         const dict = props.tagOptionsRaw ?? {};
         return Object.entries(dict).map(([tagId, label]) => ({ tagId, label }));
     }, [props.tagOptionsRaw]);
+    /** 清空主表單上的單一檔案欄位 */
+    const clearMainFileField = useCallback((fileIdField: string, fileNameField: string): void => {
+        props.formData.setFormData(prev => {
+            if (!prev) return prev;
+            const nextSpecJournal = {
+                ...(prev.SpecJournal ?? {}),
+                [fileIdField]: null,
+                [fileNameField]: "",
+            };
+            return {
+                ...prev,
+                SpecJournal: nextSpecJournal,
+            };
+        });
+    }, [props.formData]);
 
     const isTypeChecked = useCallback((tagId: string): boolean => {
         // 勾選代表 SpecJournalTypes 明細中存在該 TagId
@@ -97,7 +115,6 @@ const BasicComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
         props.formData.setFormData(prev => {
             const p = prev ?? {};
             const cur = (p as any).SpecJournalTypes ?? [];
-
             if (checked) {
                 if (cur.some((x: any) => String(x?.TagId ?? "") === tagId)) return p;
 
@@ -105,7 +122,6 @@ const BasicComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
                 const next = [...cur, { RowId: nextRowId, TagId: tagId }];
                 return { ...(p as any), SpecJournalTypes: next };
             }
-
             const next = cur.filter((x: any) => String(x?.TagId ?? "") !== tagId);
             return { ...(p as any), SpecJournalTypes: next };
         });
@@ -114,18 +130,15 @@ const BasicComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
     useEffect(() => {
         const prev = prevIndexIdRef.current;
         prevIndexIdRef.current = selectedIndexId;
-
         // 第一次進來不清（避免載入既有資料就被清空）
         if (prev === null) return;
-
         // Header 真的有變，才清空子項
         if (prev !== selectedIndexId) {
             props.formData.setFormData(prevData => {
                 if (!prevData) return prevData;
                 const next = { ...(prevData as SpecJournalSet) };
                 const j = { ...(next.SpecJournal ?? {}) };
-
-                // ✅ 子項回到空選項
+                // 子項回到空選項
                 j[SpecJournalModelFields.JournalIndexRowId] = null;
                 next.SpecJournal = j;
                 return next;
@@ -134,7 +147,7 @@ const BasicComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
     }, [selectedIndexId, props.formData]);
 
     useEffect(() => {
-        // ✅ 表單載入後：若 ArticleLang 為空，預設寫入 zh-tw（DefaultLang）
+        // 表單載入後：若 ArticleLang 為空，預設寫入 zh-tw
         if (!props.formData.data) return;
         const current = String(props.formData.data?.SpecJournal?.ArticleLang ?? "");
         if (current) return;
@@ -152,40 +165,68 @@ const BasicComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
     return (
         <>
             <div className="col-12 form-group">
-                <LibDropList Style={props.theme.DropList2} Options={indexOptions} AutoDefaultFirst={false} {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.JournalIndexId, "string")}/>
-                <LibDropList Style={props.theme.DropList2} Options={indexRowOptions} AutoDefaultFirst={false} {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.JournalIndexRowId, "string")}/>
+                <LibDropList Style={props.theme.DropList2} Options={indexOptions} AutoDefaultFirst={false} {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.JournalIndexId, "string")} />
+                <LibDropList Style={props.theme.DropList2} Options={indexRowOptions} AutoDefaultFirst={false} {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.JournalIndexRowId, "string")} />
             </div>
 
             <div className="col-12 form-group">
-                <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Title, "string")}/>
+                <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Title, "string")} />
             </div>
 
             <div className="col-12 form-group">
-                <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Title_en, "string")}/>
+                <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Title_en, "string")} />
             </div>
 
             <div className="col-12 form-group">
-                <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.PageStart, "number")}/>
-                <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.PageEnd, "number")}/>
+                <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.PageStart, "number")} />
+                <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.PageEnd, "number")} />
             </div>
 
             <div className="col-12 form-group">
-                <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.DOIUrl, "string")}/>
+                <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.DOIUrl, "string")} />
             </div>
 
             <div className="col-12 form-group">
                 <div className="row">
                     <div className="col-12 col-lg-6">
-                        <LibFileInput LabelColClassName="col-sm-4" InputColClassName="col-sm-8" {...setFileField(SpecJournalSetFields.SpecJournal,SpecJournalModelFields.JournalFileId,SpecJournalModelFields.JournalFileName,{ defaultNameFromOriginal: "basename" })} Accept="application/pdf"/>
+                        <LibFileInput
+                            LabelColClassName="col-sm-4"
+                            InputColClassName="col-sm-8"
+                            {...setFileField(
+                                SpecJournalSetFields.SpecJournal,
+                                SpecJournalModelFields.JournalFileId,
+                                SpecJournalModelFields.JournalFileName,
+                                { defaultNameFromOriginal: "basename" }
+                            )}
+                            Accept="application/pdf"
+                            onDelete={() => clearMainFileField(
+                                SpecJournalModelFields.JournalFileId,
+                                SpecJournalModelFields.JournalFileName
+                            )}
+                        />
                     </div>
                     <div className="col-12 col-lg-6">
-                        <LibFileInput LabelColClassName="col-sm-4" InputColClassName="col-sm-8" {...setFileField(SpecJournalSetFields.SpecJournal,SpecJournalModelFields.InsightPointFileId,SpecJournalModelFields.InsightPointFileName,{ defaultNameFromOriginal: "basename" })} Accept="application/pdf"/>
+                        <LibFileInput
+                            LabelColClassName="col-sm-4"
+                            InputColClassName="col-sm-8"
+                            {...setFileField(
+                                SpecJournalSetFields.SpecJournal,
+                                SpecJournalModelFields.InsightPointFileId,
+                                SpecJournalModelFields.InsightPointFileName,
+                                { defaultNameFromOriginal: "basename" }
+                            )}
+                            Accept="application/pdf"
+                            onDelete={() => clearMainFileField(
+                                SpecJournalModelFields.InsightPointFileId,
+                                SpecJournalModelFields.InsightPointFileName
+                            )}
+                        />
                     </div>
                 </div>
             </div>
 
             <div className="col-12 form-group">
-                <LibDropList Style={props.theme.DropList2} Options={articleLangOptions} {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.ArticleLang, "string")}/>
+                <LibDropList Style={props.theme.DropList2} Options={articleLangOptions} {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.ArticleLang, "string")} />
             </div>
 
             <div className="col-12 form-group">
@@ -193,7 +234,7 @@ const BasicComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
                 <div className="d-flex flex-wrap gap-3" role="group" aria-label="期刊類型多選">
                     {typeOptions.map(opt => (
                         <div key={opt.tagId} className="form-check">
-                            <input className="form-check-input" type="checkbox" id={`journal-type-${opt.tagId}`} checked={isTypeChecked(opt.tagId)} onChange={(e) => toggleType(opt.tagId, e.target.checked)}/>
+                            <input className="form-check-input" type="checkbox" id={`journal-type-${opt.tagId}`} checked={isTypeChecked(opt.tagId)} onChange={(e) => toggleType(opt.tagId, e.target.checked)} />
                             <label className="form-check-label" htmlFor={`journal-type-${opt.tagId}`}>
                                 {opt.label}
                             </label>
@@ -203,11 +244,11 @@ const BasicComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
             </div>
 
             <div className="col-12 form-group">
-                <LibTinyMCE Style={props.theme.TinyMCE} {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Memo, "string")}/>
+                <LibTinyMCE Style={props.theme.TinyMCE} {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Memo, "string")} />
             </div>
 
             <div className="col-12 form-group">
-                <LibTinyMCE Style={props.theme.TinyMCE} {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Memo_en, "string")}/>
+                <LibTinyMCE Style={props.theme.TinyMCE} {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Memo_en, "string")} />
             </div>
         </>
     );
@@ -703,7 +744,7 @@ const OpenPointComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
         const nextRowId = (list.at(-1)?.RowId ?? 0) + 1;
         const newItem: SpecJournalOpenPointFiles = {
             RowId: nextRowId,
-            OpenPointFileId: "",
+            OpenPointFileId: null,
             OpenPointFileName: "",
         };
         commitFiles([...allFiles, newItem]);
@@ -777,7 +818,7 @@ const RefFilesComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult
         const nextRowId = (list.at(-1)?.RowId ?? 0) + 1;
         const newItem: SpecJournalRefFiles = {
             RowId: nextRowId,
-            RefFileId: "",
+            RefFileId: null,
             RefFileName: "",
         };
         commitFiles([...allFiles, newItem]);
@@ -1021,6 +1062,67 @@ const KeywordComp = (props: {
         </>
     );
 };
+
+const DocumentsComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalSet>;specDocumentTypeOptionsRaw: Record<string, string>; }) => {
+    const setField = useSetTableField(props.formData);
+    const setFileField = useSetTableFileField(props.formData);
+    const allFiles: SpecJournalDocuments[] = props.formData.data?.SpecJournalDocument ?? [];
+    // 提交回整份表單（關鍵：真正更新 formData）
+    const commitFiles = (nextFiles: SpecJournalDocuments[]) => {
+        props.formData.setFormData(prev => ({
+            ...(prev ?? {
+                SpecJournal: {},
+                SpecJournalAuthor: [],
+                SpecJournalRefFiles: [],
+                SpecJournalRefFormat: [],
+                SpecJournalDocument:[],
+                SpecJournalOpenPointFiles: [],
+                SpecJournalTags: [],
+                SpecJournalTypes: []
+            }),
+            SpecJournalDocument: nextFiles,
+        }));
+    };
+    // 新增一筆附件列
+    const addFile = () => {
+        const list = allFiles;
+        const nextRowId = (list.at(-1)?.RowId ?? 0) + 1;
+        const newItem: SpecJournalDocuments = {
+            RowId: nextRowId,
+            DocumentId: null,
+            DocumentName: "",
+        };
+        commitFiles([...allFiles, newItem]);
+    };
+    // 刪除第 i 筆附件列
+    const removeFileAt = (i: number) => {
+        const filtered = allFiles;
+        const target = filtered[i];
+        if (!target) return;
+        const nextAll = allFiles.filter(f => !(f.RowId === target.RowId));
+        commitFiles(nextAll);
+    };
+
+    return (
+        <>
+            <div role="group" className="mt-4">
+                <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-outline-primary mb-2">
+                    新增附件
+                </button>
+                {allFiles.map((f, i) => {
+                    const rowKeys = {[SpecJournalDocumentFields.JournalId]: f.JournalId, [SpecJournalDocumentFields.RowId]: f.RowId, };
+                    return (
+                            <div key={`${f.RowId}`} className="flex items-center gap-2 mb-2">
+                                <LibDropList Style={props.theme.DropList2} Options={props.specDocumentTypeOptionsRaw} AutoDefaultFirst={false} {...setField(SpecJournalSetFields.SpecJournalDocument, SpecJournalDocumentFields.DocumentType, "number",rowKeys)}/>
+                                <LibFileInput {...setFileField(SpecJournalSetFields.SpecJournalDocument, SpecJournalDocumentFields.DocumentId, SpecJournalDocumentFields.DocumentName, rowKeys, { defaultNameFromOriginal: "basename" } )} onDelete={() => removeFileAt(i)}/>
+                            </div>
+                    );
+                })}
+            </div>
+        </>
+    );
+};
+
 
 /** ✅ 共用：取下一個 RowId（明細用） */
 const getNextRowId = (rows: Array<{ RowId?: number }> = []): number => {

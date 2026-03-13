@@ -26,7 +26,7 @@ export interface SpecJournalIndexLoaderData
 const buildBaseParam = (pageSize: number): QueryListParam =>
 {
     // 宣告變數
-    const condition = LibMerge(" And ",false,`${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.PublishStatus} = ${PublishStatusEnum.Published}`);
+    const condition = LibMerge(" And ",false,`${SpecJournalIndexModelFields.PublishStatus} = ${PublishStatusEnum.Published}`);
     // return
     return {
         Fields: [

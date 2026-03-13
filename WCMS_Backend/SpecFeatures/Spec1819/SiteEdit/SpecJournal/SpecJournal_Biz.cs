@@ -5,16 +5,19 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using WCMS.Features.BizResx;
+using WCMS.Features.Member.Account;
 using WCMS.SpecFeatures.Spec1819.Resx;
 using WCMS.SysCore;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
+using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
 {
-    [ProgId(PGID.SpecJournal)] public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFactory, IMemoryCache Cache)
-        : BizService<SpecJournalSet>(bizDeps), IBizService<SpecJournalSet>
+    [ProgId(PGID.SpecJournal)] public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFactory, IMemoryCache Cache) : BizService<SpecJournalSet>(bizDeps), IBizService<SpecJournalSet>
     {
         #region Property
         private static readonly TimeSpan CacheTtl = TimeSpan.FromHours(24);
@@ -50,7 +53,72 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         }
         #endregion
 
+        #region Virtual Protected
+
+        protected override Task BeforeUpdate(SpecJournalSet set, FuncAction act)
+        {
+            var result = base.BeforeUpdate(set, act);
+            switch (act)
+            {
+                case FuncAction.Create:
+                case FuncAction.Update:
+                    BeforeCheckData(set);
+                    BeforeSetData(set);
+                    break;
+            }
+            return result;
+        }
+        #endregion
+
+        #region Protected
+        protected void BeforeCheckData(SpecJournalSet set)
+        {
+            CheckJouranlIndexIsEmpty(set.SpecJournal);
+        }
+
+        protected void BeforeSetData(SpecJournalSet set)
+        {
+            SetFileNameEmpty(set);
+        }
+
+        #endregion
+
         #region Private
+        /// <summary>
+        /// 檢查期刊目次代號、卷期代號是否有填
+        /// </summary>
+        /// <param name="header"></param>
+        protected void CheckJouranlIndexIsEmpty(SpecJournalModel header)
+        {
+            if(header.JournalIndexId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecJournalModel>(x => x.JournalIndexId));
+            if(header.JournalIndexRowId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecJournalModel>(x => x.JournalIndexRowId));
+        }
+        /// <summary>
+        /// 防呆:如果沒有上傳檔案(檔案來源為空)，顯示名稱就設為空白
+        /// </summary>
+        /// <param name="set"></param>
+        protected void SetFileNameEmpty(SpecJournalSet set)
+        {
+            if (set.SpecJournal.InsightPointFileId == null) set.SpecJournal.InsightPointFileName = string.Empty;
+            if (set.SpecJournal.JournalFileId == null) set.SpecJournal.JournalFileName = string.Empty;
+            for (int i = set.SpecJournalRefFiles.Count - 1; i >= 0; i--)
+            {
+                var refFiles = set.SpecJournalRefFiles[i];
+                if (refFiles.RefFileId == null) set.SpecJournalRefFiles.Remove(refFiles);
+            }
+            for (int i = set.SpecJournalOpenPointFiles.Count - 1; i >= 0; i--)
+            {
+                var openPointFile = set.SpecJournalOpenPointFiles[i];
+                if (openPointFile.OpenPointFileId == null) set.SpecJournalOpenPointFiles.Remove(openPointFile);
+            }
+            for (int i = set.SpecJournalDocument.Count - 1; i >= 0; i--)
+            {
+                var document = set.SpecJournalDocument[i];
+                if (document.DocumentId == null) set.SpecJournalDocument.Remove(document);
+            }
+        }
+
+
         /// <summary>
         /// 呼叫 ORCID record（JSON）；回傳是否找到與 JSON 內容
         /// </summary>

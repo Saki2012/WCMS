@@ -141,23 +141,19 @@ const LastIssueComp = (props: { data: SpecJournalIndexSet | null }) => {
 /** 預刊本 */
 const PreprintComp = (props: { data: SpecJournalIndexSet | null }) => {
     const data = props.data;
-    const title = buildIssueTitle(data);
-    const issueTo = buildIssueTo(data);
+    const title = data?.SpecJournalIndex?.IndexName;
+    const issueTo = "/Issues/Preprint";//寫死，針對預刊本路徑
     if (!data) return null;
     return (
-        <>
-            <div className="DOWN_TXT">
-                <div className="HD-txt">先知先覺</div>
-
-                <div className="TW-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <i className="fas fa-link" aria-hidden="true" />
-                    <LangNavLink to={issueTo} style={{ color: "inherit", textDecoration: "none" }}>
-                        {title}
-                    </LangNavLink>
-                </div>
-
+        <div className="DOWN_TXT">
+            <div className="HD-txt">先知先覺</div>
+            <div className="TW-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <i className="fas fa-link" aria-hidden="true" />
+                <LangNavLink to={issueTo} style={{ color: "inherit", textDecoration: "none" }}>
+                    {title}
+                </LangNavLink>
             </div>
-        </>
+        </div>
     );
 };
 
@@ -167,12 +163,10 @@ export const LatestIssueSection = (props: LatestIssueSectionProps) => {
     const coverBanner = props.initialData.latestIssueCoverBanner;
     const publishedList = props.initialData.latestIssuePublishedList ?? [];
     const unpublishedList = props.initialData.latestIssueUnpublishedList ?? [];
-
     const bgInnerImg = useMemo(() => getBannerImageUrl(bgBanner), [bgBanner]);
     const issueImg = useMemo(() => getBannerImageUrl(coverBanner), [coverBanner]);
     const latestPublished = useMemo(() => getFirstIssue(publishedList), [publishedList]);
     const latestUnpublished = useMemo(() => getFirstIssue(unpublishedList), [unpublishedList]);
-
     return (
         <section className="LatestIssue_section">
             <div className="Mask-DivBox">
@@ -194,10 +188,7 @@ export const LatestIssueSection = (props: LatestIssueSectionProps) => {
                                     <div className="col-md-6 col-sm-12 col-12 + Right_Imgbox + order-md-2 + order-sm-1 + order-1">
                                         <div className="Background_IMG_DIV">
                                             <div className="IMG_wrapperBOX">
-                                                <div
-                                                    className="inner_body"
-                                                    style={bgInnerImg ? { backgroundImage: `url(${bgInnerImg})` } : undefined}
-                                                >
+                                                <div className="inner_body" style={bgInnerImg ? { backgroundImage: `url(${bgInnerImg})` } : undefined}>
                                                     <div className="Journal-content">
                                                         <div className="card_figure">
                                                             <div className="img-wrapper">

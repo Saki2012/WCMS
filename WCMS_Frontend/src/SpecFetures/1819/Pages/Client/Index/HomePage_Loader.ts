@@ -23,6 +23,7 @@ export const PublishStatusEnum = {
     Unpublished: 0,
     Published: 1,
 } as const satisfies Record<string, PublishStatus>;
+export type PublishStatusValue = (typeof PublishStatusEnum)[keyof typeof PublishStatusEnum];
 
 const getEnv = <TArgs, TData>(d: ApiLoaderDataCompat<TArgs, TData>): ApiResponse<TData> => {
     // return：兼容舊版 apiRes / 新版 env 命名
@@ -155,10 +156,7 @@ const buildBannerByBannerIdParam = (opt: { bannerId: string; lang?: Lang; }): Qu
     condition = LibMerge(" And ", false, condition, `${BannerFields.BannerId} = ${opt.bannerId}`);
 
     if (opt.lang) {
-        condition = LibMerge(
-            " And ",
-            false,
-            condition,
+        condition = LibMerge(" And ", false, condition, 
             `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Lang} = ${opt.lang}`,
         );
     }
@@ -166,8 +164,7 @@ const buildBannerByBannerIdParam = (opt: { bannerId: string; lang?: Lang; }): Qu
     // return
     return {
         Fields: [
-            BannerFields.InternalId,
-            BannerFields.BannerId,
+            BannerFields.InternalId,BannerFields.BannerId,
             `${BannerFields._BannerDetail}.${BannerDetailFields.RowId}`,
             `${BannerFields._BannerDetail}.${BannerDetailFields.BannerId}`,
             `${BannerFields._BannerDetail}.${BannerDetailFields.PicSrcId}`,
@@ -191,12 +188,11 @@ const buildBannerByBannerIdParam = (opt: { bannerId: string; lang?: Lang; }): Qu
 
 const buildSpecJournalIndexParam = (publishStatus: PublishStatus): QueryListParam => {
     // 宣告變數
-    const condition = `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.PublishStatus} = ${publishStatus}`;
-
+    const condition = `${SpecJournalIndexModelFields.PublishStatus} = ${publishStatus}`;
     // return
     return {
         Fields: [
-            SpecJournalIndexModelFields.IndexId,SpecJournalIndexModelFields.IndexName,SpecJournalIndexModelFields.InternalId,
+            SpecJournalIndexModelFields.IndexId,SpecJournalIndexModelFields.IndexName,SpecJournalIndexModelFields.InternalId,SpecJournalIndexModelFields.PublishStatus,
             `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.IndexId}`,
             `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.RowId}`,
             `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
@@ -205,7 +201,6 @@ const buildSpecJournalIndexParam = (publishStatus: PublishStatus): QueryListPara
             `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileName}`,
             `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.PublishDate}`,
             `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.IsSpecial}`,
-            `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.PublishStatus}`,
         ],
         Condition: condition,
         OrderBy: [{ Col: `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.PublishDate}`, Desc: true }],
@@ -214,12 +209,7 @@ const buildSpecJournalIndexParam = (publishStatus: PublishStatus): QueryListPara
     };
 };
 
-const buildNewsCondition = (opt: {
-    lang: Lang;
-    nowIsoLocal: string;
-    categoryId: string;
-    isTop: boolean;
-}): string => {
+const buildNewsCondition = (opt: {lang: Lang; nowIsoLocal: string; categoryId: string; isTop: boolean; }): string => {
     // 宣告變數
     let condition = "";
     // 執行 function
@@ -241,13 +231,8 @@ const buildNewsParam = (opt: { condition: string; take: number; }): QueryListPar
     // return
     return {
         Fields: [
-            AnnouncementFields.AnnouncementId,
-            AnnouncementFields.InternalId,
-            AnnouncementFields.Categories,
-            AnnouncementFields.Tags,
-            AnnouncementFields.ContentStatus,
-            AnnouncementFields.Validate_Start,
-            AnnouncementFields.Validate_End,
+            AnnouncementFields.AnnouncementId,AnnouncementFields.InternalId,AnnouncementFields.Categories,AnnouncementFields.Tags,
+            AnnouncementFields.ContentStatus,AnnouncementFields.Validate_Start,AnnouncementFields.Validate_End,
             `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
             `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
         ],

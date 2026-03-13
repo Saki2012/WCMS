@@ -22,7 +22,8 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         [LibDesc(SpecModelDisplayName.SpecJournalRefFormat)]public List<SpecJournalRefFormat> SpecJournalRefFormat { get; set; } = [];
         [LibDesc(SpecModelDisplayName.SpecJournalOpenPointFiles)]public List<SpecJournalOpenPointFiles> SpecJournalOpenPointFiles { get; set; } = [];
         [LibDesc(SpecModelDisplayName.SpecJournalRefFiles)]public List<SpecJournalRefFiles> SpecJournalRefFiles { get; set; } = [];
-        [LibDesc(SpecModelDisplayName.SpecJournalTypes)]public List<SpecJournalTypes> SpecJournalTypes { get; set; } = [];
+        [LibDesc(SpecModelDisplayName.SpecJournalDocument)]public List<SpecJournalDocument> SpecJournalDocument { get; set; } = [];
+        [LibDesc(SpecModelDisplayName.SpecJournalTypes)] public List<SpecJournalTypes> SpecJournalTypes { get; set; } = [];
         [LibDesc(SpecModelDisplayName.SpecJournalKeywords)] public List<SpecJournalKeywords> SpecJournalKeywords { get; set; } = [];
     }
     /// <summary>
@@ -108,6 +109,7 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         [InverseProperty(nameof(SpecJournalRefFormat._SpecJournal))] public List<SpecJournalRefFormat> _SpecJournalRefFormat { get; set; }
         [InverseProperty(nameof(SpecJournalOpenPointFiles._SpecJournal))] public List<SpecJournalOpenPointFiles> _SpecJournalOpenPointFiles { get; set; }
         [InverseProperty(nameof(SpecJournalRefFiles._SpecJournal))] public List<SpecJournalRefFiles> _SpecJournalRefFiles { get; set; }
+        [InverseProperty(nameof(SpecJournalDocument._SpecJournal))] public List<SpecJournalDocument> _SpecJournalDocument { get; set; }
         [InverseProperty(nameof(SpecJournalTypes._SpecJournal))] public List<SpecJournalTypes> _SpecJournalTypes { get; set; }
         [InverseProperty(nameof(SpecJournalKeywords._SpecJournal))] public List<SpecJournalKeywords> _SpecJournalKeywords { get; set; }
         #endregion
@@ -246,6 +248,41 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         [ForeignKey(nameof(JournalId))] public SpecJournalModel _SpecJournal { get; set; }
         #endregion
     }
+
+    /// <summary>
+    /// 期刊-說明文件列表
+    /// </summary>
+    public class SpecJournalDocument : DetailRowModel
+    {
+        /// <summary>
+        /// 期刊代號
+        /// </summary>
+        [LibDesc(SpecModelDisplayName.Spec_JournalId), Key, StringLength(SysLengthParam.ID)] public string JournalId { get; set; }
+        /// <summary>
+        /// 行主鍵
+        /// </summary>
+        [LibDesc(ModelDisplayName.Common_RowId), Key] public int RowId { get; set; }
+        /// <summary>
+        /// 說明檔案類型
+        /// </summary>
+
+        [LibDesc(SpecModelDisplayName.Spec_DocumentType)] public SpecDocumentType DocumentType { get; set; }
+        
+        /// <summary>
+        /// 說明檔案名稱
+        /// </summary>
+        [LibDesc(SpecModelDisplayName.Spec_DocumentName), StringLength(SysLengthParam.FileName)] public string DocumentName { get; set; } = string.Empty;
+        /// <summary>
+        /// 說明檔案來源
+        /// </summary>
+        [ForeignKey(nameof(DocumentId))] public FileManageModel? Document { get; set; }
+        [LibDesc(SpecModelDisplayName.Spec_DocumentId), StringLength(SysLengthParam.InternalId)] public string? DocumentId { get; set; }
+
+        #region 主子表關聯
+        [ForeignKey(nameof(JournalId))] public SpecJournalModel _SpecJournal { get; set; }
+        #endregion
+    }
+
     /// <summary>
     /// 期刊-類型列表
     /// </summary>

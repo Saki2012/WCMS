@@ -83,6 +83,10 @@
         /// </summary>
         public const string SpecJournalRefFiles = "SpecJournalRefFiles";
         /// <summary>
+        /// 期刊說明檔案列表
+        /// </summary>
+        public const string SpecJournalDocument = "SpecJournalDocument";
+        /// <summary>
         /// 期刊類型列表
         /// </summary>
         public const string SpecJournalTypes = "SpecJournalTypes";
@@ -186,6 +190,23 @@
         /// 相關檔案來源
         /// </summary>
         public const string Spec_RefFileId = "Spec_RefFileId";
+
+        /// <summary>
+        /// 說明檔案類型
+        /// </summary>
+        public const string Spec_DocumentType = "Spec_DocumentType";
+        /// <summary>
+        /// 說明檔案名稱
+        /// </summary>
+        public const string Spec_DocumentName = "Spec_DocumentName";
+        /// <summary>
+        /// 說明檔案來源
+        /// </summary>
+        public const string Spec_DocumentId = "Spec_DocumentId";
+
+
+        
+
         /// <summary>
         /// 類型
         /// </summary>
@@ -209,6 +230,22 @@
         /// 已出版
         /// </summary>
         public const string Spec_PublishStatus_Published = "Spec_PublishStatus_Published";
+        /// <summary>
+        /// 勘誤
+        /// </summary>
+        public const string Spec_Errata = "Spec_Errata";
+        /// <summary>
+        /// 校正
+        /// </summary>
+        public const string Spec_Correction = "Spec_Correction";
+        /// <summary>
+        /// 公告事項
+        /// </summary>
+        public const string Spec_Announcements = "Spec_Announcements";
+        /// <summary>
+        /// 倫理聲明
+        /// </summary>
+        public const string Spec_Ethics_Statement = "Spec_Ethics_Statement";
         #endregion
     }
 }

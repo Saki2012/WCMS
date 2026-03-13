@@ -30,6 +30,10 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournalIndex
         /// 期刊目次名稱
         /// </summary>
         [LibDesc(SpecModelDisplayName.Spec_JournalIndexName), StringLength(SysLengthParam.Name)] public string? IndexName { get; set; }
+        /// <summary>
+        /// 出版狀態
+        /// </summary>
+        [LibDesc(SpecModelDisplayName.Spec_PublishStatus)] public PublishStatus? PublishStatus { get; set; }
 
         #region 主子表關聯
         public List<SpecJournalIndexDetail_DTO>? _SpecJournalIndexDetail { get; set; }
@@ -56,10 +60,6 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournalIndex
         /// 期數
         /// </summary>
         [LibDesc(SpecModelDisplayName.Spec_Issue), StringLength(SysLengthParam.Name)] public string? Issue { get; set; }
-        /// <summary>
-        /// 出版狀態
-        /// </summary>
-        [LibDesc(SpecModelDisplayName.Spec_PublishStatus)] public PublishStatus? PublishStatus { get; set; }
         /// <summary>
         /// 是否為特刊
         /// </summary>

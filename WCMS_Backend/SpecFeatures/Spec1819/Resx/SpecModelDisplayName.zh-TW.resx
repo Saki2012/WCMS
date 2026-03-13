@@ -255,4 +255,28 @@
   <data name="SpecBibliography" xml:space="preserve">
     <value>參考文獻</value>
   </data>
+  <data name="Spec_Errata" xml:space="preserve">
+    <value>勘誤</value>
+  </data>
+  <data name="Spec_Correction" xml:space="preserve">
+    <value>校正</value>
+  </data>
+  <data name="Spec_Announcements" xml:space="preserve">
+    <value>公告事項</value>
+  </data>
+  <data name="Spec_Ethics_Statement" xml:space="preserve">
+    <value>倫理聲明</value>
+  </data>
+  <data name="Spec_DocumentType" xml:space="preserve">
+    <value>說明檔案類型</value>
+  </data>
+  <data name="Spec_DocumentName" xml:space="preserve">
+    <value>說明檔案名稱</value>
+  </data>
+  <data name="Spec_DocumentId" xml:space="preserve">
+    <value>說明檔案來源</value>
+  </data>
+  <data name="SpecJournalDocument" xml:space="preserve">
+    <value>期刊說明檔案列表</value>
+  </data>
 </root>

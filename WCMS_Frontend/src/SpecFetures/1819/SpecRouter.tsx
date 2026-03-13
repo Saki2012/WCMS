@@ -14,7 +14,7 @@ import { SpecJournalList } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecMod
 import { SpecJournalForm_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalForm";
 
 import { SpecJournalIndex_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalIndex_Loader";
-import { SpecJournalList_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalList_Loader";
+import { PublishStatusEnum, SpecJournalList_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalList_Loader";
 import { SpecJournalForm_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalForm_Loader";
 
 export class SpecRouteModule implements IRouteModule {
@@ -52,11 +52,17 @@ export const specClientEntries: Record<string, ModuleEntry> = {
             // List：某一期
             {
                 path: "List/:indexId?/:rowId?",
-                loader: SpecJournalList_Loader({ pageSize: 10 }),
+                loader: SpecJournalList_Loader({ pageSize: 10, publishStatus: PublishStatusEnum.Published, forceGlobal: false, pageTitle: "所有期刊",}),
                 element: <SpecJournalList node={node} lang={lang} />,
                 handle: { breadcrumb: "journal-issue" },
             },
-
+            // 預刊列表
+            {
+                path: "Preprint",
+                loader: SpecJournalList_Loader({ pageSize: 10, publishStatus: PublishStatusEnum.Unpublished, forceGlobal: true, pageTitle: "預刊本", }),
+                element: <SpecJournalList node={node} lang={lang} />,
+                handle: { breadcrumb: "journal-preprint" },
+            },
             // Form：某一篇
             {
                 path: "Form/:indexId/:rowId/:journalId?",

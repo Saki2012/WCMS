@@ -52,8 +52,8 @@ export const Server_SpecJournalIndex_Form_Comp = (prop: { theme: IBETheme; lang:
     const formProp: FormCompProp = { Title: "期刊目次", Theme: prop.theme, IsLoading: isLoading, ErrorList: errors, Actions: actions };
     return (
         <FormComp prop={formProp}>
-            <MainFormComp theme={prop.theme} formData={formData} />
-            <DetailComp theme={prop.theme} formData={formData} publishStatusOpts={publishStatusOpts.data} />
+            <MainFormComp theme={prop.theme} formData={formData} publishStatusOpts={publishStatusOpts.data} />
+            <DetailComp theme={prop.theme} formData={formData}/>
         </FormComp>
     )
 }
@@ -141,26 +141,27 @@ const useSpecJournalIndexFormActionsFromAdapter = (
     };
 };
 
-const MainFormComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalIndexSet>; }) => {
+const MainFormComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalIndexSet>; publishStatusOpts: Record<string, string>; }) => {
     const tabInfo: LibTabsProp = { Style: prop.theme.Tabs, item: { "Basic": "基本資料", "System": "系統資訊" } }
     const components: Record<string, React.ReactNode[]> = {
-        Basic: [<BasicComp theme={prop.theme} formData={prop.formData} />],
+        Basic: [<BasicComp theme={prop.theme} formData={prop.formData} publishStatusOpts={prop.publishStatusOpts}/>],
         System: [<SystemInfoTabComp theme={prop.theme} formData={prop.formData} setKey={SpecJournalIndexSetFields.SpecJournalIndex} />]
     }
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>
 }
 
-const BasicComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalIndexSet> }) => {
+const BasicComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalIndexSet>; publishStatusOpts: Record<string, string>}) => {
     const setField = useSetTableField<SpecJournalIndexSet>(props.formData);
 
     return (
         <div className="col-12 form-group">
             <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(SpecJournalIndexSetFields.SpecJournalIndex, SpecJournalIndexModelFields.IndexName, "string")} />
+            <LibCheckBox Style={props.theme.RadioBox} options={props.publishStatusOpts} {...setField(SpecJournalIndexSetFields.SpecJournalIndex, SpecJournalIndexModelFields.PublishStatus, "number")} />
         </div>
     )
 }
 
-const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalIndexSet>; publishStatusOpts: Record<string, string> }) => {
+const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalIndexSet>;} ) => {
     const setField = useSetTableField<SpecJournalIndexSet>(props.formData);
     const setFileField = useSetTableFileField<SpecJournalIndexSet>(props.formData);
     const details = (props.formData.data)?.SpecJournalIndexDetail ?? [];
@@ -371,7 +372,6 @@ const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
                     <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(SpecJournalIndexSetFields.SpecJournalIndexDetail, SpecJournalIndexDetailFields.Issue, "string", rowKeys)} />
                 </div>,
                 <div className="col-12 form-group">
-                    <LibCheckBox Style={props.theme.RadioBox} options={props.publishStatusOpts} {...setField(SpecJournalIndexSetFields.SpecJournalIndexDetail, SpecJournalIndexDetailFields.PublishStatus, "number", rowKeys)} />
                     <LibCheckBox Style={props.theme.CheckBox} options={{ [SpecJournalIndexDetailFields.IsSpecial]: "" }} {...setField(SpecJournalIndexSetFields.SpecJournalIndexDetail, SpecJournalIndexDetailFields.IsSpecial, "boolean", rowKeys)} />
                 </div>,
                 <div className="col-12 form-group">
