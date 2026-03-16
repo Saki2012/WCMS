@@ -379,7 +379,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
             {
                 var seg = Normalize(item.ItemSiteUrl);
                 if (item.ParentRowId is null) item.FullUrl = "/" + seg;
-                if (item.ParentRowId!=null && !byId.TryGetValue(item.ParentRowId.Value, out var parent)) item.FullUrl = Combine(parent.FullUrl, seg);
+                if (item.ParentRowId!=null && byId.TryGetValue(item.ParentRowId.Value, out var parent)) item.FullUrl = Combine(parent.FullUrl, seg);
                 if (!fullUrl.Add(item.FullUrl)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00026, set.SiteMenu_Item_Title.Find(p => p.Lang == EffectiveLang && p.ItemRowId.Equals(item.RowId)).Title, item.ItemSiteUrl);
             }
         }
