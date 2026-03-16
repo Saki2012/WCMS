@@ -112,16 +112,9 @@ export class ApiBaseAdapter<TService>
     }
 
     /** 一個 API 封裝成一個 hook（CSR 用；initial 可為 null） */
-    protected useApiQuery<TArgs, TData>(opt: {
-        action: string;
-        args: TArgs;
-        initial?: ApiLoaderData<TArgs, TData> | null;
-        call: (svc: TService, a: TArgs) => Promise<ApiResponse<TData>>;
-        fallbackError: string;
-        deps: EffectDeps;
-        onError?: (err: ApiAdapterError) => void;
-        apiInstance?: AxiosInstance;
-    })
+    protected useApiQuery<TArgs, TData>(opt: {action: string;args: TArgs;initial?: ApiLoaderData<TArgs, TData> | null;
+        call: (svc: TService, a: TArgs) => Promise<ApiResponse<TData>>;fallbackError: string;
+        deps: EffectDeps;onError?: (err: ApiAdapterError) => void;apiInstance?: AxiosInstance;})
     {
         // 宣告變數：SSR 必須在 render 當下就把 initial 套進 state（不能靠 useEffect）
         const initApiRes = opt.initial?.apiRes ?? null;
@@ -137,34 +130,24 @@ export class ApiBaseAdapter<TService>
         const [apiRes, setApiRes] = useState<ApiResponse<TData> | null>(() => initApiRes);
         const [isLoading, setIsLoading] = useState(false);
         const [errorText, setErrorText] = useState<string | null>(() => initErrText);
-
         const svc = useMemo(() => this.getService(opt.apiInstance), [opt.apiInstance]);
         const lastInitialApiResRef = useRef<ApiResponse<TData> | null>(initApiRes);
-
         const applyError = useCallback(
             (e: ApiResponse<TData>, fallback: string) =>
             {
-                // 宣告變數
                 const err = buildError(e, fallback, opt.action);
-
-                // 執行 function
                 setErrorText(err.messageText);
                 opt.onError?.(err);
             },
             [opt.action, opt.onError],
         );
-
         const applyInitialIfChanged = useCallback((): boolean =>
         {
-            // 宣告變數
             const init = opt.initial;
             if (!init) return false;
-            if (lastInitialApiResRef.current === init.apiRes) return false;
-
-            // 執行 function：initial 變更時同步更新
+            if (lastInitialApiResRef.current === init.apiRes && apiRes === init.apiRes) return false;
             lastInitialApiResRef.current = init.apiRes;
             setApiRes(init.apiRes);
-
             if (isOk(init.apiRes))
             {
                 setData(init.apiRes.Data);
@@ -173,23 +156,16 @@ export class ApiBaseAdapter<TService>
             {
                 applyError(init.apiRes, opt.fallbackError);
             }
-
-            // return
             return true;
-        }, [opt.initial, opt.fallbackError, applyError]);
-
+        }, [opt.initial, opt.fallbackError, applyError, apiRes]);
         const fetchAsync = useCallback(async () =>
         {
-            // 宣告變數
             setIsLoading(true);
             setErrorText(null);
-
             try
             {
-                // 執行 function
                 const e = await opt.call(svc, opt.args);
                 setApiRes(e);
-
                 if (isOk(e)) setData(e.Data);
                 else applyError(e, opt.fallbackError);
             } finally
@@ -197,15 +173,12 @@ export class ApiBaseAdapter<TService>
                 setIsLoading(false);
             }
         }, [svc, opt.args, opt.call, applyError, opt.fallbackError]);
-
         useEffect(() =>
         {
             // 執行 function：CSR mount 時若已有 initial 就不再 fetch
             const applied = applyInitialIfChanged();
             if (!applied && !initApiRes) void fetchAsync();
         }, [...opt.deps, opt.initial]);
-
-        // return
         return { data, apiRes: apiRes, isLoading, errorText, refetch: fetchAsync };
     }
 }
@@ -547,16 +520,50 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
         const usePagedQueryList: ApiDataHookGroup<TSet>["usePagedQueryList"] = (opt) =>
         {
             const [pageNumber, setPageNumber] = useState<number>(opt.baseParam.PageNumber ?? 1);
+
             useEffect(() =>
             {
                 setPageNumber(opt.baseParam.PageNumber ?? 1);
             }, [opt.baseParam.PageNumber]);
-            const param = useMemo(() => ({...opt.baseParam,PageNumber: pageNumber,}), [opt.baseParam, pageNumber]);
-            const deps = useMemo<EffectDeps>(() => [param.Condition,param.PageNumber,param.PageSize,...opt.deps,], [param.Condition, param.PageNumber, param.PageSize, opt.deps]);
-            const r = this.useApiQuery<QueryListParam, TSet[]>({action: "Query.QueryList",args: param,initial: opt.initial ?? null,
-                call: (svc, c) => svc.queryList(c),fallbackError: "查詢清單失敗",
-                deps,onError: opt.onError,apiInstance: opt.apiInstance,
+
+            const param = useMemo(
+                () => ({
+                    ...opt.baseParam,
+                    PageNumber: pageNumber,
+                }),
+                [opt.baseParam, pageNumber],
+            );
+
+            const deps = useMemo<EffectDeps>(
+                () => [param.Condition, param.PageNumber, param.PageSize, ...opt.deps],
+                [param.Condition, param.PageNumber, param.PageSize, opt.deps],
+            );
+
+            const currentParamKey = useMemo(() => JSON.stringify(param ?? null), [param]);
+            const initialParamKey = useMemo(() => JSON.stringify(opt.initial?.args ?? null), [opt.initial]);
+
+            // 宣告變數：只有目前查詢參數與 SSR initial 完全相同時，才沿用 initial
+            const matchedInitial = useMemo(() =>
+            {
+                return currentParamKey === initialParamKey;
+            }, [currentParamKey, initialParamKey]);
+
+            const effectiveInitial = useMemo(() =>
+            {
+                return matchedInitial ? (opt.initial ?? null) : null;
+            }, [matchedInitial, opt.initial]);
+
+            const r = this.useApiQuery<QueryListParam, TSet[]>({
+                action: "Query.QueryList",
+                args: param,
+                initial: effectiveInitial,
+                call: (svc, c) => svc.queryList(c),
+                fallbackError: "查詢清單失敗",
+                deps,
+                onError: opt.onError,
+                apiInstance: opt.apiInstance,
             });
+
             const totalPages = useMemo(() =>
             {
                 const size = param.PageSize ?? 10;
@@ -564,7 +571,15 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
                 if (size <= 0) return 1;
                 return Math.max(1, Math.ceil(count / size));
             }, [opt.count, param.PageSize]);
-            return {...r,data: r.data ?? [],pageNumber,totalPages,onPageChange: (p: number) => setPageNumber(p),param,};
+
+            return {
+                ...r,
+                data: r.data ?? [],
+                pageNumber,
+                totalPages,
+                onPageChange: (p: number) => setPageNumber(p),
+                param,
+            };
         };
         const useQueryData: ApiDataHookGroup<TSet>["useQueryData"] = (opt) =>
         {

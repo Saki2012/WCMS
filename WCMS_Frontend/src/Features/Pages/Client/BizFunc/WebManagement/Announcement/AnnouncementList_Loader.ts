@@ -7,15 +7,7 @@ import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import {
-    AnnouncementDetailFields,
-    AnnouncementFields,
-    CategoryDetailFields,
-    CategoryFields,
-    PGID,
-    TagDataFields,
-    TagDetailFields,
-} from "@/types/SchemaFields";
+import { AnnouncementDetailFields, AnnouncementFields, CategoryDetailFields, CategoryFields, PGID, TagDataFields, TagDetailFields, } from "@/types/SchemaFields";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
 type QueryListParam = components["schemas"]["QueryListParam"];
