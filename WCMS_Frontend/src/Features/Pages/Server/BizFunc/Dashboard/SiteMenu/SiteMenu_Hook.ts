@@ -175,24 +175,12 @@ const useSiteMenuActionsByAdapter = (adapter: ReturnType<typeof SiteMenuAdapter>
   try {
     const res = await cud.updateAsync(internalId, formData.data) as ApiResponse<SiteMenuSet>;
     const ok = Boolean(res?.IsSuccess);
-    const errorText = getSaveErrorMessage(res);
-
     if (!ok) {
-      publish({
-        level: MessageStatus.Error,
-        title: "保存失敗",
-        text: errorText,
-      });
+      res.SysMessage.map((item)=>{publish({level: item.Status, title: "保存失敗", code:item.MessageCode, text: item.Message,});})
       return false;
     }
-
     await refetchData();
-
-    publish({
-      level: MessageStatus.Green,
-      title: "保存成功",
-    });
-
+    publish({level: MessageStatus.Green, title: "保存成功",});
     return true;
   }
   catch (error) {
@@ -344,22 +332,6 @@ const transSetToItem = (data: SiteMenuSet, lang: Lang): SiteMenuItem[] => {
   sortRec(roots);
   return roots;
 };
-
-
-const getSaveErrorMessage = (res?: ApiResponse<SiteMenuSet>): string =>
-{
-    // 宣告變數
-    const sysMessages = Array.isArray(res?.SysMessage) ? res.SysMessage : [];
-    const text = sysMessages.map((item) =>
-        {
-            const message = String(item?.Message ?? "").trim();
-            const code = String(item?.MessageCode ?? "").trim();
-            return message || code;
-        }).filter((item) => item !== "").join(" / ");
-    // return
-    return text || "資料保存失敗，請檢查欄位內容或後端驗證訊息";
-};
-
 const GUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
