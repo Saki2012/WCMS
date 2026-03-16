@@ -45,10 +45,6 @@ export const useWebResourceFormFetchData = (opt: {lang: Lang;internalId: string;
     const tag = adapter.Tag.hooks.useMapByProgId({ progId: PGID.Announcement, lang: opt.lang });
     const statusOpts = useContentStatusOptions();
     const windowTarget = useWindowsTargetOptions()
-
-
-
-
     const loadingList = useMemo<boolean[]>(() => {return [Boolean(category.isLoading), Boolean(formData.isLoading),Boolean(tag.isLoading),
       Boolean(statusOpts.isLoading),Boolean(windowTarget.isLoading),
     ];}, [category.isLoading, formData.isLoading,tag.isLoading,statusOpts.isLoading,windowTarget.isLoading]);
@@ -85,8 +81,7 @@ const useWindowsTargetOptions = (): { data: Record<string, string>; isLoading: b
     // return
     return useMemo(() => {
         const raw = src.data ?? {};
-        const { ["0"]: _drop, ...rest } = raw;
-        return { data: rest as Record<string, string>, isLoading: Boolean(src.isLoading), error: src.error };
+        return { data: raw as Record<string, string>, isLoading: Boolean(src.isLoading), error: src.error };
     }, [src.data, src.isLoading, src.error]);
 };
 

@@ -81,7 +81,7 @@ const DetailComp = (prop: { theme: IBETheme, formData: UseFetchFormDataResult<We
                 <LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(WebResourceSetFields.WebResourceInfo, WebResourceInfoFields.Title, "string", rowKeys)} />,
                 <LibTextArea Style={prop.theme.TextArea} DefaultInputDisplay="請輸入" {...setField(WebResourceSetFields.WebResourceInfo, WebResourceInfoFields.Content, "string", rowKeys)} />,
                 <LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(WebResourceSetFields.WebResourceInfo, WebResourceInfoFields.ResUrl, "string", rowKeys)} />,
-                <LibDropList Style={prop.theme.DropList} Options={prop.urlOpenOpt} {...setField(WebResourceSetFields.WebResourceInfo, WebResourceInfoFields.Url_OpenType, "number", rowKeys)} />,
+                <LibDropList Style={prop.theme.DropList} Options={prop.urlOpenOpt} {...setField(WebResourceSetFields.WebResourceInfo, WebResourceInfoFields.Url_OpenType, "number", rowKeys)} ShowPlaceholder={false}/>,
             ]
             return compMap;
         }, {}
