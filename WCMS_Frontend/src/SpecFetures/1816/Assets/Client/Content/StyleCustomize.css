@@ -406,7 +406,7 @@ a:focus{
 .breadcrumb__wrapper a:focus .return-box {
 	text-decoration: none;
 	outline: thin dotted;
-	outline: 2px dashed var(--Customize_FOCUScolor);
+	outline: 2px solid transparent;
 	outline-offset: 0px;
 	color: var(--blackcolor) !important;
 	background-color: var(--a_focuscolor) !important;
