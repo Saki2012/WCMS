@@ -330,7 +330,7 @@
 .custom_breadcrumb .breadcrumb-item.active h2 {
 	font-size: 100%;
 	font-weight: bold;
-	color: var(--Customize_color); /* JESS重要 - 變更顏色*/
+	color: var(--Customize_TXTcolor); /* JESS重要 - 變更顏色*/
 	margin-bottom: 0;
 }
 @media screen and (max-width: 575px) {
@@ -394,7 +394,7 @@
 }
 .breadcrumb__wrapper a:hover .return-box,
 .breadcrumb__wrapper a:active .return-box {
-    color: var(--Customize_color);
+    color: var(--Customize_TXTcolor);
 }
 /* .breadcrumb__wrapper a:focus .return-box {
 	text-decoration: none;
@@ -606,7 +606,7 @@
 	list-style: none;
 	width: 100%;
 	margin-bottom: 0px;
-	padding: 0 0.25rem;
+	padding: 0 0.05rem;
 }
 .sidebar ul.list-group > li.nav-item > a.list-group-item{
 	font-weight: 900;
@@ -746,23 +746,23 @@
 /* ============================================= */
 /* ------  第二.三.四.五.六層 ul.submenu --------- */
 .sidebar ul > li > ul.submenu > li > .list-group-item{
-	margin: 0rem 0rem 0rem 0.5rem;
+	margin: 0rem 0rem 0rem 0.35rem;
 	line-height: 3;
 }
 .sidebar ul > li > ul.submenu > li > ul.submenu > li .list-group-item{
-	margin: 0rem 0rem 0rem 1rem;
+	margin: 0rem 0rem 0rem 0.55rem;
 	line-height: 3;
 }
 .sidebar ul > li > ul.submenu > li > ul.submenu > li > ul.submenu > li .list-group-item{
-	margin: 0rem 0rem 0rem 1.25rem;
+	margin: 0rem 0rem 0rem 0.85rem;
 	line-height: 3;
 }
 .sidebar ul > li > ul.submenu > li > ul.submenu > li > ul.submenu > li > ul.submenu > li .list-group-item{
-	margin: 0rem 0rem 0rem 1.5rem;
+	margin: 0rem 0rem 0rem 1.1rem;
 	line-height: 3;
 }
 .sidebar ul > li > ul.submenu > li > ul.submenu > li > ul.submenu > li > ul.submenu > li > ul.submenu > li .list-group-item{
-	margin: 0rem 0rem 0rem 1.75rem;
+	margin: 0rem 0rem 0rem 1.35rem;
 	line-height: 3;
 }
 

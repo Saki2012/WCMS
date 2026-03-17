@@ -303,7 +303,7 @@
 .custom_breadcrumb .breadcrumb-item.active h2 {
 	font-size: 100%;
 	font-weight: bold;
-	color: var(--Customize_color); /* JESS重要 - 變更顏色*/
+	color: var(--Customize_TXTcolor); /* JESS重要 - 變更顏色*/
 	margin-bottom: 0;
 }
 @media screen and (max-width: 575px) {

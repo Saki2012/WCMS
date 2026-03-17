@@ -182,13 +182,16 @@ a { color: var(--a_linkcolor); }
 a, a:hover { text-decoration: none; }
 /* a focus 客製 */
 /* 淺橘底紅橘框 */
-a:focus{
+a:focus,
+a:focus-visible,
+a.btn:focus-visible{
   text-decoration: none;    
 	outline: thin dotted;
-  outline: 2px dashed var(--Customize_FOCUScolor);
+  outline: 2px dashed var(--Customize_FOCUScolor) !important;
 	outline-offset: 0px;    
   color: var(--blackcolor) !important;
 	background-color: var(--a_focuscolor) !important;
+	display: inline-block;
 }
 .navbar-toggler:focus{
   outline: 2px dashed var(--Customize_FOCUScolor);
@@ -416,7 +419,16 @@ a:focus{
 	outline: 2px dashed var(--Customize_FOCUScolor) !important;
 	outline-offset: 0px !important;
 }
-
+/* 內頁的a focus */
+.SubPage_Standard_itemBoxs a:focus {
+	outline: 2px dashed var(--Customize_FOCUScolor) !important;
+	outline-offset: 0px !important;
+}
+/* accesskey_main */
+.accesskey_main.C{
+	left: -18px;
+	top: 8px;
+}
 
 [tabindex="-1"]:focus:not(:focus-visible) {
 	text-decoration: none;
