@@ -622,6 +622,7 @@ const MegaMenuItem = (props: IMegaMenuItemProps) => {
 												to={link.Url || "#"}
 												target={link.URL_Open}
 												onClick={props.onLeafClick}
+												end
 											>
 												{link.SrcData}
 											</LangNavLink>
