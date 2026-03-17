@@ -146,7 +146,7 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
                                                     >
                                                         <img
                                                             src={imgUrl}
-                                                            className="d-block w-100"
+                                                            className="d-block w-100 h-100"
                                                             alt={title}
                                                             style={{ width: "100%", height: "100%", objectFit: "cover" }}
                                                         />
@@ -154,7 +154,7 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
                                                 ) : (
                                                     <img
                                                         src={imgUrl}
-                                                        className="d-block w-100"
+                                                        className="d-block w-100 h-100"
                                                         alt={title}
                                                         style={{ width: "100%", height: "100%", objectFit: "cover" }}
                                                     />
