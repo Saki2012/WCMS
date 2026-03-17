@@ -115,15 +115,15 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
             <div className="LR_VLine_Div">
                 <div className="VLine_inner">
                     <div className="VLine_wrapper">
-                        <div className="subpage_banner_wrapper" style={ratioStyle}>
+                        <div className="subpage_banner_wrapper w-100" style={ratioStyle}>
                             <div
-                                className="carousel slide"
+                                className="carousel slide h-100"
                                 id={carouselId}
                                 ref={carouselRef}
                                 data-bs-ride="carousel"
                                 data-bs-interval={intervalMs}
                             >
-                                <div className="carousel-inner">
+                                <div className="carousel-inner h-100">
                                     {validDetails.map((d, i) => {
                                         const info = pickBannerDetailInfo(d, props.lang);
                                         const title = getInfoTitle(info);
@@ -134,7 +134,7 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
                                         return (
                                             <div
                                                 key={`${bannerId}_${d.RowId ?? i}_${i}`}
-                                                className={`carousel-item ${i === 0 ? "active" : ""}`}
+                                                className={`carousel-item ${i === 0 ? "active" : ""} h-100`}
                                             >
                                                 {url ? (
                                                     <LangLink

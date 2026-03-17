@@ -43,7 +43,7 @@
     background-size: cover;
     background-attachment: scroll;
 }
-@media screen and (max-width: 575px) {
+@media screen and (max-width: 1200px) {
     .subpage_banner_wrapper {
         min-height: 200px;
     }
@@ -79,7 +79,7 @@
 .subpage_banner_wrapper .banner-content {
 	/*min-height: 400px;*/
 	/*min-height: 350px;*/
-	min-height: 300px;
+	min-height: 260px;
 }
 @media screen and (max-width: 575px) {
     .banner-content {

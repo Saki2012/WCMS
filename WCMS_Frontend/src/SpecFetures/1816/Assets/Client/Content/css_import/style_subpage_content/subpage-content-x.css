@@ -42,7 +42,7 @@
     background-size: cover;
     background-attachment: scroll;
 }
-@media screen and (max-width: 575px) {
+@media screen and (max-width: 1200px) {
     .subpage_banner_wrapper {
         min-height: 200px;
     }
