@@ -571,20 +571,18 @@ const SetAdjustFunction = (lang: Lang, dirUrl: string, gridProps: GridProps, raw
                 ...cell,
                 content: (
                     <>
-                        <LangLink to={`${dirUrl}/${internalId}`} className="link-cell" id={isTitle ? titleId : undefined}
-                            aria-labelledby={isTitle ? undefined : titleId}>
-                            <span aria-hidden={!isTitle}>{cell.content}</span>
-                            {!isTitle && (<span className="visually-hidden">{srLinkText}</span>)}
-                        </LangLink>
-
-                        {isTitle &&
+                        {isTitle?
                             <>
-                                {isWithinLastNDaysFromString(curRow.Announcement?.Validate_Start ?? "") && (
-                                    <span className="label label-warning">最新</span>
-                                )}
+                                {isWithinLastNDaysFromString(curRow.Announcement?.Validate_Start ?? "") && (<span className="label label-warning">最新</span>)}
                                 {Boolean(contentStatus & 1) && (<span className="label label-success">置頂</span>)}
                                 {Boolean(contentStatus & 2) && (<span className="label label-danger">熱門</span>)}
-                            </>
+                                <LangLink to={`${dirUrl}/${internalId}`} className="link-cell" id={isTitle ? titleId : undefined}
+                                    aria-labelledby={isTitle ? undefined : titleId}>
+                                    <span aria-hidden={!isTitle}>{cell.content}</span>
+                                    {!isTitle && (<span className="visually-hidden">{srLinkText}</span>)}
+                                </LangLink>
+                            </> : 
+                            <span>{cell.content}</span>
                         }
                     </>
                 ),
