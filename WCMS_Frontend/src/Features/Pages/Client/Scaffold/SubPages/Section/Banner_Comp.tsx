@@ -148,7 +148,7 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
                                                             src={imgUrl}
                                                             className="d-block w-100 h-100"
                                                             alt={title}
-                                                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                                            style={{ width: "100%", height: "100%", objectFit: "cover", minHeight: "200px"}}
                                                         />
                                                     </LangLink>
                                                 ) : (
@@ -156,7 +156,7 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
                                                         src={imgUrl}
                                                         className="d-block w-100 h-100"
                                                         alt={title}
-                                                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                                        style={{ width: "100%", height: "100%", objectFit: "cover", minHeight: "200px"}}
                                                     />
                                                 )}
                                             </div>
