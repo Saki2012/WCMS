@@ -361,6 +361,17 @@ const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
         onRemoveTab: (key) => removeOne(key),
     };
 
+    const clearDetailFileField = useCallback((rowId: number,fileIdField: string,fileNameField: string,): void => {
+        props.formData.setFormData(prev => {
+            if (!prev) return prev;
+            const nextDetails = (prev.SpecJournalIndexDetail ?? []).map(item => {
+                if (item.RowId !== rowId) return item;
+                return {...item, [fileIdField]: null, [fileNameField]: "",};
+            });
+            return {...prev, SpecJournalIndexDetail: nextDetails,};
+        });
+    }, [props.formData]);
+
     const tabContent: Record<string, React.ReactNode[]> = details.reduce<Record<string, React.ReactNode[]>>(
         (acc, d, idx) => {
             const detailRowId = d.RowId ?? idx;
@@ -390,7 +401,11 @@ const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
                         )}
                         // 其他 UI 行為仍由你自己控制
                         Accept="application/pdf"
-                    // onDelete={() => removeFileAt(i)}
+                        onDelete={() => clearDetailFileField(
+                            detailRowId,
+                            SpecJournalIndexDetailFields.SummaryFileId,
+                            SpecJournalIndexDetailFields.SummaryFileName,
+                        )}
                     />
                 </div>
             ];

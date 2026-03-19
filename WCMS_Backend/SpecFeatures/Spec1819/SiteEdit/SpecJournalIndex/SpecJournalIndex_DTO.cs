@@ -14,8 +14,8 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournalIndex
     /// </summary>
     public class SpecJournalIndexSet_DTO : ITSet_DTO
     {
-        [LibDesc(SpecModelDisplayName.SpecJournalIndex)] public SpecJournalIndexModel_DTO SpecJournalIndex { get; set; } = new ();
-        [LibDesc(SpecModelDisplayName.SpecJournalIndexDetail)] public List<SpecJournalIndexDetail_DTO> SpecJournalIndexDetail { get; set; } = [];
+        [LibDesc(SpecModelDisplayName.SpecJournalIndex)] public SpecJournalIndexModel_DTO SpecJournalIndex { get; set; }
+        [LibDesc(SpecModelDisplayName.SpecJournalIndexDetail)] public List<SpecJournalIndexDetail_DTO>? SpecJournalIndexDetail { get; set; }
     }
     /// <summary>
     /// 期刊目次
