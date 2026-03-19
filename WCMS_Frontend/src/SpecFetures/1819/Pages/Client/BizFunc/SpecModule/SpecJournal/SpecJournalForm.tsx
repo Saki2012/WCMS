@@ -1,5 +1,5 @@
 import { getLangLabel, SUPPORTED_LANGS, type Lang } from "@/SysCore/i18n/lang";
-import React, { useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import parse from "html-react-parser";
 import insightpointImg1 from "@/SpecFetures/1819/Assets/Client/images/links/150x32/InSight_Point_bt_150x32.svg";
 import insightpointImg2 from "@/SpecFetures/1819/Assets/Client/images/links/150x32/InSight_Point_bt_W_150x32.svg";
@@ -107,12 +107,7 @@ const useSpecJournalDetail = (adapter: ReturnType<typeof SpecJournalAdapter>, lo
 };
 
 const SpecJournalFormContent = (props: { lang: Lang; data?: SpecJournalSet }) => {
-    useEffect(() => {
-        const root = document.getElementById("ContentPlaceContent_ContentConentA");
-        if (!root) return;
-        wireBsAccordion(root);
-        return () => unwireBsAccordion(root);
-    }, []);
+    
     return (
         <div className="Journal_List_content">
             <div className="row">
@@ -588,88 +583,239 @@ const RefFile_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
         </>
     );
 };
+
+interface PreviewSectionItem {
+    id: string;
+    title: string;
+    content: ReactNode;
+}
+
+const PREVIEW_LINE_COUNT = 10;
+const PREVIEW_FALLBACK_LINE_PX = 28;
+
+/** 取得 line-height px */
+const getLineHeightPx = (value: string) => {
+    // 宣告變數
+    const px = Number.parseFloat(value ?? "0");
+
+    // return
+    return Number.isFinite(px) && px > 0 ? px : PREVIEW_FALLBACK_LINE_PX;
+};
+
+/** 計算預覽高度 */
+const getPreviewHeight = (el: HTMLElement) => {
+    // 宣告變數
+    const style = window.getComputedStyle(el);
+    const lineHeight = getLineHeightPx(style.lineHeight);
+    const paddingTop = Number.parseFloat(style.paddingTop || "0");
+    const paddingBottom = Number.parseFloat(style.paddingBottom || "0");
+
+    // return
+    return Math.ceil(lineHeight * PREVIEW_LINE_COUNT + paddingTop + paddingBottom);
+};
+
+/** 計算內容高度 */
+const getBodyHeights = (el: HTMLDivElement) => {
+    // 宣告變數
+    const previewHeight = getPreviewHeight(el);
+    const fullHeight = Math.ceil(el.scrollHeight);
+    const canToggle = fullHeight > previewHeight + 4;
+
+    // return
+    return { previewHeight, fullHeight, canToggle };
+};
+const PREVIEW_MAX_HEIGHT = "18em";
+
+/** 可預覽前 10 行的展開區塊 */
+const PreviewSectionCard_Comp = (props: {
+    item: PreviewSectionItem;
+    isExpanded: boolean;
+    onToggle: (id: string) => void;
+}) => {
+    const bodyRef = useRef<HTMLDivElement | null>(null);
+    const [maxHeight, setMaxHeight] = useState<string>("none");
+    const [canToggle, setCanToggle] = useState(false);
+    const bodyId = `${props.item.id}-body`;
+
+    const applyBodyHeight = useCallback(() => {
+        // 宣告變數
+        const el = bodyRef.current;
+        if (!el || typeof window === "undefined") return;
+
+        const { previewHeight, fullHeight, canToggle: nextCanToggle } = getBodyHeights(el);
+        const nextHeight = props.isExpanded ? `${fullHeight}px` : `${previewHeight}px`;
+
+        // 執行 function
+        setCanToggle(nextCanToggle);
+        setMaxHeight(nextCanToggle ? nextHeight : "none");
+    }, [props.isExpanded]);
+
+    useEffect(() => {
+        // 執行 function
+        applyBodyHeight();
+    }, [applyBodyHeight, props.item.content]);
+
+    useEffect(() => {
+        // SSR guard
+        if (typeof window === "undefined") return;
+
+        const onResize = () => {
+            // 執行 function
+            applyBodyHeight();
+        };
+
+        // 執行 function
+        window.addEventListener("resize", onResize);
+        return () => window.removeEventListener("resize", onResize);
+    }, [applyBodyHeight]);
+
+    const onClickToggle = () => {
+        // 執行 function
+        props.onToggle(props.item.id);
+    };
+
+    return (
+        <li>
+            <div className="EC-0 card SpecJournalPreviewCard">
+                <div className="card-header SpecJournalPreviewCard__header">
+                    <a
+                        type="button"
+                        className={clsx("SpecJournalPreviewCard__button", {
+                            "is-expanded": props.isExpanded,
+                        })}
+                        onClick={onClickToggle}
+                        aria-expanded={props.isExpanded}
+                        aria-controls={bodyId}
+                    >
+                        <span className="Div_All_BigTitle SpecJournalPreviewCard__title">
+                            <i className={clsx("fas", "fa-list-ul", "me-1")} aria-hidden="true"></i>
+                            <span>{props.item.title}</span>
+                        </span>
+
+                        <span className="SpecJournalPreviewCard__icon" aria-hidden="true">
+                            <i className={clsx("fas", props.isExpanded ? "fa-minus" : "fa-plus")}></i>
+                        </span>
+                    </a>
+                </div>
+
+                <div className="SpecJournalPreviewCard__contentWrap">
+                    <div
+                        id={bodyId}
+                        ref={bodyRef}
+                        className="card-body SpecJournalPreviewCard__body"
+                        style={{ maxHeight }}
+                    >
+                        {props.item.content}
+                    </div>
+
+                    {!props.isExpanded && canToggle && (
+                        <div className="SpecJournalPreviewCard__fade" aria-hidden="true"></div>
+                    )}
+
+                    {canToggle && (
+                        <div className="SpecJournalPreviewCard__footer">
+                            <button
+                                type="button"
+                                className="SpecJournalPreviewCard__toggle"
+                                onClick={onClickToggle}
+                                aria-expanded={props.isExpanded}
+                                aria-controls={bodyId}
+                            >
+                                <i
+                                    className={clsx(
+                                        "fas",
+                                        props.isExpanded ? "fa-chevron-up" : "fa-chevron-down",
+                                        "me-1"
+                                    )}
+                                    aria-hidden="true"
+                                ></i>
+                                <span>{props.isExpanded ? "收回預覽" : "展開全文"}</span>
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                <div className="col row-group px-0">
+                    <hr className="hr-my-2" />
+                </div>
+            </div>
+        </li>
+    );
+};
+
 /** 摘要 + 參考文獻 + 引文格式 */
 const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
-    const bodyHr = <div className="col row-group px-0"><hr className="hr-my-2" /></div>;
+    const [expandedId, setExpandedId] = useState<string | null>(null);
+
     let parseContent = useResolveInternalIds(props.data?.SpecJournal?.Memo ?? "", { locale: props.lang });
     const memoContent = parseContent.html ? parse(parseContent.html) : null;
+
     parseContent = useResolveInternalIds(props.data?.SpecJournal?.Memo_en ?? "", { locale: props.lang });
-    const memo_enContent = parseContent.html ? parse(parseContent.html) : null;
+    const memoEnContent = parseContent.html ? parse(parseContent.html) : null;
+
     parseContent = useResolveInternalIds(props.data?.SpecJournal?.Bibliography ?? "", { locale: props.lang });
-    const bibliography_Content = parseContent.html ? parse(parseContent.html) : null;
-    const collapseClass = "collapse show";
-    if((!memoContent && !memo_enContent) && !bibliography_Content && (!props.data?.SpecJournalRefFormat || props.data?.SpecJournalRefFormat.length===0)) return null
+    const bibliographyContent = parseContent.html ? parse(parseContent.html) : null;
+
+    const sections: PreviewSectionItem[] = [];
+
+    if (memoContent || memoEnContent) {
+        sections.push({
+            id: "journal-abstract",
+            title: "摘要",
+            content: (
+                <>
+                    {memoContent}
+                    {memoEnContent}
+                </>
+            ),
+        });
+    }
+
+    if (bibliographyContent) {
+        sections.push({
+            id: "journal-bibliography",
+            title: "參考文獻",
+            content: bibliographyContent,
+        });
+    }
+
+    props.data?.SpecJournalRefFormat?.forEach((sec) => {
+        const parsed = useResolveInternalIds(sec?.Content ?? "", { locale: props.lang });
+        const content = parsed.html ? parse(parsed.html) : null;
+        if (!content) return;
+
+        sections.push({
+            id: `journal-ref-format-${sec.RowId}`,
+            title: sec.Title ?? "",
+            content,
+        });
+    });
+
+    if (sections.length === 0) return null;
+
+    const onToggleSection = (id: string) => {
+        // 宣告變數
+        const nextId = expandedId === id ? null : id;
+
+        // 執行 function
+        setExpandedId(nextId);
+    };
+
     return (
         <>
             <div id="accordion" className="Expand_Close_Bar">
                 <ul className="EC_info">
-                    {(memoContent || memo_enContent) &&
-                        <li>
-                            <div className={`EC-0 + card`}>
-                                <div className="card-header">
-                                    <a href={`#99999999`} className="card-link" data-bs-toggle="collapse" type="button" role="button">
-                                        <span className="Div_All_BigTitle">
-                                            <i className={clsx("fas", "fa-list-ul", "me-1")} aria-hidden="true"></i>
-                                            <span>摘要</span>
-                                        </span>
-                                    </a>
-                                </div>
-
-                                {/* ✅ 預設展開 + ✅ 移除 data-bs-parent（互不影響） */}
-                                <div id={"99999999"} className={collapseClass}>
-                                    <div className="card-body">{memoContent}{memo_enContent}</div>
-                                    {bodyHr}
-                                </div>
-                            </div>
-                        </li>
-                    }
-
-                    {bibliography_Content &&
-                        <li>
-                            <div className={`EC-0 + card`}>
-                                <div className="card-header">
-                                    <a href={`#99999998`} className="card-link" data-bs-toggle="collapse" type="button" role="button">
-                                        <span className="Div_All_BigTitle">
-                                            <i className={clsx("fas", "fa-list-ul", "me-1")} aria-hidden="true"></i>
-                                            <span>參考文獻</span>
-                                        </span>
-                                    </a>
-                                </div>
-                                {/* ✅ 預設展開 + ✅ 移除 data-bs-parent（互不影響） */}
-                                <div id={`99999998`} className={collapseClass}>
-                                    <div className="card-body">{bibliography_Content}</div>
-                                    {bodyHr}
-                                </div>
-                            </div>
-                        </li>
-                    }
-                    {props.data?.SpecJournalRefFormat?.map((sec, idx) => {
-                        const cardClass = `EC-0${idx + 1} + card`;
-                        const parsed = useResolveInternalIds(sec?.Content ?? "", { locale: props.lang });
-                        const content = parsed.html ? parse(parsed.html) : null;
-                        return (
-                            <li key={sec.RowId}>
-                                <div className={cardClass}>
-                                    <div className="card-header">
-                                        <a href={`#${sec.RowId}`} className="card-link" data-bs-toggle="collapse" type="button" role="button">
-                                            <span className="Div_All_BigTitle">
-                                                <i className={clsx("fas", "fa-list-ul", "me-1")} aria-hidden="true"></i>
-                                                <span>{sec.Title}</span>
-                                            </span>
-                                        </a>
-                                    </div>
-
-                                    {/* ✅ 預設展開 + ✅ 移除 data-bs-parent（互不影響） */}
-                                    <div id={`${sec.RowId}`} className={collapseClass}>
-                                        <div className="card-body">{content}</div>
-                                        {bodyHr}
-                                    </div>
-                                </div>
-                            </li>
-                        );
-                    })}
+                    {sections.map((item) => (
+                        <PreviewSectionCard_Comp
+                            key={item.id}
+                            item={item}
+                            isExpanded={expandedId === item.id}
+                            onToggle={onToggleSection}
+                        />
+                    ))}
                 </ul>
             </div>
+
             <div className="col row-group">
                 <hr className="hr-my-4" />
             </div>
@@ -744,43 +890,6 @@ const preventHashOrVoidNav = (e: React.MouseEvent<HTMLAnchorElement>) => {
     // 執行 function
     if (isFake) e.preventDefault();
 };
-
-const accordionKeydownMap = new WeakMap<HTMLElement, (e: KeyboardEvent) => void>();
-
-const wireBsAccordion = (root: HTMLElement) => {
-    // 宣告變數
-    const toggles = root.querySelectorAll<HTMLElement>("[data-bs-toggle='collapse']");
-
-    // 執行 function
-    toggles.forEach((el) => {
-        if (accordionKeydownMap.has(el)) return;
-
-        const onKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
-                e.preventDefault();
-                el.click();
-            }
-        };
-
-        accordionKeydownMap.set(el, onKeyDown);
-        el.addEventListener("keydown", onKeyDown);
-    });
-};
-
-const unwireBsAccordion = (root: HTMLElement) => {
-    // 宣告變數
-    const toggles = root.querySelectorAll<HTMLElement>("[data-bs-toggle='collapse']");
-
-    // 執行 function
-    toggles.forEach((el) => {
-        const handler = accordionKeydownMap.get(el);
-        if (!handler) return;
-
-        el.removeEventListener("keydown", handler);
-        accordionKeydownMap.delete(el);
-    });
-};
-
 
 type SpecJournalDocumentItem = NonNullable<SpecJournalSet["SpecJournalDocument"]>[number];
 

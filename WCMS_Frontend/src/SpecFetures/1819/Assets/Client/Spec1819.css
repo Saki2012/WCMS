@@ -355,3 +355,130 @@ a:focus:not(:focus-visible):not(:active) {
   box-shadow: none !important;
 }
 
+.SpecJournalPreviewCard {
+  border: 0;
+  background: transparent;
+}
+
+.SpecJournalPreviewCard__header {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.SpecJournalPreviewCard__button {
+  width: 100%;
+  padding: 0.9rem 0 0.7rem;
+  border: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  text-align: left;
+  color: inherit;
+  transition: color 0.25s ease;
+}
+
+.SpecJournalPreviewCard__title {
+  margin-bottom: 0;
+  line-height: 1.5;
+}
+
+.SpecJournalPreviewCard__icon {
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d7d7d7;
+  border-radius: 999px;
+  transition: border-color 0.25s ease, background-color 0.25s ease, color 0.25s ease;
+}
+
+.SpecJournalPreviewCard__button:hover,
+.SpecJournalPreviewCard__button.is-expanded {
+  color: #8a6d00;
+}
+
+.SpecJournalPreviewCard__button:hover .SpecJournalPreviewCard__icon,
+.SpecJournalPreviewCard__button.is-expanded .SpecJournalPreviewCard__icon {
+  border-color: #caa300;
+  background: #fff8d9;
+  color: #8a6d00;
+}
+
+.SpecJournalPreviewCard__button:focus {
+  outline: none;
+}
+
+.SpecJournalPreviewCard__button:focus-visible {
+  outline: 2px solid var(--a_focusbordercolor, #caa300);
+  outline-offset: 3px;
+  border-radius: 6px;
+  background-color: var(--a_focuscolor, #fff8d9);
+  color: var(--blackcolor, #000) !important;
+}
+
+.SpecJournalPreviewCard__button:focus-visible .SpecJournalPreviewCard__icon {
+  border-color: #caa300;
+  background: #fff8d9;
+  color: #8a6d00;
+}
+
+.SpecJournalPreviewCard__contentWrap {
+  position: relative;
+  padding-top: 0.15rem;
+}
+
+.SpecJournalPreviewCard__body {
+  overflow: hidden;
+  line-height: 1.9;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  transition: max-height 0.32s ease;
+  will-change: max-height;
+}
+
+.SpecJournalPreviewCard__fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2.8rem;
+  height: 4rem;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #ffffff 82%);
+}
+
+.SpecJournalPreviewCard__footer {
+  display: flex;
+  justify-content: center;
+  padding: 0.35rem 0 0.75rem;
+}
+
+.SpecJournalPreviewCard__toggle {
+  border: 0;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  color: #8a6d00;
+  font-size: 0.95rem;
+  transition: color 0.25s ease, background-color 0.25s ease;
+}
+
+.SpecJournalPreviewCard__toggle:hover {
+  color: #5c4700;
+}
+
+.SpecJournalPreviewCard__toggle:focus {
+  outline: none;
+}
+
+.SpecJournalPreviewCard__toggle:focus-visible {
+  outline: 2px solid var(--a_focusbordercolor, #caa300);
+  outline-offset: 3px;
+  border-radius: 4px;
+  background-color: var(--a_focuscolor, #fff8d9);
+  color: var(--blackcolor, #000) !important;
+}
