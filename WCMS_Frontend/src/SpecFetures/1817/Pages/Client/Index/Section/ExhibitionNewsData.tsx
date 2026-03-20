@@ -367,7 +367,7 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 	return (
 		<>
 			{prop.map((item) => {
-				const picUrl = item.pictureId ? `${FileManagementAPI.PREVIEW_URL}/${item.pictureId}` : defaultPic
+				const picUrl = FileManagementAPI.get_Public_Preview_Url(item.pictureId,item.title) ?? defaultPic
 				return (
 					<div className="item" key={item.announceInternalId} >
 						<LangLink to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">

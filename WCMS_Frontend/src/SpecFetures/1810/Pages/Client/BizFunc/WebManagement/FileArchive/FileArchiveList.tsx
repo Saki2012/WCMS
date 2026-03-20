@@ -195,8 +195,9 @@ const SetDownloadIcon = (fileInternalId: string, fileExtName: string, fileTitle:
             break;
         }
     }
-    return (<a href={`${FileManagementAPI.DOWNLOAD_URL}/${fileInternalId}`} target="_blank" rel="noopener noreferrer"
-        className="btn btn-default" title={`${fileTitle}(另開視窗)`} > {div}</ a>)
+    return (<a href={FileManagementAPI.get_Public_Download_Url(fileInternalId,fileTitle)} target="_blank" rel="noopener noreferrer"className="btn btn-default" title={`${fileTitle}(另開視窗)`} >
+            {div}
+        </ a>)
 }
 
 const SetUrlIcon = (url: string, descript: string, target: WindowTarget) => {

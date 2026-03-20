@@ -3,8 +3,7 @@ import { GetFileInternalIds } from "./LibFileParser";
 import { transformHtmlWithMeta } from "./transformHtml";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 
-const buildFileUrlById = (id: string) =>
-  `${FileManagementAPI.PREVIEW_URL}/${encodeURIComponent(id)}`;
+const buildFileUrlById = (id: string) => FileManagementAPI.get_Public_Preview_Url(id)
 
 export const useResolveInternalIds = (rawHtml: string, opt?: { locale?: string }) => {
   // 宣告變數：先做 SSR 可用的 fallback（至少補 src）

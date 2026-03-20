@@ -75,7 +75,7 @@ export const BannerSlider = (props: { lang: Lang }) => {
             const tasks = mappedDetails.map(async (d) => {
                 const id = d?.PicSrcId ?? "";
                 if (!id) return { id, url: "" };
-                const url = `${FileManagementAPI.PREVIEW_URL}/${id}`;
+                const url = FileManagementAPI.get_Public_Preview_Url(id);
                 return { id, url };
             });
 

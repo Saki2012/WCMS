@@ -5,6 +5,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useMemo, useRef } from "react";
 import type { Editor as TinyMCEEditor } from "tinymce";
 import { useContentTransform } from "./useContentTransform";
+import { PGID } from "@/types/SchemaFields";
 
 export interface TinyMceHookOptions
 {
@@ -23,37 +24,7 @@ export interface TinyMceHookOptions
     baseUrl?: string; // "/tinymce"
     initExtras?: Record<string, any>;
 }
-const pickSandboxForUrl = (rawUrl: string) =>
-{
-    // 讓相對網址也能被解析（SSR 也安全）
-    const base = "https://example.com";
-    let host = "";
-    try
-    {
-        host = new URL(rawUrl, base).hostname.toLowerCase(); // ← 只拿主機名
-    } catch
-    {
-        return "allow-same-origin"; // 解析失敗就保守處理
-    }
 
-    // google.*（含 maps.google.com、google.com.tw 等）
-    if (/^(?:[\w-]+\.)*google\.[a-z.]+$/i.test(host))
-    {
-        return "allow-same-origin allow-scripts allow-popups";
-    }
-
-    // YouTube / Vimeo（舉例）
-    if (
-        host === "youtu.be"
-        || /^(?:[\w-]+\.)*youtube\.com$/i.test(host)
-        || /^(?:[\w-]+\.)*vimeo\.com$/i.test(host)
-    )
-    {
-        return "allow-same-origin allow-scripts allow-presentation";
-    }
-
-    return "allow-same-origin";
-};
 const normalizeWidth = (raw?: string) =>
 {
     const x = (raw ?? "").trim();
@@ -79,13 +50,13 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
     const { publish } = useToast();
     // 1) 掛上內容轉換（prefix 可自訂；不給就用預設）
     const { toDb, toEditor } = useContentTransform({
-        previewPrefix: `${FileManagementAPI.PREVIEW_URL}`,
+        previewPrefix: `/Service/${PGID.FileManagement}/Public_Preview`,//這邊暫時寫死，後續橋
         attrName: INTERNAL_ATTR,
     });
 
     const uploadAndReturn = async (file: File) =>
     {
-        const api = p.uploadFileApi ?? `${FileManagementAPI.UPLOAD_URL}`;
+        const api = p.uploadFileApi ?? `${FileManagementAPI.Server_UploadTemp}`;
         const fd = new FormData();
         fd.append("file", file);
         const res = await fetch(api, { method: "POST", body: fd });
@@ -105,8 +76,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
         return { isSuccess: json.IsSuccess, internalId: json.Data[0], name: file.name };
     };
 
-    const toUrl = (id: string, kind: "file" | "image") =>
-        (p.makeFileUrl?.(id, { kind })) ?? `${FileManagementAPI.PREVIEW_URL}/${id}`;
+    const toUrl = (id: string, kind: "file" | "image") => (p.makeFileUrl?.(id, { kind })) ?? FileManagementAPI.get_Public_Preview_Url(id);
 
     const pickLocalFile = (cb: (file: File) => void, opt?: { accept?: string; }) =>
     {
@@ -114,10 +84,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
         input.type = "file";
 
         // 若有指定檔案類型，設定到 input.accept
-        if (opt?.accept)
-        {
-            input.accept = opt.accept; // 例如 ".pdf,application/pdf"
-        }
+        if (opt?.accept) input.accept = opt.accept; // 例如 ".pdf,application/pdf"
 
         input.onchange = () =>
         {
@@ -480,7 +447,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                                 if (!isSuccess) return;
 
                                 // 用預覽 API 當 src（可視需要改成 toUrl(internalId, 'file')）
-                                const src = `${FileManagementAPI.PREVIEW_URL}/${internalId}`;
+                                const src = FileManagementAPI.get_Public_Preview_Url(internalId);
                                 const title = (name ?? file.name).replace(/\.[^.]+$/, "");
                                 const attrName = INTERNAL_ATTR; // data-internalid
 

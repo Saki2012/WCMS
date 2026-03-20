@@ -41,7 +41,7 @@ const HeaderComp = (prop: {theme: IBETheme; formData: UseFetchFormDataResult<Web
     const setField = useSetTableField<WebResourceSet>(prop.formData);
     const useUploadPic = useUploadPicture();
     const initialPicId = prop.formData.data?.WebResource?.PicId;
-    const previewSrc = useUploadPic.result.previewUrl || (initialPicId ? `${FileManagementAPI.PREVIEW_URL}/${initialPicId}` : "https://dummyimage.com/1920x550/555/fff.png");
+    const previewSrc = useUploadPic.result.previewUrl || (FileManagementAPI.get_Server_Preview_Url(initialPicId) ?? "https://dummyimage.com/1920x550/555/fff.png");
     const LibTabsPropA: LibTabsProp = {Style: prop.theme.Tabs,item: { Basic: "基本", Status: "狀態", Tags: "標籤", Img: "圖片", System:"系統資訊" }}
     const componentsA: Record<string, React.ReactNode[]> = {
         Basic: [<LibCheckBox Style={prop.theme.CheckBox} options={prop.cateOpts} {...setField(WebResourceSetFields.WebResource, WebResourceFields.Categories, 'string', undefined, 'csv')} />,],

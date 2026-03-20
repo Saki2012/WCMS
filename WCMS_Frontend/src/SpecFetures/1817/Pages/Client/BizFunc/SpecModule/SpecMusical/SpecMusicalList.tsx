@@ -1,8 +1,8 @@
 import { useLocation } from "react-router-dom";
-import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
 import { useMemo } from "react";
 import type { components } from "@/types/api";
-import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
+import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LangLink } from "@/SysCore/i18n/LangLink";
@@ -16,7 +16,7 @@ type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
 
 export interface ISpecMusicalOptions { Category?: string; }
 
-const SpecMusicalList = (props: { options?: ISpecMusicalOptions; node: INormNode }) => {
+const SpecMusicalList = (props: { options?: ISpecMusicalOptions; site:INormSite; node: INormNode }) => {
     // 宣告變數
     const loaderData = useLoaderData() as SpecMusicalListLoaderData | null;
     const pageSize = 9;
@@ -35,10 +35,10 @@ const SpecMusicalList = (props: { options?: ISpecMusicalOptions; node: INormNode
         totalPages: useList.totalPages,
         onPageChange: useList.onPageChange,
     };
-
+    const viewCountConfig: ModuleViewCountConfig = { mode: "list", };
     // return（DOM 不改）
     return (
-        <ModuleContent nodeTitle={props.node.title} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops}>
+        <ModuleContent nodeTitle={props.node.title} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops} viewCountConfig={viewCountConfig}>
             <GridList_Comp title={""} data={useList.rawData} />
         </ModuleContent>
     )
@@ -51,7 +51,7 @@ const GridList_Comp = (props: { title: string; data: SpecMusicalSet[] }) => {
         <div id="Row_Colitem" className="SubPage_Musical_Instrument_itemBoxs">
             {props.data.map((item) => {
                 const internalId = item.SpecMusical?.InternalId;
-                const picSrc = `${FileManagementAPI.PREVIEW_URL}/${item.SpecMusical?.CoverPicId}`;
+                const picSrc = FileManagementAPI.get_Public_Preview_Url(item.SpecMusical?.CoverPicId);
                 const title = item.SpecMusical?.MusicalName ?? "";
                 const href = `${dirUrl}/${internalId}`;
                 return (

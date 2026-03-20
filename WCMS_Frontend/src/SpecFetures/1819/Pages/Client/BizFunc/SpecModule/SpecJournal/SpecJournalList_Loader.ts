@@ -1,7 +1,7 @@
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
-import { SpecJournalAuthorFields, SpecJournalDocumentFields, SpecJournalIndexDetailFields, SpecJournalIndexModelFields, SpecJournalKeywordsFields, SpecJournalModelFields, SpecJournalTypesFields, TagDataFields, TagDetailFields, } from "@/types/SchemaFields";
+import { FileManageModelFields, SpecJournalAuthorFields, SpecJournalDocumentFields, SpecJournalIndexDetailFields, SpecJournalIndexModelFields, SpecJournalKeywordsFields, SpecJournalModelFields, SpecJournalTypesFields, TagDataFields, TagDetailFields, } from "@/types/SchemaFields";
 import type { LoaderFunctionArgs } from "react-router-dom";
 import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournal_Api";
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
@@ -141,6 +141,9 @@ const buildBaseParam = (p: BuildBaseParamArgs): QueryListParam =>
             `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
             `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileId}`,
             `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileName}`,
+            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFile}.${FileManageModelFields.PublicDownloadCount}`,
+            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFile}.${FileManageModelFields.FileExtension}`,
+
             `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.TagId}`,
             `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.Tag}`,
             `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.Tag}.${TagDataFields._TagDetail}.${TagDetailFields.Lang}`,

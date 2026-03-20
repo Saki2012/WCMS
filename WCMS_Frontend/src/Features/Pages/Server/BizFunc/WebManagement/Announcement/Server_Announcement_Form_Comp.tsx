@@ -55,7 +55,7 @@ const HeaderComp = (prop: {theme: IBETheme;formData: UseFetchFormDataResult<Anno
     const setField = useSetTableField<AnnouncementSet>(prop.formData);
     const useUploadPic = useUploadPicture();
     const initialPicId = prop.formData.data?.Announcement?.PictureId;
-    const previewSrc = useUploadPic.result.previewUrl || (initialPicId ? `${FileManagementAPI.PREVIEW_URL}/${initialPicId}` : "https://dummyimage.com/1920x550/555/fff.png");
+    const previewSrc = useUploadPic.result.previewUrl || (FileManagementAPI.get_Server_Preview_Url(initialPicId) ?? "https://dummyimage.com/1920x550/555/fff.png");
     const tabInfo: LibTabsProp = { Style: prop.theme.Tabs, item: { Basic: "基本", Status: "狀態", Tags: "標籤", Pic: "圖片",System:"系統資訊" },};
     const tabContent: Record<string, React.ReactNode[]> = {
         Basic: [

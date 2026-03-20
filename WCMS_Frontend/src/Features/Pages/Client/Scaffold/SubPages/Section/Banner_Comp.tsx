@@ -115,49 +115,24 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
             <div className="LR_VLine_Div">
                 <div className="VLine_inner">
                     <div className="VLine_wrapper">
-                        <div className="subpage_banner_wrapper w-100" style={ratioStyle}>
-                            <div
-                                className="carousel slide h-100"
-                                id={carouselId}
-                                ref={carouselRef}
-                                data-bs-ride="carousel"
-                                data-bs-interval={intervalMs}
-                            >
+                        {/* <div className="subpage_banner_wrapper w-100" style={ratioStyle}> */}
+                        <div className="subpage_banner_wrapper w-100">
+                            <div className="carousel slide h-100" id={carouselId} ref={carouselRef} data-bs-ride="carousel" data-bs-interval={intervalMs}>
                                 <div className="carousel-inner h-100">
                                     {validDetails.map((d, i) => {
                                         const info = pickBannerDetailInfo(d, props.lang);
                                         const title = getInfoTitle(info);
                                         const url = getInfoUrl(info);
                                         const openBlank = getInfoOpenBlank(info);
-                                        const imgUrl = `${FileManagementAPI.PREVIEW_URL}/${d.PicSrcId}`;
-
+                                        const imgUrl = FileManagementAPI.get_Public_Preview_Url(d.PicSrcId);
                                         return (
-                                            <div
-                                                key={`${bannerId}_${d.RowId ?? i}_${i}`}
-                                                className={`carousel-item ${i === 0 ? "active" : ""} h-100`}
-                                            >
+                                            <div key={`${bannerId}_${d.RowId ?? i}_${i}`} className={`carousel-item ${i === 0 ? "active" : ""} h-100`}>
                                                 {url ? (
-                                                    <LangLink
-                                                        to={url}
-                                                        target={openBlank ? "_blank" : undefined}
-                                                        rel={openBlank ? "noopener noreferrer" : undefined}
-                                                        aria-label={title ? `Banner 連結：${title}` : "Banner 連結"}
-                                                        title={title}
-                                                    >
-                                                        <img
-                                                            src={imgUrl}
-                                                            className="d-block w-100 h-100"
-                                                            alt={title}
-                                                            style={{ width: "100%", height: "100%", objectFit: "cover", minHeight: "200px"}}
-                                                        />
+                                                    <LangLink to={url} target={openBlank ? "_blank" : undefined} rel={openBlank ? "noopener noreferrer" : undefined} aria-label={title ? `Banner 連結：${title}` : "Banner 連結"} title={title}>
+                                                        <img src={imgUrl} className="d-block w-100 h-100" alt={title} style={{ width: "100%", height: "100%", objectFit: "cover", minHeight: "200px"}}/>
                                                     </LangLink>
                                                 ) : (
-                                                    <img
-                                                        src={imgUrl}
-                                                        className="d-block w-100 h-100"
-                                                        alt={title}
-                                                        style={{ width: "100%", height: "100%", objectFit: "cover", minHeight: "200px"}}
-                                                    />
+                                                    <img src={imgUrl} className="d-block w-100 h-100" alt={title} style={{ width: "100%", height: "100%", objectFit: "cover", minHeight: "200px"}}/>
                                                 )}
                                             </div>
                                         );

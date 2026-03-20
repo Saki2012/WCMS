@@ -35,7 +35,7 @@ export const specClientEntries: Record<string, ModuleEntry> = {
         element: (lang: Lang, site: INormSite, node: INormNode) => (
             <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
         ),
-        children: (opts, lang, node: INormNode) => [
+        children: (opts, lang, site, node) => [
             {
                 index: true,
                 element: <AutoRedirect to="Index" replace />,
@@ -45,7 +45,7 @@ export const specClientEntries: Record<string, ModuleEntry> = {
             {
                 path: "Index",
                 loader: SpecJournalIndex_Loader({ pageSize: 10 }),
-                element: <SpecJournalIndex node={node} lang={lang} />,
+                element: <SpecJournalIndex site={site} node={node} lang={lang} />,
                 handle: { breadcrumb: "journal-index" },
             },
 
@@ -53,21 +53,21 @@ export const specClientEntries: Record<string, ModuleEntry> = {
             {
                 path: "List/:indexId?/:rowId?",
                 loader: SpecJournalList_Loader({ pageSize: 10, publishStatus: PublishStatusEnum.Published, forceGlobal: false, pageTitle: "所有期刊",}),
-                element: <SpecJournalList node={node} lang={lang} />,
+                element: <SpecJournalList site={site} node={node} lang={lang} />,
                 handle: { breadcrumb: "journal-issue" },
             },
             // 預刊列表
             {
                 path: "Preprint",
                 loader: SpecJournalList_Loader({ pageSize: 10, publishStatus: PublishStatusEnum.Unpublished, forceGlobal: true, pageTitle: "預刊本", }),
-                element: <SpecJournalList node={node} lang={lang} />,
+                element: <SpecJournalList site={site} node={node} lang={lang} />,
                 handle: { breadcrumb: "journal-preprint" },
             },
             // Form：某一篇
             {
                 path: "Form/:indexId/:rowId/:journalId?",
                 loader: SpecJournalForm_Loader(),
-                element: <SpecJournalForm_Comp node={node} lang={lang} />,
+                element: <SpecJournalForm_Comp site={site} node={node} lang={lang} />,
                 handle: { breadcrumb: "journal-article" },
             },
         ],

@@ -12,14 +12,6 @@ import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
 
-
-
-
-
-
-
-
-
 type HeaderA11yText = {
     mainNavLabel: string;
     openNewWindowSuffix: string;

@@ -47,24 +47,10 @@ const updatePersonImgId = (prev: PersonSet, id: string): PersonSet => {
     };
 };
 
-const Person_Comp = (props: {
-    theme: IBETheme;
-    formData: UseFetchFormDataResult<PersonSet>;
-    genderOpt: Record<string, string>;
-}) => {
-    // 宣告變數
+const Person_Comp = (props: {theme: IBETheme; formData: UseFetchFormDataResult<PersonSet>; genderOpt: Record<string, string>;}) => {
     const setField = useSetTableField<PersonSet>(props.formData);
-
-    const userPic = props.formData.data?.Person?.PersonImgId
-        ? `${FileManagementAPI.PREVIEW_URL}/${props.formData.data.Person.PersonImgId}`
-        : pic;
-
-    const setPersonImgId = useCallback((id: string) => {
-        // 執行 function：上傳頭像後回寫 PersonImgId
-        props.formData.setFormData((prev) => updatePersonImgId(prev, id));
-    }, [props.formData]);
-
-    // return（DOM 不動）
+    const userPic = FileManagementAPI.get_Server_Preview_Url(props.formData.data?.Person?.PersonImgId) ?? pic;
+    const setPersonImgId = useCallback((id: string) => { props.formData.setFormData((prev) => updatePersonImgId(prev, id)); }, [props.formData]);
     return (
         <div className="row">
             <div className="col-xl-3 col-lg-4 col-md-4 col-sm-4 col-12">

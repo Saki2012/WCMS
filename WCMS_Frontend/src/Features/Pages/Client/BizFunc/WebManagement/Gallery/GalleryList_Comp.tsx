@@ -1,13 +1,13 @@
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { useLocation } from "react-router";
-import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 import { useMemo } from "react";
 import type { components } from "@/types/api";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
+import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 
 // ✅ 新架構：Adapter + LoaderData initial
@@ -21,7 +21,7 @@ type GallerySet = components["schemas"]["GallerySet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 
 export interface IGalleryListOptions { Title: string; Category?: string; Tag?: string; Style: number; }
-export interface IGalleryListProps { node: INormNode; theme: IFETheme; lang: Lang; options?: IGalleryListOptions; title: string }
+export interface IGalleryListProps { site:INormSite; node: INormNode; theme: IFETheme; lang: Lang; options?: IGalleryListOptions; title: string }
 
 const GalleryList = (props: IGalleryListProps) => {
     // 宣告變數
@@ -54,9 +54,10 @@ const GalleryList = (props: IGalleryListProps) => {
         return <Gallery key="grid" lang={props.lang} data={useListData.data} cateData={useCategoryList.data} />;
     }, [useListData.data, props.lang, props.options, useCategoryList.data]);
 
+    const viewCountConfig: ModuleViewCountConfig = { mode: "list", };
     // return（不改 div 結構）
     return (
-        <ModuleContent nodeTitle={props.node.title} title={""} isLoading={loadingList.some(Boolean)} errorList={errorList} paginatorProps={paginprops}>
+        <ModuleContent nodeTitle={props.node.title} title={""} isLoading={loadingList.some(Boolean)} errorList={errorList} paginatorProps={paginprops} viewCountConfig={viewCountConfig}>
             {children}
         </ModuleContent>
     );
@@ -171,8 +172,8 @@ const Gallery = (props: { lang: Lang; data: GallerySet[]; cateData: CategorySet[
                 {props.data.map((item, idx) => {
                     const catId = item.Gallery?.Categories;
                     const title = item.GalleryInfo?.find(p => p.Lang === props.lang)?.Title ?? ""
-                    const coverPicUrl = `${FileManagementAPI.PREVIEW_URL}/${item.Gallery?.CoverPicSrcId}`
                     const coverPicDesc = item.GalleryPhotos?.find(p => p.PicSrcId)?.GalleryPhotosInfo?.find(p => p.Lang === props.lang)?.Title ?? title
+                    const coverPicUrl = FileManagementAPI.get_Public_Preview_Url(item.Gallery?.CoverPicSrcId,coverPicDesc)
                     const linkUrl = `${dirUrl}/${item.Gallery?.InternalId}`
                     const categorys = (catId ?? "").split(",").map(s => s.trim()).filter(Boolean);
                     const categories = categorys.map(catId => props.cateData?.find(s => String(s.Category?.CategoryId) === catId)?.CategoryDetail?.find(d => d.Lang === props.lang)?.CategoryName).filter((x): x is string => !!x).join("、");

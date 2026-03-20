@@ -135,6 +135,7 @@ export const SpecialLinkData = (props: { lang: Lang }) => {
 											const alt = info?.Title ?? ""
 											const url = info?.URL ?? ""
 											const urlopen = info?.URL_Open === 0 ? "_self" : "_blank"
+											const imgUrl = FileManagementAPI.get_Public_Preview_Url(p.PicSrcId);
 											return (
 												<div className="item" key={i}>
 													<LangLink aria-label={alt} to={url} role="button" tabIndex={0} target={urlopen} title={alt} type="button" >
@@ -143,7 +144,7 @@ export const SpecialLinkData = (props: { lang: Lang }) => {
 																<figure className="figure_Box">
 																	<div className="card_figure">
 																		<div className="img-wrapper">
-																			<img className="card_image" alt={alt} src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} />
+																			<img className="card_image" alt={alt} src={imgUrl} />
 																		</div>
 																	</div>
 																	<div className="Arrow_ZZ_area">

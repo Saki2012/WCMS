@@ -22,11 +22,7 @@ interface LatestIssueSectionProps {
 
 /** 取得 Banner 圖片網址 */
 const getBannerImageUrl = (banner: BannerSet | null): string => {
-    // 宣告變數
-    const picId = banner?.BannerDetail?.[0]?.PicSrcId ?? "";
-
-    // return
-    return picId ? `${FileManagementAPI.PREVIEW_URL}/${picId}` : "";
+    return FileManagementAPI.get_Public_Preview_Url(banner?.BannerDetail?.[0]?.PicSrcId)
 };
 
 /** 取第一筆卷期資料 */
@@ -62,11 +58,7 @@ const buildIssueTo = (data?: SpecJournalIndexSet | null): string => {
 
 /** Summary 檔案下載連結 */
 const buildSummaryDownloadHref = (data?: SpecJournalIndexSet | null): string => {
-    // 宣告變數
-    const id = data?.SpecJournalIndexDetail?.[0]?.SummaryFileId ?? "";
-
-    // return
-    return id ? `${FileManagementAPI.DOWNLOAD_URL}/${encodeURIComponent(id)}` : "";
+    return FileManagementAPI.get_Public_Download_Url(data?.SpecJournalIndexDetail?.[0]?.SummaryFileId,data?.SpecJournalIndexDetail?.[0]?.SummaryFileName)
 };
 
 /** 只取 yyyy/MM */

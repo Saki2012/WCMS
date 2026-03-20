@@ -283,6 +283,7 @@ export const SpecialLinkData = (props: { lang: Lang; internalId: string; initial
 											const alt = info?.Title ?? "";
 											const url = info?.URL ?? "#";
 											const urlopen = info?.URL_Open === 0 ? "_self" : "_blank";
+                      						const imgUrl = FileManagementAPI.get_Public_Preview_Url(p.PicSrcId,alt)
 
 											return (
 												<div key={p.RowId ?? idx} className="item">
@@ -291,11 +292,7 @@ export const SpecialLinkData = (props: { lang: Lang; internalId: string; initial
 															<figure className="card_figure">
 																<div className="card_image_link">
 																	<picture>
-																		<img
-																			className="card_image"
-																			src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`}
-																			alt={alt}
-																		/>
+																		<img className="card_image" src={imgUrl} alt={alt}/>
 																	</picture>
 																</div>
 															</figure>

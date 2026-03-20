@@ -82,14 +82,12 @@ export const Server_USRProjFormComp = (prop: { theme: IBETheme; lang: Lang }) =>
     )
 }
 
-const HeaderComp = (prop: {
-    theme: IBETheme; formData: UseFetchFormDataResult<SpecUSRSet>;
-    cateOpts: Record<string, string>; statusOpts: Record<string, string>; tagOpts: Record<string, string>;
-}) => {
+const HeaderComp = (prop: {theme: IBETheme; formData: UseFetchFormDataResult<SpecUSRSet>; cateOpts: Record<string, string>; statusOpts: Record<string, string>; tagOpts: Record<string, string>;}) => 
+{
     const setField = useSetTableField<SpecUSRSet>(prop.formData);
     const useUploadPic = useUploadPicture();
     const initialPicId = prop.formData.data?.SpecUSR?.PictureId;
-    const previewSrc = useUploadPic.result.previewUrl || (initialPicId ? `${FileManagementAPI.PREVIEW_URL}/${initialPicId}` : "https://dummyimage.com/1920x550/555/fff.png");
+    const previewSrc = useUploadPic.result.previewUrl || (FileManagementAPI.get_Server_Preview_Url(initialPicId) ?? "https://dummyimage.com/1920x550/555/fff.png");
     const LibTabsPropA: LibTabsProp = { Style: prop.theme.Tabs, item: { Basic: "基本", Status: "狀態", Tags: "標籤", Img: "封面圖片", Photo: "相片",System:"系統資訊" }}
     const componentsA: Record<string, React.ReactNode[]> = {
         Basic: [<LibDropList Style={prop.theme.DropList} Options={prop.cateOpts} {...setField(SpecUSRSetFields.SpecUSR, SpecUSRModelFields.CategoryId, 'string')} />],
@@ -292,7 +290,7 @@ const UploadPicComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
     // 逐張打 UploadTemp，回傳 InternalId 陣列
     const uploadAll = async (): Promise<string[]> => {
         const results: string[] = [];
-        const url = FileManagementAPI.UPLOAD_URL;
+        const url = FileManagementAPI.Server_UploadTemp;
         // 小工具：實際送出
         const doUpload = async (file: File, fieldName: "file" | "files") => {
             const fd = new FormData();
@@ -419,13 +417,13 @@ const PhotoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Spe
     const setField = useSetTableField<SpecUSRSet>(prop.formData);
     const photos = prop.formData?.data?.SpecUSRPhoto ?? []
     const remover = usePhotoRemove(prop.formData);
-
-    const dom =
-        (<>
+    const dom =(
+        <>
             {photos.map((item) => {
                 const rowKeys = { [SpecUSRPhotoFields.USRId]: item.USRId, [SpecUSRPhotoFields.RowId]: item.RowId }
+                const picSrcUrl = FileManagementAPI.get_Server_Preview_Url(item.PicSrcId)
                 return (
-                    <LibPicture parentClass="col-xl-3 col-md-4 col-12" ColumnDisplayName="測試" PicSrc={`${FileManagementAPI.PREVIEW_URL}/${item.PicSrcId}`} PicDescription="文字">
+                    <LibPicture parentClass="col-xl-3 col-md-4 col-12" ColumnDisplayName="" PicSrc={picSrcUrl} PicDescription="文字">
                         <div className="row">
                             <div className="col-6 d-flex justify-content-end">
                                 <div className="all-btn">

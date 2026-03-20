@@ -217,7 +217,7 @@ export const NewsSection = (props: NewsSectionProps) => {
                                     </div>
                                     <div className="btn-w100-wrapper justify-content-center">
                                         <div className="customize_btn">
-                                            <LangNavLink to={"/news/List"} className="Btn_a" role="button" target="_self" title="更多系所公告">
+                                            <LangNavLink to={"/news"} className="Btn_a" role="button" target="_self" title="更多系所公告">
                                                 <div className="BtnBox">
                                                     <span>VIEW MORE</span>
                                                     <span className="ml-2">

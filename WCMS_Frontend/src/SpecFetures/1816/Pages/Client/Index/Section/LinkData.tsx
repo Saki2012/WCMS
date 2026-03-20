@@ -142,20 +142,14 @@ export const LinkData = (props: LinkDataProps) => {
 								<div id="icon_area" className="swiper" ref={swiperRootRef}>
 									<div className="swiper-wrapper">
 										{sortedDetails.map((p, i) => {
-											const info = useBanner.data?.BannerDetailInfo?.find(
-												(x) => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang,
-											);
-
+											const info = useBanner.data?.BannerDetailInfo?.find((x) => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang,);
 											const title = info?.Title ?? "";
 											const url = info?.URL ?? "";
 											const target = info?.URL_Open === 0 ? "_self" : "_blank";
-
 											// 對標 prototype：img-1 ~ img-6（超過 6 迴圈）
 											const iconIdx = ((i % 6) + 1) as 1 | 2 | 3 | 4 | 5 | 6;
 											const iconClass = `icon-type-image img-${iconIdx}`;
-
-											const imgSrc = p.PicSrcId ? `${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}` : "";
-
+											const imgSrcUrl = FileManagementAPI.get_Public_Preview_Url(p.PicSrcId,title);
 											return (
 												<div key={p.RowId ?? i} className="swiper-slide">
 													<div className="item">
@@ -164,7 +158,7 @@ export const LinkData = (props: LinkDataProps) => {
 															<div className="icon-wrapper">
 																<div className="icon-area">
 																	<div className={iconClass}>
-																		{imgSrc ? <img src={imgSrc} aria-hidden="true"/> : null}
+																		{imgSrcUrl ? <img src={imgSrcUrl} aria-hidden="true"/> : null}
 																	</div>
 																</div>
 																<div className="tit-contents">

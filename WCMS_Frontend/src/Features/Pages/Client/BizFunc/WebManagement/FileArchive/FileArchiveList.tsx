@@ -4,13 +4,13 @@ import type { components } from "@/types/api";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
 import { ColRender, RowRender, STORAGE_KEY } from "@/SysCore/Components/Grid/Grid_Comp";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { FileArchiveFields, FileArchiveInfoFields } from "@/types/SchemaFields";
 import { useEffect, useMemo, useState } from "react";
 import { SearchBarComp, type ISearchQuery } from "@/SysCore/Components/SearchBar/SearchBar_Comp";
-import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
+import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 
@@ -28,7 +28,7 @@ type TagSet = components["schemas"]["TagSet_DTO"];
 type WindowTarget = components["schemas"]["WindowTarget"];
 
 export interface IFileArchiveOptions { Category: string; Tag: string; }
-export interface FileArchiveProps { lang: Lang; theme: IFETheme; options: IFileArchiveOptions; node: INormNode }
+export interface FileArchiveProps { lang: Lang; theme: IFETheme; options: IFileArchiveOptions; site:INormSite; node: INormNode }
 
 const FileArchiveList = (props: FileArchiveProps) => {
     // 宣告變數
@@ -97,9 +97,9 @@ const FileArchiveList = (props: FileArchiveProps) => {
     const errorList: (string | null | undefined)[] = [useFileArchiveList.error, useTagData.errorText];
 
     const paginprops: PaginatorProps = { currentPage: adjustedGrid.CurrentPage, totalPages: adjustedGrid.TotalPage, onPageChange: adjustedGrid.onPageChange };
-
+    const viewCountConfig: ModuleViewCountConfig = { mode: "list", };
     return (
-        <ModuleContent nodeTitle={props.node.title} title={""} isLoading={loadingList.some(Boolean)} errorList={errorList} paginatorProps={paginprops}>
+        <ModuleContent nodeTitle={props.node.title} title={""} isLoading={loadingList.some(Boolean)} errorList={errorList} paginatorProps={paginprops} viewCountConfig={viewCountConfig}>
             <GridList_Comp key="grid" lang={props.lang} gridData={adjustedGrid} title={props.node.title} />
         </ModuleContent>
     )
@@ -271,43 +271,40 @@ const useFileArchive = (
 
 const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: FileArchiveSet[], tagMap: Map<string, string>): GridProps => {
     // 宣告變數
-    const downloadColName = '__Download__';
-    // 執行 function
-    if (gridProps.columns.some(col => col.key === downloadColName)) return gridProps;
+    const downloadColName = "__Download__";
+    const publicDownloadCountColName = "__PublicDownloadCount__";
+
+    // 執行 function：避免重複處理
+    if (gridProps.columns.some(col => col.key === downloadColName || col.key === publicDownloadCountColName)) return gridProps;
     if (gridProps.rows.length === 0) return gridProps;
 
-    // 1) 欄位層級：抽掉「下載次數」，最後組合為「其他｜下載｜下載次數」
-    let baseColumns = [...gridProps.columns];
-    const dcIdx = baseColumns.findIndex(c => c.key === FileArchiveFields.DownloadCount);
+    // 宣告變數：欄位組合（其他｜下載｜下載次數）
+    const baseColumns = [...gridProps.columns];
+    const downloadCol: ColumnConfig = { key: downloadColName, title: "下載" };
+    const publicDownloadCountCol: ColumnConfig = { key: publicDownloadCountColName, title: "下載次數" };
+    const newColumns: ColumnConfig[] = [...baseColumns, downloadCol, publicDownloadCountCol];
 
-    let downloadCountCol: ColumnConfig | null = null;
-    if (dcIdx !== -1) {
-        [downloadCountCol] = baseColumns.splice(dcIdx, 1);
-    }
-
-    const downloadCol: ColumnConfig = { key: downloadColName, title: '下載' };
-    const newColumns: ColumnConfig[] = [...baseColumns, downloadCol, ...(downloadCountCol ? [downloadCountCol] : [])];
-
-    // 2) 列層級：抽掉「下載次數」cell，最後組合為「其他｜下載｜下載次數」
+    // 執行 function：逐列組特殊欄位
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
         // 宣告變數
         const curRow = rawData?.[index];
         const contentStatus = Number(curRow?.FileArchive?.ContentStatus ?? 0);
+        const fileRows = curRow ? getCurrentLangFileRows(lang, curRow) : [];
+        const urlRows = curRow ? getCurrentLangUrlRows(lang, curRow) : [];
+        const publicDownloadCount = getPublicDownloadCountTotal(fileRows);
 
-        const fileInfoRowId = curRow?.FileArchiveInfo?.find(p => p.Lang === lang)?.RowId;
-        const fileRows = (curRow?.FileArchiveDetail?.filter(p => p.ParentRowId === fileInfoRowId) ?? []) as FileArchiveDetail[];
-        const urlRows = (curRow?.FileArchiveUrlDetail?.filter(p => p.ParentRowId === fileInfoRowId) ?? []) as FileArchiveUrlDetail[];
-
-        // 產生「下載」內容
+        // 宣告變數：下載內容
         let downloadFileContent = <></>;
+
         fileRows.forEach(item => {
             downloadFileContent = (
                 <>
                     {downloadFileContent}
-                    {SetDownloadIcon(item.FileSrcId ?? '', item.FileSrc?.FileExtension ?? 'docx', item.FileName ?? '')}
+                    {SetDownloadIcon(item.FileSrcId ?? "", item.FileSrc?.FileExtension ?? "docx", item.FileName ?? "")}
                 </>
             );
         });
+
         urlRows.forEach(item => {
             downloadFileContent = (
                 <>
@@ -317,7 +314,7 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: FileArchiv
             );
         });
 
-        // 執行 function：處理 tags 顯示 + title label 顯示
+        // 執行 function：處理既有 cell 顯示
         const cells = row.cells.map(cell => {
             // tags：把 ids 轉成名稱
             if (cell.col?.key === FileArchiveFields.TagsId) {
@@ -326,18 +323,17 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: FileArchiv
                 return { ...cell, content: names };
             }
 
-            // title：在 title 前面加 labels
-            const isTitle = cell.col?.key === FileArchiveInfoFields.Title;
-            if (isTitle) {
-                const titleContent = cell.content; // 原本 parseRow 產生的 title 字串
+            // title：在 title 後面補狀態標籤
+            if (cell.col?.key === FileArchiveInfoFields.Title) {
+                const titleContent = cell.content;
                 return {
                     ...cell,
                     content: (
                         <>
                             <div>{titleContent}</div>
                             <div className="d-flex gap-1 flex-wrap">
-                                {Boolean(contentStatus & 1) && (<span className="label label-success">置頂</span>)}
-                                {Boolean(contentStatus & 2) && (<span className="label label-danger">熱門</span>)}
+                                {Boolean(contentStatus & 1) && <span className="label label-success">置頂</span>}
+                                {Boolean(contentStatus & 2) && <span className="label label-danger">熱門</span>}
                             </div>
                         </>
                     )
@@ -347,15 +343,7 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: FileArchiv
             return cell;
         });
 
-        // 把下載次數 cell 抽掉
-        const dcCellIdx = cells.findIndex(c => c.col?.key === FileArchiveFields.DownloadCount);
-        let downloadCountCell: RowCell | null = null;
-        if (dcCellIdx !== -1) {
-            [downloadCountCell] = cells.splice(dcCellIdx, 1);
-            if (downloadCountCol) downloadCountCell = { ...downloadCountCell, col: downloadCountCol };
-        }
-
-        // 插入下載 cell
+        // 宣告變數：特殊下載欄位
         const downloadCell: RowCell = {
             col: downloadCol,
             content: (
@@ -365,22 +353,50 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: FileArchiv
             )
         };
 
+        // 宣告變數：特殊下載次數欄位
+        const publicDownloadCountCell: RowCell = {
+            col: publicDownloadCountCol,
+            content: String(publicDownloadCount),
+        };
+
         // return
-        return { ...row, cells: [...cells, downloadCell, ...(downloadCountCell ? [downloadCountCell] : [])] };
+        return {
+            ...row,
+            cells: [...cells, downloadCell, publicDownloadCountCell],
+        };
     });
 
     // return
     return { ...gridProps, columns: newColumns, rows: newRows };
 };
+const getCurrentLangFileRows = (lang: Lang, data: FileArchiveSet): FileArchiveDetail[] => {
+    // 宣告變數：找目前語系對應的 FileArchiveInfo RowId
+    const fileInfoRowId = data.FileArchiveInfo?.find(p => p.Lang === lang)?.RowId;
+
+    // return：只取目前語系對應的檔案列
+    return (data.FileArchiveDetail?.filter(p => p.ParentRowId === fileInfoRowId) ?? []) as FileArchiveDetail[];
+};
+
+const getCurrentLangUrlRows = (lang: Lang, data: FileArchiveSet): FileArchiveUrlDetail[] => {
+    // 宣告變數：找目前語系對應的 FileArchiveInfo RowId
+    const fileInfoRowId = data.FileArchiveInfo?.find(p => p.Lang === lang)?.RowId;
+
+    // return：只取目前語系對應的連結列
+    return (data.FileArchiveUrlDetail?.filter(p => p.ParentRowId === fileInfoRowId) ?? []) as FileArchiveUrlDetail[];
+};
+
+const getPublicDownloadCountTotal = (fileRows: FileArchiveDetail[]): number => {
+    // return：彙總每個實體檔案的 PublicDownloadCount
+    return fileRows.reduce((sum, item) => {
+        const count = Number(item.FileSrc?.PublicDownloadCount ?? 0);
+        return sum + count;
+    }, 0);
+};
 
 const SetDownloadIcon = (fileInternalId: string, fileExtName: string, fileTitle: string) => {
+    const fileUrl = fileExtName.toLowerCase()==="pdf"?  FileManagementAPI.get_Public_Preview_Url(fileInternalId,fileTitle) : FileManagementAPI.get_Public_Download_Url(fileInternalId,fileTitle)
     return (
-        <a href={`${FileManagementAPI.DOWNLOAD_URL}/${fileInternalId}`}
-            className={`btn btn-default + bg_${fileExtName}`}
-            target="_blank"
-            role="button"
-            rel="noopener noreferrer"
-            title={`${fileTitle} [ 另開新視窗 ]`}>
+        <a href={fileUrl} className={`btn btn-default + bg_${fileExtName}`} target="_blank" role="button" rel="noopener noreferrer" title={`${fileTitle} [ 另開新視窗 ]`}>
             <span className={fileExtName}>{fileExtName}</span>
         </a>
     )

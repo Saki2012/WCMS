@@ -78,7 +78,6 @@ namespace WCMS.SysCore.Enum
             /// 作廢
             /// </summary>
             [LibDesc(ModelDisplayName.Enum_FuncAction_Invalid)] Invalid = 64,
-
             /////////////////////////////////////////////////////////////////
             /// <summary>
             /// 基礎資料權限
@@ -413,6 +412,28 @@ namespace WCMS.SysCore.Enum
             /// </summary>
             [LibDesc(ModelDisplayName.Enum_TimelineSlider)] TimelineSlider = 8,
         }
-
+        /// <summary>
+        /// 前台瀏覽次數統計的行為類型
+        /// </summary>
+        [LibDesc(ModelDisplayName.Enum_ViewCountActionType)]
+        public enum ViewCountActionType
+        {
+            /// <summary>
+            /// 頁面瀏覽
+            /// </summary>
+            [LibDesc(ModelDisplayName.Enum_ViewCountActionType_PageView)] PageView = 1,
+            /// <summary>
+            /// 檔案預覽 (如PDF、圖片等，直接在瀏覽器開啟的檔案)
+            /// </summary>
+            [LibDesc(ModelDisplayName.Enum_ViewCountActionType_FilePreview)] FilePreview = 2,
+            /// <summary>
+            /// 檔案下載
+            /// </summary>
+            [LibDesc(ModelDisplayName.Enum_ViewCountActionType_FileDownload)] FileDownload = 3,
+            /// <summary>
+            /// 點擊連結
+            /// </summary>
+            [LibDesc(ModelDisplayName.Enum_ViewCountActionType_LinkClick)] LinkClick = 4,
+        }
     }
 }

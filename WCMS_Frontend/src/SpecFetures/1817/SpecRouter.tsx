@@ -28,10 +28,10 @@ export const specClientEntries: Record<string, ModuleEntry> = {
     element: (lang: Lang, site: INormSite, node: INormNode) => (
       <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
     ),
-    children: (opts, lang, node: INormNode) => [
+    children: (opts, lang, site, node) => [
       { index: true, element: <AutoRedirect to="List" replace /> },
-      { path: "List", element: <SpecMusicalList options={opts as ISpecMusicalOptions} node={node} /> },
-      { path: ":internalId", element: <SpecMusicalForm node={node} /> },
+      { path: "List", element: <SpecMusicalList options={opts as ISpecMusicalOptions} site={site} node={node} /> },
+      { path: ":internalId", element: <SpecMusicalForm site={site} node={node} /> },
     ],
   },
 };

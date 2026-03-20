@@ -135,7 +135,7 @@ const Content = (prop: { lang: string; theme: IFETheme; data: AnnouncementSet; c
                 {files && (
                     <li >
                         {files.map((file: AnnouncementDetailFile, idx: number) => (
-                            <a key={idx} href={`${FileManagementAPI.DOWNLOAD_URL}/${file.FileId}`} rel="noopener noreferrer" className="btn btn-default" tabIndex={1} title={`${file.FileName}(另開新視窗)`}>
+                            <a key={idx} href={FileManagementAPI.get_Public_Download_Url(file.FileId)} rel="noopener noreferrer" className="btn btn-default" tabIndex={1} title={`${file.FileName}(另開新視窗)`}>
                                 <i className="fa fa-paperclip"></i> {file.FileName}
                             </a>
                         ))}

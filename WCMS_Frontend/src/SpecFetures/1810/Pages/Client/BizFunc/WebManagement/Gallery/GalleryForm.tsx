@@ -113,8 +113,7 @@ interface PhotoInfos {
 const GalleryFormViewComp = (prop: GalleryFormViewProps) => {
     const [open, setOpen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
-
-    const images = prop.photoInfoProps.map((item) => ({ src: `${FileManagementAPI.PREVIEW_URL}/${item.pictureInternalId}`, description: item.pictureDescription, }));
+    const images = prop.photoInfoProps.map((item) => ({ src: FileManagementAPI.get_Public_Download_Url(item.pictureInternalId,item.pictureDescription), description: item.pictureDescription, }));
 
     return (
         <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList}>

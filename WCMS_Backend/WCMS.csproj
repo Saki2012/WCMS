@@ -19,7 +19,6 @@
 		<DebugType>portable</DebugType> <!-- 讓 ZAP/弱掃友善：不產出開發偵錯資訊到輸出 -->
 	</PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Features\SystemSetting\SiteInfo\SystemInfo\SystemInfo_Api.cs" />
     <Compile Remove="SysCore\AccountLogin.cs" />
     <Compile Remove="SysCore\Library\RecComparison.cs" />
   </ItemGroup>

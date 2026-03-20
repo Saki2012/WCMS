@@ -12,7 +12,7 @@ export const Server_Person_List_Comp = (props: { theme: IBETheme }) => {
             <div className="row">
                 {vm.rawData.map((item) => {
                     const dir = `${vm.dirUrl}/${item.Person?.InternalId}`;
-                    const picSrc = `${FileManagementAPI.PREVIEW_URL}/${item.Person?.PersonImgId}`;
+                    const picSrc = FileManagementAPI.get_Server_Preview_Url(item.Person?.PersonImgId);
                     const key = item.Person?.InternalId ?? item.Person?.PersonId ?? "";
                     return (
                         <div className="col-xl-3 col-lg-4 col-md-4 col-sm-4 col-12" key={key}>

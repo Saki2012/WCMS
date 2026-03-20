@@ -715,11 +715,20 @@ namespace WCMS.SysCore
                 }
                 else
                 {
-                    // 巢狀物件：將 innerSelector 的參數替換成 x.Prop，直接綁定其 Body（MemberInit）
-                    var nestedExpr = Expression.Property(param, propName);           // x.Prop
+                    // 宣告變數：取得巢狀屬性
+                    var nestedExpr = Expression.Property(param, propName);
+                    // 宣告變數：把 innerSelector 參數替換成 x.Prop
                     var replacer = new ParameterReplacer(innerSelector.Parameters[0], nestedExpr);
-                    var replacedBody = replacer.Visit(innerSelector.Body);             // 內聯後的 MemberInit/MemberAccess
-
+                    var replacedBody = replacer.Visit(innerSelector.Body)!;
+                    // 宣告變數：判斷是否可為 null
+                    bool canBeNull = !childType.IsValueType || Nullable.GetUnderlyingType(childType) != null;
+                    // 執行 function：若 navigation 可能為 null，先做 null guard
+                    if (canBeNull)
+                    {
+                        var nullValue = Expression.Constant(null, childType);
+                        replacedBody = Expression.Condition(Expression.Equal(nestedExpr, nullValue),nullValue,replacedBody);
+                    }
+                    // return：綁回屬性
                     bindings.Add(Expression.Bind(propInfo, replacedBody));
                 }
             }

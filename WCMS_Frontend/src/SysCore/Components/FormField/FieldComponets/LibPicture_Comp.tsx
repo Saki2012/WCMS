@@ -27,52 +27,30 @@ const LibPicture = ({ children, ...prop }: LibPictureWithParentClassProp) => {
 interface UploadResult { internalId: string | null; previewUrl: string; uploading: boolean; error: string | null; }
 
 export const useUploadPicture = () => {
-  const uploadUrl: string = FileManagementAPI.UPLOAD_URL
-  const [result, setResult] = useState<UploadResult>({
-    internalId: null,
-    previewUrl: "",
-    uploading: false,
-    error: null,
-  });
+  const uploadUrl: string = FileManagementAPI.Server_UploadTemp
+  const [result, setResult] = useState<UploadResult>({internalId: null, previewUrl: "", uploading: false, error: null,});
   const { publish } = useToast(); // ✅ 單一來源
-  const handleFileChange = async (
-    files: File[],
-    onUploaded?: (internalId: string) => void
-  ) => {
+  const handleFileChange = async (files: File[], onUploaded?: (internalId: string) => void) => {
     if (!files || files.length === 0) {
       setResult({ internalId: null, previewUrl: "", uploading: false, error: null });
       return;
     }
-
     const file = files[0];
     const localPreview = URL.createObjectURL(file);
     setResult(prev => ({ ...prev, previewUrl: localPreview, uploading: true }));
-
     try {
       const formDataUpload = new FormData();
       formDataUpload.append("file", file);
-
       const response = await fetch(uploadUrl, { method: "POST", body: formDataUpload });
       if (!response.ok) throw new Error("Upload failed");
-
       const resultJson = await response.json();
       if (!resultJson.IsSuccess) {
         resultJson.SysMessage.map((item: { Status: any; MessageCode: any; Message: any; }) =>
           publish({ level: item.Status, code: item.MessageCode, title: "保存失敗", text: item.Message })
         );
       }
-
-
-
       const internalId = resultJson?.Data?.[0];
-
-      setResult({
-        internalId,
-        previewUrl: `${FileManagementAPI.PREVIEW_URL}/${internalId}`,
-        uploading: false,
-        error: null,
-      });
-
+      setResult({internalId, previewUrl:  FileManagementAPI.get_Server_Preview_Url(internalId), uploading: false, error: null,});
       if (internalId && onUploaded) onUploaded(internalId);
     } catch (err: any) {
       setResult(prev => ({ ...prev, uploading: false, error: err.message }));

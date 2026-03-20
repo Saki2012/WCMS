@@ -378,7 +378,6 @@ export const FileArchiveFields = {
   ContentStatus: 'ContentStatus',
   CategoriesId: 'CategoriesId',
   TagsId: 'TagsId',
-  DownloadCount: 'DownloadCount',
   _FileArchiveInfo: '_FileArchiveInfo',
 } as const;
 
@@ -406,16 +405,17 @@ export const FileManageModelFields = {
   ProgId: 'ProgId',
   ImportLabel: 'ImportLabel',
   FileStatus: 'FileStatus',
-  DownloadCount: 'DownloadCount',
-  _FileManage_DownloadInfo: '_FileManage_DownloadInfo',
+  PublicDownloadCount: 'PublicDownloadCount',
+  IsPublic: 'IsPublic',
   _FileManage_SyncInfo: '_FileManage_SyncInfo',
+  _FileManage_DownloadRecent: '_FileManage_DownloadRecent',
 } as const;
 
 export type FileManageModelFieldKey = keyof typeof FileManageModelFields;
 
 export const FileManageSetFields = {
   FileManage: 'FileManage',
-  FileManage_DownloadInfo: 'FileManage_DownloadInfo',
+  FileManage_DownloadRecent: 'FileManage_DownloadRecent',
   FileManage_SyncInfo: 'FileManage_SyncInfo',
 } as const;
 
@@ -428,19 +428,17 @@ export const FileManageSet_DTOApiRequestFields = {
 
 export type FileManageSet_DTOApiRequestFieldKey = keyof typeof FileManageSet_DTOApiRequestFields;
 
-export const FileManage_DownloadInfoModelFields = {
+export const FileManage_DownloadRecentModelFields = {
   RowState: 'RowState',
   InternalId: 'InternalId',
   RowId: 'RowId',
-  DownloadUserIP: 'DownloadUserIP',
-  UserAgent: 'UserAgent',
+  VisitorKey: 'VisitorKey',
   RefererURL: 'RefererURL',
-  DownloadStatus: 'DownloadStatus',
-  DownloadTime: 'DownloadTime',
+  LastCountTime: 'LastCountTime',
   _FileManage: '_FileManage',
 } as const;
 
-export type FileManage_DownloadInfoModelFieldKey = keyof typeof FileManage_DownloadInfoModelFields;
+export type FileManage_DownloadRecentModelFieldKey = keyof typeof FileManage_DownloadRecentModelFields;
 
 export const FileManage_SyncInfoModelFields = {
   RowState: 'RowState',
@@ -861,6 +859,73 @@ export const SiteMenu_Item_UrlFields = {
 } as const;
 
 export type SiteMenu_Item_UrlFieldKey = keyof typeof SiteMenu_Item_UrlFields;
+
+export const SiteViewCountDetailModelFields = {
+  RowState: 'RowState',
+  SiteMenu_Index: 'SiteMenu_Index',
+  SiteIndex: 'SiteIndex',
+  ProgId: 'ProgId',
+  TargetInternalId: 'TargetInternalId',
+  PageViewCount: 'PageViewCount',
+  FilePreviewCount: 'FilePreviewCount',
+  FileDownloadCount: 'FileDownloadCount',
+  LinkClickCount: 'LinkClickCount',
+  _SiteViewCountHeader: '_SiteViewCountHeader',
+} as const;
+
+export type SiteViewCountDetailModelFieldKey = keyof typeof SiteViewCountDetailModelFields;
+
+export const SiteViewCountHeaderModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  SiteMenu_Index: 'SiteMenu_Index',
+  SiteIndex: 'SiteIndex',
+  PublicViewCount: 'PublicViewCount',
+  _SiteViewCountDetail: '_SiteViewCountDetail',
+} as const;
+
+export type SiteViewCountHeaderModelFieldKey = keyof typeof SiteViewCountHeaderModelFields;
+
+export const SiteViewCountRecentlyModelFields = {
+  RowState: 'RowState',
+  SiteMenu_Index: 'SiteMenu_Index',
+  SiteIndex: 'SiteIndex',
+  ProgId: 'ProgId',
+  TargetInternalId: 'TargetInternalId',
+  TargetType: 'TargetType',
+  ActionType: 'ActionType',
+  VisitorKey: 'VisitorKey',
+  LastViewTime: 'LastViewTime',
+  RefererUrl: 'RefererUrl',
+} as const;
+
+export type SiteViewCountRecentlyModelFieldKey = keyof typeof SiteViewCountRecentlyModelFields;
+
+export const SiteViewCountSetFields = {
+  SiteViewCountHeader: 'SiteViewCountHeader',
+  SiteViewCountDetail: 'SiteViewCountDetail',
+  SiteViewCountRecently: 'SiteViewCountRecently',
+} as const;
+
+export type SiteViewCountSetFieldKey = keyof typeof SiteViewCountSetFields;
+
+export const SiteViewCountSet_DTOApiResponseFields = {
+  IsSuccess: 'IsSuccess',
+  SysMessage: 'SysMessage',
+  Data: 'Data',
+} as const;
+
+export type SiteViewCountSet_DTOApiResponseFieldKey = keyof typeof SiteViewCountSet_DTOApiResponseFields;
 
 export const SpecCategoryDetailModelFields = {
   CategoryId: 'CategoryId',
@@ -1500,6 +1565,35 @@ export const TagSet_DTOApiRequestFields = {
 
 export type TagSet_DTOApiRequestFieldKey = keyof typeof TagSet_DTOApiRequestFields;
 
+export const TryCountDetailViewRequestFields = {
+  SiteIndex: 'SiteIndex',
+  ProgId: 'ProgId',
+  InternalId: 'InternalId',
+} as const;
+
+export type TryCountDetailViewRequestFieldKey = keyof typeof TryCountDetailViewRequestFields;
+
+export const TryCountResultFields = {
+  IsCounted: 'IsCounted',
+  CurrentCount: 'CurrentCount',
+} as const;
+
+export type TryCountResultFieldKey = keyof typeof TryCountResultFields;
+
+export const TryCountResult_DTOApiResponseFields = {
+  IsSuccess: 'IsSuccess',
+  SysMessage: 'SysMessage',
+  Data: 'Data',
+} as const;
+
+export type TryCountResult_DTOApiResponseFieldKey = keyof typeof TryCountResult_DTOApiResponseFields;
+
+export const TryCountSiteViewRequestFields = {
+  SiteIndex: 'SiteIndex',
+} as const;
+
+export type TryCountSiteViewRequestFieldKey = keyof typeof TryCountSiteViewRequestFields;
+
 export const WebResourceInfoFields = {
   WebResourceId: 'WebResourceId',
   RowId: 'RowId',
@@ -1575,6 +1669,7 @@ export const PGID = {
     Person: "Person",
     RolePermission: "RolePermission",
     SiteMenu: "SiteMenu",
+    SiteViewCount: "SiteViewCount",
     SpecCategory: "SpecCategory",
     SpecJournal: "SpecJournal",
     SpecJournalIndex: "SpecJournalIndex",

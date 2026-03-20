@@ -52,7 +52,7 @@ export const useUploadFile = (opts?: UseUploadFileOptions) =>
             const form = new FormData();
             form.append("file", file);
             // 依你的後端：/Service/FileManagement/UploadTemp
-            const resp = await fetch(FileManagementAPI.UPLOAD_URL, {
+            const resp = await fetch(FileManagementAPI.Server_UploadTemp, {
                 method: "POST",
                 body: form,
                 credentials: "include", // 有 HttpOnly Cookie/JWT 建議加
@@ -68,7 +68,7 @@ export const useUploadFile = (opts?: UseUploadFileOptions) =>
                 const next: UploadResult = {
                     internalId,
                     fileName: keepOriginalName ? file.name : null,
-                    previewUrl: localPreview ? `${FileManagementAPI.PREVIEW_URL}/${internalId}` : null,
+                    previewUrl: localPreview ? FileManagementAPI.get_Public_Preview_Url(internalId) : null,
                     uploading: false,
                     error: null,
                 };

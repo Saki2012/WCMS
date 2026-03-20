@@ -26,11 +26,6 @@ namespace WCMS.Features.SiteEdit.PageManagement
         /// 類別ID
         /// </summary>
         [LibDesc, StringLength(SysLengthParam.ID)] public string? CategoryId { get; set; }
-        //[ForeignKey(nameof(CategoryId))] public virtual Category.Category Category { get; set; }
-        /// <summary>
-        /// 查看次數
-        /// </summary>
-        [LibDesc] public int? ViewCount { get; set; }
 
         #region 主子表關聯
         [InverseProperty(nameof(PageManagementDetail._PageManagement))] public List<PageManagementDetail>? _PageManagementDetail { get; set; }

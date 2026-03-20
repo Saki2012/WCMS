@@ -180,7 +180,7 @@ const carouselRef = useRef<HTMLDivElement | null>(null);
                           const content = info?.Content ?? "";
                           const url = info?.URL ?? "";
                           const urlopen = info?.URL_Open === 1 ? "_blank" : "_self";
-
+                          const imgUrl = FileManagementAPI.get_Public_Preview_Url(p.PicSrcId,alt)
                           return (
                             <div key={i} className={"item"}>
                               <a href={url} tabIndex={0} target={urlopen} rel={urlopen === "_blank" ? "noopener noreferrer" : undefined} title={alt}>
@@ -201,7 +201,7 @@ const carouselRef = useRef<HTMLDivElement | null>(null);
                                     </div>
                                     <div className="Img_Div w-100">
                                       <div className="Qlinkimg-outer">
-                                        <img alt={alt} src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} />
+                                        <img alt={alt} src={imgUrl} />
                                       </div>
                                     </div>
                                   </div>

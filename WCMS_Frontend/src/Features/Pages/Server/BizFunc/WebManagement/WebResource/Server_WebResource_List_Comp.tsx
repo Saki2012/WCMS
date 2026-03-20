@@ -61,7 +61,7 @@ const buildAnnouncementRows = (raw: WebResourceListRawData, lang: Lang, columns:
     return (raw.list ?? []).map((set) => {
         const keyId = LibMerge("|", false, set.WebResource?.WebResourceId);
         const a = set.WebResource;
-        const picNode =(a?.PicId?<img src={`${FileManagementAPI.PREVIEW_URL}/${a?.PicId}`} alt={a?.PicDescription??""} style={{ width: "80px", height: "80px", objectFit: "cover" }} />:null)
+        const picNode =(a?.PicId? <img src={FileManagementAPI.get_Server_Preview_Url(a.PicId)} alt={a?.PicDescription??""} style={{ width: "80px", height: "80px", objectFit: "cover" }} />:null)
         const titleNode = (
             <>
                 <span>{(set.WebResourceInfo ?? []).find(d => d?.Lang === lang)?.Title ?? ""}</span>

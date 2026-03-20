@@ -1,7 +1,7 @@
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
 import type { LoaderFunctionArgs } from "react-router-dom";
-import {SpecJournalAuthorFields, SpecJournalDocumentFields, SpecJournalIndexDetailFields, SpecJournalKeywordsFields, SpecJournalModelFields, SpecJournalOpenPointFilesFields, 
+import {FileManageModelFields, SpecJournalAuthorFields, SpecJournalDocumentFields, SpecJournalIndexDetailFields, SpecJournalKeywordsFields, SpecJournalModelFields, SpecJournalOpenPointFilesFields, 
     SpecJournalRefFilesFields, SpecJournalRefFormatFields, SpecJournalTypesFields, TagDataFields, TagDetailFields, } from "@/types/SchemaFields";
 import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournal_Api";
 
@@ -36,14 +36,23 @@ const buildBaseParam = (journalId: string): QueryListParam =>
         Fields: [
             // Header
             SpecJournalModelFields.InternalId,SpecJournalModelFields.Title,SpecJournalModelFields.Title_en,SpecJournalModelFields.PageStart,
-            SpecJournalModelFields.PageEnd,SpecJournalModelFields.DOIUrl,SpecJournalModelFields.JournalFileId,SpecJournalModelFields.JournalFileName,
-            SpecJournalModelFields.InsightPointFileId,SpecJournalModelFields.InsightPointFileName,SpecJournalModelFields.ArticleLang,SpecJournalModelFields.Memo,
+            SpecJournalModelFields.PageEnd,SpecJournalModelFields.DOIUrl,
+            SpecJournalModelFields.ArticleLang,SpecJournalModelFields.Memo,
             SpecJournalModelFields.Memo_en,SpecJournalModelFields.Bibliography,
             `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
             `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
             `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileId}`,
             `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileName}`,
+            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFile}.${FileManageModelFields.PublicDownloadCount}`,
+            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFile}.${FileManageModelFields.FileExtension}`,
             `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.PublishDate}`,
+            // Header File
+            SpecJournalModelFields.JournalFileId,SpecJournalModelFields.JournalFileName,
+            `${SpecJournalModelFields.JournalFile}.${FileManageModelFields.PublicDownloadCount}`,
+            `${SpecJournalModelFields.JournalFile}.${FileManageModelFields.FileExtension}`,
+            SpecJournalModelFields.InsightPointFileId,SpecJournalModelFields.InsightPointFileName,
+            `${SpecJournalModelFields.InsightPointFile}.${FileManageModelFields.PublicDownloadCount}`,
+            `${SpecJournalModelFields.InsightPointFile}.${FileManageModelFields.FileExtension}`,
             // Author
             `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.RowId}`,
             `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName}`,
@@ -62,10 +71,14 @@ const buildBaseParam = (journalId: string): QueryListParam =>
             `${SpecJournalModelFields._SpecJournalOpenPointFiles}.${SpecJournalOpenPointFilesFields.RowId}`,
             `${SpecJournalModelFields._SpecJournalOpenPointFiles}.${SpecJournalOpenPointFilesFields.OpenPointFileId}`,
             `${SpecJournalModelFields._SpecJournalOpenPointFiles}.${SpecJournalOpenPointFilesFields.OpenPointFileName}`,
+            `${SpecJournalModelFields._SpecJournalOpenPointFiles}.${SpecJournalOpenPointFilesFields.OpenPointFile}.${FileManageModelFields.PublicDownloadCount}`,
+            `${SpecJournalModelFields._SpecJournalOpenPointFiles}.${SpecJournalOpenPointFilesFields.OpenPointFile}.${FileManageModelFields.FileExtension}`,
             // RefFiles
             `${SpecJournalModelFields._SpecJournalRefFiles}.${SpecJournalRefFilesFields.RowId}`,
             `${SpecJournalModelFields._SpecJournalRefFiles}.${SpecJournalRefFilesFields.RefFileId}`,
             `${SpecJournalModelFields._SpecJournalRefFiles}.${SpecJournalRefFilesFields.RefFileName}`,
+            `${SpecJournalModelFields._SpecJournalRefFiles}.${SpecJournalRefFilesFields.RefFile}.${FileManageModelFields.PublicDownloadCount}`,
+            `${SpecJournalModelFields._SpecJournalRefFiles}.${SpecJournalRefFilesFields.RefFile}.${FileManageModelFields.FileExtension}`,
             // Types
             `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.RowId}`,
             `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.TagId}`,
@@ -79,6 +92,8 @@ const buildBaseParam = (journalId: string): QueryListParam =>
             `${SpecJournalModelFields._SpecJournalDocument}.${SpecJournalDocumentFields.RowId}`,
             `${SpecJournalModelFields._SpecJournalDocument}.${SpecJournalDocumentFields.DocumentId}`,
             `${SpecJournalModelFields._SpecJournalDocument}.${SpecJournalDocumentFields.DocumentName}`,
+            `${SpecJournalModelFields._SpecJournalDocument}.${SpecJournalDocumentFields.Document}.${FileManageModelFields.PublicDownloadCount}`,
+            `${SpecJournalModelFields._SpecJournalDocument}.${SpecJournalDocumentFields.Document}.${FileManageModelFields.FileExtension}`,
             `${SpecJournalModelFields._SpecJournalDocument}.${SpecJournalDocumentFields.DocumentType}`,
         ],
         Condition: condition, PageNumber: 1, PageSize: 1,

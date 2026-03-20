@@ -174,7 +174,7 @@ const PictureListContent = (prop: { lang: string, datas: WebResourceSet[] }) => 
             {(prop.datas ?? []).map((item) => {
                 const header = item.WebResource;
                 const detail = item.WebResourceInfo?.find(p => p.Lang === prop.lang);
-                const picUrl = header?.PicId ? `${FileManagementAPI.PREVIEW_URL}/${header.PicId}` : DefaultImg
+                const picUrl = FileManagementAPI.get_Public_Preview_Url(header?.PicId) ?? DefaultImg
                 return (
                     <div className="col-lg-4 col-md-6 col-sm-6 col-12 photo_standardbox">
                         <a href={detail?.ResUrl ?? ""} title={`${detail?.Title}(另開新視窗)`} target="_blank" rel="noopener noreferrer">

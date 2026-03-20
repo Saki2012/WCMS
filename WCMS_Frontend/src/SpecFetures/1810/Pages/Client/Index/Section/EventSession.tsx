@@ -311,7 +311,7 @@ const getData = (lang: string, rawData: AnnouncementSet[], tagDict: Record<strin
     rawData.map((item) => {
         const tags = (item.Announcement?.Tags ?? "").split(",").map(s => s.trim()).filter(Boolean);
         const tagsName = tags.map(id => tagDict[id] ?? "").filter(Boolean).join(", ");
-        const img = item.Announcement?.PictureId && item.Announcement.PictureId.trim() !== '' ? `${FileManagementAPI.PREVIEW_URL}/${item.Announcement.PictureId}` : defaulteventpic;
+        const img = FileManagementAPI.get_Public_Preview_Url(item.Announcement?.PictureId) ?? defaulteventpic;
         result.push({
             Id: item.Announcement?.AnnouncementId ?? "",
             Title: item.AnnouncementDetail?.find(p => p.Lang === lang)?.Title ?? "",

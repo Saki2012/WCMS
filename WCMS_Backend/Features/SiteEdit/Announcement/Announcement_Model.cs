@@ -46,10 +46,6 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// 圖片描述
         /// </summary>
         [StringLength(SysLengthParam.Memo)] public string? PicDescription { get; set; } = string.Empty;
-        /// <summary>
-        /// 觀看次數
-        /// </summary>
-        public int? ViewCount { get; set; } = 0;
         #region 主子表關聯
         [InverseProperty(nameof(AnnouncementDetail._Announcement))] public List<AnnouncementDetail> _AnnouncementDetail { get; set; }
         #endregion

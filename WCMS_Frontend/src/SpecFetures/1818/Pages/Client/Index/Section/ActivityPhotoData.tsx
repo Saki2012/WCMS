@@ -394,6 +394,7 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 	return (
 		<>
 			{prop.map((item) => {
+				const imgUrl = FileManagementAPI.get_Public_Preview_Url(item.PicSrcId,item.title);
 				return (
 					<div className="item" key={item.galleryInternalId} >
 						<LangLink to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
@@ -401,7 +402,7 @@ const GetData = ({ prop }: { prop: getDataProp[] }) => {
 								<div className="Qlink-item">
 									<div className="Img_Div w-100">
 										<div className="Qlinkimg-outer">
-											<img alt={item.title} src={`${FileManagementAPI.PREVIEW_URL}/${item.PicSrcId}`} />
+											<img alt={item.title} src={imgUrl} />
 										</div>
 									</div>
 									<div className="Content_Div">

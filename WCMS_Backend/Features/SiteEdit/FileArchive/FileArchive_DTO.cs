@@ -36,11 +36,7 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// 標籤ID(多個)
         /// </summary>
         [LibDesc(ModelDisplayName.Common_Tag)] public string? TagsId { get; set; }
-        //[LibDesc(ModelDisplayName.Spec1810_Tag)] public string? TagsId { get; set; }
-        /// <summary>
-        /// 下載次數
-        /// </summary>
-        [LibDesc(ModelDisplayName.FileArchive_DownloadCount)]public int DownloadCount { get; set; }
+
         #region 主子表關聯
         public List<FileArchiveInfo_DTO>? _FileArchiveInfo { get; set; } = [];
         #endregion

@@ -59,7 +59,7 @@ const replaceImg = (
 const defaultBuildDownloadUrl = (id: string, meta?: FileMeta) =>
 {
     if (meta?.url) return meta.url;
-    return `${FileManagementAPI.DOWNLOAD_URL}/${id}`;
+    return FileManagementAPI.get_Public_Download_Url(id);
 };
 
 const replaceAnchorDownload = (
@@ -120,7 +120,7 @@ const buildPreviewUrl = (id: string, opt?: TransformOptions): string =>
 {
     if (opt?.urlBuilder) return opt.urlBuilder(id);
     // 後端既有的預覽端點（與 img/a 維持一致的預設）
-    return `${FileManagementAPI.PREVIEW_URL}/${id}`;
+    return FileManagementAPI.get_Public_Preview_Url(id);
 };
 
 const ensureTitleForAA = (el: Element, meta?: FileMeta) =>

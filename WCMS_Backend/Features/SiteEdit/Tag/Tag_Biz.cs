@@ -32,7 +32,6 @@ namespace WCMS.Features.SiteEdit.Tag
         protected virtual Task SpecCheckIsUsed(string progId, string tagId, string tagName) => Task.CompletedTask;
         #endregion
 
-
         #region Private
         private void CheckData(TagSet set)
         {
@@ -67,6 +66,7 @@ namespace WCMS.Features.SiteEdit.Tag
         }
 
         #endregion
+
         #region Migration Old Data
         public async Task Migrate()
         {
@@ -105,10 +105,5 @@ namespace WCMS.Features.SiteEdit.Tag
             return [.. result];
         }
         #endregion
-
-
-
-
-
     }
 }

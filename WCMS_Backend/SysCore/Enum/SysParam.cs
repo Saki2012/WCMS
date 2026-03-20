@@ -64,6 +64,15 @@ namespace WCMS.SysCore.Enum
         public const string PermanentCache = "PermanentCache";
 
 
-
+        /// <summary>
+        /// Cookie 名稱常數
+        /// </summary>
+        public static class CookieNames
+        {
+            /// <summary>
+            /// 前台匿名訪客識別碼
+            /// </summary>
+            public const string VisitorKey = "wcms.visitor";
+        }
     }
 }

@@ -7,14 +7,16 @@ import type { Lang } from '@/SysCore/i18n/lang';
 import { useParams } from 'react-router';
 import { useMemo } from 'react';
 import parse from 'html-react-parser';
-import ModuleContent, { type SubTitleProps } from '@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent';
+import ModuleContent, { type ModuleViewCountConfig, type SubTitleProps } from '@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent';
 import { useResolveInternalIds } from '@/SysCore/Components/File/useResolveInternalIds';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import { FormatDate } from '@/SysCore/Utils/Library/LibData';
-import type { INormNode } from '@/Features/Pages/Client/Route/Site-Routing';
+import type { INormNode, INormSite } from '@/Features/Pages/Client/Route/Site-Routing';
 import type { ApiLoaderData } from '@/SysCore/Utils/API/APIAdapter';
 import { useLoaderData } from 'react-router-dom';
 import type { AnnouncementFormLoaderData } from './AnnouncementForm_Loader';
+import type { TryCountDetailViewRequest } from '@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api';
+import { PGID } from '@/types/SchemaFields';
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
@@ -22,7 +24,7 @@ type TagSet = components["schemas"]["TagSet_DTO"]
 
 const emptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [] }
 
-interface IAnnouncementFormProps { node: INormNode; theme: IFETheme; lang: Lang }
+interface IAnnouncementFormProps { site: INormSite; node: INormNode; theme: IFETheme; lang: Lang }
 
 const AnnouncementForm = (props: IAnnouncementFormProps) => {
     // 宣告變數
@@ -128,9 +130,16 @@ const AnnouncementForm = (props: IAnnouncementFormProps) => {
 
     const subTitle: SubTitleProps = { cat: cats.join('、'), tag: tags.join('、'), date: startDate };
 
+    const viewCountConfig = useMemo<ModuleViewCountConfig>(() => {
+        const request: TryCountDetailViewRequest = {
+            SiteIndex:props.site.siteIndex,
+            ProgId:PGID.Announcement,
+            InternalId:safeInternalId,
+        };
+        return { mode: "form", contentKey: safeInternalId, request,};}, [safeInternalId]);
     // return
     return (
-        <ModuleContent nodeTitle={props.node.title} title={detail?.Title ?? ""} subTitle={subTitle} isLoading={loadingList.some(Boolean)} errorList={errorList}>
+        <ModuleContent nodeTitle={props.node.title} title={detail?.Title ?? ""} subTitle={subTitle} isLoading={loadingList.some(Boolean)} errorList={errorList} viewCountConfig={viewCountConfig}>
             <Content lang={props.lang} data={formData} />
         </ModuleContent>
     );
@@ -168,10 +177,11 @@ const Content = (props: { lang: Lang; data: AnnouncementSet }) => {
             {fileDetail && fileDetail.length > 0 && <>
                 <div className="row">
                     {fileDetail.map((itme) => {
+                        const downloadUrl = FileManagementAPI.get_Public_Download_Url(itme.FileId,itme.FileName)
                         return (
                             <div key={`${itme.FileId ?? ""}`} className="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
                                 <div className="Standard_btnDiv">
-                                    <a href={`${FileManagementAPI.DOWNLOAD_URL}/${itme.FileId}`} className="btn btn_NEWS bg_urllink_NEWS"
+                                    <a href={downloadUrl} className="btn btn_NEWS bg_urllink_NEWS"
                                         role="button" aria-label="分享" target="_blank" title="[ 另開新視窗 ]" tabIndex={0}>
                                         <span>
                                             <i className="fas fa-paperclip + link + ml-0 mr-2"></i>

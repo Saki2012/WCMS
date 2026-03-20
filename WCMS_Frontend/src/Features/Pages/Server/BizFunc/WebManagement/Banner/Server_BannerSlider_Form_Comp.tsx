@@ -166,7 +166,7 @@ const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<B
 
     const tabContent: Record<string, React.ReactNode[]> = details.reduce<Record<string, React.ReactNode[]>>((acc, d, idx) => {
         const detailRowId = d.RowId ?? idx;
-        const picSrc = d.PicSrcId ? `${FileManagementAPI.PREVIEW_URL}/${d.PicSrcId}` : "https://dummyimage.com/1920x550/555/fff.png";
+        const picSrc = FileManagementAPI.get_Server_Preview_Url(d.PicSrcId) ?? "https://dummyimage.com/1920x550/555/fff.png";
         const rowKeys = { [SchemaFields.BannerDetailFields.BannerId]: d.BannerId, [SchemaFields.BannerDetailFields.RowId]: d.RowId };
 
         acc[String(detailRowId)] = [

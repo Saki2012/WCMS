@@ -1,23 +1,21 @@
-import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import type { ColumnConfig, GridProps, GridRow } from "@/SysCore/Components/Grid/Grid_Data";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import { useLoaderData, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import ModuleContent, { ContentStatus } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
 import { useEffect, useMemo, useRef, useState } from "react";
 import parse from 'html-react-parser';
 import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFields";
 import type { components } from "@/types/api";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 import { ColRender, RowRender, STORAGE_KEY } from "@/SysCore/Components/Grid/Grid_Comp";
-import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
-import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
+import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
-import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Announcement_Api";
-import type { AnnouncementListLoaderData } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList_Loader";
+import { useAnnouncementListData } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList_Loader";
 import { formatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
 import { formatTagsName } from "@/Features/Hooks/BizFunc/WebManagement/Tag_Api";
 import { isWithinLastNDaysFromString } from "../WebResource/WebResourceList";
@@ -27,125 +25,36 @@ type TagSet = components["schemas"]["TagSet_DTO"];
 
 
 export interface IAnnouncementListOptions { Category?: string; Tag?: string; Style?: number; }
-export interface IAnnouncementListProps { theme: IFETheme; lang: Lang; options?: IAnnouncementListOptions; node: INormNode }
+export interface IAnnouncementListProps { theme: IFETheme; lang: Lang; options?: IAnnouncementListOptions; site:INormSite; node: INormNode }
 const AnnouncementList = (props: IAnnouncementListProps) => {
-    const initial = useLoaderData() as AnnouncementListLoaderData;
-    const adapter = useMemo(() => AnnouncementAdapter(), [])
-    // 宣告變數
-    const listInitial = useMemo(() => ({ args: initial.args.listParam, apiRes: { IsSuccess: true, Data: initial.res.listRes, SysMessage: [] }, }), [initial]);
-    const countInitial = useMemo(() => ({ args: initial.args.countParam, apiRes: { IsSuccess: true, Data: initial.res.countRes, SysMessage: [] }, }), [initial]);
-    // 執行 function：首屏吃 loader 的 args/res，CSR 互動再 refetch
-    const useCount = adapter.hooks.useQueryCount({ condition: initial.args.countParam, initial: countInitial, deps: [initial.args.condition], });
-    // ✅ paged list：baseParam 以 loader.args 為準，頁碼狀態由 hook 內部管理
-    const useList = adapter.hooks.usePagedQueryList({ baseParam: initial.args.listParam, count: useCount.data ?? 0, initial: listInitial, deps: [initial.args.condition, initial.args.pageSize], });
-
-    const gridPropsFromList = useMemo<GridProps>(() => {
-        // 宣告變數
-        const columns: ColumnConfig[] =
-            [
-                { key: AnnouncementDetailFields.Title, title: "標題" },
-                { key: AnnouncementFields.Validate_Start, title: "日期" },
-                { key: AnnouncementFields.Categories, title: "分類" },
-                { key: AnnouncementFields.Tags, title: "標籤" },
-                { key: AnnouncementFields.ViewCount, title: "瀏覽" },
-            ];
-
-        const rows: GridRow[] = (useList.data ?? []).map((item) => {
-            const detail = item.AnnouncementDetail?.find(p => p.Lang === props.lang);
-            const cells: RowCell[] = columns.map((col) => {
-                let content = "";
-                switch (col.key) {
-                    case AnnouncementDetailFields.Title:
-                        content = detail?.Title ?? "";
-                        break;
-                    case AnnouncementFields.Validate_Start:
-                        content = FormatDate(item.Announcement?.Validate_Start) ?? "";
-                        break;
-                    case AnnouncementFields.Categories:
-                        content = item.Announcement?.Categories ?? "";
-                        break;
-                    case AnnouncementFields.Tags:
-                        content = item.Announcement?.Tags ?? "";
-                        break;
-                    case AnnouncementFields.ViewCount:
-                        content = String(item.Announcement?.ViewCount ?? "");
-                        break;
-                }
-                return { col, content };
-            });
-            return { keyId:item.Announcement?.InternalId??"",cells };
-        });
-
-        // return
-        return {
-            columns,
-            rows,
-            CurrentPage: useList.pageNumber,
-            TotalPage: useList.totalPages,
-            onPageChange: useList.onPageChange,
-        };
-    }, [props.lang, useList.data, useList.onPageChange, useList.pageNumber, useList.totalPages]);
-
-    const pageSize = useMemo(() => {
-        switch (props.options?.Style) {
-            case 2: return 12;//圖文式資料 3*4->12筆
-            case 8: return 0;//歷史時間軸類型的資料一次全撈
-            default: return 10;
-        }
-    }, [props.options]);
-
-
-
+    const vm = useAnnouncementListData({ lang: props.lang });
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
-    // const [queryDraft, setQueryDraft] = useState<ISearchQuery>({});
-    // const [query, setQuery] = useState<ISearchQuery>({});
-
-    const categoryData = useMemo<CategorySet[]>(
-        () => initial.res.categoryRes ?? [],
-        [initial.res.categoryRes],
-    );
-
-    const tagData = useMemo<TagSet[]>(
-        () => initial.res.tagRes ?? [],
-        [initial.res.tagRes],
-    );
-
-    const adjustedGrid = useMemo(() => {
-        return SetAdjustFunction(
-            props.lang,
-            dirUrl,
-            gridPropsFromList,
-            useList.data ?? [],
-            categoryData,
-            tagData,
-        );
-    }, [props.lang, dirUrl, gridPropsFromList, useList.data, categoryData, tagData]);
-
-
-
+    const adjustedGrid = useMemo(() => { return SetAdjustFunction(props.lang, dirUrl, vm.gridPropsFromList, vm.listData, vm.categoryData, vm.tagData,);
+    }, [props.lang, dirUrl, vm.gridPropsFromList, vm.listData, vm.categoryData, vm.tagData]);
     // const searchSlot = <SearchBarComp value={queryDraft} tags={tags} onChange={(k, v) => setQueryDraft(prev => ({ ...prev, [k]: v }))} onSubmit={() => setQuery(queryDraft)} onReset={() => { setQueryDraft({}); setQuery({}); }} />;
     // const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData]);
-    const children = useMemo(() => {
-        switch (props.options?.Style) {
-            case 8:/** 目前有一bug，有抓資料數量，看如何處理 */
-                return <TimelineSlider dirUrl={dirUrl} lang={props.lang} data={useList.data} />;
+    const children = useMemo(() =>
+    {
+        switch (props.options?.Style)
+        {
+            case 8:
+                return <TimelineSlider dirUrl={dirUrl} lang={props.lang} data={vm.listData} />;
             case 3:
-                return <QAList_Comp lang={props.lang} gridData={useList.data} currentPage={useList.pageNumber} pageSize={pageSize} />
+                return <QAList_Comp lang={props.lang} gridData={vm.listData} currentPage={vm.pageNumber} pageSize={vm.pageSize} />;
             case 2:
-                return <PictureList_Row_Comp dirUrl={dirUrl} lang={props.lang} gridData={useList.data} categoryData={categoryData} />;
+                return <PictureList_Row_Comp dirUrl={dirUrl} lang={props.lang} gridData={vm.listData} categoryData={vm.categoryData} />;
             case 1:
                 return <GridList_Comp key="grid" lang={props.lang} gridData={adjustedGrid} title={props.node.title} />;
-
+            default:
+                return null;
         }
-    }, [useList.data, useList.pageNumber, pageSize, props.lang, props.options, dirUrl, adjustedGrid, categoryData, props.node.title]);
-    const loadingList = [useList.isLoading, useCount.isLoading];
-    const errorList = [useList.errorText, useCount.errorText].filter(Boolean) as string[];
-    const paginprops = props.options?.Style === 8 ? undefined : { currentPage: useList.pageNumber, totalPages: useList.totalPages, onPageChange: useList.onPageChange } as PaginatorProps;
+    }, [props.options?.Style, dirUrl, props.lang, props.node.title, vm.listData, vm.pageNumber, vm.pageSize, vm.categoryData, adjustedGrid]);
+    const paginprops = props.options?.Style === 8 ? undefined : { currentPage: vm.pageNumber, totalPages: vm.totalPages, onPageChange: vm.onPageChange,};
     return (
-        <ModuleContent nodeTitle={props.node.title} isLoading={loadingList.some(Boolean)} errorList={errorList} paginatorProps={paginprops}>
+        <ModuleContent nodeTitle={props.node.title} isLoading={vm.isLoading} errorList={vm.errorList} paginatorProps={paginprops} viewCountConfig={{ mode: "list" }}>
             {children}
         </ModuleContent>
-    )
+    );
 };
 export default AnnouncementList
 
@@ -190,11 +99,10 @@ const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: Ann
             {props.gridData && props.gridData.map((item) => {
                 const linkUrl = `${props.dirUrl}/${item.Announcement?.InternalId}`;
                 const title = item.AnnouncementDetail?.find(p => p.Lang === props.lang)?.Title ?? ""
-                const picUrl = item.Announcement?.PictureId ? `${FileManagementAPI.PREVIEW_URL}/${item.Announcement?.PictureId}` : defaultAnnouncePic
+                const picUrl = FileManagementAPI.get_Public_Preview_Url(item.Announcement?.PictureId,item.Announcement?.PicDescription) ?? defaultAnnouncePic
                 const picDesc = item.Announcement?.PicDescription ?? title
                 const validate = FormatDate(item.Announcement?.Validate_Start)
                 const catName = formatCategoriesName(item.Announcement?.Categories ?? "", props.categoryData, props.lang)
-
                 return (
                     < div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
                         <article className="cardbox">
@@ -225,7 +133,6 @@ const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: Ann
                                     </div>
 
                                     <div className="card_StateDiv">
-                                        <ContentStatus />
                                         <div className="More customize_btn">
                                             <LangNavLink className="Btn_s1" type="button" role="button" title="觀看更多" to={linkUrl}>
                                                 VIEW ALL<span className="ml-2">+</span>
@@ -241,60 +148,6 @@ const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: Ann
         </div >
     )
 }
-/** 圖文式、備案，後續要連同後端都要增加參數設定，以及開始移除不需要的style參數 */
-const PictureList_Col_Comp = (props: { Theme: IFETheme; GridData: GridProps }) => {
-    return (
-        <div id="Column_Colitem" className="SubPage_Standard_itemBoxs">
-            {/**循環下面資料， */
-                <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 + Standard_ItemDiv">
-                    <article className="cardbox">
-                        <div className="card_content_Column">
-                            <div className="left__Box">
-                                <figure className="figure_Box">
-                                    <a href={"內文InternalId"} className="card_image_link venobox" data-gall="myGallery" title={"標題"}>
-                                        <div className="card_figure">
-                                            <div className="img-wrapper">
-                                                <img className="card_image" src={`${FileManagementAPI.PREVIEW_URL}/${"封面id"}`} alt={"封面圖片說明"} />
-                                            </div>
-                                        </div>
-                                    </a>
-                                </figure>
-                            </div>
-
-                            <div className="Right__Box">
-                                <div className="card_catDiv">
-                                    <div className="card_cat">
-                                        <div className="card_cat_link">
-                                            <span className="s-line">▍</span>
-                                            <span className="s-tle">{"類別名稱"}</span>
-                                        </div>
-                                    </div>
-                                    <div className="card_time">
-                                        <i className="far fa-clock mr-2"></i><span className="sr-only">日期/根據語系顯示Date或日期</span>{"上架日期"}
-                                    </div>
-                                </div>
-
-                                <div className="card_titleDiv + mb-md-4 mb-sm-3 mb-2">
-                                    <a href="#" className="card_title">{"標題"}</a>
-                                </div>
-
-                                <div className="card_StateDiv">
-                                    <ContentStatus />
-                                    <div className="More customize_btn">
-                                        <LangNavLink to={"內文internalId"} className="Btn_s1" type="button" role="button" title="觀看更多">
-                                            VIEW ALL<span className="ml-2">+</span>
-                                        </LangNavLink>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-                </div>
-            }
-        </div>
-    )
-}
-
 
 type NativeMouseEventWithStopImmediate = MouseEvent & { stopImmediatePropagation?: () => void };
 const QAList_Comp = (props: { lang: Lang; gridData: AnnouncementSet[]; currentPage: number; pageSize: number; }) => {
@@ -504,7 +357,7 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
                                 const linkUrl = `${props.dirUrl}/${item.Announcement?.InternalId}`;
                                 const title = detail?.Title ?? ""
                                 const subTitle = detail?.SubTitle ?? ""
-                                const picUrl = `${FileManagementAPI.PREVIEW_URL}/${item.Announcement?.PictureId}`
+                                const picUrl = FileManagementAPI.get_Public_Preview_Url(item.Announcement?.PictureId,item.Announcement?.PicDescription)
                                 const date = FormatDate(item.Announcement?.Validate_Start)
                                 return (
                                     <div className="item" key={item.Announcement?.InternalId}>
@@ -544,7 +397,6 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
         </div>
     );
 };
-
 
 const SetAdjustFunction = (lang: Lang, dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[], catData: CategorySet[], tagData: TagSet[]): GridProps => {
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {

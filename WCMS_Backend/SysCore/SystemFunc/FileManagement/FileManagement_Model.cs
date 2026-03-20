@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using WCMS.Features.Member.Account;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
@@ -16,8 +17,8 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
     public class FileManageSet:ITSet
     {
         public FileManageModel FileManage { get; set; } = new();
-        public List<FileManage_DownloadInfoModel> FileManage_DownloadInfo { get; set; } = [];
         public List<FileManage_SyncInfoModel> FileManage_SyncInfo { get; set; } = [];
+        public List<FileManage_DownloadRecentModel> FileManage_DownloadRecent { get; set; } = [];
     }
     /// <summary>
     /// 檔案管理
@@ -73,14 +74,18 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// </summary>
         [LibDesc] public FileStatus FileStatus { get; set; }
         /// <summary>
-        /// 下載次數
+        /// 前台網站下載次數
         /// </summary>
-        [NotMapped] public int DownloadCount { get { return _FileManage_DownloadInfo.Count; } }
+        [LibDesc(ModelDisplayName.FileManage_DownloadCount)] public int PublicDownloadCount { get; set; } = 0;
+        /// <summary>
+        /// 是否公開檔案
+        /// 2026.03.17新增，因為有些檔案可能只是內部使用，或是已經不想被下載了，但又不想刪除，所以先加個欄位來控制是否公開下載
+        /// </summary>
+        [LibDesc] public bool IsPublic { get; set; } = true;
 
         #region 主子表關聯
-        [InverseProperty(nameof(FileManage_DownloadInfoModel._FileManage))] public List<FileManage_DownloadInfoModel> _FileManage_DownloadInfo { get; set; } = [];
         [InverseProperty(nameof(FileManage_SyncInfoModel._FileManage))] public List<FileManage_SyncInfoModel> _FileManage_SyncInfo { get; set; }
-        //[InverseProperty(nameof(FileManage_UsedModel._FileManage))] public List<FileManage_UsedModel> _FileManage_Used { get; set; }
+        [InverseProperty(nameof(FileManage_DownloadRecentModel._FileManage))] public List<FileManage_DownloadRecentModel> _FileManage_DownloadRecent { get; set; } = [];
         #endregion
 
         #region 不需要的欄位
@@ -94,39 +99,39 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
     /// <summary>
     /// 檔案被下載資訊
     /// </summary>
-    public class FileManage_DownloadInfoModel : DetailRowModel
+    /// 
+    [Index(nameof(InternalId), nameof(VisitorKey), IsUnique = true), Index(nameof(LastCountTime))]
+    public class FileManage_DownloadRecentModel : DetailRowModel
     {
         /// <summary>
         /// 檔案識別碼
         /// </summary>
-        [Key, StringLength(SysLengthParam.InternalId)] public string InternalId { get; set; }
+        [Key, StringLength(SysLengthParam.InternalId)]
+        public string InternalId { get; set; } = string.Empty;
+
         /// <summary>
         /// 行代碼
         /// </summary>
-        [Key] public int? RowId { get; set; }
+        [Key]
+        public int? RowId { get; set; }
         /// <summary>
-        /// 下載者IP
+        /// 匿名訪客識別碼
         /// </summary>
-        [StringLength(SysLengthParam.IP)] public string DownloadUserIP { get; set; }
+        [Required, StringLength(SysLengthParam.InternalId)]
+        public string VisitorKey { get; set; } = string.Empty;
         /// <summary>
-        /// 使用裝置
+        /// 最近一次正式計數的來源頁
         /// </summary>
-        [StringLength(SysLengthParam.Memo)] public string UserAgent { get; set; }
+        [StringLength(SysLengthParam.Url)]
+        public string RefererURL { get; set; } = string.Empty;
         /// <summary>
-        /// 下載來源
+        /// 最近一次正式計數時間
         /// </summary>
-        [StringLength(SysLengthParam.Url)] public string RefererURL { get; set; }
-        /// <summary>
-        /// 下載狀態 (1成功/0失敗)
-        /// </summary>
-        [LibDesc] public bool DownloadStatus { get; set; }
-        /// <summary>
-        /// 下載時間
-        /// </summary>
-        [LibDesc] public DateTime DownloadTime { get; set; }
-
+        [LibDesc]
+        public DateTime LastCountTime { get; set; } = DateTime.UtcNow;
         #region 主子表關聯
-        [ForeignKey(nameof(InternalId))] public FileManageModel _FileManage { get; set; } = null!;
+        [ForeignKey(nameof(InternalId))]
+        public FileManageModel _FileManage { get; set; } = null!;
         #endregion
     }
     /// <summary>

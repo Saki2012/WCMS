@@ -42,7 +42,7 @@ export const Server_SpecMusical_List_Comp = (prop: { title: string; theme: IBETh
     const adjustedGrid = useMemo(() => { return SetAdjustFunction(useData.gridProps, useData.rawData, actions); }, [useData.gridProps, useData.rawData, useCategory.map, actions]);
     const isLoading = useMemo(() => [useData.isLoading, useCategory.isLoading], [useData.isLoading, useCategory.isLoading]);
     const errors = useMemo(() => [useData.error, useCategory.errorText], [useData.error, useCategory.errorText]);
-    const searchCompProp: SearchBarProps = { title: "搜尋", subTitle: "搜尋 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw(""), };
+    const searchCompProp: SearchBarProps = { title: "搜尋", subTitle: "搜尋 ...", onSubmit: setKw, onReset: () => setKw(""), };
     return (<ListComp Title={prop.title} Theme={prop.theme} LoadingList={isLoading} ErrorList={errors} Actions={actions} GridData={adjustedGrid} SearchBar={searchCompProp}></ListComp>);
 }
 
@@ -54,10 +54,9 @@ const SetAdjustFunction = (gridProps: GridProps, rawData: SpecMusicalSet[], acti
     const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
         const curData = rawData?.[index]
-
-
         const pic = row.cells.find(cell => cell.col.key === SpecMusicalModelFields.CoverPicId);
-        if (pic) { pic.content = <img src={`${FileManagementAPI.PREVIEW_URL}/${curData.SpecMusical?.CoverPicId}`} style={{ width: "80px", height: "80px", objectFit: "cover" }} />; }
+
+        if (pic) { pic.content = <img src={FileManagementAPI.get_Server_Preview_Url(curData.SpecMusical?.CoverPicId)} style={{ width: "80px", height: "80px", objectFit: "cover" }} />; }
         // const titleCell = row.cells.find(cell => cell.col.key === AnnouncementDetailFields.Title)
         // if (titleCell) { titleCell.content = (<>{titleCell.content}{GetDataStatusContent(curData?.Announcement?.ContentStatus ?? 0)}</>); }
         // const categoryCell = row.cells.find(p => p.col.key === AnnouncementFields.Categories);

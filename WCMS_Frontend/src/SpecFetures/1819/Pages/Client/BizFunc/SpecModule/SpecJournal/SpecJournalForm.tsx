@@ -4,8 +4,8 @@ import parse from "html-react-parser";
 import insightpointImg1 from "@/SpecFetures/1819/Assets/Client/images/links/150x32/InSight_Point_bt_150x32.svg";
 import insightpointImg2 from "@/SpecFetures/1819/Assets/Client/images/links/150x32/InSight_Point_bt_W_150x32.svg";
 import openPointImg from "@/SpecFetures/1819/Assets/Client/images/links/150x32/Open_Point_bt_190x40.svg";
-import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
 import type { components } from "@/types/api";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import clsx from "clsx";
@@ -20,6 +20,8 @@ import { useLoaderData } from "react-router-dom";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournal_Api";
 import type { SpecJournalFormLoaderData } from "./SpecJournalForm_Loader";
+import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
+import { PGID } from "@/types/SchemaFields";
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
 type QueryListParam = components["schemas"]["QueryListParam"];
 
@@ -30,7 +32,7 @@ const joinPath = (base: string, path: string) => {
     return `${b}/${p}`;
 };
 
-export const SpecJournalForm_Comp = (props: { node: INormNode; lang: Lang }) => {
+export const SpecJournalForm_Comp = (props: { site:INormSite; node: INormNode; lang: Lang }) => {
     const { indexId, rowId } = useParams();
     const { setItems } = useBreadcrumb();
     const location = useLocation();
@@ -62,8 +64,17 @@ export const SpecJournalForm_Comp = (props: { node: INormNode; lang: Lang }) => 
         setItems(next);
         return () => setItems([]);
     }, [title, data?.SpecJournal?.Title, data?.SpecJournal?.Title_en, indexId, rowId, props.lang, moduleBase, setItems]);
+    
+    const viewCountConfig = useMemo<ModuleViewCountConfig>(() => {
+        const request: TryCountDetailViewRequest = {
+            SiteIndex:props.site.siteIndex,
+            ProgId:PGID.SpecJournal,
+            InternalId:data.SpecJournal?.InternalId,
+        };
+        return { mode: "form", contentKey: data.SpecJournal?.InternalId??"", request,};
+    }, [data.SpecJournal?.InternalId]);
     return (
-        <ModuleContent nodeTitle={title} title={title} isLoading={useDetail.isLoading} errorList={errors}>
+        <ModuleContent nodeTitle={title} title={title} isLoading={useDetail.isLoading} errorList={errors} viewCountConfig={viewCountConfig}>
             <SpecJournalFormContent data={data} lang={props.lang} />
         </ModuleContent>
     );
@@ -160,16 +171,8 @@ const JournalTitle_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
                                 <div className="card_cat_item">
                                     <div className="card_cat_TxT">
                                         <span className="cat_title">
-                                            <a
-                                                href="#"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    onPickArticleLang(langCode);
-                                                }}
-                                                aria-label={`依語言篩選：${langLabel}`}
-                                                title="依語言篩選"
-                                                style={{ color: "inherit", textDecoration: "none" }}
-                                            >
+                                            <a href="#" aria-label={`依語言篩選：${langLabel}`} title="依語言篩選" style={{ color: "inherit", textDecoration: "none" }}
+                                                onClick={(e) => { e.preventDefault(); onPickArticleLang(langCode);}}>
                                                 {langLabel}
                                             </a>
                                         </span>
@@ -178,21 +181,12 @@ const JournalTitle_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
 
                                 {props.data?.SpecJournalTypes?.map((t) => {
                                     const tagName = t.Tag?._TagDetail?.find((p) => p.Lang === props.lang)?.TagName;
-
                                     return (
                                         <div key={t.TagId} className="card_cat_item">
                                             <div className="card_cat_TxT">
                                                 <span className="cat_title">
-                                                    <a
-                                                        href="#"
-                                                        onClick={(e) => {
-                                                            e.preventDefault();
-                                                            onPickTag(t.TagId ?? "", tagName ?? "");
-                                                        }}
-                                                        aria-label={`依分類篩選：${tagName ?? ""}`}
-                                                        title="依分類篩選"
-                                                        style={{ color: "inherit", textDecoration: "none" }}
-                                                    >
+                                                    <a href="#" aria-label={`依分類篩選：${tagName ?? ""}`} title="依分類篩選" style={{ color: "inherit", textDecoration: "none" }}
+                                                        onClick={(e) => { e.preventDefault(); onPickTag(t.TagId ?? "", tagName ?? "");}}>
                                                         {tagName}
                                                     </a>
                                                 </span>
@@ -422,6 +416,14 @@ const FileDownload_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
     const hasJournalFile = props.data?.SpecJournal?.JournalFileId
     const hasInsightPointFile = props.data?.SpecJournal?.InsightPointFileId
     if (!hasJournalFile && !hasInsightPointFile) return null;
+    const journalFileIsPdf = props.data?.SpecJournal?.JournalFile?.FileExtension?.toLowerCase()==="pdf"
+    const journalFileName = props.data?.SpecJournal?.JournalFileName??"";
+    const journalFileUrl = journalFileIsPdf ? FileManagementAPI.get_Public_Preview_Url(props.data?.SpecJournal?.JournalFileId,journalFileName): FileManagementAPI.get_Public_Download_Url(props.data?.SpecJournal?.JournalFileId,journalFileName);
+    const journalDownloadCount = props.data?.SpecJournal?.JournalFile?.PublicDownloadCount ?? 0
+    const insightPointFileIsPdf = props.data?.SpecJournal?.InsightPointFile?.FileExtension?.toLowerCase()==="pdf"
+    const insightPointFileName = props.data?.SpecJournal?.InsightPointFileName??"";
+    const insightPointFileUrl = insightPointFileIsPdf ? FileManagementAPI.get_Public_Preview_Url(props.data?.SpecJournal?.InsightPointFileId,insightPointFileName): FileManagementAPI.get_Public_Download_Url(props.data?.SpecJournal?.InsightPointFileId,insightPointFileName);
+    const insightPointDownloadCount = props.data?.SpecJournal?.InsightPointFile?.PublicDownloadCount ?? 0
     return (
         <>
             <div className="JJ_main_contentDIV">
@@ -431,13 +433,12 @@ const FileDownload_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
                             {hasJournalFile ?
                                 <li>
                                     <div className="DownItem_Box">
-                                        <a className="page-item" href={`${FileManagementAPI.DOWNLOAD_URL}/${props.data?.SpecJournal?.JournalFileId}`} title={props.data?.SpecJournal?.JournalFileName ?? ""} onClick={preventHashOrVoidNav}
-                                            target="_blank" rel="noopener noreferrer">
+                                        <a className="page-item" href={journalFileUrl} title={journalFileName} onClick={preventHashOrVoidNav} target="_blank" rel="noopener noreferrer">
                                             <div className="icontxtbox">
                                                 <span className="page_icon">
                                                     <i className="far fa-file-alt" aria-hidden="true"></i>
                                                 </span>
-                                                <span className="icontxt">{props.data?.SpecJournal?.JournalFileName}</span>
+                                                <span className="icontxt">{journalFileName}</span>
                                             </div>
                                         </a>
                                         <span className="G_Vline_Down">│</span>
@@ -447,8 +448,8 @@ const FileDownload_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
                                             {/* 第 2 行：icon + 瀏覽次數 */}
                                             <span className="d-flex align-items-center">
                                                 <i className="fas fa-download me-1" aria-hidden="true"></i>
-                                                <span className="font-SW-normal">瀏覽次數 :</span>
-                                                <span className="font-SW-normal ms-2">{0}</span>
+                                                <span className="font-SW-normal">下載次數 :</span>
+                                                <span className="font-SW-normal ms-2">{journalDownloadCount}</span>
                                             </span>
                                         </span>
                                     </div>
@@ -456,8 +457,7 @@ const FileDownload_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
                             {hasInsightPointFile ?
                                 <li>
                                     <div className="DownItem_Box">
-                                        <a className="page-item" href={`${FileManagementAPI.DOWNLOAD_URL}/${props.data?.SpecJournal?.InsightPointFileId}`} title={props.data?.SpecJournal?.InsightPointFileName ?? ""} onClick={preventHashOrVoidNav}
-                                            target="_blank" rel="noopener noreferrer">
+                                        <a className="page-item" href={insightPointFileUrl} title={insightPointFileName} onClick={preventHashOrVoidNav} target="_blank" rel="noopener noreferrer">
                                             <div className="icontxtbox">
                                                 <img className="ii_image" src={insightpointImg1} alt="" />
                                                 <img className="ii_image_hover" src={insightpointImg2} alt="" />
@@ -466,8 +466,8 @@ const FileDownload_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
                                         <span className="G_Vline_Down">│</span>
                                         <span className="Div_All_Ttext + views">
                                             <i className="fas fa-download me-1" aria-hidden="true"></i>
-                                            <span className="font-SW-normal">瀏覽次數 :</span>
-                                            <span className="font-SW-normal + ms-2">{0}</span>
+                                            <span className="font-SW-normal">下載次數 :</span>
+                                            <span className="font-SW-normal + ms-2">{insightPointDownloadCount}</span>
                                         </span>
                                     </div>
                                 </li> : null}
@@ -484,6 +484,8 @@ const FileDownload_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
 /** 開放觀點 */
 const OpenPoint_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
     if(!props.data?.SpecJournalOpenPointFiles||props.data?.SpecJournalOpenPointFiles.length===0) return null
+
+
     return (
         <>
             <div className="JJ_main_contentDIV">
@@ -503,26 +505,31 @@ const OpenPoint_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
                 <div className="row">
                     <div className="col-12">
                         <ul className="openlist-group">
-                            {props.data?.SpecJournalOpenPointFiles?.map((d, idx) => (
-                                <li key={idx}>
-                                    <div className="DownItem_Box + my-2">
-                                        <a className="page-item" href={`${FileManagementAPI.DOWNLOAD_URL}/${d.OpenPointFileId}`} title={d.OpenPointFileName ?? ""} onClick={preventHashOrVoidNav} target="_blank" rel="noopener noreferrer">
-                                            <div className="icontxtbox">
-                                                <span className="page_icon">
-                                                    <i className="far fa-file-alt" aria-hidden="true"></i>
-                                                </span>
-                                                <span className="icontxt">{d.OpenPointFileName}</span>
-                                            </div>
-                                        </a>
-                                        <span className="G_Vline_Down">│</span>
-                                        <span className="Div_All_Ttext + views">
-                                            <i className="fas fa-download me-1" aria-hidden="true"></i>
-                                            <span className="font-SW-normal">瀏覽次數 :</span>
-                                            <span className="font-SW-normal + ms-2">{0}</span>
-                                        </span>
-                                    </div>
-                                </li>
-                            ))}
+                            {props.data?.SpecJournalOpenPointFiles?.map((d, idx) => {
+                                const isPdf = d.OpenPointFile?.FileExtension?.toLowerCase()==="pdf"
+                                const openPointFileName = d.OpenPointFileName??"";
+                                const openPointFileUrl = isPdf? FileManagementAPI.get_Public_Preview_Url(d.OpenPointFileId,d.OpenPointFileName) : FileManagementAPI.get_Public_Download_Url(d.OpenPointFileId,d.OpenPointFileName)
+                                const openPointDownloadCount = d.OpenPointFile?.PublicDownloadCount??0
+                                return (
+                                    <li key={idx}>
+                                        <div className="DownItem_Box + my-2">
+                                            <a className="page-item" href={openPointFileUrl} title={openPointFileName} onClick={preventHashOrVoidNav} target="_blank" rel="noopener noreferrer">
+                                                <div className="icontxtbox">
+                                                    <span className="page_icon">
+                                                        <i className="far fa-file-alt" aria-hidden="true"></i>
+                                                    </span>
+                                                    <span className="icontxt">{openPointFileName}</span>
+                                                </div>
+                                            </a>
+                                            <span className="G_Vline_Down">│</span>
+                                            <span className="Div_All_Ttext + views">
+                                                <i className="fas fa-download me-1" aria-hidden="true"></i>
+                                                <span className="font-SW-normal">下載次數 :</span>
+                                                <span className="font-SW-normal + ms-2">{openPointDownloadCount}</span>
+                                            </span>
+                                        </div>
+                                    </li>
+                            )})}
                         </ul>
                     </div>
                 </div>
@@ -553,26 +560,32 @@ const RefFile_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
                 <div className="row">
                     <div className="col-12">
                         <ul className="filelist-group">
-                            {props.data?.SpecJournalRefFiles?.map((d, idx) => (
+                            {props.data?.SpecJournalRefFiles?.map((d, idx) => 
+                            {
+                                const isPdf = d.RefFile?.FileExtension?.toLowerCase()==="pdf"
+                                const refFileName = d.RefFileName??""
+                                const refFileUrl =isPdf ? FileManagementAPI.get_Public_Preview_Url(d.RefFileId,refFileName) : FileManagementAPI.get_Public_Download_Url(d.RefFileId,refFileName)
+                                const refFileDownloadCount = d.RefFile?.PublicDownloadCount??0;
+                                return (
                                 <li key={idx}>
                                     <div className="DownItem_Box + my-2">
-                                        <a className="page-item" href={`${FileManagementAPI.DOWNLOAD_URL}/${d.RefFileId}`} title={d.RefFileName ?? ""} onClick={preventHashOrVoidNav} target="_blank" rel="noopener noreferrer">
+                                        <a className="page-item" href={refFileUrl} title={refFileName} onClick={preventHashOrVoidNav} target="_blank" rel="noopener noreferrer">
                                             <div className="icontxtbox">
                                                 <span className="page_icon">
                                                     <i className="far fa-file-alt" aria-hidden="true"></i>
                                                 </span>
-                                                <span className="icontxt">{d.RefFileName}</span>
+                                                <span className="icontxt">{refFileName}</span>
                                             </div>
                                         </a>
                                         <span className="G_Vline_Down">│</span>
                                         <span className="Div_All_Ttext + views">
                                             <i className="fas fa-download me-1" aria-hidden="true"></i>
-                                            <span className="font-SW-normal">瀏覽次數 :</span>
-                                            <span className="font-SW-normal + ms-2">{0}</span>
+                                            <span className="font-SW-normal">下載次數 :</span>
+                                            <span className="font-SW-normal + ms-2">{refFileDownloadCount}</span>
                                         </span>
                                     </div>
                                 </li>
-                            ))}
+                            )})}
                         </ul>
                     </div>
                 </div>
@@ -624,56 +637,29 @@ const getBodyHeights = (el: HTMLDivElement) => {
     // return
     return { previewHeight, fullHeight, canToggle };
 };
-const PREVIEW_MAX_HEIGHT = "18em";
 
 /** 可預覽前 10 行的展開區塊 */
-const PreviewSectionCard_Comp = (props: {
-    item: PreviewSectionItem;
-    isExpanded: boolean;
-    onToggle: (id: string) => void;
-}) => {
+const PreviewSectionCard_Comp = (props: {item: PreviewSectionItem; isExpanded: boolean; onToggle: (id: string) => void;}) => {
     const bodyRef = useRef<HTMLDivElement | null>(null);
     const [maxHeight, setMaxHeight] = useState<string>("none");
     const [canToggle, setCanToggle] = useState(false);
     const bodyId = `${props.item.id}-body`;
-
     const applyBodyHeight = useCallback(() => {
-        // 宣告變數
         const el = bodyRef.current;
         if (!el || typeof window === "undefined") return;
-
         const { previewHeight, fullHeight, canToggle: nextCanToggle } = getBodyHeights(el);
         const nextHeight = props.isExpanded ? `${fullHeight}px` : `${previewHeight}px`;
-
-        // 執行 function
         setCanToggle(nextCanToggle);
         setMaxHeight(nextCanToggle ? nextHeight : "none");
     }, [props.isExpanded]);
-
+    useEffect(() => {applyBodyHeight(); }, [applyBodyHeight, props.item.content]);
     useEffect(() => {
-        // 執行 function
-        applyBodyHeight();
-    }, [applyBodyHeight, props.item.content]);
-
-    useEffect(() => {
-        // SSR guard
         if (typeof window === "undefined") return;
-
-        const onResize = () => {
-            // 執行 function
-            applyBodyHeight();
-        };
-
-        // 執行 function
+        const onResize = () => {applyBodyHeight();};
         window.addEventListener("resize", onResize);
         return () => window.removeEventListener("resize", onResize);
     }, [applyBodyHeight]);
-
-    const onClickToggle = () => {
-        // 執行 function
-        props.onToggle(props.item.id);
-    };
-
+    const onClickToggle = () => {props.onToggle(props.item.id);};
     return (
         <li>
             <div className="EC-0 card SpecJournalPreviewCard">
@@ -849,28 +835,33 @@ const Documents_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
                                 </div>
 
                                 <ul className="filelist-group">
-                                    {group.items.map((d, idx) => (
-                                        <li key={d.DocumentId ?? `${group.typeKey}-${idx}`}>
-                                            <div className="DownItem_Box my-2">
-                                                <a className="page-item" href={`${FileManagementAPI.DOWNLOAD_URL}/${d.DocumentId}`} title={d.DocumentName ?? ""} onClick={preventHashOrVoidNav} target="_blank" rel="noopener noreferrer">
-                                                    <div className="icontxtbox">
-                                                        <span className="page_icon">
-                                                            <i className="far fa-file-alt" aria-hidden="true"></i>
-                                                        </span>
-                                                        <span className="icontxt">
-                                                            {d.DocumentName}
-                                                        </span>
-                                                    </div>
-                                                </a>
-                                                <span className="G_Vline_Down">│</span>
-                                                <span className="Div_All_Ttext views">
-                                                    <i className="fas fa-download me-1" aria-hidden="true"></i>
-                                                    <span className="font-SW-normal">瀏覽次數 :</span>
-                                                    <span className="font-SW-normal ms-2">{0}</span>
-                                                </span>
-                                            </div>
-                                        </li>
-                                    ))}
+                                    {group.items.map((d, idx) => {
+                                        const isPdf = d.Document?.FileExtension?.toLowerCase()==="pdf"
+                                        const documentName = d.DocumentName??"";
+                                        const documentUrl = isPdf ? FileManagementAPI.get_Public_Preview_Url(d.DocumentId,documentName): FileManagementAPI.get_Public_Download_Url(d.DocumentId,documentName)
+                                        const documentDownloadCount = d.Document?.PublicDownloadCount??0
+                                        return(
+                                            <li key={d.DocumentId ?? `${group.typeKey}-${idx}`}>
+                                                <div className="DownItem_Box my-2">
+                                                    <a className="page-item" href={documentUrl} title={documentName} onClick={preventHashOrVoidNav} target="_blank" rel="noopener noreferrer">
+                                                        <div className="icontxtbox">
+                                                            <span className="page_icon">
+                                                                <i className="far fa-file-alt" aria-hidden="true"></i>
+                                                            </span>
+                                                            <span className="icontxt">
+                                                                {documentName}
+                                                            </span>
+                                                        </div>
+                                                    </a>
+                                                    <span className="G_Vline_Down">│</span>
+                                                    <span className="Div_All_Ttext views">
+                                                        <i className="fas fa-download me-1" aria-hidden="true"></i>
+                                                        <span className="font-SW-normal">下載次數 :</span>
+                                                        <span className="font-SW-normal ms-2">{documentDownloadCount}</span>
+                                                    </span>
+                                                </div>
+                                            </li>
+                                        )})}
                                 </ul>
                             </div>
                         ))}
@@ -951,7 +942,6 @@ const sortDocumentGroups = (groups: DocumentGroup[]): DocumentGroup[] => {
         const index = DOCUMENT_TYPE_ORDER.indexOf(typeKey);
         return index >= 0 ? index : Number.MAX_SAFE_INTEGER;
     };
-
     // return
     return [...groups].sort((a, b) => getSortIndex(a.typeKey) - getSortIndex(b.typeKey));
 };
@@ -960,17 +950,14 @@ const sortDocumentGroups = (groups: DocumentGroup[]): DocumentGroup[] => {
 const buildDocumentGroups = (documents?: SpecJournalDocumentItem[] | null): DocumentGroup[] => {
     // 宣告變數
     const groupMap = new Map<string, DocumentGroup>();
-
     // 執行 function
     (documents ?? []).forEach((doc) => {
         const typeKey = getDocumentTypeKey(doc);
         const existedGroup = groupMap.get(typeKey);
-
         if (existedGroup) {
             existedGroup.items.push(doc);
             return;
         }
-
         groupMap.set(typeKey, {
             typeKey,
             title: getDocumentTypeTitle(typeKey),

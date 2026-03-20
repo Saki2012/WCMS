@@ -308,6 +308,7 @@ export const CollectionsData = (props: { lang: Lang; internalId: string; initial
 											const url = detail?.URL ?? "#";
 											const content = detail?.Content ?? "";
 											const urlopen = detail?.URL_Open ?? "";
+											const imgUrl = FileManagementAPI.get_Public_Preview_Url(p.PicSrcId,alt)
 											return (
 												<div key={i} className="item">
 													<LangLink to={url} tabIndex={0} target={urlopen === 1 ? "_blank" : "_self"}>
@@ -315,7 +316,7 @@ export const CollectionsData = (props: { lang: Lang; internalId: string; initial
 															<figure className="card_figure">
 																<div className="card_image_link">
 																	<picture>
-																		<img className="card_image" src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} alt={alt} aria-hidden="true" />
+																		<img className="card_image" src={imgUrl} alt={alt} aria-hidden="true" />
 																	</picture>
 																</div>
 															</figure>

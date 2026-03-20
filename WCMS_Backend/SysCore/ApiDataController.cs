@@ -28,7 +28,6 @@ using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
-using static GraphQL.Validation.Rules.OverlappingFieldsCanBeMerged;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Library.LibData;
 
@@ -58,6 +57,50 @@ namespace WCMS.SysCore
         private ICurrentUserAccessor _Current;
         protected ICurrentUserAccessor Current => _Current ??= HttpContext.RequestServices.GetRequiredService<ICurrentUserAccessor>();
         public User_DTO OperateUser { get { return Current.User; } }
+        #endregion
+
+        #region Public
+        /// <summary>
+        /// 查詢清單
+        /// TODO:之後一定要拆分成前台跟後台用的API，後台會需要多一層權限管控
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost(nameof(QueryList)), OutputCache(PolicyName = SysParam.ListCache), AllowAnonymous, IgnoreAntiforgeryToken]
+        public virtual async Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition, CancellationToken ct)
+        {
+            if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
+            AddListTags();
+            var queryResult = await Service.BizQueryListAsync(queryCondition.Fields, queryCondition.Condition, queryCondition.OrderBy, queryCondition.RankGroups, queryCondition.PageNumber, queryCondition.PageSize);
+            List<TSet_DTO> result = [];
+            foreach (var item in queryResult) result.Add(DTOHelper.MapToDTO<TSet, TSet_DTO>(item));
+            var response = new ApiResponse<TSet_DTO>() { Data = result, SysMessage = Message.Messages };
+            return Ok(response);
+        }
+        /// <summary>
+        /// 獲取清單總頁數
+        /// </summary>
+        /// <param name="queryCondition"></param>
+        /// <returns></returns>
+        [HttpPost(nameof(GetTotalCounts)), OutputCache(PolicyName = SysParam.ListCache), AllowAnonymous, IgnoreAntiforgeryToken]
+        public virtual async Task<IActionResult> GetTotalCounts([FromBody] QueryListParam? queryCondition, CancellationToken ct)
+        {
+            if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
+            AddListTags();
+            var result = await Service.BizQueryTotalCounts(queryCondition.Condition);
+            var response = new ApiResponse<int>() { Data = [result], SysMessage = Message.Messages };
+            return Ok(response);
+        }
+        /// <summary>
+        /// 獲取功能的欄位顯示名稱
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet(nameof(GetModelDisplayName)), OutputCache(PolicyName = SysParam.PermanentCache), AllowAnonymous, IgnoreAntiforgeryToken]
+        public async Task<IActionResult> GetModelDisplayName()
+        {
+            var result = await Task.Run(() => ModelDescription);
+            var response = new ApiResponse<ModelDisplay<TSet_DTO>.ModelMetadata>() { Data = [result], SysMessage = Message.Messages };
+            return Ok(response);
+        }
         #endregion
 
         #region Tag helpers
@@ -147,18 +190,7 @@ namespace WCMS.SysCore
         }
         #endregion
 
-
-        /// <summary>
-        /// 獲取功能的欄位顯示名稱
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet(nameof(GetModelDisplayName)), OutputCache(PolicyName = SysParam.PermanentCache), AllowAnonymous, IgnoreAntiforgeryToken]
-        public async Task<IActionResult> GetModelDisplayName()
-        {
-            var result = await Task.Run(() => ModelDescription);
-            var response = new ApiResponse<ModelDisplay<TSet_DTO>.ModelMetadata>() { Data = [result], SysMessage = Message.Messages };
-            return Ok(response);
-        }
+       
     }
     /// <summary>
     /// 表單API入口
@@ -299,36 +331,6 @@ namespace WCMS.SysCore
             var queryResult = await Service.BizQuerySetAsync(internalId);
             var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(queryResult);
             var response = new ApiResponse<TSet_DTO>() { Data = [result], SysMessage = Message.Messages };
-            return Ok(response);
-        }
-        /// <summary>
-        /// 查詢清單
-        /// TODO:之後一定要拆分成前台跟後台用的API，後台會需要多一層權限管控
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost(nameof(QueryList)), OutputCache(PolicyName = SysParam.ListCache), AllowAnonymous, IgnoreAntiforgeryToken]
-        public virtual async Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition, CancellationToken ct)
-        {
-            if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
-            AddListTags();
-            var queryResult = await Service.BizQueryListAsync(queryCondition.Fields, queryCondition.Condition,queryCondition.OrderBy, queryCondition.RankGroups, queryCondition.PageNumber, queryCondition.PageSize);
-            List<TSet_DTO> result = [];
-            foreach (var item in queryResult) result.Add(DTOHelper.MapToDTO<TSet, TSet_DTO>(item));
-            var response = new ApiResponse<TSet_DTO>() { Data = result, SysMessage = Message.Messages};
-            return Ok(response);
-        }
-        /// <summary>
-        /// 獲取清單總頁數
-        /// </summary>
-        /// <param name="queryCondition"></param>
-        /// <returns></returns>
-        [HttpPost(nameof(GetTotalCounts)),OutputCache(PolicyName = SysParam.ListCache),AllowAnonymous, IgnoreAntiforgeryToken]
-        public virtual async Task<IActionResult> GetTotalCounts([FromBody] QueryListParam? queryCondition, CancellationToken ct)
-        {
-            if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
-            AddListTags();
-            var result = await Service.BizQueryTotalCounts(queryCondition.Condition);
-            var response = new ApiResponse<int>() { Data = [result], SysMessage = Message.Messages };
             return Ok(response);
         }
         #endregion

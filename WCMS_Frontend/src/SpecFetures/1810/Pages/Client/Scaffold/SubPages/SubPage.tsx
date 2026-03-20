@@ -98,7 +98,7 @@ const SubPageBase = (props: ISubPagesProps & { renderMain: () => React.ReactNode
     if (!props.node.bannerId) return "";
     const list = banner.rawData as BannerSet[] | undefined;
     const picId = list?.[0]?.BannerDetail?.[0]?.PicSrcId;
-    return picId ? `${FileManagementAPI.PREVIEW_URL}/${picId}` : "";
+    return FileManagementAPI.get_Public_Preview_Url(picId);
   }, [banner.rawData, props.node.bannerId]);
   useLegacyMenuDOM(menuRef);
   return (

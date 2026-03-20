@@ -158,11 +158,9 @@ const SpecUSRList = ({
                     {rawData.map((item) => {
                         const pageLink = `${dirUrl}/${item.SpecUSR?.InternalId}`;
                         const detail = item.SpecUSRDetail?.find(p => p.Lang.toLowerCase() === lang.toLowerCase());
-                        const picUrl = item.SpecUSR?.PictureId ? `${FileManagementAPI.PREVIEW_URL}/${item.SpecUSR?.PictureId}` : DefaultPic;
-
+                        const picUrl = FileManagementAPI.get_Public_Preview_Url(item.SpecUSR?.PictureId) ?? DefaultPic;
                         // 這個 flag 讓同一筆 item 只渲染一次群組欄位
                         let leaderRendered = false;
-
                         return (
                             <div key={item.SpecUSR?.InternalId ?? Math.random()} className="articles_item col-12">
                                 <article className="cardbox">

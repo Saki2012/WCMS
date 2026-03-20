@@ -27,8 +27,8 @@ const TinyMCE_Comp = ({ args }: Props) => {
     id: args.id,
     value: args.value,
     onChange: args.onChange,
-    uploadFileApi: args.uploadFileApi ?? FileManagementAPI.UPLOAD_URL,
-    makeFileUrl: args.makeFileUrl ?? ((id, meta) => meta.kind === 'image' ? `${FileManagementAPI.PREVIEW_URL}/${id}` : `${FileManagementAPI.DOWNLOAD_URL}/${id}`),
+    uploadFileApi: args.uploadFileApi ?? FileManagementAPI.Server_UploadTemp,
+    makeFileUrl: args.makeFileUrl ?? ((id, meta) => meta.kind === 'image' ? FileManagementAPI.get_Public_Preview_Url(id) : FileManagementAPI.get_Public_Download_Url(id)),
     languageUrl: args.languageUrl ?? '/tinymce-i18n/langs5/zh_TW.js',
     language: args.language ?? DefaultLang,
     baseUrl: args.baseUrl ?? '/tinymce',
@@ -43,7 +43,7 @@ const TinyMCE_Comp = ({ args }: Props) => {
   const image = useTinyMceInternalImage({
     resolvePreviewUrl:
       args.makeImagePreviewUrl ??
-      ((id) => (args.makeFileUrl ? args.makeFileUrl(id, { kind: 'image' }) : `${FileManagementAPI.PREVIEW_URL}/${id}`)),
+      ((id) => (args.makeFileUrl ? args.makeFileUrl(id, { kind: 'image' }) : FileManagementAPI.get_Public_Preview_Url(id))),
     enforceAlt: args.enforceAlt ?? true,
   });
 

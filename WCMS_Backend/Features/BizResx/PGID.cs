@@ -33,6 +33,7 @@
         #region SystemSetting
         public const string Calendar = "Calendar";
         public const string SiteMenu = "SiteMenu";
+        public const string SiteViewCount = "SiteViewCount";
         #endregion
 
 

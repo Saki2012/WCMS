@@ -17,7 +17,7 @@ type BannerSet = components["schemas"]["BannerSet_DTO"];
 
 export const BannerSliderListComp = (prop: { title: string; theme: IBETheme; lang: Lang }) => {
     const [kw, setKw] = useState<string>("");
-    const searchCompProp: SearchBarProps = {title: "廣告輪播搜尋",subTitle: "搜尋廣告輪播 ...",settingTitle: "搜尋設定",onSubmit: setKw,onReset: () => setKw(""),};
+    const searchCompProp: SearchBarProps = {title: "廣告輪播搜尋",subTitle: "搜尋廣告輪播 ...",onSubmit: setKw,onReset: () => setKw(""),};
     const pathname = useLocation().pathname;
     const navigate = useNavigate();
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
@@ -58,7 +58,7 @@ const buildBannerSliderRows = (raw: BannerSliderListRawData, columns: ColumnConf
     return (raw.list ?? []).map((set) => {
         const keyId = LibMerge("|", false, set.Banner?.BannerId);
         const a = set.Banner;
-        const picNode =(set.BannerDetail?.[0].PicSrcId?<img src={`${FileManagementAPI.PREVIEW_URL}/${set.BannerDetail?.[0].PicSrcId}`} style={{ width: "145px", height: "80px", objectFit: "fill" }} />:null)
+        const picNode =(set.BannerDetail?.[0].PicSrcId?<img src={FileManagementAPI.get_Server_Preview_Url(set.BannerDetail?.[0].PicSrcId)} style={{ width: "145px", height: "80px", objectFit: "fill" }} />:null)
         const cells: RowCell[] = [
             { col: columns[0], content: picNode },
             { col: columns[1], content: a?.BannerCategoryName },

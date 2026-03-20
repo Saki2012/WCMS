@@ -125,8 +125,7 @@ const UploadPicComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
     // 逐張打 UploadTemp，回傳 InternalId 陣列
     const uploadAll = async (): Promise<string[]> => {
         const results: string[] = [];
-        const url = FileManagementAPI.UPLOAD_URL;
-
+        const url = FileManagementAPI.Server_UploadTemp;
         // 小工具：實際送出
         const doUpload = async (file: File, fieldName: "file" | "files") => {
             const fd = new FormData();
@@ -312,13 +311,16 @@ const PhotoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Gal
     const photos = prop.formData?.data?.GalleryPhotos ?? [];
     const remover = usePhotoRemove(prop.formData);
 
+    
+
     const dom =
         (<>
             {photos.map((item) => {
                 const picId = String(item.PicSrcId ?? "");
                 const rowKeys = { [SchemaFields.GalleryPhotosFields.GalleryId]: item.GalleryId, [SchemaFields.GalleryPhotosFields.RowId]: item.RowId };
+                const picUrl = FileManagementAPI.get_Public_Preview_Url(item.PicSrcId)
                 return (
-                    <LibPicture parentClass="col-xl-3 col-md-4 col-12" ColumnDisplayName="測試" PicSrc={`${FileManagementAPI.PREVIEW_URL}/${item.PicSrcId}`} PicDescription="文字">
+                    <LibPicture parentClass="col-xl-3 col-md-4 col-12" ColumnDisplayName="測試" PicSrc={picUrl} PicDescription="文字">
                         <div className="row">
                             <div className="col-6">
                                 <LibCheckBoxSingle name="coverPic" checkboxStyle="radio" options={[{ itemId: picId, itemDisplayName: "選擇封面" }]}

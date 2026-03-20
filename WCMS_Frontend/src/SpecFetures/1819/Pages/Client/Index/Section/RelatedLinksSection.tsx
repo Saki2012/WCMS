@@ -66,10 +66,8 @@ export const RelatedLinksSection = (props: RelatedLinksSectionProps) => {
                                             useWebSrc.data.map((data) => {
                                                 // 宣告變數
                                                 const id = data.WebResource?.WebResourceId;
-                                                const picSrc = data.WebResource?.PicId
-                                                    ? `${FileManagementAPI.PREVIEW_URL}/${data.WebResource.PicId}`
-                                                    : "";
                                                 const picTitle = data.WebResource?.PicDescription ?? "";
+                                                const picSrc = FileManagementAPI.get_Public_Preview_Url(data.WebResource?.PicId,picTitle);
                                                 const dt = data.WebResourceInfo?.find(p => p.Lang === props.lang);
                                                 const title = dt?.Title ?? "";
                                                 const url = dt?.ResUrl ?? "";
@@ -79,13 +77,7 @@ export const RelatedLinksSection = (props: RelatedLinksSectionProps) => {
                                                 return (
                                                     <div key={id} className="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-6 + mb-4">
                                                         <figure className="figure_Box">
-                                                            <LangNavLink
-                                                                to={url}
-                                                                className="card_image_link"
-                                                                title={title}
-                                                                target={tar}
-                                                                rel={dt?.Url_OpenType === 0 ? undefined : "noopener noreferrer"}
-                                                            >
+                                                            <LangNavLink to={url} className="card_image_link" title={title} target={tar} rel={dt?.Url_OpenType === 0 ? undefined : "noopener noreferrer"}>
                                                                 <div className="card_figure">
                                                                     <div className="img-wrapper">
                                                                         <img className="card_image" src={picSrc} alt={picTitle} />

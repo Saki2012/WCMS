@@ -4,12 +4,12 @@ import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { WebResourceFields, WebResourceInfoFields } from "@/types/SchemaFields";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
 import { useEffect, useMemo, useState } from "react";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 import { ColRender, RowRender, STORAGE_KEY } from "@/SysCore/Components/Grid/Grid_Comp";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
-import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
+import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { useLoaderData } from "react-router-dom";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WebManagement/WebResource_Api";
@@ -21,26 +21,19 @@ type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 type WindowTarget = components["schemas"]["WindowTarget"];
 
 export interface IWebResourceListOptions { Category?: string; Tag?: string; Style: number; }
-export interface IWebResourceListProps { node: INormNode; theme: IFETheme; lang: Lang; options?: IWebResourceListOptions; title: string }
+export interface IWebResourceListProps { site:INormSite; node: INormNode; theme: IFETheme; lang: Lang; options?: IWebResourceListOptions; title: string }
 
 import type { Lang } from "@/SysCore/i18n/lang";
 
 const WebResourceListComp = (props: IWebResourceListProps) => {
     // 宣告變數
     const loaderData = useLoaderData() as WebResourceListLoaderData | null;
-
-    const adapter = useMemo(() => ({
-        web: WebResourceAdapter(),
-        cate: CategoryAdapter(),
-    }), []);
-
+    const adapter = useMemo(() => ({web: WebResourceAdapter(), cate: CategoryAdapter(),}), []);
     const categoryIds = props.options?.Category ?? "";
     const tagIds = props.options?.Tag ?? "";
     const style = props.options?.Style ?? 1;
-
     const useWebResList = useWebResourceList(adapter.web, props.lang, categoryIds, tagIds, loaderData);
     const useCategory = useCategoryList(adapter.cate, props.lang, loaderData);
-
     const children = useMemo(() => {
         switch (style) {
             case 7:
@@ -54,13 +47,12 @@ const WebResourceListComp = (props: IWebResourceListProps) => {
                 }
         }
     }, [useWebResList.gridProps, useWebResList.rawData, useCategory.rawData, props.lang, style]);
-
     const loadingList = [useWebResList.isLoading, useCategory.isLoading];
     const errorList = [useWebResList.error, useCategory.error];
-
+    const viewCountConfig: ModuleViewCountConfig = { mode: "list", };
     // return（DOM 不動）
     return (
-        <ModuleContent nodeTitle={props.node.title} isLoading={loadingList.some(Boolean)} errorList={errorList}>
+        <ModuleContent nodeTitle={props.node.title} isLoading={loadingList.some(Boolean)} errorList={errorList} viewCountConfig={viewCountConfig}>
             {children}
         </ModuleContent>
     )
@@ -295,17 +287,17 @@ const PictureListContent = (prop: { lang: string, datas: WebResourceSet[] }) => 
     return (
         <div id="Row_Colitem" className="SubPage_Standard_itemBoxs">
             {
-                prop.datas.map((item, idx) => {
+                prop.datas.map((item) => {
                     const detail = item.WebResourceInfo?.find(p => p.Lang === prop.lang);
                     const title = detail?.Title ?? "";
                     const validate = FormatDate(item.WebResource?.CreateTime);
-                    const picId = item.WebResource?.PicId ?? "";
+                    const picUrl = FileManagementAPI.get_Public_Preview_Url(item.WebResource?.PicId,title)
                     const urlRaw = detail?.ResUrl ?? "";
                     const tar = detail?.Url_OpenType === 0 ? "_self" : "_blank";
                     const { isYoutube, url } = resolveYoutubeEmbedUrl(urlRaw);
                     const isVideo = false;//暫時
                     const contentStatus = item.WebResource?.ContentStatus ?? 0;
-
+                    
                     return (
                         <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
                             <article className="cardbox">
@@ -323,7 +315,7 @@ const PictureListContent = (prop: { lang: string, datas: WebResourceSet[] }) => 
                                                 <a href={urlRaw} target={tar} className="card_image_link venobox" data-autoplay="true" data-vbtype="video" data-ratio="1x1" data-maxwidth="640px" title={title}>
                                                     <div className="card_figure">
                                                         <video width="100%">
-                                                            <source src={`${FileManagementAPI.PREVIEW_URL}/${picId}`} />
+                                                            <source src={picUrl} />
                                                         </video>
                                                         <div className="videoDiv">
                                                             <div className="customize_Play_Btn Ripplestyle">
@@ -334,7 +326,7 @@ const PictureListContent = (prop: { lang: string, datas: WebResourceSet[] }) => 
                                                 </a> :
                                                 <a href={urlRaw} target={tar} className="card_image_link venobox" data-autoplay="true" data-vbtype="video" data-ratio="1x1" data-maxwidth="640px" title={title}>
                                                     <div className="img-wrapper">
-                                                        <img className="card_image" src={`${FileManagementAPI.PREVIEW_URL}/${picId}`} alt="" />
+                                                        <img className="card_image" src={picUrl} alt="" />
                                                     </div>
                                                 </a>
                                         }

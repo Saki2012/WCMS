@@ -183,7 +183,7 @@ const ensureVirtualRoot = (roots: INormNode[], lang: Lang): void => {
 };
 
 export type ModuleFactory = (lang: Lang, site: INormSite, node: INormNode) => React.ReactElement;
-export type ModuleRoutesFactory = (opts: unknown, lang: Lang, node: INormNode, site: INormSite) => RouteObject[];
+export type ModuleRoutesFactory = (opts: unknown, lang: Lang, site: INormSite, node: INormNode) => RouteObject[];
 export type ModuleEntry =
     | { kind: "element"; render: ModuleFactory }
     | {
@@ -433,7 +433,7 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] => {
             return entryLoader(args, { lang, site, node: resolvedNode });
         };
         // routes 型模組的自帶 children；element 型為空
-        const modChildrenRaw: RouteObject[] = entry.kind === "routes" ? entry.children(n.module.options, DefaultLang, n, site) : [];
+        const modChildrenRaw: RouteObject[] = entry.kind === "routes" ? entry.children(n.module.options, DefaultLang, site, n) : [];
         const modChildren = wrapRoutesWithCtxLang(modChildrenRaw); const children = [...modChildren, ...menuChildren];
         // pathless 模組：有 children → 當包裹；沒有 → 當 index
         if (!n.path) return children.length > 0 ? { element, loader, children } : { index: true, element, loader };

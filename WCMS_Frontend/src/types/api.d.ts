@@ -3095,7 +3095,167 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/FileManagement/UploadTemp": {
+    "/Service/FileManagement/Public_Download/{internalId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    fileName?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path: {
+                    internalId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/FileManagement/Public_Preview/{internalId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    fileName?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path: {
+                    internalId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/FileManagement/Server_Preview/{internalId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    fileName?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path: {
+                    internalId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/FileManagement/Server_Download/{internalId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    fileName?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path: {
+                    internalId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/FileManagement/Server_UploadTemp": {
         parameters: {
             query?: never;
             header?: never;
@@ -3138,7 +3298,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/FileManagement/MoveToPermanent": {
+    "/Service/FileManagement/Server_MoveToPermanent": {
         parameters: {
             query?: never;
             header?: never;
@@ -3180,7 +3340,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/FileManagement/CancelUploadFiles": {
+    "/Service/FileManagement/Server_CancelUploadFiles": {
         parameters: {
             query?: never;
             header?: never;
@@ -3216,82 +3376,6 @@ export interface paths {
                 };
             };
         };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/FileManagement/Download/{internalId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path: {
-                    internalId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/FileManagement/Preview/{internalId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path: {
-                    internalId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -6035,6 +6119,406 @@ export interface paths {
         trace?: never;
     };
     "/Service/SiteMenu/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SiteViewCount/TryCountSiteView": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["TryCountSiteViewRequest_DTO"];
+                    "text/json": components["schemas"]["TryCountSiteViewRequest_DTO"];
+                    "application/*+json": components["schemas"]["TryCountSiteViewRequest_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["TryCountResult_DTOApiResponse"];
+                        "application/json": components["schemas"]["TryCountResult_DTOApiResponse"];
+                        "text/json": components["schemas"]["TryCountResult_DTOApiResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["TryCountResult_DTOApiResponse"];
+                        "application/json": components["schemas"]["TryCountResult_DTOApiResponse"];
+                        "text/json": components["schemas"]["TryCountResult_DTOApiResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SiteViewCount/TryCountPageView": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["TryCountDetailViewRequest_DTO"];
+                    "text/json": components["schemas"]["TryCountDetailViewRequest_DTO"];
+                    "application/*+json": components["schemas"]["TryCountDetailViewRequest_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["TryCountResult_DTOApiResponse"];
+                        "application/json": components["schemas"]["TryCountResult_DTOApiResponse"];
+                        "text/json": components["schemas"]["TryCountResult_DTOApiResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["TryCountResult_DTOApiResponse"];
+                        "application/json": components["schemas"]["TryCountResult_DTOApiResponse"];
+                        "text/json": components["schemas"]["TryCountResult_DTOApiResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SiteViewCount/TryCountFilePreview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["TryCountDetailViewRequest_DTO"];
+                    "text/json": components["schemas"]["TryCountDetailViewRequest_DTO"];
+                    "application/*+json": components["schemas"]["TryCountDetailViewRequest_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SiteViewCount/TryCountFileDownload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["TryCountDetailViewRequest_DTO"];
+                    "text/json": components["schemas"]["TryCountDetailViewRequest_DTO"];
+                    "application/*+json": components["schemas"]["TryCountDetailViewRequest_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SiteViewCount/TryCountLinkClick": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["TryCountDetailViewRequest_DTO"];
+                    "text/json": components["schemas"]["TryCountDetailViewRequest_DTO"];
+                    "application/*+json": components["schemas"]["TryCountDetailViewRequest_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SiteViewCount/GetSiteViewCountSetSchema": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["SiteViewCountSet_DTOApiResponse"];
+                        "application/json": components["schemas"]["SiteViewCountSet_DTOApiResponse"];
+                        "text/json": components["schemas"]["SiteViewCountSet_DTOApiResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SiteViewCount/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SiteViewCount/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SiteViewCount/GetModelDisplayName": {
         parameters: {
             query?: never;
             header?: never;
@@ -10639,12 +11123,12 @@ export interface components {
             Spec_AcademicYearId?: string | null;
             /**
              * Format: time
-             * @description [Spec_OpenTime]
+             * @description 開館時間
              */
             Spec_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [Spec_CloseTime]
+             * @description 閉館時間
              */
             Spec_CloseTime?: string | null;
             /** @description 摘要 */
@@ -10854,11 +11338,6 @@ export interface components {
             CategoriesId?: string | null;
             /** @description 標籤 */
             TagsId?: string | null;
-            /**
-             * Format: int32
-             * @description 下載次數
-             */
-            DownloadCount?: number;
             _FileArchiveInfo?: components["schemas"]["FileArchiveInfo_DTO"][] | null;
         };
         FileManageModel: {
@@ -10888,10 +11367,14 @@ export interface components {
             ProgId?: string | null;
             ImportLabel?: string | null;
             FileStatus?: components["schemas"]["FileStatus"];
-            /** Format: int32 */
-            readonly DownloadCount?: number;
-            _FileManage_DownloadInfo?: components["schemas"]["FileManage_DownloadInfoModel"][] | null;
+            /**
+             * Format: int32
+             * @description 下載次數
+             */
+            PublicDownloadCount?: number;
+            IsPublic?: boolean;
             _FileManage_SyncInfo?: components["schemas"]["FileManage_SyncInfoModel"][] | null;
+            _FileManage_DownloadRecent?: components["schemas"]["FileManage_DownloadRecentModel"][] | null;
         };
         FileManageModel_DTO: {
             /**
@@ -10929,43 +11412,43 @@ export interface components {
             ProgId?: string | null;
             ImportLabel?: string | null;
             FileStatus?: components["schemas"]["FileStatus"];
-            /** Format: int32 */
-            readonly DownloadCount?: number | null;
-            _FileManage_DownloadInfo?: components["schemas"]["FileManage_DownloadInfoModel_DTO"][] | null;
+            /**
+             * Format: int32
+             * @description 下載次數
+             */
+            PublicDownloadCount?: number;
+            IsPublic?: boolean;
+            _FileManage_DownloadRecent?: components["schemas"]["FileManage_DownloadRecentModel_DTO"][] | null;
             _FileManage_SyncInfo?: components["schemas"]["FileManage_SyncInfoModel_DTO"][] | null;
         };
         FileManageSet_DTO: {
             FileManage?: components["schemas"]["FileManageModel_DTO"];
-            FileManage_DownloadInfo?: components["schemas"]["FileManage_DownloadInfoModel_DTO"][] | null;
+            FileManage_DownloadRecent?: components["schemas"]["FileManage_DownloadRecentModel_DTO"][] | null;
             FileManage_SyncInfo?: components["schemas"]["FileManage_SyncInfoModel_DTO"][] | null;
         };
         FileManageSet_DTOApiRequest: {
             InternalId?: string | null;
             Data?: components["schemas"]["FileManageSet_DTO"];
         };
-        FileManage_DownloadInfoModel: {
+        FileManage_DownloadRecentModel: {
             RowState?: components["schemas"]["RowState"];
             InternalId?: string | null;
             /** Format: int32 */
             RowId?: number | null;
-            DownloadUserIP?: string | null;
-            UserAgent?: string | null;
+            VisitorKey: string;
             RefererURL?: string | null;
-            DownloadStatus?: boolean;
             /** Format: date-time */
-            DownloadTime?: string;
+            LastCountTime?: string;
             _FileManage?: components["schemas"]["FileManageModel"];
         };
-        FileManage_DownloadInfoModel_DTO: {
+        FileManage_DownloadRecentModel_DTO: {
             InternalId?: string | null;
             /** Format: int32 */
             RowId?: number | null;
-            DownloadUserIP?: string | null;
-            UserAgent?: string | null;
+            VisitorKey?: string | null;
             RefererURL?: string | null;
-            DownloadStatus?: string | null;
             /** Format: date-time */
-            DownloadTime?: string | null;
+            LastCountTime?: string | null;
             _FileManage?: components["schemas"]["FileManageModel_DTO"];
         };
         FileManage_SyncInfoModel: {
@@ -11589,6 +12072,76 @@ export interface components {
             RedirectUrl?: string | null;
             _SiteMenu_Index?: components["schemas"]["SiteMenu_Item_DTO"];
         };
+        SiteViewCountDetailModel_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            SiteMenu_Index?: components["schemas"]["SiteMenu_Index_DTO"];
+            SiteIndex: string;
+            ProgId: string;
+            TargetInternalId: string;
+            /** Format: int32 */
+            PageViewCount?: number;
+            /** Format: int32 */
+            FilePreviewCount?: number;
+            /** Format: int32 */
+            FileDownloadCount?: number;
+            /** Format: int32 */
+            LinkClickCount?: number;
+            _SiteViewCountHeader?: components["schemas"]["SiteViewCountHeaderModel_DTO"];
+        };
+        SiteViewCountHeaderModel_DTO: {
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
+            CreateTime?: string | null;
+            /** @description 創建人 */
+            CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["Account_DTO"];
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
+            ModifyTime?: string | null;
+            /** @description 修改人 */
+            ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["Account_DTO"];
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            SiteMenu_Index?: components["schemas"]["SiteMenu_Index_DTO"];
+            SiteIndex?: string | null;
+            /** Format: int32 */
+            PublicViewCount?: number;
+            _SiteViewCountDetail?: components["schemas"]["SiteViewCountDetailModel_DTO"][] | null;
+        };
+        SiteViewCountRecentlyModel_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            SiteMenu_Index?: components["schemas"]["SiteMenu_Index_DTO"];
+            SiteIndex: string;
+            ProgId: string;
+            TargetInternalId: string;
+            TargetType: string;
+            ActionType?: components["schemas"]["ViewCountActionType"];
+            VisitorKey: string;
+            /** Format: date-time */
+            LastViewTime?: string;
+            RefererUrl?: string | null;
+        };
+        SiteViewCountSet_DTO: {
+            SiteViewCountHeader?: components["schemas"]["SiteViewCountHeaderModel_DTO"];
+            SiteViewCountDetail?: components["schemas"]["SiteViewCountDetailModel_DTO"][] | null;
+            SiteViewCountRecently?: components["schemas"]["SiteViewCountRecentlyModel_DTO"][] | null;
+        };
+        SiteViewCountSet_DTOApiResponse: {
+            readonly IsSuccess?: boolean;
+            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
+            Data?: components["schemas"]["SiteViewCountSet_DTO"][] | null;
+        };
         SpecCategoryDetailModel_DTO: {
             /** @description [SpecCategoryId] */
             CategoryId?: string | null;
@@ -11664,24 +12217,24 @@ export interface components {
         SpecDocumentType: 0 | 1 | 2 | 3 | 4;
         SpecJournalAuthor_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description ORCID */
+            /** @description [Spec_ORCID] */
             ORCID?: string | null;
-            /** @description 作者姓名 */
+            /** @description [Spec_AuthorName] */
             AuthorName?: string | null;
-            /** @description 作者英文姓名 */
+            /** @description [Spec_AuthorName_en] */
             AuthorName_en?: string | null;
-            /** @description 職稱 */
+            /** @description [Spec_JobTitle] */
             JobTitle?: string | null;
-            /** @description 單位 */
+            /** @description [Spec_Unit] */
             Unit?: string | null;
-            /** @description 英文單位 */
+            /** @description [Spec_Unit_en] */
             Unit_en?: string | null;
             /** @description 常用Email */
             Email?: string | null;
@@ -11691,7 +12244,7 @@ export interface components {
         };
         SpecJournalDocument_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
@@ -11699,16 +12252,16 @@ export interface components {
              */
             RowId?: number | null;
             DocumentType?: components["schemas"]["SpecDocumentType"];
-            /** @description 說明檔案名稱 */
+            /** @description [Spec_DocumentName] */
             DocumentName?: string | null;
-            Document?: components["schemas"]["FileManageModel"];
-            /** @description 說明檔案來源 */
+            Document?: components["schemas"]["FileManageModel_DTO"];
+            /** @description [Spec_DocumentId] */
             DocumentId?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
         SpecJournalIndexDetail_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊目次代號 */
+            /** @description [Spec_JournalIndexId] */
             IndexId?: string | null;
             /**
              * Format: int32
@@ -11717,22 +12270,22 @@ export interface components {
             RowId?: number | null;
             /**
              * Format: int32
-             * @description 卷數
+             * @description [Spec_Volume]
              */
             Volume?: number | null;
-            /** @description 期數 */
+            /** @description [Spec_Issue] */
             Issue?: string | null;
-            /** @description 是否為特刊 */
+            /** @description [Spec_IsSpecial] */
             IsSpecial?: boolean | null;
             /**
              * Format: date
-             * @description 出版日期
+             * @description [Spec_PublishDate]
              */
             PublishDate?: string | null;
-            /** @description 季號 */
+            /** @description [Spec_SeasonNo] */
             SeasonNo?: string | null;
             SummaryFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 期刊檔案 */
+            /** @description [Spec_SummaryFileId] */
             SummaryFileId?: string | null;
             /** @description [Spec_SummaryFileName] */
             SummaryFileName?: string | null;
@@ -11763,9 +12316,9 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description 期刊目次代號 */
+            /** @description [Spec_JournalIndexId] */
             IndexId?: string | null;
-            /** @description 期刊年份 */
+            /** @description [Spec_JournalIndexName] */
             IndexName?: string | null;
             PublishStatus?: components["schemas"]["PublishStatus"];
             _SpecJournalIndexDetail?: components["schemas"]["SpecJournalIndexDetail_DTO"][] | null;
@@ -11781,7 +12334,7 @@ export interface components {
         };
         SpecJournalKeywords_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
@@ -11789,7 +12342,7 @@ export interface components {
              */
             RowId?: number | null;
             LangCode?: components["schemas"]["LangCode"];
-            /** @description 關鍵詞 */
+            /** @description [Spec_Keyword] */
             Keyword?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
@@ -11818,49 +12371,49 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             _JournalIndex?: components["schemas"]["SpecJournalIndexModel_DTO"];
-            /** @description 期刊目次代號 */
+            /** @description [Spec_JournalIndexId] */
             JournalIndexId?: string | null;
             _JournalIndexDetail?: components["schemas"]["SpecJournalIndexDetail_DTO"];
             /**
              * Format: int32
-             * @description 卷期代號
+             * @description [Spec_JournalIndexRowId]
              */
             JournalIndexRowId?: number | null;
             /** @description 標題 */
             Title?: string | null;
-            /** @description 英文標題 */
+            /** @description [Spec_Title_en] */
             Title_en?: string | null;
             /**
              * Format: int32
-             * @description 起始頁
+             * @description [Spec_PageStart]
              */
             PageStart?: number | null;
             /**
              * Format: int32
-             * @description 結束頁
+             * @description [Spec_PageEnd]
              */
             PageEnd?: number | null;
-            /** @description DOI */
+            /** @description [Spec_DOI] */
             DOIUrl?: string | null;
             JournalFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 期刊檔案 */
+            /** @description [Spec_JournalFieldId] */
             JournalFileId?: string | null;
-            /** @description 期刊檔案名稱 */
+            /** @description [Spec_JournalFileName] */
             JournalFileName?: string | null;
             InsightPointFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 捷點 InSignt Point 檔案 */
+            /** @description [Spec_InsightPointFileId] */
             InsightPointFileId?: string | null;
-            /** @description 捷點 InSignt Point 檔案名稱 */
+            /** @description [Spec_InsightPointFileName] */
             InsightPointFileName?: string | null;
             ArticleLang?: components["schemas"]["LangCode"];
             /** @description 摘要 */
             Memo?: string | null;
-            /** @description 英文摘要 */
+            /** @description [Spec_Memo_en] */
             Memo_en?: string | null;
-            /** @description 參考文獻 */
+            /** @description [SpecBibliography] */
             Bibliography?: string | null;
             _SpecJournalAuthor?: components["schemas"]["SpecJournalAuthor_DTO"][] | null;
             _SpecJournalRefFormat?: components["schemas"]["SpecJournalRefFormat_DTO"][] | null;
@@ -11872,66 +12425,66 @@ export interface components {
         };
         SpecJournalOpenPointFiles_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description 開放觀點檔案名稱 */
+            /** @description [Spec_OpenPointFileName] */
             OpenPointFileName?: string | null;
             OpenPointFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 開放觀點檔案來源 */
+            /** @description [Spec_OpenPointFileId] */
             OpenPointFileId?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
         SpecJournalRefFiles_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description 相關檔案名稱 */
+            /** @description [Spec_RefFileName] */
             RefFileName?: string | null;
             RefFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 相關檔案來源 */
+            /** @description [Spec_RefFileId] */
             RefFileId?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
         SpecJournalRefFormat_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description 引文格式標題 */
+            /** @description [Spec_RefFormatTitle] */
             Title?: string | null;
-            /** @description 引文格式內容 */
+            /** @description [Spec_RefFormatContent] */
             Content?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
         SpecJournalSet_DTO: {
             SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
-            /** @description 期刊作者列表 */
+            /** @description [SpecJournalAuthor] */
             SpecJournalAuthor?: components["schemas"]["SpecJournalAuthor_DTO"][] | null;
-            /** @description 期刊引文格式列表 */
+            /** @description [SpecJournalRefFormat] */
             SpecJournalRefFormat?: components["schemas"]["SpecJournalRefFormat_DTO"][] | null;
-            /** @description 期刊開放觀點檔案列表 */
+            /** @description [SpecJournalOpenPointFiles] */
             SpecJournalOpenPointFiles?: components["schemas"]["SpecJournalOpenPointFiles_DTO"][] | null;
-            /** @description 期刊相關檔案列表 */
+            /** @description [SpecJournalRefFiles] */
             SpecJournalRefFiles?: components["schemas"]["SpecJournalRefFiles_DTO"][] | null;
-            /** @description 期刊說明檔案列表 */
+            /** @description [SpecJournalDocument] */
             SpecJournalDocument?: components["schemas"]["SpecJournalDocument_DTO"][] | null;
-            /** @description 期刊類型列表 */
+            /** @description [SpecJournalTypes] */
             SpecJournalTypes?: components["schemas"]["SpecJournalTypes_DTO"][] | null;
-            /** @description 期刊關鍵字列表 */
+            /** @description [SpecJournalKeywords] */
             SpecJournalKeywords?: components["schemas"]["SpecJournalKeywords_DTO"][] | null;
         };
         SpecJournalSet_DTOApiRequest: {
@@ -11940,7 +12493,7 @@ export interface components {
         };
         SpecJournalTypes_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 期刊代號 */
+            /** @description [Spec_JournalId] */
             JournalId?: string | null;
             /**
              * Format: int32
@@ -11948,7 +12501,7 @@ export interface components {
              */
             RowId?: number | null;
             Tag?: components["schemas"]["TagData_DTO"];
-            /** @description 類型 */
+            /** @description [Spec_TagId] */
             TagId?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
@@ -12071,126 +12624,126 @@ export interface components {
             Validate_Start?: string | null;
             /** Format: date-time */
             Validate_End?: string | null;
-            /** @description [SpecAcademicYearId] */
+            /** @description 學年度 */
             AcademicYearId?: string | null;
             /**
              * Format: date
-             * @description [SpecAcademicStart]
+             * @description 學年度開始日
              */
             AcademicStart?: string;
             /**
              * Format: date
-             * @description [SpecAcademicEnd]
+             * @description 學年度結束日
              */
             AcademicEnd?: string;
             /**
              * Format: time
-             * @description [SpecWeekday_OpenTime]
+             * @description 平日開館時間
              */
             Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWeekday_CloseTime]
+             * @description 平日閉館時間
              */
             Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSat_OpenTime]
+             * @description 週六開館時間
              */
             Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSat_CloseTime]
+             * @description 週六閉館時間
              */
             Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSun_OpenTime]
+             * @description 週日開館時間
              */
             Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSun_CloseTime]
+             * @description 週日閉館時間
              */
             Sun_CloseTime?: string | null;
             /**
              * Format: date
-             * @description [SpecWinterStart]
+             * @description 寒假開始日
              */
             WinterStart?: string;
             /**
              * Format: date
-             * @description [SpecWinterEnd]
+             * @description 寒假結束日
              */
             WinterEnd?: string;
             /**
              * Format: time
-             * @description [SpecWinter_Weekday_OpenTime]
+             * @description 寒假平日開館時間
              */
             Winter_Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Weekday_CloseTime]
+             * @description 寒假平日閉館時間
              */
             Winter_Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Sat_OpenTime]
+             * @description 寒假週六開館時間
              */
             Winter_Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Sat_CloseTime]
+             * @description 寒假週六閉館時間
              */
             Winter_Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Sun_OpenTime]
+             * @description 寒假週日開館時間
              */
             Winter_Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Sun_CloseTime]
+             * @description 寒假週日閉館時間
              */
             Winter_Sun_CloseTime?: string | null;
             /**
              * Format: date
-             * @description [SpecSummerStart]
+             * @description 暑假開始日
              */
             SummerStart?: string;
             /**
              * Format: date
-             * @description [SpecSummerEnd]
+             * @description 暑假結束日
              */
             SummerEnd?: string;
             /**
              * Format: time
-             * @description [SpecSummer_Weekday_OpenTime]
+             * @description 暑假平日開館時間
              */
             Summer_Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Weekday_CloseTime]
+             * @description 暑假平日閉館時間
              */
             Summer_Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Sat_OpenTime]
+             * @description 暑假週六開館時間
              */
             Summer_Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Sat_CloseTime]
+             * @description 暑假週六閉館時間
              */
             Summer_Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Sun_OpenTime]
+             * @description 暑假週日開館時間
              */
             Summer_Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Sun_CloseTime]
+             * @description 暑假週日閉館時間
              */
             Summer_Sun_CloseTime?: string | null;
             /** @description 摘要 */
@@ -12221,126 +12774,126 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description [SpecAcademicYearId] */
+            /** @description 學年度 */
             AcademicYearId?: string | null;
             /**
              * Format: date
-             * @description [SpecAcademicStart]
+             * @description 學年度開始日
              */
             AcademicStart?: string | null;
             /**
              * Format: date
-             * @description [SpecAcademicEnd]
+             * @description 學年度結束日
              */
             AcademicEnd?: string | null;
             /**
              * Format: time
-             * @description [SpecWeekday_OpenTime]
+             * @description 平日開館時間
              */
             Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWeekday_CloseTime]
+             * @description 平日閉館時間
              */
             Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSat_OpenTime]
+             * @description 週六開館時間
              */
             Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSat_CloseTime]
+             * @description 週六閉館時間
              */
             Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSun_OpenTime]
+             * @description 週日開館時間
              */
             Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSun_CloseTime]
+             * @description 週日閉館時間
              */
             Sun_CloseTime?: string | null;
             /**
              * Format: date
-             * @description [SpecWinterStart]
+             * @description 寒假開始日
              */
             WinterStart?: string | null;
             /**
              * Format: date
-             * @description [SpecWinterEnd]
+             * @description 寒假結束日
              */
             WinterEnd?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Weekday_OpenTime]
+             * @description 寒假平日開館時間
              */
             Winter_Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Weekday_CloseTime]
+             * @description 寒假平日閉館時間
              */
             Winter_Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Sat_OpenTime]
+             * @description 寒假週六開館時間
              */
             Winter_Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Sat_CloseTime]
+             * @description 寒假週六閉館時間
              */
             Winter_Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Sun_OpenTime]
+             * @description 寒假週日開館時間
              */
             Winter_Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecWinter_Sun_CloseTime]
+             * @description 寒假週日閉館時間
              */
             Winter_Sun_CloseTime?: string | null;
             /**
              * Format: date
-             * @description [SpecSummerStart]
+             * @description 暑假開始日
              */
             SummerStart?: string | null;
             /**
              * Format: date
-             * @description [SpecSummerEnd]
+             * @description 暑假結束日
              */
             SummerEnd?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Weekday_OpenTime]
+             * @description 暑假平日開館時間
              */
             Summer_Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Weekday_CloseTime]
+             * @description 暑假平日閉館時間
              */
             Summer_Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Sat_OpenTime]
+             * @description 暑假週六開館時間
              */
             Summer_Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Sat_CloseTime]
+             * @description 暑假週六閉館時間
              */
             Summer_Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Sun_OpenTime]
+             * @description 暑假週日開館時間
              */
             Summer_Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description [SpecSummer_Sun_CloseTime]
+             * @description 暑假週日閉館時間
              */
             Summer_Sun_CloseTime?: string | null;
             /** @description 摘要 */
@@ -12721,6 +13274,29 @@ export interface components {
             InternalId?: string | null;
             Data?: components["schemas"]["TagSet_DTO"];
         };
+        TryCountDetailViewRequest_DTO: {
+            SiteIndex?: string | null;
+            ProgId?: string | null;
+            InternalId?: string | null;
+        };
+        TryCountResult_DTO: {
+            IsCounted?: boolean;
+            /** Format: int32 */
+            CurrentCount?: number;
+        };
+        TryCountResult_DTOApiResponse: {
+            readonly IsSuccess?: boolean;
+            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
+            Data?: components["schemas"]["TryCountResult_DTO"][] | null;
+        };
+        TryCountSiteViewRequest_DTO: {
+            SiteIndex?: string | null;
+        };
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
+        ViewCountActionType: 1 | 2 | 3 | 4;
         WebResourceInfo_DTO: {
             /** @description 網路資源 */
             WebResourceId?: string | null;

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { LangLink } from "@/SysCore/i18n/LangLink";
-import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
-import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { components } from "@/types/api";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import clsx from "clsx";
@@ -27,8 +27,7 @@ const buildCollapseIds = (year: string) => {
     return { collapseId, headerId };
 };
 
-
-export const SpecJournalIndex = (props: { node: INormNode; lang: Lang; }) => {
+export const SpecJournalIndex = (props: { site:INormSite; node: INormNode; lang: Lang; }) => {
     const pageSize = 10;
     const loaderData = useLoaderData() as SpecJournalIndexLoaderData | null;
     const adapter = useMemo(() => SpecJournalIndexAdapter(), []);
@@ -41,8 +40,9 @@ export const SpecJournalIndex = (props: { node: INormNode; lang: Lang; }) => {
         totalPages: useIndex.totalPages,
         onPageChange: useIndex.onPageChange,
     };
+    const viewCountConfig: ModuleViewCountConfig = { mode: "list", };
     return (
-        <ModuleContent nodeTitle={props.node.title} title={props.node.title} isLoading={loadingList} errorList={errorList} paginatorProps={paginprops} >
+        <ModuleContent nodeTitle={props.node.title} title={props.node.title} isLoading={loadingList} errorList={errorList} paginatorProps={paginprops} viewCountConfig={viewCountConfig}>
             <SpecJournalIndexContent title={props.node.title} data={useIndex.rawData} lang={props.lang} />
         </ModuleContent>
     )

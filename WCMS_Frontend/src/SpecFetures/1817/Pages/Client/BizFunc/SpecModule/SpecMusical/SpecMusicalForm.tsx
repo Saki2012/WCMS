@@ -1,17 +1,18 @@
 import type { components } from '@/types/api';
 import { useParams } from 'react-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import ModuleContent from '@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent';
-import type { INormNode } from '@/Features/Pages/Client/Route/Site-Routing';
+import ModuleContent, { type ModuleViewCountConfig } from '@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent';
+import type { INormNode, INormSite } from '@/Features/Pages/Client/Route/Site-Routing';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import type { ModelDisplaySchema } from '@/types/IApiSchema';
-import { SpecMusicalModelFields, SpecMusicalSetFields } from '@/types/SchemaFields';
+import { PGID, SpecMusicalModelFields, SpecMusicalSetFields } from '@/types/SchemaFields';
 
 // ✅ 新架構：Adapter + LoaderData initial
 import { useLoaderData } from 'react-router-dom';
 import type { ApiLoaderData } from '@/SysCore/Utils/API/APIAdapter';
 import { SpecMusicalAdapter } from '@/SpecFetures/1817/Hooks/BizFunc/SpecModule/SpecMusical/SpecMusical_Api';
 import type { SpecMusicalFormLoaderData } from './SpecMusicalForm_Loader';
+import type { TryCountDetailViewRequest } from '@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api';
 
 type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"]
 type SpecMusicalModel = components["schemas"]["SpecMusicalModel_DTO"]
@@ -20,7 +21,7 @@ type SpecMusicalSoundList = components["schemas"]["SpecMusicalSoundList_DTO"]
 
 let globalCurrentAudio: HTMLAudioElement | null = null;
 
-interface ISpecMusicalFormProps { node: INormNode; }
+interface ISpecMusicalFormProps { site:INormSite; node: INormNode; }
 
 const SpecMusicalForm = (props: ISpecMusicalFormProps) => {
     // 宣告變數
@@ -73,10 +74,16 @@ const SpecMusicalForm = (props: ISpecMusicalFormProps) => {
     const errorList = [useData.errorText, useDisplayName.errorText];
 
     const title = useData.data?.SpecMusical?.MusicalName ?? "";
-
+    const viewCountConfig = useMemo<ModuleViewCountConfig>(() => {
+        const request: TryCountDetailViewRequest = {
+            SiteIndex:props.site.siteIndex,
+            ProgId:PGID.SpecMusical,
+            InternalId:safeInternalId,
+        };
+        return { mode: "form", contentKey: safeInternalId, request,};}, [safeInternalId]);
     // return（DOM 不改）
     return (
-        <ModuleContent nodeTitle={props.node.title} title={title} loadingList={loadingList} errorList={errorList}>
+        <ModuleContent nodeTitle={props.node.title} title={title} loadingList={loadingList} errorList={errorList} viewCountConfig={viewCountConfig}>
             <MainContent data={useData.data ?? {}} displayName={(useDisplayName.data ?? ({} as ModelDisplaySchema))} />
         </ModuleContent>
     )
@@ -108,10 +115,8 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[] }) => {
     const mainRef = useRef<HTMLDivElement | null>(null);
     const thumbRef = useRef<HTMLDivElement | null>(null);
     const zoomBtnRef = useRef<HTMLAnchorElement | null>(null);
-    const srcId = props.pics && props.pics.length > 0 ? `${FileManagementAPI.PREVIEW_URL}/${props.pics[0].PicSrcId}` : "";
-
+    const srcId = FileManagementAPI.get_Public_Preview_Url(props.pics?.[0].PicSrcId);
     const sortPics = useMemo(() => { return [...props.pics].sort((a, b) => (a.Sort ?? 0) - (b.Sort ?? 0)) }, [props.pics])
-
     useEffect(() => {
         // 沒有資料或還沒掛上 DOM 直接跳出
         if (!props.pics || props.pics.length === 0) return;
@@ -220,6 +225,7 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[] }) => {
         };
     }, [sortPics, props.pics]);
 
+    
     return (
         <div className="col-xxl-5 col-xl-5 col-lg-5 col-md-5 col-sm-12 col-12">
             <div className="Commodity_Change_Image_Area">
@@ -233,7 +239,7 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[] }) => {
                         </div>
                         <div className="owl-carousel + main-carousel" ref={mainRef}>
                             {sortPics.map((img, index) => {
-                                const url = `${FileManagementAPI.PREVIEW_URL}/${img.PicSrcId}`;
+                                const url = FileManagementAPI.get_Public_Preview_Url(img.PicSrcId);
                                 const alt = img.Info ?? "";
                                 return (
                                     <div className="item" key={index}>
@@ -250,7 +256,7 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[] }) => {
                     <div className="commodity_slider_box + owl-box">
                         <div className="owl-carousel + thumb-carousel" ref={thumbRef} >
                             {sortPics.map((img, index) => {
-                                const url = `${FileManagementAPI.PREVIEW_URL}/${img.PicSrcId}`;
+                                const url = FileManagementAPI.get_Public_Preview_Url(img.PicSrcId);
                                 const alt = img.Info ?? "";
                                 return (
                                     <div className="item" key={index}>
@@ -353,7 +359,7 @@ const SoundComp = (props: { sounds: SpecMusicalSoundList[] }) => {
                                     <div className="MP3player_AllBox">
                                         <div className="audio-heading">{audio.Info}</div>
                                         <div className="player_Area">
-                                            <AudioPlayer src={`${FileManagementAPI.PREVIEW_URL}/${audio.SoundSrcId}`} />
+                                            <AudioPlayer src={FileManagementAPI.get_Public_Preview_Url(audio.SoundSrcId)}/>
                                         </div>
                                     </div>
                                 </div>

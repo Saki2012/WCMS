@@ -183,13 +183,14 @@ export const GallerySession = (props: { lang: Lang }) => {
                                     <div id="Gallery" className="owl-carousel owl-theme px-2" ref={carouselRef}>
                                         {/* <asp:Literal ID="Li_Album" runat="server" /> */}
                                         {result.map((item) => {
+                                            const imgUrl = FileManagementAPI.get_Public_Preview_Url(item.picInternalId,item.title)
                                             return item && (
                                                 <div className="item" key={item.title}>
                                                     <LangLink to={`/EventHighlights/event-album/${item.internalId}`} tabIndex={13} title={item.title}>
                                                         <div className="DivBox_content v_itemBOX">
                                                             <div className="Picture_Div">
                                                                 <div className="img_wrapper">
-                                                                    <div className="figure_wrapper"> <img src={`${FileManagementAPI.PREVIEW_URL}/${item.picInternalId}`} alt={item.title} /> </div>
+                                                                    <div className="figure_wrapper"> <img src={imgUrl} alt={item.title}/> </div>
                                                                 </div>
                                                             </div>
                                                             <div className="TxtBoxDiv">

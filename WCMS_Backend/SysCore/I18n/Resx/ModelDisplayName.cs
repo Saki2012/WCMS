@@ -88,12 +88,11 @@ namespace WCMS.SysCore.I18n.Resx
         public const string Enum_FuncAction_Report = "Enum_FuncAction_Report";
         public const string Enum_FuncAction_All = "Enum_FuncAction_All";
 
-
-
-
-
-
-
+        public const string Enum_ViewCountActionType = "Enum_ViewCountActionType";
+        public const string Enum_ViewCountActionType_PageView = "Enum_ViewCountActionType_PageView";
+        public const string Enum_ViewCountActionType_FilePreview = "Enum_ViewCountActionType_FilePreview";
+        public const string Enum_ViewCountActionType_FileDownload = "Enum_ViewCountActionType_FileDownload";
+        public const string Enum_ViewCountActionType_LinkClick = "Enum_ViewCountActionType_LinkClick";
         #endregion
 
         #region 網站結構設定
@@ -125,7 +124,6 @@ namespace WCMS.SysCore.I18n.Resx
         public const string Announcement_SubTitle="Announcement_SubTitle";
         public const string Announcement_CoverPictureId= "Announcement_CoverPictureId";
         public const string Announcement_PicDescription="Announcement_PicDescription";
-        public const string Announcement_ViewCount="Announcement_ViewCount";
         public const string Announcement_StartDate="Announcement_StartDate";
         public const string Announcement_EndDate="Announcement_EndDate";
         public const string Announcement_CreationDate="Announcement_CreationDate";
@@ -188,7 +186,6 @@ namespace WCMS.SysCore.I18n.Resx
         #region 頁面
         public const string PageId="PageId";
         public const string Page_Categories="Page_Categories";
-        public const string Page_ViewCount="Page_ViewCount";
         public const string Page_CustomMade="Page_CustomMade";
         public const string Page_Content="Page_Content";
         #endregion
@@ -245,6 +242,11 @@ namespace WCMS.SysCore.I18n.Resx
         #endregion
 
         #endregion
+
+        #region FileManagement
+        public const string FileManage_DownloadCount = "FileManage_DownloadCount";
+        #endregion
+
 
         #region 1810調整的東西
         /// <summary>

@@ -54,15 +54,15 @@ export const CarouselData = (props: {lang: Lang;internalId: string;initialBanner
                   const content = info?.Content ?? "";
                   const url = info?.URL;
                   const tar = info?.URL_Open === 0 ? "_self" : "_blank";
-
+                  const imgUrl = FileManagementAPI.get_Public_Preview_Url(p.PicSrcId,alt)
                   return (
                     <div key={i} className={clsx("carousel-item", i === 0 ? "active" : "")} data-bs-interval="5000">
                       {url ? (
                         <LangNavLink to={url} target={tar} rel={tar === "_blank" ? "noopener noreferrer" : undefined} aria-label={alt || "banner link"}>
-                          <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} className="d-block w-100" alt={alt}/>
+                          <img src={imgUrl} className="d-block w-100" alt={alt}/>
                         </LangNavLink>
                       ) : (
-                        <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} className="d-block w-100" alt={alt}/>
+                        <img src={imgUrl} className="d-block w-100" alt={alt}/>
                       )}
                       <div className="caption bg-customize-op09">
                         <div className="caption-title mb-sm-3 mb-1">{alt}</div>

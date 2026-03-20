@@ -210,4 +210,13 @@
   <data name="BECode00030" xml:space="preserve">
     <value>網站項目路徑開頭不應為【Service】或【Server】。</value>
   </data>
+  <data name="BECode00031" xml:space="preserve">
+    <value>找不到識別碼為:【{0}】的檔案在系統內。</value>
+  </data>
+  <data name="BECode00032" xml:space="preserve">
+    <value>識別碼:【{0}】找不到實體檔案:【{1}】。</value>
+  </data>
+  <data name="BECode00033" xml:space="preserve">
+    <value>無任何檔案讀取。</value>
+  </data>
 </root>

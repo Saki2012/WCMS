@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
@@ -12,7 +13,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
     public class FileManageSet_DTO : ITSet_DTO
     {
         public FileManageModel_DTO? FileManage { get; set; } = new();
-        public List<FileManage_DownloadInfoModel_DTO>? FileManage_DownloadInfo { get; set; } = [];
+        public List<FileManage_DownloadRecentModel_DTO>? FileManage_DownloadRecent { get; set; } = [];
         public List<FileManage_SyncInfoModel_DTO>? FileManage_SyncInfo { get; set; } = [];
     }
     /// <summary>
@@ -64,49 +65,34 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// </summary>
         [LibDesc] public FileStatus? FileStatus { get; set; }
         /// <summary>
-        /// 下載次數
+        /// 前台網站下載次數
         /// </summary>
-        [LibDesc, NotMapped] public int? DownloadCount { get; }
-
+        [LibDesc(ModelDisplayName.FileManage_DownloadCount)] public int PublicDownloadCount { get; set; } = 0;
+        /// <summary>
+        /// 是否公開檔案
+        /// 2026.03.17新增，因為有些檔案可能只是內部使用，或是已經不想被下載了，但又不想刪除，所以先加個欄位來控制是否公開下載
+        /// </summary>
+        [LibDesc] public bool IsPublic { get; set; } = true;
         #region 主子表關聯
-        public List<FileManage_DownloadInfoModel_DTO>? _FileManage_DownloadInfo { get; set; } = [];
+        public List<FileManage_DownloadRecentModel_DTO>? _FileManage_DownloadRecent { get; set; } = [];
         public List<FileManage_SyncInfoModel_DTO>? _FileManage_SyncInfo { get; set; }
         #endregion
     }
     /// <summary>
     /// 檔案被下載資訊
     /// </summary>
-    public class FileManage_DownloadInfoModel_DTO
+    public class FileManage_DownloadRecentModel_DTO
     {
-        /// <summary>
-        /// 檔案識別碼
-        /// </summary>
-        [LibDesc, Key] public string? InternalId { get; set; }
-        /// <summary>
-        /// 行代碼
-        /// </summary>
-        [LibDesc, Key] public int? RowId { get; set; }
-        /// <summary>
-        /// 下載者IP
-        /// </summary>
-        [LibDesc] public string? DownloadUserIP { get; set; }
-        /// <summary>
-        /// 使用裝置
-        /// </summary>
-        [LibDesc] public string? UserAgent { get; set; }
-        /// <summary>
-        /// 下載來源
-        /// </summary>
-        [LibDesc] public string? RefererURL { get; set; }
-        /// <summary>
-        /// 下載狀態 (成功/失敗)
-        /// </summary>
-        [LibDesc] public string? DownloadStatus { get; set; }
-        /// <summary>
-        /// 下載時間
-        /// </summary>
-        [LibDesc] public DateTime? DownloadTime { get; set; }
-
+        [LibDesc, Key]
+        public string? InternalId { get; set; }
+        [LibDesc, Key]
+        public int? RowId { get; set; }
+        [LibDesc]
+        public string? VisitorKey { get; set; }
+        [LibDesc]
+        public string? RefererURL { get; set; }
+        [LibDesc]
+        public DateTime? LastCountTime { get; set; }
         #region 主子表關聯
         public FileManageModel_DTO? _FileManage { get; set; } = null!;
         #endregion

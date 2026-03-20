@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
-import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { getLangLabel, type Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
@@ -29,7 +29,7 @@ type SpecJournalFilters = {
 };
 
 /** SpecJournal：用 ModuleContent 包住 Journal_List_content */
-export const SpecJournalList = (props: { node: INormNode; lang: Lang }) =>
+export const SpecJournalList = (props: { site:INormSite; node: INormNode; lang: Lang }) =>
 {
     // 宣告變數
     const params = useParams();
@@ -92,6 +92,8 @@ export const SpecJournalList = (props: { node: INormNode; lang: Lang }) =>
         return {
             fileId: detail?.SummaryFileId ?? "",
             fileName: detail?.SummaryFileName ?? "",
+            downloadCount:detail?.SummaryFile?.PublicDownloadCount ?? 0,
+            isPdf:detail?.SummaryFile?.FileExtension?.toLowerCase()==="pdf"
         };
     }, [forceGlobal, publishStatus, isSearchMode, useVolume.rawData]);
 
@@ -117,21 +119,10 @@ export const SpecJournalList = (props: { node: INormNode; lang: Lang }) =>
         totalPages: useVolume.totalPages,
         onPageChange: useVolume.onPageChange,
     };
-
+    const viewCountConfig: ModuleViewCountConfig = { mode: "list", };
     return (
-        <ModuleContent
-            nodeTitle={moduleTitle}
-            title={moduleTitle}
-            isLoading={loadingList}
-            errorList={errorList}
-            paginatorProps={paginprops}
-        >
-            <SpecJournalListContent
-                lang={props.lang}
-                rawData={useVolume.rawData}
-                queryFilters={filters}
-                issueSummary={issueSummary}
-            />
+        <ModuleContent nodeTitle={moduleTitle} title={moduleTitle} isLoading={loadingList} errorList={errorList} paginatorProps={paginprops} viewCountConfig={viewCountConfig}>
+            <SpecJournalListContent lang={props.lang} rawData={useVolume.rawData} queryFilters={filters} issueSummary={issueSummary}/>
         </ModuleContent>
     );
 };
@@ -248,7 +239,7 @@ const useSpecJournalVolume = (
 const SpecJournalListContent = (props: {
     lang: Lang;
     rawData: SpecJournalSet[];
-    issueSummary: { fileId?: string; fileName?: string };
+    issueSummary: { fileId?: string; fileName?: string; downloadCount?:number; isPdf?:boolean };
     queryFilters: {
         q?: string;
         articleLang?: string;
@@ -305,7 +296,7 @@ const SpecJournalListContent = (props: {
                     <hr className="hr-my-4" />
                 </div>
 
-                <IssueSummaryDownload fileId={props.issueSummary?.fileId} fileName={props.issueSummary?.fileName} />
+                <IssueSummaryDownload {...props.issueSummary} />
 
                 <div className="JJ_main_contentDIV">
                     <ul className="ListInfo">
@@ -390,7 +381,6 @@ const SpecJournalListContent = (props: {
                                             </div>
                                         </div>
                                     </div>
-
                                     <DocumentList data={it} />
                                 </div>
                             </li>
@@ -488,29 +478,18 @@ const JournalCard = (props: {
     );
 };
 
-const IssueSummaryDownload = (props: { fileId?: string; fileName?: string }) =>
+const IssueSummaryDownload = (props: { fileId?: string; fileName?: string; downloadCount?:number; isPdf?:boolean; }) =>
 {
-    // 宣告變數
     const fileId = (props.fileId ?? "").trim();
     const fileName = (props.fileName ?? "").trim();
-    const href = fileId ? `${FileManagementAPI.DOWNLOAD_URL}/${fileId}` : "";
+    const href = props.isPdf ? FileManagementAPI.get_Public_Preview_Url(fileId,fileName): FileManagementAPI.get_Public_Download_Url(fileId,fileName);
     const canShow = !!fileId && !!fileName;
-
-    // 執行 function
     if (!canShow) return null;
-
-    // return
     return (
         <>
             <div className="JJ_main_contentDIV">
                 <div className="DownItem_Box">
-                    <a
-                        className="page-item"
-                        href={href}
-                        title={fileName}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
+                    <a className="page-item" href={href} title={fileName} target="_blank" rel="noopener noreferrer">
                         <div className="icontxtbox">
                             <span className="page_icon">
                                 <i className="far fa-file-alt" aria-hidden="true"></i>
@@ -518,13 +497,11 @@ const IssueSummaryDownload = (props: { fileId?: string; fileName?: string }) =>
                             <span className="icontxt">{fileName}</span>
                         </div>
                     </a>
-
                     <span className="G_Vline_Down">│</span>
-
                     <span className="Div_All_Ttext + views">
                         <i className="fas fa-download me-1" aria-hidden="true"></i>
-                        <span className="font-SW-normal">瀏覽次數 :</span>
-                        <span className="font-SW-normal + ms-2">{0}</span>
+                        <span className="font-SW-normal">下載次數 :</span>
+                        <span className="font-SW-normal + ms-2">{props.downloadCount}</span>
                     </span>
                 </div>
             </div>
@@ -533,11 +510,7 @@ const IssueSummaryDownload = (props: { fileId?: string; fileName?: string }) =>
     );
 };
 
-type Document = {
-    key: string;
-    fileId: string;
-    fileName: string;
-};
+type Document = {key: string; fileId: string; fileName: string;};
 
 const buildDocuments = (data: SpecJournalSet): Document[] => {
     const files: Document[] = [];
@@ -552,50 +525,29 @@ const DocumentList = (props: { data: SpecJournalSet }) => {
     const files = useMemo(() => buildDocuments(props.data), [props.data]);
     const previewFiles = useMemo(() => files.slice(0, MAX_PREVIEW_FILES), [files]);
     const hasMoreFiles = files.length > MAX_PREVIEW_FILES;
-
     // 執行 function
     if (files.length === 0) return null;
-
     // return
     return (
         <div className="row mt-2">
             <div className="col-12">
                 <ul className="row g-2 list-unstyled m-0 p-0">
-                    {previewFiles.map((file) => (
-                        <li key={file.key} className="col-12 col-sm-6 col-lg-3 d-flex">
-                            <a
-                                className="w-100 border rounded bg-white text-decoration-none d-flex align-items-center px-2 py-2"
-                                href={`${FileManagementAPI.DOWNLOAD_URL}/${file.fileId}`}
-                                title={file.fileName}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <span
-                                    className="d-inline-flex align-items-center justify-content-center rounded flex-shrink-0 me-3"
-                                    style={{
-                                        width: "34px",
-                                        height: "34px",
-                                        backgroundColor: "#bca33a",
-                                        color: "#ffffff",
-                                    }}
-                                >
-                                    <i className="far fa-file-alt" aria-hidden="true" />
-                                </span>
-
-                                <span
-                                    className="text-dark fw-semibold text-break"
-                                    style={{
-                                        lineHeight: "1.35",
-                                        wordBreak: "break-word",
-                                    }}
-                                >
-                                    {file.fileName}
-                                </span>
-                            </a>
-                        </li>
-                    ))}
+                    {previewFiles.map((file) => {
+                        const fileName = file.fileName??""
+                        const fileUrl = FileManagementAPI.get_Public_Download_Url(file.fileId, fileName)
+                        return (
+                            <li key={file.key} className="col-12 col-sm-6 col-lg-3 d-flex">
+                                <a className="w-100 border rounded bg-white text-decoration-none d-flex align-items-center px-2 py-2" href={fileUrl} title={fileName} target="_blank" rel="noopener noreferrer">
+                                    <span className="d-inline-flex align-items-center justify-content-center rounded flex-shrink-0 me-3" style={{width: "34px", height: "34px", backgroundColor: "#bca33a", color: "#ffffff",}}>
+                                        <i className="far fa-file-alt" aria-hidden="true" />
+                                    </span>
+                                    <span className="text-dark fw-semibold text-break" style={{ lineHeight: "1.35", wordBreak: "break-word", }}>
+                                        {file.fileName}
+                                    </span>
+                                </a>
+                            </li>
+                        )})}
                 </ul>
-
                 {hasMoreFiles && (
                     <div className="small text-muted mt-1" aria-label="更多說明檔案請進入詳細頁查看">
                         ...

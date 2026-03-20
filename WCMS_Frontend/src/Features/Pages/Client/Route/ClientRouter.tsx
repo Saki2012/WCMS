@@ -32,15 +32,8 @@ export const loadClientChildren = async (opt?: { request?: Request; initialState
 
 class FrontendRouteModule implements IRouteModule {
   sites: INormSite[];
-
-  constructor(sites: INormSite[]) {
-    this.sites = sites;
-  }
-
-  getRoutes(): RouteObject[] {
-    // return
-    return this.sites.flatMap(site => createRoutesFromSite(site));
-  }
+  constructor(sites: INormSite[]) { this.sites = sites; }
+  getRoutes(): RouteObject[] { return this.sites.flatMap(site => createRoutesFromSite(site)); }
 }
 
 const clientEntries: Record<string, ModuleEntry> =
@@ -49,11 +42,11 @@ const clientEntries: Record<string, ModuleEntry> =
   {
     kind: "routes",
     element: (lang: Lang, site: INormSite, node: INormNode) => (<SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />),
-    children: (opts, lang, node: INormNode) => [
+    children: (opts, lang, site, node) => [
       {
         index: true,
         loader: withRequestLang((lang) =>PageManagementForm_Loader({ lang: lang, opts: opts as IPageManagementOptions })),
-        element: <PageManagementForm lang={lang} options={opts as IPageManagementOptions} node={node} />
+        element: <PageManagementForm lang={lang} options={opts as IPageManagementOptions} site={site} node={node} />
       },
     ],
   },
@@ -62,16 +55,16 @@ const clientEntries: Record<string, ModuleEntry> =
   {
     kind: "routes",
     element: (lang: Lang, site: INormSite, node: INormNode) => (<SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />),
-    children: (opts, lang, node: INormNode) => [
+    children: (opts, lang, site, node) => [
       { 
         index: true, 
         loader: withRequestLang((lang) =>AnnouncementListLoader({ lang, opts: opts as IAnnouncementListOptions })),
-        element: <AnnouncementList theme={Classic_FETheme} lang={lang} options={opts as IAnnouncementListOptions} node={node} />
+        element: <AnnouncementList theme={Classic_FETheme} lang={lang} options={opts as IAnnouncementListOptions} site={site} node={node} />
       },
       {
         path: ":internalId",
         loader: withRequestLang((lang) =>AnnouncementFormLoader({ lang })),
-        element: <AnnouncementForm node={node} theme={Classic_FETheme} lang={lang} />
+        element: <AnnouncementForm site={site} node={node} theme={Classic_FETheme} lang={lang} />
       },
     ],
   },
@@ -80,11 +73,11 @@ const clientEntries: Record<string, ModuleEntry> =
   {
     kind: "routes",
     element: (lang: Lang, site: INormSite, node: INormNode) => (<SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />),
-    children: (opts, lang, node: INormNode) => [
+    children: (opts, lang, site, node) => [
       {
         index: true,
         loader: withRequestLang((lang) =>FileArchiveList_Loader({ lang: lang, opts: opts as IFileArchiveOptions })),
-        element: <FileArchiveList theme={Classic_FETheme} lang={lang} options={opts as IFileArchiveOptions} node={node} />
+        element: <FileArchiveList theme={Classic_FETheme} lang={lang} options={opts as IFileArchiveOptions} site={site} node={node} />
       },
     ],
   },
@@ -93,16 +86,16 @@ const clientEntries: Record<string, ModuleEntry> =
   {
     kind: "routes",
     element: (lang: Lang, site: INormSite, node: INormNode) => (<SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />),
-    children: (opts, lang, node: INormNode) => [
+    children: (opts, lang, site, node) => [
       { 
         index: true, 
         loader: withRequestLang((lang) =>GalleryList_Loader({ lang, opts: opts as IGalleryListOptions })),
-        element: <GalleryListComp node={node} theme={Classic_FETheme} lang={lang} options={opts as IGalleryListOptions} title={node.title} />
+        element: <GalleryListComp node={node} theme={Classic_FETheme} lang={lang} options={opts as IGalleryListOptions} site={site} title={node.title} />
       },
       {
         path: ":internalId",
         loader: withRequestLang((lang) =>GalleryForm_Loader({ lang })),
-        element: <GalleryForm node={node} theme={Classic_FETheme} lang={lang} />
+        element: <GalleryForm site={site} node={node} theme={Classic_FETheme} lang={lang} />
       },
     ],
   },
@@ -111,11 +104,11 @@ const clientEntries: Record<string, ModuleEntry> =
   {
     kind: "routes",
     element: (lang: Lang, site: INormSite, node: INormNode) => (<SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />),
-    children: (opts, lang, node: INormNode) => [
+    children: (opts, lang, site, node) => [
       {
         index: true,
         loader: withRequestLang((lang) =>WebResourceList_Loader({ lang: lang, opts: opts as IWebResourceListOptions })),
-        element: <WebResourceListComp node={node} theme={Classic_FETheme} lang={lang} options={opts as IWebResourceListOptions} title={node.title} />
+        element: <WebResourceListComp site={site} node={node} theme={Classic_FETheme} lang={lang} options={opts as IWebResourceListOptions} title={node.title} />
       },
     ],
   },
@@ -124,7 +117,7 @@ const clientEntries: Record<string, ModuleEntry> =
   {
     kind: "routes",
     element: (lang, site, node) => (<SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />),
-    children: (_opts, lang, _node, site) => [
+    children: (_opts, lang, site, _node) => [
       { index: true, element: <Sitemap lang={lang} site={site} /> },
     ],
   },

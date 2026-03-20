@@ -181,14 +181,15 @@ export const CarouselData = (props: { lang: Lang }) => {
                           const alt = info?.Title ?? "";
                           const url = info?.URL;
                           const tar = info?.URL_Open === 0 ? "_self" : "_blank"
+                          const imgUrl = FileManagementAPI.get_Public_Preview_Url(p.PicSrcId,alt)
                           return (
                             <div key={`${p.BannerId}-${p.RowId}-${i}`} className={clsx("carousel-item", i === 0 ? "active" : "")}>
                               {url ?
                                 <LangNavLink to={url} target={tar} rel={tar === "_blank" ? "noopener noreferrer" : undefined} aria-label={alt || "banner link"}>
-                                  <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} className="d-block w-100" alt={alt} />
+                                  <img src={imgUrl} className="d-block w-100" alt={alt} />
                                 </LangNavLink>
                                 :
-                                <img src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`} className="d-block w-100" alt={alt} />
+                                <img src={imgUrl} className="d-block w-100" alt={alt} />
                               }
                             </div>
                           );

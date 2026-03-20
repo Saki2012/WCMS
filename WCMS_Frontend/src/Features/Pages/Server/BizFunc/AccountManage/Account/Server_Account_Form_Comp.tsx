@@ -21,13 +21,12 @@ export const Server_Account_Form_Comp = (props: { theme: IBETheme }) => {
     const tabInfo: LibTabsProp = useMemo(() => {return { Style: props.theme.Tabs, item: {Account: "帳戶資訊",Person: "人員資料",System:"系統資料"},};}, [props.theme.Tabs]);
     const tabContent: Record<string, React.ReactNode[]> = useMemo(() => {
         return {
-            Account: [ <Account_Comp key="Account" theme={props.theme} formData={vm.formData} accountStatus={vm.accountStatus} isAddNew={vm.isAddNew} confirmPwd={vm.confirmPwd}
-                    onConfirmPwdChange={vm.onConfirmPwdChange} personIds={vm.personIds} roleIds={vm.roleIds}/>,],
+            Account: [ <Account_Comp key="Account" theme={props.theme} formData={vm.formData} accountStatus={vm.accountStatus} isAddNew={vm.isAddNew} confirmPwd={vm.confirmPwd} onConfirmPwdChange={vm.onConfirmPwdChange} personIds={vm.personIds} roleIds={vm.roleIds}/>,],
             Person: [ <Person_Comp key="Person" theme={props.theme} formData={vm.formData} />,],
             System:[<SystemInfoTabComp theme={props.theme} formData={vm.formData} setKey={AccountSetFields.Account} />]
         };
     }, [props.theme, vm.formData, vm.accountStatus, vm.isAddNew, vm.confirmPwd, vm.onConfirmPwdChange, vm.personIds, vm.roleIds,]);
-    const userPic = vm.userPicId ? `${FileManagementAPI.PREVIEW_URL}/${vm.userPicId}` : pic;
+    const userPic = FileManagementAPI.get_Server_Preview_Url(vm.userPicId) ?? pic;
     return (
         <FormComp prop={vm.prop}>
             <div className="row">

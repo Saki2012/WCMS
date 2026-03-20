@@ -57,7 +57,7 @@ export const LinkData = (props: { lang?: Lang; bannerParam: QueryListParam; init
 			const tasks = sortedDetails.map(async (d) => {
 				const id = d?.PicSrcId ?? "";
 				if (!id) return { id, url: "" };
-				const url = `${FileManagementAPI.PREVIEW_URL}/${id}`;
+				const url = FileManagementAPI.get_Public_Preview_Url(id);
 				return { id, url };
 			});
 
@@ -90,26 +90,14 @@ export const LinkData = (props: { lang?: Lang; bannerParam: QueryListParam; init
 										ref={carouselRef}
 									>
 										{sortedDetails.map((p, i) => {
-											const info = bannerSet?.BannerDetailInfo?.find(
-												x =>
-													x.BannerId === p.BannerId &&
-													x.ParentRowId === p.RowId &&
-													x.Lang === (props.lang ?? "zh-tw"),
-											);
-
+											const info = bannerSet?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === (props.lang ?? "zh-tw"),);
 											const alt = info?.Title ?? "";
 											const url = info?.URL ?? "";
 											const open = info?.URL_Open ?? 0;
 
 											return (
 												<div key={i} className="item">
-													<a
-														href={url}
-														tabIndex={0}
-														target={open === 1 ? "_blank" : "_self"}
-														rel={open === 1 ? "noopener noreferrer" : undefined}
-														title={alt}
-													>
+													<a href={url} tabIndex={0} target={open === 1 ? "_blank" : "_self"} rel={open === 1 ? "noopener noreferrer" : undefined} title={alt}>
 														<div className="wrapper_box">
 															<div className="Qlink-item">
 																<div className="Content_Div">
@@ -120,10 +108,7 @@ export const LinkData = (props: { lang?: Lang; bannerParam: QueryListParam; init
 
 																<div className="Img_Div w-100">
 																	<div className="Qlinkimg-outer">
-																		<img
-																			alt={alt}
-																			src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId ?? ""}`}
-																		/>
+																		<img alt={alt} src={FileManagementAPI.get_Public_Preview_Url(p.PicSrcId,alt)}/>
 																	</div>
 																</div>
 															</div>

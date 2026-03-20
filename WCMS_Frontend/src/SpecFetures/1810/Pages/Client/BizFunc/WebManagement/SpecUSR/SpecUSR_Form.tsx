@@ -92,7 +92,7 @@ const SpecUSRForm = ({ lang, rawData, showColumns, showColTitle }: { lang: strin
     const urlDetail = rawData.SpecUSRUrl?.filter(p => p.USRId === detail?.USRId && p.ParentRowId === detail?.RowId);
     const fileDetail = rawData.SpecUSRFile?.filter(p => p.USRId === detail?.USRId && p.ParentRowId === detail?.RowId);
     const [open, setOpen] = useState(false);
-    const images = (header?.PictureId ? [{ src: `${FileManagementAPI.PREVIEW_URL}/${header.PictureId}`, title: `${header.PicDescription ?? ""}` }] : []);
+    const images = (header?.PictureId ? [{ src: FileManagementAPI.get_Public_Preview_Url(header.PictureId), title: `${header.PicDescription ?? ""}` }] : []);
 
     const photos = useMemo<ISpecUSRPhoto[]>(() => {
         const list = rawData.SpecUSRPhoto ?? [];
@@ -187,9 +187,12 @@ const SpecUSRForm = ({ lang, rawData, showColumns, showColTitle }: { lang: strin
                                     <div className="ttBox_R">
                                         <ul className="list-group">
                                             {fileDetail.map((item) => {
+                                                
+                                                const fileUrl = FileManagementAPI.get_Public_Download_Url(item.FileSrcId,item.FileName);
+
                                                 return (
                                                     <li >
-                                                        <a href={`${FileManagementAPI.DOWNLOAD_URL}/${item.FileSrcId}`} rel="noopener noreferrer" className="btn btn-default" tabIndex={1} title={`${item.FileName}(另開新視窗)`}>
+                                                        <a href={fileUrl} rel="noopener noreferrer" className="btn btn-default" tabIndex={1} title={`${item.FileName}(另開新視窗)`}>
                                                             <i className="fa fa-paperclip"></i> {item.FileName}
                                                         </a>
                                                     </li>

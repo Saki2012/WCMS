@@ -1,6 +1,6 @@
-import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useCallback } from "react";
 import { INTERNAL_ATTR } from "./TinyMCE_Hook";
+import { PGID } from "@/types/SchemaFields";
 
 export interface UseContentTransformOptions
 {
@@ -13,7 +13,7 @@ export interface UseContentTransformOptions
 /** 內容轉換：<img src="/Service/FileManagement/Preview/{id}"> ⇄ <img data-internalid="{id}"> */
 export const useContentTransform = (opts?: UseContentTransformOptions) =>
 {
-    const rawPrefix = opts?.previewPrefix ?? FileManagementAPI.PREVIEW_URL;
+    const rawPrefix = opts?.previewPrefix ?? `/Service/${PGID.FileManagement}/Public_Preview`;//這邊暫時寫死，後續橋
     const previewPrefix = rawPrefix.endsWith("/") ? rawPrefix : `${rawPrefix}/`;
     const attrName = opts?.attrName ?? INTERNAL_ATTR;
 

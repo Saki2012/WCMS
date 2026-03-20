@@ -1,8 +1,8 @@
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
 import parse from "html-react-parser";
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
-import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
+import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 
 // ✅ 新架構：Adapter + LoaderData initial
 import { useMemo } from "react";
@@ -12,9 +12,11 @@ import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Pa
 import type { components } from "@/types/api";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { PageManagementFormLoaderData } from "./PageManagementForm_Hook";
+import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
+import { PGID } from "@/types/SchemaFields";
 
 export interface IPageManagementOptions { PageId?: string }
-interface IPageManagementProps { node: INormNode; lang: string; theme?: IFETheme; options?: IPageManagementOptions; }
+interface IPageManagementProps { site:INormSite; node: INormNode; lang: string; theme?: IFETheme; options?: IPageManagementOptions; }
 
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
 const emptyData: PageManagementSet = {};
@@ -50,9 +52,15 @@ const PageManagementFormComp = (props: IPageManagementProps) => {
     const content = parseContent.html ? parse(parseContent.html) : null;
 
     const errorList: (string | null | undefined)[] = [pageData.errorText];
-
+    const viewCountConfig = useMemo<ModuleViewCountConfig>(() => {
+        const request: TryCountDetailViewRequest = {
+            SiteIndex:props.site.siteIndex,
+            ProgId:PGID.PageManagement,
+            InternalId:pageId,
+        };
+        return { mode: "form", contentKey: pageId, request,};}, [pageId]);
     return (
-        <ModuleContent nodeTitle={""} title={detail?.Title ?? ""} isLoading={pageData.isLoading} errorList={errorList}>
+        <ModuleContent nodeTitle={""} title={detail?.Title ?? ""} isLoading={pageData.isLoading} errorList={errorList} viewCountConfig={viewCountConfig}>
             {content}
         </ModuleContent>
     );

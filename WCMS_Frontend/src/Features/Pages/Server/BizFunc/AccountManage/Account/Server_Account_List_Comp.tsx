@@ -13,7 +13,7 @@ export const Server_Account_List_Comp = ({ theme }: { theme: IBETheme }) => {
             <div className="row">
                 {accountList.rawData.map((item) => {
                     const dir = `${accountList.dirUrl}/${item.Account?.InternalId}`;
-                    const picSrc = `${FileManagementAPI.PREVIEW_URL}/${item.Account?.Person?.PersonImgId}`;
+                    const picSrc = FileManagementAPI.get_Server_Preview_Url(item.Account?.Person?.PersonImgId);
                     const key = item.Account?.InternalId ?? item.Account?.AccountId ?? "";
                     return (
                         <div className="col-xl-3 col-lg-4 col-md-4 col-sm-4 col-12" key={key}>

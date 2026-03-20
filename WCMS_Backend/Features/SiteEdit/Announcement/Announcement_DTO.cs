@@ -45,10 +45,6 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// </summary>
         [LibDesc(ModelDisplayName.Announcement_PicDescription)] public string? PicDescription { get; set; } = string.Empty;
         /// <summary>
-        /// 觀看次數
-        /// </summary>
-        [LibDesc(ModelDisplayName.Announcement_ViewCount)] public int? ViewCount { get; set; } = 0;
-        /// <summary>
         /// 資料有效日期-起
         /// </summary>
         [LibDesc(ModelDisplayName.Announcement_StartDate)] public DateTime? Validate_Start { get; set; }

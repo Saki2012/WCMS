@@ -11,8 +11,8 @@ import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { useGalleryListFetchData, type GalleryListRawData } from "./Server_Gallery_List_Hook";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { GalleryFields, GalleryInfoFields } from "@/types/SchemaFields";
-import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "../../../Scaffold/Content/GridAdjustCellEnhance";
-import { GetDataStatusContent } from "../../../Scaffold/CommUnitComp/CommonComp";
+import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import { GetDataStatusContent } from "@/Features/Pages/Server/Scaffold/CommUnitComp/CommonComp";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 
 type GallerySet = components["schemas"]["GallerySet_DTO"];
@@ -20,7 +20,7 @@ type GallerySet = components["schemas"]["GallerySet_DTO"];
 /** 相簿清單 */
 export const Server_GalleryListComp = (prop: { title: string; theme: IBETheme; lang: Lang }) => {
     const [kw, setKw] = useState<string>("");
-    const searchCompProp: SearchBarProps = {title: "相簿搜尋",subTitle: "搜尋相簿 ...",settingTitle: "搜尋設定",onSubmit: setKw,onReset: () => setKw(""),};
+    const searchCompProp: SearchBarProps = {title: "相簿搜尋",subTitle: "搜尋相簿 ...",onSubmit: setKw,onReset: () => setKw(""),};
     const pathname = useLocation().pathname;
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
     const navigate = useNavigate();
@@ -28,7 +28,6 @@ export const Server_GalleryListComp = (prop: { title: string; theme: IBETheme; l
     const cudActions = getData.adapter.Gallery.hooks.useCudActions();
     const gridData = useMemo(() => { return buildGalleryGridProps({raw: getData.rawData,lang: prop.lang, crud: {navigate,dirUrl,deleteAsync: cudActions.deleteAsync,afterDelete: getData.refetchData,},});
     }, [getData.rawData, prop.lang, navigate, dirUrl, cudActions.deleteAsync, getData.refetchData]);
-    
     return <ListComp Title={prop.title} Theme={prop.theme} isLoading={getData.isLoading} ErrorList={getData.errors} GridData={gridData} SearchBar={searchCompProp}/>
 };
 
@@ -61,7 +60,7 @@ const buildGalleryRows = (raw: GalleryListRawData, lang: Lang, columns: ColumnCo
         const a = set.Gallery;
         const title = (set.GalleryInfo ?? []).find(d => d?.Lang === lang)?.Title ?? "";
         const coverPicNode = (
-            <img src={`${FileManagementAPI.PREVIEW_URL}/${a?.CoverPicSrcId}`} alt={title} style={{ width: "80px", height: "80px", objectFit: "cover" }} />
+            <img src={FileManagementAPI.get_Server_Preview_Url(a?.CoverPicSrcId)} alt={title} style={{ width: "80px", height: "80px", objectFit: "cover" }} />
         )
         const titleNode = (
             <>

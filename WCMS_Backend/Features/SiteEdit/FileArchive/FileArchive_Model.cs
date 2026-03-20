@@ -38,10 +38,6 @@ namespace WCMS.Features.SiteEdit.FileArchive
         /// 標籤ID(多個)
         /// </summary>
         [Required, StringLength(SysLengthParam.Title)] public string TagsId { get; set; }
-        /// <summary>
-        /// 下載次數
-        /// </summary>
-        public int DownloadCount { get; set; }
 
         #region 主子表關聯
         [InverseProperty(nameof(FileArchiveInfo._FileArchive))] public List<FileArchiveInfo> _FileArchiveInfo { get; set; }

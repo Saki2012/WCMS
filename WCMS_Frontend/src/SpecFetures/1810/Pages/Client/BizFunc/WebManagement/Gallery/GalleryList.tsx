@@ -155,7 +155,7 @@ const MainContent = ({ props, gridProps, theme }: { props: MainGridContentProp[]
                     <div className="col-xxl-3 col-xl-4 col-lg-6 col-md-6 col-sm-6 col-12 photo_standardbox">
                         <LangLink key={idx} to={`${dirUrl}/${prop.galleryInternalId}`} title={prop.Title}>
                             <div className="img-box">
-                                <img className="img-fluid" src={`${FileManagementAPI.PREVIEW_URL}/${prop.CoverPicInternlId}`} alt={prop.Title} />
+                                <img className="img-fluid" src={ FileManagementAPI.get_Public_Preview_Url(prop.CoverPicInternlId,prop.Title)} alt={prop.Title} />
                             </div>
                             <figcaption>
                                 <div className="category_box">

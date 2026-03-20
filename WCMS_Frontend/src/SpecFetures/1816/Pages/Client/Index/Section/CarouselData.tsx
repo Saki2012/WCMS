@@ -352,33 +352,17 @@ export const CarouselData = (props: CarouselDataProps) => {
 									const tar = info?.URL_Open === 0 ? "_self" : "_blank";
 									const isActive = i === activeIndex;
 									const itemClassName = buildItemClass(i, activeIndex, slideState);
-
+									const imgUrl = FileManagementAPI.get_Public_Preview_Url(p.PicSrcId)
 									return (
-										<div
-											key={`${p.BannerId}-${p.RowId}-${i}`}
-											className={itemClassName}
-											aria-hidden={!isActive && !(slideState && i === slideState.toIndex) ? true : undefined}
-										>
-											{url ? (
-												<LangNavLink
-													to={url}
-													target={tar}
-													rel={tar === "_blank" ? "noopener noreferrer" : undefined}
-													aria-label={alt || "banner link"}
-													tabIndex={isActive ? 0 : -1}
-												>
-													<img
-														src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`}
-														className="d-block w-100"
-														alt={alt}
-													/>
+										<div key={`${p.BannerId}-${p.RowId}-${i}`} className={itemClassName} aria-hidden={!isActive && !(slideState && i === slideState.toIndex) ? true : undefined}>
+											{url ? 
+											(
+												<LangNavLink to={url} target={tar} rel={tar === "_blank" ? "noopener noreferrer" : undefined} aria-label={alt || "banner link"} tabIndex={isActive ? 0 : -1}>
+													<img src={imgUrl} className="d-block w-100" alt={alt}/>
 												</LangNavLink>
-											) : (
-												<img
-													src={`${FileManagementAPI.PREVIEW_URL}/${p.PicSrcId}`}
-													className="d-block w-100"
-													alt={alt}
-												/>
+											) : 
+											(
+												 <img src={imgUrl} className="d-block w-100" alt={alt}/> 
 											)}
 										</div>
 									);

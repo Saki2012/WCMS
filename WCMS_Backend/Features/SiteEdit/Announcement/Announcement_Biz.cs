@@ -60,8 +60,7 @@ namespace WCMS.Features.SiteEdit.Announcement
                     }
                 }
                 set.Announcement.PicDescription = picDescription;
-                if (row["ViewCount"] != DBNull.Value && int.TryParse(row["ViewCount"].ToString(), out int r))
-                    set.Announcement.ViewCount = r;
+                
 
                 int rowId = 1;
                 ds.Tables["AnnouncementDetail"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.Announcement.AnnouncementId).ToList().ForEach(dRow =>

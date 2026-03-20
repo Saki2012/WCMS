@@ -121,10 +121,94 @@ export class SystemAPI extends ApiBaseService
 
 export class FileManagementAPI
 {
+    //#region property
     private static readonly BASEURL = PGID.FileManagement;
-    // private static readonly baseUrl = import.meta.env.VITE_API_BASE_URL ?? "/Service";
     private static readonly baseUrl = "/Service";
-    public static readonly PREVIEW_URL: string = `${this.baseUrl}/${this.BASEURL}/Preview`;
-    public static readonly UPLOAD_URL: string = `${this.baseUrl}/${this.BASEURL}/UploadTemp`;
-    public static readonly DOWNLOAD_URL: string = `${this.baseUrl}/${this.BASEURL}/Download`;
+
+    //#region 前台使用公開API
+    private static readonly PUBLIC_PREVIEW_URL: string = `${this.baseUrl}/${this.BASEURL}/Public_Preview`;
+    private static readonly PUBLIC_DOWNLOAD_URL: string = `${this.baseUrl}/${this.BASEURL}/Public_Download`;
+    //#endregion
+
+    //#region 後台權限使用API
+    private static readonly SERVER_Preview_URL: string = `${this.baseUrl}/${this.BASEURL}/Server_Preview`;
+    private static readonly SERVER_DOWNLOAD_URL: string = `${this.baseUrl}/${this.BASEURL}/Server_Download`;
+    /** 後台上傳檔案url (但流程應該可以優化共用，待處理) */
+    public static readonly Server_UploadTemp: string = `${this.baseUrl}/${this.BASEURL}/Server_UploadTemp`;
+    //#endregion
+
+    //#endregion
+    
+    //#region Public
+
+    //#region 前台使用公開API
+    /** 取得前台預覽網址
+     * 
+     * @param internalId 
+     * @param fileName 
+     * @returns 
+     */
+    public static get_Public_Preview_Url(internalId: string | null | undefined, fileName?: string | null | undefined): string
+    {
+        if(!internalId?.trim()) return "";
+        const baseUrl = `${this.PUBLIC_PREVIEW_URL}/${encodeURIComponent(internalId)}`;
+        return `${baseUrl}${this.buildQueryString(fileName)}`;
+    }
+    /** 取得前台下載網址
+     * 
+     * @param internalId 
+     * @param fileName 
+     * @returns 
+     */
+    public static get_Public_Download_Url(internalId: string | null | undefined, fileName?: string | null | undefined): string
+    {
+        if(!internalId?.trim()) return "";
+        const baseUrl = `${this.PUBLIC_DOWNLOAD_URL}/${encodeURIComponent(internalId)}`;
+        return `${baseUrl}${this.buildQueryString(fileName)}`;
+    }
+    //#endregion
+
+    //#region 後台權限使用API
+    /** 取得前台預覽網址
+     * 
+     * @param internalId 
+     * @param fileName 
+     * @returns 
+     */
+    public static get_Server_Preview_Url(internalId: string | null | undefined, fileName?: string | null | undefined): string
+    {
+        if(!internalId?.trim()) return "";
+        const baseUrl = `${this.SERVER_Preview_URL}/${encodeURIComponent(internalId)}`;
+        return `${baseUrl}${this.buildQueryString(fileName)}`;
+    }
+    /** 取得後台下載網址
+     * 
+     * @param internalId 
+     * @param fileName 
+     * @returns 
+     */
+    public static get_Server_Download_Url(internalId: string | null | undefined, fileName?: string | null | undefined): string
+    {
+        if(!internalId?.trim()) return "";
+        const baseUrl = `${this.SERVER_DOWNLOAD_URL}/${encodeURIComponent(internalId)}`;
+        return `${baseUrl}${this.buildQueryString(fileName)}`;
+    }
+    //#endregion
+
+    //#endregion
+    
+    //#region Private
+    /** 組合 query string；有值才附加
+     * @param fileName 
+     * @returns 
+     */
+    private static buildQueryString(fileName?: string | null | undefined): string
+    {
+        if (!fileName?.trim()) return "";
+        const query = new URLSearchParams({fileName: fileName,});
+        return `?${query.toString()}`;
+    }
+    //#endregion
+    
 }
+

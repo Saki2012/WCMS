@@ -199,10 +199,10 @@ const PictureList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridPro
     return (
         <>
             <div className="articles_itemBoxs">
-                {prop.GridData && prop.GridData.rawData.map((row: AnnouncementSet) => {
+                {prop.GridData && prop.GridData.rows.map((row: AnnouncementSet) => {
                     const internalId = `${dirUrl}/${row.Announcement?.InternalId ?? ""}`
-                    const picUrl = row.Announcement?.PictureId ? `${FileManagementAPI.PREVIEW_URL}/${row.Announcement?.PictureId ?? ""}` : DefaultEventImg
                     const picDesc = row.Announcement?.PicDescription ?? ""
+                    const picUrl = FileManagementAPI.get_Public_Preview_Url(row.Announcement?.PictureId,picDesc) ??  DefaultEventImg
                     const title = row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Title ?? ""
                     const date = FormatDate(row.Announcement?.Validate_Start) ?? ""
                     const catName = useFormatCategoriesName(row.Announcement?.Categories ?? "", useCateData.rawData, prop.lang)

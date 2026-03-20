@@ -57,13 +57,9 @@ const getBannerTitleByParentRowId = (
 };
 
 const getIssueImage = (banner: BannerSet | null, idx: number, lang: Lang) => {
-    // 宣告變數
     const detail = banner?.BannerDetail?.[idx];
     const title = detail ? getBannerTitleByParentRowId(banner, detail.RowId, lang) : "";
-    const picId = detail?.PicSrcId ?? "";
-    const src = picId ? `${FileManagementAPI.PREVIEW_URL}/${picId}` : "";
-
-    // return
+    const src = FileManagementAPI.get_Public_Preview_Url(detail?.PicSrcId,title);
     return { title, src };
 };
 

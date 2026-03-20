@@ -699,4 +699,19 @@
   <data name="Common_None" xml:space="preserve">
     <value>無</value>
   </data>
+  <data name="FileManage_DownloadCount" xml:space="preserve">
+    <value>下載次數</value>
+  </data>
+  <data name="Enum_ViewCountActionType" xml:space="preserve">
+    <value>前台瀏覽次數統計的行為類型</value>
+  </data>
+  <data name="Enum_ViewCountActionType_FilePreview" xml:space="preserve">
+    <value>檔案預覽</value>
+  </data>
+  <data name="Enum_ViewCountActionType_FileDownload" xml:space="preserve">
+    <value>檔案下載</value>
+  </data>
+  <data name="Enum_ViewCountActionType_LinkClick" xml:space="preserve">
+    <value>點擊連結</value>
+  </data>
 </root>

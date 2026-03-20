@@ -1,22 +1,24 @@
 import type { IFETheme } from '@/Features/Pages/Client/Theme/ITheme';
 import type { Lang } from '@/SysCore/i18n/lang';
-import ModuleContent from '@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent';
+import ModuleContent, { type ModuleViewCountConfig } from '@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent';
 import { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router';
 import type { components } from '@/types/api';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
-import type { INormNode } from '@/Features/Pages/Client/Route/Site-Routing';
+import type { INormNode, INormSite } from '@/Features/Pages/Client/Route/Site-Routing';
 
 // ✅ 新架構：Adapter + LoaderData initial
 import { useLoaderData } from 'react-router-dom';
 import type { ApiLoaderData } from '@/SysCore/Utils/API/APIAdapter';
 import { GalleryAdapter } from '@/Features/Hooks/BizFunc/WebManagement/Gallery_Api';
 import type { GalleryFormLoaderData } from './GalleryForm_Hook';
+import type { TryCountDetailViewRequest } from '@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api';
+import { PGID } from '@/types/SchemaFields';
 
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 const emptyData: GallerySet = {};
 
-const GalleryForm = (props: { node: INormNode; theme: IFETheme; lang: Lang }) => {
+const GalleryForm = (props: { site:INormSite; node: INormNode; theme: IFETheme; lang: Lang }) => {
     // 宣告變數
     const { internalId } = useParams();
     const loaderData = useLoaderData() as GalleryFormLoaderData | null;
@@ -53,10 +55,16 @@ const GalleryForm = (props: { node: INormNode; theme: IFETheme; lang: Lang }) =>
     const children = useMemo(() => {
         return <GalleryFormList key="grid" lang={props.lang} data={useGalleryFormData.data ?? emptyData} />;
     }, [useGalleryFormData.data, props.lang]);
-
+    const viewCountConfig = useMemo<ModuleViewCountConfig>(() => {
+        const request: TryCountDetailViewRequest = {
+            SiteIndex:props.site.siteIndex,
+            ProgId:PGID.Gallery,
+            InternalId:safeInternalId,
+        };
+        return { mode: "form", contentKey: safeInternalId, request,};}, [safeInternalId]);
     // return
     return (
-        <ModuleContent nodeTitle={props.node.title} title={title} isLoading={loadingList.some(Boolean)} errorList={errorList}>
+        <ModuleContent nodeTitle={props.node.title} title={title} isLoading={loadingList.some(Boolean)} errorList={errorList} viewCountConfig={viewCountConfig}>
             {children}
         </ModuleContent>
     );
@@ -67,15 +75,12 @@ export default GalleryForm;
 const GalleryFormList = (props: { lang: Lang; data: GallerySet }) => {
     useEffect(() => {
         if (typeof window === "undefined") return;
-
         const w = window as any;
         const $ = w.$ || w.jQuery;
-
         // 1️⃣ 先嘗試 jQuery 版 plugin：$('.venobox').venobox()
         if ($ && $.fn && typeof $.fn.venobox === "function") {
             $('.venobox').venobox();
         }
-
         // 2️⃣ 如果有新版 class 版 VenoBox，也一起初始化（對應 prototype 的 new VenoBox({...})）
         if (typeof w.VenoBox === "function") {
             if (w.__vbInstance && typeof w.__vbInstance.destroy === "function") {
@@ -94,9 +99,7 @@ const GalleryFormList = (props: { lang: Lang; data: GallerySet }) => {
                 spinner: "rotating-bounce",
             });
         }
-
         if ((!$ || !$.fn?.venobox) && typeof w.VenoBox !== "function") {
-            // 兩種都沒有 → 代表 venobox js 根本沒載到
             console.warn("VenoBox / $.fn.venobox not found, please check LoadFeaturesJs.ts and script paths.");
         }
     }, [props.data, props.lang]);
@@ -107,7 +110,7 @@ const GalleryFormList = (props: { lang: Lang; data: GallerySet }) => {
                 {props.data?.GalleryPhotos?.map((item, idx) => {
                     const infoDt = props.data.GalleryPhotosInfo?.find(p => p.ParentRowId === item.RowId && p.Lang === props.lang)
                     const photoTitle = infoDt?.Title ?? ""
-                    const photoUrl = `${FileManagementAPI.PREVIEW_URL}/${item.PicSrcId}`
+                    const photoUrl = FileManagementAPI.get_Public_Preview_Url(item.PicSrcId)
                     return (
                         <div key={idx} className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
                             <article className="cardbox">
