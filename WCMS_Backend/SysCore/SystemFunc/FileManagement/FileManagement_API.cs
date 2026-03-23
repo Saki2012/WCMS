@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using PdfSharp.Pdf.IO;
 using System.IO.Compression;
+using System.Reflection.PortableExecutable;
 using System.Text.RegularExpressions;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n.Resx;
@@ -224,13 +226,11 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// </summary>
         private string BuildFileName(FileManageModel file, string? fileName)
         {
-            // 宣告變數：整理副檔名
             var ext = (file.FileExtension ?? string.Empty).Trim().TrimStart('.');
             var baseName = string.IsNullOrWhiteSpace(file.FileName) ? file.InternalId : file.FileName.Trim();
-            // 執行 function：有指定檔名就優先使用
-            if (!string.IsNullOrWhiteSpace(fileName)) return string.IsNullOrWhiteSpace(ext) ? fileName.Trim() : $"{fileName.Trim()}.{ext}";
-            // return
-            return string.IsNullOrWhiteSpace(ext) ? baseName : $"{baseName}.{ext}";
+            var rawName = string.IsNullOrWhiteSpace(fileName) ? baseName : fileName.Trim();
+            var cleanName = Path.GetFileNameWithoutExtension(rawName);
+            return string.IsNullOrWhiteSpace(ext) ? cleanName : $"{cleanName}.{ext}";
         }
         /// <summary>
         /// 補正 Content-Type
@@ -287,9 +287,102 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             var physicalPath = BuildPhysicalPath(file);
             var safeFileName = BuildFileName(file, fileName);
             var contentType = ResolveContentType(file, safeFileName);
-            // 執行 function：設定預覽 Header
+            // 執行 function：PDF 走動態改寫 title 的預覽流程
+            if (IsPdfFile(file))
+            {
+                return BuildPdfPreviewResult(physicalPath, safeFileName, isPublic);
+            }
+            // 執行 function：非 PDF 維持原本流程
             ApplyPreviewHeaders(file, safeFileName, isPublic);
+            // return
             return PhysicalFile(physicalPath, contentType, enableRangeProcessing: true);
+        }
+        /// <summary>
+        /// 判斷是否為 PDF 檔案
+        /// </summary>
+        private bool IsPdfFile(FileManageModel file)
+        {
+            // 宣告變數：整理副檔名
+            var ext = (file.FileExtension ?? string.Empty).Trim().TrimStart('.');
+
+            // return
+            return ext.Equals("pdf", StringComparison.OrdinalIgnoreCase);
+        }
+        /// <summary>
+        /// 建立 PDF metadata title
+        /// </summary>
+        private string BuildPdfTitle(string safeFileName)
+        {
+            // 宣告變數：取不含副檔名的名稱
+            var title = Path.GetFileNameWithoutExtension(safeFileName ?? string.Empty).Trim();
+
+            // return
+            return string.IsNullOrWhiteSpace(title) ? "document" : title;
+        }
+        /// <summary>
+        /// 建立 PDF 預覽回應（動態改寫 metadata title）
+        /// </summary>
+        private IActionResult BuildPdfPreviewResult(string physicalPath, string safeFileName, bool isPublic)
+        {
+            // 宣告變數：建立 PDF stream
+            var pdfTitle = BuildPdfTitle(safeFileName);
+            var stream = CreatePdfPreviewStream(physicalPath, pdfTitle);
+
+            // 執行 function：設定 PDF 預覽專用 Header
+            ApplyPdfPreviewHeaders(safeFileName, isPublic);
+
+            // 宣告變數：建立回應結果
+            var result = new FileStreamResult(stream, "application/pdf")
+            {
+                EnableRangeProcessing = true,
+            };
+
+            // return
+            return result;
+        }
+        /// <summary>
+        /// 建立 PDF 預覽 stream，並動態改寫 title
+        /// </summary>
+        private MemoryStream CreatePdfPreviewStream(string physicalPath, string pdfTitle)
+        {
+            // 宣告變數：建立輸出 stream
+            var output = new MemoryStream();
+
+            try
+            {
+                // 執行 function：讀取原始 PDF 並修改 metadata
+                using var input = System.IO.File.OpenRead(physicalPath);
+                using var document = PdfReader.Open(input, PdfDocumentOpenMode.Modify);
+
+                document.Info.Title = pdfTitle;
+                document.Save(output, false);
+                output.Position = 0;
+
+                // return
+                return output;
+            }
+            catch
+            {
+                // 執行 function：若 PDF 無法修改，退回原始檔內容
+                output.Dispose();
+
+                var fallback = new MemoryStream(System.IO.File.ReadAllBytes(physicalPath));
+                fallback.Position = 0;
+                return fallback;
+            }
+        }
+        /// <summary>
+        /// 設定 PDF 預覽 Header
+        /// </summary>
+        private void ApplyPdfPreviewHeaders(string safeFileName, bool isPublic)
+        {
+            // 宣告變數：建立 ASCII fallback 檔名
+            var asciiFallback = Regex.Replace(safeFileName, @"[^\x20-\x7E]", "_").Replace("\"", "'");
+
+            // 執行 function：設定快取與檔名
+            Response.Headers.CacheControl = isPublic ? "public, max-age=0, must-revalidate" : "private, max-age=0, must-revalidate";
+            Response.Headers.ContentDisposition = $"inline; filename=\"{asciiFallback}\"; filename*=UTF-8''{Uri.EscapeDataString(safeFileName)}";
+            Response.Headers.XContentTypeOptions = "nosniff";
         }
         #endregion
 

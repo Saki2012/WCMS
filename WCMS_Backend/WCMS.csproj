@@ -46,6 +46,7 @@
     <PackageReference Include="Mime-Detective.Definitions.Exhaustive" Version="25.8.1" />
     <PackageReference Include="NLog" Version="6.0.3" />
     <PackageReference Include="NLog.Schema" Version="6.0.3" />
+    <PackageReference Include="PDFsharp" Version="6.2.4" />
     <PackageReference Include="SharpCompress" Version="0.40.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.58" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
