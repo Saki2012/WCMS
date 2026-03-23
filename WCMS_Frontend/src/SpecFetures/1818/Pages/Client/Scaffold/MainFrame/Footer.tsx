@@ -1,4 +1,4 @@
-import type { FooterProps } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Footer"
+import type { FooterProps } from "@/Features/Pages/Client/Scaffold/MainFrame/Footer"
 
 const Footer = (props: FooterProps) => {
     const t = (props.lang === "en"

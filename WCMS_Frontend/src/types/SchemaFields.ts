@@ -128,7 +128,6 @@ export const AnnouncementFields = {
   ContentStatus: 'ContentStatus',
   PictureId: 'PictureId',
   PicDescription: 'PicDescription',
-  ViewCount: 'ViewCount',
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
   _AnnouncementDetail: '_AnnouncementDetail',
@@ -604,7 +603,6 @@ export const PageManagementFields = {
   OrgLvId: 'OrgLvId',
   PageId: 'PageId',
   CategoryId: 'CategoryId',
-  ViewCount: 'ViewCount',
   _PageManagementDetail: '_PageManagementDetail',
 } as const;
 

@@ -174,7 +174,6 @@ const buildAnnouncementHomeQuery = (p: { condition: string; take: number }): Que
       AnnouncementFields.ContentStatus,
       AnnouncementFields.Validate_Start,
       AnnouncementFields.Validate_End,
-      AnnouncementFields.ViewCount,
       `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
       `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
     ],

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import type { FooterProps } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Footer"
+import type { FooterProps } from "@/Features/Pages/Client/Scaffold/MainFrame/Footer"
 
 type FooterText = {
     // Contact / Publisher

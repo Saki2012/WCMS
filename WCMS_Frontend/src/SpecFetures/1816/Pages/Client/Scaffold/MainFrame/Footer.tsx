@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import type { FooterProps } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Footer"
+import type { FooterProps } from "@/Features/Pages/Client/Scaffold/MainFrame/Footer"
 import AAPic from "@/SpecFetures/1816/Assets/Client/images/footer/small_icon/accessibility_badge_2.1AA_88x31.svg"
 import LogoPic from "@/SpecFetures/1816/Assets/Client/images/logo/LOGO_266x41_W.svg"
 import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";

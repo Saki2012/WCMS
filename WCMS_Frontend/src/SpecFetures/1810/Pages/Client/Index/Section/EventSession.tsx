@@ -52,7 +52,6 @@ const useAnnouncementList = () => {
                 SchemaFields.AnnouncementFields.ContentStatus,
                 `${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Lang}`,
                 `${SchemaFields.AnnouncementFields._AnnouncementDetail}.${SchemaFields.AnnouncementDetailFields.Title}`,
-                SchemaFields.AnnouncementFields.ViewCount,
             ],
             Condition: cdt,
             RankGroups: [{ Condition: `${SchemaFields.AnnouncementFields.ContentStatus} & 1` }],

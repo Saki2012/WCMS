@@ -178,7 +178,7 @@ const buildAnnouncementHomeQuery = (p: { condition: string; take: number }): Que
     Fields: [
       AnnouncementFields.AnnouncementId,AnnouncementFields.InternalId,AnnouncementFields.ContentStatus,
       AnnouncementFields.PictureId,AnnouncementFields.PicDescription,AnnouncementFields.Categories,
-      AnnouncementFields.Tags,AnnouncementFields.Validate_Start,AnnouncementFields.ViewCount,
+      AnnouncementFields.Tags,AnnouncementFields.Validate_Start,
       `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
       `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
       `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.SubTitle}`,

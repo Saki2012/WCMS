@@ -41,11 +41,15 @@ export interface INormNode {
     absSegments?: string[];   // 片段字串：用來快速組 URL
     absIds?: number[];        // 沿途節點 id：做比對/權限
 }
-
+interface INormSiteIndexInfo {
+    title: string
+    description: string
+    footerContent: string
+}
 export interface INormSite {
-    siteIndex: string;
-    indexInfoByLang: Record<string, { title: string; description: string }>;
-    treeByLang: Record<Lang, INormNode[]>; // 每個語系自己的根層節點（多層往下）
+    siteIndex: string
+    indexInfoByLang: Record<string, INormSiteIndexInfo>
+    treeByLang: Record<Lang, INormNode[]>
 }
 
 /* ---------- 3) 純函式：把資料表 → 樹 ---------- */
@@ -58,10 +62,11 @@ export const normalizeSite = (siteMenu: SiteMenuSet): INormSite => {
         indexInfoByLang[lang] = {
             title: info.Title ?? "",
             description: info.Description ?? "",
-        };
+            footerContent: info.SiteFooter ?? "",
+        }
     }
     if (Object.keys(indexInfoByLang).length === 0) {
-        indexInfoByLang[DefaultLang] = { title: "", description: "" };
+        indexInfoByLang[DefaultLang] = { title: "", description: "",footerContent:"" };
     }
 
     // 2) 關聯表：以 ItemRowId 當 key

@@ -6243,22 +6243,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": components["schemas"]["TryCountResult_DTOApiResponse"];
-                        "application/json": components["schemas"]["TryCountResult_DTOApiResponse"];
-                        "text/json": components["schemas"]["TryCountResult_DTOApiResponse"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["TryCountResult_DTOApiResponse"];
-                        "application/json": components["schemas"]["TryCountResult_DTOApiResponse"];
-                        "text/json": components["schemas"]["TryCountResult_DTOApiResponse"];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -10969,11 +10954,6 @@ export interface components {
             /** @description 圖片說明 */
             PicDescription?: string | null;
             /**
-             * Format: int32
-             * @description 瀏覽次數
-             */
-            ViewCount?: number | null;
-            /**
              * Format: date-time
              * @description 公告日期
              */
@@ -11701,11 +11681,6 @@ export interface components {
             PageId?: string | null;
             /** @description 類別 */
             CategoryId?: string | null;
-            /**
-             * Format: int32
-             * @description 瀏覽次數
-             */
-            ViewCount?: number | null;
             _PageManagementDetail?: components["schemas"]["PageManagementDetail_DTO"][] | null;
         };
         PermissionCatalogModuleDTO: {

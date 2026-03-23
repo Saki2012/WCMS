@@ -143,7 +143,6 @@ const buildBaseParam = (p: BuildBaseParamArgs): QueryListParam =>
             `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileName}`,
             `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFile}.${FileManageModelFields.PublicDownloadCount}`,
             `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFile}.${FileManageModelFields.FileExtension}`,
-
             `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.TagId}`,
             `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.Tag}`,
             `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.Tag}.${TagDataFields._TagDetail}.${TagDetailFields.Lang}`,
@@ -155,7 +154,7 @@ const buildBaseParam = (p: BuildBaseParamArgs): QueryListParam =>
             `${SpecJournalModelFields._SpecJournalDocument}.${SpecJournalDocumentFields.DocumentType}`,
         ],
         Condition: condition,
-        OrderBy: [{ Col: SpecJournalModelFields.CreateTime, Desc: true }],
+        OrderBy: [{ Col: SpecJournalModelFields.PageStart, Desc: true }],
         PageNumber: 1,
         PageSize: p.pageSize,
     };

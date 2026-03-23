@@ -41,7 +41,6 @@ namespace WCMS.Features.SiteEdit.PageManagement
                 result.Add(set);
                 set.PageManagement.PageId = row["Sn"].ToString();
                 set.PageManagement.CategoryId = row["Category"].ToString();
-                set.PageManagement.ViewCount = row["ViewCount"].ToInt32();
                 set.PageManagement.CreateTime = row["CreateTime"].ToString().ToDateTime();
                 set.PageManagement.ModifyTime = row["UpdateTime"].ToString().ToDateTime();
                 int rowId = 1;
