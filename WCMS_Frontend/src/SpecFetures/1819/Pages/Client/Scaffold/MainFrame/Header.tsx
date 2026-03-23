@@ -502,6 +502,7 @@ const MainMenu = (props: HeaderProps & MenuControl) => {
 									itemKey={itemKey}
 									isMobileView={props.isMobileView}
 									isOpen={props.isDropdownOpen(itemKey)}
+									isDropdownOpen={props.isDropdownOpen}
 									toggleDropdown={props.toggleDropdown}
 									handleLeafClick={props.handleLeafClick}
 								/>
@@ -557,6 +558,7 @@ const DropdownMenuItem = (props: {
 	itemKey: string;
 	isMobileView: boolean;
 	isOpen: boolean;
+	isDropdownOpen: (key: string) => boolean;
 	toggleDropdown: (key: string) => void;
 	handleLeafClick: () => void;
 }) => {
@@ -599,10 +601,10 @@ const DropdownMenuItem = (props: {
 					parentDepth: 0,
 					parentKey: props.itemKey,
 					isMobileView: props.isMobileView,
-					isDropdownOpen: (key: string) => (props.isMobileView ? props.isOpen || key === props.itemKey : false),
+					isDropdownOpen: props.isDropdownOpen,
 					toggleDropdown: props.toggleDropdown,
 					handleLeafClick: props.handleLeafClick,
-					isOpenByKey: (key: string) => (props.isMobileView ? key === props.itemKey || false : false),
+					isOpenByKey: props.isDropdownOpen,
 				})}
 			</ul>
 		</li>
