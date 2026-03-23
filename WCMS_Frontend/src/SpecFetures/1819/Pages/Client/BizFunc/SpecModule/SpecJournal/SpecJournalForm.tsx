@@ -16,14 +16,10 @@ import { useLocation, useParams } from "react-router";
 import { useBreadcrumb } from "@/Features/Pages/Client/Scaffold/SubPages/Section/BreadCrumb_Comp";
 import { SpecJournalKeywordSearch_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalKeywordSearchComp";
 import { useSpecJournalSearchNav } from "./SpecJournalSearchUtils";
-import { useLoaderData } from "react-router-dom";
-import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournal_Api";
-import type { SpecJournalFormLoaderData } from "./SpecJournalForm_Loader";
+import { useSpecJournalFormData } from "./SpecJournalForm_Loader";
 import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
 import { PGID } from "@/types/SchemaFields";
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
-type QueryListParam = components["schemas"]["QueryListParam"];
 
 const joinPath = (base: string, path: string) => {
     const b = (base ?? "").replace(/\/+$/, "");
@@ -32,92 +28,77 @@ const joinPath = (base: string, path: string) => {
     return `${b}/${p}`;
 };
 
-export const SpecJournalForm_Comp = (props: { site:INormSite; node: INormNode; lang: Lang }) => {
+export const SpecJournalForm_Comp = (props: { site: INormSite; node: INormNode; lang: Lang }) => {
     const { indexId, rowId } = useParams();
     const { setItems } = useBreadcrumb();
     const location = useLocation();
-    const loaderData = useLoaderData() as SpecJournalFormLoaderData | null;
-    const adapter = useMemo(() => SpecJournalAdapter(), []);
-    const useDetail = useSpecJournalDetail(adapter, loaderData);
-    const data = useMemo(() => useDetail.rawData?.[0], [useDetail.rawData]);
-    const errors = [useDetail.error];
+    const useDetail = useSpecJournalFormData();
+    const data = useDetail.data;
+    const errors = useDetail.errorList;
     const title = useMemo(() => {
         const d = data?.SpecJournal?._JournalIndexDetail;
         return d ? `Vol.${d.Volume}, No.${d.Issue}` : "";
     }, [data?.SpecJournal?._JournalIndexDetail?.Volume, data?.SpecJournal?._JournalIndexDetail?.Issue]);
+
     const moduleBase = useMemo(() => {
         const raw = props.node.redirectTo ?? "";
         if (raw && raw !== "/") return raw;
+
         const segs = location.pathname.split("/").filter(Boolean);
         const s0 = segs[0]?.toLowerCase() ?? "";
         const hasLang = (SUPPORTED_LANGS as readonly string[]).includes(s0);
         const mod = hasLang ? segs[1] : segs[0];
+
         return mod ? `/${mod}` : "/";
     }, [props.node.redirectTo, location.pathname]);
+
     useEffect(() => {
         const issueLabel = title;
         const issueTo = issueLabel && indexId && rowId ? joinPath(moduleBase, `List/${indexId}/${rowId}`) : undefined;
         const articleLabel = data?.SpecJournal?.Title ?? data?.SpecJournal?.Title_en ?? (props.lang === "zh-tw" ? "文章" : "Article");
         const next: Array<{ label: string; to?: string }> = [];
+
         if (issueLabel) next.push({ label: issueLabel, to: issueTo });
         if (articleLabel) next.push({ label: articleLabel });
+
         setItems(next);
+
         return () => setItems([]);
     }, [title, data?.SpecJournal?.Title, data?.SpecJournal?.Title_en, indexId, rowId, props.lang, moduleBase, setItems]);
-    
+
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() => {
         const request: TryCountDetailViewRequest = {
-            SiteIndex:props.site.siteIndex,
-            ProgId:PGID.SpecJournal,
-            InternalId:data.SpecJournal?.InternalId,
+            SiteIndex: props.site.siteIndex,
+            ProgId: PGID.SpecJournal,
+            InternalId: data?.SpecJournal?.InternalId ?? "",
         };
-        return { mode: "form", contentKey: data.SpecJournal?.InternalId??"", request,};
-    }, [data.SpecJournal?.InternalId]);
+
+        return {
+            mode: "form",
+            contentKey: data?.SpecJournal?.InternalId ?? "",
+            request,
+        };
+    }, [props.site.siteIndex, data?.SpecJournal?.InternalId]);
+
     return (
-        <ModuleContent nodeTitle={title} title={title} isLoading={useDetail.isLoading} errorList={errors} viewCountConfig={viewCountConfig}>
-            <SpecJournalFormContent data={data} lang={props.lang} />
+        <ModuleContent
+            nodeTitle={title}
+            title={title}
+            isLoading={useDetail.isLoading}
+            errorList={errors}
+            viewCountConfig={viewCountConfig}
+        >
+            <SpecJournalFormContent
+                data={data}
+                lang={props.lang}
+                pageViewCount={useDetail.pageViewCount}
+            />
         </ModuleContent>
     );
 };
 
-const useSpecJournalDetail = (adapter: ReturnType<typeof SpecJournalAdapter>, loaderData: SpecJournalFormLoaderData | null) => {
-    const baseParam = useMemo<QueryListParam>(() => {
-        if (!loaderData?.args?.baseParam) return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: 1 };
-        return loaderData.args.baseParam;
-    }, [loaderData]);
-    const initialCount = useMemo<ApiLoaderData<QueryListParam, number> | null>(() => {
-        if (!loaderData?.args?.baseParam) return null;
-        return {
-            args: loaderData.args.baseParam,
-            apiRes: { IsSuccess: true, Data: loaderData.res.countRes ?? 0, SysMessage: [] },
-        };
-    }, [loaderData]);
-    const initialList = useMemo<ApiLoaderData<QueryListParam, SpecJournalSet[]> | null>(() => {
-        if (!loaderData?.args?.baseParam) return null;
-        return {
-            args: loaderData.args.baseParam,
-            apiRes: { IsSuccess: true, Data: loaderData.res.listRes ?? [], SysMessage: [] },
-        };
-    }, [loaderData]);
-    const useCount = adapter.hooks.useQueryCount({
-        condition: baseParam,
-        initial: initialCount,
-        deps: [loaderData?.args?.journalId],
-    });
-    const useList = adapter.hooks.usePagedQueryList({
-        baseParam,
-        count: useCount.data ?? 0,
-        initial: initialList,
-        deps: [loaderData?.args?.journalId],
-    });
-    return {
-        rawData: useList.data ?? [],
-        isLoading: useCount.isLoading || useList.isLoading,
-        error: useCount.errorText ?? useList.errorText ?? null,
-    };
-};
 
-const SpecJournalFormContent = (props: { lang: Lang; data?: SpecJournalSet }) => {
+const SpecJournalFormContent = (props: { lang: Lang; data?: SpecJournalSet; pageViewCount: number }) => {
     
     return (
         <div className="Journal_List_content">
@@ -129,7 +110,7 @@ const SpecJournalFormContent = (props: { lang: Lang; data?: SpecJournalSet }) =>
                     <hr className="hr-my-4" />
                 </div>
                 <JournalTitle_Comp {...props} />
-                <BrowseCount_Comp />
+                <BrowseCount_Comp pageViewCount={props.pageViewCount} />
                 <Authors_Comp {...props} />
                 <DOI_Comp {...props} />
                 <JournalInfo_Comp {...props} />
@@ -213,7 +194,7 @@ const JournalTitle_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
 };
 
 /** 瀏覽次數 */
-const BrowseCount_Comp = () => {
+const BrowseCount_Comp = (props: { pageViewCount: number }) => {
     return (
         <>
             <div className="JJ_main_contentDIV">
@@ -221,7 +202,7 @@ const BrowseCount_Comp = () => {
                     <div className="Div_All_BigTitle">
                         <i className="fas fa-eye me-1" aria-hidden="true"></i>
                         <span>瀏覽次數 :</span>
-                        <span className="ms-2">{0}</span>
+                        <span className="ms-2">{props.pageViewCount}</span>
                     </div>
                 </div>
             </div>
