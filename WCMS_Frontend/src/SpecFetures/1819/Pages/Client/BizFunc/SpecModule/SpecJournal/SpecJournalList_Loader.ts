@@ -154,7 +154,7 @@ const buildBaseParam = (p: BuildBaseParamArgs): QueryListParam =>
             `${SpecJournalModelFields._SpecJournalDocument}.${SpecJournalDocumentFields.DocumentType}`,
         ],
         Condition: condition,
-        OrderBy: [{ Col: SpecJournalModelFields.PageStart, Desc: true }],
+        OrderBy: [{ Col: SpecJournalModelFields.PageStart, Desc: false }],
         PageNumber: 1,
         PageSize: p.pageSize,
     };
