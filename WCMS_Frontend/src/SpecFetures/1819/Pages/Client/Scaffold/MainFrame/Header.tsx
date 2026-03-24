@@ -340,6 +340,7 @@ const SearchBar = () => {
 	);
 };
 
+
 const Menu_Section = (props: HeaderProps & MenuControl) => {
 	const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -458,12 +459,12 @@ const MobileBtn = (props: { isMobileMenuOpen: boolean; toggleMobileMenu: () => v
 			</div>
 
 			<a
-				className={`navbar-toggler${props.isMobileMenuOpen ? "" : " collapsed"}`}
-				type="button"
+				className={`navbar-toggler menu-react-toggler${props.isMobileMenuOpen ? "" : " collapsed"}`}
+				href="#"
 				role="button"
-				data-bs-toggle="collapse"
-				data-bs-target="#navbar-content"
 				tabIndex={0}
+				aria-controls="navbar-content"
+				aria-label={props.isMobileMenuOpen ? "Close menu" : "Open menu"}
 				aria-expanded={props.isMobileMenuOpen}
 				onClick={handleClick}
 				onKeyDown={handleKeyDown}
@@ -585,8 +586,8 @@ const DropdownMenuItem = (props: {
 				to={props.menuItem.Url || "#"}
 				role="button"
 				tabIndex={0}
-				data-bs-toggle="dropdown"
-				data-bs-auto-close="outside"
+				data-bs-toggle={props.isMobileView ? undefined : "dropdown"}
+				data-bs-auto-close={props.isMobileView ? undefined : "outside"}
 				target={props.menuItem.URL_Open}
 				aria-expanded={props.isMobileView ? props.isOpen : undefined}
 				onClick={handleToggleClick}
@@ -675,8 +676,8 @@ const renderDropdownItems = (props: RenderDropdownItemsProps): React.ReactElemen
 					role="button"
 					tabIndex={0}
 					className={`dropdown-item dropdown-toggle${props.isMobileView && isOpen ? " show" : ""}`}
-					data-bs-toggle="dropdown"
-					data-bs-auto-close="outside"
+					data-bs-toggle={props.isMobileView ? undefined : "dropdown"}
+					data-bs-auto-close={props.isMobileView ? undefined : "outside"}
 					target={item.URL_Open}
 					aria-expanded={props.isMobileView ? isOpen : undefined}
 					onClick={handleToggleClick}
