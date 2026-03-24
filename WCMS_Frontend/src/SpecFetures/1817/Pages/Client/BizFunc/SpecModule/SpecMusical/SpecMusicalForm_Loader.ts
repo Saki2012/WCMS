@@ -16,7 +16,7 @@ export interface SpecMusicalFormLoaderArgs
 export interface SpecMusicalFormLoaderRes
 {
     dataRes: SpecMusicalSet | null;
-    displayNameRes: ModelDisplaySchema | null;
+    displayNameRes: ModelDisplaySchema[] | null;
 }
 
 export interface SpecMusicalFormLoaderData

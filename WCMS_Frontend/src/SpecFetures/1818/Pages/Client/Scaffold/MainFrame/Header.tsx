@@ -94,7 +94,7 @@ const NavBar = (props: { lang: Lang; }) => {
                 <LangLink className="nav-link" to="/" tabIndex={0} target="_self" title={title.Home}>{title.Home}</LangLink>
             </li>
             <li className="nav-item">
-                <a className="nav-link" href="https://www.nchu.edu.tw/index1.php" tabIndex={0} target="_self" title={title.NCHU}>{title.NCHU}</a>
+                <a className="nav-link" href="https://www.nchu.edu.tw/index1.php" tabIndex={0} target="_blank" rel="noopener noreferrer" title={title.NCHU}>{title.NCHU}</a>
             </li>
             <li className="nav-item">
                 <LangNavLink to={`/${SITEMAP_SEGMENT}`} className="nav-link" tabIndex={0} target="_self" title={title.SiteMap}>{title.SiteMap}</LangNavLink>

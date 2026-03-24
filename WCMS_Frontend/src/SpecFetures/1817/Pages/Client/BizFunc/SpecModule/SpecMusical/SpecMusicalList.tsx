@@ -26,7 +26,6 @@ const SpecMusicalList = (props: { options?: ISpecMusicalOptions; site:INormSite;
     // 執行 function：list/count（SSR initial → CSR 接手）
     const useList = useSpecMusicalList(adapter, props.options?.Category ?? "", pageSize, loaderData);
 
-    const loadingList = [useList.isLoading];
     const errorList = [useList.error];
 
     const paginprops: PaginatorProps =
@@ -38,7 +37,7 @@ const SpecMusicalList = (props: { options?: ISpecMusicalOptions; site:INormSite;
     const viewCountConfig: ModuleViewCountConfig = { mode: "list", };
     // return（DOM 不改）
     return (
-        <ModuleContent nodeTitle={props.node.title} loadingList={loadingList} errorList={errorList} paginatorProps={paginprops} viewCountConfig={viewCountConfig}>
+        <ModuleContent nodeTitle={props.node.title} isLoading={useList.isLoading} errorList={errorList} paginatorProps={paginprops} viewCountConfig={viewCountConfig}>
             <GridList_Comp title={""} data={useList.rawData} />
         </ModuleContent>
     )

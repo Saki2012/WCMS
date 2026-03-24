@@ -45,14 +45,13 @@ const SpecMusicalForm = (props: ISpecMusicalFormProps) => {
         };
     }, [loaderData, safeInternalId]);
 
-    const initialDisplayName = useMemo<ApiLoaderData<null, ModelDisplaySchema> | null>(() => {
-        if (!loaderData?.res?.displayNameRes) return null;
-
+    const initialDisplayName = useMemo<ApiLoaderData<null, ModelDisplaySchema[]> | null>(() => {
+    if (!loaderData?.res?.displayNameRes) return null;
         return {
             args: null,
             apiRes: {
                 IsSuccess: true,
-                Data: loaderData.res.displayNameRes as unknown as ModelDisplaySchema,
+                Data: loaderData.res.displayNameRes,
                 SysMessage: [],
             },
         };
@@ -70,7 +69,6 @@ const SpecMusicalForm = (props: ISpecMusicalFormProps) => {
         deps: [],
     });
 
-    const loadingList = [useData.isLoading, useDisplayName.isLoading];
     const errorList = [useData.errorText, useDisplayName.errorText];
 
     const title = useData.data?.SpecMusical?.MusicalName ?? "";
@@ -82,16 +80,21 @@ const SpecMusicalForm = (props: ISpecMusicalFormProps) => {
         };
         return { mode: "form", contentKey: safeInternalId, request,};}, [safeInternalId]);
     // return（DOM 不改）
+    const displaySchema = useMemo<ModelDisplaySchema | null>(() => {
+        return Array.isArray(useDisplayName.data)
+            ? (useDisplayName.data[0] ?? null)
+            : null;
+    }, [useDisplayName.data]);
     return (
-        <ModuleContent nodeTitle={props.node.title} title={title} loadingList={loadingList} errorList={errorList} viewCountConfig={viewCountConfig}>
-            <MainContent data={useData.data ?? {}} displayName={(useDisplayName.data ?? ({} as ModelDisplaySchema))} />
+        <ModuleContent nodeTitle={props.node.title} title={title} isLoading={useData.isLoading} errorList={errorList} viewCountConfig={viewCountConfig}>
+            <MainContent data={useData.data ?? undefined} displayName={displaySchema} />
         </ModuleContent>
     )
 }
 
 export default SpecMusicalForm
 
-const MainContent = (props: { data?: SpecMusicalSet; displayName: ModelDisplaySchema }) => {
+const MainContent = (props: { data?: SpecMusicalSet; displayName: ModelDisplaySchema | null }) => {
     if (!props.data) return null;
 
     return (
@@ -272,8 +275,8 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[] }) => {
     )
 }
 
-const InfoComp = (props: { info: SpecMusicalModel; displayName: ModelDisplaySchema }) => {
-    const columns = props.displayName.Tables.find(p => p.TableId === SpecMusicalSetFields.SpecMusical)?.Columns ?? [];
+const InfoComp = (props: { info: SpecMusicalModel; displayName: ModelDisplaySchema | null }) => {
+    const columns = props.displayName?.Tables?.find(p => p.TableId === SpecMusicalSetFields.SpecMusical)?.Columns ?? [];
     const displayCol = [
         SpecMusicalModelFields.Specification,
         SpecMusicalModelFields.Headstock,

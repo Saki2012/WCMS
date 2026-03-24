@@ -145,7 +145,7 @@ export const NewsData = (props: {
                           <div className="customize_btn">
                             <LangNavLink
                               className="Btn_a"
-                              to="/announcement/announcement-news/List"
+                              to="/announcement/announcement-news"
                               role="button"
                               tabIndex={0}
                               target="_self"

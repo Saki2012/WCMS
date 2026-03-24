@@ -11,6 +11,8 @@ import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 import SpecMusicalList, { type ISpecMusicalOptions } from "./Pages/Client/BizFunc/SpecModule/SpecMusical/SpecMusicalList";
 import SpecMusicalForm from "@/SpecFetures/1817/Pages/Client/BizFunc/SpecModule/SpecMusical/SpecMusicalForm";
+import { SpecMusicalList_Loader } from "./Pages/Client/BizFunc/SpecModule/SpecMusical/SpecMusicalList_Loader";
+import { SpecMusicalForm_Loader } from "./Pages/Client/BizFunc/SpecModule/SpecMusical/SpecMusicalForm_Loader";
 
 
 export class SpecRouteModule implements IRouteModule {
@@ -28,11 +30,21 @@ export const specClientEntries: Record<string, ModuleEntry> = {
     element: (lang: Lang, site: INormSite, node: INormNode) => (
       <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
     ),
-    children: (opts, lang, site, node) => [
-      { index: true, element: <AutoRedirect to="List" replace /> },
-      { path: "List", element: <SpecMusicalList options={opts as ISpecMusicalOptions} site={site} node={node} /> },
-      { path: ":internalId", element: <SpecMusicalForm site={site} node={node} /> },
-    ],
+    children: (opts, lang, site: INormSite,node: INormNode) => {
+      const musicalOpts = (opts as ISpecMusicalOptions) ?? {};
+      return [
+        { 
+          index: true, 
+          loader: SpecMusicalList_Loader({categoryIds: musicalOpts.Category ?? "", pageSize: 9,}),
+          element: <SpecMusicalList options={musicalOpts} site={site} node={node} />,
+        },
+        {
+          path: ":internalId",
+          loader: SpecMusicalForm_Loader(),
+          element: <SpecMusicalForm site={site} node={node} />,
+        },
+      ];
+    },
   },
 };
 

@@ -314,7 +314,7 @@ useEffect(() => {
 							<div className="offset-6 col-6 mt-customize">
 								<div className="btn-w100-wrapper justify-content-end">
 									<div className="customize_btn">
-										<LangNavLink className="Btn_a" to="/announcement/announcement-activity/List" role="button" tabIndex={0} target="_self" title={IndexLabel(props.lang).MoreInfo} type="button">
+										<LangNavLink className="Btn_a" to="/announcement/announcement-activity" role="button" tabIndex={0} target="_self" title={IndexLabel(props.lang).MoreInfo} type="button">
 											<div className="BtnBox">
 												<span>{IndexLabel(props.lang).MoreInfo}</span>
 											</div>

@@ -118,11 +118,15 @@ const buildBannerByBannerIdParam = (bannerId: string): QueryListParam => {
   return {
     Fields: [
       BannerFields.InternalId,BannerFields.BannerId,BannerFields.BannerCategoryName,
+      `${BannerFields._BannerDetail}.${BannerDetailFields.BannerId}`,
       `${BannerFields._BannerDetail}.${BannerDetailFields.RowId}`,
       `${BannerFields._BannerDetail}.${BannerDetailFields.PicSrcId}`,
       `${BannerFields._BannerDetail}.${BannerDetailFields.Sort}`,
       `${BannerFields._BannerDetail}.${BannerDetailFields.Validate_Start}`,
       `${BannerFields._BannerDetail}.${BannerDetailFields.Validate_End}`,
+      `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.BannerId}`,
+      `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.ParentRowId}`,
+      `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.RowId}`,
       `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Lang}`,
       `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Title}`,
       `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Content}`,
