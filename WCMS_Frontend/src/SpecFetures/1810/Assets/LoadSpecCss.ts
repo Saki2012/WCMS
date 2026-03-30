@@ -37,3 +37,5 @@ import "./Client/Content/print/print.css"; // 對應原本的 Content/print.css
 import "./Client/css/font-awesome-4.7.0/font-awesome-4.7.0.min.css";
 import "./Client/css/style_class_kit.css";
 import "./Client/css/style_background_color.css";
+
+import "./Custom/Spec1810.css";

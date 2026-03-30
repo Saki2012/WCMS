@@ -1,0 +1,153 @@
+/* Swiper 尚未初始化前，先用 CSS 做 SSR fallback，避免首屏一張貼滿 */
+#card:not(.swiper-initialized) .swiper-wrapper
+{
+    display: flex;
+    align-items: stretch;
+    gap: 30px;
+}
+
+#card:not(.swiper-initialized) .swiper-slide
+{
+    flex: 0 0 calc((100% - 90px) / 4);
+    width: calc((100% - 90px) / 4);
+}
+
+/* 992 ~ 1199 */
+@media (max-width: 1199.98px)
+{
+    #card:not(.swiper-initialized) .swiper-slide
+    {
+        flex: 0 0 calc((100% - 60px) / 3);
+        width: calc((100% - 60px) / 3);
+    }
+}
+
+/* 576 ~ 991 */
+@media (max-width: 991.98px)
+{
+    #card:not(.swiper-initialized) .swiper-slide
+    {
+        flex: 0 0 calc((100% - 30px) / 2);
+        width: calc((100% - 30px) / 2);
+    }
+}
+
+/* < 576 */
+@media (max-width: 575.98px)
+{
+    #card:not(.swiper-initialized) .swiper-slide
+    {
+        flex: 0 0 calc((100% - 30px) / 2);
+        width: calc((100% - 30px) / 2);
+    }
+}
+
+/* =========================================
+   Owl SSR fallback
+   目的：在 owl 尚未初始化前，先把 item 排成接近最終欄數
+   只會作用在 .owl-carousel 尚未變成 .owl-loaded 時
+========================================= */
+
+/* 共用：未初始化前先用 flex 排版 */
+#Event.owl-carousel:not(.owl-loaded),
+#Gallery.owl-carousel:not(.owl-loaded),
+#Video.owl-carousel:not(.owl-loaded)
+{
+    display: flex;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    gap: 30px;
+}
+
+/* 共用：避免首屏 item 被撐成滿版 */
+#Event.owl-carousel:not(.owl-loaded) > .item,
+#Gallery.owl-carousel:not(.owl-loaded) > .item,
+#Video.owl-carousel:not(.owl-loaded) > .item
+{
+    flex: 0 0 auto;
+    min-width: 0;
+}
+
+/* Event: desktop 4 欄 */
+#Event.owl-carousel:not(.owl-loaded) > .item
+{
+    width: calc((100% - 90px) / 4);
+}
+
+/* Gallery: desktop 3 欄 */
+#Gallery.owl-carousel:not(.owl-loaded) > .item
+{
+    width: calc((100% - 60px) / 3);
+}
+
+/* Video: desktop 2 欄 */
+#Video.owl-carousel:not(.owl-loaded) > .item
+{
+    width: calc((100% - 30px) / 2);
+}
+
+/* 991 以下 */
+@media (max-width: 1199.98px)
+{
+    /* Event: 3 欄 */
+    #Event.owl-carousel:not(.owl-loaded) > .item
+    {
+        width: calc((100% - 60px) / 3);
+    }
+
+    /* Gallery: 3 欄 */
+    #Gallery.owl-carousel:not(.owl-loaded) > .item
+    {
+        width: calc((100% - 60px) / 3);
+    }
+
+    /* Video: 2 欄 */
+    #Video.owl-carousel:not(.owl-loaded) > .item
+    {
+        width: calc((100% - 30px) / 2);
+    }
+}
+
+/* 767 以下 */
+@media (max-width: 991.98px)
+{
+    /* Event: 2 欄 */
+    #Event.owl-carousel:not(.owl-loaded) > .item
+    {
+        width: calc((100% - 30px) / 2);
+    }
+
+    /* Gallery: 2 欄 */
+    #Gallery.owl-carousel:not(.owl-loaded) > .item
+    {
+        width: calc((100% - 30px) / 2);
+    }
+
+    /* Video: 2 欄 */
+    #Video.owl-carousel:not(.owl-loaded) > .item
+    {
+        width: calc((100% - 30px) / 2);
+    }
+}
+
+/* 手機 */
+@media (max-width: 766.98px)
+{
+    /* Event: 1 欄 */
+    #Event.owl-carousel:not(.owl-loaded) > .item
+    {
+        width: 100%;
+    }
+
+    /* Gallery: 1 欄 */
+    #Gallery.owl-carousel:not(.owl-loaded) > .item
+    {
+        width: 100%;
+    }
+
+    /* Video: 1 欄 */
+    #Video.owl-carousel:not(.owl-loaded) > .item
+    {
+        width: 100%;
+    }
+}

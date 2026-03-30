@@ -42,6 +42,21 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteViewCount
         {
             return await TryCountDetailViewAsync(siteIndex?.Trim() ?? string.Empty, progId?.Trim() ?? string.Empty, internalId?.Trim() ?? string.Empty, actionType, visitorKey?.Trim() ?? string.Empty, refererUrl?.Trim() ?? string.Empty, ct);
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="siteIndex"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        public async Task<TryCountResult_DTO> BizGetRecentlySiteViewCount(string siteIndex,int minutes, CancellationToken ct = default)
+        {
+            int currentCount = await GetSiteViewCountAsync(siteIndex?.Trim() ?? string.Empty, ct);
+            return new TryCountResult_DTO
+            {
+                CurrentCount = currentCount,
+                IsCounted = false,
+            };
+        }
         #endregion
 
         #region Private
@@ -325,7 +340,6 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteViewCount
                     break;
             }
         }
-
         /// <summary>
         /// 取得對應 Detail 欄位目前值
         /// </summary>
@@ -338,6 +352,29 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteViewCount
                 ViewCountActionType.FileDownload => detail.FileDownloadCount,
                 ViewCountActionType.LinkClick => detail.LinkClickCount,
                 _ => 0,
+            };
+        }
+
+
+        private async Task<int> GetRecentlySiteViewCountAsync(string siteIndex,string minutes, CancellationToken ct)
+        {
+            dynamic headerRepo = RepoMapProvider.EnsureRepo<SiteViewCountSet>(typeof(SiteViewCountHeaderModel));
+            ct.ThrowIfCancellationRequested();
+            SiteViewCountHeaderModel? data = await headerRepo.QueryDataAsync(siteIndex);
+            return data?.PublicViewCount ?? 0;
+        }
+
+        private QueryListParam GetRecentlySiteViewCountParam(string siteIndex, int minutes)
+        {
+            DateTime recentThreshold = DateTime.Now.AddMinutes(-minutes);
+            return new QueryListParam
+            {
+                Fields = [],
+                Condition = LibData.Merge(" And ", false, $@"{nameof(SiteViewCountRecentlyModel.SiteIndex)} = {siteIndex}",
+                $@"{nameof(SiteViewCountRecentlyModel.TargetType)} = {CountTargetType.Header}",
+                $@"{nameof(SiteViewCountRecentlyModel.LastViewTime)} >= {recentThreshold}"
+                )
+                
             };
         }
         #endregion

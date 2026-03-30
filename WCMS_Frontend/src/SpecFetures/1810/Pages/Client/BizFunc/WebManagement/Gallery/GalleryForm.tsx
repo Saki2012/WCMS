@@ -1,128 +1,130 @@
-import type { IFETheme } from '@/Features/Pages/Client/Theme/ITheme';
-import type { components } from '@/types/api';
-import { useParams } from 'react-router-dom';
-import parse from 'html-react-parser';
-import GalleryProvider from '@/Features/Hooks/BizFunc/WebManagement/Gallery_Api';
-import { useFetchFormData } from '@/SysCore/Utils/API/FetchFormData';
-import { useResolveInternalIds } from '@/SysCore/Components/File/useResolveInternalIds';
-import type { Lang } from '@/SysCore/i18n/lang';
-import * as SchemaFields from "@/types/SchemaFields";
-import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category_Api';
-import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
-import { useState, type ReactNode } from 'react';
+import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
+import type { Lang } from "@/SysCore/i18n/lang";
+import parse from "html-react-parser";
+import { type ReactNode, useMemo, useState } from "react";
 import "yet-another-react-lightbox/plugins/captions.css";
 import "yet-another-react-lightbox/plugins/counter.css";
 import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
-import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
-import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
-import Download from "yet-another-react-lightbox/plugins/download";
-import Share from "yet-another-react-lightbox/plugins/share";
-import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
-import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
-import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import { useGalleryFormFetchData } from "@/Features/Pages/Client/BizFunc/WebManagement/Gallery/GalleryForm_Loader";
+import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
+import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import type { components } from "@/types/api";
+import Lightbox from "yet-another-react-lightbox";
 import Captions from "yet-another-react-lightbox/plugins/captions";
 import Counter from "yet-another-react-lightbox/plugins/counter";
-import Lightbox from 'yet-another-react-lightbox';
+import Download from "yet-another-react-lightbox/plugins/download";
+import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
+import Share from "yet-another-react-lightbox/plugins/share";
+import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
 
-type GallerySet = components["schemas"]["GallerySet_DTO"]
-type GalleryPhotos = components["schemas"]["GalleryPhotos_DTO"]
-type GalleryPhotoInfo = components["schemas"]["GalleryPhotosInfo_DTO"]
-type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
+type GallerySet = components["schemas"]["GallerySet_DTO"];
 
-const emptyData: GallerySet = {}
-const buildInList = (csv?: string) => (csv ?? "").split(",").map(s => s.trim()).filter(Boolean).map(s => `'${s}'`).join(",");
-const useGetCategories = (lang: string, categoryIds: string) => {
-    const inList = buildInList(categoryIds);
-    let condition: string = `${SchemaFields.CategoryFields.CategoryId} HasAny ${inList} And ${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang} = ${lang}`;
-    const provider = CategoryProvider();
-    return useFetchGridListData<CategoryDataSet>({
-        getModelDisplayName: () => provider.getModelDisplayName(),
-        fetchList: (cond) => provider.fetchList(cond),
-        fetchListCount: (cond) => provider.fetchListCount(cond),
-        visibleKeys: [
-            [SchemaFields.CategoryDataSetFields.Category, SchemaFields.CategoryFields.CategoryId],
-            [SchemaFields.CategoryDataSetFields.CategoryDetail, SchemaFields.CategoryDetailFields.Lang],
-            [SchemaFields.CategoryDataSetFields.CategoryDetail, SchemaFields.CategoryDetailFields.CategoryName],
-        ],
-        buildQueryCondition: () => ({
-            Fields: [
-                SchemaFields.CategoryFields.CategoryId,
-                `${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
-                `${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
-            ],
-            Condition: condition,
-            PageNumber: 0,
-            PageSize: 0,
-        }),
-        enabled: !!categoryIds.trim(),          // 沒 id 不查
-        deps: [lang, categoryIds],        // ids/lang 改變就 refetch
-    });
-};
-
-const GalleryForm = (prop: { theme: IFETheme; lang: Lang }) => {
-    const { internalId } = useParams()
-    const useGalleryFormData = useFetchFormData<GallerySet>(GalleryProvider(), internalId, emptyData)
-    const srcCategories = useGalleryFormData.data?.Gallery?.Categories ?? "";
-    const useCategories = useGetCategories(prop.lang, srcCategories);
-    const isLoading = [useGalleryFormData.isLoading, useCategories.isLoading];
-    const errors = [useGalleryFormData.error, useCategories.error];
-    const title = useGalleryFormData.data?.GalleryInfo?.find(p => p.Lang === prop.lang)?.Title ?? "";
-    const rawContent = useGalleryFormData.data?.GalleryInfo?.find(p => p.Lang === prop.lang)?.Content ?? "";
-    const parseContent = useResolveInternalIds(rawContent, { locale: prop.lang });
-    const content = parseContent.html ? parse(parseContent.html) : null;
-    const photoInfo = GetPhotoInfos(prop.lang, useGalleryFormData.data?.GalleryPhotos ?? [], useGalleryFormData.data?.GalleryPhotosInfo ?? [])
-    const cats = (useCategories.rawData ?? []).flatMap(item => (item.CategoryDetail ?? []).filter(detail => detail.Lang === prop.lang).map(detail => detail.CategoryName)).join(", ");
-    return (<GalleryFormViewComp Title={title} CategoryName={cats} Content={content} photoInfoProps={photoInfo} LoadingList={isLoading} ErrorList={errors} />);
-}
-export default GalleryForm
-
-
-
-const GetPhotoInfos = (lang: Lang, photos: GalleryPhotos[], photoInfo: GalleryPhotoInfo[]): PhotoInfos[] => {
-    const result: PhotoInfos[] = []
-    photos.map((item) => {
-        result.push({
-            pictureInternalId: item.PicSrcId ?? "",
-            pictureDescription: photoInfo.find(p => p.ParentRowId === item.RowId && p.Lang === lang)?.Title ?? ""
-        })
-    })
-    return result;
-}
-
-
-
-
-
-
-interface GalleryFormViewProps {
-    Title: string;
-    CategoryName: string;
-    Content: ReactNode;
-    photoInfoProps: PhotoInfos[];
-    LoadingList: boolean[];
-    ErrorList: (string | null | undefined)[];
-}
-
-interface PhotoInfos {
+interface PhotoInfos
+{
     pictureInternalId: string;
     pictureDescription: string;
 }
 
+/** 取得當前語系的相簿資訊 */
+const getGalleryInfoByLang = (p: { data: GallerySet; lang: Lang; }) =>
+{
+    return (p.data.GalleryInfo ?? []).find((item) => item?.Lang?.toLowerCase() === p.lang.toLowerCase()) ?? null;
+};
 
-const GalleryFormViewComp = (prop: GalleryFormViewProps) => {
+/** 把 categories csv 轉成分類名稱字串 */
+const getCategoryText = (p: { categoryIds?: string | null; categoryMap: Record<string, string>; }): string =>
+{
+    const raw = `${p.categoryIds ?? ""}`.trim();
+    if (!raw) return "";
+    return raw.split(",").map((item) => item.trim()).filter(Boolean).map((id) => p.categoryMap[id] ?? "").filter(
+        Boolean,
+    ).join("、");
+};
+
+/** 整理相簿照片顯示資料 */
+const getPhotoInfoProps = (p: { data: GallerySet; lang: Lang; }): PhotoInfos[] =>
+{
+    return (p.data.GalleryPhotos ?? []).map((item) =>
+    {
+        const info = (p.data.GalleryPhotosInfo ?? []).find((row) =>
+            row.ParentRowId === item.RowId && row.Lang?.toLowerCase() === p.lang.toLowerCase()
+        );
+        return { pictureInternalId: item.PicSrcId ?? "", pictureDescription: info?.Title ?? "" };
+    })
+        .filter((item) => item.pictureInternalId);
+};
+
+const GalleryForm = (prop: { theme: IFETheme; lang: Lang; }) =>
+{
     const [open, setOpen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const images = prop.photoInfoProps.map((item) => ({ src: FileManagementAPI.get_Public_Download_Url(item.pictureInternalId,item.pictureDescription), description: item.pictureDescription, }));
+    // 讀取 feature 收斂後的原始資料
+    const formData = useGalleryFormFetchData({ lang: prop.lang });
+    // 取得目前語系內容
+    const galleryInfo = useMemo(() => getGalleryInfoByLang({ data: formData.data, lang: prop.lang }), [
+        formData.data,
+        prop.lang,
+    ]);
+
+    // 解析內容中的 internal file ids
+    const resolved = useResolveInternalIds(
+        galleryInfo?.Content ?? "",
+        { locale: prop.lang },
+    );
+    // 轉成 1810 畫面要的內容
+    const content = useMemo(
+        () => (resolved.html ? parse(resolved.html) : null),
+        [resolved.html],
+    );
+    // 轉成 1810 畫面要的分類字串
+    const categoryText = useMemo(
+        () =>
+            getCategoryText({
+                categoryIds: formData.data.Gallery?.Categories,
+                categoryMap: formData.categoryMap,
+            }),
+        [formData.data.Gallery?.Categories, formData.categoryMap],
+    );
+
+    // 轉成 1810 Lightbox 要的照片資料
+    const photoInfoProps = useMemo(
+        () => getPhotoInfoProps({ data: formData.data, lang: prop.lang }),
+        [formData.data, prop.lang],
+    );
+
+    // 整理 Lightbox 圖片資料
+    const images = useMemo(
+        () =>
+            photoInfoProps.map((item) => ({
+                src: FileManagementAPI.get_Public_Download_Url(
+                    item.pictureInternalId,
+                    item.pictureDescription,
+                ),
+                description: item.pictureDescription,
+            })),
+        [photoInfoProps],
+    );
 
     return (
-        <LoadingErrorHandler loadingList={prop.LoadingList} errorList={prop.ErrorList}>
-            <TitleContentBar title={prop.Title} categoryName={prop.CategoryName} content={prop.Content} />
+        <LoadingErrorHandler isLoading={formData.isLoading} errorList={formData.errorList}>
+            <TitleContentBar title={formData.title} categoryName={categoryText} content={content} />
             <div className="row mt-3">
                 {images.map((img, idx) => (
                     <div className="col-xs-12 col-sm-6 col-md-6 col-lg-3 photo_one_pic_standardbox" key={img.src}>
                         <div className="lightbox">
-                            <div className="img-box" style={{ cursor: "pointer" }} onClick={() => { setCurrentIndex(idx); setOpen(true); }} title={img.description}>
+                            <div
+                                className="img-box"
+                                style={{ cursor: "pointer" }}
+                                title={img.description}
+                                onClick={() =>
+                                {
+                                    setCurrentIndex(idx);
+                                    setOpen(true);
+                                }}
+                            >
                                 <img src={img.src} alt={img.description} className="img-fluid" />
                                 <div className="zoom-plus">
                                     <i className="fa fa-zoom-plus" aria-hidden="true"></i>
@@ -132,14 +134,25 @@ const GalleryFormViewComp = (prop: GalleryFormViewProps) => {
                     </div>
                 ))}
             </div>
-            {open && (<Lightbox open={open} close={() => setOpen(false)} slides={images} index={currentIndex}
-                plugins={[Download, Captions, Share, Counter, Fullscreen, Zoom, Thumbnails]} captions={{ descriptionTextAlign: "center" }} />
+            {open && (
+                <Lightbox
+                    open={open}
+                    close={() => setOpen(false)}
+                    slides={images}
+                    index={currentIndex}
+                    plugins={[Download, Captions, Share, Counter, Fullscreen, Zoom, Thumbnails]}
+                    captions={{ descriptionTextAlign: "center" }}
+                />
             )}
         </LoadingErrorHandler>
     );
 };
 
-const TitleContentBar = ({ title, categoryName, content, }: { title: string; categoryName: string; content: ReactNode; }) => (
+export default GalleryForm;
+
+const TitleContentBar = (
+    { title, categoryName, content }: { title: string; categoryName: string; content: ReactNode; },
+) => (
     <>
         <div className="row">
             <div className="page-header">

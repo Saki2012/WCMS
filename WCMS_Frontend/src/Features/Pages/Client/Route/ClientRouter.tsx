@@ -9,11 +9,11 @@ import { specClientEntries } from "SpecFeature/SpecRouter";
 import { Sitemap, SITEMAP_SEGMENT } from "../BizFunc/MainPage/Sitemap";
 import { PGID } from "@/types/SchemaFields";
 import { AnnouncementListLoader } from "../BizFunc/WebManagement/Announcement/AnnouncementList_Loader";
-import { PageManagementForm_Loader } from "../BizFunc/WebManagement/PageManagement/PageManagementForm_Hook";
+import { PageManagementForm_Loader } from "../BizFunc/WebManagement/PageManagement/PageManagementForm_Loader";
 import { AnnouncementFormLoader } from "../BizFunc/WebManagement/Announcement/AnnouncementForm_Loader";
 import { FileArchiveList_Loader } from "../BizFunc/WebManagement/FileArchive/FileArchiveList_Loader";
-import { GalleryForm_Loader } from "../BizFunc/WebManagement/Gallery/GalleryForm_Hook";
-import { GalleryList_Loader } from "../BizFunc/WebManagement/Gallery/GalleryList_Hook";
+import { GalleryForm_Loader } from "../BizFunc/WebManagement/Gallery/GalleryForm_Loader";
+import { GalleryList_Loader } from "../BizFunc/WebManagement/Gallery/GalleryList_Loader";
 import { WebResourceList_Loader } from "../BizFunc/WebManagement/WebResource/WebResourceList_Loader";
 
 import { loadSitesForRouting, type SiteRoutingInitialState } from "./ClientRouter_Loader";

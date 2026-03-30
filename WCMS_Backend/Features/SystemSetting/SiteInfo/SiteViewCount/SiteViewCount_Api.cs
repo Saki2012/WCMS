@@ -55,6 +55,18 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteViewCount
             return await ExecuteDetailViewAsync(request, ViewCountActionType.LinkClick, ct);
         }
         /// <summary>
+        /// 查詢最近N分鐘內站台瀏覽數 (即同時在線人數)
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        //public async Task<IActionResult> GetRecentlySiteViewCount([FromQuery] GetCurrentSiteOnlineCountRequest_DTO request, CancellationToken ct)
+        //{
+        //    TryCountResult_DTO result = await ((SiteViewCountFunc_Biz)Service).BizGetRecentlySiteViewCount(request?.SiteIndex ?? string.Empty,request.Minutes??0,ct);
+        //    return BuildApiResponse(result);
+        //}
+
+        /// <summary>
         /// 取得 SiteViewCountSet DTO 結構
         /// 僅供 Swagger / 前端型別產生使用
         /// </summary>

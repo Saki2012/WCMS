@@ -1,69 +1,84 @@
-import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
-import parse from "html-react-parser";
-import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
-import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-
-// ✅ 新架構：Adapter + LoaderData initial
 import { useMemo } from "react";
-import { useLoaderData } from "react-router-dom";
-import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/PageManagement_Api";
-import type { components } from "@/types/api";
-import type { Lang } from "@/SysCore/i18n/lang";
-import type { PageManagementFormLoaderData } from "./PageManagementForm_Hook";
+import parse from "html-react-parser";
+import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
+import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import ModuleContent, {
+    type ModuleViewCountConfig,
+} from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
 import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
 import { PGID } from "@/types/SchemaFields";
+import {
+    usePageManagementFormFetchData,
+    type IPageManagementOptions,
+} from "./PageManagementForm_Loader";
+import type { Lang } from "@/SysCore/i18n/lang";
 
-export interface IPageManagementOptions { PageId?: string }
-interface IPageManagementProps { site:INormSite; node: INormNode; lang: string; theme?: IFETheme; options?: IPageManagementOptions; }
+interface IPageManagementProps
+{
+    site: INormSite;
+    node: INormNode;
+    lang: Lang;
+    theme?: IFETheme;
+    options?: IPageManagementOptions;
+}
 
-type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
-const emptyData: PageManagementSet = {};
-
-const PageManagementFormComp = (props: IPageManagementProps) => {
-    const loaderData = useLoaderData() as PageManagementFormLoaderData | null;
-    const adapter = useMemo(() => PageManagementAdapter(), []);
-    const lang = props.lang as Lang;
-    const pageId = `${props.options?.PageId ?? ""}`.trim();
-    // 宣告變數：SSR loaderData → hooks initial
-    const initialData = useMemo<ApiLoaderData<string, PageManagementSet> | null>(() => {
-        if (!loaderData?.args?.pageId) return null;
-        if (loaderData.args.pageId !== pageId) return null;
-        return {
-            args: pageId,
-            apiRes: {
-                IsSuccess: true,
-                Data: loaderData.res.dataRes ?? emptyData,
-                SysMessage: [],
-            },
+/** 建立瀏覽次數設定 */
+const useViewCountConfig = (
+    p: {
+        siteIndex: string;
+        pageId: string;
+    },
+): ModuleViewCountConfig =>
+{
+    return useMemo<ModuleViewCountConfig>(() =>
+    {
+        const request: TryCountDetailViewRequest = {
+            SiteIndex: p.siteIndex,
+            ProgId: PGID.PageManagement,
+            InternalId: p.pageId,
         };
-    }, [loaderData, pageId]);
 
-    // 執行 function：QueryData（SSR initial → CSR 接手）
-    const pageData = adapter.hooks.useQueryData({
-        internalId: pageId,
-        initial: initialData,
-        deps: [pageId, lang],
+        return {
+            mode: "form",
+            contentKey: p.pageId,
+            request,
+        };
+    }, [p.siteIndex, p.pageId]);
+};
+
+const PageManagementForm = (props: IPageManagementProps) =>
+{
+    const pageId = `${props.options?.PageId ?? ""}`.trim();
+
+    // 讀取 feature loader/hooks 整理後的資料
+    const data = usePageManagementFormFetchData({
+        lang: props.lang,
+        pageId,
     });
 
-    const detail = pageData.data?.PageManagementDetail?.find(d => (d.Lang ?? "").toLowerCase() === props.lang);
-    const parseContent = useResolveInternalIds(detail?.Content ?? "", { locale: props.lang });
-    const content = parseContent.html ? parse(parseContent.html) : null;
+    // 建立瀏覽次數設定
+    const viewCountConfig = useViewCountConfig({
+        siteIndex: props.site.siteIndex,
+        pageId,
+    });
 
-    const errorList: (string | null | undefined)[] = [pageData.errorText];
-    const viewCountConfig = useMemo<ModuleViewCountConfig>(() => {
-        const request: TryCountDetailViewRequest = {
-            SiteIndex:props.site.siteIndex,
-            ProgId:PGID.PageManagement,
-            InternalId:pageId,
-        };
-        return { mode: "form", contentKey: pageId, request,};}, [pageId]);
+    // 轉成 ReactNode 顯示
+    const content = useMemo(
+        () => (data.contentHtml ? parse(data.contentHtml) : null),
+        [data.contentHtml],
+    );
+
     return (
-        <ModuleContent nodeTitle={""} title={detail?.Title ?? ""} isLoading={pageData.isLoading} errorList={errorList} viewCountConfig={viewCountConfig}>
+        <ModuleContent
+            nodeTitle={""}
+            title={data.title}
+            isLoading={data.isLoading}
+            errorList={data.errorList}
+            viewCountConfig={viewCountConfig}
+        >
             {content}
         </ModuleContent>
     );
 };
 
-export default PageManagementFormComp;
+export default PageManagementForm;

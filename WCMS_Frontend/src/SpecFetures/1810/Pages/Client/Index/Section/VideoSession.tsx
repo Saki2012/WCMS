@@ -1,149 +1,211 @@
-import 'swiper/swiper-bundle.css';
-import { BaseCarousel } from '@/SysCore/Components/BaseCarousel'
-import { Link } from 'react-router-dom';
-import type { components } from '@/types/api';
-import * as SchemaFields from "@/types/SchemaFields";
-import WebResourceProvider from '@/Features/Hooks/BizFunc/WebManagement/WebResource_Api';
-import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
-import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
-import { useEffect, useRef } from 'react';
-import bgImg from '@/SpecFetures/1810/Assets/Client/images/bg/background-image_video_2000x1500.jpg'
-import { resolveYoutubeEmbedUrl } from '@/Features/Pages/Client/BizFunc/WebManagement/WebResource/WebResourceList';
-import { LangLink } from '@/SysCore/i18n/LangLink';
-import type { Lang } from '@/SysCore/i18n/lang';
+import "swiper/swiper-bundle.css";
+import { resolveYoutubeEmbedUrl } from "@/Features/Pages/Client/BizFunc/WebManagement/WebResource/WebResourceList";
+import bgImg from "@/SpecFetures/1810/Assets/Client/images/bg/background-image_video_2000x1500.jpg";
+import type { HomePageVideoHookResult } from "@/SpecFetures/1810/Pages/Client/Index/HomePage_Loader";
+import type { Lang } from "@/SysCore/i18n/lang";
+import { LangLink } from "@/SysCore/i18n/LangLink";
+import type { components } from "@/types/api";
+import { useEffect, useMemo, useRef } from "react";
 
-type WebResourceSet = components["schemas"]["WebResourceSet_DTO"]
+type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 
-interface DataProp { internalId: string; title: string; ResUrl: string; }
+interface DataProp
+{
+    internalId: string;
+    title: string;
+    ResUrl: string;
+}
 
-const useWebResourceList = () => {
-    const provider = WebResourceProvider();
-    return useFetchGridListData<WebResourceSet>({
-        getModelDisplayName: () => provider.getModelDisplayName(),
-        fetchList: (cond) => provider.fetchList(cond),
-        fetchListCount: (cond) => provider.fetchListCount(cond),
-        visibleKeys: [],
-        buildQueryCondition: () => ({
-            Fields: [
-                SchemaFields.WebResourceFields.InternalId,
-                SchemaFields.WebResourceFields.WebResourceId,
-                SchemaFields.WebResourceFields.Categories,
-                `${SchemaFields.WebResourceFields._WebResourceInfo}.${SchemaFields.WebResourceInfoFields.Lang}`,
-                `${SchemaFields.WebResourceFields._WebResourceInfo}.${SchemaFields.WebResourceInfoFields.Title}`,
-                `${SchemaFields.WebResourceFields._WebResourceInfo}.${SchemaFields.WebResourceInfoFields.ResUrl}`,
-                `${SchemaFields.WebResourceFields._WebResourceInfo}.${SchemaFields.WebResourceInfoFields.Url_OpenType}`,
-            ],
-            Condition: `${SchemaFields.WebResourceFields.Categories} HasAny [29,30,31,32]`,
-            OrderBy: [{ Col: SchemaFields.WebResourceFields.CreateTime, Desc: true }],
-            PageNumber: 1,
-            PageSize: 10,
-        }),
-        enabled: true,
-        deps: [],
-    });
-};
+interface VenoBoxInstance
+{
+    destroy?: () => void;
+}
 
-const getDataProps = (lang: string, rawData: WebResourceSet[]) => {
+interface VenoBoxConstructor
+{
+    new(options: {
+        selector: string;
+        autoplay: boolean;
+        maxWidth: string;
+        border: string;
+        titleattr: string;
+        numeration: boolean;
+        infinigall: boolean;
+        share: boolean;
+    }): VenoBoxInstance;
+}
+
+interface JQueryCarousel
+{
+    hasClass: (className: string) => boolean;
+    owlCarousel: (options: Record<string, unknown>) => void;
+    trigger: (eventName: string, args?: unknown[]) => void;
+}
+
+interface BootstrapWindow extends Window
+{
+    VenoBox?: VenoBoxConstructor;
+}
+
+const getDataProps = (lang: string, rawData: WebResourceSet[]): DataProp[] =>
+{
     const result: DataProp[] = [];
-    rawData.forEach(item => {
-        const detail = item.WebResourceInfo?.find(p => p.Lang === lang);
+
+    rawData.forEach((item) =>
+    {
+        const detail = item.WebResourceInfo?.find((p) => p.Lang === lang);
+
         result.push({
             internalId: item.WebResource?.InternalId ?? "",
             title: detail?.Title ?? "",
-            ResUrl: detail?.ResUrl ?? ""
+            ResUrl: detail?.ResUrl ?? "",
         });
     });
-    return result
-}
 
-export const VideoSession = (props: { lang: Lang }) => {
+    return result;
+};
 
-    BaseCarousel({ selectorId: '#Video', itemCount: 3 });
-    const useData = useWebResourceList()
-    const result: DataProp[] = getDataProps(props.lang, useData.rawData);
+export const VideoSession = (props: {
+    lang: Lang;
+    hydrationData: HomePageVideoHookResult;
+}) =>
+{
+    // 宣告變數：統一吃 Homepage hydration source
+    const source = props.hydrationData;
 
-    const isLoading = [useData.isLoading]
-    const errors = [useData.error]
+    // 宣告變數：保留原本資料轉換規則
+    const result = useMemo(() =>
+    {
+        return getDataProps(props.lang, source.webResourceData ?? []);
+    }, [props.lang, source.webResourceData]);
+
+    // 宣告變數：用 key 強制 remount，避免 owl 改過的 DOM 與 React 衝突
+    const videoKey = useMemo(() =>
+    {
+        const ids = result.map((p) => p.internalId).join("|");
+        return `${props.lang}|${ids || "__empty__"}`;
+    }, [props.lang, result]);
 
     const carouselRef = useRef<HTMLDivElement>(null);
-    const venoboxInstanceRef = useRef<any | null>(null);
+    const venoboxInstanceRef = useRef<VenoBoxInstance | null>(null);
+    const initTimerRef = useRef<number | null>(null);
+    const isOwlInitedRef = useRef(false);
 
-    useEffect(() => {
-        if (result.length > 0 && carouselRef.current) {
-            const $owl = $(carouselRef.current);
+    useEffect(() =>
+    {
+        // 宣告變數
+        const el = carouselRef.current;
+        if (!el) return;
 
-            // Destroy if exists
-            if ($owl.hasClass('owl-loaded')) {
-                $owl.trigger('destroy.owl.carousel');
+        const $owl = $(el) as unknown as JQueryCarousel;
+
+        const cleanupVenobox = () =>
+        {
+            // 執行 function：清掉舊的 venobox instance
+            if (venoboxInstanceRef.current?.destroy)
+            {
+                venoboxInstanceRef.current.destroy();
             }
 
-            setTimeout(() => {
-                // 初始化 owl carousel
-                $owl.owlCarousel({
-                    items: 3,
-                    loop: true,
-                    dots: true,
-                    nav: true,
-                    margin: 30,
-                    // autoplay: true,
-                    autoplayTimeout: 3000,
-                    autoplayHoverPause: true,
-                    responsive: {
-                        0: { items: 1 },
-                        767: { items: 2 },
-                        991: { items: 2 },
-                        1200: { items: 2 }
-                    }
+            venoboxInstanceRef.current = null;
+        };
+
+        const cleanup = () =>
+        {
+            // 執行 function：清掉延遲 init
+            if (initTimerRef.current !== null)
+            {
+                window.clearTimeout(initTimerRef.current);
+                initTimerRef.current = null;
+            }
+
+            // 執行 function：解除事件綁定
+            $("#Video_start").off("click.videoSession");
+            $("#Video_pause").off("click.videoSession");
+
+            // 執行 function：銷毀 owl carousel
+            if (isOwlInitedRef.current && $owl.hasClass("owl-loaded"))
+            {
+                $owl.trigger("destroy.owl.carousel");
+            }
+
+            isOwlInitedRef.current = false;
+            cleanupVenobox();
+        };
+
+        // 執行 function：先清一輪，避免 StrictMode / 重 mount 殘留
+        cleanup();
+
+        // 執行 function：無資料就不初始化
+        if (result.length === 0) return;
+
+        initTimerRef.current = window.setTimeout(() =>
+        {
+            if (!carouselRef.current) return;
+
+            // 執行 function：初始化 owl carousel
+            $owl.owlCarousel({
+                items: 3,
+                loop: true,
+                dots: true,
+                nav: true,
+                margin: 30,
+                autoplayTimeout: 3000,
+                autoplayHoverPause: true,
+                responsive: {
+                    0: { items: 1 },
+                    767: { items: 2 },
+                    991: { items: 2 },
+                    1200: { items: 2 },
+                },
+            });
+
+            isOwlInitedRef.current = true;
+
+            // 執行 function：設定 tabindex
+            $("#Video .owl-nav button").attr("tabindex", "7");
+
+            // 執行 function：播放與暫停控制
+            $("#Video_start")
+                .off("click.videoSession")
+                .on("click.videoSession", () =>
+                {
+                    $owl.trigger("play.owl.autoplay", [6000]);
                 });
 
-                // 設定 tabindex
-                $('#Video .owl-nav button').attr('tabindex', '7');
-
-                // 播放與暫停控制
-                $('#Video_start').on('click', () => {
-                    $owl.trigger('play.owl.autoplay', [6000]);
+            $("#Video_pause")
+                .off("click.videoSession")
+                .on("click.videoSession", () =>
+                {
+                    $owl.trigger("stop.owl.autoplay");
                 });
 
-                $('#Video_pause').on('click', () => {
-                    $owl.trigger('stop.owl.autoplay');
-                });
+            // 執行 function：初始化 venobox
+            if (typeof window !== "undefined")
+            {
+                const venoboxWindow = window as BootstrapWindow;
+                const VenoBoxCtor = venoboxWindow.VenoBox;
 
-                // ★ 初始化 VenoBox（燈箱）
-                if (typeof window !== 'undefined' && (window as any).VenoBox) {
-                    // 先清掉舊的 instance，避免重複 bind
-                    if (venoboxInstanceRef.current &&
-                        typeof venoboxInstanceRef.current.destroy === 'function') {
-                        venoboxInstanceRef.current.destroy();
-                    }
+                if (VenoBoxCtor)
+                {
+                    cleanupVenobox();
 
-                    venoboxInstanceRef.current = new (window as any).VenoBox({
-                        selector: '#Video .venobox',
+                    venoboxInstanceRef.current = new VenoBoxCtor({
+                        selector: "#Video .venobox",
                         autoplay: true,
-                        maxWidth: '1200px',
-                        border: '0px',
-                        titleattr: 'title',
+                        maxWidth: "1200px",
+                        border: "0px",
+                        titleattr: "title",
                         numeration: true,
                         infinigall: true,
                         share: true,
                     });
                 }
-            }, 0);
+            }
+        }, 0);
 
-            return () => {
-                $('#Video_start').off();
-                $('#Video_pause').off();
-                if ($owl.hasClass('owl-loaded')) {
-                    $owl.trigger('destroy.owl.carousel');
-                }
-
-                if (venoboxInstanceRef.current &&
-                    typeof venoboxInstanceRef.current.destroy === 'function') {
-                    venoboxInstanceRef.current.destroy();
-                    venoboxInstanceRef.current = null;
-                }
-            };
-        }
-    }, [result]);
+        return cleanup;
+    }, [videoKey]);
 
     return (
         // <LoadingErrorHandler loadingList={isLoading} errorList={errors}>
@@ -153,20 +215,28 @@ export const VideoSession = (props: { lang: Lang }) => {
                     <div className="container">
                         <div className="row">
                             <div className="col-12 + p-0">
-                                <div className="content-box + animate__animated animate__slow wow animate__zoomIn" data-wow-delay="0.15s">
-                                    <div id="Video" className="owl-carousel owl-theme px-2" ref={carouselRef}>
-                                        {result.map((item) => {
+                                <div
+                                    className="content-box + animate__animated animate__slow wow animate__zoomIn"
+                                    data-wow-delay="0.15s"
+                                >
+                                    <div
+                                        id="Video"
+                                        className="owl-carousel owl-theme px-2"
+                                        ref={carouselRef}
+                                        key={videoKey}
+                                    >
+                                        {result.map((item) =>
+                                        {
                                             const urlRaw = item?.ResUrl ?? "";
-                                            const { url } = resolveYoutubeEmbedUrl(urlRaw); // 這裡是 embed 版
+                                            const { url } = resolveYoutubeEmbedUrl(urlRaw);
                                             if (!url) return null;
-                                            // 用短網址算出縮圖
+
                                             const thumbUrl = getYoutubeThumbnailFromShort(urlRaw);
 
                                             return (
                                                 <div className="item" key={item.internalId}>
                                                     <div className="wrapper_box">
                                                         <div className="MV-item mb-3 w-100">
-                                                            {/* venobox 只吃 href，真正影片在燈箱裡播 */}
                                                             <a
                                                                 className="venobox"
                                                                 data-autoplay="true"
@@ -174,17 +244,14 @@ export const VideoSession = (props: { lang: Lang }) => {
                                                                 href={url}
                                                                 tabIndex={14}
                                                                 title={item.title}
-                                                            // target="_blank"
-                                                            // rel="noopener noreferrer"
                                                             >
                                                                 <div className="img_wrapper">
                                                                     <div className="figure_wrapper">
-                                                                        {/* 縮圖區塊：16:9 比例 */}
                                                                         <div
                                                                             style={{
                                                                                 position: "relative",
                                                                                 width: "100%",
-                                                                                paddingTop: "56.25%", // 16:9
+                                                                                paddingTop: "56.25%",
                                                                                 overflow: "hidden",
                                                                             }}
                                                                         >
@@ -202,7 +269,6 @@ export const VideoSession = (props: { lang: Lang }) => {
                                                                                 />
                                                                             )}
 
-                                                                            {/* 播放按鈕覆蓋在縮圖上，對齊 prototype 的寫法 */}
                                                                             <div
                                                                                 className="popup-video play-btn style1"
                                                                                 style={{
@@ -213,8 +279,13 @@ export const VideoSession = (props: { lang: Lang }) => {
                                                                                     justifyContent: "center",
                                                                                 }}
                                                                             >
-                                                                                <i className="fa fa-play" aria-hidden="true" />
-                                                                                <span className="sr-only">播放 {item.title}</span>
+                                                                                <i
+                                                                                    className="fa fa-play"
+                                                                                    aria-hidden="true"
+                                                                                />
+                                                                                <span className="sr-only">
+                                                                                    播放 {item.title}
+                                                                                </span>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -226,22 +297,55 @@ export const VideoSession = (props: { lang: Lang }) => {
                                             );
                                         })}
                                     </div>
+
                                     {/*// Banner 控制 暫停 / 播放 按鈕 START // */}
                                     <div className="control-box">
-                                        <a id="Video_start" href="#" onClick={(e) => { e.preventDefault(); }} className="play" tabIndex={14} title="播放">
+                                        <a
+                                            id="Video_start"
+                                            href="#"
+                                            onClick={(e) =>
+                                            {
+                                                e.preventDefault();
+                                            }}
+                                            className="play"
+                                            tabIndex={14}
+                                            title="播放"
+                                        >
                                             <div className="control_start">
-                                                <span className="control-start-icon"><span className="d-none">播放</span></span>
+                                                <span className="control-start-icon">
+                                                    <span className="d-none">播放</span>
+                                                </span>
                                             </div>
                                         </a>
-                                        <a id="Video_pause" href="#" onClick={(e) => { e.preventDefault(); }} className="stop" tabIndex={14} title="暫停">
+                                        <a
+                                            id="Video_pause"
+                                            href="#"
+                                            onClick={(e) =>
+                                            {
+                                                e.preventDefault();
+                                            }}
+                                            className="stop"
+                                            tabIndex={14}
+                                            title="暫停"
+                                        >
                                             <div className="control_pause">
-                                                <span className="control-pause-icon"><span className="d-none">暫停</span></span>
+                                                <span className="control-pause-icon">
+                                                    <span className="d-none">暫停</span>
+                                                </span>
                                             </div>
                                         </a>
                                     </div>
+
                                     <div className="btn_Div justify-content-end px-2">
                                         <div className="customize_btn my-3">
-                                            <LangLink to="/EventHighlights/Event-video" className="Btn_s1" tabIndex={14} title="更多影音">VIEW ALL<span className="ml-2">+</span></LangLink>
+                                            <LangLink
+                                                to="/EventHighlights/Event-video"
+                                                className="Btn_s1"
+                                                tabIndex={14}
+                                                title="更多影音"
+                                            >
+                                                VIEW ALL<span className="ml-2">+</span>
+                                            </LangLink>
                                         </div>
                                     </div>
                                 </div>
@@ -252,17 +356,17 @@ export const VideoSession = (props: { lang: Lang }) => {
             </div>
         </section>
         // </LoadingErrorHandler >
-    )
+    );
 };
 
-const getYoutubeThumbnailFromShort = (shortUrl?: string | null): string | null => {
+const getYoutubeThumbnailFromShort = (shortUrl?: string | null): string | null =>
+{
     if (!shortUrl) return null;
 
     const cleanUrl = shortUrl.replace(/&amp;/g, "&");
-    // 只處理 https://youtu.be/{id} 這種
     const match = cleanUrl.match(/youtu\.be\/([^?&#/]+)/i);
     if (!match) return null;
 
     const videoId = match[1];
-    return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`; // 官方縮圖
+    return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 };

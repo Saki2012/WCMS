@@ -3,163 +3,199 @@ import { useMemo, useState } from "react";
 import type { GridProps } from "@/SysCore/Components/Grid/Grid_Data";
 import type { components } from "@/types/api";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import type { GridRow } from "@/SysCore/Components/Grid/Grid_Data";
-import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import parse from 'html-react-parser';
-import { AnnouncementFields, AnnouncementDetailFields, AnnouncementSetFields, PGID } from "@/types/SchemaFields";
-import AnnouncementProvider from "@/Features/Hooks/BizFunc/WebManagement/Announcement_Api";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import parse from "html-react-parser";
+import { AnnouncementFields, AnnouncementDetailFields } from "@/types/SchemaFields";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 import { SearchBarComp, type ISearchQuery } from "@/SysCore/Components/SearchBar/SearchBar_Comp";
-import { useFormatTagsName, useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
-import { useCategoryListData, useFormatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category/Category_Hook";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { Paginator } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
-import { useNow } from "@/SysCore/Utils/Library/LibHook";
 
-import DefaultEventImg from "@/SpecFetures/1810/Assets/Custom/DefaultEventPic_940x1330.jpg"
+import DefaultEventImg from "@/SpecFetures/1810/Assets/Custom/DefaultEventPic_940x1330.jpg";
 import type { IAnnouncementListProps } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
+import { useAnnouncementListData } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList_Loader";
+import { formatTagsName } from "@/Features/Hooks/BizFunc/WebManagement/Tag_Api";
+import { formatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 type TagSet = components["schemas"]["TagSet_DTO"];
 
-const useAnnouncementList = (lang: string, categoryIds: string, tagIds: string, query: ISearchQuery) => {
-    const now = useNow({ startPaused: true });
-    var condition: string = "";
-    //因時程關係，暫時用前端來判斷有效日期時間，多少會有客戶端修改時間的風險。之後再改到後端開新的api寫死抓系統時間為依據。
-    if (now.isoLocal) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Validate_Start} <= ${now.isoLocal}`);
-    if (now.isoLocal) condition = LibMerge(" And ", false, condition, `(${AnnouncementFields.Validate_End} >= ${now.isoLocal} Or ${AnnouncementFields.Validate_End} is null)`);
-    if (query.keyword) condition = LibMerge(" And ", false, condition, `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} Like ${query.keyword}`)
-    if (query.tag) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Tags} HasAny [${query.tag}]`)
-    if (categoryIds) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Categories} HasAny [${categoryIds}]`)
-    if (tagIds) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Tags} HasAny [${tagIds}]`)
-    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.ContentStatus} !& 4`)//不包含隱藏的資料
-
-    const provider = AnnouncementProvider();
-    return useFetchGridListData<AnnouncementSet>({
-        getModelDisplayName: () => provider.getModelDisplayName(),
-        fetchList: (cond) => provider.fetchList(cond),
-        fetchListCount: (cond) => provider.fetchListCount(cond),
-        visibleKeys: [
-            [AnnouncementSetFields.Announcement, AnnouncementFields.Validate_Start],
-            [AnnouncementSetFields.Announcement, AnnouncementFields.Categories],
-            [AnnouncementSetFields.Announcement, AnnouncementFields.Tags],
-            [AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.Title],
-            [AnnouncementSetFields.Announcement, AnnouncementFields.ViewCount],
-        ],
-        buildQueryCondition: (page) => ({
-            Fields: [
-                AnnouncementFields.AnnouncementId,
-                AnnouncementFields.InternalId,
-                AnnouncementFields.ContentStatus,
-                AnnouncementFields.PictureId,
-                AnnouncementFields.PicDescription,
-                AnnouncementFields.Categories,
-                AnnouncementFields.Tags,
-                AnnouncementFields.Validate_Start,
-                `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
-                `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
-                `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Content}`,
-            ],
-            Condition: condition,
-            RankGroups: [{ Condition: `${AnnouncementFields.ContentStatus} & 1` }],
-            OrderBy: [{ Col: AnnouncementFields.Validate_Start, Desc: true }, { Col: AnnouncementFields.CreateTime, Desc: true }],
-            PageNumber: page,
-            PageSize: 12,
-        }),
-        parseRow: (item, columns) => {
-            const cells: RowCell[] = columns.map(col => {
-                let content = "";
-                switch (col.key) {
-                    case AnnouncementDetailFields.Title:
-                        {
-                            content = item.AnnouncementDetail?.find(d => d.Lang === lang)?.Title ?? "";
-                            break;
-                        }
-                    case AnnouncementFields.Validate_Start:
-                        {
-                            content = FormatDate(item.Announcement?.Validate_Start) ?? ""
-                            break;
-                        }
-                    default:
-                        {
-                            content = (item.Announcement as any)[col.key] ?? "";
-                            break;
-                        }
-                }
-                return { col, content };
-            });
-            return { cells };
-        },
-        enabled: true,
-        deps: [lang, categoryIds, tagIds, query, condition],
-    });
-};
-
-
-
-const AnnouncementList = (props: IAnnouncementListProps) => {
-    const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
+const AnnouncementList = (props: IAnnouncementListProps) =>
+{
+    // 宣告變數
+    const dirUrl = useLocation().pathname.replace(/\/List$/, "");
     const [queryDraft, setQueryDraft] = useState<ISearchQuery>({});
     const [query, setQuery] = useState<ISearchQuery>({});
-    const useAnnounceList = useAnnouncementList(props.lang, props.options?.Category ?? "", props.options?.Tag ?? "", query);
-    const useCategory = useCategoryListData(PGID.Announcement, props.lang);
-    const useTagData = useTagListData(PGID.Announcement, props.lang);
-    const tags = (useTagData.rawData ?? []).map(t => ({ id: t.TagData?.TagId ?? "", name: t.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "" }));
-    const searchSlot = <SearchBarComp value={queryDraft} tags={tags} onChange={(k, v) => setQueryDraft(prev => ({ ...prev, [k]: v }))} onSubmit={() => setQuery(queryDraft)} onReset={() => { setQueryDraft({}); setQuery({}); }} />;
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(props.lang, dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData]);
-    const isLoading = [useAnnounceList.isLoading, useTagData.isLoading];
-    const errors = [useAnnounceList.error, useTagData.error];
 
-    const content: React.ReactElement | null = useMemo(() => {
-        switch (props.options?.Style) {
+    const effectiveOptions = useMemo(() =>
+    {
+        // 宣告變數
+        const searchTag = `${query.tag ?? ""}`.trim();
+
+        // return
+        return {
+            ...props.options,
+            Tag: searchTag || props.options?.Tag,
+        };
+    }, [props.options, query.tag]);
+
+    // 執行 function：1810 list 資料統一改由 feature 提供
+    const vm = useAnnouncementListData({
+        lang: props.lang,
+        opts: effectiveOptions,
+        kw: `${query.keyword ?? ""}`.trim() || undefined,
+    });
+
+    const tags = useMemo(() =>
+    {
+        return (vm.tagData ?? []).map(t => ({
+            id: t.TagData?.TagId ?? "",
+            name: t.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "",
+        }));
+    }, [vm.tagData, props.lang]);
+
+    const searchSlot = (
+        <SearchBarComp
+            value={queryDraft}
+            tags={tags}
+            onChange={(k, v) => setQueryDraft(prev => ({ ...prev, [k]: v }))}
+            onSubmit={() => setQuery(queryDraft)}
+            onReset={() =>
+            {
+                setQueryDraft({});
+                setQuery({});
+            }}
+        />
+    );
+
+    const adjustedGrid = useMemo(() => 
+    {
+        return SetAdjustFunction(
+            props.lang,
+            dirUrl,
+            vm.gridPropsFromList,
+            vm.listData,
+            vm.categoryData,
+            vm.tagData,
+        );
+    }, [
+        props.lang,
+        dirUrl,
+        vm.gridPropsFromList,
+        vm.listData,
+        vm.categoryData,
+        vm.tagData,
+    ]);
+
+    const content: React.ReactElement | null = useMemo(() =>
+    {
+        switch (props.options?.Style)
+        {
             case 3:
-                return <QAList_Comp key="qa" lang={props.lang} GridData={adjustedGrid} Theme={props.theme} />;
+                return (
+                    <QAList_Comp
+                        key="qa"
+                        lang={props.lang}
+                        Theme={props.theme}
+                        rawData={vm.listData}
+                        currentPage={vm.pageNumber}
+                        totalPages={vm.totalPages}
+                        onPageChange={vm.onPageChange}
+                    />
+                );
             case 2:
-                return <PictureList_Comp key="picture" lang={props.lang} GridData={adjustedGrid} Theme={props.theme} />;
+                return (
+                    <PictureList_Comp
+                        key="picture"
+                        lang={props.lang}
+                        Theme={props.theme}
+                        rawData={vm.listData}
+                        categoryData={vm.categoryData}
+                        currentPage={vm.pageNumber}
+                        totalPages={vm.totalPages}
+                        onPageChange={vm.onPageChange}
+                    />
+                );
             case 1:
-            default: // 含 case 1
-                return <GridList_Comp key="grid" lang={props.lang} GridData={adjustedGrid} Theme={props.theme} />
+            default:
+                return (
+                    <GridList_Comp
+                        key="grid"
+                        lang={props.lang}
+                        Theme={props.theme}
+                        GridData={adjustedGrid}
+                    />
+                );
         }
-    }, [props.options?.Style, searchSlot, adjustedGrid, props.theme, isLoading, errors]);
+    }, [
+        props.options?.Style,
+        props.lang,
+        props.theme,
+        vm.listData,
+        vm.pageNumber,
+        vm.totalPages,
+        vm.onPageChange,
+        vm.categoryData,
+        adjustedGrid,
+    ]);
 
+    // return
     return (
         <>
             {searchSlot}
-            <LoadingErrorHandler loadingList={isLoading} errorList={errors}>
+            <LoadingErrorHandler isLoading={vm.isLoading} errorList={vm.errorList}>
                 {content}
             </LoadingErrorHandler>
         </>
-
-    )
+    );
 };
 
-export default AnnouncementList
+export default AnnouncementList;
 
-const SetAdjustFunction = (lang: Lang, dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[], catData: CategorySet[], tagData: TagSet[]): GridProps => {
-    const newRows: GridRow[] = gridProps.rows.map((row, index) => {
+const SetAdjustFunction = (
+    lang: Lang,
+    dirUrl: string,
+    gridProps: GridProps,
+    rawData: AnnouncementSet[],
+    catData: CategorySet[],
+    tagData: TagSet[],
+): GridProps =>
+{
+    // 宣告變數
+    const newRows: GridRow[] = gridProps.rows.map((row, index) =>
+    {
         const curRow = rawData?.[index];
         const internalId = curRow.Announcement?.InternalId ?? "";
         const contentStatus = curRow.Announcement?.ContentStatus ?? 0;
         const titleId = `title-${internalId}`;
-        const newCells = row.cells.map((cell) => {
+
+        const newCells = row.cells.map((cell) =>
+        {
             const isTitle = cell.col.key === AnnouncementDetailFields.Title;
 
-            switch (cell.col.key) {
+            switch (cell.col.key)
+            {
                 case AnnouncementFields.Categories:
-                    cell.content = useFormatCategoriesName(curRow.Announcement?.Categories ?? "", catData, lang)
+                    cell.content = formatCategoriesName(
+                        curRow.Announcement?.Categories ?? "",
+                        catData,
+                        lang,
+                    );
                     break;
                 case AnnouncementFields.Tags:
-                    cell.content = useFormatTagsName(curRow.Announcement?.Tags ?? "", tagData, lang)
+                    cell.content = formatTagsName(
+                        curRow.Announcement?.Tags ?? "",
+                        tagData,
+                        lang,
+                    );
                     break;
             }
 
@@ -167,46 +203,81 @@ const SetAdjustFunction = (lang: Lang, dirUrl: string, gridProps: GridProps, raw
                 ...cell,
                 content: (
                     <>
-                        <LangLink to={`${dirUrl}/${internalId}`} className="link-cell" id={isTitle ? titleId : undefined}
-                            aria-labelledby={isTitle ? undefined : titleId}>
+                        <LangLink
+                            to={`${dirUrl}/${internalId}`}
+                            className="link-cell"
+                            id={isTitle ? titleId : undefined}
+                            aria-labelledby={isTitle ? undefined : titleId}
+                        >
                             <span aria-hidden={!isTitle}>{cell.content}</span>
                         </LangLink>
 
-                        {isTitle &&
+                        {isTitle && (
                             <>
                                 {isWithinLastNDaysFromString(curRow.Announcement?.Validate_Start ?? "") && (
                                     <span className="label label-warning">最新</span>
                                 )}
-                                {Boolean(contentStatus & 1) && (<span className="label label-success">置頂</span>)}
-                                {Boolean(contentStatus & 2) && (<span className="label label-danger">熱門</span>)}
+                                {Boolean(contentStatus & 1) && (
+                                    <span className="label label-success">置頂</span>
+                                )}
+                                {Boolean(contentStatus & 2) && (
+                                    <span className="label label-danger">熱門</span>
+                                )}
                             </>
-                        }
+                        )}
                     </>
                 ),
             };
         });
+
         return { ...row, cells: newCells };
     });
+
+    // return
     return { ...gridProps, rows: newRows };
 };
 
-
 /** 圖文式公告 */
-const PictureList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps }) => {
-    const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
-    const useCateData = useCategoryListData(PGID.Announcement, prop.lang);
+const PictureList_Comp = (prop: {
+    lang: Lang;
+    Theme: IFETheme;
+    rawData: AnnouncementSet[];
+    categoryData: CategorySet[];
+    currentPage: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+}) =>
+{
+    // 宣告變數
+    const dirUrl = useLocation().pathname.replace(/\/List$/, "");
+
+    // return
     return (
         <>
             <div className="articles_itemBoxs">
-                {prop.GridData && prop.GridData.rows.map((row: AnnouncementSet) => {
-                    const internalId = `${dirUrl}/${row.Announcement?.InternalId ?? ""}`
-                    const picDesc = row.Announcement?.PicDescription ?? ""
-                    const picUrl = FileManagementAPI.get_Public_Preview_Url(row.Announcement?.PictureId,picDesc) ??  DefaultEventImg
-                    const title = row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Title ?? ""
-                    const date = FormatDate(row.Announcement?.Validate_Start) ?? ""
-                    const catName = useFormatCategoriesName(row.Announcement?.Categories ?? "", useCateData.rawData, prop.lang)
+                {prop.rawData.map((row) =>
+                {
+                    const internalId = `${dirUrl}/${row.Announcement?.InternalId ?? ""}`;
+                    const picDesc = row.Announcement?.PicDescription ?? "";
+                    const picUrl = FileManagementAPI.get_Public_Preview_Url(
+                        row.Announcement?.PictureId,
+                        picDesc,
+                    ) ?? DefaultEventImg;
+                    const title = row.AnnouncementDetail?.find(
+                        p => p.Lang === prop.lang,
+                    )?.Title ?? "";
+                    const date = FormatDate(row.Announcement?.Validate_Start) ?? "";
+                    const catName = formatCategoriesName(
+                        row.Announcement?.Categories ?? "",
+                        prop.categoryData,
+                        prop.lang,
+                    );
+
                     return (
-                        <div key={internalId} className="articles_item col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12">
+                        <div
+                            key={internalId}
+                            className="articles_item col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12"
+                        >
                             <article className="cardbox">
                                 <div className="card_content">
                                     <figure className="card_figure">
@@ -226,17 +297,25 @@ const PictureList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridPro
                                         <div className="card_time">{date}</div>
                                     </div>
                                     <div className="card_titleDiv">
-                                        <LangLink to={internalId} className="card_title" title={title}>{title}</LangLink>
-                                        {
-                                            <>
-                                                {isWithinLastNDaysFromString(row.Announcement?.Validate_Start ?? "") && (<span className="label label-warning">最新</span>)}
-                                                {Boolean((row.Announcement?.ContentStatus ?? 0) & 1) && (<span className="label label-success">置頂</span>)}
-                                                {Boolean((row.Announcement?.ContentStatus ?? 0) & 2) && (<span className="label label-danger">熱門</span>)}
-                                            </>
-                                        }
+                                        <LangLink to={internalId} className="card_title" title={title}>
+                                            {title}
+                                        </LangLink>
+                                        <>
+                                            {isWithinLastNDaysFromString(row.Announcement?.Validate_Start ?? "") && (
+                                                <span className="label label-warning">最新</span>
+                                            )}
+                                            {Boolean((row.Announcement?.ContentStatus ?? 0) & 1) && (
+                                                <span className="label label-success">置頂</span>
+                                            )}
+                                            {Boolean((row.Announcement?.ContentStatus ?? 0) & 2) && (
+                                                <span className="label label-danger">熱門</span>
+                                            )}
+                                        </>
                                     </div>
                                     <div className="customize_btn mr-auto mt-2">
-                                        <LangLink to={internalId} className="Btn_s1">VIEW ALL<span className="ml-2">+</span></LangLink>
+                                        <LangLink to={internalId} className="Btn_s1">
+                                            VIEW ALL<span className="ml-2">+</span>
+                                        </LangLink>
                                     </div>
                                 </div>
                             </article>
@@ -244,62 +323,125 @@ const PictureList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridPro
                     );
                 })}
             </div>
-            {(prop.GridData.TotalPage > 1) && (<Paginator currentPage={prop.GridData.CurrentPage} totalPages={prop.GridData.TotalPage} onPageChange={prop.GridData.onPageChange} style={prop.Theme.Paginator} ></Paginator>)}
+            {(prop.totalPages > 1) && (
+                <Paginator
+                    currentPage={prop.currentPage}
+                    totalPages={prop.totalPages}
+                    onPageChange={prop.onPageChange}
+                    style={prop.Theme.Paginator}
+                />
+            )}
         </>
     );
-}
+};
+
 /** 清單式公告 */
-const GridList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps }) => {
+const GridList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps }) =>
+{
+    // return
     return (
         <>
             <OperationGuideHelp_Comp lang={prop.lang} />
-            <Grid gridData={prop.GridData} style={prop.Theme.GridView} pageStyle={prop.Theme.Paginator} />
-        </>)
-}
+            <Grid
+                gridData={prop.GridData}
+                style={prop.Theme.GridView}
+                pageStyle={prop.Theme.Paginator}
+            />
+        </>
+    );
+};
+
+const QAItem_Comp = (prop: {
+    idx: number;
+    row: AnnouncementSet;
+    lang: Lang;
+}) =>
+{
+    // 宣告變數
+    const parseContent = useResolveInternalIds(
+        prop.row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Content ?? "",
+        { locale: prop.lang },
+    );
+
+    const content = parseContent.html ? parse(parseContent.html) : null;
+
+    // return
+    return (
+        <div className={`QA${prop.idx} card`}>
+            <div className="card-header">
+                <a
+                    className="card-link darkcolor collapsed"
+                    data-bs-toggle="collapse"
+                    href={`#collapse${prop.idx}`}
+                    aria-expanded="false"
+                >
+                    {`${(prop.idx + 1).toString().padStart(2, "0")}. ${prop.row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Title}`}
+                </a>
+            </div>
+            <div id={`collapse${prop.idx}`} className="collapse" data-bs-parent="#accordion">
+                <div className="card-body">
+                    {content}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 /** QA列表式 */
-const QAList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps }) => {
+const QAList_Comp = (prop: {
+    lang: Lang;
+    Theme: IFETheme;
+    rawData: AnnouncementSet[];
+    currentPage: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+}) =>
+{
+    // return
     return (
         <>
             <div className="faq_content">
                 <div className="row">
                     <div className="col-12">
                         <div id="accordion" className="FAQBar">
-                            {prop.GridData && prop.GridData.rawData.map((row: AnnouncementSet, idx: number) => {
-                                const parseContent = useResolveInternalIds(row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Content ?? "", { locale: prop.lang });
-                                const content = parseContent.html ? parse(parseContent.html) : null;
-                                return (
-                                    <div className={`QA${idx} card`}>
-                                        <div className="card-header">
-                                            <a className="card-link darkcolor collapsed" data-bs-toggle="collapse" href={`#collapse${idx}`} aria-expanded="false">
-                                                {`${(idx + 1).toString().padStart(2, '0')}. ${row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Title}`}
-                                            </a>
-                                        </div>
-                                        <div id={`collapse${idx}`} className="collapse" data-bs-parent="#accordion">
-                                            <div className="card-body">
-                                                {content}
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                            {prop.rawData.map((row, idx) => (
+                                <QAItem_Comp
+                                    key={row.Announcement?.InternalId ?? `${idx}`}
+                                    idx={idx}
+                                    row={row}
+                                    lang={prop.lang}
+                                />
+                            ))}
                         </div>
                     </div>
                 </div>
             </div>
-            {(prop.GridData.TotalPage > 1) && (<Paginator currentPage={prop.GridData.CurrentPage} totalPages={prop.GridData.TotalPage} onPageChange={prop.GridData.onPageChange} style={prop.Theme.Paginator} ></Paginator>)}
+            {(prop.totalPages > 1) && (
+                <Paginator
+                    currentPage={prop.currentPage}
+                    totalPages={prop.totalPages}
+                    onPageChange={prop.onPageChange}
+                    style={prop.Theme.Paginator}
+                />
+            )}
         </>
-    )
-}
+    );
+};
 
-
-interface WithinLastOptions {
+interface WithinLastOptions
+{
     /** 當字串沒有時區資訊時，假定的時區位移（單位：分鐘）。預設 0 = 當成 UTC。例：台北(+08:00)傳 480 */
     assumeOffsetMinutes?: number;
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const parseDateTimeToEpochMs = (input: string, assumeOffsetMinutes: number = 0): number | null => {
+const parseDateTimeToEpochMs = (
+    input: string,
+    assumeOffsetMinutes: number = 0,
+): number | null =>
+{
+    // 宣告變數
     if (!input) return null;
     const s = input.trim();
 
@@ -308,33 +450,36 @@ const parseDateTimeToEpochMs = (input: string, assumeOffsetMinutes: number = 0):
     if (msMatch) return Number(msMatch[1]);
 
     // 2) ISO 8601（含 Z 或 ±HH:mm）
-    //    例如：2025-10-28T14:30:00Z、2025-10-28T14:30:00+08:00
     const hasTZ = /[zZ]|[+\-]\d{2}:\d{2}$/.test(s);
-    if (hasTZ) {
+    if (hasTZ)
+    {
         const t = Date.parse(s);
         return Number.isNaN(t) ? null : t;
     }
 
-    // 3) 無時區資訊的常見格式：
-    //    YYYY-MM-DD[ |T]HH:mm[:ss[.fff]]   或   YYYY/MM/DD[ ...]
-    //    以及只有日期：YYYY-MM-DD / YYYY/MM/DD
+    // 3) 無時區資訊的常見格式
     const m = /^(\d{4})[-/](\d{2})[-/](\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?)?$/.exec(s);
-    if (m) {
+    if (m)
+    {
         const [_, y, mo, d, hh = "0", mm = "0", ss = "0", fff = "0"] = m;
         const ms = parseInt(fff.padEnd(3, "0"), 10);
-        // 先組成「該時區的牆上時間」對應的 UTC 時間
-        // 假設輸入代表的是「本地 assumeOffsetMinutes 的時間」
-        // 例如 assumeOffsetMinutes=480 (台北 +08:00)，那 2025-10-28 14:30 代表 UTC=14:30-8h
-        const asUTC = Date.UTC(+y, +mo - 1, +d, +hh, +mm, +ss, ms) - assumeOffsetMinutes * 60 * 1000;
+        const asUTC = Date.UTC(+y, +mo - 1, +d, +hh, +mm, +ss, ms)
+            - assumeOffsetMinutes * 60 * 1000;
         return asUTC;
     }
 
-    // 4) 其他能被 Date.parse 吃到的情況（不保證所有環境一致）
+    // 4) fallback
     const fallback = Date.parse(s);
     return Number.isNaN(fallback) ? null : fallback;
 };
 
-export const isWithinLastNDaysFromString = (dateTimeStr?: string, n: number = 8, opts?: WithinLastOptions): boolean => {
+export const isWithinLastNDaysFromString = (
+    dateTimeStr?: string,
+    n: number = 8,
+    opts?: WithinLastOptions,
+): boolean =>
+{
+    // 宣告變數
     if (!dateTimeStr) return false;
 
     const assumeOffsetMinutes = opts?.assumeOffsetMinutes ?? 0;
@@ -344,6 +489,6 @@ export const isWithinLastNDaysFromString = (dateTimeStr?: string, n: number = 8,
     const nowMs = Date.now();
     const diffMs = nowMs - targetMs;
 
-    // 僅計算「過去 n 天內」，未來時間回傳 false
+    // return
     return diffMs >= 0 && diffMs <= n * DAY_MS;
 };

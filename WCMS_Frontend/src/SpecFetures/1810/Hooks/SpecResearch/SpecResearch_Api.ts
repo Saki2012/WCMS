@@ -6,11 +6,13 @@ import type { AxiosInstance } from "axios";
 type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"];
 class SpecResearchService extends ApiDataService<SpecResearchSet>
 {
-    constructor(apiInstance?: AxiosInstance) { super(PGID.SpecResearch, apiInstance); }
+    constructor(apiInstance?: AxiosInstance)
+    {
+        super(PGID.SpecResearch, apiInstance);
+    }
 }
-class SpecResearchAdapterImpl extends ApiDataAdapter<SpecResearchSet, SpecResearchService>{}
+class SpecResearchAdapterImpl extends ApiDataAdapter<SpecResearchSet, SpecResearchService>
+{}
 
-
-
-
-export const SpecResearchAdapter = (apiInstance?: AxiosInstance) => new SpecResearchAdapterImpl((api?: AxiosInstance) => new SpecResearchService(api ?? apiInstance),);
+export const SpecResearchAdapter = (apiInstance?: AxiosInstance) =>
+    new SpecResearchAdapterImpl((api?: AxiosInstance) => new SpecResearchService(api ?? apiInstance));

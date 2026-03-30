@@ -9,7 +9,6 @@ export const useModuleSettingTabSpecExtension = (): ModuleSettingTabExtension =>
       moduleOptions: {
         SpecResearch: "研究成果",
         SpecUSR: "USR",
-        SpecMusical: "音樂專區",
       },
       moduleRenderers: {},
     };

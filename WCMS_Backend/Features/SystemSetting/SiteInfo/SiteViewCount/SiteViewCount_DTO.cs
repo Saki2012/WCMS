@@ -182,5 +182,47 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteViewCount
         /// </summary>
         public int CurrentCount { get; set; }
     }
+
+    /// <summary>
+    /// 查詢目前站台在線人數 Request
+    /// </summary>
+    public class GetCurrentSiteOnlineCountRequest_DTO
+    {
+        /// <summary>
+        /// 站台代碼，主站可為空字串
+        /// </summary>
+        public string SiteIndex { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 往前查詢幾分鐘，未帶預設 10
+        /// </summary>
+        public int? Minutes { get; set; }
+    }
+
+    /// <summary>
+    /// 查詢目前站台在線人數 Result
+    /// </summary>
+    public class GetCurrentSiteOnlineCountResult_DTO
+    {
+        /// <summary>
+        /// 站台代碼
+        /// </summary>
+        public string SiteIndex { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 實際查詢分鐘數
+        /// </summary>
+        public int Minutes { get; set; }
+
+        /// <summary>
+        /// 在線人數
+        /// </summary>
+        public int CurrentOnlineCount { get; set; }
+
+        /// <summary>
+        /// 查詢時間
+        /// </summary>
+        public DateTime QueryTime { get; set; }
+    }
     #endregion
 }

@@ -5,7 +5,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
 import { useEffect, useMemo, useRef, useState } from "react";
-import parse from 'html-react-parser';
+import parse from "html-react-parser";
 import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFields";
 import type { components } from "@/types/api";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
@@ -19,99 +19,249 @@ import { useAnnouncementListData } from "@/Features/Pages/Client/BizFunc/WebMana
 import { formatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
 import { formatTagsName } from "@/Features/Hooks/BizFunc/WebManagement/Tag_Api";
 import { isWithinLastNDaysFromString } from "../WebResource/WebResourceList";
+
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 type TagSet = components["schemas"]["TagSet_DTO"];
 
+export interface IAnnouncementListOptions
+{
+    Category?: string;
+    Tag?: string;
+    Style?: number;
+}
 
-export interface IAnnouncementListOptions { Category?: string; Tag?: string; Style?: number; }
-export interface IAnnouncementListProps { theme: IFETheme; lang: Lang; options?: IAnnouncementListOptions; site:INormSite; node: INormNode }
-const AnnouncementList = (props: IAnnouncementListProps) => {
-    const vm = useAnnouncementListData({ lang: props.lang });
-    const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(props.lang, dirUrl, vm.gridPropsFromList, vm.listData, vm.categoryData, vm.tagData,);
+export interface IAnnouncementListProps
+{
+    theme: IFETheme;
+    lang: Lang;
+    options?: IAnnouncementListOptions;
+    site: INormSite;
+    node: INormNode;
+}
+
+const AnnouncementList = (props: IAnnouncementListProps) =>
+{
+    // 宣告變數
+    const dirUrl = useLocation().pathname.replace(/\/List$/, "");
+    const [keyword] = useState<string | undefined>(undefined);
+
+    // 執行 function：先開 kw 入口，但目前只給 CSR hooks 使用
+    const vm = useAnnouncementListData({
+        lang: props.lang,
+        opts: props.options,
+        kw: keyword,
+    });
+
+    const adjustedGrid = useMemo(() =>
+    {
+        return SetAdjustFunction(
+            props.lang,
+            dirUrl,
+            vm.gridPropsFromList,
+            vm.listData,
+            vm.categoryData,
+            vm.tagData,
+        );
     }, [props.lang, dirUrl, vm.gridPropsFromList, vm.listData, vm.categoryData, vm.tagData]);
-    // const searchSlot = <SearchBarComp value={queryDraft} tags={tags} onChange={(k, v) => setQueryDraft(prev => ({ ...prev, [k]: v }))} onSubmit={() => setQuery(queryDraft)} onReset={() => { setQueryDraft({}); setQuery({}); }} />;
-    // const adjustedGrid = useMemo(() => { return SetAdjustFunction(dirUrl, useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData); }, [useAnnounceList.gridProps, useAnnounceList.rawData, useCategory.rawData, useTagData.rawData]);
+
+    // TODO(AnnouncementList kw):
+    // 之後 feature 若要補搜尋框，只要把輸入值 set 到 keyword 即可。
+    // SSR route 目前不提供 kw，維持首屏固定條件。
+    // 1810 之後可直接共用同一個 kw 傳法，只保留自己的 DOM。
+
     const children = useMemo(() =>
     {
         switch (props.options?.Style)
         {
             case 8:
-                return <TimelineSlider dirUrl={dirUrl} lang={props.lang} data={vm.listData} />;
+                return (
+                    <TimelineSlider
+                        dirUrl={dirUrl}
+                        lang={props.lang}
+                        data={vm.listData}
+                    />
+                );
             case 3:
-                return <QAList_Comp lang={props.lang} gridData={vm.listData} currentPage={vm.pageNumber} pageSize={vm.pageSize} />;
+                return (
+                    <QAList_Comp
+                        lang={props.lang}
+                        gridData={vm.listData}
+                        currentPage={vm.pageNumber}
+                        pageSize={vm.pageSize}
+                    />
+                );
             case 2:
-                return <PictureList_Row_Comp dirUrl={dirUrl} lang={props.lang} gridData={vm.listData} categoryData={vm.categoryData} />;
+                return (
+                    <PictureList_Row_Comp
+                        dirUrl={dirUrl}
+                        lang={props.lang}
+                        gridData={vm.listData}
+                        categoryData={vm.categoryData}
+                    />
+                );
             case 1:
-                return <GridList_Comp key="grid" lang={props.lang} gridData={adjustedGrid} title={props.node.title} />;
+                return (
+                    <GridList_Comp
+                        key="grid"
+                        lang={props.lang}
+                        gridData={adjustedGrid}
+                        title={props.node.title}
+                    />
+                );
             default:
                 return null;
         }
-    }, [props.options?.Style, dirUrl, props.lang, props.node.title, vm.listData, vm.pageNumber, vm.pageSize, vm.categoryData, adjustedGrid]);
-    const paginprops = props.options?.Style === 8 ? undefined : { currentPage: vm.pageNumber, totalPages: vm.totalPages, onPageChange: vm.onPageChange,};
+    }, [
+        props.options?.Style,
+        dirUrl,
+        props.lang,
+        props.node.title,
+        vm.listData,
+        vm.pageNumber,
+        vm.pageSize,
+        vm.categoryData,
+        adjustedGrid,
+    ]);
+
+    const paginprops = props.options?.Style === 8
+        ? undefined
+        : {
+            currentPage: vm.pageNumber,
+            totalPages: vm.totalPages,
+            onPageChange: vm.onPageChange,
+        };
+
+    // return
     return (
-        <ModuleContent nodeTitle={props.node.title} isLoading={vm.isLoading} errorList={vm.errorList} paginatorProps={paginprops} viewCountConfig={{ mode: "list" }}>
+        <ModuleContent
+            nodeTitle={props.node.title}
+            isLoading={vm.isLoading}
+            errorList={vm.errorList}
+            paginatorProps={paginprops}
+            viewCountConfig={{ mode: "list" }}
+        >
             {children}
         </ModuleContent>
     );
 };
-export default AnnouncementList
 
-const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps }) => {
+export default AnnouncementList;
+
+const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps }) =>
+{
+    // 宣告變數
     const [columns, setColumns] = useState<ColumnConfig[]>(props.gridData.columns);
-    useEffect(() => {
+
+    useEffect(() =>
+    {
         const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
+        if (saved)
+        {
             const widths = JSON.parse(saved);
             setColumns((prev) =>
                 prev.map((col) => ({
                     ...col,
-                    width: typeof widths[col.key] === "number" ? widths[col.key] : typeof col.width === "number" ? col.width : undefined,
-                }))
+                    width: typeof widths[col.key] === "number"
+                        ? widths[col.key]
+                        : typeof col.width === "number"
+                            ? col.width
+                            : undefined,
+                })),
             );
         }
     }, []);
-    const handleResize = (index: number, width: number) => {
-        setColumns((prev) => {
-            const updated = prev.map((col, idx) => idx === index ? { ...col, width } : col);
+
+    const handleResize = (index: number, width: number) =>
+    {
+        setColumns((prev) =>
+        {
+            const updated = prev.map((col, idx) =>
+                idx === index ? { ...col, width } : col,
+            );
+
             const widths: Record<string, number> = {};
-            updated.forEach((c) => { if (typeof c.width === "number") widths[c.key] = c.width; });
+            updated.forEach((c) =>
+            {
+                if (typeof c.width === "number") widths[c.key] = c.width;
+            });
+
             localStorage.setItem(STORAGE_KEY, JSON.stringify(widths));
             return updated;
         });
     };
+
+    // return
     return (
         <>
             <OperationGuideHelp_Comp lang={props.lang} />
-            <table className={"table table-striped table-bordered table-hover + table-rwd"} summary={props.title}>
+            <table
+                className={"table table-striped table-bordered table-hover + table-rwd"}
+                summary={props.title}
+            >
                 <caption>{props.title}</caption>
                 <ColRender columns={columns} onResize={handleResize} />
                 <RowRender rows={props.gridData.rows} />
             </table>
         </>
-    )
-}
-const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: AnnouncementSet[]; categoryData: CategorySet[] }) => {
-    const defaultAnnouncePic = useOptionalSpecAssetUrl({ relativePath: "Assets/Custom/DefaultEventPic.jpg", fallbackToDefault: true, }) ?? "";
+    );
+};
+
+const PictureList_Row_Comp = (props: {
+    dirUrl: string;
+    lang: Lang;
+    gridData: AnnouncementSet[];
+    categoryData: CategorySet[];
+}) =>
+{
+    // 宣告變數
+    const defaultAnnouncePic = useOptionalSpecAssetUrl({
+        relativePath: "Assets/Custom/DefaultEventPic.jpg",
+        fallbackToDefault: true,
+    }) ?? "";
+
+    // return
     return (
         <div id="Row_Colitem" className="SubPage_Standard_itemBoxs">
-            {props.gridData && props.gridData.map((item) => {
+            {props.gridData && props.gridData.map((item) =>
+            {
                 const linkUrl = `${props.dirUrl}/${item.Announcement?.InternalId}`;
-                const title = item.AnnouncementDetail?.find(p => p.Lang === props.lang)?.Title ?? ""
-                const picUrl = FileManagementAPI.get_Public_Preview_Url(item.Announcement?.PictureId,item.Announcement?.PicDescription) ?? defaultAnnouncePic
-                const picDesc = item.Announcement?.PicDescription ?? title
-                const validate = FormatDate(item.Announcement?.Validate_Start)
-                const catName = formatCategoriesName(item.Announcement?.Categories ?? "", props.categoryData, props.lang)
+                const title = item.AnnouncementDetail?.find(
+                    p => p.Lang === props.lang,
+                )?.Title ?? "";
+                const picUrl = FileManagementAPI.get_Public_Preview_Url(
+                    item.Announcement?.PictureId,
+                    item.Announcement?.PicDescription,
+                ) ?? defaultAnnouncePic;
+                const picDesc = item.Announcement?.PicDescription ?? title;
+                const validate = FormatDate(item.Announcement?.Validate_Start);
+                const catName = formatCategoriesName(
+                    item.Announcement?.Categories ?? "",
+                    props.categoryData,
+                    props.lang,
+                );
+
                 return (
-                    < div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
+                    <div
+                        key={item.Announcement?.InternalId}
+                        className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv"
+                    >
                         <article className="cardbox">
                             <div className="card_content">
-                                <LangNavLink to={linkUrl} className="card_image_link venobox vbox-item" data-gall="myGallery" title={title}>
+                                <LangNavLink
+                                    to={linkUrl}
+                                    className="card_image_link venobox vbox-item"
+                                    data-gall="myGallery"
+                                    title={title}
+                                >
                                     <figure className="figure_Box">
                                         <div className="card_figure">
                                             <div className="img-wrapper">
-                                                <img className="card_image" src={picUrl} alt={picDesc} />
+                                                <img
+                                                    className="card_image"
+                                                    src={picUrl}
+                                                    alt={picDesc}
+                                                />
                                             </div>
                                         </div>
                                     </figure>
@@ -124,7 +274,9 @@ const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: Ann
                                             </div>
                                         </div>
                                         <div className="card_time">
-                                            <i className="far fa-clock mr-2"></i><span className="sr-only">日期</span>{validate}
+                                            <i className="far fa-clock mr-2"></i>
+                                            <span className="sr-only">日期</span>
+                                            {validate}
                                         </div>
                                     </div>
 
@@ -134,86 +286,137 @@ const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: Ann
 
                                     <div className="card_StateDiv">
                                         <div className="More customize_btn">
-                                            <LangNavLink className="Btn_s1" type="button" role="button" title="觀看更多" to={linkUrl}>
+                                            <LangNavLink
+                                                className="Btn_s1"
+                                                type="button"
+                                                role="button"
+                                                title="觀看更多"
+                                                to={linkUrl}
+                                            >
                                                 VIEW ALL<span className="ml-2">+</span>
                                             </LangNavLink>
                                         </div>
-
                                     </div>
                                 </LangNavLink>
                             </div>
                         </article>
-                    </div>)
+                    </div>
+                );
             })}
-        </div >
-    )
-}
+        </div>
+    );
+};
 
-type NativeMouseEventWithStopImmediate = MouseEvent & { stopImmediatePropagation?: () => void };
-const QAList_Comp = (props: { lang: Lang; gridData: AnnouncementSet[]; currentPage: number; pageSize: number; }) => {
+type NativeMouseEventWithStopImmediate = MouseEvent & {
+    stopImmediatePropagation?: () => void;
+};
+
+const QAList_Comp = (props: {
+    lang: Lang;
+    gridData: AnnouncementSet[];
+    currentPage: number;
+    pageSize: number;
+}) =>
+{
+    // 宣告變數
     const startIndex = (props.currentPage - 1) * props.pageSize;
     const [openKey, setOpenKey] = useState<string | null>(null);
     const [animMap, setAnimMap] = useState<Record<string, "opening" | "closing" | undefined>>({});
     const collapseRefs = useRef<Record<string, HTMLDivElement | null>>({});
     const durationMs = 520;
-    const setAnimating = (key: string, value?: "opening" | "closing") => {
-        setAnimMap(prev => {
+
+    const setAnimating = (key: string, value?: "opening" | "closing") =>
+    {
+        setAnimMap(prev =>
+        {
             const next = { ...prev };
             if (!value) delete next[key];
             else next[key] = value;
             return next;
         });
     };
-    const animateOpen = (key: string, el: HTMLDivElement) => {
+
+    const animateOpen = (key: string, el: HTMLDivElement) =>
+    {
         setAnimating(key, "opening");
         el.style.transition = `height ${durationMs}ms ease`;
         el.style.height = "0px";
         void el.offsetHeight;
-        requestAnimationFrame(() => {
+
+        requestAnimationFrame(() =>
+        {
             el.style.height = `${el.scrollHeight}px`;
         });
-        const onEnd = (ev: TransitionEvent) => {
+
+        const onEnd = (ev: TransitionEvent) =>
+        {
             if (ev.propertyName !== "height") return;
             el.removeEventListener("transitionend", onEnd);
             el.style.height = "";
             setAnimating(key, undefined);
         };
+
         el.addEventListener("transitionend", onEnd);
     };
-    const animateClose = (key: string, el: HTMLDivElement) => {
+
+    const animateClose = (key: string, el: HTMLDivElement) =>
+    {
         setAnimating(key, "closing");
         el.style.transition = `height ${durationMs}ms ease`;
         el.style.height = `${el.scrollHeight}px`;
         void el.offsetHeight;
-        requestAnimationFrame(() => {el.style.height = "0px";});
-        const onEnd = (ev: TransitionEvent) => {
+
+        requestAnimationFrame(() =>
+        {
+            el.style.height = "0px";
+        });
+
+        const onEnd = (ev: TransitionEvent) =>
+        {
             if (ev.propertyName !== "height") return;
             el.removeEventListener("transitionend", onEnd);
             el.style.height = "";
             setAnimating(key, undefined);
         };
+
         el.addEventListener("transitionend", onEnd);
     };
-    const toggle = (key: string) => {
-        setOpenKey(prev => {
+
+    const toggle = (key: string) =>
+    {
+        setOpenKey(prev =>
+        {
             const next = prev === key ? null : key;
-            if (prev) {
+
+            if (prev)
+            {
                 const prevEl = collapseRefs.current[prev];
                 if (prevEl) animateClose(prev, prevEl);
             }
-            if (next) {
+
+            if (next)
+            {
                 const nextEl = collapseRefs.current[next];
                 if (nextEl) animateOpen(next, nextEl);
             }
+
             return next;
         });
     };
-    const getCollapseClass = (key: string, isOpen: boolean) => {
+
+    const getCollapseClass = (key: string, isOpen: boolean) =>
+    {
         const anim = animMap[key];
         if (anim) return "collapsing";
         return `collapse${isOpen ? " show" : ""}`;
     };
-    const setCollapseRef = (key: string, el: HTMLDivElement | null) => {collapseRefs.current[key] = el;};
+
+    const setCollapseRef = (key: string, el: HTMLDivElement | null) =>
+    {
+        collapseRefs.current[key] = el;
+    };
+
+    // return
     return (
         <div className="faq_content">
             <div className="row">
@@ -221,9 +424,17 @@ const QAList_Comp = (props: { lang: Lang; gridData: AnnouncementSet[]; currentPa
                     <div id="accordion" className="FAQBar">
                         <ul className="QA_info" style={{ counterReset: `faq-counter ${startIndex}` }}>
                             {props.gridData.map((item, idx) => (
-                                <QAItem_Comp key={`faq_item_${item.Announcement?.InternalId ?? `${startIndex}_${idx}`}`} item={item} idx={idx} 
-                                    lang={props.lang} startIndex={startIndex} openKey={openKey}
-                                    getCollapseClass={getCollapseClass} onToggle={toggle} onSetRef={setCollapseRef}/>
+                                <QAItem_Comp
+                                    key={`faq_item_${item.Announcement?.InternalId ?? `${startIndex}_${idx}`}`}
+                                    item={item}
+                                    idx={idx}
+                                    lang={props.lang}
+                                    startIndex={startIndex}
+                                    openKey={openKey}
+                                    getCollapseClass={getCollapseClass}
+                                    onToggle={toggle}
+                                    onSetRef={setCollapseRef}
+                                />
                             ))}
                         </ul>
                     </div>
@@ -232,22 +443,41 @@ const QAList_Comp = (props: { lang: Lang; gridData: AnnouncementSet[]; currentPa
         </div>
     );
 };
-const QAItem_Comp = (props: {item: AnnouncementSet; idx: number; lang: Lang; startIndex: number; openKey: string | null;
-    getCollapseClass: (key: string, isOpen: boolean) => string; onToggle: (key: string) => void; onSetRef: (key: string, el: HTMLDivElement | null) => void;}) => 
+
+const QAItem_Comp = (props: {
+    item: AnnouncementSet;
+    idx: number;
+    lang: Lang;
+    startIndex: number;
+    openKey: string | null;
+    getCollapseClass: (key: string, isOpen: boolean) => string;
+    onToggle: (key: string) => void;
+    onSetRef: (key: string, el: HTMLDivElement | null) => void;
+}) =>
 {
+    // 宣告變數
     const detail = props.item.AnnouncementDetail?.find(p => p.Lang === props.lang);
     const rawKey = props.item.Announcement?.InternalId ?? `${props.startIndex}_${props.idx}`;
     const key = rawKey.replace(/[^A-Za-z0-9_-]/g, "_");
     const collapseId = `collapse_${key}`;
     const isOpen = props.openKey === key;
     const contentNode = useFaqContentNode(detail?.Content ?? "", props.lang);
+
+    // return
     return (
         <li key={`faq_${key}`}>
             <div className="QA-01 + card">
                 <div className="card-header">
-                    <a href="#" className={`card-link${isOpen ? "" : " collapsed"}`} data-bs-toggle="collapse"
-                        type="button" role="button" aria-expanded={isOpen} aria-controls={collapseId} 
-                        onClick={(e) => {
+                    <a
+                        href="#"
+                        className={`card-link${isOpen ? "" : " collapsed"}`}
+                        data-bs-toggle="collapse"
+                        type="button"
+                        role="button"
+                        aria-expanded={isOpen}
+                        aria-controls={collapseId}
+                        onClick={(e) =>
+                        {
                             e.preventDefault();
                             e.stopPropagation();
                             const ne = e.nativeEvent as NativeMouseEventWithStopImmediate;
@@ -258,7 +488,13 @@ const QAItem_Comp = (props: {item: AnnouncementSet; idx: number; lang: Lang; sta
                         {detail?.Title}
                     </a>
                 </div>
-                <div id={collapseId} className={props.getCollapseClass(key, isOpen)} data-bs-parent="#accordion" ref={(el) => { props.onSetRef(key, el); }}>
+
+                <div
+                    id={collapseId}
+                    className={props.getCollapseClass(key, isOpen)}
+                    data-bs-parent="#accordion"
+                    ref={(el) => { props.onSetRef(key, el); }}
+                >
                     <div className="card-body">
                         {contentNode}
                     </div>
@@ -267,29 +503,43 @@ const QAItem_Comp = (props: {item: AnnouncementSet; idx: number; lang: Lang; sta
         </li>
     );
 };
-const useFaqContentNode = (html: string, lang: Lang) => {
+
+const useFaqContentNode = (html: string, lang: Lang) =>
+{
+    // 宣告變數
     const resolved = useResolveInternalIds(html, { locale: lang });
-    return useMemo(() => {return resolved.html ? parse(resolved.html) : null;}, [resolved.html]);
+
+    // return
+    return useMemo(() =>
+    {
+        return resolved.html ? parse(resolved.html) : null;
+    }, [resolved.html]);
 };
-const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementSet[] }) => {
-    useEffect(() => {
+
+const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementSet[] }) =>
+{
+    useEffect(() =>
+    {
         // SSR 防護：server 端不要執行
         if (typeof window === "undefined") return;
+
         const w = window as any;
         const $ = (w.$ || w.jQuery) as any;
         if (!$ || !$.fn || !$.fn.owlCarousel) return;
+
         const $owl = $("#History_owl_carousel");
         const $toggle = $("#History_toggle");
         if ($owl.length === 0 || $toggle.length === 0) return;
-        let isPlaying = true; // 跟原本 script 一樣，預設播放中
-        // 初始化 owlCarousel（照你給的設定）
+
+        let isPlaying = true;
+
         ($owl as any).owlCarousel({
             items: 4,
-            loop: false, // true or false
+            loop: false,
             dots: false,
             nav: true,
             margin: 30,
-            autoplay: false, // true or false
+            autoplay: false,
             autoplayTimeout: 5000,
             autoplayHoverPause: true,
             responsive: {
@@ -300,43 +550,68 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
                 1199: { items: 4 },
             },
         });
-        const updateToggleButton = () => {
+
+        const updateToggleButton = () =>
+        {
             const $iconBox = $toggle.find(".control-toggle");
             const $srText = $toggle.find(".sr-only");
-            // 先清空可能存在的 class
+
             $iconBox.removeClass("control-play-icon control-pause-icon");
-            if (isPlaying) {
-                $toggle.attr("aria-pressed", "true").attr("aria-label", "圖片輪播播放中，點擊暫停");
+
+            if (isPlaying)
+            {
+                $toggle
+                    .attr("aria-pressed", "true")
+                    .attr("aria-label", "圖片輪播播放中，點擊暫停");
                 $iconBox.addClass("control-pause-icon");
                 $srText.text("圖片輪播播放中，點擊暫停");
-            } else {
-                $toggle.attr("aria-pressed", "false").attr("aria-label", "圖片輪播已暫停，點擊播放");
+            }
+            else
+            {
+                $toggle
+                    .attr("aria-pressed", "false")
+                    .attr("aria-label", "圖片輪播已暫停，點擊播放");
                 $iconBox.addClass("control-play-icon");
                 $srText.text("圖片輪播已暫停，點擊播放");
             }
         };
-        const handleToggleClick = (e: any) => {
+
+        const handleToggleClick = (e: any) =>
+        {
             e.preventDefault();
 
-            if (isPlaying) {
+            if (isPlaying)
+            {
                 $owl.trigger("stop.owl.autoplay");
                 isPlaying = false;
-            } else {
+            }
+            else
+            {
                 $owl.trigger("play.owl.autoplay", [5000]);
                 isPlaying = true;
             }
+
             updateToggleButton();
         };
-        // 綁定 click 事件 & 初始化狀態
+
         $toggle.on("click", handleToggleClick);
         updateToggleButton();
-        // 清理：解除事件 & 摧毀 owl，避免重複綁定
-        return () => {
+
+        return () =>
+        {
             $toggle.off("click", handleToggleClick);
-            try { $owl.trigger("destroy.owl.carousel"); }
-            catch {/** ignor */ }
+            try
+            {
+                $owl.trigger("destroy.owl.carousel");
+            }
+            catch
+            {
+                /** ignore */
+            }
         };
     }, [props.data]);
+
+    // return
     return (
         <div className="History_Div + owl-box">
             <div className="row">
@@ -344,21 +619,35 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
                     <div className="content-box px-0">
                         <div className="DIV-singleBox">
                             <div className="control-singlebox">
-                                <a id="History_toggle" className="toggle ms-1" aria-label="圖片輪播播放中，點擊暫停" aria-pressed="true" tabIndex={0} title="暫停" onClick={() => { }}>
+                                <a
+                                    id="History_toggle"
+                                    className="toggle ms-1"
+                                    aria-label="圖片輪播播放中，點擊暫停"
+                                    aria-pressed="true"
+                                    tabIndex={0}
+                                    title="暫停"
+                                    onClick={() => { }}
+                                >
                                     <div className="control-toggle control-pause-icon">
                                         <span className="sr-only">圖片輪播播放中，點擊暫停</span>
                                     </div>
                                 </a>
                             </div>
                         </div>
+
                         <div id="History_owl_carousel" className="owl-carousel owl-theme">
-                            {props.data.map((item) => {
+                            {props.data.map((item) =>
+                            {
                                 const detail = item.AnnouncementDetail?.find(p => p.Lang === props.lang);
                                 const linkUrl = `${props.dirUrl}/${item.Announcement?.InternalId}`;
-                                const title = detail?.Title ?? ""
-                                const subTitle = detail?.SubTitle ?? ""
-                                const picUrl = FileManagementAPI.get_Public_Preview_Url(item.Announcement?.PictureId,item.Announcement?.PicDescription)
-                                const date = FormatDate(item.Announcement?.Validate_Start)
+                                const title = detail?.Title ?? "";
+                                const subTitle = detail?.SubTitle ?? "";
+                                const picUrl = FileManagementAPI.get_Public_Preview_Url(
+                                    item.Announcement?.PictureId,
+                                    item.Announcement?.PicDescription,
+                                );
+                                const date = FormatDate(item.Announcement?.Validate_Start);
+
                                 return (
                                     <div className="item" key={item.Announcement?.InternalId}>
                                         <LangLink to={linkUrl} title={title} tabIndex={0}>
@@ -367,14 +656,20 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
                                                     <figure className="figure_Box">
                                                         <div className="card_figure">
                                                             <div className="img-wrapper">
-                                                                <img className="card_image" src={picUrl} alt={item.Announcement?.PicDescription ?? ""} />
+                                                                <img
+                                                                    className="card_image"
+                                                                    src={picUrl}
+                                                                    alt={item.Announcement?.PicDescription ?? ""}
+                                                                />
                                                             </div>
                                                         </div>
                                                     </figure>
+
                                                     <div className="steps-dot">
                                                         <span className="steps-dot-line"></span>
                                                         <span className="dot"></span>
                                                     </div>
+
                                                     <div className="Text_Block_Area">
                                                         <div className="year_box">
                                                             <span>{date}</span>
@@ -388,7 +683,7 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
                                             </article>
                                         </LangLink>
                                     </div>
-                                )
+                                );
                             })}
                         </div>
                     </div>
@@ -398,24 +693,47 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
     );
 };
 
-const SetAdjustFunction = (lang: Lang, dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[], catData: CategorySet[], tagData: TagSet[]): GridProps => {
-    const newRows: GridRow[] = gridProps.rows.map((row, index) => {
+const SetAdjustFunction = (
+    lang: Lang,
+    dirUrl: string,
+    gridProps: GridProps,
+    rawData: AnnouncementSet[],
+    catData: CategorySet[],
+    tagData: TagSet[],
+): GridProps =>
+{
+    // 宣告變數
+    const newRows: GridRow[] = gridProps.rows.map((row, index) =>
+    {
         const curRow = rawData?.[index];
         const internalId = curRow.Announcement?.InternalId ?? "";
         const contentStatus = curRow.Announcement?.ContentStatus ?? 0;
         const titleId = `title-${internalId}`;
-        // AA：每個 link 需有可讀文字（避免 aria-hidden 造成可及名稱為空）
-        const rowTitle = curRow.AnnouncementDetail?.find(p => p.Lang === lang)?.Title?.trim() ?? "";
+
+        const rowTitle = curRow.AnnouncementDetail?.find(
+            p => p.Lang === lang,
+        )?.Title?.trim() ?? "";
         const srLinkText = rowTitle ? `前往：${rowTitle}` : "前往內容";
-        const newCells = row.cells.map((cell) => {
+
+        const newCells = row.cells.map((cell) =>
+        {
             const isTitle = cell.col.key === AnnouncementDetailFields.Title;
 
-            switch (cell.col.key) {
+            switch (cell.col.key)
+            {
                 case AnnouncementFields.Categories:
-                    cell.content = formatCategoriesName(curRow.Announcement?.Categories ?? "", catData, lang)
+                    cell.content = formatCategoriesName(
+                        curRow.Announcement?.Categories ?? "",
+                        catData,
+                        lang,
+                    );
                     break;
                 case AnnouncementFields.Tags:
-                    cell.content = formatTagsName(curRow.Announcement?.Tags ?? "", tagData, lang)
+                    cell.content = formatTagsName(
+                        curRow.Announcement?.Tags ?? "",
+                        tagData,
+                        lang,
+                    );
                     break;
             }
 
@@ -423,26 +741,40 @@ const SetAdjustFunction = (lang: Lang, dirUrl: string, gridProps: GridProps, raw
                 ...cell,
                 content: (
                     <>
-                        {isTitle?
+                        {isTitle ? (
                             <>
-                                {isWithinLastNDaysFromString(curRow.Announcement?.Validate_Start ?? "") && (<span className="label label-warning">最新</span>)}
-                                {Boolean(contentStatus & 1) && (<span className="label label-success">置頂</span>)}
-                                {Boolean(contentStatus & 2) && (<span className="label label-danger">熱門</span>)}
-                                <LangLink to={`${dirUrl}/${internalId}`} className="link-cell" id={isTitle ? titleId : undefined}
-                                    aria-labelledby={isTitle ? undefined : titleId}>
+                                {isWithinLastNDaysFromString(curRow.Announcement?.Validate_Start ?? "") && (
+                                    <span className="label label-warning">最新</span>
+                                )}
+                                {Boolean(contentStatus & 1) && (
+                                    <span className="label label-success">置頂</span>
+                                )}
+                                {Boolean(contentStatus & 2) && (
+                                    <span className="label label-danger">熱門</span>
+                                )}
+                                <LangLink
+                                    to={`${dirUrl}/${internalId}`}
+                                    className="link-cell"
+                                    id={isTitle ? titleId : undefined}
+                                    aria-labelledby={isTitle ? undefined : titleId}
+                                >
                                     <span aria-hidden={!isTitle}>{cell.content}</span>
-                                    {!isTitle && (<span className="visually-hidden">{srLinkText}</span>)}
+                                    {!isTitle && (
+                                        <span className="visually-hidden">{srLinkText}</span>
+                                    )}
                                 </LangLink>
-                            </> : 
+                            </>
+                        ) : (
                             <span>{cell.content}</span>
-                        }
+                        )}
                     </>
                 ),
             };
         });
+
         return { ...row, cells: newCells };
     });
+
+    // return
     return { ...gridProps, rows: newRows };
 };
-
-

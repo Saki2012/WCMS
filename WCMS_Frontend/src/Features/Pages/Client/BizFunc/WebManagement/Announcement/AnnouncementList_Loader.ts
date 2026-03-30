@@ -1,13 +1,13 @@
+import { SiteViewCountAdapter } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
 import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Announcement_Api";
 import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
 import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tag_Api";
-import { SiteViewCountAdapter } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
-import type { Lang } from "@/SysCore/i18n/lang";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import { getSsrApi, type ApiResponse } from "@/SysCore/Utils/API/APIBase";
+import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { type ApiResponse, getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
+import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import {
@@ -43,6 +43,7 @@ export interface AnnouncementListLoaderArgs
 {
     pageSize: number;
     pageNumber: number;
+    keyword?: string;
     condition: string;
     listParam: QueryListParam;
     countParam: QueryListParam;
@@ -144,6 +145,15 @@ const buildQuotedValues = (values: string[]): string =>
     return quoted.join(",");
 };
 
+const normalizeKeyword = (value?: string): string | undefined =>
+{
+    // 宣告變數
+    const keyword = `${value ?? ""}`.trim();
+
+    // return
+    return keyword ? keyword : undefined;
+};
+
 const buildAnnouncementCondition = (p: {
     lang: Lang;
     nowIsoLocal: string;
@@ -153,7 +163,9 @@ const buildAnnouncementCondition = (p: {
 }): string =>
 {
     // 宣告變數
-    let condition = LibMerge(" And ", false,
+    let condition = LibMerge(
+        " And ",
+        false,
         `${AnnouncementFields.Validate_Start} <= ${p.nowIsoLocal}`,
         `(${AnnouncementFields.Validate_End} >= ${p.nowIsoLocal} Or ${AnnouncementFields.Validate_End} is null)`,
         `${AnnouncementFields.ContentStatus} !& 4`,
@@ -161,9 +173,35 @@ const buildAnnouncementCondition = (p: {
         `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} != ''`,
     );
 
-    if (p.keyword) condition = LibMerge(" And ", false, condition, `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} Like ${p.keyword}`);
-    if (p.categoryIds) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Categories} HasAny [${p.categoryIds}]`);
-    if (p.tagIds) condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Tags} HasAny [${p.tagIds}]`);
+    if (p.keyword)
+    {
+        condition = LibMerge(
+            " And ",
+            false,
+            condition,
+            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} Like ${p.keyword}`,
+        );
+    }
+
+    if (p.categoryIds)
+    {
+        condition = LibMerge(
+            " And ",
+            false,
+            condition,
+            `${AnnouncementFields.Categories} HasAny [${p.categoryIds}]`,
+        );
+    }
+
+    if (p.tagIds)
+    {
+        condition = LibMerge(
+            " And ",
+            false,
+            condition,
+            `${AnnouncementFields.Tags} HasAny [${p.tagIds}]`,
+        );
+    }
 
     // return
     return condition;
@@ -178,8 +216,14 @@ const buildAnnouncementQuery = (p: {
     // return
     return {
         Fields: [
-            AnnouncementFields.AnnouncementId,AnnouncementFields.InternalId,AnnouncementFields.ContentStatus,AnnouncementFields.PictureId,
-            AnnouncementFields.PicDescription,AnnouncementFields.Categories,AnnouncementFields.Tags,AnnouncementFields.Validate_Start,
+            AnnouncementFields.AnnouncementId,
+            AnnouncementFields.InternalId,
+            AnnouncementFields.ContentStatus,
+            AnnouncementFields.PictureId,
+            AnnouncementFields.PicDescription,
+            AnnouncementFields.Categories,
+            AnnouncementFields.Tags,
+            AnnouncementFields.Validate_Start,
             `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
             `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
             `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.SubTitle}`,
@@ -191,7 +235,8 @@ const buildAnnouncementQuery = (p: {
             { Col: AnnouncementFields.Validate_Start, Desc: true },
             { Col: AnnouncementFields.CreateTime, Desc: true },
         ],
-        PageNumber: p.pageNumber, PageSize: p.pageSize,
+        PageNumber: p.pageNumber,
+        PageSize: p.pageSize,
     };
 };
 
@@ -200,13 +245,16 @@ const buildCategoryQuery = (progId: string): QueryListParam =>
     // return
     return {
         Fields: [
-            CategoryFields.InternalId,CategoryFields.CategoryId,CategoryFields.ProgId,
+            CategoryFields.InternalId,
+            CategoryFields.CategoryId,
+            CategoryFields.ProgId,
             `${CategoryFields._CategoryDetail}.${CategoryDetailFields.Lang}`,
             `${CategoryFields._CategoryDetail}.${CategoryDetailFields.CategoryName}`,
         ],
         Condition: progId ? `${CategoryFields.ProgId} = ${progId}` : "",
         OrderBy: [{ Col: CategoryFields.CreateTime, Desc: false }],
-        PageNumber: 0, PageSize: 0,
+        PageNumber: 0,
+        PageSize: 0,
     };
 };
 
@@ -279,18 +327,21 @@ const buildLoaderArgs = (p: {
     const nowIsoLocal = formatLocalIso(new Date());
     const categoryIds = p.overrides?.categoryIds ?? (p.opts?.Category ?? "");
     const tagIds = p.overrides?.tagIds ?? (p.opts?.Tag ?? "");
+    const keyword = normalizeKeyword(p.overrides?.keyword);
+
     const condition = buildAnnouncementCondition({
         lang: p.lang,
         nowIsoLocal,
         categoryIds,
         tagIds,
-        keyword: p.overrides?.keyword,
+        keyword,
     });
 
     // return
     return {
         pageSize,
         pageNumber,
+        keyword,
         condition,
         listParam: buildAnnouncementQuery({ condition, pageNumber, pageSize }),
         countParam: buildAnnouncementQuery({ condition, pageNumber: 0, pageSize: 0 }),
@@ -302,7 +353,11 @@ const buildLoaderArgs = (p: {
 const buildLoaderInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> =>
 {
     // 宣告變數
-    const apiRes: ApiResponse<TData> = { IsSuccess: true, Data: data, SysMessage: [] };
+    const apiRes: ApiResponse<TData> = {
+        IsSuccess: true,
+        Data: data,
+        SysMessage: [],
+    };
 
     // return
     return { args, apiRes };
@@ -449,7 +504,18 @@ async ({ request }: LoaderFunctionArgs): Promise<AnnouncementListLoaderData> =>
     const category = CategoryAdapter(ssrApi);
     const tag = TagAdapter(ssrApi);
     const siteView = SiteViewCountAdapter(ssrApi);
-    const baseArgs = buildLoaderArgs(p);
+
+    // 注意：目前 SSR route 不提供 keyword，先保留擴充口
+    const baseArgs = buildLoaderArgs({
+        lang: p.lang,
+        opts: p.opts,
+        overrides: {
+            pageNumber: p.overrides?.pageNumber,
+            pageSize: p.overrides?.pageSize,
+            categoryIds: p.overrides?.categoryIds,
+            tagIds: p.overrides?.tagIds,
+        },
+    });
 
     const colNameLoader = announcement.loader.createModelDisplayNameLoader({
         getApiInstance: () => ssrApi,
@@ -485,6 +551,7 @@ async ({ request }: LoaderFunctionArgs): Promise<AnnouncementListLoaderData> =>
 
     const listRes = listLD.apiRes.Data ?? [];
     const viewCountParam = buildViewCountQuery(getAnnouncementInternalIds(listRes));
+
     const viewCountLoader = siteView.loader.createQueryListLoader({
         getCondition: () => viewCountParam,
         getApiInstance: () => ssrApi,
@@ -509,37 +576,59 @@ async ({ request }: LoaderFunctionArgs): Promise<AnnouncementListLoaderData> =>
     };
 };
 
-/** CSR Hook：Component 一行拿資料，切頁時自動重撈 list + siteviewcount */
+/** CSR Hook：Component 一行拿資料，切頁/關鍵字變動時自動重撈 list + siteviewcount */
 export const useAnnouncementListData = (p: {
     lang: Lang;
+    opts?: IAnnouncementListOptions;
+    kw?: string;
 }): UseAnnouncementListDataResult =>
 {
     // 宣告變數
     const initial = useLoaderData() as AnnouncementListLoaderData;
+
     const announcement = useMemo(() => AnnouncementAdapter(), []);
     const siteView = useMemo(() => SiteViewCountAdapter(), []);
 
+    const currentArgs = useMemo(() =>
+    {
+        return buildLoaderArgs({
+            lang: p.lang,
+            opts: p.opts,
+            overrides: {
+                keyword: p.kw,
+            },
+        });
+    }, [p.lang, p.opts, p.kw]);
+
     const listInitial = useMemo(() =>
     {
-        return buildLoaderInitial(initial.args.listParam, initial.res.listRes);
-    }, [initial.args.listParam, initial.res.listRes]);
+        return matchInitialArgs(
+            currentArgs.listParam,
+            initial.args.listParam,
+            initial.res.listRes,
+        );
+    }, [currentArgs.listParam, initial.args.listParam, initial.res.listRes]);
 
     const countInitial = useMemo(() =>
     {
-        return buildLoaderInitial(initial.args.countParam, initial.res.countRes);
-    }, [initial.args.countParam, initial.res.countRes]);
+        return matchInitialArgs(
+            currentArgs.countParam,
+            initial.args.countParam,
+            initial.res.countRes,
+        );
+    }, [currentArgs.countParam, initial.args.countParam, initial.res.countRes]);
 
     const useCount = announcement.hooks.useQueryCount({
-        condition: initial.args.countParam,
+        condition: currentArgs.countParam,
         initial: countInitial,
-        deps: [initial.args.condition],
+        deps: [currentArgs.condition],
     });
 
     const useList = announcement.hooks.usePagedQueryList({
-        baseParam: initial.args.listParam,
+        baseParam: currentArgs.listParam,
         count: useCount.data ?? 0,
         initial: listInitial,
-        deps: [initial.args.condition, initial.args.pageSize],
+        deps: [currentArgs.condition, currentArgs.pageSize],
     });
 
     const viewCountParam = useMemo(() =>
@@ -549,7 +638,11 @@ export const useAnnouncementListData = (p: {
 
     const viewCountInitial = useMemo(() =>
     {
-        return matchInitialArgs(viewCountParam, initial.args.viewCountParam, initial.res.viewCountRes);
+        return matchInitialArgs(
+            viewCountParam,
+            initial.args.viewCountParam,
+            initial.res.viewCountRes,
+        );
     }, [viewCountParam, initial.args.viewCountParam, initial.res.viewCountRes]);
 
     const viewCountParamKey = useMemo(() =>
@@ -588,7 +681,14 @@ export const useAnnouncementListData = (p: {
             totalPages: useList.totalPages,
             onPageChange: useList.onPageChange,
         });
-    }, [p.lang, useList.data, useList.pageNumber, useList.totalPages, useList.onPageChange, viewCountMap]);
+    }, [
+        p.lang,
+        useList.data,
+        useList.pageNumber,
+        useList.totalPages,
+        useList.onPageChange,
+        viewCountMap,
+    ]);
 
     const errorList = useMemo(() =>
     {
@@ -599,11 +699,15 @@ export const useAnnouncementListData = (p: {
         ].filter((x): x is string => Boolean(x));
     }, [useCount.errorText, useList.errorText, useViewCount.errorText]);
 
-    const isLoading = Boolean(useCount.isLoading || useList.isLoading || useViewCount.isLoading);
+    const isLoading = Boolean(
+        useCount.isLoading
+            || useList.isLoading
+            || useViewCount.isLoading,
+    );
 
     // return
     return {
-        pageSize: initial.args.pageSize,
+        pageSize: currentArgs.pageSize,
         pageNumber: useList.pageNumber,
         totalPages: useList.totalPages,
         totalCount: useCount.data ?? 0,

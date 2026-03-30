@@ -1,170 +1,197 @@
-import type { IFETheme } from '@/Features/Pages/Client/Theme/ITheme';
-import type { components } from '@/types/api';
-import * as SchemaFields from "@/types/SchemaFields";
-import { useNavigate, useParams } from 'react-router-dom';
-import { FormatDate } from '@/SysCore/Utils/Library/LibData';
-import parse from 'html-react-parser';
-import AnnouncementProvider from '@/Features/Hooks/BizFunc/WebManagement/Announcement_Api';
-import { useFetchFormData } from '@/SysCore/Utils/API/FetchFormData';
-import { useResolveInternalIds } from '@/SysCore/Components/File/useResolveInternalIds';
-import type { Lang } from '@/SysCore/i18n/lang';
-import { useFetchGridListData } from '@/SysCore/Utils/API/FetchGridListData';
-import CategoryProvider from '@/Features/Hooks/BizFunc/WebManagement/Category_Api';
-import TagProvider from '@/Features/Hooks/BizFunc/WebManagement/Tag_Api';
-import LoadingErrorHandler from '@/SysCore/Components/LoadingErrorHandler';
-import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
-import { useCallback } from 'react';
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"]
-type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"]
-type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"]
-type TagSet = components["schemas"]["TagSet_DTO"]
+import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
+import type { components } from "@/types/api";
+import { useNavigate, useParams } from "react-router-dom";
+import { FormatDate } from "@/SysCore/Utils/Library/LibData";
+import parse from "html-react-parser";
+import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
+import type { Lang } from "@/SysCore/i18n/lang";
+import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { useCallback } from "react";
 
-const buildInList = (csv?: string) => (csv ?? "").split(",").map(s => s.trim()).filter(Boolean).map(s => `${s}`).join(",");
-const useGetCategories = (lang: string, categoryIds: string) => {
-    const inList = buildInList(categoryIds);
-    var condition: string = `${SchemaFields.CategoryFields.CategoryId} HasAny [${inList}] And ${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang} = ${lang}`;
-    const provider = CategoryProvider();
-    return useFetchGridListData<CategoryDataSet>({
-        getModelDisplayName: () => provider.getModelDisplayName(),
-        fetchList: (cond) => provider.fetchList(cond),
-        fetchListCount: (cond) => provider.fetchListCount(cond),
-        visibleKeys: [
-            [SchemaFields.CategoryDataSetFields.Category, SchemaFields.CategoryFields.CategoryId],
-            [SchemaFields.CategoryDataSetFields.CategoryDetail, SchemaFields.CategoryDetailFields.Lang],
-            [SchemaFields.CategoryDataSetFields.CategoryDetail, SchemaFields.CategoryDetailFields.CategoryName],
-        ],
-        buildQueryCondition: () => ({
-            Fields: [
-                SchemaFields.CategoryFields.CategoryId,
-                `${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.Lang}`,
-                `${SchemaFields.CategoryFields._CategoryDetail}.${SchemaFields.CategoryDetailFields.CategoryName}`,
-            ],
-            Condition: condition,
-            PageNumber: 0,
-            PageSize: 0,
-        }),
-        enabled: !!categoryIds.trim(),          // 沒 id 不查
-        deps: [lang, categoryIds],        // ids/lang 改變就 refetch
-    });
-};
-const useGetTags = (lang: string, tagIds: string) => {
-    const inList = buildInList(tagIds);
-    var condition: string = `${SchemaFields.TagDataFields.TagId} HasAny [${inList}] And ${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang} = ${lang}`;
-    const provider = TagProvider();
-    return useFetchGridListData<TagSet>({
-        getModelDisplayName: () => provider.getModelDisplayName(),
-        fetchList: (cond) => provider.fetchList(cond),
-        fetchListCount: (cond) => provider.fetchListCount(cond),
-        visibleKeys: [
-            [SchemaFields.TagSetFields.TagData, SchemaFields.TagDataFields.TagId],
-            [SchemaFields.TagSetFields.TagDetail, SchemaFields.TagDetailFields.Lang],
-            [SchemaFields.TagSetFields.TagDetail, SchemaFields.TagDetailFields.TagName],
-        ],
-        buildQueryCondition: () => ({
-            Fields: [
-                SchemaFields.TagDataFields.TagId,
-                `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.Lang}`,
-                `${SchemaFields.TagDataFields._TagDetail}.${SchemaFields.TagDetailFields.TagName}`,
-            ],
-            Condition: condition,
-            PageNumber: 0,
-            PageSize: 0,
-        }),
-        enabled: !!tagIds.trim(),          // 沒 id 不查
-        deps: [lang, tagIds],        // ids/lang 改變就 refetch
-    });
-};
+// TODO：這行請依你實際 feature 檔案位置微調
+import { useAnnouncementFormFetchData } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementForm_Loader";
+
+type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"];
 
 const emptyData: AnnouncementSet = {
     Announcement: {},
-    AnnouncementDetail: []
+    AnnouncementDetail: [],
+};
+
+interface IAnnouncementFormProps
+{
+    theme: IFETheme;
+    lang: Lang;
 }
 
-interface IAnnouncementFormProps { theme: IFETheme; lang: Lang }
+const AnnouncementForm = (props: IAnnouncementFormProps) =>
+{
+    // 宣告變數
+    const { internalId } = useParams();
+    const safeInternalId = `${internalId ?? ""}`.trim();
 
-const AnnouncementForm = (props: IAnnouncementFormProps) => {
-    const { internalId } = useParams()
-    const useAnnouncementFormData = useFetchFormData<AnnouncementSet>(AnnouncementProvider(), internalId, emptyData)
-    const srcCategories = useAnnouncementFormData.data?.Announcement?.Categories ?? "";
-    const srcTags = useAnnouncementFormData.data?.Announcement?.Tags ?? "";
-    const useCategories = useGetCategories(props.lang as string, srcCategories);
-    const useTags = useGetTags(props.lang as string, srcTags);
-    const isLoading = [useAnnouncementFormData.isLoading, useCategories.isLoading, useTags.isLoading];
-    const errors = [useAnnouncementFormData.error, useCategories.error, useTags.error];
+    // 執行 function：1810 表單資料統一改由 feature 取得
+    const getData = useAnnouncementFormFetchData({
+        lang: props.lang,
+        internalId: safeInternalId,
+        emptyData,
+    });
+
+    const formData = getData.rawData.formData;
+    const categoryNameText = getData.rawData.categoryNameText;
+    const tagNameText = getData.rawData.tagNameText;
+
+ 
+
+    // TODO(AnnouncementList):
+    // 下一支若要讓 1810 AnnouncementList 也共用 feature data，
+    // 建議直接在 feature 的 AnnouncementList_Loader / hook 追加 kw 參數，
+    // 1810 只負責把 kw 傳進去與保留自己的 DOM。
+
+    // TODO(ViewCount):
+    // AnnouncementFields.ViewCount 已移除。
+    // 若 1810 之後要顯示瀏覽數，請改接 SiteViewCount 的資料，
+    // 不要再從 Announcement DTO 讀 ViewCount。
+
+    // return
     return (
         <>
-            <LoadingErrorHandler loadingList={isLoading} errorList={errors}>
-                <Content lang={props.lang} theme={props.theme} data={useAnnouncementFormData.data} catData={useCategories.rawData} tagData={useTags.rawData}></Content>
+            <LoadingErrorHandler isLoading={getData.isLoading} errorList={getData.errors}>
+                <Content
+                    lang={props.lang}
+                    theme={props.theme}
+                    data={formData}
+                    categoryNameText={categoryNameText}
+                    tagNameText={tagNameText}
+                />
             </LoadingErrorHandler>
         </>
     );
-}
-export default AnnouncementForm
-const Content = (prop: { lang: string; theme: IFETheme; data: AnnouncementSet; catData: CategoryDataSet[]; tagData: TagSet[] }) => {
-    const langData = prop.data?.AnnouncementDetail?.find(p => p.Lang === prop.lang);
-    const files = prop.data?.AnnouncementDetailFile?.filter(p => p.AnnouncementId === langData?.AnnouncementId && p.ParentRowId === langData?.RowId) ?? []
+};
+
+export default AnnouncementForm;
+
+const Content = (prop: {
+    lang: string;
+    theme: IFETheme;
+    data: AnnouncementSet;
+    categoryNameText: string;
+    tagNameText: string;
+}) =>
+{
+    // 宣告變數
+    const langData = prop.data?.AnnouncementDetail?.find(
+        p => (p.Lang ?? "").toLowerCase() === prop.lang,
+    );
+
+    const files = prop.data?.AnnouncementDetailFile?.filter(
+        p => p.AnnouncementId === langData?.AnnouncementId
+            && p.ParentRowId === langData?.RowId,
+    ) ?? [];
+
     const title = langData?.Title;
     const startDate = FormatDate(prop.data?.Announcement?.Validate_Start);
-    const href = langData?.Url ?? ""
-    const hrefName = langData?.UrlDescription ?? ""
+    const href = langData?.Url ?? "";
+    const hrefName = langData?.UrlDescription ?? "";
     const rawContent = langData?.Content ?? "";
     const parseContent = useResolveInternalIds(rawContent, { locale: prop.lang });
     const content = parseContent.html ? parse(parseContent.html) : null;
-    const cats = (prop.catData ?? []).flatMap(item => (item.CategoryDetail ?? []).filter(detail => detail.Lang === prop.lang).map(detail => detail.CategoryName)) as string[];
-    const tags = (prop.tagData ?? []).flatMap(item => (item.TagDetail ?? []).filter(detail => detail.Lang === prop.lang).map(detail => detail.TagName)) as string[];
-    return (<>
-        <div className="page-header mb-3">
-            <h3>{title}</h3>
-            {startDate && (<><i className="fa fa-calendar"></i>{` ${startDate}`}</>)}
-            {cats && cats.length > 0 && (<><i className="fa fa-tags ml-3"></i>{` ${cats.join('、')}`}</>)}
-            {tags && tags.length > 0 && (<><i className="fa fa-bookmark ml-3"></i>{` ${tags.join('、')}`}</>)}
-        </div>
-        <div className="dotted_line"></div>
-        {content}
-        <hr />
 
-        {(href || files) &&
-            <ul className="list-group">
-                {href && href.length > 0 && (
-                    <li>
-                        <a href={href} target="_blank" rel="noopener noreferrer" className="btn btn-default">
-                            <i className="fa fa-link"></i> {hrefName !== "" ? hrefName : href}
-                        </a>
-                    </li>
-                )}
-                {files && (
-                    <li >
-                        {files.map((file: AnnouncementDetailFile, idx: number) => (
-                            <a key={idx} href={FileManagementAPI.get_Public_Download_Url(file.FileId)} rel="noopener noreferrer" className="btn btn-default" tabIndex={1} title={`${file.FileName}(另開新視窗)`}>
-                                <i className="fa fa-paperclip"></i> {file.FileName}
+    const cats = `${prop.categoryNameText ?? ""}`.trim();
+    const tags = `${prop.tagNameText ?? ""}`.trim();
+
+    // return
+    return (
+        <>
+            <div className="page-header mb-3">
+                <h3>{title}</h3>
+                {startDate && (<><i className="fa fa-calendar"></i>{` ${startDate}`}</>)}
+                {cats && (<><i className="fa fa-tags ml-3"></i>{` ${cats}`}</>)}
+                {tags && (<><i className="fa fa-bookmark ml-3"></i>{` ${tags}`}</>)}
+            </div>
+            <div className="dotted_line"></div>
+            {content}
+            <hr />
+
+            {(href || files.length > 0) && (
+                <ul className="list-group">
+                    {href && href.length > 0 && (
+                        <li>
+                            <a
+                                href={href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn btn-default"
+                            >
+                                <i className="fa fa-link"></i> {hrefName !== "" ? hrefName : href}
                             </a>
-                        ))}
-                    </li>
-                )}
-            </ul>
-        }
-        <GoBackRow />
-    </>
-    )
-}
+                        </li>
+                    )}
 
-const GoBackRow: React.FC = () => {
-    const navigate = useNavigate();
-    const handleBack = useCallback(
-        (e: React.MouseEvent<HTMLButtonElement>) => {
-            e.preventDefault();       // 避免在表單中觸發提交
-            navigate(-1);             // 等同 history.back()
-        },
-        [navigate]
+                    {files.length > 0 && (
+                        <li>
+                            {files.map((file: AnnouncementDetailFile, idx: number) =>
+                            {
+                                // 宣告變數
+                                const downloadUrl = FileManagementAPI.get_Public_Download_Url(
+                                    file.FileId,
+                                    file.FileName,
+                                );
+
+                                // return
+                                return (
+                                    <a
+                                        key={idx}
+                                        href={downloadUrl}
+                                        rel="noopener noreferrer"
+                                        className="btn btn-default"
+                                        tabIndex={1}
+                                        title={`${file.FileName}(另開新視窗)`}
+                                    >
+                                        <i className="fa fa-paperclip"></i> {file.FileName}
+                                    </a>
+                                );
+                            })}
+                        </li>
+                    )}
+                </ul>
+            )}
+
+            <GoBackRow />
+        </>
     );
-    const title = "回上一頁"
+};
+
+const GoBackRow: React.FC = () =>
+{
+    // 宣告變數
+    const navigate = useNavigate();
+    const title = "回上一頁";
+
+    const handleBack = useCallback(
+        (e: React.MouseEvent<HTMLButtonElement>) =>
+        {
+            e.preventDefault();
+            navigate(-1);
+        },
+        [navigate],
+    );
+
+    // return
     return (
         <div className="row">
             <div className="col-lg-8 col-md-8 col-sm-6 col-4" />
             <div className="col-lg-2 col-md-2 col-sm-3 col-4 text-right" />
             <div className="col-lg-2 col-md-2 col-sm-3 col-4 text-right">
-                <button type="button" className="btn btn-primary btn-custom-color"
-                    title={title} aria-label={title} onClick={handleBack}>
+                <button
+                    type="button"
+                    className="btn btn-primary btn-custom-color"
+                    title={title}
+                    aria-label={title}
+                    onClick={handleBack}
+                >
                     {title}
                 </button>
             </div>

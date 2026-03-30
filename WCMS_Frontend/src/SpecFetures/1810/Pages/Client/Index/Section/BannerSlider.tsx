@@ -1,240 +1,364 @@
-import { useBannerSetByCondition, type BannerSet } from "@/Features/Hooks/BizFunc/WebManagement/Banner/BannerSlider_Hook";
-import clsx from "clsx";
-import * as SchemaFields from "@/types/SchemaFields";
-import { useEffect, useMemo } from "react";
-import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { useBannerSliderHydrationData } from "@/SpecFetures/1810/Pages/Client/Index/HomePage_Loader";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import clsx from "clsx";
+import { useEffect, useMemo } from "react";
+
+type BannerSliderHydrationData = ReturnType<typeof useBannerSliderHydrationData>;
+type BannerSet = NonNullable<BannerSliderHydrationData["banner"]>;
+
+interface BannerSliderProps
+{
+    lang: Lang;
+    hydrationData: BannerSliderHydrationData;
+}
+interface CarouselInstance
+{
+    cycle: () => void;
+    pause: () => void;
+    dispose?: () => void;
+}
+interface CarouselStatic
+{
+    getOrCreateInstance: (element: Element, options?: { interval?: number; }) => CarouselInstance;
+    getInstance?: (element: Element) => CarouselInstance | null;
+}
+interface BootstrapWindow extends Window
+{
+    bootstrap?: { Carousel?: CarouselStatic; };
+}
+
+const SLIDE_INTERVAL = 5000;
 
 const emptyData: BannerSet = {
     Banner: {},
     BannerDetail: [
-        {
-            RowId: 1,
-            Validate_Start: "",
-            Validate_End: "",
-            PicSrcId: "",
-            FontColor: "",
-        }
+        { RowId: 1, Validate_Start: "", Validate_End: "", PicSrcId: "", FontColor: "" },
     ],
     BannerDetailInfo: [
-        {
-            ParentRowId: 1,
-            RowId: 1,
-            Lang: "zh-tw",
-            Title: "",
-            Content: "",
-            URL: "",
-            URL_Open: 1,
-        },
-        {
-            ParentRowId: 1,
-            RowId: 2,
-            Lang: "en",
-            Title: "",
-            Content: "",
-            URL: "",
-            URL_Open: 1,
-        }
-    ]
+        { ParentRowId: 1, RowId: 1, Lang: "zh-tw", Title: "", Content: "", URL: "", URL_Open: 1 },
+        { ParentRowId: 1, RowId: 2, Lang: "en", Title: "", Content: "", URL: "", URL_Open: 1 },
+    ],
 };
 
-const SLIDE_INTERVAL = 5000;
+/// 取得 bootstrap carousel 類別
+const getBootstrapCarousel = (): CarouselStatic | null =>
+{
+    if (typeof window === "undefined") return null;
+    return (window as BootstrapWindow).bootstrap?.Carousel ?? null;
+};
 
-export const BannerSlider = (props: { lang: Lang }) => {
-    // 宣告變數：用 Adapter QueryList 拿第一筆（BannerId=1）
-    const bannerRes = useBannerSetByCondition({ condition: `${SchemaFields.BannerFields.BannerId} = 1` });
-    const bannerData = bannerRes.data ?? emptyData;
+/// 清除舊 carousel instance
+const disposeCarousel = (id: string) =>
+{
+    if (typeof window === "undefined") return;
 
-    const sortedDetails = useMemo(() => {
-        const list = bannerData?.BannerDetail ?? [];
-        // 依 Detail.Sort 由小到大
-        return [...list].sort((a, b) => {
-            const as = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
-            const bs = Number.isFinite(b?.Sort) ? Number(b.Sort) : Number.MAX_SAFE_INTEGER;
-            // 次排序：RowId，確保穩定
-            if (as !== bs) return as - bs;
-            const ar = Number.isFinite(a?.RowId) ? Number(a.RowId) : Number.MAX_SAFE_INTEGER;
-            const br = Number.isFinite(b?.RowId) ? Number(b.RowId) : Number.MAX_SAFE_INTEGER;
-            return ar - br;
-        });
-    }, [bannerData?.BannerDetail]);
+    const root = document.getElementById(id);
+    const Carousel = getBootstrapCarousel();
+    if (!root || !Carousel?.getInstance) return;
 
-    const mappedDetails = useMemo(() => {
-        return sortedDetails.map(d => ({ ...d, __url: "" as string }));
-    }, [sortedDetails]);
+    Carousel.getInstance(root)?.dispose?.();
+};
 
-    useEffect(() => {
-        // 宣告變數
-        let alive = true;
+/// 初始化 carousel
+const initCarousel = (id: string) =>
+{
+    if (typeof window === "undefined") return;
 
-        // 執行 function：把 PicSrcId 轉成可用 URL（CSR 才有 window）
-        const run = async () => {
-            if (typeof window === "undefined") return;
-            if (!mappedDetails.length) return;
+    disposeCarousel(id);
 
-            const tasks = mappedDetails.map(async (d) => {
-                const id = d?.PicSrcId ?? "";
-                if (!id) return { id, url: "" };
-                const url = FileManagementAPI.get_Public_Preview_Url(id);
-                return { id, url };
-            });
+    const root = document.getElementById(id);
+    const Carousel = getBootstrapCarousel();
+    if (!root || !Carousel) return;
 
-            const res = await Promise.all(tasks);
-            if (!alive) return;
+    const instance = Carousel.getOrCreateInstance(root, { interval: SLIDE_INTERVAL });
+    instance.cycle();
+};
 
-            // 把 URL 寫回 DOM dataset（不動原本 render 結構）
-            res.forEach(({ id, url }) => {
-                const els = document.querySelectorAll(`[data-picsrcid="${id}"]`);
-                els.forEach(el => (el as HTMLElement).setAttribute("data-picurl", url));
-            });
-        };
+/// 控制 carousel 播放與暫停
+const handleCarouselControl = (id: string, action: "play" | "pause") =>
+{
+    if (typeof window === "undefined") return;
 
-        run();
+    const root = document.getElementById(id);
+    const Carousel = getBootstrapCarousel();
+    if (!root || !Carousel) return;
 
-        // return
-        return () => {
-            alive = false;
-        };
-    }, [mappedDetails.length]);
+    const instance = Carousel.getOrCreateInstance(root);
+    if (action === "play")
+    {
+        instance.cycle();
+        return;
+    }
+    instance.pause();
+};
 
-    const handleCarouselControl = (id: string, action: "play" | "pause") => {
-        if (typeof window === "undefined") return;
+/// 依排序欄位整理 banner 明細
+const getSortedDetails = (bannerData: BannerSet) =>
+{
+    const list = bannerData?.BannerDetail ?? [];
 
-        const root = document.getElementById(id);
-        const anyWindow = window as any;
-        const Carousel = anyWindow.bootstrap?.Carousel;
+    return [...list].sort((a, b) =>
+    {
+        const aSort = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
+        const bSort = Number.isFinite(b?.Sort) ? Number(b.Sort) : Number.MAX_SAFE_INTEGER;
+        if (aSort !== bSort) return aSort - bSort;
 
-        if (!root || !Carousel) return;
+        const aRowId = Number.isFinite(a?.RowId) ? Number(a.RowId) : Number.MAX_SAFE_INTEGER;
+        const bRowId = Number.isFinite(b?.RowId) ? Number(b.RowId) : Number.MAX_SAFE_INTEGER;
+        return aRowId - bRowId;
+    });
+};
 
-        const instance = Carousel.getOrCreateInstance(root);
-        if (action === "play") {
-            instance.cycle();
-        } else {
-            instance.pause();
-        }
-    };
+/// 依語系取得 banner 文字資料
+const getBannerInfo = (bannerData: BannerSet, rowId?: number | null, bannerId?: string | null, lang?: Lang) =>
+{
+    return bannerData?.BannerDetailInfo?.find((item) =>
+        item.BannerId === bannerId && item.ParentRowId === rowId && item.Lang === lang
+    ) ?? null;
+};
 
-    useEffect(() => {
-        if (typeof window === "undefined") return;
-        if (!sortedDetails.length) return;
+/// 組出圖片預覽網址
+const getPreviewUrl = (picSrcId?: string | null) =>
+{
+    const id = picSrcId ?? "";
+    if (!id) return "";
+    return FileManagementAPI.get_Public_Preview_Url(id);
+};
 
-        const anyWindow = window as any;
-        const Carousel = anyWindow.bootstrap?.Carousel;
-        if (!Carousel) return;
-
-        const pc = document.getElementById("carousel-Controls");
-        if (pc) {
-            const instPc = Carousel.getOrCreateInstance(pc, {
-                interval: SLIDE_INTERVAL,
-            });
-            instPc.cycle();
-        }
-
-        const mb = document.getElementById("carousel-Controls_MB");
-        if (mb) {
-            const instMb = Carousel.getOrCreateInstance(mb, { interval: SLIDE_INTERVAL });
-            instMb.cycle();
-        }
-    }, [sortedDetails.length]);
-
+const PCBanner = (props: { bannerData: BannerSet; lang: Lang; sortedDetails: BannerSet["BannerDetail"]; }) =>
+{
     return (
-        // <LoadingErrorHandler loadingList={loadingList} errorList={errorList} >
-        <section className="index_banner_Section">
-            <div className="index_banner-carousel">
-                <div className="container">
-                    <div className="row">
-                        <div className="index_banner carousel-inner" id="carousel-Controls">
-                            {sortedDetails.map((p, idx) => {
-                                const info = bannerData?.BannerDetailInfo?.find(
-                                    x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang
-                                );
+        <div
+            className="customize_visualBox + animate__animated animate__slow wow fadeInRight d-xl-block d-lg-block d-md-block d-sm-none d-none"
+            data-wow-delay="0.05s"
+        >
+            <div id="carousel-Controls" className="carousel carousel-dark slide carousel-fade" data-bs-ride="carousel">
+                <div className="carousel-inner">
+                    {props.sortedDetails?.map((item, index) =>
+                    {
+                        const info = getBannerInfo(props.bannerData, item.RowId, item.BannerId, props.lang);
+                        const alt = info?.Title ?? "";
+                        const url = info?.URL ?? "";
+                        const target = info?.URL_Open === 0 ? "_self" : "_blank";
+                        const src = getPreviewUrl(item.PicSrcId);
 
-                                const title = info?.Title ?? "";
-                                const content = info?.Content ?? "";
-                                const url = info?.URL ?? "";
-                                const open = info?.URL_Open ?? 0;
+                        return (
+                            <div
+                                key={`${item.RowId}-${index}`}
+                                className={clsx("carousel-item", index === 0 && "active")}
+                                data-bs-interval={SLIDE_INTERVAL}
+                            >
+                                {!url
+                                    ? <img src={src} className="d-block w-100" alt={alt} />
+                                    : (
+                                        <a href={url} target={target} rel="noopener noreferrer">
+                                            <img src={src} className="d-block w-100" alt={alt} />
+                                        </a>
+                                    )}
+                            </div>
+                        );
+                    })}
+                </div>
 
-                                const picId = p.PicSrcId ?? "";
-                                const dataAttr = { "data-picsrcid": picId };
-
-                                return (
-                                    <div key={`${p.RowId}-${idx}`} className={clsx("carousel-item", idx === 0 && "active")}>
-                                        <div className="row">
-                                            <div className="col-lg-6">
-                                                <div className="index_banner-text">
-                                                    <h2 style={{ color: p.FontColor || undefined }}>{title}</h2>
-                                                    <p style={{ color: p.FontColor || undefined }}>{content}</p>
-                                                    {url && (
-                                                        <a
-                                                            href={url}
-                                                            target={open === 1 ? "_blank" : "_self"}
-                                                            rel={open === 1 ? "noreferrer" : undefined}
-                                                            className="btn btn-primary"
-                                                        >
-                                                            More
-                                                        </a>
-                                                    )}
-                                                </div>
-                                            </div>
-                                            <div className="col-lg-6">
-                                                <div className="index_banner-img" {...dataAttr}></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-
-                        <div className="index_banner-carousel-controls">
-                            <button className="carousel-control-prev" type="button" data-bs-target="#carousel-Controls" data-bs-slide="prev">
-                                <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-                                <span className="visually-hidden">Previous</span>
-                            </button>
-                            <button className="carousel-control-next" type="button" data-bs-target="#carousel-Controls" data-bs-slide="next">
-                                <span className="carousel-control-next-icon" aria-hidden="true"></span>
-                                <span className="visually-hidden">Next</span>
-                            </button>
-
-                            <button type="button" onClick={() => handleCarouselControl("carousel-Controls", "pause")} className="carousel-pause-btn">
-                                <span className="visually-hidden">Pause</span>
-                            </button>
-                            <button type="button" onClick={() => handleCarouselControl("carousel-Controls", "play")} className="carousel-play-btn">
-                                <span className="visually-hidden">Play</span>
-                            </button>
-                        </div>
-
-                        <div className="index_banner carousel-inner" id="carousel-Controls_MB">
-                            {sortedDetails.map((p, idx) => {
-                                const alt = bannerData?.BannerDetailInfo?.find(
-                                    x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang
-                                )?.Title ?? "";
-
-                                const picId = p.PicSrcId ?? "";
-                                const dataAttr = { "data-picsrcid": picId, "aria-label": alt };
-
-                                return (
-                                    <div key={`${p.RowId}-${idx}`} className={clsx("carousel-item", idx === 0 && "active")}>
-                                        <div className="index_banner-img" {...dataAttr}></div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-
-                        <div className="index_banner-carousel-controls_MB">
-                            <button className="carousel-control-prev" type="button" data-bs-target="#carousel-Controls_MB" data-bs-slide="prev">
-                                <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-                                <span className="visually-hidden">Previous</span>
-                            </button>
-                            <button className="carousel-control-next" type="button" data-bs-target="#carousel-Controls_MB" data-bs-slide="next">
-                                <span className="carousel-control-next-icon" aria-hidden="true"></span>
-                                <span className="visually-hidden">Next</span>
-                            </button>
-                        </div>
-
+                <div className="control-box">
+                    <div className="carousel_btn-icon-prev">
+                        <a
+                            className="carousel-control-prev"
+                            href="#carousel-Controls"
+                            data-bs-target="#carousel-Controls"
+                            role="button"
+                            data-bs-slide="prev"
+                            title="上一張"
+                            tabIndex={1}
+                        >
+                            <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span className="sr-only">Previous</span>
+                        </a>
+                    </div>
+                    <div className="carousel_btn-icon-next">
+                        <a
+                            className="carousel-control-next"
+                            href="#carousel-Controls"
+                            data-bs-target="#carousel-Controls"
+                            role="button"
+                            data-bs-slide="next"
+                            title="下一張"
+                            tabIndex={1}
+                        >
+                            <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span className="sr-only">Next</span>
+                        </a>
+                    </div>
+                    <div id="cycleCarousel" className="control-start">
+                        <a
+                            type="button"
+                            href="#"
+                            onClick={(e) =>
+                            {
+                                e.preventDefault();
+                                handleCarouselControl("carousel-Controls", "play");
+                            }}
+                            data-bs-target="#carousel-Controls"
+                            title="播放"
+                            tabIndex={1}
+                        >
+                            <span className="control-start-icon"></span>
+                            <span className="sr-only">播放</span>
+                        </a>
+                    </div>
+                    <div id="pauseCarousel" className="control-pause">
+                        <a
+                            type="button"
+                            href="#"
+                            onClick={(e) =>
+                            {
+                                e.preventDefault();
+                                handleCarouselControl("carousel-Controls", "pause");
+                            }}
+                            data-bs-target="#carousel-Controls"
+                            title="暫停"
+                            tabIndex={1}
+                        >
+                            <span className="control-pause-icon"></span>
+                            <span className="sr-only">暫停</span>
+                        </a>
                     </div>
                 </div>
             </div>
+        </div>
+    );
+};
+
+const MobileBanner = (props: { bannerData: BannerSet; lang: Lang; sortedDetails: BannerSet["BannerDetail"]; }) =>
+{
+    return (
+        <div
+            className="customize_visualBox + animate__animated animate__slow wow fadeInRight d-xl-none d-lg-none d-md-none d-sm-block"
+            data-wow-delay="0.05s"
+        >
+            <div
+                id="carousel-Controls_MB"
+                className="carousel carousel-dark slide carousel-fade"
+                data-bs-ride="carousel"
+            >
+                <div className="carousel-inner">
+                    {props.sortedDetails?.map((item, index) =>
+                    {
+                        const alt = getBannerInfo(props.bannerData, item.RowId, item.BannerId, props.lang)?.Title ?? "";
+                        const src = getPreviewUrl(item.PicSrcId);
+
+                        return (
+                            <div
+                                key={`${item.RowId}-${index}`}
+                                className={clsx("carousel-item", index === 0 && "active")}
+                                data-bs-interval={SLIDE_INTERVAL}
+                            >
+                                <img src={src} className="d-block w-100" alt={alt} />
+                            </div>
+                        );
+                    })}
+                </div>
+
+                <div className="control-box">
+                    <div className="carousel_btn-icon-prev">
+                        <a
+                            className="carousel-control-prev"
+                            href="#carousel-Controls_MB"
+                            type="button"
+                            data-bs-target="#carousel-Controls_MB"
+                            data-bs-slide="prev"
+                            title="上一張"
+                            tabIndex={1}
+                        >
+                            <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span className="sr-only">Previous</span>
+                        </a>
+                    </div>
+                    <div className="carousel_btn-icon-next">
+                        <a
+                            className="carousel-control-next"
+                            href="#carousel-Controls_MB"
+                            type="button"
+                            data-bs-target="#carousel-Controls_MB"
+                            data-bs-slide="next"
+                            title="下一張"
+                            tabIndex={1}
+                        >
+                            <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span className="sr-only">Next</span>
+                        </a>
+                    </div>
+                    <div id="cycleCarousel_MB" className="control-start">
+                        <a
+                            type="button"
+                            href="#carousel-Controls_MB"
+                            onClick={(e) =>
+                            {
+                                e.preventDefault();
+                                handleCarouselControl("carousel-Controls_MB", "play");
+                            }}
+                            title="播放"
+                            tabIndex={1}
+                        >
+                            <span className="control-start-icon"></span>
+                            <span className="sr-only">播放</span>
+                        </a>
+                    </div>
+                    <div id="pauseCarousel_MB" className="control-pause">
+                        <a
+                            type="button"
+                            href="#carousel-Controls_MB"
+                            onClick={(e) =>
+                            {
+                                e.preventDefault();
+                                handleCarouselControl("carousel-Controls_MB", "pause");
+                            }}
+                            title="暫停"
+                            tabIndex={1}
+                        >
+                            <span className="control-pause-icon"></span>
+                            <span className="sr-only">暫停</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export const BannerSlider = (props: BannerSliderProps) =>
+{
+    // 宣告變數：改由 loader / hydration 提供 banner 資料
+    const bannerData = props.hydrationData.banner ?? emptyData;
+
+    // 宣告變數：維持舊版 detail 排序規則
+    const sortedDetails = useMemo(() => getSortedDetails(bannerData), [bannerData]);
+
+    useEffect(() =>
+    {
+        if (!sortedDetails.length) return;
+
+        initCarousel("carousel-Controls");
+        initCarousel("carousel-Controls_MB");
+
+        return () =>
+        {
+            disposeCarousel("carousel-Controls");
+            disposeCarousel("carousel-Controls_MB");
+        };
+    }, [sortedDetails]);
+
+    return (
+        <section className="carousel_slide_section">
+            <div className="sidebar">
+                <div className="scroll_Down">
+                    <a href="#content" className="eng_font">SCROLL</a>
+                </div>
+            </div>
+
+            <PCBanner bannerData={bannerData} lang={props.lang} sortedDetails={sortedDetails} />
+            <MobileBanner bannerData={bannerData} lang={props.lang} sortedDetails={sortedDetails} />
         </section>
-        // </LoadingErrorHandler>
     );
 };

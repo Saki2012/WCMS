@@ -25,7 +25,8 @@ export interface FooterProps {
 }
 
 interface FooterText {
-    viewCountTitle: string
+    currentViewCountTitle:string
+    totalViewCountTitle: string
     updateDateTitle: string
     systemVersionTitle: string
     designByTitle:string
@@ -38,14 +39,16 @@ const getFooterText = (lang: Lang): FooterText => {
     // return
     return isEn
         ? {
-            viewCountTitle: "Views",
+            currentViewCountTitle: "Current Views",
+            totalViewCountTitle: "Total Views",
             updateDateTitle: "Last updated",
             systemVersionTitle: "System version",
             designByTitle: "IT-EASYGO International Accessibility Technology Co., Ltd.",
             designBy: "Design by it-easygo.",
         }
         : {
-            viewCountTitle: "瀏覽人數",
+            currentViewCountTitle: "在線人數",
+            totalViewCountTitle: "總瀏覽人數",
             updateDateTitle: "網站更新日期",
             systemVersionTitle: "系統版本",
             designByTitle: "國際暢行科技有限公司",
@@ -102,12 +105,13 @@ const getFooterContentHtml = (lang:Lang, value?: string | null) => {
 
 const buildStatusLine = (text: FooterText, runtimeInfo: FooterRuntimeInfo | undefined,): string => {
     // 宣告變數
+    const currentViewCount = formatViewCount(runtimeInfo?.viewCount)
     const viewCount = formatViewCount(runtimeInfo?.viewCount)
     const updateDate = formatUpdateDate(runtimeInfo?.siteUpdatedAt)
     const feVersion = getFeVersion(runtimeInfo?.feVersion)
     const beVersion = getBeVersion(runtimeInfo?.beVersion)
     // return
-    return `${text.viewCountTitle}:${viewCount} | ${text.updateDateTitle}:${updateDate} | ${text.systemVersionTitle}:FE-${feVersion} / BE-${beVersion}`
+    return `${text.currentViewCountTitle}:${currentViewCount} | ${text.totalViewCountTitle}:${viewCount} | ${text.updateDateTitle}:${updateDate} | ${text.systemVersionTitle}:FE-${feVersion} / BE-${beVersion}`
 }
 
 const buildCopyrightPrefix = (currentYear: number, siteTitle: string): string => {

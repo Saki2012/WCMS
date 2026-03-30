@@ -1,219 +1,359 @@
 /**公告清單 */
-import { useId, useMemo, useState } from "react";
-import type { ColumnConfig, GridProps } from "@/SysCore/Components/Grid/Grid_Data";
+import { useMemo, useState } from "react";
+import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import type { components } from "@/types/api";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import type { GridRow } from "@/SysCore/Components/Grid/Grid_Data";
-import type { RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import { useFetchGridListData } from "@/SysCore/Utils/API/FetchGridListData";
-import { FileArchiveSetFields, FileArchiveFields, FileArchiveInfoFields, FileArchiveDetailFields, FileManageModelFields, FileArchiveUrlDetailFields } from "@/types/SchemaFields";
+import {
+    FileArchiveFields,
+    FileArchiveInfoFields,
+} from "@/types/SchemaFields";
 import type { Lang } from "@/SysCore/i18n/lang";
-import FileArchiveProvider from "@/Features/Hooks/BizFunc/WebManagement/FileArchive_Api";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-import { useTagListData } from "@/Features/Hooks/BizFunc/WebManagement/Tags/Tag_Hook";
 import { SearchBarComp, type ISearchQuery } from "@/SysCore/Components/SearchBar/SearchBar_Comp";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import type { FileArchiveProps } from "@/Features/Pages/Client/BizFunc/WebManagement/FileArchive/FileArchiveList";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
+import { useFileArchiveListFetchData } from "@/Features/Pages/Client/BizFunc/WebManagement/FileArchive/FileArchiveList_Loader";
+
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
 type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"];
 type FileArchiveUrlDetail = components["schemas"]["FileArchiveUrlDetail_DTO"];
-type TagSet = components["schemas"]["TagSet_DTO"];
-type WindowTarget = components["schemas"]["WindowTarget"]
-
-const useFileArchive = (lang: Lang, categoryIds: string, tagIds: string, tagSets: TagSet[], query: ISearchQuery) => {
-    var condition: string = "";
-    if (query.keyword) condition = LibMerge(" And ", false, condition, `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Title} Like ${query.keyword}`)
-    if (query.tag) condition = LibMerge(" And ", false, condition, `${FileArchiveFields.TagsId} HasAny [${query.tag}]`)
-    if (categoryIds) condition = LibMerge(" And ", false, condition, `${FileArchiveFields.CategoriesId} HasAny [${categoryIds}]`)
-    if (tagIds) condition = LibMerge(" And ", false, condition, `${FileArchiveFields.TagsId} HasAny [${tagIds}]`)
-    condition = LibMerge(" And ", false, condition, `${FileArchiveFields.ContentStatus} !& 4`)//不包含隱藏的資料
-    const provider = FileArchiveProvider();
-    return useFetchGridListData<FileArchiveSet>({
-        getModelDisplayName: () => provider.getModelDisplayName(),
-        fetchList: (cond) => provider.fetchList(cond),
-        fetchListCount: (cond) => provider.fetchListCount(cond),
-        visibleKeys: [
-            [FileArchiveSetFields.FileArchive, FileArchiveFields.TagsId],
-            [FileArchiveSetFields.FileArchiveInfo, FileArchiveInfoFields.Title],
-            [FileArchiveSetFields.FileArchive, FileArchiveFields.DownloadCount]
-        ],
-        buildQueryCondition: (page) => ({
-            Fields: [
-                FileArchiveFields.InternalId,
-                FileArchiveFields.FileArchiveId,
-                FileArchiveFields.TagsId,
-                FileArchiveFields.DownloadCount,
-                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.FileArchiveId}`,
-                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.RowId}`,
-                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Lang}`,
-                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Title}`,
-                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileArchiveId}`,
-                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.ParentRowId}`,
-                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrcId}`,
-                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileName}`,
-                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrc}.${FileManageModelFields.InternalId}`,
-                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrc}.${FileManageModelFields.FileExtension}`,
-                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.FileArchiveId}`,
-                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.ParentRowId}`,
-                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.Url}`,
-                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.UrlDescription}`,
-                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.WindowTarget}`,
-
-            ],
-            Condition: condition,
-            RankGroups: [{ Condition: `${FileArchiveFields.ContentStatus} & 1` }],
-            OrderBy: [{ Col: FileArchiveFields.CreateTime, Desc: true }],
-            PageNumber: page,
-            PageSize: 10,
-        }),
-        parseRow: (item, columns) => {
-            const cells: RowCell[] = columns.map(col => {
-                let content = "";
-                switch (col.key) {
-                    case FileArchiveInfoFields.Title:
-                        {
-                            content = item.FileArchiveInfo?.find(p => p.Lang === lang)?.Title ?? "";
-                            break;
-                        }
-                    default:
-                        content = (item.FileArchive as any)[col.key] ?? "";
-                        break;
-                }
-                return { col, content };
-            });
-            return { cells };
-        },
-        enabled: true,
-        deps: [lang, categoryIds, tagIds, tagSets, query],
-    });
-};
-
+type WindowTarget = components["schemas"]["WindowTarget"];
 
 const FileArchiveList = (props: FileArchiveProps) => {
+    // 宣告變數
     const [queryDraft, setQueryDraft] = useState<ISearchQuery>({});
     const [query, setQuery] = useState<ISearchQuery>({});
-    const useTagData = useTagListData("FileArchive", props.lang);
-    const useFileArchiveList = useFileArchive(props.lang, props.options.Category, props.options.Tag, useTagData.rawData, query);
-    const tags = (useTagData.rawData ?? []).map(t => ({ id: t.TagData?.TagId ?? "", name: t.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "" }));
-    const tagMap = useMemo(() => {
-        const map = new Map<string, string>();
-        (useTagData.rawData ?? []).forEach(t => {
-            const id = String(t.TagData?.TagId ?? "");
-            const name = t.TagDetail?.find(d => d.Lang === props.lang)?.TagName ?? "";
-            if (id) map.set(id, name);
-        });
-        return map;
-    }, [useTagData.rawData, props.lang]);
-    const searchSlot = (<SearchBarComp value={queryDraft} tags={tags} onChange={(k, v) => setQueryDraft(prev => ({ ...prev, [k]: v }))} onSubmit={() => setQuery(queryDraft)} onReset={() => { setQueryDraft({}); setQuery({}); }} />);
-    const adjustedGrid = useMemo(() => { return SetAdjustFunction(props.lang, useFileArchiveList.gridProps, useFileArchiveList.rawData, tagMap); }, [useFileArchiveList.gridProps, useFileArchiveList.rawData, tagMap]);
-    const isLoading = [useFileArchiveList.isLoading, useTagData.isLoading];
-    const errors = [useFileArchiveList.error, useTagData.error];
-    const content: React.ReactElement | null = useMemo(() => { return <List_Comp key="grid" lang={props.lang} gridData={adjustedGrid} theme={props.theme} /> }, [searchSlot, adjustedGrid, props.theme, isLoading, errors]);
 
+    // 執行 function：統一由 feature loader 提供主資料 / tag / category
+    const useFileArchiveList = useFileArchiveListFetchData({
+        lang: props.lang,
+        opts: props.options,
+        query,
+    });
+
+    const searchSlot = (
+        <SearchBarComp
+            value={queryDraft}
+            tags={useFileArchiveList.rawData.tagOptions}
+            onChange={(k, v) => setQueryDraft(prev => ({ ...prev, [k]: v }))}
+            onSubmit={() => setQuery(queryDraft)}
+            onReset={() => {
+                setQueryDraft({});
+                setQuery({});
+            }}
+        />
+    );
+
+    const baseGrid = useMemo(() => {
+        // 執行 function：維持 1810 原本基礎欄位結構
+        return buildGridProps(
+            props.lang,
+            useFileArchiveList.rawData.list,
+            useFileArchiveList.rawData.pageNumber,
+            useFileArchiveList.rawData.totalPages,
+            useFileArchiveList.rawData.onPageChange,
+        );
+    }, [
+        props.lang,
+        useFileArchiveList.rawData.list,
+        useFileArchiveList.rawData.pageNumber,
+        useFileArchiveList.rawData.totalPages,
+        useFileArchiveList.rawData.onPageChange,
+    ]);
+
+    const adjustedGrid = useMemo(() => {
+        // 執行 function：補下載 / 下載次數欄位與 tag 名稱
+        return SetAdjustFunction(
+            props.lang,
+            baseGrid,
+            useFileArchiveList.rawData.list,
+            useFileArchiveList.rawData.tagMap,
+        );
+    }, [
+        props.lang,
+        baseGrid,
+        useFileArchiveList.rawData.list,
+        useFileArchiveList.rawData.tagMap,
+    ]);
+
+    const content = useMemo(() => {
+        // return：保留 1810 原本 DOM 結構
+        return <List_Comp key="grid" lang={props.lang} gridData={adjustedGrid} theme={props.theme} />;
+    }, [props.lang, adjustedGrid, props.theme]);
 
     return (
         <>
             {searchSlot}
-            <LoadingErrorHandler loadingList={isLoading} errorList={errors} >
+            <LoadingErrorHandler isLoading={useFileArchiveList.isLoading} errorList={useFileArchiveList.errors}>
                 {content}
             </LoadingErrorHandler>
         </>
-    )
+    );
 };
 
-export default FileArchiveList
+export default FileArchiveList;
 
-const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: FileArchiveSet[], tagMap: Map<string, string>): GridProps => {
-    const downloadColName = '__Download__';
-    if (gridProps.columns.some(col => col.key === downloadColName)) return gridProps;
-    if (gridProps.rows.length === 0) return gridProps;
-    // 1) 欄位層級：抽掉「下載次數」，最後組合為「其他｜下載｜下載次數」
-    let baseColumns = [...gridProps.columns];
-    const dcIdx = baseColumns.findIndex(c => c.key === FileArchiveFields.DownloadCount);
+/** 建立 1810 基礎欄位 */
+const buildGridColumns = (): ColumnConfig[] => {
+    // return：保留 1810 原本欄位順序（標籤、標題）
+    return [
+        { key: FileArchiveFields.TagsId, title: "標籤" },
+        { key: FileArchiveInfoFields.Title, title: "標題" },
+    ];
+};
 
-    let downloadCountCol: ColumnConfig | null = null;
-    if (dcIdx !== -1) {
-        [downloadCountCol] = baseColumns.splice(dcIdx, 1);
+/** 建立 1810 基礎列資料 */
+const buildGridRows = (lang: Lang, datas: FileArchiveSet[], columns: ColumnConfig[]): GridRow[] => {
+    // return：只處理 1810 原本基礎欄位內容
+    return datas.map(item => {
+        const cells: RowCell[] = columns.map(col => {
+            const content = getBaseCellContent(lang, item, col.key);
+            return { col, content };
+        });
+
+        return {
+            keyId: item.FileArchive?.InternalId ?? "",
+            cells,
+        };
+    });
+};
+
+/** 取得基礎欄位內容 */
+const getBaseCellContent = (lang: Lang, item: FileArchiveSet, key: string): string => {
+    // 執行 function：依欄位決定顯示值
+    switch (key) {
+        case FileArchiveFields.TagsId:
+            return item.FileArchive?.TagsId ?? "";
+        case FileArchiveInfoFields.Title:
+            return item.FileArchiveInfo?.find(p => p.Lang === lang)?.Title ?? "";
+        default:
+            return "";
     }
-    const downloadCol: ColumnConfig = { key: downloadColName, title: '下載' };
-    const newColumns: ColumnConfig[] = [...baseColumns, downloadCol, ...(downloadCountCol ? [downloadCountCol] : []),];
-    // 2) 列層級：抽掉「下載次數」cell，最後組合為「其他｜下載｜下載次數」
+};
+
+/** 建立 1810 GridProps */
+const buildGridProps = (
+    lang: Lang,
+    datas: FileArchiveSet[],
+    pageNumber: number,
+    totalPages: number,
+    onPageChange: (page: number) => void,
+): GridProps => {
+    // 宣告變數
+    const columns = buildGridColumns();
+    const rows = buildGridRows(lang, datas, columns);
+
+    // return
+    return {
+        columns,
+        rows,
+        CurrentPage: pageNumber,
+        TotalPage: totalPages,
+        onPageChange,
+    } as GridProps;
+};
+
+/** 補下載 / 下載次數欄位與 tag 名稱 */
+const SetAdjustFunction = (
+    lang: Lang,
+    gridProps: GridProps,
+    rawData: FileArchiveSet[],
+    tagMap: Record<string, string>,
+): GridProps => {
+    // 宣告變數
+    const downloadColName = "__Download__";
+    const publicDownloadCountColName = "__PublicDownloadCount__";
+
+    // 執行 function：避免重複處理
+    if (gridProps.columns.some(col => col.key === downloadColName || col.key === publicDownloadCountColName)) {
+        return gridProps;
+    }
+
+    const downloadCol: ColumnConfig = { key: downloadColName, title: "下載" };
+    const publicDownloadCountCol: ColumnConfig = { key: publicDownloadCountColName, title: "下載次數" };
+    const newColumns: ColumnConfig[] = [...gridProps.columns, downloadCol, publicDownloadCountCol];
+
     const newRows: GridRow[] = gridProps.rows.map((row, index) => {
-        const fileInfoRowId = rawData?.[index].FileArchiveInfo?.find(p => p.Lang === lang)?.RowId;
-        const fileRows = rawData[index].FileArchiveDetail?.filter(p => p.ParentRowId === fileInfoRowId) as FileArchiveDetail[];
-        const urlRows = rawData[index].FileArchiveUrlDetail?.filter(p => p.ParentRowId === fileInfoRowId) as FileArchiveUrlDetail[];
-        // 產生「下載」內容
-        let downloadFileContent = <></>;
-        fileRows?.forEach(item => {
-            downloadFileContent = (
-                <>
-                    {downloadFileContent}
-                    {SetDownloadIcon(item.FileSrcId ?? '', item.FileSrc?.FileExtension ?? 'docx', item.FileName ?? '')}
-                </>
-            );
-        });
-        urlRows?.forEach(item => {
-            downloadFileContent = <>
-                {downloadFileContent}
-                {SetUrlIcon(item.Url ?? "", item.UrlDescription ?? "", item.WindowTarget ?? 0)}
-            </>
-        });
+        // 宣告變數
+        const curRow = rawData?.[index];
+        const fileRows = curRow ? getCurrentLangFileRows(lang, curRow) : [];
+        const urlRows = curRow ? getCurrentLangUrlRows(lang, curRow) : [];
+        const publicDownloadCount = getPublicDownloadCountTotal(fileRows);
+        const downloadFileContent = buildDownloadContent(fileRows, urlRows);
+
         const cells = row.cells.map(cell => {
             if (cell.col?.key !== FileArchiveFields.TagsId) return cell;
-            const ids = String(cell.content ?? "").split(",").map(s => s.trim()).filter(Boolean);
-            const names = ids.map(id => tagMap.get(id)).filter((x): x is string => !!x).join("、");
+
+            const ids = String(cell.content ?? "")
+                .split(",")
+                .map(s => s.trim())
+                .filter(Boolean);
+
+            const names = ids
+                .map(id => tagMap[id] ?? "")
+                .filter(Boolean)
+                .join("、");
+
             return { ...cell, content: names };
         });
 
-        const dcCellIdx = cells.findIndex(c => c.col?.key === FileArchiveFields.DownloadCount);
-        let downloadCountCell: RowCell | null = null;
-        if (dcCellIdx !== -1) {
-            [downloadCountCell] = cells.splice(dcCellIdx, 1);
-            if (downloadCountCol) downloadCountCell = { ...downloadCountCell, col: downloadCountCol };
-        }
-        const downloadCell: RowCell = { col: downloadCol, content: downloadFileContent };
-        return { ...row, cells: [...cells, downloadCell, ...(downloadCountCell ? [downloadCountCell] : [])], };
-    });
-    return { ...gridProps, columns: newColumns, rows: newRows };
-};
-const SetDownloadIcon = (fileInternalId: string, fileExtName: string, fileTitle: string) => {
-    let div = <>{fileExtName.toUpperCase()}</>;
-    switch (fileExtName) {
-        case "docx": {
-            div = <div className="word">{div}</div>
-            break;
-        }
-        case "pdf": {
-            div = <div className="pdf">{div}</div>
-            break;
-        }
-        default: {
-            div = <div className="word">{div}</div>
-            break;
-        }
-    }
-    return (<a href={FileManagementAPI.get_Public_Download_Url(fileInternalId,fileTitle)} target="_blank" rel="noopener noreferrer"className="btn btn-default" title={`${fileTitle}(另開視窗)`} >
-            {div}
-        </ a>)
-}
+        const downloadCell: RowCell = {
+            col: downloadCol,
+            content: downloadFileContent,
+        };
 
-const SetUrlIcon = (url: string, descript: string, target: WindowTarget) => {
-    const t = target === 0 ? "_self" : "_blank"
-    const alt = `${descript}${target === 0 ? "" : "｜[另開視窗]"}`
+        const publicDownloadCountCell: RowCell = {
+            col: publicDownloadCountCol,
+            content: String(publicDownloadCount),
+        };
+
+        return {
+            ...row,
+            cells: [...cells, downloadCell, publicDownloadCountCell],
+        };
+    });
+
+    // return：即使 rows 為空，也保留欄位
+    return {
+        ...gridProps,
+        columns: newColumns,
+        rows: newRows,
+    };
+};
+
+/** 建立下載內容 */
+const buildDownloadContent = (
+    fileRows: FileArchiveDetail[],
+    urlRows: FileArchiveUrlDetail[],
+): JSX.Element => {
+    // 宣告變數
+    let content = <></>;
+
+    // 執行 function：實體檔案
+    fileRows.forEach(item => {
+        content = (
+            <>
+                {content}
+                {SetDownloadIcon(
+                    item.FileSrcId ?? "",
+                    item.FileSrc?.FileExtension ?? "docx",
+                    item.FileName ?? "",
+                )}
+            </>
+        );
+    });
+
+    // 執行 function：外部連結
+    urlRows.forEach(item => {
+        content = (
+            <>
+                {content}
+                {SetUrlIcon(
+                    item.Url ?? "",
+                    item.UrlDescription ?? "",
+                    item.WindowTarget ?? 0,
+                )}
+            </>
+        );
+    });
+
+    // return
+    return content;
+};
+
+/** 取得目前語系的檔案列 */
+const getCurrentLangFileRows = (lang: Lang, data: FileArchiveSet): FileArchiveDetail[] => {
+    // 宣告變數
+    const fileInfoRowId = data.FileArchiveInfo?.find(p => p.Lang === lang)?.RowId;
+
+    // return
+    return (data.FileArchiveDetail?.filter(p => p.ParentRowId === fileInfoRowId) ?? []) as FileArchiveDetail[];
+};
+
+/** 取得目前語系的連結列 */
+const getCurrentLangUrlRows = (lang: Lang, data: FileArchiveSet): FileArchiveUrlDetail[] => {
+    // 宣告變數
+    const fileInfoRowId = data.FileArchiveInfo?.find(p => p.Lang === lang)?.RowId;
+
+    // return
+    return (data.FileArchiveUrlDetail?.filter(p => p.ParentRowId === fileInfoRowId) ?? []) as FileArchiveUrlDetail[];
+};
+
+/** 彙總下載次數 */
+const getPublicDownloadCountTotal = (fileRows: FileArchiveDetail[]): number => {
+    // return：累加每個實體檔案的 PublicDownloadCount
+    return fileRows.reduce((sum, item) => {
+        const count = Number(item.FileSrc?.PublicDownloadCount ?? 0);
+        return sum + count;
+    }, 0);
+};
+
+/** 檔案下載按鈕 */
+const SetDownloadIcon = (fileInternalId: string, fileExtName: string, fileTitle: string) => {
+    // 宣告變數
+    const ext = fileExtName.toLowerCase();
+    const fileUrl = ext === "pdf"
+        ? FileManagementAPI.get_Public_Preview_Url(fileInternalId, fileTitle)
+        : FileManagementAPI.get_Public_Download_Url(fileInternalId, fileTitle);
+
+    let div = <>{fileExtName.toUpperCase()}</>;
+
+    // 執行 function：保留 1810 原本 icon DOM
+    switch (ext) {
+        case "docx":
+            div = <div className="word">{div}</div>;
+            break;
+        case "pdf":
+            div = <div className="pdf">{div}</div>;
+            break;
+        default:
+            div = <div className="word">{div}</div>;
+            break;
+    }
+
+    // return
     return (
-        <a href={url} target={t} rel="noopener noreferrer" className="btn btn-default" title={alt}>
+        <a
+            href={fileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-default"
+            title={`${fileTitle}(另開視窗)`}
+        >
+            {div}
+        </a>
+    );
+};
+
+/** 外部連結按鈕 */
+const SetUrlIcon = (url: string, descript: string, target: WindowTarget) => {
+    // 宣告變數
+    const t = target === 0 ? "_self" : "_blank";
+    const alt = `${descript}${target === 0 ? "" : "｜[另開視窗]"}`;
+
+    // return：保留 1810 原本 icon DOM
+    return (
+        <a
+            href={url}
+            target={t}
+            rel="noopener noreferrer"
+            className="btn btn-default"
+            title={alt}
+        >
             <div className="link">Link</div>
-        </a>)
-}
+        </a>
+    );
+};
+
 /** 清單式 */
-const List_Comp = (prop: { lang: Lang; gridData: GridProps; theme: IFETheme }) => {
+const List_Comp = (prop: { lang: Lang; gridData: GridProps; theme: IFETheme; }) => {
+    // return：保留 1810 原本 DOM 結構
     return (
         <>
             <OperationGuideHelp_Comp lang={prop.lang} />
             <Grid gridData={prop.gridData} style={prop.theme.GridView} pageStyle={prop.theme.Paginator} />
         </>
-    )
-}
+    );
+};
