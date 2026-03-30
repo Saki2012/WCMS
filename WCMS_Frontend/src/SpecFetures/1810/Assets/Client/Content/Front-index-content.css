@@ -5951,8 +5951,10 @@ body .subpage_body_bg {
 	background-repeat: no-repeat;
 	background-position: top;*/
 }
-.footer-black {
-	position: relative;
+
+/* .footer-black {*/
+.footer_section {
+	/* position: relative; */
     background-color: #043136;
     background-image: url(../images/footer/footer_BG_IMG_1920x1200.png);
 	background-repeat: no-repeat;
@@ -6181,7 +6183,8 @@ body .subpage_body_bg {
 	position: relative;
 }
 
-.footer-black .info-widget ul.list {
+/* .footer-black .info-widget ul.list { */
+.Footer_section .info-widget ul.list {
 	padding-left: 2.5px;
 	margin-bottom: 1.5rem;
 }
