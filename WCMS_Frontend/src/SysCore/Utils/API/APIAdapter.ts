@@ -8,10 +8,25 @@ import type { LoaderFunctionArgs } from "react-router-dom";
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 export type EffectDeps = ReadonlyArray<string | number | boolean | object | null | undefined>;
-export type ServerFormActions = {Save: () => Promise<void>;Delete: () => Promise<void>;Back: () => void;Preview?: () => void;IsSaving?: boolean;};
+export type ServerFormActions = {
+    Save: () => Promise<void>;
+    Delete: () => Promise<void>;
+    Back: () => void;
+    Preview?: () => void;
+    IsSaving?: boolean;
+};
 export type ApiLoaderData<TArgs, TData> = { args: TArgs; apiRes: ApiResponse<TData>; };
-export type ApiGridLoaderData<TSet> = {model: ApiLoaderData<null, ModelDisplaySchema[]>;count: ApiLoaderData<QueryListParam, number>;list: ApiLoaderData<QueryListParam, TSet[]>;};
-export type ApiAdapterError = {messageText: string;sysMessages: SysMessageModel[];httpStatus?: number;action?: string;};
+export type ApiGridLoaderData<TSet> = {
+    model: ApiLoaderData<null, ModelDisplaySchema[]>;
+    count: ApiLoaderData<QueryListParam, number>;
+    list: ApiLoaderData<QueryListParam, TSet[]>;
+};
+export type ApiAdapterError = {
+    messageText: string;
+    sysMessages: SysMessageModel[];
+    httpStatus?: number;
+    action?: string;
+};
 /** 後台標準動作：用來區分成功後是哪個 action */
 export type ServerActionMode = "create" | "update" | "delete" | "invalid";
 export type UseServerActionsResult<TSet> = {
@@ -73,7 +88,6 @@ const normalizeOneData = <T>(apiRes: ApiResponse<T>): ApiResponse<T> =>
     return { ...apiRes, Data: (raw as ReadonlyArray<T>)[0] ?? null };
 };
 
-
 // ============================================================================
 // 1) ApiBaseAdapter（只有共用底，不綁定「資料型共用 API」）
 // ============================================================================
@@ -112,9 +126,18 @@ export class ApiBaseAdapter<TService>
     }
 
     /** 一個 API 封裝成一個 hook（CSR 用；initial 可為 null） */
-    protected useApiQuery<TArgs, TData>(opt: {action: string;args: TArgs;initial?: ApiLoaderData<TArgs, TData> | null;
-        call: (svc: TService, a: TArgs) => Promise<ApiResponse<TData>>;fallbackError: string;
-        deps: EffectDeps;onError?: (err: ApiAdapterError) => void;apiInstance?: AxiosInstance;})
+    protected useApiQuery<TArgs, TData>(
+        opt: {
+            action: string;
+            args: TArgs;
+            initial?: ApiLoaderData<TArgs, TData> | null;
+            call: (svc: TService, a: TArgs) => Promise<ApiResponse<TData>>;
+            fallbackError: string;
+            deps: EffectDeps;
+            onError?: (err: ApiAdapterError) => void;
+            apiInstance?: AxiosInstance;
+        },
+    )
     {
         // 宣告變數：SSR 必須在 render 當下就把 initial 套進 state（不能靠 useEffect）
         const initApiRes = opt.initial?.apiRes ?? null;
@@ -201,7 +224,7 @@ export interface ApiDataService<TSet>
 }
 
 export type ApiDataLoaderGroup<TSet> = {
-    //#region Basic Loader Func
+    // #region Basic Loader Func
     createModelDisplayNameLoader: (opt?: {
         getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined;
     }) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<null, ModelDisplaySchema[]>>;
@@ -220,13 +243,13 @@ export type ApiDataLoaderGroup<TSet> = {
         getInternalId: (args: LoaderFunctionArgs) => string;
         getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined;
     }) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<string, TSet>>;
-    //#endregion
-    //#region Advance Loader Func
+    // #endregion
+    // #region Advance Loader Func
     createQueryGridDataLoader: (opt: {
         getCondition: (args: LoaderFunctionArgs) => QueryListParam;
         getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined;
     }) => (args: LoaderFunctionArgs) => Promise<ApiGridLoaderData<TSet>>;
-    //#endregion
+    // #endregion
 };
 export type ApiGridInitial<TSet> = {
     model?: ApiLoaderData<null, ModelDisplaySchema[]> | null;
@@ -241,8 +264,7 @@ export type ApiFormInitial<TSet> = {
 
 export type ApiFormMode = "new" | "edit";
 export type ApiDataHookGroup<TSet> = {
-
-    //#region Basic API Hooks
+    // #region Basic API Hooks
     useModelDisplayName: (opt?: {
         initial?: ApiLoaderData<null, ModelDisplaySchema[]> | null;
         deps?: EffectDeps;
@@ -329,10 +351,18 @@ export type ApiDataHookGroup<TSet> = {
         deleteAsync: (internalId: string) => Promise<ApiResponse<TSet>>;
         invalidAsync: (internalId: string, isInvalid: boolean) => Promise<ApiResponse<TSet>>;
     };
-    //#endregion
-    //#region Advance API Hooks
-    useQueryGridData: (opt: {baseParam: QueryListParam;deps: EffectDeps;modelDeps?: EffectDeps;initial?: ApiGridInitial<TSet>;
-                        onError?: (err: ApiAdapterError) => void;apiInstance?: AxiosInstance;}) => {
+    // #endregion
+    // #region Advance API Hooks
+    useQueryGridData: (
+        opt: {
+            baseParam: QueryListParam;
+            deps: EffectDeps;
+            modelDeps?: EffectDeps;
+            initial?: ApiGridInitial<TSet>;
+            onError?: (err: ApiAdapterError) => void;
+            apiInstance?: AxiosInstance;
+        },
+    ) => {
         modelDisplayName: ModelDisplaySchema | null;
         count: number;
         list: TSet[];
@@ -346,8 +376,18 @@ export type ApiDataHookGroup<TSet> = {
         param: QueryListParam;
     };
 
-    useQueryFormData: (opt: {mode: ApiFormMode;internalId?: string;empty?: TSet;deps: EffectDeps;modelDeps?: EffectDeps;initial?: ApiFormInitial<TSet>;
-                        onError?: (err: ApiAdapterError) => void;apiInstance?: AxiosInstance;}) => {
+    useQueryFormData: (
+        opt: {
+            mode: ApiFormMode;
+            internalId?: string;
+            empty?: TSet;
+            deps: EffectDeps;
+            modelDeps?: EffectDeps;
+            initial?: ApiFormInitial<TSet>;
+            onError?: (err: ApiAdapterError) => void;
+            apiInstance?: AxiosInstance;
+        },
+    ) => {
         modelDisplayName: ModelDisplaySchema | null;
         data: TSet | null;
         isLoading: boolean;
@@ -355,30 +395,36 @@ export type ApiDataHookGroup<TSet> = {
         errorText: string | null;
         refetchData: () => Promise<void>;
     };
-    //#endregion
+    // #endregion
 };
 
 export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends ApiBaseAdapter<TSvc>
 {
-    //#region Property
+    // #region Property
     public loader: ApiDataLoaderGroup<TSet>;
     public hooks: ApiDataHookGroup<TSet>;
-    //#endregion
+    // #endregion
 
-    //#region Construct
+    // #region Construct
     constructor(createService: (apiInstance?: AxiosInstance) => TSvc)
     {
         super(createService);
         this.loader = this.buildLoaderGroup();
         this.hooks = this.buildHookGroup();
     }
-    //#endregion
-    //#region Protect Virtual Func
-    protected buildExtendedLoader(base: ApiDataLoaderGroup<TSet>): ApiDataLoaderGroup<TSet> { return base; }
-    protected buildExtendedHooks(base: ApiDataHookGroup<TSet>): ApiDataHookGroup<TSet> { return base; }
-    //#endregion
+    // #endregion
+    // #region Protect Virtual Func
+    protected buildExtendedLoader(base: ApiDataLoaderGroup<TSet>): ApiDataLoaderGroup<TSet>
+    {
+        return base;
+    }
+    protected buildExtendedHooks(base: ApiDataHookGroup<TSet>): ApiDataHookGroup<TSet>
+    {
+        return base;
+    }
+    // #endregion
 
-    //#region Public
+    // #region Public
     /** 後台標準行為：CUD + Toast + Success / Error callback */
     public useServerActions(opt?: UseServerActionsOptions): UseServerActionsResult<TSet>
     {
@@ -386,8 +432,16 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
         const cud = this.hooks.useCudActions({ apiInstance: opt?.apiInstance, onError: opt?.onError });
 
         const emitMessages = (env: ApiResponse<unknown>) =>
-        { 
-            (env.SysMessage ?? []).forEach(m =>{publish({level: m.Status ?? MessageStatus.Info,code: m.MessageCode,title: m.Message ?? "",text:m.Message});});
+        {
+            (env.SysMessage ?? []).forEach(m =>
+            {
+                publish({
+                    level: m.Status ?? MessageStatus.Info,
+                    code: m.MessageCode,
+                    title: m.Message ?? "",
+                    text: m.Message,
+                });
+            });
         };
         const runSuccess = async (mode: ServerActionMode) =>
         {
@@ -430,23 +484,38 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
             },
         };
     }
-    //#endregion
+    // #endregion
 
-    //#region Private
+    // #region Private
     private buildLoaderGroup(): ApiDataLoaderGroup<TSet>
     {
-        //#region Basic Loader Func
+        // #region Basic Loader Func
         const createModelDisplayNameLoader: ApiDataLoaderGroup<TSet>["createModelDisplayNameLoader"] = (opt) =>
         {
-            return this.createApiLoader<null, ModelDisplaySchema[]>({action: "Query.ModelDisplayName",getArgs: () => null,call: (svc) => svc.getModelDisplayName(),getApiInstance: opt?.getApiInstance,});
+            return this.createApiLoader<null, ModelDisplaySchema[]>({
+                action: "Query.ModelDisplayName",
+                getArgs: () => null,
+                call: (svc) => svc.getModelDisplayName(),
+                getApiInstance: opt?.getApiInstance,
+            });
         };
         const createQueryListLoader: ApiDataLoaderGroup<TSet>["createQueryListLoader"] = (opt) =>
         {
-            return this.createApiLoader<QueryListParam, TSet[]>({action: "Query.QueryList",getArgs: opt.getCondition,call: (svc, c) => svc.queryList(c),getApiInstance: opt.getApiInstance,});
+            return this.createApiLoader<QueryListParam, TSet[]>({
+                action: "Query.QueryList",
+                getArgs: opt.getCondition,
+                call: (svc, c) => svc.queryList(c),
+                getApiInstance: opt.getApiInstance,
+            });
         };
         const createQueryCountLoader: ApiDataLoaderGroup<TSet>["createQueryCountLoader"] = (opt) =>
         {
-            return this.createApiLoader<QueryListParam, number>({action: "Query.QueryCount",getArgs: opt.getCondition,call: (svc, c) => svc.queryCount(c),getApiInstance: opt.getApiInstance,});
+            return this.createApiLoader<QueryListParam, number>({
+                action: "Query.QueryCount",
+                getArgs: opt.getCondition,
+                call: (svc, c) => svc.queryCount(c),
+                getApiInstance: opt.getApiInstance,
+            });
         };
         const createQueryDataLoader: ApiDataLoaderGroup<TSet>["createQueryDataLoader"] = (opt) =>
         {
@@ -461,14 +530,20 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
                 getApiInstance: opt.getApiInstance,
             });
         };
-        //#endregion
+        // #endregion
 
-        //#region Advance Loader Func
+        // #region Advance Loader Func
         const createQueryGridDataLoader: ApiDataLoaderGroup<TSet>["createQueryGridDataLoader"] = (opt) =>
         {
             const loadModel = createModelDisplayNameLoader({ getApiInstance: opt.getApiInstance });
-            const loadList = createQueryListLoader({ getCondition: opt.getCondition, getApiInstance: opt.getApiInstance });
-            const loadCount = createQueryCountLoader({ getCondition: opt.getCondition, getApiInstance: opt.getApiInstance });
+            const loadList = createQueryListLoader({
+                getCondition: opt.getCondition,
+                getApiInstance: opt.getApiInstance,
+            });
+            const loadCount = createQueryCountLoader({
+                getCondition: opt.getCondition,
+                getApiInstance: opt.getApiInstance,
+            });
             return async (args: LoaderFunctionArgs): Promise<ApiGridLoaderData<TSet>> =>
             {
                 const cdt = opt.getCondition(args);
@@ -479,41 +554,68 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
                     const countRes: ApiResponse<number> = isOk(list.apiRes)
                         ? { IsSuccess: true, Data: list.apiRes.Data.length, SysMessage: [] }
                         : { IsSuccess: false, Data: null, SysMessage: list.apiRes.SysMessage ?? [] };
-                    return {model,list,count: { args: cdt, apiRes: countRes },};
+                    return { model, list, count: { args: cdt, apiRes: countRes } };
                 }
                 const count = await loadCount(args);
                 return { model, list, count };
             };
         };
-        //#endregion
+        // #endregion
 
-        return this.buildExtendedLoader({createModelDisplayNameLoader,createQueryListLoader,createQueryCountLoader,createQueryDataLoader,createQueryGridDataLoader});
+        return this.buildExtendedLoader({
+            createModelDisplayNameLoader,
+            createQueryListLoader,
+            createQueryCountLoader,
+            createQueryDataLoader,
+            createQueryGridDataLoader,
+        });
     }
     private buildHookGroup(): ApiDataHookGroup<TSet>
     {
-        //#region Basic Api Hooks
+        // #region Basic Api Hooks
         const useModelDisplayName: ApiDataHookGroup<TSet>["useModelDisplayName"] = (opt) =>
         {
-            const r = this.useApiQuery<null, ModelDisplaySchema[]>({action: "Query.ModelDisplayName",args: null,initial: opt?.initial ?? null,
-                call: (svc) => svc.getModelDisplayName(),fallbackError: "讀取欄位顯示名稱失敗",deps: opt?.deps ?? [],
-                onError: opt?.onError,apiInstance: opt?.apiInstance,
+            const r = this.useApiQuery<null, ModelDisplaySchema[]>({
+                action: "Query.ModelDisplayName",
+                args: null,
+                initial: opt?.initial ?? null,
+                call: (svc) => svc.getModelDisplayName(),
+                fallbackError: "讀取欄位顯示名稱失敗",
+                deps: opt?.deps ?? [],
+                onError: opt?.onError,
+                apiInstance: opt?.apiInstance,
             });
-            const data = useMemo<ModelDisplaySchema | null>(() =>{return r.apiRes?.Data?.[0] ?? null;}, [r.apiRes]);
+            const data = useMemo<ModelDisplaySchema | null>(() =>
+            {
+                return r.apiRes?.Data?.[0] ?? null;
+            }, [r.apiRes]);
             return { ...r, data };
         };
         const useQueryList: ApiDataHookGroup<TSet>["useQueryList"] = (opt) =>
         {
-            const r = this.useApiQuery<QueryListParam, TSet[]>({action: "Query.QueryList",args: opt.condition,initial: opt.initial ?? null,
-                call: (svc, c) => svc.queryList(c),fallbackError: "查詢清單失敗",
-                deps: opt.deps,onError: opt.onError,apiInstance: opt.apiInstance,
+            const r = this.useApiQuery<QueryListParam, TSet[]>({
+                action: "Query.QueryList",
+                args: opt.condition,
+                initial: opt.initial ?? null,
+                call: (svc, c) => svc.queryList(c),
+                fallbackError: "查詢清單失敗",
+                deps: opt.deps,
+                onError: opt.onError,
+                apiInstance: opt.apiInstance,
             });
             return { ...r, data: r.data ?? [] };
         };
         const useQueryCount: ApiDataHookGroup<TSet>["useQueryCount"] = (opt) =>
         {
-            const r = this.useApiQuery<QueryListParam, number>({action: "Query.QueryCount",args: opt.condition,initial: opt.initial ?? null,
-                call: (svc, c) => svc.queryCount(c),fallbackError: "查詢筆數失敗",
-                deps: opt.deps,onError: opt.onError,apiInstance: opt.apiInstance,
+            const r = this.useApiQuery<QueryListParam, number>({
+                action: "Query.QueryCount",
+                args: opt.condition,
+                initial: opt.initial ?? null,
+                call: (svc, c) => svc.queryCount(c),
+                fallbackError: "查詢筆數失敗",
+                deps: opt.deps,
+                onError: opt.onError,
+                apiInstance: opt.apiInstance,
             });
             return { ...r, data: r.data ?? 0 };
         };
@@ -583,13 +685,20 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
         };
         const useQueryData: ApiDataHookGroup<TSet>["useQueryData"] = (opt) =>
         {
-            return this.useApiQuery<string, TSet>({action: "Query.QueryData",args: opt.internalId,initial: opt.initial ?? null,
-                    call: async (svc, id) =>
-                    {
-                        const env = await svc.queryData(id);
-                        return normalizeOneData(env);
-                    },
-                    fallbackError: "查詢資料失敗", deps: opt.deps,onError: opt.onError,apiInstance: opt.apiInstance,});
+            return this.useApiQuery<string, TSet>({
+                action: "Query.QueryData",
+                args: opt.internalId,
+                initial: opt.initial ?? null,
+                call: async (svc, id) =>
+                {
+                    const env = await svc.queryData(id);
+                    return normalizeOneData(env);
+                },
+                fallbackError: "查詢資料失敗",
+                deps: opt.deps,
+                onError: opt.onError,
+                apiInstance: opt.apiInstance,
+            });
         };
         const useCudActions: ApiDataHookGroup<TSet>["useCudActions"] = (opt) =>
         {
@@ -645,40 +754,84 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
             );
             return { isSaving, createAsync, updateAsync, deleteAsync, invalidAsync };
         };
-        //#endregion
+        // #endregion
 
-        //#region Advance Api Hooks (compose Basic)
+        // #region Advance Api Hooks (compose Basic)
         const useQueryGridData: ApiDataHookGroup<TSet>["useQueryGridData"] = (opt) =>
         {
             const pageSize = opt.baseParam.PageSize ?? 0;
             const isNoPaging = pageSize <= 0;
-            const model = useModelDisplayName({initial: opt.initial?.model ?? null,deps: opt.modelDeps ?? [],onError: opt.onError,apiInstance: opt.apiInstance,});
+            const model = useModelDisplayName({
+                initial: opt.initial?.model ?? null,
+                deps: opt.modelDeps ?? [],
+                onError: opt.onError,
+                apiInstance: opt.apiInstance,
+            });
             const skipCountInitial = useMemo<ApiLoaderData<QueryListParam, number>>(() =>
             {
                 const apiRes: ApiResponse<number> = { IsSuccess: true, Data: 0, SysMessage: [] };
                 return { args: opt.baseParam, apiRes };
             }, [opt.baseParam]);
-            const count = useQueryCount({condition: opt.baseParam,initial: isNoPaging ? (opt.initial?.count ?? skipCountInitial) : (opt.initial?.count ?? null),deps: isNoPaging ? [] : opt.deps,onError: opt.onError,apiInstance: opt.apiInstance,});
-            const paged = usePagedQueryList({baseParam: opt.baseParam,count: isNoPaging ? 0 : (count.data ?? 0),initial: opt.initial?.list ?? null,deps: opt.deps,onError: opt.onError,apiInstance: opt.apiInstance,});
+            const count = useQueryCount({
+                condition: opt.baseParam,
+                initial: isNoPaging ? (opt.initial?.count ?? skipCountInitial) : (opt.initial?.count ?? null),
+                deps: isNoPaging ? [] : opt.deps,
+                onError: opt.onError,
+                apiInstance: opt.apiInstance,
+            });
+            const paged = usePagedQueryList({
+                baseParam: opt.baseParam,
+                count: isNoPaging ? 0 : (count.data ?? 0),
+                initial: opt.initial?.list ?? null,
+                deps: opt.deps,
+                onError: opt.onError,
+                apiInstance: opt.apiInstance,
+            });
             const list = paged.data ?? [];
             const finalCount = isNoPaging ? list.length : (count.data ?? 0);
-            const errors = useMemo(() =>{return [model.errorText, isNoPaging ? null : count.errorText, paged.errorText].filter((x): x is string => Boolean(x));}, [model.errorText, count.errorText, paged.errorText, isNoPaging]);
-            const errorText = useMemo(() =>{return errors.length > 0 ? errors.join("；") : null;}, [errors]);
+            const errors = useMemo(() =>
+            {
+                return [model.errorText, isNoPaging ? null : count.errorText, paged.errorText].filter((
+                    x,
+                ): x is string => Boolean(x));
+            }, [model.errorText, count.errorText, paged.errorText, isNoPaging]);
+            const errorText = useMemo(() =>
+            {
+                return errors.length > 0 ? errors.join("；") : null;
+            }, [errors]);
             const isLoading = Boolean(model.isLoading || (!isNoPaging && count.isLoading) || paged.isLoading);
             const refetchData = useCallback(async () =>
             {
-                if (isNoPaging) { await paged.refetch(); return; }
+                if (isNoPaging)
+                {
+                    await paged.refetch();
+                    return;
+                }
                 await count.refetch();
                 await paged.refetch();
             }, [isNoPaging, count, paged]);
             return {
-                modelDisplayName: model.data,count: finalCount,list,isLoading,errors,errorText,refetchData,pageNumber: paged.pageNumber,
-                totalPages: paged.totalPages,onPageChange: paged.onPageChange,param: paged.param,
+                modelDisplayName: model.data,
+                count: finalCount,
+                list,
+                isLoading,
+                errors,
+                errorText,
+                refetchData,
+                pageNumber: paged.pageNumber,
+                totalPages: paged.totalPages,
+                onPageChange: paged.onPageChange,
+                param: paged.param,
             };
         };
         const useQueryFormData: ApiDataHookGroup<TSet>["useQueryFormData"] = (opt) =>
         {
-            const model = useModelDisplayName({initial: opt.initial?.model ?? null,deps: opt.modelDeps ?? [],onError: opt.onError,apiInstance: opt.apiInstance,});
+            const model = useModelDisplayName({
+                initial: opt.initial?.model ?? null,
+                deps: opt.modelDeps ?? [],
+                onError: opt.onError,
+                apiInstance: opt.apiInstance,
+            });
             const internalKey = opt.mode === "edit" ? (opt.internalId ?? "") : "__new__";
             const initData = useMemo<ApiLoaderData<string, TSet> | null>(() =>
             {
@@ -688,16 +841,41 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
                 const apiRes: ApiResponse<TSet> = { IsSuccess: true, Data: opt.empty, SysMessage: [] };
                 return { args: internalKey, apiRes };
             }, [opt.initial?.data, opt.mode, opt.empty, internalKey]);
-            const data = useQueryData({internalId: internalKey,initial: initData,deps: opt.deps,onError: opt.onError,apiInstance: opt.apiInstance,});
-            const errors = useMemo(() =>{return [model.errorText, data.errorText].filter((x): x is string => Boolean(x));}, [model.errorText, data.errorText]);
-            const errorText = useMemo(() =>{return errors.length > 0 ? errors.join("；") : null;}, [errors]);
+            const data = useQueryData({
+                internalId: internalKey,
+                initial: initData,
+                deps: opt.deps,
+                onError: opt.onError,
+                apiInstance: opt.apiInstance,
+            });
+            const errors = useMemo(() =>
+            {
+                return [model.errorText, data.errorText].filter((x): x is string => Boolean(x));
+            }, [model.errorText, data.errorText]);
+            const errorText = useMemo(() =>
+            {
+                return errors.length > 0 ? errors.join("；") : null;
+            }, [errors]);
             const isLoading = Boolean(model.isLoading || data.isLoading);
-            const refetchData = useCallback(async () =>{if (opt.mode === "new") return;await data.refetch();}, [opt.mode, data]);
-            return {modelDisplayName: model.data,data: data.data,isLoading,errors,errorText,                refetchData,};
+            const refetchData = useCallback(async () =>
+            {
+                if (opt.mode === "new") return;
+                await data.refetch();
+            }, [opt.mode, data]);
+            return { modelDisplayName: model.data, data: data.data, isLoading, errors, errorText, refetchData };
         };
-        //#endregion
-        
-        return this.buildExtendedHooks({useModelDisplayName,useQueryList,useQueryCount,usePagedQueryList,useQueryData,useCudActions,useQueryGridData,useQueryFormData});
+        // #endregion
+
+        return this.buildExtendedHooks({
+            useModelDisplayName,
+            useQueryList,
+            useQueryCount,
+            usePagedQueryList,
+            useQueryData,
+            useCudActions,
+            useQueryGridData,
+            useQueryFormData,
+        });
     }
-    //#endregion
+    // #endregion
 }

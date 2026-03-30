@@ -4,20 +4,21 @@ import { createPortal } from "react-dom";
 
 // Lightbox & plugins（與 GalleryForm.tsx 相同）
 import Lightbox from "yet-another-react-lightbox";
-import Download from "yet-another-react-lightbox/plugins/download";
-import Share from "yet-another-react-lightbox/plugins/share";
-import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
-import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
-import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import Captions from "yet-another-react-lightbox/plugins/captions";
 import Counter from "yet-another-react-lightbox/plugins/counter";
+import Download from "yet-another-react-lightbox/plugins/download";
+import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
+import Share from "yet-another-react-lightbox/plugins/share";
+import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/captions.css";
 import "yet-another-react-lightbox/plugins/counter.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 
 /** 單張相片資料 */
-export interface ISpecUSRPhoto {
+export interface ISpecUSRPhoto
+{
     id: string;
     thumbUrl?: string;
     fullUrl?: string;
@@ -27,7 +28,8 @@ export interface ISpecUSRPhoto {
 }
 
 /** 元件參數 */
-export interface ISpecUSR_Gallery_Props {
+export interface ISpecUSR_Gallery_Props
+{
     open: boolean;
     title?: string;
     photos: ISpecUSRPhoto[];
@@ -38,22 +40,32 @@ export interface ISpecUSR_Gallery_Props {
 const OVERLAY_Z = 4000; // 高過任何其它 modal/backdrop
 
 /** 開啟時鎖定 body 滾動 */
-const useLockBodyScroll = (lock: boolean) => {
-    useEffect(() => {
+const useLockBodyScroll = (lock: boolean) =>
+{
+    useEffect(() =>
+    {
         if (!lock || import.meta.env.SSR) return;
         const prev = document.body.style.overflow;
         document.body.style.overflow = "hidden";
-        return () => { document.body.style.overflow = prev; };
+        return () =>
+        {
+            document.body.style.overflow = prev;
+        };
     }, [lock]);
 };
 
 /** 開啟時將焦點移入，關閉後歸還焦點 */
-const useRestoreFocus = (active: boolean, focusRef: React.RefObject<HTMLElement>) => {
+const useRestoreFocus = (active: boolean, focusRef: React.RefObject<HTMLElement>) =>
+{
     const prevRef = useRef<HTMLElement | null>(null);
-    useEffect(() => {
+    useEffect(() =>
+    {
         if (import.meta.env.SSR) return;
-        if (active) { prevRef.current = document.activeElement as HTMLElement; focusRef.current?.focus(); }
-        else { prevRef.current?.focus?.(); }
+        if (active)
+        {
+            prevRef.current = document.activeElement as HTMLElement;
+            focusRef.current?.focus();
+        } else prevRef.current?.focus?.();
     }, [active]);
 };
 
@@ -70,7 +82,14 @@ const Header: React.FC<{
             type="button"
             onClick={onClose}
             aria-label="關閉相簿"
-            style={{ fontSize: 20, lineHeight: 1, padding: "4px 8px", background: "transparent", border: "none", cursor: "pointer" }}
+            style={{
+                fontSize: 20,
+                lineHeight: 1,
+                padding: "4px 8px",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+            }}
         >
             ×
         </button>
@@ -82,8 +101,9 @@ export const SpecUSR_Gallery_Comp: React.FC<ISpecUSR_Gallery_Props> = ({
     title = "相簿",
     photos,
     onClose,
-    onPick
-}) => {
+    onPick,
+}) =>
+{
     const dialogRef = useRef<HTMLDivElement>(null);
     const closeBtnRef = useRef<HTMLButtonElement>(null);
 
@@ -94,24 +114,39 @@ export const SpecUSR_Gallery_Comp: React.FC<ISpecUSR_Gallery_Props> = ({
     useRestoreFocus(open, closeBtnRef);
 
     // Esc：優先關掉 Lightbox，否則才關相簿；同時做簡易 Tab 焦點陷阱
-    useEffect(() => {
+    useEffect(() =>
+    {
         if (!open || import.meta.env.SSR) return;
-        const h = (e: KeyboardEvent) => {
-            if (e.key === "Escape") {
-                if (viewerOpen) {
+        const h = (e: KeyboardEvent) =>
+        {
+            if (e.key === "Escape")
+            {
+                if (viewerOpen)
+                {
                     setViewerOpen(false);
-                    e.stopPropagation(); e.preventDefault();
+                    e.stopPropagation();
+                    e.preventDefault();
                     return;
                 }
                 onClose();
             }
             if (e.key !== "Tab") return;
-            const dlg = dialogRef.current; if (!dlg) return;
-            const f = dlg.querySelectorAll<HTMLElement>('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');
+            const dlg = dialogRef.current;
+            if (!dlg) return;
+            const f = dlg.querySelectorAll<HTMLElement>(
+                "button,[href],input,select,textarea,[tabindex]:not([tabindex=\"-1\"])",
+            );
             if (!f.length) return;
             const first = f[0], last = f[f.length - 1];
-            if (e.shiftKey && document.activeElement === first) { last.focus(); e.preventDefault(); }
-            else if (!e.shiftKey && document.activeElement === last) { first.focus(); e.preventDefault(); }
+            if (e.shiftKey && document.activeElement === first)
+            {
+                last.focus();
+                e.preventDefault();
+            } else if (!e.shiftKey && document.activeElement === last)
+            {
+                first.focus();
+                e.preventDefault();
+            }
         };
         document.addEventListener("keydown", h);
         return () => document.removeEventListener("keydown", h);
@@ -120,25 +155,28 @@ export const SpecUSR_Gallery_Comp: React.FC<ISpecUSR_Gallery_Props> = ({
     const gridStyle = useMemo<React.CSSProperties>(() => ({
         display: "grid",
         gap: "12px",
-        gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))"
+        gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
     }), []);
 
     const slides = useMemo(
-        () => photos.map(p => ({
-            src: p.fullUrl ?? p.thumbUrl ?? `/Service/FileManagement/Preview/${p.id}`,
-            description: p.alt ?? ""
-        })),
-        [photos]
+        () =>
+            photos.map(p => ({
+                src: p.fullUrl ?? p.thumbUrl ?? `/Service/FileManagement/Public_Preview/${p.id}`,
+                description: p.alt ?? "",
+            })),
+        [photos],
     );
 
     if (!open || import.meta.env.SSR) return null;
 
     // 只在真正點到「背景」且 viewer 沒開時關閉
-    const handleOverlayMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    const handleOverlayMouseDown = (e: React.MouseEvent<HTMLDivElement>) =>
+    {
         if (viewerOpen) return;
         if (e.target === e.currentTarget) onClose();
     };
-    const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) =>
+    {
         if (viewerOpen) return;
         if (e.target === e.currentTarget) onClose();
     };
@@ -168,14 +206,15 @@ export const SpecUSR_Gallery_Comp: React.FC<ISpecUSR_Gallery_Props> = ({
                     height: "min(90vh, 900px)",
                     padding: 16,
                     overflow: "auto",
-                    outline: "none"
+                    outline: "none",
                 }}
             >
                 <Header title={title} onClose={onClose} closeRef={closeBtnRef} />
 
                 <div style={gridStyle} aria-label="相簿縮圖清單">
-                    {photos.map((p, idx) => {
-                        const src = p.thumbUrl ?? `/Service/FileManagement/Preview/${p.id}`;
+                    {photos.map((p, idx) =>
+                    {
+                        const src = p.thumbUrl ?? `/Service/FileManagement/Public_Preview/${p.id}`;
                         const alt = p.alt ?? "";
                         const w = p.width ?? 300;
                         const h = p.height ?? 300;
@@ -183,7 +222,8 @@ export const SpecUSR_Gallery_Comp: React.FC<ISpecUSR_Gallery_Props> = ({
                             <button
                                 key={`${p.id}-${idx}`}
                                 type="button"
-                                onClick={(e) => {
+                                onClick={(e) =>
+                                {
                                     e.stopPropagation();
                                     onPick?.(p, idx);
                                     setViewerIndex(idx);
@@ -199,7 +239,7 @@ export const SpecUSR_Gallery_Comp: React.FC<ISpecUSR_Gallery_Props> = ({
                                     borderRadius: 8,
                                     padding: 0,
                                     background: "#fff",
-                                    cursor: "pointer"
+                                    cursor: "pointer",
                                 }}
                             >
                                 <img
@@ -232,7 +272,7 @@ export const SpecUSR_Gallery_Comp: React.FC<ISpecUSR_Gallery_Props> = ({
                 />
             )}
         </div>,
-        document.body
+        document.body,
     );
 };
 

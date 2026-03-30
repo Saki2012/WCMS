@@ -23,6 +23,7 @@ type ShowColumnMap = Record<string, string>;
 type ShowColumnMapList = ShowColumnMap[];
 type CateMapArgs = { progId: PGID; lang: Lang; };
 type CateMapData = { list: SpecCategorySet[]; map: Record<string, string>; };
+type ShowColumnRaw = ShowColumnMap | ShowColumnMapList;
 
 class SpecCategoryService extends ApiDataService<SpecCategorySet>
 {
@@ -35,10 +36,10 @@ class SpecCategoryService extends ApiDataService<SpecCategorySet>
 
     // #region Public
     /** 依 ProgId 取得顯示欄位原始資料 */
-    async getShowColumnItems(progId: PGID): Promise<ApiResponse<ShowColumnMapList>>
+    async getShowColumnItems(progId: PGID): Promise<ApiResponse<ShowColumnRaw>>
     {
-        return await this.CallApi<ShowColumnMapList>(() =>
-            this.Api.get<ApiResponse<ShowColumnMapList>>(`${this.Module}/GetShowColumnItems`, { params: { progId } })
+        return await this.CallApi<ShowColumnRaw>(() =>
+            this.Api.get<ApiResponse<ShowColumnRaw>>(`${this.Module}/GetShowColumnItems`, { params: { progId } })
         );
     }
     // #endregion
@@ -195,7 +196,7 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
             apiInstance: opt.apiInstance,
         });
 
-        const data = useMemo(() => r.data ?? {}, [r.data]);
+        const data = useMemo(() => r.apiRes?.Data ?? {}, [r.apiRes?.Data]);
 
         return { ...r, data };
     };
@@ -244,10 +245,11 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
     }
 
     /** 取後端 Data 第一筆 dictionary */
-    private pickShowColumnMap(rows?: ShowColumnMapList | null): ShowColumnMap
+    private pickShowColumnMap(raw?: ShowColumnRaw | null): ShowColumnMap
     {
-        if (!rows || rows.length <= 0) return {};
-        return rows[0] ?? {};
+        if (!raw) return {};
+        if (Array.isArray(raw)) return raw[0] ?? {};
+        return raw;
     }
 
     /** 查詢顯示欄位 map */
