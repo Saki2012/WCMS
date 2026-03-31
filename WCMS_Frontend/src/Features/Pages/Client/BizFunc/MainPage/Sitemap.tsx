@@ -85,12 +85,12 @@ const KeyboardGuide = (props: { lang: Lang }) => {
             </p>
 
             {/* 快捷鍵區塊 */}
-            <div className="row g-0">
-                <div className="col-xl-4 col-12 guide-box">
-                    <div className="guide-item right-border">
+            <div className="d-flex flex-wrap">
+                <div className="guide-box right-border">
+                    <div className="guide-item">
                         <div className="mb-2">
                             <span className="key-badge">Home</span>
-                            {isEn ? " / " : "或"}
+                            {isEn ? "  /  " : " 或 "}
                             <span className="key-badge">End</span>
                         </div>
                         <div className="mt-3">
@@ -99,7 +99,7 @@ const KeyboardGuide = (props: { lang: Lang }) => {
                     </div>
                 </div>
 
-                <div className="col-xl-6 col-12 guide-box top-border">
+                <div className="guide-box right-border top-border">
                     <div className="guide-item me-5">
                         <div className="mb-2">
                             <span className="key-badge">Tab</span>
@@ -107,7 +107,7 @@ const KeyboardGuide = (props: { lang: Lang }) => {
                         <div className="mt-3">{isEn ? "Move to the next link." : "依序移動到下一個連結項目。"}</div>
                     </div>
 
-                    <div className="guide-item right-border">
+                    <div className="guide-item">
                         <div className="mb-2">
                             <span className="key-badge">Shift</span> + <span className="key-badge">Tab</span>
                         </div>
@@ -115,12 +115,112 @@ const KeyboardGuide = (props: { lang: Lang }) => {
                     </div>
                 </div>
 
-                <div className="col-xl-2 col-12 guide-box top-border">
+                <div className="guide-box right-border top-border">
                     <div className="guide-item">
                         <div className="mb-2">
                             <span className="key-badge">Ctrl</span> + <span className="key-badge">P</span>
                         </div>
                         <div className="mt-3">{isEn ? "Print this page." : "列印本頁資訊。"}</div>
+                    </div>
+                </div>
+                <div className="guide-box top-border">
+                    <div className="guide-item">
+                        <div className="mb-2">
+                            <span className="key-badge">Alt</span> + <span className="key-badge">S</span>
+                        </div>
+                        <div className="mt-3">{isEn ? "Website Search" : "網站搜尋"}</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* 說明文字 */}
+            <div className="row mt-4 mb-2">
+                <div className="col-lg-6 col-12">
+                    <p>
+                        {isEn
+                            ? 
+                            <>
+                            This website is designed according to accessibility principles, and its main content is divided into four sections.
+                            <br />
+                            The accesskey settings for this website are as follows:
+                            </>
+                            :    
+                            <>
+                            本網站依無障礙網頁設計原則建置，網站的主要內容分為四大區塊
+                            <br />
+                            本網站的快速鍵（Accesskey）設定如下：
+                            </>
+                        }
+                    </p>
+                </div>
+                <div className="col-lg-6 col-12">
+                    <p>
+                        {isEn
+                            ? "(For Firefox browsers, you need to press Shift, e.g., Shift+Alt+U: top menu links area)"
+                            : "(Firefox瀏覽器需加按Shift,如:Shift+Alt+U:上方選單連結區)"   
+                        }
+                    </p>
+                </div>
+            </div>
+
+            {/* 快捷鍵區塊 */}
+            <div className="d-flex flex-wrap">
+                <div className="guide-box right-border">
+                    <div className="guide-item">
+                        <div className="mb-2">
+                            <span className="key-badge">Alt</span> + <span className="key-badge">U</span>
+                        </div>
+                        <div className="d-flex">
+                            <div className="mt-3 me-2">
+                                ❶
+                            </div>
+                            <div>
+                                <div className="mt-3">{isEn ? "Top Navigation Bar" : "上方導覽連結區"}</div>
+                                <div className="mt-2">{isEn ? "This section lists the main links to this website." : "此區塊列有本網站主要連結。"}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="guide-box right-border top-border">
+                    <div className="guide-item">
+                        <div className="mb-2">
+                            <span className="key-badge">Alt</span> + <span className="key-badge">C</span>
+                        </div>
+                        <div className="d-flex">
+                            <div className="mt-3 me-2">
+                                ❷
+                            </div>
+                            <div>
+                                <div className="mt-3">{isEn ? "Main Content Block" : "中央內容區塊"}</div>
+                                <div className="mt-2">{isEn ? "This is the main content area of ​​this page." : "為本頁主要內容區。"}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="guide-box right-border top-border">
+                    <div className="guide-item">
+                        <div className="mb-2">
+                            <span className="key-badge">Alt</span> + <span className="key-badge">L</span>
+                        </div>
+                        <div className="d-flex">
+                            <div className="mt-3 me-2">
+                                ❸
+                            </div>
+                            <div className="mt-3">{isEn ? "Left Navigation Bar" : "左方導覽區塊"}</div>
+                        </div>
+                    </div>
+                </div>
+                <div className="guide-box top-border">
+                    <div className="guide-item">
+                        <div className="mb-2">
+                            <span className="key-badge">Alt</span> + <span className="key-badge">Z</span>
+                        </div>
+                        <div className="d-flex">
+                            <div className="mt-3 me-2">
+                                ❹
+                            </div>
+                            <div className="mt-3">{isEn ? "Website Footer" : "頁尾網站資訊"}</div>
+                        </div>
                     </div>
                 </div>
             </div>
