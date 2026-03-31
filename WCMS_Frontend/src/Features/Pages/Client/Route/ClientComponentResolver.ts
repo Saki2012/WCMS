@@ -1,7 +1,9 @@
 // src/Features/Pages/Client/Route/ClientComponentResolver.ts
-// 一支檔案同時處理：
-// 1) 解析目前 VITE_SPEC_CODE 對應的 Spec 元件（只掃 SpecFeature，不掃全部 Spec）
-// 2) 各模組的 Feature 版 + Spec 版 fallback（可選 _default 再 fallback）
+// 規則：
+// 1. 只解析目前 VITE_SPEC_CODE 對應的 Spec 元件（透過 SpecFeature alias）
+// 2. 找得到 Spec 元件就用 Spec
+// 3. 找不到就直接 fallback 到 Feature base
+// 4. 不再讓 _default 介入 component resolver，避免空殼覆蓋 Feature
 
 import type { ComponentType } from "react";
 
@@ -25,21 +27,22 @@ import SubPageBase from "@/Features/Pages/Client/Scaffold/SubPages/SubPage";
 
 // ====================================================
 // 共用 Resolver：只從「目前 SpecFeature」取對應元件
-// 找不到就 fallback 到 Feature 版（可選再 fallback 到 _default）
+// 找不到就直接 fallback 到 Feature 版
 // ====================================================
 
 export type SpecComponent<TProps = Record<string, never>> = ComponentType<TProps>;
-
 type SpecModule = { default?: unknown; [key: string]: unknown; };
 
+// 只掃目前 build 的 SpecFeature；不要再掃 _default
 const specModules = import.meta.glob("SpecFeature/**/*.tsx", { eager: true }) as Record<string, SpecModule>;
-const defaultModules = import.meta.glob("SpecDefault/**/*.tsx", { eager: true }) as Record<string, SpecModule>;
 
+/** 路徑正規化，避免 slash 差異造成比對失敗 */
 const normalizePath = (value: string): string =>
 {
     return `${value ?? ""}`.trim().replace(/\\/g, "/").replace(/^\/+/, "");
 };
 
+/** 依照 export 名稱順序挑元件，最後才退 default */
 const pickExport = (mod: SpecModule, exportNames: string[] = []): unknown =>
 {
     for (const name of exportNames)
@@ -50,21 +53,22 @@ const pickExport = (mod: SpecModule, exportNames: string[] = []): unknown =>
     return mod.default;
 };
 
-const findModuleBySuffix = (modules: Record<string, SpecModule>, relativePath: string): SpecModule | undefined =>
+/** 依 suffix 找目前 spec 中的對應檔案 */
+const findSpecModuleBySuffix = (relativePath: string): SpecModule | undefined =>
 {
     const rel = normalizePath(relativePath);
-    const hitKey = Object.keys(modules).find(key => normalizePath(key).endsWith(rel));
-    return hitKey ? modules[hitKey] : undefined;
+    const hitKey = Object.keys(specModules).find(key => normalizePath(key).endsWith(rel));
+    return hitKey ? specModules[hitKey] : undefined;
 };
 
-const resolveFromModules = <TComponent>(
-    modules: Record<string, SpecModule>,
+/** 解析 Spec 元件；找不到就直接回 Feature base */
+const resolveSpecComponent = <TComponent>(
     relativePath: string,
     core: TComponent,
     exportNames: string[] = [],
 ): TComponent =>
 {
-    const mod = findModuleBySuffix(modules, relativePath);
+    const mod = findSpecModuleBySuffix(relativePath);
     if (!mod) return core;
 
     const resolved = pickExport(mod, exportNames);
@@ -72,20 +76,6 @@ const resolveFromModules = <TComponent>(
 
     return resolved as TComponent;
 };
-
-function resolveSpecComponent<TComponent>(
-    relativePath: string,
-    core: TComponent,
-    exportNames: string[] = [],
-): TComponent
-{
-    const rel = normalizePath(relativePath);
-
-    const fromSpec = resolveFromModules(specModules, rel, core, exportNames);
-    if (fromSpec !== core) return fromSpec;
-
-    return resolveFromModules(defaultModules, rel, core, exportNames);
-}
 
 // ====================================================
 // 各模組對外輸出的「已套用 Spec 的元件」
@@ -148,7 +138,7 @@ export const WebResourceListComp = resolveSpecComponent(
     ["WebResourceListComp", "WebResourceList", "default"],
 );
 
-// Options 型別也一起 re-export，讓 ClientRouter 只依賴這支檔案
+// Options 型別一起 re-export，讓 ClientRouter 只依賴這支
 export type {
     IAnnouncementListOptions,
     IFileArchiveOptions,

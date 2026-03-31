@@ -54,3 +54,14 @@ export const parseBitmaskToStringArray = (bitmask: number, allKeys: number[]) =>
  * @returns number - 對應的位元總和（例如：1 + 4 = 5）
  */
 export const sumStringArrayToBitmask = (selected: string[]) => selected.map(Number).reduce((acc, v) => acc | v, 0);
+
+/** 取今天的時間範圍
+ * 很重要注意:以後有關時間的條件邏輯，一定要放在ssr的時候當條件作為基準，後續的CSR拿此作為條件，避免CSR/SSR會有水合錯誤的情形
+ */
+export const getTodayRange = (): { dayStart: number; dayEnd: number; } =>
+{
+    const today = new Date();
+    const dayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0, 0).getTime();
+    const dayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999).getTime();
+    return { dayStart, dayEnd };
+};

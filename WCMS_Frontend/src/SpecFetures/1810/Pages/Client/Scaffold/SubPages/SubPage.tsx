@@ -11,6 +11,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { isSupportedLang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { getTodayRange } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import clsx from "clsx";
 import { type MouseEvent, type ReactNode, useEffect, useMemo, useState } from "react";
@@ -93,7 +94,7 @@ const findNodeById = (nodes: INormNode[] | undefined, id: number): INormNode | u
 const getBannerList = (data: ISubPageLoaderData): BannerSet[] =>
 {
     // 宣告變數
-    const list = data.bannerInitial?.apiRes?.Data;
+    const list = data?.bannerInitial?.apiRes?.Data;
 
     // return
     return Array.isArray(list) ? list : [];
@@ -103,18 +104,16 @@ const getValidBannerDetail = (list: BannerSet[]): BannerDetail | undefined =>
 {
     // 宣告變數
     const banner = list[0];
-    const now = Date.now();
     const details = banner?.BannerDetail ?? [];
+    const { dayStart, dayEnd } = getTodayRange();
 
     // return
-    return [...details]
-        .filter(detail =>
-        {
-            const start = detail.Validate_Start ? new Date(detail.Validate_Start).getTime() : -Infinity;
-            const end = detail.Validate_End ? new Date(detail.Validate_End).getTime() : Infinity;
-            return !!detail.PicSrcId && start <= now && now <= end;
-        })
-        .sort((a, b) => (a.Sort ?? 0) - (b.Sort ?? 0))[0];
+    return [...details].filter(detail =>
+    {
+        const start = detail.Validate_Start ? new Date(detail.Validate_Start).getTime() : -Infinity;
+        const end = detail.Validate_End ? new Date(detail.Validate_End).getTime() : Infinity;
+        return !!detail.PicSrcId && start <= dayEnd && end >= dayStart;
+    }).sort((a, b) => (a.Sort ?? 0) - (b.Sort ?? 0))[0];
 };
 
 const getBannerUrl = (data: ISubPageLoaderData): string =>

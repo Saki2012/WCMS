@@ -8,6 +8,7 @@ import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { type ApiResponse, getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { useResetPageWhenKeyChanged } from "@/SysCore/Utils/UI_HookFunc/useResetPageWhenKeyChanged";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import {
@@ -21,7 +22,7 @@ import {
     TagDataFields,
     TagDetailFields,
 } from "@/types/SchemaFields";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 import { useLoaderData } from "react-router-dom";
 
@@ -650,6 +651,7 @@ export const useAnnouncementListData = (p: {
         initial: listInitial,
         deps: [currentArgs.condition, currentArgs.pageSize],
     });
+    useResetPageWhenKeyChanged(currentArgs.condition, useList.onPageChange);
 
     const viewCountParam = useMemo(() =>
     {

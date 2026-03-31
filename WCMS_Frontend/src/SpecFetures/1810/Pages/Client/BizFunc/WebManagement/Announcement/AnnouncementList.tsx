@@ -1,28 +1,28 @@
 /**公告清單 */
-import { useMemo, useState } from "react";
-import type { GridProps } from "@/SysCore/Components/Grid/Grid_Data";
-import type { components } from "@/types/api";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import { useLocation } from "react-router-dom";
+import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
+import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
+import type { GridProps } from "@/SysCore/Components/Grid/Grid_Data";
 import type { GridRow } from "@/SysCore/Components/Grid/Grid_Data";
-import parse from "html-react-parser";
-import { AnnouncementFields, AnnouncementDetailFields } from "@/types/SchemaFields";
-import type { Lang } from "@/SysCore/i18n/lang";
-import { FormatDate } from "@/SysCore/Utils/Library/LibData";
-import { SearchBarComp, type ISearchQuery } from "@/SysCore/Components/SearchBar/SearchBar_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { Paginator } from "@/SysCore/Components/Paginator/Paginator_Comp";
+import { type ISearchQuery, SearchBarComp } from "@/SysCore/Components/SearchBar/SearchBar_Comp";
+import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
-import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
+import { FormatDate } from "@/SysCore/Utils/Library/LibData";
+import type { components } from "@/types/api";
+import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFields";
+import parse from "html-react-parser";
+import { useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 
-import DefaultEventImg from "@/SpecFetures/1810/Assets/Custom/DefaultEventPic_940x1330.jpg";
-import type { IAnnouncementListProps } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList";
-import { LangLink } from "@/SysCore/i18n/LangLink";
-import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
-import { useAnnouncementListData } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList_Loader";
-import { formatTagsName } from "@/Features/Hooks/BizFunc/WebManagement/Tag_Api";
 import { formatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
+import { formatTagsName } from "@/Features/Hooks/BizFunc/WebManagement/Tag_Api";
+import type { IAnnouncementListProps } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList";
+import { useAnnouncementListData } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList_Loader";
+import DefaultEventImg from "@/SpecFetures/1810/Assets/Custom/DefaultEventPic_940x1330.jpg";
+import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
@@ -37,14 +37,8 @@ const AnnouncementList = (props: IAnnouncementListProps) =>
 
     const effectiveOptions = useMemo(() =>
     {
-        // 宣告變數
         const searchTag = `${query.tag ?? ""}`.trim();
-
-        // return
-        return {
-            ...props.options,
-            Tag: searchTag || props.options?.Tag,
-        };
+        return { ...props.options, Tag: searchTag || props.options?.Tag };
     }, [props.options, query.tag]);
 
     // 執行 function：1810 list 資料統一改由 feature 提供
@@ -76,7 +70,7 @@ const AnnouncementList = (props: IAnnouncementListProps) =>
         />
     );
 
-    const adjustedGrid = useMemo(() => 
+    const adjustedGrid = useMemo(() =>
     {
         return SetAdjustFunction(
             props.lang,
@@ -217,12 +211,8 @@ const SetAdjustFunction = (
                                 {isWithinLastNDaysFromString(curRow.Announcement?.Validate_Start ?? "") && (
                                     <span className="label label-warning">最新</span>
                                 )}
-                                {Boolean(contentStatus & 1) && (
-                                    <span className="label label-success">置頂</span>
-                                )}
-                                {Boolean(contentStatus & 2) && (
-                                    <span className="label label-danger">熱門</span>
-                                )}
+                                {Boolean(contentStatus & 1) && <span className="label label-success">置頂</span>}
+                                {Boolean(contentStatus & 2) && <span className="label label-danger">熱門</span>}
                             </>
                         )}
                     </>
@@ -336,7 +326,7 @@ const PictureList_Comp = (prop: {
 };
 
 /** 清單式公告 */
-const GridList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps }) =>
+const GridList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps; }) =>
 {
     // return
     return (
@@ -375,7 +365,9 @@ const QAItem_Comp = (prop: {
                     href={`#collapse${prop.idx}`}
                     aria-expanded="false"
                 >
-                    {`${(prop.idx + 1).toString().padStart(2, "0")}. ${prop.row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Title}`}
+                    {`${(prop.idx + 1).toString().padStart(2, "0")}. ${
+                        prop.row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Title
+                    }`}
                 </a>
             </div>
             <div id={`collapse${prop.idx}`} className="collapse" data-bs-parent="#accordion">

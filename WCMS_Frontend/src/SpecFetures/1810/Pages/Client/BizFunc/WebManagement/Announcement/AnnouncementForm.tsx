@@ -1,61 +1,53 @@
+import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
+import { useFormDetailViewCount } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Hooks";
+import type { IAnnouncementFormProps } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementForm";
+import { useAnnouncementFormFetchData } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementForm_Loader";
+import type { ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import type { components } from "@/types/api";
-import { useNavigate, useParams } from "react-router-dom";
-import { FormatDate } from "@/SysCore/Utils/Library/LibData";
-import parse from "html-react-parser";
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
-import type { Lang } from "@/SysCore/i18n/lang";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { useCallback } from "react";
-
-// TODO：這行請依你實際 feature 檔案位置微調
-import { useAnnouncementFormFetchData } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementForm_Loader";
-
+import { FormatDate } from "@/SysCore/Utils/Library/LibData";
+import type { components } from "@/types/api";
+import { PGID } from "@/types/SchemaFields";
+import parse from "html-react-parser";
+import { useCallback, useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"];
-
-const emptyData: AnnouncementSet = {
-    Announcement: {},
-    AnnouncementDetail: [],
-};
-
-interface IAnnouncementFormProps
-{
-    theme: IFETheme;
-    lang: Lang;
-}
+const emptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [] };
 
 const AnnouncementForm = (props: IAnnouncementFormProps) =>
 {
     // 宣告變數
     const { internalId } = useParams();
     const safeInternalId = `${internalId ?? ""}`.trim();
-
     // 執行 function：1810 表單資料統一改由 feature 取得
-    const getData = useAnnouncementFormFetchData({
-        lang: props.lang,
-        internalId: safeInternalId,
-        emptyData,
-    });
-
+    const getData = useAnnouncementFormFetchData({ lang: props.lang, internalId: safeInternalId, emptyData });
     const formData = getData.rawData.formData;
     const categoryNameText = getData.rawData.categoryNameText;
     const tagNameText = getData.rawData.tagNameText;
+    const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
+    {
+        // 宣告變數
+        const request: TryCountDetailViewRequest = {
+            SiteIndex: props.site.siteIndex,
+            ProgId: PGID.Announcement,
+            InternalId: safeInternalId,
+        };
 
- 
-
-    // TODO(AnnouncementList):
-    // 下一支若要讓 1810 AnnouncementList 也共用 feature data，
-    // 建議直接在 feature 的 AnnouncementList_Loader / hook 追加 kw 參數，
-    // 1810 只負責把 kw 傳進去與保留自己的 DOM。
-
-    // TODO(ViewCount):
-    // AnnouncementFields.ViewCount 已移除。
-    // 若 1810 之後要顯示瀏覽數，請改接 SiteViewCount 的資料，
-    // 不要再從 Announcement DTO 讀 ViewCount。
-
-    // return
+        // return
+        return {
+            mode: "form",
+            contentKey: safeInternalId,
+            request,
+        };
+    }, [props.site.siteIndex, safeInternalId]);
+    const detailViewCountOptions = useMemo(() =>
+    {
+        return buildDetailViewCountOptions(viewCountConfig);
+    }, [viewCountConfig]);
+    useFormDetailViewCount(detailViewCountOptions);
     return (
         <>
             <LoadingErrorHandler isLoading={getData.isLoading} errorList={getData.errors}>
@@ -107,9 +99,24 @@ const Content = (prop: {
         <>
             <div className="page-header mb-3">
                 <h3>{title}</h3>
-                {startDate && (<><i className="fa fa-calendar"></i>{` ${startDate}`}</>)}
-                {cats && (<><i className="fa fa-tags ml-3"></i>{` ${cats}`}</>)}
-                {tags && (<><i className="fa fa-bookmark ml-3"></i>{` ${tags}`}</>)}
+                {startDate && (
+                    <>
+                        <i className="fa fa-calendar"></i>
+                        {` ${startDate}`}
+                    </>
+                )}
+                {cats && (
+                    <>
+                        <i className="fa fa-tags ml-3"></i>
+                        {` ${cats}`}
+                    </>
+                )}
+                {tags && (
+                    <>
+                        <i className="fa fa-bookmark ml-3"></i>
+                        {` ${tags}`}
+                    </>
+                )}
             </div>
             <div className="dotted_line"></div>
             {content}
@@ -197,4 +204,19 @@ const GoBackRow: React.FC = () =>
             </div>
         </div>
     );
+};
+
+const buildDetailViewCountOptions = (config: ModuleViewCountConfig) =>
+{
+    if (config.mode === "list")
+    {
+        return { enabled: false, contentKey: "", request: null, cooldownMs: undefined, apiInstance: undefined };
+    }
+    return {
+        enabled: true,
+        contentKey: config.contentKey,
+        request: config.request,
+        cooldownMs: config.cooldownMs,
+        apiInstance: config.apiInstance,
+    };
 };

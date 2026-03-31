@@ -1,14 +1,17 @@
+import parse from "html-react-parser";
 import { useMemo } from "react";
 import { useParams } from "react-router";
-import parse from "html-react-parser";
 
-import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import type { components } from "@/types/api";
-import type { Lang } from "@/SysCore/i18n/lang";
-import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
+import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
+import type { Lang } from "@/SysCore/i18n/lang";
+import type { components } from "@/types/api";
 
-import ModuleContent, { type ModuleViewCountConfig, type SubTitleProps, } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+import ModuleContent, {
+    type ModuleViewCountConfig,
+    type SubTitleProps,
+} from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
@@ -23,7 +26,7 @@ const emptyData: AnnouncementSet = {
     AnnouncementDetail: [],
 };
 
-interface IAnnouncementFormProps
+export interface IAnnouncementFormProps
 {
     site: INormSite;
     node: INormNode;
@@ -103,7 +106,7 @@ const AnnouncementForm = (props: IAnnouncementFormProps) =>
 
 export default AnnouncementForm;
 
-const Content = (props: { lang: Lang; data: AnnouncementSet }) =>
+const Content = (props: { lang: Lang; data: AnnouncementSet; }) =>
 {
     // 宣告變數
     const detail = props.data.AnnouncementDetail?.find(
@@ -111,8 +114,7 @@ const Content = (props: { lang: Lang; data: AnnouncementSet }) =>
     );
 
     const fileDetail = props.data.AnnouncementDetailFile?.filter(
-        p =>
-            p.AnnouncementId === detail?.AnnouncementId
+        p => p.AnnouncementId === detail?.AnnouncementId
             && p.ParentRowId === detail?.RowId,
     );
 
