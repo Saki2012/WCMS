@@ -16,7 +16,7 @@ export interface TransformOptions
     newWindow?: boolean;
     /** 是否保留 data-internalid 屬性，預設 false（處理完會移除） */
     keepDataAttr?: boolean;
-    /** 自訂下載網址產生器；預設走 /Service/FileManagement/Download/{id} */
+    /** 自訂下載網址產生器；預設走 /Service/FileManagement/Server_Download/{id} */
     buildDownloadUrl?: (id: string, meta?: FileMeta) => string;
 }
 
