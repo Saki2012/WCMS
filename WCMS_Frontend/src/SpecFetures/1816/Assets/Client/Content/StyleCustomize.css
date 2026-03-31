@@ -87,6 +87,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap');
 /*font-family: "Noto Sans TC" */
 /* GOOGLE 字型 */
+
+/* 網站導覽 - 放到Features裡，改Entry-Client.tsx與Entry-Server.tsx為入口檔 */
+/* @import "@/Features/Assets/Client/Content/css_import/sitemap.css"; */
+/* 網站導覽 */
 /* ============================================= */
 
 /* ============================================= */
