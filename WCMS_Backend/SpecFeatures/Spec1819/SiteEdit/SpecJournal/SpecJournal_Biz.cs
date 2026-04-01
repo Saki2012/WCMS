@@ -85,13 +85,13 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
 
         #region Private
         /// <summary>
-        /// 檢查期刊目次代號、卷期代號是否有填
+        /// 檢查期刊目次代號、卷期代號是否都有填，或是全空(預刊本)
         /// </summary>
         /// <param name="header"></param>
         protected void CheckJouranlIndexIsEmpty(SpecJournalModel header)
         {
-            if(header.JournalIndexId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecJournalModel>(x => x.JournalIndexId));
-            if(header.JournalIndexRowId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecJournalModel>(x => x.JournalIndexRowId));
+            if(header.JournalIndexId.IsNullOrEmpty() && !header.JournalIndexRowId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecJournalModel>(x => x.JournalIndexId));
+            if(!header.JournalIndexRowId.IsNullOrEmpty() && header.JournalIndexRowId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecJournalModel>(x => x.JournalIndexRowId));
         }
         /// <summary>
         /// 防呆:如果沒有上傳檔案(檔案來源為空)，顯示名稱就設為空白

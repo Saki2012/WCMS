@@ -37,11 +37,13 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         [LibDesc(SpecModelDisplayName.Spec_JournalId), Key, StringLength(SysLengthParam.ID)] public string JournalId { get; set; }
         /// <summary>
         /// 期刊目次代號
+        /// 注:期刊目次代號或卷期代號為null時，代表該期刊為預刊本
         /// </summary>
         [ForeignKey(nameof(JournalIndexId))] public SpecJournalIndexModel? _JournalIndex { get; set; } 
         [LibDesc(SpecModelDisplayName.Spec_JournalIndexId), StringLength(SysLengthParam.ID)] public string? JournalIndexId { get; set; }
         /// <summary>
         /// 卷期代號 (期刊目次明細行主鍵)
+        /// 注:期刊目次代號或卷期代號為null時，代表該期刊為預刊本
         /// </summary>
         [ForeignKey($@"{nameof(JournalIndexId)},{nameof(JournalIndexRowId)}")] public SpecJournalIndexDetail? _JournalIndexDetail { get; set; } 
         [LibDesc(SpecModelDisplayName.Spec_JournalIndexRowId)]public int? JournalIndexRowId { get; set; }
