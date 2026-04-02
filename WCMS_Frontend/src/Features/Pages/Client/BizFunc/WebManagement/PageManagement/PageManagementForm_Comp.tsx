@@ -4,7 +4,7 @@ import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent, {
     type ModuleViewCountConfig,
-} from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+} from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
 import { PGID } from "@/types/SchemaFields";
 import {

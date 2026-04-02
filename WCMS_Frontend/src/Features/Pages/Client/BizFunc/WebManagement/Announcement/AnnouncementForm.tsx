@@ -11,7 +11,7 @@ import type { components } from "@/types/api";
 import ModuleContent, {
     type ModuleViewCountConfig,
     type SubTitleProps,
-} from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+} from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";

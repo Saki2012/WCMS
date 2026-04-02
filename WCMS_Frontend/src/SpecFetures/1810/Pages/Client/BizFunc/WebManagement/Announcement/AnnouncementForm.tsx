@@ -2,7 +2,7 @@ import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/SystemS
 import { useFormDetailViewCount } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Hooks";
 import type { IAnnouncementFormProps } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementForm";
 import { useAnnouncementFormFetchData } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementForm_Loader";
-import type { ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+import type { ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";

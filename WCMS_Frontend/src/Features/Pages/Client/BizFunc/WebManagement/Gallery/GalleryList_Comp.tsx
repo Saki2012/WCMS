@@ -4,7 +4,7 @@ import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
 import ModuleContent, {
     type ModuleViewCountConfig,
-} from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+} from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";

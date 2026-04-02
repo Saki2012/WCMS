@@ -5,7 +5,7 @@ import insightpointImg1 from "@/SpecFetures/1819/Assets/Client/images/links/150x
 import insightpointImg2 from "@/SpecFetures/1819/Assets/Client/images/links/150x32/InSight_Point_bt_W_150x32.svg";
 import openPointImg from "@/SpecFetures/1819/Assets/Client/images/links/150x32/Open_Point_bt_190x40.svg";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { components } from "@/types/api";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import clsx from "clsx";
@@ -13,7 +13,7 @@ import { QrCodeWithLogo_Comp } from "@/SysCore/Components/LibQRCode/LibQRCode_Co
 import QRCodeLogoImg from "@/SpecFetures/1819/Assets/Client/SpecImg/QRCodeLogo.png";
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
 import { useLocation, useParams } from "react-router";
-import { useBreadcrumb } from "@/Features/Pages/Client/Scaffold/SubPages/Section/BreadCrumb_Comp";
+import { useBreadcrumb } from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
 import { SpecJournalKeywordSearch_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalKeywordSearchComp";
 import { useSpecJournalSearchNav } from "./SpecJournalSearchUtils";
 import { useSpecJournalFormData } from "./SpecJournalForm_Loader";

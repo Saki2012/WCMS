@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { getLangLabel, type Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import { useParams } from "react-router";
-import { useBreadcrumb } from "@/Features/Pages/Client/Scaffold/SubPages/Section/BreadCrumb_Comp";
+import { useBreadcrumb } from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
 import { SpecJournalKeywordSearch_Comp } from "./SpecJournalKeywordSearchComp";
 import { useSpecJournalSearchNav } from "./SpecJournalSearchUtils";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";

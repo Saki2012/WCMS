@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { LangLink } from "@/SysCore/i18n/LangLink";
-import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { components } from "@/types/api";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";

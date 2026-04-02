@@ -1,12 +1,12 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import { Banner_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Section/Banner_Comp";
+import { Banner_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/Banner/Banner_Comp";
 import {
     BreadCrumb_Comp,
     BreadcrumbContext,
     type BreadcrumbItem,
-} from "@/Features/Pages/Client/Scaffold/SubPages/Section/BreadCrumb_Comp";
-import { SubMenu_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Section/SubMenu_Comp";
-import { ThirdMenu_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ThirdMenu_Comp";
+} from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
+import { SubMenu_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SubMenu/SubMenu_Comp";
+import { ThirdMenu_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/ThirdMenu/ThirdMenu_Comp";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
 import clsx from "clsx";

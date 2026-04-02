@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import { useMemo } from "react";
 import type { components } from "@/types/api";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
