@@ -3,7 +3,7 @@ import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { useLocation } from "react-router-dom";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import { useEffect, useMemo, useRef, useState } from "react";
 import parse from "html-react-parser";
 import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFields";

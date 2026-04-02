@@ -1,3 +1,8 @@
+/**
+ * 在SubPage.tsx檔使用時，會以outlet標籤做使用 - 有設定動態選擇其渲染的內容
+ * 若有需要第三層再引用(目前檔案內容未引用)
+ */
+
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { NewPaginator } from "@/SysCore/Components/Paginator/Paginator_Comp";

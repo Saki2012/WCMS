@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
-import ModuleContent, {type ModuleViewCountConfig, } from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+import ModuleContent, {type ModuleViewCountConfig, } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { components } from "@/types/api";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
