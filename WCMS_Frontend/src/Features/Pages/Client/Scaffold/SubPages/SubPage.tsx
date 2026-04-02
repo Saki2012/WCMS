@@ -1,33 +1,59 @@
+/**
+ * AccessKeySection
+ * TopFrame
+ * ContentContainer = LeftFrame + RightFrame
+ */
+
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import { Banner_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/Banner/Banner_Comp";
 import {
-    BreadCrumb_Comp,
     BreadcrumbContext,
     type BreadcrumbItem,
 } from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
-import { SubMenu_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SubMenu/SubMenu_Comp";
-import { ThirdMenu_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/ThirdMenu/ThirdMenu_Comp";
+import RightFrame from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/RightFrame";
+import LeftFrame from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/LeftFrame/LeftFrame";
+import TopFrame from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/TopFrame/TopFrame";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
-import clsx from "clsx";
 import { useState } from "react";
-import { Outlet, useLoaderData } from "react-router";
+import { useLoaderData } from "react-router";
 import type { ISubPageLoaderData } from "./SubPage_Loader";
 
-const SubPage = (props: { style: IFETheme; lang: Lang; site: INormSite; node: INormNode; backHref?: string; }) =>
+interface ISubPageProps
 {
+    style: IFETheme;
+    lang: Lang;
+    site: INormSite;
+    node: INormNode;
+    backHref?: string;
+}
+
+const SubPage = (props: ISubPageProps) =>
+{
+    // 讀取 SSR loader 初始資料
     const data = useLoaderData() as ISubPageLoaderData;
+
+    // 給 BreadCrumb 與子頁共用的動態 breadcrumb 狀態
+    const [items, setItems] = useState<BreadcrumbItem[]>([]);
+
     return (
         <>
-            <Banner_Comp lang={props.lang} node={props.node} initialBanner={data.bannerInitial} />
-            <AccessKeySection />
-            <ContentContainer
-                style={props.style}
-                lang={props.lang}
-                site={props.site}
-                node={props.node}
-                backHref={props.backHref}
-            />
+            <BreadcrumbContext.Provider value={{ items, setItems }}>
+                <AccessKeySection />
+                <TopFrame
+                    lang={props.lang}
+                    site={props.site}
+                    node={props.node}
+                    backHref={props.backHref}
+                    initialBanner={data.bannerInitial}
+                />
+                <ContentContainer
+                    style={props.style}
+                    lang={props.lang}
+                    site={props.site}
+                    node={props.node}
+                    backHref={props.backHref}
+                />
+            </BreadcrumbContext.Provider>
         </>
     );
 };
@@ -54,51 +80,16 @@ const AccessKeySection = () =>
     );
 };
 
-const ContentContainer = (
-    props: { style: IFETheme; lang: Lang; site: INormSite; node: INormNode; backHref?: string; },
-) =>
+const ContentContainer = (props: ISubPageProps) =>
 {
-    // 動態 breadcrumb items（由各頁 setItems）
-    const [items, setItems] = useState<BreadcrumbItem[]>([]);
-    const hasSubMenu = (props.node.level ?? 0) > 0 || (props.node.children?.length ?? 0) > 0;
-    const contentCss = clsx(
-        "col-md-12",
-        "col-sm-12",
-        "col-12",
-        hasSubMenu ? "col-xl-10" : "col-xl-12",
-        hasSubMenu ? "col-lg-9" : "col-lg-12",
-    );
     return (
         <div className="ContentPlaceContent_Area">
             <section className="Template content area">
                 <div className="container-customize2 + Layout_Padding_0_top Layout_Padding_3_bottom">
-                    {/* ✅ Provider 只包一次，BreadCrumb + 子頁都能讀寫 */}
-                    <BreadcrumbContext.Provider value={{ items, setItems }}>
-                        <div className="row">
-                            <BreadCrumb_Comp
-                                lang={props.lang}
-                                site={props.site}
-                                node={props.node}
-                                backHref={props.backHref}
-                            />
-                            {/* <Toolbar_Comp lang={props.lang} /> */}
-                        </div>
-
-                        <div className="row">
-                            <SubMenu_Comp lang={props.lang} site={props.site} node={props.node} />
-                            <div className={contentCss}>
-                                <ThirdMenu_Comp lang={props.lang} site={props.site} node={props.node} />
-
-                                {/* ✅ 子頁只渲染一次（避免雙 Outlet） */}
-                                <div
-                                    id="ContentPlaceContent_ContentConentA"
-                                    className="col-sm-12 col-12 + All_Standard_Content_CSS + my-5"
-                                >
-                                    <Outlet context={{ lang: props.lang, site: props.site, node: props.node }} />
-                                </div>
-                            </div>
-                        </div>
-                    </BreadcrumbContext.Provider>
+                    <div className="row">
+                        <LeftFrame lang={props.lang} site={props.site} node={props.node} />
+                        <RightFrame lang={props.lang} site={props.site} node={props.node} />
+                    </div>
                 </div>
             </section>
         </div>

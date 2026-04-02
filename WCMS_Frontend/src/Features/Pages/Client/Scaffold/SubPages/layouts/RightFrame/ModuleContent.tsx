@@ -1,6 +1,5 @@
 /**
- * 在SubPage.tsx檔使用時，會以outlet標籤做使用 - 有設定動態選擇其渲染的內容
- * 若有需要第三層再引用(目前檔案內容未引用)
+ * 此為RightFrame 底下的內容容器
  */
 
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";

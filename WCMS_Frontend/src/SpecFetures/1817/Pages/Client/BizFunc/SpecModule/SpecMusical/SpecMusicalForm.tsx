@@ -1,7 +1,7 @@
 import type { components } from '@/types/api';
 import { useParams } from 'react-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import ModuleContent, { type ModuleViewCountConfig } from '@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent';
+import ModuleContent, { type ModuleViewCountConfig } from '@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent';
 import type { INormNode, INormSite } from '@/Features/Pages/Client/Route/Site-Routing';
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import type { ModelDisplaySchema } from '@/types/IApiSchema';

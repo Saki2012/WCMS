@@ -1,4 +1,47 @@
 /**
  * ThirdMenu - 之後可能會拿掉
- * 
+ * 在此處使用ModuleContent時，會以outlet標籤做使用 - 有設定動態選擇其渲染的內容
  */
+
+import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import { ThirdMenu_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/ThirdMenu/ThirdMenu_Comp";
+import type { Lang } from "@/SysCore/i18n/lang";
+import clsx from "clsx";
+import { Outlet } from "react-router";
+
+interface IRightFrameProps
+{
+    lang: Lang;
+    site: INormSite;
+    node: INormNode;
+}
+
+const RightFrame = (props: IRightFrameProps) =>
+{
+    // 判斷是否需要預留左側選單寬度
+    const hasSubMenu = (props.node.level ?? 0) > 0 || (props.node.children?.length ?? 0) > 0;
+
+    // 右側內容區欄寬
+    const contentCss = clsx(
+        "col-md-12",
+        "col-sm-12",
+        "col-12",
+        hasSubMenu ? "col-xl-10" : "col-xl-12",
+        hasSubMenu ? "col-lg-9" : "col-lg-12",
+    );
+
+    // return
+    return (
+        <div className={contentCss}>
+            <ThirdMenu_Comp lang={props.lang} site={props.site} node={props.node} />
+            <div
+                id="ContentPlaceContent_ContentConentA"
+                className="col-sm-12 col-12 + All_Standard_Content_CSS + mb-5 mt-1"
+            >
+                <Outlet context={{ lang: props.lang, site: props.site, node: props.node }} /> 
+            </div>
+        </div>
+    );
+};
+
+export default RightFrame;

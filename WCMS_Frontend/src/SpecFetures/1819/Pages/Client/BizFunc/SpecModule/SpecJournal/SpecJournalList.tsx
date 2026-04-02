@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { getLangLabel, type Lang } from "@/SysCore/i18n/lang";
