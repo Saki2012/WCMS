@@ -21,7 +21,7 @@ import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
 import { PGID } from "@/types/SchemaFields";
 import { type LoaderFunction, type LoaderFunctionArgs, type RouteObject } from "react-router-dom";
 import { specClientEntries } from "SpecFeature/SpecRouter";
-import { Sitemap, SITEMAP_SEGMENT } from "../BizFunc/MainPage/Sitemap";
+import { Sitemap, SITEMAP_SEGMENT } from "../BizFunc/MainPage/Sitemap/Sitemap";
 import { AnnouncementFormLoader } from "../BizFunc/WebManagement/Announcement/AnnouncementForm_Loader";
 import { AnnouncementListLoader } from "../BizFunc/WebManagement/Announcement/AnnouncementList_Loader";
 import { FileArchiveList_Loader } from "../BizFunc/WebManagement/FileArchive/FileArchiveList_Loader";

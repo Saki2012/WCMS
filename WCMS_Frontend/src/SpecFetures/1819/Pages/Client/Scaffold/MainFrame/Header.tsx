@@ -11,7 +11,7 @@ import LogoImg from "@/SpecFetures/1819/Assets/Client/images/logo/LOGO_400x95.sv
 
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
-import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap";
+import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap/Sitemap";
 import { SubmissionReviewSystem } from "./SubmissionReviewSystem";
 import React from "react";
 

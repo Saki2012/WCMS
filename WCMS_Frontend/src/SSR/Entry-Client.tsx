@@ -26,7 +26,7 @@ if (typeof window !== "undefined") {
       await import("@/Features/Assets/LoadFeaturesJs.ts");
       await import("SpecFeature/Assets/LoadSpecCss_Server.ts");
     } else {
-      await import("@/Features/Assets/LoadFeaturesCss_Client.ts"); //cara
+      // await import("@/Features/Assets/LoadFeaturesCss_Client.ts"); //cara
       await import("SpecFeature/Assets/LoadSpecCss.ts");
       await import("SpecFeature/Assets/LoadSpecJs.ts");
     }

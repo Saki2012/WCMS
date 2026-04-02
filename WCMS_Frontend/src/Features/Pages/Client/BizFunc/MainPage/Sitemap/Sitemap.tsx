@@ -2,6 +2,9 @@ import React, { useMemo } from "react";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
+import "./Sitemap.css";
+
+/** 將Sitemap包成一個Page Component / Page Module，將Sitemap.tsx與Sitemap.css放在同個資料夾 */
 
 /**
  * Sitemap.tsx
@@ -9,6 +12,7 @@ import { LangNavLink } from "@/SysCore/i18n/LangLink";
  * - 項目資料使用 site info（props.site.treeByLang）渲染
  */
 
+/** 若之後要擴充成多樣式 - 以下為共用的func */
 const getInternalTo = (siteIndex: string, absSegments?: string[] | null): string => {
     // 組內部連結：/{siteIndex}/{...segments}
     const segs = (absSegments ?? []).filter(Boolean);
@@ -71,7 +75,11 @@ const collectLeafNodes = (nodes: INormNode[]): INormNode[] => {
     nodes.forEach(walk);
     return result;
 };
+/** 若之後要擴充成多樣式 - 以上為共用的func */
 
+
+/** 主要DOM結構 - 以下 */
+// 主要DOM結構 - 上方info
 const KeyboardGuide = (props: { lang: Lang }) => {
     const isEn = props.lang === "en";
 
@@ -228,6 +236,7 @@ const KeyboardGuide = (props: { lang: Lang }) => {
     );
 };
 
+// 主要DOM結構 - 下方menu
 const SiteMapSection = (props: { siteIndex: string; node: INormNode }) => {
     // 宣告變數
     const groups = props.node.children ?? [];
@@ -268,7 +277,10 @@ const SiteMapSection = (props: { siteIndex: string; node: INormNode }) => {
         </div>
     );
 };
+/** 主要DOM結構 - 以上 */
 
+
+// export
 export const Sitemap = (props: { lang: Lang; site: INormSite; includeHidden?: boolean }) => {
     // 宣告變數：roots
     const roots = useMemo<INormNode[]>(() => {
@@ -288,7 +300,10 @@ export const Sitemap = (props: { lang: Lang; site: INormSite; includeHidden?: bo
     );
 };
 
-//////
+
+/** Sitemap 這頁自己的虛擬路由節點 - 以下 */
+// 手動建立，路由節點定義、metadata、給 breadcrumb / routing / menu 用的資料，
+// 這部分也可以獨立出去一隻檔案，命名為SitemapNode.ts
 export const SITEMAP_NODE_ID = -9999 as const;
 /** 網站導覽 */
 export const SITEMAP_SEGMENT = "Sitemap" as const;
@@ -309,3 +324,4 @@ export const SitemapNode = (lang: Lang): INormNode => {
         absIds: [SITEMAP_NODE_ID],
     };
 };
+/** Sitemap 這頁自己的虛擬路由節點 - 以上 */
