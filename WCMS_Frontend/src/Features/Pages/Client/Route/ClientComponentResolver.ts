@@ -5,7 +5,9 @@
 // 3. 找不到就直接 fallback 到 Feature base
 // 4. 不再讓 _default 介入 component resolver，避免空殼覆蓋 Feature
 
-import type { ComponentType } from "react";
+import { resolveSpecComponent, resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
+import HomePageBase from "SpecFeature/Pages/Client/Index/HomePage";
+import { HomePageLoader as HomePageLoaderBase } from "SpecFeature/Pages/Client/Index/HomePage_Loader";
 
 // ---------------- Feature 基準版元件 ----------------
 import AnnouncementFormCompBase from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementForm";
@@ -26,56 +28,9 @@ import WebResourceListCompBase, {
 import SubPageBase from "@/Features/Pages/Client/Scaffold/SubPages/SubPage";
 
 // ====================================================
-// 共用 Resolver：只從「目前 SpecFeature」取對應元件
-// 找不到就直接 fallback 到 Feature 版
+// 共用 Resolver 已收斂到 SlotResolver.ts
+// 這邊只保留各模組的 core + export mapping
 // ====================================================
-
-export type SpecComponent<TProps = Record<string, never>> = ComponentType<TProps>;
-type SpecModule = { default?: unknown; [key: string]: unknown; };
-
-// 只掃目前 build 的 SpecFeature；不要再掃 _default
-const specModules = import.meta.glob("SpecFeature/**/*.tsx", { eager: true }) as Record<string, SpecModule>;
-
-/** 路徑正規化，避免 slash 差異造成比對失敗 */
-const normalizePath = (value: string): string =>
-{
-    return `${value ?? ""}`.trim().replace(/\\/g, "/").replace(/^\/+/, "");
-};
-
-/** 依照 export 名稱順序挑元件，最後才退 default */
-const pickExport = (mod: SpecModule, exportNames: string[] = []): unknown =>
-{
-    for (const name of exportNames)
-    {
-        if (name && mod[name]) return mod[name];
-    }
-
-    return mod.default;
-};
-
-/** 依 suffix 找目前 spec 中的對應檔案 */
-const findSpecModuleBySuffix = (relativePath: string): SpecModule | undefined =>
-{
-    const rel = normalizePath(relativePath);
-    const hitKey = Object.keys(specModules).find(key => normalizePath(key).endsWith(rel));
-    return hitKey ? specModules[hitKey] : undefined;
-};
-
-/** 解析 Spec 元件；找不到就直接回 Feature base */
-const resolveSpecComponent = <TComponent>(
-    relativePath: string,
-    core: TComponent,
-    exportNames: string[] = [],
-): TComponent =>
-{
-    const mod = findSpecModuleBySuffix(relativePath);
-    if (!mod) return core;
-
-    const resolved = pickExport(mod, exportNames);
-    if (!resolved) return core;
-
-    return resolved as TComponent;
-};
 
 // ====================================================
 // 各模組對外輸出的「已套用 Spec 的元件」
@@ -87,6 +42,20 @@ export const SubPage = resolveSpecComponent(
     "Pages/Client/Scaffold/SubPages/SubPage.tsx",
     SubPageBase,
     ["SubPage", "default"],
+);
+
+// HomePage
+export const HomePage: typeof HomePageBase = resolveSpecComponent(
+    "Pages/Client/Index/HomePage.tsx",
+    HomePageBase,
+    ["HomePage", "default"],
+);
+
+// HomePage Loader
+export const HomePageLoader: typeof HomePageLoaderBase = resolveSpecFunc(
+    "Pages/Client/Index/HomePage_Loader.ts",
+    HomePageLoaderBase,
+    ["HomePageLoader", "default"],
 );
 
 // PageManagement Form
