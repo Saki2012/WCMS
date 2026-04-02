@@ -92,7 +92,10 @@ export const langGuardLoader = async ({ request }: LoaderFunctionArgs) =>
 const getCookieValue = (cookieStr: string, name: string): string | undefined =>
 {
     if (!cookieStr) return undefined;
-    const m = cookieStr.match(new RegExp(`(?:^|;\\s*)${name.replace(/[-[\]{}()*+?.,\\^$|#\\s]/g, "\\$&")}=([^;]*)`));
+    const escapedName = name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+    const patternText = `(?:^|;\\s*)${escapedName}=([^;]*)`;
+    const pattern = new RegExp(patternText);
+    const m = cookieStr.match(pattern);
     return m ? decodeURIComponent(m[1]) : undefined;
 };
 
