@@ -58,10 +58,10 @@ export const sumStringArrayToBitmask = (selected: string[]) => selected.map(Numb
 /** 取今天的時間範圍
  * 很重要注意:以後有關時間的條件邏輯，一定要放在ssr的時候當條件作為基準，後續的CSR拿此作為條件，避免CSR/SSR會有水合錯誤的情形
  */
-export const getTodayRange = (): { dayStart: number; dayEnd: number; } =>
+export const getTodayRange = (now?: Date): { dayStart: number; dayEnd: number; } =>
 {
-    const today = new Date();
-    const dayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0, 0).getTime();
-    const dayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999).getTime();
+    const base = now ?? new Date();
+    const dayStart = new Date(base.getFullYear(), base.getMonth(), base.getDate(), 0, 0, 0, 0).getTime();
+    const dayEnd = new Date(base.getFullYear(), base.getMonth(), base.getDate(), 23, 59, 59, 999).getTime();
     return { dayStart, dayEnd };
 };

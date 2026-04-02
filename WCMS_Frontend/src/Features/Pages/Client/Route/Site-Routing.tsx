@@ -1,16 +1,20 @@
 // src/Features/Client/routing/site-routing.tsx
 import { Index } from "@/Features/Pages/Client/BizFunc/MainPage/Index";
+import {
+    SITEMAP_NODE_ID,
+    SITEMAP_SEGMENT,
+    SitemapNode,
+} from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap/Sitemap";
 import { HomePage, HomePageLoader } from "@/Features/Pages/Client/Route/ClientComponentResolver";
+import TemplateHub from "@/Features/Pages/Server/Scaffold/PreviewFrame/TemplateHub.tsx";
+import { DefaultLang, isSupportedLang, type Lang } from "@/SysCore/i18n/lang";
+import { useLang } from "@/SysCore/i18n/LangContext";
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 import type { components } from "@/types/api";
 import * as React from "react";
-import { type LoaderFunctionArgs, Outlet, type RouteObject } from "react-router-dom";
+import { type LoaderFunctionArgs, Outlet, type RouteObject, useLocation } from "react-router-dom";
+import { type ISubPageLoaderData, SubPageLoader } from "../Scaffold/SubPages/SubPage_Loader";
 import { Classic_FETheme } from "../Theme/ClassicTheme_Clsx";
-import { DefaultLang, isSupportedLang, type Lang } from "@/SysCore/i18n/lang";
-import TemplateHub from "@/Features/Pages/Server/Scaffold/PreviewFrame/TemplateHub.tsx";
-import { useLang } from "@/SysCore/i18n/LangContext";
-import { SITEMAP_NODE_ID, SITEMAP_SEGMENT, SitemapNode } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap/Sitemap";
-import { SubPageLoader, type ISubPageLoaderData } from "../Scaffold/SubPages/SubPage_Loader";
 
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
 type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"];
@@ -279,36 +283,45 @@ const normalizeLangKey = (raw?: string | null): Lang =>
 // 2) 模組元件：用 useLang() 把 lang 傳給對應的模組 component
 const ModuleElement: React.FC<{ site: INormSite; nodeId: number; skeletonNode: INormNode; }> = (props) =>
 {
-    // 宣告變數
-    const lang = (useLang().code ?? DefaultLang) as Lang;
+    const location = useLocation();
+    const lang = resolveRouteLangFromPathname(location.pathname);
     const node = resolveNodeByLang(props.site, lang, props.nodeId) ?? props.skeletonNode;
 
-    // 執行 function
     if (node.type !== "module" || !node.module) return <div>Module not registered</div>;
     const entry = getModuleRegistry()[node.module.progId];
     if (!entry) return <div>Unknown module: {node.module.progId}</div>;
 
-    // return
     return entry.kind === "element"
         ? entry.render(lang, props.site, node)
         : entry.element(lang, props.site, node);
 };
 /** render 時用 LangContext 覆寫 route.element 裡的 lang / defaultLang（避免 route tree 只能用 DefaultLang 產生） */
-const WithCtxLang: React.FC<{ element: React.ReactElement; }> = ({ element }) =>
+const WithCtxLang: React.FC<{ element: React.ReactElement; site?: INormSite; nodeId?: number; }> = (
+    { element, site, nodeId },
+) =>
 {
-    const lang = (useLang().code ?? DefaultLang) as Lang;
-    return React.cloneElement(element, { lang, defaultLang: DefaultLang } as any);
-};
+    const location = useLocation();
+    const lang = resolveRouteLangFromPathname(location.pathname);
+    const node = site && typeof nodeId === "number" ? (resolveNodeByLang(site, lang, nodeId) ?? undefined) : undefined;
 
-const wrapRoutesWithCtxLang = (routes: RouteObject[]): RouteObject[] =>
+    return React.cloneElement(
+        element,
+        {
+            lang,
+            defaultLang: DefaultLang,
+            ...(node ? { node } : {}),
+        } as any,
+    );
+};
+const wrapRoutesWithCtxLang = (routes: RouteObject[], site?: INormSite, nodeId?: number): RouteObject[] =>
     routes.map((r) =>
     {
         const clone: RouteObject = { ...r };
         if (r.element && React.isValidElement(r.element))
         {
-            clone.element = <WithCtxLang element={r.element as React.ReactElement} />;
+            clone.element = <WithCtxLang element={r.element as React.ReactElement} site={site} nodeId={nodeId} />;
         }
-        if (r.children?.length) clone.children = wrapRoutesWithCtxLang(r.children);
+        if (r.children?.length) clone.children = wrapRoutesWithCtxLang(r.children, site, nodeId);
         return clone;
     });
 // ✅ 遞迴找 node（用 id 對應各語系）
@@ -341,7 +354,8 @@ const resolveNodeByLang = (site: INormSite, lang: Lang, nodeId: number): INormNo
 /** ✅ node route guard：若該語系 node 不存在，或 title==="" && isShowOnMenu=false → 回該語系首頁 */
 const NodeRouteGuard: React.FC<{ site: INormSite; nodeId: number; children: React.ReactElement; }> = (props) =>
 {
-    const lang = (useLang().code ?? DefaultLang) as Lang;
+    const location = useLocation();
+    const lang = resolveRouteLangFromPathname(location.pathname);
 
     const roots = props.site.treeByLang[lang] ?? [];
     const cur = findNodeById(roots, props.nodeId);
@@ -408,6 +422,13 @@ const resolveLangFromUrl = (url: string): Lang | null =>
 
     // return
     return tryParseLangSegment(seg0);
+};
+
+const resolveRouteLangFromPathname = (pathname: string): Lang =>
+{
+    const segs = pathname.split("/").filter(Boolean);
+    const hit = tryParseLangSegment(segs[0] ?? "") ?? tryParseLangSegment(segs[1] ?? "");
+    return hit ?? DefaultLang;
 };
 
 export const resolveLangFromRequest = (request: Request): Lang =>
@@ -516,7 +537,7 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] =>
         const modChildrenRaw: RouteObject[] = entry.kind === "routes"
             ? entry.children(n.module.options, DefaultLang, site, n)
             : [];
-        const modChildren = wrapRoutesWithCtxLang(modChildrenRaw);
+        const modChildren = wrapRoutesWithCtxLang(modChildrenRaw, site, n.id);
         const children = [...modChildren, ...menuChildren];
         // pathless 模組：有 children → 當包裹；沒有 → 當 index
         if (!n.path) return children.length > 0 ? { element, loader, children } : { index: true, element, loader };

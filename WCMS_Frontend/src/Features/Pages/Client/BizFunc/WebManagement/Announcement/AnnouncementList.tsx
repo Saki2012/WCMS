@@ -1,23 +1,23 @@
-import type { ColumnConfig, GridProps, GridRow } from "@/SysCore/Components/Grid/Grid_Data";
-import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import { useLocation } from "react-router-dom";
-import type { Lang } from "@/SysCore/i18n/lang";
-import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
-import { useEffect, useMemo, useRef, useState } from "react";
-import parse from "html-react-parser";
-import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFields";
-import type { components } from "@/types/api";
-import { FormatDate } from "@/SysCore/Utils/Library/LibData";
-import { ColRender, RowRender, STORAGE_KEY } from "@/SysCore/Components/Grid/Grid_Comp";
-import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
-import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
-import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
-import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
-import { useAnnouncementListData } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList_Loader";
 import { formatCategoriesName } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
 import { formatTagsName } from "@/Features/Hooks/BizFunc/WebManagement/Tag_Api";
+import { useAnnouncementListData } from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList_Loader";
+import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Section/ModuleContent";
+import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
+import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
+import { ColRender, RowRender, STORAGE_KEY } from "@/SysCore/Components/Grid/Grid_Comp";
+import type { ColumnConfig, GridProps, GridRow } from "@/SysCore/Components/Grid/Grid_Data";
+import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
+import type { Lang } from "@/SysCore/i18n/lang";
+import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { FormatDate } from "@/SysCore/Utils/Library/LibData";
+import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
+import type { components } from "@/types/api";
+import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFields";
+import parse from "html-react-parser";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { isWithinLastNDaysFromString } from "../WebResource/WebResourceList";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
@@ -103,7 +103,7 @@ const AnnouncementList = (props: IAnnouncementListProps) =>
             case 1:
                 return (
                     <GridList_Comp
-                        key="grid"
+                        key={`grid-${props.lang}`}
                         lang={props.lang}
                         gridData={adjustedGrid}
                         title={props.node.title}
@@ -148,7 +148,7 @@ const AnnouncementList = (props: IAnnouncementListProps) =>
 
 export default AnnouncementList;
 
-const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps }) =>
+const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps; }) =>
 {
     // 宣告變數
     const [columns, setColumns] = useState<ColumnConfig[]>(props.gridData.columns);
@@ -165,9 +165,9 @@ const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps }
                     width: typeof widths[col.key] === "number"
                         ? widths[col.key]
                         : typeof col.width === "number"
-                            ? col.width
-                            : undefined,
-                })),
+                        ? col.width
+                        : undefined,
+                }))
             );
         }
     }, []);
@@ -176,9 +176,7 @@ const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps }
     {
         setColumns((prev) =>
         {
-            const updated = prev.map((col, idx) =>
-                idx === index ? { ...col, width } : col,
-            );
+            const updated = prev.map((col, idx) => idx === index ? { ...col, width } : col);
 
             const widths: Record<string, number> = {};
             updated.forEach((c) =>
@@ -493,7 +491,10 @@ const QAItem_Comp = (props: {
                     id={collapseId}
                     className={props.getCollapseClass(key, isOpen)}
                     data-bs-parent="#accordion"
-                    ref={(el) => { props.onSetRef(key, el); }}
+                    ref={(el) =>
+                    {
+                        props.onSetRef(key, el);
+                    }}
                 >
                     <div className="card-body">
                         {contentNode}
@@ -516,7 +517,7 @@ const useFaqContentNode = (html: string, lang: Lang) =>
     }, [resolved.html]);
 };
 
-const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementSet[] }) =>
+const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementSet[]; }) =>
 {
     useEffect(() =>
     {
@@ -565,8 +566,7 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
                     .attr("aria-label", "圖片輪播播放中，點擊暫停");
                 $iconBox.addClass("control-pause-icon");
                 $srText.text("圖片輪播播放中，點擊暫停");
-            }
-            else
+            } else
             {
                 $toggle
                     .attr("aria-pressed", "false")
@@ -584,8 +584,7 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
             {
                 $owl.trigger("stop.owl.autoplay");
                 isPlaying = false;
-            }
-            else
+            } else
             {
                 $owl.trigger("play.owl.autoplay", [5000]);
                 isPlaying = true;
@@ -603,8 +602,7 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
             try
             {
                 $owl.trigger("destroy.owl.carousel");
-            }
-            catch
+            } catch
             {
                 /** ignore */
             }
@@ -626,7 +624,8 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
                                     aria-pressed="true"
                                     tabIndex={0}
                                     title="暫停"
-                                    onClick={() => { }}
+                                    onClick={() =>
+                                    {}}
                                 >
                                     <div className="control-toggle control-pause-icon">
                                         <span className="sr-only">圖片輪播播放中，點擊暫停</span>
@@ -693,6 +692,31 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
     );
 };
 
+const resolveAdjustedCellText = (p: {
+    colKey: string;
+    rawContent: string;
+    rowTitle: string;
+    curRow: AnnouncementSet;
+    catData: CategorySet[];
+    tagData: TagSet[];
+    lang: Lang;
+}): string =>
+{
+    // 宣告變數
+    if (p.colKey === AnnouncementDetailFields.Title) return p.rowTitle;
+    if (p.colKey === AnnouncementFields.Categories)
+    {
+        return formatCategoriesName(p.curRow.Announcement?.Categories ?? "", p.catData, p.lang);
+    }
+    if (p.colKey === AnnouncementFields.Tags)
+    {
+        return formatTagsName(p.curRow.Announcement?.Tags ?? "", p.tagData, p.lang);
+    }
+
+    // return
+    return p.rawContent;
+};
+
 const SetAdjustFunction = (
     lang: Lang,
     dirUrl: string,
@@ -706,67 +730,49 @@ const SetAdjustFunction = (
     const newRows: GridRow[] = gridProps.rows.map((row, index) =>
     {
         const curRow = rawData?.[index];
-        const internalId = curRow.Announcement?.InternalId ?? "";
-        const contentStatus = curRow.Announcement?.ContentStatus ?? 0;
+        const internalId = curRow?.Announcement?.InternalId ?? "";
+        const contentStatus = curRow?.Announcement?.ContentStatus ?? 0;
         const titleId = `title-${internalId}`;
-
-        const rowTitle = curRow.AnnouncementDetail?.find(
-            p => p.Lang === lang,
-        )?.Title?.trim() ?? "";
+        const rowTitle = curRow?.AnnouncementDetail?.find(p => p.Lang === lang)?.Title?.trim() ?? "";
         const srLinkText = rowTitle ? `前往：${rowTitle}` : "前往內容";
 
         const newCells = row.cells.map((cell) =>
         {
             const isTitle = cell.col.key === AnnouncementDetailFields.Title;
-
-            switch (cell.col.key)
-            {
-                case AnnouncementFields.Categories:
-                    cell.content = formatCategoriesName(
-                        curRow.Announcement?.Categories ?? "",
-                        catData,
-                        lang,
-                    );
-                    break;
-                case AnnouncementFields.Tags:
-                    cell.content = formatTagsName(
-                        curRow.Announcement?.Tags ?? "",
-                        tagData,
-                        lang,
-                    );
-                    break;
-            }
+            const displayText = resolveAdjustedCellText({
+                colKey: cell.col.key,
+                rawContent: typeof cell.content === "string" ? cell.content : "",
+                rowTitle,
+                curRow,
+                catData,
+                tagData,
+                lang,
+            });
 
             return {
                 ...cell,
                 content: (
                     <>
-                        {isTitle ? (
-                            <>
-                                {isWithinLastNDaysFromString(curRow.Announcement?.Validate_Start ?? "") && (
-                                    <span className="label label-warning">最新</span>
-                                )}
-                                {Boolean(contentStatus & 1) && (
-                                    <span className="label label-success">置頂</span>
-                                )}
-                                {Boolean(contentStatus & 2) && (
-                                    <span className="label label-danger">熱門</span>
-                                )}
-                                <LangLink
-                                    to={`${dirUrl}/${internalId}`}
-                                    className="link-cell"
-                                    id={isTitle ? titleId : undefined}
-                                    aria-labelledby={isTitle ? undefined : titleId}
-                                >
-                                    <span aria-hidden={!isTitle}>{cell.content}</span>
-                                    {!isTitle && (
-                                        <span className="visually-hidden">{srLinkText}</span>
+                        {isTitle
+                            ? (
+                                <>
+                                    {isWithinLastNDaysFromString(curRow?.Announcement?.Validate_Start ?? "") && (
+                                        <span className="label label-warning">最新</span>
                                     )}
-                                </LangLink>
-                            </>
-                        ) : (
-                            <span>{cell.content}</span>
-                        )}
+                                    {Boolean(contentStatus & 1) && <span className="label label-success">置頂</span>}
+                                    {Boolean(contentStatus & 2) && <span className="label label-danger">熱門</span>}
+                                    <LangLink
+                                        to={`${dirUrl}/${internalId}`}
+                                        className="link-cell"
+                                        id={isTitle ? titleId : undefined}
+                                        aria-labelledby={isTitle ? undefined : titleId}
+                                    >
+                                        <span aria-hidden={!isTitle}>{displayText}</span>
+                                        {!isTitle && <span className="visually-hidden">{srLinkText}</span>}
+                                    </LangLink>
+                                </>
+                            )
+                            : <span>{displayText}</span>}
                     </>
                 ),
             };

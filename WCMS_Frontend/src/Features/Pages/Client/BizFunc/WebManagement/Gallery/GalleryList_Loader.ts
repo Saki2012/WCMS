@@ -1,14 +1,8 @@
-import { useMemo } from "react";
-import { useLoaderData, type LoaderFunctionArgs } from "react-router-dom";
 import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
 import { GalleryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Gallery_Api";
 import type { Lang } from "@/SysCore/i18n/lang";
+import type { ApiGridInitial, ApiGridLoaderData, ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
-import type {
-    ApiGridInitial,
-    ApiGridLoaderData,
-    ApiLoaderData,
-} from "@/SysCore/Utils/API/APIAdapter";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import {
@@ -19,6 +13,8 @@ import {
     GalleryInfoFields,
     PGID,
 } from "@/types/SchemaFields";
+import { useMemo } from "react";
+import { type LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 type GallerySet = components["schemas"]["GallerySet_DTO"];
@@ -163,10 +159,13 @@ const buildCategoryParam = (lang: Lang): QueryListParam =>
             `${CategoryDataSetFields.CategoryDetail}.${CategoryDetailFields.Lang}`,
             `${CategoryDataSetFields.CategoryDetail}.${CategoryDetailFields.CategoryName}`,
         ],
-        Condition:
-            `${CategoryFields.ProgId} = ${PGID.Gallery} And `
-            + `${CategoryFields._CategoryDetail}.${CategoryDetailFields.Lang} = ${lang} And `
-            + `${CategoryFields._CategoryDetail}.${CategoryDetailFields.CategoryName} != ''`,
+        Condition: LibMerge(
+            " And ",
+            false,
+            `${CategoryFields.ProgId} = ${PGID.Gallery}`,
+            `${CategoryFields._CategoryDetail}.${CategoryDetailFields.Lang} = ${lang}`,
+            `${CategoryFields._CategoryDetail}.${CategoryDetailFields.CategoryName} != ''`,
+        ),
         PageNumber: 0,
         PageSize: 0,
     };
@@ -366,15 +365,28 @@ export const useGalleryListFetchData = (
         [p.lang, categoryIds, tagIds],
     );
 
-    const gridInitial = useMemo<ApiGridInitial<GallerySet> | undefined>(() => buildGridInitial({loaderData, lang: p.lang, categoryIds, tagIds,}),[loaderData, p.lang, categoryIds, tagIds],);
+    const gridInitial = useMemo<ApiGridInitial<GallerySet> | undefined>(
+        () => buildGridInitial({ loaderData, lang: p.lang, categoryIds, tagIds }),
+        [loaderData, p.lang, categoryIds, tagIds],
+    );
 
-    const grid = adapter.hooks.useQueryGridData({baseParam, deps: [p.lang, categoryIds, tagIds], initial: gridInitial, });
+    const grid = adapter.hooks.useQueryGridData({
+        baseParam,
+        deps: [p.lang, categoryIds, tagIds],
+        initial: gridInitial,
+    });
 
-    const category = useGalleryCategoryMap({lang: p.lang, loaderData, });
+    const category = useGalleryCategoryMap({ lang: p.lang, loaderData });
 
-    const errors = useMemo(() => { return [...grid.errors,category.errorText,].filter((item): item is string => Boolean(item));}, [grid.errors, category.errorText]);
+    const errors = useMemo(() =>
+    {
+        return [...grid.errors, category.errorText].filter((item): item is string => Boolean(item));
+    }, [grid.errors, category.errorText]);
 
-    const errorText = useMemo(() =>{return errors.length > 0 ? errors.join("；") : null;}, [errors]);
+    const errorText = useMemo(() =>
+    {
+        return errors.length > 0 ? errors.join("；") : null;
+    }, [errors]);
 
     return {
         list: grid.list ?? [],

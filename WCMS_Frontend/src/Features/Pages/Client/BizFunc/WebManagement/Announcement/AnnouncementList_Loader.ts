@@ -4,13 +4,11 @@ import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category
 import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tag_Api";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import { type ApiResponse, getSsrApi } from "@/SysCore/Utils/API/APIBase";
-import { FormatDate } from "@/SysCore/Utils/Library/LibData";
+import type { ApiGridInitial, ApiGridLoaderData, ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
+import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
+import { FormatDate, getTodayRange } from "@/SysCore/Utils/Library/LibData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-import { useResetPageWhenKeyChanged } from "@/SysCore/Utils/UI_HookFunc/useResetPageWhenKeyChanged";
 import type { components } from "@/types/api";
-import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import {
     AnnouncementDetailFields,
     AnnouncementFields,
@@ -42,13 +40,16 @@ export interface IAnnouncementListOptions
 
 export interface AnnouncementListLoaderArgs
 {
-    todayLocalDate: string;
+    lang: Lang;
+    dayStart: number;
+    dayEnd: number;
     pageSize: number;
     pageNumber: number;
     keyword?: string;
+    categoryIds: string;
+    tagIds: string;
     condition: string;
     listParam: QueryListParam;
-    countParam: QueryListParam;
     cateParam: QueryListParam;
     tagParam: QueryListParam;
     viewCountParam: QueryListParam;
@@ -56,9 +57,7 @@ export interface AnnouncementListLoaderArgs
 
 export interface AnnouncementListLoaderRes
 {
-    colNameRes: ModelDisplaySchema | null;
-    listRes: AnnouncementSet[];
-    countRes: number;
+    gridRes: ApiGridLoaderData<AnnouncementSet>;
     categoryRes: CategorySet[];
     tagRes: TagSet[];
     viewCountRes: SiteViewCountSet[];
@@ -94,34 +93,25 @@ type SiteViewCountDetailRow = {
     TargetInternalId?: string | null;
     PageViewCount?: number | null;
 };
+
 type SiteViewCountSetLike = SiteViewCountSet & { SiteViewCountDetail?: SiteViewCountDetailRow[] | null; };
 
 const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
 
-/** 轉本地日期 yyyy-MM-dd */
-const formatLocalDate = (d: Date): string =>
+/** 將 timestamp 轉查詢用本地時間字串 */
+const formatQueryDateTime = (value: number): string =>
 {
     // 宣告變數
+    const d = new Date(value);
     const y = d.getFullYear();
     const m = pad(d.getMonth() + 1);
     const day = pad(d.getDate());
+    const hh = pad(d.getHours());
+    const mm = pad(d.getMinutes());
+    const ss = pad(d.getSeconds());
 
     // return
-    return `${y}-${m}-${day}`;
-};
-
-/** 組日期起始時間 */
-const buildDateStart = (dateText: string): string =>
-{
-    // return
-    return `${dateText}T00:00:00`;
-};
-
-/** 組日期結束時間 */
-const buildDateEnd = (dateText: string): string =>
-{
-    // return
-    return `${dateText}T23:59:59`;
+    return `${y}-${m}-${day}T${hh}:${mm}:${ss}`;
 };
 
 /** 依 Style 計算每頁筆數 */
@@ -168,21 +158,22 @@ const normalizeKeyword = (value?: string): string | undefined =>
 /** 建公告查詢條件 */
 const buildAnnouncementCondition = (p: {
     lang: Lang;
-    todayLocalDate: string;
+    dayStart: number;
+    dayEnd: number;
     categoryIds: string;
     tagIds: string;
     keyword?: string;
 }): string =>
 {
     // 宣告變數
-    const dayStartLocal = buildDateStart(p.todayLocalDate);
-    const dayEndLocal = buildDateEnd(p.todayLocalDate);
+    const dayStartText = formatQueryDateTime(p.dayStart);
+    const dayEndText = formatQueryDateTime(p.dayEnd);
 
     let condition = LibMerge(
         " And ",
         false,
-        `${AnnouncementFields.Validate_Start} <= ${dayEndLocal}`,
-        `(${AnnouncementFields.Validate_End} >= ${dayStartLocal} Or ${AnnouncementFields.Validate_End} is null)`,
+        `${AnnouncementFields.Validate_Start} <= ${dayEndText}`,
+        `(${AnnouncementFields.Validate_End} >= ${dayStartText} Or ${AnnouncementFields.Validate_End} is null)`,
         `${AnnouncementFields.ContentStatus} !& 4`,
         `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang} = ${p.lang}`,
         `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} != ''`,
@@ -332,7 +323,8 @@ const buildViewCountQuery = (internalIds: string[]): QueryListParam =>
 const buildLoaderArgs = (p: {
     lang: Lang;
     opts?: IAnnouncementListOptions;
-    todayLocalDate: string;
+    dayStart: number;
+    dayEnd: number;
     overrides?: Partial<{
         pageNumber: number;
         pageSize: number;
@@ -342,7 +334,6 @@ const buildLoaderArgs = (p: {
     }>;
 }): Omit<AnnouncementListLoaderArgs, "viewCountParam"> =>
 {
-    // 宣告變數
     const pageNumber = p.overrides?.pageNumber ?? 1;
     const pageSize = p.overrides?.pageSize ?? calcPageSize(p.opts?.Style);
     const categoryIds = p.overrides?.categoryIds ?? (p.opts?.Category ?? "");
@@ -351,50 +342,37 @@ const buildLoaderArgs = (p: {
 
     const condition = buildAnnouncementCondition({
         lang: p.lang,
-        todayLocalDate: p.todayLocalDate,
+        dayStart: p.dayStart,
+        dayEnd: p.dayEnd,
         categoryIds,
         tagIds,
         keyword,
     });
 
-    // return
     return {
-        todayLocalDate: p.todayLocalDate,
+        lang: p.lang,
+        dayStart: p.dayStart,
+        dayEnd: p.dayEnd,
         pageSize,
         pageNumber,
         keyword,
+        categoryIds,
+        tagIds,
         condition,
         listParam: buildAnnouncementQuery({ condition, pageNumber, pageSize }),
-        countParam: buildAnnouncementQuery({ condition, pageNumber: 0, pageSize: 0 }),
         cateParam: buildCategoryQuery(PGID.Announcement),
         tagParam: buildTagQuery(PGID.Announcement),
     };
 };
 
-/** 建立 SSR initial 結果 */
-const buildLoaderInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> =>
+const matchQueryInitial = <TData>(
+    currentParam: QueryListParam,
+    initial: ApiLoaderData<QueryListParam, TData> | null | undefined,
+): ApiLoaderData<QueryListParam, TData> | null =>
 {
-    // 宣告變數
-    const apiRes: ApiResponse<TData> = { IsSuccess: true, Data: data, SysMessage: [] };
-
-    // return
-    return { args, apiRes };
-};
-
-/** 比對目前參數是否可沿用 initial */
-const matchInitialArgs = <TArgs, TData>(
-    currentArgs: TArgs,
-    initialArgs: TArgs,
-    initialData: TData,
-): ApiLoaderData<TArgs, TData> | null =>
-{
-    // 宣告變數
-    const currentKey = JSON.stringify(currentArgs ?? null);
-    const initialKey = JSON.stringify(initialArgs ?? null);
-
-    // return
-    if (currentKey !== initialKey) return null;
-    return buildLoaderInitial(initialArgs, initialData);
+    const currentKey = JSON.stringify(currentParam ?? null);
+    const initialKey = JSON.stringify(initial?.args ?? null);
+    return currentKey === initialKey ? (initial ?? null) : null;
 };
 
 /** 取瀏覽數明細列 */
@@ -507,6 +485,26 @@ const resolveGridCellContent = (p: {
     }
 };
 
+/** 取語系/分類/標籤/日期等重置 key */
+const buildResetKey = (
+    args: Pick<
+        AnnouncementListLoaderArgs,
+        "lang" | "dayStart" | "dayEnd" | "pageSize" | "categoryIds" | "tagIds" | "keyword"
+    >,
+): string =>
+{
+    // return
+    return JSON.stringify({
+        lang: args.lang,
+        dayStart: args.dayStart,
+        dayEnd: args.dayEnd,
+        pageSize: args.pageSize,
+        categoryIds: args.categoryIds,
+        tagIds: args.tagIds,
+        keyword: args.keyword ?? "",
+    });
+};
+
 /** SSR Loader：首屏撈 announcement + category + tag + siteviewcount */
 export const AnnouncementListLoader = (p: {
     lang: Lang;
@@ -527,31 +525,24 @@ async ({ request }: LoaderFunctionArgs): Promise<AnnouncementListLoaderData> =>
     const category = CategoryAdapter(ssrApi);
     const tag = TagAdapter(ssrApi);
     const siteView = SiteViewCountAdapter(ssrApi);
-    const todayLocalDate = formatLocalDate(new Date());
+    const { dayStart, dayEnd } = getTodayRange();
 
     const baseArgs = buildLoaderArgs({
         lang: p.lang,
         opts: p.opts,
-        todayLocalDate,
+        dayStart,
+        dayEnd,
         overrides: {
             pageNumber: p.overrides?.pageNumber,
             pageSize: p.overrides?.pageSize,
+            keyword: p.overrides?.keyword,
             categoryIds: p.overrides?.categoryIds,
             tagIds: p.overrides?.tagIds,
         },
     });
 
-    const colNameLoader = announcement.loader.createModelDisplayNameLoader({
-        getApiInstance: () => ssrApi,
-    });
-
-    const listLoader = announcement.loader.createQueryListLoader({
+    const gridLoader = announcement.loader.createQueryGridDataLoader({
         getCondition: () => baseArgs.listParam,
-        getApiInstance: () => ssrApi,
-    });
-
-    const countLoader = announcement.loader.createQueryCountLoader({
-        getCondition: () => baseArgs.countParam,
         getApiInstance: () => ssrApi,
     });
 
@@ -565,15 +556,13 @@ async ({ request }: LoaderFunctionArgs): Promise<AnnouncementListLoaderData> =>
         getApiInstance: () => ssrApi,
     });
 
-    const [colLD, listLD, countLD, categoryLD, tagLD] = await Promise.all([
-        colNameLoader({ request } as LoaderFunctionArgs),
-        listLoader({ request } as LoaderFunctionArgs),
-        countLoader({ request } as LoaderFunctionArgs),
+    const [gridRes, categoryLD, tagLD] = await Promise.all([
+        gridLoader({ request } as LoaderFunctionArgs),
         cateLoader({ request } as LoaderFunctionArgs),
         tagLoader({ request } as LoaderFunctionArgs),
     ]);
 
-    const listRes = listLD.apiRes.Data ?? [];
+    const listRes = gridRes.list.apiRes.Data ?? [];
     const viewCountParam = buildViewCountQuery(getAnnouncementInternalIds(listRes));
 
     const viewCountLoader = siteView.loader.createQueryListLoader({
@@ -583,21 +572,17 @@ async ({ request }: LoaderFunctionArgs): Promise<AnnouncementListLoaderData> =>
 
     const viewCountLD = await viewCountLoader({ request } as LoaderFunctionArgs);
 
-    // return
     return {
         args: { ...baseArgs, viewCountParam },
         res: {
-            colNameRes: colLD.apiRes.Data?.[0] ?? null,
-            listRes,
-            countRes: countLD.apiRes.Data ?? 0,
+            gridRes,
             categoryRes: categoryLD.apiRes.Data ?? [],
             tagRes: tagLD.apiRes.Data ?? [],
             viewCountRes: viewCountLD.apiRes.Data ?? [],
         },
     };
 };
-
-/** CSR Hook：Component 一行拿資料，切頁/關鍵字變動時自動重撈 list + siteviewcount */
+/** CSR Hook：Component 一行拿資料，切頁/條件變動時自動重撈 list + siteviewcount */
 export const useAnnouncementListData = (p: {
     lang: Lang;
     opts?: IAnnouncementListOptions;
@@ -614,56 +599,53 @@ export const useAnnouncementListData = (p: {
         return buildLoaderArgs({
             lang: p.lang,
             opts: p.opts,
-            todayLocalDate: initial.args.todayLocalDate,
+            dayStart: initial.args.dayStart,
+            dayEnd: initial.args.dayEnd,
             overrides: {
                 keyword: p.kw,
             },
         });
-    }, [p.lang, p.opts, p.kw, initial.args.todayLocalDate]);
+    }, [p.lang, p.opts, p.kw, initial.args.dayStart, initial.args.dayEnd]);
 
-    const listInitial = useMemo(() =>
+    const gridInitial = useMemo<ApiGridInitial<AnnouncementSet>>(() =>
     {
-        return matchInitialArgs(
-            currentArgs.listParam,
-            initial.args.listParam,
-            initial.res.listRes,
-        );
-    }, [currentArgs.listParam, initial.args.listParam, initial.res.listRes]);
+        return {
+            model: initial.res.gridRes.model,
+            count: matchQueryInitial(currentArgs.listParam, initial.res.gridRes.count),
+            list: matchQueryInitial(currentArgs.listParam, initial.res.gridRes.list),
+        };
+    }, [currentArgs.listParam, initial.res.gridRes]);
 
-    const countInitial = useMemo(() =>
-    {
-        return matchInitialArgs(
-            currentArgs.countParam,
-            initial.args.countParam,
-            initial.res.countRes,
-        );
-    }, [currentArgs.countParam, initial.args.countParam, initial.res.countRes]);
-
-    const useCount = announcement.hooks.useQueryCount({
-        condition: currentArgs.countParam,
-        initial: countInitial,
-        deps: [currentArgs.condition],
-    });
-
-    const useList = announcement.hooks.usePagedQueryList({
+    const grid = announcement.hooks.useQueryGridData({
         baseParam: currentArgs.listParam,
-        count: useCount.data ?? 0,
-        initial: listInitial,
         deps: [currentArgs.condition, currentArgs.pageSize],
+        initial: gridInitial,
     });
-    useResetPageWhenKeyChanged(currentArgs.condition, useList.onPageChange);
+
+    const resetKey = useMemo(() =>
+    {
+        return buildResetKey(currentArgs);
+    }, [currentArgs]);
+
+    const prevResetKeyRef = useRef<string>(resetKey);
+
+    useEffect(() =>
+    {
+        if (prevResetKeyRef.current === resetKey) return;
+        prevResetKeyRef.current = resetKey;
+        grid.onPageChange(1);
+    }, [resetKey, grid.onPageChange]);
 
     const viewCountParam = useMemo(() =>
     {
-        return buildViewCountQuery(getAnnouncementInternalIds(useList.data ?? []));
-    }, [useList.data]);
+        return buildViewCountQuery(getAnnouncementInternalIds(grid.list ?? []));
+    }, [grid.list]);
 
     const viewCountInitial = useMemo(() =>
     {
-        return matchInitialArgs(
+        return matchQueryInitial(
             viewCountParam,
-            initial.args.viewCountParam,
-            initial.res.viewCountRes,
+            buildQueryInitial(initial.args.viewCountParam, initial.res.viewCountRes),
         );
     }, [viewCountParam, initial.args.viewCountParam, initial.res.viewCountRes]);
 
@@ -697,49 +679,40 @@ export const useAnnouncementListData = (p: {
     {
         return buildGridPropsFromList({
             lang: p.lang,
-            listData: useList.data ?? [],
+            listData: grid.list ?? [],
             viewCountMap,
-            pageNumber: useList.pageNumber,
-            totalPages: useList.totalPages,
-            onPageChange: useList.onPageChange,
+            pageNumber: grid.pageNumber,
+            totalPages: grid.totalPages,
+            onPageChange: grid.onPageChange,
         });
-    }, [
-        p.lang,
-        useList.data,
-        useList.pageNumber,
-        useList.totalPages,
-        useList.onPageChange,
-        viewCountMap,
-    ]);
+    }, [p.lang, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, viewCountMap]);
 
     const errorList = useMemo(() =>
     {
-        return [
-            useCount.errorText,
-            useList.errorText,
-            useViewCount.errorText,
-        ].filter((x): x is string => Boolean(x));
-    }, [useCount.errorText, useList.errorText, useViewCount.errorText]);
+        return [grid.errorText, useViewCount.errorText].filter((x): x is string => Boolean(x));
+    }, [grid.errorText, useViewCount.errorText]);
 
-    const isLoading = Boolean(
-        useCount.isLoading
-            || useList.isLoading
-            || useViewCount.isLoading,
-    );
+    const isLoading = Boolean(grid.isLoading || useViewCount.isLoading);
 
-    // return
     return {
         pageSize: currentArgs.pageSize,
-        pageNumber: useList.pageNumber,
-        totalPages: useList.totalPages,
-        totalCount: useCount.data ?? 0,
-        listData: useList.data ?? [],
+        pageNumber: grid.pageNumber,
+        totalPages: grid.totalPages,
+        totalCount: grid.count,
+        listData: grid.list ?? [],
         categoryData,
         tagData,
         viewCountMap,
         gridPropsFromList,
         isLoading,
         errorList,
-        onPageChange: useList.onPageChange,
+        onPageChange: grid.onPageChange,
     };
+};
+const buildQueryInitial = <TData>(
+    args: QueryListParam,
+    data: TData,
+): ApiLoaderData<QueryListParam, TData> =>
+{
+    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
 };
