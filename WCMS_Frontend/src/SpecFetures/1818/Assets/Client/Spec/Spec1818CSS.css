@@ -24,3 +24,8 @@
   width: 280px; /* 你可以依版型調整 */
   scroll-snap-align: start;
 }
+
+/* 因為hover顏色會不清楚 所以手動更改讓以下顏色蓋過去 */
+#navbar-content .nav-link.active {
+    color: var(--Customize_TXTHRcolor) !important;
+}
