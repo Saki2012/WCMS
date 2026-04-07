@@ -8,16 +8,19 @@ import venobox from "./Client/Content/venobox-master/dist/venobox.min.js?url";
 
 /** 共用：用 <script> 動態掛載一支 JS（以同步順序載入） */
 const loadScript = (src: string) =>
-    new Promise<void>((resolve, reject) =>
+{
+    if (typeof document === "undefined") return Promise.resolve();
+
+    return new Promise<void>((resolve, reject) =>
     {
         const s = document.createElement("script");
         s.src = src;
-        s.async = false; // 保持原本同步順序
+        s.async = false;
         s.onload = () => resolve();
         s.onerror = () => reject(new Error(`Failed to load script: ${src}`));
         document.head.appendChild(s);
     });
-
+};
 /** 先載 Bootstrap / Swiper（不依賴 jQuery） */
 const loadBootstrapAndSwiper = async () =>
 {
@@ -47,6 +50,7 @@ const loadJQueryAndPlugins = async () =>
 // 這支檔案一被 import 就開始載入
 void (async () =>
 {
+    if (typeof document === "undefined") return;
     // 先保證 Bootstrap / Swiper 有載
     await loadBootstrapAndSwiper();
 
