@@ -153,8 +153,8 @@ const SetUrlIcon = (url: string, descript: string, target: WindowTarget) =>
     const alt = `${descript}${target === 0 ? "" : "｜[另開視窗]"}`;
 
     return (
-        <a href={url} target={tar} rel="noopener noreferrer" className="btn btn-default" title={alt}>
-            <div className="link">Link</div>
+        <a href={url} target={tar} rel="noopener noreferrer" className="btn btn-default bg_link" title={alt}>
+            <span className="link">Link</span>
         </a>
     );
 };
