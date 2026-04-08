@@ -9,7 +9,6 @@ import { GallerySession } from "@/SpecFetures/1810/Pages/Client/Index/Section/Ga
 import { IconCardMenu } from "@/SpecFetures/1810/Pages/Client/Index/Section/IconCardMenu";
 import { VideoSession } from "@/SpecFetures/1810/Pages/Client/Index/Section/VideoSession";
 import type { Lang } from "@/SysCore/i18n/lang";
-import { Navigate } from "react-router";
 import { useLoaderData } from "react-router-dom";
 
 const HomePage = (props: { lang: Lang; }) =>
@@ -22,12 +21,6 @@ const HomePage = (props: { lang: Lang; }) =>
         lang: props.lang,
         loaderData: loaderData ?? null,
     });
-
-    // 執行 function：維持原本英文首頁直接導頁邏輯
-    if (props.lang === "en")
-    {
-        return <Navigate to="/en/About-ORD-en/Introduction-en" replace />;
-    }
 
     return (
         <main id="fullpage" className="fullpage-wrapper">
