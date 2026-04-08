@@ -13,7 +13,13 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
-import { FileArchiveFields, FileArchiveInfoFields } from "@/types/SchemaFields";
+import type { ModelDisplaySchema } from "@/types/IApiSchema";
+import {
+    FileArchiveDetailFields,
+    FileArchiveFields,
+    FileArchiveInfoFields,
+    FileArchiveSetFields,
+} from "@/types/SchemaFields";
 import { useEffect, useMemo, useState } from "react";
 import { useFileArchiveListFetchData } from "./FileArchiveList_Loader";
 
@@ -60,6 +66,7 @@ const FileArchiveList = (props: FileArchiveProps) =>
     {
         return buildGridProps(
             props.lang,
+            useFileArchiveList.rawData.modelDisplayName,
             useFileArchiveList.rawData.list,
             useFileArchiveList.rawData.pageNumber,
             useFileArchiveList.rawData.totalPages,
@@ -155,6 +162,7 @@ const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps; 
 
 const buildGridProps = (
     lang: Lang,
+    modelDisplayName: ModelDisplaySchema | null,
     datas: FileArchiveSet[],
     pageNumber: number,
     totalPage: number,

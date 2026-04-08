@@ -166,7 +166,9 @@ const buildBaseParam = (p: { lang: Lang; opts: IFileArchiveOptions; query?: ISea
     };
 
     // return：交給 spec 做最後修飾
-    return resolvedFileArchiveListBaseParam({
+    const extendBaseParam = getResolvedFileArchiveListBaseParam();
+
+    return extendBaseParam({
         lang: p.lang,
         opts: p.opts,
         query,
@@ -190,11 +192,24 @@ export interface FileArchiveListBaseParamContext
     condition: string;
     result: QueryListParam;
 }
-const resolvedFileArchiveListBaseParam = resolveSpecFunc<FileArchiveListBaseParamSlot>(
-    "Pages/Client/BizFunc/WebManagement/FileArchive/FileArchiveList_Loader.ts",
-    extendFileArchiveListBaseParam,
-    ["extendFileArchiveListBaseParam"],
-);
+let _resolvedFileArchiveListBaseParam: FileArchiveListBaseParamSlot | null = null;
+
+/** 延後解析 spec slot，避免 SSR import 期循環引用 */
+const getResolvedFileArchiveListBaseParam = (): FileArchiveListBaseParamSlot =>
+{
+    // return：已解析過就直接重用
+    if (_resolvedFileArchiveListBaseParam) return _resolvedFileArchiveListBaseParam;
+
+    // 執行 function：第一次真的用到時才去 resolve
+    _resolvedFileArchiveListBaseParam = resolveSpecFunc<FileArchiveListBaseParamSlot>(
+        "Pages/Client/BizFunc/WebManagement/FileArchive/FileArchiveList_Loader.ts",
+        extendFileArchiveListBaseParam,
+        ["extendFileArchiveListBaseParam"],
+    );
+
+    // return
+    return _resolvedFileArchiveListBaseParam;
+};
 
 export type FileArchiveListBaseParamSlot = (ctx: FileArchiveListBaseParamContext) => QueryListParam;
 

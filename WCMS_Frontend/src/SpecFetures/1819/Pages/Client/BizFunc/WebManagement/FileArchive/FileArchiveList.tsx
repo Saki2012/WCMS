@@ -1,13 +1,9 @@
 import type { FileArchiveListGridAdjustSlot } from "@/Features/Pages/Client/BizFunc/WebManagement/FileArchive/FileArchiveList";
 import type { ColumnConfig, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 
 const modifyColKey = "__ModifyTime__";
 const downloadColKey = "__Download__";
-
-const formatModifyTime = (value?: string | null): string =>
-{
-    return value ?? "";
-};
 
 export const extendFileArchiveListGridAdjust: FileArchiveListGridAdjustSlot = (ctx) =>
 {
@@ -25,7 +21,7 @@ export const extendFileArchiveListGridAdjust: FileArchiveListGridAdjustSlot = (c
     const rows = ctx.result.rows.map((row, index) =>
     {
         const item = ctx.rawData[index];
-        const modifyCell: RowCell = { col: modifyCol, content: formatModifyTime(item?.FileArchive?.ModifyTime) };
+        const modifyCell: RowCell = { col: modifyCol, content: FormatDate(item?.FileArchive?.ModifyTime) };
         const mixedCells = [...row.cells.filter(cell => cell.col.key !== modifyColKey), modifyCell];
         const cells = columns.map(col =>
             mixedCells.find(cell => cell.col.key === col.key) ?? ({ col, content: "" } as RowCell)
