@@ -15,8 +15,13 @@ export type SlotComponent<TProps = Record<string, never>> = ComponentType<TProps
 // Spec：Component 專用模組集合
 const specComponentModules = import.meta.glob("SpecFeature/**/*.tsx", { eager: true }) as Record<string, SlotModule>;
 // Spec：Func / Extension 專用模組集合
-const specFuncModules = import.meta.glob("SpecFeature/**/*.{ts,tsx}", { eager: true }) as Record<string, SlotModule>;
-
+const specFuncModules = import.meta.glob(
+    [
+        "SpecFeature/**/*.{ts,tsx}",
+        "!SpecFeature/**/Assets/**",
+    ],
+    { eager: true },
+) as Record<string, SlotModule>;
 /** 正規化路徑，避免 slash 差異 */
 export const normalizeSlotPath = (value: string): string =>
 {

@@ -6,7 +6,9 @@
 //   SSR-Server.mjs  (ESM compiled output)
 //   package.json / package-lock.json
 //   start.bat
+//   stop.bat
 //   WinSW-x64.xml
+//   WinSW-x64.exe
 //   web.config.bak / .env.production.bak / .env (可選)
 
 import fs from "node:fs/promises";
@@ -16,6 +18,7 @@ import { execFileSync } from "node:child_process";
 // ===== 你想要的精簡開關（預設：最精簡） =====
 const DEPLOY_COPY_ROOT_MANIFEST = false;   // false: 不在 dist 根目錄放 manifest.json
 const DEPLOY_WRITE_CJS_BOOTSTRAP = false;  // false: 不產出 SSR-Server.cjs（只跑 SSR-Server.mjs）
+const DEPLOY_WINSW_EXE_NAME = "WinSW-x64.exe";
 
 const getServerEntryFileName = () =>
 {
@@ -38,21 +41,6 @@ const ensureDirForFile = async (absFilePath) =>
   await fs.mkdir(path.dirname(absFilePath), { recursive: true });
 };
 
-const DEPLOY_WINSW_EXE_NAME = "WinSW-x64.exe";
-const copyWinSwExeToDist = async (root, distDir) =>
-{
-  // 複製 WinSW-x64.exe 到 dist
-  const src = path.resolve(root, DEPLOY_WINSW_EXE_NAME);
-  const dest = path.resolve(distDir, DEPLOY_WINSW_EXE_NAME);
-
-  if (!(await pathExists(src)))
-  {
-    throw new Error(`[bundle-deploy] ${DEPLOY_WINSW_EXE_NAME} not found at root: ${src}`);
-  }
-
-  await copyFileIfExists(src, dest);
-};
-
 const copyFileIfExists = async (src, dest) =>
 {
   // 存在才複製
@@ -66,6 +54,20 @@ const removeIfExists = async (absPath) =>
   // 存在才刪除
   if (!(await pathExists(absPath))) return;
   await fs.rm(absPath, { recursive: true, force: true });
+};
+
+const copyWinSwExeToDist = async (root, distDir) =>
+{
+  // 複製 WinSW-x64.exe 到 dist
+  const src = path.resolve(root, DEPLOY_WINSW_EXE_NAME);
+  const dest = path.resolve(distDir, DEPLOY_WINSW_EXE_NAME);
+
+  if (!(await pathExists(src)))
+  {
+    throw new Error(`[bundle-deploy] ${DEPLOY_WINSW_EXE_NAME} not found at root: ${src}`);
+  }
+
+  await copyFileIfExists(src, dest);
 };
 
 const buildSsrServerEsm = (root, distDir) =>
@@ -385,6 +387,71 @@ const writeStartBat = async (distDir) =>
   await fs.writeFile(path.resolve(distDir, "start.bat"), lines.join("\r\n"), "utf-8");
 };
 
+const writeStopBat = async (distDir) =>
+{
+  // 產出 stop.bat（停止當前 WinSW service）
+  const lines = [
+    "@echo off",
+    "setlocal enabledelayedexpansion",
+    "cd /d %~dp0",
+    "",
+    "set \"SERVICE_EXE=WinSW-x64.exe\"",
+    "set \"SERVICE_XML=WinSW-x64.xml\"",
+    "",
+    "net session >nul 2>nul",
+    "if errorlevel 1 (",
+    "  echo [ERROR] Please run this script as Administrator.",
+    "  exit /b 1",
+    ")",
+    "",
+    "if not exist \"%SERVICE_EXE%\" (",
+    "  echo [ERROR] Service executable not found: %SERVICE_EXE%",
+    "  exit /b 1",
+    ")",
+    "",
+    "if not exist \"%SERVICE_XML%\" (",
+    "  echo [ERROR] Service config not found: %SERVICE_XML%",
+    "  exit /b 1",
+    ")",
+    "",
+    "for /f \"usebackq delims=\" %%i in (`powershell -NoProfile -ExecutionPolicy Bypass -Command \"try { (Select-Xml -Path '%SERVICE_XML%' -XPath '/service/id').Node.InnerText } catch { '' }\"`) do set \"SERVICE_ID=%%i\"",
+    "",
+    "if \"%SERVICE_ID%\"==\"\" (",
+    "  echo [ERROR] Failed to read service id from %SERVICE_XML%",
+    "  exit /b 1",
+    ")",
+    "",
+    "echo [INFO] Service ID: %SERVICE_ID%",
+    "",
+    "sc query \"%SERVICE_ID%\" >nul 2>nul",
+    "if errorlevel 1 (",
+    "  echo [WARN] Service not installed: %SERVICE_ID%",
+    "  exit /b 0",
+    ")",
+    "",
+    "sc query \"%SERVICE_ID%\" | find \"RUNNING\" >nul 2>nul",
+    "if errorlevel 1 (",
+    "  echo [INFO] Service already stopped.",
+    "  exit /b 0",
+    ")",
+    "",
+    "echo [INFO] Stopping service...",
+    "\"%SERVICE_EXE%\" stop",
+    "if errorlevel 1 (",
+    "  echo [ERROR] Service stop failed.",
+    "  exit /b 1",
+    ")",
+    "",
+    "echo [INFO] Service status:",
+    "\"%SERVICE_EXE%\" status",
+    "",
+    "endlocal",
+    "",
+  ];
+
+  await fs.writeFile(path.resolve(distDir, "stop.bat"), lines.join("\r\n"), "utf-8");
+};
+
 const writeDistDotEnv = async (root, distDir) =>
 {
   // 只備份 .env.production，部署時可再去掉 .bak
@@ -471,7 +538,7 @@ const run = async () =>
   }
 
   await writeDistDotEnv(root, distDir);
-  await copyFileIfExists(path.resolve(root, "web.config"), path.resolve(distDir, "web.config.bak"));
+  await copyFileIfExists(path.resolve(root, "web.config.bak"), path.resolve(distDir, "web.config.bak"));
 
   const ssrServerTsText = await fs.readFile(path.resolve(root, "src/SSR/SSR-Server.ts"), "utf-8");
   const rootPkg = JSON.parse(await fs.readFile(path.resolve(root, "package.json"), "utf-8"));
@@ -482,6 +549,7 @@ const run = async () =>
   await writeWinSwXml(root, distDir);
   await copyWinSwExeToDist(root, distDir);
   await writeStartBat(distDir);
+  await writeStopBat(distDir);
 
   await handleViteManifest(distDir);
   await deleteSourcemapsUnder(distDir);

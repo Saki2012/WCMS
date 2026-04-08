@@ -11,51 +11,31 @@ import { HelmetProvider } from "react-helmet-async";
 import { RouterProvider } from "react-router-dom";
 import { siteHeaderMeta, SpecRouteModule } from "SpecFeature/SpecRouter";
 
-const isServerRoute = (pathname: string): boolean => pathname.toLowerCase().startsWith("/server");
-
-/** 移除符合 selector 的資產節點 */
-const removeNodes = (selector: string): void =>
-{
-    document.querySelectorAll<HTMLElement>(selector).forEach((node) => node.remove());
-};
-
-/** 清掉後台殘留的 CSS / JS */
-const clearServerAssets = (): void =>
-{
-    removeNodes(`style[data-vite-dev-id*="/Assets/Server/"]`);
-    removeNodes(`link[href*="/Assets/Server/"]`);
-    removeNodes(`script[src*="/Assets/Server/"]`);
-};
-
-/** 清掉前台殘留的 CSS / JS */
-const clearClientAssets = (): void =>
-{
-    removeNodes(`style[data-vite-dev-id*="/Assets/Client/"]`);
-    removeNodes(`link[href*="/Assets/Client/"]`);
-    removeNodes(`script[src*="/Assets/Client/"]`);
-};
-
-/** 依目前 route 載入正確資產 */
-const loadRouteAssets = async (pathname: string): Promise<void> =>
-{
-    if (isServerRoute(pathname))
-    {
-        clearClientAssets();
-        await import("@/Features/Assets/LoadFeaturesCss.ts");
-        await import("@/Features/Assets/LoadFeaturesJs.ts");
-        await import("SpecFeature/Assets/LoadSpecCss_Server.ts");
-        return;
-    }
-
-    clearServerAssets();
-    await import("SpecFeature/Assets/LoadSpecCss.ts");
-    await import("SpecFeature/Assets/LoadSpecJs.ts");
-};
-
 if (typeof window !== "undefined")
 {
+    // CSR：初始化一次 XSRF
     (api as BrowserApiWithInit).__initXsrfOnce?.();
-    void loadRouteAssets(window.location.pathname);
+
+    // ✅ 不要阻塞 hydration：CSS/JS 改成背景載入
+    void (async () =>
+    {
+        const path = window.location.pathname.toLowerCase();
+        console.log("[WCMS][CSR] start load assets", path);
+
+        if (path.startsWith("/server"))
+        {
+            await import("@/Features/Assets/LoadFeaturesCss.ts");
+            await import("@/Features/Assets/LoadFeaturesJs.ts");
+            await import("SpecFeature/Assets/LoadSpecCss_Server.ts");
+        } else
+        {
+            // await import("@/Features/Assets/LoadFeaturesCss_Client.ts"); //cara
+            await import("SpecFeature/Assets/LoadSpecCss.ts");
+            await import("SpecFeature/Assets/LoadSpecJs.ts");
+        }
+
+        console.log("[WCMS][CSR] assets loaded", path);
+    })();
 }
 
 declare global

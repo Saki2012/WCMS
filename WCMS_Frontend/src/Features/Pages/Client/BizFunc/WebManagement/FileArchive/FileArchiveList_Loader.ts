@@ -8,6 +8,7 @@ import { type ApiAdapterError, type ApiGridInitial, type ApiGridLoaderData } fro
 import { getSsrApi, MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import {
@@ -129,11 +130,11 @@ const appendSearchCondition = (baseCondition: string, query: ISearchQuery): stri
 const buildBaseParam = (p: { lang: Lang; opts: IFileArchiveOptions; query?: ISearchQuery; }): QueryListParam =>
 {
     // 宣告變數
+    const query = p.query ?? {};
     const baseCondition = buildBaseCondition({ lang: p.lang, opts: p.opts });
-    const condition = appendSearchCondition(baseCondition, p.query ?? {});
+    const condition = appendSearchCondition(baseCondition, query);
 
-    // return
-    return {
+    const result: QueryListParam = {
         Fields: [
             FileArchiveFields.InternalId,
             FileArchiveFields.FileArchiveId,
@@ -163,7 +164,39 @@ const buildBaseParam = (p: { lang: Lang; opts: IFileArchiveOptions; query?: ISea
         PageNumber: 1,
         PageSize: 10,
     };
+
+    // return：交給 spec 做最後修飾
+    return resolvedFileArchiveListBaseParam({
+        lang: p.lang,
+        opts: p.opts,
+        query,
+        baseCondition,
+        condition,
+        result,
+    });
 };
+
+/** 預設：不修改核心結果 */
+export const extendFileArchiveListBaseParam: FileArchiveListBaseParamSlot = (ctx) =>
+{
+    return ctx.result;
+};
+export interface FileArchiveListBaseParamContext
+{
+    lang: Lang;
+    opts: IFileArchiveOptions;
+    query: ISearchQuery;
+    baseCondition: string;
+    condition: string;
+    result: QueryListParam;
+}
+const resolvedFileArchiveListBaseParam = resolveSpecFunc<FileArchiveListBaseParamSlot>(
+    "Pages/Client/BizFunc/WebManagement/FileArchive/FileArchiveList_Loader.ts",
+    extendFileArchiveListBaseParam,
+    ["extendFileArchiveListBaseParam"],
+);
+
+export type FileArchiveListBaseParamSlot = (ctx: FileArchiveListBaseParamContext) => QueryListParam;
 
 /** 比對 SSR initial 與目前條件是否一致 */
 const isSameQueryListParam = (
