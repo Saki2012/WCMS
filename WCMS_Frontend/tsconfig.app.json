@@ -1,4 +1,5 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
     "composite": true,
     "types": ["vite/client"],
@@ -12,7 +13,7 @@
     "allowSyntheticDefaultImports": true,
 
     /* Bundler mode */
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
@@ -27,6 +28,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "extends": "./tsconfig.json",
   "include": ["src", "vite-env.d.ts"]
 }
