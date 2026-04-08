@@ -1,12 +1,12 @@
 // src/SSR/SSR-Server.ts
 // SSR Server for Vite (dev middleware) + Express (prod static) + API proxy
 import "dotenv/config";
-import { config as dotenvConfig } from "dotenv";
 import compression from "compression";
-import { existsSync } from "node:fs";
+import { config as dotenvConfig } from "dotenv";
 import express, { type NextFunction, type Request, type Response } from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import crypto from "node:crypto";
+import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
 import https from "node:https";
 import path from "node:path";
@@ -19,7 +19,7 @@ type SsrConfig = Readonly<{
     apiTarget: string; // 後端 origin，例如 https://localhost:7030
 }>;
 
-type ProdPaths = Readonly<{ clientRoot: string; serverEntry: string; indexPath: string }>;
+type ProdPaths = Readonly<{ clientRoot: string; serverEntry: string; indexPath: string; }>;
 type HeaderValue = string | number | readonly string[];
 type HeadersMap = Record<string, HeaderValue>;
 
@@ -158,8 +158,13 @@ const tryParseUrl = (s: string): URL | null =>
     // 執行 function
     if (!raw) return null;
 
-    try { return new URL(raw); }
-    catch { return null; }
+    try
+    {
+        return new URL(raw);
+    } catch
+    {
+        return null;
+    }
 };
 
 const applyProdTlsGuard = (isProd: boolean, apiTarget: string, allowInsecureTls: boolean): void =>
@@ -230,8 +235,13 @@ const getConfig = (): SsrConfig =>
     // 執行 function：解析 hostname，避免不小心放行到外部
     const apiHost = (() =>
     {
-        try { return new URL(apiTarget).hostname; }
-        catch { return ""; }
+        try
+        {
+            return new URL(apiTarget).hostname;
+        } catch
+        {
+            return "";
+        }
     })();
 
     const isLocalhost = apiHost === "localhost" || apiHost === "127.0.0.1" || apiHost === "::1";
@@ -300,8 +310,13 @@ const normalizeCssHref = (href: string): string =>
     if (!h) return "";
     if (h.startsWith("http://") || h.startsWith("https://"))
     {
-        try { return new URL(h).pathname + (new URL(h).search || ""); }
-        catch { return h; }
+        try
+        {
+            return new URL(h).pathname + (new URL(h).search || "");
+        } catch
+        {
+            return h;
+        }
     }
 
     // return
@@ -347,7 +362,7 @@ const injectCssLinksToHead = (html: string, hrefs: string[]): string =>
     return html.replace(/<\/head>/i, `${links}</head>`);
 };
 
-type ViteManifestEntry = Readonly<{ file: string; css?: string[]; imports?: string[]; isEntry?: boolean }>;
+type ViteManifestEntry = Readonly<{ file: string; css?: string[]; imports?: string[]; isEntry?: boolean; }>;
 type ViteManifest = Record<string, ViteManifestEntry>;
 
 const tryReadViteManifest = async (clientRoot: string): Promise<ViteManifest | null> =>
@@ -445,8 +460,7 @@ const getProdCssHrefsFromManifest = (m: ViteManifest, spec: string, isServer: bo
             `src/SpecFetures/${spec}/Assets/LoadSpecCss_Server.ts`,
             `src/SpecFeatures/${spec}/Assets/LoadSpecCss_Server.ts`,
         ]);
-    }
-    else
+    } else
     {
         addIfExists([
             `src/SpecFetures/${spec}/Assets/LoadSpecCss.ts`,
@@ -483,10 +497,10 @@ const toPayload = (result: any) =>
     if (!result) return empty;
     if (result.kind === "html") return result;
     if (result.kind === "response") return empty;
-    return { appHtml: result.appHtml ?? "", headTags: result.headTags ?? "", initialState: result.initialState, };
+    return { appHtml: result.appHtml ?? "", headTags: result.headTags ?? "", initialState: result.initialState };
 };
 
-const extractStaticRouterHydrationScripts = (appHtml: string): { cleanHtml: string; scriptsHtml: string } =>
+const extractStaticRouterHydrationScripts = (appHtml: string): { cleanHtml: string; scriptsHtml: string; } =>
 {
     // 宣告變數
     const re = /<script\b[^>]*>[\s\S]*?__staticRouterHydrationData[\s\S]*?<\/script>/gi;
@@ -683,6 +697,28 @@ const setupDevSSR = async (app: express.Express, cfg: SsrConfig) =>
     });
 };
 
+const buildProdCsp = (nonce: string): string =>
+{
+    // 宣告變數
+    const csp = [
+        "default-src 'self'",
+        `script-src 'self' 'nonce-${nonce}' 'unsafe-inline' https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com https://calendar.google.com/calendar/`,
+        `script-src-elem 'self' 'nonce-${nonce}' 'unsafe-inline' https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com https://calendar.google.com/calendar/`,
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com https://calendar.google.com/calendar/",
+        "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com https://calendar.google.com/calendar/",
+        "img-src 'self' data: blob: https: https://www.gstatic.com https://www.google.com https://i.ytimg.com https://img.youtube.com https://calendar.google.com/calendar/",
+        "font-src 'self' data: https://fonts.gstatic.com https://calendar.google.com/calendar/",
+        "connect-src 'self' https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com https://calendar.google.com/calendar/",
+        "frame-ancestors 'self'",
+        "frame-src 'self' https://translate.google.com https://www.youtube.com https://www.youtube-nocookie.com https://w.soundcloud.com https://calendar.google.com/calendar/",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+    ].join("; ");
+
+    // return
+    return csp;
+};
 // Prod SSR：dist/client 靜態 + dist/server/entry-server.js
 const setupProdSSR = async (app: express.Express, cfg: SsrConfig) =>
 {
@@ -714,15 +750,17 @@ const setupProdSSR = async (app: express.Express, cfg: SsrConfig) =>
             {
                 const hrefs = getProdCssHrefsFromManifest(manifest, spec, isServer);
                 template = injectCssLinksToHead(template, hrefs);
-            }
-            else
+            } else
             {
                 console.warn("[SSR][prod] manifest.json not found. (vite build 需要開 manifest:true)");
             }
             const html = buildHtml(template, payload, nonce, true);
-            res.status(200).set("Content-Type", "text/html").set("Content-Security-Policy", `script-src 'self' 'nonce-${nonce}'`).end(html);
-        }
-        catch (e)
+            const csp = buildProdCsp(nonce);
+            res.status(200)
+                .set("Content-Type", "text/html")
+                .set("Content-Security-Policy", csp)
+                .end(html);
+        } catch (e)
         {
             next(e);
         }
@@ -732,35 +770,35 @@ const setupProdSSR = async (app: express.Express, cfg: SsrConfig) =>
 // API Proxy：/Service -> cfg.apiTarget（後端）
 const setupApiProxy = (app: express.Express, cfg: SsrConfig) =>
 {
-  // 宣告變數
-  const isHttpsTarget = cfg.apiTarget.startsWith("https://");
+    // 宣告變數
+    const isHttpsTarget = cfg.apiTarget.startsWith("https://");
 
-  const options = {
-    target: cfg.apiTarget,
-    changeOrigin: true,
+    const options = {
+        target: cfg.apiTarget,
+        changeOrigin: true,
 
-    // ✅ 只有 https target 才需要 secure/agent；http target 不要塞 https.Agent
-    ...(isHttpsTarget
-      ? {
-          secure: false, // 自簽憑證時才需要；正式有效憑證可改 true
-          agent: new https.Agent({ rejectUnauthorized: false }),
-        }
-      : {}),
+        // ✅ 只有 https target 才需要 secure/agent；http target 不要塞 https.Agent
+        ...(isHttpsTarget
+            ? {
+                secure: false, // 自簽憑證時才需要；正式有效憑證可改 true
+                agent: new https.Agent({ rejectUnauthorized: false }),
+            }
+            : {}),
 
-    logLevel: "warn",
+        logLevel: "warn",
 
-    // ✅ 因為 app.use("/Service", ...) 會把 /Service 剝掉，所以要加回去
-    pathRewrite: (p: string) => `/Service${p}`,
+        // ✅ 因為 app.use("/Service", ...) 會把 /Service 剝掉，所以要加回去
+        pathRewrite: (p: string) => `/Service${p}`,
 
-    onProxyReq: (_proxyReq: any, req: Request) =>
-    {
-      // 簡短 log：確認實際送出去的 path（方便你驗證）
-      console.log(`[SSR][proxy-hit] ${req.method} ${req.originalUrl} -> ${cfg.apiTarget}`);
-    },
-  } as const;
+        onProxyReq: (_proxyReq: any, req: Request) =>
+        {
+            // 簡短 log：確認實際送出去的 path（方便你驗證）
+            console.log(`[SSR][proxy-hit] ${req.method} ${req.originalUrl} -> ${cfg.apiTarget}`);
+        },
+    } as const;
 
-  // 執行 function
-  app.use("/Service", createProxyMiddleware(options));
+    // 執行 function
+    app.use("/Service", createProxyMiddleware(options));
 };
 
 // 啟動
