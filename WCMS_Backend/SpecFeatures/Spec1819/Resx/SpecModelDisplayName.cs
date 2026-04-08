@@ -146,6 +146,10 @@
         /// </summary>
         public const string Spec_ORCID = "Spec_ORCID";
         /// <summary>
+        /// 期刊作者類型
+        /// </summary>
+        public const string Spec_AuthorType = "Spec_AuthorType";
+        /// <summary>
         /// 作者姓名
         /// </summary>
         public const string Spec_AuthorName = "Spec_AuthorName";

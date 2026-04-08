@@ -11103,12 +11103,12 @@ export interface components {
             Spec_AcademicYearId?: string | null;
             /**
              * Format: time
-             * @description 開館時間
+             * @description [Spec_OpenTime]
              */
             Spec_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 閉館時間
+             * @description [Spec_CloseTime]
              */
             Spec_CloseTime?: string | null;
             /** @description 摘要 */
@@ -11776,11 +11776,6 @@ export interface components {
             InternalId?: string | null;
             Data?: components["schemas"]["PersonSet_DTO"];
         };
-        /**
-         * Format: int32
-         * @enum {integer}
-         */
-        PublishStatus: 0 | 1;
         QueryListParam: {
             Fields?: string[] | null;
             Condition?: string | null;
@@ -12117,6 +12112,11 @@ export interface components {
             SysMessage?: components["schemas"]["SysMessageModel"][] | null;
             Data?: components["schemas"]["SiteViewCountSet_DTO"][] | null;
         };
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
+        SpecAuthorType: 0 | 1;
         SpecCategoryDetailModel_DTO: {
             /** @description [SpecCategoryId] */
             CategoryId?: string | null;
@@ -12192,24 +12192,25 @@ export interface components {
         SpecDocumentType: 0 | 1 | 2 | 3 | 4;
         SpecJournalAuthor_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_JournalId] */
+            /** @description 期刊代號 */
             JournalId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description [Spec_ORCID] */
+            AuthorType?: components["schemas"]["SpecAuthorType"];
+            /** @description ORCID */
             ORCID?: string | null;
-            /** @description [Spec_AuthorName] */
+            /** @description 作者姓名 */
             AuthorName?: string | null;
-            /** @description [Spec_AuthorName_en] */
+            /** @description 作者英文姓名 */
             AuthorName_en?: string | null;
-            /** @description [Spec_JobTitle] */
+            /** @description 職稱 */
             JobTitle?: string | null;
-            /** @description [Spec_Unit] */
+            /** @description 單位 */
             Unit?: string | null;
-            /** @description [Spec_Unit_en] */
+            /** @description 英文單位 */
             Unit_en?: string | null;
             /** @description 常用Email */
             Email?: string | null;
@@ -12219,7 +12220,7 @@ export interface components {
         };
         SpecJournalDocument_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_JournalId] */
+            /** @description 期刊代號 */
             JournalId?: string | null;
             /**
              * Format: int32
@@ -12227,16 +12228,16 @@ export interface components {
              */
             RowId?: number | null;
             DocumentType?: components["schemas"]["SpecDocumentType"];
-            /** @description [Spec_DocumentName] */
+            /** @description 說明檔案名稱 */
             DocumentName?: string | null;
             Document?: components["schemas"]["FileManageModel_DTO"];
-            /** @description [Spec_DocumentId] */
+            /** @description 說明檔案來源 */
             DocumentId?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
         SpecJournalIndexDetail_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_JournalIndexId] */
+            /** @description 期刊目次代號 */
             IndexId?: string | null;
             /**
              * Format: int32
@@ -12245,22 +12246,22 @@ export interface components {
             RowId?: number | null;
             /**
              * Format: int32
-             * @description [Spec_Volume]
+             * @description 卷數
              */
             Volume?: number | null;
-            /** @description [Spec_Issue] */
+            /** @description 期數 */
             Issue?: string | null;
-            /** @description [Spec_IsSpecial] */
+            /** @description 是否為特刊 */
             IsSpecial?: boolean | null;
             /**
              * Format: date
-             * @description [Spec_PublishDate]
+             * @description 出版日期
              */
             PublishDate?: string | null;
-            /** @description [Spec_SeasonNo] */
+            /** @description 季號 */
             SeasonNo?: string | null;
             SummaryFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description [Spec_SummaryFileId] */
+            /** @description 期刊檔案 */
             SummaryFileId?: string | null;
             /** @description [Spec_SummaryFileName] */
             SummaryFileName?: string | null;
@@ -12291,11 +12292,10 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description [Spec_JournalIndexId] */
+            /** @description 期刊目次代號 */
             IndexId?: string | null;
-            /** @description [Spec_JournalIndexName] */
+            /** @description 期刊年份 */
             IndexName?: string | null;
-            PublishStatus?: components["schemas"]["PublishStatus"];
             _SpecJournalIndexDetail?: components["schemas"]["SpecJournalIndexDetail_DTO"][] | null;
         };
         SpecJournalIndexSet_DTO: {
@@ -12309,7 +12309,7 @@ export interface components {
         };
         SpecJournalKeywords_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_JournalId] */
+            /** @description 期刊代號 */
             JournalId?: string | null;
             /**
              * Format: int32
@@ -12317,7 +12317,7 @@ export interface components {
              */
             RowId?: number | null;
             LangCode?: components["schemas"]["LangCode"];
-            /** @description [Spec_Keyword] */
+            /** @description 關鍵詞 */
             Keyword?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
@@ -12346,49 +12346,49 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description [Spec_JournalId] */
+            /** @description 期刊代號 */
             JournalId?: string | null;
             _JournalIndex?: components["schemas"]["SpecJournalIndexModel_DTO"];
-            /** @description [Spec_JournalIndexId] */
+            /** @description 期刊目次代號 */
             JournalIndexId?: string | null;
             _JournalIndexDetail?: components["schemas"]["SpecJournalIndexDetail_DTO"];
             /**
              * Format: int32
-             * @description [Spec_JournalIndexRowId]
+             * @description 卷期代號
              */
             JournalIndexRowId?: number | null;
             /** @description 標題 */
             Title?: string | null;
-            /** @description [Spec_Title_en] */
+            /** @description 英文標題 */
             Title_en?: string | null;
             /**
              * Format: int32
-             * @description [Spec_PageStart]
+             * @description 起始頁
              */
             PageStart?: number | null;
             /**
              * Format: int32
-             * @description [Spec_PageEnd]
+             * @description 結束頁
              */
             PageEnd?: number | null;
-            /** @description [Spec_DOI] */
+            /** @description DOI */
             DOIUrl?: string | null;
             JournalFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description [Spec_JournalFieldId] */
+            /** @description 期刊檔案 */
             JournalFileId?: string | null;
-            /** @description [Spec_JournalFileName] */
+            /** @description 期刊檔案名稱 */
             JournalFileName?: string | null;
             InsightPointFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description [Spec_InsightPointFileId] */
+            /** @description 捷點 InSignt Point 檔案 */
             InsightPointFileId?: string | null;
-            /** @description [Spec_InsightPointFileName] */
+            /** @description 捷點 InSignt Point 檔案名稱 */
             InsightPointFileName?: string | null;
             ArticleLang?: components["schemas"]["LangCode"];
             /** @description 摘要 */
             Memo?: string | null;
-            /** @description [Spec_Memo_en] */
+            /** @description 英文摘要 */
             Memo_en?: string | null;
-            /** @description [SpecBibliography] */
+            /** @description 參考文獻 */
             Bibliography?: string | null;
             _SpecJournalAuthor?: components["schemas"]["SpecJournalAuthor_DTO"][] | null;
             _SpecJournalRefFormat?: components["schemas"]["SpecJournalRefFormat_DTO"][] | null;
@@ -12400,66 +12400,66 @@ export interface components {
         };
         SpecJournalOpenPointFiles_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_JournalId] */
+            /** @description 期刊代號 */
             JournalId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description [Spec_OpenPointFileName] */
+            /** @description 開放觀點檔案名稱 */
             OpenPointFileName?: string | null;
             OpenPointFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description [Spec_OpenPointFileId] */
+            /** @description 開放觀點檔案來源 */
             OpenPointFileId?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
         SpecJournalRefFiles_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_JournalId] */
+            /** @description 期刊代號 */
             JournalId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description [Spec_RefFileName] */
+            /** @description 相關檔案名稱 */
             RefFileName?: string | null;
             RefFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description [Spec_RefFileId] */
+            /** @description 相關檔案來源 */
             RefFileId?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
         SpecJournalRefFormat_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_JournalId] */
+            /** @description 期刊代號 */
             JournalId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number | null;
-            /** @description [Spec_RefFormatTitle] */
+            /** @description 引文格式標題 */
             Title?: string | null;
-            /** @description [Spec_RefFormatContent] */
+            /** @description 引文格式內容 */
             Content?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
         SpecJournalSet_DTO: {
             SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
-            /** @description [SpecJournalAuthor] */
+            /** @description 期刊作者列表 */
             SpecJournalAuthor?: components["schemas"]["SpecJournalAuthor_DTO"][] | null;
-            /** @description [SpecJournalRefFormat] */
+            /** @description 期刊引文格式列表 */
             SpecJournalRefFormat?: components["schemas"]["SpecJournalRefFormat_DTO"][] | null;
-            /** @description [SpecJournalOpenPointFiles] */
+            /** @description 期刊開放觀點檔案列表 */
             SpecJournalOpenPointFiles?: components["schemas"]["SpecJournalOpenPointFiles_DTO"][] | null;
-            /** @description [SpecJournalRefFiles] */
+            /** @description 期刊相關檔案列表 */
             SpecJournalRefFiles?: components["schemas"]["SpecJournalRefFiles_DTO"][] | null;
-            /** @description [SpecJournalDocument] */
+            /** @description 期刊說明檔案列表 */
             SpecJournalDocument?: components["schemas"]["SpecJournalDocument_DTO"][] | null;
-            /** @description [SpecJournalTypes] */
+            /** @description 期刊類型列表 */
             SpecJournalTypes?: components["schemas"]["SpecJournalTypes_DTO"][] | null;
-            /** @description [SpecJournalKeywords] */
+            /** @description 期刊關鍵字列表 */
             SpecJournalKeywords?: components["schemas"]["SpecJournalKeywords_DTO"][] | null;
         };
         SpecJournalSet_DTOApiRequest: {
@@ -12468,7 +12468,7 @@ export interface components {
         };
         SpecJournalTypes_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_JournalId] */
+            /** @description 期刊代號 */
             JournalId?: string | null;
             /**
              * Format: int32
@@ -12476,7 +12476,7 @@ export interface components {
              */
             RowId?: number | null;
             Tag?: components["schemas"]["TagData_DTO"];
-            /** @description [Spec_TagId] */
+            /** @description 類型 */
             TagId?: string | null;
             _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
         };
@@ -12599,126 +12599,126 @@ export interface components {
             Validate_Start?: string | null;
             /** Format: date-time */
             Validate_End?: string | null;
-            /** @description 學年度 */
+            /** @description [SpecAcademicYearId] */
             AcademicYearId?: string | null;
             /**
              * Format: date
-             * @description 學年度開始日
+             * @description [SpecAcademicStart]
              */
             AcademicStart?: string;
             /**
              * Format: date
-             * @description 學年度結束日
+             * @description [SpecAcademicEnd]
              */
             AcademicEnd?: string;
             /**
              * Format: time
-             * @description 平日開館時間
+             * @description [SpecWeekday_OpenTime]
              */
             Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 平日閉館時間
+             * @description [SpecWeekday_CloseTime]
              */
             Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description 週六開館時間
+             * @description [SpecSat_OpenTime]
              */
             Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 週六閉館時間
+             * @description [SpecSat_CloseTime]
              */
             Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description 週日開館時間
+             * @description [SpecSun_OpenTime]
              */
             Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 週日閉館時間
+             * @description [SpecSun_CloseTime]
              */
             Sun_CloseTime?: string | null;
             /**
              * Format: date
-             * @description 寒假開始日
+             * @description [SpecWinterStart]
              */
             WinterStart?: string;
             /**
              * Format: date
-             * @description 寒假結束日
+             * @description [SpecWinterEnd]
              */
             WinterEnd?: string;
             /**
              * Format: time
-             * @description 寒假平日開館時間
+             * @description [SpecWinter_Weekday_OpenTime]
              */
             Winter_Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 寒假平日閉館時間
+             * @description [SpecWinter_Weekday_CloseTime]
              */
             Winter_Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description 寒假週六開館時間
+             * @description [SpecWinter_Sat_OpenTime]
              */
             Winter_Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 寒假週六閉館時間
+             * @description [SpecWinter_Sat_CloseTime]
              */
             Winter_Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description 寒假週日開館時間
+             * @description [SpecWinter_Sun_OpenTime]
              */
             Winter_Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 寒假週日閉館時間
+             * @description [SpecWinter_Sun_CloseTime]
              */
             Winter_Sun_CloseTime?: string | null;
             /**
              * Format: date
-             * @description 暑假開始日
+             * @description [SpecSummerStart]
              */
             SummerStart?: string;
             /**
              * Format: date
-             * @description 暑假結束日
+             * @description [SpecSummerEnd]
              */
             SummerEnd?: string;
             /**
              * Format: time
-             * @description 暑假平日開館時間
+             * @description [SpecSummer_Weekday_OpenTime]
              */
             Summer_Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 暑假平日閉館時間
+             * @description [SpecSummer_Weekday_CloseTime]
              */
             Summer_Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description 暑假週六開館時間
+             * @description [SpecSummer_Sat_OpenTime]
              */
             Summer_Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 暑假週六閉館時間
+             * @description [SpecSummer_Sat_CloseTime]
              */
             Summer_Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description 暑假週日開館時間
+             * @description [SpecSummer_Sun_OpenTime]
              */
             Summer_Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 暑假週日閉館時間
+             * @description [SpecSummer_Sun_CloseTime]
              */
             Summer_Sun_CloseTime?: string | null;
             /** @description 摘要 */
@@ -12749,126 +12749,126 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description 學年度 */
+            /** @description [SpecAcademicYearId] */
             AcademicYearId?: string | null;
             /**
              * Format: date
-             * @description 學年度開始日
+             * @description [SpecAcademicStart]
              */
             AcademicStart?: string | null;
             /**
              * Format: date
-             * @description 學年度結束日
+             * @description [SpecAcademicEnd]
              */
             AcademicEnd?: string | null;
             /**
              * Format: time
-             * @description 平日開館時間
+             * @description [SpecWeekday_OpenTime]
              */
             Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 平日閉館時間
+             * @description [SpecWeekday_CloseTime]
              */
             Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description 週六開館時間
+             * @description [SpecSat_OpenTime]
              */
             Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 週六閉館時間
+             * @description [SpecSat_CloseTime]
              */
             Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description 週日開館時間
+             * @description [SpecSun_OpenTime]
              */
             Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 週日閉館時間
+             * @description [SpecSun_CloseTime]
              */
             Sun_CloseTime?: string | null;
             /**
              * Format: date
-             * @description 寒假開始日
+             * @description [SpecWinterStart]
              */
             WinterStart?: string | null;
             /**
              * Format: date
-             * @description 寒假結束日
+             * @description [SpecWinterEnd]
              */
             WinterEnd?: string | null;
             /**
              * Format: time
-             * @description 寒假平日開館時間
+             * @description [SpecWinter_Weekday_OpenTime]
              */
             Winter_Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 寒假平日閉館時間
+             * @description [SpecWinter_Weekday_CloseTime]
              */
             Winter_Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description 寒假週六開館時間
+             * @description [SpecWinter_Sat_OpenTime]
              */
             Winter_Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 寒假週六閉館時間
+             * @description [SpecWinter_Sat_CloseTime]
              */
             Winter_Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description 寒假週日開館時間
+             * @description [SpecWinter_Sun_OpenTime]
              */
             Winter_Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 寒假週日閉館時間
+             * @description [SpecWinter_Sun_CloseTime]
              */
             Winter_Sun_CloseTime?: string | null;
             /**
              * Format: date
-             * @description 暑假開始日
+             * @description [SpecSummerStart]
              */
             SummerStart?: string | null;
             /**
              * Format: date
-             * @description 暑假結束日
+             * @description [SpecSummerEnd]
              */
             SummerEnd?: string | null;
             /**
              * Format: time
-             * @description 暑假平日開館時間
+             * @description [SpecSummer_Weekday_OpenTime]
              */
             Summer_Weekday_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 暑假平日閉館時間
+             * @description [SpecSummer_Weekday_CloseTime]
              */
             Summer_Weekday_CloseTime?: string | null;
             /**
              * Format: time
-             * @description 暑假週六開館時間
+             * @description [SpecSummer_Sat_OpenTime]
              */
             Summer_Sat_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 暑假週六閉館時間
+             * @description [SpecSummer_Sat_CloseTime]
              */
             Summer_Sat_CloseTime?: string | null;
             /**
              * Format: time
-             * @description 暑假週日開館時間
+             * @description [SpecSummer_Sun_OpenTime]
              */
             Summer_Sun_OpenTime?: string | null;
             /**
              * Format: time
-             * @description 暑假週日閉館時間
+             * @description [SpecSummer_Sun_CloseTime]
              */
             Summer_Sun_CloseTime?: string | null;
             /** @description 摘要 */

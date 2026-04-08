@@ -991,6 +991,7 @@ export const SpecJournalAuthorFields = {
   RowState: 'RowState',
   JournalId: 'JournalId',
   RowId: 'RowId',
+  AuthorType: 'AuthorType',
   ORCID: 'ORCID',
   AuthorName: 'AuthorName',
   AuthorName_en: 'AuthorName_en',
@@ -1049,7 +1050,6 @@ export const SpecJournalIndexModelFields = {
   OrgLvId: 'OrgLvId',
   IndexId: 'IndexId',
   IndexName: 'IndexName',
-  PublishStatus: 'PublishStatus',
   _SpecJournalIndexDetail: '_SpecJournalIndexDetail',
 } as const;
 

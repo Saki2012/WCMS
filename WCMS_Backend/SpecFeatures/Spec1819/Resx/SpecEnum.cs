@@ -29,5 +29,18 @@ namespace WCMS.SpecFeatures.Spec1819.Resx
         /// </summary>
         [LibDesc(SpecModelDisplayName.Spec_Ethics_Statement)] Ethics_Statement = 4,
     }
-
+    /// <summary>
+    /// 期刊作者類型
+    /// </summary>
+    public enum SpecAuthorType : byte
+    {
+        /// <summary>
+        /// 期刊作者
+        /// </summary>
+        JournalAuthor=0,
+        /// <summary>
+        /// 通訊作者
+        /// </summary>
+        CommunicateAuthor=1,
+    }
 }

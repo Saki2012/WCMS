@@ -1,24 +1,26 @@
-import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
 import { loadClientChildren } from "@/Features/Pages/Client/Route/ClientRouter";
-import { BackendRouteModule } from "@/Features/Pages/Server/Scaffold/Routes/ServerRouter";
-import type { RouteObject } from "react-router-dom";
 import { type INormNode, type INormSite, type ModuleEntry } from "@/Features/Pages/Client/Route/Site-Routing";
-import type { IHeaderMetaProps } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
-import type { Lang } from "@/SysCore/i18n/lang";
 import SubPage from "@/Features/Pages/Client/Scaffold/SubPages/SubPage";
 import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx";
+import { BackendRouteModule } from "@/Features/Pages/Server/Scaffold/Routes/ServerRouter";
+import type { IHeaderMetaProps } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
+import type { Lang } from "@/SysCore/i18n/lang";
+import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
+import type { RouteObject } from "react-router-dom";
 
+import { SpecJournalForm_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalForm";
 import { SpecJournalIndex } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalIndex";
 import { SpecJournalList } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalList";
-import { SpecJournalForm_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalForm";
 
-import { SpecJournalIndex_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalIndex_Loader";
-import { PublishStatusEnum, SpecJournalList_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalList_Loader";
 import { SpecJournalForm_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalForm_Loader";
+import { SpecJournalIndex_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalIndex_Loader";
+import { SpecJournalList_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalList_Loader";
 
-export class SpecRouteModule implements IRouteModule {
-    async getRoutes(): Promise<RouteObject[]> {
+export class SpecRouteModule implements IRouteModule
+{
+    async getRoutes(): Promise<RouteObject[]>
+    {
         // 宣告變數
         const frontendRoutes = await loadClientChildren();
         const backendRoutes = new BackendRouteModule().getRoutes();
@@ -52,14 +54,14 @@ export const specClientEntries: Record<string, ModuleEntry> = {
             // List：某一期
             {
                 path: "List/:indexId?/:rowId?",
-                loader: SpecJournalList_Loader({ pageSize: 10, publishStatus: PublishStatusEnum.Published, forceGlobal: false, pageTitle: "所有期刊",}),
+                loader: SpecJournalList_Loader({ pageSize: 10, forceGlobal: false, pageTitle: "所有期刊" }),
                 element: <SpecJournalList site={site} node={node} lang={lang} />,
                 handle: { breadcrumb: "journal-issue" },
             },
             // 預刊列表
             {
                 path: "Preprint",
-                loader: SpecJournalList_Loader({ pageSize: 10, publishStatus: PublishStatusEnum.Unpublished, forceGlobal: true, pageTitle: "預刊本", }),
+                loader: SpecJournalList_Loader({ pageSize: 10, forceGlobal: true, pageTitle: "預刊本" }),
                 element: <SpecJournalList site={site} node={node} lang={lang} />,
                 handle: { breadcrumb: "journal-preprint" },
             },

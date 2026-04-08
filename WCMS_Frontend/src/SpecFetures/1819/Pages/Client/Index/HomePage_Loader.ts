@@ -1,36 +1,44 @@
 import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Announcement_Api";
 import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
 import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WebManagement/WebResource_Api";
+import { SpecJournalIndexAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournalIndex_Api";
+import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
-import {AnnouncementDetailFields,AnnouncementFields,BannerDetailFields,BannerDetailInfoFields,BannerFields,SpecJournalIndexDetailFields,SpecJournalIndexModelFields,WebResourceFields,WebResourceInfoFields,} from "@/types/SchemaFields";
+import {
+    AnnouncementDetailFields,
+    AnnouncementFields,
+    BannerDetailFields,
+    BannerDetailInfoFields,
+    BannerFields,
+    SpecJournalIndexDetailFields,
+    SpecJournalIndexModelFields,
+    WebResourceFields,
+    WebResourceInfoFields,
+} from "@/types/SchemaFields";
 import type { LoaderFunctionArgs } from "react-router-dom";
-import type { Lang } from "@/SysCore/i18n/lang";
-import { SpecJournalIndexAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournalIndex_Api";
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
-type PublishStatus = components["schemas"]["PublishStatus"];
 
-type ApiLoaderDataCompat<TArgs, TData> = | { args: TArgs; env: ApiResponse<TData> } | { args: TArgs; apiRes: ApiResponse<TData> };
+type ApiLoaderDataCompat<TArgs, TData> = { args: TArgs; env: ApiResponse<TData>; } | {
+    args: TArgs;
+    apiRes: ApiResponse<TData>;
+};
 
-export const PublishStatusEnum = {
-    Unpublished: 0,
-    Published: 1,
-} as const satisfies Record<string, PublishStatus>;
-export type PublishStatusValue = (typeof PublishStatusEnum)[keyof typeof PublishStatusEnum];
-
-const getEnv = <TArgs, TData>(d: ApiLoaderDataCompat<TArgs, TData>): ApiResponse<TData> => {
+const getEnv = <TArgs, TData>(d: ApiLoaderDataCompat<TArgs, TData>): ApiResponse<TData> =>
+{
     // return：兼容舊版 apiRes / 新版 env 命名
     return "env" in d ? d.env : d.apiRes;
 };
 
-export interface HomePageRawData {
+export interface HomePageRawData
+{
     latestIssueBgBanner: BannerSet | null;
     latestIssueCoverBanner: BannerSet | null;
     latestIssuePublishedList: SpecJournalIndexSet[];
@@ -43,7 +51,8 @@ export interface HomePageRawData {
     relatedLinksList: WebResourceSet[];
 }
 
-export interface HomePageLoaderArgs {
+export interface HomePageLoaderArgs
+{
     lang: Lang;
     nowIsoLocal: string;
 
@@ -67,21 +76,26 @@ export interface HomePageLoaderArgs {
     relatedLinksParam: QueryListParam;
 }
 
-export interface HomePageLoaderRes {
+export interface HomePageLoaderRes
+{
     rawData: HomePageRawData;
 }
 
-export interface HomePageLoaderData {
+export interface HomePageLoaderData
+{
     args: HomePageLoaderArgs;
     res: HomePageLoaderRes;
 }
 
-const formatLocalIsoByMinute = (d: Date): string => {
+const formatLocalIsoByMinute = (d: Date): string =>
+{
     // 宣告變數
     const pad2 = (n: number) => (n < 10 ? `0${n}` : `${n}`);
 
     // return
-    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}:00.000`;
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${
+        pad2(d.getMinutes())
+    }:00.000`;
 };
 
 const HOME_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
@@ -89,7 +103,8 @@ const HOME_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 type CacheItem = { ts: number; data: HomePageLoaderData; };
 const homeLoaderCache = new Map<string, CacheItem>();
 
-const getCacheKey = (lang: Lang, nowIsoLocal: string): string => {
+const getCacheKey = (lang: Lang, nowIsoLocal: string): string =>
+{
     // 宣告變數
     const day = nowIsoLocal.slice(0, 10);
 
@@ -97,13 +112,15 @@ const getCacheKey = (lang: Lang, nowIsoLocal: string): string => {
     return `${lang}|${day}`;
 };
 
-const tryGetCache = (key: string): HomePageLoaderData | null => {
+const tryGetCache = (key: string): HomePageLoaderData | null =>
+{
     // 宣告變數
     const hit = homeLoaderCache.get(key);
     if (!hit) return null;
 
     // 執行 function
-    if (Date.now() - hit.ts > HOME_CACHE_TTL_MS) {
+    if (Date.now() - hit.ts > HOME_CACHE_TTL_MS)
+    {
         homeLoaderCache.delete(key);
         return null;
     }
@@ -112,35 +129,42 @@ const tryGetCache = (key: string): HomePageLoaderData | null => {
     return hit.data;
 };
 
-const setCache = (key: string, data: HomePageLoaderData): void => {
+const setCache = (key: string, data: HomePageLoaderData): void =>
+{
     // 執行 function
     homeLoaderCache.set(key, { ts: Date.now(), data });
 };
 
-const takeFirstOrNull = <T>(d: T | T[] | null | undefined): T | null => {
+const takeFirstOrNull = <T>(d: T | T[] | null | undefined): T | null =>
+{
     // return：兼容 queryData / queryList 兩種資料型態
     if (!d) return null;
     return Array.isArray(d) ? d[0] ?? null : d;
 };
 
-const takeTopThenFill = <T>(top: T[], rest: T[], limit: number, getKey: (item: T) => string): T[] => {
+const takeTopThenFill = <T>(top: T[], rest: T[], limit: number, getKey: (item: T) => string): T[] =>
+{
     // 宣告變數
     const seen = new Set<string>();
     const out: T[] = [];
 
     // 執行 function
-    for (const item of top) {
+    for (const item of top)
+    {
         const key = getKey(item);
-        if (!seen.has(key) && out.length < limit) {
+        if (!seen.has(key) && out.length < limit)
+        {
             seen.add(key);
             out.push(item);
         }
     }
 
-    for (const item of rest) {
+    for (const item of rest)
+    {
         if (out.length >= limit) break;
         const key = getKey(item);
-        if (!seen.has(key)) {
+        if (!seen.has(key))
+        {
             seen.add(key);
             out.push(item);
         }
@@ -150,13 +174,18 @@ const takeTopThenFill = <T>(top: T[], rest: T[], limit: number, getKey: (item: T
     return out;
 };
 
-const buildBannerByBannerIdParam = (opt: { bannerId: string; lang?: Lang; }): QueryListParam => {
+const buildBannerByBannerIdParam = (opt: { bannerId: string; lang?: Lang; }): QueryListParam =>
+{
     // 宣告變數
     let condition = "";
     condition = LibMerge(" And ", false, condition, `${BannerFields.BannerId} = ${opt.bannerId}`);
 
-    if (opt.lang) {
-        condition = LibMerge(" And ", false, condition, 
+    if (opt.lang)
+    {
+        condition = LibMerge(
+            " And ",
+            false,
+            condition,
             `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Lang} = ${opt.lang}`,
         );
     }
@@ -164,7 +193,8 @@ const buildBannerByBannerIdParam = (opt: { bannerId: string; lang?: Lang; }): Qu
     // return
     return {
         Fields: [
-            BannerFields.InternalId,BannerFields.BannerId,
+            BannerFields.InternalId,
+            BannerFields.BannerId,
             `${BannerFields._BannerDetail}.${BannerDetailFields.RowId}`,
             `${BannerFields._BannerDetail}.${BannerDetailFields.BannerId}`,
             `${BannerFields._BannerDetail}.${BannerDetailFields.PicSrcId}`,
@@ -186,13 +216,16 @@ const buildBannerByBannerIdParam = (opt: { bannerId: string; lang?: Lang; }): Qu
     };
 };
 
-const buildSpecJournalIndexParam = (publishStatus: PublishStatus): QueryListParam => {
+const buildSpecJournalIndexParam = (): QueryListParam =>
+{
     // 宣告變數
-    const condition = `${SpecJournalIndexModelFields.PublishStatus} = ${publishStatus}`;
+    const condition = "";
     // return
     return {
         Fields: [
-            SpecJournalIndexModelFields.IndexId,SpecJournalIndexModelFields.IndexName,SpecJournalIndexModelFields.InternalId,SpecJournalIndexModelFields.PublishStatus,
+            SpecJournalIndexModelFields.IndexId,
+            SpecJournalIndexModelFields.IndexName,
+            SpecJournalIndexModelFields.InternalId,
             `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.IndexId}`,
             `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.RowId}`,
             `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
@@ -203,17 +236,24 @@ const buildSpecJournalIndexParam = (publishStatus: PublishStatus): QueryListPara
             `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.IsSpecial}`,
         ],
         Condition: condition,
-        OrderBy: [{ Col: `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.PublishDate}`, Desc: true }],
+        OrderBy: [{
+            Col: `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.PublishDate}`,
+            Desc: true,
+        }],
         PageNumber: 1,
         PageSize: 5,
     };
 };
 
-const buildNewsCondition = (opt: {lang: Lang; nowIsoLocal: string; categoryId: string; isTop: boolean; }): string => {
+const buildNewsCondition = (opt: { lang: Lang; nowIsoLocal: string; categoryId: string; isTop: boolean; }): string =>
+{
     // 宣告變數
     let condition = "";
     // 執行 function
-    condition = LibMerge(" And ", false, condition,
+    condition = LibMerge(
+        " And ",
+        false,
+        condition,
         `${AnnouncementFields.Validate_Start} <= ${opt.nowIsoLocal}`,
         `(${AnnouncementFields.Validate_End} >= ${opt.nowIsoLocal} Or ${AnnouncementFields.Validate_End} is null)`,
         `${AnnouncementFields.ContentStatus} !& 4`,
@@ -222,17 +262,23 @@ const buildNewsCondition = (opt: {lang: Lang; nowIsoLocal: string; categoryId: s
         `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} != ''`,
     );
 
-    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.ContentStatus} ${opt.isTop ? '&':'!&'} 1`);
+    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.ContentStatus} ${opt.isTop ? "&" : "!&"} 1`);
     // return
     return condition;
 };
 
-const buildNewsParam = (opt: { condition: string; take: number; }): QueryListParam => {
+const buildNewsParam = (opt: { condition: string; take: number; }): QueryListParam =>
+{
     // return
     return {
         Fields: [
-            AnnouncementFields.AnnouncementId,AnnouncementFields.InternalId,AnnouncementFields.Categories,AnnouncementFields.Tags,
-            AnnouncementFields.ContentStatus,AnnouncementFields.Validate_Start,AnnouncementFields.Validate_End,
+            AnnouncementFields.AnnouncementId,
+            AnnouncementFields.InternalId,
+            AnnouncementFields.Categories,
+            AnnouncementFields.Tags,
+            AnnouncementFields.ContentStatus,
+            AnnouncementFields.Validate_Start,
+            AnnouncementFields.Validate_End,
             `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
             `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
         ],
@@ -243,11 +289,17 @@ const buildNewsParam = (opt: { condition: string; take: number; }): QueryListPar
     };
 };
 
-const buildRelatedLinksParam = (opt: { categoryId: string; lang: Lang; }): QueryListParam => {
+const buildRelatedLinksParam = (opt: { categoryId: string; lang: Lang; }): QueryListParam =>
+{
     // 宣告變數
     let condition = "";
     condition = LibMerge(" And ", false, condition, `${WebResourceFields.Categories} HasAll ${opt.categoryId}`);
-    condition = LibMerge(" And ", false, condition, `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang} = ${opt.lang}`);
+    condition = LibMerge(
+        " And ",
+        false,
+        condition,
+        `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang} = ${opt.lang}`,
+    );
 
     // return
     return {
@@ -268,14 +320,15 @@ const buildRelatedLinksParam = (opt: { categoryId: string; lang: Lang; }): Query
     };
 };
 
-const buildDefaultArgs = (lang: Lang): HomePageLoaderArgs => {
+const buildDefaultArgs = (lang: Lang): HomePageLoaderArgs =>
+{
     // 宣告變數
     const nowIsoLocal = formatLocalIsoByMinute(new Date());
 
     const latestIssueBgBannerId = "Banner20260113002";
     const latestIssueCoverBannerId = "Banner20260113001";
-    const latestIssuePublishedParam = buildSpecJournalIndexParam(PublishStatusEnum.Published);
-    const latestIssueUnpublishedParam = buildSpecJournalIndexParam(PublishStatusEnum.Unpublished);
+    const latestIssuePublishedParam = buildSpecJournalIndexParam();
+    const latestIssueUnpublishedParam = buildSpecJournalIndexParam();
 
     const indexedBannerId = "Banner20260113003";
     const indexedBannerParam = buildBannerByBannerIdParam({ bannerId: indexedBannerId, lang });
@@ -325,7 +378,8 @@ const buildDefaultArgs = (lang: Lang): HomePageLoaderArgs => {
  * - 後續各 section 改 hook 時，可直接吃 args + rawData
  */
 export const HomePageLoader =
-    (p: { lang: Lang; }) => async ({ request }: LoaderFunctionArgs): Promise<HomePageLoaderData> => {
+    (p: { lang: Lang; }) => async ({ request }: LoaderFunctionArgs): Promise<HomePageLoaderData> =>
+    {
         // 宣告變數
         const ssrApi = getSsrApi(request);
         const args = buildDefaultArgs(p.lang);

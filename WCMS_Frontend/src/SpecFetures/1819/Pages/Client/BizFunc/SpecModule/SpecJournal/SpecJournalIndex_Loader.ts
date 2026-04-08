@@ -1,10 +1,9 @@
+import { SpecJournalIndexAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournalIndex_Api";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
+import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import { SpecJournalIndexDetailFields, SpecJournalIndexModelFields } from "@/types/SchemaFields";
 import type { LoaderFunctionArgs } from "react-router-dom";
-import { SpecJournalIndexAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournalIndex_Api";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
-import { PublishStatusEnum } from "@/SpecFetures/1819/Pages/Client/Index/HomePage_Loader";
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
 type QueryListParam = components["schemas"]["QueryListParam"];
 export interface SpecJournalIndexLoaderArgs
@@ -26,11 +25,13 @@ export interface SpecJournalIndexLoaderData
 const buildBaseParam = (pageSize: number): QueryListParam =>
 {
     // 宣告變數
-    const condition = LibMerge(" And ",false,`${SpecJournalIndexModelFields.PublishStatus} = ${PublishStatusEnum.Published}`);
+    const condition = LibMerge(" And ", false);
     // return
     return {
         Fields: [
-            SpecJournalIndexModelFields.IndexId,SpecJournalIndexModelFields.IndexName,SpecJournalIndexModelFields.InternalId,
+            SpecJournalIndexModelFields.IndexId,
+            SpecJournalIndexModelFields.IndexName,
+            SpecJournalIndexModelFields.InternalId,
             `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.RowId}`,
             `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
             `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,

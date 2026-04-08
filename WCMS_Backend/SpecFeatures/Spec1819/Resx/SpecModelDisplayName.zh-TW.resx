@@ -279,4 +279,7 @@
   <data name="SpecJournalDocument" xml:space="preserve">
     <value>期刊說明檔案列表</value>
   </data>
+  <data name="Spec_AuthorType" xml:space="preserve">
+    <value>作者類型</value>
+  </data>
 </root>

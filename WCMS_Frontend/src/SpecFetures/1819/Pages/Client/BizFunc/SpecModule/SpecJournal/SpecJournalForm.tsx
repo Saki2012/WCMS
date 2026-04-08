@@ -1,46 +1,52 @@
-import { getLangLabel, SUPPORTED_LANGS, type Lang } from "@/SysCore/i18n/lang";
-import React, { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import parse from "html-react-parser";
+import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
+import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import ModuleContent, {
+    type ModuleViewCountConfig,
+} from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import { useBreadcrumb } from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
 import insightpointImg1 from "@/SpecFetures/1819/Assets/Client/images/links/150x32/InSight_Point_bt_150x32.svg";
 import insightpointImg2 from "@/SpecFetures/1819/Assets/Client/images/links/150x32/InSight_Point_bt_W_150x32.svg";
 import openPointImg from "@/SpecFetures/1819/Assets/Client/images/links/150x32/Open_Point_bt_190x40.svg";
-import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
-import type { components } from "@/types/api";
-import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import clsx from "clsx";
-import { QrCodeWithLogo_Comp } from "@/SysCore/Components/LibQRCode/LibQRCode_Comp";
 import QRCodeLogoImg from "@/SpecFetures/1819/Assets/Client/SpecImg/QRCodeLogo.png";
-import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
-import { useLocation, useParams } from "react-router";
-import { useBreadcrumb } from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
 import { SpecJournalKeywordSearch_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalKeywordSearchComp";
-import { useSpecJournalSearchNav } from "./SpecJournalSearchUtils";
-import { useSpecJournalFormData } from "./SpecJournalForm_Loader";
-import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
+import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
+import { QrCodeWithLogo_Comp } from "@/SysCore/Components/LibQRCode/LibQRCode_Comp";
+import { getLangLabel, type Lang, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
+import clsx from "clsx";
+import parse from "html-react-parser";
+import React, { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useParams } from "react-router";
+import { useSpecJournalFormData } from "./SpecJournalForm_Loader";
+import { useSpecJournalSearchNav } from "./SpecJournalSearchUtils";
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
 
-const joinPath = (base: string, path: string) => {
+const joinPath = (base: string, path: string) =>
+{
     const b = (base ?? "").replace(/\/+$/, "");
     const p = (path ?? "").replace(/^\/+/, "");
     if (!b) return `/${p}`;
     return `${b}/${p}`;
 };
 
-export const SpecJournalForm_Comp = (props: { site: INormSite; node: INormNode; lang: Lang }) => {
+export const SpecJournalForm_Comp = (props: { site: INormSite; node: INormNode; lang: Lang; }) =>
+{
     const { indexId, rowId } = useParams();
     const { setItems } = useBreadcrumb();
     const location = useLocation();
     const useDetail = useSpecJournalFormData();
     const data = useDetail.data;
     const errors = useDetail.errorList;
-    const title = useMemo(() => {
+    const title = useMemo(() =>
+    {
         const d = data?.SpecJournal?._JournalIndexDetail;
         return d ? `Vol.${d.Volume}, No.${d.Issue}` : "";
     }, [data?.SpecJournal?._JournalIndexDetail?.Volume, data?.SpecJournal?._JournalIndexDetail?.Issue]);
 
-    const moduleBase = useMemo(() => {
+    const moduleBase = useMemo(() =>
+    {
         const raw = props.node.redirectTo ?? "";
         if (raw && raw !== "/") return raw;
 
@@ -52,11 +58,13 @@ export const SpecJournalForm_Comp = (props: { site: INormSite; node: INormNode; 
         return mod ? `/${mod}` : "/";
     }, [props.node.redirectTo, location.pathname]);
 
-    useEffect(() => {
+    useEffect(() =>
+    {
         const issueLabel = title;
         const issueTo = issueLabel && indexId && rowId ? joinPath(moduleBase, `List/${indexId}/${rowId}`) : undefined;
-        const articleLabel = data?.SpecJournal?.Title ?? data?.SpecJournal?.Title_en ?? (props.lang === "zh-tw" ? "文章" : "Article");
-        const next: Array<{ label: string; to?: string }> = [];
+        const articleLabel = data?.SpecJournal?.Title ?? data?.SpecJournal?.Title_en
+            ?? (props.lang === "zh-tw" ? "文章" : "Article");
+        const next: Array<{ label: string; to?: string; }> = [];
 
         if (issueLabel) next.push({ label: issueLabel, to: issueTo });
         if (articleLabel) next.push({ label: articleLabel });
@@ -64,9 +72,19 @@ export const SpecJournalForm_Comp = (props: { site: INormSite; node: INormNode; 
         setItems(next);
 
         return () => setItems([]);
-    }, [title, data?.SpecJournal?.Title, data?.SpecJournal?.Title_en, indexId, rowId, props.lang, moduleBase, setItems]);
+    }, [
+        title,
+        data?.SpecJournal?.Title,
+        data?.SpecJournal?.Title_en,
+        indexId,
+        rowId,
+        props.lang,
+        moduleBase,
+        setItems,
+    ]);
 
-    const viewCountConfig = useMemo<ModuleViewCountConfig>(() => {
+    const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
+    {
         const request: TryCountDetailViewRequest = {
             SiteIndex: props.site.siteIndex,
             ProgId: PGID.SpecJournal,
@@ -97,9 +115,8 @@ export const SpecJournalForm_Comp = (props: { site: INormSite; node: INormNode; 
     );
 };
 
-
-const SpecJournalFormContent = (props: { lang: Lang; data?: SpecJournalSet; pageViewCount: number }) => {
-    
+const SpecJournalFormContent = (props: { lang: Lang; data?: SpecJournalSet; pageViewCount: number; }) =>
+{
     return (
         <div className="Journal_List_content">
             <div className="row">
@@ -125,15 +142,18 @@ const SpecJournalFormContent = (props: { lang: Lang; data?: SpecJournalSet; page
 };
 
 /** 期刊標題 */
-const JournalTitle_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
+const JournalTitle_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
+{
     const { goExclusive } = useSpecJournalSearchNav("../List");
 
-    const onPickArticleLang = (langCode: string) => {
+    const onPickArticleLang = (langCode: string) =>
+    {
         // 執行 function
         goExclusive({ articleLang: langCode });
     };
 
-    const onPickTag = (tagId: string, tagName?: string) => {
+    const onPickTag = (tagId: string, tagName?: string) =>
+    {
         // 執行 function
         goExclusive({ tagId, tagName });
     };
@@ -152,22 +172,41 @@ const JournalTitle_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
                                 <div className="card_cat_item">
                                     <div className="card_cat_TxT">
                                         <span className="cat_title">
-                                            <a href="#" aria-label={`依語言篩選：${langLabel}`} title="依語言篩選" style={{ color: "inherit", textDecoration: "none" }}
-                                                onClick={(e) => { e.preventDefault(); onPickArticleLang(langCode);}}>
+                                            <a
+                                                href="#"
+                                                aria-label={`依語言篩選：${langLabel}`}
+                                                title="依語言篩選"
+                                                style={{ color: "inherit", textDecoration: "none" }}
+                                                onClick={(e) =>
+                                                {
+                                                    e.preventDefault();
+                                                    onPickArticleLang(langCode);
+                                                }}
+                                            >
                                                 {langLabel}
                                             </a>
                                         </span>
                                     </div>
                                 </div>
 
-                                {props.data?.SpecJournalTypes?.map((t) => {
+                                {props.data?.SpecJournalTypes?.map((t) =>
+                                {
                                     const tagName = t.Tag?._TagDetail?.find((p) => p.Lang === props.lang)?.TagName;
                                     return (
                                         <div key={t.TagId} className="card_cat_item">
                                             <div className="card_cat_TxT">
                                                 <span className="cat_title">
-                                                    <a href="#" aria-label={`依分類篩選：${tagName ?? ""}`} title="依分類篩選" style={{ color: "inherit", textDecoration: "none" }}
-                                                        onClick={(e) => { e.preventDefault(); onPickTag(t.TagId ?? "", tagName ?? "");}}>
+                                                    <a
+                                                        href="#"
+                                                        aria-label={`依分類篩選：${tagName ?? ""}`}
+                                                        title="依分類篩選"
+                                                        style={{ color: "inherit", textDecoration: "none" }}
+                                                        onClick={(e) =>
+                                                        {
+                                                            e.preventDefault();
+                                                            onPickTag(t.TagId ?? "", tagName ?? "");
+                                                        }}
+                                                    >
                                                         {tagName}
                                                     </a>
                                                 </span>
@@ -180,7 +219,9 @@ const JournalTitle_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
 
                         <div className="card_titleDiv">
                             <div className="card_title">{props.data?.SpecJournal?.Title}</div>
-                            {!!props.data?.SpecJournal?.Title_en && <div className="card_title_en">{props.data?.SpecJournal?.Title_en}</div>}
+                            {!!props.data?.SpecJournal?.Title_en && (
+                                <div className="card_title_en">{props.data?.SpecJournal?.Title_en}</div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -194,7 +235,8 @@ const JournalTitle_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
 };
 
 /** 瀏覽次數 */
-const BrowseCount_Comp = (props: { pageViewCount: number }) => {
+const BrowseCount_Comp = (props: { pageViewCount: number; }) =>
+{
     return (
         <>
             <div className="JJ_main_contentDIV">
@@ -215,22 +257,33 @@ const BrowseCount_Comp = (props: { pageViewCount: number }) => {
 };
 
 /** 作者列表 */
-const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
+const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
+{
     const { goExclusive } = useSpecJournalSearchNav("../List");
-    const onPickAuthor = (name: string) => {const v = (name ?? "").trim(); if (!v) return; goExclusive({ author: v });};
-    if(!props.data?.SpecJournalAuthor||props.data.SpecJournalAuthor.length===0) return null;
+    const onPickAuthor = (name: string) =>
+    {
+        const v = (name ?? "").trim();
+        if (!v) return;
+        goExclusive({ author: v });
+    };
+    if (!props.data?.SpecJournalAuthor || props.data.SpecJournalAuthor.length === 0) return null;
     return (
         <>
             <div className="JJ_main_contentDIV">
                 <div className="col row_item_group">
                     <div className="Uncat">
                         <ul className="AuthorCardGrid" aria-label="作者清單">
-                            {props.data?.SpecJournalAuthor?.map((a, idx) => {
+                            {props.data?.SpecJournalAuthor?.map((a, idx) =>
+                            {
                                 return (
-                                    <li key={`${a.ORCID ?? a.Email ?? "author"}-${idx}`} className="AuthorCardGrid__item">
+                                    <li
+                                        key={`${a.ORCID ?? a.Email ?? "author"}-${idx}`}
+                                        className="AuthorCardGrid__item"
+                                    >
                                         <div className="AuthorCard">
                                             <div className="AuthorCard__title">
-                                                {(() => {
+                                                {(() =>
+                                                {
                                                     const zh = (a.AuthorName ?? "").trim();
                                                     const en = (a.AuthorName_en ?? "").trim();
                                                     const showZh = !!zh;
@@ -241,7 +294,22 @@ const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
                                                         <>
                                                             {showZh && (
                                                                 <div className="AuthorCard__nameZh">
-                                                                    <a href="#" onClick={(e) => { e.preventDefault(); onPickAuthor(zh); }} aria-label={`依作者篩選：${zh}${en ? ` (${en})` : ""}`} title="依作者篩選" style={{ color: "inherit", textDecoration: "none" }}>
+                                                                    <a
+                                                                        href="#"
+                                                                        onClick={(e) =>
+                                                                        {
+                                                                            e.preventDefault();
+                                                                            onPickAuthor(zh);
+                                                                        }}
+                                                                        aria-label={`依作者篩選：${zh}${
+                                                                            en ? ` (${en})` : ""
+                                                                        }`}
+                                                                        title="依作者篩選"
+                                                                        style={{
+                                                                            color: "inherit",
+                                                                            textDecoration: "none",
+                                                                        }}
+                                                                    >
                                                                         {zh}
                                                                     </a>
                                                                 </div>
@@ -249,7 +317,20 @@ const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
                                                             {showZh && !!en && (
                                                                 <div className="AuthorCard__nameEn ms-2">
                                                                     （
-                                                                    <a href="#" onClick={(e) => { e.preventDefault(); onPickAuthor(en); }} aria-label={`依作者篩選：${en}`} title="依作者篩選" style={{ color: "inherit", textDecoration: "none" }} >
+                                                                    <a
+                                                                        href="#"
+                                                                        onClick={(e) =>
+                                                                        {
+                                                                            e.preventDefault();
+                                                                            onPickAuthor(en);
+                                                                        }}
+                                                                        aria-label={`依作者篩選：${en}`}
+                                                                        title="依作者篩選"
+                                                                        style={{
+                                                                            color: "inherit",
+                                                                            textDecoration: "none",
+                                                                        }}
+                                                                    >
                                                                         {en}
                                                                     </a>
                                                                     ）
@@ -257,7 +338,20 @@ const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
                                                             )}
                                                             {showEn && (
                                                                 <div className="AuthorCard__nameEn">
-                                                                    <a href="#" onClick={(e) => { e.preventDefault(); onPickAuthor(en); }} aria-label={`依作者篩選：${en}`} title="依作者篩選" style={{ color: "inherit", textDecoration: "none" }}>
+                                                                    <a
+                                                                        href="#"
+                                                                        onClick={(e) =>
+                                                                        {
+                                                                            e.preventDefault();
+                                                                            onPickAuthor(en);
+                                                                        }}
+                                                                        aria-label={`依作者篩選：${en}`}
+                                                                        title="依作者篩選"
+                                                                        style={{
+                                                                            color: "inherit",
+                                                                            textDecoration: "none",
+                                                                        }}
+                                                                    >
                                                                         {en}
                                                                     </a>
                                                                 </div>
@@ -269,16 +363,26 @@ const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
 
                                             <div className="AuthorCard__rows">
                                                 {[
-                                                    { label: "ORCID :", value: a.ORCID },
+                                                    {
+                                                        label: "ORCID :",
+                                                        value: a.ORCID && (
+                                                            <a href={`https://orcid.org/${a.ORCID}`}>{a.ORCID}</a>
+                                                        ),
+                                                    },
                                                     { label: "職稱 :", value: a.JobTitle },
-                                                    { label: "電子郵件 :", value: a.Email ? <a href={`mailto:${a.Email}`}>{a.Email}</a> : null,},
+                                                    {
+                                                        label: clsx(a.AuthorType === 0 ? "電子郵件" : "✉️", " :"),
+                                                        value: a.Email
+                                                            ? <a href={`mailto:${a.Email}`}>{a.Email}</a>
+                                                            : null,
+                                                    },
                                                     { label: "地區 / 國家 :", value: a.Country },
                                                 ].filter((x) => x.value).map((row) => (
-                                                        <div key={row.label} className="Div_All_Ttext mb-1">
-                                                            <span className="AuthorCard__label">{row.label}</span>
-                                                            <span className="ms-2 AuthorCard__value">{row.value}</span>
-                                                        </div>
-                                                    ))}
+                                                    <div key={row.label} className="Div_All_Ttext mb-1">
+                                                        <span className="AuthorCard__label">{row.label}</span>
+                                                        <span className="ms-2 AuthorCard__value">{row.value}</span>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
                                     </li>
@@ -295,28 +399,40 @@ const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
     );
 };
 /** DOI */
-const DOI_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
+const DOI_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
+{
     const url = props.data?.SpecJournal?.DOIUrl ?? "";
-    if(!url) return null;
+    if (!url) return null;
     return (
         <>
             <div className="JJ_main_contentDIV">
                 <div className="col row_item_group doiRow">
                     <div className="doiText">
                         <div className="Div_All_Ttext">
-                            <span>DOI編號: </span>
+                            <span>DOI編號:</span>
                         </div>
                         <div className="Div_All_Ttext">
-                            <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`DOI 連結，另開視窗：${url}`}>
+                            <a
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label={`DOI 連結，另開視窗：${url}`}
+                            >
                                 {url}
                             </a>
                         </div>
                     </div>
                     <div className="doiQr">
-                        {props.data?.SpecJournal?.DOIUrl ?
-                            <QrCodeWithLogo_Comp value={props.data?.SpecJournal?.DOIUrl ?? ""} logoSrc={QRCodeLogoImg} size={200} ariaLabel="DOI QR Code" /> :
-                            null
-                        }
+                        {props.data?.SpecJournal?.DOIUrl
+                            ? (
+                                <QrCodeWithLogo_Comp
+                                    value={props.data?.SpecJournal?.DOIUrl ?? ""}
+                                    logoSrc={QRCodeLogoImg}
+                                    size={200}
+                                    ariaLabel="DOI QR Code"
+                                />
+                            )
+                            : null}
                     </div>
                 </div>
             </div>
@@ -327,9 +443,15 @@ const DOI_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
     );
 };
 /** 期刊資訊 */
-const JournalInfo_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
+const JournalInfo_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
+{
     const { goExclusive } = useSpecJournalSearchNav("../List");
-    const onPickKeyword = (kw: string) => {const v = (kw ?? "").trim(); if (!v) return; goExclusive({ keyword: v });};
+    const onPickKeyword = (kw: string) =>
+    {
+        const v = (kw ?? "").trim();
+        if (!v) return;
+        goExclusive({ keyword: v });
+    };
     const publishDate = (props.data?.SpecJournal?._JournalIndexDetail?.PublishDate ?? "").toString();
     const publishLabel = publishDate.trim() ? publishDate.slice(0, 7) : "";
     return (
@@ -347,20 +469,37 @@ const JournalInfo_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
                                         </>
                                     )}
                                     <span>
-                                        {`${props.data?.SpecJournal?._JournalIndexDetail?.Volume ?? ""}卷${props.data?.SpecJournal?._JournalIndexDetail?.Issue ?? ""}期`}
+                                        {`${props.data?.SpecJournal?._JournalIndexDetail?.Volume ?? ""}卷${
+                                            props.data?.SpecJournal?._JournalIndexDetail?.Issue ?? ""
+                                        }期`}
                                     </span>
                                     <span className="G_Vline">│</span>
-                                    <span>{`${props.data?.SpecJournal?.PageStart ?? ""}頁~${props.data?.SpecJournal?.PageEnd ?? ""}頁`}</span>
+                                    <span>
+                                        {`${props.data?.SpecJournal?.PageStart ?? ""}頁~${
+                                            props.data?.SpecJournal?.PageEnd ?? ""
+                                        }頁`}
+                                    </span>
                                 </div>
                             </li>
 
                             <li>
                                 <div className="Div_All_Ttext mb-1">
                                     <span>中文關鍵詞 :</span>
-                                    {props.data?.SpecJournalKeywords?.filter((p) => p.LangCode === "zh-tw").map((kw) => {
+                                    {props.data?.SpecJournalKeywords?.filter((p) => p.LangCode === "zh-tw").map((kw) =>
+                                    {
                                         return (
                                             <span key={`zh-${kw.RowId}`} className="ms-2">
-                                                <a href="#" className="ms-2" onClick={(e) => { e.preventDefault(); onPickKeyword(kw.Keyword ?? "");}} aria-label={`依關鍵詞篩選：${kw.Keyword ?? ""}`} style={{ color: "inherit", textDecoration: "none" }}>
+                                                <a
+                                                    href="#"
+                                                    className="ms-2"
+                                                    onClick={(e) =>
+                                                    {
+                                                        e.preventDefault();
+                                                        onPickKeyword(kw.Keyword ?? "");
+                                                    }}
+                                                    aria-label={`依關鍵詞篩選：${kw.Keyword ?? ""}`}
+                                                    style={{ color: "inherit", textDecoration: "none" }}
+                                                >
                                                     {kw.Keyword}
                                                 </a>
                                             </span>
@@ -371,10 +510,21 @@ const JournalInfo_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
                             <li>
                                 <div className="Div_All_Ttext mb-1">
                                     <span>英文關鍵詞 :</span>
-                                    {props.data?.SpecJournalKeywords?.filter((p) => p.LangCode === "en").map((kw) => {
+                                    {props.data?.SpecJournalKeywords?.filter((p) => p.LangCode === "en").map((kw) =>
+                                    {
                                         return (
                                             <span key={`en-${kw.RowId}`} className="ms-2">
-                                                <a href="#" className="ms-2" onClick={(e) => {e.preventDefault(); onPickKeyword(kw.Keyword ?? ""); }} aria-label={`依關鍵詞篩選：${kw.Keyword ?? ""}`} style={{ color: "inherit", textDecoration: "none" }}>
+                                                <a
+                                                    href="#"
+                                                    className="ms-2"
+                                                    onClick={(e) =>
+                                                    {
+                                                        e.preventDefault();
+                                                        onPickKeyword(kw.Keyword ?? "");
+                                                    }}
+                                                    aria-label={`依關鍵詞篩選：${kw.Keyword ?? ""}`}
+                                                    style={{ color: "inherit", textDecoration: "none" }}
+                                                >
                                                     {kw.Keyword}
                                                 </a>
                                             </span>
@@ -393,65 +543,92 @@ const JournalInfo_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
     );
 };
 /** 檔案下載區 */
-const FileDownload_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
-    const hasJournalFile = props.data?.SpecJournal?.JournalFileId
-    const hasInsightPointFile = props.data?.SpecJournal?.InsightPointFileId
+const FileDownload_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
+{
+    const hasJournalFile = props.data?.SpecJournal?.JournalFileId;
+    const hasInsightPointFile = props.data?.SpecJournal?.InsightPointFileId;
     if (!hasJournalFile && !hasInsightPointFile) return null;
-    const journalFileIsPdf = props.data?.SpecJournal?.JournalFile?.FileExtension?.toLowerCase()==="pdf"
-    const journalFileName = props.data?.SpecJournal?.JournalFileName??"";
-    const journalFileUrl = journalFileIsPdf ? FileManagementAPI.get_Public_Preview_Url(props.data?.SpecJournal?.JournalFileId,journalFileName): FileManagementAPI.get_Public_Download_Url(props.data?.SpecJournal?.JournalFileId,journalFileName);
-    const journalDownloadCount = props.data?.SpecJournal?.JournalFile?.PublicDownloadCount ?? 0
-    const insightPointFileIsPdf = props.data?.SpecJournal?.InsightPointFile?.FileExtension?.toLowerCase()==="pdf"
-    const insightPointFileName = props.data?.SpecJournal?.InsightPointFileName??"";
-    const insightPointFileUrl = insightPointFileIsPdf ? FileManagementAPI.get_Public_Preview_Url(props.data?.SpecJournal?.InsightPointFileId,insightPointFileName): FileManagementAPI.get_Public_Download_Url(props.data?.SpecJournal?.InsightPointFileId,insightPointFileName);
-    const insightPointDownloadCount = props.data?.SpecJournal?.InsightPointFile?.PublicDownloadCount ?? 0
+    const journalFileIsPdf = props.data?.SpecJournal?.JournalFile?.FileExtension?.toLowerCase() === "pdf";
+    const journalFileName = props.data?.SpecJournal?.JournalFileName ?? "";
+    const journalFileUrl = journalFileIsPdf
+        ? FileManagementAPI.get_Public_Preview_Url(props.data?.SpecJournal?.JournalFileId, journalFileName)
+        : FileManagementAPI.get_Public_Download_Url(props.data?.SpecJournal?.JournalFileId, journalFileName);
+    const journalDownloadCount = props.data?.SpecJournal?.JournalFile?.PublicDownloadCount ?? 0;
+    const insightPointFileIsPdf = props.data?.SpecJournal?.InsightPointFile?.FileExtension?.toLowerCase() === "pdf";
+    const insightPointFileName = props.data?.SpecJournal?.InsightPointFileName ?? "";
+    const insightPointFileUrl = insightPointFileIsPdf
+        ? FileManagementAPI.get_Public_Preview_Url(props.data?.SpecJournal?.InsightPointFileId, insightPointFileName)
+        : FileManagementAPI.get_Public_Download_Url(props.data?.SpecJournal?.InsightPointFileId, insightPointFileName);
+    const insightPointDownloadCount = props.data?.SpecJournal?.InsightPointFile?.PublicDownloadCount ?? 0;
     return (
         <>
             <div className="JJ_main_contentDIV">
                 <div className="row">
                     <div className="col-12">
                         <ul className="fulllist-group">
-                            {hasJournalFile ?
-                                <li>
-                                    <div className="DownItem_Box">
-                                        <a className="page-item" href={journalFileUrl} title={journalFileName} onClick={preventHashOrVoidNav} target="_blank" rel="noopener noreferrer">
-                                            <div className="icontxtbox">
-                                                <span className="page_icon">
-                                                    <i className="far fa-file-alt" aria-hidden="true"></i>
+                            {hasJournalFile
+                                ? (
+                                    <li>
+                                        <div className="DownItem_Box">
+                                            <a
+                                                className="page-item"
+                                                href={journalFileUrl}
+                                                title={journalFileName}
+                                                onClick={preventHashOrVoidNav}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                <div className="icontxtbox">
+                                                    <span className="page_icon">
+                                                        <i className="far fa-file-alt" aria-hidden="true"></i>
+                                                    </span>
+                                                    <span className="icontxt">{journalFileName}</span>
+                                                </div>
+                                            </a>
+                                            <span className="G_Vline_Down">│</span>
+                                            <span className="Div_All_Ttext views d-inline-flex flex-column align-items-start">
+                                                {/* 第 1 行：標題 */}
+                                                <span className="download-title">全文可下載</span>
+                                                {/* 第 2 行：icon + 瀏覽次數 */}
+                                                <span className="d-flex align-items-center">
+                                                    <i className="fas fa-download me-1" aria-hidden="true"></i>
+                                                    <span className="font-SW-normal">下載次數 :</span>
+                                                    <span className="font-SW-normal ms-2">{journalDownloadCount}</span>
                                                 </span>
-                                                <span className="icontxt">{journalFileName}</span>
-                                            </div>
-                                        </a>
-                                        <span className="G_Vline_Down">│</span>
-                                        <span className="Div_All_Ttext views d-inline-flex flex-column align-items-start">
-                                            {/* 第 1 行：標題 */}
-                                            <span className="download-title">全文可下載</span>
-                                            {/* 第 2 行：icon + 瀏覽次數 */}
-                                            <span className="d-flex align-items-center">
+                                            </span>
+                                        </div>
+                                    </li>
+                                )
+                                : null}
+                            {hasInsightPointFile
+                                ? (
+                                    <li>
+                                        <div className="DownItem_Box">
+                                            <a
+                                                className="page-item"
+                                                href={insightPointFileUrl}
+                                                title={insightPointFileName}
+                                                onClick={preventHashOrVoidNav}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                <div className="icontxtbox">
+                                                    <img className="ii_image" src={insightpointImg1} alt="" />
+                                                    <img className="ii_image_hover" src={insightpointImg2} alt="" />
+                                                </div>
+                                            </a>
+                                            <span className="G_Vline_Down">│</span>
+                                            <span className="Div_All_Ttext + views">
                                                 <i className="fas fa-download me-1" aria-hidden="true"></i>
                                                 <span className="font-SW-normal">下載次數 :</span>
-                                                <span className="font-SW-normal ms-2">{journalDownloadCount}</span>
+                                                <span className="font-SW-normal + ms-2">
+                                                    {insightPointDownloadCount}
+                                                </span>
                                             </span>
-                                        </span>
-                                    </div>
-                                </li> : null}
-                            {hasInsightPointFile ?
-                                <li>
-                                    <div className="DownItem_Box">
-                                        <a className="page-item" href={insightPointFileUrl} title={insightPointFileName} onClick={preventHashOrVoidNav} target="_blank" rel="noopener noreferrer">
-                                            <div className="icontxtbox">
-                                                <img className="ii_image" src={insightpointImg1} alt="" />
-                                                <img className="ii_image_hover" src={insightpointImg2} alt="" />
-                                            </div>
-                                        </a>
-                                        <span className="G_Vline_Down">│</span>
-                                        <span className="Div_All_Ttext + views">
-                                            <i className="fas fa-download me-1" aria-hidden="true"></i>
-                                            <span className="font-SW-normal">下載次數 :</span>
-                                            <span className="font-SW-normal + ms-2">{insightPointDownloadCount}</span>
-                                        </span>
-                                    </div>
-                                </li> : null}
+                                        </div>
+                                    </li>
+                                )
+                                : null}
                         </ul>
                     </div>
                 </div>
@@ -463,9 +640,9 @@ const FileDownload_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
     );
 };
 /** 開放觀點 */
-const OpenPoint_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
-    if(!props.data?.SpecJournalOpenPointFiles||props.data?.SpecJournalOpenPointFiles.length===0) return null
-
+const OpenPoint_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
+{
+    if (!props.data?.SpecJournalOpenPointFiles || props.data?.SpecJournalOpenPointFiles.length === 0) return null;
 
     return (
         <>
@@ -486,15 +663,25 @@ const OpenPoint_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
                 <div className="row">
                     <div className="col-12">
                         <ul className="openlist-group">
-                            {props.data?.SpecJournalOpenPointFiles?.map((d, idx) => {
-                                const isPdf = d.OpenPointFile?.FileExtension?.toLowerCase()==="pdf"
-                                const openPointFileName = d.OpenPointFileName??"";
-                                const openPointFileUrl = isPdf? FileManagementAPI.get_Public_Preview_Url(d.OpenPointFileId,d.OpenPointFileName) : FileManagementAPI.get_Public_Download_Url(d.OpenPointFileId,d.OpenPointFileName)
-                                const openPointDownloadCount = d.OpenPointFile?.PublicDownloadCount??0
+                            {props.data?.SpecJournalOpenPointFiles?.map((d, idx) =>
+                            {
+                                const isPdf = d.OpenPointFile?.FileExtension?.toLowerCase() === "pdf";
+                                const openPointFileName = d.OpenPointFileName ?? "";
+                                const openPointFileUrl = isPdf
+                                    ? FileManagementAPI.get_Public_Preview_Url(d.OpenPointFileId, d.OpenPointFileName)
+                                    : FileManagementAPI.get_Public_Download_Url(d.OpenPointFileId, d.OpenPointFileName);
+                                const openPointDownloadCount = d.OpenPointFile?.PublicDownloadCount ?? 0;
                                 return (
                                     <li key={idx}>
                                         <div className="DownItem_Box + my-2">
-                                            <a className="page-item" href={openPointFileUrl} title={openPointFileName} onClick={preventHashOrVoidNav} target="_blank" rel="noopener noreferrer">
+                                            <a
+                                                className="page-item"
+                                                href={openPointFileUrl}
+                                                title={openPointFileName}
+                                                onClick={preventHashOrVoidNav}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
                                                 <div className="icontxtbox">
                                                     <span className="page_icon">
                                                         <i className="far fa-file-alt" aria-hidden="true"></i>
@@ -510,7 +697,8 @@ const OpenPoint_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
                                             </span>
                                         </div>
                                     </li>
-                            )})}
+                                );
+                            })}
                         </ul>
                     </div>
                 </div>
@@ -522,8 +710,9 @@ const OpenPoint_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
     );
 };
 /** 相關檔案 */
-const RefFile_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
-    if(!props.data?.SpecJournalRefFiles||props.data?.SpecJournalRefFiles.length===0) return null
+const RefFile_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
+{
+    if (!props.data?.SpecJournalRefFiles || props.data?.SpecJournalRefFiles.length === 0) return null;
     return (
         <>
             <div className="JJ_main_contentDIV">
@@ -541,32 +730,42 @@ const RefFile_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
                 <div className="row">
                     <div className="col-12">
                         <ul className="filelist-group">
-                            {props.data?.SpecJournalRefFiles?.map((d, idx) => 
+                            {props.data?.SpecJournalRefFiles?.map((d, idx) =>
                             {
-                                const isPdf = d.RefFile?.FileExtension?.toLowerCase()==="pdf"
-                                const refFileName = d.RefFileName??""
-                                const refFileUrl =isPdf ? FileManagementAPI.get_Public_Preview_Url(d.RefFileId,refFileName) : FileManagementAPI.get_Public_Download_Url(d.RefFileId,refFileName)
-                                const refFileDownloadCount = d.RefFile?.PublicDownloadCount??0;
+                                const isPdf = d.RefFile?.FileExtension?.toLowerCase() === "pdf";
+                                const refFileName = d.RefFileName ?? "";
+                                const refFileUrl = isPdf
+                                    ? FileManagementAPI.get_Public_Preview_Url(d.RefFileId, refFileName)
+                                    : FileManagementAPI.get_Public_Download_Url(d.RefFileId, refFileName);
+                                const refFileDownloadCount = d.RefFile?.PublicDownloadCount ?? 0;
                                 return (
-                                <li key={idx}>
-                                    <div className="DownItem_Box + my-2">
-                                        <a className="page-item" href={refFileUrl} title={refFileName} onClick={preventHashOrVoidNav} target="_blank" rel="noopener noreferrer">
-                                            <div className="icontxtbox">
-                                                <span className="page_icon">
-                                                    <i className="far fa-file-alt" aria-hidden="true"></i>
-                                                </span>
-                                                <span className="icontxt">{refFileName}</span>
-                                            </div>
-                                        </a>
-                                        <span className="G_Vline_Down">│</span>
-                                        <span className="Div_All_Ttext + views">
-                                            <i className="fas fa-download me-1" aria-hidden="true"></i>
-                                            <span className="font-SW-normal">下載次數 :</span>
-                                            <span className="font-SW-normal + ms-2">{refFileDownloadCount}</span>
-                                        </span>
-                                    </div>
-                                </li>
-                            )})}
+                                    <li key={idx}>
+                                        <div className="DownItem_Box + my-2">
+                                            <a
+                                                className="page-item"
+                                                href={refFileUrl}
+                                                title={refFileName}
+                                                onClick={preventHashOrVoidNav}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                <div className="icontxtbox">
+                                                    <span className="page_icon">
+                                                        <i className="far fa-file-alt" aria-hidden="true"></i>
+                                                    </span>
+                                                    <span className="icontxt">{refFileName}</span>
+                                                </div>
+                                            </a>
+                                            <span className="G_Vline_Down">│</span>
+                                            <span className="Div_All_Ttext + views">
+                                                <i className="fas fa-download me-1" aria-hidden="true"></i>
+                                                <span className="font-SW-normal">下載次數 :</span>
+                                                <span className="font-SW-normal + ms-2">{refFileDownloadCount}</span>
+                                            </span>
+                                        </div>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </div>
                 </div>
@@ -578,7 +777,8 @@ const RefFile_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
     );
 };
 
-interface PreviewSectionItem {
+interface PreviewSectionItem
+{
     id: string;
     title: string;
     content: ReactNode;
@@ -588,7 +788,8 @@ const PREVIEW_LINE_COUNT = 10;
 const PREVIEW_FALLBACK_LINE_PX = 28;
 
 /** 取得 line-height px */
-const getLineHeightPx = (value: string) => {
+const getLineHeightPx = (value: string) =>
+{
     // 宣告變數
     const px = Number.parseFloat(value ?? "0");
 
@@ -597,7 +798,8 @@ const getLineHeightPx = (value: string) => {
 };
 
 /** 計算預覽高度 */
-const getPreviewHeight = (el: HTMLElement) => {
+const getPreviewHeight = (el: HTMLElement) =>
+{
     // 宣告變數
     const style = window.getComputedStyle(el);
     const lineHeight = getLineHeightPx(style.lineHeight);
@@ -609,7 +811,8 @@ const getPreviewHeight = (el: HTMLElement) => {
 };
 
 /** 計算內容高度 */
-const getBodyHeights = (el: HTMLDivElement) => {
+const getBodyHeights = (el: HTMLDivElement) =>
+{
     // 宣告變數
     const previewHeight = getPreviewHeight(el);
     const fullHeight = Math.ceil(el.scrollHeight);
@@ -620,12 +823,16 @@ const getBodyHeights = (el: HTMLDivElement) => {
 };
 
 /** 可預覽前 10 行的展開區塊 */
-const PreviewSectionCard_Comp = (props: {item: PreviewSectionItem; isExpanded: boolean; onToggle: (id: string) => void;}) => {
+const PreviewSectionCard_Comp = (
+    props: { item: PreviewSectionItem; isExpanded: boolean; onToggle: (id: string) => void; },
+) =>
+{
     const bodyRef = useRef<HTMLDivElement | null>(null);
     const [maxHeight, setMaxHeight] = useState<string>("none");
     const [canToggle, setCanToggle] = useState(false);
     const bodyId = `${props.item.id}-body`;
-    const applyBodyHeight = useCallback(() => {
+    const applyBodyHeight = useCallback(() =>
+    {
         const el = bodyRef.current;
         if (!el || typeof window === "undefined") return;
         const { previewHeight, fullHeight, canToggle: nextCanToggle } = getBodyHeights(el);
@@ -633,14 +840,24 @@ const PreviewSectionCard_Comp = (props: {item: PreviewSectionItem; isExpanded: b
         setCanToggle(nextCanToggle);
         setMaxHeight(nextCanToggle ? nextHeight : "none");
     }, [props.isExpanded]);
-    useEffect(() => {applyBodyHeight(); }, [applyBodyHeight, props.item.content]);
-    useEffect(() => {
+    useEffect(() =>
+    {
+        applyBodyHeight();
+    }, [applyBodyHeight, props.item.content]);
+    useEffect(() =>
+    {
         if (typeof window === "undefined") return;
-        const onResize = () => {applyBodyHeight();};
+        const onResize = () =>
+        {
+            applyBodyHeight();
+        };
         window.addEventListener("resize", onResize);
         return () => window.removeEventListener("resize", onResize);
     }, [applyBodyHeight]);
-    const onClickToggle = () => {props.onToggle(props.item.id);};
+    const onClickToggle = () =>
+    {
+        props.onToggle(props.item.id);
+    };
     return (
         <li>
             <div className="EC-0 card SpecJournalPreviewCard">
@@ -692,10 +909,11 @@ const PreviewSectionCard_Comp = (props: {item: PreviewSectionItem; isExpanded: b
                                     className={clsx(
                                         "fas",
                                         props.isExpanded ? "fa-chevron-up" : "fa-chevron-down",
-                                        "me-1"
+                                        "me-1",
                                     )}
                                     aria-hidden="true"
-                                ></i>
+                                >
+                                </i>
                                 <span>{props.isExpanded ? "收回預覽" : "展開全文"}</span>
                             </button>
                         </div>
@@ -711,7 +929,8 @@ const PreviewSectionCard_Comp = (props: {item: PreviewSectionItem; isExpanded: b
 };
 
 /** 摘要 + 參考文獻 + 引文格式 */
-const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
+const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
+{
     const [expandedId, setExpandedId] = useState<string | null>(null);
 
     let parseContent = useResolveInternalIds(props.data?.SpecJournal?.Memo ?? "", { locale: props.lang });
@@ -725,7 +944,8 @@ const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
 
     const sections: PreviewSectionItem[] = [];
 
-    if (memoContent || memoEnContent) {
+    if (memoContent || memoEnContent)
+    {
         sections.push({
             id: "journal-abstract",
             title: "摘要",
@@ -738,7 +958,8 @@ const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
         });
     }
 
-    if (bibliographyContent) {
+    if (bibliographyContent)
+    {
         sections.push({
             id: "journal-bibliography",
             title: "參考文獻",
@@ -746,7 +967,8 @@ const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
         });
     }
 
-    props.data?.SpecJournalRefFormat?.forEach((sec) => {
+    props.data?.SpecJournalRefFormat?.forEach((sec) =>
+    {
         const parsed = useResolveInternalIds(sec?.Content ?? "", { locale: props.lang });
         const content = parsed.html ? parse(parsed.html) : null;
         if (!content) return;
@@ -760,7 +982,8 @@ const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
 
     if (sections.length === 0) return null;
 
-    const onToggleSection = (id: string) => {
+    const onToggleSection = (id: string) =>
+    {
         // 宣告變數
         const nextId = expandedId === id ? null : id;
 
@@ -790,8 +1013,11 @@ const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
     );
 };
 /** 說明檔案區塊 */
-const Documents_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
-    const documentGroups = useMemo(() => buildDocumentGroups(props.data?.SpecJournalDocument),[props.data?.SpecJournalDocument],);
+const Documents_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
+{
+    const documentGroups = useMemo(() => buildDocumentGroups(props.data?.SpecJournalDocument), [
+        props.data?.SpecJournalDocument,
+    ]);
     if (documentGroups.length === 0) return null;
     return (
         <>
@@ -816,15 +1042,25 @@ const Documents_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
                                 </div>
 
                                 <ul className="filelist-group">
-                                    {group.items.map((d, idx) => {
-                                        const isPdf = d.Document?.FileExtension?.toLowerCase()==="pdf"
-                                        const documentName = d.DocumentName??"";
-                                        const documentUrl = isPdf ? FileManagementAPI.get_Public_Preview_Url(d.DocumentId,documentName): FileManagementAPI.get_Public_Download_Url(d.DocumentId,documentName)
-                                        const documentDownloadCount = d.Document?.PublicDownloadCount??0
-                                        return(
+                                    {group.items.map((d, idx) =>
+                                    {
+                                        const isPdf = d.Document?.FileExtension?.toLowerCase() === "pdf";
+                                        const documentName = d.DocumentName ?? "";
+                                        const documentUrl = isPdf
+                                            ? FileManagementAPI.get_Public_Preview_Url(d.DocumentId, documentName)
+                                            : FileManagementAPI.get_Public_Download_Url(d.DocumentId, documentName);
+                                        const documentDownloadCount = d.Document?.PublicDownloadCount ?? 0;
+                                        return (
                                             <li key={d.DocumentId ?? `${group.typeKey}-${idx}`}>
                                                 <div className="DownItem_Box my-2">
-                                                    <a className="page-item" href={documentUrl} title={documentName} onClick={preventHashOrVoidNav} target="_blank" rel="noopener noreferrer">
+                                                    <a
+                                                        className="page-item"
+                                                        href={documentUrl}
+                                                        title={documentName}
+                                                        onClick={preventHashOrVoidNav}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    >
                                                         <div className="icontxtbox">
                                                             <span className="page_icon">
                                                                 <i className="far fa-file-alt" aria-hidden="true"></i>
@@ -838,11 +1074,14 @@ const Documents_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
                                                     <span className="Div_All_Ttext views">
                                                         <i className="fas fa-download me-1" aria-hidden="true"></i>
                                                         <span className="font-SW-normal">下載次數 :</span>
-                                                        <span className="font-SW-normal ms-2">{documentDownloadCount}</span>
+                                                        <span className="font-SW-normal ms-2">
+                                                            {documentDownloadCount}
+                                                        </span>
                                                     </span>
                                                 </div>
                                             </li>
-                                        )})}
+                                        );
+                                    })}
                                 </ul>
                             </div>
                         ))}
@@ -853,9 +1092,9 @@ const Documents_Comp = (props: { lang: Lang; data?: SpecJournalSet }) => {
     );
 };
 
-
-//#region Func
-const preventHashOrVoidNav = (e: React.MouseEvent<HTMLAnchorElement>) => {
+// #region Func
+const preventHashOrVoidNav = (e: React.MouseEvent<HTMLAnchorElement>) =>
+{
     // 宣告變數
     const href = e.currentTarget.getAttribute("href") ?? "";
     const isFake = href === "" || href === "#" || href.startsWith("#");
@@ -865,7 +1104,8 @@ const preventHashOrVoidNav = (e: React.MouseEvent<HTMLAnchorElement>) => {
 
 type SpecJournalDocumentItem = NonNullable<SpecJournalSet["SpecJournalDocument"]>[number];
 
-interface DocumentGroup {
+interface DocumentGroup
+{
     typeKey: string;
     title: string;
     items: SpecJournalDocumentItem[];
@@ -888,7 +1128,6 @@ const DOCUMENT_TYPE_TITLE_MAP: Record<string, string> = {
     "4": "倫理聲明",
 };
 
-
 const DOCUMENT_TYPE_ORDER = [
     "Errata",
     "Correction",
@@ -902,7 +1141,8 @@ const DOCUMENT_TYPE_ORDER = [
     "0",
 ];
 /** 取得文件分類 key */
-const getDocumentTypeKey = (doc: SpecJournalDocumentItem): string => {
+const getDocumentTypeKey = (doc: SpecJournalDocumentItem): string =>
+{
     // 宣告變數
     const rawType = doc.DocumentType;
 
@@ -911,15 +1151,18 @@ const getDocumentTypeKey = (doc: SpecJournalDocumentItem): string => {
 };
 
 /** 取得文件分類標題 */
-const getDocumentTypeTitle = (typeKey: string): string => {
+const getDocumentTypeTitle = (typeKey: string): string =>
+{
     // return
     return DOCUMENT_TYPE_TITLE_MAP[typeKey] ?? "其他";
 };
 
 /** 依既定順序排序分類 */
-const sortDocumentGroups = (groups: DocumentGroup[]): DocumentGroup[] => {
+const sortDocumentGroups = (groups: DocumentGroup[]): DocumentGroup[] =>
+{
     // 宣告變數
-    const getSortIndex = (typeKey: string): number => {
+    const getSortIndex = (typeKey: string): number =>
+    {
         const index = DOCUMENT_TYPE_ORDER.indexOf(typeKey);
         return index >= 0 ? index : Number.MAX_SAFE_INTEGER;
     };
@@ -928,14 +1171,17 @@ const sortDocumentGroups = (groups: DocumentGroup[]): DocumentGroup[] => {
 };
 
 /** 將文件依 DocumentType 分組 */
-const buildDocumentGroups = (documents?: SpecJournalDocumentItem[] | null): DocumentGroup[] => {
+const buildDocumentGroups = (documents?: SpecJournalDocumentItem[] | null): DocumentGroup[] =>
+{
     // 宣告變數
     const groupMap = new Map<string, DocumentGroup>();
     // 執行 function
-    (documents ?? []).forEach((doc) => {
+    (documents ?? []).forEach((doc) =>
+    {
         const typeKey = getDocumentTypeKey(doc);
         const existedGroup = groupMap.get(typeKey);
-        if (existedGroup) {
+        if (existedGroup)
+        {
             existedGroup.items.push(doc);
             return;
         }
@@ -950,4 +1196,4 @@ const buildDocumentGroups = (documents?: SpecJournalDocumentItem[] | null): Docu
     return sortDocumentGroups(Array.from(groupMap.values()));
 };
 
-//#endregion
+// #endregion

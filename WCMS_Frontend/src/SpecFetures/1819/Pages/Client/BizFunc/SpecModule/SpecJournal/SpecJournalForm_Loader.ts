@@ -1,9 +1,8 @@
 import { SiteViewCountAdapter } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
-import { getSsrApi, type ApiResponse } from "@/SysCore/Utils/API/APIBase";
+import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournal_Api";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
+import { type ApiResponse, getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
-import type { LoaderFunctionArgs } from "react-router-dom";
-import { useLoaderData } from "react-router-dom";
 import {
     FileManageModelFields,
     PGID,
@@ -21,8 +20,9 @@ import {
     TagDataFields,
     TagDetailFields,
 } from "@/types/SchemaFields";
-import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournal_Api";
 import { useMemo } from "react";
+import type { LoaderFunctionArgs } from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
 
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
 type QueryListParam = components["schemas"]["QueryListParam"];
@@ -122,6 +122,7 @@ const buildBaseParam = (journalId: string): QueryListParam =>
 
             // Author
             `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.RowId}`,
+            `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorType}`,
             `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName}`,
             `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en}`,
             `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.JobTitle}`,
@@ -173,25 +174,6 @@ const buildBaseParam = (journalId: string): QueryListParam =>
         PageNumber: 1,
         PageSize: 1,
     };
-};
-
-/** 轉義 query 內容 */
-const escapeQueryValue = (value: string): string =>
-{
-    // return
-    return value.replace(/"/g, `""`);
-};
-
-/** 組合 In 查詢字串 */
-const buildQuotedValues = (values: string[]): string =>
-{
-    const quoted = values
-        .map(p => p.trim())
-        .filter(Boolean)
-        .map(p => `"${escapeQueryValue(p)}"`);
-
-    // return
-    return quoted.join(",");
 };
 
 /** 取得 detail 頁文章 internalId */
@@ -297,8 +279,8 @@ const buildViewCountData = (rows: SiteViewCountSet[]): SpecJournalViewCountData 
 };
 
 /** ✅ SSR loader：文章 detail 首屏預載（1 筆 + viewCount） */
-export const SpecJournalForm_Loader = () =>
-    async ({ request, params }: LoaderFunctionArgs): Promise<SpecJournalFormLoaderData> =>
+export const SpecJournalForm_Loader =
+    () => async ({ request, params }: LoaderFunctionArgs): Promise<SpecJournalFormLoaderData> =>
     {
         const indexId = `${params?.indexId ?? ""}`.trim();
         const rowId = `${params?.rowId ?? ""}`.trim();

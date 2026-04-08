@@ -128,6 +128,10 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         /// </summary>
         [LibDesc(ModelDisplayName.Common_RowId), Key] public int? RowId { get; set; }
         /// <summary>
+        /// 期刊作者類型
+        /// </summary>
+        [LibDesc(SpecModelDisplayName.Spec_AuthorType)] public SpecAuthorType? AuthorType { get; set; }
+        /// <summary>
         /// ORCID
         /// e.x.:
         /// 存 0000-0002-2312-7480
