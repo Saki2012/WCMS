@@ -1,17 +1,19 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { LangLink } from "@/SysCore/i18n/LangLink";
-import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import type { components } from "@/types/api";
-import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
-import clsx from "clsx";
-import type { Lang } from "@/SysCore/i18n/lang";
+import ModuleContent, {
+    type ModuleViewCountConfig,
+} from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { SpecJournalKeywordSearch_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalKeywordSearchComp";
+import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
+import type { Lang } from "@/SysCore/i18n/lang";
+import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
+import type { components } from "@/types/api";
+import clsx from "clsx";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 // ✅ 新架構：LoaderData initial + adapter hooks
-import { useLoaderData } from "react-router-dom";
-import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { SpecJournalIndexAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournalIndex_Api";
+import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
+import { useLoaderData } from "react-router-dom";
 import type { SpecJournalIndexLoaderData } from "./SpecJournalIndex_Loader";
 
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
@@ -19,7 +21,8 @@ type QueryListParam = components["schemas"]["QueryListParam"];
 
 /** ===== Helpers (放 component 外面，方便 code review 後續整理) ===== */
 
-const buildCollapseIds = (year: string) => {
+const buildCollapseIds = (year: string) =>
+{
     // 宣告變數
     const collapseId = `collapse-${year}`;
     const headerId = `heading-${year}`;
@@ -27,28 +30,36 @@ const buildCollapseIds = (year: string) => {
     return { collapseId, headerId };
 };
 
-export const SpecJournalIndex = (props: { site:INormSite; node: INormNode; lang: Lang; }) => {
+export const SpecJournalIndex = (props: { site: INormSite; node: INormNode; lang: Lang; }) =>
+{
     const pageSize = 10;
     const loaderData = useLoaderData() as SpecJournalIndexLoaderData | null;
     const adapter = useMemo(() => SpecJournalIndexAdapter(), []);
     const useIndex = useSpecJournalIndex(adapter, pageSize, loaderData);
     const loadingList = useIndex.isLoading;
     const errorList = [useIndex.error];
-    const paginprops: PaginatorProps =
-    {
+    const paginprops: PaginatorProps = {
         currentPage: useIndex.pageNumber,
         totalPages: useIndex.totalPages,
         onPageChange: useIndex.onPageChange,
     };
-    const viewCountConfig: ModuleViewCountConfig = { mode: "list", };
+    const viewCountConfig: ModuleViewCountConfig = { mode: "list" };
     return (
-        <ModuleContent nodeTitle={props.node.title} title={props.node.title} isLoading={loadingList} errorList={errorList} paginatorProps={paginprops} viewCountConfig={viewCountConfig}>
+        <ModuleContent
+            nodeTitle={props.node.title}
+            title={props.node.title}
+            isLoading={loadingList}
+            errorList={errorList}
+            paginatorProps={paginprops}
+            viewCountConfig={viewCountConfig}
+        >
             <SpecJournalIndexContent title={props.node.title} data={useIndex.rawData} lang={props.lang} />
         </ModuleContent>
-    )
+    );
 };
 
-const handleAccordionKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>, onToggle: () => void,): void => {
+const handleAccordionKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>, onToggle: () => void): void =>
+{
     if (e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
     e.preventDefault();
     onToggle();
@@ -56,7 +67,8 @@ const handleAccordionKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>, onTog
 
 const ACCORDION_ANIMATION_MS = 280;
 
-const stopAccordionTimer = (el: HTMLDivElement): void => {
+const stopAccordionTimer = (el: HTMLDivElement): void =>
+{
     // 宣告變數：取出 timer id
     const timerId = Number(el.dataset.timerId ?? "0");
     if (timerId > 0) window.clearTimeout(timerId);
@@ -65,7 +77,8 @@ const stopAccordionTimer = (el: HTMLDivElement): void => {
     delete el.dataset.timerId;
 };
 
-const syncAccordionPanel = (el: HTMLDivElement, isOpen: boolean): void => {
+const syncAccordionPanel = (el: HTMLDivElement, isOpen: boolean): void =>
+{
     // 執行 function：先停止前一次動畫
     stopAccordionTimer(el);
 
@@ -77,11 +90,13 @@ const syncAccordionPanel = (el: HTMLDivElement, isOpen: boolean): void => {
     el.style.display = isOpen ? "block" : "none";
 };
 
-const animateAccordionPanel = (el: HTMLDivElement, isOpen: boolean): void => {
+const animateAccordionPanel = (el: HTMLDivElement, isOpen: boolean): void =>
+{
     // 執行 function：先停止前一次動畫
     stopAccordionTimer(el);
 
-    if (isOpen) {
+    if (isOpen)
+    {
         // 執行 function：先顯示，並把起點固定在 0 高度
         el.style.display = "block";
         el.style.transition = "";
@@ -100,7 +115,8 @@ const animateAccordionPanel = (el: HTMLDivElement, isOpen: boolean): void => {
         el.style.height = `${toHeight}px`;
         el.style.opacity = "1";
 
-        const timerId = window.setTimeout(() => {
+        const timerId = window.setTimeout(() =>
+        {
             // 執行 function：動畫結束後還原自然高度
             el.style.transition = "";
             el.style.overflow = "";
@@ -132,7 +148,8 @@ const animateAccordionPanel = (el: HTMLDivElement, isOpen: boolean): void => {
     el.style.height = "0px";
     el.style.opacity = "0";
 
-    const timerId = window.setTimeout(() => {
+    const timerId = window.setTimeout(() =>
+    {
         // 執行 function：動畫結束後完全隱藏
         el.style.transition = "";
         el.style.overflow = "";
@@ -149,21 +166,26 @@ const useSpecJournalIndex = (
     adapter: ReturnType<typeof SpecJournalIndexAdapter>,
     pageSize: number,
     loaderData: SpecJournalIndexLoaderData | null,
-) => {
+) =>
+{
     // 宣告變數
-    const baseParam = useMemo<QueryListParam>(() => {
-        if (!loaderData?.args?.baseParam) {
+    const baseParam = useMemo<QueryListParam>(() =>
+    {
+        if (!loaderData?.args?.baseParam)
+        {
             return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: pageSize };
         }
 
-        if (loaderData.args.pageSize !== pageSize) {
+        if (loaderData.args.pageSize !== pageSize)
+        {
             return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: pageSize };
         }
 
         return loaderData.args.baseParam;
     }, [loaderData, pageSize]);
 
-    const initialCount = useMemo<ApiLoaderData<QueryListParam, number> | null>(() => {
+    const initialCount = useMemo<ApiLoaderData<QueryListParam, number> | null>(() =>
+    {
         if (!loaderData?.args?.baseParam) return null;
         if (loaderData.args.pageSize !== pageSize) return null;
 
@@ -173,7 +195,8 @@ const useSpecJournalIndex = (
         };
     }, [loaderData, pageSize]);
 
-    const initialList = useMemo<ApiLoaderData<QueryListParam, SpecJournalIndexSet[]> | null>(() => {
+    const initialList = useMemo<ApiLoaderData<QueryListParam, SpecJournalIndexSet[]> | null>(() =>
+    {
         if (!loaderData?.args?.baseParam) return null;
         if (loaderData.args.pageSize !== pageSize) return null;
 
@@ -183,7 +206,8 @@ const useSpecJournalIndex = (
         };
     }, [loaderData, pageSize]);
 
-    const queryKey = useMemo(() => {
+    const queryKey = useMemo(() =>
+    {
         return JSON.stringify({
             condition: baseParam.Condition ?? "",
             pageSize,
@@ -192,7 +216,8 @@ const useSpecJournalIndex = (
 
     const [hasPaged, setHasPaged] = useState<boolean>(false);
 
-    useEffect(() => {
+    useEffect(() =>
+    {
         setHasPaged(false);
     }, [queryKey]);
 
@@ -219,7 +244,8 @@ const useSpecJournalIndex = (
         ],
     });
 
-    const handlePageChange = (page: number): void => {
+    const handlePageChange = (page: number): void =>
+    {
         setHasPaged(true);
         useList.onPageChange(page);
     };
@@ -234,37 +260,43 @@ const useSpecJournalIndex = (
         onPageChange: handlePageChange,
     };
 };
-const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalIndexSet[]; lang: Lang; }) => {
+const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalIndexSet[]; lang: Lang; }) =>
+{
     // 宣告變數：目前開啟中的 IndexId
-     const [openIndexId, setOpenIndexId] = useState<string | null>(null);
+    const [openIndexId, setOpenIndexId] = useState<string | null>(null);
     const panelRefs = useRef<Record<string, HTMLDivElement | null>>({});
     const panelStateRef = useRef<Record<string, boolean>>({});
     const hasInitRef = useRef<boolean>(false);
 
-    const handleToggle = (indexId: string): void => {
+    const handleToggle = (indexId: string): void =>
+    {
         // 執行 function：同一個再點一次就收回，不同的就切換過去
         setOpenIndexId((prev) => (prev === indexId ? null : indexId));
     };
 
-    const setPanelRef = (indexId: string, el: HTMLDivElement | null): void => {
+    const setPanelRef = (indexId: string, el: HTMLDivElement | null): void =>
+    {
         // 執行 function：保存 panel ref
         panelRefs.current[indexId] = el;
     };
 
-    useEffect(() => {
+    useEffect(() =>
+    {
         // 宣告變數：目前頁面上的所有 panel id
         const panelIds = (props.data ?? [])
             .map((group) => group.SpecJournalIndex?.IndexId ?? "")
             .filter((id): id is string => id !== "");
 
-        panelIds.forEach((panelId) => {
+        panelIds.forEach((panelId) =>
+        {
             const el = panelRefs.current[panelId];
             if (!el) return;
 
             const nextOpen = openIndexId === panelId;
             const prevOpen = panelStateRef.current[panelId] ?? false;
 
-            if (!hasInitRef.current) {
+            if (!hasInitRef.current)
+            {
                 // 執行 function：首次 render 直接同步，不做動畫
                 syncAccordionPanel(el, nextOpen);
                 panelStateRef.current[panelId] = nextOpen;
@@ -281,17 +313,21 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
         hasInitRef.current = true;
     }, [openIndexId, props.data]);
 
-    useEffect(() => {
-        return () => {
+    useEffect(() =>
+    {
+        return () =>
+        {
             // 執行 function：unmount 時清掉 timer
-            Object.values(panelRefs.current).forEach((el) => {
+            Object.values(panelRefs.current).forEach((el) =>
+            {
                 if (!el) return;
                 stopAccordionTimer(el);
             });
         };
     }, []);
 
-    const toSortNum = (v: string | number | null | undefined): number => {
+    const toSortNum = (v: string | number | null | undefined): number =>
+    {
         // 宣告變數：將字串/數字轉成排序用 number
         const n = typeof v === "number" ? v : Number.parseInt(String(v ?? ""), 10);
         // return
@@ -309,12 +345,36 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
                     <hr className="hr-my-4" />
                 </div>
 
+                <div className="col row-group">
+                    <div id="accordion" className="JournalBar">
+                        <div className="row_box">
+                            <div className={clsx("card", `JL-Preprint`)}>
+                                <div className="card-header">
+                                    <LangNavLink
+                                        to="/Issues/Preprint"
+                                        className={clsx("card-link", "collapsed")}
+                                        role="button"
+                                        aria-expanded={false}
+                                        title={"預刊本"}
+                                    >
+                                        <span className="fs-5">
+                                            <i className={clsx("fas", "fa-folder-open", "me-3")} aria-hidden="true" />
+                                            預刊本
+                                        </span>
+                                    </LangNavLink>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr className="hr-my-4" />
+                </div>
                 {/* Journal Accordion */}
                 <div className="col row-group">
                     <div id="accordion" className="JournalBar">
                         <div className="row_box">
                             <ul className="Journal_info">
-                                {props.data?.map((group) => {
+                                {props.data?.map((group) =>
+                                {
                                     const masterData = group.SpecJournalIndex;
                                     const detailDatas = group.SpecJournalIndexDetail ?? [];
                                     const indexId = masterData?.IndexId ?? "";
@@ -323,7 +383,8 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
                                     const { collapseId, headerId } = buildCollapseIds(indexId);
                                     const isOpen = openIndexId === indexId;
 
-                                    const sortedDetailDatas = [...detailDatas].sort((a, b) => {
+                                    const sortedDetailDatas = [...detailDatas].sort((a, b) =>
+                                    {
                                         const av = toSortNum(a.Volume);
                                         const bv = toSortNum(b.Volume);
                                         if (av !== bv) return av - bv;
@@ -344,26 +405,42 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
                                                         aria-expanded={isOpen}
                                                         aria-controls={collapseId}
                                                         title={indexTitle}
-                                                        onClick={(e) => {
+                                                        onClick={(e) =>
+                                                        {
                                                             // 阻止 href 跳頁，只交給 React 控狀態
                                                             e.preventDefault();
                                                             handleToggle(indexId);
                                                         }}
-                                                        onKeyDown={(e) => {
+                                                        onKeyDown={(e) =>
+                                                        {
                                                             handleAccordionKeyDown(e, () => handleToggle(indexId));
                                                         }}
                                                     >
                                                         <span className="fs-5">
-                                                            <i className={clsx("fas", "fa-folder-open", "me-3")} aria-hidden="true"></i>
+                                                            <i
+                                                                className={clsx("fas", "fa-folder-open", "me-3")}
+                                                                aria-hidden="true"
+                                                            >
+                                                            </i>
                                                             {indexTitle} {volTitle}
                                                         </span>
                                                     </a>
                                                 </div>
 
-                                                <div id={collapseId} ref={(el) => { setPanelRef(indexId, el); }} className="collapse" aria-labelledby={headerId} aria-hidden={!isOpen}>
+                                                <div
+                                                    id={collapseId}
+                                                    ref={(el) =>
+                                                    {
+                                                        setPanelRef(indexId, el);
+                                                    }}
+                                                    className="collapse"
+                                                    aria-labelledby={headerId}
+                                                    aria-hidden={!isOpen}
+                                                >
                                                     <div className="card-body">
                                                         <ul className="Journallist-group">
-                                                            {sortedDetailDatas.map((dt) => {
+                                                            {sortedDetailDatas.map((dt) =>
+                                                            {
                                                                 const volumeTitle = `Vol.${dt.Volume}, No.${dt.Issue}`;
                                                                 return (
                                                                     <li key={dt.RowId}>
@@ -375,9 +452,15 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
                                                                         >
                                                                             <div className="icontxtbox">
                                                                                 <span className="page_icon">
-                                                                                    <i className="far fa-file-alt" aria-hidden="true"></i>
+                                                                                    <i
+                                                                                        className="far fa-file-alt"
+                                                                                        aria-hidden="true"
+                                                                                    >
+                                                                                    </i>
                                                                                 </span>
-                                                                                <span className="icontxt">{volumeTitle}</span>
+                                                                                <span className="icontxt">
+                                                                                    {volumeTitle}
+                                                                                </span>
                                                                             </div>
                                                                         </LangLink>
                                                                     </li>
