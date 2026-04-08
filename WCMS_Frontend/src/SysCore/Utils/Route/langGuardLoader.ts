@@ -66,12 +66,12 @@ export const langGuardLoader = async ({ request }: LoaderFunctionArgs) =>
         return { resolvedLang: seg1Lang as Lang, pathname: url.pathname };
     }
 
-    // 3) 嚴格：如果第一段「像語系碼」但不支援 => 直接 401
-    if (isPotentialLangSegment(seg1))
-    {
-        const from = encodeURIComponent(url.pathname + url.search + url.hash);
-        throw redirect(`${UNAUTHORIZED_PATH}?from=${from}`, 302);
-    }
+    // // 3) 嚴格：如果第一段「像語系碼」但不支援 => 直接 401
+    // if (isPotentialLangSegment(seg1))
+    // {
+    //     const from = encodeURIComponent(url.pathname + url.search + url.hash);
+    //     throw redirect(`${UNAUTHORIZED_PATH}?from=${from}`, 302);
+    // }
 
     // 4) 沒語系段（一般前台路由）=> 視為 default
     const cookieLang = readCookieLang(request);
