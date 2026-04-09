@@ -25,7 +25,10 @@ namespace WCMS.SysCore
     /// <param name="message"></param>
     /// <param name="currentUser"></param>
     public sealed record BizDeps(IRepositoryMapProvider repoMapProvider, IErrorHelper message, ICurrentUserAccessor currentUser);
-
+    /// <summary>
+    /// Biz服務本體
+    /// </summary>
+    /// <typeparam name="TSet"></typeparam>
     public class BizService<TSet> : IBizService<TSet> where TSet : class
     {
         #region Property
@@ -256,7 +259,7 @@ namespace WCMS.SysCore
             {
                 foreach (var seg in segments)
                 {
-                    var datas = (await DoQueryListAsync(headerProp, selectFields, seg.Where, seg.OrderBy, 0, 0)).ToDynamicList();
+                    var datas = (await DoQueryListAsync(headerProp.PropertyType, selectFields, seg.Where, seg.OrderBy, 0, 0, 0, condition, rankGroups)).ToDynamicList();
                     foreach (var data in datas)
                     {
                         var srcData = BuildSetFromData(headerProp, data);
@@ -284,7 +287,7 @@ namespace WCMS.SysCore
                 }
 
                 var take = Math.Min(remaining, segCount - globalSkip);
-                var datas = (await DoQueryListAsync(headerProp, selectFields, seg.Where, seg.OrderBy, 0, take, globalSkip)).ToDynamicList();
+                var datas = (await DoQueryListAsync(headerProp, selectFields, seg.Where, seg.OrderBy, 0, take, globalSkip, condition, rankGroups)).ToDynamicList();
 
                 foreach (var data in datas)
                 {
@@ -479,29 +482,32 @@ namespace WCMS.SysCore
             }
             return result;
         }
-        protected async Task<IList> DoQueryListAsync<TModel>(string[] selectFields, string condition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt, int skipCt = 0)
+        protected async Task<IList> DoQueryListAsync<TModel>(string[] selectFields, string queryCondition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt, int skipCt = 0, string? detailFilterCondition = null, IReadOnlyList<RankGroupsSpec>? detailRankGroups = null)
         {
-            return await DoQueryListAsync(typeof(TModel), selectFields, condition, orderBy, pageCt, takeCt, skipCt);
+            return await DoQueryListAsync(typeof(TModel), selectFields, queryCondition, orderBy, pageCt, takeCt, skipCt, detailFilterCondition, detailRankGroups);
+        }
+        protected async Task<IList> DoQueryListAsync(PropertyInfo prop, string[] selectFields, string queryCondition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt, int skipCt = 0, string? detailFilterCondition = null, IReadOnlyList<RankGroupsSpec>? detailRankGroups = null)
+        {
+            return await DoQueryListAsync(prop.PropertyType, selectFields, queryCondition, orderBy, pageCt, takeCt, skipCt, detailFilterCondition, detailRankGroups);
         }
         /// <summary>
-        /// 
+        /// 查詢清單資料
+        /// queryCondition：header 查詢 / RankGroup 分組用
+        /// detailFilterCondition：detail 過濾用，只應吃原始 condition
+        /// detailRankGroups：detail 排序用
         /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        protected async Task<IList> DoQueryListAsync(PropertyInfo prop, string[] selectFields, string condition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt, int skipCt = 0)
+        protected async Task<IList> DoQueryListAsync(Type type, string[] selectFields, string queryCondition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt, int skipCt = 0, string? detailFilterCondition = null, IReadOnlyList<RankGroupsSpec>? detailRankGroups = null)
         {
-            return await DoQueryListAsync(prop.PropertyType, selectFields, condition, orderBy, pageCt, takeCt, skipCt);
-        }
-        protected async Task<IList> DoQueryListAsync(Type type, string[] selectFields, string condition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt, int skipCt = 0)
-        {
-            // ✅ 1) 先建立 whereExpr（已支援括號/and/or）
-            var whereExpr = GetConditionExpr(type, condition);
-            // ✅ 2) Step 3：從 whereExpr 抽出「各集合導航」的 predicate（支援 xxx and (xxx or xxx)）
-            var detailPredMap = ExtractDetailPredicateMap(type, whereExpr);
-            // ✅ 3) projection：集合明細套用 Where(predicate)
-            var selectExpr = GetSelectFieldsExpr(type, selectFields, detailPredMap);
+            // 宣告變數
+            var whereExpr = GetConditionExpr(type, queryCondition);
+            var filterExpr = GetConditionExpr(type, detailFilterCondition ?? queryCondition);
+            var detailFilterMap = ExtractDetailPredicateMap(type, filterExpr);
+            var detailRankMap = BuildDetailRankMap(type, detailRankGroups);
+            var selectExpr = GetSelectFieldsExpr(type, selectFields, detailFilterMap, detailRankMap);
             var repo = (dynamic)GetRepoByType(type);
+            // 執行 function
             var data = await repo.QueryListAsync(selectExpr, whereExpr, orderBy, pageCt, takeCt, skipCt);
+            // return
             return data;
         }
         protected async Task<int> DoQueryListCountAsync<TModel>(string condition)
@@ -589,7 +595,6 @@ namespace WCMS.SysCore
             if (IsAutoGenerateId && keyProp.PropertyType == typeof(string))
             {
                 id ??= string.Empty; 
-
                 var idSelector = BuildIdSelectorLambda(header.GetType(), keyProp);
                 id = !string.IsNullOrEmpty(id.ToString()) ? id : await ((Task<string>)((dynamic)RepoDict[header.GetType().Name]).GenerateIdAsync(idSelector, PrefixId));
                 PropertyAccessorCache.Set(header, keyProp.Name, id);
@@ -650,14 +655,10 @@ namespace WCMS.SysCore
         {
             private readonly ParameterExpression _from;
             private readonly Expression _to;
-            public ParameterReplacer(ParameterExpression from, Expression to)
-            {
-                _from = from; _to = to;
-            }
-            protected override Expression VisitParameter(ParameterExpression node)
-                => node == _from ? _to : base.VisitParameter(node);
+            public ParameterReplacer(ParameterExpression from, Expression to) { _from = from; _to = to; }
+            protected override Expression VisitParameter(ParameterExpression node) => node == _from ? _to : base.VisitParameter(node);
         }
-        private LambdaExpression GetSelectFieldsExpr(Type modelType, string[] selectFields, Dictionary<string, LambdaExpression>? detailPredMap = null)
+        private LambdaExpression GetSelectFieldsExpr(Type modelType, string[] selectFields, Dictionary<string, LambdaExpression>? detailFilterMap = null, Dictionary<string, List<LambdaExpression>>? detailRankMap = null)
         {
             if (selectFields == null || selectFields.Length == 0) return null;
             var param = Expression.Parameter(modelType, "x");
@@ -704,10 +705,13 @@ namespace WCMS.SysCore
                     var select = typeof(Queryable).GetMethods().First(m => m.Name == "Select" && m.GetParameters().Length == 2).MakeGenericMethod(itemType, ((LambdaExpression)innerSelector).ReturnType);
                     var toList = typeof(Enumerable).GetMethods().First(m => m.Name == "ToList" && m.GetParameters().Length == 1).MakeGenericMethod(((LambdaExpression)innerSelector).ReturnType);
                     var q = Expression.Call(asQueryable, collExpr);
-                    if (detailPredMap != null && detailPredMap.TryGetValue(propName, out var predLambda) && predLambda != null)
+                    if (detailFilterMap != null && detailFilterMap.TryGetValue(propName, out var filterLambda) && filterLambda != null)
                     {
-                        var where = typeof(Queryable).GetMethods().First(m => m.Name == "Where" && m.GetParameters().Length == 2).MakeGenericMethod(itemType);
-                        q = Expression.Call(where, q, predLambda); // predLambda: Expression<Func<itemType,bool>>
+                        q = (MethodCallExpression)ApplyDetailFilter(q, itemType, filterLambda);
+                    }
+                    if (detailRankMap != null && detailRankMap.TryGetValue(propName, out var rankList) && rankList?.Count > 0)
+                    {
+                        q = (MethodCallExpression)ApplyDetailRankOrder(q, itemType, rankList);
                     }
                     var s = Expression.Call(select, q, innerSelector);
                     var tl = Expression.Call(toList, s);
@@ -732,10 +736,64 @@ namespace WCMS.SysCore
                     bindings.Add(Expression.Bind(propInfo, replacedBody));
                 }
             }
-
             var body = Expression.MemberInit(newModel, bindings);
             var delegateType = typeof(Func<,>).MakeGenericType(modelType, modelType);
             return Expression.Lambda(delegateType, body, param);
+        }
+        /// <summary>
+        /// 建立 detail 的 RankGroup 排序條件
+        /// </summary>
+        private Dictionary<string, List<LambdaExpression>> BuildDetailRankMap(Type modelType, IReadOnlyList<RankGroupsSpec>? rankGroups)
+        {
+            // 宣告變數
+            var result = new Dictionary<string, List<LambdaExpression>>(StringComparer.Ordinal);
+            if (rankGroups == null || rankGroups.Count == 0) return result;
+            // 執行 function
+            foreach (var group in rankGroups)
+            {
+                if (string.IsNullOrWhiteSpace(group.Condition)) continue;
+                var groupExpr = GetConditionExpr(modelType, group.Condition);
+                var predMap = ExtractDetailPredicateMap(modelType, groupExpr);
+                foreach (var pair in predMap)
+                {
+                    if (!result.TryGetValue(pair.Key, out var list))
+                    {
+                        list = [];
+                        result[pair.Key] = list;
+                    }
+                    list.Add(pair.Value);
+                }
+            }
+            return result;
+        }
+        /// <summary>
+        /// 套用 detail 過濾條件
+        /// </summary>
+        private static Expression ApplyDetailFilter(Expression source, Type itemType, LambdaExpression filterLambda)
+        {
+            // 宣告變數
+            var where = typeof(Queryable).GetMethods().First(m => m.Name == "Where" && m.GetParameters().Length == 2).MakeGenericMethod(itemType);
+            // return
+            return Expression.Call(where, source, filterLambda);
+        }
+        /// <summary>
+        /// 套用 detail 的 RankGroup 排序
+        /// </summary>
+        private static Expression ApplyDetailRankOrder(Expression source, Type itemType, List<LambdaExpression> rankList)
+        {
+            // 宣告變數
+            var param = Expression.Parameter(itemType, "d");
+            Expression rankBody = Expression.Constant(rankList.Count);
+            // 執行 function
+            for (int i = rankList.Count - 1; i >= 0; i--)
+            {
+                var test = ReplaceParam(rankList[i].Body, rankList[i].Parameters[0], param);
+                rankBody = Expression.Condition(test, Expression.Constant(i), rankBody);
+            }
+            var keySelector = Expression.Lambda(rankBody, param);
+            var orderBy = typeof(Queryable).GetMethods().First(m => m.Name == "OrderBy" && m.GetParameters().Length == 2).MakeGenericMethod(itemType, typeof(int));
+            // return
+            return Expression.Call(orderBy, source, keySelector);
         }
         /// <summary>
         /// Step 3：從 whereExpr 抽出「集合導航」的 predicate：
@@ -746,33 +804,24 @@ namespace WCMS.SysCore
         {
             var map = new Dictionary<string, LambdaExpression>(StringComparer.Ordinal);
             if (whereExpr == null || whereExpr.Parameters.Count == 0) return map;
-
             var rootParam = whereExpr.Parameters[0];
-
             // 遞迴抽取：回傳每個 nav 的「predicate expression」(帶同一個 detail param)
             var infoMap = ExtractFromNode(whereExpr.Body, rootParam);
-
             foreach (var kv in infoMap)
             {
                 var navName = kv.Key;
                 var info = kv.Value;
-
                 if (info.IsUnsafe || info.Param == null || info.Body == null) continue;
-
                 // 組成 Expression<Func<TDetail,bool>>
                 var lambdaType = typeof(Func<,>).MakeGenericType(info.Param.Type, typeof(bool));
                 map[navName] = Expression.Lambda(lambdaType, info.Body, info.Param);
             }
-
             return map;
         }
-
         private sealed record DetailPredInfo(ParameterExpression? Param, Expression? Body, bool IsUnsafe);
-
         private static Dictionary<string, DetailPredInfo> ExtractFromNode(Expression node, ParameterExpression rootParam)
         {
             node = StripQuotesAndConverts(node);
-
             // ✅ match: root.Nav.Any(d => predicate)
             if (TryMatchAnyOnRootNav(node, rootParam, out var navName, out var detailParam, out var detailBody))
             {
@@ -781,17 +830,13 @@ namespace WCMS.SysCore
                     [navName] = new DetailPredInfo(detailParam, detailBody, IsUnsafe: false)
                 };
             }
-
             // ✅ (A && B) / (A || B)
-            if (node is BinaryExpression be &&
-                (be.NodeType == ExpressionType.AndAlso || be.NodeType == ExpressionType.OrElse))
+            if (node is BinaryExpression be && (be.NodeType == ExpressionType.AndAlso || be.NodeType == ExpressionType.OrElse))
             {
                 var left = ExtractFromNode(be.Left, rootParam);
                 var right = ExtractFromNode(be.Right, rootParam);
                 return MergeByBoolean(left, right, be.NodeType);
             }
-
-            // ✅ !(...)
             if (node is UnaryExpression ue && ue.NodeType == ExpressionType.Not)
             {
                 var inner = ExtractFromNode(ue.Operand, rootParam);
@@ -807,8 +852,6 @@ namespace WCMS.SysCore
                 }
                 return inner;
             }
-
-            // 其他：不屬於明細 Any(...) 條件
             return new Dictionary<string, DetailPredInfo>(StringComparer.Ordinal);
         }
 
@@ -821,7 +864,6 @@ namespace WCMS.SysCore
             {
                 left.TryGetValue(k, out var l);
                 right.TryGetValue(k, out var r);
-
                 // 只在其中一邊出現：
                 if (l == null && r != null)
                 {
@@ -836,37 +878,26 @@ namespace WCMS.SysCore
                     continue;
                 }
                 if (l == null || r == null) continue;
-
                 // 任一不安全就不安全
                 if (l.IsUnsafe || r.IsUnsafe)
                 {
                     result[k] = new DetailPredInfo(l.Param ?? r.Param, l.Body ?? r.Body, IsUnsafe: true);
                     continue;
                 }
-
                 if (l.Param == null || r.Param == null || l.Body == null || r.Body == null)
                 {
                     result[k] = new DetailPredInfo(l.Param ?? r.Param, l.Body ?? r.Body, IsUnsafe: true);
                     continue;
                 }
-
                 // 統一 parameter：右邊換成左邊的 param
                 var unifiedParam = l.Param;
                 var rightBody = ReplaceParam(r.Body, r.Param, unifiedParam);
-
-                var mergedBody = op == ExpressionType.AndAlso
-                    ? Expression.AndAlso(l.Body, rightBody)
-                    : Expression.OrElse(l.Body, rightBody);
-
+                var mergedBody = op == ExpressionType.AndAlso ? Expression.AndAlso(l.Body, rightBody) : Expression.OrElse(l.Body, rightBody);
                 result[k] = new DetailPredInfo(unifiedParam, mergedBody, IsUnsafe: false);
             }
-
             return result;
         }
-
-        private static Expression ReplaceParam(Expression body, ParameterExpression from, ParameterExpression to)
-            => new ParamSwapVisitor(from, to).Visit(body)!;
-
+        private static Expression ReplaceParam(Expression body, ParameterExpression from, ParameterExpression to) => new ParamSwapVisitor(from, to).Visit(body)!;
         private sealed class ParamSwapVisitor : ExpressionVisitor
         {
             private readonly ParameterExpression _from;
@@ -874,7 +905,6 @@ namespace WCMS.SysCore
             public ParamSwapVisitor(ParameterExpression from, ParameterExpression to) { _from = from; _to = to; }
             protected override Expression VisitParameter(ParameterExpression node) => node == _from ? _to : base.VisitParameter(node);
         }
-
         private static Expression StripQuotesAndConverts(Expression e)
         {
             while (true)
@@ -888,7 +918,6 @@ namespace WCMS.SysCore
                 return e;
             }
         }
-
         /// <summary>
         /// 匹配：x.Nav.Any(d => ...)
         /// 支援 Enumerable.Any / Queryable.Any
@@ -898,27 +927,16 @@ namespace WCMS.SysCore
             navName = "";
             detailParam = null!;
             detailBody = null!;
-
             if (node is not MethodCallExpression mc) return false;
             if (!string.Equals(mc.Method.Name, "Any", StringComparison.Ordinal)) return false;
             if (mc.Arguments.Count != 2) return false;
-
             // arg0: source（允許 Queryable.AsQueryable(x.Nav) 或直接 x.Nav）
             var source = StripQuotesAndConverts(mc.Arguments[0]);
-
-            if (source is MethodCallExpression aq &&
-                aq.Method.Name == "AsQueryable" &&
-                aq.Arguments.Count == 1)
-            {
-                source = StripQuotesAndConverts(aq.Arguments[0]);
-            }
-
+            if (source is MethodCallExpression aq && aq.Method.Name == "AsQueryable" && aq.Arguments.Count == 1) source = StripQuotesAndConverts(aq.Arguments[0]);
             if (source is not MemberExpression navExpr) return false;
             if (navExpr.Expression is not ParameterExpression pe || pe != rootParam) return false;
-
             var pred = StripQuotesAndConverts(mc.Arguments[1]) as LambdaExpression;
             if (pred == null || pred.Parameters.Count != 1) return false;
-
             navName = navExpr.Member.Name;
             detailParam = pred.Parameters[0];
             detailBody = pred.Body;
@@ -943,11 +961,9 @@ namespace WCMS.SysCore
         private string NormalizeCondition(Type modelType, string rawCondition, out object[] args)
         {
             var argList = new List<object>();
-
             // 與你原本相同的前置清理：補空白、統一運算子
             rawCondition = Regex.Replace(rawCondition, @"(?<=[^!\s<>!=])=(?=[^=])", " == ");
             rawCondition = Regex.Replace(rawCondition, @"(?<=[^\s])(?<op>==|!=|>=|<=|>|<)(?=[^\s])", " ${op} ");
-
             string normalized = NormalizeRec(modelType, rawCondition, argList);
             args = argList.ToArray();
             return normalized;
@@ -957,7 +973,6 @@ namespace WCMS.SysCore
         {
             var (chunks, connectors) = SplitTopLevelByAndOr(input);
             var pieces = new List<string>();
-
             int i = 0;
             while (i < chunks.Count)
             {
@@ -967,45 +982,24 @@ namespace WCMS.SysCore
                     i++;
                     continue;
                 }
-
                 var s0 = seg.TrimStart();
-                var isNot =
-                    s0.StartsWith("not ", StringComparison.OrdinalIgnoreCase) ||
-                    s0.StartsWith("not(", StringComparison.OrdinalIgnoreCase) ||
-                    s0.StartsWith("!", StringComparison.Ordinal);
-
+                var isNot = s0.StartsWith("not ", StringComparison.OrdinalIgnoreCase) || s0.StartsWith("not(", StringComparison.OrdinalIgnoreCase) || s0.StartsWith("!", StringComparison.Ordinal);
                 if (isNot)
                 {
                     // 取出 not/! 後面的 operand
-                    var operand = s0.StartsWith("!", StringComparison.Ordinal)
-                        ? s0.Substring(1).Trim()
-                        : s0.Substring(3).Trim(); // "not"
-
+                    var operand = s0.StartsWith("!", StringComparison.Ordinal) ? s0.Substring(1).Trim() : s0.Substring(3).Trim(); // "not"
                     // 若是 not(...) 形式，去掉外層括號
-                    if (operand.StartsWith("(") && operand.EndsWith(")") && IsBalanced(operand))
-                        operand = operand.Substring(1, operand.Length - 2);
-
+                    if (operand.StartsWith("(") && operand.EndsWith(")") && IsBalanced(operand)) operand = operand.Substring(1, operand.Length - 2);
                     // 先把 operand 正規化成 bool expr
                     string innerNorm;
-
-                    if (TryParseSimpleClause(operand, out var p, out var opx, out var vx))
-                    {
-                        innerNorm = BuildNestedClause(modelType, p, opx, vx, ref args) ?? "true";
-                    }
-                    else
-                    {
-                        // 若 operand 本身還含 and/or/括號，就遞迴處理
-                        innerNorm = NormalizeRec(modelType, operand, args);
-                    }
-
+                    if (TryParseSimpleClause(operand, out var p, out var opx, out var vx)) innerNorm = BuildNestedClause(modelType, p, opx, vx, ref args) ?? "true";
+                    else innerNorm = NormalizeRec(modelType, operand, args);
                     pieces.Add($"!({innerNorm})");
-
                     // 正常補 connector（未合併的情況）
                     if (i < connectors.Count) pieces.Add(connectors[i]);
                     i++;
                     continue;
                 }
-
                 // ( ... ) → 遞迴處理後再包回括號（括號群組不做合併）
                 if (seg.StartsWith("(") && seg.EndsWith(")") && IsBalanced(seg))
                 {
@@ -1570,7 +1564,6 @@ namespace WCMS.SysCore
             if (long.TryParse(raw.Trim(), out var n)) return System.Enum.ToObject(enumType, n);
             throw new FormatException($"Cannot parse '{raw}' to enum '{enumType.Name}'.");
         }
-
         // 解析單一子句：AnnouncementDetail.Lang = en
         private static bool TryParseSimpleClause(string seg, out string[] pathParts, out string op, out string? val)
         {
@@ -1873,12 +1866,8 @@ namespace WCMS.SysCore
                 return null;
             }
         }
-
-
-
         // 產生 RankGroups 的最終 where condition（FirstMatchWins + Rest）
         private sealed record RankGroupPlan(IReadOnlyList<string> GroupWhereList,string RestWhere,string BaseWhere);
-
         // 將 base condition + rankGroups 組成：
         // group0 = Base AND (G0)
         // group1 = Base AND NOT(G0) AND (G1)
