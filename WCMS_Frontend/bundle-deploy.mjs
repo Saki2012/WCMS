@@ -538,7 +538,7 @@ const run = async () =>
   }
 
   await writeDistDotEnv(root, distDir);
-  await copyFileIfExists(path.resolve(root, "web.config.bak"), path.resolve(distDir, "web.config.bak"));
+  await copyFileIfExists(path.resolve(root, "web.config"), path.resolve(distDir, "web.config.bak"));
 
   const ssrServerTsText = await fs.readFile(path.resolve(root, "src/SSR/SSR-Server.ts"), "utf-8");
   const rootPkg = JSON.parse(await fs.readFile(path.resolve(root, "package.json"), "utf-8"));
