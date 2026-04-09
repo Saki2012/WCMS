@@ -465,10 +465,6 @@ const JournalCard = (props: {
     // 宣告變數
     const langCode = props.item.SpecJournal?.ArticleLang ?? "";
     const langLabel = getLangLabel(langCode);
-    const pStart = props.item.SpecJournal?.PageStart ?? 0;
-    const pEnd = props.item.SpecJournal?.PageEnd ?? 0;
-    const pageTitle = pStart < pEnd ? `(p.${pStart} - ${pEnd})` : `(p.${pStart})`;
-
     // return
     return (
         <div className="IItemBox">
@@ -528,7 +524,7 @@ const JournalCard = (props: {
                 <div className="card_title">
                     {props.item.SpecJournal?.ArticleLang === "zh-tw"
                         ? props.item.SpecJournal?.Title
-                        : props.item.SpecJournal?.Title_en} {pageTitle}
+                        : props.item.SpecJournal?.Title_en}
                 </div>
                 <div className="card_title_en">
                     {props.item.SpecJournal?.ArticleLang === "en"
