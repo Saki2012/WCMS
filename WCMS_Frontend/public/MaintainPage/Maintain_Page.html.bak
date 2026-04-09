@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+		<meta name="description" content=""/>
+		<meta name="author" content=""/>	
+		<title>網站目前維護中</title>
+		<script type="text/javascript" src="Content/jquery-3.7.1/jquery-3.7.1.min.js"></script>
+		<script type="text/javascript" src="Content/jquery-3.7.1/bootstrap.js"></script>
+		<script type="text/javascript" src="Content/bootstrap-5.3.3/popper/popper-core-v2.10.2.min.js"></script>
+		<script type="text/javascript" src="Content/bootstrap-5.3.3/js/bootstrap.bundle.min.js"></script>	
+		<link type="text/css" rel="stylesheet" href="bootstrap.min.css" />
+		<link type="text/css" rel="stylesheet" href="error.css" />
+	</head>
+	<body>
+		<div id="error404">
+			<div class="ContentPlaceContent_Area">
+				<section class="Template content area">
+					<div class="container">
+						<div class="row">
+							<div class="col-md-12">		
+								<div class="error-area">
+									<div class="space text-center">
+										<div class="error-thumb">
+											<img src="error-2.svg" alt="系統維護中">
+										</div>
+										<div class="title-area text-center mb-0">
+											<h2 class="tw-title mb-0">網站目前維護中</h2>
+											<h3 class="en-title mb-0">UNDER MAINTENANCE</h3>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+			</div>
+		</div>	
+	</body>
+</html>
