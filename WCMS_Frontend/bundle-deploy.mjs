@@ -49,6 +49,31 @@ const copyFileIfExists = async (src, dest) =>
   await fs.copyFile(src, dest);
 };
 
+const copyDirIfExists = async (src, dest) =>
+{
+  // 資料夾存在才遞迴複製
+  if (!(await pathExists(src))) return false;
+
+  await fs.mkdir(dest, { recursive: true });
+  await fs.cp(src, dest, { recursive: true, force: true });
+
+  return true;
+};
+
+const copyMaintainPageToDist = async (root, distDir) =>
+{
+  // 複製維護頁資料夾到 dist/MaintainPage
+  const src = path.resolve(root, "MaintainPage");
+  const dest = path.resolve(distDir, "MaintainPage");
+
+  await removeIfExists(dest);
+
+  if (!(await copyDirIfExists(src, dest)))
+  {
+    throw new Error(`[bundle-deploy] MaintainPage not found at root: ${src}`);
+  }
+};
+
 const removeIfExists = async (absPath) =>
 {
   // 存在才刪除
@@ -539,7 +564,8 @@ const run = async () =>
 
   await writeDistDotEnv(root, distDir);
   await copyFileIfExists(path.resolve(root, "web.config"), path.resolve(distDir, "web.config.bak"));
-
+  await copyMaintainPageToDist(root, distDir);
+  
   const ssrServerTsText = await fs.readFile(path.resolve(root, "src/SSR/SSR-Server.ts"), "utf-8");
   const rootPkg = JSON.parse(await fs.readFile(path.resolve(root, "package.json"), "utf-8"));
   const distDeps = buildDistDependencies(rootPkg, ssrServerTsText);
