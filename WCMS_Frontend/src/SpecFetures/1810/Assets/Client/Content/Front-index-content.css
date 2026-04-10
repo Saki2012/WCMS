@@ -83,7 +83,8 @@ body .subpage_body_bg {
 	position: sticky;
 	visibility: visible;
 	opacity: 1;
-	left: 0px;
+	/* left: 0px; */
+	right: 0px;
 	top: 0px;
 	width: 100%;
 	padding: 0px 0px;
@@ -122,6 +123,10 @@ body .subpage_body_bg {
 #site-header.shadow {
 	-webkit-box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5)!important;
 	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5) !important;
+}
+#site-header.fixed{
+    position: fixed !important;
+    width: auto;
 }
 /* ============================================= */
 /* ------ 首頁 site-header ---------------------- */

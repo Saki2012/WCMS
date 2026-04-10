@@ -34,7 +34,7 @@ export const Header = ({ lang, site, style }: { lang: Lang; site: INormSite; sty
             >
                 跳到頁面主要內容區
             </a>
-            <div id="site-header" className="LL_Header_DivBar main-header w-100">
+            <div id="site-header" className="LL_Header_DivBar main-header">
                 <section className="header_section">
                     <header className="header_Box" ref={headerRef}>
                         <div className="container-fluid-customize h-100 mr-0 pr-0">
@@ -54,7 +54,7 @@ export const Header = ({ lang, site, style }: { lang: Lang; site: INormSite; sty
                                 <MainMenu lang={lang} site={site} style={style}></MainMenu>
                                 <div className="overlayer"></div>
                                 <div className="rightBox">
-                                    <button className="main bg-custom-s5" type="button">
+                                    <button className="main" type="button">
                                         <div>
                                             <i className="fa customize-bars" aria-hidden="true"></i>
                                         </div>
@@ -421,11 +421,14 @@ function useHeaderBehaviorRef(
         const handleScroll = () =>
         {
             const scroll = window.scrollY;
-            const logos = document.querySelectorAll(".logo");
-            const mains = document.querySelectorAll(".main");
+            const logos = document.querySelectorAll('.logo');
+            const mains = document.querySelectorAll('.main');
+            const siteheader = document.querySelectorAll('#site-header');
 
-            logos.forEach(el => el.classList.toggle("hide", scroll >= 100));
-            mains.forEach(el => el.classList.toggle("bg-custom-s5", scroll >= 100));
+            siteheader.forEach((el) => el.classList.toggle('fixed', scroll >= 100));
+            // siteheader.forEach((el) => el.classList.toggle('w-100', scroll >= 100));
+            logos.forEach((el) => el.classList.toggle('hide', scroll >= 100));
+            mains.forEach((el) => el.classList.toggle('bg-custom-s5', scroll >= 100));
         };
 
         // 執行 function：重綁事件
