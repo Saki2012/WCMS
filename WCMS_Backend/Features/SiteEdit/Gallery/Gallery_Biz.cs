@@ -153,9 +153,9 @@ namespace WCMS.Features.SiteEdit.Gallery
         #endregion
 
         #region Protected
-        protected override async Task BeforeUpdate(GallerySet set, FuncAction act)
+        protected override async Task BeforeUpdate(GallerySet set, FuncAction act, CancellationToken ct = default)
         {
-            await base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act, ct);
             switch (act)
             {
                 case FuncAction.Create:

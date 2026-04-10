@@ -15,9 +15,9 @@ namespace WCMS.Features.SiteEdit.Tag
     public class TagBiz(BizDeps bizDeps) : BizService<TagSet>(bizDeps), IBizService<TagSet> {
 
         #region Protected
-        protected override async Task BeforeUpdate(TagSet set, FuncAction act)
+        protected override async Task BeforeUpdate(TagSet set, FuncAction act, CancellationToken ct = default)
         {
-            await base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act, ct);
             switch (act)
             {
                 case FuncAction.Create:

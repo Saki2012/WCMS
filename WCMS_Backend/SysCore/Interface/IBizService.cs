@@ -27,33 +27,33 @@ namespace WCMS.SysCore.Interface
         /// </summary>
         /// <param name="set"></param>
         /// <returns></returns>
-        public Task<TSet> BizCreateSetAsync(TSet set);
+        public Task<TSet> BizCreateSetAsync(TSet set, CancellationToken ct = default);
         /// <summary>
         /// 初始化資料(多筆)
         /// </summary>
         /// <param name="sets"></param>
         /// <returns></returns>
-        public Task BizInitCreateSetsAsync(TSet[] sets);
+        public Task BizInitCreateSetsAsync(TSet[] sets, CancellationToken ct = default);
         /// <summary>
         /// 修改
         /// </summary>
         /// <param name="key"></param>
         /// <param name="set"></param>
         /// <returns></returns>
-        public Task<TSet> BizUpdateSetAsync(string internalId, TSet set);
+        public Task<TSet> BizUpdateSetAsync(string internalId, TSet set, CancellationToken ct = default);
         /// <summary>
         /// 刪除
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public Task<TSet> BizDeleteSetAsync(string internalId);
+        public Task<TSet> BizDeleteSetAsync(string internalId, CancellationToken ct = default);
         /// <summary>
         /// 作廢
         /// </summary>
         /// <param name="key"></param>
         /// <param name="status"></param>
         /// <returns></returns>
-        public Task<TSet> BizInvalidSetAsync(string internalId, bool status);
+        public Task<TSet> BizInvalidSetAsync(string internalId, bool status, CancellationToken ct = default);
         /// <summary>
         /// 查詢表單
         /// </summary>

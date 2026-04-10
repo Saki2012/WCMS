@@ -11,9 +11,9 @@ namespace WCMS.SpecFeatures.Spec1817.SiteEdit.SpecMusical
     public class SpecMusical_Biz(BizDeps bizDeps) : BizService<SpecMusicalSet>(bizDeps), IBizService<SpecMusicalSet> 
     {
         #region Virtual Override
-        protected override async Task BeforeUpdate(SpecMusicalSet set, FuncAction act)
+        protected override async Task BeforeUpdate(SpecMusicalSet set, FuncAction act, CancellationToken ct = default)
         {
-            await base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act, ct);
             switch (act)
             {
                 case FuncAction.Create:

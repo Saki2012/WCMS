@@ -46,7 +46,7 @@ namespace WCMS.Features.Member.Account
         /// 執行修改密碼
         /// </summary>
         /// <returns></returns>
-        public async Task ChangePassword(string internalId,string oldPassword,string newPassword, CancellationToken ct)
+        public async Task ChangePassword(string internalId,string oldPassword,string newPassword, CancellationToken ct = default)
         {
             bool ownsTx = false;
             try
@@ -74,7 +74,7 @@ namespace WCMS.Features.Member.Account
         /// 執行重置密碼
         /// </summary>
         /// <returns></returns>
-        public async Task ResetPassword(string internalId, string newPassword, CancellationToken ct)
+        public async Task ResetPassword(string internalId, string newPassword, CancellationToken ct = default)
         {
             bool ownsTx = false;
             try
@@ -97,9 +97,9 @@ namespace WCMS.Features.Member.Account
         #endregion
 
         #region Protected Virtual
-        protected override async Task BeforeUpdate(AccountSet set, FuncAction act)
+        protected override async Task BeforeUpdate(AccountSet set, FuncAction act, CancellationToken ct = default)
         {
-            await base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act, ct);
             switch (act)
             {
                 case FuncAction.Create:
@@ -110,13 +110,13 @@ namespace WCMS.Features.Member.Account
             }
         }
 
-        protected override async Task AfterUpdate(AccountSet? oldSet, AccountSet? newSet, FuncAction act, TransStatus status)
+        protected override async Task AfterUpdate(AccountSet? oldSet, AccountSet? newSet, FuncAction act, TransStatus status, CancellationToken ct = default)
         {
-            await base.AfterUpdate(oldSet, newSet, act, status);
+            await base.AfterUpdate(oldSet, newSet, act, status, ct);
             switch(act)
             {
                 case FuncAction.Create:
-                    await AutoCreatePersonData(newSet.Account.PersonId, newSet.Account.AccountName);
+                    await AutoCreatePersonData(newSet.Account.PersonId, newSet.Account.AccountName, ct);
                     break;
                 case FuncAction.Update:
                     LetPasswordNoUpdate(oldSet,newSet);
@@ -140,7 +140,7 @@ namespace WCMS.Features.Member.Account
 
         #region Private
 
-        private async Task AutoCreatePersonData(string personId,string personName)
+        private async Task AutoCreatePersonData(string personId,string personName, CancellationToken ct)
         {
             if(await personBiz.BizQueryTotalCounts($"{nameof(PersonModel.PersonId)} = {personId}") == 0)
             {
@@ -152,7 +152,7 @@ namespace WCMS.Features.Member.Account
                         Gender = Gender.NotKnown, Email = string.Empty,
                         MobilePhone=string.Empty, HomePhone=string.Empty,
                     }
-                }); 
+                }, ct); 
             }
         }
         /// <summary>

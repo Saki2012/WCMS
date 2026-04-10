@@ -11,9 +11,9 @@ namespace WCMS.SpecFeatures.Spec1816.SystemSetting.Calendar
     {
         //private readonly SpecOpenSchedule_Biz _specOS_Biz = specOS_Biz;
         #region Protected Virtual
-        protected override async Task BeforeUpdate(CalendarSet set, FuncAction act)
+        protected override async Task BeforeUpdate(CalendarSet set, FuncAction act, CancellationToken ct = default)
         {
-            await base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act, ct);
             switch (act)
             {
                 case FuncAction.Create:

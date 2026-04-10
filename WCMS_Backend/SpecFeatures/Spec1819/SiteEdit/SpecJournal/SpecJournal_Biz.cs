@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Caching.Memory;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
@@ -27,7 +27,7 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         /// <summary>
         /// 依 ORCID iD 取得作者資料（公開可取得的範圍）
         /// </summary>
-        public async Task<ORCIDData> GetOrcIdAuthorAsync(string orcid, CancellationToken ct)
+        public async Task<ORCIDData> GetOrcIdAuthorAsync(string orcid, CancellationToken ct = default)
         {
             string input = (orcid ?? string.Empty).Trim();
             // ✅ 1) 檢查 ORCID 是否符合「完整格式 + checksum」
@@ -51,13 +51,42 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
             Cache.Set(cacheKey, dto, CacheTtl);
             return dto;
         }
+        /// <summary>
+        /// 更新出刊狀態 (預刊本 <-> 期刊本)
+        /// 規則:如果沒有設定期刊目次代號/卷期代號，則為預刊本；反之為期刊本。
+        /// 出刊即設定期刊目次代號/卷期代號；退回預刊本即清 null期刊目次代號 /卷期代號。
+        /// </summary>
+        /// <param name="internalId">資料 InternalId</param>
+        /// <param name="JournalIndexId">期刊目次代號</param>
+        /// <param name="JournalIndexRowId">卷期代號</param>
+        /// <param name="ct">取消權杖</param>
+        public async Task UpdatePublishedStatusAsync(string internalId, string JournalIndexId = null, int? JournalIndexRowId = null, CancellationToken ct = default)
+        {
+            bool isPublishing = !string.IsNullOrWhiteSpace(JournalIndexId) && JournalIndexRowId != null;
+            await ExecTransactionAsync<object>(
+                async _ =>
+                {
+                    var oldHeader = await QueryHeaderByInternalIdAsync(internalId);
+                    if (oldHeader == null) return null;
+                    var newHeader = oldHeader.Snapshot();
+                    ApplyPublishedStatus(newHeader, JournalIndexId, JournalIndexRowId);
+                    var repo = (dynamic)RepoDict[nameof(SpecJournalModel)];
+                    await repo.UpdateAsync((dynamic)oldHeader, (dynamic)newHeader);
+                    return null;
+                },
+                async (_, _) =>
+                {
+                    Message.AddMessage(MessageStatus.Green, isPublishing ? SpecMessageCode.SpecBECode0004: SpecMessageCode.SpecBECode0003);
+                    await Task.CompletedTask;
+                },
+                ct);
+        }
         #endregion
 
         #region Virtual Protected
-
-        protected override Task BeforeUpdate(SpecJournalSet set, FuncAction act)
+        protected override Task BeforeUpdate(SpecJournalSet set, FuncAction act, CancellationToken ct = default)
         {
-            var result = base.BeforeUpdate(set, act);
+            var result = base.BeforeUpdate(set, act, ct);
             switch (act)
             {
                 case FuncAction.Create:
@@ -90,8 +119,9 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         /// <param name="header"></param>
         protected void CheckJouranlIndexIsEmpty(SpecJournalModel header)
         {
-            if(header.JournalIndexId.IsNullOrEmpty() && !header.JournalIndexRowId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecJournalModel>(x => x.JournalIndexId));
-            if(!header.JournalIndexRowId.IsNullOrEmpty() && header.JournalIndexRowId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecJournalModel>(x => x.JournalIndexRowId));
+            if ((header.JournalIndexId.IsNullOrEmpty() && header.JournalIndexRowId.IsNullOrEmpty()) || (!header.JournalIndexId.IsNullOrEmpty() && !header.JournalIndexRowId.IsNullOrEmpty())) return;
+            if(header.JournalIndexId.IsNullOrEmpty() ) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecJournalModel>(x => x.JournalIndexId));
+            if(header.JournalIndexRowId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecJournalModel>(x => x.JournalIndexRowId));
         }
         /// <summary>
         /// 防呆:如果沒有上傳檔案(檔案來源為空)，顯示名稱就設為空白
@@ -117,12 +147,10 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
                 if (document.DocumentId == null) set.SpecJournalDocument.Remove(document);
             }
         }
-
-
         /// <summary>
         /// 呼叫 ORCID record（JSON）；回傳是否找到與 JSON 內容
         /// </summary>
-        private async Task<(bool IsFound, string? Json)> FetchOrcidRecordJsonAsync(string orcid, CancellationToken ct)
+        private async Task<(bool IsFound, string? Json)> FetchOrcidRecordJsonAsync(string orcid, CancellationToken ct = default)
         {
             using var http = HttpClientFactory.CreateClient();
             using var req = new HttpRequestMessage(HttpMethod.Get, $"{OrcidConsts.ApiBase}/{WebUtility.UrlEncode(orcid)}/{OrcidConsts.RecordPath}");
@@ -145,14 +173,11 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
             using JsonDocument doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
             var dto = new ORCIDData { ORCID = orcid };
-
             FillName(dto, root);
             FillEmployment(dto, root);
             FillEmail(dto, root);
-
             if (string.IsNullOrWhiteSpace(dto.AuthorName)) dto.AuthorName = dto.AuthorName_en;
             if (string.IsNullOrWhiteSpace(dto.Unit_en)) dto.Unit_en = dto.Unit;
-
             return dto;
         }
         /// <summary>
@@ -349,6 +374,30 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         {
             string s = GetString(root, path);
             return int.TryParse(s, out var v) ? v : 0;
+        }
+
+        /// <summary>
+        /// 依 InternalId 查詢表頭資料
+        /// </summary>
+        /// <param name="internalId">資料 InternalId</param>
+        /// <returns>表頭資料</returns>
+        private async Task<SpecJournalModel> QueryHeaderByInternalIdAsync(string internalId)
+        {
+            var condition = $"{nameof(BasicDataModel.InternalId)} = \"{internalId}\"";
+            var datas = await DoQueryListAsync<SpecJournalModel>([], condition, default, 0, 1);
+            return datas.Cast<SpecJournalModel>().FirstOrDefault();
+        }
+        /// <summary>
+        /// 套用出刊狀態與修改資訊
+        /// </summary>
+        /// <param name="header">表頭資料</param>
+        /// <param name="journalIndexId">期刊目次代號</param>
+        /// <param name="journalIndexRowId">卷期代號</param>
+        private void ApplyPublishedStatus(SpecJournalModel header, string journalIndexId, int? journalIndexRowId)
+        {
+            header.JournalIndexId = string.IsNullOrWhiteSpace(journalIndexId) ? null : journalIndexId;
+            header.JournalIndexRowId = journalIndexRowId;
+            SetModifyInfo(header);
         }
         #endregion
     }

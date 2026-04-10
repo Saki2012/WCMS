@@ -26,14 +26,14 @@ namespace WCMS.Features.SystemSetting.Calendar
         /// <param name="year"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        public async Task ImportCalendar(int year, CancellationToken ct)
+        public async Task ImportCalendar(int year, CancellationToken ct = default)
         {
             List<NtpcCalendar> items = await CallNtpcAPIAsync(year,ct);
             List<CalendarDetail> lst = ConvertNtpcToModel(items);
             List<CalendarSet> result = FillMissingDate(lst, NtpcCalendar.Code);
             foreach(var item in result)
             {
-                await BizCreateSetAsync(item);
+                await BizCreateSetAsync(item, ct);
             }
         }
         /// <summary>
@@ -42,7 +42,7 @@ namespace WCMS.Features.SystemSetting.Calendar
         /// </summary>
         /// <param name="ct"></param>
         /// <returns></returns>
-        public async Task InitCalendar(CancellationToken ct)
+        public async Task InitCalendar(CancellationToken ct = default)
         {
             if (await BizQueryTotalCounts(string.Empty) != 0) return;// 已有資料就不再初始化
             List<NtpcCalendar> items = await CallNtpcAPIAsync(null,ct);
@@ -56,43 +56,40 @@ namespace WCMS.Features.SystemSetting.Calendar
         /// <param name="dayInfo"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        public async Task BizUpdateDayInfo(CalendarDetail dayInfo, CancellationToken ct)
+        public async Task BizUpdateDayInfo(CalendarDetail dayInfo, CancellationToken ct = default)
         {
-            bool ownsTx = false;
-            try
-            {
-                ownsTx = await TryBeginTransactionAsync();
-                CalendarSet dbSet = await GetUpdateDayInfoSet(dayInfo, ct);
-                CalendarSet oldCache = dbSet.Snapshot();
-                oldCache.Calendar.DataVersion = dbSet.Calendar.DataVersion;
-                CalendarSet newSet = new() { Calendar = dbSet.Calendar, CalendarDetail = [dbSet.CalendarDetail.FirstOrDefault()] };
-                SetModifyTime(newSet);
-                ApplyDayInfoPatch(newSet.CalendarDetail.FirstOrDefault(), dayInfo);
-                await BeforeUpdate(newSet, FuncAction.Update);
-                if (Message.HasError) return;
-                // 6) 直接用 repo 更新 DB（單日語意）
-                await DoUpdateCalendarInfo(oldCache, newSet, ct);
-                // 7) AfterUpdate：可做差異檢查/Log
-                await AfterUpdate(oldCache, dbSet, FuncAction.Update, TransStatus.Difference);
-                if (Message.HasError) return;
-                // 8) 提交
-                await TryCommitAsync(ownsTx);
-                AfterSaveChanges(FuncAction.Update);
-                Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00006);
-            }
-            catch
-            {
-                await TryRollbackAsync(ownsTx);
-                throw;
-            }
+            CalendarSet dbSet = default!;
+            CalendarSet oldCache = default!;
+            await ExecTransactionAsync(
+                async token =>
+                {
+                    dbSet = await GetUpdateDayInfoSet(dayInfo, token);
+                    oldCache = dbSet.Snapshot();
+                    oldCache.Calendar.DataVersion = dbSet.Calendar.DataVersion;
+                    CalendarSet newSet = new()
+                    {
+                        Calendar = dbSet.Calendar,
+                        CalendarDetail = [dbSet.CalendarDetail.FirstOrDefault()]
+                    };
+                    SetModifyTime(newSet);
+                    ApplyDayInfoPatch(newSet.CalendarDetail.FirstOrDefault(), dayInfo);
+                    await BeforeUpdate(newSet, FuncAction.Update, token);
+                    if (Message.HasError) return dbSet;
+                    await DoUpdateCalendarInfo(oldCache, newSet, token);
+                    await AfterUpdate(oldCache, dbSet, FuncAction.Update, TransStatus.Difference, token);
+                    return dbSet;
+                },
+                async (result, token) =>
+                {
+                    await AfterSaveChanges(FuncAction.Update, token);
+                    Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00006);
+                },
+                ct);
         }
         #endregion
 
         #region Protected
-        protected override Task BeforeUpdate(CalendarSet set, FuncAction act)
-        {
-            return base.BeforeUpdate(set, act);
-        }
+
 
         protected virtual void SpecApplyDayInfoPatch(CalendarDetail target, CalendarDetail src)
         {
@@ -107,7 +104,7 @@ namespace WCMS.Features.SystemSetting.Calendar
         /// <param name="year"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        private async Task<List<NtpcCalendar>> CallNtpcAPIAsync(int? year, CancellationToken ct)
+        private async Task<List<NtpcCalendar>> CallNtpcAPIAsync(int? year, CancellationToken ct = default)
         {
             using var http = _httpClientFactory.CreateClient();
             string url = year == null ? NtpcCalendar.NtpcCalendarUrl_All : string.Format(NtpcCalendar.NtpcCalendarUrl_ByYear, year);
@@ -172,7 +169,7 @@ namespace WCMS.Features.SystemSetting.Calendar
         /// <param name="dayInfo"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        private async Task<CalendarSet> GetUpdateDayInfoSet(CalendarDetail dayInfo, CancellationToken ct)
+        private async Task<CalendarSet> GetUpdateDayInfoSet(CalendarDetail dayInfo, CancellationToken ct = default)
         {
             var headerData = await DoQueryListAsync<CalendarModel>(null, $"{nameof(CalendarModel.Year)} = {dayInfo.Year}", null, 0, 0);
             var header =  headerData.ToDynamicList().FirstOrDefault();
@@ -192,7 +189,7 @@ namespace WCMS.Features.SystemSetting.Calendar
             set.CalendarDetail.ForEach(p => { p.ModifyUserId = OperateUser.UserId; p.ModifyTime = now; });
         }
 
-        private async Task DoUpdateCalendarInfo(CalendarSet oldSet, CalendarSet newSet, CancellationToken ct)
+        private async Task DoUpdateCalendarInfo(CalendarSet oldSet, CalendarSet newSet, CancellationToken ct = default)
         {
             // 取得 repo
             var headerRepo = (BasicRepository<CalendarModel>)RepoDict[nameof(CalendarModel)];

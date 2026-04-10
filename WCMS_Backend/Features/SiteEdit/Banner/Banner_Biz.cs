@@ -16,9 +16,9 @@ namespace WCMS.Features.SiteEdit.Banner
     public class BannerBiz(BizDeps bizDeps) : BizService<BannerSet>(bizDeps), IBizService<BannerSet> 
     {
         #region Protected
-        protected override async Task BeforeUpdate(BannerSet set, FuncAction act)
+        protected override async Task BeforeUpdate(BannerSet set, FuncAction act, CancellationToken ct = default)
         {
-            await base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act, ct);
             switch (act)
             {
                 case FuncAction.Create:

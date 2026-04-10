@@ -113,13 +113,13 @@ namespace WCMS.SpecFeatures.T1810.SiteEdit.SpecResearch
         #endregion
 
         #region Protected
-        protected override async Task BeforeUpdate(SpecResearchSet set, SysEnum.FuncAction act)
+        protected override async Task BeforeUpdate(SpecResearchSet set, FuncAction act, CancellationToken ct = default)
         {
-            await base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act, ct);
             switch (act)
             {
-                case SysEnum.FuncAction.Create:
-                case SysEnum.FuncAction.Update:
+                case FuncAction.Create:
+                case FuncAction.Update:
                     CheckData(set);
                     SetData(set);
                     break;

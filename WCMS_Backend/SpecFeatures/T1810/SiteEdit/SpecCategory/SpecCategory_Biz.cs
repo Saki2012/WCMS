@@ -143,9 +143,9 @@ namespace WCMS.Features.SiteEdit.SpecCategory
         #endregion
 
         #region Protected
-        protected override async Task BeforeUpdate(SpecCategorySet set, FuncAction act)
+        protected override async Task BeforeUpdate(SpecCategorySet set, FuncAction act, CancellationToken ct = default)
         {
-            await base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act, ct);
             switch (act)
             {
                 case FuncAction.Create:

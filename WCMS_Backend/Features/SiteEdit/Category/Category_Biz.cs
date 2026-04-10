@@ -59,16 +59,16 @@ namespace WCMS.Features.SiteEdit.Category
 
 
         #region Protected
-        protected override async Task BeforeUpdate(CategoryDataSet set, SysEnum.FuncAction act)
+        protected override async Task BeforeUpdate(CategoryDataSet set, FuncAction act, CancellationToken ct = default)
         {
-            await base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act, ct);
             switch (act)
             {
-                case SysEnum.FuncAction.Create:
-                case SysEnum.FuncAction.Update:
+                case FuncAction.Create:
+                case FuncAction.Update:
                     CheckData(set);
                     break;
-                case SysEnum.FuncAction.Delete:
+                case FuncAction.Delete:
                     await CheckIsUsed(set);
                     break;
             }

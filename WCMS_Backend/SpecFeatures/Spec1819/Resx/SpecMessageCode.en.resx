@@ -123,4 +123,10 @@
   <data name="SpecBECode0002" xml:space="preserve">
     <value>不存在該 ORCID 用戶：{0}。</value>
   </data>
+  <data name="SpecBECode0003" xml:space="preserve">
+    <value>退回預刊成功。</value>
+  </data>
+  <data name="SpecBECode0004" xml:space="preserve">
+    <value>發佈期刊成功。</value>
+  </data>
 </root>

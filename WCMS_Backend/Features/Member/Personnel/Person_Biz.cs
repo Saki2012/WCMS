@@ -15,9 +15,9 @@ namespace WCMS.Features.Member.Personnel
     public class PersonBiz(BizDeps bizDeps) : BizService<PersonSet>(bizDeps), IBizService<PersonSet>
     {
         #region Protected
-        protected override async Task BeforeUpdate(PersonSet set, FuncAction act)
+        protected override async Task BeforeUpdate(PersonSet set, FuncAction act, CancellationToken ct = default)
         {
-            await base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act, ct);
             switch (act)
             {
                 case FuncAction.Create:

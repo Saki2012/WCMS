@@ -63,7 +63,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteViewCount
         /// <summary>
         /// 執行主站瀏覽計數
         /// </summary>
-        private async Task<TryCountResult_DTO> TryCountSiteViewAsync(string siteIndex, string visitorKey, string refererUrl, CancellationToken ct)
+        private async Task<TryCountResult_DTO> TryCountSiteViewAsync(string siteIndex, string visitorKey, string refererUrl, CancellationToken ct = default)
         {
             bool ownsTx = false;
             DateTime now = DateTime.Now;
@@ -106,7 +106,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteViewCount
         /// <summary>
         /// 執行功能/頁面個別計數
         /// </summary>
-        private async Task<TryCountResult_DTO> TryCountDetailViewAsync(string siteIndex, string progId, string internalId, ViewCountActionType actionType, string visitorKey, string refererUrl, CancellationToken ct)
+        private async Task<TryCountResult_DTO> TryCountDetailViewAsync(string siteIndex, string progId, string internalId, ViewCountActionType actionType, string visitorKey, string refererUrl, CancellationToken ct = default)
         {
             bool ownsTx = false;
             DateTime now = DateTime.Now;
@@ -148,7 +148,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteViewCount
         /// <summary>
         /// 取得最近一次成功計次紀錄
         /// </summary>
-        private async Task<SiteViewCountRecentlyModel?> GetRecentlyInfoAsync(string siteIndex, string progId, string targetInternalId, string targetType, ViewCountActionType actionType, string visitorKey, CancellationToken ct)
+        private async Task<SiteViewCountRecentlyModel?> GetRecentlyInfoAsync(string siteIndex, string progId, string targetInternalId, string targetType, ViewCountActionType actionType, string visitorKey, CancellationToken ct = default)
         {
             // 宣告變數
             dynamic recentRepo = RepoMapProvider.EnsureRepo<SiteViewCountSet>(typeof(SiteViewCountRecentlyModel));
@@ -168,7 +168,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteViewCount
         /// <summary>
         /// 新增或更新 Recently 紀錄
         /// </summary>
-        private async Task SaveRecentlyInfoAsync(SiteViewCountRecentlyModel? currentRecent, string siteIndex, string progId, string targetInternalId, string targetType, ViewCountActionType actionType, string visitorKey, string refererUrl, DateTime now, CancellationToken ct)
+        private async Task SaveRecentlyInfoAsync(SiteViewCountRecentlyModel? currentRecent, string siteIndex, string progId, string targetInternalId, string targetType, ViewCountActionType actionType, string visitorKey, string refererUrl, DateTime now, CancellationToken ct = default)
         {
             ct.ThrowIfCancellationRequested();
             if (currentRecent == null)
@@ -191,7 +191,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteViewCount
         /// <summary>
         /// 新增 Recently 紀錄
         /// </summary>
-        private async Task CreateRecentlyInfoAsync(string siteIndex, string progId, string targetInternalId, string targetType, ViewCountActionType actionType, string visitorKey, string refererUrl, DateTime now, CancellationToken ct)
+        private async Task CreateRecentlyInfoAsync(string siteIndex, string progId, string targetInternalId, string targetType, ViewCountActionType actionType, string visitorKey, string refererUrl, DateTime now, CancellationToken ct = default)
         {
             dynamic recentRepo = RepoMapProvider.EnsureRepo<SiteViewCountSet>(typeof(SiteViewCountRecentlyModel));
             SiteViewCountRecentlyModel newRecent = new()
@@ -212,7 +212,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteViewCount
         /// <summary>
         /// 更新 Recently 紀錄
         /// </summary>
-        private async Task UpdateRecentlyInfoAsync(SiteViewCountRecentlyModel currentRecent, string refererUrl, DateTime now, CancellationToken ct)
+        private async Task UpdateRecentlyInfoAsync(SiteViewCountRecentlyModel currentRecent, string refererUrl, DateTime now, CancellationToken ct = default)
         {
             dynamic recentRepo = RepoMapProvider.EnsureRepo<SiteViewCountSet>(typeof(SiteViewCountRecentlyModel));
             SiteViewCountRecentlyModel newRecent = currentRecent.Snapshot();
@@ -224,7 +224,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteViewCount
         /// <summary>
         /// 取得主站目前瀏覽次數
         /// </summary>
-        private async Task<int> GetSiteViewCountAsync(string siteIndex, CancellationToken ct)
+        private async Task<int> GetSiteViewCountAsync(string siteIndex, CancellationToken ct = default)
         {
             dynamic headerRepo = RepoMapProvider.EnsureRepo<SiteViewCountSet>(typeof(SiteViewCountHeaderModel));
             ct.ThrowIfCancellationRequested();
@@ -234,7 +234,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteViewCount
         /// <summary>
         /// 累加主站瀏覽次數
         /// </summary>
-        private async Task<int> IncreaseSiteViewCountAsync(string siteIndex, CancellationToken ct)
+        private async Task<int> IncreaseSiteViewCountAsync(string siteIndex, CancellationToken ct = default)
         {
             dynamic headerRepo = RepoMapProvider.EnsureRepo<SiteViewCountSet>(typeof(SiteViewCountHeaderModel));
             SiteViewCountHeaderModel? oldHeader = await headerRepo.QueryDataAsync(siteIndex);
@@ -256,7 +256,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteViewCount
         /// <summary>
         /// 取得功能/頁面目前次數
         /// </summary>
-        private async Task<int> GetDetailViewCountAsync(string siteIndex, string progId, string internalId, ViewCountActionType actionType, CancellationToken ct)
+        private async Task<int> GetDetailViewCountAsync(string siteIndex, string progId, string internalId, ViewCountActionType actionType, CancellationToken ct = default)
         {
             dynamic detailRepo = RepoMapProvider.EnsureRepo<SiteViewCountSet>(typeof(SiteViewCountDetailModel));
             ct.ThrowIfCancellationRequested();
@@ -266,7 +266,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteViewCount
         /// <summary>
         /// 累加功能/頁面個別次數
         /// </summary>
-        private async Task<int> IncreaseDetailViewCountAsync(string siteIndex, string progId, string internalId, ViewCountActionType actionType, CancellationToken ct)
+        private async Task<int> IncreaseDetailViewCountAsync(string siteIndex, string progId, string internalId, ViewCountActionType actionType, CancellationToken ct = default)
         {
             dynamic detailRepo = RepoMapProvider.EnsureRepo<SiteViewCountSet>(typeof(SiteViewCountDetailModel));
             SiteViewCountDetailModel? oldDetail = await detailRepo.QueryDataAsync(siteIndex, progId, internalId);
@@ -356,7 +356,7 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteViewCount
         }
 
 
-        private async Task<int> GetRecentlySiteViewCountAsync(string siteIndex,string minutes, CancellationToken ct)
+        private async Task<int> GetRecentlySiteViewCountAsync(string siteIndex,string minutes, CancellationToken ct = default)
         {
             dynamic headerRepo = RepoMapProvider.EnsureRepo<SiteViewCountSet>(typeof(SiteViewCountHeaderModel));
             ct.ThrowIfCancellationRequested();

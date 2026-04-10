@@ -75,10 +75,17 @@ namespace WCMS.SysCore.Interface
     /// 回傳結果
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IApiResponse<T>
+    public interface IApiResponse
     {
         public bool IsSuccess { get; }
         public IList<SysMessageModel> SysMessage { get; set; }
+    }
+    /// <summary>
+    /// 回傳結果
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IApiResponse<T>: IApiResponse
+    {
         public IList<T>? Data { get; set; }
     }
     /// <summary>

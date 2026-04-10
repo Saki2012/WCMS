@@ -139,9 +139,9 @@ namespace WCMS.Features.SiteEdit.Announcement
         #endregion
 
         #region Protected
-        protected override async Task BeforeUpdate(AnnouncementSet set, FuncAction act)
+        protected override async Task BeforeUpdate(AnnouncementSet set, FuncAction act, CancellationToken ct = default)
         {
-            await base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act, ct);
             switch (act)
             {
                 case FuncAction.Create:

@@ -22,9 +22,9 @@ namespace WCMS.SpecFeatures.Spec1816.SystemSetting.SpecOpenScheduleRule
         #endregion
 
         #region Protected Virtual
-        protected override async Task BeforeUpdate(SpecOpenScheduleRuleSet set, FuncAction act)
+        protected override async Task BeforeUpdate(SpecOpenScheduleRuleSet set, FuncAction act, CancellationToken ct = default)
         {
-            await base.BeforeUpdate(set, act);
+            await base.BeforeUpdate(set, act, ct);
             switch (act)
             {
                 case FuncAction.Create:
@@ -33,9 +33,9 @@ namespace WCMS.SpecFeatures.Spec1816.SystemSetting.SpecOpenScheduleRule
                     break;
             }
         }
-        protected override async Task AfterUpdate(SpecOpenScheduleRuleSet? oldSet, SpecOpenScheduleRuleSet? newSet, FuncAction act, TransStatus status)
+        protected override async Task AfterUpdate(SpecOpenScheduleRuleSet? oldSet, SpecOpenScheduleRuleSet? newSet, FuncAction act, TransStatus status, CancellationToken ct = default)
         {
-            await base.AfterUpdate(oldSet, newSet, act, status);
+            await base.AfterUpdate(oldSet, newSet, act, status, ct);
             switch (act)
             {
                 case FuncAction.Create:

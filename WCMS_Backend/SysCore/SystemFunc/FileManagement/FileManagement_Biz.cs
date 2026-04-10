@@ -55,7 +55,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 嘗試累加前台公開下載次數（含 Recent 去重）
         /// </summary>
-        public async Task TryCountPublicDownload(string internalId, string visitorKey, string refererUrl, CancellationToken ct)
+        public async Task TryCountPublicDownload(string internalId, string visitorKey, string refererUrl, CancellationToken ct = default)
         {
             bool ownsTx = false;
             var now = DateTime.UtcNow;
@@ -215,7 +215,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 取得目前訪客對該檔案的 Recent 紀錄
         /// </summary>
-        private async Task<FileManage_DownloadRecentModel?> GetDownloadRecentAsync(string internalId, string visitorKey, CancellationToken ct)
+        private async Task<FileManage_DownloadRecentModel?> GetDownloadRecentAsync(string internalId, string visitorKey, CancellationToken ct = default)
         {
             // 宣告變數
             string[] fields = [nameof(FileManage_DownloadRecentModel.InternalId), nameof(FileManage_DownloadRecentModel.RowId), nameof(FileManage_DownloadRecentModel.VisitorKey),
@@ -243,7 +243,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             string visitorKey,
             string refererUrl,
             DateTime now,
-            CancellationToken ct)
+            CancellationToken ct = default)
         {
             // 執行 function
             ct.ThrowIfCancellationRequested();
@@ -265,7 +265,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             string visitorKey,
             string refererUrl,
             DateTime now,
-            CancellationToken ct)
+            CancellationToken ct = default)
         {
             // 宣告變數
             dynamic recentRepo = RepoMapProvider.EnsureRepo<FileManageSet>(typeof(FileManage_DownloadRecentModel));
@@ -291,7 +291,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             FileManage_DownloadRecentModel currentRecent,
             string refererUrl,
             DateTime now,
-            CancellationToken ct)
+            CancellationToken ct = default)
         {
             // 宣告變數
             dynamic recentRepo = RepoMapProvider.EnsureRepo<FileManageSet>(typeof(FileManage_DownloadRecentModel));
@@ -308,7 +308,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 取得下一個 DownloadRecent RowId
         /// </summary>
-        private async Task<int> GetNextDownloadRecentRowIdAsync(string internalId, CancellationToken ct)
+        private async Task<int> GetNextDownloadRecentRowIdAsync(string internalId, CancellationToken ct = default)
         {
             // 宣告變數
             string[] fields = [nameof(FileManage_DownloadRecentModel.RowId)];
@@ -330,7 +330,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 累加主表公開下載次數
         /// </summary>
-        private async Task IncreasePublicDownloadCountAsync(string internalId, CancellationToken ct)
+        private async Task IncreasePublicDownloadCountAsync(string internalId, CancellationToken ct = default)
         {
             // 宣告變數
             dynamic fileRepo = RepoMapProvider.EnsureRepo<FileManageSet>(typeof(FileManageModel));

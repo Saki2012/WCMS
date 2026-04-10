@@ -120,12 +120,17 @@ namespace WCMS.SysCore
             Ocf?.Context.Tags.Add(DetailTag);
             Ocf?.Context.Tags.Add(DetailItemTag(id));
         }
+        /// <summary>
+        /// 清除快取
+        /// </summary>
+        /// <param name="ct"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
         protected async Task EvictForSetAsync(CancellationToken ct, string? id = null)
         {
             await CacheStore.EvictByTagAsync(ListTag, ct);
             await CacheStore.EvictByTagAsync("set:list", ct);
-            if (!string.IsNullOrWhiteSpace(id))
-                await CacheStore.EvictByTagAsync(DetailItemTag(id), ct);
+            if (!string.IsNullOrWhiteSpace(id)) await CacheStore.EvictByTagAsync(DetailItemTag(id), ct);
             await CacheStore.EvictByTagAsync(DetailTag, ct);
             await CacheStore.EvictByTagAsync("set:detail", ct);
         }
@@ -189,7 +194,6 @@ namespace WCMS.SysCore
                 ?? cad.ControllerTypeInfo.GetCustomAttributes(typeof(LibApiControllerAttribute), true).OfType<LibApiControllerAttribute>().FirstOrDefault();
         }
         #endregion
-
        
     }
     /// <summary>
@@ -347,8 +351,7 @@ namespace WCMS.SysCore
     /// <summary>
     /// 系統功能API
     /// </summary>
-    [ApiController, Route(SysParam.ServiceRoute)]
-    public class SystemAPIController(IAntiforgery anti) : ControllerBase
+    [ApiController, Route(SysParam.ServiceRoute)] public class SystemAPIController(IAntiforgery anti) : ControllerBase
     {
         #region Property
         private readonly IAntiforgery _anti = anti;
@@ -461,14 +464,17 @@ namespace WCMS.SysCore
         
         #endregion
     }
+    public class ApiResponse : IApiResponse
+    {
+        public bool IsSuccess { get { foreach (var msg in SysMessage) if (msg.Status == MessageStatus.Error) return false; return true; } }
+        public IList<SysMessageModel> SysMessage { get; set; } = [];
+    }
     /// <summary>
     /// 回應結果
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class ApiResponse<T> : IApiResponse<T>
+    public class ApiResponse<T> :ApiResponse, IApiResponse<T>
     {
-        public bool IsSuccess { get { foreach (var msg in SysMessage) if (msg.Status == MessageStatus.Error) return false; return true; } }
-        public IList<SysMessageModel> SysMessage { get; set; } = [];
         public IList<T>? Data { get; set; } = [];
     }
     /// <summary>

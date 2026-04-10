@@ -108,119 +108,109 @@ namespace WCMS.SysCore
         #endregion
 
         #region Public
-        public async Task BizInitCreateSetsAsync(TSet[] sets)
+        public async Task BizInitCreateSetsAsync(TSet[] sets, CancellationToken ct = default)
         {
             foreach (var set in sets)
             {
                 PropertyInfo headerProp = PropertyAccessorCache.GetProperties<TSet>().Where(p => !p.IsListPropertyType()).FirstOrDefault();
                 var header = PropertyAccessorCache.Get(set, headerProp.Name);
                 PropertyAccessorCache.Set(header, nameof(BasicDataModel.IsIniData), true);
-                await BizCreateSetAsync(set);
+                await BizCreateSetAsync(set, ct);
             }
         }
-        public async Task<TSet> BizCreateSetAsync(TSet set)
+        public async Task<TSet> BizCreateSetAsync(TSet set, CancellationToken ct = default)
         {
-            bool ownsTx = false;
-            try
-            {
-                ownsTx = await TryBeginTransactionAsync();
-                GetModelType(set, out BasicDataModel header, out Dictionary<string, IList> details);
-                SetCreateInfo(header);
-                await AutoGenerateId(header, details);
-                await BeforeUpdate(set, FuncAction.Create);
-                if(Message.HasError) return set;
-                await DoCreateAsync(set);
-                await AfterUpdate(default, set, FuncAction.Create, TransStatus.Increase);
-                if (Message.HasError) return set;
-                await DataAccess.SaveChangesAsync();
-                await TryCommitAsync(ownsTx);
-                AfterSaveChanges(FuncAction.Create);
-                Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00002);
-                return set;
-            }
-            catch
-            {
-                await TryRollbackAsync(ownsTx);
-                throw;
-            }
+            return await ExecTransactionAsync(
+                async token =>
+                {
+                    GetModelType(set, out BasicDataModel header, out Dictionary<string, IList> details);
+                    SetCreateInfo(header);
+                    await AutoGenerateId(header, details);
+                    await BeforeUpdate(set, FuncAction.Create, token);
+                    if (Message.HasError) return set;
+                    await DoCreateAsync(set);
+                    await AfterUpdate(default, set, FuncAction.Create, TransStatus.Increase, token);
+                    return set;
+                },
+                async (_, token) =>
+                {
+                    await AfterSaveChanges(FuncAction.Create, token);
+                    Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00002);
+                },
+                ct);
         }
-        public async Task<TSet> BizUpdateSetAsync(string internalId, TSet newSet)
+        public async Task<TSet> BizUpdateSetAsync(string internalId, TSet newSet, CancellationToken ct = default)
         {
-            bool ownsTx = false;
-            try
-            {
-                ownsTx = await TryBeginTransactionAsync();
-                GetModelType(newSet, out BasicDataModel header, out Dictionary<string, IList> details);
-                SetModifyInfo(header);
-                await AutoGenerateId(header, details);
-                await BeforeUpdate(newSet, FuncAction.Update);
-                if (Message.HasError) return newSet;
-                TSet oldSet = await DoQuerySetAsync(internalId);
-                TSet oldSet_Cache = oldSet.Snapshot();
-                await DoUpdateAsync(oldSet, newSet);
-                await AfterUpdate(oldSet_Cache, oldSet, FuncAction.Update, TransStatus.Difference);//oldSet已經進入DataAccess，修改完會跟著修正至DB
-                if (Message.HasError) return newSet;
-                await TryCommitAsync(ownsTx);
-                AfterSaveChanges(FuncAction.Update);
-                Message.AddMessage(MessageStatus.Green,SysMessageCode.BECode00006);
-                return oldSet;
-            }
-            catch
-            {
-                await TryRollbackAsync(ownsTx);
-                throw;
-            }
+            TSet oldSet = default!;
+            TSet oldSetCache = default!;
+            return await ExecTransactionAsync(
+                async token =>
+                {
+                    GetModelType(newSet, out BasicDataModel header, out Dictionary<string, IList> details);
+                    SetModifyInfo(header);
+                    await AutoGenerateId(header, details);
+                    await BeforeUpdate(newSet, FuncAction.Update, token);
+                    if (Message.HasError) return newSet;
+                    oldSet = await DoQuerySetAsync(internalId);
+                    oldSetCache = oldSet.Snapshot();
+                    await DoUpdateAsync(oldSet, newSet);
+                    await AfterUpdate(oldSetCache, oldSet, FuncAction.Update, TransStatus.Difference, token);
+                    return Message.HasError ? newSet : oldSet;
+                },
+                async (_, token) =>
+                {
+                    await AfterSaveChanges(FuncAction.Update, token);
+                    Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00006);
+                },
+                ct);
         }
-        public async Task<TSet> BizDeleteSetAsync(string internalId)
+        public async Task<TSet> BizDeleteSetAsync(string internalId, CancellationToken ct = default)
         {
-            bool ownsTx = false;
-            try
-            {
-                ownsTx = await TryBeginTransactionAsync();
-                CheckIsUsed();
-                TSet oldSet = await DoQuerySetAsync(internalId);
-                TSet oldSet_Cache = oldSet.Snapshot();
-                await BeforeUpdate(oldSet, FuncAction.Delete);
-                if (Message.HasError) return oldSet;
-                await DoDeleteAsync(oldSet);
-                await AfterUpdate(oldSet_Cache, oldSet, FuncAction.Delete, TransStatus.Difference);
-                if (Message.HasError) return oldSet;
-                await TryCommitAsync(ownsTx);
-                AfterSaveChanges(FuncAction.Update);
-                Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00004);
-                return oldSet;
-            }
-            catch
-            {
-                await TryRollbackAsync(ownsTx);
-                throw;
-            }
+            TSet oldSet = default!;
+            TSet oldSetCache = default!;
+            return await ExecTransactionAsync(
+                async token =>
+                {
+                    CheckIsUsed();
+                    oldSet = await DoQuerySetAsync(internalId);
+                    oldSetCache = oldSet.Snapshot();
+                    await BeforeUpdate(oldSet, FuncAction.Delete, token);
+                    if (Message.HasError) return oldSet;
+                    await DoDeleteAsync(oldSet);
+                    await AfterUpdate(oldSetCache, oldSet, FuncAction.Delete, TransStatus.Difference, token);
+                    return oldSet;
+                },
+                async (_, token) =>
+                {
+                    await AfterSaveChanges(FuncAction.Delete, token);
+                    Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00004);
+                },
+                ct);
         }
-        public async Task<TSet> BizInvalidSetAsync(string internalId, bool status)
+        public async Task<TSet> BizInvalidSetAsync(string internalId, bool status, CancellationToken ct = default)
         {
-            bool ownsTx = false;
-            try
-            {
-                ownsTx = await TryBeginTransactionAsync();
-                TSet oldSet = await DoQuerySetAsync(internalId);
-                TSet oldSet_Cache = oldSet.Snapshot();
-                TSet newSet = oldSet.Snapshot();
-                DoInvalidSet(newSet, status);
-                await BeforeUpdate(oldSet, FuncAction.Invalid);
-                if (Message.HasError) return newSet;
-                await DoUpdateAsync(oldSet, newSet);
-                await AfterUpdate(oldSet_Cache, oldSet, FuncAction.Invalid, TransStatus.Difference);//oldSet已經進入DataAccess，修改完會跟著修正至DB
-                if (Message.HasError) return newSet;
-                await TryCommitAsync(ownsTx);
-                AfterSaveChanges(FuncAction.Update);
-                Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00008);
-                return oldSet;
-            }
-            catch
-            {
-                await TryRollbackAsync(ownsTx);
-                throw;
-            }
+            TSet oldSet = default!;
+            TSet oldSetCache = default!;
+            TSet newSet = default!;
+            return await ExecTransactionAsync(
+                async token =>
+                {
+                    oldSet = await DoQuerySetAsync(internalId);
+                    oldSetCache = oldSet.Snapshot();
+                    newSet = oldSet.Snapshot();
+                    DoInvalidSet(newSet, status);
+                    await BeforeUpdate(oldSet, FuncAction.Invalid, token);
+                    if (Message.HasError) return newSet;
+                    await DoUpdateAsync(oldSet, newSet);
+                    await AfterUpdate(oldSetCache, oldSet, FuncAction.Invalid, TransStatus.Difference, token);
+                    return Message.HasError ? newSet : oldSet;
+                },
+                async (_, token) =>
+                {
+                    await AfterSaveChanges(FuncAction.Update, token);
+                    Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00008);
+                },
+                ct);
         }
         public async Task<TSet> BizQuerySetAsync(string internalId)
         {
@@ -430,7 +420,6 @@ namespace WCMS.SysCore
                 }
             }
         }
-
         /// <summary>
         /// 
         /// </summary>
@@ -553,6 +542,45 @@ namespace WCMS.SysCore
             }
             return;
         }
+
+        /// <summary>
+        /// ☆重要Function，任何交易相關的流程都應該調用該Helper，以確保交易的一致性
+        /// 執行交易骨架
+        /// 1. inTransaction：交易內主流程
+        /// 2. afterCommit：提交後流程（僅真正持有交易者執行）
+        /// 3. 巢狀交易時，inner 不會提早觸發 afterCommit
+        /// </summary>
+        /// <typeparam name="TResult">回傳型別</typeparam>
+        /// <param name="inTransaction">交易內主流程</param>
+        /// <param name="afterCommit">提交後流程</param>
+        /// <param name="ct">取消權杖</param>
+        /// <returns>執行結果</returns>
+        protected async Task<TResult> ExecTransactionAsync<TResult>(Func<CancellationToken, Task<TResult>> inTransaction, Func<TResult, CancellationToken, Task>? afterCommit = null, CancellationToken ct = default)
+        {
+            // 宣告變數
+            bool ownsTx = false;
+            TResult result = default!;
+            try
+            {
+                ct.ThrowIfCancellationRequested();
+                ownsTx = await TryBeginTransactionAsync();
+                result = await inTransaction(ct);
+                if (Message.HasError)
+                {
+                    if (ownsTx) await TryRollbackAsync(true);
+                    return result;
+                }
+                ct.ThrowIfCancellationRequested();
+                await TryCommitAsync(ownsTx);
+                if (ownsTx && afterCommit != null) await afterCommit(result, ct);
+                return result;
+            }
+            catch
+            {
+                await TryRollbackAsync(ownsTx);
+                throw;
+            }
+        }
         #endregion
 
         #region Protected virtual
@@ -560,19 +588,19 @@ namespace WCMS.SysCore
         /// 保存前
         /// </summary>
         /// <param name="set"></param>
-        protected virtual Task BeforeUpdate(TSet set, FuncAction act) => Task.CompletedTask;
+        protected virtual Task BeforeUpdate(TSet set, FuncAction act, CancellationToken ct = default) => Task.CompletedTask;
         /// <summary>
         /// 更新之後，尚未提交 (供過帳使用)
         /// </summary>
         /// <param name="oldSet"></param>
         /// <param name="newSet"></param>
         /// <param name="status"></param>
-        protected virtual Task AfterUpdate(TSet? oldSet, TSet? newSet, FuncAction act, TransStatus status) => Task.CompletedTask;
+        protected virtual Task AfterUpdate(TSet? oldSet, TSet? newSet, FuncAction act, TransStatus status, CancellationToken ct = default) => Task.CompletedTask;
         /// <summary>
         /// 執行SaveChanges後
         /// </summary>
         /// <param name="set"></param>
-        protected virtual void AfterSaveChanges(FuncAction action) { }
+        protected virtual Task AfterSaveChanges(FuncAction action, CancellationToken ct = default) => Task.CompletedTask;
         /// <summary>
         /// 作廢後
         /// </summary>
@@ -623,7 +651,7 @@ namespace WCMS.SysCore
         /// 設置修改時使用者資料
         /// </summary>
         /// <param name="header"></param>
-        private void SetModifyInfo(BasicDataModel header)
+        protected void SetModifyInfo(BasicDataModel header)
         {
             DateTime now = DateTime.Now;
             header.ModifyUserId = OperateUser.UserId;

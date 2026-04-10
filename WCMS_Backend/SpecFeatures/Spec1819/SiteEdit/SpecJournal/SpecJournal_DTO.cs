@@ -171,7 +171,6 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         [ForeignKey(nameof(JournalId))] public SpecJournalModel_DTO? _SpecJournal { get; set; }
         #endregion
     }
-
     /// <summary>
     /// 引文格式
     /// </summary>
@@ -253,7 +252,6 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         [ForeignKey(nameof(JournalId))] public SpecJournalModel_DTO? _SpecJournal { get; set; }
         #endregion
     }
-
     /// <summary>
     /// 期刊-說明文件列表
     /// </summary>
@@ -285,7 +283,6 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         [ForeignKey(nameof(JournalId))] public SpecJournalModel_DTO? _SpecJournal { get; set; }
         #endregion
     }
-
     /// <summary>
     /// 期刊-類型列表
     /// </summary>
@@ -337,7 +334,9 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         #endregion
     }
 
-    ////////
+    /// <summary>
+    /// ORCID資料
+    /// </summary>
     public sealed class ORCIDData 
     {
         public string ORCID { get; set; } = string.Empty;
@@ -348,5 +347,23 @@ namespace WCMS.SpecFeatures.Spec1819.SiteEdit.SpecJournal
         public string Unit_en { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
+    }
+    /// <summary>
+    /// 出版(轉為期刊)要求資料
+    /// </summary>
+    public sealed class PublishReq
+    {
+        /// <summary>
+        /// 期刊-內部唯一標識號
+        /// </summary>
+        [LibDesc(ModelDisplayName.Common_InternalId)] public string InternalId { get; set; }
+        /// <summary>
+        /// 期刊目次代號
+        /// </summary>
+        [LibDesc(SpecModelDisplayName.Spec_JournalIndexId), StringLength(SysLengthParam.ID)] public string JournalIndexId { get; set; }
+        /// <summary>
+        /// 期刊目次明細行主鍵
+        /// </summary>
+        [LibDesc(SpecModelDisplayName.Spec_JournalIndexRowId)] public int? JournalIndexRowId { get; set; }
     }
 }
