@@ -1,0 +1,88 @@
+/* 預設footer樣式 */
+
+/* ============================================= */
+/* ------ 頁尾 FOOTER --------------------------- */
+/* ============================================= */
+
+/* Footer_section內含tinyMCE_section與copyright_section */
+.Footer_section {
+  position: relative;
+  display: block;
+  background-color: transparent;
+  padding-bottom: 0 !important;
+}
+
+/* tinyMCE_section - 此區塊為tinyMCE自定義區塊的外框，可以在SpecCSS另外設定覆蓋此處的預設 */
+.tinyMCE_section{
+  background-color: transparent;
+}
+.tinyMCE_section .container-tinyMCEfooter{
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+@media screen and (min-width: 1200px) {
+  .tinyMCE_section .container-tinyMCEfooter {
+    max-width: 1320px;
+  }
+}
+
+/* copyright_section - 可以在SpecCSS另外設定覆蓋此處的預設 */
+.copyright_section {
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  position: relative;
+  background-color: transparent;
+}
+.copyright_section .container-copyright{
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+@media screen and (min-width: 1200px) {
+  .copyright_section .container-copyright {
+    max-width: 1320px;
+  }
+}
+.copyright_section .container-copyright .copyright_wrapper{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+.copyright_section .container-copyright .copyright_wrapper .wrapper_box{
+  display: flex;
+  flex-wrap: wrap;
+}
+.copyright_section .container-copyright .copyright_wrapper .info_box_1{
+  display: block;
+  margin-right: 45px;
+}
+.copyright_section .container-copyright .copyright_wrapper .info_box_1 .content {
+  font-size: 85%;
+  color: #FFFFFF;
+  text-align: left;
+  margin: 0;
+}
+.copyright_section .container-copyright .copyright_wrapper .info_box_2{
+  display: block;
+}
+.copyright_section .container-copyright .copyright_wrapper .info_box_2 .content {
+  font-size: 85%;
+  color: #FFFFFF;
+  text-align: left;
+  margin: 0;
+}
+.copyright_section .container-copyright .copyright_wrapper .info_box_2 .design_by {
+  font-size: 85%;
+  color: #FFFFFF;
+  text-align: left;
+  margin: 0;
+}

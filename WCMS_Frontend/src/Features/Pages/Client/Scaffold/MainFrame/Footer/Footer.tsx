@@ -3,6 +3,7 @@ import type { Lang } from "@/SysCore/i18n/lang"
 import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton"
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds"
 import parse from 'html-react-parser';
+import "./Footer.css"
 
 export interface FooterRuntimeInfo {
     /** 網站瀏覽人數 */
@@ -130,28 +131,26 @@ const Footer = (props: FooterProps) => {
     // return
     return (
         <footer className="Footer_section">
-            <span>
-                <a accessKey="B" href="#B" className="accesskey_footer B" title="下方內容區(B)(B)" >:::</a>
-            </span>
-            <section className="container-customize4">
-                {footerContentHtml}
+            <section className="tinyMCE_section">
+                <div className="container-tinyMCEfooter">
+                    <span>
+                        <a accessKey="B" href="#B" className="accesskey_footer B" title="下方內容區(B)(B)" >:::</a>
+                    </span>
+                    {footerContentHtml}
+                </div>
             </section>
-            <section className="copyright_section pt-3 Layout_Padding_3_bottom">
-                <div className="container-customize4">
-                    <div className="copyright_wraper">
-                        <div className="d-flex align-items-center flex-wrap">
-                            <div className="me-1">
-                                <div className="info_contact">
-                                    <div className="dbox">
-                                        <p className="d-inline">{copyrightPrefix}</p>
-                                        <a href="http://www.it-easygo.com/Main.aspx" title={text.designByTitle} target="_blank" tabIndex={0} rel="noreferrer">
-                                            {text.designBy}
-                                        </a>
-                                    </div>
-                                </div>
-                                <div className="dbox-tb d-inline">
-                                    <p className="d-inline">{statusLine}</p>
-                                </div>
+            <section className="copyright_section">
+                <div className="container-copyright">
+                    <div className="copyright_wrapper">
+                        <div className="wrapper_box">
+                            <div className="info_box_1">
+                                <span className="content">{statusLine}</span>
+                            </div>
+                            <div className="info_box_2">
+                                <span className="content">{copyrightPrefix}</span>
+                                <a className="design_by" href="http://www.it-easygo.com/Main.aspx" title={text.designByTitle} target="_blank" tabIndex={0} rel="noreferrer">
+                                    {text.designBy}
+                                </a>
                             </div>
                         </div>
                     </div>
