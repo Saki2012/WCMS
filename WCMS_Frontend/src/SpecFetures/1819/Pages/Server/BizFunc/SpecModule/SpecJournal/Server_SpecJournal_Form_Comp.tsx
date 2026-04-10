@@ -3,12 +3,12 @@ import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Cont
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
+import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/SpecModule/SpecJournal/SpecJournal_Api";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { LibDropList, LibFileInput, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import { DefaultLang, type Lang, LangLabelMap, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
-import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
 import {
@@ -22,16 +22,27 @@ import {
 } from "@/types/SchemaFields";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { type SpecJournalFormActionsOpt, useSpecJournalFormFetchData } from "./Server_SpecJournal_Form_Hook";
+import {
+    type ISpecJournalDialogConfirmPayload,
+    Server_SpecJournal_Dialog_Comp,
+    type SpecJournalDialogActionType,
+} from "./Server_SpecJournal_Dialog_Comp";
+import {
+    type SpecJournalFormActionsOpt,
+    type SpecJournalMode,
+    useSpecJournalFormFetchData,
+} from "./Server_SpecJournal_Form_Hook";
 
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
 type SpecJournalDocuments = components["schemas"]["SpecJournalDocument_DTO"];
 type SpecJournalOpenPointFiles = components["schemas"]["SpecJournalOpenPointFiles_DTO"];
 type SpecJournalRefFiles = components["schemas"]["SpecJournalRefFiles_DTO"];
+type SpecJournalAuthor = components["schemas"]["SpecJournalAuthor_DTO"];
 type ORCIDData = components["schemas"]["ORCIDData"];
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
 type SpecJournalIndexDetailSet = components["schemas"]["SpecJournalIndexDetail_DTO"];
 type AuthorType = 0 | 1;
+type SpecJournalAdapterType = ReturnType<typeof SpecJournalAdapter>;
 
 const emptyData: SpecJournalSet = {
     SpecJournal: {},
@@ -44,7 +55,7 @@ const emptyData: SpecJournalSet = {
     SpecJournalTypes: [],
 };
 
-export const Server_SpecJournal_Form_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
+export const Server_SpecJournal_Form_Comp = (prop: { theme: IBETheme; lang: Lang; mode: SpecJournalMode; }) =>
 {
     const { internalId } = useParams();
     const navigate = useNavigate();
@@ -63,17 +74,36 @@ export const Server_SpecJournal_Form_Comp = (prop: { theme: IBETheme; lang: Lang
         emptyData,
         actionsOpt,
     });
+    const formTitle = useMemo(() =>
+    {
+        const displayName = prop.mode === "preprint" ? "預刊本" : "期刊";
+        return internalId ? `修改${displayName}` : `新增${displayName}`;
+    }, [internalId, prop.mode]);
+
     const formProp: FormCompProp = {
-        Title: internalId ? "修改期刊目次" : "新增期刊目次",
+        Title: formTitle,
         Theme: prop.theme,
         IsLoading: getData.isLoading,
         ErrorList: getData.errors,
         Actions: getData.rawData.actions,
     };
+
     return (
         <FormComp prop={formProp}>
+            <ModeActionBarComp
+                theme={prop.theme}
+                mode={prop.mode}
+                isEdit={Boolean(internalId)}
+                internalId={internalId ?? ""}
+                adapter={getData.adapter.SpecJournal}
+                indexRawData={getData.rawData.indexRawData}
+                formData={getData.rawData.formData}
+                onBackToList={onBackToList}
+            />
             <MainFormComp
                 theme={prop.theme}
+                mode={prop.mode}
+                adapter={getData.adapter.SpecJournal}
                 formData={getData.rawData.formData}
                 indexRawData={getData.rawData.indexRawData}
                 tagOptionsRaw={getData.rawData.tagOptionsRaw}
@@ -87,6 +117,8 @@ export const Server_SpecJournal_Form_Comp = (prop: { theme: IBETheme; lang: Lang
 const MainFormComp = (
     props: {
         theme: IBETheme;
+        mode: SpecJournalMode;
+        adapter: SpecJournalAdapterType;
         formData: UseFetchFormDataResult<SpecJournalSet>;
         indexRawData: SpecJournalIndexSet[];
         tagOptionsRaw: Record<string, string>;
@@ -115,14 +147,29 @@ const MainFormComp = (
             <BasicComp
                 key="basic"
                 theme={props.theme}
+                mode={props.mode}
                 formData={props.formData}
                 indexRawData={props.indexRawData}
                 tagOptionsRaw={props.tagOptionsRaw}
             />,
         ],
-        Author: [<AuthorComp key="author" theme={props.theme} formData={props.formData} authorType={0} />],
+        Author: [
+            <AuthorComp
+                key="author"
+                theme={props.theme}
+                adapter={props.adapter}
+                formData={props.formData}
+                authorType={0}
+            />,
+        ],
         CommunicateAuthor: [
-            <AuthorComp key="communicateAuthor" theme={props.theme} formData={props.formData} authorType={1} />,
+            <AuthorComp
+                key="communicateAuthor"
+                theme={props.theme}
+                adapter={props.adapter}
+                formData={props.formData}
+                authorType={1}
+            />,
         ],
         Bibliography: [
             <LibTinyMCE
@@ -160,6 +207,7 @@ const MainFormComp = (
 const BasicComp = (
     props: {
         theme: IBETheme;
+        mode: SpecJournalMode;
         formData: UseFetchFormDataResult<SpecJournalSet>;
         indexRawData: SpecJournalIndexSet[];
         tagOptionsRaw: Record<string, string>;
@@ -239,11 +287,38 @@ const BasicComp = (
 
     useEffect(() =>
     {
+        if (props.mode !== "preprint") return;
+
+        const journal = props.formData.data?.SpecJournal ?? {};
+        const hasIndexId = journal?.JournalIndexId != null;
+        const hasIndexRowId = journal?.JournalIndexRowId != null;
+        if (!hasIndexId && !hasIndexRowId) return;
+
+        props.formData.setFormData(prev =>
+        {
+            if (!prev) return prev;
+            const nextJournal = {
+                ...(prev.SpecJournal ?? {}),
+                [SpecJournalModelFields.JournalIndexId]: null,
+                [SpecJournalModelFields.JournalIndexRowId]: null,
+            };
+            return { ...prev, SpecJournal: nextJournal };
+        });
+    }, [
+        props.mode,
+        props.formData,
+        props.formData.data?.SpecJournal?.JournalIndexId,
+        props.formData.data?.SpecJournal?.JournalIndexRowId,
+    ]);
+
+    useEffect(() =>
+    {
+        if (props.mode !== "journal") return;
+
         const prev = prevIndexIdRef.current;
         prevIndexIdRef.current = selectedIndexId;
-        // 第一次進來不清（避免載入既有資料就被清空）
         if (prev === null) return;
-        // Header 真的有變，才清空子項
+
         if (prev !== selectedIndexId)
         {
             props.formData.setFormData(prevData =>
@@ -251,13 +326,12 @@ const BasicComp = (
                 if (!prevData) return prevData;
                 const next = { ...(prevData as SpecJournalSet) };
                 const j = { ...(next.SpecJournal ?? {}) };
-                // 子項回到空選項
                 j[SpecJournalModelFields.JournalIndexRowId] = null;
                 next.SpecJournal = j;
                 return next;
             });
         }
-    }, [selectedIndexId, props.formData]);
+    }, [props.mode, selectedIndexId, props.formData]);
 
     useEffect(() =>
     {
@@ -279,21 +353,26 @@ const BasicComp = (
 
     return (
         <>
-            <div className="col-12 form-group">
-                <LibDropList
-                    Style={props.theme.DropList2}
-                    Options={indexOptions}
-                    AutoDefaultFirst={false}
-                    {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.JournalIndexId, "string")}
-                />
-                <LibDropList
-                    Style={props.theme.DropList2}
-                    Options={indexRowOptions}
-                    AutoDefaultFirst={false}
-                    {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.JournalIndexRowId, "string")}
-                />
-            </div>
-
+            {props.mode === "journal" && (
+                <div className="col-12 form-group">
+                    <LibDropList
+                        Style={props.theme.DropList2}
+                        Options={indexOptions}
+                        AutoDefaultFirst={false}
+                        {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.JournalIndexId, "string")}
+                    />
+                    <LibDropList
+                        Style={props.theme.DropList2}
+                        Options={indexRowOptions}
+                        AutoDefaultFirst={false}
+                        {...setField(
+                            SpecJournalSetFields.SpecJournal,
+                            SpecJournalModelFields.JournalIndexRowId,
+                            "string",
+                        )}
+                    />
+                </div>
+            )}
             <div className="col-12 form-group">
                 <LibTextBox
                     Style={props.theme.TextBox}
@@ -418,10 +497,17 @@ const BasicComp = (
 };
 
 const AuthorComp = (
-    props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalSet>; authorType: AuthorType; },
+    props: {
+        theme: IBETheme;
+        adapter: SpecJournalAdapterType;
+        formData: UseFetchFormDataResult<SpecJournalSet>;
+        authorType: AuthorType;
+    },
 ) =>
 {
     const { publish } = useToast();
+    const orcidAction = props.adapter.hooks.useGetAuthorByOrcid();
+
     const setField = useSetTableField<SpecJournalSet>(props.formData);
     const allAuthors = props.formData.data?.SpecJournalAuthor ?? [];
     /** 依 authorType 過濾目前頁籤要顯示的作者 */
@@ -574,12 +660,16 @@ const AuthorComp = (
         return /^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/i.test(v);
     };
     // ✅ 只覆寫空欄位（避免蓋掉使用者已輸入的內容）
-    const applyAuthorFromOrcid = (rowKeys: any, dto: any): void =>
+    const applyAuthorFromOrcid = useCallback((
+        rowKeys: Record<string, string | number | null | undefined>,
+        dto: ORCIDData,
+    ): void =>
     {
         props.formData.setFormData(prev =>
         {
             if (!prev) return prev;
-            const list: any[] = (prev as any).SpecJournalAuthor ?? [];
+
+            const list = prev.SpecJournalAuthor ?? [];
             const hitIdx = list.findIndex(a =>
                 String(a?.[SpecJournalAuthorFields.JournalId] ?? "")
                     === String(rowKeys?.[SpecJournalAuthorFields.JournalId] ?? "")
@@ -587,58 +677,57 @@ const AuthorComp = (
                     === String(rowKeys?.[SpecJournalAuthorFields.RowId] ?? "")
             );
             if (hitIdx < 0) return prev;
-            const cur = { ...(list[hitIdx] ?? {}) };
-            const setIfEmpty = (field: string, value: any) =>
+
+            const cur: SpecJournalAuthor = { ...(list[hitIdx] ?? {}) };
+            const fillIfEmpty = (
+                oldValue: string | null | undefined,
+                newValue: string | null | undefined,
+            ): string | null | undefined =>
             {
-                const oldVal = String(cur?.[field] ?? "").trim();
-                const nextVal = String(value ?? "").trim();
-                if (!oldVal && nextVal) cur[field] = nextVal;
+                const oldText = String(oldValue ?? "").trim();
+                const newText = String(newValue ?? "").trim();
+                if (!oldText && newText) return newText;
+                return oldValue;
             };
-            // 依你 DTO 欄位回填
-            setIfEmpty(SpecJournalAuthorFields.ORCID, dto?.ORCID);
-            setIfEmpty(SpecJournalAuthorFields.AuthorName, dto?.AuthorName);
-            setIfEmpty(SpecJournalAuthorFields.AuthorName_en, dto?.AuthorName_en);
-            setIfEmpty(SpecJournalAuthorFields.JobTitle, dto?.JobTitle);
-            setIfEmpty(SpecJournalAuthorFields.Unit, dto?.Unit);
-            setIfEmpty(SpecJournalAuthorFields.Unit_en, dto?.Unit_en);
-            setIfEmpty(SpecJournalAuthorFields.Email, dto?.Email);
-            setIfEmpty(SpecJournalAuthorFields.Country, dto?.Country);
+            cur.ORCID = fillIfEmpty(cur.ORCID, dto?.ORCID);
+            cur.AuthorName = fillIfEmpty(cur.AuthorName, dto?.AuthorName);
+            cur.AuthorName_en = fillIfEmpty(cur.AuthorName_en, dto?.AuthorName_en);
+            cur.JobTitle = fillIfEmpty(cur.JobTitle, dto?.JobTitle);
+            cur.Unit = fillIfEmpty(cur.Unit, dto?.Unit);
+            cur.Unit_en = fillIfEmpty(cur.Unit_en, dto?.Unit_en);
+            cur.Email = fillIfEmpty(cur.Email, dto?.Email);
+            cur.Country = fillIfEmpty(cur.Country, dto?.Country);
+
             const nextList = [...list];
             nextList[hitIdx] = cur;
-            return { ...(prev as any), SpecJournalAuthor: nextList };
+            return { ...prev, SpecJournalAuthor: nextList };
         });
-    };
+    }, [props.formData]);
 
     // ✅ onBlur：打後端 /Service/SpecJournal/GetAuthorByOrcid
-    const handleOrcidBlur = async (rowKeys: any, raw: string): Promise<void> =>
+    const handleOrcidBlur = useCallback(async (
+        rowKeys: Record<string, string | number | null | undefined>,
+        raw: string,
+    ): Promise<void> =>
     {
         const orcid = normalizeOrcid(raw);
         if (!orcid) return;
-        // 不像 ORCID 就不打（避免一直打 API）
         if (!isLikelyOrcid(orcid)) return;
-        try
+
+        const res = await orcidAction.execute(orcid);
+
+        (res.SysMessage ?? []).forEach(item =>
         {
-            const url = `/Service/SpecJournal/GetAuthorByOrcid?orcid=${encodeURIComponent(orcid)}`;
-            const resp = await fetch(url, {
-                method: "GET",
-                credentials: "include",
-                headers: {
-                    "Accept-Language": navigator.language || "zh-TW",
-                },
-            });
-            const json: ApiResponse<ORCIDData> = await resp.json();
-            (json.SysMessage ?? []).forEach(item =>
-            {
-                publish({ level: item.Status, code: item.MessageCode, text: item.Message });
-            });
-            if (!json?.IsSuccess) return;
-            const dto = Array.isArray(json?.Data) ? json.Data[0] : null;
-            if (!dto) return;
-            applyAuthorFromOrcid(rowKeys, dto);
-        } catch
-        {
-        }
-    };
+            publish({ level: item.Status, code: item.MessageCode, title: item.Message });
+        });
+
+        if (!res.IsSuccess) return;
+
+        const dto = Array.isArray(res.Data) ? (res.Data[0] ?? null) : null;
+        if (!dto) return;
+
+        applyAuthorFromOrcid(rowKeys, dto);
+    }, [orcidAction, publish, applyAuthorFromOrcid]);
     // tab key/label mapping（同步到 ref）
     const tabItemMap = authors.reduce<Record<string, string>>((acc, a: any, idx: number) =>
     {
@@ -1562,4 +1651,117 @@ const buildArticleLangOptions = (): Record<string, string> =>
         acc[String(lang)] = LangLabelMap[lang] ?? String(lang);
         return acc;
     }, {});
+};
+
+/** 發佈期刊 / 退回預刊功能 Bar（內含 Dialog 狀態） */
+const ModeActionBarComp = (
+    props: {
+        theme: IBETheme;
+        mode: SpecJournalMode;
+        isEdit: boolean;
+        internalId: string;
+        adapter: SpecJournalAdapterType;
+        indexRawData: SpecJournalIndexSet[];
+        formData: UseFetchFormDataResult<SpecJournalSet>;
+        onBackToList: () => void;
+    },
+) =>
+{
+    const [open, setOpen] = useState<boolean>(false);
+    const [actionType, setActionType] = useState<SpecJournalDialogActionType>("publish");
+
+    const indexOptions = useMemo(() =>
+    {
+        return buildIndexHeaderOptions(props.indexRawData);
+    }, [props.indexRawData]);
+
+    const indexRowOptionsByIndexId = useMemo(() =>
+    {
+        return buildIndexDetailOptionsByIndexId(props.indexRawData);
+    }, [props.indexRawData]);
+
+    const currentIndexId = useMemo<string | null>(() =>
+    {
+        const value = props.formData.data?.SpecJournal?.JournalIndexId;
+        return value == null ? null : String(value);
+    }, [props.formData.data?.SpecJournal?.JournalIndexId]);
+
+    const currentIndexRowId = useMemo<number | null>(() =>
+    {
+        const value = props.formData.data?.SpecJournal?.JournalIndexRowId;
+        return value == null ? null : value;
+    }, [props.formData.data?.SpecJournal?.JournalIndexRowId]);
+
+    const title = useMemo(() =>
+    {
+        return props.mode === "preprint" ? "發布期刊" : "退回預刊";
+    }, [props.mode]);
+
+    const handleOpenPublish = useCallback((): void =>
+    {
+        setActionType("publish");
+        setOpen(true);
+    }, []);
+
+    const handleOpenRevert = useCallback((): void =>
+    {
+        setActionType("revert");
+        setOpen(true);
+    }, []);
+
+    const handleClose = useCallback((): void =>
+    {
+        setOpen(false);
+    }, []);
+
+    const handleConfirm = useCallback((): void =>
+    {
+        props.onBackToList();
+    }, [props.onBackToList]);
+
+    if (!props.isEdit) return null;
+
+    return (
+        <>
+            <div className="col-12 mb-3">
+                <div className="d-flex flex-wrap gap-2 justify-content-end">
+                    {props.mode === "preprint" && (
+                        <button
+                            type="button"
+                            className="btn btn-success"
+                            onClick={handleOpenPublish}
+                            aria-label={title}
+                        >
+                            {title}
+                        </button>
+                    )}
+
+                    {props.mode === "journal" && (
+                        <button
+                            type="button"
+                            className="btn btn-danger"
+                            onClick={handleOpenRevert}
+                            aria-label={title}
+                        >
+                            {title}
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            <Server_SpecJournal_Dialog_Comp
+                theme={props.theme}
+                open={open}
+                actionType={actionType}
+                adapter={props.adapter}
+                internalId={props.internalId}
+                indexOptions={indexOptions}
+                indexRowOptionsByIndexId={indexRowOptionsByIndexId}
+                initialIndexId={currentIndexId}
+                initialIndexRowId={currentIndexRowId}
+                onClose={handleClose}
+                onConfirm={handleConfirm}
+            />
+        </>
+    );
 };

@@ -26,7 +26,8 @@ const DEFAULT_PLACEHOLDER = "請輸入關鍵字進行搜尋...";
 const INCLUDE_REF_QS_KEY = "includeRef";
 
 /** 解析 includeRef */
-const parseIncludeRef = (v: string | null): boolean => {
+const parseIncludeRef = (v: string | null): boolean =>
+{
     // 宣告變數
     const s = (v ?? "").trim().toLowerCase();
 
@@ -35,14 +36,16 @@ const parseIncludeRef = (v: string | null): boolean => {
 };
 
 /** 設定 includeRef querystring */
-const setIncludeRefQs = (qs: URLSearchParams, checked: boolean): void => {
+const setIncludeRefQs = (qs: URLSearchParams, checked: boolean): void =>
+{
     // 執行 function
     if (checked) qs.set(INCLUDE_REF_QS_KEY, "1");
     else qs.delete(INCLUDE_REF_QS_KEY);
 };
 
 /** 解析目標 pathname（支援 "." 相對當前頁） */
-const resolveTargetPathname = (basePath: string, currentPathname: string): string => {
+const resolveTargetPathname = (basePath: string, currentPathname: string): string =>
+{
     // 宣告變數
     const path = (basePath ?? "").trim();
 
@@ -51,7 +54,8 @@ const resolveTargetPathname = (basePath: string, currentPathname: string): strin
     return path;
 };
 
-export const SpecJournalKeywordSearch_Comp: React.FC<Props> = (props) => {
+export const SpecJournalKeywordSearch_Comp: React.FC<Props> = (props) =>
+{
     // 宣告變數
     const inputId = useId();
     const includeRefId = useId();
@@ -66,18 +70,21 @@ export const SpecJournalKeywordSearch_Comp: React.FC<Props> = (props) => {
     const [includeRef, setIncludeRef] = useState<boolean>(includeRefFromUrl);
 
     // 執行 function：querystring 改變時同步 input / checkbox
-    useEffect(() => {
+    useEffect(() =>
+    {
         setKeyword(qFromUrl);
         setIncludeRef(includeRefFromUrl);
     }, [qFromUrl, includeRefFromUrl]);
 
-    const setQuery = useCallback((patch: SearchPatch) => {
+    const setQuery = useCallback((patch: SearchPatch) =>
+    {
         // 宣告變數
         const qs = new URLSearchParams(sp);
         const pathname = resolveTargetPathname(props.basePath, location.pathname);
 
         // 執行 function：includeRef 可與 q 共存
-        if (patch.includeRef !== undefined) {
+        if (patch.includeRef !== undefined)
+        {
             setIncludeRefQs(qs, !!patch.includeRef);
         }
 
@@ -85,7 +92,8 @@ export const SpecJournalKeywordSearch_Comp: React.FC<Props> = (props) => {
         ["q", "articleLang", "tagId", "tagName", "author", "keyword"].forEach((k) => qs.delete(k));
 
         // 宣告變數：寫入單一 key
-        const setOne = (key: string, val?: string): void => {
+        const setOne = (key: string, val?: string): void =>
+        {
             const v = (val ?? "").trim();
             if (!v) return;
             qs.set(key, v);
@@ -94,7 +102,8 @@ export const SpecJournalKeywordSearch_Comp: React.FC<Props> = (props) => {
         // 執行 function：一次只留一種條件
         if (patch.q !== undefined) setOne("q", patch.q);
         else if (patch.articleLang !== undefined) setOne("articleLang", patch.articleLang);
-        else if (patch.tagId !== undefined) {
+        else if (patch.tagId !== undefined)
+        {
             setOne("tagId", patch.tagId);
             setOne("tagName", patch.tagName);
         } else if (patch.author !== undefined) setOne("author", patch.author);
@@ -110,7 +119,8 @@ export const SpecJournalKeywordSearch_Comp: React.FC<Props> = (props) => {
         });
     }, [sp, props.basePath, location.pathname, nav]);
 
-    const clearQuery = useCallback(() => {
+    const clearQuery = useCallback(() =>
+    {
         // 宣告變數
         const qs = new URLSearchParams(sp);
         const pathname = resolveTargetPathname(props.basePath, location.pathname);
@@ -129,17 +139,20 @@ export const SpecJournalKeywordSearch_Comp: React.FC<Props> = (props) => {
     }, [sp, props.basePath, location.pathname, nav]);
 
     // 執行 function：綁定外部 actions
-    useEffect(() => {
+    useEffect(() =>
+    {
         props.onBind?.({ setQuery, clearQuery });
     }, [props.onBind, setQuery, clearQuery]);
 
-    const onSubmit = (e: React.FormEvent): void => {
+    const onSubmit = (e: React.FormEvent): void =>
+    {
         // 執行 function
         e.preventDefault();
         setQuery({ q: keyword, includeRef });
     };
 
-    const onToggleIncludeRef = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const onToggleIncludeRef = (e: React.ChangeEvent<HTMLInputElement>): void =>
+    {
         // 執行 function
         setIncludeRef(e.target.checked);
     };

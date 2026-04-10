@@ -4,11 +4,9 @@
 // 2. 找得到 Spec 元件就用 Spec
 // 3. 找不到就直接 fallback 到 Feature base
 // 4. 不再讓 _default 介入 component resolver，避免空殼覆蓋 Feature
-
+import { HomePage as DefaultHomePage } from "@/Features/Pages/Client/Index/HomePage";
 import { resolveSpecComponent, resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
-import HomePageBase from "SpecFeature/Pages/Client/Index/HomePage";
 import { HomePageLoader as HomePageLoaderBase } from "SpecFeature/Pages/Client/Index/HomePage_Loader";
-
 // ---------------- Feature 基準版元件 ----------------
 import AnnouncementFormCompBase from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementForm";
 import AnnouncementListBase, {
@@ -38,26 +36,24 @@ import SubPageBase from "@/Features/Pages/Client/Scaffold/SubPages/SubPage";
 // ====================================================
 
 // SubPage
-export const SubPage = resolveSpecComponent(
+export const SubPage: typeof SubPageBase = resolveSpecComponent(
     "Pages/Client/Scaffold/SubPages/SubPage.tsx",
     SubPageBase,
     ["SubPage", "default"],
 );
 
 // HomePage
-export const HomePage: typeof HomePageBase = resolveSpecComponent(
+export const HomePage: typeof DefaultHomePage = resolveSpecComponent(
     "Pages/Client/Index/HomePage.tsx",
-    HomePageBase,
+    DefaultHomePage,
     ["HomePage", "default"],
 );
 
-// HomePage Loader
 export const HomePageLoader: typeof HomePageLoaderBase = resolveSpecFunc(
     "Pages/Client/Index/HomePage_Loader.ts",
     HomePageLoaderBase,
     ["HomePageLoader", "default"],
 );
-
 // PageManagement Form
 export const PageManagementForm: typeof PageManagementFormCompBase = resolveSpecComponent(
     "Pages/Client/BizFunc/WebManagement/PageManagement/PageManagementForm.tsx",

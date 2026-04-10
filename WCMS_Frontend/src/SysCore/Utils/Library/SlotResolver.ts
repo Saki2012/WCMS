@@ -115,3 +115,26 @@ export const getSpecFuncModules = (): Record<string, SlotModule> =>
 {
     return specFuncModules;
 };
+
+export type SlotModuleLoader = () => Promise<SlotModule>;
+
+// Spec：Asset loader 專用模組集合（lazy）
+const specAssetModules = import.meta.glob("SpecFeature/**/Assets/*.{ts,tsx}") as Record<string, SlotModuleLoader>;
+/** 依 suffix 尋找對應 asset loader */
+const findSlotLoaderBySuffix = (
+    modules: Record<string, SlotModuleLoader>,
+    relativePath: string,
+): SlotModuleLoader | undefined =>
+{
+    const rel = normalizeSlotPath(relativePath);
+    const hitKey = Object.keys(modules).find(key => normalizeSlotPath(key).endsWith(rel));
+    return hitKey ? modules[hitKey] : undefined;
+};
+/** 若 spec asset 存在就載入；不存在就略過 */
+export const importSpecAssets = async (relativePath: string): Promise<boolean> =>
+{
+    const loader = findSlotLoaderBySuffix(specAssetModules, relativePath);
+    if (!loader) return false;
+    await loader();
+    return true;
+};

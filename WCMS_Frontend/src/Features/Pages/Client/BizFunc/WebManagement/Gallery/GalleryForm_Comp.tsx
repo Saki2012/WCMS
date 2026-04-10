@@ -1,20 +1,22 @@
-import { useEffect, useMemo } from "react";
+import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
+import { useGalleryFormFetchData } from "@/Features/Pages/Client/BizFunc/WebManagement/Gallery/GalleryForm_Loader";
+import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import ModuleContent, {
+    type ModuleViewCountConfig,
+} from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
-import ModuleContent, {type ModuleViewCountConfig, } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
-import type { components } from "@/types/api";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
+import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
-import { useGalleryFormFetchData } from "@/Features/Pages/Client/BizFunc/WebManagement/Gallery/GalleryForm_Loader";
+import { useEffect, useMemo } from "react";
 
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 
-const GalleryForm = (props: {site: INormSite; node: INormNode; theme: IFETheme; lang: Lang;}) =>
+const GalleryForm = (props: { site: INormSite; node: INormNode; theme: IFETheme; lang: Lang; }) =>
 {
     // 讀取 feature 收斂後的單一資料入口
-    const formData = useGalleryFormFetchData({lang: props.lang,});
+    const formData = useGalleryFormFetchData({ lang: props.lang });
 
     // 建立瀏覽次數設定
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
@@ -108,7 +110,12 @@ const GalleryFormList = (props: { lang: Lang; data: GallerySet; }) =>
                             <article className="cardbox">
                                 <div className="card_content">
                                     <figure className="figure_Box">
-                                        <a href={photoUrl} className="card_image_link venobox" data-gall="myGallery" title={photoTitle}>
+                                        <a
+                                            href={photoUrl}
+                                            className="card_image_link venobox"
+                                            data-gall="myGallery"
+                                            title={photoTitle}
+                                        >
                                             <div className="card_figure">
                                                 <div className="img-wrapper">
                                                     <img className="card_image" src={photoUrl} alt="" />
@@ -116,12 +123,14 @@ const GalleryFormList = (props: { lang: Lang; data: GallerySet; }) =>
                                             </div>
                                         </a>
                                         {/* 會重複圖片，先暫時取消 */}
-                                        {/* <div className="customize_picture_ZoomIn_btn">
+                                        {
+                                            /* <div className="customize_picture_ZoomIn_btn">
                                             <a href={photoUrl} className="QuickView + p_Btn_zm1 venobox" data-gall="myGallery" type="button" role="button" title="放大圖片">
                                                 <i className="fas fa-expand-alt"></i>
                                                 <span className="sr-only">放大圖片</span>
                                             </a>
-                                        </div> */}
+                                        </div> */
+                                        }
                                     </figure>
 
                                     <div className="card_titleDiv + mb-md-2 mb-sm-1 mb-0">

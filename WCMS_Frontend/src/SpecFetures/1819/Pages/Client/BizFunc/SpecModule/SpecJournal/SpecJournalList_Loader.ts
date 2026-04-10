@@ -127,8 +127,16 @@ const buildCondition = (p: BuildConditionArgs): string =>
     if (f.q)
     {
         const kw = escapeSqlValue(f.q);
-        const baseCond =
-            `(${SpecJournalModelFields.Title} like '${kw}' Or ${SpecJournalModelFields.Title_en} like '${kw}')`;
+        const baseCond = `(${
+            LibMerge(
+                " Or ",
+                false,
+                `${SpecJournalModelFields.Title} like '${kw}'`,
+                `${SpecJournalModelFields.Title_en} like '${kw}'`,
+                `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName} like '${kw}'`,
+                `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en} like '${kw}'`,
+            )
+        })`;
         const includeRef = f.includeRef === "1" || f.includeRef.toLowerCase() === "true";
         if (!includeRef) condition = LibMerge(" And ", false, condition, baseCond);
         else

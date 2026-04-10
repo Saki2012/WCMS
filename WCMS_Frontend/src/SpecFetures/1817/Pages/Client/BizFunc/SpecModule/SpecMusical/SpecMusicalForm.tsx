@@ -1,29 +1,36 @@
-import type { components } from '@/types/api';
-import { useParams } from 'react-router';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import ModuleContent, { type ModuleViewCountConfig } from '@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent';
-import type { INormNode, INormSite } from '@/Features/Pages/Client/Route/Site-Routing';
-import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
-import type { ModelDisplaySchema } from '@/types/IApiSchema';
-import { PGID, SpecMusicalModelFields, SpecMusicalSetFields } from '@/types/SchemaFields';
+import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import ModuleContent, {
+    type ModuleViewCountConfig,
+} from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import type { components } from "@/types/api";
+import type { ModelDisplaySchema } from "@/types/IApiSchema";
+import { PGID, SpecMusicalModelFields, SpecMusicalSetFields } from "@/types/SchemaFields";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useParams } from "react-router";
 
 // ✅ 新架構：Adapter + LoaderData initial
-import { useLoaderData } from 'react-router-dom';
-import type { ApiLoaderData } from '@/SysCore/Utils/API/APIAdapter';
-import { SpecMusicalAdapter } from '@/SpecFetures/1817/Hooks/BizFunc/SpecModule/SpecMusical/SpecMusical_Api';
-import type { SpecMusicalFormLoaderData } from './SpecMusicalForm_Loader';
-import type { TryCountDetailViewRequest } from '@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api';
+import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
+import { SpecMusicalAdapter } from "@/SpecFetures/1817/Hooks/BizFunc/SpecModule/SpecMusical/SpecMusical_Api";
+import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
+import { useLoaderData } from "react-router-dom";
+import type { SpecMusicalFormLoaderData } from "./SpecMusicalForm_Loader";
 
-type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"]
-type SpecMusicalModel = components["schemas"]["SpecMusicalModel_DTO"]
-type SpecMusicalPictureList = components["schemas"]["SpecMusicalPictureList_DTO"]
-type SpecMusicalSoundList = components["schemas"]["SpecMusicalSoundList_DTO"]
+type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
+type SpecMusicalModel = components["schemas"]["SpecMusicalModel_DTO"];
+type SpecMusicalPictureList = components["schemas"]["SpecMusicalPictureList_DTO"];
+type SpecMusicalSoundList = components["schemas"]["SpecMusicalSoundList_DTO"];
 
 let globalCurrentAudio: HTMLAudioElement | null = null;
 
-interface ISpecMusicalFormProps { site:INormSite; node: INormNode; }
+interface ISpecMusicalFormProps
+{
+    site: INormSite;
+    node: INormNode;
+}
 
-const SpecMusicalForm = (props: ISpecMusicalFormProps) => {
+const SpecMusicalForm = (props: ISpecMusicalFormProps) =>
+{
     // 宣告變數
     const { internalId } = useParams();
     const loaderData = useLoaderData() as SpecMusicalFormLoaderData | null;
@@ -31,7 +38,8 @@ const SpecMusicalForm = (props: ISpecMusicalFormProps) => {
     const adapter = useMemo(() => SpecMusicalAdapter(), []);
     const safeInternalId = `${internalId ?? ""}`.trim();
 
-    const initialData = useMemo<ApiLoaderData<string, SpecMusicalSet> | null>(() => {
+    const initialData = useMemo<ApiLoaderData<string, SpecMusicalSet> | null>(() =>
+    {
         if (!loaderData?.args?.internalId) return null;
         if (loaderData.args.internalId !== safeInternalId) return null;
 
@@ -45,8 +53,9 @@ const SpecMusicalForm = (props: ISpecMusicalFormProps) => {
         };
     }, [loaderData, safeInternalId]);
 
-    const initialDisplayName = useMemo<ApiLoaderData<null, ModelDisplaySchema[]> | null>(() => {
-    if (!loaderData?.res?.displayNameRes) return null;
+    const initialDisplayName = useMemo<ApiLoaderData<null, ModelDisplaySchema[]> | null>(() =>
+    {
+        if (!loaderData?.res?.displayNameRes) return null;
         return {
             args: null,
             apiRes: {
@@ -72,29 +81,39 @@ const SpecMusicalForm = (props: ISpecMusicalFormProps) => {
     const errorList = [useData.errorText, useDisplayName.errorText];
 
     const title = useData.data?.SpecMusical?.MusicalName ?? "";
-    const viewCountConfig = useMemo<ModuleViewCountConfig>(() => {
+    const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
+    {
         const request: TryCountDetailViewRequest = {
-            SiteIndex:props.site.siteIndex,
-            ProgId:PGID.SpecMusical,
-            InternalId:safeInternalId,
+            SiteIndex: props.site.siteIndex,
+            ProgId: PGID.SpecMusical,
+            InternalId: safeInternalId,
         };
-        return { mode: "form", contentKey: safeInternalId, request,};}, [safeInternalId]);
+        return { mode: "form", contentKey: safeInternalId, request };
+    }, [safeInternalId]);
     // return（DOM 不改）
-    const displaySchema = useMemo<ModelDisplaySchema | null>(() => {
+    const displaySchema = useMemo<ModelDisplaySchema | null>(() =>
+    {
         return Array.isArray(useDisplayName.data)
             ? (useDisplayName.data[0] ?? null)
             : null;
     }, [useDisplayName.data]);
     return (
-        <ModuleContent nodeTitle={props.node.title} title={title} isLoading={useData.isLoading} errorList={errorList} viewCountConfig={viewCountConfig}>
+        <ModuleContent
+            nodeTitle={props.node.title}
+            title={title}
+            isLoading={useData.isLoading}
+            errorList={errorList}
+            viewCountConfig={viewCountConfig}
+        >
             <MainContent data={useData.data ?? undefined} displayName={displaySchema} />
         </ModuleContent>
-    )
-}
+    );
+};
 
-export default SpecMusicalForm
+export default SpecMusicalForm;
 
-const MainContent = (props: { data?: SpecMusicalSet; displayName: ModelDisplaySchema | null }) => {
+const MainContent = (props: { data?: SpecMusicalSet; displayName: ModelDisplaySchema | null; }) =>
+{
     if (!props.data) return null;
 
     return (
@@ -111,24 +130,30 @@ const MainContent = (props: { data?: SpecMusicalSet; displayName: ModelDisplaySc
                 </div>
             </div>
         </>
-    )
-}
+    );
+};
 
-const PicturesComp = (props: { pics: SpecMusicalPictureList[] }) => {
+const PicturesComp = (props: { pics: SpecMusicalPictureList[]; }) =>
+{
     const mainRef = useRef<HTMLDivElement | null>(null);
     const thumbRef = useRef<HTMLDivElement | null>(null);
     const zoomBtnRef = useRef<HTMLAnchorElement | null>(null);
     const srcId = FileManagementAPI.get_Public_Preview_Url(props.pics?.[0].PicSrcId);
-    const sortPics = useMemo(() => { return [...props.pics].sort((a, b) => (a.Sort ?? 0) - (b.Sort ?? 0)) }, [props.pics])
-    useEffect(() => {
+    const sortPics = useMemo(() =>
+    {
+        return [...props.pics].sort((a, b) => (a.Sort ?? 0) - (b.Sort ?? 0));
+    }, [props.pics]);
+    useEffect(() =>
+    {
         // 沒有資料或還沒掛上 DOM 直接跳出
         if (!props.pics || props.pics.length === 0) return;
         if (!mainRef.current || !thumbRef.current || !zoomBtnRef.current) return;
         if (typeof window === "undefined") return;
 
-        const win = window as unknown as { jQuery?: any; $?: any };
+        const win = window as unknown as { jQuery?: any; $?: any; };
         const $ = win.jQuery || win.$;
-        if (!$ || !$.fn || !$.fn.owlCarousel) {
+        if (!$ || !$.fn || !$.fn.owlCarousel)
+        {
             // jQuery / OwlCarousel 尚未載入就略過
             return;
         }
@@ -142,7 +167,8 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[] }) => {
         if ($thumb.hasClass("owl-loaded")) $thumb.trigger("destroy.owl.carousel");
 
         // 同步縮圖 + 放大按鈕
-        const syncPosition = (event: { item?: { index?: number } }) => {
+        const syncPosition = (event: { item?: { index?: number; }; }) =>
+        {
             const index = event?.item?.index ?? 0;
 
             $thumb.find(".item").removeClass("active").eq(index).addClass("active");
@@ -186,11 +212,13 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[] }) => {
             },
         });
 
-        $thumb.find(".item").each(function (this: HTMLElement, index: number) {
+        $thumb.find(".item").each(function(this: HTMLElement, index: number)
+        {
             $(this).attr("data-index", index);
         });
 
-        const handleThumbClick = function (this: HTMLElement, e: MouseEvent) {
+        const handleThumbClick = function(this: HTMLElement, e: MouseEvent)
+        {
             e.preventDefault();
             const $item = $(this);
             const index = Number($item.attr("data-index"));
@@ -206,7 +234,8 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[] }) => {
 
         // 初始化 Venobox（如果有載入）
         const venoFn = ($zoomBtn as any).venobox;
-        if (typeof venoFn === "function") {
+        if (typeof venoFn === "function")
+        {
             venoFn.call($zoomBtn, {
                 framewidth: "auto",
                 frameheight: "auto",
@@ -217,31 +246,41 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[] }) => {
         }
 
         // cleanup
-        return () => {
-            try {
+        return () =>
+        {
+            try
+            {
                 $main.trigger("destroy.owl.carousel").off("changed.owl.carousel", syncPosition);
                 $thumb.off("click", ".item", handleThumbClick).trigger("destroy.owl.carousel");
-            }
-            catch {
+            } catch
+            {
                 // ignore
             }
         };
     }, [sortPics, props.pics]);
 
-    
     return (
         <div className="col-xxl-5 col-xl-5 col-lg-5 col-md-5 col-sm-12 col-12">
             <div className="Commodity_Change_Image_Area">
                 <div className="commodity_wrapper">
                     <div className="commodity_big_image_box + owl-box">
                         <div className="ZoomIn commodity_ZoomIn_btn">
-                            <a ref={zoomBtnRef} href={srcId} className="Btn_zm1 venobox" data-gall="myGallery" type="button" role="button" title="放大圖片">
+                            <a
+                                ref={zoomBtnRef}
+                                href={srcId}
+                                className="Btn_zm1 venobox"
+                                data-gall="myGallery"
+                                type="button"
+                                role="button"
+                                title="放大圖片"
+                            >
                                 <i className="fas fa-expand-alt"></i>
                                 <span className="sr-only">放大圖片</span>
                             </a>
                         </div>
                         <div className="owl-carousel + main-carousel" ref={mainRef}>
-                            {sortPics.map((img, index) => {
+                            {sortPics.map((img, index) =>
+                            {
                                 const url = FileManagementAPI.get_Public_Preview_Url(img.PicSrcId);
                                 const alt = img.Info ?? "";
                                 return (
@@ -252,30 +291,32 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[] }) => {
                                             </div>
                                         </div>
                                     </div>
-                                )
+                                );
                             })}
                         </div>
                     </div>
                     <div className="commodity_slider_box + owl-box">
-                        <div className="owl-carousel + thumb-carousel" ref={thumbRef} >
-                            {sortPics.map((img, index) => {
+                        <div className="owl-carousel + thumb-carousel" ref={thumbRef}>
+                            {sortPics.map((img, index) =>
+                            {
                                 const url = FileManagementAPI.get_Public_Preview_Url(img.PicSrcId);
                                 const alt = img.Info ?? "";
                                 return (
                                     <div className="item" key={index}>
                                         <img src={url} alt={alt} />
                                     </div>
-                                )
+                                );
                             })}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-const InfoComp = (props: { info: SpecMusicalModel; displayName: ModelDisplaySchema | null }) => {
+const InfoComp = (props: { info: SpecMusicalModel; displayName: ModelDisplaySchema | null; }) =>
+{
     const columns = props.displayName?.Tables?.find(p => p.TableId === SpecMusicalSetFields.SpecMusical)?.Columns ?? [];
     const displayCol = [
         SpecMusicalModelFields.Specification,
@@ -284,10 +325,11 @@ const InfoComp = (props: { info: SpecMusicalModel; displayName: ModelDisplaySche
         SpecMusicalModelFields.ScaleLength,
         SpecMusicalModelFields.Bridge,
         SpecMusicalModelFields.BodyForm,
-        SpecMusicalModelFields.Material
+        SpecMusicalModelFields.Material,
     ];
 
-    const specifications = displayCol.map((colId) => {
+    const specifications = displayCol.map((colId) =>
+    {
         const colMeta = columns.find(c => c.ColumnId === colId);
         const fieldKey = colId as keyof SpecMusicalModel;
         const rawValue = props.info[fieldKey];
@@ -296,13 +338,16 @@ const InfoComp = (props: { info: SpecMusicalModel; displayName: ModelDisplaySche
 
     const [isOpen, setIsOpen] = useState(false);
 
-    const toggleDescription = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const toggleDescription = (e: React.MouseEvent<HTMLAnchorElement>) =>
+    {
         e.preventDefault();
         setIsOpen(prev => !prev);
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>) => {
-        if (e.key === "Enter" || e.key === " ") {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>) =>
+    {
+        if (e.key === "Enter" || e.key === " ")
+        {
             e.preventDefault();
             setIsOpen(prev => !prev);
         }
@@ -331,10 +376,16 @@ const InfoComp = (props: { info: SpecMusicalModel; displayName: ModelDisplaySche
                                 {props.info.Info}
                             </span>
                         </div>
-                        <a className={`label_btn${isOpen ? " active" : ""}`} type="button" role="button"
+                        <a
+                            className={`label_btn${isOpen ? " active" : ""}`}
+                            type="button"
+                            role="button"
                             aria-label={isOpen ? "[收合全文]" : "[全文展開]"}
-                            title={isOpen ? "[ 收合全文 ]" : "[ 全文展開 ]"} tabIndex={0}
-                            onClick={toggleDescription} onKeyDown={handleKeyDown}>
+                            title={isOpen ? "[ 收合全文 ]" : "[ 全文展開 ]"}
+                            tabIndex={0}
+                            onClick={toggleDescription}
+                            onKeyDown={handleKeyDown}
+                        >
                             <span className="sr-only">{isOpen ? "收合全文" : "全文展開"}</span>
                         </a>
                     </div>
@@ -342,10 +393,11 @@ const InfoComp = (props: { info: SpecMusicalModel; displayName: ModelDisplaySche
                 <hr className="hr-my-4" />
             </div>
         </div>
-    )
-}
+    );
+};
 
-const SoundComp = (props: { sounds: SpecMusicalSoundList[] }) => {
+const SoundComp = (props: { sounds: SpecMusicalSoundList[]; }) =>
+{
     return (
         <div className="tab-content" id="H-nav-tabContent">
             <div id="H-navTabs-01" className="tab-pane fade show active" role="tabpanel" aria-labelledby="H-Tabs__01">
@@ -358,11 +410,16 @@ const SoundComp = (props: { sounds: SpecMusicalSoundList[] }) => {
                     <div className="audioMP3_content">
                         <div className="row">
                             {props.sounds.map((audio, index) => (
-                                <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12 + MP3-Item" key={index}>
+                                <div
+                                    className="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12 + MP3-Item"
+                                    key={index}
+                                >
                                     <div className="MP3player_AllBox">
                                         <div className="audio-heading">{audio.Info}</div>
                                         <div className="player_Area">
-                                            <AudioPlayer src={FileManagementAPI.get_Public_Preview_Url(audio.SoundSrcId)}/>
+                                            <AudioPlayer
+                                                src={FileManagementAPI.get_Public_Preview_Url(audio.SoundSrcId)}
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -372,20 +429,22 @@ const SoundComp = (props: { sounds: SpecMusicalSoundList[] }) => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-const AudioPlayer = (props: { src: string }) => {
+const AudioPlayer = (props: { src: string; }) =>
+{
     const playerRef = useRef<HTMLDivElement | null>(null);
 
-    useEffect(() => {
+    useEffect(() =>
+    {
         if (typeof window === "undefined") return;
 
         const root = playerRef.current;
         if (!root) return;
 
         const audio = root.querySelector("audio") as HTMLAudioElement | null;
-        const playToggleBtn = root.querySelector('a[role="button"]') as HTMLAnchorElement | null;
+        const playToggleBtn = root.querySelector("a[role=\"button\"]") as HTMLAnchorElement | null;
         const currentTimeEl = root.querySelector(".player-time") as HTMLElement | null;
         const durationEl = root.querySelector(".player-time-duration") as HTMLElement | null;
         const progressBar = root.querySelector(".player-bar") as HTMLElement | null;
@@ -395,31 +454,39 @@ const AudioPlayer = (props: { src: string }) => {
         const volumeIcon = root.querySelector(".volume-icon") as HTMLButtonElement | null;
         const volumeLabel = root.querySelector(".volume-label") as HTMLElement | null;
 
-        if (!audio || !playToggleBtn || !currentTimeEl || !durationEl || !progressBar ||
-            !playedBar || !thumb || !volumeSlider || !volumeIcon || !volumeLabel) return;
+        if (
+            !audio || !playToggleBtn || !currentTimeEl || !durationEl || !progressBar
+            || !playedBar || !thumb || !volumeSlider || !volumeIcon || !volumeLabel
+        ) return;
 
         let isDragging = false;
 
-        const formatTime = (secs: number) => {
+        const formatTime = (secs: number) =>
+        {
             if (!Number.isFinite(secs) || secs < 0) secs = 0;
             const m = Math.floor(secs / 60);
             const s = Math.floor(secs % 60);
             return `${m < 10 ? "0" : ""}${m}:${s < 10 ? "0" : ""}${s}`;
         };
 
-        const updateVolumeIcon = () => {
+        const updateVolumeIcon = () =>
+        {
             const val = audio.volume;
-            if (audio.muted || val === 0) {
+            if (audio.muted || val === 0)
+            {
                 volumeIcon.style.backgroundImage = "url('images/audio_mp3/volume-mute_40x40.png')";
-            }
-            else {
+            } else
+            {
                 volumeIcon.style.backgroundImage = "url('images/audio_mp3/volume-up_40x40.png')";
             }
         };
 
-        const togglePlay = () => {
-            if (audio.paused) {
-                if (globalCurrentAudio && globalCurrentAudio !== audio) {
+        const togglePlay = () =>
+        {
+            if (audio.paused)
+            {
+                if (globalCurrentAudio && globalCurrentAudio !== audio)
+                {
                     globalCurrentAudio.pause();
                     const prevPlayer = globalCurrentAudio.closest(".audio-player") as HTMLElement | null;
                     if (prevPlayer) prevPlayer.classList.remove("player-playing");
@@ -427,21 +494,24 @@ const AudioPlayer = (props: { src: string }) => {
                 audio.play();
                 root.classList.add("player-playing");
                 globalCurrentAudio = audio;
-            }
-            else {
+            } else
+            {
                 audio.pause();
                 root.classList.remove("player-playing");
                 if (globalCurrentAudio === audio) globalCurrentAudio = null;
             }
         };
 
-        const handleBtnClick = (e: MouseEvent) => {
+        const handleBtnClick = (e: MouseEvent) =>
+        {
             e.preventDefault();
             togglePlay();
         };
 
-        const handleBtnKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Enter" || e.key === " ") {
+        const handleBtnKeyDown = (e: KeyboardEvent) =>
+        {
+            if (e.key === "Enter" || e.key === " ")
+            {
                 e.preventDefault();
                 togglePlay();
             }
@@ -450,9 +520,13 @@ const AudioPlayer = (props: { src: string }) => {
         playToggleBtn.addEventListener("click", handleBtnClick);
         playToggleBtn.addEventListener("keydown", handleBtnKeyDown);
 
-        const handleLoadedMetadata = () => { durationEl.textContent = formatTime(audio.duration); };
+        const handleLoadedMetadata = () =>
+        {
+            durationEl.textContent = formatTime(audio.duration);
+        };
 
-        const handleTimeUpdate = () => {
+        const handleTimeUpdate = () =>
+        {
             if (isDragging || !audio.duration) return;
             const ratio = audio.currentTime / audio.duration;
             playedBar.style.width = `${ratio * 100}%`;
@@ -460,7 +534,8 @@ const AudioPlayer = (props: { src: string }) => {
             currentTimeEl.textContent = formatTime(audio.currentTime);
         };
 
-        const handleEnded = () => {
+        const handleEnded = () =>
+        {
             root.classList.remove("player-playing");
             if (globalCurrentAudio === audio) globalCurrentAudio = null;
         };
@@ -469,7 +544,8 @@ const AudioPlayer = (props: { src: string }) => {
         audio.addEventListener("timeupdate", handleTimeUpdate);
         audio.addEventListener("ended", handleEnded);
 
-        const updatePosition = (clientX: number) => {
+        const updatePosition = (clientX: number) =>
+        {
             const rect = progressBar.getBoundingClientRect();
             let offsetX = clientX - rect.left;
             if (offsetX < 0) offsetX = 0;
@@ -481,12 +557,14 @@ const AudioPlayer = (props: { src: string }) => {
             thumb.style.left = `${ratio * 100}%`;
         };
 
-        const onProgressMouseDown = (e: MouseEvent) => {
+        const onProgressMouseDown = (e: MouseEvent) =>
+        {
             isDragging = true;
             updatePosition(e.clientX);
 
             const onMove = (ev: MouseEvent) => updatePosition(ev.clientX);
-            const onUp = () => {
+            const onUp = () =>
+            {
                 isDragging = false;
                 document.removeEventListener("mousemove", onMove);
             };
@@ -495,12 +573,14 @@ const AudioPlayer = (props: { src: string }) => {
             document.addEventListener("mouseup", onUp, { once: true });
         };
 
-        const onThumbMouseDown = (e: MouseEvent) => {
+        const onThumbMouseDown = (e: MouseEvent) =>
+        {
             isDragging = true;
             e.preventDefault();
 
             const onMove = (ev: MouseEvent) => updatePosition(ev.clientX);
-            const onUp = () => {
+            const onUp = () =>
+            {
                 isDragging = false;
                 document.removeEventListener("mousemove", onMove);
             };
@@ -515,14 +595,16 @@ const AudioPlayer = (props: { src: string }) => {
         audio.volume = 1;
         volumeSlider.value = "100";
 
-        const handleVolumeInput = () => {
+        const handleVolumeInput = () =>
+        {
             audio.volume = Number(volumeSlider.value) / 100;
             audio.muted = false;
             volumeLabel.textContent = `${Math.round(audio.volume * 100)}%`;
             updateVolumeIcon();
         };
 
-        const handleVolumeIconClick = () => {
+        const handleVolumeIconClick = () =>
+        {
             audio.muted = !audio.muted;
             updateVolumeIcon();
             volumeLabel.textContent = audio.muted ? "0%" : `${Math.round(audio.volume * 100)}%`;
@@ -534,7 +616,8 @@ const AudioPlayer = (props: { src: string }) => {
         updateVolumeIcon();
         volumeLabel.textContent = `${Math.round(audio.volume * 100)}%`;
 
-        return () => {
+        return () =>
+        {
             playToggleBtn.removeEventListener("click", handleBtnClick);
             playToggleBtn.removeEventListener("keydown", handleBtnKeyDown);
             audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
@@ -557,7 +640,15 @@ const AudioPlayer = (props: { src: string }) => {
                 </div>
             </a>
             <div className="player-time" aria-live="polite">00:00</div>
-            <div className="player-bar" role="slider" aria-label="播放進度" aria-valuemin={0} aria-valuemax={100} aria-valuenow={0} tabIndex={0}>
+            <div
+                className="player-bar"
+                role="slider"
+                aria-label="播放進度"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={0}
+                tabIndex={0}
+            >
                 <div className="player-bar-loaded"></div>
                 <div className="player-bar-played"></div>
                 <div className="player-thumb"></div>
@@ -567,7 +658,15 @@ const AudioPlayer = (props: { src: string }) => {
 
             <div className="volume-control">
                 <button className="volume-icon" data-volume="high" aria-label="靜音或取消靜音"></button>
-                <input type="range" min={0} max={100} defaultValue={100} step={1} className="volume-slider" aria-label="音量控制" />
+                <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    defaultValue={100}
+                    step={1}
+                    className="volume-slider"
+                    aria-label="音量控制"
+                />
                 <span className="volume-label" aria-live="polite">
                     100%
                 </span>

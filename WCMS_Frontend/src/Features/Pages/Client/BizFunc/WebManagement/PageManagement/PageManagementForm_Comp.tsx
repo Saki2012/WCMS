@@ -1,17 +1,14 @@
-import { useMemo } from "react";
-import parse from "html-react-parser";
-import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
+import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent, {
     type ModuleViewCountConfig,
 } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
-import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
-import { PGID } from "@/types/SchemaFields";
-import {
-    usePageManagementFormFetchData,
-    type IPageManagementOptions,
-} from "./PageManagementForm_Loader";
+import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { PGID } from "@/types/SchemaFields";
+import parse from "html-react-parser";
+import { useMemo } from "react";
+import { type IPageManagementOptions, usePageManagementFormFetchData } from "./PageManagementForm_Loader";
 
 interface IPageManagementProps
 {

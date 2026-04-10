@@ -1,35 +1,15 @@
-import { loadClientChildren } from "@/Features/Pages/Client/Route/ClientRouter";
 import { type INormNode, type INormSite, type ModuleEntry } from "@/Features/Pages/Client/Route/Site-Routing";
 import SubPage from "@/Features/Pages/Client/Scaffold/SubPages/SubPage";
 import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx";
-import { BackendRouteModule } from "@/Features/Pages/Server/Scaffold/Routes/ServerRouter";
+import { SpecJournalForm_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalForm";
+import { SpecJournalForm_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalForm_Loader";
+import { SpecJournalIndex } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalIndex";
+import { SpecJournalIndex_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalIndex_Loader";
+import { SpecJournalList } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalList";
+import { SpecJournalList_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalList_Loader";
 import type { IHeaderMetaProps } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
-import type { RouteObject } from "react-router-dom";
-
-import { SpecJournalForm_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalForm";
-import { SpecJournalIndex } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalIndex";
-import { SpecJournalList } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalList";
-
-import { SpecJournalForm_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalForm_Loader";
-import { SpecJournalIndex_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalIndex_Loader";
-import { SpecJournalList_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalList_Loader";
-
-export class SpecRouteModule implements IRouteModule
-{
-    async getRoutes(): Promise<RouteObject[]>
-    {
-        // 宣告變數
-        const frontendRoutes = await loadClientChildren();
-        const backendRoutes = new BackendRouteModule().getRoutes();
-        const customRoutes: RouteObject[] = [];
-
-        // return
-        return [...frontendRoutes, ...backendRoutes, ...customRoutes];
-    }
-}
 
 export const specClientEntries: Record<string, ModuleEntry> = {
     SpecJournal: {

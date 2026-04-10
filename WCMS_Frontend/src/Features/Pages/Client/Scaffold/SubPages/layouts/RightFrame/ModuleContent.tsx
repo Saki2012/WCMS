@@ -2,26 +2,28 @@
  * 此為RightFrame 底下的內容容器
  */
 
+import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
+import { useFormDetailViewCount } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Hooks";
+import { getSiteHeaderMeta } from "@/Features/Pages/AppRoute";
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { NewPaginator } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
-import { DefaultLang, SUPPORTED_LANGS, type Lang } from "@/SysCore/i18n/lang";
+import { DefaultLang, type Lang, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
 import { useLang } from "@/SysCore/i18n/LangContext";
-import { useFormDetailViewCount } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Hooks";
-import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
 import type { AxiosInstance } from "axios";
 import type { ReactNode } from "react";
 import { useMemo } from "react";
 import { useLocation } from "react-router";
-import { siteHeaderMeta } from "SpecFeature/SpecRouter";
 
-export type ModuleViewCountConfig = | ModuleListViewCountConfig | ModuleFormViewCountConfig;
+export type ModuleViewCountConfig = ModuleListViewCountConfig | ModuleFormViewCountConfig;
 
-export interface ModuleListViewCountConfig {
+export interface ModuleListViewCountConfig
+{
     mode: "list";
 }
-export interface ModuleFormViewCountConfig {
+export interface ModuleFormViewCountConfig
+{
     mode: "form";
     contentKey: string;
     request: TryCountDetailViewRequest;
@@ -29,7 +31,8 @@ export interface ModuleFormViewCountConfig {
     apiInstance?: AxiosInstance;
 }
 
-export interface ModuleContentProps {
+export interface ModuleContentProps
+{
     nodeTitle: string;
     title?: string;
     subTitle?: SubTitleProps;
@@ -41,14 +44,24 @@ export interface ModuleContentProps {
 }
 
 /** 建立 detail view count hook 所需參數 */
-const buildDetailViewCountOptions = (config: ModuleViewCountConfig) => {
-    if (config.mode === "list") {
-        return { enabled: false, contentKey: "", request: null, cooldownMs: undefined, apiInstance: undefined,};
+const buildDetailViewCountOptions = (config: ModuleViewCountConfig) =>
+{
+    if (config.mode === "list")
+    {
+        return { enabled: false, contentKey: "", request: null, cooldownMs: undefined, apiInstance: undefined };
     }
-    return { enabled: true, contentKey: config.contentKey, request: config.request, cooldownMs: config.cooldownMs, apiInstance: config.apiInstance,};
+    return {
+        enabled: true,
+        contentKey: config.contentKey,
+        request: config.request,
+        cooldownMs: config.cooldownMs,
+        apiInstance: config.apiInstance,
+    };
 };
 
-const ModuleContent = (props: ModuleContentProps) => {
+const ModuleContent = (props: ModuleContentProps) =>
+{
+    const siteHeaderMeta = getSiteHeaderMeta();
     // 宣告變數
     const fullTitle = [siteHeaderMeta.title, props.nodeTitle, props.title].filter(Boolean).join("｜");
     const ctx = useLang();
@@ -56,18 +69,32 @@ const ModuleContent = (props: ModuleContentProps) => {
     const loc = useLocation();
     const origin = typeof window !== "undefined" ? window.location.origin : "";
     const canonicalUrl = origin ? `${origin}${loc.pathname}` : undefined;
-    const alternates = origin ? SUPPORTED_LANGS.map((l) => { 
+    const alternates = origin
+        ? SUPPORTED_LANGS.map((l) =>
+        {
             const isDefault = l === DefaultLang;
-            const href = isDefault ? `${origin}${loc.pathname.replace(/^\/[^/]+(?=\/|$)/, "")}` : `${origin}/${l}${loc.pathname.replace(/^\/[^/]+(?=\/|$)/, "")}`;
+            const href = isDefault
+                ? `${origin}${loc.pathname.replace(/^\/[^/]+(?=\/|$)/, "")}`
+                : `${origin}/${l}${loc.pathname.replace(/^\/[^/]+(?=\/|$)/, "")}`;
             return { hrefLang: l, href };
-        }): undefined;
-    const detailViewCountOptions = useMemo(() => { return buildDetailViewCountOptions(props.viewCountConfig); }, [props.viewCountConfig]);
+        })
+        : undefined;
+    const detailViewCountOptions = useMemo(() =>
+    {
+        return buildDetailViewCountOptions(props.viewCountConfig);
+    }, [props.viewCountConfig]);
     // 執行 function：由 ModuleContent 統一處理 subpage page view count
     useFormDetailViewCount(detailViewCountOptions);
     // return
     return (
         <>
-            <HeaderMetaComp htmlLang={lang} title={fullTitle} description={siteHeaderMeta.description} canonicalUrl={canonicalUrl} alternates={alternates}/>
+            <HeaderMetaComp
+                htmlLang={lang}
+                title={fullTitle}
+                description={siteHeaderMeta.description}
+                canonicalUrl={canonicalUrl}
+                alternates={alternates}
+            />
             <LoadingErrorHandler isLoading={props.isLoading} errorList={props.errorList}>
                 {props.title && <Title title={props.title} subTitle={props.subTitle} />}
                 <div className="ALL__Information__Display__Area">
@@ -83,7 +110,8 @@ const ModuleContent = (props: ModuleContentProps) => {
 export default ModuleContent;
 
 /** 標題 */
-const Title = (props: { title: string; subTitle?: SubTitleProps }) => {
+const Title = (props: { title: string; subTitle?: SubTitleProps; }) =>
+{
     // return
     return (
         <>
@@ -96,13 +124,15 @@ const Title = (props: { title: string; subTitle?: SubTitleProps }) => {
     );
 };
 
-export interface SubTitleProps {
+export interface SubTitleProps
+{
     cat?: string;
     tag?: string;
     date?: string;
 }
 
-const SubTitle = (props: SubTitleProps) => {
+const SubTitle = (props: SubTitleProps) =>
+{
     // return
     return (
         <div className="NEWS_catDiv">

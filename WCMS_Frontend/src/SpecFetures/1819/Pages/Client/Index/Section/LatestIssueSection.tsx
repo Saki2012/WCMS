@@ -1,15 +1,16 @@
-import { useMemo } from "react";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import type { HomePageRawData } from "../HomePage_Loader";
 import type { components } from "@/types/api";
+import { useMemo } from "react";
 import { SpecJournalKeywordSearch_Comp } from "../../BizFunc/SpecModule/SpecJournal/SpecJournalKeywordSearchComp";
+import type { HomePageRawData } from "../HomePage_Loader";
 
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 
-interface LatestIssueSectionProps {
+interface LatestIssueSectionProps
+{
     lang: Lang;
     initialData: Pick<
         HomePageRawData,
@@ -21,33 +22,32 @@ interface LatestIssueSectionProps {
 }
 
 /** 取得 Banner 圖片網址 */
-const getBannerImageUrl = (banner: BannerSet | null): string => {
-    return FileManagementAPI.get_Public_Preview_Url(banner?.BannerDetail?.[0]?.PicSrcId)
+const getBannerImageUrl = (banner: BannerSet | null): string =>
+{
+    return FileManagementAPI.get_Public_Preview_Url(banner?.BannerDetail?.[0]?.PicSrcId);
 };
 
 /** 取第一筆卷期資料 */
-const getFirstIssue = (list: SpecJournalIndexSet[] | undefined): SpecJournalIndexSet | null => {
-    // return
+const getFirstIssue = (list: SpecJournalIndexSet[] | undefined): SpecJournalIndexSet | null =>
+{
     return list?.[0] ?? null;
 };
 
 /** 組卷期顯示字串 */
-const buildIssueTitle = (data?: SpecJournalIndexSet | null): string => {
-    // 宣告變數
+const buildIssueTitle = (data?: SpecJournalIndexSet | null): string =>
+{
     if (!data) return "";
-
     const detail = data.SpecJournalIndexDetail?.[0];
     const vol = detail?.Volume ?? "";
     const iss = detail?.Issue ?? "";
     const dateText = detail?.PublishDate ? formatYyyyMm(detail.PublishDate) : "預刊本";
     const special = detail?.IsSpecial ? " - 特刊" : "";
-
-    // return
     return `${vol}卷${iss}期 ( ${dateText} )${special}`;
 };
 
 /** 站內卷期連結 */
-const buildIssueTo = (data?: SpecJournalIndexSet | null): string => {
+const buildIssueTo = (data?: SpecJournalIndexSet | null): string =>
+{
     // 宣告變數
     const index = data?.SpecJournalIndexDetail?.[0]?.IndexId ?? "";
     const rowId = data?.SpecJournalIndexDetail?.[0]?.RowId ?? "";
@@ -57,12 +57,17 @@ const buildIssueTo = (data?: SpecJournalIndexSet | null): string => {
 };
 
 /** Summary 檔案下載連結 */
-const buildSummaryDownloadHref = (data?: SpecJournalIndexSet | null): string => {
-    return FileManagementAPI.get_Public_Download_Url(data?.SpecJournalIndexDetail?.[0]?.SummaryFileId,data?.SpecJournalIndexDetail?.[0]?.SummaryFileName)
+const buildSummaryDownloadHref = (data?: SpecJournalIndexSet | null): string =>
+{
+    return FileManagementAPI.get_Public_Download_Url(
+        data?.SpecJournalIndexDetail?.[0]?.SummaryFileId,
+        data?.SpecJournalIndexDetail?.[0]?.SummaryFileName,
+    );
 };
 
 /** 只取 yyyy/MM */
-const formatYyyyMm = (publishDate: unknown): string => {
+const formatYyyyMm = (publishDate: unknown): string =>
+{
     // 宣告變數
     if (!publishDate) return "";
 
@@ -77,18 +82,14 @@ const formatYyyyMm = (publishDate: unknown): string => {
 };
 
 /** 最新期刊 */
-const LastIssueComp = (props: { data: SpecJournalIndexSet | null }) => {
+const LastIssueComp = (props: { data: SpecJournalIndexSet | null; }) =>
+{
     // 宣告變數
     const data = props.data;
     const title = buildIssueTitle(data);
     const issueTo = buildIssueTo(data);
     const downloadHref = buildSummaryDownloadHref(data);
     const fileName = data?.SpecJournalIndexDetail?.[0]?.SummaryFileName ?? "";
-
-    // 執行 function
-    if (!data) return null;
-
-    // return
     return (
         <>
             <div className="TOP_TXT">
@@ -99,17 +100,14 @@ const LastIssueComp = (props: { data: SpecJournalIndexSet | null }) => {
                     <div className="ttl-small">issue</div>
                 </div>
             </div>
-
             <div className="CENTER_FILE + CENTER_After">
                 <div className="HD-txt">最新卷期</div>
-
                 <div className="TW-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <i className="fas fa-link" aria-hidden="true" />
                     <LangNavLink to={issueTo} style={{ color: "inherit", textDecoration: "none" }}>
                         {title}
                     </LangNavLink>
                 </div>
-
                 {!!downloadHref && (
                     <div className="EN-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <i className="fas fa-file-pdf + me-2" aria-hidden="true" />
@@ -131,18 +129,16 @@ const LastIssueComp = (props: { data: SpecJournalIndexSet | null }) => {
 };
 
 /** 預刊本 */
-const PreprintComp = (props: { data: SpecJournalIndexSet | null }) => {
-    const data = props.data;
-    const title = data?.SpecJournalIndex?.IndexName;
-    const issueTo = "/Issues/Preprint";//寫死，針對預刊本路徑
-    if (!data) return null;
+const PreprintComp = () =>
+{
+    const issueTo = "/Issues/Preprint"; // 寫死，針對預刊本路徑
     return (
         <div className="DOWN_TXT">
             <div className="HD-txt">先知先覺</div>
             <div className="TW-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <i className="fas fa-link" aria-hidden="true" />
                 <LangNavLink to={issueTo} style={{ color: "inherit", textDecoration: "none" }}>
-                    {title}
+                    預刊本
                 </LangNavLink>
             </div>
         </div>
@@ -150,7 +146,8 @@ const PreprintComp = (props: { data: SpecJournalIndexSet | null }) => {
 };
 
 /** 最新卷期 */
-export const LatestIssueSection = (props: LatestIssueSectionProps) => {
+export const LatestIssueSection = (props: LatestIssueSectionProps) =>
+{
     const bgBanner = props.initialData.latestIssueBgBanner;
     const coverBanner = props.initialData.latestIssueCoverBanner;
     const publishedList = props.initialData.latestIssuePublishedList ?? [];
@@ -171,7 +168,7 @@ export const LatestIssueSection = (props: LatestIssueSectionProps) => {
                                         <div className="FV_Box">
                                             <div className="TS_wrapper">
                                                 <LastIssueComp data={latestPublished} />
-                                                <PreprintComp data={latestUnpublished} />
+                                                <PreprintComp />
                                                 <SpecJournalKeywordSearch_Comp basePath="/Issues/List" />
                                             </div>
                                         </div>
@@ -180,7 +177,12 @@ export const LatestIssueSection = (props: LatestIssueSectionProps) => {
                                     <div className="col-md-6 col-sm-12 col-12 + Right_Imgbox + order-md-2 + order-sm-1 + order-1">
                                         <div className="Background_IMG_DIV">
                                             <div className="IMG_wrapperBOX">
-                                                <div className="inner_body" style={bgInnerImg ? { backgroundImage: `url(${bgInnerImg})` } : undefined}>
+                                                <div
+                                                    className="inner_body"
+                                                    style={bgInnerImg
+                                                        ? { backgroundImage: `url(${bgInnerImg})` }
+                                                        : undefined}
+                                                >
                                                     <div className="Journal-content">
                                                         <div className="card_figure">
                                                             <div className="img-wrapper">

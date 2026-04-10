@@ -1,8 +1,7 @@
 // SpecFeatures/1810/Router.ts
-import { loadClientChildren, withRequestLang } from "@/Features/Pages/Client/Route/ClientRouter";
+import { withRequestLang } from "@/Features/Pages/Client/Route/ClientRouter";
 import { type INormNode, type INormSite, type ModuleEntry } from "@/Features/Pages/Client/Route/Site-Routing";
 import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx";
-import { BackendRouteModule } from "@/Features/Pages/Server/Scaffold/Routes/ServerRouter";
 import {
     type ISpecResearchListOptions,
     SpecResearchListComp,
@@ -12,25 +11,13 @@ import { SpecUSRListComp } from "@/SpecFetures/1810/Pages/Client/BizFunc/WebMana
 import SubPage from "@/SpecFetures/1810/Pages/Client/Scaffold/SubPages/SubPage";
 import type { IHeaderMetaProps } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
-import type { RouteObject } from "react-router-dom";
+
 import { SpecResearchList_Loader } from "./Pages/Client/BizFunc/WebManagement/SpecResearch/SpecResearch_List_Loader";
 import { SpecUSRForm_Loader } from "./Pages/Client/BizFunc/WebManagement/SpecUSR/SpecUSR_Form_Loader";
 import {
     type ISpecUSRListOptions,
     SpecUSRList_Loader,
 } from "./Pages/Client/BizFunc/WebManagement/SpecUSR/SpecUSR_List_Loader";
-
-export class SpecRouteModule implements IRouteModule
-{
-    async getRoutes(): Promise<RouteObject[]>
-    {
-        const frontendRoutes = await loadClientChildren();
-        const backendRoutes = new BackendRouteModule().getRoutes();
-        const customRoutes: RouteObject[] = [];
-        return [...frontendRoutes, ...backendRoutes, ...customRoutes];
-    }
-}
 
 export const specClientEntries: Record<string, ModuleEntry> = {
     SpecUSR: {

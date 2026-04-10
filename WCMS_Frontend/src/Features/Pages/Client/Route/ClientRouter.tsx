@@ -20,7 +20,6 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
 import { PGID } from "@/types/SchemaFields";
 import { type LoaderFunction, type LoaderFunctionArgs, type RouteObject } from "react-router-dom";
-import { specClientEntries } from "SpecFeature/SpecRouter";
 import { Sitemap, SITEMAP_SEGMENT } from "../BizFunc/MainPage/Sitemap/Sitemap";
 import { AnnouncementFormLoader } from "../BizFunc/WebManagement/Announcement/AnnouncementForm_Loader";
 import { AnnouncementListLoader } from "../BizFunc/WebManagement/Announcement/AnnouncementList_Loader";
@@ -38,6 +37,7 @@ import {
     resolveRouteLangFromRequest,
 } from "./Site-Routing";
 
+import { getSpecClientEntries } from "../../AppRoute";
 import { loadSitesForRouting, type SiteRoutingInitialState } from "./ClientRouter_Loader";
 
 export const loadClientChildren = async (
@@ -216,7 +216,7 @@ const ensureClientRegistryInstalled = (): void =>
     configureModuleRegistry(base => ({
         ...base,
         ...clientEntries,
-        ...specClientEntries, // 暫時寫上，之後看如何用繼承處理
+        ...getSpecClientEntries(),
     }));
 
     registryInstalled = true;

@@ -1,8 +1,8 @@
+import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
+import { useLang } from "@/SysCore/i18n/LangContext";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 import React from "react";
 import { useSearchParams } from "react-router-dom";
-import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
-import { LangLink } from "@/SysCore/i18n/LangLink";
-import { useLang } from "@/SysCore/i18n/LangContext";
 // ✅ 確保圖片會被 Vite bundle 進 dist（不要用硬編 /images/...）
 // import errorSvgUrl from "SpecFeature/Assets/Client/images/svg_icon/error.svg?url";
 
@@ -12,7 +12,8 @@ import { useLang } from "@/SysCore/i18n/LangContext";
  * - 視覺樣式沿用 404 prototype 的 error-area
  */
 // ✅ /404
-export const Error404Page: React.FC = () => {
+export const Error404Page: React.FC = () =>
+{
     const { code } = useLang();
     const [sp] = useSearchParams();
     const from = (sp.get("from") ?? "").trim();
@@ -26,7 +27,6 @@ export const Error404Page: React.FC = () => {
     const goHomeTitle = isEn ? "Go back home" : "返回首頁";
     const goHomeText = isEn ? "GO BACK HOME" : "返回首頁";
     const fromLabel = isEn ? "Original URL:" : "原始網址：";
-    const imgAlt = isEn ? "Page not found" : "找不到頁面";
 
     return (
         <>
@@ -41,11 +41,13 @@ export const Error404Page: React.FC = () => {
                                         <h1>{title}</h1>
                                         <p>{p1}</p>
 
-                                        {from ? (
-                                            <p>
-                                                <strong>{fromLabel}</strong> {from}
-                                            </p>
-                                        ) : null}
+                                        {from
+                                            ? (
+                                                <p>
+                                                    <strong>{fromLabel}</strong> {from}
+                                                </p>
+                                            )
+                                            : null}
 
                                         <LangLink to="/" title={goHomeTitle} className="default-btn">
                                             {goHomeText}

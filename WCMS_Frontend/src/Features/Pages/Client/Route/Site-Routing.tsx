@@ -8,7 +8,6 @@ import {
 import { HomePage, HomePageLoader } from "@/Features/Pages/Client/Route/ClientComponentResolver";
 import TemplateHub from "@/Features/Pages/Server/Scaffold/PreviewFrame/TemplateHub.tsx";
 import { DefaultLang, isSupportedLang, type Lang } from "@/SysCore/i18n/lang";
-import { useLang } from "@/SysCore/i18n/LangContext";
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 import type { components } from "@/types/api";
 import * as React from "react";
