@@ -133,6 +133,7 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
             <SpecJournalListContent
                 lang={props.lang}
                 rawData={useVolume.rawData}
+                totalCount={useVolume.totalCount}
                 queryFilters={filters}
                 issueSummary={issueSummary}
             />
@@ -248,6 +249,7 @@ const useSpecJournalVolume = (
     // return
     return {
         rawData: useList.data ?? [],
+        totalCount: useCount.data ?? 0,
         isLoading: useCount.isLoading || useList.isLoading,
         error: useCount.errorText ?? useList.errorText ?? null,
         pageNumber: useList.pageNumber,
@@ -260,6 +262,7 @@ const useSpecJournalVolume = (
 const SpecJournalListContent = (props: {
     lang: Lang;
     rawData: SpecJournalSet[];
+    totalCount: number;
     issueSummary: { fileId?: string; fileName?: string; downloadCount?: number; isPdf?: boolean; };
     queryFilters: {
         q?: string;
@@ -303,8 +306,18 @@ const SpecJournalListContent = (props: {
         if (filters.tagId) parts.push(`類型：${filters.tagName || filters.tagId}`);
         if (filters.author) parts.push(`作者：${filters.author}`);
         if (filters.keyword) parts.push(`關鍵詞：${filters.keyword}`);
-        return parts.join("；") || "未選擇條件";
-    }, [filters.q, filters.articleLang, filters.tagId, filters.tagName, filters.author, filters.keyword]);
+
+        const label = parts.join("；") || "未選擇條件";
+        return `${label}（共 ${props.totalCount} 筆）`;
+    }, [
+        filters.q,
+        filters.articleLang,
+        filters.tagId,
+        filters.tagName,
+        filters.author,
+        filters.keyword,
+        props.totalCount,
+    ]);
 
     return (
         <div className="Journal_List_content">
