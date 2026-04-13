@@ -1,0 +1,99 @@
+/* SubPage Share + Print */
+
+/* ====================================================== */
+/* =====  內頁  自訂  友善列印 ( PrintingSite )  =========== */
+/* ====================================================== */
+.PrintingSite__wrapper {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	margin: 0rem 0 0.5rem 0;
+	/*padding-bottom: 0.5rem;*/
+	/*border-bottom: 1px solid var(--G999color);*/
+}
+@media screen and (max-width: 575px) {
+	.PrintingSite__wrapper {
+		margin: 0rem;
+	}
+}
+/*----------------------------------------------*/
+/*----------------------------------------------*/
+.PrintingSite__wrapper .Print-box {
+    color: var(--blackcolor);
+	font-weight: normal;
+    text-decoration: none;
+    background-color: transparent;
+}
+@media screen and (max-width: 575px) {
+    .PrintingSite__wrapper .Print-box {}
+}
+/*----------------------------------------------*/
+/*----------------------------------------------*/
+.PrintingSite__wrapper .Print-box .nav-item + .nav-item::before {
+	float: left;
+    color: rgba(0,0,0,0.35); /* #1e2d40 */
+	content: "│";
+}
+
+.PrintingSite__wrapper .Print-box .nav-item {
+	font-size: 93.75%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	/*height: 30px;*/
+}
+
+.PrintingSite__wrapper .Print-box .nav-link {
+    /*font-weight: bold;*/
+    display: block;
+	
+	padding-top: 0.25rem 0.375rem;	
+}
+.PrintingSite__wrapper .Print-box .nav-item:last-child .nav-link {
+	padding: 0.125rem 0.5rem 0.125rem 0.35rem;
+}
+
+@media screen and (max-width: 992px) {	
+	.PrintingSite__wrapper .Print-box .nav-link {
+        font-size: 87.5%;
+		padding: 0.125rem 0.35rem; /*0.125rem 0.75rem*/
+	}
+}
+.PrintingSite__wrapper .Print-box .nav-link:focus-visible {
+	outline: 1px solid var(--a_focusbordercolor);
+	box-shadow: none;
+}
+/*.header_Box .nav-item+.nav-item a.nav-link {	
+}*/
+
+.PrintingSite__wrapper .Print-box .nav-item a.nav-link,
+.PrintingSite__wrapper .Print-box .nav-item + .nav-item a.nav-link,
+.PrintingSite__wrapper .Print-box .nav-item + .nav-item a.nav-link.disabled {
+    color: var(--blackcolor);
+    /*pointer-events: none;*/ /*滑鼠無作用*/
+    /*cursor: default;*/ /*預設-滑鼠無作用*/
+}
+
+.PrintingSite__wrapper .Print-box .nav-item a:hover.nav-link,
+.PrintingSite__wrapper .Print-box .nav-item + .nav-item a:hover.nav-link,
+.PrintingSite__wrapper .Print-box .nav-item + .nav-item a:hover.nav-link.disabled {
+    color: var(--Customize_HRcolor);
+    /*pointer-events: none;*/ /*滑鼠無作用*/
+    /*cursor: default;*/ /*預設-滑鼠無作用*/
+}
+.PrintingSite__wrapper .Print-box .nav-item a.nav-link.active,
+.PrintingSite__wrapper .Print-box .nav-item a:hover.nav-link.active {
+    color: var(--Customize_HRcolor);
+}
+.PrintingSite__wrapper .Print-box .nav-item a.nav-link i {
+	margin-right: 5px;
+}
+/* ====================================================== */
+/* =====  內頁  自訂  友善列印 ( PrintingSite )  =========== */
+/* ====================================================== */

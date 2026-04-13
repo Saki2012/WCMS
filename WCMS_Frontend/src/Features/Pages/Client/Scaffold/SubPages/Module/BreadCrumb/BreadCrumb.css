@@ -1,0 +1,156 @@
+/* SubPage Breadcrumb 使用 */
+
+/* ====================================================== */
+/* =====  內頁  自訂  麵包屑 ( Breadcrumb )  ============== */
+/* ====================================================== */
+.breadcrumb__wrapper {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	
+	margin: 2rem 0 0rem 0;
+	border-bottom: 1px solid var(--G999color);
+}
+/*----------------------------------------------*/
+.custom_breadcrumb {
+    display: block;
+}
+
+.custom_breadcrumb ol.breadcrumb {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    padding: 0rem 0rem;
+    margin-bottom: 0rem;
+    list-style: none;
+    
+    border-radius: 0; /*.25rem*/
+	background-color: transparent;	
+	align-items: center;
+}
+
+.custom_breadcrumb .breadcrumb-item,
+.custom_breadcrumb .breadcrumb-item a {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	font-size: 93.75%;
+    color: var(--blackcolor);
+	font-weight: normal;
+    text-decoration: none;
+    background-color: transparent;
+}
+@media screen and (max-width: 575px) {
+    .custom_breadcrumb .breadcrumb-item,
+	.custom_breadcrumb .breadcrumb-item a {
+		font-size: 87.5%;
+	}
+}
+
+.custom_breadcrumb .breadcrumb-item a:hover {
+	color: var(--Customize_color); /* JESS重要 - 變更顏色*/
+}
+
+.custom_breadcrumb .breadcrumb-item+.breadcrumb-item {
+	padding-left: .5rem;
+}
+.custom_breadcrumb .breadcrumb-item+.breadcrumb-item:last-child {
+	padding-right: .5rem;
+}
+/*----------------------------------------------*/
+.custom_breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+	float: left;
+	padding-right: .5rem;
+	color: rgba(0,0,0,0.35);
+	content: "/"
+}
+
+.custom_breadcrumb .breadcrumb-item + .breadcrumb-item:hover::before {
+	text-decoration: underline
+}
+
+.custom_breadcrumb .breadcrumb-item + .breadcrumb-item:hover::before {
+	text-decoration: none
+}
+/*----------------------------------------------*/
+.custom_breadcrumb .breadcrumb-item.active h2 {
+	font-size: 100%;
+	font-weight: bold;
+	color: var(--Customize_color); /* JESS重要 - 變更顏色*/
+	margin-bottom: 0;
+}
+@media screen and (max-width: 575px) {
+    .custom_breadcrumb .breadcrumb-item.active h2 {
+		font-size: 93.75%;
+	}
+}
+
+.custom_breadcrumb .breadcrumb-item.active:focus-visible {
+	outline: none;
+}
+/*----------------------------------------------*/
+.custom_breadcrumb .breadcrumb-item a i {
+	position: relative;
+	top: 1px;
+	margin-right: 3px;
+}
+@media screen and (max-width: 575px) {
+    .custom_breadcrumb .breadcrumb-item.active h2 {
+		font-size: 100%;
+	}
+}
+/*----------------------------------------------*/
+.breadcrumb__wrapper a {
+	display: block;
+	font-size: 93.75%;	
+}
+.breadcrumb__wrapper a .return-box {
+    color: var(--blackcolor);
+	font-weight: normal;
+    text-decoration: none;
+	padding: 0.125rem 0.5rem 0.125rem 0.35rem;
+    background-color: transparent;
+}
+@media screen and (max-width: 575px) {
+    .breadcrumb__wrapper a .return-box {
+		font-size: 87.5%;
+		padding-left: 0;
+	}
+}
+.breadcrumb__wrapper a .return-box i {
+	position: relative;
+	font-size: 100%;
+    margin-right: 3px;
+}
+@media screen and (max-width: 575px) {
+    .breadcrumb__wrapper a .return-box i {
+		font-size: 100%;
+	}
+}
+.breadcrumb__wrapper a:hover .return-box,
+.breadcrumb__wrapper a:active .return-box {
+    color: var(--Customize_color);
+}
+.breadcrumb__wrapper a:focus .return-box {
+	text-decoration: none;
+	outline: thin dotted;
+	outline: 1px solid var(--a_focusbordercolor);
+	outline-offset: 0px;
+	color: var(--blackcolor) !important;
+	background-color: var(--a_focuscolor) !important;
+}
+/* ====================================================== */
+/* =====  內頁  自訂  麵包屑 ( Breadcrumb )  ============== */
+/* ====================================================== */

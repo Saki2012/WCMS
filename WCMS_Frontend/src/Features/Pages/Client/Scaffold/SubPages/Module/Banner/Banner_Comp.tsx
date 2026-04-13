@@ -1,3 +1,5 @@
+/** subPage banner - 含大標題 */
+
 import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
@@ -7,6 +9,7 @@ import type { components } from "@/types/api";
 import { BannerDetailFields, BannerDetailInfoFields, BannerFields } from "@/types/SchemaFields";
 import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import "./Banner.css";
 
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 type BannerDetail = components["schemas"]["BannerDetail_DTO"];

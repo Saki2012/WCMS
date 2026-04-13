@@ -5,6 +5,8 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
+import "./ThirdMenu.css";
+
 
 export const ThirdMenu_Comp = (props: { lang: Lang; site: INormSite; node: INormNode; backHref?: string; }) => {
     const SIDE_MAX_DEPTH = 3;

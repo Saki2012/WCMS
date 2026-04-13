@@ -1,0 +1,184 @@
+/* SubPage Banner 使用 */
+
+/* ====================================================== */
+/* =====  內頁  自訂  SubPage-TopBanner ( IMG )  ========= */
+/* ====================================================== */
+.subpage_banner_wrapper {
+	position: relative;
+	z-index: 1;
+	/*background-image: url("../images/banner/subpage_banner_img_1920x550.jpg");*/
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    background-attachment: scroll;
+}
+@media screen and (max-width: 1200px) {
+    .subpage_banner_wrapper {
+        min-height: 200px;
+    }
+}
+@media screen and (min-width: 1201px) {
+    .subpage_banner_wrapper {
+        max-width: 100%;
+        overflow: hidden;
+        border-radius: 0px;
+    }
+}
+.subpage_banner_wrapper::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.35)
+}
+/*----------------------------------------------*/
+.pbmit-title-bar-wrappe {
+	min-height: 400px;
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .banner-content {
+	position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    padding: 40px 0px 0 ;
+}
+.subpage_banner_wrapper .banner-content {
+	/*min-height: 400px;*/
+	/*min-height: 350px;*/
+	min-height: 300px;
+}
+@media screen and (max-width: 575px) {
+    .banner-content {
+        min-height: 200px;
+    }
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .content-inner {
+	width: 100%;
+	text-align: left;
+}
+@media screen and (max-width: 575px) {
+    .subpage_banner_wrapper .content-inner {
+       text-align: center;
+    }
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .titlebar {
+	display: block;
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .titlebar-inner {
+    max-width: none;
+    padding: 0 !important;
+	margin-bottom: 15px;
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .Big-title {	
+    font-family: "Noto Sans TC";
+    font-size: initial;
+    font-weight: 700;
+    line-height: 60px;
+	letter-spacing: 4px;
+    text-transform: none;
+	margin-bottom: 0px;
+	color: var(--FFFcolor);
+    text-shadow: rgba(0, 0, 0, 0.35) 2px 3px;
+}
+@media screen and (max-width: 575px) {
+  .subpage_banner_wrapper .Big-title {	
+    font-size: 262.5%;
+    line-height: 40px;
+  }
+}
+@media screen and (min-width: 576px) {
+  .subpage_banner_wrapper .Big-title {	
+    font-size: 300%;
+    line-height: 60px;
+  }
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .banner-breadcrumb {
+	display: block;
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .banner-breadcrumb-inner {
+    padding: 0;
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .banner-breadcrumb ol.breadcrumb {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    
+    padding: 0;
+    margin-bottom: 1rem;
+    list-style: none;
+    
+    border-radius: 0; /*.25rem*/
+	background-color: transparent;    
+}
+@media screen and (max-width: 575px) {
+    .subpage_banner_wrapper .banner-breadcrumb ol.breadcrumb {
+        justify-content: center;
+    }
+}
+
+.subpage_banner_wrapper .banner-breadcrumb ol li.breadcrumb-item + li.breadcrumb-item::before {
+    position: relative;
+    padding: 0 1rem;
+    float: left;
+    color: var(--FFFcolor);
+    content: "/";
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .banner-breadcrumb .breadcrumb-item,
+.subpage_banner_wrapper .banner-breadcrumb .breadcrumb-item a {
+	font-size: 93.75%;
+    color: var(--FFFcolor);
+	font-weight: bold;
+    text-decoration: none;
+    background-color: transparent;
+    padding: 0rem 0rem;
+    text-shadow: rgba(0, 0, 0, 0.35) 2px 3px;
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .banner-breadcrumb .breadcrumb-item a:hover {
+	color: var(--FFFcolor); /* JESS重要 - 變更顏色*/
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .banner-breadcrumb .breadcrumb-item+.breadcrumb-item:hover::before {
+	text-decoration: underline
+}
+
+.subpage_banner_wrapper .banner-breadcrumb .breadcrumb-item+.breadcrumb-item:hover::before {
+	text-decoration: none
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .banner-breadcrumb .breadcrumb-item.active {
+	font-size: 93.75%;
+	font-weight: bold;
+	color: var(--FFFcolor); /* JESS重要 - 變更顏色*/
+    padding: 0rem 0rem;
+    text-shadow: rgba(0, 0, 0, 0.35) 2px 3px;
+}
+.subpage_banner_wrapper .banner-breadcrumb .breadcrumb-item.active:focus-visible {
+	outline: none;
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .banner-breadcrumb .breadcrumb-item a i {
+	position: relative;
+	font-size: 125%;
+	top: 1px;
+	margin-right: 3px;
+    /*color: #6c757d;*/
+}
+/* ====================================================== */
+/* =====  內頁  自訂  SubPage-TopBanner ( IMG )  ========= */
+/* ====================================================== */

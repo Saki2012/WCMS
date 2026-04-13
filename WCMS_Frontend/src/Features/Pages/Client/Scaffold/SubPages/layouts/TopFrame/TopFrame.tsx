@@ -8,6 +8,7 @@ import { Banner_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/Ba
 import { BreadCrumb_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ISubPageLoaderData } from "../../SubPage_Loader";
+import { Toolbar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/Toolbar/Toolbar_Comp"
 
 interface ITopFrameProps
 {
@@ -25,7 +26,7 @@ const TopFrame = (props: ITopFrameProps) =>
             {/* Banner 區塊 */}
             <Banner_Comp lang={props.lang} node={props.node} initialBanner={props.initialBanner} />
 
-            <div className="container-customize2 + Layout_Padding_0_top Layout_Padding_3_bottom">
+            <div className="container-customize2 + Layout_Padding_0_top Layout_Padding_4_bottom">
                 {/* BreadCrumb / Toolbar 區塊 */}
                 <div className="row">
                     <BreadCrumb_Comp
