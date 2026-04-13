@@ -367,3 +367,14 @@
   margin-top: 1.2rem;
 }
 
+/* footer */
+@media screen and (min-width: 1200px) {
+  .tinyMCE_section .container-tinyMCEfooter {
+    max-width: 1370px;
+  }
+}
+@media screen and (min-width: 1200px) {
+  .copyright_section .container-copyright {
+    max-width: 1370px;
+  }
+}

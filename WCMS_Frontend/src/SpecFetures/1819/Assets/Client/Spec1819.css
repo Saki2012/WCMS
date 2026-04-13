@@ -488,3 +488,15 @@ a:focus:not(:focus-visible):not(:active) {
 .menu_section .navbar-dark .navbar-toggler:active .hamburger span {
     background-color: var(--blackcolor);
 }
+
+/* footer */
+@media screen and (min-width: 1200px) {
+  .tinyMCE_section .container-tinyMCEfooter {
+    max-width: 1290px;
+  }
+}
+@media screen and (min-width: 1200px) {
+  .copyright_section .container-copyright {
+    max-width: 1290px;
+  }
+}
