@@ -1,14 +1,32 @@
+import React from 'react';
+import clsx from "clsx";
 import type { MenuItemData } from './MenuList_Data'
 import type { IMenu_Style } from "./MenuList_Clsx"
 
 const RecursiveMenuItem = (item: MenuItemData, key: string, Style: IMenu_Style, lv: number = 1, expandedKeys?: Set<string>, onToggleKey?: (key: string) => void, isFirst: boolean = false) => {
   const hasSub = item.SubItem.length > 0;
   const isExpanded = !!expandedKeys?.has(key);
+  const isExternal = /^https?:\/\//i.test(item.Url || "");
+  const contentWithIcon = React.isValidElement(item.DOMContent)
+    ? React.cloneElement(item.DOMContent, {
+        className: clsx(
+          item.DOMContent.props.className,
+          isExternal && "justify-content-start flex-nowrap" // ✅ 只有外部才加
+        ),
+        children: (
+          <>
+            {isExternal && <i className="fa fa-link me-2"></i>}
+            {item.DOMContent.props.children}
+          </>
+        ),
+      })
+    : item.DOMContent;
 
   return (
+    
     <li className={Style.li(lv, isFirst, hasSub, isExpanded)} key={key}>
       <div className={'w-100'} onClick={() => { if (hasSub && onToggleKey) onToggleKey(key); }} style={{ cursor: hasSub ? 'pointer' : 'default' }}>
-        {item.DOMContent}
+        {contentWithIcon}
       </div>
       {hasSub && (
         <ul className={Style.ul(lv + 1)}>
