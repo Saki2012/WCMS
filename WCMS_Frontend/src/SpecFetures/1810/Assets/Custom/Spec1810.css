@@ -154,7 +154,8 @@
 
 /* Footer 客製 */
 .accesskey_footer{
-    color: var(--FFFcolor);
+    /* color: var(--FFFcolor); */
+    display: none;
 }
 .tinyMCE_section{
     background-color: transparent;
