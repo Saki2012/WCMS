@@ -31,13 +31,13 @@ namespace WCMS.Features.Member.Account
         /// <summary>
         /// 使用者編號
         /// </summary>
-        [ForeignKey(nameof(PersonId))] public PersonModel? Person { get; set; }
+        [ForeignKey(nameof(PersonId))] public PersonModel_DTO? Person { get; set; }
         [LibDesc(ModelDisplayName.Person_PersonId), StringLength(SysLengthParam.ID)] public string? PersonId { get; set; }
 
         /// <summary>
         /// 角色
         /// </summary>
-        [ForeignKey(nameof(RoleId))] public RoleDataModel? Role { get; set; }
+        [ForeignKey(nameof(RoleId))] public RoleDataModel_DTO? Role { get; set; }
         [LibDesc(ModelDisplayName.RolePermission_RoleId), StringLength(SysLengthParam.ID)] public string? RoleId { get; set; }
 
         /// <summary>

@@ -674,6 +674,14 @@ export const PersonSet_DTOApiRequestFields = {
 
 export type PersonSet_DTOApiRequestFieldKey = keyof typeof PersonSet_DTOApiRequestFields;
 
+export const PublishReqFields = {
+  InternalId: 'InternalId',
+  JournalIndexId: 'JournalIndexId',
+  JournalIndexRowId: 'JournalIndexRowId',
+} as const;
+
+export type PublishReqFieldKey = keyof typeof PublishReqFields;
+
 export const QueryListParamFields = {
   Fields: 'Fields',
   Condition: 'Condition',
