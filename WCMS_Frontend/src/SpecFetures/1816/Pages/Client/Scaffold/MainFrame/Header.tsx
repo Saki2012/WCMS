@@ -559,6 +559,9 @@ const SingleMenuItem = (props: { menuItem: MenuItemData; onLeafClick: () => void
 				aria-label={props.menuItem.SrcData}
 				onClick={props.onLeafClick}
 			>
+				{/^https?:\/\//i.test(props.menuItem.Url || "") && (
+					<i className="fad fa-link me-2"></i>
+				)}
 				{props.menuItem.SrcData}
 			</LangNavLink>
 		</li>
@@ -615,7 +618,24 @@ const MegaMenuItem = (props: IMegaMenuItemProps) => {
 									<div className="mega-item-tilte">{col.SrcData}</div>
 
 									<div className="list-group">
-										{(col.SubItem ?? []).map((link, linkIndex) => (
+										{(col.SubItem ?? []).map((link, linkIndex) => {
+												const isExternal = /^https?:\/\//i.test(link.Url || "");
+
+												return (
+														<LangNavLink
+																key={`${id}-${colIndex}-${linkIndex}`}
+																className="list-group-item"
+																to={link.Url || "#"}
+																target={link.URL_Open}
+																onClick={props.onLeafClick}
+																end
+														>
+																{isExternal && <i className="fad fa-link me-2"></i>}
+																{link.SrcData}
+														</LangNavLink>
+												);
+										})}
+										{/* {(col.SubItem ?? []).map((link, linkIndex) => (
 											<LangNavLink
 												key={`${id}-${colIndex}-${linkIndex}`}
 												className="list-group-item"
@@ -624,9 +644,10 @@ const MegaMenuItem = (props: IMegaMenuItemProps) => {
 												onClick={props.onLeafClick}
 												end
 											>
+												<i className="fad fa-link"></i>
 												{link.SrcData}
 											</LangNavLink>
-										))}
+										))} */}
 									</div>
 								</div>
 							))}

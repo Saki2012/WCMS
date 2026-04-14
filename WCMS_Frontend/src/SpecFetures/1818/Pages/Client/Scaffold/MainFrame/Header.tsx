@@ -363,6 +363,9 @@ const SingleMenuItem = (props: { menuItem: MenuItemData }) => {
     return (
         <li className="nav-item">
             <LangNavLink className="nav-link" aria-current="page" to={props.menuItem.Url} role="button" tabIndex={0} title={props.menuItem.SrcData} aria-label={props.menuItem.SrcData}>
+                {/^https?:\/\//i.test(props.menuItem.Url || "") && (
+					<i className="fad fa-link me-2"></i>
+				)}
                 {props.menuItem.SrcData}
             </LangNavLink>
         </li>
@@ -436,12 +439,14 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
     return items.map((item, index) => {
         const hasChildren = (item.SubItem ?? []).length > 0;
         const key = `${parentDepth}-${index}`;
+        const isExternal = /^https?:\/\//i.test(item.Url || "");
 
         if (!hasChildren) {
             // 純連結項目
             return (
                 <li key={key}>
                     <LangNavLink className="dropdown-item" to={item.Url || "#"} role="button" tabIndex={0} target={item.URL_Open}>
+                        {isExternal && <i className="fad fa-link me-2"></i>}
                         {item.SrcData}
                     </LangNavLink>
                 </li>

@@ -653,6 +653,9 @@ const SingleMenuItem = (props: { lang: Lang; menuItem: MenuItemData }) => {
                 title={label}
                 aria-label={label}
             >
+                {/^https?:\/\//i.test(props.menuItem.Url || "") && (
+					<i className="fad fa-link me-2"></i>
+				)}
                 {props.menuItem.SrcData}
             </LangNavLink>
         </li>
@@ -711,6 +714,7 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number, lang: L
         const hasChildren = (item.SubItem ?? []).length > 0;
         const key = `${parentDepth}-${index}`;
         const label = withNewWindowSuffix(a11y, item.SrcData, item.URL_Open);
+        const isExternal = /^https?:\/\//i.test(item.Url || "");
 
         if (!hasChildren) {
             return (
@@ -725,6 +729,7 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number, lang: L
                         title={label}
                         aria-label={label}
                     >
+                        {isExternal && <i className="fad fa-link me-2"></i>}
                         {item.SrcData}
                     </LangNavLink>
                 </li>

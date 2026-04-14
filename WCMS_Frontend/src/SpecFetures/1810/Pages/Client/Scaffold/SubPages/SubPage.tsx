@@ -139,6 +139,11 @@ const isExternalUrl = (url?: string | null): boolean =>
     return !!url && (/^https?:\/\//i.test(url) || url.startsWith("//"));
 };
 
+// 若為外部連結 新增icon
+const renderLinkIcon = (url?: string | null) => {
+    return isExternalUrl(url) ? <i className="fa fa-link me-2"></i> : null;
+};
+
 const normalizePath = (path: string): string =>
 {
     // 宣告變數
@@ -357,9 +362,10 @@ const SideMenuComp = (props: ISideMenuProps) =>
                     title={item.SrcData}
                     target={target}
                     rel={target === "_blank" ? "noopener noreferrer" : undefined}
-                    className={clsx(active && "active")}
+                    className={clsx(active && "active", "flex-nowrap")}
                     aria-current={active ? "page" : undefined}
                 >
+                    {renderLinkIcon(item.Url)}
                     {item.SrcData}
                 </a>
             );

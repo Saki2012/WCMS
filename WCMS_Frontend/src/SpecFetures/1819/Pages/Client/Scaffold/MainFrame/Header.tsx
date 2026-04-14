@@ -547,6 +547,9 @@ const SingleMenuItem = (props: { menuItem: MenuItemData; handleLeafClick: () => 
 				aria-label={props.menuItem.SrcData}
 				onClick={handleClick}
 			>
+				{/^https?:\/\//i.test(props.menuItem.Url || "") && (
+					<i className="fad fa-link me-2"></i>
+				)}
 				{props.menuItem.SrcData}
 			</LangNavLink>
 		</li>
@@ -631,6 +634,7 @@ const renderDropdownItems = (props: RenderDropdownItemsProps): React.ReactElemen
 	return props.items.map((item, index) => {
 		const hasChildren = (item.SubItem ?? []).length > 0;
 		const itemKey = `${props.parentKey}-${index}`;
+		const isExternal = /^https?:\/\//i.test(item.Url || "");
 
 		if (!hasChildren) {
 			// return：純連結項目
@@ -644,6 +648,7 @@ const renderDropdownItems = (props: RenderDropdownItemsProps): React.ReactElemen
 						target={item.URL_Open}
 						onClick={props.handleLeafClick}
 					>
+						{isExternal && <i className="fad fa-link me-2"></i>}
 						{item.SrcData}
 					</LangNavLink>
 				</li>

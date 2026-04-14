@@ -593,6 +593,7 @@
 	width: 100%;	
 	border: 1px solid #ddd;
 	border-radius: 4px;
+	text-align: left;
 }
 @media screen and (min-width: 320px) and (max-width: 991px) {
 	.sidebar .list-group-item {
