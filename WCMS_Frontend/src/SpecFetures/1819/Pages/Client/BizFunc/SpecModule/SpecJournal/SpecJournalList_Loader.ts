@@ -19,7 +19,6 @@ type QueryListParam = components["schemas"]["QueryListParam"];
 export interface SpecJournalListLoaderOptions
 {
     pageSize?: number;
-    forceGlobal?: boolean;
     pageTitle?: string;
 }
 export interface SpecJournalListFilters
@@ -37,7 +36,6 @@ export interface SpecJournalListLoaderArgs
     indexId: string;
     rowId: string;
     pageSize: number;
-    forceGlobal: boolean;
     pageTitle: string;
     filters: SpecJournalListFilters;
     baseParam: QueryListParam;
@@ -56,7 +54,6 @@ interface BuildConditionArgs
 {
     indexId: string;
     rowId: string;
-    forceGlobal: boolean;
     filters: SpecJournalListFilters;
 }
 interface BuildBaseParamArgs extends BuildConditionArgs
@@ -80,14 +77,6 @@ const parseFilters = (url: string): SpecJournalListFilters =>
     };
 };
 /**
- * 判斷是否為搜尋模式
- */
-const isSearchMode = (filters: SpecJournalListFilters): boolean =>
-{
-    const hasSearch = !!filters.q || !!filters.articleLang || !!filters.tagId || !!filters.author || !!filters.keyword;
-    return hasSearch;
-};
-/**
  * 轉義單引號
  */
 const escapeSqlValue = (value: string): string =>
@@ -102,28 +91,7 @@ const buildCondition = (p: BuildConditionArgs): string =>
 {
     let condition = "";
     const f = p.filters;
-    const searchMode = isSearchMode(f);
-    if (!p.forceGlobal && !searchMode)
-    {
-        if (p.indexId)
-        {
-            condition = LibMerge(
-                " And ",
-                false,
-                condition,
-                `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.IndexId} = ${p.indexId}`,
-            );
-        }
-        if (p.rowId)
-        {
-            condition = LibMerge(
-                " And ",
-                false,
-                condition,
-                `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.RowId} = ${p.rowId}`,
-            );
-        }
-    }
+
     if (f.q)
     {
         const kw = escapeSqlValue(f.q);
@@ -246,10 +214,9 @@ export const SpecJournalList_Loader =
         const pageSize = opt.pageSize ?? 10;
         const indexId = `${params?.indexId ?? ""}`.trim();
         const rowId = `${params?.rowId ?? ""}`.trim();
-        const forceGlobal = opt.forceGlobal ?? false;
         const pageTitle = opt.pageTitle ?? "";
         const filters = parseFilters(request.url);
-        const baseParam = buildBaseParam({ indexId, rowId, pageSize, forceGlobal, filters });
+        const baseParam = buildBaseParam({ indexId, rowId, pageSize, filters });
         const ssrApi = getSsrApi(request);
         const adapter = SpecJournalAdapter(ssrApi);
         // 執行 function：count / list
@@ -268,7 +235,7 @@ export const SpecJournalList_Loader =
 
         // return
         return {
-            args: { indexId, rowId, pageSize, forceGlobal, pageTitle, filters, baseParam },
+            args: { indexId, rowId, pageSize, pageTitle, filters, baseParam },
             res: { countRes: countLD.apiRes.Data ?? 0, listRes: listLD.apiRes.Data ?? [] },
         };
     };

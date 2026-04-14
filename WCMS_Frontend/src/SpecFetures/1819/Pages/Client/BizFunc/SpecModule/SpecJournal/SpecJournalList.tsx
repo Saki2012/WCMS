@@ -43,7 +43,6 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
     const routeIndexId = (loaderData?.args?.indexId ?? params.indexId ?? "").trim();
     const routeRowId = (loaderData?.args?.rowId ?? params.rowId ?? "").trim();
     const pageTitle = (loaderData?.args?.pageTitle ?? "").trim();
-    const forceGlobal = loaderData?.args?.forceGlobal ?? false;
 
     const filters: SpecJournalFilters = loaderData?.args?.filters ?? {
         q: "",
@@ -64,9 +63,6 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
 
     const issueLabel = useMemo(() =>
     {
-        // 宣告變數：預刊 / global 模式直接顯示 loader title
-        if (forceGlobal) return pageTitle;
-
         // 宣告變數：搜尋模式也維持 pageTitle，不要空掉
         if (isSearchMode) return pageTitle;
 
@@ -79,12 +75,11 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
 
         // return
         return `Vol.${detail.Volume}, No.${detail.Issue}`;
-    }, [forceGlobal, isSearchMode, routeIndexId, routeRowId, pageTitle, useVolume.rawData]);
+    }, [isSearchMode, routeIndexId, routeRowId, pageTitle, useVolume.rawData]);
 
     const issueSummary = useMemo(() =>
     {
         // 宣告變數：預刊 / global / 搜尋模式都不顯示摘要下載
-        if (forceGlobal) return { fileId: "", fileName: "" };
         if (isSearchMode) return { fileId: "", fileName: "" };
 
         // 執行 function：一般卷期模式才抓摘要
@@ -95,12 +90,12 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
             downloadCount: detail?.SummaryFile?.PublicDownloadCount ?? 0,
             isPdf: detail?.SummaryFile?.FileExtension?.toLowerCase() === "pdf",
         };
-    }, [forceGlobal, isSearchMode, useVolume.rawData]);
+    }, [isSearchMode, useVolume.rawData]);
 
     useEffect(() =>
     {
         // 宣告變數：只有卷期頁才掛第二層 breadcrumb，避免預刊 / 搜尋把 breadcrumb 弄亂
-        const shouldShowIssueCrumb = !forceGlobal && !isSearchMode && !!routeIndexId && !!routeRowId && !!issueLabel
+        const shouldShowIssueCrumb = !isSearchMode && !!routeIndexId && !!routeRowId && !!issueLabel
             && issueLabel !== pageTitle;
 
         // 執行 function
@@ -109,7 +104,7 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
 
         // return cleanup
         return () => setItems([]);
-    }, [forceGlobal, isSearchMode, routeIndexId, routeRowId, issueLabel, pageTitle, setItems]);
+    }, [isSearchMode, routeIndexId, routeRowId, issueLabel, pageTitle, setItems]);
 
     const loadingList = useVolume.isLoading;
     const errorList = [useVolume.error];
@@ -186,7 +181,6 @@ const useSpecJournalVolume = (
         return JSON.stringify({
             indexId: loaderData?.args?.indexId ?? "",
             rowId: loaderData?.args?.rowId ?? "",
-            forceGlobal: loaderData?.args?.forceGlobal ?? false,
             q: loaderData?.args?.filters?.q ?? "",
             articleLang: loaderData?.args?.filters?.articleLang ?? "",
             tagId: loaderData?.args?.filters?.tagId ?? "",
@@ -199,7 +193,6 @@ const useSpecJournalVolume = (
     }, [
         loaderData?.args?.indexId,
         loaderData?.args?.rowId,
-        loaderData?.args?.forceGlobal,
         loaderData?.args?.filters?.q,
         loaderData?.args?.filters?.articleLang,
         loaderData?.args?.filters?.tagId,
@@ -306,7 +299,6 @@ const SpecJournalListContent = (props: {
         if (filters.tagId) parts.push(`類型：${filters.tagName || filters.tagId}`);
         if (filters.author) parts.push(`作者：${filters.author}`);
         if (filters.keyword) parts.push(`關鍵詞：${filters.keyword}`);
-
         const label = parts.join("；") || "未選擇條件";
         return `${label}（共 ${props.totalCount} 筆）`;
     }, [

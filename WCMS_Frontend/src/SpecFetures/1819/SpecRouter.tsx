@@ -17,7 +17,7 @@ export const specClientEntries: Record<string, ModuleEntry> = {
         element: (lang: Lang, site: INormSite, node: INormNode) => (
             <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
         ),
-        children: (opts, lang, site, node) => [
+        children: (_, lang, site, node) => [
             {
                 index: true,
                 element: <AutoRedirect to="Index" replace />,
@@ -34,14 +34,14 @@ export const specClientEntries: Record<string, ModuleEntry> = {
             // List：某一期
             {
                 path: "List/:indexId?/:rowId?",
-                loader: SpecJournalList_Loader({ pageSize: 10, forceGlobal: false, pageTitle: "所有期刊" }),
+                loader: SpecJournalList_Loader({ pageSize: 10, pageTitle: "所有期刊" }),
                 element: <SpecJournalList site={site} node={node} lang={lang} />,
                 handle: { breadcrumb: "journal-issue" },
             },
             // 預刊列表
             {
                 path: "Preprint",
-                loader: SpecJournalList_Loader({ pageSize: 10, forceGlobal: true, pageTitle: "預刊本" }),
+                loader: SpecJournalList_Loader({ pageSize: 10, pageTitle: "預刊本" }),
                 element: <SpecJournalList site={site} node={node} lang={lang} />,
                 handle: { breadcrumb: "journal-preprint" },
             },
