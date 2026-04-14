@@ -250,7 +250,24 @@ export const configureModuleRegistry = (extender: (base: ModuleRegistry) => Modu
     resolveRegistry = () => extender(coreModuleRegistry);
 };
 export const getModuleRegistry = (): ModuleRegistry => resolveRegistry();
+interface IModuleRenderScopeKeyArgs
+{
+    lang: Lang;
+    site?: INormSite;
+    node?: INormNode;
+}
 
+/** 產生前台 module 渲染 scope，node/語系切換時用來重建內容元件 */
+const buildModuleRenderScopeKey = (args: IModuleRenderScopeKeyArgs): string =>
+{
+    // 宣告變數
+    const siteIndex = args.site?.siteIndex ?? "";
+    const nodeId = args.node?.id ?? 0;
+    const progId = args.node?.module?.progId ?? "";
+
+    // return
+    return `${siteIndex}|${args.lang}|${nodeId}|${progId}`;
+};
 const normalizeLangKey = (raw?: string | null): Lang =>
 {
     // 宣告變數
@@ -289,10 +306,17 @@ const ModuleElement: React.FC<{ site: INormSite; nodeId: number; skeletonNode: I
     if (node.type !== "module" || !node.module) return <div>Module not registered</div>;
     const entry = getModuleRegistry()[node.module.progId];
     if (!entry) return <div>Unknown module: {node.module.progId}</div>;
-
-    return entry.kind === "element"
+    const scopeKey = buildModuleRenderScopeKey({ lang, site: props.site, node });
+    const child = entry.kind === "element"
         ? entry.render(lang, props.site, node)
         : entry.element(lang, props.site, node);
+
+    // return：node/語系切換時重建整個 module，避免分頁等 local state 沿用上一個 module
+    return (
+        <React.Fragment key={scopeKey}>
+            {child}
+        </React.Fragment>
+    );
 };
 /** render 時用 LangContext 覆寫 route.element 裡的 lang / defaultLang（避免 route tree 只能用 DefaultLang 產生） */
 const WithCtxLang: React.FC<{ element: React.ReactElement; site?: INormSite; nodeId?: number; }> = (
@@ -302,10 +326,12 @@ const WithCtxLang: React.FC<{ element: React.ReactElement; site?: INormSite; nod
     const location = useLocation();
     const lang = resolveRouteLangFromPathname(location.pathname);
     const node = site && typeof nodeId === "number" ? (resolveNodeByLang(site, lang, nodeId) ?? undefined) : undefined;
+    const scopeKey = buildModuleRenderScopeKey({ lang, site, node });
 
     return React.cloneElement(
         element,
         {
+            key: scopeKey,
             lang,
             defaultLang: DefaultLang,
             ...(node ? { node } : {}),
