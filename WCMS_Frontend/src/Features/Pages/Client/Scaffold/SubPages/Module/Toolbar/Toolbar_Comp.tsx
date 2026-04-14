@@ -1,5 +1,5 @@
 import type { Lang } from "@/SysCore/i18n/lang"
-
+import "./Toolbar.css";
 
 export const Toolbar_Comp = (props: { lang: Lang }) => {
     const shareTitle = props.lang === "zh-tw" ? "分享" : "Share"

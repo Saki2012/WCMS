@@ -6,6 +6,7 @@ import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import clsx from "clsx";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
+import "./SubMenu.css";
 
 type SubMenuProps = { lang: Lang; site: INormSite; node: INormNode; maxDepth?: number };
 
@@ -28,6 +29,10 @@ const GetMenuData = (lang: Lang, site: INormSite, node: INormNode, maxDepth: num
 const isExternalUrl = (url?: string | null): boolean => {
     if (!url) return false;
     return /^https?:\/\//i.test(url) || url.startsWith("//");
+};
+// 若為外部連結 新增icon
+const renderLinkIcon = (url?: string | null) => {
+    return isExternalUrl(url) ? <i className="fad fa-link me-2"></i> : null;
 };
 
 /** 判斷 item 是否有子節點 */
@@ -300,9 +305,15 @@ const CollapseSubMenu_Comp: React.FC<{
 /** 共用：leaf（內/外連結） */
 const renderLeafItem = (item: MenuItemData, active: boolean): React.ReactNode => {
     const target = item.URL_Open;
+    const icon = renderLinkIcon(item.Url);
 
     if (!item.Url) {
-        return <span className={clsx("list-group-item", active && "active")}>{item.SrcData}</span>;
+        return (
+            <span className={clsx("list-group-item", active && "active")}>
+                {icon}
+                {item.SrcData}
+            </span>
+        );
     }
 
     if (isExternalUrl(item.Url)) {
@@ -313,6 +324,7 @@ const renderLeafItem = (item: MenuItemData, active: boolean): React.ReactNode =>
                 rel={target === "_blank" ? "noopener noreferrer" : undefined}
                 className={clsx("list-group-item", active && "active")}
             >
+                {icon}
                 {item.SrcData}
             </a>
         );
@@ -325,6 +337,7 @@ const renderLeafItem = (item: MenuItemData, active: boolean): React.ReactNode =>
             className={({ isActive }) => clsx("list-group-item", (isActive || active) && "active")}
             aria-current={active ? "page" : undefined}
         >
+            {icon}
             {item.SrcData}
         </LangNavLink>
     );
@@ -361,6 +374,7 @@ const SubMenu_1816_Comp: React.FC<{
                 onClick={handleClick}
                 aria-expanded={expanded}
             >
+                {renderLinkIcon(item.Url)}
                 {item.SrcData}
             </a>
         );
@@ -432,6 +446,7 @@ const SubMenu_Default_Comp: React.FC<{
                             onClick={() => toggleExpand(item.Id, depth)}
                             aria-expanded={expanded}
                         >
+                            {renderLinkIcon(item.Url)}
                             {item.SrcData}
                         </button>
                     ) : (
@@ -450,7 +465,7 @@ const SubMenu_Default_Comp: React.FC<{
     if (!menuItems.length) return null;
 
     return (
-        <div className="col-xl-2 col-lg-3 col-md-12 col-sm-12 col-12">
+        <div className="col-xl-2 col-lg-3 col-md-12 col-sm-12 col-12 mb-4">
             <nav className="sidebar">
                 <ul className="list-group">{renderItems(menuItems)}</ul>
             </nav>

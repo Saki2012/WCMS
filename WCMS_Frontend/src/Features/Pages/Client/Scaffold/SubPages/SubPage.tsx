@@ -17,6 +17,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { useState } from "react";
 import { useLoaderData } from "react-router";
 import type { ISubPageLoaderData } from "./SubPage_Loader";
+import "./subpage-content.css";
 
 interface ISubPageProps
 {
@@ -39,19 +40,13 @@ const SubPage = (props: ISubPageProps) =>
         <>
             <BreadcrumbContext.Provider value={{ items, setItems }}>
                 <AccessKeySection />
-                <TopFrame
-                    lang={props.lang}
-                    site={props.site}
-                    node={props.node}
-                    backHref={props.backHref}
-                    initialBanner={data.bannerInitial}
-                />
                 <ContentContainer
                     style={props.style}
                     lang={props.lang}
                     site={props.site}
                     node={props.node}
                     backHref={props.backHref}
+                    bannerInitial={data.bannerInitial}
                 />
             </BreadcrumbContext.Provider>
         </>
@@ -80,12 +75,25 @@ const AccessKeySection = () =>
     );
 };
 
-const ContentContainer = (props: ISubPageProps) =>
+interface IContentContainerProps extends ISubPageProps
+{
+    bannerInitial: ISubPageLoaderData["bannerInitial"];
+}
+
+const ContentContainer = (props: IContentContainerProps) =>
 {
     return (
         <div className="ContentPlaceContent_Area">
             <section className="Template content area">
-                <div className="container-customize2 + Layout_Padding_0_top Layout_Padding_3_bottom">
+                {/* 子頁上方區塊 */}
+                <TopFrame
+                    lang={props.lang}
+                    site={props.site}
+                    node={props.node}
+                    backHref={props.backHref}
+                    initialBanner={props.bannerInitial}
+                />
+                <div className="container-customize2 + Layout_Padding_0_top Layout_Padding_5_bottom">
                     <div className="row">
                         <LeftFrame lang={props.lang} site={props.site} node={props.node} />
                         <RightFrame lang={props.lang} site={props.site} node={props.node} />

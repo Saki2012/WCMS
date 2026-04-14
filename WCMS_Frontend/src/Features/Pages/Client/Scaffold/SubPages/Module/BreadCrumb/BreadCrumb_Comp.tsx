@@ -1,8 +1,11 @@
+/** breadcrumb + return-box */
+
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { SUPPORTED_LANGS, type Lang } from "@/SysCore/i18n/lang";
 import { createContext, Fragment, useContext, useMemo, type MouseEvent, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
+import "./BreadCrumb.css";
 
 /** 取得目前網址的 module base（例：/Issues/Form/... -> /Issues；/en/Issues/... -> /Issues） */
 const resolveModuleBaseFromPathname = (pathname: string): string => {

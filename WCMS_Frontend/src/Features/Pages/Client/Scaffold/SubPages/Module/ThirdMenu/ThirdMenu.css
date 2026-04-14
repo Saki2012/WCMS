@@ -1,0 +1,100 @@
+
+
+/* =============================================================== */
+/* =====  內頁  標準  第三層 NEW  //.SubPage-RightMenu ( 以下 )  ==== */
+/* =============================================================== */
+.SubPage-RightMenu .row {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin-right: 0px;
+    margin-left: 0px;
+}
+@media screen and (min-width: 320px) and (max-width: 991px) {
+    .SubPage-RightMenu .row {
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        margin-right: -15px;
+        margin-left: -15px;
+    }
+}
+
+.SubPage-RightMenu ul.Rightlist-group {
+	display: inline-block;
+	width: 100%;    
+	list-style: none;	
+	padding-left: 0;
+	margin-top: 0;
+    margin-bottom: 0rem;
+}
+
+.SubPage-RightMenu ul.Rightlist-group li {
+	float: left;
+    /*width: calc((100% - (2.5px * 4)) / 2);*/    /* =col4 x 2個 */
+    /*width: calc((100% - (2.5px * 6)) / 3);*/    /* =col4 x 3個 */
+    width: calc((100% - (2.5px * 8)) / 4);        /* =col3 x 4個 */
+    /*width: calc((100% - (2.5px * 10)) / 5);*/        /* =col-? x 5個 */
+    /*width: calc((100% - (2.5px * 12)) / 6);*/        /* =col2 x 5個 */
+    margin-left: 2.5px;
+    margin-right: 2.5px;
+    margin-bottom: 5px; 
+    
+    border-radius: 4px;
+}
+@media screen and (min-width: 320px) and (max-width: 991px) {
+	.SubPage-RightMenu ul.Rightlist-group li {
+		display: flex;
+		align-content: center;
+		margin-left: 2.5px;
+        margin-right: 2.5px;
+        width: calc((100% - (2.5px * 4)) / 2);
+        
+		min-height: 1px;
+	}
+}
+
+.SubPage-RightMenu ul.Rightlist-group li a.list-group-item {
+    position: relative;
+    display: block;
+	font-size: 93.75%;
+    color: var(--blackcolor);
+    
+    padding: .75rem 1.25rem;
+    background-color: var(--FFFcolor); /*FFFFFF*/
+    border: 1px solid #dddddd;
+}
+@media screen and (min-width: 320px) and (max-width: 991px) {
+	.SubPage-RightMenu ul.Rightlist-group li a.list-group-item {
+		font-size: 87.5%;
+		width: 100%;
+	}
+}
+
+.SubPage-RightMenu ul.Rightlist-group li a.active.list-group-item, 
+.SubPage-RightMenu ul.Rightlist-group li a:focus.list-group-item, 
+.SubPage-RightMenu ul.Rightlist-group li a:hover.list-group-item {
+    z-index: 2;
+    color: var(--FFFcolor) !important;
+    background-color: var(--Customize_color) !important;
+    border-color: var(--Customize_color) !important;
+}
+.SubPage-RightMenu ul.Rightlist-group li a:focus.list-group-item {
+    outline: 4px solid var(--a_focusbordercolor) !important;
+	outline-offset: 0px !important;   
+}
+
+@media screen and (min-width: 320px) and (max-width: 991px) {
+	.SubPage-RightMenu ul.Rightlist-group li a {
+		display: flex;
+		align-content: center;
+		width: 100%;
+        
+		min-height: 1px;
+	}
+}
+/* ================================================================ */
+/* =====  內頁  標準  第三層 NEW  //.SubPage-RightMenu ( 以上 )  ===== */
+/* ================================================================ */

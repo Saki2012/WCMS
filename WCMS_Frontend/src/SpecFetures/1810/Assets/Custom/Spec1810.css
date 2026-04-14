@@ -151,3 +151,21 @@
         width: 100%;
     }
 }
+
+/* Footer 客製 */
+.accesskey_footer{
+    color: var(--FFFcolor);
+}
+.tinyMCE_section{
+    background-color: transparent;
+}
+@media screen and (min-width: 1200px) {
+    .tinyMCE_section .container-tinyMCEfooter {
+        max-width: 1470px;
+    } 
+}
+@media screen and (min-width: 1200px) {
+    .copyright_section .container-copyright {
+        max-width: 1470px;
+    }
+}
