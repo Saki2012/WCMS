@@ -230,7 +230,7 @@ img {
 		max-width: 720px
 	}
 }
-@media screen and (min-width: 992px) {
+@media screen and (min-width: 1200px) {
 	.container,.container-lg,.container-md,.container-sm {
 		max-width: 960px
 	}
@@ -409,7 +409,7 @@ img {
 }
 
 
-@media screen and (min-width: 992px) {
+@media screen and (min-width: 1200px) {
   .nav-item.dropdown.dropdown-mega .dropdown-menu {
     top: 180.7px !important;
   }
