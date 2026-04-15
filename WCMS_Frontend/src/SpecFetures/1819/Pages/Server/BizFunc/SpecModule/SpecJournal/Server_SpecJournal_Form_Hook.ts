@@ -237,7 +237,7 @@ const useSpecJournalIndexListByAdapter = (
                 `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
             ],
             Condition: "",
-            OrderBy: [{ Col: SpecJournalIndexModelFields.CreateTime, Desc: true }],
+            OrderBy: [{ Col: SpecJournalIndexModelFields.IndexName, Desc: true }],
             PageNumber: 0,
             PageSize: 0,
         },
