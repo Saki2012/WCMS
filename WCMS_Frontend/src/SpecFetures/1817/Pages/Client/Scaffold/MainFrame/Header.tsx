@@ -240,13 +240,20 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
         const updateDir = (hostEl: HTMLElement) => {
             const submenu = hostEl.querySelector<HTMLElement>(".dropdown-menu");
             if (!submenu) return;
+            // 先清掉再判斷（避免殘留）
+            hostEl.classList.remove("show-left");
             const rect = submenu.getBoundingClientRect();
             const winW = window.innerWidth || document.documentElement.clientWidth;
-            hostEl.classList.toggle("show-left", rect.right > winW);
+            if (rect.right > winW) {
+                hostEl.classList.add("show-left");
+            }
         };
 
         const submenuEls = Array.from(root.querySelectorAll<HTMLElement>(".submenu"));
-        const onMouseEnter = (e: Event) => updateDir(e.currentTarget as HTMLElement);
+        const onMouseEnter = (e: Event) => {
+            const el = e.currentTarget as HTMLElement;
+            requestAnimationFrame(() => updateDir(el));
+        };
         const onKeyEnter = (e: KeyboardEvent) => {
             if (e.key === "Enter") updateDir(e.currentTarget as HTMLElement);
         };
