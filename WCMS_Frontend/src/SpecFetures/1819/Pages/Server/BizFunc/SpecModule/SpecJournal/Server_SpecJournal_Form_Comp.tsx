@@ -230,6 +230,8 @@ const BasicComp = (
         return indexRowOptionsByIndexId[selectedIndexId] ?? new Map<string, string>();
     }, [indexRowOptionsByIndexId, selectedIndexId]);
     const prevIndexIdRef = useRef<string | null>(null);
+    /** 記錄：是否已完成編輯資料首次同步 */
+    const hasInitJournalIndexRef = useRef<boolean>(false);
     const types = props.formData.data.SpecJournalTypes ?? [];
     const typeOptions = useMemo(() =>
     {
@@ -308,25 +310,45 @@ const BasicComp = (
 
     useEffect(() =>
     {
+        // 僅期刊模式需要連動卷期代號
         if (props.mode !== "journal") return;
 
-        const prev = prevIndexIdRef.current;
-        prevIndexIdRef.current = selectedIndexId;
-        if (prev === null) return;
+        // 宣告變數：目前期刊目次代號
+        const currentIndexId = String(props.formData.data?.SpecJournal?.JournalIndexId ?? "");
 
-        if (prev !== selectedIndexId)
+        // 首次載入既有資料時，只記錄，不清空卷期代號
+        if (!hasInitJournalIndexRef.current)
         {
-            props.formData.setFormData(prevData =>
-            {
-                if (!prevData) return prevData;
-                const next = { ...(prevData as SpecJournalSet) };
-                const j = { ...(next.SpecJournal ?? {}) };
-                j[SpecJournalModelFields.JournalIndexRowId] = null;
-                next.SpecJournal = j;
-                return next;
-            });
+            if (!currentIndexId) return;
+
+            hasInitJournalIndexRef.current = true;
+            prevIndexIdRef.current = currentIndexId;
+            return;
         }
-    }, [props.mode, selectedIndexId, props.formData]);
+
+        // 宣告變數：前一次期刊目次代號
+        const prevIndexId = prevIndexIdRef.current;
+        prevIndexIdRef.current = currentIndexId;
+
+        // 沒變更就不處理
+        if (prevIndexId === currentIndexId) return;
+
+        // 執行：期刊目次改變後，清空卷期代號
+        props.formData.setFormData(prevData =>
+        {
+            if (!prevData) return prevData;
+
+            const next = { ...(prevData as SpecJournalSet) };
+            const nextJournal = { ...(next.SpecJournal ?? {}) };
+            nextJournal[SpecJournalModelFields.JournalIndexRowId] = null;
+            next.SpecJournal = nextJournal;
+            return next;
+        });
+    }, [
+        props.mode,
+        props.formData,
+        props.formData.data?.SpecJournal?.JournalIndexId,
+    ]);
 
     useEffect(() =>
     {
