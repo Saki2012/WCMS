@@ -653,9 +653,43 @@ const AuthorComp = (
             return { ...prev, SpecJournalAuthor: nextList };
         });
     };
+    /** 回寫目前作者的 ORCID 欄位 */
+    const setAuthorOrcid = useCallback((
+        rowKeys: Record<string, string | number | null | undefined>,
+        orcid: string,
+    ): void =>
+    {
+        props.formData.setFormData(prev =>
+        {
+            if (!prev) return prev;
+
+            const list = prev.SpecJournalAuthor ?? [];
+            const hitIdx = list.findIndex(a =>
+                String(a?.[SpecJournalAuthorFields.JournalId] ?? "")
+                    === String(rowKeys?.[SpecJournalAuthorFields.JournalId] ?? "")
+                && String(a?.[SpecJournalAuthorFields.RowId] ?? "")
+                    === String(rowKeys?.[SpecJournalAuthorFields.RowId] ?? "")
+            );
+            if (hitIdx < 0) return prev;
+
+            const cur: SpecJournalAuthor = { ...(list[hitIdx] ?? {}) };
+            cur.ORCID = orcid;
+
+            const nextList = [...list];
+            nextList[hitIdx] = cur;
+            return { ...prev, SpecJournalAuthor: nextList };
+        });
+    }, [props.formData]);
     const normalizeOrcid = (v: string): string =>
     {
-        return (v ?? "").trim().replace(/\s+/g, "").replace(/[^0-9-]/g, "");
+        const text = String(v ?? "").trim();
+        if (!text) return "";
+
+        return text
+            .replace(/^https?:\/\/orcid\.org\//i, "")
+            .replace(/\/+$/g, "")
+            .replace(/\s+/g, "")
+            .replace(/[^0-9X-]/gi, "");
     };
     const isLikelyOrcid = (v: string): boolean =>
     {
@@ -706,30 +740,27 @@ const AuthorComp = (
         });
     }, [props.formData]);
 
-    // ✅ onBlur：打後端 /Service/SpecJournal/GetAuthorByOrcid
+    /** onBlur：先正規化 ORCID，再打 API */
     const handleOrcidBlur = useCallback(async (
         rowKeys: Record<string, string | number | null | undefined>,
         raw: string,
     ): Promise<void> =>
     {
         const orcid = normalizeOrcid(raw);
+        // 先把畫面值改成純 ORCID
+        setAuthorOrcid(rowKeys, orcid);
         if (!orcid) return;
         if (!isLikelyOrcid(orcid)) return;
-
         const res = await orcidAction.execute(orcid);
-
         (res.SysMessage ?? []).forEach(item =>
         {
             publish({ level: item.Status, code: item.MessageCode, title: item.Message });
         });
-
         if (!res.IsSuccess) return;
-
         const dto = Array.isArray(res.Data) ? (res.Data[0] ?? null) : null;
         if (!dto) return;
-
-        applyAuthorFromOrcid(rowKeys, dto);
-    }, [orcidAction, publish, applyAuthorFromOrcid]);
+        applyAuthorFromOrcid(rowKeys, { ...dto, ORCID: orcid });
+    }, [orcidAction, publish, applyAuthorFromOrcid, setAuthorOrcid]);
     // tab key/label mapping（同步到 ref）
     const tabItemMap = authors.reduce<Record<string, string>>((acc, a: any, idx: number) =>
     {
