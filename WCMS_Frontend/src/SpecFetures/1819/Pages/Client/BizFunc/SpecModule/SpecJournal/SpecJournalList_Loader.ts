@@ -20,6 +20,7 @@ export interface SpecJournalListLoaderOptions
 {
     pageSize?: number;
     pageTitle?: string;
+    isPreprint?: boolean;
 }
 export interface SpecJournalListFilters
 {
@@ -35,6 +36,7 @@ export interface SpecJournalListLoaderArgs
 {
     indexId: string;
     rowId: string;
+    isPreprint: boolean;
     pageSize: number;
     pageTitle: string;
     filters: SpecJournalListFilters;
@@ -54,6 +56,7 @@ interface BuildConditionArgs
 {
     indexId: string;
     rowId: string;
+    isPreprint: boolean;
     filters: SpecJournalListFilters;
 }
 interface BuildBaseParamArgs extends BuildConditionArgs
@@ -89,8 +92,13 @@ const escapeSqlValue = (value: string): string =>
  */
 const buildCondition = (p: BuildConditionArgs): string =>
 {
+    // 宣告變數
     let condition = "";
     const f = p.filters;
+    const scopeCondition = buildScopeCondition(p);
+
+    // 執行 function：先套用 route 範圍
+    condition = LibMerge(" And ", false, condition, scopeCondition);
 
     if (f.q)
     {
@@ -113,6 +121,7 @@ const buildCondition = (p: BuildConditionArgs): string =>
             condition = LibMerge(" And ", false, condition, `(${baseCond} Or ${bibCond})`);
         }
     }
+
     if (f.articleLang)
     {
         condition = LibMerge(
@@ -122,6 +131,7 @@ const buildCondition = (p: BuildConditionArgs): string =>
             `${SpecJournalModelFields.ArticleLang} = '${escapeSqlValue(f.articleLang)}'`,
         );
     }
+
     if (f.tagId)
     {
         condition = LibMerge(
@@ -133,6 +143,7 @@ const buildCondition = (p: BuildConditionArgs): string =>
             }'`,
         );
     }
+
     if (f.author)
     {
         condition = LibMerge(
@@ -146,6 +157,7 @@ const buildCondition = (p: BuildConditionArgs): string =>
             }')`,
         );
     }
+
     if (f.keyword)
     {
         condition = LibMerge(
@@ -157,6 +169,8 @@ const buildCondition = (p: BuildConditionArgs): string =>
             }'`,
         );
     }
+
+    // return
     return condition;
 };
 
@@ -216,7 +230,8 @@ export const SpecJournalList_Loader =
         const rowId = `${params?.rowId ?? ""}`.trim();
         const pageTitle = opt.pageTitle ?? "";
         const filters = parseFilters(request.url);
-        const baseParam = buildBaseParam({ indexId, rowId, pageSize, filters });
+        const isPreprint = opt.isPreprint ?? false;
+        const baseParam = buildBaseParam({ indexId, rowId, isPreprint, pageSize, filters });
         const ssrApi = getSsrApi(request);
         const adapter = SpecJournalAdapter(ssrApi);
         // 執行 function：count / list
@@ -235,7 +250,39 @@ export const SpecJournalList_Loader =
 
         // return
         return {
-            args: { indexId, rowId, pageSize, pageTitle, filters, baseParam },
+            args: { indexId, rowId, isPreprint, pageSize, pageTitle, filters, baseParam },
             res: { countRes: countLD.apiRes.Data ?? 0, listRes: listLD.apiRes.Data ?? [] },
         };
     };
+
+/**
+ * 建立資料範圍條件
+ */
+const buildScopeCondition = (p: BuildConditionArgs): string =>
+{
+    // 宣告變數
+    const indexId = escapeSqlValue((p.indexId ?? "").trim());
+    const rowId = escapeSqlValue((p.rowId ?? "").trim());
+
+    // 執行 function：預刊本
+    if (p.isPreprint)
+    {
+        return LibMerge(
+            " And ",
+            false,
+            `${SpecJournalModelFields.JournalIndexId} is null`,
+            `${SpecJournalModelFields.JournalIndexRowId} is null`,
+        );
+    }
+
+    // 執行 function：正式卷期
+    if (!indexId || !rowId) return "";
+
+    // return
+    return LibMerge(
+        " And ",
+        false,
+        `${SpecJournalModelFields.JournalIndexId} = '${indexId}'`,
+        `${SpecJournalModelFields.JournalIndexRowId} = '${rowId}'`,
+    );
+};

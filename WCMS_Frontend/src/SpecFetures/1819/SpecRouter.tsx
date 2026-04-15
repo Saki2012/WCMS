@@ -41,7 +41,7 @@ export const specClientEntries: Record<string, ModuleEntry> = {
             // 預刊列表
             {
                 path: "Preprint",
-                loader: SpecJournalList_Loader({ pageSize: 10, pageTitle: "預刊本" }),
+                loader: SpecJournalList_Loader({ pageSize: 10, pageTitle: "預刊本", isPreprint: true }),
                 element: <SpecJournalList site={site} node={node} lang={lang} />,
                 handle: { breadcrumb: "journal-preprint" },
             },

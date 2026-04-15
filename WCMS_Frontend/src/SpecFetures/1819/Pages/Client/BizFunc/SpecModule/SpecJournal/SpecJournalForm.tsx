@@ -366,7 +366,18 @@ const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                                                     {
                                                         label: "ORCID :",
                                                         value: a.ORCID && (
-                                                            <a href={`https://orcid.org/${a.ORCID}`}>{a.ORCID}</a>
+                                                            <a
+                                                                href={`https://orcid.org/${
+                                                                    encodeURIComponent(a.ORCID)
+                                                                }`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                title={`另開新視窗前往 ORCID：${a.ORCID}`}
+                                                                aria-label={`另開新視窗前往 ORCID：${a.ORCID}`}
+                                                            >
+                                                                {a.ORCID}
+                                                                <span className="visually-hidden">（另開新視窗）</span>
+                                                            </a>
                                                         ),
                                                     },
                                                     { label: "職稱 :", value: a.JobTitle },
