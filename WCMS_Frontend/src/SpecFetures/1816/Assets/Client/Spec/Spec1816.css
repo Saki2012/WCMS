@@ -847,3 +847,15 @@
 /* =============================================================== */
 /* =====  內頁  標準  內容區 H3 標題  ///// .page-header H3  ======== */
 /* =============================================================== */
+
+/* 內頁sidebar客製 */
+.sidebar {
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  border-top: none;
+}
+.sidebar .has-submenu > .list-group-item:hover::after, 
+.sidebar .has-submenu > .list-group-item:focus::after {
+    filter: invert(0);
+}

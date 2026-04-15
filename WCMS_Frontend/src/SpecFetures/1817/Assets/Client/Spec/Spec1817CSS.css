@@ -158,8 +158,8 @@
 	border-color: var(--Customize_color);
 }
 .sidebar .list-group-item:focus {
-	outline: 4px solid var(--a_focusbordercolor) !important;
-	outline-offset: 0px !important;
+	outline: 3px solid var(--a_focusbordercolor) !important;
+	outline-offset: -3px !important;
 }
 
 /* 只有有子選單的 a 才加箭頭 */
@@ -170,10 +170,22 @@
 	right: 0.5rem;
 	font-size: 56.25%;
 	transition: transform 0.2s ease;
+	background-image: none;
+}
+.sidebar .has-submenu > .list-group-item:hover::after,
+.sidebar .has-submenu > .list-group-item:focus::after{
+/* .sidebar .has-submenu > .list-group-item.parent-active::after{ */
+	color: var(--FFFcolor);
+	filter: none;
 }
 /* 展開時變成向上箭頭 */
 .sidebar .has-submenu > .list-group-item.active::after {
 	content: "▲";
+	background-image: none;
+}
+.sidebar .has-submenu > .list-group-item.parent-active::after {
+    transform: rotate(180deg);
+		transform-origin: 50% 33%;
 }
 /* ------ a class="list-group-item ------------- */
 /* ============================================= */

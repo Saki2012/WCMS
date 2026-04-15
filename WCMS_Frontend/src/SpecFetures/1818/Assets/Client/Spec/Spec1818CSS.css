@@ -32,16 +32,16 @@
 
 
 /* 內頁側邊menu */
-/* .sidebar {
+.sidebar {
   border: none;
 	border-radius: 0;
 	padding: 0;
 	border-top: none;
 }
- .sidebar ul li.nav-item {
+  .sidebar ul li.nav-item {
 	margin-bottom: 5px;
 }
- .sidebar .list-group-item {
+  .sidebar .list-group-item {
 	border-bottom: none;
 	border: 1px solid #ddd;
-} */
+}
