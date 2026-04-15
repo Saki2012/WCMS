@@ -699,7 +699,6 @@ const setupDevSSR = async (app: express.Express, cfg: SsrConfig) =>
 
 const buildProdCsp = (nonce: string): string =>
 {
-    // 宣告變數
     const csp = [
         "default-src 'self'",
         `script-src 'self' 'nonce-${nonce}' 'unsafe-inline' https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com https://calendar.google.com https://maps.googleapis.com`,
@@ -710,13 +709,12 @@ const buildProdCsp = (nonce: string): string =>
         "font-src 'self' data: https://fonts.gstatic.com https://calendar.google.com",
         "connect-src 'self' https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com https://calendar.google.com https://maps.googleapis.com https://mapsresources-pa.googleapis.com",
         "frame-ancestors 'self'",
-        "frame-src 'self' https://translate.google.com https://www.youtube.com https://www.youtube-nocookie.com https://w.soundcloud.com https://calendar.google.com https://www.google.com https://maps.google.com",
+        "frame-src 'self' https://translate.google.com https://www.youtube.com https://www.youtube-nocookie.com https://w.soundcloud.com https://calendar.google.com https://www.google.com https://maps.google.com https://lookerstudio.google.com",
         "object-src 'none'",
         "base-uri 'self'",
         "form-action 'self'",
     ].join("; ");
 
-    // return
     return csp;
 };
 // Prod SSR：dist/client 靜態 + dist/server/entry-server.js
