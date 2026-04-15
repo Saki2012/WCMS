@@ -64,7 +64,10 @@ export const Server_SpecMusical_Form_Comp = (prop: { theme: IBETheme; lang: Lang
         emptyData,
         actionsOpt,
     });
-
+    const cateOpts = useMemo(() =>
+    {
+        return new Map<string, string>(Object.entries(getData.rawData.categoryMap ?? {}));
+    }, [getData.rawData.categoryMap]);
     /** Form 外框 props */
     const formProp: FormCompProp = {
         Title: internalId ? "修改琵琶介紹" : "新增琵琶介紹",
@@ -79,7 +82,7 @@ export const Server_SpecMusical_Form_Comp = (prop: { theme: IBETheme; lang: Lang
             <MainFormComp
                 theme={prop.theme}
                 formData={getData.rawData.formData}
-                cateOpts={getData.rawData.categoryMap}
+                cateOpts={cateOpts}
             />
         </FormComp>
     );
@@ -88,7 +91,7 @@ export const Server_SpecMusical_Form_Comp = (prop: { theme: IBETheme; lang: Lang
 const MainFormComp = (prop: {
     theme: IBETheme;
     formData: UseFetchFormDataResult<SpecMusicalSet>;
-    cateOpts: Record<string, string>;
+    cateOpts: Map<string, string>;
 }) =>
 {
     /** 頁籤資訊 */
@@ -138,7 +141,7 @@ const MainFormComp = (prop: {
 const AlbumComp = (props: {
     theme: IBETheme;
     formData: UseFetchFormDataResult<SpecMusicalSet>;
-    cateOpts: Record<string, string>;
+    cateOpts: Map<string, string>;
 }) =>
 {
     /** 表單欄位綁定 */

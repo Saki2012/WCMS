@@ -25,8 +25,8 @@ export interface IServerSpecJournalDialogCompProps
     actionType: SpecJournalDialogActionType;
     adapter: SpecJournalAdapterType;
     internalId: string;
-    indexOptions: Record<string, string>;
-    indexRowOptionsByIndexId: Record<string, Record<string, string>>;
+    indexOptions: Map<string, string>;
+    indexRowOptionsByIndexId: Record<string, Map<string, string>>;
     initialIndexId?: string | null;
     initialIndexRowId: number | null;
     onClose: () => void;
@@ -214,13 +214,13 @@ const useDialogConfirmText = (actionType: SpecJournalDialogActionType): string =
 
 /** 依期刊目次取得卷期 options */
 const useRowOptions = (
-    indexRowOptionsByIndexId: Record<string, Record<string, string>>,
+    indexRowOptionsByIndexId: Record<string, Map<string, string>>,
     journalIndexId: string,
-): Record<string, string> =>
+): Map<string, string> =>
 {
     return useMemo(() =>
     {
-        return indexRowOptionsByIndexId[journalIndexId] ?? {};
+        return indexRowOptionsByIndexId[journalIndexId] ?? new Map<string, string>();
     }, [indexRowOptionsByIndexId, journalIndexId]);
 };
 
@@ -302,8 +302,8 @@ const RevertDialogBodyComp = () =>
 const PublishDialogBodyComp = (
     props: {
         theme: IBETheme;
-        indexOptions: Record<string, string>;
-        rowOptions: Record<string, string>;
+        indexOptions: Map<string, string>;
+        rowOptions: Map<string, string>;
         journalIndexId: string;
         journalIndexRowId: number | null;
         onIndexChange: (value: string) => void;
@@ -325,7 +325,8 @@ const PublishDialogBodyComp = (
                     aria-label="選擇期刊目次"
                 >
                     <option value="">請選擇</option>
-                    {Object.entries(props.indexOptions).map(([value, label]) => (
+
+                    {Array.from(props.indexOptions.entries()).map(([value, label]) => (
                         <option key={value} value={value}>
                             {label}
                         </option>
@@ -345,7 +346,7 @@ const PublishDialogBodyComp = (
                     aria-label="選擇卷期"
                 >
                     <option value="">請選擇</option>
-                    {Object.entries(props.rowOptions).map(([value, label]) => (
+                    {Array.from(props.rowOptions.entries()).map(([value, label]) => (
                         <option key={value} value={value}>
                             {label}
                         </option>

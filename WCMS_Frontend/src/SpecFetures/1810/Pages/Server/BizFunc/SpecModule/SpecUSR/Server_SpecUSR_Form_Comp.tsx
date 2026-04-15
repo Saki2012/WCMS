@@ -77,10 +77,13 @@ export const Server_USRProjFormComp = (prop: { theme: IBETheme; lang: Lang; }) =
 
     // ✅ 以下維持原本變數命名，避免影響後續 code（不動 DOM）
     const formData = getData.rawData.formData;
-    const useCategory = useMemo(() => ({ data: getData.rawData.categoryMap, cols: getData.rawData.categoryCols }), [
-        getData.rawData.categoryMap,
-        getData.rawData.categoryCols,
-    ]);
+    const useCategory = useMemo(() =>
+    {
+        return {
+            data: new Map<string, string>(Object.entries(getData.rawData.categoryMap ?? {})),
+            cols: getData.rawData.categoryCols,
+        };
+    }, [getData.rawData.categoryMap, getData.rawData.categoryCols]);
     const useTag = useMemo(() => ({ data: getData.rawData.tagMap }), [getData.rawData.tagMap]);
     const status = getData.rawData.statusOpts;
     const actions = getData.rawData.actions;
@@ -130,7 +133,7 @@ const HeaderComp = (
     prop: {
         theme: IBETheme;
         formData: UseFetchFormDataResult<SpecUSRSet>;
-        cateOpts: Record<string, string>;
+        cateOpts: Map<string, string>;
         statusOpts: Record<string, string>;
         tagOpts: Record<string, string>;
     },

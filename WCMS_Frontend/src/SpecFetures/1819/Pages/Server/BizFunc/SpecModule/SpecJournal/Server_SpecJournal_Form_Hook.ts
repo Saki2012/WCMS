@@ -28,7 +28,7 @@ export type SpecJournalFormRawData = {
     formData: UseFetchFormDataResult<SpecJournalSet>;
     indexRawData: SpecJournalIndexSet[];
     tagOptionsRaw: Record<string, string>;
-    specDocumentTypeOptionsRaw: Record<string, string>;
+    specDocumentTypeOptionsRaw: Map<string, string>;
     keywords: SpecJournalSet[];
     actions: ServerFormActions;
 };
@@ -90,7 +90,7 @@ export const useSpecJournalFormFetchData = (
             formData,
             indexRawData: indexList.rawData ?? [],
             tagOptionsRaw: tag.map ?? {},
-            specDocumentTypeOptionsRaw: specDocumentType.data ?? {},
+            specDocumentTypeOptionsRaw: new Map<string, string>(Object.entries(specDocumentType.data ?? {})),
             keywords: keywords.rawData ?? [],
             actions,
         };

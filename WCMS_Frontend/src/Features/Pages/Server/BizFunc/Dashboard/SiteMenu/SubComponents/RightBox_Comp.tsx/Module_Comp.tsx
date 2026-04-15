@@ -122,9 +122,12 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
         curRowKeys,
     );
 
-    const moduleOpts = useMemo<Record<string, string>>(() =>
+    const moduleOpts = useMemo(() =>
     {
-        return { ...BaseModuleOpts, ...(specExtension.moduleOptions ?? {}) };
+        return new Map<string, string>(Object.entries({
+            ...BaseModuleOpts,
+            ...(specExtension.moduleOptions ?? {}),
+        }));
     }, [specExtension.moduleOptions]);
 
     const extensionContext = useMemo<ModuleSettingTabExtensionContext>(() =>
@@ -281,12 +284,15 @@ const Module_Banner_Comp = (prop: {
 {
     const curRowKeys = getModuleRowKeys(prop.selectedItemEdit);
     const setField = useSetTableField<SiteMenuSet>(prop.formData);
-
+    const bannerOpts = useMemo(() =>
+    {
+        return new Map<string, string>(Object.entries(prop.bannerDict ?? {}));
+    }, [prop.bannerDict]);
     return [
         <LibDropList
             key="banner"
             Style={prop.theme.DropList}
-            Options={prop.bannerDict}
+            Options={bannerOpts}
             AutoDefaultFirst={false}
             {...setField(
                 SiteMenuSetFields.SiteMenu_Item_Module,
@@ -320,7 +326,10 @@ const Module_Announcement_Comp = (prop: {
     const tagBind = binder.bind("Tag", "csv");
     const styleBind = binder.bind("Style", "number");
     const { cateDic, tagDic } = useGetCategoryTagDict(PGID.Announcement, prop.lang, prop.categorySets, prop.tagSets);
-
+    const styleOpts = useMemo(() =>
+    {
+        return new Map<string, string>(Object.entries(prop.styleDict ?? {}));
+    }, [prop.styleDict]);
     return (
         <>
             <LibCheckBox
@@ -340,7 +349,7 @@ const Module_Announcement_Comp = (prop: {
             <LibDropList
                 Style={prop.theme.DropList}
                 ColumnDisplayName="清單樣式"
-                Options={prop.styleDict}
+                Options={styleOpts}
                 InputValue={styleBind.value}
                 onChange={styleBind.onChange}
                 AutoDefaultFirst={false}
@@ -366,12 +375,15 @@ const Module_Pagemanagement_Comp = (prop: {
         moduleOptionsDefaults,
     );
     const pageBind = binder.bind("PageId", "string");
-
+    const pageOpts = useMemo(() =>
+    {
+        return new Map<string, string>(Object.entries(prop.pageMap ?? {}));
+    }, [prop.pageMap]);
     return (
         <LibDropList
             Style={prop.theme.DropList}
             ColumnDisplayName="頁面選擇"
-            Options={prop.pageMap}
+            Options={pageOpts}
             AutoDefaultFirst={false}
             InputValue={pageBind.value}
             onChange={pageBind.onChange}
@@ -401,7 +413,10 @@ const Module_Gallery_Comp = (prop: {
     const tagBind = binder.bind("Tag", "csv");
     const styleBind = binder.bind("Style", "number");
     const { cateDic, tagDic } = useGetCategoryTagDict(PGID.Gallery, prop.lang, prop.categorySets, prop.tagSets);
-
+    const styleOpts = useMemo(() =>
+    {
+        return new Map<string, string>(Object.entries(prop.styleDict ?? {}));
+    }, [prop.styleDict]);
     return (
         <>
             <LibCheckBox
@@ -421,7 +436,7 @@ const Module_Gallery_Comp = (prop: {
             <LibDropList
                 Style={prop.theme.DropList}
                 ColumnDisplayName="清單樣式"
-                Options={prop.styleDict}
+                Options={styleOpts}
                 InputValue={styleBind.value}
                 onChange={styleBind.onChange}
                 AutoDefaultFirst={false}
@@ -452,7 +467,10 @@ const Module_FileArchive_Comp = (prop: {
     const tagBind = binder.bind("Tag", "csv");
     const styleBind = binder.bind("Style", "number");
     const { cateDic, tagDic } = useGetCategoryTagDict(PGID.FileArchive, prop.lang, prop.categorySets, prop.tagSets);
-
+    const styleOpts = useMemo(() =>
+    {
+        return new Map<string, string>(Object.entries(prop.styleDict ?? {}));
+    }, [prop.styleDict]);
     return (
         <>
             <LibCheckBox
@@ -472,7 +490,7 @@ const Module_FileArchive_Comp = (prop: {
             <LibDropList
                 Style={prop.theme.DropList}
                 ColumnDisplayName="清單樣式"
-                Options={prop.styleDict}
+                Options={styleOpts}
                 InputValue={styleBind.value}
                 onChange={styleBind.onChange}
                 AutoDefaultFirst={false}
@@ -503,7 +521,10 @@ const Module_WebResource_Comp = (prop: {
     const tagBind = binder.bind("Tag", "csv");
     const styleBind = binder.bind("Style", "number");
     const { cateDic, tagDic } = useGetCategoryTagDict(PGID.WebResource, prop.lang, prop.categorySets, prop.tagSets);
-
+    const styleOpts = useMemo(() =>
+    {
+        return new Map<string, string>(Object.entries(prop.styleDict ?? {}));
+    }, [prop.styleDict]);
     return (
         <>
             <LibCheckBox
@@ -523,7 +544,7 @@ const Module_WebResource_Comp = (prop: {
             <LibDropList
                 Style={prop.theme.DropList}
                 ColumnDisplayName="清單樣式"
-                Options={prop.styleDict}
+                Options={styleOpts}
                 InputValue={styleBind.value}
                 onChange={styleBind.onChange}
                 AutoDefaultFirst={false}

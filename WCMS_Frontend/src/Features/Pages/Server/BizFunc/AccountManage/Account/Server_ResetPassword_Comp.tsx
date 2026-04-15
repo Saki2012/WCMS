@@ -1,13 +1,18 @@
-import { FormComp } from '@/Features/Pages/Server/Scaffold/Content/Form_Comp';
+import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
+import LibPwdTextBox from "@/SysCore/Components/FormField/FieldComponets/LibPwdTextBox_Comp";
 import { LibDropList } from "@/SysCore/Components/FormField/LibFormField";
-import LibPwdTextBox from '@/SysCore/Components/FormField/FieldComponets/LibPwdTextBox_Comp';
-import { useServerResetPassword } from './Server_ResetPassword_Hook';
+import { useMemo } from "react";
+import { useServerResetPassword } from "./Server_ResetPassword_Hook";
 
-export const Server_ResetPassword_Comp = (props: { theme: IBETheme }) => {
+export const Server_ResetPassword_Comp = (props: { theme: IBETheme; }) =>
+{
     // 宣告變數
     const vm = useServerResetPassword(props.theme);
-
+    const accountOpts = useMemo(() =>
+    {
+        return new Map<string, string>(Object.entries(vm.accountDict ?? {}));
+    }, [vm.accountDict]);
     // return（DOM 不動）
     return (
         <FormComp prop={vm.prop}>
@@ -23,7 +28,7 @@ export const Server_ResetPassword_Comp = (props: { theme: IBETheme }) => {
                                                 Style={props.theme.DropList2}
                                                 ColumnDisplayName="帳號"
                                                 AutoDefaultFirst={false}
-                                                Options={vm.accountDict}
+                                                Options={accountOpts}
                                                 InputValue={vm.userInternalId}
                                                 onChange={(v) => vm.onUserInternalIdChange(v)}
                                             />
@@ -58,7 +63,6 @@ export const Server_ResetPassword_Comp = (props: { theme: IBETheme }) => {
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>

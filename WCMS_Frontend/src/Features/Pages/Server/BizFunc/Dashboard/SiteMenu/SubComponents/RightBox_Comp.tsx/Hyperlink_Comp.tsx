@@ -147,9 +147,9 @@ const useSelectedMenuItem = (data: SiteMenuSet, selected?: SiteMenuItem | null):
 };
 
 /** 建立內部連結下拉選單 */
-const buildInternalUrlOptions = (items: SiteMenuItem[], currentRowId: number | null): Record<string, string> =>
+const buildInternalUrlOptions = (items: SiteMenuItem[], currentRowId: number | null): Map<string, string> =>
 {
-    const options: Record<string, string> = {};
+    const options = new Map<string, string>();
     const thinSpace = "\u2009";
 
     const walk = (nodes: SiteMenuItem[] | undefined, depth: number) =>
@@ -167,7 +167,7 @@ const buildInternalUrlOptions = (items: SiteMenuItem[], currentRowId: number | n
             if (fullUrl && !isExternal && !isCurrentItem && !isDraft)
             {
                 const indent = depth > 0 ? thinSpace.repeat(depth * 2) : "";
-                options[fullUrl] = `${indent}${node.name}`;
+                options.set(fullUrl, `${indent}${node.name}`);
             }
 
             walk(node.children, depth + 1);

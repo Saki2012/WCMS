@@ -118,7 +118,7 @@ const MainFormComp = (
         formData: UseFetchFormDataResult<SpecJournalSet>;
         indexRawData: SpecJournalIndexSet[];
         tagOptionsRaw: Record<string, string>;
-        specDocumentTypeOptionsRaw: Record<string, string>;
+        specDocumentTypeOptionsRaw: Map<string, string>;
         keywords: SpecJournalSet[];
     },
 ) =>
@@ -227,8 +227,7 @@ const BasicComp = (
     const selectedIndexId = String(props.formData.data?.SpecJournal?.JournalIndexId ?? "");
     const indexRowOptions = useMemo(() =>
     {
-        const dict = indexRowOptionsByIndexId[selectedIndexId] ?? {};
-        return dict;
+        return indexRowOptionsByIndexId[selectedIndexId] ?? new Map<string, string>();
     }, [indexRowOptionsByIndexId, selectedIndexId]);
     const prevIndexIdRef = useRef<string | null>(null);
     const types = props.formData.data.SpecJournalTypes ?? [];
@@ -1525,7 +1524,7 @@ const DocumentsComp = (
     props: {
         theme: IBETheme;
         formData: UseFetchFormDataResult<SpecJournalSet>;
-        specDocumentTypeOptionsRaw: Record<string, string>;
+        specDocumentTypeOptionsRaw: Map<string, string>;
     },
 ) =>
 {
@@ -1637,53 +1636,67 @@ const useDebouncedValue = (value: string, delayMs: number): string =>
 };
 
 /** ✅ Header 下拉：IndexId -> IndexName */
-const buildIndexHeaderOptions = (rawData: SpecJournalIndexSet[] = []): Record<string, string> =>
+const buildIndexHeaderOptions = (rawData: SpecJournalIndexSet[] = []): Map<string, string> =>
 {
-    // 轉成下拉可用的 dict
-    return rawData.reduce<Record<string, string>>((acc, x) =>
+    return rawData.reduce<Map<string, string>>((acc, x) =>
     {
         const id = String(x?.SpecJournalIndex?.IndexId ?? "");
         const name = String(x?.SpecJournalIndex?.IndexName ?? "");
         if (!id) return acc;
-        acc[id] = name || id;
+        acc.set(id, name || id);
         return acc;
-    }, {});
+    }, new Map<string, string>());
 };
 
 /** ✅ Detail 下拉：IndexId -> (RowId -> "X卷Y期") */
 const buildIndexDetailOptionsByIndexId = (
     rawData: SpecJournalIndexSet[] = [],
-): Record<string, Record<string, string>> =>
+): Record<string, Map<string, string>> =>
 {
-    // 依 header(IndexId) 分組 detail(RowId)
-    return rawData.reduce<Record<string, Record<string, string>>>((acc, x) =>
+    return rawData.reduce<Record<string, Map<string, string>>>((acc, x) =>
     {
         const indexId = String(x?.SpecJournalIndex?.IndexId ?? "");
         if (!indexId) return acc;
-        const details = (x?.SpecJournalIndexDetail ?? []) as SpecJournalIndexDetailSet[];
-        const dict = details.reduce<Record<string, string>>((dAcc, d) =>
+
+        const details = ((x?.SpecJournalIndexDetail ?? []) as SpecJournalIndexDetailSet[])
+            .slice()
+            .sort((a, b) =>
+            {
+                const volumeA = Number(a?.Volume ?? 0);
+                const volumeB = Number(b?.Volume ?? 0);
+                const issueA = Number(a?.Issue ?? 0);
+                const issueB = Number(b?.Issue ?? 0);
+
+                if (volumeA !== volumeB) return volumeA - volumeB;
+                return issueA - issueB;
+            });
+
+        const dict = details.reduce<Map<string, string>>((dAcc, d) =>
         {
             const rowId = String(d?.RowId ?? "");
             if (!rowId) return dAcc;
+
             const v = d?.Volume ?? "";
             const i = d?.Issue ?? "";
             const label = `${v}卷${i}期`;
-            dAcc[rowId] = label;
+
+            dAcc.set(rowId, label);
             return dAcc;
-        }, {});
+        }, new Map<string, string>());
+
         acc[indexId] = dict;
         return acc;
     }, {});
 };
 
 /** ✅ ArticleLang 下拉：LangCode -> 顯示名稱（來源：lang.ts） */
-const buildArticleLangOptions = (): Record<string, string> =>
+const buildArticleLangOptions = (): Map<string, string> =>
 {
-    return SUPPORTED_LANGS.reduce<Record<string, string>>((acc, lang) =>
+    return SUPPORTED_LANGS.reduce<Map<string, string>>((acc, lang) =>
     {
-        acc[String(lang)] = LangLabelMap[lang] ?? String(lang);
+        acc.set(String(lang), LangLabelMap[lang] ?? String(lang));
         return acc;
-    }, {});
+    }, new Map<string, string>());
 };
 
 /** 發佈期刊 / 退回預刊功能 Bar（內含 Dialog 狀態） */
