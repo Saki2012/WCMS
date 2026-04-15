@@ -219,4 +219,10 @@
   <data name="BECode00033" xml:space="preserve">
     <value>無任何檔案讀取。</value>
   </data>
+  <data name="BECode00034" xml:space="preserve">
+    <value>[{0}] 最多可輸入 {1} 個字元。</value>
+  </data>
+  <data name="BECode00035" xml:space="preserve">
+    <value>[{0}] 輸入格式不正確。</value>
+  </data>
 </root>

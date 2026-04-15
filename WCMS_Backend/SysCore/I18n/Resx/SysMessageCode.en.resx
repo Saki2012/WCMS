@@ -219,4 +219,10 @@
   <data name="BECode00033" xml:space="preserve">
     <value>無任何檔案讀取。</value>
   </data>
+  <data name="BECode00034" xml:space="preserve">
+    <value>[{0}] can contain at most {1} characters.</value>
+  </data>
+  <data name="BECode00035" xml:space="preserve">
+    <value>[{0}] has invalid format.</value>
+  </data>
 </root>

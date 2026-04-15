@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -14,11 +15,13 @@ using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO.Compression;
 using System.Net;
+using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization.Metadata;
@@ -34,6 +37,7 @@ using WCMS.SysCore;
 using WCMS.SysCore.AppSettingsOptions;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
@@ -497,19 +501,11 @@ namespace WCMS
                 {
                     opt.InvalidModelStateResponseFactory = context =>
                     {
-                        // 只回必要訊息，避免把欄位結構或堆疊訊息洩漏出去
-                        var errors = context.ModelState
-                            .Where(kvp => kvp.Value?.Errors.Count > 0)
-                            .ToDictionary(
-                                kvp => kvp.Key,
-                                kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
-                            );
+                        // 宣告變數
+                        var response = BuildInvalidModelResponse(context);
 
-                        return new BadRequestObjectResult(new
-                        {
-                            message = "輸入格式不正確",
-                            errors
-                        });
+                        // return
+                        return new BadRequestObjectResult(response);
                     };
                 });
             }
@@ -1011,6 +1007,147 @@ namespace WCMS
                     ["Password"] = new OpenApiString("Z7](oRuh98Z3x1$")
                 };
             }
+        }
+        /// <summary>
+        /// 建立自訂的 400 驗證回應
+        /// </summary>
+        private static ApiResponse<string> BuildInvalidModelResponse(ActionContext context)
+        {
+            // 宣告變數
+            ErrorHelper message = new();
+
+            // 執行 function
+            foreach (var item in context.ModelState.Where(x => x.Value?.Errors.Count > 0))
+                AddInvalidModelMessage(context, message, item.Key);
+
+            if (!message.Messages.Any())
+                message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00035, "資料");
+
+            // return
+            return new ApiResponse<string>() { Data = [], SysMessage = message.Messages };
+        }
+
+        /// <summary>
+        /// 依欄位驗證結果加入訊息
+        /// </summary>
+        private static void AddInvalidModelMessage(ActionContext context, ErrorHelper message, string key)
+        {
+            // 宣告變數
+            var prop = FindModelProperty(context, key);
+            var displayName = prop == null ? GetFieldName(key) : I18nCache.GetLabel(prop);
+            var errorText = context.ModelState[key]?.Errors.FirstOrDefault()?.ErrorMessage ?? string.Empty;
+            var maxLength = GetMaxLength(prop);
+
+            // 執行 function
+            if (maxLength.HasValue && !IsRequiredError(errorText))
+            {
+                message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00034, displayName, maxLength.Value);
+                return;
+            }
+
+            message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00035, displayName);
+        }
+
+        /// <summary>
+        /// 從 model key 反查實際 PropertyInfo
+        /// </summary>
+        private static PropertyInfo? FindModelProperty(ActionContext context, string key)
+        {
+            // 宣告變數
+            if (context.ActionDescriptor is not ControllerActionDescriptor cad) return null;
+            var cleanKey = Regex.Replace(key ?? string.Empty, @"\[\d+\]", string.Empty);
+
+            // 執行 function
+            foreach (var p in cad.MethodInfo.GetParameters())
+            {
+                var prop = TryResolveProperty(p.ParameterType, cleanKey, p.Name);
+                if (prop != null) return prop;
+            }
+
+            // return
+            return null;
+        }
+
+        /// <summary>
+        /// 依照 key 路徑往下找欄位
+        /// </summary>
+        private static PropertyInfo? TryResolveProperty(Type rootType, string key, string? parameterName)
+        {
+            // 宣告變數
+            var path = key;
+            if (!string.IsNullOrWhiteSpace(parameterName) && path.StartsWith(parameterName + ".", StringComparison.OrdinalIgnoreCase))
+                path = path[(parameterName.Length + 1)..];
+
+            var segments = path.Split('.', StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length == 0) return null;
+
+            Type currentType = rootType;
+            PropertyInfo? currentProp = null;
+
+            // 執行 function
+            foreach (var seg in segments)
+            {
+                currentProp = currentType.GetProperties().FirstOrDefault(x => x.Name.Equals(seg, StringComparison.OrdinalIgnoreCase));
+                if (currentProp == null) return null;
+                currentType = GetPropertyType(currentProp.PropertyType);
+            }
+
+            // return
+            return currentProp;
+        }
+
+        /// <summary>
+        /// 取得實際欄位型別
+        /// </summary>
+        private static Type GetPropertyType(Type type)
+        {
+            // 宣告變數
+            var realType = Nullable.GetUnderlyingType(type) ?? type;
+
+            // 執行 function
+            if (realType != typeof(string) && realType.IsGenericType && typeof(System.Collections.IEnumerable).IsAssignableFrom(realType))
+                return realType.GetGenericArguments()[0];
+
+            // return
+            return realType;
+        }
+
+        /// <summary>
+        /// 取得欄位長度限制
+        /// </summary>
+        private static int? GetMaxLength(PropertyInfo? prop)
+        {
+            // 宣告變數
+            if (prop == null) return null;
+            var stringLength = prop.GetCustomAttribute<StringLengthAttribute>();
+            var maxLength = prop.GetCustomAttribute<MaxLengthAttribute>();
+
+            // return
+            if (stringLength != null) return stringLength.MaximumLength;
+            return maxLength?.Length;
+        }
+
+        /// <summary>
+        /// 取 model key 最後一段當欄位名
+        /// </summary>
+        private static string GetFieldName(string key)
+        {
+            // 宣告變數
+            var cleanKey = Regex.Replace(key ?? string.Empty, @"\[\d+\]", string.Empty);
+            var parts = cleanKey.Split('.', StringSplitOptions.RemoveEmptyEntries);
+
+            // return
+            return parts.LastOrDefault() ?? "欄位";
+        }
+        /// <summary>
+        /// 簡單判斷是否為必填錯誤
+        /// </summary>
+        private static bool IsRequiredError(string errorText)
+        {
+            // return
+            return errorText.Contains("required", StringComparison.OrdinalIgnoreCase)
+                || errorText.Contains("請輸入", StringComparison.OrdinalIgnoreCase)
+                || errorText.Contains("必填", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
