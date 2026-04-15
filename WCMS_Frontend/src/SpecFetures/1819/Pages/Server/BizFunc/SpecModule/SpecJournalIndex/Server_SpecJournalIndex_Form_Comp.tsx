@@ -20,7 +20,6 @@ import type { ApiAdapterError, ApiLoaderData } from "@/SysCore/Utils/API/APIAdap
 import type { ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import type { components } from "@/types/api";
 import {
     SpecJournalIndexDetailFields,
@@ -531,7 +530,7 @@ const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
                                 SpecJournalIndexDetailFields.SummaryFileId,
                                 SpecJournalIndexDetailFields.SummaryFileName,
                                 rowKeys,
-                                { defaultNameFromOriginal: "basename" },
+                                { defaultNameFromOriginal: "basename", fileName: d.SummaryFile?.FileName ?? "" },
                             )
                         }
                         // 其他 UI 行為仍由你自己控制

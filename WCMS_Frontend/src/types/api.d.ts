@@ -11097,6 +11097,7 @@ export interface components {
              * @description 行代碼
              */
             RowId?: number;
+            File?: components["schemas"]["FileManageModel_DTO"];
             /** @description 附件 */
             FileId?: string | null;
             /** @description 附件名稱 */
@@ -11451,9 +11452,9 @@ export interface components {
              * @description 行代碼
              */
             RowId?: number;
+            FileSrc?: components["schemas"]["FileManageModel_DTO"];
             /** @description 檔案來源 */
             FileSrcId?: string | null;
-            FileSrc?: components["schemas"]["FileManageModel_DTO"];
             /** @description 檔案名稱 */
             FileName?: string | null;
         };
@@ -12869,6 +12870,7 @@ export interface components {
              * @description 行代碼
              */
             RowId?: number | null;
+            SoundSrc?: components["schemas"]["FileManageModel_DTO"];
             /** @description 音源 */
             SoundSrcId?: string | null;
             /** @description [Spec_SoundSrcInfo] */

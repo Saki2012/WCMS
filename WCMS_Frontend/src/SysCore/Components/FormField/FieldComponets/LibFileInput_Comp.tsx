@@ -10,7 +10,9 @@ interface LibFileInputProps
     InputValue: string;
 
     /** 下方：顯示 internalId（唯讀） */
-    InternalId?: string | null;
+
+    FileName?: string;
+    FileInternalId?: string;
 
     Accept?: string;
     disabled?: boolean;
@@ -38,8 +40,8 @@ const LibFileInput = (props: LibFileInputProps) =>
     // NOTE: 顯示文字：檔名 + (internalId)
     const displayText = (() =>
     {
-        const name = (props.InputValue ?? "").trim();
-        const id = (props.InternalId ?? "").trim();
+        const name = (props.FileName ?? props.InputValue ?? "").trim();
+        const id = (props.FileInternalId ?? "").trim();
         if (!name && !id) return "未上傳";
         if (name && id) return `${name} (${id})`;
         return name || id || "未上傳";
@@ -48,14 +50,14 @@ const LibFileInput = (props: LibFileInputProps) =>
     // NOTE: 下載（開新分頁；以後端 Download 下載）
     const openDownload = () =>
     {
-        if (!props.InternalId) return;
+        if (!props.FileInternalId) return;
         if (typeof window === "undefined") return;
 
-        const url = `/Service/FileManagement/Server_Download/${encodeURIComponent(props.InternalId)}`;
+        const url = `/Service/FileManagement/Server_Download/${encodeURIComponent(props.FileInternalId)}`;
         window.open(url, "_blank", "noopener");
     };
 
-    const canDownload = !!props.InternalId;
+    const canDownload = !!props.FileInternalId;
 
     // NOTE: 選檔事件（取消選檔不動作；成功上傳交給父層）
     const onPickFile = (e: React.ChangeEvent<HTMLInputElement>) =>

@@ -359,6 +359,7 @@ interface UseSetTableFileFieldOptions
             table: string;
             rowKeys?: Record<string, unknown>;
         }) => string);
+    fileName?: string;
 }
 const deriveName = (
     originalName: string | undefined,
@@ -376,7 +377,8 @@ export interface FileFieldBindProps
 {
     ColumnDisplayName: string;
     InputValue: string; // 檔名（可編輯）
-    InternalId: string; // 檔案 internalId（唯讀顯示）
+    FileInternalId: string; // 檔案 internalId（唯讀顯示）
+    FileName?: string; // 下方：顯示用實體檔名
     onFileUploaded: (internalId: string, originalName?: string) => void;
     onNameChange: (name: string) => void; // 只有有提供檔名欄位時才會真的更新
 }
@@ -541,8 +543,9 @@ export const useSetTableFileField = <TSet>(formData: FormDataLike<TSet>) =>
 
             return {
                 ColumnDisplayName: label,
-                InputValue: fileNameField ? currentName : "", // 若沒提供檔名欄位就回空字串
-                InternalId: currentId,
+                InputValue: fileNameField ? currentName : "",
+                FileInternalId: currentId,
+                FileName: opts?.fileName ?? "",
                 onFileUploaded,
                 onNameChange,
             };

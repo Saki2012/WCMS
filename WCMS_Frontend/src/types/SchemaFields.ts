@@ -75,6 +75,7 @@ export const AnnouncementDetailFileFields = {
   AnnouncementId: 'AnnouncementId',
   ParentRowId: 'ParentRowId',
   RowId: 'RowId',
+  File: 'File',
   FileId: 'FileId',
   FileName: 'FileName',
 } as const;
@@ -315,8 +316,8 @@ export const FileArchiveDetailFields = {
   FileArchiveId: 'FileArchiveId',
   ParentRowId: 'ParentRowId',
   RowId: 'RowId',
-  FileSrcId: 'FileSrcId',
   FileSrc: 'FileSrc',
+  FileSrcId: 'FileSrcId',
   FileName: 'FileName',
 } as const;
 
@@ -1362,6 +1363,7 @@ export const SpecMusicalSoundListFields = {
   RowState: 'RowState',
   MusicalId: 'MusicalId',
   RowId: 'RowId',
+  SoundSrc: 'SoundSrc',
   SoundSrcId: 'SoundSrcId',
   Info: 'Info',
   _SpecMusical: '_SpecMusical',

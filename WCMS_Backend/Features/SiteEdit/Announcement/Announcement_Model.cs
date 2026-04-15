@@ -4,6 +4,7 @@ using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
+using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Announcement
@@ -109,7 +110,11 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 檔案來源
         /// </summary>
+        [ForeignKey(nameof(FileId))] public FileManageModel? File { get; set; }
         [StringLength(SysLengthParam.InternalId)] public string FileId { get; set; }
+        /// <summary>
+        /// 檔案名稱
+        /// </summary>
         [StringLength(SysLengthParam.Title)] public string FileName { get; set; }
         #region 主子表關聯
         [ForeignKey($@"{nameof(AnnouncementId)},{nameof(ParentRowId)}")] public AnnouncementDetail _AnnouncementDetail { get; set; }

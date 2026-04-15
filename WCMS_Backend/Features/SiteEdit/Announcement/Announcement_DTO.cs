@@ -1,7 +1,9 @@
-﻿using WCMS.SysCore.I18n;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.SysCore.I18n;
 using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
+using WCMS.SysCore.SystemFunc.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.SiteEdit.Announcement
@@ -116,6 +118,7 @@ namespace WCMS.Features.SiteEdit.Announcement
         /// <summary>
         /// 檔案來源
         /// </summary>
+        [ForeignKey(nameof(FileId))] public FileManageModel_DTO? File { get; set; }
         [LibDesc(ModelDisplayName.Announcement_FileId)] public string? FileId { get; set; }
         /// <summary>
         /// 檔案名稱

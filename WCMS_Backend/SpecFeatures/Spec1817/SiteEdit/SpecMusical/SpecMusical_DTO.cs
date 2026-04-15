@@ -7,6 +7,7 @@ using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
+using WCMS.SysCore.SystemFunc.FileManagement;
 
 namespace WCMS.SpecFeatures.Spec1817.SiteEdit.SpecMusical
 {
@@ -86,6 +87,7 @@ namespace WCMS.SpecFeatures.Spec1817.SiteEdit.SpecMusical
         /// <summary>
         /// 音源
         /// </summary>
+        [ForeignKey(nameof(SoundSrcId))] public FileManageModel_DTO SoundSrc { get; set; }
         [LibDesc(ModelDisplayName.Common_SoundSrcId), StringLength(SysLengthParam.InternalId)] public string? SoundSrcId { get; set; }
         /// <summary>
         /// 音檔說明

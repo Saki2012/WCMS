@@ -1,32 +1,32 @@
+import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
+import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
+import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
+import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import {
-    LibTextBox,
-    LibPicturePreview,
-    LibPicture,
-    LibModal,
-    LibFile,
     LibCheckBoxSingle,
     LibDropList,
-    LibTextArea,
+    LibFile,
     LibFileInput,
+    LibModal,
+    LibPicture,
+    LibPicturePreview,
+    LibTextArea,
+    LibTextBox,
 } from "@/SysCore/Components/FormField/LibFormField";
-import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
-import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
-import { useState, useCallback, useMemo, type ReactNode } from "react";
-import type { Lang } from "@/SysCore/i18n/lang";
-import type { components } from "@/types/api";
-import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
+import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
+import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
+import type { components } from "@/types/api";
 import {
     SpecMusicalModelFields,
     SpecMusicalPictureListFields,
     SpecMusicalSetFields,
     SpecMusicalSoundListFields,
 } from "@/types/SchemaFields";
+import { type ReactNode, useCallback, useMemo, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useSpecMusicalFormFetchData } from "./Server_SpecMusical_Form_Hook";
 
 type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
@@ -39,18 +39,21 @@ const emptyData: SpecMusicalSet = {
     SpecMusicalSoundList: [],
 };
 
-export const Server_SpecMusical_Form_Comp = (prop: { theme: IBETheme; lang: Lang }) => {
+export const Server_SpecMusical_Form_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
+{
     const { internalId } = useParams();
     const navigate = useNavigate();
     const pathname = useLocation().pathname;
 
     /** 回列表 */
-    const onBackToList = useCallback(() => {
+    const onBackToList = useCallback(() =>
+    {
         navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));
     }, [navigate, pathname]);
 
     /** 提供 Hook 用的 actions option */
-    const actionsOpt = useMemo(() => {
+    const actionsOpt = useMemo(() =>
+    {
         return { onBackToList };
     }, [onBackToList]);
 
@@ -86,7 +89,8 @@ const MainFormComp = (prop: {
     theme: IBETheme;
     formData: UseFetchFormDataResult<SpecMusicalSet>;
     cateOpts: Record<string, string>;
-}) => {
+}) =>
+{
     /** 頁籤資訊 */
     const tabInfo: LibTabsProp = {
         Style: prop.theme.Tabs,
@@ -135,7 +139,8 @@ const AlbumComp = (props: {
     theme: IBETheme;
     formData: UseFetchFormDataResult<SpecMusicalSet>;
     cateOpts: Record<string, string>;
-}) => {
+}) =>
+{
     /** 表單欄位綁定 */
     const setField = useSetTableField<SpecMusicalSet>(props.formData);
 
@@ -258,20 +263,23 @@ const AlbumComp = (props: {
 const UploadPicComp = (prop: {
     theme: IBETheme;
     formData: UseFetchFormDataResult<SpecMusicalSet>;
-}) => {
+}) =>
+{
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     /** 讀取錯誤狀態碼 */
-    const getErrorStatus = (error: unknown): number | null => {
+    const getErrorStatus = (error: unknown): number | null =>
+    {
         if (!error || typeof error !== "object") return null;
         if (!("status" in error)) return null;
         return typeof error.status === "number" ? error.status : null;
     };
 
     /** 單檔上傳 */
-    const doUpload = async (file: File, fieldName: "file" | "files") => {
+    const doUpload = async (file: File, fieldName: "file" | "files") =>
+    {
         const fd = new FormData();
         fd.append(fieldName, file, file.name);
 
@@ -282,30 +290,36 @@ const UploadPicComp = (prop: {
             mode: "cors",
         });
 
-        if (!resp.ok) {
+        if (!resp.ok)
+        {
             const text = await resp.text().catch(() => "");
-            const err = new Error(`Upload ${file.name} failed: ${resp.status} ${text}`) as Error & { status?: number };
+            const err = new Error(`Upload ${file.name} failed: ${resp.status} ${text}`) as Error & { status?: number; };
             err.status = resp.status;
             throw err;
         }
 
         const json = await resp.json().catch(() => ({ Data: [] as string[] }));
-        return json as { Data?: string[] };
+        return json as { Data?: string[]; };
     };
 
     /** 逐檔上傳 */
-    const uploadAll = async (): Promise<string[]> => {
+    const uploadAll = async (): Promise<string[]> =>
+    {
         const results: string[] = [];
 
-        for (const file of selectedFiles) {
-            let json: { Data?: string[] };
+        for (const file of selectedFiles)
+        {
+            let json: { Data?: string[]; };
 
-            try {
+            try
+            {
                 json = await doUpload(file, "file");
-            } catch (error) {
+            } catch (error)
+            {
                 const status = getErrorStatus(error);
 
-                if (status !== 400) {
+                if (status !== 400)
+                {
                     throw error;
                 }
 
@@ -314,7 +328,8 @@ const UploadPicComp = (prop: {
 
             const id = json.Data?.[0] ?? "";
 
-            if (!id) {
+            if (!id)
+            {
                 throw new Error(`Upload ${file.name}: missing InternalId`);
             }
 
@@ -325,19 +340,23 @@ const UploadPicComp = (prop: {
     };
 
     /** 把上傳結果寫回 formData */
-    const appendPhotosToForm = (picIds: string[]) => {
-        prop.formData.setFormData(prev => {
+    const appendPhotosToForm = (picIds: string[]) =>
+    {
+        prop.formData.setFormData(prev =>
+        {
             const base = prev ?? emptyData;
             const header = base.SpecMusical ?? {};
             const musicalId = header.MusicalId ?? "";
             const list = base.SpecMusicalPictureList ?? [];
 
-            const maxRowId = list.reduce((max, item) => {
+            const maxRowId = list.reduce((max, item) =>
+            {
                 if (item?.MusicalId !== musicalId) return max;
                 return Math.max(max, Number(item?.RowId ?? 0));
             }, 0);
 
-            const newItems: SpecMusicalPictureList[] = picIds.map((picId, idx) => {
+            const newItems: SpecMusicalPictureList[] = picIds.map((picId, idx) =>
+            {
                 const nextRowId = maxRowId + idx + 1;
 
                 return {
@@ -363,20 +382,24 @@ const UploadPicComp = (prop: {
     };
 
     /** 觸發上傳 */
-    const handleUpload = async () => {
+    const handleUpload = async () =>
+    {
         if (selectedFiles.length === 0 || isUploading) return;
 
-        try {
+        try
+        {
             setError(null);
             setIsUploading(true);
 
             const internalIds = await uploadAll();
             appendPhotosToForm(internalIds);
             setSelectedFiles([]);
-        } catch (error) {
+        } catch (error)
+        {
             setError(error instanceof Error ? error.message : "上傳失敗");
             throw error;
-        } finally {
+        } finally
+        {
             setIsUploading(false);
         }
     };
@@ -416,7 +439,8 @@ const UploadPicComp = (prop: {
                                 預覽圖片
                             </div>
 
-                            {selectedFiles.map((file, index) => {
+                            {selectedFiles.map((file, index) =>
+                            {
                                 const url = URL.createObjectURL(file);
 
                                 return (
@@ -441,13 +465,16 @@ const UploadPicComp = (prop: {
 
 const useCoverPicSelector = (
     formData: UseFetchFormDataResult<SpecMusicalSet>,
-) => {
+) =>
+{
     /** 目前封面 */
     const selected = formData.data?.SpecMusical?.CoverPicId ?? null;
 
     /** 設定封面 */
-    const select = (picId: string) => {
-        formData.setFormData(prev => {
+    const select = (picId: string) =>
+    {
+        formData.setFormData(prev =>
+        {
             const base = prev ?? emptyData;
             const header = base.SpecMusical ?? {};
 
@@ -466,22 +493,27 @@ const useCoverPicSelector = (
 
 const usePhotoRemove = (
     formData: UseFetchFormDataResult<SpecMusicalSet>,
-) => {
+) =>
+{
     /** 刪除相片 */
-    const remove = (musicalId?: string, rowId?: number, picSrcId?: string) => {
+    const remove = (musicalId?: string, rowId?: number, picSrcId?: string) =>
+    {
         if (!musicalId || rowId == null) return;
 
-        formData.setFormData(prev => {
+        formData.setFormData(prev =>
+        {
             const base = prev ?? emptyData;
             const photos = base.SpecMusicalPictureList ?? [];
-            const nextPhotos = photos.filter(item => {
+            const nextPhotos = photos.filter(item =>
+            {
                 return !(item?.MusicalId === musicalId && item?.RowId === rowId);
             });
 
             const header = base.SpecMusical ?? {};
             const nextHeader = { ...header };
 
-            if (picSrcId && header.CoverPicId === picSrcId) {
+            if (picSrcId && header.CoverPicId === picSrcId)
+            {
                 nextHeader.CoverPicId = nextPhotos[0]?.PicSrcId ?? null;
             }
 
@@ -499,7 +531,8 @@ const usePhotoRemove = (
 const PhotoComp = (prop: {
     theme: IBETheme;
     formData: UseFetchFormDataResult<SpecMusicalSet>;
-}) => {
+}) =>
+{
     /** 欄位綁定 */
     const setField = useSetTableField<SpecMusicalSet>(prop.formData);
     const cover = useCoverPicSelector(prop.formData);
@@ -508,7 +541,8 @@ const PhotoComp = (prop: {
 
     return (
         <>
-            {photos.map((item) => {
+            {photos.map((item) =>
+            {
                 const picId = String(item.PicSrcId ?? "");
                 const picUrl = FileManagementAPI.get_Server_Preview_Url(item.PicSrcId);
                 const rowKeys = {
@@ -531,7 +565,8 @@ const PhotoComp = (prop: {
                                     checkboxStyle="radio"
                                     options={[{ itemId: picId, itemDisplayName: "選擇封面" }]}
                                     value={cover.selected ? [String(cover.selected)] : []}
-                                    onChange={(ids) => {
+                                    onChange={(ids) =>
+                                    {
                                         const id = ids?.[0];
                                         if (id) cover.select(id);
                                     }}
@@ -544,10 +579,12 @@ const PhotoComp = (prop: {
                                         id="trash"
                                         className="icon"
                                         href="#"
-                                        onClick={(e) => {
+                                        onClick={(e) =>
+                                        {
                                             e.preventDefault();
 
-                                            if (!window.confirm("確定要刪除這張相片嗎？")) {
+                                            if (!window.confirm("確定要刪除這張相片嗎？"))
+                                            {
                                                 return;
                                             }
 
@@ -607,19 +644,23 @@ const PhotoComp = (prop: {
 const SoundFileComp = (props: {
     theme: IBETheme;
     formData: UseFetchFormDataResult<SpecMusicalSet>;
-}) => {
+}) =>
+{
     /** 檔案欄位綁定 */
     const setFileField = useSetTableFileField(props.formData);
     const allFiles: SpecMusicalSoundList[] = props.formData.data?.SpecMusicalSoundList ?? [];
 
     /** 取得排序後附件 */
-    const getFiles = (): SpecMusicalSoundList[] => {
+    const getFiles = (): SpecMusicalSoundList[] =>
+    {
         return [...allFiles].sort((a, b) => (a.RowId ?? 0) - (b.RowId ?? 0));
     };
 
     /** 回寫附件清單 */
-    const commitFiles = (nextFiles: SpecMusicalSoundList[]) => {
-        props.formData.setFormData(prev => {
+    const commitFiles = (nextFiles: SpecMusicalSoundList[]) =>
+    {
+        props.formData.setFormData(prev =>
+        {
             const base = prev ?? emptyData;
 
             return {
@@ -630,7 +671,8 @@ const SoundFileComp = (props: {
     };
 
     /** 新增附件 */
-    const addFile = () => {
+    const addFile = () =>
+    {
         const list = getFiles();
         const nextRowId = (list.at(-1)?.RowId ?? 0) + 1;
 
@@ -644,7 +686,8 @@ const SoundFileComp = (props: {
     };
 
     /** 刪除附件 */
-    const removeFileAt = (index: number) => {
+    const removeFileAt = (index: number) =>
+    {
         const target = getFiles()[index];
         if (!target) return;
 
@@ -664,7 +707,8 @@ const SoundFileComp = (props: {
                     新增附件
                 </button>
 
-                {getFiles().map((file, index) => {
+                {getFiles().map((file, index) =>
+                {
                     const rowKeys = {
                         [SpecMusicalSoundListFields.MusicalId]: file.MusicalId,
                         [SpecMusicalSoundListFields.RowId]: file.RowId,
@@ -681,7 +725,7 @@ const SoundFileComp = (props: {
                                     SpecMusicalSoundListFields.SoundSrcId,
                                     SpecMusicalSoundListFields.Info,
                                     rowKeys,
-                                    { defaultNameFromOriginal: "basename" },
+                                    { defaultNameFromOriginal: "basename", fileName: file.SoundSrc?.FileName ?? "" },
                                 )}
                                 Accept="audio/*,.mp3,.wav,.flac,.m4a,.aac,.ogg"
                                 onDelete={() => removeFileAt(index)}

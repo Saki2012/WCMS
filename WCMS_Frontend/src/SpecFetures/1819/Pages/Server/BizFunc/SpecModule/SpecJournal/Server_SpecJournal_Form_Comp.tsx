@@ -22,11 +22,7 @@ import {
 } from "@/types/SchemaFields";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import {
-    type ISpecJournalDialogConfirmPayload,
-    Server_SpecJournal_Dialog_Comp,
-    type SpecJournalDialogActionType,
-} from "./Server_SpecJournal_Dialog_Comp";
+import { Server_SpecJournal_Dialog_Comp, type SpecJournalDialogActionType } from "./Server_SpecJournal_Dialog_Comp";
 import {
     type SpecJournalFormActionsOpt,
     type SpecJournalMode,
@@ -420,7 +416,10 @@ const BasicComp = (
                                 SpecJournalSetFields.SpecJournal,
                                 SpecJournalModelFields.JournalFileId,
                                 SpecJournalModelFields.JournalFileName,
-                                { defaultNameFromOriginal: "basename" },
+                                {
+                                    defaultNameFromOriginal: "basename",
+                                    fileName: props.formData.data.SpecJournal?.JournalFile?.FileName ?? "",
+                                },
                             )}
                             Accept="application/pdf"
                             onDelete={() =>
@@ -438,7 +437,10 @@ const BasicComp = (
                                 SpecJournalSetFields.SpecJournal,
                                 SpecJournalModelFields.InsightPointFileId,
                                 SpecJournalModelFields.InsightPointFileName,
-                                { defaultNameFromOriginal: "basename" },
+                                {
+                                    defaultNameFromOriginal: "basename",
+                                    fileName: props.formData.data.SpecJournal?.InsightPointFile?.FileName ?? "",
+                                },
                             )}
                             Accept="application/pdf"
                             onDelete={() =>
@@ -1175,7 +1177,7 @@ const OpenPointComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
                                     SpecJournalOpenPointFilesFields.OpenPointFileId,
                                     SpecJournalOpenPointFilesFields.OpenPointFileName,
                                     rowKeys,
-                                    { defaultNameFromOriginal: "basename" },
+                                    { defaultNameFromOriginal: "basename", fileName: f.OpenPointFile?.FileName ?? "" },
                                 )}
                                 Accept="application/pdf"
                                 onDelete={() => removeFileAt(i)}
@@ -1254,7 +1256,7 @@ const RefFilesComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult
                                     SpecJournalRefFilesFields.RefFileId,
                                     SpecJournalRefFilesFields.RefFileName,
                                     rowKeys,
-                                    { defaultNameFromOriginal: "basename" },
+                                    { defaultNameFromOriginal: "basename", fileName: f.RefFile?.FileName ?? "" },
                                 )}
                                 Accept="application/pdf"
                                 onDelete={() => removeFileAt(i)}
@@ -1569,7 +1571,7 @@ const DocumentsComp = (
                                     SpecJournalDocumentFields.DocumentId,
                                     SpecJournalDocumentFields.DocumentName,
                                     rowKeys,
-                                    { defaultNameFromOriginal: "basename" },
+                                    { defaultNameFromOriginal: "basename", fileName: f.Document?.FileName ?? "" },
                                 )}
                                 onDelete={() => removeFileAt(i)}
                             />
