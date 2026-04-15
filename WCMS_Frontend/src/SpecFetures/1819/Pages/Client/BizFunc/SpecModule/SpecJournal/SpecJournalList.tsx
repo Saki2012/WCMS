@@ -108,7 +108,7 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
 
     const loadingList = useVolume.isLoading;
     const errorList = [useVolume.error];
-    const moduleTitle = issueLabel || pageTitle;
+    const moduleTitle = isSearchMode ? "搜尋結果" : (issueLabel || pageTitle);
 
     const paginprops: PaginatorProps = {
         currentPage: useVolume.pageNumber,

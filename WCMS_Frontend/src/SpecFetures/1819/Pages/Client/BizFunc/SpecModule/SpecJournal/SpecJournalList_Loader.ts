@@ -95,10 +95,14 @@ const buildCondition = (p: BuildConditionArgs): string =>
     // 宣告變數
     let condition = "";
     const f = p.filters;
-    const scopeCondition = buildScopeCondition(p);
+    const isGlobalSearch = hasSearchFilters(f);
 
-    // 執行 function：先套用 route 範圍
-    condition = LibMerge(" And ", false, condition, scopeCondition);
+    // 執行 function：只有非搜尋模式才套 route 範圍
+    if (!isGlobalSearch)
+    {
+        const scopeCondition = buildScopeCondition(p);
+        condition = LibMerge(" And ", false, condition, scopeCondition);
+    }
 
     if (f.q)
     {
@@ -285,4 +289,9 @@ const buildScopeCondition = (p: BuildConditionArgs): string =>
         `${SpecJournalModelFields.JournalIndexId} = '${indexId}'`,
         `${SpecJournalModelFields.JournalIndexRowId} = '${rowId}'`,
     );
+};
+const hasSearchFilters = (f: SpecJournalListFilters): boolean =>
+{
+    // return
+    return !!f.q || !!f.articleLang || !!f.tagId || !!f.author || !!f.keyword;
 };
