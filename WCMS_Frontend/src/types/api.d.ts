@@ -5705,6 +5705,136 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/SiteMenu/SaveMenuStructure": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SaveMenuStructure_DTOApiRequest"];
+                    "text/json": components["schemas"]["SaveMenuStructure_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["SaveMenuStructure_DTOApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SiteMenu/SaveMenuItem": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SaveMenuItem_DTOApiRequest"];
+                    "text/json": components["schemas"]["SaveMenuItem_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["SaveMenuItem_DTOApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["SaveMenuItemResult_DTOApiResponse"];
+                        "application/json": components["schemas"]["SaveMenuItemResult_DTOApiResponse"];
+                        "text/json": components["schemas"]["SaveMenuItemResult_DTOApiResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SiteMenu/SaveSiteInfo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SaveSiteInfo_DTOApiRequest"];
+                    "text/json": components["schemas"]["SaveSiteInfo_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["SaveSiteInfo_DTOApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/SiteMenu/Create": {
         parameters: {
             query?: never;
@@ -10939,10 +11069,10 @@ export interface components {
             AccountId?: string | null;
             /** @description 使用者名稱 */
             AccountName?: string | null;
-            Person?: components["schemas"]["PersonModel"];
+            Person?: components["schemas"]["PersonModel_DTO"];
             /** @description 人員編號 */
             PersonId?: string | null;
-            Role?: components["schemas"]["RoleDataModel"];
+            Role?: components["schemas"]["RoleDataModel_DTO"];
             /** @description 角色代號 */
             RoleId?: string | null;
             /** @description 密碼 */
@@ -11984,6 +12114,79 @@ export interface components {
          * @enum {integer}
          */
         RowState: 0 | 1 | 2 | 3;
+        SaveMenuItemModule_DTO: {
+            BannerId?: string | null;
+            PageType?: components["schemas"]["ModulePageType"];
+            ModuleProgId?: string | null;
+            ModuleOptions?: string | null;
+        };
+        SaveMenuItemResult_DTO: {
+            /** Format: int32 */
+            RowId?: number;
+            FullUrl?: string | null;
+            IsNewItem?: boolean;
+        };
+        SaveMenuItemResult_DTOApiResponse: {
+            readonly IsSuccess?: boolean;
+            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
+            Data?: components["schemas"]["SaveMenuItemResult_DTO"][] | null;
+        };
+        SaveMenuItemTitle_DTO: {
+            /** Format: int32 */
+            RowId?: number | null;
+            Lang?: components["schemas"]["LangCode"];
+            Title?: string | null;
+            IsShowOnMenu?: boolean;
+        };
+        SaveMenuItemUrl_DTO: {
+            RedirectType?: components["schemas"]["MenuUrlType"];
+            RedirectUrl?: string | null;
+        };
+        SaveMenuItem_DTO: {
+            InternalId?: string | null;
+            /** Format: int32 */
+            RowId?: number | null;
+            /** Format: int32 */
+            ParentRowId?: number | null;
+            /** Format: int32 */
+            DisplayOrder?: number;
+            ItemSiteUrl?: string | null;
+            ItemType?: components["schemas"]["MenuUrlType"];
+            WindowTarget?: components["schemas"]["WindowTarget"];
+            Titles?: components["schemas"]["SaveMenuItemTitle_DTO"][] | null;
+            Url?: components["schemas"]["SaveMenuItemUrl_DTO"];
+            Module?: components["schemas"]["SaveMenuItemModule_DTO"];
+        };
+        SaveMenuItem_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SaveMenuItem_DTO"];
+        };
+        SaveMenuStructureItem_DTO: {
+            /** Format: int32 */
+            RowId?: number;
+            /** Format: int32 */
+            ParentRowId?: number | null;
+            /** Format: int32 */
+            DisplayOrder?: number;
+        };
+        SaveMenuStructure_DTO: {
+            InternalId?: string | null;
+            Items?: components["schemas"]["SaveMenuStructureItem_DTO"][] | null;
+            DeletedRowIds?: number[] | null;
+        };
+        SaveMenuStructure_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SaveMenuStructure_DTO"];
+        };
+        SaveSiteInfo_DTO: {
+            InternalId?: string | null;
+            SiteMenu_Index?: components["schemas"]["SiteMenu_Index_DTO"];
+            SiteMenu_IndexInfo?: components["schemas"]["SiteMenu_IndexInfo_DTO"][] | null;
+        };
+        SaveSiteInfo_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SaveSiteInfo_DTO"];
+        };
         SiteMenuSet_DTO: {
             SiteMenu_Index?: components["schemas"]["SiteMenu_Index_DTO"];
             SiteMenu_IndexInfo?: components["schemas"]["SiteMenu_IndexInfo_DTO"][] | null;

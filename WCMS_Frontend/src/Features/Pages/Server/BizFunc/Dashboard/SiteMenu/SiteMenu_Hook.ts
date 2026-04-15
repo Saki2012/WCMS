@@ -29,7 +29,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
 type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"];
-type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title_DTO"];
+type SaveSiteInfoDTO = components["schemas"]["SaveSiteInfo_DTO"];
+type SaveMenuStructureDTO = components["schemas"]["SaveMenuStructure_DTO"];
+type SaveMenuItemDTO = components["schemas"]["SaveMenuItem_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 type TagSet = components["schemas"]["TagSet_DTO"];
 type PageSet = components["schemas"]["PageManagementSet_DTO"];
@@ -45,12 +47,20 @@ export interface SiteMenuItem
     menuItem: SiteMenu_Item;
     children?: SiteMenuItem[];
 }
+
 export type SiteMenuEditTarget = null | { type: "site"; title: string; } | { type: "menu"; item: SiteMenuItem; };
+
+export type SiteMenuActions = UseActionsResult & {
+    onSaveSiteInfo: () => Promise<boolean>;
+    onSaveMenuItem: (item: SiteMenuItem) => Promise<boolean>;
+    onSaveMenuStructure: (tree: SiteMenuItem[], deletedRowIds: number[]) => Promise<boolean>;
+};
+
 export type SiteMenuFetchRawData = {
     internalId: string | null;
     formData: UseFetchFormDataResult<SiteMenuSet>;
     siteMenuItems: SiteMenuItem[];
-    actions: UseActionsResult;
+    actions: SiteMenuActions;
     windowTarget: Record<string, string>;
     menuUrlType: Record<string, string>;
     modulePageType: Record<string, string>;
@@ -76,12 +86,13 @@ export const useSiteMenuFetchData = (
     opt: { lang: Lang; },
 ): UseFetchDataResult<SiteMenuFetchRawData, SiteMenuFetchAdapter> =>
 {
-    // 宣告變數
     const { publish } = useToast();
+
     const onError = useCallback((e: ApiAdapterError) =>
     {
         publish({ level: MessageStatus.Error, title: e.messageText });
     }, [publish]);
+
     const adapter = useMemo<SiteMenuFetchAdapter>(() =>
     {
         return {
@@ -92,38 +103,40 @@ export const useSiteMenuFetchData = (
             Banner: BannerSliderAdapter(),
         };
     }, []);
-    // 執行 function：主資料
+
     const main = useSiteMenuMainDataByAdapter(adapter.SiteMenu, onError);
-    // 執行 function：參照資料
     const ref = useSiteMenuRefDataByAdapter(adapter, opt.lang, onError);
-    // 執行 function：表單 actions
     const actions = useSiteMenuActionsByAdapter(adapter.SiteMenu, main.internalId, main.formData, main.refetchData);
-    // 執行 function：補齊多語系 detail
+
     useEnsureLangDetails(main.formData, {
         headerName: SiteMenuSetFields.SiteMenu_Index,
         detailName: SiteMenuSetFields.SiteMenu_IndexInfo,
         parentKeys: [SiteMenu_IndexInfoFields.SiteIndex],
         preferFirstLang: opt.lang,
     });
+
     useEnsureLangDetails(main.formData, {
         headerName: SiteMenuSetFields.SiteMenu_Item,
         detailName: SiteMenuSetFields.SiteMenu_Item_Title,
         parentKeys: [SiteMenu_Item_TitleFields.SiteIndex, SiteMenu_Item_TitleFields.ItemRowId],
         preferFirstLang: opt.lang,
     });
-    // 宣告變數：統一出口
+
     const isLoading = useMemo(() =>
     {
         return Boolean(main.isLoading || ref.isLoading);
     }, [main.isLoading, ref.isLoading]);
+
     const errors = useMemo(() =>
     {
         return [...main.errors, ...ref.errors].filter((x): x is string => Boolean(x));
     }, [main.errors, ref.errors]);
+
     const siteMenuItems = useMemo(() =>
     {
         return transSetToItem(main.formData.data, opt.lang);
     }, [main.formData.data, opt.lang]);
+
     const rawData = useMemo<SiteMenuFetchRawData>(() =>
     {
         return {
@@ -141,15 +154,17 @@ export const useSiteMenuFetchData = (
             siteMenuItems,
         };
     }, [actions, main.formData, main.internalId, ref, siteMenuItems]);
+
     const refetchData = useCallback(async () =>
     {
         await Promise.resolve(main.refetchData());
     }, [main]);
+
     const refetchRefData = useCallback(async () =>
     {
         await Promise.resolve(ref.refetch());
     }, [ref]);
-    // return
+
     return { adapter, rawData, isLoading, errors, refetchData, refetchRefData };
 };
 // #endregion
@@ -168,12 +183,12 @@ const useSiteMenuMainDataByAdapter = (
     onError: (e: ApiAdapterError) => void,
 ): SiteMenuMainDataResult =>
 {
-    // 執行 function：先抓站台清單
     const siteList = adapter.hooks.useQueryList({
         condition: { Fields: [SiteMenu_IndexFields.InternalId], PageNumber: 0, PageSize: 50 },
         deps: [],
         onError,
     });
+
     const internalId = useMemo(() =>
     {
         const first = (siteList.data ?? []).find((x) => x?.SiteMenu_Index?.InternalId);
@@ -198,8 +213,10 @@ const useSiteMenuMainDataByAdapter = (
         deps: [validInternalId ?? ""],
         onError,
     });
+
     const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
     const [data, setData] = useState<SiteMenuSet>(emptyData);
+
     useEffect(() =>
     {
         if (!validInternalId)
@@ -207,8 +224,16 @@ const useSiteMenuMainDataByAdapter = (
             setData(emptyData);
             return;
         }
+
         setData(query.data ?? emptyData);
     }, [validInternalId, query.data]);
+
+    const refetchQuery = useCallback(async () =>
+    {
+        if (!validInternalId) return;
+        await query.refetch();
+    }, [query, validInternalId]);
+
     const formData = useMemo<UseFetchFormDataResult<SiteMenuSet>>(() =>
     {
         return {
@@ -237,29 +262,26 @@ const useSiteMenuMainDataByAdapter = (
         model.refetch,
         query.errorText,
         query.isLoading,
-        query.refetch,
+        refetchQuery,
         siteList.errorText,
         siteList.isLoading,
         siteList.refetch,
     ]);
-    const refetchQuery = useCallback(async () =>
-    {
-        if (!validInternalId) return;
-        await query.refetch();
-    }, [query, validInternalId]);
+
     const refetchData = useCallback(async () =>
     {
         await Promise.all([
             Promise.resolve(siteList.refetch()),
-            Promise.resolve(refetchQuery),
+            Promise.resolve(refetchQuery()),
             Promise.resolve(model.refetch()),
         ]);
     }, [model, refetchQuery, siteList]);
+
     const errors = useMemo(() =>
     {
         return [siteList.errorText, query.errorText, model.errorText];
     }, [model.errorText, query.errorText, siteList.errorText]);
-    // return
+
     return { internalId, formData, isLoading: formData.isLoading, errors, refetchData };
 };
 // #endregion
@@ -270,56 +292,67 @@ const useSiteMenuActionsByAdapter = (
     internalId: string | null,
     formData: UseFetchFormDataResult<SiteMenuSet>,
     refetchData: () => Promise<void>,
-): UseActionsResult =>
+): SiteMenuActions =>
 {
     const { publish } = useToast();
-    const cud = adapter.hooks.useCudActions();
+    const saveSiteInfo = adapter.hooks.useSaveSiteInfo();
+    const saveMenuItem = adapter.hooks.useSaveMenuItem();
+    const saveMenuStructure = adapter.hooks.useSaveMenuStructure();
+
     const onCancelBack = useCallback(() =>
     {
         void refetchData();
     }, [refetchData]);
-    const onSave = useCallback(async (): Promise<boolean> =>
+
+    const onSaveSiteInfo = useCallback(async (): Promise<boolean> =>
     {
-        // 宣告變數
+        if (!internalId || !formData.data)
+        {
+            publish({ level: MessageStatus.Error, title: "保存失敗", text: "找不到站台資料" });
+            return false;
+        }
+
+        const req = buildSaveSiteInfoRequest(internalId, formData.data);
+        const res = await saveSiteInfo.saveAsync(req);
+        return await handleSaveResult(res, refetchData);
+    }, [formData.data, internalId, publish, refetchData, saveSiteInfo]);
+
+    const onSaveMenuStructure = useCallback(async (tree: SiteMenuItem[], deletedRowIds: number[]): Promise<boolean> =>
+    {
         if (!internalId)
         {
             publish({ level: MessageStatus.Error, title: "保存失敗", text: "找不到站台 InternalId" });
             return false;
         }
 
-        try
-        {
-            const res = await cud.updateAsync(internalId, formData.data) as ApiResponse<SiteMenuSet>;
-            const ok = Boolean(res?.IsSuccess);
-            if (!ok)
-            {
-                res.SysMessage.map((item) =>
-                {
-                    publish({ level: item.Status, title: "保存失敗", code: item.MessageCode, text: item.Message });
-                });
-                return false;
-            }
-            await refetchData();
-            publish({ level: MessageStatus.Green, title: "保存成功" });
-            return true;
-        } catch (error)
-        {
-            const message = error instanceof Error ? error.message : "發生未預期錯誤";
+        const req = buildSaveMenuStructureRequest(internalId, tree, deletedRowIds);
+        const res = await saveMenuStructure.saveAsync(req);
+        return await handleSaveResult(res, refetchData);
+    }, [internalId, publish, refetchData, saveMenuStructure]);
 
-            publish({
-                level: MessageStatus.Error,
-                title: "保存失敗",
-                text: message,
-            });
-
+    const onSaveMenuItem = useCallback(async (item: SiteMenuItem): Promise<boolean> =>
+    {
+        if (!internalId || !formData.data)
+        {
+            publish({ level: MessageStatus.Error, title: "保存失敗", text: "找不到站台資料" });
             return false;
         }
-    }, [cud, formData.data, internalId, publish, refetchData]);
-    return useMemo<UseActionsResult>(() =>
+
+        const req = buildSaveMenuItemRequest(internalId, formData.data, item);
+        const res = await saveMenuItem.saveAsync(req);
+        return await handleSaveResult(res, refetchData);
+    }, [formData.data, internalId, publish, refetchData, saveMenuItem]);
+
+    return useMemo<SiteMenuActions>(() =>
     {
+        const isExecuting = Boolean(saveSiteInfo.isSaving || saveMenuItem.isSaving || saveMenuStructure.isSaving);
+
         return {
-            isExecuting: cud.isSaving,
-            onSave,
+            isExecuting,
+            onSave: onSaveSiteInfo,
+            onSaveSiteInfo,
+            onSaveMenuItem,
+            onSaveMenuStructure,
             onCancelBack,
             onAddNew: () =>
             {},
@@ -338,7 +371,142 @@ const useSiteMenuActionsByAdapter = (
             onPreview: () =>
             {},
         };
-    }, [cud.isSaving, onCancelBack, onSave]);
+    }, [
+        onCancelBack,
+        onSaveMenuItem,
+        onSaveMenuStructure,
+        onSaveSiteInfo,
+        saveMenuItem.isSaving,
+        saveMenuStructure.isSaving,
+        saveSiteInfo.isSaving,
+    ]);
+};
+
+const buildSaveSiteInfoRequest = (internalId: string, data: SiteMenuSet): SaveSiteInfoDTO =>
+{
+    return {
+        InternalId: internalId,
+        SiteMenu_Index: data.SiteMenu_Index ?? {},
+        SiteMenu_IndexInfo: data.SiteMenu_IndexInfo ?? [],
+    } as SaveSiteInfoDTO;
+};
+
+const buildSaveMenuStructureRequest = (
+    internalId: string,
+    tree: SiteMenuItem[],
+    deletedRowIds: number[],
+): SaveMenuStructureDTO =>
+{
+    return {
+        InternalId: internalId,
+        Items: flattenStructureItems(tree),
+        DeletedRowIds: deletedRowIds.filter(x => x > 0),
+    } as SaveMenuStructureDTO;
+};
+
+const flattenStructureItems = (
+    tree: SiteMenuItem[],
+): Array<{ RowId: number; ParentRowId: number | null; DisplayOrder: number; }> =>
+{
+    const result: Array<{ RowId: number; ParentRowId: number | null; DisplayOrder: number; }> = [];
+
+    const walk = (nodes: SiteMenuItem[], parentRowId: number | null) =>
+    {
+        nodes.filter(x => x.id > 0).forEach((node, index) =>
+        {
+            result.push({ RowId: node.id, ParentRowId: parentRowId, DisplayOrder: index + 1 });
+            walk(node.children ?? [], node.id);
+        });
+    };
+
+    walk(tree, null);
+    return result;
+};
+
+const buildSaveMenuItemRequest = (internalId: string, data: SiteMenuSet, node: SiteMenuItem): SaveMenuItemDTO =>
+{
+    const rowId = Number(node.id);
+    const isNew = rowId <= 0;
+    const sourceItem = findMenuItem(data, rowId) ?? node.menuItem;
+    const itemRowId = isNew ? rowId : Number(sourceItem.RowId ?? rowId);
+    const titles = buildSaveMenuItemTitles(data, itemRowId);
+    const url = buildSaveMenuItemUrl(data, itemRowId);
+    const module = buildSaveMenuItemModule(data, itemRowId);
+
+    return {
+        InternalId: internalId,
+        RowId: isNew ? null : itemRowId,
+        ParentRowId: toNullableNumber(sourceItem.ParentRowId),
+        DisplayOrder: Number(sourceItem.DisplayOrder ?? 1),
+        ItemSiteUrl: sourceItem.ItemSiteUrl ?? "",
+        ItemType: sourceItem.ItemType ?? 0,
+        WindowTarget: sourceItem.WindowTarget ?? 0,
+        Titles: titles,
+        Url: url,
+        Module: module,
+    } as SaveMenuItemDTO;
+};
+
+const buildSaveMenuItemTitles = (data: SiteMenuSet, itemRowId: number) =>
+{
+    return (data.SiteMenu_Item_Title ?? [])
+        .filter(x => Number(x.ItemRowId) === itemRowId)
+        .map(x =>
+        {
+            return {
+                RowId: x.RowId,
+                Lang: x.Lang,
+                Title: x.Title,
+                IsShowOnMenu: x.IsShowOnMenu ?? false,
+            };
+        });
+};
+
+const buildSaveMenuItemUrl = (data: SiteMenuSet, itemRowId: number) =>
+{
+    const src = (data.SiteMenu_Item_Url ?? []).find(x => Number(x.ItemRowId) === itemRowId);
+    if (!src) return null;
+
+    return {
+        RedirectType: src.RedirectType,
+        RedirectUrl: src.RedirectUrl,
+    };
+};
+
+const buildSaveMenuItemModule = (data: SiteMenuSet, itemRowId: number) =>
+{
+    const src = (data.SiteMenu_Item_Module ?? []).find(x => Number(x.ItemRowId) === itemRowId);
+    if (!src) return null;
+
+    return {
+        BannerId: src.BannerId,
+        PageType: src.PageType,
+        ModuleProgId: src.ModuleProgId,
+        ModuleOptions: src.ModuleOptions,
+    };
+};
+
+const findMenuItem = (data: SiteMenuSet, rowId: number): SiteMenu_Item | undefined =>
+{
+    return (data.SiteMenu_Item ?? []).find(x => Number(x.RowId) === rowId);
+};
+
+const toNullableNumber = (value: unknown): number | null =>
+{
+    const n = Number(value);
+    return Number.isFinite(n) && n > 0 ? n : null;
+};
+
+const handleSaveResult = async <T>(
+    res: ApiResponse<T>,
+    refetchData: () => Promise<void>,
+): Promise<boolean> =>
+{
+    const ok = Boolean(res?.IsSuccess);
+    if (!ok) return false;
+
+    await refetchData();
+    return true;
 };
 // #endregion
 
@@ -363,13 +531,11 @@ const useSiteMenuRefDataByAdapter = (
     onError: (e: ApiAdapterError) => void,
 ): SiteMenuRefDataResult =>
 {
-    // 執行 function：enum
     const windowTarget = useEnumOptions("WindowTarget");
     const menuUrlType = useEnumOptions("MenuUrlType");
     const modulePageType = useEnumOptions("ModulePageType");
     const moduleDisplayStyle = useEnumOptions("ModuleDisplayStyle");
 
-    // 執行 function：關聯清單
     const category = adapter.Category.hooks.useQueryList({
         condition: {
             Fields: [
@@ -384,6 +550,7 @@ const useSiteMenuRefDataByAdapter = (
         deps: [lang],
         onError,
     });
+
     const tag = adapter.Tag.hooks.useQueryList({
         condition: {
             Fields: [
@@ -398,6 +565,7 @@ const useSiteMenuRefDataByAdapter = (
         deps: [lang],
         onError,
     });
+
     const page = adapter.Page.hooks.useQueryList({
         condition: {
             Fields: [
@@ -411,7 +579,9 @@ const useSiteMenuRefDataByAdapter = (
         deps: [lang],
         onError,
     });
+
     const banner = adapter.Banner.hooks.useQueryList({ condition: { PageNumber: 0, PageSize: 0 }, deps: [], onError });
+
     const bannerDict = useMemo<Record<string, string>>(() =>
     {
         const src = banner.data ?? [];
@@ -423,6 +593,7 @@ const useSiteMenuRefDataByAdapter = (
             return acc;
         }, {});
     }, [banner.data]);
+
     const pageMap = useMemo<Record<string, string>>(() =>
     {
         const src = page.data ?? [];
@@ -434,6 +605,7 @@ const useSiteMenuRefDataByAdapter = (
             return acc;
         }, {});
     }, [page.data, lang]);
+
     const isLoading = useMemo(() =>
     {
         return Boolean(
@@ -450,6 +622,7 @@ const useSiteMenuRefDataByAdapter = (
         tag.isLoading,
         windowTarget.isLoading,
     ]);
+
     const errors = useMemo(() =>
     {
         return [
@@ -472,6 +645,7 @@ const useSiteMenuRefDataByAdapter = (
         tag.errorText,
         windowTarget.error,
     ]);
+
     const refetch = useCallback(async () =>
     {
         await Promise.all([
@@ -481,6 +655,7 @@ const useSiteMenuRefDataByAdapter = (
             Promise.resolve(banner.refetch()),
         ]);
     }, [banner, category, page, tag]);
+
     return {
         windowTarget: windowTarget.data,
         menuUrlType: menuUrlType.data,
@@ -508,63 +683,71 @@ const useEnumOptions = (
 };
 // #endregion
 
-/** 將SiteMenuSet轉換成SiteMenuItem(樹狀資料)，應該是SiteMenu做好下傳給左右側 */
+/** 將 SiteMenuSet 轉換成 SiteMenuItem 樹狀資料 */
 const transSetToItem = (data: SiteMenuSet, lang: Lang): SiteMenuItem[] =>
 {
     const items = data?.SiteMenu_Item ?? [];
     const titles = data?.SiteMenu_Item_Title ?? [];
-    // ✅ 建立：itemRowId -> (lang -> title) 對照（收全部語系，後面再做 fallback）
     const titleDict = new Map<number, Map<string, string>>();
+
     for (const t of titles)
     {
-        const itemRowId = Number((t as SiteMenu_Item_Title).ItemRowId ?? 0);
+        const itemRowId = Number(t.ItemRowId ?? 0);
         if (!itemRowId) continue;
-        const l = String((t as SiteMenu_Item_Title).Lang ?? "").toLowerCase();
-        const title = String((t as any).Title ?? "");
+
+        const l = String(t.Lang ?? "").toLowerCase();
+        const title = String(t.Title ?? "");
+
         if (!titleDict.has(itemRowId)) titleDict.set(itemRowId, new Map());
-        titleDict.get(itemRowId)!.set(l, title);
+        titleDict.get(itemRowId)?.set(l, title);
     }
-    // ✅ 以「指定 lang」為優先語系；若沒有，就往其他語系找第一個有值的 title
+
     const resolveTitle = (itemRowId: number): string =>
     {
         const langMap = titleDict.get(itemRowId);
         if (!langMap) return "";
+
         const primary = String(lang ?? DefaultLang).toLowerCase();
         const candidates = [
             primary,
             ...Object.keys(LangLabelMap).map((x) => String(x).toLowerCase()).filter((x) => x !== primary),
         ];
+
         for (const l of candidates)
         {
             const t = String(langMap.get(l) ?? "").trim();
             if (t) return t;
         }
+
         return "(未命名)";
     };
-    // 方便排序：RowId -> DisplayOrder
+
     const orderMap = new Map<number, number>();
-    // 先為每個項目建立節點
     const nodeMap = new Map<number, SiteMenuItem>();
+
     for (const it of items)
     {
-        const rowId = Number((it as any).RowId);
-        const displayOrder = Number((it as any).DisplayOrder ?? 0);
+        const rowId = Number(it.RowId);
+        const displayOrder = Number(it.DisplayOrder ?? 0);
         orderMap.set(rowId, displayOrder);
-        const text = resolveTitle(rowId);
+
         nodeMap.set(rowId, {
             id: rowId,
-            name: text,
+            name: resolveTitle(rowId),
             menuItem: it,
             children: [],
         });
     }
-    // 串接 parent/children
+
     const roots: SiteMenuItem[] = [];
+
     for (const it of items)
     {
-        const rowId = Number((it as any).RowId);
-        const parentRowId = (it as any).ParentRowId as number | null | undefined;
-        const node = nodeMap.get(rowId)!;
+        const rowId = Number(it.RowId);
+        const parentRowId = it.ParentRowId;
+        const node = nodeMap.get(rowId);
+        if (!node) continue;
+
         if (parentRowId == null) roots.push(node);
         else
         {
@@ -573,15 +756,17 @@ const transSetToItem = (data: SiteMenuSet, lang: Lang): SiteMenuItem[] =>
             else roots.push(node);
         }
     }
-    // 依 DisplayOrder 排序（含遞迴子節點）
+
     const sortRec = (list: SiteMenuItem[]) =>
     {
         list.sort((a, b) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0));
         for (const n of list) if (n.children && n.children.length) sortRec(n.children);
     };
+
     sortRec(roots);
     return roots;
 };
+
 const GUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 /** 檢查字串是否為 GUID 格式 */

@@ -757,6 +757,107 @@ export const RolePermissionSet_DTOApiRequestFields = {
 
 export type RolePermissionSet_DTOApiRequestFieldKey = keyof typeof RolePermissionSet_DTOApiRequestFields;
 
+export const SaveMenuItemModuleFields = {
+  BannerId: 'BannerId',
+  PageType: 'PageType',
+  ModuleProgId: 'ModuleProgId',
+  ModuleOptions: 'ModuleOptions',
+} as const;
+
+export type SaveMenuItemModuleFieldKey = keyof typeof SaveMenuItemModuleFields;
+
+export const SaveMenuItemResultFields = {
+  RowId: 'RowId',
+  FullUrl: 'FullUrl',
+  IsNewItem: 'IsNewItem',
+} as const;
+
+export type SaveMenuItemResultFieldKey = keyof typeof SaveMenuItemResultFields;
+
+export const SaveMenuItemResult_DTOApiResponseFields = {
+  IsSuccess: 'IsSuccess',
+  SysMessage: 'SysMessage',
+  Data: 'Data',
+} as const;
+
+export type SaveMenuItemResult_DTOApiResponseFieldKey = keyof typeof SaveMenuItemResult_DTOApiResponseFields;
+
+export const SaveMenuItemTitleFields = {
+  RowId: 'RowId',
+  Lang: 'Lang',
+  Title: 'Title',
+  IsShowOnMenu: 'IsShowOnMenu',
+} as const;
+
+export type SaveMenuItemTitleFieldKey = keyof typeof SaveMenuItemTitleFields;
+
+export const SaveMenuItemUrlFields = {
+  RedirectType: 'RedirectType',
+  RedirectUrl: 'RedirectUrl',
+} as const;
+
+export type SaveMenuItemUrlFieldKey = keyof typeof SaveMenuItemUrlFields;
+
+export const SaveMenuItemFields = {
+  InternalId: 'InternalId',
+  RowId: 'RowId',
+  ParentRowId: 'ParentRowId',
+  DisplayOrder: 'DisplayOrder',
+  ItemSiteUrl: 'ItemSiteUrl',
+  ItemType: 'ItemType',
+  WindowTarget: 'WindowTarget',
+  Titles: 'Titles',
+  Url: 'Url',
+  Module: 'Module',
+} as const;
+
+export type SaveMenuItemFieldKey = keyof typeof SaveMenuItemFields;
+
+export const SaveMenuItem_DTOApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SaveMenuItem_DTOApiRequestFieldKey = keyof typeof SaveMenuItem_DTOApiRequestFields;
+
+export const SaveMenuStructureItemFields = {
+  RowId: 'RowId',
+  ParentRowId: 'ParentRowId',
+  DisplayOrder: 'DisplayOrder',
+} as const;
+
+export type SaveMenuStructureItemFieldKey = keyof typeof SaveMenuStructureItemFields;
+
+export const SaveMenuStructureFields = {
+  InternalId: 'InternalId',
+  Items: 'Items',
+  DeletedRowIds: 'DeletedRowIds',
+} as const;
+
+export type SaveMenuStructureFieldKey = keyof typeof SaveMenuStructureFields;
+
+export const SaveMenuStructure_DTOApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SaveMenuStructure_DTOApiRequestFieldKey = keyof typeof SaveMenuStructure_DTOApiRequestFields;
+
+export const SaveSiteInfoFields = {
+  InternalId: 'InternalId',
+  SiteMenu_Index: 'SiteMenu_Index',
+  SiteMenu_IndexInfo: 'SiteMenu_IndexInfo',
+} as const;
+
+export type SaveSiteInfoFieldKey = keyof typeof SaveSiteInfoFields;
+
+export const SaveSiteInfo_DTOApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SaveSiteInfo_DTOApiRequestFieldKey = keyof typeof SaveSiteInfo_DTOApiRequestFields;
+
 export const SiteMenuSetFields = {
   SiteMenu_Index: 'SiteMenu_Index',
   SiteMenu_IndexInfo: 'SiteMenu_IndexInfo',

@@ -317,11 +317,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             // 執行 function
             ct.ThrowIfCancellationRequested();
             var list = await DoQueryListAsync<FileManage_DownloadRecentModel>(fields, condition, default, 0, 0);
-            var maxRowId = list
-                .Cast<FileManage_DownloadRecentModel>()
-                .Select(p => p.RowId ?? 0)
-                .DefaultIfEmpty(0)
-                .Max();
+            var maxRowId = list.Cast<FileManage_DownloadRecentModel>().Select(p => p.RowId ?? 0).DefaultIfEmpty(0).Max();
 
             // return
             return maxRowId + 1;

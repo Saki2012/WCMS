@@ -26,8 +26,8 @@
         public const string FileArchive = "FileArchive";
         public const string Gallery = "Gallery";
         public const string PageManagement = "PageManagement";
-        public const string Tag = " Tag";
-        public const string WebResource = " WebResource";
+        public const string Tag = "Tag";
+        public const string WebResource = "WebResource";
         #endregion
 
         #region SystemSetting

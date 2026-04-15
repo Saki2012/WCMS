@@ -173,8 +173,8 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
     public class SiteMenu_Item_Title : DetailRowModel
     {
         [Key, StringLength(SysLengthParam.ID)] public string? SiteIndex { get; set; }
-        [Key] public int? ItemRowId { get; set; }
-        [Key] public int? RowId { get; set; }
+        [Key] public int ItemRowId { get; set; }
+        [Key] public int RowId { get; set; }
         public LangCode Lang { get; set; }
         [StringLength(SysLengthParam.Title)] public string Title { get; set; }
         public bool IsShowOnMenu { get; set; }
@@ -188,8 +188,8 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
     /// </summary>
     public class SiteMenu_Item_Url : DetailRowModel
     {
-        [Key] public string? SiteIndex { get; set; }
-        [Key] public int? ItemRowId { get; set; }
+        [Key] public string SiteIndex { get; set; }
+        [Key] public int ItemRowId { get; set; }
         public MenuUrlType RedirectType { get; set; } //0:無, 1:外部,2:內部模型功能(直接轉FullUrl、但是是用下拉的看Title/Url)
         [StringLength(SysLengthParam.Url)] public string? RedirectUrl { get; set; }
 
@@ -202,8 +202,8 @@ namespace WCMS.Features.SystemSetting.SiteInfo.SiteMenuSetting
     /// </summary>
     public class SiteMenu_Item_Module : DetailRowModel
     {
-        [Key, StringLength(SysLengthParam.ID)] public string? SiteIndex { get; set; }
-        [Key] public int? ItemRowId { get; set; }
+        [Key, StringLength(SysLengthParam.ID)] public string SiteIndex { get; set; }
+        [Key] public int ItemRowId { get; set; }
         [StringLength(SysLengthParam.ID)] public string? BannerId { get; set; }
         public ModulePageType PageType { get; set; }
         [StringLength(SysLengthParam.ProgId)] public string? ModuleProgId { get; set; } //功能代碼

@@ -879,3 +879,24 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
     }
     // #endregion
 }
+
+/// 2026-04-15 要用來給api吃訊息專用的，暫時還沒繼續往下開發
+export const emitApiMessages = (
+    publish: ReturnType<typeof useToast>["publish"],
+    env: ApiResponse<unknown>,
+    fallbackSuccess: string,
+    fallbackError: string,
+) =>
+{
+    const messages = env.SysMessage ?? [];
+    const title = env.IsSuccess ? fallbackSuccess : fallbackError;
+    messages.forEach(m =>
+    {
+        publish({
+            level: m.Status ?? (env.IsSuccess ? MessageStatus.Green : MessageStatus.Error),
+            code: m.MessageCode,
+            title,
+            text: m.Message,
+        });
+    });
+};
