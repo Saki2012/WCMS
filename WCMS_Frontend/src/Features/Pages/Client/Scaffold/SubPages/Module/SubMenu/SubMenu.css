@@ -30,6 +30,10 @@
 	position: relative;
 	display: inline-block;
 	width: 100%;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	padding: 15px 7px;
+	border-top: 6px solid var(--Customize_color);
 }
 /* ============================================= */
 /* ------  第一層 ul.list-group ----------------- */
@@ -41,8 +45,7 @@
 	-ms-flex-wrap: wrap;
 	flex-wrap: wrap;
 	justify-content: flex-start;
-    align-items: center;
-	
+  align-items: center;
 	padding: 0;
 	margin: 0;
 	list-style: none;
@@ -64,7 +67,7 @@
 	position: relative;
 	list-style: none;
 	width: 100%;
-	margin-bottom: 5px;
+	margin-bottom: 0px;
 }
 /* ------ 第一層 ITEM ul li.nav-item ------------ */
 /* ============================================= */
@@ -119,8 +122,9 @@
 	font-size: 93.75%;
 	color: var(--blackcolor);
 	width: 100%;	
-	border: 1px solid #ddd;
-	border-radius: 4px;
+	border: none;
+	border-bottom: 1px solid #ddd;
+	border-radius: 4px !important;
 	text-align: left;
 }
 @media screen and (min-width: 320px) and (max-width: 991px) {
@@ -136,31 +140,51 @@
 	background-color: var(--Customize_color) !important;
 	border-color: var(--Customize_color);
 }
+
 .sidebar .list-group-item:focus {
-	outline: 4px solid var(--a_focusbordercolor) !important;
-	outline-offset: 0px !important;
+	outline: 2px solid var(--a_focusbordercolor) !important;
+	outline-offset: -2px !important;
 }
 
 /* 只有有子選單的 a 才加箭頭 */
 .sidebar .has-submenu > .list-group-item::after {
-	content: "▼";
+	/* content: "▼";
 	position: absolute;
 	top: 33.3333333%;
 	right: 0.5rem;
 	font-size: 56.25%;
-	transition: transform 0.2s ease;
+	transition: transform 0.2s ease; */
+	
+
+	content: "";
+	background-image: url("../../../../../../Assets/Client/submenu-UpandDown.svg");
+	width: 12px;
+	height: 27px;
+	background-size: contain;
+	position: absolute;
+	top: 10px;
+	right: 7px;
+	transition: transform .2s ease;
+	background-repeat: no-repeat;
+
+}
+.sidebar .has-submenu > .list-group-item:hover::after,
+.sidebar .has-submenu > .list-group-item:focus::after{
+/* .sidebar .has-submenu > .list-group-item.parent-active::after{ */
+	filter: invert(1);
 }
 /* 展開時變成向上箭頭 */
-.sidebar .has-submenu > .list-group-item.active::after {
-	content: "▲";
+.sidebar .has-submenu > .list-group-item.parent-active::after {
+	transform: rotate(180deg); 
 }
+
 /* ------ a class="list-group-item ------------- */
 /* ============================================= */
 
 /* ============================================= */
 /* ------ 第一層 ITEM ul li.nav-item ------------ */
 .sidebar ul > li > .list-group-item {
-	padding: 0.75rem 1.25rem 0.75rem 0.75rem;
+	padding: 0.75rem 1.35rem 0.75rem 0.75rem;
 }
 /* ------ 第一層 ITEM ul li.nav-item ------------ */
 /* ============================================= */
@@ -168,22 +192,22 @@
 /* ============================================= */
 /* ------  第二.三.四.五.六層 ul.submenu --------- */
 .sidebar ul > li > ul.submenu > li > .list-group-item {
-	padding: 0.75rem 1.25rem 0.75rem 1.25rem;
+	padding: 0.75rem 1.35rem 0.75rem 1.25rem;
 }
 .sidebar ul > li > ul.submenu > li > ul.submenu > li .list-group-item {
-	padding: 0.75rem 1.25rem 0.75rem 1.5rem;
+	padding: 0.75rem 1.35rem 0.75rem 1.5rem;
 }
 .sidebar ul > li > ul.submenu > li > ul.submenu > li > ul.submenu > li .list-group-item {
-	padding: 0.75rem 1.25rem 0.75rem 1.75rem;
+	padding: 0.75rem 1.35rem 0.75rem 1.75rem;
 }
 .sidebar ul > li > ul.submenu > li > ul.submenu > li > ul.submenu > li > ul.submenu > li .list-group-item {
-	padding: 0.75rem 1.25rem 0.75rem 2rem;
+	padding: 0.75rem 1.35rem 0.75rem 2rem;
 }
 .sidebar ul > li > ul.submenu > li > ul.submenu > li > ul.submenu > li > ul.submenu > li > ul.submenu > li .list-group-item {
-	padding: 0.75rem 1.25rem 0.75rem 2.25rem;
+	padding: 0.75rem 1.35rem 0.75rem 2.25rem;
 }
 /* ------  第二.三.四.五.六層 ul.submenu --------- */
 /* ============================================= */
 /* ====================================================== */
 /* =====  內頁 - 多層 左邊選單 ( 以上 )  =================== */
-/* ======================================================
+/* ======================================================*/
