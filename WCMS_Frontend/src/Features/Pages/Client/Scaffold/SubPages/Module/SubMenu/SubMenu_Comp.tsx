@@ -426,7 +426,8 @@ const SubMenu_Default_Comp: React.FC<{
     pathname: string;
 }> = (props) => {
     const { menuItems, activeIds, expandedIdsByPath, pathname } = props;
-    const { expandedIds, toggleExpand } = useExpandedMenuState(menuItems, pathname, expandedIdsByPath, false);
+    const { expandedIds, toggleExpand } = useExpandedMenuState(menuItems, pathname, expandedIdsByPath, true);
+    // 20260414 useExpandedMenuState - 原exclusiveFirstLevel為false，改為true
 
     const isItemActive = (item: MenuItemData) => activeIds.has(item.Id);
 
@@ -442,7 +443,7 @@ const SubMenu_Default_Comp: React.FC<{
                     {hasSubItems(item) ? (
                         <button
                             type="button"
-                            className="list-group-item"
+                            className={clsx("list-group-item", expanded && "parent-active")}
                             onClick={() => toggleExpand(item.Id, depth)}
                             aria-expanded={expanded}
                         >

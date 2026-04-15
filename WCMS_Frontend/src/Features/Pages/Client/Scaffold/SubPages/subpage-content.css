@@ -56,12 +56,13 @@
 #ContentPlaceContent_ContentSubMenu .h3::before, #ContentPlaceContent_ContentSubMenu h3::before, 
 #ContentPlaceContent_ContentConentA .h3::before, #ContentPlaceContent_ContentConentA h3::before {
     content: " ";
-    width: 4px;
+    width: 7px;
     height: 31.5px;
     display: inline-block;
     background-color: var(--Customize_color);
     vertical-align: text-top;
-    margin-right: 6px;
+    margin-right: 7px;
+		border-radius: 5px;
 }
 /* =============================================================== */
 /* =====  內頁  標準  內容區 H3 標題  ///// .page-header H3  ======== */
