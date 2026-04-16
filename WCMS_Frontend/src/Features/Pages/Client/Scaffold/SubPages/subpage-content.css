@@ -116,12 +116,21 @@
 	border: 1px solid #ddd;
 	height: 36.8px;
 }
-@media screen and (min-width: 320px) and (max-width: 991px) {
+@media (max-width: 991px) {
+	.All_Standard_Content_CSS .pagination > li > a,
+	.All_Standard_Content_CSS .pagination > li > span,
+	#ContentPlaceContent_ContentConentA .pagination > li > a,
+	#ContentPlaceContent_ContentConentA .pagination > li > span {
+		padding: 6px 10px;
+	}
+}
+@media (max-width: 424px) {
 	.All_Standard_Content_CSS .pagination > li > a,
 	.All_Standard_Content_CSS .pagination > li > span,
 	#ContentPlaceContent_ContentConentA .pagination > li > a,
 	#ContentPlaceContent_ContentConentA .pagination > li > span {
 		font-size: 81.25%;
+		padding: 6px 8px;
 	}
 }
 
@@ -294,6 +303,42 @@
 .All_Standard_Content_CSS .pagination > li > a:hover .icon_stop-angle-right::before,
 #ContentPlaceContent_ContentConentA .pagination > li > a:hover .icon_stop-angle-right::before {
 	content: url("../../../images/pagination/icon_stop-angle-right_W_9x23.svg");
+}
+
+
+.All_Standard_Content_CSS .pagination .page-link{
+	color: var(--blackcolor);
+	font-size: 93.75%;
+	height: 36.8px;
+	border-left: 0px;
+	padding-top: 4px;
+	padding-bottom: 6px;
+}
+.All_Standard_Content_CSS .pagination .page-link.go{
+	padding-bottom: 4px;
+}
+.All_Standard_Content_CSS .pagination .page-link:hover,
+.All_Standard_Content_CSS .pagination .page-link:focus{
+	color: var(--FFFcolor);
+	background-color: var(--Customize_color);
+	border-color: var(--Customize_color);
+}
+.All_Standard_Content_CSS .pagination .page-input-box{
+	border: 1px solid #dddddd;
+	height: 36.8px !important;
+}
+.All_Standard_Content_CSS .pagination .page-input{
+	border: 0;
+	border-radius: 0;
+	width: 55px;
+	font-size:87.5%;
+	height: 34.8px !important;
+}
+@media (max-width:991px){
+	.All_Standard_Content_CSS .pagination .page-link,
+	.All_Standard_Content_CSS .pagination .page-input{
+		font-size: 81.25%;
+	}
 }
 /* ------------------------------------------------------------*/
 /* =============================================================== */

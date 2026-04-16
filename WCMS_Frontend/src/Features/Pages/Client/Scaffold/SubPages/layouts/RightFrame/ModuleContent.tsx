@@ -7,7 +7,7 @@ import { useFormDetailViewCount } from "@/Features/Hooks/BizFunc/SystemSetting/S
 import { getSiteHeaderMeta } from "@/Features/Pages/AppRoute";
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
-import { NewPaginator } from "@/SysCore/Components/Paginator/Paginator_Comp";
+import { NewPaginatorCanInputPage } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import { DefaultLang, type Lang, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
 import { useLang } from "@/SysCore/i18n/LangContext";
@@ -85,6 +85,7 @@ const ModuleContent = (props: ModuleContentProps) =>
     }, [props.viewCountConfig]);
     // 執行 function：由 ModuleContent 統一處理 subpage page view count
     useFormDetailViewCount(detailViewCountOptions);
+
     // return
     return (
         <>
@@ -101,7 +102,7 @@ const ModuleContent = (props: ModuleContentProps) =>
                     {props.children}
                 </div>
                 <hr className="hr-my-4" />
-                {props.paginatorProps && <NewPaginator {...props.paginatorProps} />}
+                {props.paginatorProps && <NewPaginatorCanInputPage {...props.paginatorProps} lang={lang}/>}
             </LoadingErrorHandler>
         </>
     );
