@@ -544,8 +544,8 @@ export const NewPaginatorCanInputPage = (props: PaginatorProps) =>
     return (
         <div className="row">
             <div className="col-12">
-                <nav className="d-flex flex-wrap" aria-label={a11y.navLabel}>
-                    <ul className="pagination align-items-center flex-wrap justify-content-sm-start justify-content-center">
+                <nav className="d-flex flex-wrap align-items-center justify-content-sm-start justify-content-center" aria-label={a11y.navLabel}>
+                    <ul className="pagination flex-wrap ">
                         {/* 第一頁 */}
                         <li className={clsx("paginate_button", isFirstDisabled && "disabled")} aria-disabled={isFirstDisabled}>
                             <a
@@ -601,6 +601,7 @@ export const NewPaginatorCanInputPage = (props: PaginatorProps) =>
                                     />
                                 </div>
                                 <div>
+                                    {/* 總頁數 */}
                                     <span className="page-link border-0 bg-transparent text-dark ps-0 d-flex align-items-center">{a11y.total(props.totalPages)}</span>
                                 </div>
                             </div>
@@ -653,10 +654,6 @@ export const NewPaginatorCanInputPage = (props: PaginatorProps) =>
                             </a>
                         </li>
 
-                        {/* 總頁數 */}
-                        {/* <li className="paginate_button disabled mx-2" aria-disabled="true">
-                            <span className="page-link border-0 bg-transparent px-1 text-dark">{a11y.total(props.totalPages)}</span>
-                        </li> */}
                     </ul>
                 </nav>
             </div>

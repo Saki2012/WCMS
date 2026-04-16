@@ -121,7 +121,7 @@
 	.All_Standard_Content_CSS .pagination > li > span,
 	#ContentPlaceContent_ContentConentA .pagination > li > a,
 	#ContentPlaceContent_ContentConentA .pagination > li > span {
-		padding: 6px 10px;
+		padding: 6px 10px !important;
 	}
 }
 @media (max-width: 424px) {
@@ -130,7 +130,7 @@
 	#ContentPlaceContent_ContentConentA .pagination > li > a,
 	#ContentPlaceContent_ContentConentA .pagination > li > span {
 		font-size: 81.25%;
-		padding: 6px 8px;
+		padding: 6px 9px !important;
 	}
 }
 

@@ -34,11 +34,13 @@ const RightFrame = (props: IRightFrameProps) =>
     return (
         <div className={contentCss}>
             <ThirdMenu_Comp lang={props.lang} site={props.site} node={props.node} />
-            <div
-                id="ContentPlaceContent_ContentConentA"
-                className="col-sm-12 col-12 + All_Standard_Content_CSS + mb-5 mt-1"
-            >
-                <Outlet context={{ lang: props.lang, site: props.site, node: props.node }} /> 
+            <div className="row">
+                <div
+                    id="ContentPlaceContent_ContentConentA"
+                    className="col-sm-12 col-12 + All_Standard_Content_CSS + mb-5 mt-1"
+                >
+                    <Outlet context={{ lang: props.lang, site: props.site, node: props.node }} /> 
+                </div>
             </div>
         </div>
     );
