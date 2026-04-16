@@ -1,0 +1,726 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Common_Title" xml:space="preserve">
+    <value>標題</value>
+  </data>
+  <data name="Common_SubTitle" xml:space="preserve">
+    <value>副標題</value>
+  </data>
+  <data name="Common_Content" xml:space="preserve">
+    <value>內文</value>
+  </data>
+  <data name="Common_Url" xml:space="preserve">
+    <value>網址</value>
+  </data>
+  <data name="Common_Category" xml:space="preserve">
+    <value>類別</value>
+  </data>
+  <data name="Common_Tag" xml:space="preserve">
+    <value>標籤</value>
+  </data>
+  <data name="Common_ContentStatus" xml:space="preserve">
+    <value>內文狀態</value>
+  </data>
+  <data name="Announcement_CoverPictureId" xml:space="preserve">
+    <value>封面圖片</value>
+  </data>
+  <data name="Announcement_PicDescription" xml:space="preserve">
+    <value>圖片說明</value>
+  </data>
+  <data name="Announcement_ViewCount" xml:space="preserve">
+    <value>瀏覽次數</value>
+  </data>
+  <data name="Announcement_StartDate" xml:space="preserve">
+    <value>公告日期</value>
+  </data>
+  <data name="Announcement_EndDate" xml:space="preserve">
+    <value>下架日期</value>
+  </data>
+  <data name="Announcement_CreationDate" xml:space="preserve">
+    <value>新增日期</value>
+  </data>
+  <data name="Announcement_FileId" xml:space="preserve">
+    <value>附件</value>
+  </data>
+  <data name="Common_ParentRowId" xml:space="preserve">
+    <value>父行代碼</value>
+  </data>
+  <data name="Common_RowId" xml:space="preserve">
+    <value>行代碼</value>
+  </data>
+  <data name="Common_Lang" xml:space="preserve">
+    <value>語系</value>
+  </data>
+  <data name="BannerId" xml:space="preserve">
+    <value>橫幅廣告</value>
+  </data>
+  <data name="Banner_CategoryName" xml:space="preserve">
+    <value>橫幅類別名稱</value>
+  </data>
+  <data name="Banner_Interval" xml:space="preserve">
+    <value>轉換間隔(s)</value>
+  </data>
+  <data name="Banner_Speed" xml:space="preserve">
+    <value>轉換速度(ms)</value>
+  </data>
+  <data name="Banner_Height" xml:space="preserve">
+    <value>圖片高度(px)</value>
+  </data>
+  <data name="Banner_Width" xml:space="preserve">
+    <value>圖片寬度(px)</value>
+  </data>
+  <data name="Banner_Effect" xml:space="preserve">
+    <value>輪播效果</value>
+  </data>
+  <data name="Banner_PicSrcId" xml:space="preserve">
+    <value>圖片來源</value>
+  </data>
+  <data name="Banner_FontColor" xml:space="preserve">
+    <value>標題顏色</value>
+  </data>
+  <data name="Banner_StartDate" xml:space="preserve">
+    <value>上架日期</value>
+  </data>
+  <data name="Banner_EndDate" xml:space="preserve">
+    <value>下架日期</value>
+  </data>
+  <data name="Banner_CreationDate" xml:space="preserve">
+    <value>新增日期</value>
+  </data>
+  <data name="Banner_Sort" xml:space="preserve">
+    <value>排序編號</value>
+  </data>
+  <data name="Banner_Content" xml:space="preserve">
+    <value>內容</value>
+  </data>
+  <data name="Common_UrlOpen" xml:space="preserve">
+    <value>開啟方式</value>
+  </data>
+  <data name="CategoryId" xml:space="preserve">
+    <value>類別</value>
+  </data>
+  <data name="Category_Module" xml:space="preserve">
+    <value>功能類別對應模組</value>
+  </data>
+  <data name="Category_Detail" xml:space="preserve">
+    <value>功能類別明細</value>
+  </data>
+  <data name="Category_CustomMade" xml:space="preserve">
+    <value>客製化</value>
+  </data>
+  <data name="FileArchiveId" xml:space="preserve">
+    <value>檔案室代碼</value>
+  </data>
+  <data name="FileArchive_Categories" xml:space="preserve">
+    <value>類別</value>
+  </data>
+  <data name="FileArchive_Tags" xml:space="preserve">
+    <value>標籤</value>
+  </data>
+  <data name="FileArchive_CustomMade" xml:space="preserve">
+    <value>客製化</value>
+  </data>
+  <data name="FileArchive_FileSrcId" xml:space="preserve">
+    <value>檔案來源</value>
+  </data>
+  <data name="FileArchive_FileName" xml:space="preserve">
+    <value>檔案名稱</value>
+  </data>
+  <data name="FileArchive_StartDate" xml:space="preserve">
+    <value>上架日期</value>
+  </data>
+  <data name="FileArchive_EndDate" xml:space="preserve">
+    <value>下架日期</value>
+  </data>
+  <data name="FileArchive_CreationDate" xml:space="preserve">
+    <value>新增日期</value>
+  </data>
+  <data name="FileArchive_Sort" xml:space="preserve">
+    <value>排序編號</value>
+  </data>
+  <data name="FileArchive_DownloadCount" xml:space="preserve">
+    <value>下載次數</value>
+  </data>
+  <data name="GalleryId" xml:space="preserve">
+    <value>相簿</value>
+  </data>
+  <data name="Gallery_Categories" xml:space="preserve">
+    <value>類別</value>
+  </data>
+  <data name="Gallery_Tags" xml:space="preserve">
+    <value>標籤</value>
+  </data>
+  <data name="Gallery_CoverPicSrcId" xml:space="preserve">
+    <value>相簿封面圖</value>
+  </data>
+  <data name="Gallery_GalleryInfo" xml:space="preserve">
+    <value>相簿資訊</value>
+  </data>
+  <data name="Gallery_Sort" xml:space="preserve">
+    <value>排序編號</value>
+  </data>
+  <data name="Gallery_Photos" xml:space="preserve">
+    <value>相片</value>
+  </data>
+  <data name="Gallery_PhotosInfo" xml:space="preserve">
+    <value>相片說明</value>
+  </data>
+  <data name="Gallery_PicSrcId" xml:space="preserve">
+    <value>相片來源</value>
+  </data>
+  <data name="Gallery_Content" xml:space="preserve">
+    <value>內容</value>
+  </data>
+  <data name="PageId" xml:space="preserve">
+    <value>頁面</value>
+  </data>
+  <data name="Page_Categories" xml:space="preserve">
+    <value>類別</value>
+  </data>
+  <data name="Page_ViewCount" xml:space="preserve">
+    <value>瀏覽次數</value>
+  </data>
+  <data name="Page_CustomMade" xml:space="preserve">
+    <value>客製化</value>
+  </data>
+  <data name="Page_Content" xml:space="preserve">
+    <value>內容</value>
+  </data>
+  <data name="TagId" xml:space="preserve">
+    <value>標籤功能</value>
+  </data>
+  <data name="Tag_Data" xml:space="preserve">
+    <value>標籤資料</value>
+  </data>
+  <data name="Tag_TDetail" xml:space="preserve">
+    <value>標籤明細</value>
+  </data>
+  <data name="Tag_Module" xml:space="preserve">
+    <value>標籤功能對應模組</value>
+  </data>
+  <data name="Tag_TagName" xml:space="preserve">
+    <value>標籤名稱</value>
+  </data>
+  <data name="Tag_CustomMade" xml:space="preserve">
+    <value>客製化</value>
+  </data>
+  <data name="WebResourceId" xml:space="preserve">
+    <value>網路資源</value>
+  </data>
+  <data name="WebResource_WebResourceInfo" xml:space="preserve">
+    <value>網路資源資訊</value>
+  </data>
+  <data name="WebResource_Categories" xml:space="preserve">
+    <value>類別</value>
+  </data>
+  <data name="WebResource_Tags" xml:space="preserve">
+    <value>標籤</value>
+  </data>
+  <data name="WebResource_PicId" xml:space="preserve">
+    <value>封面圖片</value>
+  </data>
+  <data name="WebResource_PicDescription" xml:space="preserve">
+    <value>圖片說明</value>
+  </data>
+  <data name="WebResource_Content" xml:space="preserve">
+    <value>內容</value>
+  </data>
+  <data name="Common_CreateTime" xml:space="preserve">
+    <value>創建時間</value>
+  </data>
+  <data name="Common_CreateUserId" xml:space="preserve">
+    <value>創建人</value>
+  </data>
+  <data name="Common_ModifyTime" xml:space="preserve">
+    <value>修改時間</value>
+  </data>
+  <data name="Common_ModifyUserId" xml:space="preserve">
+    <value>修改人</value>
+  </data>
+  <data name="Common_InternalId" xml:space="preserve">
+    <value>內部唯一標示號</value>
+  </data>
+  <data name="Common_ProgId" xml:space="preserve">
+    <value>功能模塊代碼</value>
+  </data>
+  <data name="Category_CategoryName" xml:space="preserve">
+    <value>類別名稱</value>
+  </data>
+  <data name="User_UserID" xml:space="preserve">
+    <value>使用者代碼</value>
+  </data>
+  <data name="User_UserName" xml:space="preserve">
+    <value>使用者名稱</value>
+  </data>
+  <data name="User_AccountStatus" xml:space="preserve">
+    <value>帳號狀態</value>
+  </data>
+  <data name="AnnouncementId" xml:space="preserve">
+    <value>公告代碼</value>
+  </data>
+  <data name="Enum_Top" xml:space="preserve">
+    <value>置頂</value>
+  </data>
+  <data name="Enum_Hot" xml:space="preserve">
+    <value>熱門</value>
+  </data>
+  <data name="Enum_Hidden" xml:space="preserve">
+    <value>隱藏</value>
+  </data>
+  <data name="Enum_Url" xml:space="preserve">
+    <value>超連結</value>
+  </data>
+  <data name="Enum_Module" xml:space="preserve">
+    <value>模型功能</value>
+  </data>
+  <data name="Enum_List" xml:space="preserve">
+    <value>清單式</value>
+  </data>
+  <data name="Enum_PictureList" xml:space="preserve">
+    <value>圖文式</value>
+  </data>
+  <data name="Enum_QAList" xml:space="preserve">
+    <value>QA列表式</value>
+  </data>
+  <data name="Enum_Waterfall" xml:space="preserve">
+    <value>瀑布式</value>
+  </data>
+  <data name="Enum_Expand_Category" xml:space="preserve">
+    <value>展開式(類別)</value>
+  </data>
+  <data name="Enum_Expand_Tag" xml:space="preserve">
+    <value>展開式(標籤)</value>
+  </data>
+  <data name="Enum_Youtube" xml:space="preserve">
+    <value>Youtube清單</value>
+  </data>
+  <data name="Common_UrlDescription" xml:space="preserve">
+    <value>網址描述</value>
+  </data>
+  <data name="Enum_WindowTarget_Self" xml:space="preserve">
+    <value>當前視窗開啟</value>
+  </data>
+  <data name="Enum_WindowTarget_Blank" xml:space="preserve">
+    <value>另開分頁</value>
+  </data>
+  <data name="Announcement_FileName" xml:space="preserve">
+    <value>附件名稱</value>
+  </data>
+  <data name="Enum_TwoColumn" xml:space="preserve">
+    <value>雙欄式</value>
+  </data>
+  <data name="Enum_Vertical" xml:space="preserve">
+    <value>直瀑式</value>
+  </data>
+  <data name="SiteMenu_ItemSiteUrl" xml:space="preserve">
+    <value>選單ID</value>
+  </data>
+  <data name="SiteMenu_FullUrl" xml:space="preserve">
+    <value>完整路徑</value>
+  </data>
+  <data name="SiteMenu_ItemType" xml:space="preserve">
+    <value>選單類型</value>
+  </data>
+  <data name="SiteMenu_WindowTarget" xml:space="preserve">
+    <value>開啟方式</value>
+  </data>
+  <data name="SiteMenu_IsShowOnMenu" xml:space="preserve">
+    <value>是否顯示在選單中</value>
+  </data>
+  <data name="SiteMenu_SiteTitle" xml:space="preserve">
+    <value>選單名稱</value>
+  </data>
+  <data name="SiteMenu_RedirectType" xml:space="preserve">
+    <value>轉址方式</value>
+  </data>
+  <data name="SiteMenu_ModuleProgId" xml:space="preserve">
+    <value>模型功能</value>
+  </data>
+  <data name="Enum_Gender" xml:space="preserve">
+    <value>性別</value>
+  </data>
+  <data name="Enum_Gender_NotKnown" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="Enum_Gender_Male" xml:space="preserve">
+    <value>男</value>
+  </data>
+  <data name="Enum_Gender_Female" xml:space="preserve">
+    <value>女</value>
+  </data>
+  <data name="Person_PersonSet" xml:space="preserve">
+    <value>人員基本資料表單</value>
+  </data>
+  <data name="Person_PersonModel" xml:space="preserve">
+    <value>人員基本資料</value>
+  </data>
+  <data name="Person_PersonId" xml:space="preserve">
+    <value>人員編號</value>
+  </data>
+  <data name="Person_PersonName" xml:space="preserve">
+    <value>人員名稱</value>
+  </data>
+  <data name="Person_PersonImgId" xml:space="preserve">
+    <value>大頭貼</value>
+  </data>
+  <data name="Common_Email" xml:space="preserve">
+    <value>常用Email</value>
+  </data>
+  <data name="Common_MobilePhone" xml:space="preserve">
+    <value>手機號碼</value>
+  </data>
+  <data name="Common_HomePhone" xml:space="preserve">
+    <value>聯絡電話</value>
+  </data>
+  <data name="Enum_AccountStatus" xml:space="preserve">
+    <value>帳號狀態</value>
+  </data>
+  <data name="Enum_AccountStatus_Unable" xml:space="preserve">
+    <value>停用</value>
+  </data>
+  <data name="Enum_AccountStatus_Enable" xml:space="preserve">
+    <value>啟用</value>
+  </data>
+  <data name="Enum_AccountStatus_Freeze" xml:space="preserve">
+    <value>凍結</value>
+  </data>
+  <data name="Enum_AccountStatus_Expired" xml:space="preserve">
+    <value>密碼過期</value>
+  </data>
+  <data name="Enum_AccountStatus_HostDefault" xml:space="preserve">
+    <value>主機預設密碼</value>
+  </data>
+  <data name="Common_Password" xml:space="preserve">
+    <value>密碼</value>
+  </data>
+  <data name="Common_OldPassword" xml:space="preserve">
+    <value>舊密碼</value>
+  </data>
+  <data name="Common_NewPassword" xml:space="preserve">
+    <value>新密碼</value>
+  </data>
+  <data name="Common_CheckNewPassword" xml:space="preserve">
+    <value>確認新密碼</value>
+  </data>
+  <data name="Account_AccountId" xml:space="preserve">
+    <value>帳號</value>
+  </data>
+  <data name="Account_AccountName" xml:space="preserve">
+    <value>使用者名稱</value>
+  </data>
+  <data name="SiteMenu_SiteIndex" xml:space="preserve">
+    <value>首頁代碼</value>
+  </data>
+  <data name="SiteMenu_GoogleAnalytics" xml:space="preserve">
+    <value>Google分析碼</value>
+  </data>
+  <data name="SiteMenu_Enable" xml:space="preserve">
+    <value>是否啟用站台</value>
+  </data>
+  <data name="SiteMenu_SiteDescription" xml:space="preserve">
+    <value>網站描述</value>
+  </data>
+  <data name="SiteMenu_SiteHeader" xml:space="preserve">
+    <value>網站標頭</value>
+  </data>
+  <data name="SiteMenu_SiteFooter" xml:space="preserve">
+    <value>網站標尾</value>
+  </data>
+  <data name="SiteMenu_Level" xml:space="preserve">
+    <value>網頁項目層級</value>
+  </data>
+  <data name="SiteMenu_DisplayOrder" xml:space="preserve">
+    <value>網頁項目排序</value>
+  </data>
+  <data name="SiteMenu_MenuTitle" xml:space="preserve">
+    <value>網頁項目標題</value>
+  </data>
+  <data name="SiteMenu_ModuleOptions" xml:space="preserve">
+    <value>網頁模型參數</value>
+  </data>
+  <data name="Banner" xml:space="preserve">
+    <value>橫幅</value>
+  </data>
+  <data name="FormStatus" xml:space="preserve">
+    <value>表單狀態</value>
+  </data>
+  <data name="DataStatus" xml:space="preserve">
+    <value>資料狀態</value>
+  </data>
+  <data name="InvalidTime" xml:space="preserve">
+    <value>作廢時間</value>
+  </data>
+  <data name="InvalidUserId" xml:space="preserve">
+    <value>作廢人</value>
+  </data>
+  <data name="BannerDetail" xml:space="preserve">
+    <value>橫幅明細</value>
+  </data>
+  <data name="BannerDetailInfo" xml:space="preserve">
+    <value>橫幅明細說明</value>
+  </data>
+  <data name="Enum_TimelineSlider" xml:space="preserve">
+    <value>歷史時間軸</value>
+  </data>
+  <data name="Common_SoundSrcId" xml:space="preserve">
+    <value>音源</value>
+  </data>
+  <data name="Enum_DefaultLang" xml:space="preserve">
+    <value>預設語系</value>
+  </data>
+  <data name="Enum_SupportLang" xml:space="preserve">
+    <value>支援語系</value>
+  </data>
+  <data name="Account_PasswordChangeDate" xml:space="preserve">
+    <value>密碼最後修改日</value>
+  </data>
+  <data name="RolePermission" xml:space="preserve">
+    <value>角色權限</value>
+  </data>
+  <data name="RolePermission_RoleId" xml:space="preserve">
+    <value>角色代號</value>
+  </data>
+  <data name="RolePermission_RoleName" xml:space="preserve">
+    <value>角色名稱</value>
+  </data>
+  <data name="RolePermission_IsAdmin" xml:space="preserve">
+    <value>是否管理員</value>
+  </data>
+  <data name="RolePermission_PermissionKey" xml:space="preserve">
+    <value>權限代號</value>
+  </data>
+  <data name="RolePermission_GrantMask" xml:space="preserve">
+    <value>授予權限</value>
+  </data>
+  <data name="Account" xml:space="preserve">
+    <value>帳號</value>
+  </data>
+  <data name="Person" xml:space="preserve">
+    <value>人員</value>
+  </data>
+  <data name="Calendar" xml:space="preserve">
+    <value>行事曆</value>
+  </data>
+  <data name="SiteMenu" xml:space="preserve">
+    <value>網站導覽</value>
+  </data>
+  <data name="Announcement" xml:space="preserve">
+    <value>公告</value>
+  </data>
+  <data name="Category" xml:space="preserve">
+    <value>類別</value>
+  </data>
+  <data name="FileArchive" xml:space="preserve">
+    <value>檔案室</value>
+  </data>
+  <data name="Gallery" xml:space="preserve">
+    <value>相簿</value>
+  </data>
+  <data name="PageManagement" xml:space="preserve">
+    <value>頁面</value>
+  </data>
+  <data name="Tag" xml:space="preserve">
+    <value>標籤</value>
+  </data>
+  <data name="WebResource" xml:space="preserve">
+    <value>網路資源</value>
+  </data>
+  <data name="Enum_FuncAction" xml:space="preserve">
+    <value>功能權限</value>
+  </data>
+  <data name="Enum_FuncAction_None" xml:space="preserve">
+    <value>無</value>
+  </data>
+  <data name="Enum_FuncAction_Use" xml:space="preserve">
+    <value>使用</value>
+  </data>
+  <data name="Enum_FuncAction_Query" xml:space="preserve">
+    <value>查詢清單</value>
+  </data>
+  <data name="Enum_FuncAction_View" xml:space="preserve">
+    <value>查看資料</value>
+  </data>
+  <data name="Enum_FuncAction_Create" xml:space="preserve">
+    <value>新增</value>
+  </data>
+  <data name="Enum_FuncAction_Update" xml:space="preserve">
+    <value>修改</value>
+  </data>
+  <data name="Enum_FuncAction_Delete" xml:space="preserve">
+    <value>刪除</value>
+  </data>
+  <data name="Enum_FuncAction_Invalid" xml:space="preserve">
+    <value>作廢</value>
+  </data>
+  <data name="Enum_FuncAction_MasterData" xml:space="preserve">
+    <value>基礎功能</value>
+  </data>
+  <data name="Enum_FuncAction_BillData" xml:space="preserve">
+    <value>單據</value>
+  </data>
+  <data name="Enum_FuncAction_Report" xml:space="preserve">
+    <value>報表</value>
+  </data>
+  <data name="Enum_FuncAction_All" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="Common_Country" xml:space="preserve">
+    <value>地區/國家</value>
+  </data>
+  <data name="Common_Memo" xml:space="preserve">
+    <value>摘要</value>
+  </data>
+  <data name="Common_None" xml:space="preserve">
+    <value>無</value>
+  </data>
+  <data name="FileManage_DownloadCount" xml:space="preserve">
+    <value>下載次數</value>
+  </data>
+  <data name="Enum_ViewCountActionType" xml:space="preserve">
+    <value>前台瀏覽次數統計的行為類型</value>
+  </data>
+  <data name="Enum_ViewCountActionType_FilePreview" xml:space="preserve">
+    <value>檔案預覽</value>
+  </data>
+  <data name="Enum_ViewCountActionType_FileDownload" xml:space="preserve">
+    <value>檔案下載</value>
+  </data>
+  <data name="Enum_ViewCountActionType_LinkClick" xml:space="preserve">
+    <value>點擊連結</value>
+  </data>
+  <data name="COMM" xml:space="preserve">
+    <value>共用模組</value>
+  </data>
+  <data name="IAM" xml:space="preserve">
+    <value>帳號管理模組</value>
+  </data>
+  <data name="MAT" xml:space="preserve">
+    <value>商品管理模組</value>
+  </data>
+  <data name="WEB" xml:space="preserve">
+    <value>網站功能管理模組</value>
+  </data>
+  <data name="SYS" xml:space="preserve">
+    <value>系統設定管理模組</value>
+  </data>
+  <data name="Spec" xml:space="preserve">
+    <value>客製功能模組</value>
+  </data>
+</root>

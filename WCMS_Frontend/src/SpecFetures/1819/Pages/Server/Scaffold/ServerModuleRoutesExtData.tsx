@@ -1,9 +1,9 @@
-import { Server_Tag_ListForm_Comp } from "@/Features/Pages/Server/BizFunc/WebManagement/Tags/Server_Tag_ListForm_Comp";
+import { Server_Tag_ListForm_Comp } from "@/Features/Pages/Server/BizFunc/COMM/Tags/Server_Tag_ListForm_Comp";
 import type { IModuleMeta } from "@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData";
-import { Server_SpecJournal_Form_Comp } from "@/SpecFetures/1819/Pages/Server/BizFunc/SpecModule/SpecJournal/Server_SpecJournal_Form_Comp";
-import { Server_SpecJournal_List_Comp } from "@/SpecFetures/1819/Pages/Server/BizFunc/SpecModule/SpecJournal/Server_SpecJournal_List_Comp";
-import { Server_SpecJournalIndex_Form_Comp } from "@/SpecFetures/1819/Pages/Server/BizFunc/SpecModule/SpecJournalIndex/Server_SpecJournalIndex_Form_Comp";
-import { Server_SpecJournalIndex_List_Comp } from "@/SpecFetures/1819/Pages/Server/BizFunc/SpecModule/SpecJournalIndex/Server_SpecJournalIndex_List_Comp";
+import { Server_SpecJournal_Form_Comp } from "@/SpecFetures/1819/Pages/Server/BizFunc/WEB/SpecJournal/Server_SpecJournal_Form_Comp";
+import { Server_SpecJournal_List_Comp } from "@/SpecFetures/1819/Pages/Server/BizFunc/WEB/SpecJournal/Server_SpecJournal_List_Comp";
+import { Server_SpecJournalIndex_Form_Comp } from "@/SpecFetures/1819/Pages/Server/BizFunc/WEB/SpecJournalIndex/Server_SpecJournalIndex_Form_Comp";
+import { Server_SpecJournalIndex_List_Comp } from "@/SpecFetures/1819/Pages/Server/BizFunc/WEB/SpecJournalIndex/Server_SpecJournalIndex_List_Comp";
 import { PGID } from "@/types/SchemaFields";
 
 const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>

@@ -1,5 +1,6 @@
 /** subPage banner - 含大標題 */
 
+import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WEB/BannerSlider_Api";
 import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
@@ -7,7 +8,6 @@ import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { BannerDetailFields, BannerDetailInfoFields, BannerFields } from "@/types/SchemaFields";
-import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./Banner.css";
 
@@ -22,7 +22,10 @@ type BootstrapCarouselInstance = {
     dispose?: () => void;
 };
 
-export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?: ApiLoaderData<QueryListParam, BannerSet[]> | null }) => {
+export const Banner_Comp = (
+    props: { lang: Lang; node: INormNode; initialBanner?: ApiLoaderData<QueryListParam, BannerSet[]> | null; },
+) =>
+{
     // 變數宣告
     const bannerId = props.node.bannerId ?? "";
     const adapter = useMemo(() => BannerSliderAdapter(), []);
@@ -32,12 +35,14 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
     const carouselId = useMemo(() => `wcms_banner_carousel_${bannerId || "na"}`, [bannerId]);
 
     // function：依時間過濾（下架的不顯示）+ 依 Sort 排序 + 必須有圖
-    const validDetails = useMemo(() => {
+    const validDetails = useMemo(() =>
+    {
         const now = Date.now();
         const list = banner?.BannerDetail ?? [];
 
         return [...list]
-            .filter(d => {
+            .filter(d =>
+            {
                 const start = d.Validate_Start ? new Date(d.Validate_Start).getTime() : -Infinity;
                 const end = d.Validate_End ? new Date(d.Validate_End).getTime() : Infinity;
                 const info = pickBannerDetailInfo(d, props.lang);
@@ -47,7 +52,8 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
     }, [banner, props.lang]);
 
     // function：長寬比（依資料來源設定）
-    const ratioStyle = useMemo(() => {
+    const ratioStyle = useMemo(() =>
+    {
         const w = banner?.Banner?.Width ?? 0;
         const h = banner?.Banner?.Height ?? 0;
         if (!w || !h) return undefined;
@@ -55,7 +61,8 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
     }, [banner?.Banner?.Width, banner?.Banner?.Height]);
 
     // function：輪播間隔（來源資料決定）
-    const intervalMs = useMemo(() => {
+    const intervalMs = useMemo(() =>
+    {
         const raw = banner?.Banner?.Interval ?? 5000;
         const n = Number(raw);
         if (!Number.isFinite(n) || n <= 0) return 5000;
@@ -68,7 +75,8 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
     const [isBootReady, setIsBootReady] = useState(false);
 
     // function：初始化 bootstrap carousel
-    const initCarousel = useCallback(async (el: HTMLElement, interval: number) => {
+    const initCarousel = useCallback(async (el: HTMLElement, interval: number) =>
+    {
         const mod = await import("bootstrap/js/dist/carousel");
         const CarouselAny = mod.default as unknown as {
             getOrCreateInstance: (el: HTMLElement, opt: unknown) => BootstrapCarouselInstance;
@@ -83,16 +91,19 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
     }, []);
 
     // effect：當資料 ready / interval 改變時啟動 carousel
-    useEffect(() => {
+    useEffect(() =>
+    {
         const el = carouselRef.current;
         if (!el) return;
         if (!validDetails.length) return;
 
         let disposed = false;
 
-        const run = async () => {
+        const run = async () =>
+        {
             const ins = await initCarousel(el, intervalMs);
-            if (disposed) {
+            if (disposed)
+            {
                 ins.dispose?.();
                 return;
             }
@@ -103,7 +114,8 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
 
         void run();
 
-        return () => {
+        return () =>
+        {
             disposed = true;
             carouselInsRef.current?.dispose?.();
             carouselInsRef.current = null;
@@ -120,23 +132,61 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
                     <div className="VLine_wrapper">
                         {/* <div className="subpage_banner_wrapper w-100" style={ratioStyle}> */}
                         <div className="subpage_banner_wrapper w-100">
-                            <div className="carousel slide h-100" id={carouselId} ref={carouselRef} data-bs-ride="carousel" data-bs-interval={intervalMs}>
+                            <div
+                                className="carousel slide h-100"
+                                id={carouselId}
+                                ref={carouselRef}
+                                data-bs-ride="carousel"
+                                data-bs-interval={intervalMs}
+                            >
                                 <div className="carousel-inner h-100">
-                                    {validDetails.map((d, i) => {
+                                    {validDetails.map((d, i) =>
+                                    {
                                         const info = pickBannerDetailInfo(d, props.lang);
                                         const title = getInfoTitle(info);
                                         const url = getInfoUrl(info);
                                         const openBlank = getInfoOpenBlank(info);
                                         const imgUrl = FileManagementAPI.get_Public_Preview_Url(d.PicSrcId);
                                         return (
-                                            <div key={`${bannerId}_${d.RowId ?? i}_${i}`} className={`carousel-item ${i === 0 ? "active" : ""} h-100`}>
-                                                {url ? (
-                                                    <LangLink to={url} target={openBlank ? "_blank" : undefined} rel={openBlank ? "noopener noreferrer" : undefined} aria-label={title ? `Banner 連結：${title}` : "Banner 連結"} title={title}>
-                                                        <img src={imgUrl} className="d-block w-100 h-100" alt={title} style={{ width: "100%", height: "100%", objectFit: "cover", minHeight: "200px"}}/>
-                                                    </LangLink>
-                                                ) : (
-                                                    <img src={imgUrl} className="d-block w-100 h-100" alt={title} style={{ width: "100%", height: "100%", objectFit: "cover", minHeight: "200px"}}/>
-                                                )}
+                                            <div
+                                                key={`${bannerId}_${d.RowId ?? i}_${i}`}
+                                                className={`carousel-item ${i === 0 ? "active" : ""} h-100`}
+                                            >
+                                                {url
+                                                    ? (
+                                                        <LangLink
+                                                            to={url}
+                                                            target={openBlank ? "_blank" : undefined}
+                                                            rel={openBlank ? "noopener noreferrer" : undefined}
+                                                            aria-label={title ? `Banner 連結：${title}` : "Banner 連結"}
+                                                            title={title}
+                                                        >
+                                                            <img
+                                                                src={imgUrl}
+                                                                className="d-block w-100 h-100"
+                                                                alt={title}
+                                                                style={{
+                                                                    width: "100%",
+                                                                    height: "100%",
+                                                                    objectFit: "cover",
+                                                                    minHeight: "200px",
+                                                                }}
+                                                            />
+                                                        </LangLink>
+                                                    )
+                                                    : (
+                                                        <img
+                                                            src={imgUrl}
+                                                            className="d-block w-100 h-100"
+                                                            alt={title}
+                                                            style={{
+                                                                width: "100%",
+                                                                height: "100%",
+                                                                objectFit: "cover",
+                                                                minHeight: "200px",
+                                                            }}
+                                                        />
+                                                    )}
                                             </div>
                                         );
                                     })}
@@ -174,15 +224,18 @@ const BannerFetch = (
     lang: Lang,
     bannerId: string,
     initial: ApiLoaderData<QueryListParam, BannerSet[]> | null,
-) => {
+) =>
+{
     // 變數宣告
     const enabled = !!bannerId;
 
     // function：優先使用 loader 提供的 condition（initial.args）
-    const queryCondition = useMemo<QueryListParam>(() => {
+    const queryCondition = useMemo<QueryListParam>(() =>
+    {
         if (initial?.args) return initial.args;
 
-        if (!bannerId) {
+        if (!bannerId)
+        {
             return { Fields: [], Condition: "" };
         }
 
@@ -217,7 +270,8 @@ const BannerFetch = (
     });
 };
 
-const pickBannerDetailInfo = (detail: BannerDetail, lang: Lang): BannerDetailInfo | null => {
+const pickBannerDetailInfo = (detail: BannerDetail, lang: Lang): BannerDetailInfo | null =>
+{
     // 宣告變數
     const list = Array.isArray(detail?._BannerDetailInfo) ? detail._BannerDetailInfo : [];
 
@@ -229,17 +283,20 @@ const pickBannerDetailInfo = (detail: BannerDetail, lang: Lang): BannerDetailInf
     return hit ?? list[0] ?? null;
 };
 
-const getInfoTitle = (info: BannerDetailInfo | null): string => {
+const getInfoTitle = (info: BannerDetailInfo | null): string =>
+{
     // return
     return (info?.Title ?? "").toString();
 };
 
-const getInfoUrl = (info: BannerDetailInfo | null): string => {
+const getInfoUrl = (info: BannerDetailInfo | null): string =>
+{
     // return
     return (info?.URL ?? "").toString();
 };
 
-const getInfoOpenBlank = (info: BannerDetailInfo | null): boolean => {
+const getInfoOpenBlank = (info: BannerDetailInfo | null): boolean =>
+{
     // return
     return Boolean(info?.URL_Open);
 };

@@ -1,5 +1,4 @@
-﻿using WCMS.Features.Member.Account;
-using WCMS.Features.SystemSetting.Auth;
+﻿using WCMS.Features.IAM.Auth;
 
 namespace WCMS.SysCore.Enum
 {

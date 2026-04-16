@@ -1,15 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
 import type { AxiosInstance } from "axios";
+import { useCallback, useEffect, useState } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
-import { SiteMenuAdapter } from "@/Features/Hooks/BizFunc/SystemSetting/SiteMenu_Api";
-import { SiteViewCountAdapter } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
+import { SiteMenuAdapter } from "@/Features/Hooks/BizFunc/WEB/SiteMenu_Api";
+import { SiteViewCountAdapter } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
+import type { components } from "@/types/api";
 import { SiteMenu_IndexFields, SiteViewCountHeaderModelFields } from "@/types/SchemaFields";
 import type { INormSite } from "./Site-Routing";
 import { normalizeSite } from "./Site-Routing";
-import type { components } from "@/types/api";
 type QueryListParam = components["schemas"]["QueryListParam"];
 export interface SiteFooterRuntimeInfo
 {
@@ -184,7 +184,7 @@ const buildFooterViewCountQuery = (siteIndex: string): QueryListParam =>
 {
     // return
     return {
-        Fields: [SiteViewCountHeaderModelFields.SiteIndex,SiteViewCountHeaderModelFields.PublicViewCount,],
+        Fields: [SiteViewCountHeaderModelFields.SiteIndex, SiteViewCountHeaderModelFields.PublicViewCount],
         Condition: buildFooterViewCountCondition(siteIndex),
         PageNumber: 0,
         PageSize: 0,
@@ -210,7 +210,7 @@ const fetchSiteFooterRuntime = async (opt: {
     const viewCountApiRes = getApiRes(viewCountLD);
     const viewCountRows = unwrapArrayOrEmpty(viewCountApiRes);
     const viewCount = viewCountRows?.[0]?.SiteViewCountHeader?.PublicViewCount ?? 0;
-    return { viewCount: viewCount, siteUpdatedAt: null, feVersion: null, beVersion: null,};
+    return { viewCount: viewCount, siteUpdatedAt: null, feVersion: null, beVersion: null };
 };
 
 export const loadSiteFooterRuntime = async (opt: {
@@ -232,7 +232,7 @@ export const loadSiteFooterRuntime = async (opt: {
         request: opt?.request ?? new Request("http://localhost/"),
     } as any;
 
-    const runtimeInfo = await fetchSiteFooterRuntime({api, args, siteIndex,});
+    const runtimeInfo = await fetchSiteFooterRuntime({ api, args, siteIndex });
 
     return mergeFooterRuntimeCache(siteIndex, runtimeInfo);
 };
@@ -342,13 +342,11 @@ export const useSiteFooterRuntime = (siteIndex: string): UseSiteFooterRuntimeRes
 
             const next = await loadSiteFooterRuntime({ siteIndex });
             setRuntimeInfo(next);
-        }
-        catch (error)
+        } catch (error)
         {
             const text = error instanceof Error ? error.message : "Load footer runtime failed.";
             setErrorText(text);
-        }
-        finally
+        } finally
         {
             setIsLoading(false);
         }

@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using WCMS.Features.Member.Account;
-using WCMS.Features.Member.RolePermission;
-using WCMS.SysCore.Enum;
+using WCMS.Features._Resx;
+using WCMS.Features.IAM.Account;
+using WCMS.Features.IAM.RolePermission;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.Library.LibAttribute
@@ -12,9 +12,8 @@ namespace WCMS.SysCore.Library.LibAttribute
     /// </summary>
     public interface ILibPermissionMeta
     {
-        string ModuleCode { get; }
+        ModuleCodeEnum ModuleCode { get; }
         string ProgId { get; }
-        string TitleCode { get; } // i18n key（建議保留，不要用 Title 文字）
         FuncAction SupportFuncActMask { get; }
     }
 

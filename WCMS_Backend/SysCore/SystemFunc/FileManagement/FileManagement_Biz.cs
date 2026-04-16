@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SharpCompress.Archives;
+using WCMS.Features._Resx;
 using WCMS.SysCore.AppSettingsOptions;
-using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using static WCMS.SysCore.Enum.SysEnum;

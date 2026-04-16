@@ -1,4 +1,4 @@
-import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
+import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WEB/BannerSlider_Api";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";

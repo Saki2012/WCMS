@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using WCMS.Features.Member.Account;
+using WCMS.Features.IAM.Account;
 using WCMS.SysCore.Enum;
 using static WCMS.SysCore.Enum.SysEnum;
 

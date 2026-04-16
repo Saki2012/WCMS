@@ -5,8 +5,8 @@ using PdfSharp.Pdf.IO;
 using System.IO.Compression;
 using System.Reflection.PortableExecutable;
 using System.Text.RegularExpressions;
+using WCMS.Features._Resx;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.I18n.Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Enum.SysParam;
 

@@ -54,10 +54,8 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Features\Finance\" />
-		<Folder Include="Features\SystemSetting\SiteInfo\EnvConfig\" />
-		<Folder Include="Features\SystemSetting\SiteInfo\SiteArch\" />
-		<Folder Include="Features\SystemSetting\SiteInfo\SEO\" />
+		<Folder Include="Features\MAT\" />
+		<Folder Include="Features\SYS\" />
 		<Folder Include="SysCore\NLogger\DataChange\" />
 		<Folder Include="SysCore\NLogger\Operate\" />
 		<Folder Include="SysCore\NLogger\Sys\" />
@@ -125,13 +123,13 @@
 
 	
 	<ItemGroup>
-	  <EmbeddedResource Update="SpecFeatures\Spec1816\Resx\SpecMessageCode.zh-TW.resx">
+	  <EmbeddedResource Update="SpecFeatures\Spec1816\_Resx\SpecMessageCode.zh-TW.resx">
 	    <SubType>Designer</SubType>
 	  </EmbeddedResource>
-	  <EmbeddedResource Update="SpecFeatures\Spec1817\Resx\SpecMessageCode.zh-TW.resx">
+	  <EmbeddedResource Update="SpecFeatures\Spec1817\_Resx\SpecMessageCode.zh-TW.resx">
 	    <SubType>Designer</SubType>
 	  </EmbeddedResource>
-	  <EmbeddedResource Update="SpecFeatures\T1810\Resx\SpecMessageCode.zh-TW.resx">
+	  <EmbeddedResource Update="SpecFeatures\Spec1810\_Resx\SpecMessageCode.zh-TW.resx">
 	    <SubType>Designer</SubType>
 	  </EmbeddedResource>
 	</ItemGroup>

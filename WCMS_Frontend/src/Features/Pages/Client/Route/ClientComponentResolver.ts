@@ -8,21 +8,21 @@ import { HomePage as DefaultHomePage } from "@/Features/Pages/Client/Index/HomeP
 import { resolveSpecComponent, resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import { HomePageLoader as HomePageLoaderBase } from "SpecFeature/Pages/Client/Index/HomePage_Loader";
 // ---------------- Feature 基準版元件 ----------------
-import AnnouncementFormCompBase from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementForm";
+import AnnouncementFormCompBase from "@/Features/Pages/Client/BizFunc/WEB/Announcement/AnnouncementForm";
 import AnnouncementListBase, {
     type IAnnouncementListOptions,
-} from "@/Features/Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList";
+} from "@/Features/Pages/Client/BizFunc/WEB/Announcement/AnnouncementList";
 import FileArchiveListBase, {
     type IFileArchiveOptions,
-} from "@/Features/Pages/Client/BizFunc/WebManagement/FileArchive/FileArchiveList";
-import GalleryFormCompBase from "@/Features/Pages/Client/BizFunc/WebManagement/Gallery/GalleryForm_Comp";
-import GalleryListCompBase from "@/Features/Pages/Client/BizFunc/WebManagement/Gallery/GalleryList_Comp";
-import type { IGalleryListOptions } from "@/Features/Pages/Client/BizFunc/WebManagement/Gallery/GalleryList_Loader";
-import PageManagementFormCompBase from "@/Features/Pages/Client/BizFunc/WebManagement/PageManagement/PageManagementForm_Comp";
-import type { IPageManagementOptions } from "@/Features/Pages/Client/BizFunc/WebManagement/PageManagement/PageManagementForm_Loader";
+} from "@/Features/Pages/Client/BizFunc/WEB/FileArchive/FileArchiveList";
+import GalleryFormCompBase from "@/Features/Pages/Client/BizFunc/WEB/Gallery/GalleryForm_Comp";
+import GalleryListCompBase from "@/Features/Pages/Client/BizFunc/WEB/Gallery/GalleryList_Comp";
+import type { IGalleryListOptions } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/GalleryList_Loader";
+import PageManagementFormCompBase from "@/Features/Pages/Client/BizFunc/WEB/PageManagement/PageManagementForm_Comp";
+import type { IPageManagementOptions } from "@/Features/Pages/Client/BizFunc/WEB/PageManagement/PageManagementForm_Loader";
 import WebResourceListCompBase, {
     type IWebResourceListOptions,
-} from "@/Features/Pages/Client/BizFunc/WebManagement/WebResource/WebResourceList";
+} from "@/Features/Pages/Client/BizFunc/WEB/WebResource/WebResourceList";
 import SubPageBase from "@/Features/Pages/Client/Scaffold/SubPages/SubPage";
 
 // ====================================================
@@ -56,49 +56,49 @@ export const HomePageLoader: typeof HomePageLoaderBase = resolveSpecFunc(
 );
 // PageManagement Form
 export const PageManagementForm: typeof PageManagementFormCompBase = resolveSpecComponent(
-    "Pages/Client/BizFunc/WebManagement/PageManagement/PageManagementForm.tsx",
+    "Pages/Client/BizFunc/WEB/PageManagement/PageManagementForm.tsx",
     PageManagementFormCompBase,
     ["PageManagementFormComp", "PageManagementForm", "default"],
 );
 
 // Announcement List
 export const AnnouncementList = resolveSpecComponent(
-    "Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementList.tsx",
+    "Pages/Client/BizFunc/WEB/Announcement/AnnouncementList.tsx",
     AnnouncementListBase,
     ["AnnouncementList", "AnnouncementListComp", "default"],
 );
 
 // Announcement Form
 export const AnnouncementForm: typeof AnnouncementFormCompBase = resolveSpecComponent(
-    "Pages/Client/BizFunc/WebManagement/Announcement/AnnouncementForm.tsx",
+    "Pages/Client/BizFunc/WEB/Announcement/AnnouncementForm.tsx",
     AnnouncementFormCompBase,
     ["AnnouncementFormComp", "AnnouncementForm", "default"],
 );
 
 // FileArchive List
 export const FileArchiveList = resolveSpecComponent(
-    "Pages/Client/BizFunc/WebManagement/FileArchive/FileArchiveList.tsx",
+    "Pages/Client/BizFunc/WEB/FileArchive/FileArchiveList.tsx",
     FileArchiveListBase,
     ["FileArchiveList", "FileArchiveListComp", "default"],
 );
 
 // Gallery List
 export const GalleryListComp = resolveSpecComponent(
-    "Pages/Client/BizFunc/WebManagement/Gallery/GalleryList.tsx",
+    "Pages/Client/BizFunc/WEB/Gallery/GalleryList.tsx",
     GalleryListCompBase,
     ["GalleryListComp", "GalleryList", "default"],
 );
 
 // Gallery Form
 export const GalleryForm = resolveSpecComponent(
-    "Pages/Client/BizFunc/WebManagement/Gallery/GalleryForm.tsx",
+    "Pages/Client/BizFunc/WEB/Gallery/GalleryForm.tsx",
     GalleryFormCompBase,
     ["GalleryFormComp", "GalleryForm", "default"],
 );
 
 // WebResource List
 export const WebResourceListComp = resolveSpecComponent(
-    "Pages/Client/BizFunc/WebManagement/WebResource/WebResourceList.tsx",
+    "Pages/Client/BizFunc/WEB/WebResource/WebResourceList.tsx",
     WebResourceListCompBase,
     ["WebResourceListComp", "WebResourceList", "default"],
 );

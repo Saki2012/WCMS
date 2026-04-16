@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using WCMS.Features.Member.Account;
+using WCMS.Features._Resx;
+using WCMS.Features.IAM.Account;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
 using static WCMS.SysCore.Enum.SysEnum;

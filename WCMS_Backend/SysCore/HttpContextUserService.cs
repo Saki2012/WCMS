@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using WCMS.Features.SystemSetting.Auth;
+using WCMS.Features.IAM.Auth;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Model;
 

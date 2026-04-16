@@ -2,8 +2,8 @@
  * 此為RightFrame 底下的內容容器
  */
 
-import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Api";
-import { useFormDetailViewCount } from "@/Features/Hooks/BizFunc/SystemSetting/SiteInfo/SiteViewCount/SiteViewCount_Hooks";
+import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
+import { useFormDetailViewCount } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Hooks";
 import { getSiteHeaderMeta } from "@/Features/Pages/AppRoute";
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
@@ -102,7 +102,7 @@ const ModuleContent = (props: ModuleContentProps) =>
                     {props.children}
                 </div>
                 <hr className="hr-my-4" />
-                {props.paginatorProps && <NewPaginatorCanInputPage {...props.paginatorProps} lang={lang}/>}
+                {props.paginatorProps && <NewPaginatorCanInputPage {...props.paginatorProps} lang={lang} />}
             </LoadingErrorHandler>
         </>
     );

@@ -4,7 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using WCMS.Features.SystemSetting.Auth;
+using WCMS.Features.IAM.Auth;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Model;
 

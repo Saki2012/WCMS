@@ -7,8 +7,8 @@ import type { components } from "@/types/api";
 import parse from "html-react-parser";
 import { useMemo } from "react";
 
-import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/PageManagement_Api";
-import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WebManagement/WebResource_Api";
+import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WEB/PageManagement_Api";
+import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WEB/WebResource_Api";
 
 import HomepageVideo from "@/SpecFetures/1818/Assets/Client/Spec/HomepageVideo.mp4";
 

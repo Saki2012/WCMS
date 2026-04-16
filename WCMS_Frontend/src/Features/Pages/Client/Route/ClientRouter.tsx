@@ -21,13 +21,13 @@ import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
 import { PGID } from "@/types/SchemaFields";
 import { type LoaderFunction, type LoaderFunctionArgs, type RouteObject } from "react-router-dom";
 import { Sitemap, SITEMAP_SEGMENT } from "../BizFunc/MainPage/Sitemap/Sitemap";
-import { AnnouncementFormLoader } from "../BizFunc/WebManagement/Announcement/AnnouncementForm_Loader";
-import { AnnouncementListLoader } from "../BizFunc/WebManagement/Announcement/AnnouncementList_Loader";
-import { FileArchiveList_Loader } from "../BizFunc/WebManagement/FileArchive/FileArchiveList_Loader";
-import { GalleryForm_Loader } from "../BizFunc/WebManagement/Gallery/GalleryForm_Loader";
-import { GalleryList_Loader } from "../BizFunc/WebManagement/Gallery/GalleryList_Loader";
-import { PageManagementForm_Loader } from "../BizFunc/WebManagement/PageManagement/PageManagementForm_Loader";
-import { WebResourceList_Loader } from "../BizFunc/WebManagement/WebResource/WebResourceList_Loader";
+import { AnnouncementFormLoader } from "../BizFunc/WEB/Announcement/AnnouncementForm_Loader";
+import { AnnouncementListLoader } from "../BizFunc/WEB/Announcement/AnnouncementList_Loader";
+import { FileArchiveList_Loader } from "../BizFunc/WEB/FileArchive/FileArchiveList_Loader";
+import { GalleryForm_Loader } from "../BizFunc/WEB/Gallery/GalleryForm_Loader";
+import { GalleryList_Loader } from "../BizFunc/WEB/Gallery/GalleryList_Loader";
+import { PageManagementForm_Loader } from "../BizFunc/WEB/PageManagement/PageManagementForm_Loader";
+import { WebResourceList_Loader } from "../BizFunc/WEB/WebResource/WebResourceList_Loader";
 import {
     configureModuleRegistry,
     createRoutesFromSite,

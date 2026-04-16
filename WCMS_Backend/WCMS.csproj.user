@@ -7,13 +7,13 @@
     <NameOfLastUsedPublishProfile>C:\Users\IT-013\Desktop\Project\WCMS\WCMS_Backend\Properties\PublishProfiles\本機編譯.pubxml</NameOfLastUsedPublishProfile>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Update="SysCore\I18n\Resx\ModelDisplayName.zh-TW.resx">
+    <EmbeddedResource Update="Features\_Resx\ModelDisplayName.zh-TW.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Update="SysCore\I18n\Resx\SysMessageCode.en.resx">
+    <EmbeddedResource Update="Features\_Resx\SysMessageCode.en.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Update="SysCore\I18n\Resx\SysMessageCode.zh-TW.resx">
+    <EmbeddedResource Update="Features\_Resx\SysMessageCode.zh-TW.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>

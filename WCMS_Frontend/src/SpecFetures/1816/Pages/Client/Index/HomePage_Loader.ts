@@ -1,7 +1,7 @@
-import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Announcement_Api";
-import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WebManagement/BannerSlider_Api";
-import { CategoryAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Category_Api";
-import { TagAdapter } from "@/Features/Hooks/BizFunc/WebManagement/Tag_Api";
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
+import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
+import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_Api";
+import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WEB/BannerSlider_Api";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";

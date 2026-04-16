@@ -1,5 +1,4 @@
-﻿using WCMS.Features.Member.Account;
-using WCMS.Features.SystemSetting.Auth;
+﻿using WCMS.Features.IAM.Auth;
 using static WCMS.SysCore.QueryListParam;
 
 namespace WCMS.SysCore.Interface

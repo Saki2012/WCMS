@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
+using WCMS.Features._Resx;
 using WCMS.SysCore.Enum;
 
 namespace WCMS.SysCore.Library.LibAttribute
@@ -11,7 +12,7 @@ namespace WCMS.SysCore.Library.LibAttribute
     /// - 權限 Metadata：ModuleCode/ProgId/TitleCode/SupportMask...
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
-    public sealed class LibApiControllerAttribute(string moduleCode,string progId,SysEnum.FuncAction supportFuncActMask,string? routeTemplate = null) 
+    public sealed class LibApiControllerAttribute(ModuleCodeEnum moduleCode, string progId, SysEnum.FuncAction supportFuncActMask, string? routeTemplate = null) 
         : Attribute, IApiBehaviorMetadata, IRouteTemplateProvider, ILibPermissionMeta
     {
         #region Route (等同 ApiController + Route)
@@ -21,9 +22,8 @@ namespace WCMS.SysCore.Library.LibAttribute
         #endregion
 
         #region Permission Meta
-        public string ModuleCode { get; } = (moduleCode ?? string.Empty).Trim();
+        public ModuleCodeEnum ModuleCode { get; } = moduleCode;
         public string ProgId { get; } = (progId ?? string.Empty).Trim();
-        public string TitleCode { get; } = (progId ?? string.Empty).Trim();
         public SysEnum.FuncAction SupportFuncActMask { get; } = supportFuncActMask;
         #endregion
     }

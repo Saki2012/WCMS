@@ -4,11 +4,8 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Net;
-using System.Reflection;
-using System.Resources;
-using System.Runtime.InteropServices;
+using WCMS.Features._Resx;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.I18n.Resx;
 
 namespace WCMS.SysCore.Library.LibAttribute
 {

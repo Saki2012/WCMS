@@ -1,6 +1,4 @@
-﻿using WCMS.SysCore.Library;
-using System.ComponentModel;
-using WCMS.SysCore.I18n.Resx;
+﻿using WCMS.Features._Resx;
 using WCMS.SysCore.Library.LibAttribute;
 
 namespace WCMS.SysCore.Enum
@@ -82,7 +80,7 @@ namespace WCMS.SysCore.Enum
             /// <summary>
             /// 基礎資料權限
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_FuncAction_MasterData)] MasterData =Use|Query|View|Create|Update|Delete,
+            [LibDesc(ModelDisplayName.Enum_FuncAction_MasterData)] MasterData = Use|Query|View|Create|Update|Delete,
             /// <summary>
             /// 流水單權限
             /// </summary>

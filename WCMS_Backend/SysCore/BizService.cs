@@ -6,12 +6,13 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using WCMS.Features.SystemSetting.Auth;
+using WCMS.Features.IAM.Auth;
+using WCMS.Features._Resx;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.QueryListParam;
@@ -48,7 +49,7 @@ namespace WCMS.SysCore
         /// <summary>
         /// 功能Id
         /// </summary>
-        public string ProgId { get { _ProgId ??= GetType().GetCustomAttribute<ProgIdAttribute>(inherit: true)?.Value; return _ProgId; } }
+        public string ProgId { get { _ProgId ??= GetType().GetCustomAttribute<LibBizAttribute>(inherit: true)?.ProgId; return _ProgId; } }
         /// <summary>
         /// 流水編號前綴碼
         /// </summary>

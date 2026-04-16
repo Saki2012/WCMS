@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.Features._Resx;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.I18n.Resx;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;

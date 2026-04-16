@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WCMS.Features.Member.Account;
+using WCMS.Features.IAM.Account;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
 

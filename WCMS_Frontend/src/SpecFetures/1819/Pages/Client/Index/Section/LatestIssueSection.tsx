@@ -3,7 +3,8 @@ import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { useMemo } from "react";
-import { SpecJournalKeywordSearch_Comp } from "../../BizFunc/SpecModule/SpecJournal/SpecJournalKeywordSearchComp";
+
+import { SpecJournalKeywordSearch_Comp } from "../../BizFunc/WEB/SpecJournal/SpecJournalKeywordSearchComp";
 import type { HomePageRawData } from "../HomePage_Loader";
 
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
@@ -151,11 +152,9 @@ export const LatestIssueSection = (props: LatestIssueSectionProps) =>
     const bgBanner = props.initialData.latestIssueBgBanner;
     const coverBanner = props.initialData.latestIssueCoverBanner;
     const publishedList = props.initialData.latestIssuePublishedList ?? [];
-    const unpublishedList = props.initialData.latestIssueUnpublishedList ?? [];
     const bgInnerImg = useMemo(() => getBannerImageUrl(bgBanner), [bgBanner]);
     const issueImg = useMemo(() => getBannerImageUrl(coverBanner), [coverBanner]);
     const latestPublished = useMemo(() => getFirstIssue(publishedList), [publishedList]);
-    const latestUnpublished = useMemo(() => getFirstIssue(unpublishedList), [unpublishedList]);
     return (
         <section className="LatestIssue_section">
             <div className="Mask-DivBox">

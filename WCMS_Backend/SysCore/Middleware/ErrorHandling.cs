@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using NLog;
-using WCMS.SysCore.I18n.Resx;
+using WCMS.Features._Resx;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.Middleware

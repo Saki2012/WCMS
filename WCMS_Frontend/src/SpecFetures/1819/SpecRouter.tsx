@@ -1,12 +1,12 @@
 import { type INormNode, type INormSite, type ModuleEntry } from "@/Features/Pages/Client/Route/Site-Routing";
 import SubPage from "@/Features/Pages/Client/Scaffold/SubPages/SubPage";
 import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx";
-import { SpecJournalForm_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalForm";
-import { SpecJournalForm_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalForm_Loader";
-import { SpecJournalIndex } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalIndex";
-import { SpecJournalIndex_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalIndex_Loader";
-import { SpecJournalList } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalList";
-import { SpecJournalList_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/SpecModule/SpecJournal/SpecJournalList_Loader";
+import { SpecJournalForm_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/WEB/SpecJournal/SpecJournalForm";
+import { SpecJournalForm_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/WEB/SpecJournal/SpecJournalForm_Loader";
+import { SpecJournalIndex } from "@/SpecFetures/1819/Pages/Client/BizFunc/WEB/SpecJournal/SpecJournalIndex";
+import { SpecJournalIndex_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/WEB/SpecJournal/SpecJournalIndex_Loader";
+import { SpecJournalList } from "@/SpecFetures/1819/Pages/Client/BizFunc/WEB/SpecJournal/SpecJournalList";
+import { SpecJournalList_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/WEB/SpecJournal/SpecJournalList_Loader";
 import type { IHeaderMetaProps } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
