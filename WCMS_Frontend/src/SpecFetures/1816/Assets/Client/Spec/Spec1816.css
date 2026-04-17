@@ -859,3 +859,13 @@
 .sidebar .has-submenu > .list-group-item:focus::after {
     filter: invert(0);
 }
+
+/* GoTop */
+.progress-wrap:focus {
+  background-color: var(--Customize_FOCUScolor);
+  text-decoration: none;
+  outline: 2px dashed var(--FFFcolor) !important;
+}
+.progress-wrap:focus .progress-icon {
+  color: var(--FFFcolor);
+}

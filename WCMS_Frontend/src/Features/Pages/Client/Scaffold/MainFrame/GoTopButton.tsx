@@ -1,3 +1,5 @@
+// 此為舊的gotop 沒有使用，改成新的gotop，放在GoTop資料夾
+
 import { useCallback, useEffect, useState } from 'react';
 import gototopImg from '@/Features/Assets/Client/gototop_40x40.svg'
 
