@@ -12,7 +12,7 @@ import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { PersonModelFields, RoleDataModelFields } from "@/types/SchemaFields";
+import { AccountFields, PersonModelFields, RoleDataModelFields } from "@/types/SchemaFields";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 type AccountSet = components["schemas"]["AccountSet_DTO"];
@@ -54,6 +54,7 @@ export const useServerAccountForm = (theme: IBETheme): UseServerAccountFormResul
     const formData = useAccountFormDataByAdapter(adapter, internalId ?? "", accountEmptyData);
     const accountStatusQuery = useFetchEnumOptions("AccountStatus");
     const personQuery = usePersonListByAdapter(personAdapter);
+    const accountPersonQuery = useAccountPersonListByAdapter(adapter);
     const roleQuery = useRoleListByAdapter(roleAdapter);
     const isAddNew = !internalId;
     const [confirmPwd, setConfirmPwd] = useState<string>("");
@@ -61,7 +62,7 @@ export const useServerAccountForm = (theme: IBETheme): UseServerAccountFormResul
     {
         if (!isAddNew) setConfirmPwd("");
     }, [isAddNew]);
-    const personIds = usePersonDict(personQuery.rawData);
+    const personIds = useAvailablePersonDict(personQuery.rawData, accountPersonQuery.rawData, internalId ?? "");
     const roleIds = useRoleDict(roleQuery.rawData);
     const actionsBase = useAccountActionsFromAdapter(
         formUrl,
@@ -80,10 +81,12 @@ export const useServerAccountForm = (theme: IBETheme): UseServerAccountFormResul
         formData.isLoading,
         accountStatusQuery.isLoading,
         personQuery.isLoading,
+        accountPersonQuery.isLoading,
         roleQuery.isLoading,
         formData.error,
         accountStatusQuery.error,
         personQuery.error,
+        accountPersonQuery.error,
         roleQuery.error,
         actions,
     );
@@ -106,10 +109,12 @@ const useAccountFormProp = (
     formLoading: boolean,
     enumLoading: boolean | undefined,
     personLoading: boolean,
+    accountPersonLoading: boolean,
     roleLoading: boolean,
     formError: string | null,
     enumError: string | null | undefined,
     personError: string | null,
+    accountPersonError: string | null,
     roleError: string | null,
     actions: UseActionsResult,
 ): FormCompProp =>
@@ -119,8 +124,10 @@ const useAccountFormProp = (
         return {
             Title: "管理者帳號資料修改",
             Theme: theme,
-            IsLoading: [formLoading, Boolean(enumLoading), personLoading, roleLoading].some(Boolean),
-            ErrorList: [formError, enumError, personError, roleError],
+            IsLoading: [formLoading, Boolean(enumLoading), personLoading, accountPersonLoading, roleLoading].some(
+                Boolean,
+            ),
+            ErrorList: [formError, enumError, personError, accountPersonError, roleError],
             Actions: actions,
         };
     }, [
@@ -128,10 +135,12 @@ const useAccountFormProp = (
         formLoading,
         enumLoading,
         personLoading,
+        accountPersonLoading,
         roleLoading,
         formError,
         enumError,
         personError,
+        accountPersonError,
         roleError,
         actions,
     ]);
@@ -196,7 +205,6 @@ const useAccountActionsFromAdapter = (
     onBack: () => void,
 ): UseActionsResult =>
 {
-    const { publish } = useToast();
     const isAddNew = !internalId;
     const server = adapter.useServerActions({
         onSuccessByMode: {
@@ -204,7 +212,6 @@ const useAccountActionsFromAdapter = (
             update: () => onBack(),
             delete: () => onBack(),
         },
-        onError: (e) => publish({ level: MessageStatus.Error, title: e.messageText }),
     });
 
     const onSave = useCallback(async (): Promise<boolean> =>
@@ -333,20 +340,91 @@ const useRoleListByAdapter = (adapter: ReturnType<typeof RolePermissionAdapter>)
         error: query.errorText ?? null,
     };
 };
-/** 將 person 資料轉為下拉字典 */
-const usePersonDict = (rawData: PersonSet[]): Record<string, string> =>
+
+const useAccountPersonListByAdapter = (adapter: ReturnType<typeof AccountAdapter>) =>
+{
+    // 宣告變數
+    const { publish } = useToast();
+
+    // 執行：API 錯誤提示
+    const onError = useCallback((e: ApiAdapterError) =>
+    {
+        publish({ level: MessageStatus.Error, title: e.messageText });
+    }, [publish]);
+
+    // 宣告變數：只查過濾需要的欄位
+    const condition = useMemo<QueryListParam>(() =>
+    {
+        return {
+            Fields: [AccountFields.InternalId, AccountFields.PersonId],
+            Condition: "",
+            OrderBy: [],
+            PageNumber: 0,
+            PageSize: 0,
+        };
+    }, []);
+
+    // 執行：取得所有帳號目前綁定的人員代號
+    const query = adapter.hooks.useQueryList({ condition, deps: [], onError });
+
+    return {
+        rawData: (query.data ?? []) as AccountSet[],
+        isLoading: Boolean(query.isLoading),
+        error: query.errorText ?? null,
+    };
+};
+/** 建立可選人員下拉字典 */
+const useAvailablePersonDict = (
+    personRawData: PersonSet[],
+    accountRawData: AccountSet[],
+    currentAccountInternalId: string,
+): Record<string, string> =>
 {
     return useMemo(() =>
     {
-        const dict: Record<string, string> = {};
-        for (const item of rawData ?? [])
-        {
-            const personId = String(item?.Person?.PersonId ?? "").trim();
-            if (!personId) continue;
-            dict[personId] = String(item?.Person?.PersonId ?? "").trim();
-        }
-        return dict;
-    }, [rawData]);
+        // 宣告變數：取得其他帳號已使用的人員代號
+        const usedPersonIds = buildUsedPersonIds(accountRawData, currentAccountInternalId);
+
+        // 執行：建立尚可選的人員下拉資料
+        return buildAvailablePersonDict(personRawData, usedPersonIds);
+    }, [personRawData, accountRawData, currentAccountInternalId]);
+};
+
+/** 建立其他帳號已使用的人員代號 */
+const buildUsedPersonIds = (rawData: AccountSet[], currentAccountInternalId: string): Set<string> =>
+{
+    const usedIds = new Set<string>();
+
+    for (const item of rawData ?? [])
+    {
+        const accountInternalId = String(item?.Account?.InternalId ?? "").trim();
+        const personId = String(item?.Account?.PersonId ?? "").trim();
+
+        if (!personId) continue;
+        if (accountInternalId === currentAccountInternalId) continue;
+
+        usedIds.add(personId);
+    }
+
+    return usedIds;
+};
+
+/** 建立尚可選的人員下拉資料 */
+const buildAvailablePersonDict = (rawData: PersonSet[], usedPersonIds: Set<string>): Record<string, string> =>
+{
+    const dict: Record<string, string> = {};
+
+    for (const item of rawData ?? [])
+    {
+        const personId = String(item?.Person?.PersonId ?? "").trim();
+
+        if (!personId) continue;
+        if (usedPersonIds.has(personId)) continue;
+
+        dict[personId] = personId;
+    }
+
+    return dict;
 };
 /** 將 role 資料轉為下拉字典 */
 const useRoleDict = (rawData: RoleSet[]): Record<string, string> =>

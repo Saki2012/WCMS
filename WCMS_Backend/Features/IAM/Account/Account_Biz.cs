@@ -1,7 +1,6 @@
 ﻿using Microsoft.IdentityModel.Tokens;
-using System.Collections.Generic;
-using WCMS.Features.COMM.Person;
 using WCMS.Features._Resx;
+using WCMS.Features.COMM.Person;
 using WCMS.SysCore;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
@@ -104,7 +103,7 @@ namespace WCMS.Features.IAM.Account
             {
                 case FuncAction.Create:
                 case FuncAction.Update:
-                    CheckData(set);
+                    await CheckData(set, act, ct);
                     SetData(set);
                     break;
             }
@@ -126,10 +125,11 @@ namespace WCMS.Features.IAM.Account
         #endregion
 
         #region Protected
-        protected void CheckData(AccountSet set)
+        protected async Task CheckData(AccountSet set, FuncAction act, CancellationToken ct=default)
         {
             if (set.Account.AccountId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<AccountModel>(x => x.AccountId));
             if(set.Account.RoleId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<AccountModel>(x => x.RoleId));
+            await CheckPersonIdIsUniqueAsync(set.Account, act, ct);
         }
         protected void SetData(AccountSet set)
         {
@@ -167,6 +167,39 @@ namespace WCMS.Features.IAM.Account
             newSet.Account.PasswordSalt = oldSet.Account.PasswordSalt;
             newSet.Account.PasswordAlgoVer = oldSet.Account.PasswordAlgoVer;
         }
+        /// <summary>
+        /// 檢查人員編號是否已被其他帳號使用
+        /// </summary>
+        protected async Task CheckPersonIdIsUniqueAsync(AccountModel account, FuncAction act, CancellationToken ct = default)
+        {
+            // 宣告變數
+            string personId = account.PersonId?.Trim() ?? string.Empty;
+            string condition = BuildPersonIdUniqueCondition(account, act);
+            // 執行：空值不檢查
+            if (personId.IsNullOrEmpty()) return;
+            // 執行：查詢是否已有其他帳號使用此人員編號
+            int count = await BizQueryTotalCounts(condition);
+            // 執行：重複時提示錯誤
+            if (count > 0) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00036, personId);
+        }
+        /// <summary>
+        /// 建立人員編號唯一檢查條件
+        /// </summary>
+        private static string BuildPersonIdUniqueCondition(AccountModel account, FuncAction act)
+        {
+            // 宣告變數
+            string personId = account.PersonId?.Trim();
+            string internalId = account.InternalId?.Trim();
+            string accountId =account.AccountId?.Trim();
+            // 宣告變數：基本查詢條件
+            string condition = $"{nameof(AccountModel.PersonId)} = '{personId}'";
+            if (act == FuncAction.Update && !internalId.IsNullOrEmpty())
+                condition = LibData.Merge(" And ",false,condition, $"{nameof(AccountModel.InternalId)} != '{internalId}'") ;
+            else if (act == FuncAction.Update && !accountId.IsNullOrEmpty())
+                condition = LibData.Merge(" And ",false,condition, $"{nameof(AccountModel.AccountId)} != '{accountId}'") ;
+            return condition;
+        }
+
         #endregion
     }
 }

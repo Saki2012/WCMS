@@ -225,4 +225,7 @@
   <data name="BECode00035" xml:space="preserve">
     <value>[{0}] has invalid format.</value>
   </data>
+  <data name="BECode00036" xml:space="preserve">
+    <value>人員編號【{0}】已被其他帳號使用，請選擇其他人員。</value>
+  </data>
 </root>
