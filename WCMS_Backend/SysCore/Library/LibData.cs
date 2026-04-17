@@ -15,6 +15,7 @@ using System.Xml;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library.LibAttribute;
 using static MimeDetective.Definitions.DefaultDefinitions;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.Library
 {
@@ -574,6 +575,21 @@ namespace WCMS.SysCore.Library
             if (fileType != null) return fileType.MimeType.ToLowerInvariant();
             return string.Empty;
         }
+        /// <summary>
+        /// 取得上傳檔案格式資訊
+        /// </summary>
+        public static (string Extension, string MimeType) GetUploadFileMeta(Stream stream, string fileName)
+        {
+            // 宣告變數：先使用原本內容檢測
+            string detectedExtension = GetFileExtenstion(stream);
+            string detectedMimeType = GetFileMimeType(stream);
+            string clientExtension = GetClientFileExtension(fileName);
+            bool useEncryptedOfficeMeta = ShouldUseEncryptedOfficeMeta(stream, detectedExtension, clientExtension);
+            // 執行：加密 Office 檔無法由內容檢測時，才允許使用檔名副檔名
+            if (useEncryptedOfficeMeta) return (clientExtension, GetOfficeOpenXmlMimeType(clientExtension));
+            // return：一般檔案仍使用內容檢測結果
+            return (detectedExtension, detectedMimeType);
+        }
         public class EnumOption
         {
             public int Key { get; set; }
@@ -721,6 +737,136 @@ namespace WCMS.SysCore.Library
             bool hasAlpha = items.Any(x => Regex.IsMatch(x, @"[a-zA-Z]"));
             if (hasDigit && hasAlpha) return RemergeSortMode.Natural;
             return RemergeSortMode.String;
+        }
+
+        /// <summary>
+        /// 取得使用者上傳檔名副檔名
+        /// </summary>
+        private static string GetClientFileExtension(string fileName)
+        {
+            // 宣告變數
+            string extension = Path.GetExtension(fileName) ?? string.Empty;
+
+            // return
+            return extension.Trim().TrimStart('.').ToLowerInvariant();
+        }
+
+        /// <summary>
+        /// 判斷是否可使用加密 Office 檔案資訊
+        /// </summary>
+        private static bool ShouldUseEncryptedOfficeMeta(Stream stream, string detectedExtension, string clientExtension)
+        {
+            // 執行：已經判斷出副檔名時，不需要 fallback
+            if (!string.IsNullOrWhiteSpace(detectedExtension)) return false;
+
+            // 執行：只允許 docx / xlsx / pptx
+            if (!IsOfficeOpenXmlExtension(clientExtension)) return false;
+
+            // return：確認是否為加密 Office OpenXML 檔案
+            return IsEncryptedOfficeOpenXml(stream);
+        }
+
+        /// <summary>
+        /// 判斷是否為 Office OpenXML 副檔名
+        /// </summary>
+        private static bool IsOfficeOpenXmlExtension(string extension)
+        {
+            // return
+            return extension switch
+            {
+                FileExtensions.DOCX => true,
+                FileExtensions.XLSX => true,
+                FileExtensions.PPTX => true,
+                _ => false,
+            };
+        }
+
+        /// <summary>
+        /// 判斷是否為加密 Office OpenXML 檔案
+        /// </summary>
+        private static bool IsEncryptedOfficeOpenXml(Stream stream)
+        {
+            // 執行：加密 Office OpenXML 會包在 CFB 容器內
+            if (!IsCompoundFileBinary(stream)) return false;
+
+            // 宣告變數：加密 Office 會有這兩個結構名稱
+            byte[] content = ReadStreamBytes(stream);
+            bool hasEncryptedPackage = ContainsUtf16Text(content, "EncryptedPackage");
+            bool hasEncryptionInfo = ContainsUtf16Text(content, "EncryptionInfo");
+
+            // return
+            return hasEncryptedPackage && hasEncryptionInfo;
+        }
+
+        /// <summary>
+        /// 判斷是否為 CFB 檔案格式
+        /// </summary>
+        private static bool IsCompoundFileBinary(Stream stream)
+        {
+            // 宣告變數
+            byte[] signature = [0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1];
+            byte[] buffer = new byte[signature.Length];
+            long position = stream.Position;
+
+            // 執行：讀取檔頭
+            stream.Position = 0;
+            int readLength = stream.Read(buffer, 0, buffer.Length);
+            stream.Position = position;
+
+            // return
+            return readLength == signature.Length && buffer.SequenceEqual(signature);
+        }
+
+        /// <summary>
+        /// 讀取 Stream 位元組並還原位置
+        /// </summary>
+        private static byte[] ReadStreamBytes(Stream stream)
+        {
+            // 宣告變數
+            long position = stream.Position;
+
+            try
+            {
+                // 執行：完整讀取內容
+                stream.Position = 0;
+                using var memoryStream = new MemoryStream();
+                stream.CopyTo(memoryStream);
+
+                // return
+                return memoryStream.ToArray();
+            }
+            finally
+            {
+                // 執行：還原 Stream 位置
+                stream.Position = position;
+            }
+        }
+
+        /// <summary>
+        /// 判斷內容是否包含 UTF-16 文字
+        /// </summary>
+        private static bool ContainsUtf16Text(byte[] content, string text)
+        {
+            // 宣告變數
+            byte[] pattern = Encoding.Unicode.GetBytes(text);
+
+            // return
+            return content.AsSpan().IndexOf(pattern) >= 0;
+        }
+
+        /// <summary>
+        /// 依 Office OpenXML 副檔名取得 MIME Type
+        /// </summary>
+        private static string GetOfficeOpenXmlMimeType(string extension)
+        {
+            // return
+            return extension switch
+            {
+                FileExtensions.DOCX => MimeTypes.APPLICATION_VND_OPENXML_WORD,
+                FileExtensions.XLSX => MimeTypes.APPLICATION_VND_OPENXML_EXCEL,
+                FileExtensions.PPTX => MimeTypes.APPLICATION_VND_OPENXML_POWERPOINT,
+                _ => string.Empty,
+            };
         }
         #endregion
 

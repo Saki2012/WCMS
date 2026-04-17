@@ -413,6 +413,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             DateTime today = DateTime.UtcNow;
             string internalId = Guid.NewGuid().ToString();
             using var stream = file.OpenReadStream();
+            var (Extension, MimeType) = LibData.GetUploadFileMeta(stream, file.FileName);
             FileManageSet set = new()
             {
                 FileManage = new()
@@ -420,14 +421,14 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                     InternalId = internalId,
                     ProgId = "",
                     Path = LibData.Merge("/", false, FilePath.Root, FilePath.Pending, today.Year, today.Month, today.Day, ""),
-                    FileExtension = LibData.GetFileExtenstion(stream),
-                    MimeType = LibData.GetFileMimeType(stream),
+                    FileExtension = Extension,
+                    MimeType = MimeType,
                     FileName = Path.GetFileNameWithoutExtension(file.FileName),
                     FileDescription = file.FileName,
                     FileStatus = FileStatus.None,
                     FileSHA256 = sha256,
                     FileSize = file.Length,
-                    IsPublic = true,//暫時先寫死，未來要分前後台資源管理時再來調邏輯
+                    IsPublic = true,
                 }
             };
             return set;
@@ -588,17 +589,152 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             return checkList.Contains(fileType.ToLowerInvariant());
         }
         /// <summary>
-        /// 檢查Sha256是否存在在系統之中
+        /// 檢查 SHA256 是否存在系統中，並同步目前上傳檔案解析結果
         /// </summary>
-        /// <param name="data"></param>
-        private async Task<(bool exists, FileManageSet? set)> CheckSHA256Async(string sha256, IFormFile file)
+        private async Task<(bool isNew, FileManageSet set)> CheckSHA256Async(string sha256, IFormFile file)
         {
+            // 宣告變數：查詢是否已有相同 SHA256
             var exist = await DoQueryListAsync(
                 typeof(FileManageModel),
-                [nameof(FileManageSet.FileManage.InternalId), nameof(FileManageSet.FileManage.FileSHA256)],
-                @$"{nameof(FileManageSet.FileManage.FileSHA256)} = {sha256}", default, 0, 0
+                [nameof(FileManageModel.InternalId), nameof(FileManageModel.FileSHA256)],
+                @$"{nameof(FileManageModel.FileSHA256)} = {sha256}", default, 0, 0
             );
-            FileManageSet set = exist.Count == 0 ? CreateNewFileInfo(file, sha256) : await DoQuerySetAsync(((FileManageModel)exist[0]).InternalId);
+
+            // 宣告變數：不存在就建立新資料，存在就讀取 DB set
+            bool isNew = exist.Count == 0;
+            FileManageSet set = isNew ? CreateNewFileInfo(file, sha256) : await DoQuerySetAsync(((FileManageModel)exist[0]).InternalId);
+
+            // 執行：既有檔案需重新同步目前解析到的副檔名 / MIME
+            if (!isNew) SyncUploadFileMeta(set.FileManage, file, sha256);
+
+            // 執行：新增本次同步紀錄
+            AddUploadSyncInfo(set, file);
+
+            // return
+            return (isNew, set);
+        }
+        /// <summary>
+        /// 同步目前上傳檔案解析出的格式資訊
+        /// </summary>
+        private static void SyncUploadFileMeta(FileManageModel filemanage, IFormFile file, string sha256)
+        {
+            // 宣告變數：重新解析目前上傳檔案
+            using var stream = file.OpenReadStream();
+            var (extension, mimeType) = LibData.GetUploadFileMeta(stream, file.FileName);
+
+            // 宣告變數：更新 DB 內可由檔案本體推導出的資訊
+            bool metaChanged = false;
+            metaChanged |= SyncFileExtension(filemanage, extension);
+            metaChanged |= SyncMimeType(filemanage, mimeType);
+            metaChanged |= SyncFileSize(filemanage, file.Length);
+            metaChanged |= SyncFileSHA256(filemanage, sha256);
+            metaChanged |= SyncEmptyFileName(filemanage, file.FileName);
+
+            // 執行：若舊資料是 Failed，且本次解析結果已補齊，就讓後續重新檢查合法性
+            if (ShouldResetFailedFileStatus(filemanage, metaChanged))
+                filemanage.FileStatus = FileStatus.None;
+        }
+        /// <summary>
+        /// 同步副檔名
+        /// </summary>
+        private static bool SyncFileExtension(FileManageModel filemanage, string extension)
+        {
+            // 執行：空值不覆蓋既有正確資料
+            if (string.IsNullOrWhiteSpace(extension)) return false;
+            if (string.Equals(filemanage.FileExtension, extension, StringComparison.OrdinalIgnoreCase)) return false;
+
+            // 執行：更新副檔名
+            filemanage.FileExtension = extension;
+
+            // return
+            return true;
+        }
+
+        /// <summary>
+        /// 同步 MIME Type
+        /// </summary>
+        private static bool SyncMimeType(FileManageModel filemanage, string mimeType)
+        {
+            // 執行：空值不覆蓋既有正確資料
+            if (string.IsNullOrWhiteSpace(mimeType)) return false;
+            if (string.Equals(filemanage.MimeType, mimeType, StringComparison.OrdinalIgnoreCase)) return false;
+
+            // 執行：更新 MIME Type
+            filemanage.MimeType = mimeType;
+
+            // return
+            return true;
+        }
+
+        /// <summary>
+        /// 同步檔案大小
+        /// </summary>
+        private static bool SyncFileSize(FileManageModel filemanage, long fileSize)
+        {
+            // 執行：相同大小不處理
+            if (filemanage.FileSize == fileSize) return false;
+
+            // 執行：更新檔案大小
+            filemanage.FileSize = fileSize;
+
+            // return
+            return true;
+        }
+
+        /// <summary>
+        /// 同步 SHA256
+        /// </summary>
+        private static bool SyncFileSHA256(FileManageModel filemanage, string sha256)
+        {
+            // 執行：空值不覆蓋
+            if (string.IsNullOrWhiteSpace(sha256)) return false;
+            if (string.Equals(filemanage.FileSHA256, sha256, StringComparison.OrdinalIgnoreCase)) return false;
+
+            // 執行：更新 SHA256
+            filemanage.FileSHA256 = sha256;
+
+            // return
+            return true;
+        }
+
+        /// <summary>
+        /// DB 檔名為空時，補上目前上傳檔名
+        /// </summary>
+        private static bool SyncEmptyFileName(FileManageModel filemanage, string fileName)
+        {
+            // 宣告變數
+            string safeFileName = Path.GetFileNameWithoutExtension(fileName);
+            // 執行：避免同 SHA256 但不同檔名時，覆蓋既有顯示名稱
+            if (!string.IsNullOrWhiteSpace(filemanage.FileName)) return false;
+            if (string.IsNullOrWhiteSpace(safeFileName)) return false;
+            // 執行：補上空檔名
+            filemanage.FileName = safeFileName;
+            filemanage.FileDescription = fileName;
+            // return
+            return true;
+        }
+
+        /// <summary>
+        /// 判斷是否需要重置 Failed 狀態
+        /// </summary>
+        private static bool ShouldResetFailedFileStatus(FileManageModel filemanage, bool metaChanged)
+        {
+            // 執行：沒有異動不用重置
+            if (!metaChanged) return false;
+
+            // 執行：只有 Failed 需要重置
+            if (filemanage.FileStatus != FileStatus.Failed) return false;
+
+            // return：副檔名與 MIME 都已解析成功才重置
+            return !string.IsNullOrWhiteSpace(filemanage.FileExtension) && !string.IsNullOrWhiteSpace(filemanage.MimeType);
+        }
+
+        /// <summary>
+        /// 新增上傳同步紀錄
+        /// </summary>
+        private static void AddUploadSyncInfo(FileManageSet set, IFormFile file)
+        {
+            // 執行：新增本次同步資訊
             set.FileManage_SyncInfo.Add(new FileManage_SyncInfoModel()
             {
                 InternalId = set.FileManage.InternalId,
@@ -610,8 +746,6 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 DestNode = Environment.MachineName,
                 DestFullPath = "",
             });
-
-            return (exist.Count == 0, set);
         }
         /// <summary>
         /// 存入系統
@@ -736,8 +870,9 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 if (!setDic.TryGetValue(fileSha256, out FileManageSet? set))
                 {
                     string internalId = Guid.NewGuid().ToString();
-                    string ext = LibData.GetFileExtenstion(memoryStream);
-                    string mimeType = LibData.GetFileMimeType(memoryStream);
+                    var (Extension, MimeType) = LibData.GetUploadFileMeta(memoryStream, entry.Key);
+                    string ext = Extension;
+                    string mimeType = MimeType;
                     string destPath = LibData.Merge("/", false, Path.GetDirectoryName(fullPath), $"{internalId}.{ext}");
                     using var outStream = File.Create(destPath);
                     memoryStream.Position = 0;
