@@ -382,7 +382,14 @@ const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                                                     },
                                                     { label: "職稱 :", value: a.JobTitle },
                                                     {
-                                                        label: clsx(a.AuthorType === 0 ? "電子郵件" : "✉️", " :"),
+                                                        label:
+                                                        a.AuthorType === 0
+                                                            ? "電子郵件 :"
+                                                            : (
+                                                            <>
+                                                                <i className="far fa-envelope me-1"></i> :
+                                                            </>
+                                                            ),
                                                         value: a.Email
                                                             ? <a href={`mailto:${a.Email}`}>{a.Email}</a>
                                                             : null,
@@ -417,7 +424,7 @@ const DOI_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
     return (
         <>
             <div className="JJ_main_contentDIV">
-                <div className="col row_item_group doiRow">
+                <div className="d-flex flex-sm-row flex-column">
                     <div className="doiText">
                         <div className="Div_All_Ttext">
                             <span>DOI編號:</span>
@@ -494,7 +501,7 @@ const JournalInfo_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                             </li>
 
                             <li>
-                                <div className="Div_All_Ttext mb-1">
+                                <div className="Div_All_Ttext mb-1 d-flex flex-wrap">
                                     <span>中文關鍵詞 :</span>
                                     {props.data?.SpecJournalKeywords?.filter((p) => p.LangCode === "zh-tw").map((kw) =>
                                     {
@@ -519,7 +526,7 @@ const JournalInfo_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                                 </div>
                             </li>
                             <li>
-                                <div className="Div_All_Ttext mb-1">
+                                <div className="Div_All_Ttext mb-1 d-flex flex-wrap">
                                     <span>英文關鍵詞 :</span>
                                     {props.data?.SpecJournalKeywords?.filter((p) => p.LangCode === "en").map((kw) =>
                                     {
@@ -1017,9 +1024,9 @@ const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                 </ul>
             </div>
 
-            <div className="col row-group">
+            {/* <div className="col row-group">
                 <hr className="hr-my-4" />
-            </div>
+            </div> */}
         </>
     );
 };
