@@ -1,0 +1,95 @@
+/* =========================
+GoTop Progress Button
+========================= */
+
+.progress-wrap {
+	position: fixed;
+	right: 15px;
+	bottom: 30px;
+
+	width: 46px;
+	height: 46px;
+
+	display: block;
+	cursor: pointer;
+
+	border-radius: 50px;
+	background: rgba(255, 255, 255, 0.5);
+
+	box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.25);
+
+	z-index: 10000;
+
+	/* hidden state */
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(15px);
+
+	transition: all 200ms linear;
+	border: none;
+}
+
+/* visible state (由 React 控制 class) */
+.progress-wrap.active-progress {
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0);
+}
+
+/* =========================
+SVG progress circle
+========================= */
+
+.progress-wrap svg {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+}
+
+.progress-wrap svg path {
+	fill: none;
+	stroke: rgba(0, 0, 0, 0.8);
+	stroke-width: 4;
+
+	transition: stroke-dashoffset 0.1s linear;
+}
+
+/* =========================
+   Font Awesome icon
+   ========================= */
+
+.progress-icon {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+
+	transform: translate(-50%, -50%);
+	font-size: 18px;
+
+	color: var(--blackcolor);
+
+	z-index: 2;
+	pointer-events: none;
+
+	transition: all 200ms linear;
+}
+
+/* hover effect */
+.progress-wrap:hover .progress-icon {
+	color: var(--Customize_color);
+	transform: translate(-50%, -50%) scale(1.12);
+}
+
+/* =========================
+optional theme (yellow stroke)
+========================= */
+
+.progress-wrap.stroke-yellow svg path {
+	stroke: rgba(247, 218, 127, 0.5);
+}
+
+.progress-wrap:focus {
+  background-color: var(--a_focuscolor, --Customize_FOCUScolor, #FFBD40);
+  text-decoration: none;
+  outline: 2px solid var(--a_focusbordercolor, #43B5FC) !important;
+}

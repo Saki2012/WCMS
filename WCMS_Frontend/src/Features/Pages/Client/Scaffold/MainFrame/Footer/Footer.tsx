@@ -1,6 +1,7 @@
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing"
 import type { Lang } from "@/SysCore/i18n/lang"
-import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton"
+// import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton"
+import { GoTop } from  "@/Features/Pages/Client/Scaffold/MainFrame/GoTop/GoTop"
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds"
 import parse from 'html-react-parser';
 import "./Footer.css"
@@ -156,7 +157,8 @@ const Footer = (props: FooterProps) => {
                     </div>
                 </div>
             </section>
-            <GoTopButton />
+            {/* <GoTopButton /> */}
+            <GoTop lang={props.lang}/>
         </footer>
     )
 }

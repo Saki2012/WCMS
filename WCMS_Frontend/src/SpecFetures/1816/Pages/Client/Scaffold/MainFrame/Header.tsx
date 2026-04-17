@@ -5,7 +5,6 @@ import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { A11yContent, type HeaderProps } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Header";
 import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
-// import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";
 import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap/Sitemap";
 import LogoImg from "@/SpecFetures/1816/Assets/Client/images/logo/LOGO_266x41.svg";
 import { SearchData } from "../../Index/Section/SearchData";
@@ -72,7 +71,6 @@ const Header = (props: HeaderProps) => {
 			</div>
 
 			<SearchData {...props} />
-			{/* <GoTopButton /> */}
 		</>
 	);
 };

@@ -321,7 +321,8 @@
 }
 /* ====================================================== */
 .Top_Div_All {
-    position: relative
+    position: relative;
+		overflow-x: hidden;
 }
 @media screen and (max-width: 991px) {
     .Top_Div_All {}
