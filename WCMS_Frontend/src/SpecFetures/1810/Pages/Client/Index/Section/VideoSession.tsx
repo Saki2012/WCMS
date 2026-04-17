@@ -1,5 +1,5 @@
 import "swiper/swiper-bundle.css";
-import { resolveYoutubeEmbedUrl } from "@/Features/Pages/Client/BizFunc/WebManagement/WebResource/WebResourceList";
+import { resolveYoutubeEmbedUrl } from "@/Features/Pages/Client/BizFunc/WEB/WebResource/WebResourceList";
 import bgImg from "@/SpecFetures/1810/Assets/Client/images/bg/background-image_video_2000x1500.jpg";
 import type { HomePageVideoHookResult } from "@/SpecFetures/1810/Pages/Client/Index/HomePage_Loader";
 import type { Lang } from "@/SysCore/i18n/lang";

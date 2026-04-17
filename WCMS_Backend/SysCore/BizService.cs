@@ -1364,32 +1364,33 @@ namespace WCMS.SysCore
                     case "in":
                     case "not in":
                         {
+                            // 宣告變數：取得欄位型別與實際比對型別
                             var cleaned = val?.Trim('(', ')') ?? "";
-
                             var fieldProp = PropertyAccessorCache.GetProperty(type, fieldExpr).PropertyType;
                             var targetType = Nullable.GetUnderlyingType(fieldProp) ?? fieldProp;
-                            var valuesArray = cleaned.Split(',').Select(v => v.Trim()).Where(v => !string.IsNullOrEmpty(v)).ToArray();
+                            var isIn = op.Equals("in", StringComparison.OrdinalIgnoreCase);
 
-                            dynamic convertedArray;
-                            if (targetType.IsEnum)
+                            // 執行：整理 in / not in 的值
+                            var valuesArray = cleaned
+                                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                .Select(v => v.Trim().Trim('\'', '"'))
+                                .Where(v => !string.IsNullOrWhiteSpace(v))
+                                .ToArray();
+
+                            if (valuesArray.Length == 0)
                             {
-                                var enumArray = Array.ConvertAll(valuesArray, v => System.Enum.ToObject(targetType, int.Parse(v)));
-                                var typedEnumArray = Array.CreateInstance(targetType, enumArray.Length);
-                                enumArray.CopyTo(typedEnumArray, 0);
-                                convertedArray = typedEnumArray;
+                                expr = isIn ? "false" : "true";
+                                break;
                             }
-                            else
-                            {
-                                convertedArray = valuesArray.Select(v => Convert.ChangeType(v, targetType)).ToArray();
-                            }
+
+                            // 執行：建立強型別陣列，避免 object[] 造成 Contains 解析失敗
+                            var convertedArray = BuildTypedConditionArray(valuesArray, targetType);
 
                             int paramIndex = args.Count;
                             args.Add(convertedArray);
 
-                            expr = op == "in"
-                                ? $"@{paramIndex}.Contains({fieldExpr})"
-                                : $"!@{paramIndex}.Contains({fieldExpr})";
-
+                            // return：nullable 欄位需要用 Value 比對
+                            expr = BuildInConditionExpr(fieldExpr, fieldProp, isIn, paramIndex);
                             break;
                         }
 
@@ -2075,6 +2076,58 @@ namespace WCMS.SysCore
             if (t.StartsWith("(") && t.EndsWith(")")) return t;
             // return
             return "(" + t + ")";
+        }
+        /// <summary>
+        /// 建立條件用的強型別陣列，避免 Dynamic LINQ Contains 無法推斷型別。
+        /// </summary>
+        private static Array BuildTypedConditionArray(string[] values, Type targetType)
+        {
+            // 宣告變數
+            var array = Array.CreateInstance(targetType, values.Length);
+
+            // 執行 function：逐筆轉成欄位實際型別
+            for (int i = 0; i < values.Length; i++)
+            {
+                array.SetValue(ConvertConditionValue(values[i], targetType), i);
+            }
+
+            // return
+            return array;
+        }
+
+        /// <summary>
+        /// 轉換條件值，支援 enum / Guid / 一般型別。
+        /// </summary>
+        private static object ConvertConditionValue(string raw, Type targetType)
+        {
+            // 宣告變數
+            var value = raw.Trim().Trim('\'', '"');
+
+            // 執行 function：依欄位型別轉換
+            if (targetType.IsEnum) return ParseEnumFromString(targetType, value);
+            if (targetType == typeof(Guid)) return Guid.Parse(value);
+            if (targetType == typeof(string)) return value;
+
+            // return
+            return Convert.ChangeType(value, targetType);
+        }
+
+        /// <summary>
+        /// 建立 in / not in 條件式，nullable value type 需先判斷 null。
+        /// </summary>
+        private static string BuildInConditionExpr(string fieldExpr, Type fieldType, bool isIn, int paramIndex)
+        {
+            // 宣告變數
+            var isNullableValueType = Nullable.GetUnderlyingType(fieldType) != null;
+
+            // 執行 function：非 nullable 欄位可直接比對
+            if (!isNullableValueType)
+                return isIn ? $"@{paramIndex}.Contains({fieldExpr})" : $"!@{paramIndex}.Contains({fieldExpr})";
+
+            // return：nullable 欄位需用 Value 比對
+            return isIn
+                ? $"{fieldExpr} != null && @{paramIndex}.Contains({fieldExpr}.Value)"
+                : $"{fieldExpr} == null || !@{paramIndex}.Contains({fieldExpr}.Value)";
         }
 
         #endregion

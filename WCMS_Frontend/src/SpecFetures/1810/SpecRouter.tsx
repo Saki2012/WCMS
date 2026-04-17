@@ -5,19 +5,16 @@ import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx
 import {
     type ISpecResearchListOptions,
     SpecResearchListComp,
-} from "@/SpecFetures/1810/Pages/Client/BizFunc/WebManagement/SpecResearch/SpecResearch_List_Comp";
-import { SpecUSRFormComp } from "@/SpecFetures/1810/Pages/Client/BizFunc/WebManagement/SpecUSR/SpecUSR_Form_Comp";
-import { SpecUSRListComp } from "@/SpecFetures/1810/Pages/Client/BizFunc/WebManagement/SpecUSR/SpecUSR_List";
+} from "@/SpecFetures/1810/Pages/Client/BizFunc/WEB/SpecResearch/SpecResearch_List_Comp";
+import { SpecUSRFormComp } from "@/SpecFetures/1810/Pages/Client/BizFunc/WEB/SpecUSR/SpecUSR_Form_Comp";
+import { SpecUSRListComp } from "@/SpecFetures/1810/Pages/Client/BizFunc/WEB/SpecUSR/SpecUSR_List";
 import SubPage from "@/SpecFetures/1810/Pages/Client/Scaffold/SubPages/SubPage";
 import type { IHeaderMetaProps } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 
-import { SpecResearchList_Loader } from "./Pages/Client/BizFunc/WebManagement/SpecResearch/SpecResearch_List_Loader";
-import { SpecUSRForm_Loader } from "./Pages/Client/BizFunc/WebManagement/SpecUSR/SpecUSR_Form_Loader";
-import {
-    type ISpecUSRListOptions,
-    SpecUSRList_Loader,
-} from "./Pages/Client/BizFunc/WebManagement/SpecUSR/SpecUSR_List_Loader";
+import { SpecResearchList_Loader } from "./Pages/Client/BizFunc/WEB/SpecResearch/SpecResearch_List_Loader";
+import { SpecUSRForm_Loader } from "./Pages/Client/BizFunc/WEB/SpecUSR/SpecUSR_Form_Loader";
+import { type ISpecUSRListOptions, SpecUSRList_Loader } from "./Pages/Client/BizFunc/WEB/SpecUSR/SpecUSR_List_Loader";
 
 export const specClientEntries: Record<string, ModuleEntry> = {
     SpecUSR: {
