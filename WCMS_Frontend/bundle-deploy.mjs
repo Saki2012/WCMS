@@ -10,6 +10,7 @@
 //   WinSW-x64.xml
 //   WinSW-x64.exe
 //   web.config.bak / .env.production.bak / .env (可選)
+//   {SpecCode}dist-yyyy-mm-dd hh.mm.zip
 
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -19,6 +20,10 @@ import { execFileSync } from "node:child_process";
 const DEPLOY_COPY_ROOT_MANIFEST = false;   // false: 不在 dist 根目錄放 manifest.json
 const DEPLOY_WRITE_CJS_BOOTSTRAP = false;  // false: 不產出 SSR-Server.cjs（只跑 SSR-Server.mjs）
 const DEPLOY_WINSW_EXE_NAME = "WinSW-x64.exe";
+
+// ===== ZIP 設定 =====
+const DEPLOY_CREATE_DIST_ZIP = true;
+const DEPLOY_ZIP_TEMP_DIR_NAME = ".__dist_zip_temp";
 
 const getServerEntryFileName = () =>
 {
@@ -33,6 +38,12 @@ const pathExists = async (absPath) =>
 {
   // 檢查路徑是否存在
   try { await fs.access(absPath); return true; } catch { return false; }
+};
+
+const ensureDir = async (absDir) =>
+{
+  // 確保資料夾存在
+  await fs.mkdir(absDir, { recursive: true });
 };
 
 const ensureDirForFile = async (absFilePath) =>
@@ -60,6 +71,13 @@ const copyDirIfExists = async (src, dest) =>
   return true;
 };
 
+const removeIfExists = async (absPath) =>
+{
+  // 存在才刪除
+  if (!(await pathExists(absPath))) return;
+  await fs.rm(absPath, { recursive: true, force: true });
+};
+
 const copyMaintainPageToDist = async (root, distDir) =>
 {
   // 複製維護頁資料夾到 dist/MaintainPage
@@ -72,13 +90,6 @@ const copyMaintainPageToDist = async (root, distDir) =>
   {
     throw new Error(`[bundle-deploy] MaintainPage not found at root: ${src}`);
   }
-};
-
-const removeIfExists = async (absPath) =>
-{
-  // 存在才刪除
-  if (!(await pathExists(absPath))) return;
-  await fs.rm(absPath, { recursive: true, force: true });
 };
 
 const copyWinSwExeToDist = async (root, distDir) =>
@@ -172,7 +183,7 @@ const parseEnvText = (envText) =>
 
 const sanitizeServiceToken = (value) =>
 {
-  // 將字串收斂成適合放 service id 的安全 token
+  // 將字串收斂成適合放 service id / 檔名前綴的安全 token
   const text = String(value ?? "").trim();
   if (!text) return "default";
 
@@ -207,6 +218,7 @@ const pickPkgName = (specifier) =>
     const [a, b] = specifier.split("/");
     return b ? `${a}/${b}` : specifier;
   }
+
   return specifier.split("/")[0];
 };
 
@@ -223,6 +235,7 @@ const parseStaticImportPackages = (tsText) =>
     if (spec.startsWith("node:")) continue;
     if (spec.startsWith(".")) continue;
     if (spec.startsWith("/")) continue;
+
     pkgs.add(pickPkgName(spec));
   }
 
@@ -537,9 +550,204 @@ const pruneLegacyBuildDirs = async (distDir) =>
   }
 };
 
+const pad2 = (value) =>
+{
+  // 補成兩位數
+  return String(value).padStart(2, "0");
+};
+
+const formatZipDateToken = (date) =>
+{
+  // 產生 yyyy-mm-dd hh.mm
+  const yyyy = date.getFullYear();
+  const mm = pad2(date.getMonth() + 1);
+  const dd = pad2(date.getDate());
+  const hh = pad2(date.getHours());
+  const mi = pad2(date.getMinutes());
+
+  return `${yyyy}-${mm}-${dd} ${hh}.${mi}`;
+};
+
+const buildDistZipFileName = async (root) =>
+{
+  // 產生 dist zip 檔名
+  const specCode = await getSpecCodeFromProdEnv(root);
+  const timeToken = formatZipDateToken(new Date());
+
+  return `(${specCode}) dist-${timeToken}.zip`;
+};
+
+const findPathCommand = (commandName) =>
+{
+  // 從 PATH 尋找指令
+  const checker = process.platform === "win32" ? "where" : "which";
+
+  try
+  {
+    execFileSync(checker, [commandName], { stdio: "ignore" });
+    return commandName;
+  }
+  catch
+  {
+    return "";
+  }
+};
+
+const findSevenZipCommand = async () =>
+{
+  // 尋找 7-Zip，優先用 7-Zip 最高壓縮率
+  const names = process.platform === "win32" ? ["7z.exe", "7za.exe"] : ["7z", "7zz", "7za"];
+
+  for (const name of names)
+  {
+    const command = findPathCommand(name);
+    if (command) return command;
+  }
+
+  if (process.platform !== "win32") return "";
+
+  const candidates = [
+    path.resolve(process.env.ProgramFiles ?? "", "7-Zip", "7z.exe"),
+    path.resolve(process.env["ProgramFiles(x86)"] ?? "", "7-Zip", "7z.exe"),
+  ];
+
+  for (const candidate of candidates)
+  {
+    if (await pathExists(candidate)) return candidate;
+  }
+
+  return "";
+};
+
+const findPowerShellCommand = () =>
+{
+  // 尋找 PowerShell 指令
+  const psExe = findPathCommand("powershell.exe");
+  if (psExe) return psExe;
+
+  const ps = findPathCommand("powershell");
+  if (ps) return ps;
+
+  return "powershell";
+};
+
+const zipBySevenZip = (sevenZip, distDir, zipPath) =>
+{
+  // 使用 7-Zip 最高壓縮率壓縮 dist 內容
+  execFileSync(
+    sevenZip,
+    ["a", "-tzip", "-mx=9", "-mmt=on", zipPath, "."],
+    { cwd: distDir, stdio: "inherit" },
+  );
+};
+
+const zipByPowerShell = (distDir, zipPath) =>
+{
+  // 7-Zip 不存在時，使用 PowerShell 內建 Optimal 壓縮
+  const command = findPowerShellCommand();
+  const script = [
+    "$SourceDir = $args[0]",
+    "$ZipPath = $args[1]",
+    "$ErrorActionPreference = 'Stop'",
+    "Compress-Archive -Path (Join-Path $SourceDir '*') -DestinationPath $ZipPath -CompressionLevel Optimal -Force",
+  ].join("; ");
+
+  execFileSync(
+    command,
+    ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script, distDir, zipPath],
+    { stdio: "inherit" },
+  );
+};
+
+const zipByNativeZip = (distDir, zipPath) =>
+{
+  // 非 Windows 環境且沒有 7-Zip 時，使用 zip -9
+  const zip = findPathCommand("zip");
+  if (!zip) throw new Error("[bundle-deploy] 7-Zip / zip command not found.");
+
+  execFileSync(
+    zip,
+    ["-9", "-r", zipPath, "."],
+    { cwd: distDir, stdio: "inherit" },
+  );
+};
+
+const createZipArchive = async (distDir, zipPath) =>
+{
+  // 建立 zip，優先 7-Zip，其次 PowerShell / zip
+  const sevenZip = await findSevenZipCommand();
+
+  if (sevenZip)
+  {
+    zipBySevenZip(sevenZip, distDir, zipPath);
+    return;
+  }
+
+  if (process.platform === "win32")
+  {
+    console.warn("[bundle-deploy] 7-Zip not found. Fallback to PowerShell Compress-Archive.");
+    zipByPowerShell(distDir, zipPath);
+    return;
+  }
+
+  zipByNativeZip(distDir, zipPath);
+};
+
+const isGeneratedDistZipName = (fileName) =>
+{
+  // 判斷是否為本腳本產出的 dist zip
+  return /^[a-zA-Z0-9_-]+dist-\d{4}-\d{2}-\d{2} \d{2}\.\d{2}\.zip$/.test(fileName);
+};
+
+const deleteOldDistZipFiles = async (distDir) =>
+{
+  // 刪除 dist 根目錄舊的自動打包 zip，避免重複包入
+  if (!(await pathExists(distDir))) return;
+
+  const entries = await fs.readdir(distDir, { withFileTypes: true });
+
+  for (const entry of entries)
+  {
+    if (!entry.isFile()) continue;
+    if (!isGeneratedDistZipName(entry.name)) continue;
+
+    await fs.rm(path.resolve(distDir, entry.name), { force: true });
+  }
+};
+
+const writeDistZip = async (root, distDir) =>
+{
+  // 將 dist 內容打包成 zip，最後放回 dist 根目錄
+  if (!DEPLOY_CREATE_DIST_ZIP) return;
+
+  const zipFileName = await buildDistZipFileName(root);
+  const tempDir = path.resolve(root, DEPLOY_ZIP_TEMP_DIR_NAME);
+  const tempZipPath = path.resolve(tempDir, zipFileName);
+  const finalZipPath = path.resolve(distDir, zipFileName);
+
+  await deleteOldDistZipFiles(distDir);
+  await removeIfExists(tempDir);
+  await ensureDir(tempDir);
+
+  try
+  {
+    await removeIfExists(tempZipPath);
+    await removeIfExists(finalZipPath);
+
+    await createZipArchive(distDir, tempZipPath);
+    await fs.rename(tempZipPath, finalZipPath);
+
+    console.log(`[bundle-deploy] zip created: ${finalZipPath}`);
+  }
+  finally
+  {
+    await removeIfExists(tempDir);
+  }
+};
+
 const run = async () =>
 {
-  // 主流程：build SSR server + 寫 dist runtime 檔案 + 清理垃圾
+  // 主流程：build SSR server + 寫 dist runtime 檔案 + 清理垃圾 + 壓縮 dist
   const root = process.cwd();
   const distDir = path.resolve(root, "dist");
   const distCSR = path.resolve(distDir, "CSR");
@@ -547,7 +755,7 @@ const run = async () =>
 
   if (!(await pathExists(distCSR)) || !(await pathExists(distSSR)))
   {
-    throw new Error("dist/CSR 或 dist/SSR 不存在，請先執行 npm run build");
+    throw new Error("dist/CSR 或 dist/SSR 不存在，請先完成 CSR/SSR 編譯");
   }
 
   await removeIfExists(path.resolve(distDir, "SSR-Server.ts"));
@@ -565,7 +773,7 @@ const run = async () =>
   await writeDistDotEnv(root, distDir);
   await copyFileIfExists(path.resolve(root, "web.config"), path.resolve(distDir, "web.config.bak"));
   await copyMaintainPageToDist(root, distDir);
-  
+
   const ssrServerTsText = await fs.readFile(path.resolve(root, "src/SSR/SSR-Server.ts"), "utf-8");
   const rootPkg = JSON.parse(await fs.readFile(path.resolve(root, "package.json"), "utf-8"));
   const distDeps = buildDistDependencies(rootPkg, ssrServerTsText);
@@ -580,6 +788,7 @@ const run = async () =>
   await handleViteManifest(distDir);
   await deleteSourcemapsUnder(distDir);
   await pruneLegacyBuildDirs(distDir);
+  await writeDistZip(root, distDir);
 };
 
 run().catch((e) =>

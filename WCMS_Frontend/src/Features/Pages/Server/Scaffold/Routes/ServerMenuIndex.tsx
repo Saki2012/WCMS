@@ -1,6 +1,5 @@
 import { ServerModuleRoutes } from "@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData";
 import type {
-    IActionHandle,
     IActionMeta,
     IModuleMeta,
     IProgMeta,

@@ -123,6 +123,11 @@
 
 	
 	<ItemGroup>
+	  <Content Include="Scripts\Zip-PublishedBackend.ps1" />
+	</ItemGroup>
+
+	
+	<ItemGroup>
 	  <EmbeddedResource Update="SpecFeatures\Spec1816\_Resx\SpecMessageCode.zh-TW.resx">
 	    <SubType>Designer</SubType>
 	  </EmbeddedResource>

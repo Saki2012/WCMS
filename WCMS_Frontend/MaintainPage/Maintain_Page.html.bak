@@ -8,8 +8,8 @@
 		<meta name="description" content=""/>
 		<meta name="author" content=""/>	
 		<title>網站目前維護中</title>
-		<link type="text/css" rel="stylesheet" href="MaintainPage/bootstrap.min.css" />
-		<link type="text/css" rel="stylesheet" href="MaintainPage/error.css" />
+		<link type="text/css" rel="stylesheet" href="/MaintainPage/bootstrap.min.css" />
+		<link type="text/css" rel="stylesheet" href="/MaintainPage/error.css" />
 	</head>
 	<body>
 		<div id="error404">
@@ -21,7 +21,7 @@
 								<div class="error-area">
 									<div class="space text-center">
 										<div class="error-thumb">
-											<img src="MaintainPage/error-2.svg" alt="系統維護中">
+											<img src="/MaintainPage/error-2.svg" alt="系統維護中">
 										</div>
 										<div class="title-area text-center mb-0">
 											<h2 class="tw-title mb-0">網站目前維護中</h2>
