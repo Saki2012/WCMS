@@ -89,7 +89,7 @@ optional theme (yellow stroke)
 }
 
 .progress-wrap:focus {
-  background-color: var(--a_focuscolor, --Customize_FOCUScolor, #FFBD40);
+  background-color: var(--a_focuscolor, #FFBD40);
   text-decoration: none;
   outline: 2px solid var(--a_focusbordercolor, #43B5FC) !important;
 }

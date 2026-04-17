@@ -5969,8 +5969,8 @@ body .subpage_body_bg {
     
     padding-bottom: 15px;
     
-    backdrop-filter:saturate(280%); /* 飽和效果 */
-    -webkit-backdrop-filter:saturate(280%);
+    /* backdrop-filter:saturate(280%); 飽和效果 */
+    /* -webkit-backdrop-filter:saturate(280%); */
 }
 /*-------------------------------------*/
 .contact_section {

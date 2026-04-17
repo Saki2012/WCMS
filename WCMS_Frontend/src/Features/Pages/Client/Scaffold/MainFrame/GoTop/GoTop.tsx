@@ -199,7 +199,7 @@ export const GoTop: React.FC<GoTopProps> = ({
       </svg>
 
       {/* icon */}
-      <i className="fas fa-long-arrow-up progress-icon" aria-hidden="true"></i>
+      <i className="fas fa-long-arrow-up progress-icon fa fa-arrow-up" aria-hidden="true"></i>
     </button>
   );
 };

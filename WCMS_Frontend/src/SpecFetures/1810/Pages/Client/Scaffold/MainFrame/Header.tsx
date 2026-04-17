@@ -66,7 +66,7 @@ export const Header = ({ lang, site, style }: { lang: Lang; site: INormSite; sty
                     </header>
                 </section>
             </div>
-            <GoTopButton />
+            {/* <GoTopButton /> */}
         </>
     );
 };
