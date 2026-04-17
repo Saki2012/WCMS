@@ -7,7 +7,6 @@ import { useEffect, useRef } from "react";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
-import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap/Sitemap";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
@@ -134,7 +133,6 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
                 <Menu_Section {...props} />
                 <div className="overlayer" aria-hidden="true" />
             </div>
-            <GoTopButton />
         </>
     );
 };
