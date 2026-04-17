@@ -1,7 +1,3 @@
-import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
-import type { ReactNode } from "react";
-
 import { CalendarPageComp } from "@/Features/Pages/Server/BizFunc/COMM/Calendar/Server_Calendar_Comp";
 import { Server_CategoryListFormComp } from "@/Features/Pages/Server/BizFunc/COMM/Category/Server_Category_ListForm_Comp";
 import { Server_Person_Form_Comp } from "@/Features/Pages/Server/BizFunc/COMM/Person/Server_Person_Form_Comp";
@@ -23,6 +19,9 @@ import { PageListComp } from "@/Features/Pages/Server/BizFunc/WEB/PageManagement
 import { SiteMenu_Comp } from "@/Features/Pages/Server/BizFunc/WEB/SiteMenu/SiteMenu_Comp";
 import { WebResourceFormComp } from "@/Features/Pages/Server/BizFunc/WEB/WebResource/Server_WebResource_Form_Comp";
 import { WebResourceListComp } from "@/Features/Pages/Server/BizFunc/WEB/WebResource/Server_WebResource_List_Comp";
+import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
+import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
+import type { ReactNode } from "react";
 import { Server_ResetPassword_Comp } from "../../BizFunc/IAM/Account/Server_ResetPassword_Comp";
 import { Server_RolePermission_Form_Comp } from "../../BizFunc/IAM/RolePermission/Server_RolePermission_Form_Comp";
 import { Server_RolePermission_Comp } from "../../BizFunc/IAM/RolePermission/Server_RolePermission_List_Comp";
@@ -38,6 +37,8 @@ export interface IModuleMeta
 }
 export interface IProgMeta
 {
+    /** 前端選單唯一鍵，不影響後端 ProgId / 權限 */
+    MenuKey?: string;
     /** 程式單元代碼，對應後端既有的 ProgId */
     ProgId: string;
     Title: string;
@@ -78,7 +79,7 @@ const ServerModuleRoutesData: IModuleMeta[] = [
     {
         ModuleCode: "Dashboard",
         Title: "網站管理",
-        DefaultPath: "/Server/Dashboard/SiteMenu",
+        DefaultPath: "/Server/Dashboard/SiteMenu/List",
         IconClassName: "fas fa-tachometer-alt",
         Progs: [
             {

@@ -36,6 +36,7 @@ const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
             ],
         },
         {
+            MenuKey: `${PGID.SpecJournal}_Preprint`,
             ProgId: PGID.SpecJournal,
             Title: "預刊本",
             DefaultActionCode: "Preprint/List",
@@ -78,6 +79,7 @@ const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
             ],
         },
         {
+            MenuKey: `${PGID.SpecJournal}_Journal`,
             ProgId: PGID.SpecJournal,
             Title: "期刊",
             DefaultActionCode: "List",
