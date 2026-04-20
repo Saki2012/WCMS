@@ -244,7 +244,7 @@
 /* ===== [ 第二 / 三 / 四層 HOVER + ACTIVE ] ======================= */
 .pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-item.open-trigger > .pc-link,
 .pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-item.active > .pc-link {    
-    color: var(--FFFcolor);
+    color: var(--blackcolor);
 }
 .pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-item.open-trigger > .pc-link,
 .pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-item:hover > .pc-link {
