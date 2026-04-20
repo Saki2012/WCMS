@@ -311,6 +311,11 @@ body .subpage_body_bg {
 .header_section .HeaderDivBox .leftBox .logo.hide {
     display: none;    
 }
+
+.header_section .HeaderDivBox .leftBox .logo a.P_logo:focus,
+.header_section .HeaderDivBox .leftBox .logo a.P_logo:focus-visible{
+    outline: transparent;
+}
 /* --// header.logo //------------------------- */
 /*----------------------------------------------*/
 

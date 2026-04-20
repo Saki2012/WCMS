@@ -403,7 +403,7 @@ const SubMenu_1816_Comp: React.FC<{
         <div className="col-xl-2 col-lg-3 col-md-12 col-sm-12 col-12">
             <div id="ContentPlaceContent_ContentSubMenu" className="col-sm-12 col-12 px-0 SubPage-leftMenu">
                 <div id="SubPage-SidebarMenu">
-                    <nav className="sidebar mb-5">
+                    <nav className="sidebar sidebar-custom mb-5">
                         <ul className="nav list-group" id="nav_accordion">
                             {renderItems(menuItems)}
                         </ul>
