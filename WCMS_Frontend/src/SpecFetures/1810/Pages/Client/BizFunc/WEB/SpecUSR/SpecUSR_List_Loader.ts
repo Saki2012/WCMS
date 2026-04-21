@@ -6,13 +6,14 @@ import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { type ApiResponse, getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
-import { SpecCategoryModelFields, SpecUSRDetailFields, SpecUSRModelFields } from "@/types/SchemaFields";
+import { PGID, SpecCategoryModelFields, SpecUSRDetailFields, SpecUSRModelFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
 import { type LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
+type ShowColumnMap = Record<string, string>;
 
 const EMPTY_QUERY: QueryListParam = { Fields: [], Condition: "1=0", PageNumber: 0, PageSize: 0 };
 
@@ -30,20 +31,6 @@ const SUPPORTED_KEYS: string[] = [
     SpecUSRDetailFields.Commissioned,
 ];
 
-const DEFAULT_TITLE_MAP: Record<string, string> = {
-    [SpecUSRDetailFields.Year]: SpecUSRDetailFields.Year,
-    [SpecUSRDetailFields.ProjectLeader]: SpecUSRDetailFields.ProjectLeader,
-    [SpecUSRDetailFields.ProjectSubLeader]: SpecUSRDetailFields.ProjectSubLeader,
-    [SpecUSRDetailFields.ExternalCooperationUnit]: SpecUSRDetailFields.ExternalCooperationUnit,
-    [SpecUSRDetailFields.Department]: SpecUSRDetailFields.Department,
-    [SpecUSRDetailFields.ProjectItem]: SpecUSRDetailFields.ProjectItem,
-    [SpecUSRDetailFields.PlanAmount]: SpecUSRDetailFields.PlanAmount,
-    [SpecUSRDetailFields.DuringExecution]: SpecUSRDetailFields.DuringExecution,
-    [SpecUSRDetailFields.Cohost1]: SpecUSRDetailFields.Cohost1,
-    [SpecUSRDetailFields.Cohost2]: SpecUSRDetailFields.Cohost2,
-    [SpecUSRDetailFields.Commissioned]: SpecUSRDetailFields.Commissioned,
-};
-
 export interface ISpecUSRListOptions
 {
     Category?: string;
@@ -55,6 +42,7 @@ export interface SpecUSRListLoaderArgs
     lang: Lang | string;
     categoryId: string;
     tagIds: string;
+    showColProgId: PGID;
     baseParam: QueryListParam | null;
     showColParam: QueryListParam | null;
 }
@@ -64,6 +52,7 @@ export interface SpecUSRListLoaderRes
     listRes: SpecUSRSet[];
     showColRowsRes: SpecCategorySet[];
     showColumnItemsRes: string[];
+    showColumnMapRes: ShowColumnMap;
 }
 
 export interface SpecUSRListLoaderData
@@ -161,7 +150,7 @@ const buildShowColParam = (categoryId: string): QueryListParam | null =>
     };
 };
 
-/** 解析 ShowColumnItems */
+/** 解析 category 的 ShowColumnItems */
 const buildShowColumnItems = (raw?: string | null): string[] =>
 {
     const seen = new Set<string>();
@@ -173,10 +162,28 @@ const buildShowColumnItems = (raw?: string | null): string[] =>
         .map(p => (seen.add(p), p));
 };
 
-/** 建立顯示欄位標題 */
-const buildShowColTitle = (): ColumnConfig[] =>
+/** 正規化後端顯示欄位 title map */
+const normalizeShowColumnMap = (raw?: ShowColumnMap | null): ShowColumnMap =>
 {
-    return SUPPORTED_KEYS.map(key => ({ key, title: DEFAULT_TITLE_MAP[key] ?? key }));
+    const map: ShowColumnMap = {};
+    const seen = new Set<string>();
+
+    for (const [rawKey, rawValue] of Object.entries(raw ?? {}))
+    {
+        const key = String(rawKey ?? "").split(".").pop()?.trim() ?? "";
+        if (!key || !SUPPORTED_KEYS.includes(key) || seen.has(key)) continue;
+
+        seen.add(key);
+        map[key] = String(rawValue ?? key);
+    }
+
+    return map;
+};
+
+/** 建立顯示欄位標題 */
+const buildShowColTitle = (showColumnMap: ShowColumnMap): ColumnConfig[] =>
+{
+    return SUPPORTED_KEYS.map(key => ({ key, title: showColumnMap[key] ?? key }));
 };
 
 /** 是否可沿用 SSR show column initial */
@@ -185,6 +192,13 @@ const canUseShowColInitial = (loaderData: SpecUSRListLoaderData | null, category
     if (!loaderData?.args?.showColParam) return false;
     if (loaderData.args.categoryId !== categoryId) return false;
     return true;
+};
+
+/** 是否可沿用 SSR show column title initial */
+const canUseShowColMapInitial = (loaderData: SpecUSRListLoaderData | null) =>
+{
+    if (!loaderData?.args) return false;
+    return loaderData.args.showColProgId === PGID.SpecUSR;
 };
 
 /** 是否可沿用 SSR list initial */
@@ -216,6 +230,14 @@ export const SpecUSRList_Loader =
 
         let showColRowsRes: SpecCategorySet[] = [];
         let showColumnItemsRes: string[] = [];
+        let showColumnMapRes: ShowColumnMap = {};
+
+        const showColMapLoader = category.loader.getShowColItemsLoader({
+            progId: PGID.SpecUSR,
+            getApiInstance: () => ssrApi,
+        });
+        const showColMapLD = await showColMapLoader({ request } as LoaderFunctionArgs);
+        showColumnMapRes = normalizeShowColumnMap(showColMapLD.apiRes.Data ?? {});
 
         if (showColParam)
         {
@@ -232,8 +254,8 @@ export const SpecUSRList_Loader =
         if (!baseParam)
         {
             return {
-                args: { lang: p.lang, categoryId, tagIds, baseParam: null, showColParam },
-                res: { listRes: [], showColRowsRes, showColumnItemsRes },
+                args: { lang: p.lang, categoryId, tagIds, showColProgId: PGID.SpecUSR, baseParam: null, showColParam },
+                res: { listRes: [], showColRowsRes, showColumnItemsRes, showColumnMapRes },
             };
         }
 
@@ -245,11 +267,12 @@ export const SpecUSRList_Loader =
         const listLD = await listLoader({ request } as LoaderFunctionArgs);
 
         return {
-            args: { lang: p.lang, categoryId, tagIds, baseParam, showColParam },
+            args: { lang: p.lang, categoryId, tagIds, showColProgId: PGID.SpecUSR, baseParam, showColParam },
             res: {
                 listRes: listLD.apiRes.Data ?? [],
                 showColRowsRes,
                 showColumnItemsRes,
+                showColumnMapRes,
             },
         };
     };
@@ -274,11 +297,29 @@ export const useSpecUSRListFetchData = (p: {
         return buildLoaderInitial(loaderData!.args.showColParam!, loaderData?.res?.showColRowsRes ?? []);
     }, [loaderData, categoryId]);
 
+    const showColMapInitial = useMemo<ApiLoaderData<PGID, ShowColumnMap> | null>(() =>
+    {
+        if (!canUseShowColMapInitial(loaderData)) return null;
+        return buildLoaderInitial(PGID.SpecUSR, loaderData?.res?.showColumnMapRes ?? {});
+    }, [loaderData]);
+
     const listInitial = useMemo<ApiLoaderData<QueryListParam, SpecUSRSet[]> | null>(() =>
     {
         if (!canUseListInitial(loaderData, { lang: p.lang, categoryId, tagIds })) return null;
         return buildLoaderInitial(loaderData!.args.baseParam!, loaderData?.res?.listRes ?? []);
     }, [loaderData, p.lang, categoryId, tagIds]);
+
+    /** 顯示欄位 title hook */
+    const useShowColMap = adapter.category.hooks.useGetShowColItems({
+        progId: PGID.SpecUSR,
+        initial: showColMapInitial,
+        deps: [PGID.SpecUSR],
+    });
+
+    const showColumnMap = useMemo(() =>
+    {
+        return normalizeShowColumnMap(useShowColMap.data ?? {});
+    }, [useShowColMap.data]);
 
     /** 顯示欄位 hook */
     const useShowCols = adapter.category.hooks.useQueryList({
@@ -305,18 +346,20 @@ export const useSpecUSRListFetchData = (p: {
         return {
             listData: useList.data ?? [],
             showColumnItems,
-            showColTitle: buildShowColTitle(),
+            showColTitle: buildShowColTitle(showColumnMap),
         };
-    }, [useList.data, showColumnItems]);
+    }, [useList.data, showColumnItems, showColumnMap]);
 
     const errorList = useMemo(() =>
     {
-        return [useShowCols.errorText, useList.errorText].filter((x): x is string => Boolean(x));
-    }, [useShowCols.errorText, useList.errorText]);
+        return [useShowColMap.errorText, useShowCols.errorText, useList.errorText].filter((x): x is string =>
+            Boolean(x)
+        );
+    }, [useShowColMap.errorText, useShowCols.errorText, useList.errorText]);
 
     return {
         rawData,
-        isLoading: Boolean(useShowCols.isLoading || useList.isLoading),
+        isLoading: Boolean(useShowColMap.isLoading || useShowCols.isLoading || useList.isLoading),
         errorList,
     };
 };

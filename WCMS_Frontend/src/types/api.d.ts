@@ -7156,6 +7156,455 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/SpecHomePageApi/Create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecHomePage1820Set_DTO"];
+                    "text/json": components["schemas"]["SpecHomePage1820Set_DTO"];
+                    "application/*+json": components["schemas"]["SpecHomePage1820Set_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecHomePageApi/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecHomePage1820Set_DTO"][];
+                    "text/json": components["schemas"]["SpecHomePage1820Set_DTO"][];
+                    "application/*+json": components["schemas"]["SpecHomePage1820Set_DTO"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecHomePageApi/Update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecHomePage1820Set_DTOApiRequest"];
+                    "text/json": components["schemas"]["SpecHomePage1820Set_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["SpecHomePage1820Set_DTOApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecHomePageApi/Invalid/{pk}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path: {
+                    pk: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/SpecHomePageApi/BatchInvalid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    isInvalid?: boolean;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/SpecHomePageApi/Delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecHomePageApi/BatchDelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecHomePageApi/QueryData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecHomePageApi/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecHomePageApi/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecHomePageApi/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/SpecJournal/GetAuthorByOrcid": {
         parameters: {
             query?: never;
@@ -11161,7 +11610,7 @@ export interface components {
             AnnouncementId?: string | null;
             /** @description 類別 */
             Categories?: string | null;
-            /** @description 組別 */
+            /** @description 標籤 */
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 封面圖片 */
@@ -11531,7 +11980,7 @@ export interface components {
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 類別 */
             CategoriesId?: string | null;
-            /** @description 組別 */
+            /** @description 標籤 */
             TagsId?: string | null;
             _FileArchiveInfo?: components["schemas"]["FileArchiveInfo_DTO"][] | null;
         };
@@ -11783,7 +12232,7 @@ export interface components {
             GalleryId?: string | null;
             /** @description 類別 */
             Categories?: string | null;
-            /** @description 組別 */
+            /** @description 標籤 */
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 相簿封面圖 */
@@ -12417,7 +12866,7 @@ export interface components {
          */
         SpecAuthorType: 0 | 1;
         SpecCategoryDetailModel_DTO: {
-            /** @description 類別代號 */
+            /** @description [SpecCategoryId] */
             CategoryId?: string | null;
             /**
              * Format: int32
@@ -12425,7 +12874,7 @@ export interface components {
              */
             RowId?: number;
             Lang?: components["schemas"]["LangCode"];
-            /** @description 計畫類別名稱 */
+            /** @description [SpecCategory_Name] */
             CategoryName?: string | null;
         };
         SpecCategoryModel_DTO: {
@@ -12453,11 +12902,11 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description 類別代號 */
+            /** @description [SpecCategoryId] */
             CategoryId?: string | null;
             /** @description 功能模塊代碼 */
             ProgId?: string | null;
-            /** @description 顯示欄位 */
+            /** @description [SpecCategory_ShowColumn] */
             ShowColumnItems?: string | null;
             _SpecCategoryDetail?: components["schemas"]["SpecCategoryDetailModel_DTO"][] | null;
         };
@@ -12489,6 +12938,174 @@ export interface components {
          * @enum {integer}
          */
         SpecDocumentType: 0 | 1 | 2 | 3 | 4;
+        SpecHomePage1820Model_DTO: {
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
+            CreateTime?: string | null;
+            /** @description 創建人 */
+            CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["Account_DTO"];
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
+            ModifyTime?: string | null;
+            /** @description 修改人 */
+            ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["Account_DTO"];
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            /** @description 首頁設定表ID */
+            HomePageId?: string | null;
+            /** @description 語系 */
+            Lang?: string | null;
+            /** @description 橫幅左側標語 */
+            Section1Title_L?: string | null;
+            /** @description 橫幅中間標語 */
+            Section1Title_M?: string | null;
+            /** @description 橫幅右側標語 */
+            Section1Title_R?: string | null;
+            /** @description 主視覺文案 */
+            HeroText?: string | null;
+            /** @description 主視覺文案查看更多連結 */
+            HeroText_ViewMoreLink?: string | null;
+            /** @description 公告區塊標題 */
+            AnnouncementTitle?: string | null;
+            /** @description 公告區塊副標題 */
+            AnnouncementSubTitle?: string | null;
+            /** @description 公告類別篩選條件 */
+            AnnouncementCategoryIds?: string | null;
+            /** @description 公告區塊查看更多連結 */
+            Announcement_ViewMoreLink?: string | null;
+            /** @description 資源區塊標題 */
+            Resource_Title?: string | null;
+            /** @description 資源區塊副標題 */
+            Resource_SubTitle?: string | null;
+            _SpecHomePage1820_BannerMedia?: components["schemas"]["SpecHomePage1820_BannerMedia_DTO"][] | null;
+            _SpecHomePage1820_Detail?: components["schemas"]["SpecHomePage1820_Detail_DTO"][] | null;
+            _SpecHomePage1820_Marquee?: components["schemas"]["SpecHomePage1820_Marquee_DTO"][] | null;
+            _SpecHomePage1820_Resource?: components["schemas"]["SpecHomePage1820_Resource_DTO"][] | null;
+        };
+        SpecHomePage1820Set_DTO: {
+            SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
+            /** @description 1820首頁BannerMedia子表 */
+            SpecHomePage1820_BannerMedia?: components["schemas"]["SpecHomePage1820_BannerMedia_DTO"][] | null;
+            /** @description 1820首頁介紹清單列表 */
+            SpecHomePage1820_Detail?: components["schemas"]["SpecHomePage1820_Detail_DTO"][] | null;
+            /** @description 1820首頁跑馬燈子表 */
+            SpecHomePage1820_Marquee?: components["schemas"]["SpecHomePage1820_Marquee_DTO"][] | null;
+            /** @description 1820首頁資源連結子表 */
+            SpecHomePage1820_Resource?: components["schemas"]["SpecHomePage1820_Resource_DTO"][] | null;
+        };
+        SpecHomePage1820Set_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SpecHomePage1820Set_DTO"];
+        };
+        SpecHomePage1820_BannerMedia_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description 首頁設定表ID */
+            HomePageId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number;
+            BannerFile?: components["schemas"]["FileManageModel_DTO"];
+            /** @description 橫幅媒體來源 */
+            BannerFileId?: string | null;
+            /** @description 橫幅媒體檔案說明 */
+            BannerFileDescription?: string | null;
+            _SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
+        };
+        SpecHomePage1820_Detail_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description 首頁設定表ID */
+            HomePageId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number;
+            /** @description 標題 */
+            Title?: string | null;
+            /** @description 副標題 */
+            SubTitle?: string | null;
+            MainPicture?: components["schemas"]["FileManageModel_DTO"];
+            /** @description 主視覺圖片來源 */
+            MainPictureId?: string | null;
+            /** @description 主視覺圖片說明 */
+            MainPictureDescription?: string | null;
+            SubPicture?: components["schemas"]["FileManageModel_DTO"];
+            /** @description 延伸視覺圖片來源 */
+            SubPictureId?: string | null;
+            /** @description 延伸視覺圖片說明 */
+            SubPictureDescription?: string | null;
+            /** @description 內文說明 */
+            Info?: string | null;
+            /** @description 主連結標題 */
+            MainLinkTitle?: string | null;
+            /** @description 主連結URL */
+            MainLink?: string | null;
+            /** @description 子連結標題(1) */
+            SubLinkTitle1?: string | null;
+            /** @description 子連結URL(2) */
+            SubLink1?: string | null;
+            /** @description 子連結標題(2) */
+            SubLinkTitle2?: string | null;
+            /** @description 子連結URL(2) */
+            SubLink2?: string | null;
+            /** @description 子連結標題(3) */
+            SubLinkTitle3?: string | null;
+            /** @description 子連結URL(3) */
+            SubLink3?: string | null;
+            _SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
+        };
+        SpecHomePage1820_Marquee_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description 首頁設定表ID */
+            HomePageId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number;
+            Picture?: components["schemas"]["FileManageModel_DTO"];
+            /** @description 相片來源 */
+            PictureId?: string | null;
+            /** @description 標題 */
+            PictureTitle?: string | null;
+            /** @description 是否隱藏 */
+            IsHide?: boolean;
+            _SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
+        };
+        SpecHomePage1820_Resource_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description 首頁設定表ID */
+            HomePageId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number;
+            /** @description 標題 */
+            PicTitle?: string | null;
+            /** @description 副標題 */
+            PicSubTitle?: string | null;
+            PicFile?: components["schemas"]["FileManageModel_DTO"];
+            /** @description 資源圖片來源 */
+            PicFileId?: string | null;
+            /** @description 網址 */
+            Link?: string | null;
+            _SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
+        };
         SpecJournalAuthor_DTO: {
             RowState?: components["schemas"]["RowState"];
             /** @description [Spec_JournalId] */
@@ -12564,7 +13181,7 @@ export interface components {
             SummaryFileId?: string | null;
             /** @description [Spec_SummaryFileName] */
             SummaryFileName?: string | null;
-            _SpecJournalIndex?: components["schemas"]["SpecMusicalModel_DTO"];
+            _SpecJournalIndex?: components["schemas"]["SpecJournalIndexModel_DTO"];
         };
         SpecJournalIndexModel_DTO: {
             /**
@@ -13182,7 +13799,7 @@ export interface components {
             Data?: components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
         };
         SpecResearchDetailModel_DTO: {
-            /** @description 研究計畫 */
+            /** @description [SpecResearchId] */
             ResearchId?: string | null;
             /**
              * Format: int32
@@ -13192,67 +13809,67 @@ export interface components {
             Lang?: components["schemas"]["LangCode"];
             /**
              * Format: int32
-             * @description 年度
+             * @description [SpecResearch_Year]
              */
             Year?: number | null;
             /**
              * Format: int32
-             * @description 學年度
+             * @description [SpecResearch_AcademicYear]
              */
             AcademicYear?: number | null;
-            /** @description 學期 */
+            /** @description [SpecResearch_Semester] */
             Semester?: string | null;
-            /** @description 執行期間 */
+            /** @description [SpecResearch_DuringExecution] */
             DuringExecution?: string | null;
-            /** @description 合約期間 */
+            /** @description [SpecResearch_ContractPeriod] */
             ContractPeriod?: string | null;
-            /** @description 上課時間 */
+            /** @description [SpecResearch_ClassTime] */
             ClassTime?: string | null;
-            /** @description 計畫主持人 */
+            /** @description [SpecResearch_ProjectLeader] */
             ProjectLeader?: string | null;
-            /** @description 姓名 */
+            /** @description [SpecResearch_Name] */
             Name?: string | null;
-            /** @description 本校教學人員 */
+            /** @description [SpecResearch_TeachingStaffOfOurSchool] */
             TeachingStaffOfOurSchool?: string | null;
-            /** @description 核定編號 */
+            /** @description [SpecResearch_ApprovalNumber] */
             ApprovalNumber?: string | null;
             /**
              * Format: double
-             * @description 核定金額
+             * @description [SpecResearch_ApprovedAmount]
              */
             ApprovedAmount?: number | null;
-            /** @description 學院 */
+            /** @description [SpecResearch_College] */
             College?: string | null;
-            /** @description 系所 */
+            /** @description [SpecResearch_Department] */
             Department?: string | null;
-            /** @description 學位 */
+            /** @description [SpecResearch_Degree] */
             GraduationDegree?: string | null;
-            /** @description 合作單位/學校 */
+            /** @description [SpecResearch_CoUnits] */
             CooperatingUnits?: string | null;
-            /** @description 合作項目 */
+            /** @description [SpecResearch_CoProject] */
             CooperationProject?: string | null;
-            /** @description 課程/社團 */
+            /** @description [SpecResearch_Courses] */
             Courses?: string | null;
-            /** @description 計畫名稱 */
+            /** @description [SpecResearch_ProjectName] */
             ProjectName?: string | null;
-            /** @description 論文名稱 */
+            /** @description [SpecResearch_PaperTitle] */
             PaperTitle?: string | null;
-            /** @description 備註 */
+            /** @description [SpecResearch_Remark] */
             Remark?: string | null;
-            /** @description 共同主持人 */
+            /** @description [SpecResearch_Cohost1] */
             Cohost1?: string | null;
-            /** @description 協同主持人 */
+            /** @description [SpecResearch_Cohost2] */
             Cohost2?: string | null;
-            /** @description 委辦/補助單位 */
+            /** @description [SpecResearch_Commissioned] */
             Commissioned?: string | null;
             /**
              * Format: double
-             * @description 計畫金額
+             * @description [SpecResearch_PlanAmount]
              */
             PlanAmount?: number | null;
-            /** @description 計畫內容簡介 */
+            /** @description [SpecResearch_PlanContent] */
             PlanContent?: string | null;
-            /** @description 指導教授 */
+            /** @description [SpecResearch_Professor] */
             Professor?: string | null;
         };
         SpecResearchModel_DTO: {
@@ -13280,12 +13897,12 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description 研究計畫 */
+            /** @description [SpecResearchId] */
             ResearchId?: string | null;
-            /** @description 計畫類別 */
+            /** @description [SpecResearch_Categories] */
             CategoryId?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
-            /** @description 標籤 */
+            /** @description [SpecResearch_Tags] */
             Tags?: string | null;
             _SpecResearchDetail?: components["schemas"]["SpecResearchDetailModel_DTO"][] | null;
         };
@@ -13298,7 +13915,7 @@ export interface components {
             Data?: components["schemas"]["SpecResearchSet_DTO"];
         };
         SpecUSRDetail_DTO: {
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
             /**
              * Format: int32
@@ -13306,67 +13923,67 @@ export interface components {
              */
             RowId?: number;
             Lang: components["schemas"]["LangCode"];
-            /** @description 年度 */
+            /** @description [SpecUSR_Year] */
             Year?: string | null;
             /**
              * Format: int32
-             * @description 學年度
+             * @description [SpecUSR_AcademicYear]
              */
             AcademicYear?: number | null;
-            /** @description 課程/活動名稱 */
+            /** @description [SpecUSR_Courses] */
             Courses?: string | null;
-            /** @description 實踐領域 */
+            /** @description [SpecUSR_PracticeField] */
             PracticeField?: string | null;
-            /** @description 計畫名稱 */
+            /** @description [SpecUSR_ProjectName] */
             ProjectName?: string | null;
-            /** @description 外部合作單位 */
+            /** @description [SpecUSR_ExternalCoUnits] */
             ExternalCooperationUnit?: string | null;
-            /** @description 本校執行系所/單位 */
+            /** @description [SpecUSR_Department] */
             Department?: string | null;
-            /** @description 執行期間 */
+            /** @description [SpecUSR_DuringExecution] */
             DuringExecution?: string | null;
             /**
              * Format: double
-             * @description 計畫金額
+             * @description [SpecUSR_PlanAmount]
              */
             PlanAmount?: number | null;
-            /** @description 執行策略 */
+            /** @description [SpecUSR_ExecutionStrategy] */
             ExecutionStrategy?: string | null;
-            /** @description 計畫內容簡介 */
+            /** @description [SpecUSR_ContentIntro] */
             ContentIntroduction?: string | null;
-            /** @description 計畫理念 */
+            /** @description [SpecUSR_ProjectConcept] */
             ProjectConcept?: string | null;
-            /** @description 計畫亮點 */
+            /** @description [SpecUSR_KeyHighlights] */
             ProjectHighlights?: string | null;
-            /** @description 計畫主持人 */
+            /** @description [SpecUSR_ProjectLeader] */
             ProjectLeader?: string | null;
-            /** @description 子計畫主持人 */
+            /** @description [SpecUSR_ProjectSubLeader] */
             ProjectSubLeader?: string | null;
-            /** @description 參與之師生或團隊 */
+            /** @description [SpecUSR_AttendTeam] */
             AttendTeam?: string | null;
-            /** @description 共同主持人 */
+            /** @description [SpecUSR_Cohost1] */
             Cohost1?: string | null;
-            /** @description 協同主持人 */
+            /** @description [SpecUSR_Cohost2] */
             Cohost2?: string | null;
-            /** @description 委辦/補助單位 */
+            /** @description [SpecUSR_Commissioned] */
             Commissioned?: string | null;
-            /** @description 備註 */
+            /** @description [SpecUSR_Remark] */
             Remark?: string | null;
-            /** @description 計畫類別 */
+            /** @description [SpecUSR_ProjectItem] */
             ProjectItem?: string | null;
             /**
              * @deprecated
-             * @description 相關網址
+             * @description [SpecUSR_Url]
              */
             Url?: string | null;
             /**
              * @deprecated
-             * @description 相關網址說明
+             * @description [SpecUSR_UrlDescription]
              */
             UrlDescription?: string | null;
         };
         SpecUSRFile_DTO: {
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
             /**
              * Format: int32
@@ -13410,23 +14027,23 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
-            /** @description 計畫類別 */
+            /** @description [SpecResearch_Categories] */
             CategoryId?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
-            /** @description 標籤 */
+            /** @description [SpecResearch_Tags] */
             Tags?: string | null;
             Picture?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 成果照片 */
+            /** @description [SpecUSR_PictureId] */
             PictureId?: string | null;
-            /** @description 圖片說明 */
+            /** @description [SpecUSR_PicDescription] */
             PicDescription?: string | null;
             _SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"][] | null;
             _SpecUSRPhoto?: components["schemas"]["SpecUSRPhoto_DTO"][] | null;
         };
         SpecUSRPhotoInfo_DTO: {
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
             /**
              * Format: int32
@@ -13444,7 +14061,7 @@ export interface components {
             _SpecUSRPhoto?: components["schemas"]["SpecUSRPhoto_DTO"];
         };
         SpecUSRPhoto_DTO: {
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
             /**
              * Format: int32
@@ -13474,7 +14091,7 @@ export interface components {
             Data?: components["schemas"]["SpecUSRSet_DTO"];
         };
         SpecUSRUrl_DTO: {
-            /** @description USR計畫 */
+            /** @description [SpecUSRId] */
             USRId?: string | null;
             /**
              * Format: int32
@@ -13626,7 +14243,7 @@ export interface components {
             WebResourceId?: string | null;
             /** @description 類別 */
             Categories?: string | null;
-            /** @description 組別 */
+            /** @description 標籤 */
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
             /** @description 封面圖片 */

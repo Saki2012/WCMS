@@ -5,8 +5,8 @@
 // 3. 找不到就直接 fallback 到 Feature base
 // 4. 不再讓 _default 介入 component resolver，避免空殼覆蓋 Feature
 import { HomePage as DefaultHomePage } from "@/Features/Pages/Client/Index/HomePage";
+import { HomePageLoader as HomePageLoaderBase } from "@/Features/Pages/Client/Index/HomePage_Loader";
 import { resolveSpecComponent, resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
-import { HomePageLoader as HomePageLoaderBase } from "SpecFeature/Pages/Client/Index/HomePage_Loader";
 // ---------------- Feature 基準版元件 ----------------
 import AnnouncementFormCompBase from "@/Features/Pages/Client/BizFunc/WEB/Announcement/AnnouncementForm";
 import AnnouncementListBase, {

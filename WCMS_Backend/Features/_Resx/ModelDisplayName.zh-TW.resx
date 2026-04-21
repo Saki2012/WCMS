@@ -723,4 +723,7 @@
   <data name="Spec" xml:space="preserve">
     <value>客製功能模組</value>
   </data>
+  <data name="Common_IsHide" xml:space="preserve">
+    <value>是否隱藏</value>
+  </data>
 </root>

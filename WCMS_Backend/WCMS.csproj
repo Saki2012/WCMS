@@ -137,5 +137,8 @@
 	  <EmbeddedResource Update="SpecFeatures\Spec1810\_Resx\SpecMessageCode.zh-TW.resx">
 	    <SubType>Designer</SubType>
 	  </EmbeddedResource>
+	  <EmbeddedResource Update="SpecFeatures\Spec1820\_Resx\SpecMessageCode.zh-TW.resx">
+	    <SubType>Designer</SubType>
+	  </EmbeddedResource>
 	</ItemGroup>
 </Project>

@@ -32,6 +32,7 @@ public static class ModelDisplayName
     public const string Common_Memo = "Common_Memo";
     public const string Common_SoundSrcId = "Common_SoundSrcId";
     public const string Common_Country = "Common_Country";
+    public const string Common_IsHide = "Common_IsHide";
     #endregion
 
     #region Enums

@@ -121,6 +121,10 @@ public static partial class ProgKeys
         /// </summary>
         public const ModuleCodeEnum Code = ModuleCodeEnum.WEB;
         /// <summary>
+        /// 首頁設定
+        /// </summary>
+        public const string HomePageSetting = nameof(HomePageSetting);
+        /// <summary>
         /// 公告管理
         /// </summary>
         public const  string Announcement = nameof(Announcement);
