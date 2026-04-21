@@ -26,7 +26,7 @@ public class SpecHomePage1820Model : MasterDataModel
 {
 
     [LibDesc(SpecModelDisplayName.HomePageId), Key, StringLength(SysLengthParam.ID)] public string HomePageId { get; set; }
-    [LibDesc(ModelDisplayName.Common_Lang),StringLength(SysLengthParam.Lang)] public string Lang { get; set; }
+    [LibDesc(ModelDisplayName.Common_Lang), StringLength(SysLengthParam.Lang)] public string Lang { get; set; }
 
     #region Section1 欄位
     [LibDesc(SpecModelDisplayName.Section1Title_L),StringLength(SysLengthParam.Title)] public string Section1Title_L { get; set; }
@@ -35,7 +35,7 @@ public class SpecHomePage1820Model : MasterDataModel
     #endregion
 
     #region Section2 欄位
-    [LibDesc(SpecModelDisplayName.HeroText), StringLength(SysLengthParam.Title)] public string HeroText { get; set; }
+    [LibDesc(SpecModelDisplayName.HeroText)] public string HeroText { get; set; }
     [LibDesc(SpecModelDisplayName.HeroTextUrl), StringLength(SysLengthParam.Url)] public string HeroText_ViewMoreLink { get; set; }
     #endregion
 

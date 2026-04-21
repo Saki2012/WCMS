@@ -76,9 +76,9 @@ const NavBar = (props: { lang: Lang; }) =>
     return (
         <li>
             <ul className="nav custom_nav py-0 justify-content-center my-1">
-                <a accessKey="U" href="#U" className="accesskey_header U" title="上方導覽區(U)" tabIndex={0}>:::</a>
+                <a accessKey="U" href="#U" className="accesskey_header U" title="上方導覽區(U)">:::</a>
                 <li className="nav-item">
-                    <LangLink className="nav-link" to="/" tabIndex={0} target="_self" title={title.Home}>
+                    <LangLink className="nav-link" to="/" target="_self" title={title.Home}>
                         {title.Home}
                     </LangLink>
                 </li>
@@ -86,7 +86,6 @@ const NavBar = (props: { lang: Lang; }) =>
                     <a
                         className="nav-link"
                         href="https://www.nchu.edu.tw/index1.php"
-                        tabIndex={0}
                         target="_blank"
                         rel="noopener noreferrer"
                         title={title.NCHU}
@@ -98,7 +97,6 @@ const NavBar = (props: { lang: Lang; }) =>
                     <LangNavLink
                         to={`/${SITEMAP_SEGMENT}`}
                         className="nav-link"
-                        tabIndex={0}
                         target="_self"
                         title={title.SiteMap}
                     >
@@ -140,7 +138,7 @@ const LogoComp = () =>
 {
     return (
         <h1 className="logo">
-            <LangLink className="navbar-brand my-0" to="/" tabIndex={0} title="">
+            <LangLink className="navbar-brand my-0" to="/" title="">
                 <img src={LogoImg} alt=" LOGO" />
             </LangLink>
         </h1>
@@ -154,13 +152,13 @@ const MobileBtn = () =>
                 <div className="icons">
                     <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-1 mx-0 d-inline-block d-sm-none">
                         {
-                            /* <a href="javascript:void(0);" className="search-button" type="button" role="button" title="搜尋" id="mobile-sss" data-bs-toggle="dropdown" aria-expanded="false" tabIndex={0}>
+                            /* <a href="javascript:void(0);" className="search-button" type="button" role="button" title="搜尋" id="mobile-sss" data-bs-toggle="dropdown" aria-expanded="false" >
                         <i className="far fa-search" aria-hidden="true"></i>
                         <span className="sr-only">搜尋</span>
                     </a>
                     <div className="searchdropdown dropdown-menu search-input-dropdown" aria-labelledby="mobile-sss">
-                        <input type="search" id="mobile-search-box" placeholder="search here..." tabIndex={0} />
-                        <button className="far fa-search" type="button" tabIndex={0}></button>
+                        <input type="search" id="mobile-search-box" placeholder="search here..."  />
+                        <button className="far fa-search" type="button" ></button>
                     </div> */
                         }
                     </div>
@@ -173,7 +171,6 @@ const MobileBtn = () =>
                 role="button"
                 data-bs-toggle="collapse"
                 data-bs-target="#navbar-content"
-                tabIndex={0}
                 aria-expanded="false"
             >
                 <div className="hamburger-toggle">
@@ -215,13 +212,13 @@ const PCBtn = () =>
             <div className="icons">
                 <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1 d-inline-block">
                     {
-                        /* <a href="javascript:void(0);" className="search-button" type="button" role="button" title="搜尋" id="pc-sss" data-bs-toggle="dropdown" aria-expanded="false" tabIndex={0}>
+                        /* <a href="javascript:void(0);" className="search-button" type="button" role="button" title="搜尋" id="pc-sss" data-bs-toggle="dropdown" aria-expanded="false" >
                         <i className="far fa-search" aria-hidden="true"></i>
                         <span className="sr-only">搜尋</span>
                     </a>
                     <div className="searchdropdown dropdown-menu search-input-dropdown" aria-labelledby="pc-sss">
-                        <input type="search" id="pc-search-box" placeholder="search here..." tabIndex={0} />
-                        <button className="far fa-search" type="button" tabIndex={0}></button>
+                        <input type="search" id="pc-search-box" placeholder="search here..."  />
+                        <button className="far fa-search" type="button" ></button>
                     </div> */
                     }
                 </div>
@@ -240,7 +237,6 @@ const SingleMenuItem = (props: { menuItem: MenuItemData; }) =>
                 aria-current="page"
                 to={props.menuItem.Url}
                 role="button"
-                tabIndex={0}
                 title={props.menuItem.SrcData}
                 aria-label={props.menuItem.SrcData}
             >
@@ -260,7 +256,6 @@ const DropdownMenuItem = (props: { menuItem: MenuItemData; }) =>
                 className="nav-link dropdown-toggle"
                 to={props.menuItem.Url}
                 role="button"
-                tabIndex={0}
                 data-bs-toggle="dropdown"
                 data-bs-auto-close="outside"
                 target={props.menuItem.URL_Open}
@@ -305,7 +300,6 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
                         className="dropdown-item"
                         to={item.Url || "#"}
                         role="button"
-                        tabIndex={0}
                         target={item.URL_Open}
                     >
                         {isExternal && <i className="fad fa-link me-2"></i>}
@@ -321,7 +315,6 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
                 <LangNavLink
                     to={item.Url || "#"}
                     role="button"
-                    tabIndex={0}
                     className="dropdown-item dropdown-toggle"
                     data-bs-toggle="dropdown"
                     data-bs-auto-close="outside"

@@ -7156,6 +7156,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/SpecHomePageApi/GetWeatherData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/SpecHomePageApi/Create": {
         parameters: {
             query?: never;
@@ -13049,7 +13085,7 @@ export interface components {
             /** @description 延伸視覺圖片說明 */
             SubPictureDescription?: string | null;
             /** @description 內文說明 */
-            Info?: string | null;
+            Intro?: string | null;
             /** @description 主連結標題 */
             MainLinkTitle?: string | null;
             /** @description 主連結URL */
@@ -13083,7 +13119,7 @@ export interface components {
             /** @description 標題 */
             PictureTitle?: string | null;
             /** @description 是否隱藏 */
-            IsHide?: boolean;
+            IsHide?: boolean | null;
             _SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
         };
         SpecHomePage1820_Resource_DTO: {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using WCMS.Features._Resx;
-using WCMS.SpecFeatures.Spec1810.Resx;
+using WCMS.SpecFeatures.Spec1810._Resx;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;

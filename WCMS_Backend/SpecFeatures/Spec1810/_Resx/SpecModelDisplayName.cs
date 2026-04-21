@@ -1,4 +1,4 @@
-﻿namespace WCMS.SpecFeatures.Spec1810.Resx;
+﻿namespace WCMS.SpecFeatures.Spec1810._Resx;
 
 public static class SpecModelDisplayName
 {

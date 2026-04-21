@@ -2,6 +2,8 @@ import bgImg from "@/SpecFetures/1820/Assets/Client/images/bg/vertical_textbox_1
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import type { components } from "@/types/api";
+import parse from "html-react-parser";
+import { useMemo } from "react";
 type HomePageModel = components["schemas"]["SpecHomePage1820Model_DTO"];
 export const Section2 = (props: { lang: Lang; homePage: HomePageModel; }) =>
 {
@@ -11,6 +13,12 @@ export const Section2 = (props: { lang: Lang; homePage: HomePageModel; }) =>
         "zh-tw": { ViewMoreText: "查看更多" },
     };
     const text = textMap[props.lang] ?? textMap["zh-tw"];
+
+    const heroText = useMemo(
+        () => (data.HeroText ? parse(data.HeroText) : null),
+        [data.HeroText],
+    );
+
     return (
         <section className="After_content_section + Layout_Padding_3_bottom + bg-custom">
             <div
@@ -24,7 +32,7 @@ export const Section2 = (props: { lang: Lang; homePage: HomePageModel; }) =>
                                 <div className="vertical_DivBox">
                                     <div className="content_wrap">
                                         <div className="verticaltbox">
-                                            {data.HeroText}
+                                            {heroText}
                                             <div className="button-col link-group">
                                                 <div className="vertical-link-box">
                                                     <LangLink

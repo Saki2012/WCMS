@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using WCMS.Features._Resx;
-using WCMS.SpecFeatures.Spec1817.WEB.SpecMusical;
 using WCMS.SpecFeatures.Spec1819._Resx;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library.LibAttribute;
@@ -77,6 +76,6 @@ public class SpecJournalIndexDetail_DTO : DetailRowModel
     [LibDesc(SpecModelDisplayName.Spec_SummaryFileName), StringLength(SysLengthParam.FileName)] public string? SummaryFileName { get; set; }
 
     #region 主子表關聯
-    public SpecMusicalModel_DTO? _SpecJournalIndex { get; set; }
+    public SpecJournalIndexModel_DTO? _SpecJournalIndex { get; set; }
     #endregion
 }

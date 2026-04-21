@@ -10,11 +10,19 @@ import { Section6 } from "./Section/Section6";
 
 const HomePage = (props: { lang: Lang; }) =>
 {
-    const loaderData = useLoaderData() as HomePageLoaderData;
-    const rawData = loaderData.res.rawData;
+    // 宣告變數：讀取 SSR / CSR loader 資料
+    const loaderData = useLoaderData() as HomePageLoaderData | undefined;
+    const rawData = loaderData?.res?.rawData;
+
+    // 執行 function：主資料不存在就先不渲染
+    if (!rawData?.homePage) return null;
+
+    const homePage = rawData.homePage;
+
     return (
         <>
-            <Section1 homePage={rawData.homePage ?? {}} banners={rawData.banners ?? []} />
+            <Section1 homePage={homePage} banners={rawData.banners} />
+
             <main id="Site-Main" className="ALL_Main_DivBar main-fullpage-wraper">
                 <div className="background_area">
                     <section className="accesskey_C_H">
@@ -24,18 +32,23 @@ const HomePage = (props: { lang: Lang; }) =>
                                 className="accesskey_main C"
                                 href="#C"
                                 id="content"
-                                tabIndex={0}
                                 title="中央主要內容區(C)"
                             >
                                 :::
                             </a>
                         </div>
                     </section>
-                    <Section2 lang={props.lang} homePage={rawData.homePage ?? {}} />
-                    <Section3 lang={props.lang} homePage={rawData.homePage ?? {}} />
-                    <Section4 data={rawData.details ?? []} />
-                    <Section5 data={rawData.marquees ?? []} />
-                    <Section6 header={rawData.homePage ?? {}} data={rawData.resources ?? []} />
+
+                    <Section2 lang={props.lang} homePage={homePage} />
+                    <Section3
+                        lang={props.lang}
+                        homePage={homePage}
+                        announcements={rawData.announcements}
+                        announcementCategoryMap={rawData.announcementCategoryMap}
+                    />
+                    <Section4 data={rawData.details} />
+                    <Section5 data={rawData.marquees} />
+                    <Section6 header={homePage} data={rawData.resources} />
                 </div>
             </main>
         </>

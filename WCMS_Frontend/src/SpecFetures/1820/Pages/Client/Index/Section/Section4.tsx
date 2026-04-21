@@ -1,5 +1,8 @@
+import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
+import parse from "html-react-parser";
+import { useMemo } from "react";
 type HomePageIntro = components["schemas"]["SpecHomePage1820_Detail_DTO"];
 
 /** 首頁介紹區塊列表 */
@@ -26,10 +29,10 @@ const renderLink = (link: string, title: string, fontClass = "font-wt-lg") =>
 {
     return (
         <div className="more-link-box">
-            <a href={link} className={`more-link ${fontClass}`} aria-label={title} title={title}>
+            <LangLink to={link} className={`more-link ${fontClass}`} aria-label={title} title={title}>
                 <span className="ms-1">〉</span>
                 <span className="vm">{title}</span>
-            </a>
+            </LangLink>
         </div>
     );
 };
@@ -43,12 +46,17 @@ const renderTextBlock = (item: HomePageIntro, isEvenRow: boolean) =>
     const textColClass = isEvenRow
         ? "col-lg-5 col-md-5 col-sm-12 col-12 order-xl-2 order-lg-2 order-md-2 order-sm-1 order-1"
         : "col-lg-5 col-md-5 col-sm-12 col-12";
+
+    const intro = useMemo(
+        () => (item.Intro ? parse(item.Intro) : null),
+        [item.Intro],
+    );
     return (
         <div className={textColClass}>
             <div className="bbox d-flex flex-column justify-content-between" style={{ height: "100%" }}>
                 <div className="Text_Area">
                     <div className="Text_P">
-                        <p className="font-wt-md">{item.Info}</p>
+                        <p className="font-wt-md">{intro}</p>
                     </div>
                     <div className="row w-100 mx-0 text-left">
                         <div className="col-12 px-0">
@@ -131,7 +139,9 @@ const HomeIntroSection_Comp = (props: { item: HomePageIntro; index: number; }) =
         : "Common_content_section";
     const boxStyleClass = isEvenRow ? "DivBox_style S2" : "DivBox_style S1";
     return (
-        <section className={`${sectionClassName} Layout_Padding_3_top Layout_Padding_3_bottom bg-custom`}>
+        <section
+            className={`${sectionClassName} Layout_Padding_3_top Layout_Padding_3_bottom bg-custom overflow-hidden`}
+        >
             <div className="Mask-DivBox">
                 <div className="customizeBox">
                     <div className="container-customize2">

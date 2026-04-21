@@ -22,17 +22,52 @@ export interface RemergeOptions
     sortMode?: RemergeSortMode;
 }
 
-/** 將多個值以分隔字元合併為字串 */
+/** 移除開頭重複的分隔字串 */
+const trimMergeStart = (value: string, mergeStr: string): string =>
+{
+    if (!mergeStr) return value;
+
+    let result = value;
+    while (result.startsWith(mergeStr)) result = result.slice(mergeStr.length);
+
+    return result;
+};
+
+/** 移除結尾重複的分隔字串 */
+const trimMergeEnd = (value: string, mergeStr: string): string =>
+{
+    if (!mergeStr) return value;
+
+    let result = value;
+    while (result.endsWith(mergeStr)) result = result.slice(0, -mergeStr.length);
+
+    return result;
+};
+
+/** 合併字串，並正規化交界處的分隔符號 */
 export const LibMerge = (mergeStr: string, hasEmpty: boolean, ...strs: unknown[]): string =>
 {
     if (!strs || strs.length === 0) return "";
+
     const parts: string[] = [];
     for (const item of strs)
     {
         const s = item == null ? "" : String(item);
         if (hasEmpty || s.length > 0) parts.push(s);
     }
-    return parts.join(mergeStr);
+
+    if (parts.length === 0) return "";
+    if (!mergeStr) return parts.join("");
+
+    let result = parts[0];
+    for (let i = 1; i < parts.length; i++)
+    {
+        const left = trimMergeEnd(result, mergeStr);
+        const right = trimMergeStart(parts[i], mergeStr);
+        result = `${left}${mergeStr}${right}`;
+    }
+
+    return result;
 };
 
 /** 自動偵測排序模式（貼近原 C# DetectSortMode 的直覺） */
