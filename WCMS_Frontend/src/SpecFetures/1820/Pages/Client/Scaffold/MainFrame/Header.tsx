@@ -10,7 +10,7 @@ import { A11yContent } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFr
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import React from "react";
 
 const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
@@ -26,6 +26,24 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
         lockBodyScroll: true,
         disableBootstrapAutoToggle: true,
     });
+
+    useEffect(() =>
+    {
+        // 同步首頁 Header 捲動樣式
+        const syncHeaderStyle = () =>
+        {
+            const el = headerRef.current;
+            if (!el) return;
+
+            const isScrolled = window.scrollY >= 180;
+            el.classList.toggle("shadow", isScrolled);
+            el.classList.toggle("filter-custom", isScrolled);
+        };
+
+        syncHeaderStyle();
+        window.addEventListener("scroll", syncHeaderStyle, { passive: true });
+        return () => window.removeEventListener("scroll", syncHeaderStyle);
+    }, []);
 
     return (
         <>
@@ -122,7 +140,7 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
             <div className="customMENU_Box bg-custom-rgba">
                 <div className="menuBox">
                     <div className="container-customize0">
-                        <div className="navbar navbar-expand-lg navbar-dark px-0 py-0" ref={menuRef}>
+                        <div className="navbar navbar-expand-lg px-0 py-0" ref={menuRef}>
                             <LogoComp />
                             <MobileBtn />
                             <MainMenu {...props} />
@@ -232,9 +250,8 @@ const SingleMenuItem = (props: { menuItem: MenuItemData; }) =>
 {
     return (
         <li className="nav-item">
-            <LangNavLink
+            <LangLink
                 className="nav-link"
-                aria-current="page"
                 to={props.menuItem.Url}
                 role="button"
                 title={props.menuItem.SrcData}
@@ -242,7 +259,7 @@ const SingleMenuItem = (props: { menuItem: MenuItemData; }) =>
             >
                 {/^https?:\/\//i.test(props.menuItem.Url || "") && <i className="fad fa-link me-2"></i>}
                 {props.menuItem.SrcData}
-            </LangNavLink>
+            </LangLink>
         </li>
     );
 };
@@ -252,7 +269,7 @@ const DropdownMenuItem = (props: { menuItem: MenuItemData; }) =>
 {
     return (
         <li className="nav-item dropdown">
-            <LangNavLink
+            <LangLink
                 className="nav-link dropdown-toggle"
                 to={props.menuItem.Url}
                 role="button"
@@ -261,7 +278,7 @@ const DropdownMenuItem = (props: { menuItem: MenuItemData; }) =>
                 target={props.menuItem.URL_Open}
             >
                 {props.menuItem.SrcData}
-            </LangNavLink>
+            </LangLink>
             {/* 第二層（原本的 <ul className="dropdown-menu">） */}
             <ul className="dropdown-menu">
                 {renderDropdownItems(props.menuItem.SubItem, 0)}
@@ -312,7 +329,7 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
         const submenuClassName = parentDepth === 0 ? "dropdown-menu" : "dropdown-menu dropdown-submenu";
         return (
             <li key={key} className="dropend submenu">
-                <LangNavLink
+                <LangLink
                     to={item.Url || "#"}
                     role="button"
                     className="dropdown-item dropdown-toggle"
@@ -321,7 +338,7 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
                     target={item.URL_Open}
                 >
                     {item.SrcData}
-                </LangNavLink>
+                </LangLink>
 
                 <ul className={submenuClassName}>
                     {renderDropdownItems(item.SubItem ?? [], parentDepth + 1)}
