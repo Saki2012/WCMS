@@ -1,6 +1,6 @@
 import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_Api";
-import { SpecHomePage1820Adapter } from "@/SpecFetures/1820/Hooks/WEB/HomePage_Api";
+import { SpecHomePage1820Adapter, type WeatherLoaderData } from "@/SpecFetures/1820/Hooks/WEB/HomePage_Api";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
@@ -38,6 +38,7 @@ export interface HomePageLoaderRes
 {
     rawData: HomePageRawData;
     setData: SpecHomePage1820Set | null;
+    weatherInitial: WeatherLoaderData | null;
 }
 
 export interface HomePageLoaderData
@@ -268,7 +269,21 @@ const buildAnnouncementQueryParam = (p: { lang: Lang; categoryIds?: string | nul
         PageSize: 12,
     };
 };
+/** 讀取首頁天氣資料 */
+const loadWeatherInitial = async (
+    args: LoaderFunctionArgs,
+    adapter: ReturnType<typeof SpecHomePage1820Adapter>,
+): Promise<WeatherLoaderData | null> =>
+{
+    const api = getSsrApi(args.request);
 
+    const weatherLoader = adapter.loader.createWeatherLoader({
+        getApiInstance: () => api,
+    });
+
+    const env = await weatherLoader(args);
+    return env?.apiRes?.IsSuccess ? env : null;
+};
 /** 讀取首頁公告清單 */
 const loadAnnouncementList = async (
     args: LoaderFunctionArgs,
@@ -318,6 +333,7 @@ export const HomePageLoader =
                 res: {
                     rawData: createEmptyRawData(),
                     setData: null,
+                    weatherInitial: null,
                 },
             };
         }
@@ -330,9 +346,10 @@ export const HomePageLoader =
             categoryIds: rawData.homePage?.AnnouncementCategoryIds,
         });
 
-        const [announcements, announcementCategoryMap] = await Promise.all([
+        const [announcements, announcementCategoryMap, weatherInitial] = await Promise.all([
             loadAnnouncementList(args, announcementAdapter, announcementParam),
             loadAnnouncementCategoryMap(args, categoryAdapter, props.lang),
+            loadWeatherInitial(args, adapter),
         ]);
 
         return {
@@ -344,6 +361,7 @@ export const HomePageLoader =
                     announcementCategoryMap,
                 },
                 setData,
+                weatherInitial,
             },
         };
     };

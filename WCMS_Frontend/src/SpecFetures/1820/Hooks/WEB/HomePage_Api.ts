@@ -15,21 +15,19 @@ import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 type SpecHomePage1820Set = components["schemas"]["SpecHomePage1820Set_DTO"];
 type SpecHomePageWeather = components["schemas"]["SpecHomePageWeather_DTO"];
-
 export type WeatherArgs = Record<string, never>;
 export type WeatherLoaderData = ApiLoaderData<WeatherArgs, SpecHomePageWeather[]>;
-
-interface ICreateWeatherLoader
-{
-    getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined;
-}
-
 interface IUseWeatherData
 {
     apiInstance?: AxiosInstance;
     deps?: EffectDeps;
     onError?: (err: ApiAdapterError) => void;
     initial?: WeatherLoaderData | null;
+}
+
+interface ICreateWeatherLoader
+{
+    getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined;
 }
 
 type WeatherHookResult = {
@@ -56,17 +54,19 @@ type ExtraHooks = {
     ) => WeatherHookResult;
 };
 
-class SpecHomePage1820Service extends ApiDataService<SpecHomePage1820Set>
+/** 取第一筆 weather 資料 */
+const pickWeather = (data?: SpecHomePageWeather[] | null): SpecHomePageWeather | null =>
 {
-    // #region Property
-    private readonly _apiInstance?: AxiosInstance;
-    // #endregion
+    // return
+    return data?.[0] ?? null;
+};
 
+export class SpecHomePage1820Service extends ApiDataService<SpecHomePage1820Set>
+{
     // #region Construct
     constructor(apiInstance?: AxiosInstance)
     {
         super(PGID.SpecHomePageApi, apiInstance);
-        this._apiInstance = apiInstance;
     }
     // #endregion
 
@@ -74,31 +74,13 @@ class SpecHomePage1820Service extends ApiDataService<SpecHomePage1820Set>
     /** 呼叫首頁天氣 API */
     public async getWeatherDataAsync(): Promise<ApiResponse<SpecHomePageWeather[]>>
     {
-        // 宣告變數
-        const api = this._apiInstance;
-        if (!api) throw new Error("SpecHomePage1820Service 缺少 AxiosInstance");
-        const url = `/Service/${PGID.SpecHomePageApi}/GetWeatherData`;
-        const res = await api.get<ApiResponse<SpecHomePageWeather[]>>(url);
-
         // return
-        return res.data;
+        return await this.CallApi<SpecHomePageWeather[]>(() =>
+            this.Api.get<ApiResponse<SpecHomePageWeather[]>>(`${this.Module}/GetWeatherData`)
+        );
     }
     // #endregion
 }
-
-/** 建立 weather 查詢參數 */
-const buildWeatherArgs = (): WeatherArgs =>
-{
-    // return
-    return {};
-};
-
-/** 取第一筆 weather */
-const pickWeather = (list?: SpecHomePageWeather[] | null): SpecHomePageWeather | null =>
-{
-    // return
-    return list?.[0] ?? null;
-};
 
 export class SpecHomePage1820AdapterImpl extends ApiDataAdapter<SpecHomePage1820Set, SpecHomePage1820Service>
 {
@@ -166,7 +148,6 @@ export class SpecHomePage1820AdapterImpl extends ApiDataAdapter<SpecHomePage1820
             onError: opt?.onError,
             apiInstance: opt?.apiInstance,
         });
-
         const list = useMemo<SpecHomePageWeather[]>(() =>
         {
             return query.data ?? [];
@@ -185,7 +166,7 @@ export class SpecHomePage1820AdapterImpl extends ApiDataAdapter<SpecHomePage1820
     private buildWeatherArgs(): WeatherArgs
     {
         // return
-        return buildWeatherArgs();
+        return {};
     }
     // #endregion
 }

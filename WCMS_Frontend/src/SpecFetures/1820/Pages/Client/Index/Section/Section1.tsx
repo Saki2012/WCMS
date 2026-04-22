@@ -1,5 +1,4 @@
 import btmImg from "@/SpecFetures/1820/Assets/Client/images/bg/bottom_img_2800x280.jpg";
-import { useCwaTownWeather } from "@/SpecFetures/1820/Hooks/CWA_Weather_Api";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { useMotionValueEvent, useReducedMotion, useScroll, useSpring } from "framer-motion";
@@ -9,7 +8,7 @@ type HomePageModel = components["schemas"]["SpecHomePage1820Model_DTO"];
 type BannerModel = components["schemas"]["SpecHomePage1820_BannerMedia_DTO"];
 type BannerKind = "image" | "video";
 type BannerItem = { keyId: string; rowId: number; src: string; alt: string; kind: BannerKind; delayMs: number; };
-
+type SpecHomePageWeather = components["schemas"]["SpecHomePageWeather_DTO"];
 /** 線性插值 */
 const lerp = (from: number, to: number, progress: number) =>
 {
@@ -123,7 +122,11 @@ const applySectionVars = (section: HTMLElement | null, progress: number, prefers
 };
 
 /** Section1 */
-export const Section1 = (props: { homePage: HomePageModel; banners: BannerModel[]; }) =>
+export const Section1 = (props: {
+    homePage: HomePageModel;
+    banners: BannerModel[];
+    weather: SpecHomePageWeather | null;
+}) =>
 {
     const sectionRef = useRef<HTMLElement | null>(null);
     const videoRefs = useRef<Record<number, HTMLVideoElement | null>>({});
@@ -380,7 +383,7 @@ export const Section1 = (props: { homePage: HomePageModel; banners: BannerModel[
                     </div>
                 </div>
 
-                <WeatherBox />
+                <WeatherBox weather={props.weather} />
 
                 <div className="mv_botom mv_body">
                     <figure className="mv_botom_figure">
@@ -396,17 +399,14 @@ export const Section1 = (props: { homePage: HomePageModel; banners: BannerModel[
     );
 };
 
-const WeatherBox = () =>
+const WeatherBox = (props: { weather: SpecHomePageWeather | null; }) =>
 {
-    /** 宣告變數：讀取新化區天氣 */
-    const { data, isLoading } = useCwaTownWeather({ locationName: "新化區" });
-
-    /** 宣告變數：整理顯示值 */
-    const tempText = data?.temperature ?? (isLoading ? "..." : "--");
-    const weatherText = data?.weather ?? "--";
-    const popText = data?.probabilityOfPrecipitation ?? "--";
-    const apparentTempText = data?.apparentTemperature ?? "--";
-    const humText = data?.relativeHumidity ?? "--";
+    const data = props.weather;
+    const tempText = data?.Temperature ?? "--";
+    const weatherText = data?.Weather ?? "--";
+    const popText = data?.ProbabilityOfPrecipitation ?? "--";
+    const apparentTempText = data?.ApparentTemperature ?? "--";
+    const humText = data?.RelativeHumidity ?? "--";
 
     return (
         <div className="weatherBox">

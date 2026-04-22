@@ -213,7 +213,7 @@ namespace WCMS.SysCore
             OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Create)}", OperateUser.UserId,  JsonConvert.SerializeObject(set),Request.Headers["HTTP_CLIENT_IP"].ToString());
             TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(set);
             SpecDoMapToSet(entity, set);
-            var createResult = await Service.BizCreateSetAsync(entity);
+            var createResult = await Service.BizCreateSetAsync(entity, ct);
             await EvictForSetAsync(ct);
             TSet_DTO result = DTOHelper.MapToDTO<TSet, TSet_DTO>(createResult);
             SpecDoMapToDTO(createResult, result);
